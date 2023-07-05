@@ -23,6 +23,7 @@ export const STORAGE_KEYS: {
   FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY:
     "FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY",
   SIGNPOSTING_APP_STATE: "SIGNPOSTING_APP_STATE",
+  FEATURE_WALKTHROUGH: "FEATURE_WALKTHROUGH",
 };
 
 const store = localforage.createInstance({
@@ -417,4 +418,36 @@ export const setFirstTimeUserOnboardingTelemetryCalloutVisibility = async (
     );
     log.error(error);
   }
+};
+
+export const setFeatureFlagShownStatus = async (key: string, value: any) => {
+  try {
+    let flagsJSON: Record<string, any> | null = await store.getItem(
+      STORAGE_KEYS.FEATURE_WALKTHROUGH,
+    );
+
+    if (typeof flagsJSON === "object" && flagsJSON) {
+      flagsJSON[key] = value;
+    } else {
+      flagsJSON = { [key]: value };
+    }
+
+    await store.setItem(STORAGE_KEYS.FEATURE_WALKTHROUGH, flagsJSON);
+    return true;
+  } catch (error) {
+    log.error("An error occurred while updating FEATURE_WALKTHROUGH");
+    log.error(error);
+  }
+};
+
+export const getFeatureFlagShownStatus = async (key: string) => {
+  const flagsJSON: Record<string, any> | null = await store.getItem(
+    STORAGE_KEYS.FEATURE_WALKTHROUGH,
+  );
+
+  if (typeof flagsJSON === "object" && flagsJSON) {
+    return !!flagsJSON[key];
+  }
+
+  return false;
 };

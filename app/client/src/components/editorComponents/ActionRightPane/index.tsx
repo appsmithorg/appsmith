@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useContext, useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import { Classes, getTypographyByKey } from "design-system-old";
@@ -19,6 +19,8 @@ import {
   BACK_TO_CANVAS,
   createMessage,
   NO_CONNECTIONS,
+  SCHEMA_WALKTHROUGH_DESC,
+  SCHEMA_WALKTHROUGH_TITLE,
 } from "@appsmith/constants/messages";
 import type {
   SuggestedWidget,
@@ -34,12 +36,11 @@ import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import DatasourceStructureHeader from "pages/Editor/Explorer/Datasources/DatasourceStructureHeader";
 import { DatasourceStructureContainer as DataStructureList } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
+import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 import {
-  selectFeatureFlagCheck,
-  selectFeatureFlags,
-} from "selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+  AB_TESTING_EVENT_KEYS,
+  FEATURE_FLAG,
+} from "@appsmith/entities/FeatureFlag";
 import {
   getDatasourceStructureById,
   getPluginDatasourceComponentFromId,
@@ -47,12 +48,23 @@ import {
 } from "selectors/entitiesSelector";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import {
+  getFeatureFlagShownStatus,
+  setFeatureFlagShownStatus,
+} from "utils/storage";
+
+const SCHEMA_GUIDE_GIF =
+  "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/schema.gif";
+
+const SCHEMA_SECTION_ID = "t--api-right-pane-schema";
 
 const SideBar = styled.div`
   height: 100%;
   width: 100%;
-  -webkit-animation: slide-left 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-  animation: slide-left 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  & > div {
+    margin-top: ${(props) => props.theme.spaces[11]}px;
+  }
 
   & > a {
     margin-top: 0;
@@ -262,6 +274,7 @@ function ActionSidebar({
   const widgets = useSelector(getWidgets);
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
+  const { pushFeature } = useContext(WalkthroughContext) || {};
   const params = useParams<{
     pageId: string;
     apiId?: string;
@@ -290,9 +303,14 @@ function ActionSidebar({
     getPluginDatasourceComponentFromId(state, pluginId || ""),
   );
 
-  // A/B feature flag for datsource structure.
+  // A/B feature flag for datasource structure.
   const isEnabledForDSSchema = useSelector((state) =>
     selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_schema_enabled),
+  );
+
+  // A/B feature flag for query binding.
+  const isEnabledForQueryBinding = useSelector((state) =>
+    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_binding_enabled),
   );
 
   const datasourceStructure = useSelector((state) =>
@@ -309,8 +327,60 @@ function ActionSidebar({
     }
   }, []);
 
+  const checkAndShowWalkthrough = async () => {
+    const isFeatureWalkthroughShown = await getFeatureFlagShownStatus(
+      FEATURE_FLAG.ab_ds_schema_enabled,
+    );
+
+    // Adding walkthrough tutorial
+    !isFeatureWalkthroughShown &&
+      pushFeature &&
+      pushFeature({
+        targetId: SCHEMA_SECTION_ID,
+        onDismiss: async () => {
+          AnalyticsUtil.logEvent("WALKTHROUGH_DISMISSED", {
+            [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
+              FEATURE_FLAG.ab_ds_schema_enabled,
+            [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForDSSchema,
+          });
+          await setFeatureFlagShownStatus(
+            FEATURE_FLAG.ab_ds_schema_enabled,
+            true,
+          );
+        },
+        details: {
+          title: createMessage(SCHEMA_WALKTHROUGH_TITLE),
+          description: createMessage(SCHEMA_WALKTHROUGH_DESC),
+          imageURL: SCHEMA_GUIDE_GIF,
+        },
+        offset: {
+          position: "left",
+          left: -40,
+          highlightPad: 5,
+          indicatorLeft: -3,
+          style: {
+            transform: "none",
+          },
+        },
+        eventParams: {
+          [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
+            FEATURE_FLAG.ab_ds_schema_enabled,
+          [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForDSSchema,
+        },
+      });
+  };
+
+  const showSchema =
+    isEnabledForDSSchema &&
+    pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm;
+
+  useEffect(() => {
+    if (showSchema) {
+      checkAndShowWalkthrough();
+    }
+  }, [showSchema]);
+
   const hasWidgets = Object.keys(widgets).length > 1;
-  const featureFlags: FeatureFlags = useSelector(selectFeatureFlags);
 
   const pagePermissions = useSelector(getPagePermissions);
 
@@ -341,36 +411,33 @@ function ActionSidebar({
         {createMessage(BACK_TO_CANVAS)}
       </BackToCanvasLink>
 
-      {isEnabledForDSSchema &&
-        pluginDatasourceForm !==
-          DatasourceComponentTypes.RestAPIDatasourceForm && (
-          <SchemaSideBarSection height={70}>
-            <Collapsible
-              customLabelComponent={
-                <DatasourceStructureHeader datasourceId={datasourceId || ""} />
-              }
-              expand={!showSuggestedWidgets}
-              label="Schema"
-            >
-              <DataStructureListWrapper>
-                <DataStructureList
-                  context={context}
-                  datasourceId={datasourceId || ""}
-                  datasourceStructure={datasourceStructure}
-                  pluginName={pluginName}
-                  step={0}
-                />
-              </DataStructureListWrapper>
-            </Collapsible>
-          </SchemaSideBarSection>
-        )}
-      {hasConnections && !featureFlags?.ab_ds_binding_enabled && (
+      {showSchema && (
+        <SchemaSideBarSection height={70} id={SCHEMA_SECTION_ID}>
+          <Collapsible
+            customLabelComponent={
+              <DatasourceStructureHeader datasourceId={datasourceId || ""} />
+            }
+            label="Schema"
+          >
+            <DataStructureListWrapper>
+              <DataStructureList
+                context={context}
+                datasourceId={datasourceId || ""}
+                datasourceStructure={datasourceStructure}
+                pluginName={pluginName}
+                step={0}
+              />
+            </DataStructureListWrapper>
+          </Collapsible>
+        </SchemaSideBarSection>
+      )}
+      {hasConnections && !isEnabledForQueryBinding && (
         <Connections
           actionName={actionName}
           entityDependencies={entityDependencies}
         />
       )}
-      {!featureFlags?.ab_ds_binding_enabled &&
+      {!isEnabledForQueryBinding &&
         canEditPage &&
         hasResponse &&
         Object.keys(widgets).length > 1 && (

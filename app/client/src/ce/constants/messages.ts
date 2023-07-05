@@ -698,6 +698,9 @@ export const CONNECT_EXISTING_WIDGET_LABEL = () => "Select a Widget";
 export const CONNECT_EXISTING_WIDGET_SUB_HEADING = () =>
   "Replace the data of an existing widget";
 export const NO_EXISTING_WIDGETS = () => "Display data in a new widget";
+export const BINDING_WALKTHROUGH_TITLE = () => "Display your data";
+export const BINDING_WALKTHROUGH_DESC = () =>
+  "You can replace data of an existing widget of your page or you can select a new widget.";
 
 // Data Sources pane
 export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
@@ -714,6 +717,9 @@ export const STRUCTURE_NOT_FETCHED = () =>
 export const TEST_DATASOURCE_AND_FIX_ERRORS = () =>
   "Test the datasource and fix the errors.";
 export const LOADING_SCHEMA = () => "Loading schema...";
+export const SCHEMA_WALKTHROUGH_TITLE = () => "Query data fast";
+export const SCHEMA_WALKTHROUGH_DESC = () =>
+  "Select a template from a database table to quickly create your first query. ";
 
 // Git sync
 export const CONNECTED_TO_GIT = () => "Connected to Git";

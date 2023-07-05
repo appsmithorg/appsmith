@@ -5,13 +5,13 @@ export const selectFeatureFlags = (state: AppState) =>
   state.ui.users.featureFlag.data;
 
 // React hooks should not be placed in a selectors file.
-export function selectFeatureFlagCheck(
+export const selectFeatureFlagCheck = (
   state: AppState,
   flagName: FeatureFlag,
-): boolean {
+): boolean => {
   const flagValues = selectFeatureFlags(state);
   if (flagName in flagValues) {
     return flagValues[flagName];
   }
   return false;
-}
+};
