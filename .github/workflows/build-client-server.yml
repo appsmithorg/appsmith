@@ -11,6 +11,35 @@ on:
         default: "0"
 
 jobs:
+  file-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the head commit of the branch
+        uses: actions/checkout@v3
+
+      - name: Get the diff from base branch
+        id: files
+        run: |
+          git fetch origin release
+          git diff --name-only --diff-filter=A release ${{ github.ref }} -- "app/client/cypress/e2e" > diff
+          echo "files_added=$(cat diff)" >> $GITHUB_OUTPUT
+
+      - name: Check the newly added files are written in ts
+        id: check_files
+        run: |
+          files=(${{steps.files.outputs.files_added}})
+          non_ts_files=()
+          for file in "${files[@]}"; do
+            if [[ $file != *.ts ]]; then
+              non_ts_files+=("<li>$file")
+            fi
+          done
+          echo "non_ts_files=${non_ts_files[@]}" >> $GITHUB_OUTPUT
+          echo "non_ts_files_count=${#non_ts_files[@]}" >> $GITHUB_OUTPUT
+              
+      - if: steps.check_files.outputs.non_ts_files_count != 0
+        run: exit 1
+
   server-build:
     name: server-build
     if: inputs.previous_run_id == '0'
