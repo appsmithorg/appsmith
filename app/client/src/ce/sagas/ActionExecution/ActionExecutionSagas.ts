@@ -32,9 +32,6 @@ import {
 } from "sagas/ActionExecution/geolocationSaga";
 import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { UserAndAppDetails } from "sagas/analyticsSaga";
-import { getUserAndAppDetails } from "sagas/analyticsSaga";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -121,34 +118,6 @@ export function* executeAppAction(payload: ExecuteTriggerPayload): any {
   if (dynamicString === undefined) {
     throw new Error("Executing undefined action");
   }
-  const {
-    appId,
-    appMode,
-    appName,
-    email,
-    instanceId,
-    isExampleApp,
-    pageId,
-    source: userSource,
-    userId,
-  }: UserAndAppDetails = yield call(getUserAndAppDetails);
-
-  AnalyticsUtil.logEvent("EXECUTE_ACTION", {
-    type: "JS_EXPRESSION",
-    unevalValue: dynamicString,
-    pageId,
-    appId,
-    appMode,
-    appName,
-    isExampleApp,
-    userData: {
-      userId,
-      email,
-      appId,
-      source: userSource,
-    },
-    instanceId,
-  });
 
   return yield call(
     evaluateAndExecuteDynamicTrigger,

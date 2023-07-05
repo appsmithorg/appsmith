@@ -14,6 +14,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getAppMode, getJSActionFromName } from "selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
+import { getWidget } from "./selectors";
 
 export interface UserAndAppDetails {
   pageId: string;
@@ -55,11 +56,15 @@ export function* getUserAndAppDetails() {
 
   return userAndAppDetails;
 }
-export function* logDynamicTriggerExecution(
-  dynamicTrigger: string,
-  errors: unknown,
-  triggerMeta: TriggerMeta,
-) {
+export function* logDynamicTriggerExecution({
+  dynamicTrigger,
+  errors,
+  triggerMeta,
+}: {
+  dynamicTrigger: string;
+  errors: unknown;
+  triggerMeta: TriggerMeta;
+}) {
   if (triggerMeta.triggerKind !== TriggerKind.EVENT_EXECUTION) return;
   const isUnsuccessfulExecution = isArray(errors) && errors.length > 0;
   const {
@@ -73,6 +78,36 @@ export function* logDynamicTriggerExecution(
     source,
     userId,
   }: UserAndAppDetails = yield call(getUserAndAppDetails);
+  const widget: ReturnType<typeof getWidget> | undefined = yield select(
+    (state: AppState) => getWidget(state, triggerMeta.source?.id || ""),
+  );
+
+  const dynamicPropertyPathList = widget?.dynamicPropertyPathList;
+  const pathUsesActionSelector = !dynamicPropertyPathList?.find(
+    (property) => property.key === triggerMeta.triggerPropertyName,
+  );
+  AnalyticsUtil.logEvent("EXECUTE_ACTION", {
+    type: "JS_EXPRESSION",
+    unevalValue: dynamicTrigger,
+    pageId,
+    appId,
+    appMode,
+    appName,
+    isExampleApp,
+    userData: {
+      userId,
+      email,
+      appId,
+      source,
+    },
+    widgetData: {
+      widgetName: widget?.widgetName,
+      widgetType: widget?.type,
+      propertyName: triggerMeta.triggerPropertyName,
+    },
+    instanceId,
+    isActionSelector: pathUsesActionSelector,
+  });
 
   AnalyticsUtil.logEvent(
     isUnsuccessfulExecution
@@ -92,7 +127,13 @@ export function* logDynamicTriggerExecution(
         appId,
         source,
       },
+      widgetData: {
+        widgetName: widget?.widgetName,
+        widgetType: widget?.type,
+        propertyName: triggerMeta.triggerPropertyName,
+      },
       instanceId,
+      isActionSelector: pathUsesActionSelector,
     },
   );
 }

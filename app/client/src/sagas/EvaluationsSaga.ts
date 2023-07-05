@@ -328,7 +328,11 @@ export function* evaluateAndExecuteDynamicTrigger(
   );
   const { errors = [] } = response as any;
   yield call(dynamicTriggerErrorHandler, errors);
-  yield call(logDynamicTriggerExecution, dynamicTrigger, errors, triggerMeta);
+  yield fork(logDynamicTriggerExecution, {
+    dynamicTrigger,
+    errors,
+    triggerMeta,
+  });
   return response;
 }
 

@@ -1,4 +1,4 @@
-import { all, call, put, spawn, take } from "redux-saga/effects";
+import { all, call, fork, put, spawn, take } from "redux-saga/effects";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
@@ -121,7 +121,7 @@ export function* handleJSExecutionLog(
   const executedFns = uniq(
     executionData.map((execData) => execData.jsFnFullName),
   );
-  yield call(logJSActionExecution, executionData);
+  yield fork(logJSActionExecution, executionData);
   yield call(logJSFunctionExecution, executedFns);
 }
 
