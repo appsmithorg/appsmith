@@ -49,6 +49,9 @@ module.exports = {
     "^@blueprintjs/select$":
       "<rootDir>/node_modules/@blueprintjs/select/lib/esnext",
     "design-system": "<rootDir>/node_modules/design-system/build",
+    "@design-system/widgets": "<rootDir>/node_modules/@design-system/widgets",
+    "@design-system/headless": "<rootDir>/node_modules/@design-system/headless",
+    "@design-system/theming": "<rootDir>/node_modules/@design-system/theming",
   },
   globals: {
     "ts-jest": {

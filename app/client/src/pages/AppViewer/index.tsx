@@ -40,6 +40,8 @@ import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
 import HtmlTitle from "./AppViewerHtmlTitle";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { ThemeProvider as WDSThemeProvider } from "components/wds/ThemeProvider";
+import { selectFeatureFlags } from "selectors/featureFlagsSelectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -174,42 +176,51 @@ function AppViewer(props: Props) {
     };
   }, [selectedTheme.properties.fontFamily.appFont]);
 
+  const featureFlags = useSelector(selectFeatureFlags);
+  const isWDSV2Enabled = featureFlags.wds_v2;
+  const backgroundForBody = isWDSV2Enabled
+    ? "var(--color-bg)"
+    : selectedTheme.properties.colors.backgroundColor;
+
   return (
-    <ThemeProvider theme={lightTheme}>
-      <EditorContextProvider renderMode="PAGE">
-        <WidgetGlobaStyles
-          fontFamily={selectedTheme.properties.fontFamily.appFont}
-          primaryColor={selectedTheme.properties.colors.primaryColor}
-        />
-        <HtmlTitle
-          description={pageDescription}
-          name={currentApplicationDetails?.name}
-        />
-        <AppViewerBodyContainer
-          backgroundColor={selectedTheme.properties.colors.backgroundColor}
-        >
-          <AppViewerBody
-            className={CANVAS_SELECTOR}
-            hasPages={pages.length > 1}
-            headerHeight={headerHeight}
-            ref={focusRef}
-            showGuidedTourMessage={showGuidedTourMessage}
-          >
-            {isInitialized && registered && <AppViewerPageContainer />}
-          </AppViewerBody>
-          {!hideWatermark && (
-            <a
-              className="fixed hidden right-8 bottom-4 z-3 hover:no-underline md:flex"
-              href="https://appsmith.com"
-              rel="noreferrer"
-              target="_blank"
+    <WDSThemeProvider
+      borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
+      seedColor={selectedTheme.properties.colors.primaryColor || "#000"}
+    >
+      <ThemeProvider theme={lightTheme}>
+        <EditorContextProvider renderMode="PAGE">
+          <WidgetGlobaStyles
+            fontFamily={selectedTheme.properties.fontFamily.appFont}
+            primaryColor={selectedTheme.properties.colors.primaryColor}
+          />
+          <HtmlTitle
+            description={pageDescription}
+            name={currentApplicationDetails?.name}
+          />
+          <AppViewerBodyContainer backgroundColor={backgroundForBody}>
+            <AppViewerBody
+              className={CANVAS_SELECTOR}
+              hasPages={pages.length > 1}
+              headerHeight={headerHeight}
+              ref={focusRef}
+              showGuidedTourMessage={showGuidedTourMessage}
             >
-              <BrandingBadge />
-            </a>
-          )}
-        </AppViewerBodyContainer>
-      </EditorContextProvider>
-    </ThemeProvider>
+              {isInitialized && registered && <AppViewerPageContainer />}
+            </AppViewerBody>
+            {!hideWatermark && (
+              <a
+                className="fixed hidden right-8 bottom-4 z-3 hover:no-underline md:flex"
+                href="https://appsmith.com"
+                rel="noreferrer"
+                target="_blank"
+              >
+                <BrandingBadge />
+              </a>
+            )}
+          </AppViewerBodyContainer>
+        </EditorContextProvider>
+      </ThemeProvider>
+    </WDSThemeProvider>
   );
 }
 

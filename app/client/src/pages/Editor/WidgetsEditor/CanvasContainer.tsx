@@ -25,15 +25,16 @@ import {
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
-import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
+import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
 import {
   AUTOLAYOUT_RESIZER_WIDTH_BUFFER,
   useDynamicAppLayout,
 } from "utils/hooks/useDynamicAppLayout";
 import Canvas from "../Canvas";
-import { CanvasResizer } from "widgets/CanvasResizer";
 import type { AppState } from "@appsmith/reducers";
+import { CanvasResizer } from "widgets/CanvasResizer";
+import { selectFeatureFlags } from "selectors/featureFlagsSelectors";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
 
 type CanvasContainerProps = {
@@ -119,9 +120,10 @@ function CanvasContainer(props: CanvasContainerProps) {
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
   const showAnonymousDataPopup = useSelector(getIsAnonymousDataPopupVisible);
-
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
+  const featureFlags = useSelector(selectFeatureFlags);
+  const isWDSV2Enabled = featureFlags.wds_v2 === true;
 
   useEffect(() => {
     return () => {
@@ -184,7 +186,9 @@ function CanvasContainer(props: CanvasContainerProps) {
         $isAutoLayout={isAutoLayout}
         background={
           isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
-            ? selectedTheme.properties.colors.backgroundColor
+            ? isWDSV2Enabled
+              ? "var(--bg-color)"
+              : selectedTheme.properties.colors.backgroundColor
             : "initial"
         }
         className={classNames({
