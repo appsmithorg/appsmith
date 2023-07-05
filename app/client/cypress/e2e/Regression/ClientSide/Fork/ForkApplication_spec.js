@@ -11,9 +11,7 @@ let forkableAppUrl;
 
 describe("Fork application across workspaces", function () {
   before(() => {
-    cy.fixture("basicDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("basicDsl");
   });
 
   it("1. Check if the forked application has the same dsl as the original", function () {

@@ -8,6 +8,7 @@ import {
   propPane,
   entityExplorer,
   locators,
+  assertHelper,
 } from "../../../support/Objects/ObjectsCore";
 
 describe("AForce - Community Issues page validations", function () {
@@ -27,19 +28,21 @@ describe("AForce - Community Issues page validations", function () {
   it("1. Import application json and validate headers", () => {
     homePage.NavigateToHome();
     homePage.ImportApp("CommunityIssuesExport.json");
-    cy.wait("@importNewApplication").then((interception: any) => {
-      agHelper.Sleep();
-      const { isPartialImport } = interception.response.body.data;
-      if (isPartialImport) {
-        // should reconnect modal
-        dataSources.ReconnectDataSource("AForceDB", "PostgreSQL");
-        homePage.AssertNCloseImport();
-      } else {
-        homePage.AssertImportToast();
-      }
-      //Validate table is not empty!
-      table.WaitUntilTableLoad(0, 0, "v2");
-    });
+    assertHelper
+      .WaitForNetworkCall("importNewApplication")
+      .then((interception: any) => {
+        agHelper.Sleep();
+        const { isPartialImport } = interception.response.body.data;
+        if (isPartialImport) {
+          // should reconnect modal
+          dataSources.ReconnectDataSource("AForceDB", "PostgreSQL");
+          homePage.AssertNCloseImport();
+        } else {
+          homePage.AssertImportToast();
+        }
+        //Validate table is not empty!
+        table.WaitUntilTableLoad(0, 0, "v2");
+      });
 
     //Validating order of header columns!
     table.AssertTableHeaderOrder(

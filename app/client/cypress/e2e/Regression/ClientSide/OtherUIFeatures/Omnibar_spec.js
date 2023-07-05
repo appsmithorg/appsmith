@@ -13,21 +13,16 @@ describe("Omnibar functionality test cases", () => {
   const jsObjectName = "Omnibar2";
 
   before(() => {
-    cy.fixture("omnibarDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("omnibarDsl");
   });
 
   it("1. Bug #15104  Docs tab opens after clicking on learn more link from property pane", function () {
     cy.dragAndDropToCanvas(draggableWidgets.AUDIO, { x: 300, y: 500 });
-    cy.url().then(($editPageUrl) => {
-      deployMode.StubWindowNAssert(
-        '//span[text()="Learn more"]',
-        "connect-datasource",
-        $editPageUrl,
-        "getWorkspace",
-      );
-    });
+    deployMode.StubWindowNAssert(
+      '//span[text()="Learn more"]',
+      "connect-datasource",
+      "getWorkspace",
+    );
   });
 
   it("2.Verify omnibar is present across all pages and validate its fields", function () {
@@ -117,14 +112,11 @@ describe("Omnibar functionality test cases", () => {
       //   cy.wait(4000); //for page to load
       // });
 
-      cy.url().then(($urlBeforeDiscord) => {
-        deployMode.StubWindowNAssert(
-          omnibar.discordLink,
-          "https://discord.com/invite/rBTTVJp",
-          $urlBeforeDiscord,
-          "getWorkspace",
-        );
-      });
+      deployMode.StubWindowNAssert(
+        omnibar.discordLink,
+        "https://discord.com/invite/rBTTVJp",
+        "getWorkspace",
+      );
     },
   );
 
