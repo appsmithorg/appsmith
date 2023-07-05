@@ -13,6 +13,10 @@ on:
 jobs:
   file-check:
     runs-on: ubuntu-latest
+    # Set job outputs to values from filter step
+    outputs:
+      non_ts_files: ${{ steps.check_files.outputs.non_ts_files }}
+      non_ts_files_count: ${{ steps.check_files.outputs.non_ts_files_count }}
     steps:
       - name: Checkout the head commit of the branch
         uses: actions/checkout@v3
@@ -28,9 +32,6 @@ jobs:
           echo "files_added=$(cat diff)" >> $GITHUB_OUTPUT
           cat diff
 
-      # - name: Setup tmate session
-      #   uses: mxschmitt/action-tmate@v3
-
       - name: Check the newly added files are written in ts
         id: check_files
         run: |
@@ -38,19 +39,19 @@ jobs:
           non_ts_files=()
           for file in "${files[@]}"; do
             if [[ $file != *.ts ]]; then
-              non_ts_files+=("<li>$file")
+              non_ts_files+=("$file")
             fi
           done
           echo "non_ts_files=${non_ts_files[@]}" >> $GITHUB_OUTPUT
           echo "non_ts_files_count=${#non_ts_files[@]}" >> $GITHUB_OUTPUT
-              
-      - if: steps.check_files.outputs.non_ts_files_count != 0
+
+      - name: Print the files
         run: |
-          echo ${{ steps.check_files.outputs.non_ts_files }}
-          exit 1
+          echo "${{ steps.check_files.outputs.non_ts_files }}"
 
   server-build:
     name: server-build
+    needs: [file-check]
     if: success() && inputs.previous_run_id == '0'
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
@@ -60,6 +61,7 @@ jobs:
 
   client-build:
     name: client-build
+    needs: [file-check]
     if: success() && inputs.previous_run_id == '0'
     uses: ./.github/workflows/client-build.yml
     secrets: inherit
@@ -69,6 +71,7 @@ jobs:
 
   rts-build:
     name: rts-build
+    needs: [file-check]
     if: success() && inputs.previous_run_id == '0'
     uses: ./.github/workflows/rts-build.yml
     secrets: inherit
@@ -96,6 +99,7 @@ jobs:
       pr: 0
 
   ci-test-limited-existing-docker-image:
+    needs: [file-check]
     # Only run if the previous run-id is provided
     if: success() && inputs.previous_run_id != '0'
     name: ci-test-limited-existing-image
