@@ -3,7 +3,7 @@
     <autocreate>false</autocreate>
     <audit>false</audit>
     <features>
-        <feature uid="datasource_environments" enable="true"
+        <feature uid="release_datasource_environments_enabled" enable="true"
                  description="Introducing multiple execution environments for datasources">
             <flipstrategy class="com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy">
                 <param name="emails"
