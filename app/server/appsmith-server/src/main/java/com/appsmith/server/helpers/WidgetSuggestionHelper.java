@@ -176,6 +176,7 @@ public class WidgetSuggestionHelper {
 
     private static List<WidgetSuggestionDTO> getWidgetsForTypeArray(List<String> fields, List<String> numericFields) {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET_V2));
         if (!fields.isEmpty()) {
             if (fields.size() < 2) {
                 widgetTypeList.add(getWidget(WidgetType.SELECT_WIDGET, fields.get(0), fields.get(0)));
@@ -186,8 +187,6 @@ public class WidgetSuggestionHelper {
                 widgetTypeList.add(getWidget(WidgetType.CHART_WIDGET, fields.get(0), numericFields.get(0)));
             }
         }
-        widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET_V2));
-        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         return widgetTypeList;
     }
 
@@ -212,6 +211,7 @@ public class WidgetSuggestionHelper {
          * For the CHART widget we need at least one field of type int and one string type field
          * For the DROP_DOWN at least one String type field
          * */
+        widgetTypeList.add(getWidgetNestedData(WidgetType.TABLE_WIDGET_V2, nestedFieldName));
         if (!fields.isEmpty()) {
             if (fields.size() < 2) {
                 widgetTypeList.add(getWidgetNestedData(WidgetType.SELECT_WIDGET, nestedFieldName, fields.get(0), fields.get(0)));
@@ -222,7 +222,6 @@ public class WidgetSuggestionHelper {
                 widgetTypeList.add(getWidgetNestedData(WidgetType.CHART_WIDGET, nestedFieldName, fields.get(0), numericFields.get(0)));
             }
         }
-        widgetTypeList.add(getWidgetNestedData(WidgetType.TABLE_WIDGET_V2, nestedFieldName));
         widgetTypeList.add(getWidgetNestedData(WidgetType.TEXT_WIDGET, nestedFieldName));
         return widgetTypeList;
     }

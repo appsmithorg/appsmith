@@ -25,6 +25,7 @@ import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { Tooltip } from "design-system";
+import type { TextKind } from "design-system";
 // import chartWidgetIcon from "./../../../widgets/ChartWidget/icon.svg";
 import { Text } from "design-system";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
@@ -66,14 +67,50 @@ const WidgetList = styled.div`
   .widget:not(:first-child) {
     margin-top: 24px;
   }
+
+  &.spacing {
+    .widget:not(:first-child) {
+      margin-top: 16px;
+    }
+  }
+`;
+
+const ExistingWidgetList = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+
+  .image-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 110px;
+    margin: 3px;
+    border: 1px solid var(--ads-v2-color-gray-300);
+    border-radius: var(--ads-v2-border-radius);
+
+    &:hover {
+      border: 1px solid var(--ads-v2-color-gray-600);
+    }
+  }
+
+  img {
+    height: 54px;
+  }
+
+  .widget:hover {
+    cursor: pointer;
+  }
 `;
 
 const ItemWrapper = styled.div`
   display: flex;
   align-items: center;
+  padding: 4px;
 
   .widget-name {
     padding-left: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   img {
@@ -92,7 +129,7 @@ const HeadingWrapper = styled.div`
   display: flex;
   flex-direction: column;
   margin-left: ${(props) => props.theme.spaces[2] + 1}px;
-  padding-bottom: 4px;
+  padding-bottom: 12px;
 `;
 
 const SuggestedWidgetContainer = styled.div`
@@ -108,6 +145,7 @@ type WidgetBindingInfo = {
   widgetName: string;
   image?: string;
   icon?: string;
+  existingImage?: string;
 };
 
 export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
@@ -116,6 +154,7 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     propertyName: "listData",
     widgetName: "List",
     image: `${ASSETS_CDN_URL}/widgetSuggestion/list.svg`,
+    existingImage: `${ASSETS_CDN_URL}/widgetSuggestion/list.svg`,
     icon: listWidgetIconSvg,
   },
   TABLE_WIDGET: {
@@ -123,6 +162,7 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     propertyName: "tableData",
     widgetName: "Table",
     image: `${ASSETS_CDN_URL}/widgetSuggestion/table.svg`,
+    existingImage: `${ASSETS_CDN_URL}/widgetSuggestion/table.svg`,
     icon: tableWidgetIconSvg,
   },
   TABLE_WIDGET_V2: {
@@ -130,6 +170,7 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     propertyName: "tableData",
     widgetName: "Table",
     image: `${ASSETS_CDN_URL}/widgetSuggestion/table.svg`,
+    existingImage: `${ASSETS_CDN_URL}/widgetSuggestion/table.svg`,
     icon: tableWidgetIconSvg,
   },
   CHART_WIDGET: {
@@ -137,6 +178,7 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     propertyName: "chartData",
     widgetName: "Chart",
     image: `${ASSETS_CDN_URL}/widgetSuggestion/chart.svg`,
+    existingImage: `${ASSETS_CDN_URL}/widgetSuggestion/chart.svg`,
     icon: chartWidgetIconSvg,
   },
   SELECT_WIDGET: {
@@ -144,6 +186,7 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     propertyName: "options",
     widgetName: "Select",
     image: `${ASSETS_CDN_URL}/widgetSuggestion/dropdown.svg`,
+    existingImage: `${ASSETS_CDN_URL}/widgetSuggestion/dropdown.svg`,
     icon: selectWidgetIconSvg,
   },
   TEXT_WIDGET: {
@@ -151,6 +194,7 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     propertyName: "text",
     widgetName: "Text",
     image: `${ASSETS_CDN_URL}/widgetSuggestion/text.svg`,
+    existingImage: `${ASSETS_CDN_URL}/widgetSuggestion/text.svg`,
     icon: textWidgetIconSvg,
   },
   INPUT_WIDGET_V2: {
@@ -158,6 +202,7 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     propertyName: "defaultText",
     widgetName: "Input",
     image: `${ASSETS_CDN_URL}/widgetSuggestion/input.svg`,
+    existingImage: `${ASSETS_CDN_URL}/widgetSuggestion/input.svg`,
     icon: inputWidgetIconSvg,
   },
 };
@@ -254,11 +299,17 @@ function renderHeading(heading: string, subHeading: string) {
   );
 }
 
-function renderWidgetItem(icon: string | undefined, name: string | undefined) {
+function renderWidgetItem(
+  icon: string | undefined,
+  name: string | undefined,
+  textKind: TextKind,
+) {
   return (
     <ItemWrapper>
       {icon && <img alt="widget-icon" src={icon} />}
-      <Text className="widget-name">{name}</Text>
+      <Text className="widget-name" kind={textKind}>
+        {name}
+      </Text>
     </ItemWrapper>
   );
 }
@@ -369,7 +420,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
               functionality is currently working only for Table Widget,
               in future we want to support it for all widgets */}
               {
-                <WidgetList>
+                <ExistingWidgetList>
                   {Object.keys(canvasWidgets).map((widgetKey) => {
                     const widget: FlattenedWidgetProps | undefined =
                       canvasWidgets[widgetKey];
@@ -389,23 +440,24 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
                           content={createMessage(SUGGESTED_WIDGET_TOOLTIP)}
                         >
                           <div className="image-wrapper">
-                            {renderWidgetImage(widgetInfo.image)}
+                            {renderWidgetImage(widgetInfo.existingImage)}
                             {renderWidgetItem(
                               widgetInfo.icon,
                               widget.widgetName,
+                              "body-s",
                             )}
                           </div>
                         </Tooltip>
                       </div>
                     );
                   })}
-                </WidgetList>
+                </ExistingWidgetList>
               }
             </SubSection>
           )}
           <SubSection>
             {renderHeading(addNewWidgetLabel, addNewWidgetSubLabel)}
-            <WidgetList>
+            <WidgetList className="spacing">
               {props.suggestedWidgets.map((suggestedWidget) => {
                 const widgetInfo: WidgetBindingInfo | undefined =
                   WIDGET_DATA_FIELD_MAP[suggestedWidget.type];
@@ -419,7 +471,11 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
                     onClick={() => addWidget(suggestedWidget, widgetInfo)}
                   >
                     <Tooltip content={createMessage(SUGGESTED_WIDGET_TOOLTIP)}>
-                      {renderWidgetItem(widgetInfo.icon, widgetInfo.widgetName)}
+                      {renderWidgetItem(
+                        widgetInfo.icon,
+                        widgetInfo.widgetName,
+                        "body-m",
+                      )}
                     </Tooltip>
                   </div>
                 );
