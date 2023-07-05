@@ -282,6 +282,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bgPositiveActive() {
     const color = this.bgPositive.clone();
 
+    // Lightness of bgPositive is known, no additional checks like in bgAccentActive
     color.oklch.l = color.oklch.l - 0.04;
 
     return color;
