@@ -66,11 +66,8 @@ class StepControl extends BaseControl<StepControlProps> {
         min={min}
         // TODO: UI builders -> confirm isUpdatedViaKeyboard is needed going forward
         onChange={(value: string | undefined, isUpdatedViaKeyboard = false) => {
-          this.updateProperty(
-            this.props.propertyName,
-            value,
-            isUpdatedViaKeyboard,
-          );
+          const v = value ? parseFloat(value.replace(/[^0-9.-]+/g, "")) : 0;
+          this.updateProperty(this.props.propertyName, v, isUpdatedViaKeyboard);
         }}
         ref={this.componentRef}
         scale={steps}
