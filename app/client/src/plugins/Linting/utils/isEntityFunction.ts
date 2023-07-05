@@ -7,9 +7,13 @@ export default function isEntityFunction(
   propertyName: string,
 ) {
   if (!isDataTreeEntity(entity)) return false;
-  return entityFns.find(
-    (entityFn) =>
-      entityFn.name === propertyName &&
-      entityFn.qualifier(entity as DataTreeEntity),
-  );
+  return entityFns.find((entityFn) => {
+    const entityFnpropertyName = entityFn.path
+      ? entityFn.path.split(".")[1]
+      : entityFn.name;
+    return (
+      entityFnpropertyName === propertyName &&
+      entityFn.qualifier(entity as DataTreeEntity)
+    );
+  });
 }

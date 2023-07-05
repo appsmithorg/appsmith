@@ -5,6 +5,7 @@ import type { ActionConfig, PluginType } from "entities/Action";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import type { Variable } from "entities/JSCollection";
 import type { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
+import type { Page } from "@appsmith/constants/ReduxActionConstants";
 
 export type ActionDispatcher = (...args: any[]) => ActionDescription;
 
@@ -78,6 +79,7 @@ export interface JSActionEntity {
   ENTITY_TYPE: ENTITY_TYPE.JSACTION;
   actionId: string;
 }
+export type PagelistEntity = Page[];
 
 // Widget entity Types
 
