@@ -11,10 +11,61 @@ on:
         default: "0"
 
 jobs:
+  file-check:
+    runs-on: ubuntu-latest
+    # Set job outputs to values from filter step
+    outputs:
+      non_ts_files: ${{ steps.check_files.outputs.non_ts_files }}
+      non_ts_files_count: ${{ steps.check_files.outputs.non_ts_files_count }}
+    steps:
+      - name: Checkout the head commit of the branch
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get the diff from base branch
+        continue-on-error: true
+        id: files
+        run: |
+          git fetch origin release
+          git diff --name-only --diff-filter=A remotes/origin/release...${{ github.ref_name }} -- 'app/client/cypress/e2e' > diff
+          echo "files_added=$(cat diff)" >> $GITHUB_OUTPUT
+          cat diff
+
+      - name: Check the newly added files are written in ts
+        id: check_files
+        run: |
+          files=(${{steps.files.outputs.files_added}})
+          non_ts_files=()
+          for file in "${files[@]}"; do
+            if [[ $file != *.ts ]]; then
+              non_ts_files+=("$file")
+            fi
+          done
+          echo "non_ts_files=${non_ts_files[@]}" >> $GITHUB_OUTPUT
+          echo "non_ts_files_count=${#non_ts_files[@]}" >> $GITHUB_OUTPUT
+
+      - name: Print the files
+        if: steps.check_files.outputs.non_ts_files_count != 0
+        run: |
+          echo "${{ steps.check_files.outputs.non_ts_files }}"
+          exit 1
+
   server-build:
     name: server-build
-    if: inputs.normal_run_id == '0'
+    needs: [file-check]
+    if: success() && inputs.previous_run_id == '0'
     uses: ./.github/workflows/server-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+      skip-tests: "true"
+
+  client-build:
+    name: client-build
+    needs: [file-check]
+    if: success() && inputs.previous_run_id == '0'
+    uses: ./.github/workflows/client-build.yml
     secrets: inherit
     with:
       pr: 0
@@ -22,7 +73,8 @@ jobs:
 
   rts-build:
     name: rts-build
-    if: inputs.normal_run_id == '0'
+    needs: [file-check]
+    if: success() && inputs.previous_run_id == '0'
     uses: ./.github/workflows/rts-build.yml
     secrets: inherit
     with:
@@ -58,8 +110,9 @@ jobs:
       pr: 0
 
   ci-test-limited-existing-docker-image:
+    needs: [file-check]
     # Only run if the previous run-id is provided
-    if: inputs.normal_run_id != '0'
+    if: success() && inputs.previous_run_id != '0'
     name: ci-test-limited-existing-image
     uses: ./.github/workflows/ci-test-limited.yml
     secrets: inherit
