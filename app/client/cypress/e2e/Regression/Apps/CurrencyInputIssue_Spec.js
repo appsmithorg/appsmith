@@ -18,6 +18,7 @@ describe("Currency Input Issue", function () {
         cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
           force: true,
         });
+
         cy.wait(2000);
       } else {
         homePage.AssertImportToast();
