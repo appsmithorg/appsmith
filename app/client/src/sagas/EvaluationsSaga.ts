@@ -1,4 +1,4 @@
-import type { ActionPattern } from "redux-saga/effects";
+import type { ActionPattern, CallEffect, ForkEffect } from "redux-saga/effects";
 import {
   actionChannel,
   all,
@@ -37,13 +37,15 @@ import PerformanceTracker, {
 import * as Sentry from "@sentry/react";
 import type { Action } from "redux";
 import {
-  EVALUATE_REDUX_ACTIONS,
+  EVAL_AND_LINT_REDUX_ACTIONS,
   FIRST_EVAL_REDUX_ACTIONS,
   setDependencyMap,
   setEvaluatedTree,
-  shouldLint,
+  shouldForceEval,
   shouldLog,
-  shouldProcessBatchedAction,
+  shouldProcessAction,
+  shouldTriggerEvaluation,
+  shouldTriggerLinting,
 } from "actions/evaluationActions";
 import ConfigTreeActions from "utils/configTree";
 import {
@@ -87,7 +89,7 @@ import type {
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 
-import { lintWorker } from "./LintingSagas";
+import { initiateLinting, lintWorker } from "./LintingSagas";
 import type {
   EvalTreeRequestData,
   EvalTreeResponseData,
@@ -105,6 +107,8 @@ export const evalWorker = new GracefulWorkerService(
     new URL("../workers/Evaluation/evaluation.worker.ts", import.meta.url),
     {
       type: "module",
+      // Note: the `Worker` part of the name is slightly important – LinkRelPreload_spec.js
+      // relies on it to find workers in the list of all requests.
       name: "evalWorker",
     },
   ),
@@ -230,17 +234,15 @@ export function* updateDataTreeHandler(
  * yield call(evaluateTreeSaga, postEvalActions, shouldReplay, requiresLinting, forceEvaluation)
  */
 export function* evaluateTreeSaga(
+  unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree>,
   postEvalActions?: Array<AnyReduxAction>,
   shouldReplay = true,
-  requiresLinting = false,
   forceEvaluation = false,
   requiresLogging = false,
 ) {
   const allActionValidationConfig: ReturnType<
     typeof getAllActionValidationConfig
   > = yield select(getAllActionValidationConfig);
-  const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
-    yield select(getUnevaluatedDataTree);
   const unevalTree = unEvalAndConfigTree.unEvalTree;
   const widgets: ReturnType<typeof getWidgets> = yield select(getWidgets);
   const metaWidgets: ReturnType<typeof getMetaWidgets> = yield select(
@@ -250,8 +252,6 @@ export function* evaluateTreeSaga(
     getSelectedAppTheme,
   );
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
-
-  const isEditMode = appMode === APP_MODE.EDIT;
   const toPrintConfigTree = unEvalAndConfigTree.configTree;
   log.debug({ unevalTree, configTree: toPrintConfigTree });
   PerformanceTracker.startAsyncTracking(
@@ -265,7 +265,6 @@ export function* evaluateTreeSaga(
     theme,
     shouldReplay,
     allActionValidationConfig,
-    requiresLinting: isEditMode && requiresLinting,
     forceEvaluation,
     metaWidgets,
     appMode,
@@ -464,7 +463,7 @@ function evalQueueBuffer() {
       const resp = collectedPostEvalActions;
       collectedPostEvalActions = [];
       canTake = false;
-      return { postEvalActions: resp, type: "BUFFERED_ACTION" };
+      return { postEvalActions: resp, type: ReduxActionTypes.BUFFERED_ACTION };
     }
   };
   const flush = () => {
@@ -476,7 +475,7 @@ function evalQueueBuffer() {
   };
 
   const put = (action: EvaluationReduxAction<unknown | unknown[]>) => {
-    if (!shouldProcessBatchedAction(action)) {
+    if (!shouldProcessAction(action)) {
       return;
     }
     canTake = true;
@@ -522,6 +521,58 @@ function getPostEvalActions(
   return postEvalActions;
 }
 
+function* evalAndLintingHandler(
+  isBlockingCall = true,
+  action: ReduxAction<unknown>,
+  options: Partial<{
+    shouldReplay: boolean;
+    forceEvaluation: boolean;
+    requiresLogging: boolean;
+  }>,
+) {
+  const { forceEvaluation, requiresLogging, shouldReplay } = options;
+  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
+
+  const requiresLinting =
+    appMode === APP_MODE.EDIT && shouldTriggerLinting(action);
+
+  const requiresEval = shouldTriggerEvaluation(action);
+  log.debug({
+    action,
+    triggeredLinting: requiresLinting,
+    triggeredEvaluation: requiresEval,
+  });
+
+  if (!requiresEval && !requiresLinting) return;
+
+  // Generate all the data needed for both eval and linting
+  const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
+    yield select(getUnevaluatedDataTree);
+  const postEvalActions = getPostEvalActions(action);
+  const fn: (...args: unknown[]) => CallEffect<unknown> | ForkEffect<unknown> =
+    isBlockingCall ? call : fork;
+
+  const effects = [];
+
+  if (requiresEval) {
+    effects.push(
+      fn(
+        evaluateTreeSaga,
+        unEvalAndConfigTree,
+        postEvalActions,
+        shouldReplay,
+        forceEvaluation,
+        requiresLogging,
+      ),
+    );
+  }
+  if (requiresLinting) {
+    effects.push(fn(initiateLinting, unEvalAndConfigTree, forceEvaluation));
+  }
+
+  yield all(effects);
+}
+
 function* evaluationChangeListenerSaga(): any {
   // Explicitly shutdown old worker if present
   yield all([call(evalWorker.shutdown), call(lintWorker.shutdown)]);
@@ -536,13 +587,15 @@ function* evaluationChangeListenerSaga(): any {
   yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
 
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
-  const initAction: {
-    type: ReduxActionType;
-    postEvalActions: Array<ReduxAction<unknown>>;
-  } = yield take(FIRST_EVAL_REDUX_ACTIONS);
-  yield fork(evaluateTreeSaga, initAction.postEvalActions, false, true, false);
+  const initAction: EvaluationReduxAction<unknown> = yield take(
+    FIRST_EVAL_REDUX_ACTIONS,
+  );
+  yield fork(evalAndLintingHandler, false, initAction, {
+    shouldReplay: false,
+    forceEvaluation: false,
+  });
   const evtActionChannel: ActionPattern<Action<any>> = yield actionChannel(
-    EVALUATE_REDUX_ACTIONS,
+    EVAL_AND_LINT_REDUX_ACTIONS,
     evalQueueBuffer(),
   );
   while (true) {
@@ -550,18 +603,11 @@ function* evaluationChangeListenerSaga(): any {
       evtActionChannel,
     );
 
-    if (shouldProcessBatchedAction(action)) {
-      const postEvalActions = getPostEvalActions(action);
-
-      yield call(
-        evaluateTreeSaga,
-        postEvalActions,
-        get(action, "payload.shouldReplay"),
-        shouldLint(action),
-        false,
-        shouldLog(action),
-      );
-    }
+    yield call(evalAndLintingHandler, true, action, {
+      shouldReplay: get(action, "payload.shouldReplay"),
+      forceEvaluation: shouldForceEval(action),
+      requiresLogging: shouldLog(action),
+    });
   }
 }
 
