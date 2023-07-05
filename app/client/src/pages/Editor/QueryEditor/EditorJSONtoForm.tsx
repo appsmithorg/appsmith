@@ -126,6 +126,7 @@ import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
+import SignPostingBanner from "components/designSystems/appsmith/SignPostingBanner";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -876,10 +877,25 @@ export function EditorJSONtoForm(props: Props) {
     return null;
   }
 
+  const SubContent = styled.div`
+    color: var(--ads-v2-color-gray-500);
+  `;
+  const AISignPosting = function () {
+    return (
+      <div className="">
+        <div className="text-sm mb-2">Generate SQL query</div>
+        <SubContent className="">
+          Use <span className="font-semibold">/ai</span>, to use Appsmith AI
+        </SubContent>
+      </div>
+    );
+  };
+
   return (
     <>
       {!guidedTourEnabled && <CloseEditor />}
       {guidedTourEnabled && <Guide className="query-page" />}
+      <SignPostingBanner content={<AISignPosting />} iconName="lock-2-line" />
       <QueryFormContainer onSubmit={handleSubmit(noop)}>
         <StyledFormRow>
           <NameWrapper>
