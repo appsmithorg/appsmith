@@ -39,7 +39,7 @@ const SwitchEnvironment = ({ defaultEnvironment, environmentList }: Props) => {
     !!selectedEnv && updateLocalStorage(selectedEnv.name, selectedEnv.id);
   }, [environmentList.length]);
   const allowedToRender = useFeatureFlagCheck(
-    FEATURE_FLAG.DATASOURCE_ENVIRONMENTS,
+    FEATURE_FLAG.release_datasource_environments_enabled,
   );
 
   // function to set the selected environment

@@ -84,7 +84,7 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
     @Override
     public Mono<EnvironmentDTO> getEnvironmentDTOByEnvironmentId(String envId) {
 
-        return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
+        return featureFlagService.check(FeatureFlagEnum.release_datasource_environments_enabled)
                 .flatMap(isFeatureFlag -> {
                     if (Boolean.FALSE.equals(isFeatureFlag)) {
                         return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
@@ -99,7 +99,7 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
     @Override
     public Flux<EnvironmentDTO> getEnvironmentDTOByWorkspaceId(String workspaceId) {
 
-        return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
+        return featureFlagService.check(FeatureFlagEnum.release_datasource_environments_enabled)
                 .flatMapMany(isFeatureFlag -> {
                     if (Boolean.FALSE.equals(isFeatureFlag)) {
                         return workspaceService.getDefaultEnvironment(workspaceId)
@@ -136,7 +136,7 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
     @Override
     public Mono<EnvironmentDTO> setEnvironmentToDefault(Map<String, String> defaultEnvironmentDetails) {
 
-        return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
+        return featureFlagService.check(FeatureFlagEnum.release_datasource_environments_enabled)
                 .flatMap(isFeatureFlag -> {
                     if (Boolean.FALSE.equals(isFeatureFlag)) {
                         return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));

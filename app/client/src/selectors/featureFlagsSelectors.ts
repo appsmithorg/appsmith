@@ -17,6 +17,6 @@ export function useFeatureFlagCheck(flagName: FeatureFlag): boolean {
 export const datasourceEnvEnabled = createSelector(
   selectFeatureFlags,
   (flags) => {
-    return !!flags.DATASOURCE_ENVIRONMENTS;
+    return !!flags.release_datasource_environments_enabled;
   },
 );

@@ -264,7 +264,7 @@ public class WorkspaceResources {
                                                                   Map<String, Collection<ActionResourceDTO>> pageActionsMap,
                                                                   Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollectionMap,
                                                                   Map<String, Collection<EnvironmentResourceDTO>> workspaceEnvironmentMap) {
-        return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
+        return featureFlagService.check(FeatureFlagEnum.release_datasource_environments_enabled)
                 .flatMapMany(isFeatureFlag -> workspaceFlux
                         .map(workspace -> generateBaseViewDto(
                                 workspace,
@@ -789,7 +789,7 @@ public class WorkspaceResources {
                 })
                 .then();
 
-        return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
+        return featureFlagService.check(FeatureFlagEnum.release_datasource_environments_enabled)
                 .flatMap(isFeatureFlag -> {
                     if (FALSE.equals(isFeatureFlag)) {
                         return Mono.when(
@@ -943,7 +943,7 @@ public class WorkspaceResources {
                     return hoverMap1;
                 });
 
-        return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
+        return featureFlagService.check(FeatureFlagEnum.release_datasource_environments_enabled)
                 .flatMap(isFeatureFlag -> {
                     if (FALSE.equals(isFeatureFlag)) {
                         return workspaceDatasourcesHoverMapMono
