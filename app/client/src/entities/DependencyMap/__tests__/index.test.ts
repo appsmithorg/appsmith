@@ -36,7 +36,7 @@ describe("Tests for DependencyMap", () => {
     dataDependencyMap.addNodes({ showAlert: true });
     dataDependencyMap.addDependency("c", ["showAlert"]);
 
-    expect(dataDependencyMap.isRelated("a", "showAlert")).toEqual(true);
+    expect(dataDependencyMap.isRelated("a", ["showAlert"])).toEqual(true);
   });
 
   it("should be able to remove a node", () => {
