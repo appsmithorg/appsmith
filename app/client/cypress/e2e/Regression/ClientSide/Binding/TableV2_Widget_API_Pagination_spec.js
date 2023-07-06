@@ -15,10 +15,10 @@ describe("Test Create Api and Bind to Table widget V2", function () {
   });
   it("1. Create an API and Execute the API and bind with Table", function () {
     apiPage.CreateAndFillApi(
-      this.dataSet.paginationUrl + this.dataSet.paginationParam,
+      "http://localhost:5001/v1/" + this.dataSet.paginationParam,
     );
     agHelper.VerifyEvaluatedValue(
-      this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=10",
+      "http://localhost:5001/v1/" + "mock-api?records=20&page=1&size=10",
     );
     apiPage.RunAPI();
     //Validate Table V2 with API data and then add a column
@@ -47,7 +47,7 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     propPane.UpdatePropertyFieldValue("Total Records", "20");
     agHelper.GetNClick(table._nextPage("v2"));
 
-    agHelper.GetElement(table._nextPage("v2")).should("have.attr", "disabled");
+    agHelper.AssertAttribute(table._nextPage("v2"), "disabled", "disabled");
     agHelper.AssertElementAbsence(commonlocators._toastMsg);
   });
 });
