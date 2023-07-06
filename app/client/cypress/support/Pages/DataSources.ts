@@ -50,10 +50,10 @@ export class DataSources {
   private _addNewDataSource = ".t--entity-add-btn.datasources button";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
-    public _host = "input[name*='datasourceConfiguration.endpoints[0].host']";
+  public _host = "input[name*='datasourceConfiguration.endpoints[0].host']";
   public _port = "input[name*='datasourceConfiguration.endpoints[0].port']";
   _databaseName =
-  "input[name*='datasourceConfiguration.authentication.databaseName']";;
+    "input[name*='datasourceConfiguration.authentication.databaseName']";
   private _username =
     "input[name$='.datasourceConfiguration.authentication.username']";
   private _section = (name: string) =>
@@ -62,7 +62,7 @@ export class DataSources {
     this._section(name) +
     "/following-sibling::div/div[@class ='bp3-collapse-body']";
   private _password =
-  "input[name *= 'datasourceConfiguration.authentication.password']";
+    "input[name *= 'datasourceConfiguration.authentication.password']";
   private defaultDatabaseName =
     "input[name*='datasourceConfiguration.connection.defaultDatabaseName']";
   private _testDs = ".t--test-datasource";
