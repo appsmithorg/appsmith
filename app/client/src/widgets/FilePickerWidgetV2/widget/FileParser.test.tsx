@@ -70,7 +70,7 @@ describe("File parser formats differenty file types correctly", () => {
         Number: 1000,
         Boolean: false,
         Empty: "",
-        Date: new Date("2022-09-14T18:30:00.000Z"),
+        Date: new Date("2022-09-15T00:00:00.000Z"),
       },
     ];
     expect(result).toStrictEqual(expectedResult);
