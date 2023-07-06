@@ -544,7 +544,7 @@ class CheckboxGroupWidget extends BaseWidget<
           path: "isRequired",
           type: "boolean",
         },
-        setSelectedOptions: {
+        setOptions: {
           path: "options",
           type: "array",
         },
