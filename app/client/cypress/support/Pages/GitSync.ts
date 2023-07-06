@@ -176,15 +176,13 @@ export class GitSync {
     });
   }
 
-  DeleteDeployKey(repo: any) {
-    cy.get("@deployKeyId").then((id) => {
-      cy.request({
-        method: "DELETE",
-        url: `${this.hostPort.GITEA_API_BASE_TED}:${this.hostPort.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys/${id}`,
-        headers: {
-          Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
-        },
-      });
+  DeleteDeployKey(repo: any, id: number) {
+    cy.request({
+      method: "DELETE",
+      url: `${this.hostPort.GITEA_API_BASE_TED}:${this.hostPort.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys/${id}`,
+      headers: {
+        Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
+      },
     });
   }
 
