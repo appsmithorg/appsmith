@@ -62,10 +62,10 @@ export class LightModeTheme implements ColorModeTheme {
       bgNegativeSubtleHover: this.bgNegativeSubtleHover.toString(),
       bgNegativeSubtleActive: this.bgNegativeSubtleActive.toString(),
       bgWarning: this.bgWarning.to("sRGB").toString(),
-      bgWarningHover: this.bgWarningHover.toString(),
-      bgWarningActive: this.bgWarningActive.toString(),
-      bgWarningSubtleHover: this.bgWarningSubtleHover.toString(),
-      bgWarningSubtleActive: this.bgWarningSubtleActive.toString(),
+      bgWarningHover: this.bgWarningHover.to("sRGB").toString(),
+      bgWarningActive: this.bgWarningActive.to("sRGB").toString(),
+      bgWarningSubtleHover: this.bgWarningSubtleHover.to("sRGB").toString(),
+      bgWarningSubtleActive: this.bgWarningSubtleActive.to("sRGB").toString(),
       bgNeutral: this.bgNeutral.toString(),
       bgNeutralHover: this.bgNeutralHover.toString(),
       bgNeutralActive: this.bgNeutralActive.toString(),
@@ -351,23 +351,46 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bgWarningHover() {
-    return "#f2a635";
+    const color = this.bgWarning.clone();
+
+    // Lightness of bgWarning is known, no additional checks like in bgAccentHover
+    color.oklch.l = color.oklch.l + 0.03;
+
+    return color;
   }
 
   private get bgWarningActive() {
-    return "#e6952e";
+    const color = this.bgWarning.clone();
+
+    // Lightness of bgWarning is known, no additional checks like in bgAccentActive
+    color.oklch.l = color.oklch.l - 0.01;
+
+    return color;
   }
 
   private get bgWarningSubtle() {
-    return "#fffaf0";
+    const color = this.bgWarning.clone();
+
+    color.oklch.l = 0.94;
+    color.oklch.c = 0.06;
+
+    return color;
   }
 
   private get bgWarningSubtleHover() {
-    return "#fff5e0";
+    const color = this.bgWarningSubtle.clone();
+
+    color.oklch.l = color.oklch.l + 0.02;
+
+    return color;
   }
 
   private get bgWarningSubtleActive() {
-    return "#fff1d1";
+    const color = this.bgWarningSubtle.clone();
+
+    color.oklch.l = color.oklch.l - 0.01;
+
+    return color;
   }
 
   // Negative background, red.
