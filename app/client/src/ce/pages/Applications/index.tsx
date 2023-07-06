@@ -616,7 +616,7 @@ export function ApplicationsSection(props: any) {
     applicationName: string,
     workspaceId: string,
   ) => {
-    const color = getRandomPaletteColor(theme.colors.appCardColors);
+    const color = getRandomPaletteColor(theme?.colors.appCardColors);
     const icon =
       AppIconCollection[Math.floor(Math.random() * AppIconCollection.length)];
 

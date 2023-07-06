@@ -433,7 +433,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
         <ResizerMainContainer>
           <ResizerContentContainer className="db-form-resizer-content">
             <Form
-              onSubmit={(e) => {
+              onSubmit={(e: { preventDefault: () => void }) => {
                 e.preventDefault();
               }}
               showFilterComponent={false}

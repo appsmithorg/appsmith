@@ -209,7 +209,7 @@ function Pages() {
             onNameEdit={resolveAsSpaceChar}
             searchKeyword={""}
             step={1}
-            updateEntityName={(id, name) =>
+            updateEntityName={(id: any, name: any) =>
               updatePage({ id, name, isHidden: !!page.isHidden })
             }
           />

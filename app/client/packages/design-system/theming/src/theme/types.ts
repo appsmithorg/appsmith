@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import type { FlattenSimpleInterpolation } from "styled-components";
 import type { ThemeToken } from "../token";
 import type { Typography, TypographyVariant } from "../typography";
 
@@ -11,7 +10,7 @@ export type Theme = ThemeToken & {
 export type ThemeContextType = ThemeToken & {
   rootUnit: number;
   typography?: {
-    [key in TypographyVariant]?: FlattenSimpleInterpolation;
+    [key in TypographyVariant]?: any;
   };
 };
 

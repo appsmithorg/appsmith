@@ -30,7 +30,7 @@ export default function LogHelper(props: {
   };
   return (
     <ContextWrapper
-      onClick={(e) => {
+      onClick={(e: { stopPropagation: () => void }) => {
         addHelpTelemetry();
         e.stopPropagation();
       }}

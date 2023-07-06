@@ -16,14 +16,17 @@ const Template: ComponentStory<typeof TableDropdownComponent> = (args: any) => {
 export const TableDropdown = Template.bind({});
 TableDropdown.args = {
   options: [
+    // @ts-expect-error: Types are not available
     {
       name: "Option 1",
       desc: "Option 1 description",
     },
+    // @ts-expect-error: Types are not available
     {
       name: "Option 2",
       desc: "Option 2 description",
     },
+    // @ts-expect-error: Types are not available
     {
       name: "Option 3",
       desc: "Option 3 description",

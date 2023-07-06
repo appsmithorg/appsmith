@@ -592,7 +592,9 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
   );
 
   return (
-    <CodeScannerContainer onClick={(e) => e.stopPropagation()}>
+    <CodeScannerContainer
+      onClick={(e: { stopPropagation: () => void }) => e.stopPropagation()}
+    >
       {props.scannerLayout !== ScannerLayout.ALWAYS_ON &&
         (!props.tooltip ? (
           baseButtonWrapper

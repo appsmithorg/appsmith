@@ -2,6 +2,7 @@ import { css } from "styled-components";
 
 import { ButtonVariantTypes } from "components/constants";
 import { getCustomHoverColor } from "widgets/WidgetUtils";
+import type { Theme } from "../../../constants/DefaultTheme";
 import type { ButtonContainerProps } from "./DragContainer";
 
 /*
@@ -16,8 +17,9 @@ export const buttonHoverActiveStyles = css<ButtonContainerProps>`
     if (!disabled && !loading) {
       return `
         background: ${
-          getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
-            ? getCustomHoverColor(theme, buttonVariant, buttonColor)
+          getCustomHoverColor(theme as Theme, buttonVariant, buttonColor) !==
+          "none"
+            ? getCustomHoverColor(theme as Theme, buttonVariant, buttonColor)
             : buttonVariant === ButtonVariantTypes.SECONDARY
             ? theme.colors.button.primary.secondary.hoverColor
             : buttonVariant === ButtonVariantTypes.TERTIARY

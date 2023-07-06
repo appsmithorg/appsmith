@@ -182,7 +182,7 @@ export function SignUp(props: SignUpFormProps) {
           action={signupURL.toString()}
           id="signup-form"
           method="POST"
-          onSubmit={(e) => handleSubmit(e)}
+          onSubmit={(e: React.FormEvent<HTMLFormElement>) => handleSubmit(e)}
         >
           <FormGroup
             intent={error ? "danger" : "none"}

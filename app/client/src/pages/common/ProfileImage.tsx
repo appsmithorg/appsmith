@@ -38,7 +38,7 @@ export default function ProfileImage(props: {
 
   const initialsAndColorCode = getInitialsAndColorCode(
     props.commonName || props.userName,
-    theme.colors.appCardColors,
+    theme?.colors.appCardColors,
   );
 
   return (

@@ -5,7 +5,7 @@ import { LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS } from "components/editorComponents/C
 
 export const CodemirrorHintStyles = createGlobalStyle<{
   editorTheme: EditorTheme;
-  theme: Theme;
+  theme?: Theme;
 }>`
   // Increase the specificity of hint styles to override the default ones
   .CodeMirror-hints {

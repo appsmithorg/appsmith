@@ -357,7 +357,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const initialsAndColorCode = getInitialsAndColorCode(
     props.application.name,
-    theme.colors.appCardColors,
+    theme?.colors.appCardColors,
   );
   let initials = initialsAndColorCode[0];
   const [showOverlay, setShowOverlay] = useState(false);
@@ -381,7 +381,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     if (props.application.color) {
       colorCode = props.application.color;
     } else {
-      colorCode = getRandomPaletteColor(theme.colors.appCardColors);
+      colorCode = getRandomPaletteColor(theme?.colors.appCardColors);
     }
     setSelectedColor(colorCode);
   }, [props.application.color]);
@@ -615,7 +615,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
           {hasEditPermission && (
             <>
               <ColorSelector
-                colorPalette={theme.colors.appCardColors}
+                colorPalette={theme?.colors.appCardColors}
                 defaultValue={selectedColor}
                 fill
                 onSelect={updateColor}
@@ -629,7 +629,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                 className="icon-selector"
                 fill
                 onSelect={updateIcon}
-                selectedColor={theme.colors.applications.cardMenuIcon}
+                selectedColor={theme?.colors.applications.cardMenuIcon}
                 selectedIcon={appIcon}
               />
               <Divider />

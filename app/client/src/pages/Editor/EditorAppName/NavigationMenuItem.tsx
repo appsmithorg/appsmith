@@ -127,7 +127,9 @@ export function NavigationMenuItem({
         <ReconfirmMenuItem
           className="error-menuitem"
           data-testid={`t--application-edit-menu-${kebabCase(text)}`}
-          onClick={(e) => handleReconfirmClick(e, menuItemData)}
+          onClick={(e: React.SyntheticEvent<Element, Event>) =>
+            handleReconfirmClick(e, menuItemData)
+          }
         >
           {confirm.text}
         </ReconfirmMenuItem>

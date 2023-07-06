@@ -557,7 +557,7 @@ ${({ dropDownWidth, id }) => `
   }
 }
 .rc-tree-select-tree-node-selected {
-	background-color: none;
+	background-color: unset;
 	box-shadow: 0 0 0 0 #ffb951;
 	opacity: 1;
 
@@ -615,7 +615,7 @@ ${({ dropDownWidth, id }) => `
 
 `;
 
-export const TreeSelectContainer = styled.div<{
+export type TreeSelectContainerProps = {
   allowClear?: boolean;
   compactMode: boolean;
   isValid: boolean;
@@ -623,7 +623,9 @@ export const TreeSelectContainer = styled.div<{
   borderRadius: string;
   boxShadow?: string;
   accentColor: string;
-}>`
+};
+
+export const TreeSelectContainer = styled.div<TreeSelectContainerProps>`
   ${labelLayoutStyles}
 
   /**
@@ -876,7 +878,7 @@ export const TreeSelectContainer = styled.div<{
         position: absolute;
         z-index: 999;
         white-space: nowrap;
-        position: none;
+        position: unset;
         left: 0;
         top: 0;
         visibility: hidden;

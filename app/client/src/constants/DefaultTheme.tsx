@@ -7,7 +7,6 @@ import { Alignment, Classes } from "@blueprintjs/core";
 import type { Typography, TypographyKeys } from "./typography";
 import { typography } from "./typography";
 
-import type { LabelPosition } from "components/constants";
 import {
   TABLE_SCROLLBAR_HEIGHT,
   TABLE_SCROLLBAR_WIDTH,
@@ -304,13 +303,7 @@ export const BlueprintInputTransform = css`
   }
 `;
 
-export const BlueprintRadioSwitchGroupTransform = css<{
-  alignment: Alignment;
-  height?: number;
-  inline: boolean;
-  labelPosition?: LabelPosition;
-  optionCount: number;
-}>`
+export const BlueprintRadioSwitchGroupTransform = css<any>`
   width: 100%;
   height: 100%;
 

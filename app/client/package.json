@@ -197,7 +197,8 @@
     "smartlook-client": "^8.0.0",
     "socket.io-client": "^4.5.4",
     "sql-formatter": "12.2.0",
-    "styled-components": "^5.3.6",
+    "styled-components": "^6.0.0",
+    "stylis": "^4.0.0",
     "tern": "^0.21.0",
     "tinycolor2": "^1.4.2",
     "to-json-schema": "^0.2.5",
@@ -265,7 +266,6 @@
     "@types/redux-mock-store": "^1.0.2",
     "@types/resize-observer-browser": "^0.1.5",
     "@types/showdown": "^1.9.4",
-    "@types/styled-components": "^5.1.26",
     "@types/tern": "0.22.0",
     "@types/tinycolor2": "^1.4.2",
     "@types/to-json-schema": "^0.2.1",
@@ -352,6 +352,7 @@
     "@blueprintjs/core@^3.43.0": "patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch",
     "@blueprintjs/core@^3.33.0": "patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch",
     "@blueprintjs/core@^3.47.0": "patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch",
-    "@blueprintjs/icons": "3.22.0"
+    "@blueprintjs/icons": "3.22.0",
+    "styled-components": "^6"
   }
 }

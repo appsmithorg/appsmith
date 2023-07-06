@@ -80,7 +80,7 @@ export const DropdownContentSection = styled.div<{
   }
 `;
 
-export const highlightOption = css<{ intent?: Intent; skin: Skin }>`
+export const highlightOption = css<any>`
   text-decoration: none;
   color: ${(props) => props.theme.dropdown[props.skin].hoverText};
   background: ${(props) => props.theme.dropdown[props.skin].hoverBG};

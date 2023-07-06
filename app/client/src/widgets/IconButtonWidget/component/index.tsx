@@ -18,6 +18,7 @@ import {
 import Interweave from "interweave";
 import { Popover2 } from "@blueprintjs/popover2";
 import type { ThemeProp } from "widgets/constants";
+import type { Theme } from "../../../constants/DefaultTheme";
 
 const ToolTipWrapper = styled.div`
   height: 100%;
@@ -78,8 +79,9 @@ const IconButtonContainer = styled.div<IconButtonContainerProps>`
     hasOnClickAction && renderMode === RenderModes.CANVAS
       ? `&:hover > button, &:active > button {
       background: ${
-        getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
-          ? getCustomHoverColor(theme, buttonVariant, buttonColor)
+        getCustomHoverColor(theme as Theme, buttonVariant, buttonColor) !==
+        "none"
+          ? getCustomHoverColor(theme as Theme, buttonVariant, buttonColor)
           : buttonVariant === ButtonVariantTypes.SECONDARY
           ? theme.colors.button.primary.secondary.hoverColor
           : buttonVariant === ButtonVariantTypes.TERTIARY
@@ -106,7 +108,7 @@ export interface ButtonStyleProps {
   minHeight?: number;
 }
 
-export const StyledButton = styled((props) => (
+export const StyledButton = styled((props: any) => (
   <Button
     {..._.omit(props, [
       "buttonVariant",
@@ -293,6 +295,7 @@ function IconButtonComponent(props: IconButtonComponentProps) {
       onClick={hasOnClick ? onClick : undefined}
       renderMode={renderMode}
     >
+      {/*// @ts-expect-error: types not matched*/}
       <StyledButton
         borderRadius={borderRadius}
         boxShadow={boxShadow}

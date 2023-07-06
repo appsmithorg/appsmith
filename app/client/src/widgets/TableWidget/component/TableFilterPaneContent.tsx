@@ -176,7 +176,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
   );
   return (
     <TableFilterOuterWrapper
-      onClick={(e) => {
+      onClick={(e: { stopPropagation: () => void }) => {
         e.stopPropagation();
       }}
     >
@@ -188,7 +188,9 @@ function TableFilterPaneContent(props: TableFilterProps) {
           <Icon fillColor={Colors.GREY_6} name="close-x" size={IconSize.XXL} />
         </div>
       </ColumnTypeBindingMessage>
-      <TableFilerWrapper onClick={(e) => e.stopPropagation()}>
+      <TableFilerWrapper
+        onClick={(e: { stopPropagation: () => void }) => e.stopPropagation()}
+      >
         {filters.map((filter: ReactTableFilter, index: number) => {
           return (
             <CascadeFields

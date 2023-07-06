@@ -1,5 +1,5 @@
-import type { CSSProperties } from "styled-components";
 import styled from "styled-components";
+import type { CSSProperties } from "react";
 import React from "react";
 import { importSvg } from "design-system-old";
 

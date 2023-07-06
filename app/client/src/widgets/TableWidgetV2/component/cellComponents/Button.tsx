@@ -40,7 +40,7 @@ export function Button(props: ButtonProps) {
   return (
     <ActionWrapper
       disabled={!!props.isDisabled}
-      onClick={(e) => {
+      onClick={(e: { stopPropagation: () => void }) => {
         e.stopPropagation();
       }}
     >

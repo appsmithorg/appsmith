@@ -343,6 +343,7 @@ function CheckListItem(props: {
           </div>
         </Tooltip>
       </ListItem>
+      {/*// @ts-expect-error: types not matched*/}
       <StyledDivider className="mt-0.5" />
     </div>
   );
@@ -443,6 +444,7 @@ export default function OnboardingChecklist() {
         <Text color="var(--ads-v2-color-bg-brand-secondary)" kind="heading-xs">
           {createMessage(SIGNPOSTING_SUCCESS_POPUP.subtitle)}
         </Text>
+        {/*// @ts-expect-error: types not matched*/}
         <StyledDivider className="mt-4" />
       </>
     );
@@ -479,6 +481,7 @@ export default function OnboardingChecklist() {
           </Text>
           <Text>complete</Text>
         </div>
+        {/*// @ts-expect-error: types not matched*/}
         <StyledDivider className="mt-1" />
       </div>
       <div

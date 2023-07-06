@@ -282,6 +282,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 },
               ],
             };
+            // @ts-expect-error: Types are not available
             return renderActions(buttonProps, isHidden, cellProperties);
           } else if (columnProperties.columnType === "dropdown") {
             let options = [];
@@ -360,6 +361,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isCellVisible: cellProperties.isCellVisible ?? true,
               disabled: !!cellProperties.isDisabled,
             };
+            // @ts-expect-error: Types are not available
             return renderIconButton(iconButtonProps, isHidden, cellProperties);
           } else {
             const isCellVisible = cellProperties.isCellVisible ?? true;

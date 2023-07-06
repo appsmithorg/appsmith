@@ -125,13 +125,13 @@ export default (props: PopperProps) => {
     return (
       <DragHandleBlock
         className="drag-handle-block"
-        onMouseEnter={(e) => {
+        onMouseEnter={(e: { stopPropagation: () => void }) => {
           e.stopPropagation();
           if (props?.dragFn) {
             props.dragFn(true);
           }
         }}
-        onMouseLeave={(e) => {
+        onMouseLeave={(e: { stopPropagation: () => void }) => {
           e.stopPropagation();
           if (props?.dragFn) {
             props.dragFn(false);

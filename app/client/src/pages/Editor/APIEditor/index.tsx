@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import React from "react";
 import { connect } from "react-redux";
 import { submit } from "redux-form";
@@ -25,7 +26,6 @@ import type { Action, PaginationType, RapidApiAction } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
 import { getApiName } from "selectors/formSelectors";
 import Spinner from "components/editorComponents/Spinner";
-import type { CSSProperties } from "styled-components";
 import styled from "styled-components";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { changeApi } from "actions/apiPaneActions";

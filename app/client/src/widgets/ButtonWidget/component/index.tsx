@@ -146,7 +146,7 @@ const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
       : ""}
 `;
 
-export const StyledButton = styled((props) => (
+export const StyledButton = styled((props: any) => (
   <Button
     {..._.omit(props, [
       "borderRadius",

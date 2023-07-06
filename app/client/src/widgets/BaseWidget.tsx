@@ -42,7 +42,7 @@ import type {
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import shallowequal from "shallowequal";
-import type { CSSProperties } from "styled-components";
+import type CSSProperties from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
@@ -516,7 +516,7 @@ abstract class BaseWidget<
     return <ErrorBoundary>{content}</ErrorBoundary>;
   }
 
-  addAutoHeightOverlay(content: ReactNode, style?: CSSProperties) {
+  addAutoHeightOverlay(content: ReactNode, style?: typeof CSSProperties) {
     // required when the limits have to be updated
     // simultaneosuly when they move together
     // to maintain the undo/redo stack
@@ -554,6 +554,7 @@ abstract class BaseWidget<
 
     return (
       <>
+        {/*// @ts-expect-error: types not matched*/}
         <AutoHeightOverlayContainer
           {...this.props}
           batchUpdate={onBatchUpdate}

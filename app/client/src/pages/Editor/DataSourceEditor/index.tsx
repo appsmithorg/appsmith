@@ -622,7 +622,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     return (
       <Form
         className="t--json-to-form-wrapper"
-        onSubmit={(e) => {
+        onSubmit={(e: { preventDefault: () => void }) => {
           e.preventDefault();
         }}
       >

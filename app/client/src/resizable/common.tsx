@@ -6,7 +6,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { animated } from "react-spring";
 import { useDrag } from "react-use-gesture";
 import type { GridProps, ReflowDirection } from "reflow/reflowTypes";
-import type { StyledComponent } from "styled-components";
+import type { IStyledComponent } from "styled-components";
 import styled from "styled-components";
 import type {
   LayoutDirection,
@@ -155,7 +155,7 @@ type ResizableHandleProps = {
     right: number;
   }) => boolean;
   dragCallback: (x: number, y: number) => void;
-  component: StyledComponent<"div", Record<string, unknown>>;
+  component: IStyledComponent<"web", Record<string, unknown>>;
   onStart: () => void;
   onStop: () => void;
   snapGrid: {
@@ -222,14 +222,14 @@ export function ResizableHandle(props: ResizableHandleProps) {
 export type ResizableProps = {
   allowResize: boolean;
   handles: {
-    left?: StyledComponent<"div", Record<string, unknown>>;
-    top?: StyledComponent<"div", Record<string, unknown>>;
-    bottom?: StyledComponent<"div", Record<string, unknown>>;
-    right?: StyledComponent<"div", Record<string, unknown>>;
-    bottomRight?: StyledComponent<"div", Record<string, unknown>>;
-    topLeft?: StyledComponent<"div", Record<string, unknown>>;
-    topRight?: StyledComponent<"div", Record<string, unknown>>;
-    bottomLeft?: StyledComponent<"div", Record<string, unknown>>;
+    left?: IStyledComponent<"web", Record<string, unknown>>;
+    top?: IStyledComponent<"web", Record<string, unknown>>;
+    bottom?: IStyledComponent<"web", Record<string, unknown>>;
+    right?: IStyledComponent<"web", Record<string, unknown>>;
+    bottomRight?: IStyledComponent<"web", Record<string, unknown>>;
+    topLeft?: IStyledComponent<"web", Record<string, unknown>>;
+    topRight?: IStyledComponent<"web", Record<string, unknown>>;
+    bottomLeft?: IStyledComponent<"web", Record<string, unknown>>;
   };
   componentWidth: number;
   componentHeight: number;

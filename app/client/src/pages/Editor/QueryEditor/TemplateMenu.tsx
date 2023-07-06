@@ -73,14 +73,14 @@ class TemplateMenu extends React.Component<Props> {
       <Container
         className="t--template-menu"
         onClick={() => createTemplate("")}
-        onKeyPress={(e) => {
+        onKeyPress={(e: { preventDefault: () => void; key: string }) => {
           e.preventDefault();
 
           if (e.key === "Enter") {
             createTemplate("");
           }
         }}
-        ref={(input) => {
+        ref={(input: HTMLDivElement | null) => {
           this.nameInput = input;
         }}
         tabIndex={0}
@@ -93,7 +93,7 @@ class TemplateMenu extends React.Component<Props> {
             return (
               <Row
                 key={templateKey}
-                onClick={(e) => {
+                onClick={(e: { stopPropagation: () => void }) => {
                   const template = this.fetchTemplate(templateKey);
                   createTemplate(template);
                   AnalyticsUtil.logEvent("QUERY_TEMPLATE_SELECTED", {

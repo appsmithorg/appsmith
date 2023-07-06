@@ -88,10 +88,7 @@ export const LABEL_DEFAULT_WIDTH_RATE = 33;
  */
 export const TOOLTIP_ICON_SIZE = 14;
 
-export const labelLayoutStyles = css<{
-  compactMode: boolean;
-  labelPosition?: LabelPosition;
-}>`
+export const labelLayoutStyles = css<any>`
   display: flex;
   flex-direction: ${({ compactMode, labelPosition }) => {
     if (labelPosition === LabelPosition.Left) return "row";

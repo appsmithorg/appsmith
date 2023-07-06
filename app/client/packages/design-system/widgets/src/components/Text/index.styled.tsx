@@ -1,19 +1,16 @@
 import styled, { css } from "styled-components";
 
 import type { TypographyVariant } from "@design-system/theming";
-import type { FlattenSimpleInterpolation } from "styled-components";
 import type { TextProps } from "./Text";
 
 type StyledTextProp = TextProps & {
   typography?: {
-    [key in TypographyVariant]?: FlattenSimpleInterpolation;
+    [key in TypographyVariant]?: any;
   };
 };
 
-const truncateStyles = css`
-  ${(props: TextProps) => {
-    const { lineClamp } = props;
-
+const truncateStyles = css<TextProps>`
+  ${({ lineClamp }) => {
     if (typeof lineClamp === "number") {
       return css`
         span {

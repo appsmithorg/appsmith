@@ -7,6 +7,7 @@ import { APPLICATIONS_URL } from "constants/routes";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
+import type { LinkProps } from "react-router-dom";
 import { Link } from "react-router-dom";
 import type { AppState } from "@appsmith/reducers";
 import {
@@ -104,10 +105,12 @@ const HeaderWrapper = styled.div`
   box-shadow: none;
   border-bottom: 1px solid var(--ads-v2-color-border);
   height: ${(props) => props.theme.smallHeaderHeight};
+
   & .editable-application-name {
     ${getTypographyByKey("h4")}
     color: ${(props) => props.theme.colors.header.appName};
   }
+
   & ${Profile} {
     width: 24px;
     height: 24px;
@@ -132,23 +135,31 @@ const HeaderSection = styled.div`
   flex: 1;
   overflow: visible;
   align-items: center;
+
   :nth-child(1) {
     justify-content: flex-start;
     max-width: 30%;
   }
+
   :nth-child(2) {
     justify-content: center;
   }
+
   :nth-child(3) {
     justify-content: flex-end;
   }
 `;
 
-const AppsmithLink = styled((props) => {
-  // we are removing non input related props before passing them in the components
-  // eslint-disable @typescript-eslint/no-unused-vars
-  return <Link {...props} />;
-})`
+const AppsmithLink = styled(
+  (
+    props: JSX.IntrinsicAttributes &
+      LinkProps<unknown> &
+      React.RefAttributes<HTMLAnchorElement>,
+  ) => {
+    // we are removing non input related props before passing them in the components
+    return <Link {...props} />;
+  },
+)`
   height: 24px;
   min-width: 24px;
   width: 24px;

@@ -55,7 +55,7 @@ export function BackButton({ goTo }: { goTo?: string }) {
     <StyledBackLink
       className="t--admin-settings-back-button"
       kind="secondary"
-      onClick={(e) => onBack(e)}
+      onClick={(e: any) => onBack(e)}
       startIcon="back-control"
     >
       Back

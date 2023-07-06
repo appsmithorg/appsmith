@@ -243,7 +243,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   render = () => {
     return (
       <Form
-        onSubmit={(e) => {
+        onSubmit={(e: { preventDefault: () => void }) => {
           e.preventDefault();
         }}
         showFilterComponent={this.props.showFilterComponent}

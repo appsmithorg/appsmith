@@ -47,6 +47,7 @@ function ListComponent(props: ListComponentProps) {
   return (
     <GridContainer {...props}>
       <ScrollableCanvasWrapper className={scrollableCanvasClassName}>
+        {/*// @ts-expect-error: Types are not available*/}
         {props.children}
       </ScrollableCanvasWrapper>
     </GridContainer>

@@ -512,7 +512,9 @@ function ApiResponseView(props: Props) {
               {response.request && (
                 <JsonWrapper
                   className="t--debugger-log-state"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e: { stopPropagation: () => void }) =>
+                    e.stopPropagation()
+                  }
                 >
                   <ReactJson src={responseState} {...apiReactJsonProps} />
                 </JsonWrapper>

@@ -241,6 +241,7 @@ export default function ModalComponent(props: ModalComponentProps) {
         componentWidth={props.width || 0}
         enableHorizontalResize={enableResize}
         enableVerticalResize={isVerticalResizeEnabled}
+        // @ts-expect-error: Types are not available
         handles={handles}
         isColliding={() => false}
         onStart={onResizeStart}

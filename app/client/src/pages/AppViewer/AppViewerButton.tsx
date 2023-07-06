@@ -17,6 +17,10 @@ const StyledButton = styled(Button)<{
   varient?: ButtonVariant;
   insideSidebar?: boolean;
   isMinimal?: boolean;
+  className?: string;
+  icon?: any;
+  onClick?: () => void;
+  text?: string | boolean;
 }>`
   padding: 6px 12px;
   line-height: 1.2;
@@ -78,7 +82,7 @@ const StyledButton = styled(Button)<{
       gap: 10px;
       width: 100%;
       justify-content: ${isMinimal ? "center" : "flex-start"};
-      
+
       .bp3-button-text {
         ${getTypographyByKey("h5")}
         font-weight: 400;
@@ -102,7 +106,7 @@ const StyledButton = styled(Button)<{
       }
 
       &:hover,
-      &:active, 
+      &:active,
       &:focus {
         background-color: ${styles.backgroundOnHover} !important;
 

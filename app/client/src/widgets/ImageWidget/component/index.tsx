@@ -32,7 +32,7 @@ export const StyledImage = styled.div<
 >`
   position: relative;
   display: flex;
-  flex-direction: "row";
+  flex-direction: row;
   background-size: ${(props) => props.objectFit ?? "contain"};
   cursor: ${(props) =>
     props.showHoverPointer && props.onClick ? "pointer" : "inherit"};
@@ -268,7 +268,10 @@ class ImageComponent extends React.Component<
                   {...this.props}
                   data-testid="styledImage"
                   onClick={
-                    hasOnClick ? (e) => onClick(e, zoomIn, zoomOut) : undefined
+                    hasOnClick
+                      ? (e: React.MouseEvent<HTMLElement, MouseEvent>) =>
+                          onClick(e, zoomIn, zoomOut)
+                      : undefined
                   }
                   // Checking if onClick event is associated, changing cursor to pointer.
                   style={{

@@ -86,7 +86,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
 
     return (
       <Form
-        onSubmit={(e) => {
+        onSubmit={(e: { preventDefault: () => void }) => {
           e.preventDefault();
         }}
         showFilterComponent={showFilterComponent}

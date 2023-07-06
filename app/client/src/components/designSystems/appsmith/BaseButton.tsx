@@ -98,7 +98,7 @@ const getCustomBorderColor = (
     : "none";
 };
 
-const StyledButton = styled((props) => (
+const StyledButton = styled((props: any) => (
   <Button
     {..._.omit(props, [
       "prevButtonStyle",

@@ -95,10 +95,7 @@ const isEllipsisActive = (element: HTMLElement | null) => {
   return element && element.clientWidth < element.scrollWidth;
 };
 
-export const labelLayoutStyles = css<{
-  compactMode: boolean;
-  labelPosition?: LabelPosition;
-}>`
+export const labelLayoutStyles = css<any>`
   display: flex;
   flex-direction: ${({ compactMode, labelPosition }) => {
     if (labelPosition === LabelPosition.Left) return "row";

@@ -167,7 +167,10 @@ export function CanvasResizer({
     <AutoLayoutCanvasResizer
       className="resizer-right"
       draggable
-      onDragStart={(e) => {
+      onDragStart={(e: {
+        preventDefault: () => void;
+        stopPropagation: () => void;
+      }) => {
         e.preventDefault();
         e.stopPropagation();
       }}

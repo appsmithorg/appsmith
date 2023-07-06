@@ -21,64 +21,70 @@ export const VisibilityContainer = styled.div<{
     `}
 `;
 
-const VerticalResizeIndicators = css<{
-  showLightBorder: boolean;
-  isHovered: boolean;
-}>`
-  &::after {
-    position: absolute;
-    content: "";
-    width: 7px;
-    height: 16px;
-    border-radius: 50%/16%;
-    background: ${Colors.GREY_1};
-    top: calc(50% - 8px);
-    left: calc(50% - 2.5px);
-    border: ${(props) => {
-      return `1px solid ${props.isHovered ? Colors.WATUSI : "#F86A2B"}`;
-    }};
-    outline: 1px solid ${Colors.GREY_1};
-  }
-  &:hover::after {
-    background: #f86a2b;
-  }
-`;
-
-const HorizontalResizeIndicators = css<{
-  showLightBorder: boolean;
-  isHovered: boolean;
-}>`
-  &::after {
-    position: absolute;
-    content: "";
-    width: 16px;
-    height: 7px;
-    border-radius: 16%/50%;
-    border: ${(props) => {
-      return `1px solid ${props.isHovered ? Colors.WATUSI : "#F86A2B"}`;
-    }};
-    background: ${Colors.GREY_1};
-    top: calc(50% - 2.5px);
-    left: calc(50% - 8px);
-    outline: 1px solid ${Colors.GREY_1};
-  }
-  &:hover::after {
-    background: #f86a2b;
-  }
-`;
-
-export const EdgeHandleStyles = css<{
+type ResizeProps = {
   showAsBorder: boolean;
   showLightBorder: boolean;
   disableDot: boolean;
   isHovered: boolean;
-}>`
+};
+
+const VerticalResizeIndicators = css<ResizeProps>`
+  ${(props) =>
+    props.showAsBorder || props.disableDot
+      ? ""
+      : css`
+          &::after {
+            position: absolute;
+            content: "";
+            width: 7px;
+            height: 16px;
+            border-radius: 50%/16%;
+            background: ${Colors.GREY_1};
+            top: calc(50% - 8px);
+            left: calc(50% - 2.5px);
+            border: ${(props: any) => {
+              return `1px solid ${props.isHovered ? Colors.WATUSI : "#F86A2B"}`;
+            }};
+            outline: 1px solid ${Colors.GREY_1};
+          }
+          &:hover::after {
+            background: #f86a2b;
+          }
+        `}
+`;
+
+const HorizontalResizeIndicators = css<ResizeProps>`
+  ${(props) =>
+    props.showAsBorder || props.disableDot
+      ? ""
+      : css`
+          &::after {
+            position: absolute;
+            content: "";
+            width: 16px;
+            height: 7px;
+            border-radius: 16%/50%;
+            border: ${(props: any) => {
+              return `1px solid ${props.isHovered ? Colors.WATUSI : "#F86A2B"}`;
+            }};
+            background: ${Colors.GREY_1};
+            top: calc(50% - 2.5px);
+            left: calc(50% - 8px);
+            outline: 1px solid ${Colors.GREY_1};
+          }
+          &:hover::after {
+            background: #f86a2b;
+          }
+        `}
+`;
+
+export const EdgeHandleStyles = css<ResizeProps>`
   position: absolute;
   width: ${EDGE_RESIZE_HANDLE_WIDTH}px;
   height: ${EDGE_RESIZE_HANDLE_WIDTH}px;
   &::before {
     position: absolute;
-    background: "transparent";
+    background: unset;
     content: "";
   }
 `;
@@ -90,8 +96,7 @@ export const VerticalHandleStyles = css<{
   isHovered: boolean;
 }>`
   ${EdgeHandleStyles}
-  ${(props) =>
-    props.showAsBorder || props.disableDot ? "" : VerticalResizeIndicators}
+  ${VerticalResizeIndicators}
   top:${~(WIDGET_PADDING - 1) + 1}px;
   height: calc(100% + ${2 * WIDGET_PADDING - 1}px);
   ${(props) =>
@@ -104,15 +109,9 @@ export const VerticalHandleStyles = css<{
   }
 `;
 
-export const HorizontalHandleStyles = css<{
-  showAsBorder: boolean;
-  showLightBorder: boolean;
-  disableDot: boolean;
-  isHovered: boolean;
-}>`
+export const HorizontalHandleStyles = css<ResizeProps>`
   ${EdgeHandleStyles}
-  ${(props) =>
-    props.showAsBorder || props.disableDot ? "" : HorizontalResizeIndicators}
+  ${HorizontalResizeIndicators}
   left: ${~WIDGET_PADDING + 1}px;
   width: calc(100% + ${2 * WIDGET_PADDING}px);
   ${(props) =>
@@ -125,23 +124,23 @@ export const HorizontalHandleStyles = css<{
   }
 `;
 
-export const LeftHandleStyles = styled.div`
-  ${VerticalHandleStyles}
+export const LeftHandleStyles = styled.div<ResizeProps>`
+  ${VerticalHandleStyles};
   left: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 1.5}px;
 `;
 
-export const RightHandleStyles = styled.div`
+export const RightHandleStyles = styled.div<ResizeProps>`
   ${VerticalHandleStyles};
   right: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 3.5}px;
   height: calc(100% + ${2 * WIDGET_PADDING}px);
 `;
 
-export const TopHandleStyles = styled.div`
+export const TopHandleStyles = styled.div<ResizeProps>`
   ${HorizontalHandleStyles};
   top: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 1.5}px;
 `;
 
-export const BottomHandleStyles = styled.div`
+export const BottomHandleStyles = styled.div<ResizeProps>`
   ${HorizontalHandleStyles};
   bottom: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 3.5}px;
 `;

@@ -3,7 +3,7 @@ import type { Theme } from "constants/DefaultTheme";
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
 
-export const LoadingAnimation = createGlobalStyle<{ theme: Theme }>`
+export const LoadingAnimation = createGlobalStyle<{ theme?: Theme }>`
 	&&&& .${Classes.SKELETON} {
 		background:  ${(props) => props.theme.colors.loader.light};;
 		border-color:  ${(props) => props.theme.colors.loader.light};;

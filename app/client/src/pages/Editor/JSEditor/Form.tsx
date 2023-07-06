@@ -306,7 +306,11 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
         }}
       >
         <CloseEditor />
-        <Form onSubmit={(event) => event.preventDefault()}>
+        <Form
+          onSubmit={(event: { preventDefault: () => void }) =>
+            event.preventDefault()
+          }
+        >
           <StyledFormRow className="form-row-header">
             <NameWrapper className="t--nameOfJSObject">
               <JSObjectNameEditor

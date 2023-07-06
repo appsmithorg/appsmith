@@ -42,7 +42,7 @@ import { checkInputTypeText } from "../utils";
  * All generic logic like max characters for phone numbers should be 10, should go in the widget
  */
 
-const InputComponentWrapper = styled((props) => (
+const InputComponentWrapper = styled((props: any) => (
   <ControlGroup
     {..._.omit(props, [
       "hasError",
@@ -77,7 +77,6 @@ const InputComponentWrapper = styled((props) => (
   isDynamicHeightEnabled?: boolean;
   isMultiline?: boolean;
 }>`
-  ${labelLayoutStyles}
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "auto")};
   .${Classes.INPUT_GROUP} {
     display: flex;
@@ -85,13 +84,15 @@ const InputComponentWrapper = styled((props) => (
     background: ${(props) =>
       props.disabled ? "var(--wds-color-bg-disabled)" : "white"};
 
-    span, input, textarea {
+    span,
+    input,
+    textarea {
       background: ${(props) =>
         props.disabled ? "var(--wds-color-bg-disabled)" : Colors.WHITE};
-        color: ${(props) =>
-          props.disabled
-            ? "var(--wds-color-text-disabled)"
-            : "var(--wds-color-text)"};
+      color: ${(props) =>
+        props.disabled
+          ? "var(--wds-color-text-disabled)"
+          : "var(--wds-color-text)"};
     }
 
     > {
@@ -151,22 +152,17 @@ const InputComponentWrapper = styled((props) => (
         height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
         width: 100%;
         border-color: ${({ hasError }) => {
-          return hasError
-            ? `${Colors.DANGER_SOLID} !important;`
-            : `${Colors.GREY_3};`;
-        }}
-
-        ${(props) =>
-          props.numeric &&
-          `
+            return hasError
+              ? `${Colors.DANGER_SOLID} !important;`
+              : `${Colors.GREY_3};`;
+          }}
+          ${(props) =>
+            props.numeric &&
+            `
           border-top-right-radius: 0px;
           border-bottom-right-radius: 0px;
           ${props.hasError ? "" : "border-right-width: 0px;"}
-        `}
-        &:active {
-          border-color: ${({ hasError }) =>
-            hasError ? Colors.DANGER_SOLID : Colors.HIT_GRAY};
-        }
+        `};
       }
     }
 
@@ -176,8 +172,12 @@ const InputComponentWrapper = styled((props) => (
       box-shadow: none !important;
     }
 
-    .currency-type-filter .bp3-popover-open button
-    .country-type-filter .bp3-popover-open button {
+    .currency-type-filter
+      .bp3-popover-open
+      button
+      .country-type-filter
+      .bp3-popover-open
+      button {
       border: 0px solid !important;
       box-shadow: none !important;
       background: ${Colors.GREY_3};
@@ -186,10 +186,10 @@ const InputComponentWrapper = styled((props) => (
     textarea {
       background: ${(props) =>
         props.disabled ? "var(--wds-color-bg-disabled)" : Colors.WHITE};
-        color: ${(props) =>
-          props.disabled
-            ? "var(--wds-color-text-disabled)"
-            : "var(--wds-color-text)"};
+      color: ${(props) =>
+        props.disabled
+          ? "var(--wds-color-text-disabled)"
+          : "var(--wds-color-text)"};
     }
 
     .${Classes.INPUT} {
@@ -308,6 +308,8 @@ const InputComponentWrapper = styled((props) => (
 
     height: ${({ isMultiLine }) => (isMultiLine ? "100%" : "auto")};
   }
+
+  ${labelLayoutStyles}
 `;
 
 const StyledNumericInput = styled(NumericInput)`
@@ -536,7 +538,9 @@ class BaseInputComponent extends React.Component<
         buttonPosition={this.props.buttonPosition}
         className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
         disabled={this.props.disabled}
-        inputRef={(el) => {
+        inputRef={(
+          el: HTMLInputElement | HTMLTextAreaElement | null | undefined,
+        ) => {
           if (this.props.inputRef && el) {
             this.props.inputRef.current = el;
           }
@@ -672,6 +676,7 @@ class BaseInputComponent extends React.Component<
         inputType={inputType}
         isDynamicHeightEnabled={isDynamicHeightEnabled}
         isMultiLine={!!multiline}
+        // @ts-expect-error: Types are not available
         labelPosition={labelPosition}
         labelStyle={labelStyle}
         labelTextColor={labelTextColor}

@@ -30,6 +30,7 @@ const MarkWrapper = styled.div<{ position: number }>(({ position }) => ({
   pointerEvents: "none",
 }));
 
+// @ts-expect-error: Types are not available
 const Mark = styled.div<Pick<MarksProps, "size">>(({ size }) => ({
   boxSizing: "border-box",
   border: `${sizeMap[size] >= 8 ? "2px" : "1px"} solid`,
@@ -108,11 +109,11 @@ export const Marks = React.memo(
           {showMarksLabel && (
             <MarkLabel
               color={marksBg.label}
-              onMouseDown={(event) => {
+              onMouseDown={(event: { stopPropagation: () => void }) => {
                 event.stopPropagation();
                 onChange(mark.value);
               }}
-              onTouchStart={(event) => {
+              onTouchStart={(event: { stopPropagation: () => void }) => {
                 event.stopPropagation();
                 onChange(mark.value);
               }}

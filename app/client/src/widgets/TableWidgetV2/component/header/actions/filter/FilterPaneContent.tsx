@@ -186,7 +186,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
   return (
     <TableFilterOuterWrapper
       borderRadius={props.borderRadius}
-      onClick={(e) => {
+      onClick={(e: { stopPropagation: () => void }) => {
         e.stopPropagation();
       }}
     >
@@ -198,7 +198,9 @@ function TableFilterPaneContent(props: TableFilterProps) {
           <Icon fillColor={Colors.GREY_6} name="close-x" size={IconSize.XXL} />
         </div>
       </ColumnTypeBindingMessage>
-      <TableFilerWrapper onClick={(e) => e.stopPropagation()}>
+      <TableFilerWrapper
+        onClick={(e: { stopPropagation: () => void }) => e.stopPropagation()}
+      >
         {filters.map((filter: ReactTableFilter, index: number) => {
           return (
             <CascadeFields
@@ -260,6 +262,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
         })}
         {hasAnyFilters ? (
           <ButtonWrapper>
+            {/*// @ts-expect-error: Types are not available*/}
             <Button
               borderRadius={props.borderRadius}
               buttonColor={props.accentColor}
@@ -271,6 +274,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
               text="Add Filter"
             />
             <ButtonActionsWrapper>
+              {/*// @ts-expect-error: Types are not available*/}
               <Button
                 borderRadius={props.borderRadius}
                 buttonColor={props.accentColor}
@@ -279,6 +283,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
                 onClick={clearFilters}
                 text="CLEAR ALL"
               />
+              {/*// @ts-expect-error: Types are not available*/}
               <Button
                 borderRadius={props.borderRadius}
                 buttonColor={props.accentColor}

@@ -315,7 +315,11 @@ function LogItem(props: LogItemProps) {
             )}
             {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
               props.severity === Severity.ERROR && (
-                <ContextWrapper onClick={(e) => e.stopPropagation()}>
+                <ContextWrapper
+                  onClick={(e: { stopPropagation: () => void }) =>
+                    e.stopPropagation()
+                  }
+                >
                   <ContextualMenu
                     entity={props.source}
                     error={{ message: { name: "", message: "" } }}
@@ -352,7 +356,9 @@ function LogItem(props: LogItemProps) {
             return (
               <MessageWrapper
                 key={e.message.message}
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e: { stopPropagation: () => void }) =>
+                  e.stopPropagation()
+                }
               >
                 <span className="debugger-message t--debugger-message">
                   {isString(e.message) ? e.message : e.message.message}
@@ -363,7 +369,9 @@ function LogItem(props: LogItemProps) {
           {props.state && (
             <JsonWrapper
               className="t--debugger-log-state"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e: { stopPropagation: () => void }) =>
+                e.stopPropagation()
+              }
             >
               <ReactJson src={props.state} {...reactJsonProps} />
             </JsonWrapper>
@@ -376,7 +384,9 @@ function LogItem(props: LogItemProps) {
                   <JsonWrapper
                     className="t--debugger-console-log-data"
                     key={Math.random()}
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e: { stopPropagation: () => void }) =>
+                      e.stopPropagation()
+                    }
                   >
                     <ReactJson src={logDatum} {...reactJsonProps} />
                   </JsonWrapper>

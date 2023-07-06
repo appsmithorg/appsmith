@@ -51,7 +51,7 @@ import { checkInputTypeText } from "widgets/BaseInputWidget/utils";
  * All generic logic like max characters for phone numbers should be 10, should go in the widget
  */
 
-const InputComponentWrapper = styled((props) => (
+const InputComponentWrapper = styled((props: any) => (
   <ControlGroup
     {..._.omit(props, [
       "hasError",

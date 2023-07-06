@@ -1,3 +1,4 @@
+import type { ButtonBorderRadiusTypes } from "components/constants";
 import React, { useState } from "react";
 
 import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
@@ -26,7 +27,7 @@ function IconButton(props: {
   action: ColumnAction;
   buttonColor: string;
   buttonVariant: ButtonVariant;
-  borderRadius: string;
+  borderRadius: keyof typeof ButtonBorderRadiusTypes;
   boxShadow: string;
   disabled: boolean;
   compactMode?: string;
@@ -129,6 +130,7 @@ export function IconButtonCell(props: RenderIconButtonProps) {
         return (
           <IconButton
             action={action}
+            // @ts-expect-error: Types are not available
             borderRadius={borderRadius}
             boxShadow={boxShadow}
             buttonColor={buttonColor}

@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import type { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorSize,
@@ -11,22 +11,17 @@ import { NAVIGATION_CLASSNAME } from "./MarkHelpers/entityMarker";
 
 export const PEEK_STYLE_PERSIST_CLASS = "peek-style-persist";
 
-const getBorderStyle = (
-  props: { theme: Theme } & {
-    editorTheme?: EditorTheme;
-    hasError: boolean;
-    size: EditorSize;
-    isFocused: boolean;
-    disabled?: boolean;
-  },
-) => {
-  if (props.hasError) return "var(--ads-v2-color-border-error)";
-  if (props.editorTheme !== EditorTheme.DARK) {
-    if (props.isFocused) return "var(--ads-v2-color-border-emphasis)";
-    return "var(--ads-v2-color-border)";
-  }
-  return "transparent";
-};
+const getBorderStyle = css<EditorWrapperProps>`
+  ${(props) => {
+    if (props.hasError) return "var(--ads-v2-color-border-error)";
+    if (props.editorTheme !== EditorTheme.DARK) {
+      if (props.isFocused) return "var(--ads-v2-color-border-emphasis)";
+      return "var(--ads-v2-color-border)";
+    }
+
+    return "transparent";
+  }}
+`;
 
 export const CodeEditorColors = {
   KEYWORD: "#304eaa",
@@ -38,7 +33,7 @@ export const CodeEditorColors = {
   FUNCTION_ARGS: "hsl(288, 44%, 44%)",
 };
 
-export const EditorWrapper = styled.div<{
+export type EditorWrapperProps = {
   editorTheme?: EditorTheme;
   hasError: boolean;
   isFocused: boolean;
@@ -56,7 +51,9 @@ export const EditorWrapper = styled.div<{
   codeEditorVisibleOverflow?: boolean;
   ctrlPressed: boolean;
   removeHoverAndFocusStyle?: boolean;
-}>`
+};
+
+export const EditorWrapper = styled.div<EditorWrapperProps>`
   // Bottom border was getting clipped
   .CodeMirror.cm-s-duotone-light.CodeMirror-wrap {
     clip-path: none !important;

@@ -12,6 +12,7 @@ import type { ComponentProps } from "widgets/BaseComponent";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
 
+// @ts-expect-error: Types are not available
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const TextInput = styled(({ hasError, ...rest }) => (
   <InputGroup {...rest} />

@@ -19,12 +19,7 @@ const locale = {
   next_3: "Next 3 Pages",
 };
 
-const paginatorCss = css<{
-  borderRadius: string;
-  boxShadow?: string;
-  accentColor: string;
-  disabled?: boolean;
-}>`
+const paginatorCss = css<any>`
   margin: 0 auto;
   padding: 0;
   font-size: 14px;
@@ -417,14 +412,15 @@ function ListPagination(props: ListPaginationProps) {
 }
 
 const PaginationWrapper = styled.ul`
+  pointer-events: all;
+  opacity: 1;
   ${paginatorCss}
-  pointer-events: "all";
-  opacity: "1";
 `;
 
 export function ServerSideListPagination(props: any) {
   return (
     <PaginationWrapper
+      // @ts-expect-error: Types are not available
       accentColor={props.accentColor}
       borderRadius={props.borderRadius}
       boxShadow={props.boxShadow}

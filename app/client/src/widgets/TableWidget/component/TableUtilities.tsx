@@ -1,3 +1,4 @@
+import type { ButtonBorderRadiusTypes } from "components/constants";
 import React, { useState } from "react";
 import type { Alignment } from "@blueprintjs/core";
 import { MenuItem, Classes, Button as BButton } from "@blueprintjs/core";
@@ -193,7 +194,7 @@ interface RenderIconButtonProps {
   iconName?: IconName;
   buttonVariant: ButtonVariant;
   buttonColor: string;
-  borderRadius: string;
+  borderRadius: keyof typeof ButtonBorderRadiusTypes;
   boxShadow: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   isCellVisible: boolean;
@@ -246,7 +247,7 @@ function IconButton(props: {
   action: ColumnAction;
   buttonColor: string;
   buttonVariant: ButtonVariant;
-  borderRadius: string;
+  borderRadius: keyof typeof ButtonBorderRadiusTypes;
   boxShadow: string;
   disabled: boolean;
 }): JSX.Element {
@@ -287,7 +288,7 @@ interface RenderActionProps {
   isSelected: boolean;
   columnActions?: ColumnAction[];
   backgroundColor: string;
-  borderRadius: string;
+  borderRadius: keyof typeof ButtonBorderRadiusTypes;
   boxShadow?: string;
 
   buttonLabelColor: string;
@@ -432,7 +433,7 @@ function TableAction(props: {
   buttonVariant: ButtonVariant;
   isDisabled: boolean;
   isCellVisible: boolean;
-  borderRadius: string;
+  borderRadius: keyof typeof ButtonBorderRadiusTypes;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }) {
   const [loading, setLoading] = useState(false);
@@ -449,7 +450,7 @@ function TableAction(props: {
   return (
     <ActionWrapper
       disabled={props.isDisabled}
-      onClick={(e) => {
+      onClick={(e: { stopPropagation: () => void }) => {
         if (props.isSelected) {
           e.stopPropagation();
         }

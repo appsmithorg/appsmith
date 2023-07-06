@@ -755,7 +755,9 @@ export function EditorJSONtoForm(props: Props) {
               {executedQueryData && executedQueryData.request && (
                 <JsonWrapper
                   className="t--debugger-log-state"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e: { stopPropagation: () => void }) =>
+                    e.stopPropagation()
+                  }
                 >
                   <ReactJson src={responseState} {...apiReactJsonProps} />
                 </JsonWrapper>

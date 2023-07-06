@@ -16,5 +16,6 @@ const Template: ComponentStory<typeof SpinnerComponent> = (args: any) => (
 export const Spinner = Template.bind({});
 
 Spinner.args = {
+  // @ts-expect-error: Types are not available
   size: "small",
 };

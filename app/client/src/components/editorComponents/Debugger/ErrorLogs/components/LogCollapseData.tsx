@@ -100,7 +100,9 @@ export default function LogCollapseData(props: any) {
           {props.state && (
             <JsonWrapper
               className="t--debugger-log-state"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e: { stopPropagation: () => void }) =>
+                e.stopPropagation()
+              }
             >
               <ReactJson src={props.state} {...reactJsonProps} />
             </JsonWrapper>

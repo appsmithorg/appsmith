@@ -1,5 +1,5 @@
 import React, { useState, forwardRef } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { getRgbaColor } from "widgets/WidgetUtils";
 import type { SliderSizes } from "../utils";
@@ -25,47 +25,51 @@ interface ThumbProps {
   disabled: boolean;
 }
 
-const Tooltip = styled.div({
-  position: "absolute",
-  top: -36,
-  backgroundColor: "#212529",
-  fontSize: "12px",
-  fontWeight: 400,
-  color: "white",
-  padding: "5px",
-  borderRadius: "4px",
-  whiteSpace: "nowrap",
-  pointerEvents: "none",
-  userSelect: "none",
-});
+const Tooltip = styled.div`
+  position: absolute;
+  top: -36px;
+  background-color: #212529;
+  font-size: 12px;
+  font-weight: 400;
+  color: white;
+  padding: 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+`;
 
 const ThumbWrapper = styled.div<
   Pick<ThumbProps, "color" | "disabled" | "position" | "size" | "thumbBgColor">
->(({ color, disabled, position, size, thumbBgColor }) => ({
-  boxSizing: "border-box",
-  position: "absolute",
-  display: "flex",
-  height: thumbSizeMap[size],
-  width: thumbSizeMap[size],
-  backgroundColor: thumbBgColor,
-  border: `4px solid ${thumbBgColor}`,
-  top: "50%",
-  cursor: disabled ? "not-allowed" : "pointer",
-  borderRadius: 1000,
-  alignItems: "center",
-  justifyContent: "center",
-  transitionDuration: "100ms",
-  transitionProperty: "box-shadow, transform",
-  transitionTimingFunction: "ease",
-  zIndex: 3,
-  userSelect: "none",
-  transform: "translate(-50%, -50%)",
-  left: `${position}%`,
+>`
+  ${({ color, disabled, position, size, thumbBgColor }) => {
+    return css`
+      box-sizing: border-box;
+      position: absolute;
+      display: flex;
+      height: ${thumbSizeMap[size]};
+      width: ${thumbSizeMap[size]};
+      background-color: ${thumbBgColor};
+      border: 4px solid ${thumbBgColor};
+      top: 50%;
+      cursor: ${disabled ? "not-allowed" : "pointer"};
+      border-radius: 1000px;
+      align-items: center;
+      justify-content: center;
+      transition-duration: 100ms;
+      transition-property: box-shadow, transform;
+      transition-timing-function: ease;
+      z-index: 3;
+      user-select: none;
+      transform: translate(-50%, -50%);
+      left: ${position}%;
 
-  "&:focus": {
-    boxShadow: `0 0 0px 4px ${getRgbaColor(color, 0.2)}`,
-  },
-}));
+      &:focus {
+        box-shadow: 0 0 0px 4px ${getRgbaColor(color, 0.2)};
+      }
+    `;
+  }}
+`;
 
 export const Thumb = forwardRef<HTMLDivElement, ThumbProps>(
   (
@@ -105,7 +109,9 @@ export const Thumb = forwardRef<HTMLDivElement, ThumbProps>(
           setFocused(false);
           typeof onBlur === "function" && onBlur();
         }}
-        onClick={(event) => event.stopPropagation()}
+        onClick={(event: { stopPropagation: () => void }) =>
+          event.stopPropagation()
+        }
         onFocus={() => {
           setFocused(true);
           typeof onFocus === "function" && onFocus();

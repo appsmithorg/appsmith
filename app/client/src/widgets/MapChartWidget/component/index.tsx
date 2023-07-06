@@ -248,7 +248,7 @@ function MapChartComponent(props: MapChartComponentProps) {
     <MapChartContainer
       borderRadius={props.borderRadius}
       boxShadow={props.boxShadow}
-      onClick={(e) => e.stopPropagation()}
+      onClick={(e: { stopPropagation: () => void }) => e.stopPropagation()}
     >
       <ReactFC {...chartConfigs} onRender={renderComplete} />
     </MapChartContainer>

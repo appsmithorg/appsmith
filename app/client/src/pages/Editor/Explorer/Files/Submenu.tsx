@@ -140,7 +140,7 @@ export default function ExplorerSubMenu({
       >
         <SubMenuContainer
           className={`overflow-y-auto overflow-x-hidden flex flex-col justify-start delay-150 transition-all ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
-          onKeyDown={(e) => {
+          onKeyDown={(e: { stopPropagation: () => void }) => {
             // This is to prevent the Menu component to take focus away from the input
             // https://github.com/radix-ui/primitives/issues/1175
             e.stopPropagation();

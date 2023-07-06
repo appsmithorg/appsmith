@@ -370,7 +370,7 @@ export const MultiSelectContainer = styled.div<{
         position: absolute;
         z-index: 999;
         white-space: nowrap;
-        position: none;
+        position: unset;
         left: 0;
         top: 0;
         visibility: hidden;
