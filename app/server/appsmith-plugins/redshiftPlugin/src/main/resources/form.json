@@ -78,13 +78,17 @@
     {
       "id": 3,
       "sectionName": "SSL (optional)",
-      "hidden": true,
       "children": [
         {
           "label": "SSL mode",
           "configProperty": "datasourceConfiguration.connection.ssl.authType",
           "controlType": "DROP_DOWN",
+          "initialValue": "DEFAULT",
           "options": [
+            {
+              "label": "Default",
+              "value": "DEFAULT"
+            },
             {
               "label": "No SSL",
               "value": "NO_SSL"
@@ -104,14 +108,6 @@
             {
               "label": "Disable",
               "value": "DISABLE"
-            },
-            {
-              "label": "Verify-CA",
-              "value": "VERIFY_CA"
-            },
-            {
-              "label": "Verify-Full",
-              "value": "VERIFY_FULL"
             }
           ]
         },

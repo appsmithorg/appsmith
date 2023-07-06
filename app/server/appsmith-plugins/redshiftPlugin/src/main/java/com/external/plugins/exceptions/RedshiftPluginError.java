@@ -17,6 +17,16 @@ public enum RedshiftPluginError implements BasePluginError {
             ErrorType.INTERNAL_ERROR,
             "{1}",
             "{2}"
+    ),
+    REDSHIFT_PLUGIN_ERROR(
+            500,
+            "PE-RED-5001",
+            "{0}",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Query execution error",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
     )
     ;
 
