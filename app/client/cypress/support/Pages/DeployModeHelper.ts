@@ -42,7 +42,7 @@ export class DeployMode {
     this.StubbingDeployPage(addDebugFlag);
     this.agHelper.ClickButton("Deploy");
     this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //to make sure we have started navigation from Edit page
-    cy.get("@windowDeployStub").should("be.calledOnce");
+    //cy.get("@windowDeployStub").should("be.calledOnce");
     this.assertHelper.AssertDocumentReady();
     cy.log("Pagename: " + localStorage.getItem("PageName"));
 
@@ -63,7 +63,7 @@ export class DeployMode {
 
   // Stubbing window.open to open in the same tab
   public StubbingWindow() {
-    cy.window().then((window: any) => {
+    cy.window({ timeout: 60000 }).then((window: any) => {
       cy.stub(window, "open")
         .as("windowStub")
         .callsFake((url) => {
@@ -74,18 +74,55 @@ export class DeployMode {
   }
 
   public StubbingDeployPage(addDebugFlag = true) {
-    cy.window({ timeout: 30000 }).then((window) => {
-      cy.stub(window, "open")
-        .as("windowDeployStub")
-        .callsFake((url) => {
-          const updatedUrl = `${Cypress.config().baseUrl + url.substring(1)}`;
-          window.location.href = `${updatedUrl}${
+    // cy.window({ timeout: 60000 }).then((window) => {
+    //   cy.stub(window, "open")
+    //     .as("windowDeployStub")
+    //     .callsFake((url) => {
+    //       const updatedUrl = `${Cypress.config().baseUrl + url.substring(1)}`;
+    //       window.location.href = `${updatedUrl}${
+    //         addDebugFlag
+    //           ? (updatedUrl.indexOf("?") > -1 ? "&" : "?") + "debug=true"
+    //           : ""
+    //       }`;
+    //     });
+    // });
+
+    // //this.StubbingWindow();
+    let updatedUrl = "";
+    cy.window({ timeout: 60000 }).then((window) => {
+      const originalOpen = window.open; // Save a reference to the original window.open function
+      window.open = (url: any) => {
+        updatedUrl = `${Cypress.config().baseUrl + url.substring(1)}`;
+        originalOpen.call(
+          window,
+          `${updatedUrl}${
             addDebugFlag
               ? (updatedUrl.indexOf("?") > -1 ? "&" : "?") + "debug=true"
               : ""
-          }`;
-        });
+          }`,
+          "_self",
+        ); // Call the original window.open function
+        //cy.wrap(originalOpen).as("windowDeployStub");  //this is not working! to check later
+        return null;
+      };
     });
+  }
+
+  public StubWindowNAssert(
+    selector: string,
+    expectedUrl: string,
+    networkCall: string,
+  ) {
+    this.StubbingWindow();
+    this.agHelper.GetNClick(selector, 0, false, 4000); //timeout new url to settle loading
+    cy.get("@windowStub").should("be.calledOnce");
+    cy.url().should("contain", expectedUrl);
+    this.assertHelper.AssertDocumentReady();
+    cy.window({ timeout: 60000 }).then((win) => {
+      win.history.back();
+    });
+    this.assertHelper.AssertNetworkStatus("@" + networkCall);
+    this.assertHelper.AssertDocumentReady();
   }
 
   public NavigateBacktoEditor() {

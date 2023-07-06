@@ -32,7 +32,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
-
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 @Slf4j
 public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceCE {
 
@@ -146,15 +147,17 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     }
 
     @Override
-    public Mono<DatasourceStorage> updateByDatasourceAndEnvironmentId(Datasource datasource,
-                                                                      String environmentId,
-                                                                      Boolean isUserRefreshedUpdate) {
-        return this.findByDatasourceAndEnvironmentId(datasource, environmentId)
+    public Mono<DatasourceStorage> updateDatasourceStorage(DatasourceStorage datasourceStorage,
+                                                           String activeEnvironmentId,
+                                                           Boolean isUserRefreshedUpdate) {
+        String datasourceId = datasourceStorage.getDatasourceId();
+        String environmentId = datasourceStorage.getEnvironmentId();
+
+        return this.findStrictlyByDatasourceIdAndEnvironmentId(datasourceId, environmentId)
+                .flatMap(this::checkEnvironment)
                 .map(dbStorage -> {
-                    DatasourceStorageDTO datasourceStorageDTO = getDatasourceStorageDTOFromDatasource(datasource, environmentId);
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
-                    datasourceStorage.prepareTransientFields(datasource);
                     copyNestedNonNullProperties(datasourceStorage, dbStorage);
+
                     if (datasourceStorage.getDatasourceConfiguration() != null
                             && datasourceStorage.getDatasourceConfiguration().getAuthentication() == null) {
                         if (dbStorage.getDatasourceConfiguration() != null) {
@@ -164,14 +167,12 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                     return dbStorage;
                 })
                 .flatMap(this::validateAndSaveDatasourceStorageToRepository)
-                .flatMap(datasourceStorage -> {
-                    Map<String, Object> analyticsProperties = getAnalyticsProperties(datasourceStorage);
-                    if (isUserRefreshedUpdate.equals(Boolean.TRUE)) {
-                        analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.TRUE);
-                    } else {
-                        analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.FALSE);
-                    }
-                    return analyticsService.sendUpdateEvent(datasourceStorage, analyticsProperties);
+                .flatMap(savedDatasourceStorage -> {
+                    Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasourceStorage);
+                    Boolean isUserInvokedUpdate =  TRUE.equals(isUserRefreshedUpdate) ? TRUE : FALSE;
+
+                    analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, isUserInvokedUpdate);
+                    return analyticsService.sendUpdateEvent(savedDatasourceStorage, analyticsProperties);
                 })
                 .flatMap(this::populateHintMessages);
     }

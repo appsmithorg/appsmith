@@ -5,9 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Tab widget test", function () {
   before(() => {
-    cy.fixture("tabsWithWidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tabsWithWidgetDsl");
   });
   it("Tab Widget Functionality Test with Modal on change of selected tab", function () {
     cy.openPropertyPane("tabswidget");

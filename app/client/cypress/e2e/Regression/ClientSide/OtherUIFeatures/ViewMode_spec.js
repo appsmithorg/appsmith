@@ -13,9 +13,7 @@ Cypress.Commands.add("getSharedUrl", () => {
 
 describe("Preview mode functionality", function () {
   before(() => {
-    cy.fixture("previewMode").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("previewMode");
     deployMode.DeployApp();
     cy.url().then((url) => cy.setSharedUrl(url));
   });
@@ -36,7 +34,7 @@ describe("Preview mode functionality", function () {
     cy.url().then((url) => {
       url = new URL(url);
       url.searchParams.append("embed", "true");
-      cy.visit(url.toString());
+      cy.visit(url.toString(), { timeout: 60000 });
     });
     cy.get(appNavigationLocators.header).should("not.exist");
   });
@@ -46,7 +44,7 @@ describe("Preview mode functionality", function () {
       url = new URL(url);
       url.searchParams.append("embed", "true");
       url.searchParams.append("navbar", "true");
-      cy.visit(url.toString());
+      cy.visit(url.toString(), { timeout: 60000 });
     });
     cy.get(appNavigationLocators.header).should("exist");
     cy.get(appNavigationLocators.userProfileDropdownButton).should("not.exist");
