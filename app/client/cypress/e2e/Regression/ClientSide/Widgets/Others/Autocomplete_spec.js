@@ -3,9 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Autocomplete using slash command and mustache tests", function () {
   before(() => {
-    cy.fixture("slashcommandDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("slashcommandDsl");
   });
 
   it("Slash command and mustache autocomplete validation for button widget", function () {
@@ -14,11 +12,8 @@ describe("Autocomplete using slash command and mustache tests", function () {
       cy.get(dynamicInputLocators.hints).should("exist");
       // validates all autocomplete commands on entering / in label field
       cy.get(`${dynamicInputLocators.hints} li`)
-        .eq(1)
+        .eq(0)
         .should("have.text", "New binding");
-      cy.get(`${dynamicInputLocators.hints} li`)
-        .eq(2)
-        .should("have.text", "Insert snippet");
       cy.get(`${dynamicInputLocators.hints} li`)
         .last()
         .should("have.text", "New datasource");
@@ -49,11 +44,8 @@ describe("Autocomplete using slash command and mustache tests", function () {
         cy.get(dynamicInputLocators.hints).should("exist");
         // validates all autocomplete commands on entering / in onClick field
         cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(1)
+          .eq(0)
           .should("have.text", "New binding");
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(2)
-          .should("have.text", "Insert snippet");
         cy.get(`${dynamicInputLocators.hints} li`)
           .last()
           .should("have.text", "New datasource");
@@ -90,11 +82,8 @@ describe("Autocomplete using slash command and mustache tests", function () {
         cy.get(dynamicInputLocators.hints).should("exist");
         // validates all autocomplete commands on entering / in text field
         cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(1)
+          .eq(0)
           .should("have.text", "New binding");
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(2)
-          .should("have.text", "Insert snippet");
         cy.get(`${dynamicInputLocators.hints} li`)
           .last()
           .should("have.text", "New datasource");
@@ -130,11 +119,8 @@ describe("Autocomplete using slash command and mustache tests", function () {
         cy.get(dynamicInputLocators.hints).should("exist");
         // validates all autocomplete commands on entering / in text field
         cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(1)
+          .eq(0)
           .should("have.text", "New binding");
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(2)
-          .should("have.text", "Insert snippet");
         cy.get(`${dynamicInputLocators.hints} li`)
           .last()
           .should("have.text", "New datasource");

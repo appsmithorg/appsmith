@@ -9,9 +9,7 @@ describe("Table widget inline editing functionality", () => {
 
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
-    cy.fixture("Table/InlineEditingDSL").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Table/InlineEditingDSL");
   });
 
   let propPaneBack = "[data-testid='t--property-pane-back-btn']";

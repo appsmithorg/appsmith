@@ -4,9 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Text Widget color/font/alignment Functionality", function () {
   before(() => {
-    cy.fixture("textDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("textDsl");
   });
 
   beforeEach(() => {

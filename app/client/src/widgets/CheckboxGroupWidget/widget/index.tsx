@@ -579,6 +579,7 @@ class CheckboxGroupWidget extends BaseWidget<
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
+        minWidth={this.props.minWidth}
         onChange={this.handleCheckboxChange}
         onSelectAllChange={this.handleSelectAllChange}
         optionAlignment={this.props.optionAlignment}

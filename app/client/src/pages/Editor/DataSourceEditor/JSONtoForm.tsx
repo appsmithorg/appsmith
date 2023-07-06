@@ -8,7 +8,7 @@ import type { Datasource } from "entities/Datasource";
 import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import type FeatureFlags from "entities/FeatureFlags";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 
 export const FormContainer = styled.div`
   display: flex;
@@ -39,6 +39,7 @@ export interface JSONtoFormProps {
   datasourceId: string;
   featureFlags?: FeatureFlags;
   setupConfig: (config: ControlProps) => void;
+  currentEnvironment: string;
 }
 
 export class JSONtoForm<
@@ -60,12 +61,24 @@ export class JSONtoForm<
   };
 
   renderMainSection = (section: any, index: number) => {
+    if (
+      !this.props.formData ||
+      !this.props.formData.hasOwnProperty("datasourceStorages") ||
+      !this.props.hasOwnProperty("currentEnvironment") ||
+      !this.props.currentEnvironment ||
+      !this.props.formData.datasourceStorages.hasOwnProperty(
+        this.props.currentEnvironment,
+      )
+    ) {
+      return null;
+    }
+
     // hides features/configs that are hidden behind feature flag
     // TODO: remove hidden config property as well as this param,
     // when feature flag is removed
     if (
       isHidden(
-        this.props.formData,
+        this.props.formData.datasourceStorages[this.props.currentEnvironment],
         section.hidden,
         this.props?.featureFlags,
         false, // viewMode is false here.
@@ -74,10 +87,8 @@ export class JSONtoForm<
       return null;
     return (
       <Collapsible
-        defaultIsOpen={index === 0 || section?.isDefaultOpen}
         key={section.sectionName}
-        showSection={index !== 0 && !section?.isDefaultOpen}
-        showTopBorder={index !== 0 && !section?.isDefaultOpen}
+        showSectionHeader={index !== 0}
         title={section.sectionName}
       >
         {this.renderEachConfig(section)}
@@ -90,13 +101,18 @@ export class JSONtoForm<
     multipleConfig?: ControlProps[],
   ) => {
     multipleConfig = multipleConfig || [];
-
+    const customConfig = {
+      ...config,
+      configProperty:
+        `datasourceStorages.${this.props.currentEnvironment}.` +
+        config.configProperty,
+    };
     try {
-      this.props.setupConfig(config);
+      this.props.setupConfig(customConfig);
       return (
-        <div key={config.configProperty} style={{ marginTop: "16px" }}>
+        <div key={customConfig.configProperty} style={{ marginTop: "16px" }}>
           <FormControl
-            config={config}
+            config={customConfig}
             formName={this.props.formName}
             multipleConfig={multipleConfig}
           />
@@ -128,7 +144,9 @@ export class JSONtoForm<
           // when feature flag is removed
           if (
             isHidden(
-              this.props.formData,
+              this.props.formData.datasourceStorages[
+                this.props.currentEnvironment
+              ],
               propertyControlOrSection.hidden,
               this.props?.featureFlags,
               false,

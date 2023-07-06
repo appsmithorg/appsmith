@@ -183,6 +183,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         onSort: queryConfig.select.run,
         enableClientSideSearch: !formConfig.searchableColumn,
         primaryColumnId: formConfig.primaryColumn,
+        isVisibleDownload: false,
       });
     }
 

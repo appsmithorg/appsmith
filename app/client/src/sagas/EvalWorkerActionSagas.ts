@@ -30,9 +30,8 @@ import type {
 import isEmpty from "lodash/isEmpty";
 import type { UnEvalTree } from "entities/DataTree/dataTreeFactory";
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
-import type { LintTreeSagaRequestData } from "workers/Linting/types";
+import type { LintTreeSagaRequestData } from "plugins/Linting/types";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-
 export type UpdateDataTreeMessageData = {
   workerResponse: EvalTreeResponseData;
   unevalTree: UnEvalTree;
@@ -48,20 +47,11 @@ export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
 export function* lintTreeActionHandler(message: any) {
   const { body } = message;
   const { data } = body;
-  const {
-    asyncJSFunctionsInDataFields,
-    configTree,
-    jsPropertiesState,
-    pathsToLint: lintOrder,
-    unevalTree,
-  } = data as LintTreeSagaRequestData;
+  const { configTree, unevalTree } = data as LintTreeSagaRequestData;
   yield put({
     type: ReduxActionTypes.LINT_TREE,
     payload: {
-      pathsToLint: lintOrder,
       unevalTree,
-      jsPropertiesState,
-      asyncJSFunctionsInDataFields,
       configTree,
     },
   });

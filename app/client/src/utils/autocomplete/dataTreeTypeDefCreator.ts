@@ -108,7 +108,6 @@ export const dataTreeTypeDefCreator = (
       }
 
       def[entityName] = jsPropertiesDef;
-      flattenDef(def, entityName);
       entityMap.set(entityName, {
         type: ENTITY_TYPE.JSACTION,
         subType: "JSACTION",
@@ -175,26 +174,30 @@ export function generateTypeDef(
 
 export const flattenDef = (def: Def, entityName: string): Def => {
   const flattenedDef = def;
-  if (isTrueObject(def[entityName])) {
-    Object.entries(def[entityName]).forEach(([key, value]) => {
-      if (!key.startsWith("!")) {
-        flattenedDef[`${entityName}.${key}`] = value;
-        if (isTrueObject(value)) {
-          Object.entries(value).forEach(([subKey, subValue]) => {
-            if (!subKey.startsWith("!")) {
-              flattenedDef[`${entityName}.${key}.${subKey}`] = subValue;
-            }
-          });
-        }
-      }
+  if (!isTrueObject(def[entityName])) return flattenedDef;
+  Object.entries(def[entityName]).forEach(([key, value]) => {
+    if (key.startsWith("!")) return;
+    const keyIsValid = isValidVariableName(key);
+    const parentCompletion = !keyIsValid
+      ? `${entityName}["${key}"]`
+      : `${entityName}.${key}`;
+    flattenedDef[parentCompletion] = value;
+    if (!isTrueObject(value)) return;
+    Object.entries(value).forEach(([subKey, subValue]) => {
+      if (subKey.startsWith("!")) return;
+      const childKeyIsValid = isValidVariableName(subKey);
+      const childCompletion = !childKeyIsValid
+        ? `${parentCompletion}["${subKey}"]`
+        : `${parentCompletion}.${subKey}`;
+      flattenedDef[childCompletion] = subValue;
     });
-  }
+  });
   return flattenedDef;
 };
 
 const VALID_VARIABLE_NAME_REGEX = /^([a-zA-Z_$][a-zA-Z\d_$]*)$/;
 
-const isValidVariableName = (variableName: string) =>
+export const isValidVariableName = (variableName: string) =>
   VALID_VARIABLE_NAME_REGEX.test(variableName);
 
 export const getFunctionsArgsType = (args: Variable[]): string => {

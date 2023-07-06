@@ -14,6 +14,7 @@ const DataSourceKVP = {
   Elasticsearch: "Elasticsearch",
   Redis: "Redis",
   Oracle: "Oracle",
+  S3: "S3",
 }; //DataSources KeyValuePair
 
 export enum Widgets {
@@ -49,22 +50,19 @@ export class DataSources {
   private _addNewDataSource = ".t--entity-add-btn.datasources button";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
-  private _collapseContainer = ".t--collapse-section-container";
-  private _collapseSettings =
-    "[data-testid='t--dropdown-connection.ssl.authType']";
-  public _host = "input[name='datasourceConfiguration.endpoints[0].host']";
-  public _port = "input[name='datasourceConfiguration.endpoints[0].port']";
+  public _host = "input[name$='.datasourceConfiguration.endpoints[0].host']";
+  public _port = "input[name$='.datasourceConfiguration.endpoints[0].port']";
   _databaseName =
-    "input[name='datasourceConfiguration.authentication.databaseName']";
+    "input[name$='.datasourceConfiguration.authentication.databaseName']";
   private _username =
-    "input[name='datasourceConfiguration.authentication.username']";
+    "input[name$='.datasourceConfiguration.authentication.username']";
   private _section = (name: string) =>
     "//div[text()='" + name + "']/parent::div";
   private _sectionState = (name: string) =>
     this._section(name) +
     "/following-sibling::div/div[@class ='bp3-collapse-body']";
   private _password =
-    "input[name = 'datasourceConfiguration.authentication.password']";
+    "input[name$='.datasourceConfiguration.authentication.password']";
   private _testDs = ".t--test-datasource";
   _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   _saveDs = ".t--save-datasource";
@@ -176,7 +174,7 @@ export class DataSources {
   _globalSearchInput = (inputText: string) =>
     "//input[@id='global-search'][@value='" + inputText + "']";
   _gsScopeDropdown =
-    "[data-testid='datasourceConfiguration.authentication.scopeString']";
+    "[data-testid^='datasourceStorages.'][data-testid$='.datasourceConfiguration.authentication.scopeString']";
   _gsScopeOptions = ".ads-v2-select__dropdown .rc-select-item-option";
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
@@ -376,31 +374,6 @@ export class DataSources {
     this.agHelper.GetNClick(this._editButton);
   }
 
-  public ExpandSection(index: number) {
-    cy.get(this._collapseContainer).eq(index).click();
-    cy.get(this._collapseSettings).should("be.visible");
-  }
-
-  public ExpandSectionByName(sectionName: string) {
-    // Click on collapse section only if it collapsed, if it is expanded we ignore
-    this.agHelper
-      .GetElement(this._sectionState(sectionName))
-      .invoke("attr", "aria-hidden")
-      .then((hidden: any) => {
-        if (hidden == "true") {
-          this.agHelper.GetNClick(this._section(sectionName));
-        }
-      });
-  }
-
-  public AssertSectionCollapseState(index: number, collapsed = false) {
-    if (collapsed) {
-      cy.get(this._collapseSettings).should("not.be.visible");
-    } else {
-      cy.get(this._collapseSettings).should("be.visible");
-    }
-  }
-
   public NavigateToDSCreateNew() {
     this.ee.HoverOnEntityItem("Datasources");
     Cypress._.times(2, () => {
@@ -440,14 +413,12 @@ export class DataSources {
     );
     this.agHelper.UpdateInputValue(this._host, hostAddress);
     cy.get(this._databaseName).clear().type(databaseName);
-    this.ExpandSectionByName("Authentication");
     cy.get(this._username).type(
       username == "" ? this.hp.postgres_username : username,
     );
     cy.get(this._password).type(
       password == "" ? this.hp.postgres_username : password,
     );
-    this.ExpandSectionByName("SSL (optional)");
     this.ValidateNSelectDropdown("SSL mode", "Default");
   }
 
@@ -465,7 +436,6 @@ export class DataSources {
     this.agHelper.UpdateInputValue(this._host, hostAddress);
     this.agHelper.UpdateInputValue(this._port, this.hp.oracle_port.toString());
     cy.get(this._databaseName).clear().type(databaseName);
-    this.ExpandSectionByName("Authentication");
     cy.get(this._username).type(
       username == "" ? this.hp.oracle_username : username,
     );
@@ -480,7 +450,6 @@ export class DataSources {
       : this.hp.mongo_host;
     this.agHelper.UpdateInputValue(this._host, hostAddress);
     this.agHelper.UpdateInputValue(this._port, this.hp.mongo_port.toString());
-    this.ExpandSectionByName("Authentication");
     cy.get(this._databaseName).clear().type(this.hp.mongo_databaseName);
   }
 
@@ -495,8 +464,7 @@ export class DataSources {
     this.agHelper.UpdateInputValue(this._host, hostAddress);
     this.agHelper.UpdateInputValue(this._port, this.hp.mysql_port.toString());
     cy.get(this._databaseName).clear().type(databaseName);
-    this.ExpandSectionByName("Authentication");
-    cy.get(this._username).type(this.hp.mysql_username);
+    this.agHelper.UpdateInputValue(this._username, this.hp.mysql_username);
     cy.get(this._password).type(this.hp.mysql_password);
   }
 
@@ -508,7 +476,6 @@ export class DataSources {
     //   this._databaseName,
     //   datasourceFormData["mssql-databaseName"],
     // ); //Commenting until MsSQL is init loaded into container
-    this.ExpandSectionByName("Authentication");
     this.agHelper.UpdateInputValue(this._username, this.hp.mssql_username);
     this.agHelper.UpdateInputValue(this._password, this.hp.mssql_password);
   }
@@ -533,7 +500,6 @@ export class DataSources {
     this.agHelper
       .GetText(this._databaseName, "val")
       .then(($dbName) => expect($dbName).to.eq("_system"));
-    this.ExpandSectionByName("Authentication");
     this.agHelper.UpdateInputValue(this._username, this.hp.arango_username);
     this.agHelper.UpdateInputValue(this._password, this.hp.arango_password);
   }
@@ -580,7 +546,6 @@ export class DataSources {
   public FillElasticSearchDSForm() {
     this.agHelper.UpdateInputValue(this._host, this.hp.elastic_host);
     this.agHelper.UpdateInputValue(this._port, this.hp.elastic_port.toString());
-    this.ExpandSectionByName("Authentication");
     this.agHelper.UpdateInputValue(this._username, this.hp.elastic_username);
     this.agHelper.UpdateInputValue(this._password, this.hp.elastic_password);
   }
@@ -618,9 +583,20 @@ export class DataSources {
     this.agHelper.UpdateInputValue(this._port, this.hp.redis_port.toString());
   }
 
-  public TestSaveDatasource(expectedRes = true) {
+  public FillS3DSForm() {
+    this.agHelper.UpdateInputValue(
+      this._username,
+      Cypress.env("S3_ACCESS_KEY"),
+    );
+    this.agHelper.UpdateInputValue(
+      this._password,
+      Cypress.env("S3_SECRET_KEY"),
+    );
+  }
+
+  public TestSaveDatasource(expectedRes = true, isForkModal = false) {
     this.TestDatasource(expectedRes);
-    this.SaveDatasource();
+    this.SaveDatasource(isForkModal);
   }
 
   public TestDatasource(expectedRes = true) {
@@ -631,10 +607,14 @@ export class DataSources {
     }
   }
 
-  public SaveDatasource() {
+  public SaveDatasource(isForkModal = false) {
     this.agHelper.GetNClick(this._saveDs);
-    this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
-    this.agHelper.AssertContains("datasource created");
+    if (!isForkModal) {
+      this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
+      this.agHelper.AssertContains("datasource created");
+    } else {
+      this.assertHelper.AssertNetworkStatus("@updateDatasource", 200);
+    }
 
     // cy.wait("@saveDatasource")
     //     .then((xhr) => {
@@ -808,6 +788,7 @@ export class DataSources {
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
       this.EnterQuery(query);
+      this.AssertRunButtonDisability(false);
     }
   }
 
@@ -839,6 +820,19 @@ export class DataSources {
   }
 
   public ReconnectDataSource(dbName: string, dsName: "PostgreSQL" | "MySQL") {
+    this.ReconnectModalValidation(dbName, dsName);
+    this.ValidateNSelectDropdown("Connection mode", "Read / Write");
+    if (dsName == "PostgreSQL") this.FillPostgresDSForm();
+    else if (dsName == "MySQL") this.FillMySqlDSForm();
+    this.agHelper.GetNClick(this._saveDs);
+    this.assertHelper.AssertNetworkStatus("@getPage", 200);
+    this.assertHelper.AssertNetworkStatus("getWorkspace");
+  }
+
+  public ReconnectModalValidation(
+    dbName: string,
+    dsName: "PostgreSQL" | "MySQL",
+  ) {
     this.agHelper.AssertElementVisible(this._reconnectModal);
     this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
     this.agHelper.AssertElementVisible(
@@ -851,13 +845,27 @@ export class DataSources {
     //Checking if tooltip for Ds name & icon is present (useful in cases of long name for ds)
     this.agHelper.AssertText(this._reconnectModalDSToolTip, "text", dbName);
     this.agHelper.AssertElementVisible(this._reconnectModalDSToopTipIcon);
+  }
 
-    this.ValidateNSelectDropdown("Connection mode", "Read / Write");
-    if (dsName == "PostgreSQL") this.FillPostgresDSForm();
-    else if (dsName == "MySQL") this.FillMySqlDSForm();
-    this.agHelper.GetNClick(this._saveDs);
-    this.assertHelper.AssertNetworkStatus("@getPage", 200);
-    this.assertHelper.AssertNetworkStatus("getWorkspace");
+  public ReconnectDSbyName(
+    dsName: "PostgreSQL" | "MySQL" | "MongoDB" | "S3" | "MongoDBUri",
+  ) {
+    if (dsName !== "MongoDBUri")
+      this.agHelper.GetNClick(this.locator._visibleTextSpan(dsName));
+    else if (dsName == "MongoDBUri")
+      this.agHelper.GetNClick(this.locator._visibleTextSpan("MongoDB"));
+
+    const methodMap = {
+      PostgreSQL: this.FillPostgresDSForm,
+      MySQL: this.FillMySqlDSForm,
+      MongoDB: this.FillMongoDSForm,
+      S3: this.FillS3DSForm,
+      MongoDBUri: this.FillMongoDatasourceFormWithURI,
+    };
+    if (methodMap[dsName]) {
+      methodMap[dsName].call(this);
+    }
+    this.SaveDatasource(true);
   }
 
   RunQuery({
@@ -865,6 +873,7 @@ export class DataSources {
     toValidateResponse = true,
     waitTimeInterval = 500,
   }: Partial<RunQueryParams> = {}) {
+    this.AssertRunButtonDisability(false);
     this.agHelper.GetNClick(this._runQueryBtn, 0, true, waitTimeInterval);
     this.agHelper.AssertElementAbsence(
       this.locator._cancelActionExecution,
@@ -880,19 +889,23 @@ export class DataSources {
   }
 
   AssertRunButtonDisability(disabled = false) {
-    let query = "";
-    if (disabled) {
-      query = "be.disabled";
-    } else {
-      query = "not.be.disabled";
-    }
-    cy.get(this._runQueryBtn).should(query);
+    this.agHelper.AssertElementEnabledDisabled(this._runQueryBtn, 0, disabled);
   }
 
   public ReadQueryTableResponse(index: number, timeout = 100) {
     //timeout can be sent higher values incase of larger tables
     this.agHelper.Sleep(timeout); //Settling time for table!
     return cy.xpath(this._queryTableResponse).eq(index).invoke("text");
+  }
+
+  public AssertQueryTableResponse(
+    index: number,
+    expectedValue: string,
+    timeout = 100,
+  ) {
+    this.ReadQueryTableResponse(index, timeout).then(($cellData: any) => {
+      expect($cellData).to.eq(expectedValue);
+    });
   }
 
   public AssertQueryResponseHeaders(columnHeaders: string[]) {
@@ -972,7 +985,8 @@ export class DataSources {
       | "Firestore"
       | "Elasticsearch"
       | "Redis"
-      | "Oracle",
+      | "Oracle"
+      | "S3",
     navigateToCreateNewDs = true,
     testNSave = true,
   ) {
@@ -1000,6 +1014,7 @@ export class DataSources {
         else if (DataSourceKVP[dsType] == "Elasticsearch")
           this.FillElasticSearchDSForm();
         else if (DataSourceKVP[dsType] == "Redis") this.FillRedisDSForm();
+        else if (DataSourceKVP[dsType] == "S3") this.FillS3DSForm();
 
         if (testNSave) {
           this.TestSaveDatasource();
@@ -1101,7 +1116,6 @@ export class DataSources {
 
   //Update with new password in the datasource conf page
   public UpdatePassword(newPassword: string) {
-    this.ExpandSectionByName("Authentication");
     cy.get(this._password).type(newPassword);
   }
 
@@ -1192,7 +1206,8 @@ export class DataSources {
     this.agHelper.GetNClick(this._editDatasourceFromActiveTab(dsName));
   }
 
-  public FillMongoDatasourceFormWithURI(uri: string) {
+  public FillMongoDatasourceFormWithURI() {
+    const uri = this.hp.mongo_uri;
     this.ValidateNSelectDropdown(
       "Use mongo connection string URI",
       "No",

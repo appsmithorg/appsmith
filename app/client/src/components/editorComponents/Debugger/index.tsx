@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import DebuggerTabs from "./DebuggerTabs";
-import type { AppState } from "@appsmith/reducers";
 import {
   setDebuggerSelectedTab,
   setErrorCount,
@@ -27,14 +26,14 @@ function Debugger() {
 
 export function DebuggerTrigger() {
   const dispatch = useDispatch();
-  const showDebugger = useSelector(
-    (state: AppState) => state.ui.debugger.isOpen,
-  );
+  const showDebugger = useSelector(showDebuggerFlag);
   const selectedTab = useSelector(getDebuggerSelectedTab);
   const messageCounters = useSelector(getMessageCount);
-  const totalMessageCount = messageCounters.errors + messageCounters.warnings;
   const hideDebuggerIcon = useSelector(hideDebuggerIconSelector);
-  dispatch(setErrorCount(totalMessageCount));
+
+  useEffect(() => {
+    dispatch(setErrorCount(messageCounters.errors));
+  });
 
   const onClick = (e: any) => {
     // If debugger is already open and selected tab is error tab then we will close debugger.
@@ -58,9 +57,9 @@ export function DebuggerTrigger() {
 
   //tooltip will always show error count as we are opening error tab on click of debugger.
   const tooltipContent =
-    totalMessageCount !== 0
-      ? `View details for ${totalMessageCount} ${
-          totalMessageCount > 1 ? "errors" : "error"
+    messageCounters.errors !== 0
+      ? `View details for ${messageCounters.errors} ${
+          messageCounters.errors > 1 ? "errors" : "error"
         }`
       : `No errors`;
 
@@ -70,12 +69,14 @@ export function DebuggerTrigger() {
     <Tooltip content={tooltipContent}>
       <Button
         className="t--debugger-count"
-        kind={totalMessageCount > 0 ? "error" : "tertiary"}
+        kind={messageCounters.errors > 0 ? "error" : "tertiary"}
         onClick={onClick}
         size="md"
-        startIcon={totalMessageCount ? "close-circle" : "close-circle-line"}
+        startIcon={
+          messageCounters.errors ? "close-circle" : "close-circle-line"
+        }
       >
-        {totalMessageCount > 99 ? "99+" : totalMessageCount}
+        {messageCounters.errors > 99 ? "99+" : messageCounters.errors}
       </Button>
     </Tooltip>
   );

@@ -57,6 +57,7 @@ export const CONFIG = {
           return {
             minWidth: "120px",
             maxWidth: "360px",
+            minHeight: "40px",
           };
         },
       },

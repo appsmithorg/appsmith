@@ -52,6 +52,7 @@ export const CONFIG = {
           return {
             // 21 is the size of a star, 5 is the margin between stars
             minWidth: `${maxCount * 21 + (maxCount + 1) * 5}px`,
+            minHeight: "40px",
           };
         },
       },

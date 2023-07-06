@@ -487,9 +487,13 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         isDisabled={isDisabled}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
+        maxWidth={this.props.maxWidth}
+        minHeight={this.props.minHeight}
+        minWidth={this.props.minWidth}
         onClick={this.hasOnClickAction() ? this.onButtonClickBound : undefined}
         placement={this.props.placement}
         recaptchaType={this.props.recaptchaType}
+        shouldFitContent={this.isAutoLayoutMode}
         text={this.props.text}
         tooltip={this.props.tooltip}
         type={this.props.buttonType || ButtonType.BUTTON}

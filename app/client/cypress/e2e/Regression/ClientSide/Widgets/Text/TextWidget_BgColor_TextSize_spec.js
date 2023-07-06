@@ -4,9 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Text Widget Cell Background and Text Size Validation", function () {
   before(() => {
-    cy.fixture("textWidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("textWidgetDsl");
   });
   it("Change the cell background color", function () {
     cy.openPropertyPane("textwidget");

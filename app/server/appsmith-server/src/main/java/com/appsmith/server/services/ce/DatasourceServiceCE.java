@@ -1,10 +1,12 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceDTO;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.external.models.DatasourceDTO;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,12 +21,12 @@ public interface DatasourceServiceCE {
     Mono<Datasource> validateDatasource(Datasource datasource);
 
     /**
-     * @param datasourceDTO - The datasource which is about to be tested
-     * @param environmentId - environmentName, name of the environment on which the datasource is getting tested,
+     * @param datasourceStorageDTO - The datasourceStorageDTO which is about to be tested
+     * @param activeEnvironmentId - environmentId, name of the environment on which the datasource is getting tested,
      *                      this variable is unused in the CE version of the code.
      * @return Mono<DatasourceTestResult> - result whether the datasource secures a valid connection with the remote DB
      */
-    Mono<DatasourceTestResult> testDatasource(DatasourceDTO datasourceDTO, String environmentId);
+    Mono<DatasourceTestResult> testDatasource(DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId);
 
     Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission);
 
@@ -44,10 +46,11 @@ public interface DatasourceServiceCE {
      * Retrieves all datasources based on input params, currently only workspaceId.
      * The retrieved datasources will contain configuration from the default environment,
      * for compatibility.
+     *
      * @param params
      * @return A flux of DatsourceDTO, which will change after API contracts gets updated
      */
-    Flux<DatasourceDTO> getAllWithStorages(MultiValueMap<String, String> params);
+    Flux<Datasource> getAllWithStorages(MultiValueMap<String, String> params);
 
     Flux<Datasource> getAllByWorkspaceIdWithoutStorages(String workspaceId, Optional<AclPermission> permission);
 
@@ -66,13 +69,9 @@ public interface DatasourceServiceCE {
 
     Mono<Datasource> createWithoutPermissions(Datasource datasource);
 
-    Mono<DatasourceDTO> create(DatasourceDTO resource, String environmentId);
+    Mono<Datasource> updateDatasourceStorage(DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId, Boolean IsUserRefreshedUpdate);
 
-    Mono<DatasourceDTO> update(String id, DatasourceDTO datasourceDTO, String environmentId);
-
-    Mono<DatasourceDTO> update(String id, DatasourceDTO datasourceDTO, String environmentId, Boolean isUserRefreshedUpdate);
-
-    Mono<Datasource> updateByEnvironmentId(String id, Datasource datasource, String environmentId);
+    Mono<Datasource> updateDatasource(String id, Datasource datasource, String activeEnvironmentId, Boolean isUserRefreshedUpdate);
 
     Mono<Datasource> archiveById(String id);
 
@@ -86,4 +85,6 @@ public interface DatasourceServiceCE {
 
     // TODO: Remove the following snippet after client side API changes
     Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId);
+
+    Datasource createDatasourceFromDatasourceStorage(DatasourceStorage datasourceStorage);
 }

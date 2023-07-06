@@ -420,6 +420,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           isLoading={this.props.isLoading}
           key={this.props.widgetId}
           leftColumn={this.props.leftColumn}
+          minHeight={this.props.minHeight}
           overflow={this.props.overflow}
           rightColumn={this.props.rightColumn}
           text={this.props.text}

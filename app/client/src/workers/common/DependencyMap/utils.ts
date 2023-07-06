@@ -56,7 +56,7 @@ export const extractInfoFromBinding = (
   const { references } = extractIdentifierInfoFromCode(
     script,
     self.evaluationVersion,
-    { ...invalidEntityIdentifiers, ...libraryReservedIdentifiers },
+    invalidEntityIdentifiers,
   );
   return extractInfoFromReferences(references, allPaths);
 };
@@ -214,10 +214,11 @@ export const mergeArrays = <T>(currentArr: T[], updateArr: T[]): T[] => {
  * they can refer to potentially dynamic entities.
  * Eg. "appsmith"
  */
-const invalidEntityIdentifiers: Record<string, unknown> = {
+export const invalidEntityIdentifiers: Record<string, unknown> = {
   ...JAVASCRIPT_KEYWORDS,
   ...APPSMITH_GLOBAL_FUNCTIONS,
   ...DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
+  ...libraryReservedIdentifiers,
 };
 
 export function listEntityDependencies(
@@ -239,8 +240,8 @@ export function listEntityDependencies(
       });
     }
     const widgetDependencies = addWidgetPropertyDependencies({
-      entity: widgetConfig,
-      entityName,
+      widgetConfig,
+      widgetName: entityName,
     });
 
     dependencies = {

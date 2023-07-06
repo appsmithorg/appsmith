@@ -85,6 +85,7 @@ class CodeScannerWidget extends BaseWidget<
         onCodeDetected={this.onCodeDetected}
         placement={this.props.placement}
         scannerLayout={this.props.scannerLayout}
+        shouldButtonFitContent={this.isAutoLayoutMode}
         tooltip={this.props.tooltip}
         widgetId={this.props.widgetId}
       />
