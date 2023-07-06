@@ -12,9 +12,7 @@ import {
 
 describe("Dropdown Widget", function () {
   before(() => {
-    cy.fixture("newFormDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("newFormDsl");
   });
 
   it("1. Dropdown-Modal Validation", function () {

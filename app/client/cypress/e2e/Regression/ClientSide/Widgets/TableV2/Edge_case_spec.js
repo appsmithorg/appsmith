@@ -13,9 +13,7 @@ describe("Table widget v2 edge case scenario testing", function () {
 
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
-    cy.fixture("tableV2WithTextWidgetDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableV2WithTextWidgetDsl");
   });
 
   it("1. Check if the selectedRowIndices does not contain 2d array", function () {

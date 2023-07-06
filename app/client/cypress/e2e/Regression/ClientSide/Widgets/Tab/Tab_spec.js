@@ -6,9 +6,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Tab widget test", function () {
   before(() => {
-    cy.fixture("layoutdsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("layoutdsl");
   });
   it("1. Tab Widget Functionality Test", function () {
     cy.openPropertyPane("tabswidget");

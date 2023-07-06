@@ -522,15 +522,12 @@ export class Table {
     tableVersion: "v1" | "v2" = "v1",
     networkCall = "viewPage",
   ) {
-    cy.url().then(($currentUrl) => {
-      this.deployMode.StubWindowNAssert(
-        this._tableRowColumnData(row, col, tableVersion),
-        expectedURL,
-        $currentUrl,
-        networkCall,
-      );
-      this.WaitUntilTableLoad(0, 0, tableVersion);
-    });
+    this.deployMode.StubWindowNAssert(
+      this._tableRowColumnData(row, col, tableVersion),
+      expectedURL,
+      networkCall,
+    );
+    this.WaitUntilTableLoad(0, 0, tableVersion);
   }
 
   public AddColumn(colId: string) {

@@ -22,9 +22,7 @@ describe("Radio Group Field", () => {
     const schema = {
       answer: "Y",
     };
-    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("answer");
@@ -55,9 +53,7 @@ describe("Radio Group Field", () => {
     const schema = {
       colors: ["BLUE"],
     };
-    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.closePropertyPane();
@@ -92,9 +88,7 @@ describe("Radio Group Field", () => {
     const schema = {
       color: "BLUE",
     };
-    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("color");
@@ -130,9 +124,7 @@ describe("Radio Group Field", () => {
     const schema = {
       name: "John",
     };
-    cy.fixture("jsonFormDslWithoutSchema").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.closePropertyPane();

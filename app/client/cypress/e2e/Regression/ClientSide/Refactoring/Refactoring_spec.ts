@@ -36,9 +36,7 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
   };
 
   before(() => {
-    cy.fixture("Datatypes/RefactorDTdsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Datatypes/RefactorDTdsl");
     dataSources.CreateDataSource("MySql", true, false);
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
