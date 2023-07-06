@@ -43,12 +43,14 @@ const OverlayCanvasContainer = (props: {
     xDiff: number;
     width: number;
     yDiff: number;
+    height: number;
   }>({
     top: 0,
     left: 0,
     xDiff: 0,
     width: 0,
     yDiff: 0,
+    height: 0,
   });
   const canvasPositionUpdated = useRef<boolean>(false);
   const containerEventAdded = useRef<boolean>(false);
@@ -68,6 +70,7 @@ const OverlayCanvasContainer = (props: {
     if (rect) {
       canvasPositions.current = {
         ...canvasPositions.current,
+        height: rect.height + rect.top,
         left: rect.left,
         top: rect.top,
         width: rect.width,
@@ -246,7 +249,11 @@ const OverlayCanvasContainer = (props: {
         height: "100%",
       }}
     >
-      <Stage height={600} ref={stageRef} width={props.canvasWidth}>
+      <Stage
+        height={canvasPositions?.current.height || 600}
+        ref={stageRef}
+        width={props.canvasWidth}
+      >
         <Layer />
       </Stage>
     </div>
