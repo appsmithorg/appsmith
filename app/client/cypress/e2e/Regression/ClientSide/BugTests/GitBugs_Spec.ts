@@ -117,17 +117,17 @@ describe("Git Bugs", function () {
       _.agHelper.GetNClick(_.locators._appNavigationSettingsShowTitle);
       _.agHelper.GetNClick(_.locators._publishButton);
       _.agHelper.WaitUntilEleAppear(_.locators._gitStatusChanges);
-      _.agHelper.GetNClick(_.locators._gitDiscardBtn);
-      _.agHelper.WaitUntilEleAppear(_.locators._gitDiscardCallout);
+      _.agHelper.GetNClick(_.gitSync._discardChanges);
+      _.agHelper.WaitUntilEleAppear(_.gitSync._discardCallout);
       _.agHelper.AssertContains(
         Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING(),
         "exist",
-        _.locators._gitDiscardCallout,
+        _.gitSync._discardCallout,
       );
       _.agHelper.AssertContains(
         Cypress.env("MESSAGES").DISCARD_MESSAGE(),
         "exist",
-        _.locators._gitDiscardCallout,
+        _.gitSync._discardCallout,
       );
       _.agHelper.GetNClick(_.locators._dialogCloseButton);
     });

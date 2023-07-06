@@ -250,6 +250,4 @@ export class CommonLocators {
   _gitStatusChanges = "[data-testid='t--git-change-statuses']";
   _appNavigationSettings = "#t--navigation-settings-header";
   _appNavigationSettingsShowTitle = "#t--navigation-settings-application-title";
-  _gitDiscardBtn = ".t--discard-button";
-  _gitDiscardCallout = "[data-testid='t--discard-callout']";
 }
