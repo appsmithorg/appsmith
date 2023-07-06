@@ -13,9 +13,7 @@ describe("Undo/Redo functionality", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   before(() => {
-    cy.fixture("replay").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("replay");
   });
 
   it("1. checks undo/redo for new widgets", function () {
