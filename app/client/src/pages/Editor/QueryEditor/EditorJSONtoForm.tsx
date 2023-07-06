@@ -127,6 +127,8 @@ import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
 import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
+import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -872,6 +874,23 @@ export function EditorJSONtoForm(props: Props) {
   //TODO: move this to a common place
   const onClose = () => dispatch(showDebugger(false));
 
+  // A/B feature flag for datasource structure.
+  const isEnabledForDSSchema = useSelector((state) =>
+    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_schema_enabled),
+  );
+
+  // A/B feature flag for query binding.
+  const isEnabledForQueryBinding = useSelector((state) =>
+    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_binding_enabled),
+  );
+
+  // here we check for normal conditions for opening action pane
+  // or if any of the flags are true, We should open the actionpane by default.
+  const shouldOpenActionPaneByDefault =
+    ((hasDependencies || !!output) && !guidedTourEnabled) ||
+    isEnabledForDSSchema ||
+    isEnabledForQueryBinding;
+
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
   if (!props.initialized) {
@@ -1072,8 +1091,7 @@ export function EditorJSONtoForm(props: Props) {
                 )}
             </SecondaryWrapper>
           </div>
-          {/* making this true because we always want to show the side pane, if this behaviour changes, we can return the old checks */}
-          <SidebarWrapper show={true && !guidedTourEnabled}>
+          <SidebarWrapper show={shouldOpenActionPaneByDefault}>
             <ActionRightPane
               actionName={actionName}
               context={DatasourceStructureContext.QUERY_EDITOR}
