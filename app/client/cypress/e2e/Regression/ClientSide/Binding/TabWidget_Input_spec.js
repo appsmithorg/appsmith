@@ -4,9 +4,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the input Widget with tab Widget", function () {
   before(() => {
-    cy.fixture("tabInputDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tabInputDsl");
   });
 
   it("1. Input widget test with default value from tab widget", function () {

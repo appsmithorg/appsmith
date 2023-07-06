@@ -4,9 +4,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe("Table Widget V2 row multi select validation", function () {
   before(() => {
-    cy.fixture("tableV2NewDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableV2NewDsl");
   });
 
   it("1. Test multi select column shows when enable Multirowselection is true", function () {

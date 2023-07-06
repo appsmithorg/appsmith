@@ -6,9 +6,7 @@ describe("Range Slider spec", () => {
      * On the canvas we have a Range Slider
      * and a Text widget with binding {{RangeSlider1.value}}
      */
-    cy.fixture("rangeSliderWidgetDsl").then((dsl: string) => {
-      _.agHelper.AddDsl(dsl);
-    });
+    _.agHelper.AddDsl("rangeSliderWidgetDsl");
   });
 
   it("1. Validates Min. value", () => {

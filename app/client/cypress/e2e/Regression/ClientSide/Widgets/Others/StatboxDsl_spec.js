@@ -9,9 +9,7 @@ import {
 
 describe("Statbox Widget", function () {
   before(() => {
-    cy.fixture("StatboxDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("StatboxDsl");
   });
 
   it("1. Open Existing Statbox & change background color & verify", () => {
