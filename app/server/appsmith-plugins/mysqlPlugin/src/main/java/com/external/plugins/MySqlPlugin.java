@@ -66,6 +66,7 @@ import static com.appsmith.external.helpers.PluginUtils.MATCH_QUOTED_WORDS_REGEX
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
+import static com.external.plugins.exceptions.MySQLErrorMessages.CONNECTION_VALIDITY_CHECK_FAILED_ERROR_MSG;
 import static com.external.utils.MySqlDatasourceUtils.getNewConnectionPool;
 import static com.external.utils.MySqlGetStructureUtils.getKeyInfo;
 import static com.external.utils.MySqlGetStructureUtils.getTableInfo;
@@ -256,9 +257,9 @@ public class MySqlPlugin extends BasePlugin {
                     connectionPool.create(),
                     connection -> {
                         // TODO: add JUnit TC for the `connection.validate` check. Not sure how to do it at the moment.
-                        Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
+                        Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.LOCAL))
                                 .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
-                                .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
+                                .onErrorMap(TimeoutException.class, error -> new StaleConnectionException(error.getMessage()))
                                 .flatMapMany(isValid -> {
                                     if (isValid) {
                                         return createAndExecuteQueryFromConnection(finalQuery,
@@ -269,7 +270,7 @@ public class MySqlPlugin extends BasePlugin {
                                                 requestData,
                                                 psParams);
                                     }
-                                    return Flux.error(new StaleConnectionException());
+                                    return Flux.error(new StaleConnectionException(CONNECTION_VALIDITY_CHECK_FAILED_ERROR_MSG));
                                 });
 
                         Mono<List<Map<String, Object>>> resultMono;
@@ -348,9 +349,10 @@ public class MySqlPlugin extends BasePlugin {
                     },
                     Connection::close
             )
-            .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
-            .onErrorMap(PoolShutdownException.class, error -> new StaleConnectionException())
-            .onErrorMap(R2dbcNonTransientResourceException.class, error -> new StaleConnectionException())
+            .onErrorMap(TimeoutException.class, error -> new StaleConnectionException(error.getMessage()))
+            .onErrorMap(PoolShutdownException.class, error -> new StaleConnectionException(error.getMessage()))
+            .onErrorMap(R2dbcNonTransientResourceException.class, error -> new StaleConnectionException(error.getMessage()))
+            .onErrorMap(IllegalStateException.class, error -> new StaleConnectionException(error.getMessage()))
             .subscribeOn(scheduler);
         }
 
@@ -579,60 +581,58 @@ public class MySqlPlugin extends BasePlugin {
 
             return Mono.usingWhen(
                     connectionPool.create(),
-                    connection -> {
-                        return Mono.from(connection.validate(ValidationDepth.REMOTE))
-                                .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
-                                .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
-                                .flatMapMany(isValid -> {
-                                    if (isValid) {
-                                        return connection.createStatement(COLUMNS_QUERY).execute();
-                                    } else {
-                                        return Flux.error(new StaleConnectionException());
-                                    }
-                                })
-                                .flatMap(result -> {
-                                    return result.map((row, meta) -> {
-                                        getTableInfo(row, meta, tablesByName);
+                    connection -> Mono.from(connection.validate(ValidationDepth.REMOTE))
+                            .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
+                            .onErrorMap(TimeoutException.class, error -> new StaleConnectionException(error.getMessage()))
+                            .flatMapMany(isValid -> {
+                                if (isValid) {
+                                    return connection.createStatement(COLUMNS_QUERY).execute();
+                                } else {
+                                    return Flux.error(new StaleConnectionException(CONNECTION_VALIDITY_CHECK_FAILED_ERROR_MSG));
+                                }
+                            })
+                            .flatMap(result -> {
+                                return result.map((row, meta) -> {
+                                    getTableInfo(row, meta, tablesByName);
 
-                                        return result;
-                                    });
-                                })
-                                .collectList()
-                                .thenMany(Flux.from(connection.createStatement(KEYS_QUERY).execute()))
-                                .flatMap(result -> {
-                                    return result.map((row, meta) -> {
-                                        getKeyInfo(row, meta, tablesByName, keyRegistry);
-
-                                        return result;
-                                    });
-                                })
-                                .collectList()
-                                .map(list -> {
-                                    /* Get templates for each table and put those in. */
-                                    getTemplates(tablesByName);
-                                    structure.setTables(new ArrayList<>(tablesByName.values()));
-                                    for (DatasourceStructure.Table table : structure.getTables()) {
-                                        table.getKeys().sort(Comparator.naturalOrder());
-                                    }
-
-                                    return structure;
-                                })
-                                .onErrorMap(e -> {
-                                    if (!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
-                                        return new AppsmithPluginException(
-                                                AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
-                                                MySQLErrorMessages.GET_STRUCTURE_ERROR_MSG,
-                                                e.getMessage()
-                                        );
-                                    }
-
-                                    return e;
+                                    return result;
                                 });
-                    },
+                            })
+                            .collectList()
+                            .thenMany(Flux.from(connection.createStatement(KEYS_QUERY).execute()))
+                            .flatMap(result -> {
+                                return result.map((row, meta) -> {
+                                    getKeyInfo(row, meta, tablesByName, keyRegistry);
+
+                                    return result;
+                                });
+                            })
+                            .collectList()
+                            .map(list -> {
+                                /* Get templates for each table and put those in. */
+                                getTemplates(tablesByName);
+                                structure.setTables(new ArrayList<>(tablesByName.values()));
+                                for (DatasourceStructure.Table table : structure.getTables()) {
+                                    table.getKeys().sort(Comparator.naturalOrder());
+                                }
+
+                                return structure;
+                            })
+                            .onErrorMap(e -> {
+                                if (!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
+                                    return new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
+                                            MySQLErrorMessages.GET_STRUCTURE_ERROR_MSG,
+                                            e.getMessage()
+                                    );
+                                }
+
+                                return e;
+                            }),
                     Connection::close
                     )
-                    .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
-                    .onErrorMap(PoolShutdownException.class, error -> new StaleConnectionException())
+                    .onErrorMap(TimeoutException.class, error -> new StaleConnectionException(error.getMessage()))
+                    .onErrorMap(PoolShutdownException.class, error -> new StaleConnectionException(error.getMessage()))
                     .subscribeOn(scheduler);
         }
     }

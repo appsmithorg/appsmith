@@ -1,40 +1,11 @@
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { Checkbox as HeadlessCheckbox } from "@design-system/headless";
 
 import type { CheckboxProps } from ".";
-
-// Note: these styles will shared across radio, checkbox and toggle components
-// so we will be moving the types (labelPosition) and styles to a common place
-export const labelStyles = css<Pick<CheckboxProps, "labelPosition">>`
-  position: relative;
-  display: flex;
-  gap: var(--spacing-2);
-  cursor: pointer;
-
-  ${({ labelPosition }) => css`
-    justify-content: ${labelPosition === "left" ? "space-between" : undefined};
-    flex-direction: ${labelPosition === "left" ? "row-reverse" : "row"};
-  `};
-
-  &[data-label] {
-    min-height: calc(5 * var(--root-unit));
-    display: flex;
-    align-items: center;
-  }
-
-  /**
-  * ----------------------------------------------------------------------------
-  * DISABLED
-  *-----------------------------------------------------------------------------
-  */
-  &[data-disabled] {
-    pointer-events: none;
-    opacity: var(--opacity-disabled);
-  }
-`;
+import { inlineLabelStyles } from "../../styles/inlineLabelStyles";
 
 export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
-  ${labelStyles}
+  ${inlineLabelStyles}
 
   [data-icon] {
     --checkbox-border-width: var(--border-width-2);
@@ -54,7 +25,6 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
     justify-content: center;
     user-select: none;
     flex-shrink: 0;
-    padding: 1px; // to make icon take 14px size
   }
 
   &[data-hovered]:not([data-disabled]) [data-icon] {

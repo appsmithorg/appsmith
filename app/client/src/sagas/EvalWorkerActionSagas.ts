@@ -2,7 +2,10 @@ import { all, call, put, spawn, take } from "redux-saga/effects";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
-import { evalErrorHandler } from "../sagas/PostEvaluationSagas";
+import {
+  evalErrorHandler,
+  logJSVarMutationEvent,
+} from "../sagas/PostEvaluationSagas";
 import type { Channel } from "redux-saga";
 import { storeLogs } from "../sagas/DebuggerSagas";
 import type {
@@ -19,18 +22,19 @@ import {
 } from "../sagas/EvaluationsSaga";
 import { logJSFunctionExecution } from "@appsmith/sagas/JSFunctionExecutionSaga";
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
-import type { EvalTreeResponseData } from "workers/Evaluation/types";
+import type {
+  EvalTreeResponseData,
+  JSVarMutatedEvents,
+} from "workers/Evaluation/types";
 import isEmpty from "lodash/isEmpty";
 import type { UnEvalTree } from "entities/DataTree/dataTreeFactory";
-
+import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
+import type { LintTreeSagaRequestData } from "plugins/Linting/types";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 export type UpdateDataTreeMessageData = {
   workerResponse: EvalTreeResponseData;
   unevalTree: UnEvalTree;
 };
-
-import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
-import type { LintTreeSagaRequestData } from "workers/Linting/types";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {
@@ -42,20 +46,11 @@ export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
 export function* lintTreeActionHandler(message: any) {
   const { body } = message;
   const { data } = body;
-  const {
-    asyncJSFunctionsInDataFields,
-    configTree,
-    jsPropertiesState,
-    pathsToLint: lintOrder,
-    unevalTree,
-  } = data as LintTreeSagaRequestData;
+  const { configTree, unevalTree } = data as LintTreeSagaRequestData;
   yield put({
     type: ReduxActionTypes.LINT_TREE,
     payload: {
-      pathsToLint: lintOrder,
       unevalTree,
-      jsPropertiesState,
-      asyncJSFunctionsInDataFields,
       configTree,
     },
   });
@@ -175,6 +170,11 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
         unevalTree,
         requiresLogging: false,
       });
+      break;
+    }
+    case MAIN_THREAD_ACTION.PROCESS_JS_VAR_MUTATION_EVENTS: {
+      const jsVarMutatedEvents: JSVarMutatedEvents = data;
+      yield call(logJSVarMutationEvent, jsVarMutatedEvents);
     }
   }
 

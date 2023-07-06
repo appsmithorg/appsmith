@@ -996,7 +996,7 @@
                 "resetFormOnClick": false,
                 "boxShadow": "none",
                 "widgetName": "CallGenerateapis",
-                "onClick": "{{\nversion1.run();\nversion4.run();\nguid.run();\nnill.run(() => showAlert(\"All UUIDs generated & available\", \"success\"), () => {})\n}}",
+                "onClick": "{{\nversion1.run();\nversion4.run();\nnill.run(() => showAlert(\"All UUIDs generated & available\", \"success\"), () => {})\n}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "dynamicPropertyPathList": [
                   {

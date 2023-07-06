@@ -10,7 +10,6 @@ import { StyledCheckboxGroup } from "./index.styled";
 
 export interface CheckboxGroupProps extends HeadlessCheckboxGroupProps {
   className?: string;
-  labelWidth?: string;
 }
 
 export const CheckboxGroup = forwardRef(

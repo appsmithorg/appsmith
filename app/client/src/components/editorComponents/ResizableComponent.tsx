@@ -372,7 +372,9 @@ export const ResizableComponent = memo(function ResizableComponent(
   // Is auto height enabled for widget (without limits)
   const autoHeight =
     isAutoHeightEnabledForWidget(props) &&
-    !isAutoHeightEnabledForWidgetWithLimits(props);
+    !isAutoHeightEnabledForWidgetWithLimits(props) &&
+    // We want to enable auto height for container like widgets only, other widgets will need to respect the provided height
+    props.isCanvas;
 
   const allowResize: boolean =
     !isMultiSelected || (isAutoLayout && !props.isFlexChild);

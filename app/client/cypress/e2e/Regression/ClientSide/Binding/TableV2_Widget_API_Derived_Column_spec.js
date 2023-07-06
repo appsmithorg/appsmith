@@ -11,16 +11,17 @@ import {
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
-    cy.fixture("tableV2TextPaginationDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableV2TextPaginationDsl");
   });
 
   it("1. Validate TableV2 with API data and then add a column", function () {
     apiPage.CreateAndFillApi(
       this.dataSet.paginationUrl + this.dataSet.paginationParam,
     );
-    cy.RunAPI();
+    agHelper.VerifyEvaluatedValue(
+      this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=10",
+    );
+    apiPage.RunAPI();
     entityExplorer.SelectEntityByName("Table1");
     propPane.UpdatePropertyFieldValue("Table data", "{{Api1.data}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);

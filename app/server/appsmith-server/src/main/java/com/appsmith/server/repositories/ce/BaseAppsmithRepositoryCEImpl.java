@@ -68,6 +68,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     protected final static int NO_RECORD_LIMIT = -1;
 
+    protected final static int NO_SKIP = 0;
+
     @Autowired
     @SuppressWarnings("unchecked")
     public BaseAppsmithRepositoryCEImpl(ReactiveMongoOperations mongoOperations,
@@ -430,7 +432,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     public Flux<T> queryAll(List<Criteria> criterias, Optional<List<String>> includeFields, Optional<AclPermission> permission, Optional<Sort> sort, int limit) {
         Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
         return permissionGroupsMono
-                .flatMapMany(permissionGroups -> queryAllWithPermissionGroups(criterias, includeFields, permission, sort, permissionGroups, limit));
+                .flatMapMany(permissionGroups -> queryAllWithPermissionGroups(criterias, includeFields, permission, sort, permissionGroups, limit, NO_SKIP));
+    }
+
+    public Flux<T> queryAll(List<Criteria> criterias, Optional<List<String>> includeFields, Optional<AclPermission> permission, Sort sort, int limit, int skip) {
+        Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
+        return permissionGroupsMono
+                .flatMapMany(permissionGroups -> queryAllWithPermissionGroups(criterias, includeFields, permission, Optional.of(sort), permissionGroups, limit, skip));
     }
 
     @Deprecated
@@ -441,7 +449,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                                                 Set<String> permissionGroups,
                                                 int limit) {
         return queryAllWithPermissionGroups(criterias, Optional.ofNullable(includeFields),
-                Optional.ofNullable(aclPermission), Optional.ofNullable(sort), permissionGroups, limit);
+                Optional.ofNullable(aclPermission), Optional.ofNullable(sort), permissionGroups, limit, NO_SKIP);
     }
 
     public Flux<T> queryAllWithPermissionGroups(List<Criteria> criterias,
@@ -449,12 +457,16 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                                                 Optional<AclPermission> aclPermission,
                                                 Optional<Sort> sortOptional,
                                                 Set<String> permissionGroups,
-                                                int limit) {
+                                                int limit,
+                                                int skip) {
         final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
         Query query = new Query();
         includeFields.ifPresent(fields -> {
             fields.forEach(field -> query.fields().include(field));
         });
+        if (skip > NO_SKIP) {
+            query.skip(skip);
+        }
         if (limit != NO_RECORD_LIMIT) {
             query.limit(limit);
         }

@@ -4,9 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Chart Widget Functionality around custom chart feature", function () {
   before(() => {
-    cy.fixture("chartUpdatedDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("chartUpdatedDsl");
   });
 
   beforeEach(() => {
