@@ -50,38 +50,53 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
     private final ActionPermission actionPermission;
     private final DatasourcePermission datasourcePermission;
 
+    public ApplicationPageServiceImpl(
+            WorkspaceService workspaceService,
+            ApplicationService applicationService,
+            SessionUserService sessionUserService,
+            WorkspaceRepository workspaceRepository,
+            LayoutActionService layoutActionService,
+            AnalyticsService analyticsService,
+            PolicyGenerator policyGenerator,
+            ApplicationRepository applicationRepository,
+            NewPageService newPageService,
+            NewActionService newActionService,
+            ActionCollectionService actionCollectionService,
+            GitFileUtils gitFileUtils,
+            ThemeService themeService,
+            ResponseUtils responseUtils,
+            WorkspacePermission workspacePermission,
+            ApplicationPermission applicationPermission,
+            PagePermission pagePermission,
+            ActionPermission actionPermission,
+            PermissionGroupService permissionGroupService,
+            NewPageRepository newPageRepository,
+            NewActionRepository newActionRepository,
+            ActionCollectionRepository actionCollectionRepository,
+            DatasourceRepository datasourceRepository,
+            DatasourcePermission datasourcePermission,
+            TransactionalOperator transactionalOperator) {
 
-
-    public ApplicationPageServiceImpl(WorkspaceService workspaceService,
-                                      ApplicationService applicationService,
-                                      SessionUserService sessionUserService,
-                                      WorkspaceRepository workspaceRepository,
-                                      LayoutActionService layoutActionService,
-                                      AnalyticsService analyticsService,
-                                      PolicyGenerator policyGenerator,
-                                      ApplicationRepository applicationRepository,
-                                      NewPageService newPageService,
-                                      NewActionService newActionService,
-                                      ActionCollectionService actionCollectionService,
-                                      GitFileUtils gitFileUtils,
-                                      ThemeService themeService,
-                                      ResponseUtils responseUtils,
-                                      WorkspacePermission workspacePermission,
-                                      ApplicationPermission applicationPermission,
-                                      PagePermission pagePermission,
-                                      ActionPermission actionPermission,
-                                      PermissionGroupService permissionGroupService,
-                                      NewPageRepository newPageRepository,
-                                      NewActionRepository newActionRepository,
-                                      ActionCollectionRepository actionCollectionRepository,
-                                      DatasourceRepository datasourceRepository,
-                                      DatasourcePermission datasourcePermission,
-                                      TransactionalOperator transactionalOperator) {
-
-        super(workspaceService, applicationService, sessionUserService, workspaceRepository, layoutActionService, analyticsService,
-                policyGenerator, applicationRepository, newPageService, newActionService, actionCollectionService,
-                gitFileUtils, themeService, responseUtils, workspacePermission,
-                applicationPermission, pagePermission, actionPermission, transactionalOperator);
+        super(
+                workspaceService,
+                applicationService,
+                sessionUserService,
+                workspaceRepository,
+                layoutActionService,
+                analyticsService,
+                policyGenerator,
+                applicationRepository,
+                newPageService,
+                newActionService,
+                actionCollectionService,
+                gitFileUtils,
+                themeService,
+                responseUtils,
+                workspacePermission,
+                applicationPermission,
+                pagePermission,
+                actionPermission,
+                transactionalOperator);
         this.applicationService = applicationService;
         this.applicationPermission = applicationPermission;
         this.permissionGroupService = permissionGroupService;
@@ -96,80 +111,111 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
 
     @Override
     public Mono<Application> publish(String defaultApplicationId, String branchName, boolean isPublishedManually) {
-        Mono<Application> applicationMono = applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission())
-                .flatMap(branchedApplicationId -> applicationService.findById(branchedApplicationId, applicationPermission.getEditPermission()));
+        Mono<Application> applicationMono = applicationService
+                .findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission())
+                .flatMap(branchedApplicationId ->
+                        applicationService.findById(branchedApplicationId, applicationPermission.getEditPermission()));
 
-        return Mono.when(validateAllObjectsForPermissions(applicationMono, AppsmithError.UNABLE_TO_DEPLOY_MISSING_PERMISSION))
+        return Mono.when(validateAllObjectsForPermissions(
+                        applicationMono, AppsmithError.UNABLE_TO_DEPLOY_MISSING_PERMISSION))
                 .then(super.publish(defaultApplicationId, branchName, isPublishedManually));
     }
 
     @Override
     public Mono<Application> cloneApplication(String applicationId, String branchName) {
-        Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
+        Mono<Application> applicationMono = applicationService
+                .findByBranchNameAndDefaultApplicationId(
+                        branchName, applicationId, applicationPermission.getEditPermission())
                 .flatMap(application -> {
                     // For git connected application user can update the default branch
                     // In such cases we should fork the application from the new default branch
                     if (StringUtils.isEmpty(branchName)
-                            && !Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()
-                            && !application.getGitApplicationMetadata().getBranchName().equals(application.getGitApplicationMetadata().getDefaultBranchName())) {
+                            && !Optional.ofNullable(application.getGitApplicationMetadata())
+                                    .isEmpty()
+                            && !application
+                                    .getGitApplicationMetadata()
+                                    .getBranchName()
+                                    .equals(application
+                                            .getGitApplicationMetadata()
+                                            .getDefaultBranchName())) {
                         return applicationService.findByBranchNameAndDefaultApplicationId(
                                 application.getGitApplicationMetadata().getDefaultBranchName(),
                                 applicationId,
-                                applicationPermission.getEditPermission()
-                        );
+                                applicationPermission.getEditPermission());
                     }
                     return Mono.just(application);
-                }).cache();
+                })
+                .cache();
 
-        return Mono.when(validateAllObjectsForPermissions(applicationMono, AppsmithError.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS), validateDatasourcesForCreatePermission(applicationMono))
+        return Mono.when(
+                        validateAllObjectsForPermissions(
+                                applicationMono, AppsmithError.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS),
+                        validateDatasourcesForCreatePermission(applicationMono))
                 .then(super.cloneApplication(applicationId, branchName));
     }
 
     private Mono validateDatasourcesForCreatePermission(Mono<Application> applicationMono) {
         Flux<BaseDomain> datasourceFlux = applicationMono
-                .flatMapMany(application -> newActionRepository
-                        . findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.datasource) + "." + fieldName(QNewAction.newAction.unpublishedAction.datasource.id))))
+                .flatMapMany(application -> newActionRepository.findAllByApplicationIdsWithoutPermission(
+                        List.of(application.getId()),
+                        List.of(
+                                "id",
+                                fieldName(QNewAction.newAction.unpublishedAction) + "."
+                                        + fieldName(QNewAction.newAction.unpublishedAction.datasource) + "."
+                                        + fieldName(QNewAction.newAction.unpublishedAction.datasource.id))))
                 .collectList()
                 .map(actions -> {
                     return actions.stream()
-                            .map(action -> action.getUnpublishedAction().getDatasource().getId())
+                            .map(action -> action.getUnpublishedAction()
+                                    .getDatasource()
+                                    .getId())
                             .filter(datasourceId -> StringUtils.hasLength(datasourceId))
                             .collect(Collectors.toSet());
                 })
-                .flatMapMany(datasourceIds -> datasourceRepository.findAllByIdsWithoutPermission(datasourceIds, List.of("id", "policies"))
+                .flatMapMany(datasourceIds -> datasourceRepository
+                        .findAllByIdsWithoutPermission(datasourceIds, List.of("id", "policies"))
                         .flatMap(datasourceRepository::setUserPermissionsInObject));
 
         return UserPermissionUtils.validateDomainObjectPermissionsOrError(
-                datasourceFlux, FieldName.DATASOURCE, permissionGroupService.getSessionUserPermissionGroupIds(),
+                datasourceFlux,
+                FieldName.DATASOURCE,
+                permissionGroupService.getSessionUserPermissionGroupIds(),
                 datasourcePermission.getActionCreatePermission(),
                 AppsmithError.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS);
-
     }
 
     private Mono validateAllObjectsForPermissions(Mono<Application> applicationMono, AppsmithError expectedError) {
-        Flux<BaseDomain> pageFlux = applicationMono
-                .flatMapMany(application -> newPageRepository
-                        .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
-                        .flatMap(newPageRepository::setUserPermissionsInObject));
-        Flux<BaseDomain> actionFlux = applicationMono
-                .flatMapMany(application -> newActionRepository
-                        .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
-                        .flatMap(newActionRepository::setUserPermissionsInObject));
-        Flux<BaseDomain> actionCollectionFlux = applicationMono
-                .flatMapMany(application -> actionCollectionRepository
-                        .findAllByApplicationIds(List.of(application.getId()), List.of("id", "policies"))
-                        .flatMap(actionCollectionRepository::setUserPermissionsInObject));
+        Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
+                .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
+                .flatMap(newPageRepository::setUserPermissionsInObject));
+        Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
+                .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
+                .flatMap(newActionRepository::setUserPermissionsInObject));
+        Flux<BaseDomain> actionCollectionFlux = applicationMono.flatMapMany(application -> actionCollectionRepository
+                .findAllByApplicationIds(List.of(application.getId()), List.of("id", "policies"))
+                .flatMap(actionCollectionRepository::setUserPermissionsInObject));
 
         Mono<Boolean> pagesValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
-                pageFlux, FieldName.PAGE, permissionGroupService.getSessionUserPermissionGroupIds(),
-                pagePermission.getEditPermission(), expectedError);
+                pageFlux,
+                FieldName.PAGE,
+                permissionGroupService.getSessionUserPermissionGroupIds(),
+                pagePermission.getEditPermission(),
+                expectedError);
         Mono<Boolean> actionsValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
-                actionFlux, FieldName.ACTION, permissionGroupService.getSessionUserPermissionGroupIds(),
-                actionPermission.getEditPermission(), expectedError);
-        Mono<Boolean> actionCollectionsValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
-                actionCollectionFlux, FieldName.ACTION, permissionGroupService.getSessionUserPermissionGroupIds(),
-                actionPermission.getEditPermission(), expectedError);
-        return Mono.zip(pagesValidatedForPermission, actionsValidatedForPermission, actionCollectionsValidatedForPermission);
+                actionFlux,
+                FieldName.ACTION,
+                permissionGroupService.getSessionUserPermissionGroupIds(),
+                actionPermission.getEditPermission(),
+                expectedError);
+        Mono<Boolean> actionCollectionsValidatedForPermission =
+                UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                        actionCollectionFlux,
+                        FieldName.ACTION,
+                        permissionGroupService.getSessionUserPermissionGroupIds(),
+                        actionPermission.getEditPermission(),
+                        expectedError);
+        return Mono.zip(
+                pagesValidatedForPermission, actionsValidatedForPermission, actionCollectionsValidatedForPermission);
     }
 
     /**
@@ -181,8 +227,8 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
     @Override
     public Mono<Application> deleteApplication(String id) {
         Mono<Application> deletedApplicationMono = super.deleteApplication(id).cache();
-        Flux<PermissionGroup> defaultApplicationRoles = deletedApplicationMono
-                .flatMapMany(deletedApplication -> permissionGroupService.getAllDefaultRolesForApplication(deletedApplication, Optional.empty()));
+        Flux<PermissionGroup> defaultApplicationRoles = deletedApplicationMono.flatMapMany(deletedApplication ->
+                permissionGroupService.getAllDefaultRolesForApplication(deletedApplication, Optional.empty()));
         return defaultApplicationRoles
                 .flatMap(role -> permissionGroupService.deleteWithoutPermission(role.getId()))
                 .then(deletedApplicationMono);

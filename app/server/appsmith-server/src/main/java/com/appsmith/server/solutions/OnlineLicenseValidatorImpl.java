@@ -24,9 +24,10 @@ import reactor.core.publisher.Mono;
 public class OnlineLicenseValidatorImpl extends BaseLicenseValidatorImpl implements LicenseValidator {
     private final CloudServicesConfig cloudServicesConfig;
 
-    public OnlineLicenseValidatorImpl(ReleaseNotesService releaseNotesService,
-                                      ConfigService configService,
-                                      CloudServicesConfig cloudServicesConfig) {
+    public OnlineLicenseValidatorImpl(
+            ReleaseNotesService releaseNotesService,
+            ConfigService configService,
+            CloudServicesConfig cloudServicesConfig) {
         super(releaseNotesService, configService);
         this.cloudServicesConfig = cloudServicesConfig;
     }
@@ -58,24 +59,20 @@ public class OnlineLicenseValidatorImpl extends BaseLicenseValidatorImpl impleme
 
         return this.populateLicenseValidationRequest(tenant)
                 .flatMap(requestDTO -> {
-                            return WebClientUtils.create(
-                                            cloudServicesConfig.getBaseUrl() + "/api/v1/license/validate"
-                                    )
-                                    .post()
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .accept(MediaType.APPLICATION_JSON)
-                                    .body(BodyInserters.fromValue(requestDTO))
-                                    .retrieve()
-                                    .onStatus(
-                                            HttpStatusCode::isError,
-                                            response -> Mono.error(new AppsmithException(
-                                                    AppsmithError.CLOUD_SERVICES_ERROR,
-                                                    "unable to connect to cloud-services with error status ", response.statusCode()))
-                                    )
-                                    .bodyToMono(new ParameterizedTypeReference<ResponseDTO<LicenseValidationResponseDTO>>() {
-                                    });
-                        }
-                )
+                    return WebClientUtils.create(cloudServicesConfig.getBaseUrl() + "/api/v1/license/validate")
+                            .post()
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .body(BodyInserters.fromValue(requestDTO))
+                            .retrieve()
+                            .onStatus(
+                                    HttpStatusCode::isError,
+                                    response -> Mono.error(new AppsmithException(
+                                            AppsmithError.CLOUD_SERVICES_ERROR,
+                                            "unable to connect to cloud-services with error status ",
+                                            response.statusCode())))
+                            .bodyToMono(new ParameterizedTypeReference<ResponseDTO<LicenseValidationResponseDTO>>() {});
+                })
                 .map(ResponseDTO::getData)
                 .map(licenseValidationResponse -> {
                     log.debug("License validation completed for tenant {}", tenant.getId());

@@ -5,8 +5,7 @@ import lombok.Getter;
 @Getter
 public enum ProvisionResourceType {
     USER("User"),
-    GROUP("Group")
-    ;
+    GROUP("Group");
 
     private final String value;
 

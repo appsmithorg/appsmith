@@ -28,34 +28,43 @@ public class UserController extends UserControllerCE {
 
     private final UserAndAccessManagementService userAndAccessManagementService;
 
-    public UserController(UserService service,
-                          SessionUserService sessionUserService,
-                          UserWorkspaceService userWorkspaceService,
-                          UserSignup userSignup,
-                          UserDataService userDataService,
-                          UserAndAccessManagementService userAndAccessManagementService) {
+    public UserController(
+            UserService service,
+            SessionUserService sessionUserService,
+            UserWorkspaceService userWorkspaceService,
+            UserSignup userSignup,
+            UserDataService userDataService,
+            UserAndAccessManagementService userAndAccessManagementService) {
 
-        super(service, sessionUserService, userWorkspaceService, userSignup, userDataService, userAndAccessManagementService);
+        super(
+                service,
+                sessionUserService,
+                userWorkspaceService,
+                userSignup,
+                userDataService,
+                userAndAccessManagementService);
         this.userAndAccessManagementService = userAndAccessManagementService;
     }
 
-
     @GetMapping("/manage/all")
     public Mono<ResponseDTO<List<UserForManagementDTO>>> getAllUsersForManagement() {
-        return userAndAccessManagementService.getAllUsers()
+        return userAndAccessManagementService
+                .getAllUsers()
                 .map(map -> new ResponseDTO<>(HttpStatus.OK.value(), map, null));
     }
 
     @GetMapping("/manage/{userId}")
     public Mono<ResponseDTO<UserForManagementDTO>> getUserForManagement(@PathVariable String userId) {
-        return userAndAccessManagementService.getUserById(userId)
+        return userAndAccessManagementService
+                .getUserById(userId)
                 .map(map -> new ResponseDTO<>(HttpStatus.OK.value(), map, null));
     }
 
     @DeleteMapping("/id/{id}")
     public Mono<ResponseDTO<Boolean>> deleteUser(@PathVariable String id) {
         log.debug("Going to delete user with id: {}", id);
-        return userAndAccessManagementService.deleteUser(id)
+        return userAndAccessManagementService
+                .deleteUser(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 }

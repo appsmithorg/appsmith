@@ -27,10 +27,9 @@ public abstract class BaseLicenseValidatorImpl implements LicenseValidator {
         requestDTO.setTenantId(tenant.getId());
         requestDTO.setAppsmithVersion(releaseNotesService.getRunningVersion());
 
-        return instanceIdMono
-                .map(instanceId -> {
-                    requestDTO.setInstanceId(instanceId);
-                    return requestDTO;
-                });
+        return instanceIdMono.map(instanceId -> {
+            requestDTO.setInstanceId(instanceId);
+            return requestDTO;
+        });
     }
 }

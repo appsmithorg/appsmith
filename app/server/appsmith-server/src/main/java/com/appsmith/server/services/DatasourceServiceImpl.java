@@ -40,31 +40,45 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
 
     private final ObservationRegistry observationRegistry;
 
+    public DatasourceServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            DatasourceRepository repository,
+            WorkspaceService workspaceService,
+            AnalyticsService analyticsService,
+            SessionUserService sessionUserService,
+            PluginService pluginService,
+            PluginExecutorHelper pluginExecutorHelper,
+            PolicyGenerator policyGenerator,
+            SequenceService sequenceService,
+            NewActionRepository newActionRepository,
+            DatasourceContextService datasourceContextService,
+            VariableReplacementService variableReplacementService,
+            DatasourcePermission datasourcePermission,
+            WorkspacePermission workspacePermission,
+            DatasourceStorageService datasourceStorageService,
+            ObservationRegistry observationRegistry) {
 
-    public DatasourceServiceImpl(Scheduler scheduler,
-                                 Validator validator,
-                                 MongoConverter mongoConverter,
-                                 ReactiveMongoTemplate reactiveMongoTemplate,
-                                 DatasourceRepository repository,
-                                 WorkspaceService workspaceService,
-                                 AnalyticsService analyticsService,
-                                 SessionUserService sessionUserService,
-                                 PluginService pluginService,
-                                 PluginExecutorHelper pluginExecutorHelper,
-                                 PolicyGenerator policyGenerator,
-                                 SequenceService sequenceService,
-                                 NewActionRepository newActionRepository,
-                                 DatasourceContextService datasourceContextService,
-                                 VariableReplacementService variableReplacementService,
-                                 DatasourcePermission datasourcePermission,
-                                 WorkspacePermission workspacePermission,
-                                 DatasourceStorageService datasourceStorageService,
-                                 ObservationRegistry observationRegistry) {
-
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, workspaceService,
-                analyticsService, sessionUserService, pluginService, pluginExecutorHelper, policyGenerator,
-                sequenceService, newActionRepository, datasourceContextService, datasourcePermission,
-                workspacePermission, datasourceStorageService);
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                workspaceService,
+                analyticsService,
+                sessionUserService,
+                pluginService,
+                pluginExecutorHelper,
+                policyGenerator,
+                sequenceService,
+                newActionRepository,
+                datasourceContextService,
+                datasourcePermission,
+                workspacePermission,
+                datasourceStorageService);
 
         this.variableReplacementService = variableReplacementService;
         this.workspaceService = workspaceService;
@@ -83,13 +97,15 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
         }
 
         if (!StringUtils.hasText(environmentId)) {
-            return workspaceService.getDefaultEnvironmentId(workspaceId)
+            return workspaceService
+                    .getDefaultEnvironmentId(workspaceId)
                     .tag(observationTag, Boolean.TRUE.toString())
                     .name(observationName)
                     .tap(Micrometer.observation(observationRegistry));
         }
 
-        return workspaceService.verifyEnvironmentIdByWorkspaceId(workspaceId, environmentId)
+        return workspaceService
+                .verifyEnvironmentIdByWorkspaceId(workspaceId, environmentId)
                 .tag(observationTag, Boolean.FALSE.toString())
                 .name(observationName)
                 .tap(Micrometer.observation(observationRegistry));
@@ -99,8 +115,8 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
     protected Flux<DatasourceStorage> organiseDatasourceStorages(@NotNull Datasource savedDatasource) {
         Map<String, DatasourceStorageDTO> storages = savedDatasource.getDatasourceStorages();
         int datasourceStorageDTOsAllowed = 2;
-        String storageMessage = "Error: Exceeded maximum allowed datasourceStorage count. Please provide a maximum of " +
-                datasourceStorageDTOsAllowed + " datasourceStorage items.";
+        String storageMessage = "Error: Exceeded maximum allowed datasourceStorage count. Please provide a maximum of "
+                + datasourceStorageDTOsAllowed + " datasourceStorage items.";
 
         if (storages.size() > datasourceStorageDTOsAllowed) {
             if (savedDatasource.getMessages() == null) {
@@ -109,8 +125,10 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
             // Since the datasource has been created we can't error out, we won't be creating any datasourceStorages,
             // but sending back with the hint message.
 
-            log.debug("Error: Exceeded maximum allowed datasourceStorage count for datasource {} with datasourceId {}",
-                    savedDatasource.getName(), savedDatasource.getId());
+            log.debug(
+                    "Error: Exceeded maximum allowed datasourceStorage count for datasource {} with datasourceId {}",
+                    savedDatasource.getName(),
+                    savedDatasource.getId());
             savedDatasource.getMessages().add(storageMessage);
             return Flux.empty();
         }
@@ -118,16 +136,15 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
         Map<String, DatasourceStorage> storagesToBeSaved = new HashMap<>();
 
         return Flux.fromIterable(storages.values())
-                .flatMap(datasourceStorageDTO ->
-                        this.getTrueEnvironmentId(savedDatasource.getWorkspaceId(), datasourceStorageDTO.getEnvironmentId())
-                                .map(trueEnvironmentId -> {
-                                    datasourceStorageDTO.setEnvironmentId(trueEnvironmentId);
-                                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
-                                    datasourceStorage.prepareTransientFields(savedDatasource);
-                                    storagesToBeSaved.put(trueEnvironmentId, datasourceStorage);
-                                    return datasourceStorage;
-                                })
-                )
+                .flatMap(datasourceStorageDTO -> this.getTrueEnvironmentId(
+                                savedDatasource.getWorkspaceId(), datasourceStorageDTO.getEnvironmentId())
+                        .map(trueEnvironmentId -> {
+                            datasourceStorageDTO.setEnvironmentId(trueEnvironmentId);
+                            DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
+                            datasourceStorage.prepareTransientFields(savedDatasource);
+                            storagesToBeSaved.put(trueEnvironmentId, datasourceStorage);
+                            return datasourceStorage;
+                        }))
                 .thenMany(Flux.fromIterable(storagesToBeSaved.values()));
     }
 }

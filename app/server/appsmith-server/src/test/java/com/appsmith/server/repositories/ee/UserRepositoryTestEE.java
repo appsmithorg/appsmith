@@ -4,15 +4,12 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,13 +39,21 @@ public class UserRepositoryTestEE {
         List<String> emailsForFilter = List.of(user1.getEmail(), user2.getEmail(), nonExistingUserEmail);
 
         // test for both users created above.
-        PagedDomain<User> pagedUsers = userRepository.getUsersWithParamsPaginated(2, 0, emailsForFilter, Optional.empty()).block();
+        PagedDomain<User> pagedUsers = userRepository
+                .getUsersWithParamsPaginated(2, 0, emailsForFilter, Optional.empty())
+                .block();
         assertThat(pagedUsers.getCount()).isEqualTo(2);
         assertThat(pagedUsers.getTotal()).isEqualTo(2);
 
-        Optional<User> optionalUser1 = pagedUsers.getContent().stream().filter(user -> user.getEmail().equals(user1.getEmail())).findFirst();
-        Optional<User> optionalUser2 = pagedUsers.getContent().stream().filter(user -> user.getEmail().equals(user2.getEmail())).findFirst();
-        Optional<User> optionalUser3 = pagedUsers.getContent().stream().filter(user -> user.getEmail().equals(nonExistingUserEmail)).findFirst();
+        Optional<User> optionalUser1 = pagedUsers.getContent().stream()
+                .filter(user -> user.getEmail().equals(user1.getEmail()))
+                .findFirst();
+        Optional<User> optionalUser2 = pagedUsers.getContent().stream()
+                .filter(user -> user.getEmail().equals(user2.getEmail()))
+                .findFirst();
+        Optional<User> optionalUser3 = pagedUsers.getContent().stream()
+                .filter(user -> user.getEmail().equals(nonExistingUserEmail))
+                .findFirst();
         assertThat(optionalUser1.isPresent()).isTrue();
         assertThat(optionalUser2.isPresent()).isTrue();
         assertThat(optionalUser3.isPresent()).isFalse();
@@ -57,7 +62,9 @@ public class UserRepositoryTestEE {
         assertThat(optionalUser2.get().getId()).isEqualTo(createdUser2.getId());
         // test for both users created above.
 
-        userRepository.deleteAllById(List.of(createdUser1.getId(), createdUser2.getId())).block();
+        userRepository
+                .deleteAllById(List.of(createdUser1.getId(), createdUser2.getId()))
+                .block();
     }
 
     @Test
@@ -74,16 +81,25 @@ public class UserRepositoryTestEE {
 
         String nonExistingUserEmail = testName + "_3@appsmith.com";
 
-        List<String> emailsForFilterUpperCase = List.of(user1.getEmail().toUpperCase(), user2.getEmail().toUpperCase(), nonExistingUserEmail.toUpperCase());
+        List<String> emailsForFilterUpperCase = List.of(
+                user1.getEmail().toUpperCase(), user2.getEmail().toUpperCase(), nonExistingUserEmail.toUpperCase());
 
         // test for both users created above.
-        PagedDomain<User> pagedUsers = userRepository.getUsersWithParamsPaginated(2, 0, emailsForFilterUpperCase, Optional.empty()).block();
+        PagedDomain<User> pagedUsers = userRepository
+                .getUsersWithParamsPaginated(2, 0, emailsForFilterUpperCase, Optional.empty())
+                .block();
         assertThat(pagedUsers.getCount()).isEqualTo(2);
         assertThat(pagedUsers.getTotal()).isEqualTo(2);
 
-        Optional<User> optionalUser1 = pagedUsers.getContent().stream().filter(user -> user.getEmail().equals(user1.getEmail())).findFirst();
-        Optional<User> optionalUser2 = pagedUsers.getContent().stream().filter(user -> user.getEmail().equals(user2.getEmail())).findFirst();
-        Optional<User> optionalUser3 = pagedUsers.getContent().stream().filter(user -> user.getEmail().equals(nonExistingUserEmail)).findFirst();
+        Optional<User> optionalUser1 = pagedUsers.getContent().stream()
+                .filter(user -> user.getEmail().equals(user1.getEmail()))
+                .findFirst();
+        Optional<User> optionalUser2 = pagedUsers.getContent().stream()
+                .filter(user -> user.getEmail().equals(user2.getEmail()))
+                .findFirst();
+        Optional<User> optionalUser3 = pagedUsers.getContent().stream()
+                .filter(user -> user.getEmail().equals(nonExistingUserEmail))
+                .findFirst();
         assertThat(optionalUser1.isPresent()).isTrue();
         assertThat(optionalUser2.isPresent()).isTrue();
         assertThat(optionalUser3.isPresent()).isFalse();
@@ -92,6 +108,8 @@ public class UserRepositoryTestEE {
         assertThat(optionalUser2.get().getId()).isEqualTo(createdUser2.getId());
         // test for both users created above.
 
-        userRepository.deleteAllById(List.of(createdUser1.getId(), createdUser2.getId())).block();
+        userRepository
+                .deleteAllById(List.of(createdUser1.getId(), createdUser2.getId()))
+                .block();
     }
 }

@@ -2,7 +2,6 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.dtos.ApiKeyRequestDto;
-import com.appsmith.server.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -14,9 +13,8 @@ public class ProvisionServiceImpl implements ProvisionService {
 
     @Override
     public Mono<String> generateProvisionToken() {
-        ApiKeyRequestDto apiKeyRequestDto = ApiKeyRequestDto.builder()
-                .email(FieldName.PROVISIONING_USER)
-                .build();
+        ApiKeyRequestDto apiKeyRequestDto =
+                ApiKeyRequestDto.builder().email(FieldName.PROVISIONING_USER).build();
         return apiKeyService.generateApiKey(apiKeyRequestDto);
     }
 }

@@ -40,17 +40,13 @@ public class SessionFilter implements WebFilter {
         this.userDataService = userDataService;
     }
 
-
     @Override
     public Mono<Void> filter(final ServerWebExchange serverWebExchange, final WebFilterChain webFilterChain) {
 
         Mono<WebSession> sessionMono = serverWebExchange.getSession().cache();
         Mono<SecurityContext> securityContextMono = ReactiveSecurityContextHolder.getContext();
 
-        return Mono.zip(
-                        sessionMono,
-                        securityContextMono
-                )
+        return Mono.zip(sessionMono, securityContextMono)
                 .flatMap(tuple -> {
                     WebSession session = tuple.getT1();
                     SecurityContext securityContext = tuple.getT2();
@@ -68,22 +64,23 @@ public class SessionFilter implements WebFilter {
                     return Mono.empty();
                 })
                 .then(webFilterChain.filter(serverWebExchange));
-
     }
 
     private OAuth2AuthorizedClient getNewAccessToken(OAuth2AuthorizedClient oidcClient) {
 
-        final OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest
-            = new OAuth2RefreshTokenGrantRequest(
-                    oidcClient.getClientRegistration(),
-                    oidcClient.getAccessToken(),
-                    oidcClient.getRefreshToken(),
-                    oidcClient.getAccessToken().getScopes());
+        final OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
+                oidcClient.getClientRegistration(),
+                oidcClient.getAccessToken(),
+                oidcClient.getRefreshToken(),
+                oidcClient.getAccessToken().getScopes());
 
         OAuth2AccessTokenResponse tokenResponse = refreshTokenClient.getTokenResponse(refreshTokenGrantRequest);
 
-        return new OAuth2AuthorizedClient(oidcClient.getClientRegistration(), oidcClient.getPrincipalName(),
-                tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
+        return new OAuth2AuthorizedClient(
+                oidcClient.getClientRegistration(),
+                oidcClient.getPrincipalName(),
+                tokenResponse.getAccessToken(),
+                tokenResponse.getRefreshToken());
     }
 
     private Mono<Boolean> checkSessionAndRefreshOidcToken(WebSession session, SecurityContext context) {
@@ -96,13 +93,13 @@ public class SessionFilter implements WebFilter {
             String email = ((User) currentToken.getPrincipal()).getEmail();
 
             if (attributes.containsKey(DEFAULT_AUTHORIZED_CLIENTS_ATTR_NAME)
-                    &&
-                    attributes.containsKey(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME)
-            ) {
+                    && attributes.containsKey(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME)) {
 
                 Map authorizedClients = (Map) attributes.get(DEFAULT_AUTHORIZED_CLIENTS_ATTR_NAME);
-                SecurityContext spring_security_context = (SecurityContext) attributes.get(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME);
-                OAuth2AuthenticationToken authentication = (OAuth2AuthenticationToken) spring_security_context.getAuthentication();
+                SecurityContext spring_security_context =
+                        (SecurityContext) attributes.get(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME);
+                OAuth2AuthenticationToken authentication =
+                        (OAuth2AuthenticationToken) spring_security_context.getAuthentication();
                 String client = authentication.getAuthorizedClientRegistrationId();
                 final OAuth2AuthorizedClient oidcClient = (OAuth2AuthorizedClient) authorizedClients.get(client);
 
@@ -113,50 +110,47 @@ public class SessionFilter implements WebFilter {
                     return Mono.just(Boolean.TRUE);
                 }
 
-                return userDataService.getForUserEmail(email)
-                        .flatMap(userData -> {
-                            AppsmithOidcAccessToken accessToken = userData.getOidcAccessToken();
+                return userDataService.getForUserEmail(email).flatMap(userData -> {
+                    AppsmithOidcAccessToken accessToken = userData.getOidcAccessToken();
 
-                            // If for some reason the oauth2accesstoken does not exist, invalidate the session
-                            // so that the access token can be set again.
-                            if (accessToken == null) {
-                                return Mono.just(Boolean.FALSE);
+                    // If for some reason the oauth2accesstoken does not exist, invalidate the session
+                    // so that the access token can be set again.
+                    if (accessToken == null) {
+                        return Mono.just(Boolean.FALSE);
 
-                                // Check if the access token has expired. If yes, refresh the token if available,
-                                // else invalidate the session so that the session can be re-authenticated
-                            } else if (accessToken.getExpiresAt().isBefore(Instant.now().plus(1, ChronoUnit.MINUTES))) {
+                        // Check if the access token has expired. If yes, refresh the token if available,
+                        // else invalidate the session so that the session can be re-authenticated
+                    } else if (accessToken.getExpiresAt().isBefore(Instant.now().plus(1, ChronoUnit.MINUTES))) {
 
-                                // If there is no refresh token, then invalidate the session to ensure that the user logs in again
-                                // since the access token has now expired.
-                                if (oidcClient.getRefreshToken() == null) {
-                                    return Mono.just(Boolean.FALSE);
-                                }
+                        // If there is no refresh token, then invalidate the session to ensure that the user logs in
+                        // again
+                        // since the access token has now expired.
+                        if (oidcClient.getRefreshToken() == null) {
+                            return Mono.just(Boolean.FALSE);
+                        }
 
-                                OAuth2AccessToken newAccessToken;
-                                try {
-                                    newAccessToken = this.getNewAccessToken(oidcClient).getAccessToken();
-                                } catch (Exception exception) {
-                                    // Invalidate the session for any unforeseen exceptions that will be thrown while
-                                    // generating the access token
-                                    log.debug("Unable to retrieve new access token with error {}", exception.getMessage());
-                                    return Mono.just(Boolean.FALSE);
-                                }
-                                UserData updates = new UserData();
-                                updates.setOidcAccessToken(
-                                        new AppsmithOidcAccessToken(
-                                                newAccessToken.getTokenType(),
-                                                newAccessToken.getScopes(),
-                                                newAccessToken.getTokenValue(),
-                                                newAccessToken.getIssuedAt(),
-                                                newAccessToken.getExpiresAt())
-                                );
+                        OAuth2AccessToken newAccessToken;
+                        try {
+                            newAccessToken = this.getNewAccessToken(oidcClient).getAccessToken();
+                        } catch (Exception exception) {
+                            // Invalidate the session for any unforeseen exceptions that will be thrown while
+                            // generating the access token
+                            log.debug("Unable to retrieve new access token with error {}", exception.getMessage());
+                            return Mono.just(Boolean.FALSE);
+                        }
+                        UserData updates = new UserData();
+                        updates.setOidcAccessToken(new AppsmithOidcAccessToken(
+                                newAccessToken.getTokenType(),
+                                newAccessToken.getScopes(),
+                                newAccessToken.getTokenValue(),
+                                newAccessToken.getIssuedAt(),
+                                newAccessToken.getExpiresAt()));
 
-                                return userDataService.updateForCurrentUser(updates).then(Mono.just(Boolean.TRUE));
-                            }
+                        return userDataService.updateForCurrentUser(updates).then(Mono.just(Boolean.TRUE));
+                    }
 
-                            return Mono.just(Boolean.TRUE);
-
-                        });
+                    return Mono.just(Boolean.TRUE);
+                });
 
             } else {
                 // We have an erroneous state for the session authenticated with oauth2 where spring has not set the

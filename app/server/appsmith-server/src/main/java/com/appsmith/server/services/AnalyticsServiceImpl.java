@@ -23,29 +23,38 @@ public class AnalyticsServiceImpl extends AnalyticsServiceCEImpl implements Anal
     private final AuditLogService auditLogService;
 
     @Autowired
-    public AnalyticsServiceImpl(@Autowired(required = false) Analytics analytics,
-                                SessionUserService sessionUserService,
-                                CommonConfig commonConfig,
-                                ConfigService configService,
-                                UserUtils userUtils,
-                                ProjectProperties projectProperties,
-                                UserDataRepository userDataRepository,
-                                AuditLogService auditLogService) {
-        super(analytics, sessionUserService, commonConfig, configService, userUtils, projectProperties, userDataRepository);
+    public AnalyticsServiceImpl(
+            @Autowired(required = false) Analytics analytics,
+            SessionUserService sessionUserService,
+            CommonConfig commonConfig,
+            ConfigService configService,
+            UserUtils userUtils,
+            ProjectProperties projectProperties,
+            UserDataRepository userDataRepository,
+            AuditLogService auditLogService) {
+        super(
+                analytics,
+                sessionUserService,
+                commonConfig,
+                configService,
+                userUtils,
+                projectProperties,
+                userDataRepository);
         this.auditLogService = auditLogService;
     }
 
     @Override
     public <T> Mono<T> sendObjectEvent(AnalyticsEvents event, T object, Map<String, Object> properties) {
-        return auditLogService.logEvent(event, object, properties)
-                .flatMap(auditLog -> {
-                    // Client generated events need not be sent to analytics
-                    Boolean isClientGeneratedEvent = null != properties && properties.containsKey(FieldName.AUDIT_LOGS_ORIGIN) && properties.get(FieldName.AUDIT_LOGS_ORIGIN).equals(FieldName.AUDIT_LOGS_ORIGIN_CLIENT);
-                    if (isClientGeneratedEvent) {
-                        return Mono.just(object);
-                    }
-                    return super.sendObjectEvent(event, object, properties);
-                });
+        return auditLogService.logEvent(event, object, properties).flatMap(auditLog -> {
+            // Client generated events need not be sent to analytics
+            Boolean isClientGeneratedEvent = null != properties
+                    && properties.containsKey(FieldName.AUDIT_LOGS_ORIGIN)
+                    && properties.get(FieldName.AUDIT_LOGS_ORIGIN).equals(FieldName.AUDIT_LOGS_ORIGIN_CLIENT);
+            if (isClientGeneratedEvent) {
+                return Mono.just(object);
+            }
+            return super.sendObjectEvent(event, object, properties);
+        });
     }
 
     /**
@@ -56,13 +65,10 @@ public class AnalyticsServiceImpl extends AnalyticsServiceCEImpl implements Anal
     @Override
     public List<AnalyticsEvents> getNonResourceEvents() {
         List<AnalyticsEvents> nonResourceEvents = new ArrayList<>();
-        nonResourceEvents.addAll(List.of(
-                AnalyticsEvents.ACTIVATE_NEW_INSTANCE,
-                AnalyticsEvents.UPDATE_EXISTING_LICENSE
-        ));
+        nonResourceEvents.addAll(
+                List.of(AnalyticsEvents.ACTIVATE_NEW_INSTANCE, AnalyticsEvents.UPDATE_EXISTING_LICENSE));
         nonResourceEvents.addAll(super.getNonResourceEvents());
 
         return nonResourceEvents;
     }
-
 }

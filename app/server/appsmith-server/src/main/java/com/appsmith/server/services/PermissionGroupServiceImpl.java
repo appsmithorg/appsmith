@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -19,16 +18,17 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.helpers.UserUtils;
-import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.PermissionGroupServiceCEImpl;
 import com.appsmith.server.solutions.PermissionGroupPermission;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.mongodb.client.result.UpdateResult;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -40,8 +40,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-
-import jakarta.validation.Validator;
 import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
@@ -59,7 +57,6 @@ import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.EVENT_DATA;
-import static com.appsmith.server.constants.FieldName.NUMBER_OF_ASSIGNED_USERS;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_ASSIGNED_USER_GROUPS;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USERS;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USER_GROUPS;
@@ -80,27 +77,38 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     private final PermissionGroupUtils permissionGroupUtils;
     private final UserUtils userUtils;
 
-    public PermissionGroupServiceImpl(Scheduler scheduler,
-                                      Validator validator,
-                                      MongoConverter mongoConverter,
-                                      ReactiveMongoTemplate reactiveMongoTemplate,
-                                      PermissionGroupRepository repository,
-                                      AnalyticsService analyticsService,
-                                      SessionUserService sessionUserService,
-                                      TenantService tenantService,
-                                      UserRepository userRepository,
-                                      PolicySolution policySolution,
-                                      ConfigRepository configRepository,
-                                      ModelMapper modelMapper,
-                                      PolicyGenerator policyGenerator,
-                                      UserGroupRepository userGroupRepository,
-                                      RoleConfigurationSolution roleConfigurationSolution,
-                                      PermissionGroupPermission permissionGroupPermission,
-                                      PermissionGroupUtils permissionGroupUtils,
-                                      UserUtils userUtils) {
+    public PermissionGroupServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            PermissionGroupRepository repository,
+            AnalyticsService analyticsService,
+            SessionUserService sessionUserService,
+            TenantService tenantService,
+            UserRepository userRepository,
+            PolicySolution policySolution,
+            ConfigRepository configRepository,
+            ModelMapper modelMapper,
+            PolicyGenerator policyGenerator,
+            UserGroupRepository userGroupRepository,
+            RoleConfigurationSolution roleConfigurationSolution,
+            PermissionGroupPermission permissionGroupPermission,
+            PermissionGroupUtils permissionGroupUtils,
+            UserUtils userUtils) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                sessionUserService, tenantService, userRepository, policySolution, configRepository,
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService,
+                sessionUserService,
+                tenantService,
+                userRepository,
+                policySolution,
+                configRepository,
                 permissionGroupPermission);
         this.modelMapper = modelMapper;
         this.policyGenerator = policyGenerator;
@@ -114,14 +122,16 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
 
     @Override
     public Mono<List<PermissionGroupInfoDTO>> getAll() {
-        return permissionGroupUtils.mapToPermissionGroupInfoDto(repository.findAll(READ_PERMISSION_GROUPS))
+        return permissionGroupUtils
+                .mapToPermissionGroupInfoDto(repository.findAll(READ_PERMISSION_GROUPS))
                 .sort(AppsmithComparators.permissionGroupInfoComparator())
                 .collectList();
     }
 
     @Override
     public Mono<List<PermissionGroupInfoDTO>> getAllAssignableRoles() {
-        return permissionGroupUtils.mapToPermissionGroupInfoDto(repository.findAll(ASSIGN_PERMISSION_GROUPS))
+        return permissionGroupUtils
+                .mapToPermissionGroupInfoDto(repository.findAll(ASSIGN_PERMISSION_GROUPS))
                 .collectList();
     }
 
@@ -132,8 +142,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
 
     @Override
     public Flux<PermissionGroup> findAllByAssignedToGroupIdsIn(Set<String> groupIds) {
-        return repository.findAllByAssignedToGroupIdsIn(groupIds)
-                .flatMap(repository::setUserPermissionsInObject);
+        return repository.findAllByAssignedToGroupIdsIn(groupIds).flatMap(repository::setUserPermissionsInObject);
     }
 
     @Override
@@ -153,7 +162,8 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
 
     @Override
     public Mono<PermissionGroup> create(PermissionGroup permissionGroup) {
-        Mono<Boolean> isCreateAllowedMono = Mono.zip(sessionUserService.getCurrentUser(), tenantService.getDefaultTenantId())
+        Mono<Boolean> isCreateAllowedMono = Mono.zip(
+                        sessionUserService.getCurrentUser(), tenantService.getDefaultTenantId())
                 .flatMap(tuple -> {
                     User user = tuple.getT1();
                     String defaultTenantId = tuple.getT2();
@@ -171,20 +181,17 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        Mono<PermissionGroup> userPermissionGroupMono = isCreateAllowedMono
-                .flatMap(isCreateAllowed -> {
-                    if (!isCreateAllowed && permissionGroup.getDefaultDomainType() == null) {
-                        // Throw an error if the user is not allowed to create a permission group. If default workspace id
-                        // is set, this permission group is system generated and hence shouldn't error out.
-                        return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Create Role"));
-                    }
+        Mono<PermissionGroup> userPermissionGroupMono = isCreateAllowedMono.flatMap(isCreateAllowed -> {
+            if (!isCreateAllowed && permissionGroup.getDefaultDomainType() == null) {
+                // Throw an error if the user is not allowed to create a permission group. If default workspace id
+                // is set, this permission group is system generated and hence shouldn't error out.
+                return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Create Role"));
+            }
 
-                    return Mono.just(permissionGroup);
-                });
+            return Mono.just(permissionGroup);
+        });
         Mono<PermissionGroup> createdPermissionMono = Mono.zip(
-                        userPermissionGroupMono,
-                        tenantService.getDefaultTenant()
-                )
+                        userPermissionGroupMono, tenantService.getDefaultTenant())
                 .flatMap(tuple -> {
                     PermissionGroup userPermissionGroup = tuple.getT1();
                     Tenant defaultTenant = tuple.getT2();
@@ -193,21 +200,20 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                     userPermissionGroup = generateAndSetPermissionGroupPolicies(defaultTenant, userPermissionGroup);
 
                     return super.create(userPermissionGroup);
-                }).cache();
-        
+                })
+                .cache();
+
         // make the default workspace roles uneditable
         Mono<PermissionGroup> ifDefaultPgMakeUneditableMono = createdPermissionMono
                 .flatMap(pg -> Mono.zip(Mono.just(pg), permissionGroupUtils.isAutoCreated(pg)))
                 .flatMap(tuple -> {
                     PermissionGroup permissionGroup1 = tuple.getT1();
-                    // If isAutoCreated is TRUE, it's a default document role and hence shouldn't be editable or deletable
+                    // If isAutoCreated is TRUE, it's a default document role and hence shouldn't be editable or
+                    // deletable
                     if (tuple.getT2()) {
                         Set<Policy> policiesWithoutEditPermission = permissionGroup1.getPolicies().stream()
-                                .filter(policy ->
-                                        !policy.getPermission().equals(MANAGE_PERMISSION_GROUPS.getValue())
-                                                &&
-                                                !policy.getPermission().equals(DELETE_PERMISSION_GROUPS.getValue())
-                                )
+                                .filter(policy -> !policy.getPermission().equals(MANAGE_PERMISSION_GROUPS.getValue())
+                                        && !policy.getPermission().equals(DELETE_PERMISSION_GROUPS.getValue()))
                                 .collect(Collectors.toSet());
                         permissionGroup1.setPolicies(policiesWithoutEditPermission);
                         return repository.save(permissionGroup1);
@@ -223,8 +229,10 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
             Set<String> permissionGroupIdsWithReadAccess = permissionGroup1.getPolicies().stream()
                     .filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUPS.getValue()))
                     .findFirst()
-                    .map(Policy::getPermissionGroups).orElse(Set.of());
-            return repository.findAllById(permissionGroupIdsWithReadAccess)
+                    .map(Policy::getPermissionGroups)
+                    .orElse(Set.of());
+            return repository
+                    .findAllById(permissionGroupIdsWithReadAccess)
                     .flatMap(this::getAllDirectlyAndIndirectlyAssignedUserIds)
                     .collectList()
                     .map(userIdSetList -> {
@@ -232,7 +240,8 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                         userIdSetList.forEach(userIds -> userIdSet.addAll(userIds));
                         return userIdSet;
                     })
-                    .flatMap(userIdsSet -> cleanPermissionGroupCacheForUsers(userIdsSet.stream().toList()));
+                    .flatMap(userIdsSet -> cleanPermissionGroupCacheForUsers(
+                            userIdsSet.stream().toList()));
         });
 
         return Mono.zip(ifDefaultPgMakeUneditableMono, cleanUserPermissionGroupMono.thenReturn(TRUE))
@@ -240,14 +249,16 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     }
 
     private PermissionGroup generateAndSetPermissionGroupPolicies(Tenant tenant, PermissionGroup permissionGroup) {
-        Set<Policy> policies = policyGenerator.getAllChildPolicies(tenant.getPolicies(), Tenant.class, PermissionGroup.class);
+        Set<Policy> policies =
+                policyGenerator.getAllChildPolicies(tenant.getPolicies(), Tenant.class, PermissionGroup.class);
         permissionGroup.setPolicies(policies);
         return permissionGroup;
     }
 
     @Override
     public Mono<PermissionGroup> archiveById(String id) {
-        Mono<PermissionGroup> permissionGroupMono = repository.findById(id, DELETE_PERMISSION_GROUPS)
+        Mono<PermissionGroup> permissionGroupMono = repository
+                .findById(id, DELETE_PERMISSION_GROUPS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
                 .cache();
         // Clean cache for Users who are assigned to Permission Groups DIRECTLY OR INDIRECTLY(via User Groups)
@@ -256,8 +267,10 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
             Set<String> permissionGroupIdsWithReadAccess = permissionGroup1.getPolicies().stream()
                     .filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUPS.getValue()))
                     .findFirst()
-                    .map(Policy::getPermissionGroups).orElse(Set.of());
-            return repository.findAllById(permissionGroupIdsWithReadAccess)
+                    .map(Policy::getPermissionGroups)
+                    .orElse(Set.of());
+            return repository
+                    .findAllById(permissionGroupIdsWithReadAccess)
                     .flatMap(this::getAllDirectlyAndIndirectlyAssignedUserIds)
                     .collectList()
                     .map(userIdSetList -> {
@@ -265,27 +278,30 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                         userIdSetList.forEach(userIds -> userIdSet.addAll(userIds));
                         return userIdSet;
                     })
-                    .flatMap(userIdsSet -> cleanPermissionGroupCacheForUsers(userIdsSet.stream().toList()));
+                    .flatMap(userIdsSet -> cleanPermissionGroupCacheForUsers(
+                            userIdsSet.stream().toList()));
         });
 
         // TODO : Untested : Please test.
         return permissionGroupMono
                 .flatMap(permissionGroup -> {
-
                     return Mono.zip(
-                                    bulkUnassignUsersFromPermissionGroupsWithoutPermission(permissionGroup.getAssignedToUserIds(), Set.of(id)),
-                                    bulkUnassignFromUserGroupsWithoutPermission(permissionGroup, permissionGroup.getAssignedToGroupIds()),
-                                    cleanUserPermissionGroupMono.thenReturn(TRUE)
-                            )
+                                    bulkUnassignUsersFromPermissionGroupsWithoutPermission(
+                                            permissionGroup.getAssignedToUserIds(), Set.of(id)),
+                                    bulkUnassignFromUserGroupsWithoutPermission(
+                                            permissionGroup, permissionGroup.getAssignedToGroupIds()),
+                                    cleanUserPermissionGroupMono.thenReturn(TRUE))
                             .then(repository.archiveById(id));
                 })
                 .then(permissionGroupMono.flatMap(analyticsService::sendDeleteEvent));
     }
 
     @Override
-    public Mono<PermissionGroup> bulkUnassignFromUserGroupsWithoutPermission(PermissionGroup permissionGroup, Set<String> userGroupIds) {
+    public Mono<PermissionGroup> bulkUnassignFromUserGroupsWithoutPermission(
+            PermissionGroup permissionGroup, Set<String> userGroupIds) {
 
-        return userGroupRepository.findAllById(userGroupIds)
+        return userGroupRepository
+                .findAllById(userGroupIds)
                 .collect(Collectors.toSet())
                 .flatMap(userGroups -> {
                     Set<String> assignedToGroupIds = permissionGroup.getAssignedToGroupIds();
@@ -302,14 +318,15 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
 
                     updateObj.set(path, assignedToGroupIds);
                     return Mono.zip(
-                            repository.updateById(permissionGroup.getId(), updateObj),
-                            cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE)
-                    ).then(repository.findById(permissionGroup.getId()));
+                                    repository.updateById(permissionGroup.getId(), updateObj),
+                                    cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE))
+                            .then(repository.findById(permissionGroup.getId()));
                 });
     }
 
     @Override
-    public Mono<PermissionGroup> bulkUnassignFromUserGroups(PermissionGroup permissionGroup, Set<UserGroup> userGroups) {
+    public Mono<PermissionGroup> bulkUnassignFromUserGroups(
+            PermissionGroup permissionGroup, Set<UserGroup> userGroups) {
         ensureAssignedToUserGroups(permissionGroup);
 
         // Get the userIds from all the user groups that we are unassigning
@@ -323,19 +340,22 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
         userGroupIds.forEach(permissionGroup.getAssignedToGroupIds()::remove);
 
         return Mono.zip(
-                        repository.updateById(permissionGroup.getId(), permissionGroup, AclPermission.UNASSIGN_PERMISSION_GROUPS),
-                        cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE)
-                )
+                        repository.updateById(
+                                permissionGroup.getId(), permissionGroup, AclPermission.UNASSIGN_PERMISSION_GROUPS),
+                        cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE))
                 .map(tuple -> tuple.getT1());
     }
 
     @Override
     public Mono<RoleViewDTO> findConfigurableRoleById(String id) {
-        // The user should have atleast READ_PERMISSION_GROUPS permission to view the role. The edits would be allowed via
+        // The user should have atleast READ_PERMISSION_GROUPS permission to view the role. The edits would be allowed
+        // via
         // MANAGE_PERMISSION_GROUPS permission.
-        return repository.findById(id, READ_PERMISSION_GROUPS)
+        return repository
+                .findById(id, READ_PERMISSION_GROUPS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
-                .flatMap(permissionGroup -> roleConfigurationSolution.getAllTabViews(permissionGroup.getId())
+                .flatMap(permissionGroup -> roleConfigurationSolution
+                        .getAllTabViews(permissionGroup.getId())
                         .map(roleViewDTO -> {
                             roleViewDTO.setId(permissionGroup.getId());
                             roleViewDTO.setName(permissionGroup.getName());
@@ -346,7 +366,8 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     }
 
     public Mono<PermissionGroupInfoDTO> updatePermissionGroup(String id, PermissionGroup resource) {
-        return repository.findById(id, MANAGE_PERMISSION_GROUPS)
+        return repository
+                .findById(id, MANAGE_PERMISSION_GROUPS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "update role")))
                 .zipWith(userUtils.getDefaultUserPermissionGroup())
                 .flatMap(tuple -> {
@@ -373,8 +394,10 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     }
 
     @Override
-    public Mono<Boolean> bulkUnassignUserFromPermissionGroupsWithoutPermission(User user, Set<String> permissionGroupIds) {
-        return repository.findAllById(permissionGroupIds)
+    public Mono<Boolean> bulkUnassignUserFromPermissionGroupsWithoutPermission(
+            User user, Set<String> permissionGroupIds) {
+        return repository
+                .findAllById(permissionGroupIds)
                 .flatMap(pg -> {
                     Set<String> assignedToUserIds = pg.getAssignedToUserIds();
                     assignedToUserIds.remove(user.getId());
@@ -384,11 +407,16 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
 
                     updateObj.set(path, assignedToUserIds);
                     return repository.updateById(pg.getId(), updateObj).then(Mono.defer(() -> {
-                        Map<String, Object> eventData = Map.of(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS, List.of(user.getUsername()));
+                        Map<String, Object> eventData =
+                                Map.of(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS, List.of(user.getUsername()));
                         AnalyticsEvents unassignedEvent = AnalyticsEvents.UNASSIGNED_USERS_FROM_PERMISSION_GROUP;
-                        Map<String, Object> analyticalProperties = Map.of(NUMBER_OF_UNASSIGNED_USERS, 1,
-                                NUMBER_OF_UNASSIGNED_USER_GROUPS, 0,
-                                EVENT_DATA, eventData);
+                        Map<String, Object> analyticalProperties = Map.of(
+                                NUMBER_OF_UNASSIGNED_USERS,
+                                1,
+                                NUMBER_OF_UNASSIGNED_USER_GROUPS,
+                                0,
+                                EVENT_DATA,
+                                eventData);
                         return analyticsService.sendObjectEvent(unassignedEvent, pg, analyticalProperties);
                     }));
                 })
@@ -396,8 +424,10 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     }
 
     @Override
-    public Flux<PermissionGroup> getAllByAssignedToUserGroupAndDefaultWorkspace(UserGroup userGroup, Workspace defaultWorkspace, AclPermission aclPermission) {
-        return repository.findAllByAssignedToUserGroupIdAndDefaultWorkspaceId(userGroup.getId(), defaultWorkspace.getId(), aclPermission);
+    public Flux<PermissionGroup> getAllByAssignedToUserGroupAndDefaultWorkspace(
+            UserGroup userGroup, Workspace defaultWorkspace, AclPermission aclPermission) {
+        return repository.findAllByAssignedToUserGroupIdAndDefaultWorkspaceId(
+                userGroup.getId(), defaultWorkspace.getId(), aclPermission);
     }
 
     @Override
@@ -425,8 +455,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
 
         return Mono.zip(
                         permissionGroupUpdateMono,
-                        cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE)
-                )
+                        cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE))
                 .map(tuple -> tuple.getT1());
     }
 
@@ -435,21 +464,20 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
         ensureAssignedToUserIds(pg);
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
         Update updateAssignedToUserIdsUpdate = new Update();
-        updateAssignedToUserIdsUpdate.addToSet(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
+        updateAssignedToUserIdsUpdate
+                .addToSet(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
                 .each(userIds.toArray());
 
         Mono<UpdateResult> permissionGroupUpdateMono = repository.updateById(pg.getId(), updateAssignedToUserIdsUpdate);
 
         return Mono.zip(
                         permissionGroupUpdateMono,
-                        cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE)
-                )
+                        cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE))
                 .thenReturn(TRUE);
     }
 
     public Mono<Set<String>> getSessionUserPermissionGroupIds() {
-        return sessionUserService.getCurrentUser()
-                .flatMap(repository::getAllPermissionGroupsIdsForUser);
+        return sessionUserService.getCurrentUser().flatMap(repository::getAllPermissionGroupsIdsForUser);
     }
 
     @Override
@@ -463,10 +491,13 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                 : permissionGroup.getAssignedToUserIds();
 
         if (ObjectUtils.isNotEmpty(permissionGroup.getAssignedToGroupIds())) {
-            return userGroupRepository.findAllById(permissionGroup.getAssignedToGroupIds())
+            return userGroupRepository
+                    .findAllById(permissionGroup.getAssignedToGroupIds())
                     .collectList()
-                    .map(userGroupList -> userGroupList.stream().map(UserGroup::getUsers)
-                            .flatMap(Collection::stream).collect(Collectors.toSet()))
+                    .map(userGroupList -> userGroupList.stream()
+                            .map(UserGroup::getUsers)
+                            .flatMap(Collection::stream)
+                            .collect(Collectors.toSet()))
                     .map(indirectAssignedUserIds -> {
                         indirectAssignedUserIds.addAll(directAssignedUserIds);
                         return indirectAssignedUserIds;
@@ -483,27 +514,29 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
          * bulkUnassignFromUserGroupsWithoutPermission is being used here, because in addition to unassigning user
          * groups, it will clean cache for users who have access to this role, via user group.
          */
-        return roleMono
-                .flatMap(role -> bulkUnassignFromUserGroupsWithoutPermission(role, role.getAssignedToGroupIds()))
+        return roleMono.flatMap(role -> bulkUnassignFromUserGroupsWithoutPermission(role, role.getAssignedToGroupIds()))
                 .then(deleteRoleMono);
     }
 
     @Override
-    public Flux<PermissionGroup> getAllDefaultRolesForApplication(Application application, Optional<AclPermission> aclPermission) {
+    public Flux<PermissionGroup> getAllDefaultRolesForApplication(
+            Application application, Optional<AclPermission> aclPermission) {
         return repository.findByDefaultApplicationId(application.getId(), aclPermission);
     }
 
-    private Mono<PermissionGroup> sendAssignedToPermissionGroupEvent(PermissionGroup permissionGroup,
-                                                                     List<String> usernames,
-                                                                     List<String> userGroupNames) {
-        Mono<PermissionGroup> sendAssignedUsersToPermissionGroupEvent = sendEventUsersAssociatedToRole(permissionGroup, usernames);
-        Mono<PermissionGroup> sendAssignedUserGroupsTpPermissionGroupEvent = sendEventUserGroupsAssociatedToRole(permissionGroup, userGroupNames);
+    private Mono<PermissionGroup> sendAssignedToPermissionGroupEvent(
+            PermissionGroup permissionGroup, List<String> usernames, List<String> userGroupNames) {
+        Mono<PermissionGroup> sendAssignedUsersToPermissionGroupEvent =
+                sendEventUsersAssociatedToRole(permissionGroup, usernames);
+        Mono<PermissionGroup> sendAssignedUserGroupsTpPermissionGroupEvent =
+                sendEventUserGroupsAssociatedToRole(permissionGroup, userGroupNames);
         return Mono.when(sendAssignedUsersToPermissionGroupEvent, sendAssignedUserGroupsTpPermissionGroupEvent)
                 .thenReturn(permissionGroup);
     }
 
     @Override
-    public Mono<PermissionGroup> bulkAssignToUsersAndGroups(PermissionGroup role, List<User> users, List<UserGroup> groups) {
+    public Mono<PermissionGroup> bulkAssignToUsersAndGroups(
+            PermissionGroup role, List<User> users, List<UserGroup> groups) {
         ensureAssignedToUserIds(role);
         ensureAssignedToUserGroups(role);
 
@@ -513,53 +546,64 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
         role.getAssignedToGroupIds().addAll(groupIds);
         List<String> usernames = users.stream().map(User::getUsername).collect(Collectors.toList());
         List<String> userGroupNames = groups.stream().map(UserGroup::getName).collect(Collectors.toList());
-        Mono<PermissionGroup> updatedRoleMono = repository.updateById(role.getId(), role, AclPermission.ASSIGN_PERMISSION_GROUPS)
+        Mono<PermissionGroup> updatedRoleMono = repository
+                .updateById(role.getId(), role, AclPermission.ASSIGN_PERMISSION_GROUPS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)))
                 .cache();
 
-        Mono<PermissionGroup> updateEventGetRoleMono = updatedRoleMono
-                .flatMap(permissionGroup1 -> sendAssignedToPermissionGroupEvent(permissionGroup1, usernames, userGroupNames));
+        Mono<PermissionGroup> updateEventGetRoleMono = updatedRoleMono.flatMap(
+                permissionGroup1 -> sendAssignedToPermissionGroupEvent(permissionGroup1, usernames, userGroupNames));
 
-        Mono<Boolean> cleanCacheForAllUsersAssignedDirectlyIndirectly = updatedRoleMono
-                .flatMap(updatedRole -> {
-                    List<String> usersIdsInGroups = groups.stream()
-                            .map(UserGroup::getUsers)
-                            .flatMap(Collection::stream).toList();
-                    List<String> userIdsForCacheCleaning = new ArrayList<>();
-                    userIdsForCacheCleaning.addAll(userIds);
-                    userIdsForCacheCleaning.addAll(usersIdsInGroups);
-                    return cleanPermissionGroupCacheForUsers(userIdsForCacheCleaning).thenReturn(TRUE);
-                });
+        Mono<Boolean> cleanCacheForAllUsersAssignedDirectlyIndirectly = updatedRoleMono.flatMap(updatedRole -> {
+            List<String> usersIdsInGroups = groups.stream()
+                    .map(UserGroup::getUsers)
+                    .flatMap(Collection::stream)
+                    .toList();
+            List<String> userIdsForCacheCleaning = new ArrayList<>();
+            userIdsForCacheCleaning.addAll(userIds);
+            userIdsForCacheCleaning.addAll(usersIdsInGroups);
+            return cleanPermissionGroupCacheForUsers(userIdsForCacheCleaning).thenReturn(TRUE);
+        });
 
         return cleanCacheForAllUsersAssignedDirectlyIndirectly
                 .then(updateEventGetRoleMono)
                 .then(updatedRoleMono);
     }
 
-    protected Mono<PermissionGroup> sendEventUserGroupsAssociatedToRole(PermissionGroup permissionGroup,
-                                                                        List<String> groupNames) {
+    protected Mono<PermissionGroup> sendEventUserGroupsAssociatedToRole(
+            PermissionGroup permissionGroup, List<String> groupNames) {
         Mono<PermissionGroup> sendAssignedUsersToPermissionGroupEvent = Mono.just(permissionGroup);
         if (CollectionUtils.isNotEmpty(groupNames)) {
             Map<String, Object> eventData = Map.of(FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS, groupNames);
-            Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS, groupNames);
-            Map<String, Object> analyticsProperties = Map.of(NUMBER_OF_ASSIGNED_USER_GROUPS, groupNames.size(),
-                    FieldName.EVENT_DATA, eventData,
-                    FieldName.CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
+            Map<String, Object> extraPropsForCloudHostedInstance =
+                    Map.of(FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS, groupNames);
+            Map<String, Object> analyticsProperties = Map.of(
+                    NUMBER_OF_ASSIGNED_USER_GROUPS,
+                    groupNames.size(),
+                    FieldName.EVENT_DATA,
+                    eventData,
+                    FieldName.CLOUD_HOSTED_EXTRA_PROPS,
+                    extraPropsForCloudHostedInstance);
             sendAssignedUsersToPermissionGroupEvent = analyticsService.sendObjectEvent(
                     AnalyticsEvents.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUP, permissionGroup, analyticsProperties);
         }
         return sendAssignedUsersToPermissionGroupEvent;
     }
 
-    protected Mono<PermissionGroup> sendEventUserGroupsRemovedFromRole(PermissionGroup permissionGroup,
-                                                                       List<String> groupNames) {
+    protected Mono<PermissionGroup> sendEventUserGroupsRemovedFromRole(
+            PermissionGroup permissionGroup, List<String> groupNames) {
         Mono<PermissionGroup> sendUnAssignedUsersToPermissionGroupEvent = Mono.just(permissionGroup);
         if (CollectionUtils.isNotEmpty(groupNames)) {
             Map<String, Object> eventData = Map.of(FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS, groupNames);
-            Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS, groupNames);
-            Map<String, Object> analyticsProperties = Map.of(NUMBER_OF_UNASSIGNED_USER_GROUPS, groupNames.size(),
-                    FieldName.EVENT_DATA, eventData,
-                    FieldName.CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
+            Map<String, Object> extraPropsForCloudHostedInstance =
+                    Map.of(FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS, groupNames);
+            Map<String, Object> analyticsProperties = Map.of(
+                    NUMBER_OF_UNASSIGNED_USER_GROUPS,
+                    groupNames.size(),
+                    FieldName.EVENT_DATA,
+                    eventData,
+                    FieldName.CLOUD_HOSTED_EXTRA_PROPS,
+                    extraPropsForCloudHostedInstance);
             sendUnAssignedUsersToPermissionGroupEvent = analyticsService.sendObjectEvent(
                     AnalyticsEvents.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUP, permissionGroup, analyticsProperties);
         }
@@ -572,19 +616,22 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     }
 
     @Override
-    public Mono<PermissionGroup> bulkAssignToUserGroupsAndSendEvent(PermissionGroup permissionGroup, Set<UserGroup> userGroups) {
+    public Mono<PermissionGroup> bulkAssignToUserGroupsAndSendEvent(
+            PermissionGroup permissionGroup, Set<UserGroup> userGroups) {
         List<String> groupNames = userGroups.stream().map(UserGroup::getName).toList();
         return bulkAssignToUserGroups(permissionGroup, userGroups)
                 .flatMap(permissionGroup1 -> sendEventUserGroupsAssociatedToRole(permissionGroup1, groupNames));
     }
 
     @Override
-    public Mono<PermissionGroup> unAssignFromUserGroupAndSendEvent(PermissionGroup permissionGroup, UserGroup userGroup) {
+    public Mono<PermissionGroup> unAssignFromUserGroupAndSendEvent(
+            PermissionGroup permissionGroup, UserGroup userGroup) {
         return bulkUnAssignFromUserGroupsAndSendEvent(permissionGroup, Set.of(userGroup));
     }
 
     @Override
-    public Mono<PermissionGroup> bulkUnAssignFromUserGroupsAndSendEvent(PermissionGroup permissionGroup, Set<UserGroup> userGroups) {
+    public Mono<PermissionGroup> bulkUnAssignFromUserGroupsAndSendEvent(
+            PermissionGroup permissionGroup, Set<UserGroup> userGroups) {
         List<String> groupNames = userGroups.stream().map(UserGroup::getName).toList();
         return bulkUnassignFromUserGroups(permissionGroup, userGroups)
                 .flatMap(permissionGroup1 -> sendEventUserGroupsRemovedFromRole(permissionGroup1, groupNames));
@@ -600,11 +647,10 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     @Override
     public Flux<String> getRoleNamesAssignedToUserIds(Set<String> userIds) {
         List<String> includeFields = List.of(
-                fieldName(QPermissionGroup.permissionGroup.name),
-                fieldName(QPermissionGroup.permissionGroup.policies)
-        );
-        return repository.findAllByAssignedToUserIn(userIds, Optional.of(includeFields), Optional.empty())
-                .filter(role -> ! PermissionGroupUtils.isUserManagementRole(role))
+                fieldName(QPermissionGroup.permissionGroup.name), fieldName(QPermissionGroup.permissionGroup.policies));
+        return repository
+                .findAllByAssignedToUserIn(userIds, Optional.of(includeFields), Optional.empty())
+                .filter(role -> !PermissionGroupUtils.isUserManagementRole(role))
                 .map(PermissionGroup::getName);
     }
 }

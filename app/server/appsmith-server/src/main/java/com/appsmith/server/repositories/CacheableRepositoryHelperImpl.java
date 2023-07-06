@@ -27,7 +27,8 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.n
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.userAcl;
 
 @Component
-public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelper{
+public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCEImpl
+        implements CacheableRepositoryHelper {
 
     private final ReactiveMongoOperations mongoOperations;
 
@@ -46,7 +47,10 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCEIm
             return getPermissionGroupsOfAnonymousUser();
         }
 
-        if (user.getEmail() == null || user.getEmail().isEmpty() || user.getId() == null || user.getId().isEmpty()) {
+        if (user.getEmail() == null
+                || user.getEmail().isEmpty()
+                || user.getId() == null
+                || user.getId().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.SESSION_BAD_STATE));
         }
 
@@ -54,33 +58,36 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCEIm
 
         Mono<Set<String>> userGroupPermissionIds = getPermissionGroupsOfGroupsForUser(user.getId());
 
-        return Mono.zip(userPermissionGroupIds, userGroupPermissionIds)
-                .map(tuple -> {
-                    Set<String> userPermissionGroups = tuple.getT1();
-                    Set<String> userGroupPermissionGroups = tuple.getT2();
+        return Mono.zip(userPermissionGroupIds, userGroupPermissionIds).map(tuple -> {
+            Set<String> userPermissionGroups = tuple.getT1();
+            Set<String> userGroupPermissionGroups = tuple.getT2();
 
-                    Set<String> userAccessibleGroups = new HashSet<>();
-                    userAccessibleGroups.addAll(userPermissionGroups);
-                    userAccessibleGroups.addAll(userGroupPermissionGroups);
+            Set<String> userAccessibleGroups = new HashSet<>();
+            userAccessibleGroups.addAll(userPermissionGroups);
+            userAccessibleGroups.addAll(userGroupPermissionGroups);
 
-                    return userAccessibleGroups;
-                });
+            return userAccessibleGroups;
+        });
     }
 
     private Mono<Set<String>> getPermissionGroupsOfGroupsForUser(String userId) {
 
-        Criteria userCriteria = Criteria.where(fieldName(QUserGroup.userGroup.users)).is(userId);
+        Criteria userCriteria =
+                Criteria.where(fieldName(QUserGroup.userGroup.users)).is(userId);
 
         Query userGroupQuery = new Query();
         userGroupQuery.addCriteria(userCriteria);
         // Since we are only interested in id, don't fetch anything else
         userGroupQuery.fields().include(fieldName(QUserGroup.userGroup.id));
 
-        return mongoOperations.find(userGroupQuery, UserGroup.class)
+        return mongoOperations
+                .find(userGroupQuery, UserGroup.class)
                 .map(UserGroup::getId)
                 .collectList()
                 .flatMap(userGroups -> {
-                    Criteria assignedToGroupIdsCriteria = Criteria.where(fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds)).in(userGroups);
+                    Criteria assignedToGroupIdsCriteria = Criteria.where(
+                                    fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds))
+                            .in(userGroups);
                     Criteria notDeletedCriteria = notDeleted();
 
                     Criteria andCriteria = new Criteria();
@@ -91,11 +98,11 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCEIm
                     // Since we are only interested in id, don't fetch anything else
                     permissionGroupQuery.fields().include(fieldName(QPermissionGroup.permissionGroup.id));
 
-                    return mongoOperations.find(permissionGroupQuery, PermissionGroup.class)
+                    return mongoOperations
+                            .find(permissionGroupQuery, PermissionGroup.class)
                             .map(permissionGroup -> permissionGroup.getId())
                             .collect(Collectors.toSet());
                 });
-
     }
 
     @Override
@@ -103,9 +110,11 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCEIm
     public Mono<Long> getAllReadablePermissionGroupsForUser(User user) {
         // The below call doesn't hit the case, but instead hits the whole function flow.
         Mono<Set<String>> permissionGroupsMono = getPermissionGroupsOfUser(user);
-        return permissionGroupsMono.map(permissionGroups -> {
+        return permissionGroupsMono
+                .map(permissionGroups -> {
                     Query queryWithPermissions = new Query();
-                    queryWithPermissions.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, READ_PERMISSION_GROUPS)));
+                    queryWithPermissions.addCriteria(new Criteria()
+                            .andOperator(notDeleted(), userAcl(permissionGroups, READ_PERMISSION_GROUPS)));
                     return queryWithPermissions;
                 })
                 .flatMap(query -> mongoOperations.count(query, PermissionGroup.class));

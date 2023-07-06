@@ -31,5 +31,4 @@ public class UserGroupDTO {
     public void populateTransientFields(UserGroup userGroup) {
         this.setUserPermissions(userGroup.userPermissions);
     }
-
 }

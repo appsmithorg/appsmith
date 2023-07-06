@@ -28,7 +28,13 @@ public interface CustomUserGroupRepository extends AppsmithRepository<UserGroup>
 
     Mono<Long> countAllReadableUserGroups();
 
-    Flux<UserGroup> getAllByUsersIn(Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission);
+    Flux<UserGroup> getAllByUsersIn(
+            Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission);
 
-    Mono<PagedDomain<UserGroup>> findUserGroupsWithParamsPaginated(int count, int startIndex, List<String> groupNames, List<String> filterUserIds, Optional<AclPermission> aclPermission);
+    Mono<PagedDomain<UserGroup>> findUserGroupsWithParamsPaginated(
+            int count,
+            int startIndex,
+            List<String> groupNames,
+            List<String> filterUserIds,
+            Optional<AclPermission> aclPermission);
 }

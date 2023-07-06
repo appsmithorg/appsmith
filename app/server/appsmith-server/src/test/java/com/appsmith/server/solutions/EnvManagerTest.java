@@ -45,34 +45,49 @@ import static org.mockito.ArgumentMatchers.any;
 @Slf4j
 public class EnvManagerTest {
     EnvManager envManager;
+
     @MockBean
     private SessionUserService sessionUserService;
+
     @MockBean
     private UserService userService;
+
     @MockBean
     private AnalyticsService analyticsService;
+
     @MockBean
     private UserRepository userRepository;
+
     @MockBean
     private EmailSender emailSender;
+
     @MockBean
     private CommonConfig commonConfig;
+
     @MockBean
     private EmailConfig emailConfig;
+
     @MockBean
     private JavaMailSender javaMailSender;
+
     @MockBean
     private GoogleRecaptchaConfig googleRecaptchaConfig;
+
     @MockBean
     private FileUtils fileUtils;
+
     @MockBean
     private ConfigService configService;
+
     @MockBean
     private PermissionGroupService permissionGroupService;
+
     @MockBean
     private UserUtils userUtils;
+
     @MockBean
     private TenantService tenantService;
+
     @MockBean
     private ObjectMapper objectMapper;
 
@@ -81,7 +96,8 @@ public class EnvManagerTest {
 
     @BeforeEach
     public void setup() {
-        envManager = new EnvManagerImpl(sessionUserService,
+        envManager = new EnvManagerImpl(
+                sessionUserService,
                 userService,
                 analyticsService,
                 userRepository,
@@ -101,226 +117,187 @@ public class EnvManagerTest {
 
     @Test
     public void simpleSample() {
-        final String content = "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL='second value'\n\nAPPSMITH_INSTANCE_NAME='third value'";
+        final String content =
+                "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL='second value'\n\nAPPSMITH_INSTANCE_NAME='third value'";
+
+        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_MONGODB_URI", "new first value"), null))
+                .containsExactly(
+                        "APPSMITH_MONGODB_URI='new first value'",
+                        "APPSMITH_REDIS_URL='second value'",
+                        "",
+                        "APPSMITH_INSTANCE_NAME='third value'");
+
+        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", "new second value"), null))
+                .containsExactly(
+                        "APPSMITH_MONGODB_URI='first value'",
+                        "APPSMITH_REDIS_URL='new second value'",
+                        "",
+                        "APPSMITH_INSTANCE_NAME='third value'");
+
+        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_INSTANCE_NAME", "new third value"), null))
+                .containsExactly(
+                        "APPSMITH_MONGODB_URI='first value'",
+                        "APPSMITH_REDIS_URL='second value'",
+                        "",
+                        "APPSMITH_INSTANCE_NAME='new third value'");
 
         assertThat(envManager.transformEnvContent(
-                content,
-                Map.of("APPSMITH_MONGODB_URI", "new first value"),
-                null
-        )).containsExactly(
-                "APPSMITH_MONGODB_URI='new first value'",
-                "APPSMITH_REDIS_URL='second value'",
-                "",
-                "APPSMITH_INSTANCE_NAME='third value'"
-        );
-
-        assertThat(envManager.transformEnvContent(
-                content,
-                Map.of("APPSMITH_REDIS_URL", "new second value"),
-                null
-        )).containsExactly(
-                "APPSMITH_MONGODB_URI='first value'",
-                "APPSMITH_REDIS_URL='new second value'",
-                "",
-                "APPSMITH_INSTANCE_NAME='third value'"
-        );
-
-        assertThat(envManager.transformEnvContent(
-                content,
-                Map.of("APPSMITH_INSTANCE_NAME", "new third value"),
-                null
-        )).containsExactly(
-                "APPSMITH_MONGODB_URI='first value'",
-                "APPSMITH_REDIS_URL='second value'",
-                "",
-                "APPSMITH_INSTANCE_NAME='new third value'"
-        );
-
-        assertThat(envManager.transformEnvContent(
-                content,
-                Map.of(
-                        "APPSMITH_MONGODB_URI", "new first value",
-                        "APPSMITH_INSTANCE_NAME", "new third value"
-                ),
-                null
-        )).containsExactly(
-                "APPSMITH_MONGODB_URI='new first value'",
-                "APPSMITH_REDIS_URL='second value'",
-                "",
-                "APPSMITH_INSTANCE_NAME='new third value'"
-        );
-
+                        content,
+                        Map.of(
+                                "APPSMITH_MONGODB_URI", "new first value",
+                                "APPSMITH_INSTANCE_NAME", "new third value"),
+                        null))
+                .containsExactly(
+                        "APPSMITH_MONGODB_URI='new first value'",
+                        "APPSMITH_REDIS_URL='second value'",
+                        "",
+                        "APPSMITH_INSTANCE_NAME='new third value'");
     }
 
     @Test
     public void emptyValues() {
-        final String content = "APPSMITH_MONGODB_URI=first value\nAPPSMITH_REDIS_URL=\n\nAPPSMITH_INSTANCE_NAME=third value";
+        final String content =
+                "APPSMITH_MONGODB_URI=first value\nAPPSMITH_REDIS_URL=\n\nAPPSMITH_INSTANCE_NAME=third value";
 
-        assertThat(envManager.transformEnvContent(
-                content,
-                Map.of("APPSMITH_REDIS_URL", "new second value"),
-                null
-        )).containsExactly(
-                "APPSMITH_MONGODB_URI=first value",
-                "APPSMITH_REDIS_URL='new second value'",
-                "",
-                "APPSMITH_INSTANCE_NAME=third value"
-        );
+        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", "new second value"), null))
+                .containsExactly(
+                        "APPSMITH_MONGODB_URI=first value",
+                        "APPSMITH_REDIS_URL='new second value'",
+                        "",
+                        "APPSMITH_INSTANCE_NAME=third value");
 
-        assertThat(envManager.transformEnvContent(
-                content,
-                Map.of("APPSMITH_REDIS_URL", ""),
-                null
-        )).containsExactly(
-                "APPSMITH_MONGODB_URI=first value",
-                "APPSMITH_REDIS_URL=",
-                "",
-                "APPSMITH_INSTANCE_NAME=third value"
-        );
-
+        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", ""), null))
+                .containsExactly(
+                        "APPSMITH_MONGODB_URI=first value",
+                        "APPSMITH_REDIS_URL=",
+                        "",
+                        "APPSMITH_INSTANCE_NAME=third value");
     }
 
     @Test
     public void quotedValues() {
-        final String content = "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL=\"quoted value\"\n\nAPPSMITH_INSTANCE_NAME='third value'";
+        final String content =
+                "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL=\"quoted value\"\n\nAPPSMITH_INSTANCE_NAME='third value'";
 
         assertThat(envManager.transformEnvContent(
-                content,
-                Map.of(
-                        "APPSMITH_MONGODB_URI", "new first value",
-                        "APPSMITH_REDIS_URL", "new second value"
-                ),
-                null
-        )).containsExactly(
-                "APPSMITH_MONGODB_URI='new first value'",
-                "APPSMITH_REDIS_URL='new second value'",
-                "",
-                "APPSMITH_INSTANCE_NAME='third value'"
-        );
+                        content,
+                        Map.of(
+                                "APPSMITH_MONGODB_URI", "new first value",
+                                "APPSMITH_REDIS_URL", "new second value"),
+                        null))
+                .containsExactly(
+                        "APPSMITH_MONGODB_URI='new first value'",
+                        "APPSMITH_REDIS_URL='new second value'",
+                        "",
+                        "APPSMITH_INSTANCE_NAME='third value'");
+
+        assertThat(envManager.transformEnvContent(content, Map.of("APPSMITH_REDIS_URL", ""), null))
+                .containsExactly(
+                        "APPSMITH_MONGODB_URI='first value'",
+                        "APPSMITH_REDIS_URL=",
+                        "",
+                        "APPSMITH_INSTANCE_NAME='third value'");
 
         assertThat(envManager.transformEnvContent(
-                content,
-                Map.of("APPSMITH_REDIS_URL", ""),
-                null
-        )).containsExactly(
-                "APPSMITH_MONGODB_URI='first value'",
-                "APPSMITH_REDIS_URL=",
-                "",
-                "APPSMITH_INSTANCE_NAME='third value'"
-        );
-
-        assertThat(envManager.transformEnvContent(
-                content,
-                Map.of(
-                        "APPSMITH_INSTANCE_NAME", "Sponge-bob's Instance",
-                        "APPSMITH_REDIS_URL", "value with \" char in it"
-                ),
-                null
-        )).containsExactly(
-                "APPSMITH_MONGODB_URI='first value'",
-                "APPSMITH_REDIS_URL='value with \" char in it'",
-                "",
-                "APPSMITH_INSTANCE_NAME='Sponge-bob'\"'\"'s Instance'"
-        );
-
+                        content,
+                        Map.of(
+                                "APPSMITH_INSTANCE_NAME", "Sponge-bob's Instance",
+                                "APPSMITH_REDIS_URL", "value with \" char in it"),
+                        null))
+                .containsExactly(
+                        "APPSMITH_MONGODB_URI='first value'",
+                        "APPSMITH_REDIS_URL='value with \" char in it'",
+                        "",
+                        "APPSMITH_INSTANCE_NAME='Sponge-bob'\"'\"'s Instance'");
     }
 
     @Test
     public void parseEmptyValues() {
 
-        assertThat(envManager.parseToMap(
-                "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL=\n\nAPPSMITH_INSTANCE_NAME='third value'"
-        )).containsExactlyInAnyOrderEntriesOf(Map.of(
-                "APPSMITH_MONGODB_URI", "first value",
-                "APPSMITH_REDIS_URL", "",
-                "APPSMITH_INSTANCE_NAME", "third value"
-        ));
-
+        assertThat(
+                        envManager.parseToMap(
+                                "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL=\n\nAPPSMITH_INSTANCE_NAME='third value'"))
+                .containsExactlyInAnyOrderEntriesOf(Map.of(
+                        "APPSMITH_MONGODB_URI", "first value",
+                        "APPSMITH_REDIS_URL", "",
+                        "APPSMITH_INSTANCE_NAME", "third value"));
     }
 
     @Test
     public void parseQuotedValues() {
 
-        assertThat(envManager.parseToMap(
-                "APPSMITH_MONGODB_URI=first\nAPPSMITH_REDIS_URL=\"quoted value\"\n\nAPPSMITH_INSTANCE_NAME='third value'"
-        )).containsExactlyInAnyOrderEntriesOf(Map.of(
-                "APPSMITH_MONGODB_URI", "first",
-                "APPSMITH_REDIS_URL", "quoted value",
-                "APPSMITH_INSTANCE_NAME", "third value"
-        ));
+        assertThat(
+                        envManager.parseToMap(
+                                "APPSMITH_MONGODB_URI=first\nAPPSMITH_REDIS_URL=\"quoted value\"\n\nAPPSMITH_INSTANCE_NAME='third value'"))
+                .containsExactlyInAnyOrderEntriesOf(Map.of(
+                        "APPSMITH_MONGODB_URI", "first",
+                        "APPSMITH_REDIS_URL", "quoted value",
+                        "APPSMITH_INSTANCE_NAME", "third value"));
 
-        assertThat(envManager.parseToMap(
-                "APPSMITH_INSTANCE_NAME=\"Sponge-bob's Instance\""
-        )).containsExactlyInAnyOrderEntriesOf(Map.of(
-                "APPSMITH_INSTANCE_NAME", "Sponge-bob's Instance"
-        ));
-
+        assertThat(envManager.parseToMap("APPSMITH_INSTANCE_NAME=\"Sponge-bob's Instance\""))
+                .containsExactlyInAnyOrderEntriesOf(Map.of("APPSMITH_INSTANCE_NAME", "Sponge-bob's Instance"));
     }
 
     @Test
     public void parseTestWithEscapes() {
         assertThat(envManager.parseToMap(
-                "APPSMITH_ALLOWED_FRAME_ANCESTORS=\"'\"'none'\"'\"\nAPPSMITH_REDIS_URL='second\" value'\n"
-        )).containsExactlyInAnyOrderEntriesOf(Map.of(
-                "APPSMITH_ALLOWED_FRAME_ANCESTORS", "'none'",
-                "APPSMITH_REDIS_URL", "second\" value"
-        ));
+                        "APPSMITH_ALLOWED_FRAME_ANCESTORS=\"'\"'none'\"'\"\nAPPSMITH_REDIS_URL='second\" value'\n"))
+                .containsExactlyInAnyOrderEntriesOf(Map.of(
+                        "APPSMITH_ALLOWED_FRAME_ANCESTORS", "'none'",
+                        "APPSMITH_REDIS_URL", "second\" value"));
     }
 
     @Test
     public void disallowedVariable() {
-        final String content = "APPSMITH_MONGODB_URI=first value\nDISALLOWED_NASTY_STUFF=\"quoted value\"\n\nAPPSMITH_INSTANCE_NAME=third value";
+        final String content =
+                "APPSMITH_MONGODB_URI=first value\nDISALLOWED_NASTY_STUFF=\"quoted value\"\n\nAPPSMITH_INSTANCE_NAME=third value";
 
         assertThatThrownBy(() -> envManager.transformEnvContent(
-                content,
-                Map.of(
-                        "APPSMITH_MONGODB_URI", "new first value",
-                        "DISALLOWED_NASTY_STUFF", "new second value"
-                ),
-                null
-        ))
+                        content,
+                        Map.of(
+                                "APPSMITH_MONGODB_URI", "new first value",
+                                "DISALLOWED_NASTY_STUFF", "new second value"),
+                        null))
                 .matches(value -> value instanceof AppsmithException
                         && AppsmithError.GENERIC_BAD_REQUEST.equals(((AppsmithException) value).getError()));
     }
 
     @Test
     public void addNewVariable() {
-        final String content = "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL='quoted value'\n\nAPPSMITH_INSTANCE_NAME='third value'";
+        final String content =
+                "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL='quoted value'\n\nAPPSMITH_INSTANCE_NAME='third value'";
 
         assertThat(envManager.transformEnvContent(
-                content,
-                Map.of(
-                        "APPSMITH_MONGODB_URI", "new first value",
-                        "APPSMITH_DISABLE_TELEMETRY", "false"
-                ),
-                null
-        )).containsExactly(
-                "APPSMITH_MONGODB_URI='new first value'",
-                "APPSMITH_REDIS_URL='quoted value'",
-                "",
-                "APPSMITH_INSTANCE_NAME='third value'",
-                "APPSMITH_DISABLE_TELEMETRY=false"
-        );
+                        content,
+                        Map.of(
+                                "APPSMITH_MONGODB_URI", "new first value",
+                                "APPSMITH_DISABLE_TELEMETRY", "false"),
+                        null))
+                .containsExactly(
+                        "APPSMITH_MONGODB_URI='new first value'",
+                        "APPSMITH_REDIS_URL='quoted value'",
+                        "",
+                        "APPSMITH_INSTANCE_NAME='third value'",
+                        "APPSMITH_DISABLE_TELEMETRY=false");
     }
 
     @Test
     public void setValueWithQuotes() {
-        final String content = "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL='quoted value'\n\nAPPSMITH_INSTANCE_NAME='third value'";
+        final String content =
+                "APPSMITH_MONGODB_URI='first value'\nAPPSMITH_REDIS_URL='quoted value'\n\nAPPSMITH_INSTANCE_NAME='third value'";
 
         assertThat(envManager.transformEnvContent(
-                content,
-                Map.of(
-                        "APPSMITH_MONGODB_URI", "'just quotes'",
-                        "APPSMITH_DISABLE_TELEMETRY", "some quotes 'inside' it"
-                ),
-                null
-        )).containsExactly(
-                "APPSMITH_MONGODB_URI=\"'\"'just quotes'\"'\"",
-                "APPSMITH_REDIS_URL='quoted value'",
-                "",
-                "APPSMITH_INSTANCE_NAME='third value'",
-                "APPSMITH_DISABLE_TELEMETRY='some quotes '\"'\"'inside'\"'\"' it'"
-        );
+                        content,
+                        Map.of(
+                                "APPSMITH_MONGODB_URI", "'just quotes'",
+                                "APPSMITH_DISABLE_TELEMETRY", "some quotes 'inside' it"),
+                        null))
+                .containsExactly(
+                        "APPSMITH_MONGODB_URI=\"'\"'just quotes'\"'\"",
+                        "APPSMITH_REDIS_URL='quoted value'",
+                        "",
+                        "APPSMITH_INSTANCE_NAME='third value'",
+                        "APPSMITH_DISABLE_TELEMETRY='some quotes '\"'\"'inside'\"'\"' it'");
     }
 
     @Test
@@ -362,8 +339,7 @@ public class EnvManagerTest {
         Mockito.when(exchange.getResponse()).thenReturn(response);
         Mockito.when(response.writeWith(any())).thenReturn(Mono.empty());
 
-        StepVerifier.create(envManager.download(exchange))
-                .verifyComplete();
+        StepVerifier.create(envManager.download(exchange)).verifyComplete();
 
         assertThat(headers.getContentType().toString()).isEqualTo("application/zip");
         assertThat(headers.getContentDisposition().toString()).containsIgnoringCase("appsmith-config.zip");
@@ -392,7 +368,6 @@ public class EnvManagerTest {
 
         Mockito.when(envManagerInner.getAll()).thenReturn(Mono.just(envs));
         Mockito.when(envManagerInner.getAllNonEmpty()).thenCallRealMethod();
-
 
         Mono<Map<String, String>> envMono = envManagerInner.getAllNonEmpty();
 

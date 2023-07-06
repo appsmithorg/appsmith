@@ -24,7 +24,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
@@ -42,7 +41,6 @@ public class UsagePulseServiceTest {
 
     @Autowired
     private CommonConfig commonConfig;
-
 
     @BeforeEach
     public void setup() {

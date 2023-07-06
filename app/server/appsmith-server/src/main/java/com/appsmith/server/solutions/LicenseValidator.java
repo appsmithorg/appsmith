@@ -14,9 +14,9 @@ public interface LicenseValidator {
         return tenant != null
                 && tenant.getTenantConfiguration() != null
                 && tenant.getTenantConfiguration().getLicense() != null
-                && !StringUtils.isEmpty(tenant.getTenantConfiguration().getLicense().getKey());
+                && !StringUtils.isEmpty(
+                        tenant.getTenantConfiguration().getLicense().getKey());
     }
 
     Mono<LicenseValidationRequestDTO> populateLicenseValidationRequest(Tenant tenant);
-
 }

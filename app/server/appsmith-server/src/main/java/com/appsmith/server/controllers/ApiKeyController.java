@@ -21,22 +21,23 @@ public class ApiKeyController {
     private final ApiKeyService apiKeyService;
     private final ProvisionService provisionService;
 
-    public ApiKeyController(ApiKeyService apiKeyService,
-                            ProvisionService provisionService) {
+    public ApiKeyController(ApiKeyService apiKeyService, ProvisionService provisionService) {
         this.apiKeyService = apiKeyService;
         this.provisionService = provisionService;
     }
 
     @PostMapping("")
     public Mono<ResponseDTO<String>> generateApiKeyToken(@RequestBody ApiKeyRequestDto apiKeyRequestDto) {
-        return apiKeyService.generateApiKey(apiKeyRequestDto)
+        return apiKeyService
+                .generateApiKey(apiKeyRequestDto)
                 .map(apiKey -> new ResponseDTO<>(HttpStatus.CREATED.value(), apiKey, null));
     }
 
     @PostMapping("/provision")
     public Mono<ResponseDTO<String>> generateProvisionToken() {
         log.debug("Generating API key for Provisioning.");
-        return provisionService.generateProvisionToken()
+        return provisionService
+                .generateProvisionToken()
                 .map(apiKey -> new ResponseDTO<>(HttpStatus.CREATED.value(), apiKey, null));
     }
 }

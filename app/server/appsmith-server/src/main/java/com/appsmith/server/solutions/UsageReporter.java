@@ -1,9 +1,9 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.UsagePulseReportDTO;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -15,9 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
-import com.appsmith.server.services.ConfigService;
+
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -27,7 +26,6 @@ public class UsageReporter {
     private final CloudServicesConfig cloudServicesConfig;
     private final ConfigService configService;
     private final ObjectMapper objectMapper;
-
 
     /**
      * To report usage data to Cloud Services
@@ -54,7 +52,8 @@ public class UsageReporter {
                     try {
                         JsonNode responseNode = objectMapper.readTree(body);
 
-                        JsonNode responseStatus = responseNode.get("responseMeta").get("success");
+                        JsonNode responseStatus =
+                                responseNode.get("responseMeta").get("success");
                         if (responseStatus != null) {
                             boolean result = responseStatus.asBoolean();
                             if (result == true) {
@@ -64,7 +63,8 @@ public class UsageReporter {
                         }
                     } catch (JsonProcessingException e) {
                         // Incorrect response received from cloud services.
-                        log.debug("ERROR : JSON Processing Exception - Invalid response structure from Cloud Services for Usage Report");
+                        log.debug(
+                                "ERROR : JSON Processing Exception - Invalid response structure from Cloud Services for Usage Report");
                     }
                     log.debug("Failed to report usage to Cloud Services");
                     return false;

@@ -4,7 +4,6 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.migrations.utils.AppsmithResources;
@@ -29,25 +28,22 @@ import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AppsmithRole.PROVISION_ROLE;
 import static com.appsmith.server.constants.FieldName.PROVISIONING_CONFIG;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
-@ChangeUnit(order = "110-EE", id="create-provisioning-user-role-config", author = " ")
+@ChangeUnit(order = "110-EE", id = "create-provisioning-user-role-config", author = " ")
 public class Migration110EeCreateProvisioningUserRoleConfig {
     private final MongoTemplate mongoTemplate;
     private final PolicySolution policySolution;
 
-    public Migration110EeCreateProvisioningUserRoleConfig(MongoTemplate mongoTemplate,
-                                                          PolicySolution policySolution) {
+    public Migration110EeCreateProvisioningUserRoleConfig(MongoTemplate mongoTemplate, PolicySolution policySolution) {
         this.mongoTemplate = mongoTemplate;
         this.policySolution = policySolution;
     }
 
     @RollbackExecution
-    public void executionRollback() {
-    }
+    public void executionRollback() {}
 
     @Execution
     public void createProvisioningUserRoleAndConfig() {
@@ -66,19 +62,25 @@ public class Migration110EeCreateProvisioningUserRoleConfig {
 
         Map<String, Policy> defaultTenantPolicyWithProvisioningRole = new HashMap<>();
         PROVISION_ROLE.getPermissions().forEach(permission -> {
-            defaultTenantPolicyWithProvisioningRole.put(permission.getValue(),
-                    Policy.builder().permission(permission.getValue()).permissionGroups(Set.of(provisioningRoleId)).build());
+            defaultTenantPolicyWithProvisioningRole.put(
+                    permission.getValue(),
+                    Policy.builder()
+                            .permission(permission.getValue())
+                            .permissionGroups(Set.of(provisioningRoleId))
+                            .build());
         });
 
-        Tenant tenantWithProvisionRolePermission = policySolution.addPoliciesToExistingObject(defaultTenantPolicyWithProvisioningRole, tenant);
+        Tenant tenantWithProvisionRolePermission =
+                policySolution.addPoliciesToExistingObject(defaultTenantPolicyWithProvisioningRole, tenant);
         mongoTemplate.save(tenantWithProvisionRolePermission);
 
-        Criteria criteriaUsersWhereReadUsersPermissionExists = where("policies.permission").is(READ_USERS.getValue())
-                .andOperator(notDeleted());
+        Criteria criteriaUsersWhereReadUsersPermissionExists =
+                where("policies.permission").is(READ_USERS.getValue()).andOperator(notDeleted());
 
         Update updateExistingReadUsersPolicy = new Update();
         updateExistingReadUsersPolicy.addToSet("policies.$.permissionGroups", provisioningRoleId);
-        mongoTemplate.updateMulti(new Query(criteriaUsersWhereReadUsersPermissionExists), updateExistingReadUsersPolicy, User.class);
+        mongoTemplate.updateMulti(
+                new Query(criteriaUsersWhereReadUsersPermissionExists), updateExistingReadUsersPolicy, User.class);
     }
 
     private PermissionGroup createProvisioningRoleAndAssignToUser(User user) {

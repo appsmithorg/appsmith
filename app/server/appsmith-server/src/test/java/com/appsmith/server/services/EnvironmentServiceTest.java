@@ -44,14 +44,19 @@ public class EnvironmentServiceTest {
 
     @Autowired
     EnvironmentService environmentService;
+
     @Autowired
     UserRepository userRepository;
+
     @SpyBean
     WorkspaceService workspaceService;
+
     @SpyBean
     FeatureFlagService featureFlagService;
+
     @SpyBean
     ApplicationRepository applicationRepository;
+
     private Workspace workspace;
 
     /**
@@ -61,28 +66,22 @@ public class EnvironmentServiceTest {
     @BeforeEach
     public void setup() {
         Mono<User> userMono = userRepository.findByEmail("api_user").cache();
-        workspace = userMono
-                .flatMap(user -> workspaceService.createDefault(new Workspace(), user))
+        workspace = userMono.flatMap(user -> workspaceService.createDefault(new Workspace(), user))
                 .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!")))
                 .block();
 
-        doReturn(Mono.justOrEmpty(workspace))
-                .when(workspaceService)
-                .findById(any(), Mockito.<AclPermission>any());
+        doReturn(Mono.justOrEmpty(workspace)).when(workspaceService).findById(any(), Mockito.<AclPermission>any());
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void verifyGetEnvironmentDTOByWorkspaceId() {
 
-        doReturn(Mono.just(Boolean.TRUE))
-                .when(featureFlagService)
-                .check(Mockito.any());
+        doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
 
-        Flux<EnvironmentDTO> environmentDTOFlux =
-                environmentService
-                        .getEnvironmentDTOByWorkspaceId(workspace.getId())
-                        .sort(Comparator.comparing(EnvironmentDTO::getName));
+        Flux<EnvironmentDTO> environmentDTOFlux = environmentService
+                .getEnvironmentDTOByWorkspaceId(workspace.getId())
+                .sort(Comparator.comparing(EnvironmentDTO::getName));
 
         StepVerifier.create(environmentDTOFlux)
                 .assertNext(envDTO -> {
@@ -98,14 +97,11 @@ public class EnvironmentServiceTest {
     @WithUserDetails(value = "api_user")
     public void verifyFindByWorkspaceIdWithoutPermission() {
 
-        doReturn(Mono.just(Boolean.TRUE))
-                .when(featureFlagService)
-                .check(any());
+        doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(any());
 
-        Flux<Environment> environmentFlux =
-                environmentService
-                        .findByWorkspaceId(workspace.getId())
-                        .sort(Comparator.comparing(Environment::getName));
+        Flux<Environment> environmentFlux = environmentService
+                .findByWorkspaceId(workspace.getId())
+                .sort(Comparator.comparing(Environment::getName));
 
         StepVerifier.create(environmentFlux)
                 .assertNext(envDTO -> {
@@ -127,18 +123,19 @@ public class EnvironmentServiceTest {
                 .check(any());
 
         Flux<Environment> environmentFlux =
-                environmentService
-                        .findByWorkspaceId(workspace.getId()).cache();
+                environmentService.findByWorkspaceId(workspace.getId()).cache();
 
-        Flux<Tuple2<Environment, EnvironmentDTO>> environmentTupleFlux = environmentFlux
-                .flatMap(env -> Mono.zip(Mono.just(env), environmentService.getEnvironmentDTOByEnvironmentId(env.getId())));
+        Flux<Tuple2<Environment, EnvironmentDTO>> environmentTupleFlux = environmentFlux.flatMap(
+                env -> Mono.zip(Mono.just(env), environmentService.getEnvironmentDTOByEnvironmentId(env.getId())));
 
         StepVerifier.create(environmentTupleFlux)
                 .assertNext(environmentTuple -> {
-                    assertThat(environmentTuple.getT2().getName()).isEqualTo(environmentTuple.getT1().getName());
+                    assertThat(environmentTuple.getT2().getName())
+                            .isEqualTo(environmentTuple.getT1().getName());
                 })
                 .assertNext(environmentTuple -> {
-                    assertThat(environmentTuple.getT2().getName()).isEqualTo(environmentTuple.getT1().getName());
+                    assertThat(environmentTuple.getT2().getName())
+                            .isEqualTo(environmentTuple.getT1().getName());
                 })
                 .verifyComplete();
     }
@@ -151,34 +148,27 @@ public class EnvironmentServiceTest {
         // an error will be thrown if we try to create a new environment with either of default names
 
         Flux<Environment> environmentMapFlux = environmentService.createDefaultEnvironments(workspace);
-        StepVerifier.create(environmentMapFlux)
-                .verifyError();
+        StepVerifier.create(environmentMapFlux).verifyError();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void verifyEnvironmentArchivalWhenWorkspaceIsArchived() {
-        doReturn(Mono.just(0L))
-                .when(applicationRepository).countByWorkspaceId(any());
+        doReturn(Mono.just(0L)).when(applicationRepository).countByWorkspaceId(any());
         Workspace workspace1 = workspaceService.archiveById(workspace.getId()).block();
-        Flux<Environment> environmentFlux =
-                environmentService.findByWorkspaceId(workspace.getId());
-        StepVerifier.create(environmentFlux)
-                .expectNextCount(0L)
-                .verifyComplete();
+        Flux<Environment> environmentFlux = environmentService.findByWorkspaceId(workspace.getId());
+        StepVerifier.create(environmentFlux).expectNextCount(0L).verifyComplete();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void verifyEnvironmentWhenWorkspaceArchivalIsFailed() {
-        doReturn(Mono.just(2L))
-                .when(applicationRepository).countByWorkspaceId(any());
+        doReturn(Mono.just(2L)).when(applicationRepository).countByWorkspaceId(any());
 
-        StepVerifier.create(workspaceService.archiveById(workspace.getId()))
-                .verifyError();
-        Flux<Environment> environmentFlux =
-                environmentService.findByWorkspaceId(workspace.getId())
-                        .sort(Comparator.comparing(Environment::getName));
+        StepVerifier.create(workspaceService.archiveById(workspace.getId())).verifyError();
+        Flux<Environment> environmentFlux = environmentService
+                .findByWorkspaceId(workspace.getId())
+                .sort(Comparator.comparing(Environment::getName));
 
         StepVerifier.create(environmentFlux)
                 .assertNext(env -> {
@@ -194,23 +184,19 @@ public class EnvironmentServiceTest {
     @WithUserDetails(value = "api_user")
     public void verifySetStagingAsDefault() {
 
-        doReturn(Mono.just(Boolean.TRUE))
-                .when(featureFlagService)
-                .check(Mockito.any());
+        doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
 
-        Map<String, Environment> environmentMap =
-                environmentService.findByWorkspaceId(workspace.getId())
-                        .collectMap(Environment::getName)
-                        .block();
+        Map<String, Environment> environmentMap = environmentService
+                .findByWorkspaceId(workspace.getId())
+                .collectMap(Environment::getName)
+                .block();
 
         assertThat(environmentMap.get(PRODUCTION_ENVIRONMENT).getIsDefault()).isEqualTo(TRUE);
 
         String stagingEnvironmentId = environmentMap.get(STAGING_ENVIRONMENT).getId();
 
-        Mono<EnvironmentDTO> environmentDTOMono =
-                environmentService
-                        .setEnvironmentToDefault(Map.of(FieldName.WORKSPACE_ID, workspace.getId(),
-                                FieldName.ENVIRONMENT_ID, stagingEnvironmentId));
+        Mono<EnvironmentDTO> environmentDTOMono = environmentService.setEnvironmentToDefault(
+                Map.of(FieldName.WORKSPACE_ID, workspace.getId(), FieldName.ENVIRONMENT_ID, stagingEnvironmentId));
 
         StepVerifier.create(environmentDTOMono)
                 .assertNext(environmentDTO -> {
@@ -224,80 +210,62 @@ public class EnvironmentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void verifyErrorWhenNoPermissionForWorkspace() {
-        doReturn(Mono.just(Boolean.TRUE))
-                .when(featureFlagService)
-                .check(Mockito.any());
-        
-        doReturn(Mono.empty())
-                .when(workspaceService)
-                .findById(any(), Mockito.<AclPermission>any());
+        doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
 
-        Map<String, Environment> environmentMap =
-                environmentService.findByWorkspaceId(workspace.getId())
-                        .collectMap(Environment::getName)
-                        .block();
+        doReturn(Mono.empty()).when(workspaceService).findById(any(), Mockito.<AclPermission>any());
+
+        Map<String, Environment> environmentMap = environmentService
+                .findByWorkspaceId(workspace.getId())
+                .collectMap(Environment::getName)
+                .block();
 
         assertThat(environmentMap.get(PRODUCTION_ENVIRONMENT).getIsDefault()).isEqualTo(TRUE);
 
         String stagingEnvironmentId = environmentMap.get(STAGING_ENVIRONMENT).getId();
 
-        Mono<EnvironmentDTO> environmentDTOMono =
-                environmentService
-                        .setEnvironmentToDefault(Map.of(FieldName.WORKSPACE_ID, workspace.getId(),
-                                FieldName.ENVIRONMENT_ID, stagingEnvironmentId));
+        Mono<EnvironmentDTO> environmentDTOMono = environmentService.setEnvironmentToDefault(
+                Map.of(FieldName.WORKSPACE_ID, workspace.getId(), FieldName.ENVIRONMENT_ID, stagingEnvironmentId));
 
-        StepVerifier.create(environmentDTOMono)
-                .verifyErrorSatisfies(error -> {
-                    assertThat(error).isInstanceOf(AppsmithException.class);
-                    assertThat(error.getMessage()).isEqualTo("Unauthorized access");
-                });
-
+        StepVerifier.create(environmentDTOMono).verifyErrorSatisfies(error -> {
+            assertThat(error).isInstanceOf(AppsmithException.class);
+            assertThat(error.getMessage()).isEqualTo("Unauthorized access");
+        });
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void verifyErrorWhenWorkspaceIdOrEnvironmentIdIsGiven() {
-        doReturn(Mono.just(Boolean.TRUE))
-                .when(featureFlagService)
-                .check(Mockito.any());
+        doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
 
-        doReturn(Mono.empty())
-                .when(workspaceService)
-                .findById(any(), Mockito.<AclPermission>any());
+        doReturn(Mono.empty()).when(workspaceService).findById(any(), Mockito.<AclPermission>any());
 
-        Map<String, Environment> environmentMap =
-                environmentService.findByWorkspaceId(workspace.getId())
-                        .collectMap(Environment::getName)
-                        .block();
+        Map<String, Environment> environmentMap = environmentService
+                .findByWorkspaceId(workspace.getId())
+                .collectMap(Environment::getName)
+                .block();
 
         assertThat(environmentMap.get(PRODUCTION_ENVIRONMENT).getIsDefault()).isEqualTo(TRUE);
 
         String stagingEnvironmentId = environmentMap.get(STAGING_ENVIRONMENT).getId();
 
         Mono<EnvironmentDTO> environmentDTOWithoutWorkspaceIdMono =
-                environmentService
-                        .setEnvironmentToDefault(Map.of(FieldName.ENVIRONMENT_ID, stagingEnvironmentId));
+                environmentService.setEnvironmentToDefault(Map.of(FieldName.ENVIRONMENT_ID, stagingEnvironmentId));
 
-        StepVerifier.create(environmentDTOWithoutWorkspaceIdMono)
-                .verifyErrorSatisfies(error -> {
-                    System.out.println(error.getMessage());
-                    assertThat(error).isInstanceOf(AppsmithException.class);
-                    assertThat(((AppsmithException) error).getAppErrorCode()).isEqualTo(AppsmithErrorCode.INVALID_PARAMETER.getCode());
-                });
+        StepVerifier.create(environmentDTOWithoutWorkspaceIdMono).verifyErrorSatisfies(error -> {
+            System.out.println(error.getMessage());
+            assertThat(error).isInstanceOf(AppsmithException.class);
+            assertThat(((AppsmithException) error).getAppErrorCode())
+                    .isEqualTo(AppsmithErrorCode.INVALID_PARAMETER.getCode());
+        });
 
         Mono<EnvironmentDTO> environmentDTOWithoutEnvironmentIdMono =
-                environmentService
-                        .setEnvironmentToDefault(Map.of(FieldName.WORKSPACE_ID, workspace.getId()));
+                environmentService.setEnvironmentToDefault(Map.of(FieldName.WORKSPACE_ID, workspace.getId()));
 
-        StepVerifier.create(environmentDTOWithoutEnvironmentIdMono)
-                .verifyErrorSatisfies(error -> {
-
-                    System.out.println(error.getMessage());
-                    assertThat(error).isInstanceOf(AppsmithException.class);
-                    assertThat(((AppsmithException) error).getAppErrorCode()).isEqualTo(AppsmithErrorCode.INVALID_PARAMETER.getCode());
-                });
-
-
+        StepVerifier.create(environmentDTOWithoutEnvironmentIdMono).verifyErrorSatisfies(error -> {
+            System.out.println(error.getMessage());
+            assertThat(error).isInstanceOf(AppsmithException.class);
+            assertThat(((AppsmithException) error).getAppErrorCode())
+                    .isEqualTo(AppsmithErrorCode.INVALID_PARAMETER.getCode());
+        });
     }
-
 }

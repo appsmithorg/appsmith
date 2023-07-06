@@ -2,7 +2,6 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.server.configurations.AirgapInstanceConfig;
 import com.appsmith.server.helpers.ce.NetworkUtilsCE;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -22,5 +21,4 @@ public class NetworkUtils extends NetworkUtilsCE {
         }
         return super.getExternalAddress();
     }
-
 }

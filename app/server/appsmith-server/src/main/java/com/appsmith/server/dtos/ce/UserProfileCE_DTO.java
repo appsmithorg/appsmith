@@ -55,5 +55,4 @@ public class UserProfileCE_DTO {
     public boolean isCredentialsNonExpired() {
         return this.isEnabled;
     }
-
 }

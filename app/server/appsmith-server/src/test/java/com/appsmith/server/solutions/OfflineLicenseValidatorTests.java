@@ -52,27 +52,26 @@ public class OfflineLicenseValidatorTests {
     private String activeLicenseKey;
     private String expiredLicenseKey;
 
-    String PAID_ACTIVE_DATASET = "{" +
-            "\"origin\":\"AIR_GAP\"," +
-            "\"type\":\"PAID\"," +
-            "\"expiry\":\"2099-05-30\"," +
-            "\"email\":\"test@example.com\"," +
-            "\"contractType\":\"FIXED_EXPIRY\"," +
-            "\"createdAt\":\"2023-03-15T08:17:39.010Z\"" +
-            "}";
+    String PAID_ACTIVE_DATASET = "{" + "\"origin\":\"AIR_GAP\","
+            + "\"type\":\"PAID\","
+            + "\"expiry\":\"2099-05-30\","
+            + "\"email\":\"test@example.com\","
+            + "\"contractType\":\"FIXED_EXPIRY\","
+            + "\"createdAt\":\"2023-03-15T08:17:39.010Z\""
+            + "}";
 
-    String TRIAL_EXPIRED_DATASET = "{" +
-            "\"origin\":\"AIR_GAP\"," +
-            "\"type\":\"TRIAL\"," +
-            "\"expiry\":\"2021-05-30\"," +
-            "\"email\":\"test@example.com\"," +
-            "\"contractType\":\"FIXED_EXPIRY\"," +
-            "\"createdAt\":\"2021-04-30T08:17:39.010Z\"" +
-            "}";
+    String TRIAL_EXPIRED_DATASET = "{" + "\"origin\":\"AIR_GAP\","
+            + "\"type\":\"TRIAL\","
+            + "\"expiry\":\"2021-05-30\","
+            + "\"email\":\"test@example.com\","
+            + "\"contractType\":\"FIXED_EXPIRY\","
+            + "\"createdAt\":\"2021-04-30T08:17:39.010Z\""
+            + "}";
 
     @BeforeEach
     public void setup() throws Exception {
-        this.licenseValidator = new OfflineLicenseValidatorImpl(releaseNotesService, configService, licenseConfig, gson);
+        this.licenseValidator =
+                new OfflineLicenseValidatorImpl(releaseNotesService, configService, licenseConfig, gson);
         // Generate Ed25519 key pair
         Ed25519KeyPairGenerator keyPairGenerator = new Ed25519KeyPairGenerator();
         keyPairGenerator.init(new Ed25519KeyGenerationParameters(new SecureRandom()));
@@ -118,8 +117,7 @@ public class OfflineLicenseValidatorTests {
         Tenant tenant = this.createTransientTenantWithSampleLicense(license);
         Mono<License> verifiedLicenseMono = licenseValidator.licenseCheck(tenant);
 
-        StepVerifier
-                .create(verifiedLicenseMono)
+        StepVerifier.create(verifiedLicenseMono)
                 .assertNext(verifiedLicense -> {
                     Assertions.assertNotNull(verifiedLicense);
                     Assertions.assertEquals(verifiedLicense.getOrigin(), LicenseOrigin.AIR_GAP);
@@ -139,8 +137,7 @@ public class OfflineLicenseValidatorTests {
         license.setKey("key/randomLicenseKey");
         Tenant tenant = this.createTransientTenantWithSampleLicense(license);
         Mono<License> licenseMono = licenseValidator.licenseCheck(tenant);
-        StepVerifier
-                .create(licenseMono)
+        StepVerifier.create(licenseMono)
                 .assertNext(verifiedLicense -> Assertions.assertEquals(verifiedLicense, new License()))
                 .verifyComplete();
     }
@@ -154,8 +151,7 @@ public class OfflineLicenseValidatorTests {
         Tenant tenant = this.createTransientTenantWithSampleLicense(license);
         Mono<License> verifiedLicenseMono = licenseValidator.licenseCheck(tenant);
 
-        StepVerifier
-                .create(verifiedLicenseMono)
+        StepVerifier.create(verifiedLicenseMono)
                 .assertNext(verifiedLicense -> {
                     Assertions.assertNotNull(verifiedLicense);
                     Assertions.assertEquals(verifiedLicense.getOrigin(), LicenseOrigin.AIR_GAP);

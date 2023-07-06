@@ -8,5 +8,4 @@ import org.springframework.stereotype.Repository;
 @QueryEntity
 @Document
 @Repository
-public interface AuditLogRepository extends BaseRepository<AuditLog, String>, CustomAuditLogRepository {
-}
+public interface AuditLogRepository extends BaseRepository<AuditLog, String>, CustomAuditLogRepository {}

@@ -15,8 +15,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class UserApiKey extends BaseDomain {
     @JsonView({Views.Internal.class})
-    @Encrypted
-    private String apiKey;
+    @Encrypted private String apiKey;
+
     @JsonView({Views.Internal.class})
     private String userId;
 }

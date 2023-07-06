@@ -47,10 +47,10 @@ import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.AUDIT_LOGS;
-import static com.appsmith.server.constants.FieldName.TENANT_GROUP;
-import static com.appsmith.server.constants.FieldName.TENANT_ROLE;
 import static com.appsmith.server.constants.FieldName.CUSTOM_ROLES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_ROLES;
+import static com.appsmith.server.constants.FieldName.TENANT_GROUP;
+import static com.appsmith.server.constants.FieldName.TENANT_ROLE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -104,7 +104,8 @@ public class TenantResourcesTest {
     @WithUserDetails(value = "api_user")
     public void testCreateOthersTab() {
         if (superAdminPermissionGroupId == null) {
-            superAdminPermissionGroupId = userUtils.getSuperAdminPermissionGroup().block().getId();
+            superAdminPermissionGroupId =
+                    userUtils.getSuperAdminPermissionGroup().block().getId();
         }
 
         // create workspace to assert its permissions
@@ -115,7 +116,8 @@ public class TenantResourcesTest {
 
         CommonAppsmithObjectData dataFromRepositoryForAllTabs = workspaceResources.getDataFromRepositoryForAllTabs();
 
-        Mono<RoleTabDTO> othersTabMono = tenantResources.createOthersTab(superAdminPermissionGroupId, dataFromRepositoryForAllTabs);
+        Mono<RoleTabDTO> othersTabMono =
+                tenantResources.createOthersTab(superAdminPermissionGroupId, dataFromRepositoryForAllTabs);
 
         StepVerifier.create(othersTabMono)
                 .assertNext(roleTabDTO -> {
@@ -129,11 +131,18 @@ public class TenantResourcesTest {
 
                     BaseView workspacesView = topView.getEntities().get(0);
                     assertThat(workspacesView.getName()).isEqualTo("Workspaces");
-                    EntityView workpaces = (EntityView) Arrays.stream(workspacesView.getChildren().toArray()).findFirst().get();
+                    EntityView workpaces = (EntityView)
+                            Arrays.stream(workspacesView.getChildren().toArray())
+                                    .findFirst()
+                                    .get();
                     assertThat(workpaces.getType()).isEqualTo(Workspace.class.getSimpleName());
-                    BaseView testWorkspace1 = workpaces.getEntities().stream().filter(baseView -> baseView.getName().equals(workspaceName)).findFirst().get();
+                    BaseView testWorkspace1 = workpaces.getEntities().stream()
+                            .filter(baseView -> baseView.getName().equals(workspaceName))
+                            .findFirst()
+                            .get();
                     assertThat(testWorkspace1.getId()).isEqualTo(savedWorkspace.getId());
-                    // assert that instance admin does not have the permission to edit/delete this workspace. Also, assert
+                    // assert that instance admin does not have the permission to edit/delete this workspace. Also,
+                    // assert
                     // that create and view permissions are disabled for this type
                     List<Integer> assertedPermissions = List.of(-1, 0, 0, -1);
                     assertThat(testWorkspace1.getEnabled()).isEqualTo(assertedPermissions);
@@ -143,7 +152,6 @@ public class TenantResourcesTest {
                     assertThat(auditLogView.getName()).isEqualTo(AUDIT_LOGS);
                     // assert that view audit log permission is given to super admin
                     assertThat(auditLogView.getEnabled().get(3)).isEqualTo(1);
-
                 })
                 .verifyComplete();
     }
@@ -152,7 +160,8 @@ public class TenantResourcesTest {
     @WithUserDetails(value = "api_user")
     public void groupsRolesTabTest_SuperAdminPermissionGroupId() {
         if (superAdminPermissionGroupId == null) {
-            superAdminPermissionGroupId = userUtils.getSuperAdminPermissionGroup().block().getId();
+            superAdminPermissionGroupId =
+                    userUtils.getSuperAdminPermissionGroup().block().getId();
         }
 
         UserGroup userGroup = new UserGroup();
@@ -162,53 +171,74 @@ public class TenantResourcesTest {
         PermissionGroup permissionGroup = new PermissionGroup();
         String roleName = UUID.randomUUID().toString();
         permissionGroup.setName(roleName);
-        PermissionGroup createdRole = permissionGroupService.create(permissionGroup).block();
+        PermissionGroup createdRole =
+                permissionGroupService.create(permissionGroup).block();
 
         Mono<RoleTabDTO> groupsAndRolesTabMono = tenantResources.createGroupsAndRolesTab(superAdminPermissionGroupId);
 
         StepVerifier.create(groupsAndRolesTabMono)
                 .assertNext(groupsAndRolesTab -> {
                     assertThat(groupsAndRolesTab).isNotNull();
-                    assertThat(groupsAndRolesTab.getPermissions()).isSameAs(RoleTab.GROUPS_ROLES.getViewablePermissions());
+                    assertThat(groupsAndRolesTab.getPermissions())
+                            .isSameAs(RoleTab.GROUPS_ROLES.getViewablePermissions());
 
                     EntityView topView = groupsAndRolesTab.getData();
                     assertThat(topView.getType()).isEqualTo(Tenant.class.getSimpleName());
                     // assert that both the groups and roles are present as children
                     assertThat(topView.getEntities().size()).isEqualTo(2);
 
-                    BaseView groupsTopView = topView.getEntities().stream().filter(entity -> entity.getName().equals("Groups")).findFirst().get();
-                    BaseView rolesTopView = topView.getEntities().stream().filter(entity -> entity.getName().equals("Roles")).findFirst().get();
+                    BaseView groupsTopView = topView.getEntities().stream()
+                            .filter(entity -> entity.getName().equals("Groups"))
+                            .findFirst()
+                            .get();
+                    BaseView rolesTopView = topView.getEntities().stream()
+                            .filter(entity -> entity.getName().equals("Roles"))
+                            .findFirst()
+                            .get();
 
-                    // Assert that the super admin has permissions to create, edit, delete, view, invite and remove users for all groups
+                    // Assert that the super admin has permissions to create, edit, delete, view, invite and remove
+                    // users for all groups
                     // Also, associate role should be disabled since it doesn't apply to groups.
                     List<Integer> perms = List.of(1, 1, 1, 1, 1, 1, -1);
                     assertThat(groupsTopView.getEnabled()).isEqualTo(perms);
                     assertThat(groupsTopView.getChildren().size()).isEqualTo(1);
 
                     // Assert that the created group is returned in the view
-                    List<BaseView> groupEntities = (List<BaseView>) groupsTopView.getChildren().stream().findFirst().get().getEntities();
+                    List<BaseView> groupEntities = (List<BaseView>) groupsTopView.getChildren().stream()
+                            .findFirst()
+                            .get()
+                            .getEntities();
                     BaseView createdGroupView = groupEntities.stream()
                             .filter(groupEntity -> groupEntity.getId().equals(createdGroup.getId()))
                             .findFirst()
                             .get();
                     assertThat(createdGroupView.getName()).isEqualTo(createdGroup.getName());
                     assertThat(createdGroupView.getId()).isEqualTo(createdGroup.getId());
-                    // Assert that create and assocaite roles are disabled. The rest of the permissions are enabled for the group
+                    // Assert that create and assocaite roles are disabled. The rest of the permissions are enabled for
+                    // the group
                     perms = List.of(-1, 1, 1, 1, 1, 1, -1);
                     assertThat(createdGroupView.getEnabled()).isEqualTo(perms);
                     assertThat(createdGroupView.getChildren()).isNull();
 
-                    // Assert that the super admin has permissions to create, edit, delete, view and associate for all roles
+                    // Assert that the super admin has permissions to create, edit, delete, view and associate for all
+                    // roles
                     // Also, invite and remove users should be disabled since it doesn't apply to roles.
                     perms = List.of(1, 1, 1, 1, -1, -1, 1);
                     assertThat(rolesTopView.getEnabled()).isEqualTo(perms);
                     assertThat(rolesTopView.getChildren().size()).isEqualTo(1);
 
-                    List<BaseView> rolesEntities = (List<BaseView>) rolesTopView.getChildren().stream().findFirst().get().getEntities();
+                    List<BaseView> rolesEntities = (List<BaseView>) rolesTopView.getChildren().stream()
+                            .findFirst()
+                            .get()
+                            .getEntities();
                     // Check for 2 Headers: Default Roles and Custom Roles
-                    Optional<BaseView> defaultRoleBaseView = rolesEntities.stream().filter(view -> view.getName().equals(DEFAULT_ROLES)).findFirst();
+                    Optional<BaseView> defaultRoleBaseView = rolesEntities.stream()
+                            .filter(view -> view.getName().equals(DEFAULT_ROLES))
+                            .findFirst();
                     assertThat(defaultRoleBaseView.isPresent()).isTrue();
-                    Optional<BaseView> customRoleBaseView = rolesEntities.stream().filter(view -> view.getName().equals(CUSTOM_ROLES)).findFirst();
+                    Optional<BaseView> customRoleBaseView = rolesEntities.stream()
+                            .filter(view -> view.getName().equals(CUSTOM_ROLES))
+                            .findFirst();
                     assertThat(customRoleBaseView.isPresent()).isTrue();
 
                     // Check for 1 entity inside Custom Role Header Entity
@@ -218,17 +248,17 @@ public class TenantResourcesTest {
                     assertThat(customRoleEntity.isPresent()).isTrue();
                     // Assert that the created role is returned in the Custom Role Header Entity
                     Optional<? extends BaseView> createdRoleView = customRoleEntity.get().getEntities().stream()
-                            .filter(view -> view.getId().equals(createdRole.getId())).findFirst();
+                            .filter(view -> view.getId().equals(createdRole.getId()))
+                            .findFirst();
                     assertThat(createdRoleView.isPresent()).isTrue();
                     assertThat(createdRoleView.get().getName()).isEqualTo(createdRole.getName());
-                    // Assert that create, invite and remove users permissions are disabled. The rest of the permissions are enabled for the role
+                    // Assert that create, invite and remove users permissions are disabled. The rest of the permissions
+                    // are enabled for the role
                     perms = List.of(-1, 1, 1, 1, -1, -1, 1);
                     assertThat(createdRoleView.get().getEnabled()).isEqualTo(perms);
                     assertThat(createdRoleView.get().getChildren()).isNull();
-
                 })
                 .verifyComplete();
-
     }
 
     @Test
@@ -243,8 +273,10 @@ public class TenantResourcesTest {
         permissionGroup.setName("New role for editing");
         String description = "New role for editing description";
         permissionGroup.setDescription(description);
-        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup)
-                .flatMap(permissionGroup1 -> permissionGroupService.findById(permissionGroup1.getId(), READ_PERMISSION_GROUPS))
+        PermissionGroup createdPermissionGroup = permissionGroupService
+                .create(permissionGroup)
+                .flatMap(permissionGroup1 ->
+                        permissionGroupService.findById(permissionGroup1.getId(), READ_PERMISSION_GROUPS))
                 .block();
 
         UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
@@ -255,19 +287,18 @@ public class TenantResourcesTest {
                 Workspace.class.getSimpleName(),
                 createdWorkspace.getId(),
                 List.of(-1, 1, 0, -1),
-                createdWorkspace.getName()
-        );
+                createdWorkspace.getName());
         UpdateRoleEntityDTO auditLogEntity = new UpdateRoleEntityDTO(
                 Tenant.class.getSimpleName(),
                 tenantService.getDefaultTenantId().block(),
                 List.of(-1, -1, -1, 1),
-                AUDIT_LOGS
-        );
+                AUDIT_LOGS);
 
         updateRoleConfigDTO.setTabName(RoleTab.OTHERS.getName());
         updateRoleConfigDTO.setEntitiesChanged(Set.of(workspaceEntity, auditLogEntity));
 
-        Mono<RoleViewDTO> roleConfigChangeMono = roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO);
+        Mono<RoleViewDTO> roleConfigChangeMono =
+                roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO);
 
         StepVerifier.create(roleConfigChangeMono)
                 .assertNext(roleViewDTO -> {
@@ -276,32 +307,31 @@ public class TenantResourcesTest {
                     assertThat(roleViewDTO.getUserPermissions()).isEqualTo(createdPermissionGroup.getUserPermissions());
                     assertThat(roleViewDTO.getDescription()).isEqualTo(description);
 
-                    BaseView workspaceView = roleViewDTO.getTabs().get(RoleTab.OTHERS.getName())
-                            .getData()
-                            .getEntities()
-                            .stream()
-                            .filter(baseView -> baseView.getName().equals("Workspaces"))
-                            .findFirst().get();
+                    BaseView workspaceView =
+                            roleViewDTO.getTabs().get(RoleTab.OTHERS.getName()).getData().getEntities().stream()
+                                    .filter(baseView -> baseView.getName().equals("Workspaces"))
+                                    .findFirst()
+                                    .get();
 
                     // First assert that the parent permissions haven't changed (for ALL workspaces)
                     assertThat(workspaceView.getEnabled()).isEqualTo(List.of(0, -1, -1, -1));
 
-                    BaseView createdWorkspaceView = workspaceView.getChildren().stream().findFirst().get()
-                            .getEntities().stream()
-                            .filter(baseView -> baseView.getId().equals(createdWorkspace.getId()))
-                            .findFirst().get();
+                    BaseView createdWorkspaceView =
+                            workspaceView.getChildren().stream().findFirst().get().getEntities().stream()
+                                    .filter(baseView -> baseView.getId().equals(createdWorkspace.getId()))
+                                    .findFirst()
+                                    .get();
                     assertThat(createdWorkspaceView.getEnabled()).isEqualTo(List.of(-1, 1, 0, -1));
 
-                    BaseView auditLogView = roleViewDTO.getTabs().get(RoleTab.OTHERS.getName())
-                            .getData()
-                            .getEntities()
-                            .stream()
-                            .filter(baseView -> baseView.getName().equals(AUDIT_LOGS))
-                            .findFirst().get();
+                    BaseView auditLogView =
+                            roleViewDTO.getTabs().get(RoleTab.OTHERS.getName()).getData().getEntities().stream()
+                                    .filter(baseView -> baseView.getName().equals(AUDIT_LOGS))
+                                    .findFirst()
+                                    .get();
 
                     // Assert that Audit logs view is now set to true
-                    AssertionsForClassTypes.assertThat(auditLogView.getEnabled()).isEqualTo(List.of(-1, -1, -1, 1));
-
+                    AssertionsForClassTypes.assertThat(auditLogView.getEnabled())
+                            .isEqualTo(List.of(-1, -1, -1, 1));
                 })
                 .verifyComplete();
     }
@@ -310,7 +340,8 @@ public class TenantResourcesTest {
     @WithUserDetails(value = "api_user")
     public void groupsRolesTab_DisableMapTest() {
         if (superAdminPermissionGroupId == null) {
-            superAdminPermissionGroupId = userUtils.getSuperAdminPermissionGroup().block().getId();
+            superAdminPermissionGroupId =
+                    userUtils.getSuperAdminPermissionGroup().block().getId();
         }
 
         UserGroup userGroup = new UserGroup();
@@ -320,7 +351,8 @@ public class TenantResourcesTest {
         PermissionGroup permissionGroup = new PermissionGroup();
         String roleName = UUID.randomUUID().toString();
         permissionGroup.setName(roleName);
-        PermissionGroup createdRole = permissionGroupService.create(permissionGroup).block();
+        PermissionGroup createdRole =
+                permissionGroupService.create(permissionGroup).block();
 
         String tenantId = tenantService.getDefaultTenantId().block();
 
@@ -344,53 +376,48 @@ public class TenantResourcesTest {
                     String roleDelete = createdRole.getId() + "_Delete";
 
                     // asserting a few relationships to exist in the map
-                    assertThat(disableHelperMap.get(tenantCreateGroup)).containsAll(Set.of(
-                            new IdPermissionDTO(tenantId, PermissionViewableName.EDIT),
-                            new IdPermissionDTO(tenantId, PermissionViewableName.DELETE),
-                            new IdPermissionDTO(tenantId, PermissionViewableName.VIEW),
-                            new IdPermissionDTO(tenantId, PermissionViewableName.INVITE_USER),
-                            new IdPermissionDTO(tenantId, PermissionViewableName.REMOVE_USER)
-                    ));
-                    assertThat(disableHelperMap.get(tenantCreateRole)).containsAll(Set.of(
-                            new IdPermissionDTO(tenantId, PermissionViewableName.EDIT),
-                            new IdPermissionDTO(tenantId, PermissionViewableName.DELETE),
-                            new IdPermissionDTO(tenantId, PermissionViewableName.VIEW),
-                            new IdPermissionDTO(tenantId, PermissionViewableName.ASSOCIATE_ROLE)
-                    ));
-                    assertThat(disableHelperMap.get(tenantEditGroup)).containsAll(Set.of(
-                            new IdPermissionDTO(tenantId, PermissionViewableName.VIEW),
-                            new IdPermissionDTO(tenantId, PermissionViewableName.INVITE_USER),
-                            new IdPermissionDTO(tenantId, PermissionViewableName.REMOVE_USER)
-                    ));
-                    assertThat(disableHelperMap.get(tenantEditRole)).containsAll(Set.of(
-                            new IdPermissionDTO(tenantId, PermissionViewableName.VIEW)
-                    ));
-                    assertThat(disableHelperMap.get(tenantDeleteRole)).containsAll(Set.of(
-                            new IdPermissionDTO(tenantId, PermissionViewableName.VIEW)
-                    ));
-                    assertThat(disableHelperMap.get(tenantDeleteGroup)).containsAll(Set.of(
-                            new IdPermissionDTO(tenantId, PermissionViewableName.VIEW)
-                    ));
-                    assertThat(disableHelperMap.get(groupEdit)).containsAll(Set.of(
-                            new IdPermissionDTO(createdGroup.getId(), PermissionViewableName.VIEW),
-                            new IdPermissionDTO(createdGroup.getId(), PermissionViewableName.INVITE_USER),
-                            new IdPermissionDTO(createdGroup.getId(), PermissionViewableName.REMOVE_USER)
-                    ));
-                    assertThat(disableHelperMap.get(groupDelete)).containsAll(Set.of(
-                            new IdPermissionDTO(createdGroup.getId(), PermissionViewableName.VIEW)
-                    ));
-                    assertThat(disableHelperMap.get(roleEdit)).containsAll(Set.of(
-                            new IdPermissionDTO(createdRole.getId(), PermissionViewableName.VIEW),
-                            new IdPermissionDTO(createdRole.getId(), PermissionViewableName.ASSOCIATE_ROLE)
-                    ));
-                    assertThat(disableHelperMap.get(roleDelete)).containsAll(Set.of(
-                            new IdPermissionDTO(createdRole.getId(), PermissionViewableName.VIEW),
-                            new IdPermissionDTO(createdRole.getId(), PermissionViewableName.ASSOCIATE_ROLE)
-                    ));
-
+                    assertThat(disableHelperMap.get(tenantCreateGroup))
+                            .containsAll(Set.of(
+                                    new IdPermissionDTO(tenantId, PermissionViewableName.EDIT),
+                                    new IdPermissionDTO(tenantId, PermissionViewableName.DELETE),
+                                    new IdPermissionDTO(tenantId, PermissionViewableName.VIEW),
+                                    new IdPermissionDTO(tenantId, PermissionViewableName.INVITE_USER),
+                                    new IdPermissionDTO(tenantId, PermissionViewableName.REMOVE_USER)));
+                    assertThat(disableHelperMap.get(tenantCreateRole))
+                            .containsAll(Set.of(
+                                    new IdPermissionDTO(tenantId, PermissionViewableName.EDIT),
+                                    new IdPermissionDTO(tenantId, PermissionViewableName.DELETE),
+                                    new IdPermissionDTO(tenantId, PermissionViewableName.VIEW),
+                                    new IdPermissionDTO(tenantId, PermissionViewableName.ASSOCIATE_ROLE)));
+                    assertThat(disableHelperMap.get(tenantEditGroup))
+                            .containsAll(Set.of(
+                                    new IdPermissionDTO(tenantId, PermissionViewableName.VIEW),
+                                    new IdPermissionDTO(tenantId, PermissionViewableName.INVITE_USER),
+                                    new IdPermissionDTO(tenantId, PermissionViewableName.REMOVE_USER)));
+                    assertThat(disableHelperMap.get(tenantEditRole))
+                            .containsAll(Set.of(new IdPermissionDTO(tenantId, PermissionViewableName.VIEW)));
+                    assertThat(disableHelperMap.get(tenantDeleteRole))
+                            .containsAll(Set.of(new IdPermissionDTO(tenantId, PermissionViewableName.VIEW)));
+                    assertThat(disableHelperMap.get(tenantDeleteGroup))
+                            .containsAll(Set.of(new IdPermissionDTO(tenantId, PermissionViewableName.VIEW)));
+                    assertThat(disableHelperMap.get(groupEdit))
+                            .containsAll(Set.of(
+                                    new IdPermissionDTO(createdGroup.getId(), PermissionViewableName.VIEW),
+                                    new IdPermissionDTO(createdGroup.getId(), PermissionViewableName.INVITE_USER),
+                                    new IdPermissionDTO(createdGroup.getId(), PermissionViewableName.REMOVE_USER)));
+                    assertThat(disableHelperMap.get(groupDelete))
+                            .containsAll(
+                                    Set.of(new IdPermissionDTO(createdGroup.getId(), PermissionViewableName.VIEW)));
+                    assertThat(disableHelperMap.get(roleEdit))
+                            .containsAll(Set.of(
+                                    new IdPermissionDTO(createdRole.getId(), PermissionViewableName.VIEW),
+                                    new IdPermissionDTO(createdRole.getId(), PermissionViewableName.ASSOCIATE_ROLE)));
+                    assertThat(disableHelperMap.get(roleDelete))
+                            .containsAll(Set.of(
+                                    new IdPermissionDTO(createdRole.getId(), PermissionViewableName.VIEW),
+                                    new IdPermissionDTO(createdRole.getId(), PermissionViewableName.ASSOCIATE_ROLE)));
                 })
                 .verifyComplete();
-
     }
 
     @Test
@@ -400,11 +427,14 @@ public class TenantResourcesTest {
         PermissionGroup permissionGroup = new PermissionGroup();
         String roleName = UUID.randomUUID().toString();
         permissionGroup.setName(roleName);
-        PermissionGroup roleToBeUpdated = permissionGroupService.create(permissionGroup).block();
+        PermissionGroup roleToBeUpdated =
+                permissionGroupService.create(permissionGroup).block();
 
         PermissionGroup permissionGroup1 = new PermissionGroup();
-        permissionGroup1.setName("New role for editing : testSaveRoleConfigurationChangesForApplicationResourcesTab_givenEditAndView_assertCustomThemePermissions");
-        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup1).block();
+        permissionGroup1.setName(
+                "New role for editing : testSaveRoleConfigurationChangesForApplicationResourcesTab_givenEditAndView_assertCustomThemePermissions");
+        PermissionGroup createdPermissionGroup =
+                permissionGroupService.create(permissionGroup1).block();
 
         UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
 
@@ -414,15 +444,14 @@ public class TenantResourcesTest {
                 PermissionGroup.class.getSimpleName(),
                 roleToBeUpdated.getId(),
                 List.of(-1, 0, 0, 0, -1, -1, 1),
-                roleToBeUpdated.getName()
-        );
-        updateRoleConfigDTO.setEntitiesChanged(Set.of(
-                permissionGroupEntity
-        ));
+                roleToBeUpdated.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(permissionGroupEntity));
         updateRoleConfigDTO.setTabName(RoleTab.GROUPS_ROLES.getName());
 
         // Make the role configuration changes in a blocking manner
-        roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO).block();
+        roleConfigurationSolution
+                .updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO)
+                .block();
 
         // Assert that the roleToBeUpdated role has the assign as well as unassign permission
         Mono<PermissionGroup> permissionGroupMono = permissionGroupService.findById(roleToBeUpdated.getId());
@@ -430,15 +459,13 @@ public class TenantResourcesTest {
                 .assertNext(pg -> {
                     assertThat(pg).isNotNull();
                     // Assert that pg policy update happened
-                    pg.getPolicies().stream().forEach(
-                            policy -> {
-                                if (policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue())) {
-                                    assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
-                                } else if (policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue())) {
-                                    assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
-                                }
-                            }
-                    );
+                    pg.getPolicies().stream().forEach(policy -> {
+                        if (policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue())) {
+                            assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                        } else if (policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue())) {
+                            assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                        }
+                    });
                 })
                 .verifyComplete();
 
@@ -447,29 +474,26 @@ public class TenantResourcesTest {
                 PermissionGroup.class.getSimpleName(),
                 roleToBeUpdated.getId(),
                 List.of(-1, 0, 0, 0, -1, -1, 0),
-                roleToBeUpdated.getName()
-        );
-        updateRoleConfigDTO.setEntitiesChanged(Set.of(
-                permissionGroupEntity
-        ));
+                roleToBeUpdated.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(permissionGroupEntity));
         updateRoleConfigDTO.setTabName(RoleTab.GROUPS_ROLES.getName());
 
         // Make the role configuration changes in a blocking manner
-        roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO).block();
+        roleConfigurationSolution
+                .updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO)
+                .block();
 
         StepVerifier.create(permissionGroupMono)
                 .assertNext(pg -> {
                     assertThat(pg).isNotNull();
                     // Assert that pg policy update happened
-                    pg.getPolicies().stream().forEach(
-                            policy -> {
-                                if (policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue())) {
-                                    assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
-                                } else if (policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue())) {
-                                    assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
-                                }
-                            }
-                    );
+                    pg.getPolicies().stream().forEach(policy -> {
+                        if (policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue())) {
+                            assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                        } else if (policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue())) {
+                            assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                        }
+                    });
                 })
                 .verifyComplete();
     }
@@ -478,42 +502,56 @@ public class TenantResourcesTest {
     @WithUserDetails(value = "api_user")
     public void groupsRolesTabTest_ProvisionedGroup() {
         if (superAdminPermissionGroupId == null) {
-            superAdminPermissionGroupId = userUtils.getSuperAdminPermissionGroup().block().getId();
+            superAdminPermissionGroupId =
+                    userUtils.getSuperAdminPermissionGroup().block().getId();
         }
 
         UserGroup userGroup = new UserGroup();
         userGroup.setName("groupsRolesTabTest_ProvisionedGroup Group");
-        ProvisionResourceDto provisionResourceDto = userGroupService.createProvisionGroup(userGroup).block();
+        ProvisionResourceDto provisionResourceDto =
+                userGroupService.createProvisionGroup(userGroup).block();
         UserGroup provisionedUserGroup = (UserGroup) provisionResourceDto.getResource();
 
         PermissionGroup permissionGroup = new PermissionGroup();
         String roleName = UUID.randomUUID().toString();
         permissionGroup.setName(roleName);
-        PermissionGroup createdRole = permissionGroupService.create(permissionGroup).block();
+        PermissionGroup createdRole =
+                permissionGroupService.create(permissionGroup).block();
 
         Mono<RoleTabDTO> groupsAndRolesTabMono = tenantResources.createGroupsAndRolesTab(superAdminPermissionGroupId);
 
         StepVerifier.create(groupsAndRolesTabMono)
                 .assertNext(groupsAndRolesTab -> {
                     assertThat(groupsAndRolesTab).isNotNull();
-                    assertThat(groupsAndRolesTab.getPermissions()).isSameAs(RoleTab.GROUPS_ROLES.getViewablePermissions());
+                    assertThat(groupsAndRolesTab.getPermissions())
+                            .isSameAs(RoleTab.GROUPS_ROLES.getViewablePermissions());
 
                     EntityView topView = groupsAndRolesTab.getData();
                     assertThat(topView.getType()).isEqualTo(Tenant.class.getSimpleName());
                     // assert that both the groups and roles are present as children
                     assertThat(topView.getEntities().size()).isEqualTo(2);
 
-                    BaseView groupsTopView = topView.getEntities().stream().filter(entity -> entity.getName().equals("Groups")).findFirst().get();
-                    BaseView rolesTopView = topView.getEntities().stream().filter(entity -> entity.getName().equals("Roles")).findFirst().get();
+                    BaseView groupsTopView = topView.getEntities().stream()
+                            .filter(entity -> entity.getName().equals("Groups"))
+                            .findFirst()
+                            .get();
+                    BaseView rolesTopView = topView.getEntities().stream()
+                            .filter(entity -> entity.getName().equals("Roles"))
+                            .findFirst()
+                            .get();
 
-                    // Assert that the super admin has permissions to create, edit, delete, view, invite and remove users for all groups
+                    // Assert that the super admin has permissions to create, edit, delete, view, invite and remove
+                    // users for all groups
                     // Also, associate role should be disabled since it doesn't apply to groups.
                     List<Integer> perms = List.of(1, 1, 1, 1, 1, 1, -1);
                     assertThat(groupsTopView.getEnabled()).isEqualTo(perms);
                     assertThat(groupsTopView.getChildren().size()).isEqualTo(1);
 
                     // Assert that the created group is returned in the view
-                    List<BaseView> groupEntities = (List<BaseView>) groupsTopView.getChildren().stream().findFirst().get().getEntities();
+                    List<BaseView> groupEntities = (List<BaseView>) groupsTopView.getChildren().stream()
+                            .findFirst()
+                            .get()
+                            .getEntities();
                     BaseView createdGroupView = groupEntities.stream()
                             .filter(groupEntity -> groupEntity.getId().equals(provisionedUserGroup.getId()))
                             .findFirst()
@@ -527,7 +565,5 @@ public class TenantResourcesTest {
                     assertThat(createdGroupView.getChildren()).isNull();
                 })
                 .verifyComplete();
-
     }
-
 }

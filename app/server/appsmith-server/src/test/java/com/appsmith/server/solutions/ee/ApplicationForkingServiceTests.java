@@ -62,13 +62,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.util.LinkedMultiValueMap;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,8 +73,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PAGE_LAYOUT;
@@ -160,13 +155,13 @@ public class ApplicationForkingServiceTests {
     @SneakyThrows
     @BeforeEach
     public void setup() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
 
         // Run setup only once
         if (isSetupDone) {
             return;
         }
-
 
         Workspace sourceWorkspace = new Workspace();
         sourceWorkspace.setName("Source Workspace");
@@ -179,13 +174,16 @@ public class ApplicationForkingServiceTests {
         app1 = applicationPageService.createApplication(app1).block();
         sourceAppId = app1.getId();
 
-        PageDTO testPage = newPageService.findPageById(app1.getPages().get(0).getId(), READ_PAGES, false).block();
+        PageDTO testPage = newPageService
+                .findPageById(app1.getPages().get(0).getId(), READ_PAGES, false)
+                .block();
 
         // Save action
         Datasource datasource = new Datasource();
         datasource.setName("Default Database");
         datasource.setWorkspaceId(app1.getWorkspaceId());
-        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        Plugin installed_plugin =
+                pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
 
@@ -200,7 +198,6 @@ public class ApplicationForkingServiceTests {
 
         layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
-
         // Save actionCollection
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("testCollection1");
@@ -209,28 +206,26 @@ public class ApplicationForkingServiceTests {
         actionCollectionDTO.setWorkspaceId(sourceWorkspace.getId());
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
-        actionCollectionDTO.setBody("export default {\n" +
-                "\tgetData: async () => {\n" +
-                "\t\tconst data = await forkActionTest.run();\n" +
-                "\t\treturn data;\n" +
-                "\t}\n" +
-                "}");
+        actionCollectionDTO.setBody("export default {\n" + "\tgetData: async () => {\n"
+                + "\t\tconst data = await forkActionTest.run();\n"
+                + "\t\treturn data;\n"
+                + "\t}\n"
+                + "}");
         ActionDTO action1 = new ActionDTO();
         action1.setName("getData");
         action1.setActionConfiguration(new ActionConfiguration());
-        action1.getActionConfiguration().setBody(
-                "async () => {\n" +
-                        "\t\tconst data = await forkActionTest.run();\n" +
-                        "\t\treturn data;\n" +
-                        "\t}");
+        action1.getActionConfiguration()
+                .setBody("async () => {\n" + "\t\tconst data = await forkActionTest.run();\n"
+                        + "\t\treturn data;\n"
+                        + "\t}");
         actionCollectionDTO.setActions(List.of(action1));
         actionCollectionDTO.setPluginType(PluginType.JS);
 
         layoutCollectionService.createCollection(actionCollectionDTO).block();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
-        }));
+        JSONObject parentDsl = new JSONObject(
+                objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {}));
         ArrayList children = (ArrayList) parentDsl.get("children");
         JSONObject testWidget = new JSONObject();
         testWidget.put("widgetName", "firstWidget");
@@ -251,23 +246,30 @@ public class ApplicationForkingServiceTests {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(parentDsl);
 
-        layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).block();
+        layoutActionService
+                .updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)
+                .block();
         // Invite "usertest@usertest.com" with VIEW access, api_user will be the admin of sourceWorkspace and we are
         // controlling this with @FixMethodOrder(MethodSorters.NAME_ASCENDING) to run the TCs in a sequence.
         // Running TC in a sequence is a bad practice for unit TCs but here we are testing the invite user and then fork
         // application as a part of this flow.
         // We need to test with VIEW user access so that any user should be able to fork template applications
-        PermissionGroup permissionGroup = permissionGroupService.getByDefaultWorkspace(sourceWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
-                .collectList().block()
+        PermissionGroup permissionGroup = permissionGroupService
+                .getByDefaultWorkspace(sourceWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+                .collectList()
+                .block()
                 .stream()
                 .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.VIEWER))
-                .findFirst().get();
+                .findFirst()
+                .get();
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
         ArrayList<String> users = new ArrayList<>();
         users.add("usertest@usertest.com");
         inviteUsersDTO.setUsernames(users);
         inviteUsersDTO.setPermissionGroupId(permissionGroup.getId());
-        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
+        userAndAccessManagementService
+                .inviteUsers(inviteUsersDTO, "http://localhost:8080")
+                .block();
 
         isSetupDone = true;
     }
@@ -293,21 +295,27 @@ public class ApplicationForkingServiceTests {
         appPage.setPolicies(newPoliciesWithoutEdit);
         NewPage updatedGitAppPage = newPageRepository.save(appPage).block();
 
-        final Mono<ApplicationImportDTO> resultMono = applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspace.getId(), null);
+        final Mono<ApplicationImportDTO> resultMono =
+                applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspace.getId(), null);
 
         StepVerifier.create(resultMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS
-                                .getMessage("page", appPageId)))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS.getMessage(
+                                        "page", appPageId)))
                 .verify();
         updatedGitAppPage.setPolicies(existingPolicies);
         NewPage setPoliciesBack = newPageRepository.save(updatedGitAppPage).block();
 
-        Mono<List<Application>> applicationsInWorkspace = applicationService.findAllApplicationsByWorkspaceId(targetWorkspace.getId()).collectList();
+        Mono<List<Application>> applicationsInWorkspace = applicationService
+                .findAllApplicationsByWorkspaceId(targetWorkspace.getId())
+                .collectList();
         /*
          * Check that no applications have been created in the Target Workspace
          */
-        StepVerifier.create(applicationsInWorkspace).assertNext(applications -> assertThat(applications).isEmpty());
+        StepVerifier.create(applicationsInWorkspace)
+                .assertNext(applications -> assertThat(applications).isEmpty());
     }
 
     @Test
@@ -327,22 +335,30 @@ public class ApplicationForkingServiceTests {
                 .filter(policy -> !policy.getPermission().equals(WORKSPACE_CREATE_DATASOURCE.getValue()))
                 .collect(Collectors.toSet());
         targetWorkspace.setPolicies(newPoliciesWithoutCreateDatasource);
-        Workspace updatedargetWorkspace = workspaceRepository.save(targetWorkspace).block();
+        Workspace updatedargetWorkspace =
+                workspaceRepository.save(targetWorkspace).block();
 
-        final Mono<ApplicationImportDTO> resultMono = applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspace.getId(), null);
+        final Mono<ApplicationImportDTO> resultMono =
+                applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspace.getId(), null);
 
         StepVerifier.create(resultMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS
-                                .getMessage("workspace", workspaceId)))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS.getMessage(
+                                        "workspace", workspaceId)))
                 .verify();
         targetWorkspace.setPolicies(existingPolicies);
-        Workspace setPoliciesBack = workspaceRepository.save(updatedargetWorkspace).block();
+        Workspace setPoliciesBack =
+                workspaceRepository.save(updatedargetWorkspace).block();
 
-        Mono<List<Application>> applicationsInWorkspace = applicationService.findAllApplicationsByWorkspaceId(targetWorkspace.getId()).collectList();
+        Mono<List<Application>> applicationsInWorkspace = applicationService
+                .findAllApplicationsByWorkspaceId(targetWorkspace.getId())
+                .collectList();
         /*
          * Check that no applications have been created in the Target Workspace
          */
-        StepVerifier.create(applicationsInWorkspace).assertNext(applications -> assertThat(applications).isEmpty());
+        StepVerifier.create(applicationsInWorkspace)
+                .assertNext(applications -> assertThat(applications).isEmpty());
     }
 }

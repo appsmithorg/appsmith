@@ -22,13 +22,11 @@ import static java.lang.Boolean.TRUE;
 @NoArgsConstructor
 public class UsersForGroupDTO {
 
-    @NotNull
-    Set<String> usernames;
+    @NotNull Set<String> usernames;
 
     List<String> userIds;
 
-    @NotNull
-    Set<String> groupIds;
+    @NotNull Set<String> groupIds;
 
     public UsersForGroupDTO(Set<String> usernames, Set<String> groupIds) {
         this.usernames = usernames;
@@ -53,5 +51,4 @@ public class UsersForGroupDTO {
 
         return Mono.just(TRUE);
     }
-
 }

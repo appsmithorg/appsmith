@@ -38,5 +38,4 @@ public class CommonAppsmithObjectData {
     Mono<Map<String, Collection<ActionCollection>>> pageActionCollectionMapMono;
     Mono<Map<String, Collection<Datasource>>> workspaceDatasourceMapMono;
     Mono<Map<String, Collection<Environment>>> workspaceEnvironmentMapMono;
-
 }

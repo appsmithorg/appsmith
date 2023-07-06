@@ -4,7 +4,6 @@ import lombok.Getter;
 
 @Getter
 public enum ServerSideVariable {
-
     APPSMITH_USER_OAUTH2_ACCESS_TOKEN(UserDataVariableReplacement.class);
 
     private final Class<? extends ServerSideVariableReplacement> variable;

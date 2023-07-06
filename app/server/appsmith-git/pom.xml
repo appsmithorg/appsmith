@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>integrated</artifactId>
-        <groupId>com.appsmith</groupId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
 
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.appsmith</groupId>
+        <artifactId>integrated</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
     <groupId>com.appsmith</groupId>
     <artifactId>appsmith-git</artifactId>
     <version>1.0-SNAPSHOT</version>
@@ -16,13 +15,6 @@
 
     <name>appsmith-git</name>
     <description>This is the git server to handle all the git operations</description>
-
-    <repositories>
-        <repository>
-            <id>jgit-repository</id>
-            <url>https://repo.eclipse.org/content/groups/releases/</url>
-        </repository>
-    </repositories>
 
     <dependencies>
 
@@ -52,8 +44,6 @@
             <version>6.4.0.202211300538-r</version>
             <scope>test</scope>
         </dependency>
-
-
 
         <dependency>
             <groupId>io.projectreactor</groupId>
@@ -94,6 +84,13 @@
         </dependency>
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>jgit-repository</id>
+            <url>https://repo.eclipse.org/content/groups/releases/</url>
+        </repository>
+    </repositories>
+
     <build>
         <plugins>
             <plugin>
@@ -101,10 +98,10 @@
                 <executions>
                     <execution>
                         <id>copy-dependencies</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <includeScope>runtime</includeScope>
                             <outputDirectory>${project.build.directory}/lib</outputDirectory>

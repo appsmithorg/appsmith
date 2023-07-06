@@ -5,9 +5,7 @@ import lombok.NonNull;
 
 @Data
 public class AuditLogEnvironmentMetadata {
-    @NonNull
-    String id;
+    @NonNull String id;
 
-    @NonNull
-    String name;
+    @NonNull String name;
 }

@@ -10,8 +10,9 @@ public class VariableReplacementFactory {
     private final EnvironmentVariableReplacement environmentVariableReplacement;
     private final UserDataVariableReplacement userDataVariableReplacement;
 
-    public VariableReplacementFactory(EnvironmentVariableReplacement environmentVariableReplacement,
-                                      UserDataVariableReplacement userDataVariableReplacement) {
+    public VariableReplacementFactory(
+            EnvironmentVariableReplacement environmentVariableReplacement,
+            UserDataVariableReplacement userDataVariableReplacement) {
 
         this.environmentVariableReplacement = environmentVariableReplacement;
         this.userDataVariableReplacement = userDataVariableReplacement;
@@ -26,6 +27,5 @@ public class VariableReplacementFactory {
 
         // If the clazz is none of the above, throw an exception.
         throw new AppsmithException(AppsmithError.UNKNOWN_SERVER_VARIABLE_TYPE);
-
     }
 }

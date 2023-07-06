@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -83,7 +82,9 @@ public class DSLTransformerHelper {
     public static Map<String, List<String>> calculateParentDirectories(List<String> paths) {
         Map<String, List<String>> parentDirectories = new HashMap<>();
 
-        paths = paths.stream().map(currentPath -> currentPath.replace(CommonConstants.JSON_EXTENSION, CommonConstants.EMPTY_STRING)).collect(Collectors.toList());
+        paths = paths.stream()
+                .map(currentPath -> currentPath.replace(CommonConstants.JSON_EXTENSION, CommonConstants.EMPTY_STRING))
+                .collect(Collectors.toList());
         for (String path : paths) {
             String[] directories = path.split(CommonConstants.DELIMITER_PATH);
             int lastDirectoryIndex = directories.length - 1;
@@ -118,7 +119,8 @@ public class DSLTransformerHelper {
      * /List1/Container1/Container1.json,
      * /MainContainer.json
      */
-    public static JSONObject getNestedDSL(Map<String, JSONObject> jsonMap, Map<String, List<String>> pathMapping, JSONObject mainContainer) {
+    public static JSONObject getNestedDSL(
+            Map<String, JSONObject> jsonMap, Map<String, List<String>> pathMapping, JSONObject mainContainer) {
         // start from the root
         // Empty page with no widgets
         if (!pathMapping.containsKey(CommonConstants.MAIN_CONTAINER)) {
@@ -138,9 +140,10 @@ public class DSLTransformerHelper {
         return mainContainer;
     }
 
-    public static JSONObject getChildren(String pathToWidget, Map<String, JSONObject> jsonMap, Map<String, List<String>> pathMapping) {
+    public static JSONObject getChildren(
+            String pathToWidget, Map<String, JSONObject> jsonMap, Map<String, List<String>> pathMapping) {
         // Recursively get the children
-        List<String>  children =  pathMapping.get(getWidgetName(pathToWidget));
+        List<String> children = pathMapping.get(getWidgetName(pathToWidget));
         JSONObject parentObject = jsonMap.get(pathToWidget + CommonConstants.JSON_EXTENSION);
         if (children != null) {
             JSONArray childArray = new JSONArray();

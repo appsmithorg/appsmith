@@ -25,12 +25,13 @@ public class InstanceConfigHelperImpl extends InstanceConfigHelperCEImpl impleme
 
     private final ConfigService configService;
 
-    public InstanceConfigHelperImpl(ConfigService configService,
-                                    CloudServicesConfig cloudServicesConfig,
-                                    CommonConfig commonConfig,
-                                    ApplicationContext applicationContext,
-                                    TenantService tenantService,
-                                    AirgapInstanceConfig airgapInstanceConfig) {
+    public InstanceConfigHelperImpl(
+            ConfigService configService,
+            CloudServicesConfig cloudServicesConfig,
+            CommonConfig commonConfig,
+            ApplicationContext applicationContext,
+            TenantService tenantService,
+            AirgapInstanceConfig airgapInstanceConfig) {
         super(configService, cloudServicesConfig, commonConfig, applicationContext);
         this.tenantService = tenantService;
         this.airgapInstanceConfig = airgapInstanceConfig;
@@ -40,11 +41,11 @@ public class InstanceConfigHelperImpl extends InstanceConfigHelperCEImpl impleme
     @Override
     public Mono<Boolean> isLicenseValid() {
         // TODO introduce license check for all the tenants once the multi-tenancy is introduced
-        return tenantService.checkAndUpdateDefaultTenantLicense()
-            .map(tenant -> tenant.getTenantConfiguration() != null
-                    && tenant.getTenantConfiguration().getLicense() != null
-                    && tenant.getTenantConfiguration().getLicense().getActive()
-            );
+        return tenantService
+                .checkAndUpdateDefaultTenantLicense()
+                .map(tenant -> tenant.getTenantConfiguration() != null
+                        && tenant.getTenantConfiguration().getLicense() != null
+                        && tenant.getTenantConfiguration().getLicense().getActive());
     }
 
     @Override

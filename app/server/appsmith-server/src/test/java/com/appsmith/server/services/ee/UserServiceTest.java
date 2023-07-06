@@ -109,7 +109,8 @@ public class UserServiceTest {
         userUtils.makeSuperUser(List.of(api_user, admin_user)).block();
 
         if (superAdminPermissionGroupId == null) {
-            superAdminPermissionGroupId = userUtils.getSuperAdminPermissionGroup().block().getId();
+            superAdminPermissionGroupId =
+                    userUtils.getSuperAdminPermissionGroup().block().getId();
         }
     }
 
@@ -123,7 +124,8 @@ public class UserServiceTest {
                     assertThat(userProfileDTO.getUsername()).isEqualTo("api_user");
                     assertThat(userProfileDTO.isSuperUser()).isTrue();
                     assertThat(userProfileDTO.isAdminSettingsVisible()).isTrue();
-                }).verifyComplete();
+                })
+                .verifyComplete();
 
         // First make the api_user a non-admin
         userUtils.removeSuperUser(List.of(api_user)).block();
@@ -133,7 +135,8 @@ public class UserServiceTest {
                     assertThat(userProfileDTO.getUsername()).isEqualTo("api_user");
                     assertThat(userProfileDTO.isSuperUser()).isFalse();
                     assertThat(userProfileDTO.isAdminSettingsVisible()).isFalse();
-                }).verifyComplete();
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -146,9 +149,11 @@ public class UserServiceTest {
         userGroup.setName(name);
         userGroup.setDescription(description);
 
-        UserGroup createdGroup = userGroupService.createGroup(userGroup)
+        UserGroup createdGroup = userGroupService
+                .createGroup(userGroup)
                 // Assert that the created role is also editable by the user who created it
-                .flatMap(userGroup1 -> userGroupService.findById(userGroup1.getId(), MANAGE_USER_GROUPS)).block();
+                .flatMap(userGroup1 -> userGroupService.findById(userGroup1.getId(), MANAGE_USER_GROUPS))
+                .block();
 
         PermissionGroup permissionGroup = new PermissionGroup();
         name = "Test Role testNonAdminReturnAdminInProfile_givenReadGroup";
@@ -156,11 +161,14 @@ public class UserServiceTest {
         permissionGroup.setName(name);
         permissionGroup.setDescription(description);
 
-        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+        PermissionGroup createdPermissionGroup =
+                permissionGroupService.create(permissionGroup).block();
 
         // Give read permission to the group for this permission group
-        Policy readPolicy = createdGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(READ_USER_GROUPS.getValue()))
-                .findFirst().get();
+        Policy readPolicy = createdGroup.getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(READ_USER_GROUPS.getValue()))
+                .findFirst()
+                .get();
         readPolicy.getPermissionGroups().add(createdPermissionGroup.getId());
         userGroupRepository.save(createdGroup).block();
         // Assign the permission group to api_user
@@ -176,7 +184,8 @@ public class UserServiceTest {
                     assertThat(userProfileDTO.getUsername()).isEqualTo("api_user");
                     assertThat(userProfileDTO.isSuperUser()).isFalse();
                     assertThat(userProfileDTO.isAdminSettingsVisible()).isTrue();
-                }).verifyComplete();
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -187,9 +196,7 @@ public class UserServiceTest {
         user.setEmail(email);
         user.setPassword("TestPassword");
 
-        userService.userCreate(user, false)
-                .timeout(Duration.ofMillis(5))
-                .subscribe();
+        userService.userCreate(user, false).timeout(Duration.ofMillis(5)).subscribe();
 
         // Sleep for user creation to finish before proceeding ahead.
         try {
@@ -198,15 +205,14 @@ public class UserServiceTest {
             throw new RuntimeException(e);
         }
 
-        User createdUser = userRepository.findByEmail(email)
-                .block();
-
+        User createdUser = userRepository.findByEmail(email).block();
 
         Mono<PermissionGroup> defaultUserPermissionGroupMono = userUtils.getDefaultUserPermissionGroup();
 
         StepVerifier.create(defaultUserPermissionGroupMono)
                 .assertNext(defaultUserPermissionGroup -> {
-                    assertThat(defaultUserPermissionGroup.getAssignedToUserIds()).contains(createdUser.getId());
+                    assertThat(defaultUserPermissionGroup.getAssignedToUserIds())
+                            .contains(createdUser.getId());
                 })
                 .verifyComplete();
     }
@@ -218,25 +224,21 @@ public class UserServiceTest {
         User user = new User();
         user.setEmail(testName + "@test.com");
         user.setPassword(testName);
-        User createdUser = userService.userCreate(user, false)
-                .block();
-        String instanceAdminRoleId = userUtils.getSuperAdminPermissionGroup()
+        User createdUser = userService.userCreate(user, false).block();
+        String instanceAdminRoleId = userUtils
+                .getSuperAdminPermissionGroup()
                 .map(PermissionGroup::getId)
                 .block();
-        Optional<Policy> deleteUserPolicy = createdUser.getPolicies()
-                .stream()
+        Optional<Policy> deleteUserPolicy = createdUser.getPolicies().stream()
                 .filter(policy -> DELETE_USERS.getValue().equals(policy.getPermission()))
                 .findFirst();
-        Optional<Policy> readUserPolicy = createdUser.getPolicies()
-                .stream()
+        Optional<Policy> readUserPolicy = createdUser.getPolicies().stream()
                 .filter(policy -> READ_USERS.getValue().equals(policy.getPermission()))
                 .findFirst();
-        Optional<Policy> manageUserPolicy = createdUser.getPolicies()
-                .stream()
+        Optional<Policy> manageUserPolicy = createdUser.getPolicies().stream()
                 .filter(policy -> MANAGE_USERS.getValue().equals(policy.getPermission()))
                 .findFirst();
-        Optional<Policy> resetPasswordUserPolicy = createdUser.getPolicies()
-                .stream()
+        Optional<Policy> resetPasswordUserPolicy = createdUser.getPolicies().stream()
                 .filter(policy -> RESET_PASSWORD_USERS.getValue().equals(policy.getPermission()))
                 .findFirst();
         assertThat(deleteUserPolicy.isPresent()).isTrue();
@@ -258,15 +260,18 @@ public class UserServiceTest {
 
         Mono<User> userCreateMono = userService.create(newUser).cache();
 
-        Mono<PermissionGroup> permissionGroupMono = userCreateMono
-                .flatMap(user -> {
-                    Set<Policy> userPolicies = user.getPolicies();
-                    assertThat(userPolicies.size()).isNotZero();
-                    Policy policy = userPolicies.stream().filter(policy1 -> policy1.getPermission().equals(RESET_PASSWORD_USERS.getValue())).findFirst().get();
-                    String permissionGroupId = policy.getPermissionGroups().stream().findFirst().get();
+        Mono<PermissionGroup> permissionGroupMono = userCreateMono.flatMap(user -> {
+            Set<Policy> userPolicies = user.getPolicies();
+            assertThat(userPolicies.size()).isNotZero();
+            Policy policy = userPolicies.stream()
+                    .filter(policy1 -> policy1.getPermission().equals(RESET_PASSWORD_USERS.getValue()))
+                    .findFirst()
+                    .get();
+            String permissionGroupId =
+                    policy.getPermissionGroups().stream().findFirst().get();
 
-                    return permissionGroupRepository.findById(permissionGroupId);
-                });
+            return permissionGroupRepository.findById(permissionGroupId);
+        });
         Mono<PermissionGroup> instanceAdminRoleMono = userUtils.getSuperAdminPermissionGroup();
         Mono<PermissionGroup> provisionRoleMono = userUtils.getProvisioningRole();
 
@@ -287,21 +292,28 @@ public class UserServiceTest {
                     assertThat(userPolicies).isNotEmpty();
                     Policy manageUserPolicy = Policy.builder()
                             .permission(MANAGE_USERS.getValue())
-                            .permissionGroups(Set.of(permissionGroup.getId())).build();
+                            .permissionGroups(Set.of(permissionGroup.getId()))
+                            .build();
 
                     Policy readUserPolicy = Policy.builder()
                             .permission(READ_USERS.getValue())
-                            .permissionGroups(Set.of(permissionGroup.getId(), instanceAdminRole.getId(), provisionRole.getId())).build();
+                            .permissionGroups(
+                                    Set.of(permissionGroup.getId(), instanceAdminRole.getId(), provisionRole.getId()))
+                            .build();
 
                     Policy resetPasswordPolicy = Policy.builder()
                             .permission(RESET_PASSWORD_USERS.getValue())
-                            .permissionGroups(Set.of(permissionGroup.getId())).build();
+                            .permissionGroups(Set.of(permissionGroup.getId()))
+                            .build();
 
                     Policy deleteUserPolicy = Policy.builder()
                             .permission(DELETE_USERS.getValue())
-                            .permissionGroups(Set.of(instanceAdminRole.getId())).build();
+                            .permissionGroups(Set.of(instanceAdminRole.getId()))
+                            .build();
 
-                    assertThat(userPolicies).containsAll(Set.of(manageUserPolicy, readUserPolicy, resetPasswordPolicy, deleteUserPolicy));
+                    assertThat(userPolicies)
+                            .containsAll(
+                                    Set.of(manageUserPolicy, readUserPolicy, resetPasswordPolicy, deleteUserPolicy));
                     assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(user.getId()));
                 })
                 .verifyComplete();
@@ -311,37 +323,53 @@ public class UserServiceTest {
     @WithUserDetails(value = "provisioningUser")
     public void createProvisionedUser_checkUserPermissions() {
         String testName = "createProvisionedUser_checkUserPermissions";
-        String instanceAdminRoleId = userUtils.getSuperAdminPermissionGroup()
-                .map(PermissionGroup::getId).block();
+        String instanceAdminRoleId = userUtils
+                .getSuperAdminPermissionGroup()
+                .map(PermissionGroup::getId)
+                .block();
 
-        String provisioningRoleId = userUtils.getProvisioningRole()
-                .map(PermissionGroup::getId).block();
+        String provisioningRoleId =
+                userUtils.getProvisioningRole().map(PermissionGroup::getId).block();
 
         User user = new User();
         user.setEmail(testName + "@appsmith.com");
-        ProvisionResourceDto provisionedUser = userService.createProvisionUser(user).block();
+        ProvisionResourceDto provisionedUser =
+                userService.createProvisionUser(user).block();
 
         User createdProvisionedUser = (User) provisionedUser.getResource();
         Set<Policy> userPolicies = createdProvisionedUser.getPolicies();
-        Optional<Policy> readUserPolicy = userPolicies.stream().filter(policy -> policy.getPermission().equals(READ_USERS.getValue())).findAny();
-        Optional<Policy> manageUserPolicy = userPolicies.stream().filter(policy -> policy.getPermission().equals(MANAGE_USERS.getValue())).findAny();
-        Optional<Policy> deleteUserPolicy = userPolicies.stream().filter(policy -> policy.getPermission().equals(DELETE_USERS.getValue())).findAny();
-        Optional<Policy> resetPasswordUserPolicy = userPolicies.stream().filter(policy -> policy.getPermission().equals(RESET_PASSWORD_USERS.getValue())).findAny();
+        Optional<Policy> readUserPolicy = userPolicies.stream()
+                .filter(policy -> policy.getPermission().equals(READ_USERS.getValue()))
+                .findAny();
+        Optional<Policy> manageUserPolicy = userPolicies.stream()
+                .filter(policy -> policy.getPermission().equals(MANAGE_USERS.getValue()))
+                .findAny();
+        Optional<Policy> deleteUserPolicy = userPolicies.stream()
+                .filter(policy -> policy.getPermission().equals(DELETE_USERS.getValue()))
+                .findAny();
+        Optional<Policy> resetPasswordUserPolicy = userPolicies.stream()
+                .filter(policy -> policy.getPermission().equals(RESET_PASSWORD_USERS.getValue()))
+                .findAny();
 
         assertThat(resetPasswordUserPolicy.isPresent()).isTrue();
 
-        String userManagementRoleId = resetPasswordUserPolicy.get().getPermissionGroups().stream().findAny().get();
+        String userManagementRoleId = resetPasswordUserPolicy.get().getPermissionGroups().stream()
+                .findAny()
+                .get();
 
         assertThat(readUserPolicy.isPresent()).isTrue();
-        assertThat(readUserPolicy.get().getPermissionGroups()).contains(instanceAdminRoleId, provisioningRoleId, userManagementRoleId);
+        assertThat(readUserPolicy.get().getPermissionGroups())
+                .contains(instanceAdminRoleId, provisioningRoleId, userManagementRoleId);
 
         assertThat(manageUserPolicy.isPresent()).isTrue();
         assertThat(manageUserPolicy.get().getPermissionGroups()).contains(provisioningRoleId);
-        assertThat(manageUserPolicy.get().getPermissionGroups()).doesNotContain(instanceAdminRoleId, userManagementRoleId);
+        assertThat(manageUserPolicy.get().getPermissionGroups())
+                .doesNotContain(instanceAdminRoleId, userManagementRoleId);
 
         assertThat(deleteUserPolicy.isPresent()).isTrue();
         assertThat(deleteUserPolicy.get().getPermissionGroups()).contains(provisioningRoleId);
-        assertThat(deleteUserPolicy.get().getPermissionGroups()).doesNotContain(instanceAdminRoleId, userManagementRoleId);
+        assertThat(deleteUserPolicy.get().getPermissionGroups())
+                .doesNotContain(instanceAdminRoleId, userManagementRoleId);
 
         userRepository.deleteById(createdProvisionedUser.getId()).block();
     }
@@ -354,7 +382,8 @@ public class UserServiceTest {
         User user = new User();
         user.setEmail(testName + "@appsmith.com");
         User createdUser = userService.userCreate(user, false).block();
-        Boolean block = userAndAccessManagementService.deleteUser(createdUser.getId()).block();
+        Boolean block =
+                userAndAccessManagementService.deleteUser(createdUser.getId()).block();
 
         User deletedUser = userRepository.findById(createdUser.getId()).block();
         assertThat(deletedUser).isNull();
@@ -369,9 +398,10 @@ public class UserServiceTest {
         user.setEmail(testName + "@appsmith.com");
         ProvisionResourceDto createdUser = userService.createProvisionUser(user).block();
 
-
         AppsmithException unauthorisedException = assertThrows(AppsmithException.class, () -> {
-            userAndAccessManagementService.deleteUser(createdUser.getResource().getId()).block();
+            userAndAccessManagementService
+                    .deleteUser(createdUser.getResource().getId())
+                    .block();
         });
         assertThat(unauthorisedException.getMessage()).isEqualTo(AppsmithError.UNAUTHORIZED_ACCESS.getMessage());
 
@@ -382,13 +412,16 @@ public class UserServiceTest {
     @WithUserDetails("api_user")
     public void createRegularUser_convertToProvisionUser_deleteUser_throwUnauthorisedError() {
         String testName = "createRegularUser_convertToProvisionUser_deleteUser_throwUnauthorisedError";
-        PermissionGroup instanceAdminRole = userUtils.getSuperAdminPermissionGroup().block();
+        PermissionGroup instanceAdminRole =
+                userUtils.getSuperAdminPermissionGroup().block();
         PermissionGroup provisioningRole = userUtils.getProvisioningRole().block();
         String tenantId = tenantService.getDefaultTenantId().block();
         // Associate api_user with Provisioning Role. (api_user becomes Provisioning User & Instance Admin)
         provisioningRole.getAssignedToUserIds().add(api_user.getId());
         permissionGroupRepository.save(provisioningRole).block();
-        cacheableRepositoryHelper.evictPermissionGroupsUser("api_user", tenantId).block();
+        cacheableRepositoryHelper
+                .evictPermissionGroupsUser("api_user", tenantId)
+                .block();
         // Associate api_user with Provisioning Role.(api_user becomes Provisioning User & Instance Admin)
 
         User user = new User();
@@ -397,7 +430,9 @@ public class UserServiceTest {
 
         UserUpdateDTO userUpdateDto = new UserUpdateDTO();
         userUpdateDto.setName("test name");
-        ProvisionResourceDto updatedProvisionedUser = userService.updateProvisionUser(createdUser.getId(), userUpdateDto).block();
+        ProvisionResourceDto updatedProvisionedUser = userService
+                .updateProvisionUser(createdUser.getId(), userUpdateDto)
+                .block();
         User updatedUser = (User) updatedProvisionedUser.getResource();
         assertThat(updatedUser.getIsProvisioned()).isTrue();
 
@@ -420,27 +455,36 @@ public class UserServiceTest {
 
         assertThat(resetPasswordUserPolicy.isPresent()).isTrue();
 
-        String userManagementRoleId = resetPasswordUserPolicy.get().getPermissionGroups().stream().findAny().get();
+        String userManagementRoleId = resetPasswordUserPolicy.get().getPermissionGroups().stream()
+                .findAny()
+                .get();
 
         assertThat(readUserPolicy.isPresent()).isTrue();
-        assertThat(readUserPolicy.get().getPermissionGroups()).contains(instanceAdminRole.getId(), provisioningRole.getId(), userManagementRoleId);
+        assertThat(readUserPolicy.get().getPermissionGroups())
+                .contains(instanceAdminRole.getId(), provisioningRole.getId(), userManagementRoleId);
 
         assertThat(manageUserPolicy.isPresent()).isTrue();
         assertThat(manageUserPolicy.get().getPermissionGroups()).contains(provisioningRole.getId());
-        assertThat(manageUserPolicy.get().getPermissionGroups()).doesNotContain(instanceAdminRole.getId(), userManagementRoleId);
+        assertThat(manageUserPolicy.get().getPermissionGroups())
+                .doesNotContain(instanceAdminRole.getId(), userManagementRoleId);
 
         assertThat(deleteUserPolicy.isPresent()).isTrue();
         assertThat(deleteUserPolicy.get().getPermissionGroups()).contains(provisioningRole.getId());
-        assertThat(deleteUserPolicy.get().getPermissionGroups()).doesNotContain(instanceAdminRole.getId(), userManagementRoleId);
+        assertThat(deleteUserPolicy.get().getPermissionGroups())
+                .doesNotContain(instanceAdminRole.getId(), userManagementRoleId);
 
         // Disassociate api_user with Provisioning Role. (api_user becomes Instance Admin only)
         provisioningRole.getAssignedToUserIds().remove(api_user.getId());
         permissionGroupRepository.save(provisioningRole).block();
-        cacheableRepositoryHelper.evictPermissionGroupsUser("api_user", tenantId).block();
+        cacheableRepositoryHelper
+                .evictPermissionGroupsUser("api_user", tenantId)
+                .block();
         // Disassociate api_user with Provisioning Role. (api_user becomes Instance Admin only)
 
         AppsmithException unauthorisedException = assertThrows(AppsmithException.class, () -> {
-            userAndAccessManagementService.deleteUser(updatedProvisionedUser.getResource().getId()).block();
+            userAndAccessManagementService
+                    .deleteUser(updatedProvisionedUser.getResource().getId())
+                    .block();
         });
         assertThat(unauthorisedException.getMessage()).isEqualTo(AppsmithError.UNAUTHORIZED_ACCESS.getMessage());
 
@@ -450,8 +494,10 @@ public class UserServiceTest {
     @Test
     @WithUserDetails("provisioningUser")
     public void createRegularUser_convertToProvisionUser_deleteUserWithProvisioningRole_deleteUserSuccessfully() {
-        String testName = "createRegularUser_convertToProvisionUser_deleteUserWithProvisioningRole_deleteUserSuccessfully";
-        PermissionGroup instanceAdminRole = userUtils.getSuperAdminPermissionGroup().block();
+        String testName =
+                "createRegularUser_convertToProvisionUser_deleteUserWithProvisioningRole_deleteUserSuccessfully";
+        PermissionGroup instanceAdminRole =
+                userUtils.getSuperAdminPermissionGroup().block();
         PermissionGroup provisioningRole = userUtils.getProvisioningRole().block();
 
         User user = new User();
@@ -460,7 +506,9 @@ public class UserServiceTest {
 
         UserUpdateDTO userUpdateDto = new UserUpdateDTO();
         userUpdateDto.setName("test name");
-        ProvisionResourceDto updatedProvisionedUser = userService.updateProvisionUser(createdUser.getId(), userUpdateDto).block();
+        ProvisionResourceDto updatedProvisionedUser = userService
+                .updateProvisionUser(createdUser.getId(), userUpdateDto)
+                .block();
         User updatedUser = (User) updatedProvisionedUser.getResource();
         assertThat(updatedUser.getIsProvisioned()).isTrue();
 
@@ -483,20 +531,27 @@ public class UserServiceTest {
 
         assertThat(resetPasswordUserPolicy.isPresent()).isTrue();
 
-        String userManagementRoleId = resetPasswordUserPolicy.get().getPermissionGroups().stream().findAny().get();
+        String userManagementRoleId = resetPasswordUserPolicy.get().getPermissionGroups().stream()
+                .findAny()
+                .get();
 
         assertThat(readUserPolicy.isPresent()).isTrue();
-        assertThat(readUserPolicy.get().getPermissionGroups()).contains(instanceAdminRole.getId(), provisioningRole.getId(), userManagementRoleId);
+        assertThat(readUserPolicy.get().getPermissionGroups())
+                .contains(instanceAdminRole.getId(), provisioningRole.getId(), userManagementRoleId);
 
         assertThat(manageUserPolicy.isPresent()).isTrue();
         assertThat(manageUserPolicy.get().getPermissionGroups()).contains(provisioningRole.getId());
-        assertThat(manageUserPolicy.get().getPermissionGroups()).doesNotContain(instanceAdminRole.getId(), userManagementRoleId);
+        assertThat(manageUserPolicy.get().getPermissionGroups())
+                .doesNotContain(instanceAdminRole.getId(), userManagementRoleId);
 
         assertThat(deleteUserPolicy.isPresent()).isTrue();
         assertThat(deleteUserPolicy.get().getPermissionGroups()).contains(provisioningRole.getId());
-        assertThat(deleteUserPolicy.get().getPermissionGroups()).doesNotContain(instanceAdminRole.getId(), userManagementRoleId);
+        assertThat(deleteUserPolicy.get().getPermissionGroups())
+                .doesNotContain(instanceAdminRole.getId(), userManagementRoleId);
 
-        userAndAccessManagementService.deleteUser(updatedProvisionedUser.getResource().getId()).block();
+        userAndAccessManagementService
+                .deleteUser(updatedProvisionedUser.getResource().getId())
+                .block();
         User deletedUser = userRepository.findById(createdUser.getId()).block();
         assertThat(deletedUser).isNull();
     }
@@ -511,12 +566,18 @@ public class UserServiceTest {
 
         User user2 = new User();
         user2.setEmail(testName + "_Provisioned@appsmith.com");
-        ProvisionResourceDto provisionUser = userService.createProvisionUser(user2).block();
+        ProvisionResourceDto provisionUser =
+                userService.createProvisionUser(user2).block();
 
-        List<UserForManagementDTO> allUsers = userAndAccessManagementService.getAllUsers().block();
-        Optional<UserForManagementDTO> regularUserFetched = allUsers.stream().filter(user -> user.getUsername().equalsIgnoreCase(testName + "_Regular@appsmith.com")).findAny();
+        List<UserForManagementDTO> allUsers =
+                userAndAccessManagementService.getAllUsers().block();
+        Optional<UserForManagementDTO> regularUserFetched = allUsers.stream()
+                .filter(user -> user.getUsername().equalsIgnoreCase(testName + "_Regular@appsmith.com"))
+                .findAny();
         assertThat(regularUserFetched.isPresent()).isTrue();
-        Optional<UserForManagementDTO> provisionUserFetched = allUsers.stream().filter(user -> user.getUsername().equalsIgnoreCase(testName + "_Provisioned@appsmith.com")).findAny();
+        Optional<UserForManagementDTO> provisionUserFetched = allUsers.stream()
+                .filter(user -> user.getUsername().equalsIgnoreCase(testName + "_Provisioned@appsmith.com"))
+                .findAny();
         assertThat(provisionUserFetched.isPresent()).isTrue();
     }
 
@@ -530,12 +591,18 @@ public class UserServiceTest {
 
         User user2 = new User();
         user2.setEmail(testName + "_Provisioned@appsmith.com");
-        ProvisionResourceDto provisionUser = userService.createProvisionUser(user2).block();
+        ProvisionResourceDto provisionUser =
+                userService.createProvisionUser(user2).block();
 
-        List<UserForManagementDTO> allUsers = userAndAccessManagementService.getAllUsers().block();
-        Optional<UserForManagementDTO> regularUserFetched = allUsers.stream().filter(user -> user.getUsername().equalsIgnoreCase(testName + "_Regular@appsmith.com")).findAny();
+        List<UserForManagementDTO> allUsers =
+                userAndAccessManagementService.getAllUsers().block();
+        Optional<UserForManagementDTO> regularUserFetched = allUsers.stream()
+                .filter(user -> user.getUsername().equalsIgnoreCase(testName + "_Regular@appsmith.com"))
+                .findAny();
         assertThat(regularUserFetched.isPresent()).isTrue();
-        Optional<UserForManagementDTO> provisionUserFetched = allUsers.stream().filter(user -> user.getUsername().equalsIgnoreCase(testName + "_Provisioned@appsmith.com")).findAny();
+        Optional<UserForManagementDTO> provisionUserFetched = allUsers.stream()
+                .filter(user -> user.getUsername().equalsIgnoreCase(testName + "_Provisioned@appsmith.com"))
+                .findAny();
         assertThat(provisionUserFetched.isPresent()).isTrue();
     }
 
@@ -546,18 +613,25 @@ public class UserServiceTest {
         User user = new User();
         user.setEmail(testName + "_Provisioned@appsmith.com");
         user.setName(testName);
-        ProvisionResourceDto provisionUser = userService.createProvisionUser(user).block();
+        ProvisionResourceDto provisionUser =
+                userService.createProvisionUser(user).block();
 
         UserUpdateDTO userUpdateDTO = new UserUpdateDTO();
         userUpdateDTO.setEmail(testName + "_UpdatedProvisioned@appsmith.com");
         userUpdateDTO.setName("");
-        ProvisionResourceDto updatedProvisionUser = userService.updateProvisionUser(provisionUser.getResource().getId(), userUpdateDTO).block();
+        ProvisionResourceDto updatedProvisionUser = userService
+                .updateProvisionUser(provisionUser.getResource().getId(), userUpdateDTO)
+                .block();
 
-        User userWithUpdatedEmail = userRepository.findByCaseInsensitiveEmail(testName + "_UpdatedProvisioned@appsmith.com").block();
+        User userWithUpdatedEmail = userRepository
+                .findByCaseInsensitiveEmail(testName + "_UpdatedProvisioned@appsmith.com")
+                .block();
 
-        assertThat(userWithUpdatedEmail.getId()).isEqualTo(provisionUser.getResource().getId());
+        assertThat(userWithUpdatedEmail.getId())
+                .isEqualTo(provisionUser.getResource().getId());
         assertThat(userWithUpdatedEmail.getName()).isEqualTo(testName);
-        assertThat(((User)updatedProvisionUser.getResource()).getEmail()).isEqualToIgnoringCase(testName + "_UpdatedProvisioned@appsmith.com");
+        assertThat(((User) updatedProvisionUser.getResource()).getEmail())
+                .isEqualToIgnoringCase(testName + "_UpdatedProvisioned@appsmith.com");
     }
 
     @Test
@@ -567,17 +641,23 @@ public class UserServiceTest {
         User user = new User();
         user.setEmail(testName + "_Provisioned@appsmith.com");
         user.setName(testName);
-        ProvisionResourceDto provisionUser = userService.createProvisionUser(user).block();
+        ProvisionResourceDto provisionUser =
+                userService.createProvisionUser(user).block();
 
         UserUpdateDTO userUpdateDTO = new UserUpdateDTO();
         userUpdateDTO.setEmail("");
         userUpdateDTO.setName(testName + "_updated");
-        ProvisionResourceDto updatedProvisionUser = userService.updateProvisionUser(provisionUser.getResource().getId(), userUpdateDTO).block();
+        ProvisionResourceDto updatedProvisionUser = userService
+                .updateProvisionUser(provisionUser.getResource().getId(), userUpdateDTO)
+                .block();
 
-        User userWithEmail = userRepository.findByCaseInsensitiveEmail(testName + "_Provisioned@appsmith.com").block();
+        User userWithEmail = userRepository
+                .findByCaseInsensitiveEmail(testName + "_Provisioned@appsmith.com")
+                .block();
 
         assertThat(userWithEmail.getId()).isEqualTo(provisionUser.getResource().getId());
         assertThat(userWithEmail.getName()).isEqualTo(testName + "_updated");
-        assertThat(((User)updatedProvisionUser.getResource()).getEmail()).isEqualToIgnoringCase(testName + "_Provisioned@appsmith.com");
+        assertThat(((User) updatedProvisionUser.getResource()).getEmail())
+                .isEqualToIgnoringCase(testName + "_Provisioned@appsmith.com");
     }
 }

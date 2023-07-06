@@ -9,5 +9,4 @@ public interface DatasourceStructureRepositoryCE
         extends BaseRepository<DatasourceStorageStructure, String>, CustomDatasourceStructureRepository {
 
     Mono<DatasourceStorageStructure> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
-
 }

@@ -45,15 +45,16 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
     private final WorkspaceService workspaceService;
 
     @Autowired
-    public EnvironmentServiceImpl(Scheduler scheduler,
-                                  Validator validator,
-                                  MongoConverter mongoConverter,
-                                  ReactiveMongoTemplate reactiveMongoTemplate,
-                                  EnvironmentRepository repository,
-                                  AnalyticsService analyticsService,
-                                  FeatureFlagService featureFlagService,
-                                  PolicyGenerator policyGenerator,
-                                  @Lazy WorkspaceService workspaceService) {
+    public EnvironmentServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            EnvironmentRepository repository,
+            AnalyticsService analyticsService,
+            FeatureFlagService featureFlagService,
+            PolicyGenerator policyGenerator,
+            @Lazy WorkspaceService workspaceService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.featureFlagService = featureFlagService;
@@ -84,7 +85,8 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
     @Override
     public Mono<EnvironmentDTO> getEnvironmentDTOByEnvironmentId(String envId) {
 
-        return featureFlagService.check(FeatureFlagEnum.release_datasource_environments_enabled)
+        return featureFlagService
+                .check(FeatureFlagEnum.release_datasource_environments_enabled)
                 .flatMap(isFeatureFlag -> {
                     if (Boolean.FALSE.equals(isFeatureFlag)) {
                         return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
@@ -99,10 +101,12 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
     @Override
     public Flux<EnvironmentDTO> getEnvironmentDTOByWorkspaceId(String workspaceId) {
 
-        return featureFlagService.check(FeatureFlagEnum.release_datasource_environments_enabled)
+        return featureFlagService
+                .check(FeatureFlagEnum.release_datasource_environments_enabled)
                 .flatMapMany(isFeatureFlag -> {
                     if (Boolean.FALSE.equals(isFeatureFlag)) {
-                        return workspaceService.getDefaultEnvironment(workspaceId)
+                        return workspaceService
+                                .getDefaultEnvironment(workspaceId)
                                 .map(EnvironmentDTO::createEnvironmentDTO);
                     }
 
@@ -114,29 +118,30 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
 
     @Override
     public Flux<Environment> createDefaultEnvironments(Workspace createdWorkspace) {
-        return Flux.just(new Environment(createdWorkspace.getId(), PRODUCTION_ENVIRONMENT),
+        return Flux.just(
+                        new Environment(createdWorkspace.getId(), PRODUCTION_ENVIRONMENT),
                         new Environment(createdWorkspace.getId(), STAGING_ENVIRONMENT))
                 .map(environment -> this.generateAndSetEnvironmentPolicies(createdWorkspace, environment))
                 .flatMap(repository::save);
     }
 
     private Environment generateAndSetEnvironmentPolicies(Workspace workspace, Environment environment) {
-        Set<Policy> policies = policyGenerator.getAllChildPolicies(workspace.getPolicies(), Workspace.class, Environment.class);
+        Set<Policy> policies =
+                policyGenerator.getAllChildPolicies(workspace.getPolicies(), Workspace.class, Environment.class);
         environment.setPolicies(policies);
         return environment;
     }
 
     @Override
     public Flux<Environment> archiveByWorkspaceId(String workspaceId) {
-        return repository
-                .findByWorkspaceId(workspaceId)
-                .flatMap(repository::archive);
+        return repository.findByWorkspaceId(workspaceId).flatMap(repository::archive);
     }
 
     @Override
     public Mono<EnvironmentDTO> setEnvironmentToDefault(Map<String, String> defaultEnvironmentDetails) {
 
-        return featureFlagService.check(FeatureFlagEnum.release_datasource_environments_enabled)
+        return featureFlagService
+                .check(FeatureFlagEnum.release_datasource_environments_enabled)
                 .flatMap(isFeatureFlag -> {
                     if (Boolean.FALSE.equals(isFeatureFlag)) {
                         return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
@@ -156,41 +161,41 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
                         return Mono.error(new AppsmithException(INVALID_PARAMETER, WORKSPACE_ID));
                     }
 
-
                     // not querying by permission here as the user who has access to manage workspaces,
                     // should be able to change environment metadata
-                    Mono<EnvironmentDTO> environmentDTOMono =
-                            findByWorkspaceId(workspaceId)
-                                    .collectMap(Environment::getId)
-                                    .flatMap(environmentMap -> {
-                                        if (!environmentMap.containsKey(environmentId)) {
-                                            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND));
-                                        }
+                    Mono<EnvironmentDTO> environmentDTOMono = findByWorkspaceId(workspaceId)
+                            .collectMap(Environment::getId)
+                            .flatMap(environmentMap -> {
+                                if (!environmentMap.containsKey(environmentId)) {
+                                    return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND));
+                                }
 
-                                        return Flux.fromIterable(environmentMap.values())
-                                                .flatMap(environment -> {
-                                                    if (FALSE.equals(environment.getIsDefault())) {
-                                                        if (environment.getId().equals(environmentId)) {
-                                                            environment.setIsDefault(TRUE);
-                                                            return repository.save(environment);
-                                                        }
-
-                                                        return Mono.just(environment);
-                                                    }
-
-                                                    if (environment.getId().equals(environmentId)) {
-                                                        return Mono.just(environment);
-                                                    }
-
-                                                    environment.setIsDefault(FALSE);
+                                return Flux.fromIterable(environmentMap.values())
+                                        .flatMap(environment -> {
+                                            if (FALSE.equals(environment.getIsDefault())) {
+                                                if (environment.getId().equals(environmentId)) {
+                                                    environment.setIsDefault(TRUE);
                                                     return repository.save(environment);
-                                                })
-                                                .filter(environment -> environment.getId().equals(environmentId))
-                                                .map(EnvironmentDTO::createEnvironmentDTO)
-                                                .next();
-                                    });
+                                                }
 
-                    return workspaceService.findById(workspaceId, AclPermission.MANAGE_WORKSPACES)
+                                                return Mono.just(environment);
+                                            }
+
+                                            if (environment.getId().equals(environmentId)) {
+                                                return Mono.just(environment);
+                                            }
+
+                                            environment.setIsDefault(FALSE);
+                                            return repository.save(environment);
+                                        })
+                                        .filter(environment ->
+                                                environment.getId().equals(environmentId))
+                                        .map(EnvironmentDTO::createEnvironmentDTO)
+                                        .next();
+                            });
+
+                    return workspaceService
+                            .findById(workspaceId, AclPermission.MANAGE_WORKSPACES)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
                             .then(environmentDTOMono);
                 });

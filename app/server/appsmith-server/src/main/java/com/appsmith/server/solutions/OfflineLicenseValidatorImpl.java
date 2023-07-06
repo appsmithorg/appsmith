@@ -28,10 +28,11 @@ public class OfflineLicenseValidatorImpl extends BaseLicenseValidatorImpl implem
     private final LicenseConfig licenseConfig;
     private final Gson gson;
 
-    public OfflineLicenseValidatorImpl(ReleaseNotesService releaseNotesService,
-                                       ConfigService configService,
-                                       LicenseConfig licenseConfig,
-                                       Gson gson) {
+    public OfflineLicenseValidatorImpl(
+            ReleaseNotesService releaseNotesService,
+            ConfigService configService,
+            LicenseConfig licenseConfig,
+            Gson gson) {
         super(releaseNotesService, configService);
         this.licenseConfig = licenseConfig;
         this.gson = gson;
@@ -41,9 +42,8 @@ public class OfflineLicenseValidatorImpl extends BaseLicenseValidatorImpl implem
     public Mono<License> licenseCheck(Tenant tenant) {
 
         log.debug("Initiating offline license check");
-        License license = isLicenseKeyValid(tenant)
-                ? tenant.getTenantConfiguration().getLicense()
-                : new License();
+        License license =
+                isLicenseKeyValid(tenant) ? tenant.getTenantConfiguration().getLicense() : new License();
 
         if (!StringUtils.hasLength(license.getKey())) {
             log.debug("License key not found for tenant {}", tenant.getId());
@@ -54,8 +54,7 @@ public class OfflineLicenseValidatorImpl extends BaseLicenseValidatorImpl implem
         return Mono.just(license);
     }
 
-    public License getVerifiedLicense(License license,
-                                                          String publicVerificationKey) {
+    public License getVerifiedLicense(License license, String publicVerificationKey) {
 
         String licenseKey = license.getKey();
 

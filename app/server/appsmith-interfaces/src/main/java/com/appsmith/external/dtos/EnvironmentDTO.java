@@ -33,5 +33,4 @@ public class EnvironmentDTO {
         environmentDTO.setUserPermissions(environment.getUserPermissions());
         return environmentDTO;
     }
-
 }

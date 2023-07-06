@@ -22,17 +22,38 @@ public class PolicySolutionImpl extends PolicySolutionCEImpl implements PolicySo
 
     private final EnvironmentRepository environmentRepository;
 
-    public PolicySolutionImpl(PolicyGenerator policyGenerator, ApplicationRepository applicationRepository, DatasourceRepository datasourceRepository, NewPageRepository newPageRepository, NewActionRepository newActionRepository, ActionCollectionRepository actionCollectionRepository, ThemeRepository themeRepository, DatasourcePermission datasourcePermission, ApplicationPermission applicationPermission, PagePermission pagePermission, EnvironmentRepository environmentRepository) {
-        super(policyGenerator, applicationRepository, datasourceRepository, newPageRepository, newActionRepository, actionCollectionRepository, themeRepository, datasourcePermission, applicationPermission, pagePermission);
+    public PolicySolutionImpl(
+            PolicyGenerator policyGenerator,
+            ApplicationRepository applicationRepository,
+            DatasourceRepository datasourceRepository,
+            NewPageRepository newPageRepository,
+            NewActionRepository newActionRepository,
+            ActionCollectionRepository actionCollectionRepository,
+            ThemeRepository themeRepository,
+            DatasourcePermission datasourcePermission,
+            ApplicationPermission applicationPermission,
+            PagePermission pagePermission,
+            EnvironmentRepository environmentRepository) {
+        super(
+                policyGenerator,
+                applicationRepository,
+                datasourceRepository,
+                newPageRepository,
+                newActionRepository,
+                actionCollectionRepository,
+                themeRepository,
+                datasourcePermission,
+                applicationPermission,
+                pagePermission);
         this.environmentRepository = environmentRepository;
     }
 
     @Override
-    public Flux<Environment> updateEnvironmentPoliciesByWorkspaceId(String workspaceId,
-                                                                    Map<String, Policy> environmentPolicyMap,
-                                                                    Boolean addViewAccess) {
+    public Flux<Environment> updateEnvironmentPoliciesByWorkspaceId(
+            String workspaceId, Map<String, Policy> environmentPolicyMap, Boolean addViewAccess) {
 
-        return environmentRepository.findByWorkspaceId(workspaceId)
+        return environmentRepository
+                .findByWorkspaceId(workspaceId)
                 .flatMap(environment -> {
                     Environment updatedEnvironment;
                     if (addViewAccess) {
@@ -45,6 +66,5 @@ public class PolicySolutionImpl extends PolicySolutionCEImpl implements PolicySo
                 })
                 .collectList()
                 .flatMapMany(environments -> environmentRepository.saveAll(environments));
-
     }
 }

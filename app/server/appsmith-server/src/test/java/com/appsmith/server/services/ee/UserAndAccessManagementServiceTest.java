@@ -8,13 +8,13 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PermissionGroupCompactDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
 import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.dtos.UserForManagementDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
-import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserUtils;
@@ -43,8 +43,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
-import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -52,17 +52,35 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 public class UserAndAccessManagementServiceTest {
 
-    @Autowired UserRepository userRepository;
-    @Autowired PermissionGroupRepository permissionGroupRepository;
-    @Autowired UserGroupRepository userGroupRepository;
-    @Autowired UserUtils userUtils;
-    @Autowired UserAndAccessManagementService userAndAccessManagementService;
-    @Autowired WorkspaceService workspaceService;
-    @Autowired UserGroupService userGroupService;
-    @Autowired PermissionGroupService permissionGroupService;
-    @Autowired UserService userService;
-    @Autowired UserDataService userDataService;
+    @Autowired
+    UserRepository userRepository;
 
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    UserGroupRepository userGroupRepository;
+
+    @Autowired
+    UserUtils userUtils;
+
+    @Autowired
+    UserAndAccessManagementService userAndAccessManagementService;
+
+    @Autowired
+    WorkspaceService workspaceService;
+
+    @Autowired
+    UserGroupService userGroupService;
+
+    @Autowired
+    PermissionGroupService permissionGroupService;
+
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    UserDataService userDataService;
 
     User apiUser, testUser;
 
@@ -78,8 +96,7 @@ public class UserAndAccessManagementServiceTest {
     public void test_changeRoleAssociation_validUseCase() {
         Workspace workspace = new Workspace();
         workspace.setName("UserAndAccessManagementServiceTest - test_changeRoleAssociation_validUseCase");
-        Workspace createdWorkspace = workspaceService.create(workspace)
-                .block();
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
@@ -88,14 +105,17 @@ public class UserAndAccessManagementServiceTest {
 
         PermissionGroup administratorPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.ADMINISTRATOR))
-                .findFirst().get();
+                .findFirst()
+                .get();
         PermissionGroup developerPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         UserGroup userGroup = new UserGroup();
         userGroup.setName("UserAndAccessManagementServiceTest - test_changeRoleAssociation_validUseCase - 1");
-        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
                 .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
                 .block();
 
@@ -114,25 +134,30 @@ public class UserAndAccessManagementServiceTest {
         updateRoleAssociationDTO.setGroups(Set.of(userGroupCompactDTO));
         updateRoleAssociationDTO.setRolesAdded(Set.of(permissionGroupCompactDTO1));
 
-        Boolean created = userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO)
+        Boolean created = userAndAccessManagementService
+                .changeRoleAssociations(updateRoleAssociationDTO)
                 .block();
         assertThat(created).isTrue();
-        PermissionGroup updatedAdminPermissionGroup = permissionGroupRepository.findById(administratorPermissionGroup.getId())
+        PermissionGroup updatedAdminPermissionGroup = permissionGroupRepository
+                .findById(administratorPermissionGroup.getId())
                 .block();
         assertThat(updatedAdminPermissionGroup.getAssignedToGroupIds()).hasSize(1);
-        assertThat(updatedAdminPermissionGroup.getAssignedToGroupIds().contains(createdUserGroup.getId())).isTrue();
+        assertThat(updatedAdminPermissionGroup.getAssignedToGroupIds().contains(createdUserGroup.getId()))
+                .isTrue();
         assertThat(updatedAdminPermissionGroup.getAssignedToUserIds()).hasSize(2);
-        assertThat(updatedAdminPermissionGroup.getAssignedToUserIds().contains(apiUser.getId())).isTrue();
-        assertThat(updatedAdminPermissionGroup.getAssignedToUserIds().contains(testUser.getId())).isTrue();
+        assertThat(updatedAdminPermissionGroup.getAssignedToUserIds().contains(apiUser.getId()))
+                .isTrue();
+        assertThat(updatedAdminPermissionGroup.getAssignedToUserIds().contains(testUser.getId()))
+                .isTrue();
     }
 
     @Test
     @WithUserDetails("api_user")
     public void test_changeRoleAssociation_inValidUseCase_usingSameUser() {
         Workspace workspace = new Workspace();
-        workspace.setName("UserAndAccessManagementServiceTest - test_changeRoleAssociation_inValidUseCase_usingSameUser");
-        Workspace createdWorkspace = workspaceService.create(workspace)
-                .block();
+        workspace.setName(
+                "UserAndAccessManagementServiceTest - test_changeRoleAssociation_inValidUseCase_usingSameUser");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
@@ -141,14 +166,18 @@ public class UserAndAccessManagementServiceTest {
 
         PermissionGroup administratorPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.ADMINISTRATOR))
-                .findFirst().get();
+                .findFirst()
+                .get();
         PermissionGroup developerPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         UserGroup userGroup = new UserGroup();
-        userGroup.setName("UserAndAccessManagementServiceTest - test_changeRoleAssociation_inValidUseCase_usingSameUser");
-        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+        userGroup.setName(
+                "UserAndAccessManagementServiceTest - test_changeRoleAssociation_inValidUseCase_usingSameUser");
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
                 .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
                 .block();
 
@@ -168,24 +197,25 @@ public class UserAndAccessManagementServiceTest {
         updateRoleAssociationDTO.setRolesAdded(Set.of(permissionGroupCompactDTO1));
 
         StepVerifier.create(userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO))
-                .expectErrorMatches(throwable ->
-                        throwable instanceof AppsmithException &&
-                                throwable.getMessage().contains(AppsmithError.ROLES_FROM_SAME_WORKSPACE.getMessage()))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains(AppsmithError.ROLES_FROM_SAME_WORKSPACE.getMessage()))
                 .verify();
-        PermissionGroup updatedAdminPermissionGroup = permissionGroupRepository.findById(administratorPermissionGroup.getId())
-                 .block();
+        PermissionGroup updatedAdminPermissionGroup = permissionGroupRepository
+                .findById(administratorPermissionGroup.getId())
+                .block();
         assertThat(updatedAdminPermissionGroup.getAssignedToGroupIds()).hasSize(0);
         assertThat(updatedAdminPermissionGroup.getAssignedToUserIds()).hasSize(1);
-        assertThat(updatedAdminPermissionGroup.getAssignedToUserIds().contains(apiUser.getId())).isTrue();
+        assertThat(updatedAdminPermissionGroup.getAssignedToUserIds().contains(apiUser.getId()))
+                .isTrue();
     }
 
     @Test
     @WithUserDetails("api_user")
     public void test_changeRoleAssociation_inValidUseCase_usingSameUserDifferentPg() {
         Workspace workspace = new Workspace();
-        workspace.setName("UserAndAccessManagementServiceTest - test_changeRoleAssociation_inValidUseCase_usingSameUserDifferentPg");
-        Workspace createdWorkspace = workspaceService.create(workspace)
-                .block();
+        workspace.setName(
+                "UserAndAccessManagementServiceTest - test_changeRoleAssociation_inValidUseCase_usingSameUserDifferentPg");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
@@ -194,14 +224,18 @@ public class UserAndAccessManagementServiceTest {
 
         PermissionGroup administratorPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.ADMINISTRATOR))
-                .findFirst().get();
+                .findFirst()
+                .get();
         PermissionGroup developerPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         UserGroup userGroup = new UserGroup();
-        userGroup.setName("UserAndAccessManagementServiceTest - test_changeRoleAssociation_inValidUseCase_usingSameUserDifferentPg");
-        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+        userGroup.setName(
+                "UserAndAccessManagementServiceTest - test_changeRoleAssociation_inValidUseCase_usingSameUserDifferentPg");
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
                 .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
                 .block();
 
@@ -221,24 +255,25 @@ public class UserAndAccessManagementServiceTest {
         updateRoleAssociationDTO.setRolesAdded(Set.of(permissionGroupCompactDTO1));
 
         StepVerifier.create(userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO))
-                .expectErrorMatches(throwable ->
-                        throwable instanceof AppsmithException &&
-                                throwable.getMessage().contains(AppsmithError.ROLES_FROM_SAME_WORKSPACE.getMessage()))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains(AppsmithError.ROLES_FROM_SAME_WORKSPACE.getMessage()))
                 .verify();
-        PermissionGroup updatedAdminPermissionGroup = permissionGroupRepository.findById(administratorPermissionGroup.getId())
+        PermissionGroup updatedAdminPermissionGroup = permissionGroupRepository
+                .findById(administratorPermissionGroup.getId())
                 .block();
         assertThat(updatedAdminPermissionGroup.getAssignedToGroupIds()).hasSize(0);
         assertThat(updatedAdminPermissionGroup.getAssignedToUserIds()).hasSize(1);
-        assertThat(updatedAdminPermissionGroup.getAssignedToUserIds().contains(apiUser.getId())).isTrue();
+        assertThat(updatedAdminPermissionGroup.getAssignedToUserIds().contains(apiUser.getId()))
+                .isTrue();
     }
 
     @Test
     @WithUserDetails("api_user")
     public void test_changeRoleAssociation_inValidUseCase_usingSameUserGroup() {
         Workspace workspace = new Workspace();
-        workspace.setName("UserAndAccessManagementServiceTest - test_changeRoleAssociation_inValidUseCase_usingSameUserGroup");
-        Workspace createdWorkspace = workspaceService.create(workspace)
-                .block();
+        workspace.setName(
+                "UserAndAccessManagementServiceTest - test_changeRoleAssociation_inValidUseCase_usingSameUserGroup");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
@@ -247,21 +282,24 @@ public class UserAndAccessManagementServiceTest {
 
         PermissionGroup administratorPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.ADMINISTRATOR))
-                .findFirst().get();
+                .findFirst()
+                .get();
         PermissionGroup developerPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         UserGroup userGroup = new UserGroup();
-        userGroup.setName("UserAndAccessManagementServiceTest - test_changeRoleAssociation_inValidUseCase_usingSameUserGroup");
-        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+        userGroup.setName(
+                "UserAndAccessManagementServiceTest - test_changeRoleAssociation_inValidUseCase_usingSameUserGroup");
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
                 .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
                 .block();
         // Assign permissions to a UserGroup created above
         PermissionGroup permissionGroupWithUserGroupAssigned = permissionGroupService
                 .assignToUserGroup(administratorPermissionGroup, createdUserGroup)
                 .block();
-
 
         UserCompactDTO userCompactDTO = new UserCompactDTO();
         userCompactDTO.setId(testUser.getId());
@@ -279,26 +317,27 @@ public class UserAndAccessManagementServiceTest {
         updateRoleAssociationDTO.setRolesAdded(Set.of(permissionGroupCompactDTO1));
 
         StepVerifier.create(userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO))
-                .expectErrorMatches(throwable ->
-                        throwable instanceof AppsmithException &&
-                                throwable.getMessage().contains(AppsmithError.ROLES_FROM_SAME_WORKSPACE.getMessage()))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains(AppsmithError.ROLES_FROM_SAME_WORKSPACE.getMessage()))
                 .verify();
         PermissionGroup updatedAdminPermissionGroup = permissionGroupRepository
                 .findById(administratorPermissionGroup.getId())
                 .block();
         assertThat(updatedAdminPermissionGroup.getAssignedToGroupIds()).hasSize(1);
-        assertThat(updatedAdminPermissionGroup.getAssignedToGroupIds().contains(createdUserGroup.getId())).isTrue();
+        assertThat(updatedAdminPermissionGroup.getAssignedToGroupIds().contains(createdUserGroup.getId()))
+                .isTrue();
         assertThat(updatedAdminPermissionGroup.getAssignedToUserIds()).hasSize(1);
-        assertThat(updatedAdminPermissionGroup.getAssignedToUserIds().contains(apiUser.getId())).isTrue();
+        assertThat(updatedAdminPermissionGroup.getAssignedToUserIds().contains(apiUser.getId()))
+                .isTrue();
     }
 
     @Test
     @WithUserDetails("api_user")
     public void test_changeRoleAssociation_inValidUseCase_usingSameUserGroupDifferentPg() {
         Workspace workspace = new Workspace();
-        workspace.setName("UserAndAccessManagementServiceTest - test_changeRoleAssociation_inValidUseCase_usingSameUserGroupDifferentPg");
-        Workspace createdWorkspace = workspaceService.create(workspace)
-                .block();
+        workspace.setName(
+                "UserAndAccessManagementServiceTest - test_changeRoleAssociation_inValidUseCase_usingSameUserGroupDifferentPg");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
@@ -307,21 +346,24 @@ public class UserAndAccessManagementServiceTest {
 
         PermissionGroup administratorPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.ADMINISTRATOR))
-                .findFirst().get();
+                .findFirst()
+                .get();
         PermissionGroup developerPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         UserGroup userGroup = new UserGroup();
-        userGroup.setName("UserAndAccessManagementServiceTest - test_changeRoleAssociation_inValidUseCase_usingSameUserGroup");
-        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+        userGroup.setName(
+                "UserAndAccessManagementServiceTest - test_changeRoleAssociation_inValidUseCase_usingSameUserGroup");
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
                 .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
                 .block();
         // Assign permissions to a UserGroup created above
         PermissionGroup permissionGroupWithUserGroupAssigned = permissionGroupService
                 .assignToUserGroup(administratorPermissionGroup, createdUserGroup)
                 .block();
-
 
         UserCompactDTO userCompactDTO = new UserCompactDTO();
         userCompactDTO.setId(testUser.getId());
@@ -339,9 +381,8 @@ public class UserAndAccessManagementServiceTest {
         updateRoleAssociationDTO.setRolesAdded(Set.of(permissionGroupCompactDTO1));
 
         StepVerifier.create(userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO))
-                .expectErrorMatches(throwable ->
-                        throwable instanceof AppsmithException &&
-                                throwable.getMessage().contains(AppsmithError.ROLES_FROM_SAME_WORKSPACE.getMessage()))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains(AppsmithError.ROLES_FROM_SAME_WORKSPACE.getMessage()))
                 .verify();
         PermissionGroup updatedAdminPermissionGroup = permissionGroupRepository
                 .findById(administratorPermissionGroup.getId())
@@ -350,10 +391,12 @@ public class UserAndAccessManagementServiceTest {
                 .findById(developerPermissionGroup.getId())
                 .block();
         assertThat(updatedAdminPermissionGroup.getAssignedToGroupIds()).hasSize(1);
-        assertThat(updatedAdminPermissionGroup.getAssignedToGroupIds().contains(createdUserGroup.getId())).isTrue();
+        assertThat(updatedAdminPermissionGroup.getAssignedToGroupIds().contains(createdUserGroup.getId()))
+                .isTrue();
         assertThat(updatedDeveloperPermissionGroup.getAssignedToGroupIds()).hasSize(0);
         assertThat(updatedAdminPermissionGroup.getAssignedToUserIds()).hasSize(1);
-        assertThat(updatedAdminPermissionGroup.getAssignedToUserIds().contains(apiUser.getId())).isTrue();
+        assertThat(updatedAdminPermissionGroup.getAssignedToUserIds().contains(apiUser.getId()))
+                .isTrue();
     }
 
     @Test
@@ -361,12 +404,12 @@ public class UserAndAccessManagementServiceTest {
     public void test_changeRoleAssociation_assignPermissionsDontExist() {
         Workspace workspace = new Workspace();
         workspace.setName("UserAndAccessManagementServiceTest - test_changeRoleAssociation_assignPermissionsDontExist");
-        Workspace createdWorkspace = workspaceService.create(workspace)
-                .block();
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("test_changeRoleAssociation_assignPermissionsDontExist");
-        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+        PermissionGroup createdPermissionGroup =
+                permissionGroupService.create(permissionGroup).block();
         Set<Policy> existingPolicies = createdPermissionGroup.getPolicies();
         /*
          * We take away all Manage Page permissions for existing page.
@@ -376,10 +419,12 @@ public class UserAndAccessManagementServiceTest {
                 .filter(policy -> !policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue()))
                 .collect(Collectors.toSet());
         createdPermissionGroup.setPolicies(newPoliciesWithoutEdit);
-        PermissionGroup updatedPermissionGroup = permissionGroupRepository.save(createdPermissionGroup).block();
+        PermissionGroup updatedPermissionGroup =
+                permissionGroupRepository.save(createdPermissionGroup).block();
         UserGroup userGroup = new UserGroup();
         userGroup.setName("UserAndAccessManagementServiceTest - test_changeRoleAssociation_assignPermissionsDontExist");
-        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
                 .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
                 .block();
         UserGroupCompactDTO userGroupCompactDTO = new UserGroupCompactDTO();
@@ -392,25 +437,28 @@ public class UserAndAccessManagementServiceTest {
         updateRoleAssociationDTO.setGroups(Set.of(userGroupCompactDTO));
         updateRoleAssociationDTO.setRolesAdded(Set.of(permissionGroupCompactDTO));
         StepVerifier.create(userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO))
-                .expectErrorMatches(throwable ->
-                        throwable instanceof AppsmithException &&
-                                throwable.getMessage().contains(AppsmithError.ASSIGN_UNASSIGN_MISSING_PERMISSION
-                                        .getMessage("role", updatedPermissionGroup.getId())))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .contains(AppsmithError.ASSIGN_UNASSIGN_MISSING_PERMISSION.getMessage(
+                                        "role", updatedPermissionGroup.getId())))
                 .verify();
-        PermissionGroup setPoliciesBack = permissionGroupRepository.save(updatedPermissionGroup).block();
+        PermissionGroup setPoliciesBack =
+                permissionGroupRepository.save(updatedPermissionGroup).block();
     }
 
     @Test
     @WithUserDetails("api_user")
     public void test_changeRoleAssociation_unassignPermissionsDontExist() {
         Workspace workspace = new Workspace();
-        workspace.setName("UserAndAccessManagementServiceTest - test_changeRoleAssociation_unassignPermissionsDontExist");
-        Workspace createdWorkspace = workspaceService.create(workspace)
-                .block();
+        workspace.setName(
+                "UserAndAccessManagementServiceTest - test_changeRoleAssociation_unassignPermissionsDontExist");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("test_changeRoleAssociation_assignPermissionsDontExist");
-        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+        PermissionGroup createdPermissionGroup =
+                permissionGroupService.create(permissionGroup).block();
         Set<Policy> existingPolicies = createdPermissionGroup.getPolicies();
         /*
          * We take away all Manage Page permissions for existing page.
@@ -420,10 +468,13 @@ public class UserAndAccessManagementServiceTest {
                 .filter(policy -> !policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
                 .collect(Collectors.toSet());
         createdPermissionGroup.setPolicies(newPoliciesWithoutEdit);
-        PermissionGroup updatedPermissionGroup = permissionGroupRepository.save(createdPermissionGroup).block();
+        PermissionGroup updatedPermissionGroup =
+                permissionGroupRepository.save(createdPermissionGroup).block();
         UserGroup userGroup = new UserGroup();
-        userGroup.setName("UserAndAccessManagementServiceTest - test_changeRoleAssociation_unassignPermissionsDontExist");
-        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+        userGroup.setName(
+                "UserAndAccessManagementServiceTest - test_changeRoleAssociation_unassignPermissionsDontExist");
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
                 .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
                 .block();
         UserGroupCompactDTO userGroupCompactDTO = new UserGroupCompactDTO();
@@ -436,12 +487,14 @@ public class UserAndAccessManagementServiceTest {
         updateRoleAssociationDTO.setGroups(Set.of(userGroupCompactDTO));
         updateRoleAssociationDTO.setRolesRemoved(Set.of(permissionGroupCompactDTO));
         StepVerifier.create(userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO))
-                .expectErrorMatches(throwable ->
-                        throwable instanceof AppsmithException &&
-                                throwable.getMessage().contains(AppsmithError.ASSIGN_UNASSIGN_MISSING_PERMISSION
-                                        .getMessage("role", updatedPermissionGroup.getId())))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .contains(AppsmithError.ASSIGN_UNASSIGN_MISSING_PERMISSION.getMessage(
+                                        "role", updatedPermissionGroup.getId())))
                 .verify();
-        PermissionGroup setPoliciesBack = permissionGroupRepository.save(updatedPermissionGroup).block();
+        PermissionGroup setPoliciesBack =
+                permissionGroupRepository.save(updatedPermissionGroup).block();
     }
 
     @Test
@@ -454,7 +507,8 @@ public class UserAndAccessManagementServiceTest {
         User createdUser1 = userService.userCreate(user1, false).block();
         UserData userData1 = userDataService.getForUser(createdUser1).block();
         userData1.setProfilePhotoAssetId(testName + 1);
-        UserData userData1PostUpdate = userDataService.updateForUser(createdUser1, userData1).block();
+        UserData userData1PostUpdate =
+                userDataService.updateForUser(createdUser1, userData1).block();
 
         User user2 = new User();
         user2.setEmail(testName);
@@ -462,15 +516,20 @@ public class UserAndAccessManagementServiceTest {
         User createdUser2 = userService.userCreate(user2, false).block();
         UserData userData2 = userDataService.getForUser(createdUser2).block();
         userData2.setProfilePhotoAssetId(testName + 2);
-        UserData userData2PostUpdate = userDataService.updateForUser(createdUser2, userData2).block();
+        UserData userData2PostUpdate =
+                userDataService.updateForUser(createdUser2, userData2).block();
 
-
-        List<UserForManagementDTO> usersList = userAndAccessManagementService.getAllUsers().block();
-        Optional<UserForManagementDTO> userForManagementDTO1 = usersList.stream().filter(_user -> createdUser1.getId().equals(_user.getId())).findFirst();
+        List<UserForManagementDTO> usersList =
+                userAndAccessManagementService.getAllUsers().block();
+        Optional<UserForManagementDTO> userForManagementDTO1 = usersList.stream()
+                .filter(_user -> createdUser1.getId().equals(_user.getId()))
+                .findFirst();
         assertThat(userForManagementDTO1.isPresent()).isTrue();
         assertThat(userForManagementDTO1.get().getPhotoId()).isEqualTo(testName + 1);
 
-        Optional<UserForManagementDTO> userForManagementDTO2 = usersList.stream().filter(_user -> createdUser2.getId().equals(_user.getId())).findFirst();
+        Optional<UserForManagementDTO> userForManagementDTO2 = usersList.stream()
+                .filter(_user -> createdUser2.getId().equals(_user.getId()))
+                .findFirst();
         assertThat(userForManagementDTO2.isPresent()).isTrue();
         assertThat(userForManagementDTO2.get().getPhotoId()).isEqualTo(testName + 2);
 
@@ -488,9 +547,11 @@ public class UserAndAccessManagementServiceTest {
         User createdUser1 = userService.userCreate(user1, false).block();
         UserData userData1 = userDataService.getForUser(createdUser1).block();
         userData1.setProfilePhotoAssetId(testName);
-        UserData userData1PostUpdate = userDataService.updateForUser(createdUser1, userData1).block();
+        UserData userData1PostUpdate =
+                userDataService.updateForUser(createdUser1, userData1).block();
 
-        UserForManagementDTO user = userAndAccessManagementService.getUserById(createdUser1.getId()).block();
+        UserForManagementDTO user =
+                userAndAccessManagementService.getUserById(createdUser1.getId()).block();
         assertThat(user.getPhotoId()).isEqualTo(testName);
 
         userAndAccessManagementService.deleteUser(createdUser1.getId()).block();
@@ -525,27 +586,36 @@ public class UserAndAccessManagementServiceTest {
         // create permission group
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName(testName);
-        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup)
+        PermissionGroup createdPermissionGroup = permissionGroupService
+                .create(permissionGroup)
                 .flatMap(pg -> permissionGroupService.findById(pg.getId(), READ_PERMISSION_GROUPS))
                 .block();
         String userName = user1.getUsername();
 
-        //update role associations
+        // update role associations
         UpdateRoleAssociationDTO updateRoleAssociationDTO = new UpdateRoleAssociationDTO();
         updateRoleAssociationDTO.setUsers(Set.of(new UserCompactDTO(null, user1.getUsername(), user1.getName())));
-        updateRoleAssociationDTO.setRolesAdded(Set.of(new PermissionGroupCompactDTO(createdPermissionGroup.getId(), createdPermissionGroup.getName())));
-        userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
+        updateRoleAssociationDTO.setRolesAdded(Set.of(
+                new PermissionGroupCompactDTO(createdPermissionGroup.getId(), createdPermissionGroup.getName())));
+        userAndAccessManagementService
+                .changeRoleAssociations(updateRoleAssociationDTO)
+                .block();
 
-        //assertions
+        // assertions
         StepVerifier.create(userAndAccessManagementService.getUserById(createdUser1.getId()))
                 .assertNext(user -> {
                     assertThat(user.getGroups()).isNotNull();
                     assertThat(user.getGroups().size()).isEqualTo(1);
-                    assertThat(user.getGroups().get(0).getUserPermissions().size() > 0).isTrue();
+                    assertThat(user.getGroups().get(0).getUserPermissions().size() > 0)
+                            .isTrue();
                     assertThat(user.getRoles().size()).isEqualTo(2);
                     // check if the user has the permission group
-                    PermissionGroupInfoDTO permissionGroupInfoDTO = user.getRoles().stream().filter(pg -> pg.getId().equals(createdPermissionGroup.getId())).findFirst().get();
-                    assertThat(permissionGroupInfoDTO.getUserPermissions().size() > 0).isTrue();
+                    PermissionGroupInfoDTO permissionGroupInfoDTO = user.getRoles().stream()
+                            .filter(pg -> pg.getId().equals(createdPermissionGroup.getId()))
+                            .findFirst()
+                            .get();
+                    assertThat(permissionGroupInfoDTO.getUserPermissions().size() > 0)
+                            .isTrue();
                 })
                 .verifyComplete();
     }

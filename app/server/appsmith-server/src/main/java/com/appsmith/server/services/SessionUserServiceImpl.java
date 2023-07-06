@@ -18,8 +18,9 @@ import static com.appsmith.server.constants.FieldName.CREATION_TIME;
 public class SessionUserServiceImpl extends SessionUserServiceCEImpl implements SessionUserService {
 
     private final ReactiveRedisOperations<String, Object> redisOperations;
-    public SessionUserServiceImpl(UserRepository userRepository,
-                                  ReactiveRedisOperations<String, Object> redisOperations) {
+
+    public SessionUserServiceImpl(
+            UserRepository userRepository, ReactiveRedisOperations<String, Object> redisOperations) {
 
         super(userRepository, redisOperations);
         this.redisOperations = redisOperations;
@@ -27,24 +28,28 @@ public class SessionUserServiceImpl extends SessionUserServiceCEImpl implements 
 
     @Override
     public Mono<Void> logoutExistingSessions(String email, WebFilterExchange exchange) {
-        Mono<Long> creationTimeMono = exchange.getExchange().getSession()
-            .map(webSession -> webSession.getCreationTime().toEpochMilli());
+        Mono<Long> creationTimeMono = exchange.getExchange()
+                .getSession()
+                .map(webSession -> webSession.getCreationTime().toEpochMilli());
 
         return creationTimeMono
-            .flatMap(creationTime -> getKeysForExistingSessionsAndFilterByCreationTime(email, creationTime))
-            .flatMap(super::deleteSessionsByKeys)
-            .then();
+                .flatMap(creationTime -> getKeysForExistingSessionsAndFilterByCreationTime(email, creationTime))
+                .flatMap(super::deleteSessionsByKeys)
+                .then();
     }
 
     private Mono<List<String>> getKeysForExistingSessionsAndFilterByCreationTime(String email, Long createdAt) {
         return super.getSessionKeysByUserEmail(email)
-            .flatMapMany(keys -> {
-                return Flux.fromIterable(keys)
-                    .flatMap(key -> redisOperations.opsForHash().entries(key)
-                        .filter(e -> CREATION_TIME.equals(e.getKey()) && e.getValue() != null && !e.getValue().equals(createdAt))
-                        .next()
-                        .map(ignore -> key));
-            })
-            .collectList();
+                .flatMapMany(keys -> {
+                    return Flux.fromIterable(keys).flatMap(key -> redisOperations
+                            .opsForHash()
+                            .entries(key)
+                            .filter(e -> CREATION_TIME.equals(e.getKey())
+                                    && e.getValue() != null
+                                    && !e.getValue().equals(createdAt))
+                            .next()
+                            .map(ignore -> key));
+                })
+                .collectList();
     }
 }

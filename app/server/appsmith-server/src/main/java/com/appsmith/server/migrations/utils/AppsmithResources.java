@@ -31,7 +31,8 @@ public class AppsmithResources {
         Config instanceConfig = getInstanceConfig(mongoTemplate);
         String instanceAdminRoleId = (String) instanceConfig.getConfig().get(DEFAULT_PERMISSION_GROUP);
         Query instanceAdminRoleQuery = new Query();
-        instanceAdminRoleQuery.addCriteria(where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminRoleId));
+        instanceAdminRoleQuery.addCriteria(
+                where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminRoleId));
         return mongoTemplate.findOne(instanceAdminRoleQuery, PermissionGroup.class);
     }
 
@@ -67,7 +68,8 @@ public class AppsmithResources {
         Config instanceConfig = getProvisionConfig(mongoTemplate);
         String instanceAdminRoleId = (String) instanceConfig.getConfig().get(DEFAULT_PERMISSION_GROUP);
         Query instanceAdminRoleQuery = new Query();
-        instanceAdminRoleQuery.addCriteria(where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminRoleId));
+        instanceAdminRoleQuery.addCriteria(
+                where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminRoleId));
         return mongoTemplate.findOne(instanceAdminRoleQuery, PermissionGroup.class);
     }
 }
