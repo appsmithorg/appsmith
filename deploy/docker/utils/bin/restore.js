@@ -142,6 +142,7 @@ async function run() {
       }
     });
     let backupFileName = await getBackupFileName();
+    backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
     if (backupFileName == null) {
       process.exit(errorCode);
     } else {
