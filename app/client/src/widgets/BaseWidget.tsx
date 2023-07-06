@@ -567,6 +567,10 @@ abstract class BaseWidget<
     );
   }
 
+  get isAutoLayoutMode() {
+    return this.props.appPositioningType === AppPositioningTypes.AUTO;
+  }
+
   addErrorBoundary(content: ReactNode) {
     return <ErrorBoundary>{content}</ErrorBoundary>;
   }

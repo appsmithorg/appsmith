@@ -8,9 +8,7 @@ const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
 describe("List widget v2 - Basic server side data tests", () => {
   before(() => {
-    cy.fixture("Listv2/listWithServerSideData").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Listv2/listWithServerSideData");
     // Open Datasource editor
     if (!Cypress.env("AIRGAPPED")) {
       cy.wait(2000);

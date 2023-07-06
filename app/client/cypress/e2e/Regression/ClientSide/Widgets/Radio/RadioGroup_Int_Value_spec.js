@@ -12,9 +12,7 @@ function checkSelectedRadioValue(selector, value) {
 
 describe("RadioGroup widget testing", function () {
   before(() => {
-    cy.fixture("radioGroup_int_value_dsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("radioGroup_int_value_dsl");
   });
 
   it("Radio widget check selection with value property as integer", function () {

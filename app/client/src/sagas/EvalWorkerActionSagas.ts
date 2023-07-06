@@ -1,4 +1,4 @@
-import { all, call, put, spawn, take } from "redux-saga/effects";
+import { all, call, fork, put, spawn, take } from "redux-saga/effects";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
@@ -28,15 +28,18 @@ import type {
 } from "workers/Evaluation/types";
 import isEmpty from "lodash/isEmpty";
 import type { UnEvalTree } from "entities/DataTree/dataTreeFactory";
-
+import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
+import type { LintTreeSagaRequestData } from "plugins/Linting/types";
 export type UpdateDataTreeMessageData = {
   workerResponse: EvalTreeResponseData;
   unevalTree: UnEvalTree;
 };
-
-import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
-import type { LintTreeSagaRequestData } from "workers/Linting/types";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import { logJSActionExecution } from "./analyticsSaga";
+import { uniq } from "lodash";
+import type {
+  TriggerKind,
+  TriggerSource,
+} from "constants/AppsmithActionConstants/ActionConstants";
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {
@@ -48,20 +51,11 @@ export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
 export function* lintTreeActionHandler(message: any) {
   const { body } = message;
   const { data } = body;
-  const {
-    asyncJSFunctionsInDataFields,
-    configTree,
-    jsPropertiesState,
-    pathsToLint: lintOrder,
-    unevalTree,
-  } = data as LintTreeSagaRequestData;
+  const { configTree, unevalTree } = data as LintTreeSagaRequestData;
   yield put({
     type: ReduxActionTypes.LINT_TREE,
     payload: {
-      pathsToLint: lintOrder,
       unevalTree,
-      jsPropertiesState,
-      asyncJSFunctionsInDataFields,
       configTree,
     },
   });
@@ -117,18 +111,27 @@ export function* processTriggerHandler(message: any) {
   if (messageType === MessageType.REQUEST)
     yield call(evalWorker.respond, message.messageId, result);
 }
-export function* handleJSExecutionLog(data: TMessage<{ data: string[] }>) {
+export function* handleJSExecutionLog(
+  data: TMessage<{
+    data: {
+      jsFnFullName: string;
+      isSuccess: boolean;
+      triggerMeta: {
+        source: TriggerSource;
+        triggerPropertyName: string | undefined;
+        triggerKind: TriggerKind | undefined;
+      };
+    }[];
+  }>,
+) {
   const {
-    body: { data: executedFns },
+    body: { data: executionData },
   } = data;
-
-  for (const executedFn of executedFns) {
-    AnalyticsUtil.logEvent("EXECUTE_ACTION", {
-      type: "JS",
-      name: executedFn,
-    });
-  }
-  yield call(logJSFunctionExecution, data);
+  const executedFns = uniq(
+    executionData.map((execData) => execData.jsFnFullName),
+  );
+  yield fork(logJSActionExecution, executionData);
+  yield call(logJSFunctionExecution, executedFns);
 }
 
 export function* handleEvalWorkerMessage(message: TMessage<any>) {
