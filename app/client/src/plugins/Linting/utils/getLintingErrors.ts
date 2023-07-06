@@ -271,7 +271,7 @@ function getInvalidPropertyErrorsFromScript(
 
     const lintErrorMessage = !isValidProperty
       ? `${objectName} doesn't have a property named ${propertyName}`
-      : `Direct mutation of values aren't supported, please use ${objectName} setter methods to update value instead.`;
+      : `Direct mutation of widget properties aren't supported. Use ${objectName} setter methods to update value instead.`;
 
     const objectStartLine = object.loc.start.line - 1;
 
