@@ -1061,11 +1061,11 @@ export class AggregateHelper extends ReusableHelper {
     this.Sleep(500); //for value set to settle
   }
 
-  public UpdateInputValue(selector: string, value: string) {
+  public UpdateInputValue(selector: string, value: string, force = false) {
     this.GetElement(selector)
       .closest("input")
       .scrollIntoView({ easing: "linear" })
-      .clear()
+      .clear({ force })
       .then(($input: any) => {
         if (value !== "") {
           cy.wrap($input).type(value, { delay: 3 });

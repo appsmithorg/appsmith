@@ -7,7 +7,8 @@ import type {
   ActionConfigurationSQL,
 } from "../types";
 import { removeSpecialChars } from "utils/helpers";
-export default abstract class PostgreSQL extends BaseQueryGenerator {
+import without from "lodash/without";
+export default abstract class MySQL extends BaseQueryGenerator {
   private static buildSelect(
     widgetConfig: WidgetQueryGenerationConfig,
     formConfig: WidgetQueryGenerationFormConfig,
@@ -19,72 +20,63 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
     }
 
     const { limit, offset, orderBy, sortOrder, where } = select;
-
     const querySegments = [
       {
         isValuePresent: formConfig.tableName,
-        template: "SELECT * FROM $1",
-        params: {
-          1: formConfig.tableName,
-        },
+        template: "SELECT * FROM ?",
+        params: [formConfig.tableName],
       },
       {
         isValuePresent: formConfig.searchableColumn && where,
-        template: "WHERE $2 ilike $3",
-        params: {
-          2: `"${formConfig.searchableColumn}"`,
-          3: `'%{{${where}}}%'`,
-        },
+        template: "WHERE ? LIKE ?",
+        params: [formConfig.searchableColumn, `'%{{${where}}}%'`],
       },
       formConfig.primaryColumn
         ? {
             isValuePresent: orderBy,
-            template: `ORDER BY $4 $5`,
-            params: {
-              4: `"{{${orderBy} || '${formConfig.primaryColumn}'}}"`,
-              5: `{{${sortOrder} ? "" : "DESC"}}`,
-            },
+            template: `ORDER BY ? ?`,
+            params: [
+              `{{${orderBy} || '${formConfig.primaryColumn}'}}`,
+              `{{${sortOrder} ? "" : "DESC"}}`,
+            ],
           }
         : {
             isValuePresent: orderBy,
-            template: "$4",
-            params: {
-              4: `{{${orderBy} ? "ORDER BY " + ${orderBy} + "  " + (${sortOrder} ? "" : "DESC") : ""}}`,
-            },
+            template: "?",
+            params: [
+              `{{${orderBy} ? "ORDER BY " + ${orderBy} + "  " + (${sortOrder} ? "" : "DESC") : ""}}`,
+            ],
           },
       {
         isValuePresent: limit,
-        template: "LIMIT $6",
-        params: {
-          6: `{{${limit}}}`,
-        },
+        template: "LIMIT ?",
+        params: [`{{${limit}}}`],
       },
       {
         isValuePresent: offset,
-        template: "OFFSET $7",
-        params: {
-          7: `{{${offset}}}`,
-        },
+        template: "OFFSET ?",
+        params: [`{{${offset}}}`],
       },
     ];
 
     const { params, template } = querySegments
-      //we need to filter out query segments which are not defined
+      // Filter out query segments which are not defined
       .filter(({ isValuePresent }) => !!isValuePresent)
       .reduce(
         (acc, curr) => {
           const { params, template } = curr;
           return {
             template: acc.template + " " + template,
-            params: { ...acc.params, ...params },
+            params: [...acc.params, ...params],
           };
         },
-        { template: "", params: {} },
+        { template: "", params: [] } as { template: string; params: string[] },
       );
+
     //formats sql string
     const res = format(template, {
       params,
-      language: "postgresql",
+      language: "mysql",
     });
 
     return {
@@ -113,15 +105,17 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
 
     const { value, where } = update;
 
+    const columns = without(formConfig.columns, formConfig.primaryColumn);
+
     return {
       type: QUERY_TYPE.UPDATE,
       name: `Update_${removeSpecialChars(formConfig.tableName)}`,
       payload: {
-        body: `UPDATE ${formConfig.tableName} SET ${formConfig.columns
-          .map((column) => `"${column}"= '{{${value}.${column}}}'`)
-          .join(", ")} WHERE "${formConfig.primaryColumn}"= {{${where}.${
+        body: `UPDATE ${formConfig.tableName} SET ${columns
+          .map((column) => `${column}= '{{${value}.${column}}}'`)
+          .join(", ")} WHERE ${formConfig.primaryColumn}= '{{${where}.${
           formConfig.primaryColumn
-        }}};`,
+        }}}';`,
       },
       dynamicBindingPathList: [
         {
@@ -141,13 +135,15 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
       return;
     }
 
+    const columns = without(formConfig.columns, formConfig.primaryColumn);
+
     return {
       type: QUERY_TYPE.CREATE,
       name: `Insert_${removeSpecialChars(formConfig.tableName)}`,
       payload: {
-        body: `INSERT INTO ${formConfig.tableName} (${formConfig.columns.map(
-          (a) => `"${a}"`,
-        )}) VALUES (${formConfig.columns
+        body: `INSERT INTO ${formConfig.tableName} (${columns.map(
+          (a) => `${a}`,
+        )}) VALUES (${columns
           .map((d) => `'{{${create.value}.${d}}}'`)
           .toString()})`,
       },
@@ -175,7 +171,7 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
       payload: {
         body: `SELECT COUNT(*) from ${formConfig.tableName}${
           formConfig.searchableColumn
-            ? ` where ${formConfig.searchableColumn} ilike '%{{${select?.where}}}%'`
+            ? ` WHERE ${formConfig.searchableColumn} LIKE '%{{${select?.where}}}%'`
             : ""
         };`,
       },
