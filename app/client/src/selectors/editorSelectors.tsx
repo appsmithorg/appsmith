@@ -347,13 +347,13 @@ export const getWidgetCards = createSelector(
       // if wds_vs is not enabled, hide all wds_v2 widgets
       if (
         Object.values(WDS_V2_WIDGET_MAP).includes(config.type) &&
-        featureFlags.wds_v2 === false
+        featureFlags.ab_wds_enabled === false
       ) {
         return false;
       }
 
       // if wds is enabled, only show the wds_v2 widgets
-      if (featureFlags.wds_v2 === true) {
+      if (featureFlags.ab_wds_enabled === true) {
         return Object.values(WDS_V2_WIDGET_MAP).includes(config.type);
       }
 

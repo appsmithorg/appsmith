@@ -191,7 +191,7 @@ function AppViewer(props: Props) {
   return (
     <WDSThemeProvider
       borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-      seedColor={selectedTheme.properties.colors.primaryColor || "#000"}
+      seedColor={selectedTheme.properties.colors.primaryColor}
     >
       <ThemeProvider theme={lightTheme}>
         <EditorContextProvider renderMode="PAGE">

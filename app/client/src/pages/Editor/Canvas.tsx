@@ -10,7 +10,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import useWidgetFocus from "utils/hooks/useWidgetFocus";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { selectFeatureFlags } from "selectors/featureFlagsSelectors";
+import { useFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 import { getViewportClassName } from "utils/autoLayout/AutoLayoutUtils";
 import { ThemeProvider as WDSThemeProvider } from "components/wds/ThemeProvider";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
@@ -38,8 +38,7 @@ const Canvas = (props: CanvasProps) => {
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
   const selectedTheme = useSelector(getSelectedAppTheme);
-  const featureFlags = useSelector(selectFeatureFlags);
-  const isWDSV2Enabled = featureFlags.wds_v2 === true;
+  const isWDSV2Enabled = useFeatureFlagCheck("ab_wds_enabled");
 
   /**
    * background for canvas

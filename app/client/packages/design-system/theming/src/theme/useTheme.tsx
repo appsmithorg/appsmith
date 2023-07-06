@@ -10,7 +10,11 @@ type UseThemeProps = {
 };
 
 export function useTheme(props: UseThemeProps) {
-  const { borderRadius = "0px", colorMode = "light", seedColor } = props;
+  const {
+    borderRadius = "0px",
+    colorMode = "light",
+    seedColor = "#000",
+  } = props;
 
   const tokensAccessor = new TokensAccessor({
     ...defaultTokens,
