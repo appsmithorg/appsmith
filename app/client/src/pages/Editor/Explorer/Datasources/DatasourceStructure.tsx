@@ -23,6 +23,7 @@ type DatasourceStructureProps = {
   context: DatasourceStructureContext;
   isDefaultOpen?: boolean;
   forceExpand?: boolean;
+  disableTemplateCreation?: boolean;
 };
 
 const StyledMenuContent = styled(MenuContent)`
@@ -48,43 +49,44 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
     ...pagePermissions,
   ]);
 
-  const lightningMenu = canCreateDatasourceActions ? (
-    <Menu open={active}>
-      <Tooltip
-        content={createMessage(SHOW_TEMPLATES)}
-        isDisabled={active}
-        mouseLeaveDelay={0}
-        placement="right"
-      >
-        <MenuTrigger>
-          <Button
-            className={`button-icon t--template-menu-trigger ${EntityClassNames.CONTEXT_MENU}`}
-            isIconButton
-            kind="tertiary"
-            onClick={() => setActive(!active)}
-            startIcon={
-              props.context !== DatasourceStructureContext.EXPLORER
-                ? "add-line"
-                : "increase-control-v2"
-            }
+  const lightningMenu =
+    canCreateDatasourceActions && !props?.disableTemplateCreation ? (
+      <Menu open={active}>
+        <Tooltip
+          content={createMessage(SHOW_TEMPLATES)}
+          isDisabled={active}
+          mouseLeaveDelay={0}
+          placement="right"
+        >
+          <MenuTrigger>
+            <Button
+              className={`button-icon t--template-menu-trigger ${EntityClassNames.CONTEXT_MENU}`}
+              isIconButton
+              kind="tertiary"
+              onClick={() => setActive(!active)}
+              startIcon={
+                props.context !== DatasourceStructureContext.EXPLORER
+                  ? "add-line"
+                  : "increase-control-v2"
+              }
+            />
+          </MenuTrigger>
+        </Tooltip>
+        <StyledMenuContent
+          align="start"
+          className="t--structure-template-menu-popover"
+          onInteractOutside={() => setActive(false)}
+          side="right"
+        >
+          <QueryTemplates
+            context={props.context}
+            datasourceId={props.datasourceId}
+            onSelect={() => setActive(false)}
+            templates={dbStructure.templates}
           />
-        </MenuTrigger>
-      </Tooltip>
-      <StyledMenuContent
-        align="start"
-        className="t--structure-template-menu-popover"
-        onInteractOutside={() => setActive(false)}
-        side="right"
-      >
-        <QueryTemplates
-          context={props.context}
-          datasourceId={props.datasourceId}
-          onSelect={() => setActive(false)}
-          templates={dbStructure.templates}
-        />
-      </StyledMenuContent>
-    </Menu>
-  ) : null;
+        </StyledMenuContent>
+      </Menu>
+    ) : null;
 
   if (dbStructure.templates) templateMenu = lightningMenu;
   const columnsAndKeys = dbStructure.columns.concat(dbStructure.keys);

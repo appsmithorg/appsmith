@@ -456,7 +456,7 @@ function ActionSidebar({
           </Collapsible>
         )}
       {showSuggestedWidgets && (
-        <SchemaSideBarSection height={30}>
+        <SchemaSideBarSection height={40}>
           <SuggestedWidgets
             actionName={actionName}
             hasWidgets={hasWidgets}

@@ -1,3 +1,4 @@
+import { featureFlagIntercept } from "../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   entityExplorer,
@@ -79,9 +80,12 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       dataSources.RunQuery();
     });
     //agHelper.ActionContextMenuWithInPane("Delete"); Since next case can continue in same template
-    cy.intercept("GET", "/api/v1/users/features", {
-      fixture: "featureFlags.json",
-    }).as("featureFlags");
+    featureFlagIntercept(
+      {
+        ab_ds_binding_enabled: true,
+      },
+      false,
+    );
     agHelper.RefreshPage();
   });
 

@@ -13,12 +13,16 @@ import {
   ERROR_ACTION_EXECUTE_FAIL,
   createMessage,
 } from "../../../../support/Objects/CommonErrorMessages";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("API Bugs", function () {
   before(() => {
-    cy.intercept("GET", "/api/v1/users/features", {
-      fixture: "featureFlags.json",
-    }).as("featureFlags");
+    featureFlagIntercept(
+      {
+        ab_ds_binding_enabled: true,
+      },
+      false,
+    );
     agHelper.RefreshPage();
   });
   it("1. Bug 14037: User gets an error even when table widget is added from the API page successfully", function () {

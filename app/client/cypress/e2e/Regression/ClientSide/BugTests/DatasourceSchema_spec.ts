@@ -1,3 +1,4 @@
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const agHelper = ObjectsRegistry.AggregateHelper,
@@ -42,9 +43,12 @@ describe("Datasource form related tests", function () {
   });
 
   it("3. Verify if schema (table and column) exist in query editor and searching works", () => {
-    cy.intercept("GET", "/api/v1/users/features", {
-      fixture: "featureFlags.json",
-    }).as("featureFlags");
+    featureFlagIntercept(
+      {
+        ab_ds_schema_enabled: true,
+      },
+      false,
+    );
     agHelper.RefreshPage();
     dataSources.CreateMockDB("Users");
     dataSources.CreateQueryAfterDSSaved();

@@ -139,25 +139,22 @@ const Container = (props: Props) => {
             </DatasourceStructureSearchContainer>
           )}
           {!!datasourceStructure?.tables?.length &&
-            datasourceStructure.tables.map(
-              (structure: DatasourceTable, index: number) => {
-                return (
-                  <DatasourceStructure
-                    context={props.context}
-                    datasourceId={props.datasourceId}
-                    dbStructure={structure}
-                    forceExpand={hasSearchedOccured}
-                    isDefaultOpen={
-                      index === 0 &&
-                      props.context !== DatasourceStructureContext.EXPLORER &&
-                      true
-                    }
-                    key={`${props.datasourceId}${structure.name}-${props.context}`}
-                    step={props.step + 1}
-                  />
-                );
-              },
-            )}
+            datasourceStructure.tables.map((structure: DatasourceTable) => {
+              return (
+                <DatasourceStructure
+                  context={props.context}
+                  datasourceId={props.datasourceId}
+                  dbStructure={structure}
+                  disableTemplateCreation={
+                    props.context !== DatasourceStructureContext.EXPLORER &&
+                    true
+                  }
+                  forceExpand={hasSearchedOccured}
+                  key={`${props.datasourceId}${structure.name}-${props.context}`}
+                  step={props.step + 1}
+                />
+              );
+            })}
 
           {!datasourceStructure?.tables?.length && (
             <Text kind="body-s" renderAs="p">
