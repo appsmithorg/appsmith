@@ -13,28 +13,29 @@ describe("Table widget date column inline editing functionality", () => {
     agHelper.AddDsl("Table/DateCellEditingDSL");
   });
 
-  it("1. should check that edit check box is enabled for date type column in the columns list", () => {
-    entityExplorer.SelectEntityByName("Table1");
-    agHelper.AssertElementEnabledDisabled(
-      table._columnCheckbox("release_date"),
-      0,
-      false,
-    );
-  });
+  it(
+    "1. should check that edit check box is enabled for date type column in the columns list" +
+      "and check that date cell edit mode can be turned on",
+    () => {
+      entityExplorer.SelectEntityByName("Table1");
+      agHelper.AssertElementEnabledDisabled(
+        table._columnCheckbox("release_date"),
+        0,
+        false,
+      );
+      entityExplorer.SelectEntityByName("Table1");
+      table.EditColumn("release_date", "v2");
+      propPane.TogglePropertyState("Editable", "On");
+      assertHelper.AssertNetworkStatus("updateLayout", 200);
+      agHelper.AssertElementExist(
+        `${table._tableV2Head} ${table._columnHeaderDiv("release_date")} ${
+          locators._svg
+        }`,
+      );
+    },
+  );
 
-  it("2. should check that date cell edit mode can be turned on", () => {
-    entityExplorer.SelectEntityByName("Table1");
-    table.EditColumn("release_date", "v2");
-    propPane.TogglePropertyState("Editable", "On");
-    assertHelper.AssertNetworkStatus("updateLayout", 200);
-    agHelper.AssertElementExist(
-      `${table._tableV2Head} ${table._columnHeaderDiv("release_date")} ${
-        locators._svg
-      }`,
-    );
-  });
-
-  it("3. should check that user can edit date in table cell", () => {
+  it("2. should check that user can edit date in table cell", () => {
     agHelper.GetElement(`${table._tableNthChild}`).dblclick();
     agHelper.AssertElementExist(table._dateInputPopover);
     agHelper.AssertElementExist(table._editCellEditor);
@@ -81,9 +82,9 @@ describe("Table widget date column inline editing functionality", () => {
     );
   });
 
-  it("4. should check that changing property pane display format for date column changes date display format", () => {
+  it("3. should check that changing property pane display format for date column changes date display format", () => {
     entityExplorer.SelectEntityByName("Table1");
-    agHelper.GetNClick(propPane._goBackToProperty);
+    propPane.NavigateBackToPropertyPane();
     table.EditColumn("release_date", "v2");
     agHelper.GetNClick(
       `${locators._propertyControl}displayformat ${table._showArrow}`,
@@ -95,7 +96,7 @@ describe("Table widget date column inline editing functionality", () => {
       .click();
     agHelper.GetNAssertContains(`${table._tableNthChild}`, "17th May 2021");
     entityExplorer.SelectEntityByName("Table1");
-    agHelper.GetNClick(propPane._goBackToProperty);
+    propPane.NavigateBackToPropertyPane();
     table.EditColumn("release_date", "v2");
     agHelper.GetNClick(
       `${locators._propertyControl}displayformat ${table._showArrow}`,
@@ -108,9 +109,9 @@ describe("Table widget date column inline editing functionality", () => {
     agHelper.GetNAssertContains(`${table._tableNthChild}`, "17/05/2021");
   });
 
-  it("5. should check that changing property pane first day of week changes the date picker starting day", () => {
+  it("4. should check that changing property pane first day of week changes the date picker starting day", () => {
     entityExplorer.SelectEntityByName("Table1");
-    agHelper.GetNClick(propPane._goBackToProperty);
+    propPane.NavigateBackToPropertyPane();
     table.EditColumn("release_date", "v2");
     propPane.UpdatePropertyFieldValue("First Day Of Week", "1", true);
     agHelper.GetElement(`${table._tableNthChild}`).dblclick({
@@ -121,7 +122,7 @@ describe("Table widget date column inline editing functionality", () => {
       "Mo",
     );
     entityExplorer.SelectEntityByName("Table1");
-    agHelper.GetNClick(propPane._goBackToProperty);
+    propPane.NavigateBackToPropertyPane();
     table.EditColumn("release_date", "v2");
     propPane.UpdatePropertyFieldValue("First Day Of Week", "5", true);
     agHelper.GetElement(`${table._tableNthChild}`).dblclick({
@@ -133,9 +134,9 @@ describe("Table widget date column inline editing functionality", () => {
     );
   });
 
-  it("6. should check Show Shortcuts property control functionality", () => {
+  it("5. should check Show Shortcuts property control functionality", () => {
     entityExplorer.SelectEntityByName("Table1");
-    agHelper.GetNClick(propPane._goBackToProperty);
+    propPane.NavigateBackToPropertyPane();
     table.EditColumn("release_date", "v2");
     propPane.TogglePropertyState("Show Shortcuts", "Off");
     agHelper.Sleep(2000);
@@ -144,7 +145,7 @@ describe("Table widget date column inline editing functionality", () => {
     });
     agHelper.AssertElementAbsence(`${table._dateRangePicker}`);
     entityExplorer.SelectEntityByName("Table1");
-    agHelper.GetNClick(propPane._goBackToProperty);
+    propPane.NavigateBackToPropertyPane();
     table.EditColumn("release_date", "v2");
     propPane.TogglePropertyState("Show Shortcuts", "On");
     agHelper.Sleep(2000);
@@ -154,20 +155,18 @@ describe("Table widget date column inline editing functionality", () => {
     agHelper.AssertElementExist(`${table._dateRangePicker}`);
   });
 
-  it("7. should check property pane Required toggle functionality", () => {
+  it("6. should check property pane Required toggle functionality", () => {
     entityExplorer.SelectEntityByName("Table1");
-    agHelper.GetNClick(propPane._goBackToProperty);
+    propPane.NavigateBackToPropertyPane();
     table.EditColumn("release_date", "v2");
     propPane.TogglePropertyState("Required", "On");
     assertHelper.AssertNetworkStatus("updateLayout", 200);
     agHelper.Sleep(2000);
-    agHelper.HoverElement(`${table._tableDataNthChild}`);
-    agHelper.GetNClick(table._editCellIconDiv, 0, true);
+    table.ClickOnEditIcon(0, 2);
     agHelper.GetNClick(
       `${table._dateInputPopover} [aria-label='Wed May 26 2021']`,
     );
-    agHelper.HoverElement(`${table._tableDataNthChild}`);
-    agHelper.GetNClick(table._editCellIconDiv, 0, true);
+    table.ClickOnEditIcon(0, 2);
     agHelper.GetNClick(
       `${table._dateInputPopover} [aria-label='Wed May 26 2021']`,
     );
@@ -182,9 +181,9 @@ describe("Table widget date column inline editing functionality", () => {
     agHelper.AssertElementAbsence(table._popoverContent);
   });
 
-  it("8. should check date cells behave as expected when adding a new row to table", () => {
+  it("7. should check date cells behave as expected when adding a new row to table", () => {
     entityExplorer.SelectEntityByName("Table1");
-    agHelper.GetNClick(propPane._goBackToProperty);
+    propPane.NavigateBackToPropertyPane();
     propPane.TogglePropertyState("Allow adding a row", "On");
     agHelper.GetNClick(table._addNewRow);
     agHelper.AssertElementAbsence(table._datePicker);

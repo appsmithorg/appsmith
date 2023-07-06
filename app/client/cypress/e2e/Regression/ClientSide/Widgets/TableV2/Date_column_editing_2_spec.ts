@@ -68,7 +68,7 @@ describe("Table widget date column inline editing functionality", () => {
       }`,
     );
     entityExplorer.SelectEntityByName("Table1");
-    agHelper.GetNClick(propPane._goBackToProperty);
+    propPane.NavigateBackToPropertyPane();
     table.EditColumn("release_date", "v2");
     propPane.TogglePropertyState("Visible", "On");
     assertHelper.AssertNetworkStatus("updateLayout", 200);
@@ -104,9 +104,7 @@ describe("Table widget date column inline editing functionality", () => {
       -1,
       "2022-05-30T00:00:10.1010+05:30{enter}",
     );
-
-    agHelper.HoverElement(`${table._tableDataNthChild}`);
-    agHelper.GetNClick(table._editCellIconDiv, 0, true);
+    table.ClickOnEditIcon(0, 2);
     agHelper.GetNAssertContains(table._popoverContent, "Date out of range");
     agHelper.RemoveCharsNType(
       `${propPane._propertyPanePropertyControl("validation", "mindate")} ${
@@ -126,7 +124,7 @@ describe("Table widget date column inline editing functionality", () => {
 
   it("4. should allow ISO 8601 format date and not throw a disallowed validation error", () => {
     entityExplorer.SelectEntityByName("Table1");
-    agHelper.GetNClick(propPane._goBackToProperty);
+    propPane.NavigateBackToPropertyPane();
     agHelper.UpdateCodeInput(
       propPane._propertyControl("tabledata"),
       '[{ "dateValue": "2023-02-02T13:39:38.367857Z" }]',

@@ -178,8 +178,6 @@ export class Table {
   _hiddenHeader = ".hidden-header";
   _draggableHeader = " .draggable-header";
   _lastChildDatePicker = "div:last-child .react-datepicker-wrapper";
-  _tableDataNthChild =
-    ".t--draggable-tablewidgetv2 .tbody .tr:nth-child(1) .td:nth-child(3)";
   _codeMirrorError = ".t--codemirror-has-error";
   _canvasWidgetType = "[type='CANVAS_WIDGET']";
   _showArrow = ".rc-select-show-arrow";
