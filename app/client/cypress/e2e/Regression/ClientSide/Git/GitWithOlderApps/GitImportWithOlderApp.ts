@@ -59,7 +59,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
     );
     agHelper.AssertElementVisible(locators._widgetByName("data_table"));
     table.OpenNFilterTable("_id", "is exactly", "15665837");
-    table.ReadTableRowColumnData(0, 0).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0).then(($cellData: any) => {
       expect($cellData).to.eq(
         '["TV","Internet","Wifi","Air conditioning","Wheelchair accessible","Pool","Kitchen","Free parking on premises","Smoking allowed","Pets allowed","Gym","Elevator","Hot tub","Heating","Family/kid friendly","Washer","Dryer","Smoke detector","Fire extinguisher","Essentials"]',
       );
@@ -104,6 +104,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
       expect($cellData).to.eq("Ulf Merbold");
     });
     table.CloseFilter();
+    table.DownloadFromTable("Download as CSV");
     table.ValidateDownloadNVerify("data_table.csv", "Ulf Merbold");
   });
 
