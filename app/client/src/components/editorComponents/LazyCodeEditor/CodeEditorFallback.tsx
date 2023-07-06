@@ -9,7 +9,7 @@ import {
 import { ContentKind } from "./types";
 import type { EditorProps } from "components/editorComponents/CodeEditor";
 import { Spinner } from "design-system";
-import { JS_OBJECT_START_STATEMENT } from "workers/Linting/constants";
+import { JS_OBJECT_START_STATEMENT } from "plugins/Linting/constants";
 
 export default function CodeEditorFallback({
   input,

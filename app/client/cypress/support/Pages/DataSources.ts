@@ -600,6 +600,7 @@ export class DataSources {
   }
 
   public TestDatasource(expectedRes = true) {
+    this.agHelper.Sleep(500); //bit of time for CI!
     this.agHelper.GetNClick(this._testDs, 0, false, 0);
     this.agHelper.AssertNetworkDataSuccess("@testDatasource", expectedRes);
     if (expectedRes) {
@@ -608,6 +609,7 @@ export class DataSources {
   }
 
   public SaveDatasource(isForkModal = false) {
+    this.agHelper.Sleep(500); //bit of time for CI!
     this.agHelper.GetNClick(this._saveDs);
     if (!isForkModal) {
       this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
@@ -1406,7 +1408,7 @@ export class DataSources {
   public StartContainerNVerify(
     containerType: "MsSql" | "Arango" | "Elasticsearch",
     containerName: string,
-    sleepTime = 30000,
+    sleepTime = 40000,
   ) {
     let containerCommand = "";
     switch (containerType) {
