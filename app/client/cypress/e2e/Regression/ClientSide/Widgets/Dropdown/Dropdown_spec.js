@@ -6,9 +6,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Dropdown Widget Functionality", function () {
   before(() => {
-    cy.fixture("emptyDSL").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("emptyDSL");
   });
 
   it("Add new dropdown widget", () => {

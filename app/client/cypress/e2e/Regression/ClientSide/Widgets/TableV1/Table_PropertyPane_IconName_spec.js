@@ -3,9 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget property pane feature validation", function () {
   before(() => {
-    cy.fixture("tableNewDslWithPagination").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableNewDslWithPagination");
   });
 
   it("Verify table column type changes effect on menuButton and iconButton", function () {

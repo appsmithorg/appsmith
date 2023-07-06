@@ -2,9 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Form Widget", () => {
   before(() => {
-    cy.fixture("formHasChangesDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("formHasChangesDsl");
   });
 
   it("Check hasChanges meta property", () => {

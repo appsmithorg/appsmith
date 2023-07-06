@@ -5,9 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Switch Widget within Form widget Functionality", function () {
   before(() => {
-    cy.fixture("datepicker_switchDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("datepicker_switchDsl");
   });
   it("Switch Widget Functionality check with success message", function () {
     cy.openPropertyPane("switchwidget");

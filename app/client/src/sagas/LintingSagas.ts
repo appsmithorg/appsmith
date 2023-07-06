@@ -4,47 +4,46 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import { call, put, select, takeEvery } from "redux-saga/effects";
 import { getAppMode } from "selectors/entitiesSelector";
-import { GracefulWorkerService } from "utils/WorkerUtil";
 import type { TJSLibrary } from "workers/common/JSLibrary";
-import type {
-  LintTreeRequest,
-  LintTreeResponse,
-  LintTreeSagaRequestData,
-} from "workers/Linting/types";
-import { LINT_WORKER_ACTIONS } from "workers/Linting/types";
 import { logLatestLintPropertyErrors } from "./PostLintingSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import type { AppState } from "@appsmith/reducers";
 import type { LintError } from "utils/DynamicBindingUtils";
-import { get, set, union } from "lodash";
+import { get, set, uniq } from "lodash";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
+import type {
+  LintTreeRequestPayload,
+  LintTreeResponse,
+  LintTreeSagaRequestData,
+} from "plugins/Linting/types";
+import type { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { Linter } from "plugins/Linting/Linter";
+import log from "loglevel";
+import { getFixedTimeDifference } from "workers/common/DataTreeEvaluator/utils";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
-export const lintWorker = new GracefulWorkerService(
-  new Worker(new URL("../workers/Linting/lint.worker.ts", import.meta.url), {
-    type: "module",
-    name: "lintWorker",
-  }),
-);
+export const lintWorker = new Linter({ useWorker: true });
 
-function* updateLintGlobals(action: ReduxAction<TJSLibrary>) {
+function* updateLintGlobals(
+  action: ReduxAction<{ add?: boolean; libs: TJSLibrary[] }>,
+) {
   const appMode: APP_MODE = yield select(getAppMode);
   const isEditorMode = appMode === APP_MODE.EDIT;
   if (!isEditorMode) return;
-  yield call(
-    lintWorker.request,
-    LINT_WORKER_ACTIONS.UPDATE_LINT_GLOBALS,
-    action.payload,
-  );
+  yield call(lintWorker.updateJSLibraryGlobals, action.payload);
 }
 
-function* getValidOldJSCollectionLintErrors(
-  jsEntities: string[],
+function* updateOldJSCollectionLintErrors(
+  lintedJSPaths: string[],
   errors: LintErrorsStore,
   jsObjectsState: TJSPropertiesState,
 ) {
+  const jsEntities = uniq(
+    lintedJSPaths.map((path) => getEntityNameAndPropertyPath(path).entityName),
+  );
   const updatedJSCollectionLintErrors: LintErrorsStore = {};
   for (const jsObjectName of jsEntities) {
     const jsObjectBodyPath = `["${jsObjectName}.body"]`;
@@ -57,23 +56,16 @@ function* getValidOldJSCollectionLintErrors(
       [] as LintError[],
     );
 
-    const newJSBodyLintErrorsOriginalPaths = newJSBodyLintErrors.reduce(
-      (paths, currentError) => {
-        if (currentError.originalPath)
-          return union(paths, [currentError.originalPath]);
-        return paths;
-      },
-      [] as string[],
-    );
-
     const jsObjectState = get(jsObjectsState, jsObjectName, {});
-    const jsObjectProperties = Object.keys(jsObjectState);
+    const jsObjectProperties = Object.keys(jsObjectState).map(
+      (propertyName) => `${jsObjectName}.${propertyName}`,
+    );
 
     const filteredOldJsObjectBodyLintErrors = oldJsBodyLintErrors.filter(
       (lintError) =>
         lintError.originalPath &&
-        lintError.originalPath in jsObjectProperties &&
-        !(lintError.originalPath in newJSBodyLintErrorsOriginalPaths),
+        jsObjectProperties.includes(lintError.originalPath) &&
+        !lintedJSPaths.includes(lintError.originalPath),
     );
     const updatedLintErrors = [
       ...filteredOldJsObjectBodyLintErrors,
@@ -84,41 +76,27 @@ function* getValidOldJSCollectionLintErrors(
   return updatedJSCollectionLintErrors;
 }
 
-export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
-  const {
-    asyncJSFunctionsInDataFields,
-    configTree,
-    jsPropertiesState,
-    pathsToLint,
-    unevalTree,
-  } = action.payload;
-  // only perform lint operations in edit mode
-  const appMode: APP_MODE = yield select(getAppMode);
-  if (appMode !== APP_MODE.EDIT) return;
+export function* lintTreeSaga(payload: LintTreeSagaRequestData) {
+  const { configTree, forceLinting, unevalTree } = payload;
 
-  const lintTreeRequestData: LintTreeRequest = {
-    pathsToLint,
+  const lintTreeRequestData: LintTreeRequestPayload = {
     unevalTree,
-    jsPropertiesState,
     configTree,
     cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
-    asyncJSFunctionsInDataFields,
+    forceLinting,
   };
 
-  const { errors, updatedJSEntities }: LintTreeResponse = yield call(
-    lintWorker.request,
-    LINT_WORKER_ACTIONS.LINT_TREE,
-    lintTreeRequestData,
-  );
+  const { errors, jsPropertiesState, lintedJSPaths }: LintTreeResponse =
+    yield call(lintWorker.lintTree, lintTreeRequestData);
 
-  const oldJSCollectionLintErrors: LintErrorsStore =
-    yield getValidOldJSCollectionLintErrors(
-      updatedJSEntities,
+  const updatedOldJSCollectionLintErrors: LintErrorsStore =
+    yield updateOldJSCollectionLintErrors(
+      lintedJSPaths,
       errors,
       jsPropertiesState,
     );
 
-  const updatedErrors = { ...errors, ...oldJSCollectionLintErrors };
+  const updatedErrors = { ...errors, ...updatedOldJSCollectionLintErrors };
 
   yield put(setLintingErrors(updatedErrors));
   yield call(logLatestLintPropertyErrors, {
@@ -127,7 +105,23 @@ export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
   });
 }
 
+export function* initiateLinting(
+  unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree>,
+  forceLinting: boolean,
+) {
+  const lintingStartTime = performance.now();
+  const { configTree, unEvalTree: unevalTree } = unEvalAndConfigTree;
+
+  yield call(lintTreeSaga, {
+    unevalTree,
+    configTree,
+    forceLinting,
+  });
+  log.debug({
+    lintTime: getFixedTimeDifference(performance.now(), lintingStartTime),
+  });
+}
+
 export default function* lintTreeSagaWatcher() {
   yield takeEvery(ReduxActionTypes.UPDATE_LINT_GLOBALS, updateLintGlobals);
-  yield takeEvery(ReduxActionTypes.LINT_TREE, lintTreeSaga);
 }

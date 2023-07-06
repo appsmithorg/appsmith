@@ -86,6 +86,12 @@ import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_REQUEST_PARSING;
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_SERVER_EXECUTION;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
+import static com.appsmith.server.constants.AnalyticsConstants.DATASOURCE_CREATED_AT_SHORTNAME;
+import static com.appsmith.server.constants.AnalyticsConstants.DATASOURCE_ID_SHORTNAME;
+import static com.appsmith.server.constants.AnalyticsConstants.DATASOURCE_IS_MOCK_SHORTNAME;
+import static com.appsmith.server.constants.AnalyticsConstants.DATASOURCE_IS_TEMPLATE_SHORTNAME;
+import static com.appsmith.server.constants.AnalyticsConstants.DATASOURCE_NAME_SHORTNAME;
+import static com.appsmith.server.constants.AnalyticsConstants.ENVIRONMENT_ID_SHORTNAME;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -952,12 +958,12 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     }
 
                     data.putAll(Map.of(
-                            "dsId", ObjectUtils.defaultIfNull(datasourceStorage.getDatasourceId(), ""),
-                            "envId", ObjectUtils.defaultIfNull(datasourceStorage.getEnvironmentId(), ""),
-                            "dsName", datasourceStorage.getName(),
-                            "dsIsTemplate", ObjectUtils.defaultIfNull(datasourceStorage.getIsTemplate(), ""),
-                            "dsIsMock", ObjectUtils.defaultIfNull(datasourceStorage.getIsMock(), ""),
-                            "dsCreatedAt", dsCreatedAt
+                            DATASOURCE_ID_SHORTNAME, ObjectUtils.defaultIfNull(datasourceStorage.getDatasourceId(), ""),
+                            ENVIRONMENT_ID_SHORTNAME, ObjectUtils.defaultIfNull(datasourceStorage.getEnvironmentId(), ""),
+                            DATASOURCE_NAME_SHORTNAME, datasourceStorage.getName(),
+                            DATASOURCE_IS_TEMPLATE_SHORTNAME, ObjectUtils.defaultIfNull(datasourceStorage.getIsTemplate(), ""),
+                            DATASOURCE_IS_MOCK_SHORTNAME, ObjectUtils.defaultIfNull(datasourceStorage.getIsMock(), ""),
+                            DATASOURCE_CREATED_AT_SHORTNAME, dsCreatedAt
                     ));
 
                     // Add the error message in case of erroneous execution
