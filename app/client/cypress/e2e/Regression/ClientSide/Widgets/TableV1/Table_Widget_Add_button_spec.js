@@ -1,11 +1,11 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 const testdata = require("../../../../../fixtures/testdata.json");
 
 describe("Table Widget property pane feature validation", function () {
   before(() => {
-    _.agHelper.AddDsl("tableNewDsl");
+    agHelper.AddDsl("tableNewDsl");
   });
 
   it("1. Table widget with Add button test and validation", function () {
@@ -23,10 +23,11 @@ describe("Table Widget property pane feature validation", function () {
     cy.get(commonlocators.editPropBackButton).click({
       force: true,
     });
+    agHelper.Sleep();
     // Validating the button action by clicking
     cy.get(widgetsPage.tableBtn).last().click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(3000);
+    agHelper.Sleep();
     // Validating the toast message
     cy.get(widgetsPage.toastAction).should("be.visible");
     cy.get(widgetsPage.toastActionText)
