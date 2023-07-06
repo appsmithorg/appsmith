@@ -82,11 +82,11 @@ describe("Git Bugs", function () {
       _.agHelper.GetNClick(_.locators._appChangeThemeBtn, 0, true);
       _.agHelper.GetNClick(_.locators._appThemeCard, 2);
       _.agHelper.GetNClick(_.locators._publishButton);
-      _.agHelper.WaitUntilEleAppear(_.locators._gitStatusChanges);
+      _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
       _.agHelper.AssertContains(
         "Theme modified",
         "exist",
-        _.locators._gitStatusChanges,
+        _.gitSync._gitStatusChanges,
       );
       _.agHelper.GetNClick(_.locators._dialogCloseButton);
       _.agHelper.GetNClick(_.locators._appEditMenuBtn);
@@ -95,11 +95,11 @@ describe("Git Bugs", function () {
       _.agHelper.GetNClick(_.locators._appNavigationSettings);
       _.agHelper.GetNClick(_.locators._appNavigationSettingsShowTitle);
       _.agHelper.GetNClick(_.locators._publishButton);
-      _.agHelper.WaitUntilEleAppear(_.locators._gitStatusChanges);
+      _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
       _.agHelper.AssertContains(
         "Application settings modified",
         "exist",
-        _.locators._gitStatusChanges,
+        _.gitSync._gitStatusChanges,
       );
       _.agHelper.GetNClick(_.locators._dialogCloseButton);
     });

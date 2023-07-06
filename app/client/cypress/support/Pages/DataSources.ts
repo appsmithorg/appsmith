@@ -53,19 +53,21 @@ export class DataSources {
   private _collapseContainer = ".t--collapse-section-container";
   private _collapseSettings =
     "[data-testid='t--dropdown-connection.ssl.authType']";
-  public _host = "input[name='datasourceConfiguration.endpoints[0].host']";
-  public _port = "input[name='datasourceConfiguration.endpoints[0].port']";
+  public _host = "input[name*='datasourceConfiguration.endpoints[0].host']";
+  public _port = "input[name*='datasourceConfiguration.endpoints[0].port']";
   _databaseName =
-    "input[name='datasourceConfiguration.authentication.databaseName']";
+    "input[name*='datasourceConfiguration.authentication.databaseName']";
   private _username =
-    "input[name='datasourceConfiguration.authentication.username']";
+    "input[name*='datasourceConfiguration.authentication.username']";
   private _section = (name: string) =>
     "//div[text()='" + name + "']/parent::div";
   private _sectionState = (name: string) =>
     this._section(name) +
     "/following-sibling::div/div[@class ='bp3-collapse-body']";
   private _password =
-    "input[name = 'datasourceConfiguration.authentication.password']";
+    "input[name *= 'datasourceConfiguration.authentication.password']";
+  private defaultDatabaseName =
+    "input[name*='datasourceConfiguration.connection.defaultDatabaseName']";
   private _testDs = ".t--test-datasource";
   _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   _saveDs = ".t--save-datasource";
@@ -428,6 +430,7 @@ export class DataSources {
     shouldAddTrailingSpaces = false,
     username = "",
     password = "",
+    oldApp = false,
   ) {
     const hostAddress = shouldAddTrailingSpaces
       ? this.hp.postgres_host + "  "
@@ -441,14 +444,14 @@ export class DataSources {
     );
     this.agHelper.UpdateInputValue(this._host, hostAddress);
     cy.get(this._databaseName).clear().type(databaseName);
-    this.ExpandSectionByName("Authentication");
+    if (!oldApp) this.ExpandSectionByName("Authentication");
     cy.get(this._username).type(
       username == "" ? this.hp.postgres_username : username,
     );
     cy.get(this._password).type(
       password == "" ? this.hp.postgres_username : password,
     );
-    this.ExpandSectionByName("SSL (optional)");
+    if (!oldApp) this.ExpandSectionByName("SSL (optional)");
     this.ValidateNSelectDropdown("SSL mode", "Default");
   }
 
@@ -475,17 +478,24 @@ export class DataSources {
     );
   }
 
-  public FillMongoDSForm(shouldAddTrailingSpaces = false) {
+  public FillMongoDSForm(shouldAddTrailingSpaces = false, oldApp = false) {
     const hostAddress = shouldAddTrailingSpaces
       ? this.hp.mongo_host + "  "
       : this.hp.mongo_host;
     this.agHelper.UpdateInputValue(this._host, hostAddress);
     this.agHelper.UpdateInputValue(this._port, this.hp.mongo_port.toString());
-    this.ExpandSectionByName("Authentication");
-    cy.get(this._databaseName).clear().type(this.hp.mongo_databaseName);
+    if (!oldApp) {
+      this.ExpandSectionByName("Authentication");
+      cy.get(this._databaseName).clear().type(this.hp.mongo_databaseName);
+    } else {
+      this.agHelper.UpdateInputValue(
+        this.defaultDatabaseName,
+        this.hp.mongo_databaseName,
+      );
+    }
   }
 
-  public FillMySqlDSForm(shouldAddTrailingSpaces = false) {
+  public FillMySqlDSForm(shouldAddTrailingSpaces = false, oldApp = false) {
     const hostAddress = shouldAddTrailingSpaces
       ? this.hp.mysql_host + "  "
       : this.hp.mysql_host;
@@ -496,7 +506,7 @@ export class DataSources {
     this.agHelper.UpdateInputValue(this._host, hostAddress);
     this.agHelper.UpdateInputValue(this._port, this.hp.mysql_port.toString());
     cy.get(this._databaseName).clear().type(databaseName);
-    this.ExpandSectionByName("Authentication");
+    if (!oldApp) this.ExpandSectionByName("Authentication");
     this.agHelper.UpdateInputValue(this._username, this.hp.mysql_username);
     cy.get(this._password).type(this.hp.mysql_password);
   }
@@ -853,7 +863,10 @@ export class DataSources {
     }
   }
 
-  public ReconnectDataSource(dbName: string, dsName: "PostgreSQL" | "MySQL") {
+  public ReconnectDataSource(
+    dbName: string,
+    dsName: "PostgreSQL" | "MySQL" | "MongoDB",
+  ) {
     this.agHelper.AssertElementVisible(this._reconnectModal);
     this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
     this.agHelper.AssertElementVisible(
@@ -870,9 +883,33 @@ export class DataSources {
     this.ValidateNSelectDropdown("Connection mode", "Read / Write");
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
+    else if (dsName == "MongoDB") this.FillMongoDSForm();
     this.agHelper.GetNClick(this._saveDs);
     this.assertHelper.AssertNetworkStatus("@getPage", 200);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
+  }
+
+  public ReconnectDataSourceForOldApp(
+    dbName: string,
+    dsName: "PostgreSQL" | "MySQL" | "MongoDB",
+  ) {
+    this.agHelper.AssertElementVisible(this._reconnectModal);
+    this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
+    this.agHelper.AssertElementVisible(
+      this._activeDSListReconnectModal(dsName),
+    );
+    this.agHelper.AssertElementVisible(
+      this._activeDSListReconnectModal(dbName),
+    );
+
+    this.agHelper.GetNClickByContains(this._reconnectModalDSToolTip, dbName);
+    this.agHelper.AssertElementVisible(this._reconnectModalDSToopTipIcon);
+
+    this.ValidateNSelectDropdown("Connection mode", "Read / Write");
+    if (dsName == "PostgreSQL") this.FillPostgresDSForm(true, "", "", true);
+    else if (dsName == "MySQL") this.FillMySqlDSForm(true, true);
+    else if (dsName == "MongoDB") this.FillMongoDSForm(true, true);
+    this.agHelper.GetNClick(this._saveDs);
   }
 
   RunQuery({

@@ -108,6 +108,7 @@ export class HomePage {
   // _appRenameTooltip =
   //   '//span[text()="Rename application"]/ancestor::div[contains(@class,"rc-tooltip")]';
   _appRenameTooltip = "span:contains('Rename application')";
+  _importFromGitBtn = "div.t--import-json-card + div";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -432,6 +433,17 @@ export class HomePage {
       force: true,
     });
     this.agHelper.Sleep(3500);
+  }
+
+  public ImportGitApp(intoWorkspaceName = "") {
+    cy.get(this._homeIcon).click({ force: true });
+    if (intoWorkspaceName)
+      this.agHelper.GetNClick(this._optionsIconInWorkspace(intoWorkspaceName));
+    else this.agHelper.GetNClick(this._optionsIcon);
+    this.agHelper.GetNClick(this._workspaceImport, 0, true);
+    this.agHelper.AssertElementVisible(this._workspaceImportAppModal);
+    this.agHelper.GetNClick(this._importFromGitBtn);
+    this.agHelper.Sleep(1000);
   }
 
   // Do not use this directly, it will fail on EE. Use `InviteUserToApplication` instead
