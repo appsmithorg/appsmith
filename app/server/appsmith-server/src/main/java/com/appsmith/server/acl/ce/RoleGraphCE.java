@@ -27,10 +27,9 @@ public class RoleGraphCE {
     public void createPolicyGraph() {
 
         // Initialization of the hierarchical and lateral graphs by adding all the vertices
-        EnumSet.allOf(AppsmithRole.class)
-                .forEach(role -> {
-                    hierarchyGraph.addVertex(role);
-                });
+        EnumSet.allOf(AppsmithRole.class).forEach(role -> {
+            hierarchyGraph.addVertex(role);
+        });
 
         hierarchyGraph.addEdge(ORGANIZATION_ADMIN, ORGANIZATION_DEVELOPER);
         hierarchyGraph.addEdge(ORGANIZATION_DEVELOPER, ORGANIZATION_VIEWER);
@@ -41,7 +40,8 @@ public class RoleGraphCE {
 
         Set<AppsmithRole> childrenRoles = new LinkedHashSet<>();
         childrenRoles.add(role);
-        BreadthFirstIterator<AppsmithRole, DefaultEdge> breadthFirstIterator = new BreadthFirstIterator<>(hierarchyGraph, role);
+        BreadthFirstIterator<AppsmithRole, DefaultEdge> breadthFirstIterator =
+                new BreadthFirstIterator<>(hierarchyGraph, role);
         while (breadthFirstIterator.hasNext()) {
             childrenRoles.add(breadthFirstIterator.next());
         }

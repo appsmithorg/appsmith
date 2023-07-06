@@ -2,7 +2,6 @@ package com.appsmith.external.datatypes;
 
 import com.appsmith.external.constants.DataType;
 
-
 public class NullArrayType implements AppsmithType {
     @Override
     public boolean test(String s) {
