@@ -196,12 +196,21 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 );
     }
 
+    private Mono<ApplicationImportDTO> disableReconnectModal(ApplicationImportDTO applicationImportDTO) {
+        // If `isPartialImport` is not set to false, the reconnect datasource modal pops up. However, in
+        // the case when application is being imported from a template, the sample datasources are
+        // included in the JSON and it's not a partial import.
+        applicationImportDTO.setIsPartialImport(false);
+        return Mono.just(applicationImportDTO);
+    }
+
     @Override
     public Mono<ApplicationImportDTO> importApplicationFromTemplate(String templateId, String workspaceId) {
         return getApplicationJsonFromTemplate(templateId)
                 .flatMap(applicationJson -> importExportApplicationService.importNewApplicationInWorkspaceFromJson(workspaceId, applicationJson))
                 .flatMap(application -> importExportApplicationService
                         .getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application))
+                .flatMap(this::disableReconnectModal)
                 .flatMap(applicationImportDTO -> {
                     Application application = applicationImportDTO.getApplication();
                     ApplicationTemplate applicationTemplate = new ApplicationTemplate();
