@@ -243,3 +243,11 @@ jobs:
       # Set status = success
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+        
+      - name: Always pass
+        if: always()
+        shell: bash
+        run: |
+          if [ 1 -eq 1 ]; then
+            echo "pass"
+          fi
