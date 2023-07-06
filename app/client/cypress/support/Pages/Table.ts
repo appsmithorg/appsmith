@@ -141,13 +141,13 @@ export class Table {
   _filtersCount = this._filterBtn + " span.action-title";
   _headerCell = (column: string) =>
     `.t--widget-tablewidgetv2 .thead .th:contains(${column})`;
-  _addNewRow = ".t--add-new-row";
+  private _addNewRow = ".t--add-new-row";
   _saveNewRow = ".t--save-new-row";
   _discardRow = ".t--discard-new-row";
   _searchInput = ".t--search-input input";
   _bodyCell = (cellValue: string) =>
     `.t--table-text-cell:contains(${cellValue})`;
-  _newRow = ".new-row";
+  private _newRow = ".new-row";
   _connectDataHeader = ".t--cypress-table-overlay-header";
   _connectDataButton = ".t--cypress-table-overlay-connectdata";
   _updateMode = (mode: "Single" | "Multi") =>
@@ -528,6 +528,11 @@ export class Table {
       networkCall,
     );
     this.WaitUntilTableLoad(0, 0, tableVersion);
+  }
+
+  public AddNewRow() {
+    this.agHelper.GetNClick(this._addNewRow);
+    this.agHelper.AssertElementExist(this._newRow);
   }
 
   public AddColumn(colId: string) {

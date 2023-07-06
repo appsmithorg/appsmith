@@ -45,7 +45,7 @@ describe("Table widget one click binding feature", () => {
     agHelper.AssertElementExist(table._showPageItemsCount);
     table.EnableEditableOfColumn("id", "v2");
 
-    agHelper.GetNClick(table._addNewRow, 0, true);
+    table.AddNewRow();
 
     //const randomNumber = Cypress._.random(10, 100, false);
     //cy.log("randomeNumber: " + randomNumber);
