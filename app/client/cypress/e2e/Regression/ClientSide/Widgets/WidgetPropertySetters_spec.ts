@@ -157,7 +157,7 @@ describe("Linting warning for setter methods", function () {
     propPane.TypeTextIntoField("Label", "{{Button1.setLabel('Hello')}}");
 
     //Mouse hover to exact warning message
-    agHelper.GetElement(locators._lintErrorElement).trigger("mouseover");
+    agHelper.HoverElement(locators._lintErrorElement);
     agHelper.AssertContains("Data fields cannot execute async code");
 
     //Create a JS object
