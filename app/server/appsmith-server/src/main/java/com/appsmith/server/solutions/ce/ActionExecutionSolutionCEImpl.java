@@ -521,7 +521,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             .flatMap(datasourceStorage -> {
                                 // For embedded datasourceStorage, validate the datasourceStorage for each execution
                                 if (datasourceStorage.getDatasourceId() == null) {
-                                    return datasourceStorageService.validateDatasourceStorage(datasourceStorage);
+                                    return datasourceStorageService.validateDatasourceConfiguration(datasourceStorage);
                                 }
 
                                 // The external datasourceStorage have already been validated. No need to validate again.

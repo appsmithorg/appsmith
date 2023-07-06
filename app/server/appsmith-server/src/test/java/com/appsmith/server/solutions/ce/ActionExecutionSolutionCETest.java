@@ -231,9 +231,10 @@ public class ActionExecutionSolutionCETest {
         datasource.setWorkspaceId(workspaceId);
         Plugin installed_plugin = pluginRepository.findByPackageName("restapi-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
+        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
 
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, new DatasourceConfiguration()));
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasource.getDatasourceConfiguration()));
         datasource.setDatasourceStorages(storages);
     }
 
