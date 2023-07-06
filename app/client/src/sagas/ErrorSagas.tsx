@@ -229,7 +229,12 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
 
         if ((window as any).Cypress) {
           if (message === "" || message === null) {
-            yield call(showToast, message + type, { kind: "error" });
+            yield put(
+              safeCrashApp({
+                ...error,
+                code: ERROR_CODES.CYPRESS_DEBUG,
+              }),
+            );
           }
         }
         break;
@@ -250,6 +255,7 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
     payload: {
       source: errorAction.type,
       message,
+      stackTrace: (error as any)?.stack,
     },
   });
 }
