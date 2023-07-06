@@ -55,6 +55,15 @@ describe("File parser formats differenty file types correctly", () => {
       "csv",
       true,
     );
+
+    const dateString = "2022-09-15";
+    const date = new Date(dateString);
+
+    const timezoneOffset = date.getTimezoneOffset();
+    const offsetMilliseconds = timezoneOffset * 60 * 1000;
+
+    const convertedDate = new Date(date.getTime() + offsetMilliseconds);
+
     const expectedResult = [
       {
         "Data Id": "hsa-miR-942-5p",
@@ -70,7 +79,7 @@ describe("File parser formats differenty file types correctly", () => {
         Number: 1000,
         Boolean: false,
         Empty: "",
-        Date: new Date("2022-09-15T00:00:00.000Z"),
+        Date: convertedDate,
       },
     ];
     expect(result).toStrictEqual(expectedResult);
