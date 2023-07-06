@@ -150,13 +150,14 @@ function parseCSVString(data: string, dynamicTyping = false): CSVRowData[] {
   const workbook = XLSX.read(data, {
     type: "binary",
     cellDates: true,
-    dateNF: "yyyy/mm/dd",
-    raw: dynamicTyping ? false : true,
+    dateNF: "yyyy-mm-dd",
+    raw: dynamicTyping ? false : true, // parse values
   });
   const sheetName = workbook.SheetNames[0];
   const worksheet = workbook.Sheets[sheetName];
   const jsonData: XLSX.CellObject[] = XLSX.utils.sheet_to_json(worksheet, {
-    header: 1,
+    header: 1, // to notify that the first row is the header row
+    defval: "", // to get empty cells as empty strings
   });
   const headerRow: any[] = jsonData[0] as any;
   const dataRows: any[][] = jsonData.slice(1) as any;
