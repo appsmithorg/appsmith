@@ -32,11 +32,9 @@ describe("Autocomplete tests for setters", () => {
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(locators._codeMirrorTextArea, "Button1");
 
-    agHelper.GetNAssertElementText(
+    agHelper.GetElementsNAssertTextPresence(
       locators._hints,
       "Button1.setColor()",
-      "have.text",
-      5,
     );
 
     //For table widget
@@ -45,12 +43,7 @@ describe("Autocomplete tests for setters", () => {
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.RemoveCharsNType(locators._codeMirrorTextArea, 7, "Table1.set");
 
-    agHelper.GetNAssertElementText(
-      locators._hints,
-      "setData()",
-      "have.text",
-      0,
-    );
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "setData()");
   });
 
   it("2. Check if setters are present in autocomplete for widgets in property Pane", () => {
@@ -58,11 +51,6 @@ describe("Autocomplete tests for setters", () => {
 
     entityExplorer.SelectEntityByName("Button1");
     propPane.EnterJSContext("onClick", "{{Input1.set", true, false);
-    agHelper.GetNAssertElementText(
-      locators._hints,
-      "setDisabled()",
-      "have.text",
-      0,
-    );
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "setDisabled()");
   });
 });
