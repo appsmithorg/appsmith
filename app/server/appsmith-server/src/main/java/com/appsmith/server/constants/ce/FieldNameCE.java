@@ -177,12 +177,4 @@ public class FieldNameCE {
     public static final String UNUSED_ENVIRONMENT_ID = "unused_env";
 
     public static final String SUFFIX_USER_MANAGEMENT_ROLE = " User Management";
-
-    //short names for analytics
-    public static final String ENVIRONMENT_ID_SHORTNAME = "envId";
-    public static final String DATASOURCE_ID_SHORTNAME = "dsId";
-    public static final String DATASOURCE_NAME_SHORTNAME = "dsName";
-    public static final String DATASOURCE_IS_TEMPLATE_SHORTNAME = "dsIsTemplate";
-    public static final String DATASOURCE_IS_MOCK_SHORTNAME = "dsIsMock";
-    public static final String DATASOURCE_CREATED_AT_SHORTNAME = "dsCreatedAt";
 }
