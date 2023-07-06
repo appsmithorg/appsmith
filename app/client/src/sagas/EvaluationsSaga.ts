@@ -587,10 +587,9 @@ function* evaluationChangeListenerSaga(): any {
   });
   yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
 
-  const initAction: {
-    type: ReduxActionType;
-    postEvalActions: Array<ReduxAction<unknown>>;
-  } = yield take(FIRST_EVAL_REDUX_ACTIONS);
+  const initAction: EvaluationReduxAction<unknown> = yield take(
+    FIRST_EVAL_REDUX_ACTIONS,
+  );
   yield call(waitForWidgetConfigBuild);
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   yield fork(evalAndLintingHandler, false, initAction, {
