@@ -8,9 +8,7 @@ import {
 
 describe("Test Suite to validate copy/paste table Widget V2", function () {
   before(() => {
-    cy.fixture("tableV2NewDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableV2NewDsl");
   });
   it("1. Copy paste table widget and valdiate application status", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";

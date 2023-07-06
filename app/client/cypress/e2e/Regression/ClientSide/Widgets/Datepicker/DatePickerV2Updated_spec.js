@@ -11,9 +11,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   });
 
   before(() => {
-    cy.fixture("datePickerV2Updated_dsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("datePickerV2Updated_dsl");
   });
 
   it("1. Datepicker tooltip renders if tooltip prop is not empty", () => {

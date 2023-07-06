@@ -2,9 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget Image Resize feature validation", function () {
   before(() => {
-    cy.fixture("Table/ImageResizeDSL").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Table/ImageResizeDSL");
   });
 
   it("1. Verify image size on selecting different Image Sizes", function () {
