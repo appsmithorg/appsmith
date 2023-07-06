@@ -90,12 +90,6 @@ export class AssertHelper extends ReusableHelper {
     // });
   }
 
-  public WaitForNetworkCall(aliasName: string, expectedStatus = 200) {
-    this.Sleep(); //Wait a bit for call to finish!
-    aliasName = aliasName.startsWith("@") ? aliasName : "@" + aliasName;
-    return cy.wait(aliasName);
-  }
-
   public AssertContains(
     text: string | RegExp,
     exists: "exist" | "not.exist" | "be.visible" = "exist",
