@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
@@ -91,7 +90,7 @@ public class FeatureFlagServiceTest {
     }
 
     @Test
-    public void getFeatureFlags_withUserIdentifier_redisKeyExists(){
+    public void getFeatureFlags_withUserIdentifier_redisKeyExists() {
         String userIdentifier = "testIdentifier";
         Mono<CachedFlags> cachedFlagsMono = cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier);
         Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("featureFlag:" + userIdentifier);
@@ -103,7 +102,7 @@ public class FeatureFlagServiceTest {
     }
 
     @Test
-    public void evictFeatureFlags_withUserIdentifier_redisKeyDoesNotExist(){
+    public void evictFeatureFlags_withUserIdentifier_redisKeyDoesNotExist() {
         String userIdentifier = "testIdentifier";
         Mono<Void> evictCache = cacheableFeatureFlagHelper.evictUserCachedFlags(userIdentifier);
         Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("featureFlag:" + userIdentifier);
@@ -125,5 +124,4 @@ public class FeatureFlagServiceTest {
             return ff4j;
         }
     }
-
 }

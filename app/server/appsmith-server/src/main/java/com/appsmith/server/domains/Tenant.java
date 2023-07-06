@@ -15,8 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class Tenant extends BaseDomain {
 
-    @Unique
-    String slug;
+    @Unique String slug;
 
     String displayName;
 

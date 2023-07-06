@@ -20,5 +20,4 @@ public interface ReleaseNotesServiceCE {
     List<ReleaseNode> getReleaseNodesCache();
 
     void setReleaseNodesCache(List<ReleaseNode> nodes);
-
 }

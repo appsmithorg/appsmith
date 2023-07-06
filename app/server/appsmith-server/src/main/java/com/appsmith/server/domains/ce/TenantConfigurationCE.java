@@ -41,5 +41,4 @@ public class TenantConfigurationCE {
     }
 
     public License license;
-
 }
