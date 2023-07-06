@@ -17,21 +17,21 @@ import java.util.List;
 public class Provider extends BaseDomain {
 
     @Indexed(unique = true)
-    String name; //Provider name here
+    String name; // Provider name here
 
-    String description; //Provider company's description here
+    String description; // Provider company's description here
 
     String url;
 
     String imageUrl;
 
-    String documentationUrl; //URL which points to the homepage of the documentations here
+    String documentationUrl; // URL which points to the homepage of the documentations here
 
-    String credentialSteps; //How to generate/get the credentials to run the APIs which belong to this provider
+    String credentialSteps; // How to generate/get the credentials to run the APIs which belong to this provider
 
-    List<String> categories; //Category names here
+    List<String> categories; // Category names here
 
-    Statistics statistics; //Cumulative statistics for all the APIs for this provider
+    Statistics statistics; // Cumulative statistics for all the APIs for this provider
 
     DatasourceConfiguration datasourceConfiguration;
 
@@ -45,5 +45,4 @@ public class Provider extends BaseDomain {
     Boolean isVisible = true;
 
     Integer sortOrder = 1000;
-
 }

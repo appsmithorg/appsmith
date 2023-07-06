@@ -848,8 +848,7 @@ export class DataSources {
     dbName: string,
     dsName: "PostgreSQL" | "MySQL" | "MongoDB",
   ) {
-    this.agHelper.AssertElementVisible(this._reconnectModal);
-    this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
+    this.WaitForReconnectModalToAppear();
     this.agHelper.AssertElementVisible(
       this._activeDSListReconnectModal(dsName),
     );
@@ -884,10 +883,17 @@ export class DataSources {
     else if (dsName == "MongoDB") this.FillMongoDSForm(true, true);
     this.agHelper.GetNClick(this._saveDs);
   }
+  
+  public WaitForReconnectModalToAppear() {
+    this.agHelper.AssertElementVisible(this._reconnectModal);
+    this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
+  }
 
   public ReconnectDSbyName(
     dsName: "PostgreSQL" | "MySQL" | "MongoDB" | "S3" | "MongoDBUri",
   ) {
+    this.WaitForReconnectModalToAppear();
+
     if (dsName !== "MongoDBUri")
       this.agHelper.GetNClick(this.locator._visibleTextSpan(dsName));
     else if (dsName == "MongoDBUri")

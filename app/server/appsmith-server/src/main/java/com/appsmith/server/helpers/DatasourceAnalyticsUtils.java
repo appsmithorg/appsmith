@@ -39,8 +39,8 @@ public class DatasourceAnalyticsUtils {
         return analyticsProperties;
     }
 
-    public static Map<String, Object> getAnalyticsPropertiesForTestEventStatus
-            (DatasourceStorage datasourceStorage, boolean status, Throwable e) {
+    public static Map<String, Object> getAnalyticsPropertiesForTestEventStatus(
+            DatasourceStorage datasourceStorage, boolean status, Throwable e) {
         Map<String, Object> analyticsProperties = getAnalyticsPropertiesWithStorage(datasourceStorage);
         analyticsProperties.put("isSuccess", status);
 
@@ -55,16 +55,16 @@ public class DatasourceAnalyticsUtils {
         return analyticsProperties;
     }
 
-    public static Map<String, Object> getAnalyticsPropertiesForTestEventStatus
-            (DatasourceStorage datasourceStorage, boolean status) {
+    public static Map<String, Object> getAnalyticsPropertiesForTestEventStatus(
+            DatasourceStorage datasourceStorage, boolean status) {
         Map<String, Object> analyticsProperties = getAnalyticsPropertiesWithStorage(datasourceStorage);
         analyticsProperties.put("isSuccess", status);
         analyticsProperties.put("errors", datasourceStorage.getInvalids());
         return analyticsProperties;
     }
 
-    public static Map<String, Object> getAnalyticsPropertiesForTestEventStatus
-            (DatasourceStorage datasourceStorage, DatasourceTestResult datasourceTestResult) {
+    public static Map<String, Object> getAnalyticsPropertiesForTestEventStatus(
+            DatasourceStorage datasourceStorage, DatasourceTestResult datasourceTestResult) {
         Map<String, Object> analyticsProperties = getAnalyticsPropertiesWithStorage(datasourceStorage);
         analyticsProperties.put("isSuccess", datasourceTestResult.isSuccess());
         analyticsProperties.put("errors", datasourceTestResult.getInvalids());
@@ -78,7 +78,9 @@ public class DatasourceAnalyticsUtils {
         analyticsProperties.put("dsName", datasourceStorage.getName());
         analyticsProperties.put("envId", datasourceStorage.getEnvironmentId());
         DatasourceConfiguration dsConfig = datasourceStorage.getDatasourceConfiguration();
-        if (dsConfig != null && dsConfig.getAuthentication() != null && dsConfig.getAuthentication() instanceof OAuth2) {
+        if (dsConfig != null
+                && dsConfig.getAuthentication() != null
+                && dsConfig.getAuthentication() instanceof OAuth2) {
             analyticsProperties.put("oAuthStatus", dsConfig.getAuthentication().getAuthenticationStatus());
         }
         return analyticsProperties;

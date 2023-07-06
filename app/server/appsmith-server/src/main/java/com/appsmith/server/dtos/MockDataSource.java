@@ -14,5 +14,4 @@ public class MockDataSource {
     String pluginId;
 
     String packageName;
-
 }
