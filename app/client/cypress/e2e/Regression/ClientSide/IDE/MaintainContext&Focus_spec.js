@@ -7,10 +7,6 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 describe("MaintainContext&Focus", function () {
   before("Import the test application", () => {
     _.homePage.NavigateToHome();
-    cy.intercept("GET", "/api/v1/users/features", {
-      fixture: "featureFlags.json",
-    }).as("featureFlags");
-    cy.reload();
     _.homePage.ImportApp("ContextSwitching.json");
     cy.wait("@importNewApplication").then((interception) => {
       _.agHelper.Sleep();
@@ -180,13 +176,11 @@ describe("MaintainContext&Focus", function () {
   it("4. Datasource edit mode has to be maintained", () => {
     _.entityExplorer.SelectEntityByName("Appsmith", "Datasources");
     _.dataSources.EditDatasource();
-    _.dataSources.ExpandSection(0);
     _.agHelper.GoBack();
     _.entityExplorer.SelectEntityByName("Github", "Datasources");
     _.dataSources.AssertDSEditViewMode("View");
     _.entityExplorer.SelectEntityByName("Appsmith", "Datasources");
     _.dataSources.AssertDSEditViewMode("Edit");
-    _.dataSources.AssertSectionCollapseState(0, false);
   });
 
   it("5. Maintain focus of form control inputs", () => {

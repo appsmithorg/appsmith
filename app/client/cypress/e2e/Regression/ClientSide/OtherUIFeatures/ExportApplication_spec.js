@@ -9,9 +9,7 @@ describe("Export application as a JSON file", function () {
   let appname;
 
   before(() => {
-    cy.fixture("displayWidgetDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("displayWidgetDsl");
   });
 
   it("1. Check if exporting app flow works as expected", function () {

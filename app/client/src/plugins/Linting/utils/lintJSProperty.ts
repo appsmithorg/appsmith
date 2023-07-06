@@ -6,7 +6,6 @@ import {
   getScriptToEval,
   getScriptType,
 } from "workers/Evaluation/evaluate";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { TJSpropertyState } from "workers/Evaluation/JSObject/jsPropertiesState";
 import getLintingErrors from "./getLintingErrors";
 
@@ -18,8 +17,7 @@ export default function lintJSProperty(
   if (isNil(jsPropertyState)) {
     return [];
   }
-  const { propertyPath: jsPropertyPath } =
-    getEntityNameAndPropertyPath(jsPropertyFullName);
+
   const scriptType = getScriptType(false, false);
   const scriptToLint = getScriptToEval(
     jsPropertyState.value,
@@ -40,7 +38,7 @@ export default function lintJSProperty(
         lintError.line === 0
           ? lintError.ch + jsPropertyState.position.startColumn
           : lintError.ch,
-      originalPath: jsPropertyPath,
+      originalPath: jsPropertyFullName,
     };
   });
 

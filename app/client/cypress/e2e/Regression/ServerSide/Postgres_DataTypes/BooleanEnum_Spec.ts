@@ -14,9 +14,7 @@ describe("Boolean & Enum Datatype tests", function () {
   let dsName: any, query: string;
 
   before("Create Postgress DS, Add dsl, Appply theme", () => {
-    cy.fixture("Datatypes/BooleanEnumDTdsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Datatypes/BooleanEnumDTdsl");
     appSettings.OpenPaneAndChangeThemeColors(-18, -20);
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {

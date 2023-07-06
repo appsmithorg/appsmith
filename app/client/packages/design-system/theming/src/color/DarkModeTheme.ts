@@ -14,6 +14,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private readonly seedIsGreen: boolean;
   private readonly seedIsRed: boolean;
   private readonly seedIsVeryDark: boolean;
+  private readonly seedIsYellow: boolean;
 
   constructor(color: ColorTypes) {
     const {
@@ -25,6 +26,7 @@ export class DarkModeTheme implements ColorModeTheme {
       isGreen,
       isRed,
       isVeryDark,
+      isYellow,
       lightness,
     } = new ColorsAccessor(color);
     this.seedColor = seedColor;
@@ -36,6 +38,7 @@ export class DarkModeTheme implements ColorModeTheme {
     this.seedIsGreen = isGreen;
     this.seedIsRed = isRed;
     this.seedIsVeryDark = isVeryDark;
+    this.seedIsYellow = isYellow;
   }
 
   public getColors = () => {
@@ -49,16 +52,16 @@ export class DarkModeTheme implements ColorModeTheme {
       bgAccentSubtleActive: this.bgAccentSubtleActive.toString(),
       bgAssistive: this.bgAssistive.toString(),
       bgPositive: this.bgPositive.to("sRGB").toString(),
-      bgPositiveHover: this.bgPositiveHover.toString(),
-      bgPositiveActive: this.bgPositiveActive.toString(),
-      bgPositiveSubtleHover: this.bgPositiveSubtleHover.toString(),
-      bgPositiveSubtleActive: this.bgPositiveSubtleActive.toString(),
+      bgPositiveHover: this.bgPositiveHover.to("sRGB").toString(),
+      bgPositiveActive: this.bgPositiveActive.to("sRGB").toString(),
+      bgPositiveSubtleHover: this.bgPositiveSubtleHover.to("sRGB").toString(),
+      bgPositiveSubtleActive: this.bgPositiveSubtleActive.to("sRGB").toString(),
       bgNegative: this.bgNegative.to("sRGB").toString(),
       bgNegativeHover: this.bgNegativeHover.toString(),
       bgNegativeActive: this.bgNegativeActive.toString(),
       bgNegativeSubtleHover: this.bgNegativeSubtleHover.toString(),
       bgNegativeSubtleActive: this.bgNegativeSubtleActive.toString(),
-      bgWarning: this.bgWarning.toString(),
+      bgWarning: this.bgWarning.to("sRGB").toString(),
       bgWarningHover: this.bgWarningHover.toString(),
       bgWarningActive: this.bgWarningActive.toString(),
       bgWarningSubtleHover: this.bgWarningSubtleHover.toString(),
@@ -79,7 +82,7 @@ export class DarkModeTheme implements ColorModeTheme {
       fgOnNegative: this.fgOnNegative.toString(),
       fgNeutral: this.fgNeutral.toString(),
       fgOnNeutral: this.fgOnNeutral.toString(),
-      fgWarning: this.fgWarning.toString(),
+      fgWarning: this.fgWarning.to("sRGB").toString(),
       fgOnWarning: this.fgOnWarning.toString(),
       fgOnAssistive: this.fgOnAssistive.toString(),
       // bd
@@ -91,7 +94,8 @@ export class DarkModeTheme implements ColorModeTheme {
       bdNeutralHover: this.bdNeutralHover.toString(),
       bdPositive: this.bdPositive.to("sRGB").toString(),
       bdPositiveHover: this.bdPositiveHover.to("sRGB").toString(),
-      bdWarning: this.bdWarning.toString(),
+      bdWarning: this.bdWarning.to("sRGB").toString(),
+      bdWarningHover: this.bdWarning.to("sRGB").toString(),
     };
   };
 
@@ -249,28 +253,81 @@ export class DarkModeTheme implements ColorModeTheme {
     return color;
   }
 
+  // Positive background, green.
+  private get bgPositive() {
+    const color = new Color("oklch", [0.62, 0.17, 145]);
+
+    // If the seed color is also green, adjust positive by hue to make it distinct from accent.
+    if (this.seedIsGreen && this.seedColor.oklch.c > 0.09) {
+      if (this.seedColor.oklch.h < 145) {
+        color.oklch.h = 155;
+      }
+      if (this.seedColor.oklch.h >= 145) {
+        color.oklch.h = 135;
+      }
+    }
+
+    return color;
+  }
+
   private get bgPositiveHover() {
-    return "#3ec16c";
+    const color = this.bgPositive.clone();
+
+    // Lightness of bgPositive is known, no additional checks like in bgAccentHover
+    color.oklch.l = color.oklch.l + 0.03;
+
+    return color;
   }
 
   private get bgPositiveActive() {
-    return "#35a15c";
+    const color = this.bgPositive.clone();
+
+    // Lightness of bgPositive is known, no additional checks like in bgAccentActive
+    color.oklch.l = color.oklch.l - 0.04;
+
+    return color;
   }
 
   private get bgPositiveSubtle() {
-    return "#f0fff5";
+    const color = this.bgPositive.clone();
+
+    color.oklch.l = 0.3;
+    color.oklch.c = 0.08;
+
+    return color;
   }
 
   private get bgPositiveSubtleHover() {
-    return "#e0ffeb";
+    const color = this.bgPositiveSubtle.clone();
+
+    color.oklch.l = color.oklch.l + 0.03;
+
+    return color;
   }
 
   private get bgPositiveSubtleActive() {
-    return "#d1ffe1";
+    const color = this.bgPositiveSubtle.clone();
+
+    color.oklch.l = color.oklch.l - 0.02;
+
+    return color;
   }
 
+  // Warning background, yellow
   private get bgWarning() {
-    return "#ffbc4b";
+    const color = new Color("oklch", [0.75, 0.15, 85]);
+
+    // Check for clashes with seed, adjust by hue to make it distinct
+    if (this.seedIsYellow && this.seedColor.oklch.c > 0.09) {
+      if (this.seedColor.oklch.h < 85) {
+        color.oklch.h = 95;
+      }
+      if (this.seedColor.oklch.h >= 85) {
+        color.oklch.h = 70;
+      }
+    }
+
+    return color;
   }
 
   private get bgWarningHover() {
@@ -358,23 +415,6 @@ export class DarkModeTheme implements ColorModeTheme {
     return this.fg.clone();
   }
 
-  // Positive background, green.
-  private get bgPositive() {
-    const color = new Color("oklch", [0.62, 0.17, 145]);
-
-    // If the seed color is also green, adjust positive by hue to make it distinct from accent.
-    if (this.seedIsGreen && this.seedColor.oklch.c > 0.09) {
-      if (this.seedColor.oklch.h < 145) {
-        color.oklch.h = 155;
-      }
-      if (this.seedColor.oklch.h >= 145) {
-        color.oklch.h = 135;
-      }
-    }
-
-    return color;
-  }
-
   /*
    * Foreground colors
    */
@@ -426,7 +466,7 @@ export class DarkModeTheme implements ColorModeTheme {
       this.seedIsRed &&
       !this.seedIsAchromatic &&
       this.fgAccent.oklch.l < 0.5 &&
-      this.fgAccent.oklch.h < 28
+      this.fgAccent.oklch.h < 27
     ) {
       color.oklch.l = color.oklch.l + 0.05;
       color.oklch.c = color.oklch.c + 0.05;
@@ -484,8 +524,16 @@ export class DarkModeTheme implements ColorModeTheme {
     return color;
   }
 
+  // Warning foreground is produced from the initially adjusted background color (see above).
   private get fgWarning() {
-    return "#facc15";
+    const color = this.bgWarning.clone();
+
+    // Yellow hue interval in OKLCh is less symmetrical than green, compensation is applied to results of bgNegative
+    color.oklch.l = color.oklch.l + 0.12;
+    color.oklch.c = color.oklch.c + 0.1;
+    color.oklch.h = color.oklch.h - 9;
+
+    return color;
   }
 
   private get fgOnNeutral() {
@@ -633,7 +681,50 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bdWarning() {
-    return "#facc15";
+    const color = this.bgWarning.clone();
+
+    if (
+      this.bdAccent.oklch.l > 0.5 &&
+      this.bdAccent.oklch.c > 0.15 &&
+      this.bdAccent.oklch.h < 85 &&
+      this.bdAccent.oklch.h >= 60
+    ) {
+      color.oklch.l = color.oklch.l + 0.18;
+    }
+
+    if (
+      this.bdAccent.oklch.l > 0.5 &&
+      this.bdAccent.oklch.c > 0.15 &&
+      this.bdAccent.oklch.h >= 85 &&
+      this.bdAccent.oklch.h < 110
+    ) {
+      color.oklch.h = color.oklch.h - 5;
+      color.oklch.l = color.oklch.l + 0.05;
+    }
+
+    return color;
+  }
+
+  private get bdWarningHover() {
+    const color = this.bdWarning.clone();
+
+    if (this.bdWarning.oklch.l < 0.8) {
+      color.oklch.l = color.oklch.l + 0.15;
+    }
+
+    if (this.bdWarning.oklch.l >= 0.8 && this.bdWarning.oklch.l < 0.9) {
+      color.oklch.l = color.oklch.l + 0.1;
+    }
+
+    if (this.bdWarning.oklch.l >= 0.9) {
+      color.oklch.l = color.oklch.l - 0.25;
+    }
+
+    if (color.oklch.c < 0.19) {
+      color.oklch.c = 0.19;
+    }
+
+    return color;
   }
 
   private get bdPositiveHover() {

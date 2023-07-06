@@ -34,9 +34,7 @@ const testCursorPoistion = (textValueLen, tinyMceId) => {
 
 describe("RichTextEditor Widget Functionality", function () {
   before(() => {
-    cy.fixture("formdsl1").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("formdsl1");
   });
 
   beforeEach(() => {

@@ -191,7 +191,7 @@ describe("Tern server", () => {
       MockCodemirrorEditor.getCursor.mockReturnValueOnce(
         testCase.input.codeEditor.cursor,
       );
-      MockCodemirrorEditor.getDoc.mockReturnValueOnce(
+      MockCodemirrorEditor.getDoc.mockReturnValue(
         testCase.input.codeEditor.doc,
       );
       MockCodemirrorEditor.getTokenAt.mockReturnValueOnce({
