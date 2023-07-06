@@ -8,13 +8,14 @@ import {
   assertHelper,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
-import data from "../../../../fixtures/TestDataSet1.json";
 
 describe("Test Create Api and Bind to Button widget", function () {
   before("Test_Add users api and execute api", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
     entityExplorer.NavigateToSwitcher("Explorer");
-    apiPage.CreateAndFillApi(data.userApi + "/random");
+    cy.fixture("TestDataSet1").then(function (dataSet) {
+      apiPage.CreateAndFillApi(dataSet.userApi + "/random");
+    });
   });
 
   it("1. Call the api with & without error handling", () => {
