@@ -30,12 +30,14 @@ async function run() {
 
     checkAvailableBackupSpace(availSpaceInBytes);
 
+    let keys_to_remove = 'all'
     if (!command_args.includes('--non-interactive')){
       encryptionPassword = getEncryptionPasswordFromUser();
       if (encryptionPassword == -1){
         throw new Error('Backup process aborted because a valid enctyption password could not be obtained from the user');
       }
       encryptArchive = true;
+      keys_to_remove = 'mongodb'
     }
 
     backupRootPath = await generateBackupRootPath();
@@ -48,7 +50,7 @@ async function run() {
     await createGitStorageArchive(backupContentsPath);
 
     await createManifestFile(backupContentsPath);
-    await exportDockerEnvFile(backupContentsPath);
+    await exportDockerEnvFile(backupContentsPath, keys_to_remove);
 
     archivePath = await createFinalArchive(backupRootPath, timestamp);
     // shell.exec("openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -in " + archivePath + " -out " + archivePath + ".enc");
@@ -136,17 +138,10 @@ async function createManifestFile(path) {
   await fsPromises.writeFile(path + '/manifest.json', JSON.stringify(manifest_data));
 }
 
-async function exportDockerEnvFile(destFolder) {
+async function exportDockerEnvFile(destFolder, keys_to_remove) {
   console.log('Exporting docker environment file');
   const content = await fsPromises.readFile('/appsmith-stacks/configuration/docker.env', { encoding: 'utf8' });
-  let cleaned_content;
-
-  if (!command_args.includes('--non-interactive')){
-    cleaned_content = removeSensitiveEnvData(content, 'all');
-  } else {
-    cleaned_content = removeSensitiveEnvData(content, 'mongodb');
-  }
-
+  const cleaned_content = removeSensitiveEnvData(content, keys_to_remove);
   await fsPromises.writeFile(destFolder + '/docker.env', cleaned_content);
   console.log('Exporting docker environment file done.');
 }
@@ -197,16 +192,16 @@ function getBackupContentsPath(backupRootPath, timestamp) {
   return backupRootPath + '/appsmith-backup-' + timestamp;
 }
 
-function removeSensitiveEnvData(content, keys_to_remove='all') {
+function removeSensitiveEnvData(content, keys_to_remove) {
   // Remove encryption and Mongodb data from docker.env
   const output_lines = []
-  if (keys_to_remove == 'mongodb'){
+  if (keys_to_remove === 'mongodb'){
     content.split(/\r?\n/).forEach(line => {
       if (!line.startsWith("APPSMITH_MONGODB")) {
         output_lines.push(line)
       }
     });
-  } else if (keys_to_remove == 'all') {
+  } else if (keys_to_remove === 'all') {
     content.split(/\r?\n/).forEach(line => {
       if (!line.startsWith("APPSMITH_ENCRYPTION") && !line.startsWith("APPSMITH_MONGODB")) {
         output_lines.push(line);

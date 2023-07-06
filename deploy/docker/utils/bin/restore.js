@@ -55,20 +55,32 @@ async function restoreDatabase(restoreContentsPath) {
   console.log('Restoring database completed');
 }
 
-async function restoreDockerEnvFile(restoreContentsPath, backupName) {
+async function restoreDockerEnvFile(restoreContentsPath, backupName, overwriteEncryptionKeys) {
   console.log('Restoring docker environment file');
   const dockerEnvFile = '/appsmith-stacks/configuration/docker.env';
   var encryptionPwd = process.env.APPSMITH_ENCRYPTION_PASSWORD;
   var encryptionSalt = process.env.APPSMITH_ENCRYPTION_SALT;
   await utils.execCommand(['mv', dockerEnvFile, dockerEnvFile + '.' + backupName]);
   await utils.execCommand(['cp', restoreContentsPath + '/docker.env', dockerEnvFile]);
-
-  if (encryptionPwd && encryptionSalt) {
-    const input = readlineSync.question('If you are restoring to the same Appsmith deployment which generated the backup archive, you can use the existing encryption keys on the instance.\n\
-    Press Enter to continue with existing encryption keys\n\
-    Or Type "n"/"No" to provide encryption key & password corresponding to the original Appsmith instance that is being restored.\n');
-    const answer = input && input.toLocaleUpperCase();
-    if (answer === 'N' || answer === 'NO') {
+  if (overwriteEncryptionKeys){
+    if (encryptionPwd && encryptionSalt) {
+      const input = readlineSync.question('If you are restoring to the same Appsmith deployment which generated the backup archive, you can use the existing encryption keys on the instance.\n\
+      Press Enter to continue with existing encryption keys\n\
+      Or Type "n"/"No" to provide encryption key & password corresponding to the original Appsmith instance that is being restored.\n');
+      const answer = input && input.toLocaleUpperCase();
+      if (answer === 'N' || answer === 'NO') {
+        encryptionPwd = readlineSync.question('Enter the APPSMITH_ENCRYPTION_PASSWORD: ', {
+          hideEchoBack: true
+        });
+        encryptionSalt = readlineSync.question('Enter the APPSMITH_ENCRYPTION_SALT: ', {
+          hideEchoBack: true
+        });
+      }
+      else {
+        console.log('Restoring docker environment file with existing encryption password & salt');
+      }
+    }
+    else {
       encryptionPwd = readlineSync.question('Enter the APPSMITH_ENCRYPTION_PASSWORD: ', {
         hideEchoBack: true
       });
@@ -76,22 +88,16 @@ async function restoreDockerEnvFile(restoreContentsPath, backupName) {
         hideEchoBack: true
       });
     }
-    else {
-      console.log('Restoring docker environment file with existing encryption password & salt');
-    }
-  }
-  else {
-    encryptionPwd = readlineSync.question('Enter the APPSMITH_ENCRYPTION_PASSWORD: ', {
-      hideEchoBack: true
-    });
-    encryptionSalt = readlineSync.question('Enter the APPSMITH_ENCRYPTION_SALT: ', {
-      hideEchoBack: true
-    });
-  }
-
-  await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_ENCRYPTION_PASSWORD=' + encryptionPwd +
+    await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_ENCRYPTION_PASSWORD=' + encryptionPwd +
     '\nAPPSMITH_ENCRYPTION_SALT=' + encryptionSalt + '\nAPPSMITH_MONGODB_URI=' + process.env.APPSMITH_MONGODB_URI +
     '\nAPPSMITH_MONGODB_USER=' + process.env.APPSMITH_MONGODB_USER + '\nAPPSMITH_MONGODB_PASSWORD=' + process.env.APPSMITH_MONGODB_PASSWORD ) ;
+
+  } else {
+    await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_MONGODB_URI=' + process.env.APPSMITH_MONGODB_URI +
+    '\nAPPSMITH_MONGODB_USER=' + process.env.APPSMITH_MONGODB_USER + '\nAPPSMITH_MONGODB_PASSWORD=' + process.env.APPSMITH_MONGODB_PASSWORD ) ;
+  }
+ 
+
 
   console.log('Restoring docker environment file completed');
 }
@@ -133,6 +139,7 @@ async function checkRestoreVersionCompatability(restoreContentsPath) {
 async function run() {
   let errorCode = 0;
   let cleanupArchive = false;
+  let overwriteEncryptionKeys = true;
   try {
     check_supervisord_status_cmd = '/usr/bin/supervisorctl >/dev/null 2>&1';
     shell.exec(check_supervisord_status_cmd, function (code) {
@@ -151,6 +158,7 @@ async function run() {
         backupFileName = backupFileName.replace('.enc', '');
         backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
         cleanupArchive = true;
+        overwriteEncryptionKeys = false;
         await unencryptArchive(encryptedBackupFilePath, backupFilePath);
       }
       const backupName = backupFileName.replace(/\.tar\.gz$/, "");
