@@ -12,6 +12,7 @@ on:
 
 jobs:
   chromatic-deployment:
+    if: github.repository == "appsmithorg/appsmith"
     runs-on: ubuntu-latest
    
     steps:
