@@ -1,10 +1,6 @@
 import DataTreeEvaluator from ".";
-import {
-  asyncTagUnevalTree,
-  lintingUnEvalTree,
-  unEvalTree,
-} from "./mockData/mockUnEvalTree";
-import { configTree, lintingConfigTree } from "./mockData/mockConfigTree";
+import { asyncTagUnevalTree, unEvalTree } from "./mockData/mockUnEvalTree";
+import { configTree } from "./mockData/mockConfigTree";
 import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeFactory";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { ALL_WIDGETS_AND_CONFIG } from "utils/WidgetRegistry";
@@ -531,16 +527,6 @@ describe("DataTreeEvaluator", () => {
         ).toStrictEqual(undefined);
         expect(dataTreeEvaluator.dependencyMap["Text1.text"]).toStrictEqual([]);
       });
-    });
-  });
-
-  describe("triggerfield dependency map", () => {
-    beforeEach(() => {
-      dataTreeEvaluator.setupFirstTree(
-        lintingUnEvalTree as unknown as DataTree,
-        lintingConfigTree as unknown as ConfigTree,
-      );
-      dataTreeEvaluator.evalAndValidateFirstTree();
     });
   });
 });
