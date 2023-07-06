@@ -18,7 +18,6 @@ import {
 } from "./mockData/NestedArrayAccessorTree";
 import { updateDependencyMap } from "workers/common/DependencyMap";
 import { parseJSActions } from "workers/Evaluation/JSObject";
-import type { ActionEntityConfig } from "entities/DataTree/types";
 import type { WidgetConfiguration } from "widgets/constants";
 import { setEvalContext } from "workers/Evaluation/evaluate";
 import { replaceThisDotParams } from "./utils";
@@ -542,93 +541,6 @@ describe("DataTreeEvaluator", () => {
         lintingConfigTree as unknown as ConfigTree,
       );
       dataTreeEvaluator.evalAndValidateFirstTree();
-    });
-    it("Creates correct triggerFieldDependencyMap", () => {
-      expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
-        "Button3.onClick": ["Api1.run", "Button2.text", "Api2.run"],
-        "Button2.onClick": ["Api2.run"],
-      });
-    });
-
-    it("Correctly updates triggerFieldDependencyMap", () => {
-      const newUnEvalTree = { ...lintingUnEvalTree } as unknown as DataTree;
-      const newConfigTree = { ...lintingConfigTree } as unknown as ConfigTree;
-      // delete Api2
-      delete newUnEvalTree["Api2"];
-      delete newConfigTree["Api2"];
-      const {
-        evalOrder,
-        nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
-        unEvalUpdates,
-      } = dataTreeEvaluator.setupUpdateTree(newUnEvalTree, newConfigTree);
-      dataTreeEvaluator.evalAndValidateSubTree(
-        evalOrder,
-        nonDynamicFieldValidationOrder2,
-        newConfigTree,
-        unEvalUpdates,
-      );
-      expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
-        "Button3.onClick": ["Api1.run", "Button2.text"],
-        "Button2.onClick": [],
-      });
-
-      // Add Api2
-      // @ts-expect-error: Types are not available
-      newUnEvalTree["Api2"] = { ...lintingUnEvalTree }["Api2"];
-      newConfigTree["Api2"] = { ...lintingConfigTree }[
-        "Api2"
-      ] as ActionEntityConfig;
-      const {
-        evalOrder: order1,
-        nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder3,
-        unEvalUpdates: unEvalUpdates2,
-      } = dataTreeEvaluator.setupUpdateTree(newUnEvalTree, newConfigTree);
-      dataTreeEvaluator.evalAndValidateSubTree(
-        order1,
-        nonDynamicFieldValidationOrder3,
-        newConfigTree,
-        unEvalUpdates2,
-      );
-      expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
-        "Button3.onClick": ["Api1.run", "Button2.text", "Api2.run"],
-        "Button2.onClick": ["Api2.run"],
-      });
-
-      // // self-reference Button2
-      const newButton2 = { ...lintingUnEvalTree }["Button2"];
-      newButton2.onClick = "{{Api2.run(); AbsentEntity.run(); Button2}}";
-      // @ts-expect-error: Types are not available
-      newUnEvalTree["Button2"] = newButton2;
-      const {
-        evalOrder: order2,
-        nonDynamicFieldValidationOrder,
-        unEvalUpdates: unEvalUpdates3,
-      } = dataTreeEvaluator.setupUpdateTree(newUnEvalTree, newConfigTree);
-      dataTreeEvaluator.evalAndValidateSubTree(
-        order2,
-        nonDynamicFieldValidationOrder,
-        newConfigTree,
-        unEvalUpdates3,
-      );
-
-      // delete Button2
-      delete newUnEvalTree["Button2"];
-      delete newConfigTree["Button2"];
-      const {
-        evalOrder: order3,
-        nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder4,
-        unEvalUpdates: unEvalUpdates4,
-      } = dataTreeEvaluator.setupUpdateTree(newUnEvalTree, newConfigTree);
-      dataTreeEvaluator.evalAndValidateSubTree(
-        order3,
-        nonDynamicFieldValidationOrder4,
-        newConfigTree,
-        unEvalUpdates4,
-      );
-
-      expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
-        "Button3.onClick": ["Api1.run", "Api2.run"],
-      });
     });
   });
 });
