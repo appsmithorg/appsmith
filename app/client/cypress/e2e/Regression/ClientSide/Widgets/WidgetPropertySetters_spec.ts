@@ -4,7 +4,13 @@ import {
   getWidgetSelector,
 } from "../../../../locators/WidgetLocators";
 
-import { ObjectsRegistry as _ } from "../../../../support/Objects/Registry";
+import {
+  entityExplorer,
+  jsEditor,
+  agHelper,
+  locators,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 
 const setterMethodsToTest = [
   {
@@ -105,42 +111,40 @@ Object.values(setterMethodsToTest).forEach(
   ) => {
     describe(`${index + 1}. ${name} method test`, () => {
       it(`1. DragDrop widget & Label/Text widgets`, () => {
-        _.EntityExplorer.DragDropWidgetNVerify(widget, 300, 200);
-        _.EntityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 700, 200);
+        entityExplorer.DragDropWidgetNVerify(widget, 300, 200);
+        entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 700, 200);
 
-        _.PropertyPane.EnterJSContext(
+        propPane.EnterJSContext(
           PROPERTY_SELECTOR.onClickFieldName,
           actionBinding,
         );
 
-        _.EntityExplorer.DragDropWidgetNVerify(WIDGET.TEXT, 700, 400);
+        entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT, 700, 400);
 
-        _.PropertyPane.UpdatePropertyFieldValue(
+        propPane.UpdatePropertyFieldValue(
           PROPERTY_SELECTOR.TextFieldName,
           valueBinding,
         );
       });
 
       it("2. Verify the updated value", () => {
-        _.AggregateHelper.GetNClick(getWidgetSelector(WIDGET.BUTTON));
+        agHelper.GetNClick(getWidgetSelector(WIDGET.BUTTON));
 
-        _.AggregateHelper.GetText(getWidgetSelector(WIDGET.TEXT)).then(
-          ($label) => {
-            expect($label).to.eq(expectedValue);
-          },
-        );
+        agHelper.GetText(getWidgetSelector(WIDGET.TEXT)).then(($label) => {
+          expect($label).to.eq(expectedValue);
+        });
       });
 
       it("3. Delete all the widgets on canvas", () => {
-        _.AggregateHelper.GetNClick(_.CommonLocators._widgetInCanvas(widget));
-        _.AggregateHelper.PressDelete();
+        agHelper.GetNClick(locators._widgetInCanvas(widget));
+        agHelper.PressDelete();
 
-        _.AggregateHelper.GetNClick(getWidgetSelector(WIDGET.BUTTON));
-        _.AggregateHelper.AssertContains("is not defined"); // Since widget is removed & Button is still holding its reference
-        _.AggregateHelper.PressDelete();
+        agHelper.GetNClick(getWidgetSelector(WIDGET.BUTTON));
+        agHelper.AssertContains("is not defined"); // Since widget is removed & Button is still holding its reference
+        agHelper.PressDelete();
 
-        _.AggregateHelper.GetNClick(getWidgetSelector(WIDGET.TEXT)).click();
-        _.AggregateHelper.GetNClick(_.PropertyPane._deleteWidget);
+        agHelper.GetNClick(getWidgetSelector(WIDGET.TEXT)).click();
+        agHelper.GetNClick(propPane._deleteWidget);
       });
     });
   },
@@ -148,18 +152,16 @@ Object.values(setterMethodsToTest).forEach(
 
 describe("Linting warning for setter methods", function () {
   it("Lint error when setter is used in a data field", function () {
-    _.EntityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
-    _.AggregateHelper.GetNClick(getWidgetSelector(WIDGET.BUTTON));
-    _.PropertyPane.TypeTextIntoField("Label", "{{Button1.setLabel('Hello')}}");
+    entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
+    agHelper.GetNClick(getWidgetSelector(WIDGET.BUTTON));
+    propPane.TypeTextIntoField("Label", "{{Button1.setLabel('Hello')}}");
 
     //Mouse hover to exact warning message
-    _.AggregateHelper.GetElement(_.CommonLocators._lintErrorElement).trigger(
-      "mouseover",
-    );
-    _.AggregateHelper.AssertContains("Data fields cannot execute async code");
+    agHelper.GetElement(locators._lintErrorElement).trigger("mouseover");
+    agHelper.AssertContains("Data fields cannot execute async code");
 
     //Create a JS object
-    _.JSEditor.CreateJSObject(
+    jsEditor.CreateJSObject(
       `export default {
         myFun1: () => {
           Button1.setLabel('Hello');
@@ -175,10 +177,10 @@ describe("Linting warning for setter methods", function () {
     );
 
     //Add myFun1 to onClick
-    _.EntityExplorer.SelectEntityByName("Button1");
-    _.PropertyPane.TypeTextIntoField("Label", "{{JSObject1.myFun1()}}");
+    entityExplorer.SelectEntityByName("Button1");
+    propPane.TypeTextIntoField("Label", "{{JSObject1.myFun1()}}");
 
-    _.AggregateHelper.AssertContains(
+    agHelper.AssertContains(
       "Found an action invocation during evaluation. Data fields cannot execute actions.",
     );
   });

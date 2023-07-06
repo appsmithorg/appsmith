@@ -1,6 +1,11 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
-
-let jsName: any;
+import {
+  entityExplorer,
+  jsEditor,
+  agHelper,
+  draggableWidgets,
+  locators,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 
 const jsObjectBody = `export default {
 	myVar1: [],
@@ -15,8 +20,8 @@ const jsObjectBody = `export default {
 
 describe("Autocomplete tests for setters", () => {
   it("1. Check if setters are present in autocomplete for widgets in JsObject", () => {
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 200, 200);
-    _.jsEditor.CreateJSObject(jsObjectBody, {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
+    jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
       completeReplace: true,
       toRun: false,
@@ -24,28 +29,24 @@ describe("Autocomplete tests for setters", () => {
       prettify: false,
     });
 
-    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5));
-    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "Button1");
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
+    agHelper.TypeText(locators._codeMirrorTextArea, "Button1");
 
-    _.agHelper.GetNAssertElementText(
-      _.locators._hints,
+    agHelper.GetNAssertElementText(
+      locators._hints,
       "Button1.setColor()",
       "have.text",
       5,
     );
 
     //For table widget
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 500, 300);
-    _.entityExplorer.SelectEntityByName("JSObject1");
-    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5));
-    _.agHelper.RemoveCharsNType(
-      _.locators._codeMirrorTextArea,
-      7,
-      "Table1.set",
-    );
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 500, 300);
+    entityExplorer.SelectEntityByName("JSObject1");
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
+    agHelper.RemoveCharsNType(locators._codeMirrorTextArea, 7, "Table1.set");
 
-    _.agHelper.GetNAssertElementText(
-      _.locators._hints,
+    agHelper.GetNAssertElementText(
+      locators._hints,
       "setData()",
       "have.text",
       0,
@@ -53,16 +54,12 @@ describe("Autocomplete tests for setters", () => {
   });
 
   it("2. Check if setters are present in autocomplete for widgets in property Pane", () => {
-    _.entityExplorer.DragDropWidgetNVerify(
-      _.draggableWidgets.INPUT_V2,
-      200,
-      600,
-    );
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 600);
 
-    _.entityExplorer.SelectEntityByName("Button1");
-    _.propPane.EnterJSContext("onClick", "{{Input1.set", true, false);
-    _.agHelper.GetNAssertElementText(
-      _.locators._hints,
+    entityExplorer.SelectEntityByName("Button1");
+    propPane.EnterJSContext("onClick", "{{Input1.set", true, false);
+    agHelper.GetNAssertElementText(
+      locators._hints,
       "setDisabled()",
       "have.text",
       0,
