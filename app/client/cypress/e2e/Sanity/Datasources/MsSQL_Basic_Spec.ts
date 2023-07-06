@@ -1,11 +1,18 @@
 import {
   agHelper,
-  entityExplorer,
+  assertHelper,
   propPane,
   dataSources,
   entityItems,
+  draggableWidgets,
+  entityExplorer,
+  table,
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
+import oneClickBindingLocator from "../../../locators/OneClickBindingLocator";
+import { OneClickBinding } from "../../Regression/ClientSide/OneClickBinding/spec_utility";
+
+const oneClickBinding = new OneClickBinding();
 
 describe("Validate MsSQL connection & basic querying with UI flows", () => {
   let dsName: any,
@@ -54,7 +61,8 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       dataSources.RunQuery();
 
       query = `CREATE TABLE Simpsons(
-        episode_id       VARCHAR(7) NOT NULL PRIMARY KEY
+        id               INT NOT NULL IDENTITY PRIMARY KEY
+       ,episode_id       VARCHAR(7)
        ,season           INTEGER  NOT NULL
        ,episode          INTEGER  NOT NULL
        ,number_in_series INTEGER  NOT NULL
@@ -126,6 +134,102 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
+  });
+
+  // TODO: This fails with `Invalid Object <tablename>` error. Looks like there needs to be a delay in query exectuion. Will debug and fix this in a different PR - Sangeeth
+  it.skip("3.One click binding - should check that queries are created and bound to table widget properly", () => {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);
+
+    oneClickBinding.ChooseAndAssertForm(dsName, dsName, "Simpsons", "title");
+
+    agHelper.GetNClick(oneClickBindingLocator.connectData);
+
+    assertHelper.AssertNetworkStatus("@postExecute");
+
+    agHelper.Sleep(2000);
+
+    [
+      "id",
+      "episode_id",
+      "season",
+      "episode",
+      "number_in_series",
+      "title",
+      "summary",
+      "air_date",
+      "episode_image",
+      "rating",
+      "votes",
+    ].forEach((column) => {
+      agHelper.AssertElementExist(table._headerCell(column));
+    });
+
+    agHelper.GetNClick(table._addNewRow, 0, true);
+
+    table.EditTableCell(0, 1, "S01E01", false);
+
+    table.UpdateTableCell(0, 2, "1");
+
+    table.UpdateTableCell(0, 3, " 1");
+
+    table.UpdateTableCell(0, 4, " 10");
+
+    table.UpdateTableCell(0, 5, "Expanse");
+    table.UpdateTableCell(0, 6, "Prime");
+
+    table.UpdateTableCell(0, 7, "2016-06-22 19:10:25-07", false, true);
+    agHelper.GetNClick(oneClickBindingLocator.dateInput, 0, true);
+    agHelper.GetNClick(oneClickBindingLocator.dayViewFromDate, 0, true);
+    table.UpdateTableCell(0, 8, "expanse.png", false, true);
+    table.UpdateTableCell(0, 9, "5");
+    table.UpdateTableCell(0, 10, "20");
+
+    agHelper.GetNClick(table._saveNewRow, 0, true, 2000);
+
+    assertHelper.AssertNetworkStatus("@postExecute");
+
+    agHelper.TypeText(table._searchInput, "Expanse");
+
+    assertHelper.AssertNetworkStatus("@postExecute");
+
+    agHelper.AssertElementExist(table._bodyCell("Expanse"));
+
+    agHelper.Sleep(1000);
+
+    table.EditTableCell(0, 5, "Westworld");
+
+    agHelper.Sleep(1000);
+
+    (cy as any).AssertTableRowSavable(11, 0);
+
+    (cy as any).saveTableRow(11, 0);
+    agHelper.Sleep(2000);
+
+    assertHelper.AssertNetworkStatus("@postExecute");
+
+    assertHelper.AssertNetworkStatus("@postExecute");
+
+    agHelper.Sleep(500);
+
+    agHelper.ClearTextField(table._searchInput);
+
+    agHelper.TypeText(table._searchInput, "Westworld");
+
+    assertHelper.AssertNetworkStatus("@postExecute");
+
+    agHelper.Sleep(2000);
+
+    agHelper.AssertElementExist(table._bodyCell("Westworld"));
+
+    agHelper.ClearTextField(table._searchInput);
+
+    agHelper.TypeText(table._searchInput, "Expanse");
+
+    assertHelper.AssertNetworkStatus("@postExecute");
+
+    agHelper.Sleep(2000);
+
+    agHelper.AssertElementAbsence(table._bodyCell("Expanse"));
   });
 
   after("Verify Deletion of the datasource", () => {
