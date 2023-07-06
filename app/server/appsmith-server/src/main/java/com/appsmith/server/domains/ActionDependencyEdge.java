@@ -32,7 +32,10 @@ public class ActionDependencyEdge {
         if (obj instanceof ActionDependencyEdge) {
             final ActionDependencyEdge actionDependencyEdge = (ActionDependencyEdge) obj;
 
-            if (sourceNode == null || targetNode == null || actionDependencyEdge.sourceNode == null || actionDependencyEdge.targetNode == null) {
+            if (sourceNode == null
+                    || targetNode == null
+                    || actionDependencyEdge.sourceNode == null
+                    || actionDependencyEdge.targetNode == null) {
                 return false;
             }
 

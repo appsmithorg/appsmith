@@ -1,6 +1,5 @@
 package com.appsmith.server.configurations;
 
-
 import com.appsmith.server.authentication.handlers.AccessDeniedHandler;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
@@ -16,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -112,8 +110,7 @@ public class SecurityConfig {
      */
     @Bean
     public RouterFunction<ServerResponse> publicRouter() {
-        return RouterFunctions
-                .resources("/public/**", new ClassPathResource("public/"));
+        return RouterFunctions.resources("/public/**", new ClassPathResource("public/"));
     }
 
     @Bean
@@ -125,43 +122,47 @@ public class SecurityConfig {
     @Bean
     @ConditionalOnExpression(value = "'${appsmith.internal.password}'.length() > 0")
     public SecurityWebFilterChain internalWebFilterChain(ServerHttpSecurity http) {
-        return http
-                .securityMatcher(new PathPatternParserServerWebExchangeMatcher("/actuator/**"))
-                .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec.anyExchange().authenticated())
-                .httpBasic(httpBasicSpec -> httpBasicSpec
-                        .authenticationManager(authentication -> {
-                            if (isAuthorizedToAccessInternal(authentication.getCredentials().toString())) {
-                                return Mono.just(UsernamePasswordAuthenticationToken.authenticated(
-                                        authentication.getPrincipal(),
-                                        authentication.getCredentials(),
-                                        authentication.getAuthorities()));
-                            } else {
-                                return Mono.just(UsernamePasswordAuthenticationToken.unauthenticated(
-                                        authentication.getPrincipal(),
-                                        authentication.getCredentials()));
-                            }
-                        }))
+        return http.securityMatcher(new PathPatternParserServerWebExchangeMatcher("/actuator/**"))
+                .authorizeExchange(authorizeExchangeSpec ->
+                        authorizeExchangeSpec.anyExchange().authenticated())
+                .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationManager(authentication -> {
+                    if (isAuthorizedToAccessInternal(
+                            authentication.getCredentials().toString())) {
+                        return Mono.just(UsernamePasswordAuthenticationToken.authenticated(
+                                authentication.getPrincipal(),
+                                authentication.getCredentials(),
+                                authentication.getAuthorities()));
+                    } else {
+                        return Mono.just(UsernamePasswordAuthenticationToken.unauthenticated(
+                                authentication.getPrincipal(), authentication.getCredentials()));
+                    }
+                }))
                 .build();
     }
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-        ServerAuthenticationEntryPointFailureHandler failureHandler = new ServerAuthenticationEntryPointFailureHandler(authenticationEntryPoint);
+        ServerAuthenticationEntryPointFailureHandler failureHandler =
+                new ServerAuthenticationEntryPointFailureHandler(authenticationEntryPoint);
 
         return http
                 // The native CSRF solution doesn't work with WebFlux, yet, but only for WebMVC. So we make our own.
-                .csrf().disable()
+                .csrf()
+                .disable()
                 .addFilterAt(new CSRFFilter(), SecurityWebFiltersOrder.CSRF)
-                .anonymous().principal(createAnonymousUser())
+                .anonymous()
+                .principal(createAnonymousUser())
                 .and()
-                // This returns 401 unauthorized for all requests that are not authenticated but authentication is required
+                // This returns 401 unauthorized for all requests that are not authenticated but authentication is
+                // required
                 // The client will redirect to the login page if we return 401 as Http status response
                 .exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint)
                 .accessDeniedHandler(accessDeniedHandler)
                 .and()
                 .authorizeExchange()
-                .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGIN_URL),
+                .matchers(
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGIN_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.HEALTH_CHECK),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/super"),
@@ -181,29 +182,32 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, ACTION_URL + "/execute"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, TENANT_URL + "/current"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USAGE_PULSE_URL),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CUSTOM_JS_LIB_URL + "/*/view")
-                )
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CUSTOM_JS_LIB_URL + "/*/view"))
                 .permitAll()
-                .pathMatchers("/public/**", "/oauth2/**", "/actuator/**").permitAll()
+                .pathMatchers("/public/**", "/oauth2/**", "/actuator/**")
+                .permitAll()
                 .anyExchange()
                 .authenticated()
                 .and()
                 .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationFailureHandler(failureHandler))
-                .formLogin(formLoginSpec -> formLoginSpec.authenticationFailureHandler(failureHandler)
+                .formLogin(formLoginSpec -> formLoginSpec
+                        .authenticationFailureHandler(failureHandler)
                         .loginPage(Url.LOGIN_URL)
                         .authenticationEntryPoint(authenticationEntryPoint)
-                        .requiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, Url.LOGIN_URL))
+                        .requiresAuthenticationMatcher(
+                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, Url.LOGIN_URL))
                         .authenticationSuccessHandler(authenticationSuccessHandler)
                         .authenticationFailureHandler(authenticationFailureHandler))
 
                 // For Github SSO Login, check transformation class: CustomOAuth2UserServiceImpl
                 // For Google SSO Login, check transformation class: CustomOAuth2UserServiceImpl
-                .oauth2Login(oAuth2LoginSpec -> oAuth2LoginSpec.authenticationFailureHandler(failureHandler)
-                        .authorizationRequestResolver(new CustomServerOAuth2AuthorizationRequestResolver(reactiveClientRegistrationRepository, commonConfig, redirectHelper))
+                .oauth2Login(oAuth2LoginSpec -> oAuth2LoginSpec
+                        .authenticationFailureHandler(failureHandler)
+                        .authorizationRequestResolver(new CustomServerOAuth2AuthorizationRequestResolver(
+                                reactiveClientRegistrationRepository, commonConfig, redirectHelper))
                         .authenticationSuccessHandler(authenticationSuccessHandler)
                         .authenticationFailureHandler(authenticationFailureHandler)
                         .authorizedClientRepository(new ClientUserRepository(userService, commonConfig)))
-
                 .logout()
                 .logoutUrl(Url.LOGOUT_URL)
                 .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper, analyticsService))

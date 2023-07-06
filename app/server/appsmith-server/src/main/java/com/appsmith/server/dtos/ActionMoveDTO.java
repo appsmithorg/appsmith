@@ -9,9 +9,7 @@ import lombok.Setter;
 @Setter
 public class ActionMoveDTO {
 
-    @NotNull
-    ActionDTO action;
+    @NotNull ActionDTO action;
 
-    @NotNull
-    String destinationPageId;
+    @NotNull String destinationPageId;
 }
