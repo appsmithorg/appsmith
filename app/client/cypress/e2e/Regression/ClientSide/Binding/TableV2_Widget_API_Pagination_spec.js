@@ -15,10 +15,10 @@ describe("Test Create Api and Bind to Table widget V2", function () {
   });
   it("1. Create an API and Execute the API and bind with Table", function () {
     apiPage.CreateAndFillApi(
-      "http://localhost:5001/v1/" + this.dataSet.paginationParam,
+      this.dataSet.paginationUrl + this.dataSet.paginationParam,
     );
     agHelper.VerifyEvaluatedValue(
-      "http://localhost:5001/v1/" + "mock-api?records=20&page=1&size=10",
+      this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=10",
     );
     apiPage.RunAPI();
     //Validate Table V2 with API data and then add a column
