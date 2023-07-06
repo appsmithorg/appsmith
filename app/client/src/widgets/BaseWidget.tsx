@@ -600,6 +600,7 @@ abstract class BaseWidget<
         modify: modifyObj,
         postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
       });
+
       AnalyticsUtil.logEvent("AUTO_HEIGHT_OVERLAY_HANDLES_UPDATE", modifyObj);
     };
 
