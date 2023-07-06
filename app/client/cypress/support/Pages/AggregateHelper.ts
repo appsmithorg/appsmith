@@ -857,13 +857,20 @@ export class AggregateHelper extends ReusableHelper {
   ) {
     this.Sleep(2000);
     this.assertHelper.AssertDocumentReady();
-    // cy.window()
-    //   .then((win) => {
-    //     win.location.reload();
-    //   })
-    cy.reload(reloadWithoutCache).then(() => {
-      this.assertHelper.AssertDocumentReady();
+    // // cy.window()
+    // //   .then((win) => {
+    // //     win.location.reload();
+    // //   })
+    // cy.reload(reloadWithoutCache).then(() => {
+    //   this.assertHelper.AssertDocumentReady();
+    // });
+
+    cy.url().then((url) => {
+      cy.window({ timeout: 60000 }).then((win) => {
+        win.location.href = url;
+      });
     });
+    this.assertHelper.AssertDocumentReady();
     this.Sleep(2000);
     this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
   }
@@ -1054,11 +1061,11 @@ export class AggregateHelper extends ReusableHelper {
     this.Sleep(500); //for value set to settle
   }
 
-  public UpdateInputValue(selector: string, value: string) {
+  public UpdateInputValue(selector: string, value: string, force = false) {
     this.GetElement(selector)
       .closest("input")
       .scrollIntoView({ easing: "linear" })
-      .clear()
+      .clear({ force })
       .then(($input: any) => {
         if (value !== "") {
           cy.wrap($input).type(value, { delay: 3 });
