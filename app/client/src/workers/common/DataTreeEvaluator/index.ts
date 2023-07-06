@@ -213,7 +213,6 @@ export default class DataTreeEvaluator {
   ): {
     jsUpdates: Record<string, JSUpdate>;
     evalOrder: string[];
-    lintOrder: string[];
   } {
     const totalFirstTreeSetupStartTime = performance.now();
     // cloneDeep will make sure not to omit key which has value as undefined.
@@ -305,7 +304,6 @@ export default class DataTreeEvaluator {
     return {
       jsUpdates,
       evalOrder: this.sortedDependencies,
-      lintOrder: this.sortedDependencies,
     };
   }
 
@@ -387,7 +385,6 @@ export default class DataTreeEvaluator {
   ): {
     unEvalUpdates: DataTreeDiff[];
     evalOrder: string[];
-    lintOrder: string[];
     jsUpdates: Record<string, JSUpdate>;
     nonDynamicFieldValidationOrder: string[];
     pathsToClearErrorsFor: any[];
@@ -462,7 +459,6 @@ export default class DataTreeEvaluator {
         pathsToClearErrorsFor: [],
         unEvalUpdates: [],
         evalOrder: [],
-        lintOrder: [],
         jsUpdates: {},
         nonDynamicFieldValidationOrder: [],
         isNewWidgetAdded: false,
@@ -677,7 +673,6 @@ export default class DataTreeEvaluator {
     return {
       unEvalUpdates: translatedDiffs,
       evalOrder: evaluationOrder,
-      lintOrder: evaluationOrder,
       nonDynamicFieldValidationOrder: Array.from(
         nonDynamicFieldValidationOrderSet,
       ),
@@ -695,7 +690,6 @@ export default class DataTreeEvaluator {
       return {
         unEvalUpdates: [],
         evalOrder: [],
-        lintOrder: [],
         jsUpdates: {},
         nonDynamicFieldValidationOrder: [],
         pathsToClearErrorsFor: [],
