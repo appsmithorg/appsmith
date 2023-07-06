@@ -10,6 +10,7 @@ import type {
 import { globalData } from "../globalData";
 import getLintSeverity from "./getLintSeverity";
 import lintJSProperty from "./lintJSProperty";
+import { isEmpty } from "lodash";
 
 export default function lintJSObjectProperty(
   jsPropertyFullName: string,
@@ -21,7 +22,8 @@ export default function lintJSObjectProperty(
     getEntityNameAndPropertyPath(jsPropertyFullName);
   const jsPropertyState = jsObjectState[jsPropertyName];
   const isAsyncJSFunctionBoundToSyncField =
-    asyncJSFunctionsInDataFields.hasOwnProperty(jsPropertyFullName);
+    asyncJSFunctionsInDataFields.hasOwnProperty(jsPropertyFullName) &&
+    !isEmpty(asyncJSFunctionsInDataFields[jsPropertyFullName]);
 
   const jsPropertyLintErrors = lintJSProperty(
     jsPropertyFullName,
@@ -75,6 +77,6 @@ function generateAsyncFunctionBoundToDataFieldCustomError(
     code: CustomLintErrorCode.ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD,
     line: jsPropertyState.position.keyStartLine - 1,
     ch: jsPropertyState.position.keyStartColumn + 1,
-    originalPath: jsPropertyName,
+    originalPath: jsPropertyFullName,
   };
 }
