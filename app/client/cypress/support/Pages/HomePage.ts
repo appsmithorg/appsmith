@@ -518,6 +518,9 @@ export class HomePage {
 
   public AssertNCloseImport() {
     this.agHelper.AssertElementVisible(this._importSuccessModal);
+    this.agHelper.AssertElementVisible(
+      this.locator._visibleTextSpan("Your application is ready to use."),
+    );
     this.agHelper.GetNClick(this._importSuccessModalGotit, 0, true);
   }
 
