@@ -101,7 +101,7 @@ test('If MONGODB env values are being removed', () => {
 
 test('If MONGODB and Encryption env values are being removed', () => {
   expect(backup.removeSensitiveEnvData(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_ENCRYPTION_PASSWORD=dummy-pass\nAPPSMITH_ENCRYPTION_SALT=dummy-salt\nAPPSMITH_MONGODB_URI=mongodb://appsmith:pass@localhost:27017/appsmith\nAPPSMITH_MONGODB_USER=appsmith\nAPPSMITH_MONGODB_PASSWORD=pass\nAPPSMITH_INSTANCE_NAME=Appsmith\n
-  `)).toMatch(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_INSTANCE_NAME=Appsmith\n`)
+  `)).toMatch(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_INSTANCE_NAME=Appsmith\n`, 'all')
 });
 
 
@@ -191,8 +191,8 @@ test('Cleanup Backups when limit is 2 and there is no file', async () => {
 })
 
 test('Verify if MongoDB credentials are being removed', () => {
-  expect(backup.removeMongoDBcredentails(`APPSMITH_MONGODB_URI=mongodb://appsmith:password123@myhost:22222/appsmith\nAPPSMITH_MONGODB_USER=appsmith\nAPPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_MONGODB_PASSWORD=password111\nAPPSMITH_INSTANCE_NAME=Appsmith
-  `)).toMatch(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_INSTANCE_NAME=Appsmith\n`)
+  expect(backup.removeSensitiveEnvData(`APPSMITH_MONGODB_URI=mongodb://appsmith:password123@myhost:22222/appsmith\nAPPSMITH_MONGODB_USER=appsmith\nAPPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_MONGODB_PASSWORD=password111\nAPPSMITH_INSTANCE_NAME=Appsmith
+  `, 'mongodb')).toMatch(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_INSTANCE_NAME=Appsmith\n`)
 });
 
 test('Test get encryption password from user prompt whene both passords are the same', async () => {
@@ -225,4 +225,13 @@ test('Get encrypted archive path', async () => {
 })
 
 });
+
+test('Test backup encryption function', async () => {
+  utils.execCommand= jest.fn().mockImplementation(async (a) => console.log(a));
+  const archivePath = '/rootDir/appsmith-backup-0000-00-0T00-00-00.00Z'
+  const encryptionPassword =  'password#123'
+  const res = await backup.encryptBackupArchive(archivePath,encryptionPassword)
+  console.log(res)
+  expect(res).toEqual('/rootDir/appsmith-backup-0000-00-0T00-00-00.00Z.enc')
+})
 
