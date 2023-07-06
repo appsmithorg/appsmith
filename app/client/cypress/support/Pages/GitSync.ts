@@ -113,6 +113,7 @@ export class GitSync {
     );
 
     this.agHelper.ClickButton("Generate key");
+    this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       cy.wait(`@generateKey-${repo}`).then((result: any) => {
         generatedKey = result.response.body.data.publicKey;
