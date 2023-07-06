@@ -4,9 +4,12 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.mongodb.client.result.UpdateResult;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -16,10 +19,12 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.server.helpers.RegexHelper.getStringsToRegex;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
@@ -96,5 +101,26 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
                 Optional.empty(),
                 NO_RECORD_LIMIT
         );
+    }
+
+    @Override
+    public Mono<PagedDomain<UserGroup>> findUserGroupsWithParamsPaginated(int count, int startIndex, List<String> groupNames, List<String> filterUserIds, Optional<AclPermission> aclPermission) {
+        List<Criteria> criteriaList = new ArrayList<>();
+        Sort sortWithEmail = Sort.by(Sort.Direction.ASC, fieldName(QUserGroup.userGroup.name));
+        //Keeping this a case-insensitive, because provisioning clients require case-insensitive searches on group names.
+        if(CollectionUtils.isNotEmpty(groupNames)) {
+            criteriaList.add(where(fieldName(QUserGroup.userGroup.name)).regex(getStringsToRegex(groupNames), "i"));
+        }
+        if(!Optional.ofNullable(filterUserIds).isEmpty() && filterUserIds.size() > 0) {
+            criteriaList.add(where(fieldName(QUserGroup.userGroup.users)).in(filterUserIds));
+        }
+        Flux<UserGroup> userFlux = queryAll(criteriaList, Optional.empty(), aclPermission, sortWithEmail, count, startIndex);
+        Mono<Long> countMono = count(criteriaList, aclPermission);
+        return Mono.zip(countMono, userFlux.collectList())
+                .map(pair -> {
+                    Long totalFilteredUserGroups = pair.getT1();
+                    List<UserGroup> userGroupsPage = pair.getT2();
+                    return new PagedDomain<>(userGroupsPage, userGroupsPage.size(), startIndex, totalFilteredUserGroups);
+                });
     }
 }

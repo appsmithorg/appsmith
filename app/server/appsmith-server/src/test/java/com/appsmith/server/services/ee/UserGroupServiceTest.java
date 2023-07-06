@@ -7,6 +7,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
+import com.appsmith.server.dtos.ProvisionResourceDto;
 import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
@@ -35,7 +36,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -46,9 +46,11 @@ import static com.appsmith.server.acl.AclPermission.ADD_USERS_TO_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.REMOVE_USERS_FROM_USER_GROUPS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -882,5 +884,116 @@ public class UserGroupServiceTest {
         userGroupRepository.delete(createdGroup1).block();
         userGroupRepository.delete(createdGroup2).block();
 
+    }
+
+    @Test
+    @WithUserDetails(value = "provisioningUser")
+    public void createProvisionedGroup_checkPermissions() {
+        String testName = "createProvisionedGroup_checkPermissions";
+        String instanceAdminRoleId = userUtils.getSuperAdminPermissionGroup()
+                .map(PermissionGroup::getId).block();
+
+        String provisioningRoleId = userUtils.getProvisioningRole()
+                .map(PermissionGroup::getId).block();
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName);
+        ProvisionResourceDto provisionedGroupDto = userGroupService.createProvisionGroup(userGroup).block();
+        UserGroup provisionedGroup = (UserGroup) provisionedGroupDto.getResource();
+        assertThat(provisionedGroup.getIsProvisioned()).isTrue();
+        Set<Policy> policies = provisionedGroup.getPolicies();
+        Optional<Policy> manageUserGroupPolicy = policies.stream().filter(policy -> policy.getPermission().equals(MANAGE_USER_GROUPS.getValue())).findAny();
+        Optional<Policy> deleteUserGroupPolicy = policies.stream().filter(policy -> policy.getPermission().equals(DELETE_USER_GROUPS.getValue())).findAny();
+        Optional<Policy> readUserGroupPolicy = policies.stream().filter(policy -> policy.getPermission().equals(READ_USER_GROUPS.getValue())).findAny();
+        Optional<Policy> addUsersToUserGroupPolicy = policies.stream().filter(policy -> policy.getPermission().equals(ADD_USERS_TO_USER_GROUPS.getValue())).findAny();
+        Optional<Policy> removeUsersFromUserGroupPolicy = policies.stream().filter(policy -> policy.getPermission().equals(REMOVE_USERS_FROM_USER_GROUPS.getValue())).findAny();
+
+        assertThat(manageUserGroupPolicy.isPresent()).isTrue();
+        assertThat(deleteUserGroupPolicy.isPresent()).isTrue();
+        assertThat(readUserGroupPolicy.isPresent()).isTrue();
+        assertThat(addUsersToUserGroupPolicy.isPresent()).isTrue();
+        assertThat(removeUsersFromUserGroupPolicy.isPresent()).isTrue();
+
+        // Instance Admin has the permission to read user groups.
+        assertThat(readUserGroupPolicy.get().getPermissionGroups()).contains(provisioningRoleId, instanceAdminRoleId);
+        // Instance Admin has no permission to manage, delete, add users to, remove users from user groups.
+        assertThat(manageUserGroupPolicy.get().getPermissionGroups()).containsExactly(provisioningRoleId);
+        assertThat(deleteUserGroupPolicy.get().getPermissionGroups()).containsExactly(provisioningRoleId);
+        assertThat(addUsersToUserGroupPolicy.get().getPermissionGroups()).containsExactly(provisioningRoleId);
+        assertThat(removeUsersFromUserGroupPolicy.get().getPermissionGroups()).containsExactly(provisioningRoleId);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteRegularGroupAsInstanceAdmin_userGroupShouldGetDeleted() {
+        String testName = "deleteRegularGroupAsInstanceAdmin_userGroupShouldGetDeleted";
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName);
+        UserGroupDTO userGroupDto = userGroupService.createGroup(userGroup).block();
+
+        userGroupService.archiveById(userGroupDto.getId()).block();
+        UserGroup userGroupDeleted = userGroupRepository.findById(userGroupDto.getId()).block();
+        assertThat(userGroupDeleted).isNull();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void deleteProvisionedUserGroupAsInstanceAdmin_throwUnauthorisedError() {
+        String testName = "deleteProvisionedUserGroupAsInstanceAdmin_throwUnauthorisedError";
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName);
+        ProvisionResourceDto createdUserGroup = userGroupService.createProvisionGroup(userGroup).block();
+
+
+        AppsmithException unauthorisedException = assertThrows(AppsmithException.class, () -> {
+            userGroupService.archiveById(createdUserGroup.getResource().getId()).block();
+        });
+        assertThat(unauthorisedException.getMessage()).isEqualTo(AppsmithError.UNAUTHORIZED_ACCESS.getMessage());
+
+        userRepository.deleteById(createdUserGroup.getResource().getId()).block();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void createProvisionedUserGroup_RegularUserGroup_getAllUserGroupsShouldReturnBoth_toApiUser() {
+        String testName = "createProvisionedUserGroup_RegularUserGroup_getAllUserGroupsShouldReturnBoth_toApiUser";
+
+        UserGroup userGroup_provisioning = new UserGroup();
+        userGroup_provisioning.setName(testName + "_provisionedGroup");
+        ProvisionResourceDto provisionedUserGroup = userGroupService.createProvisionGroup(userGroup_provisioning).block();
+
+        UserGroup userGroup_regular = new UserGroup();
+        userGroup_regular.setName(testName + "_regularGroup");
+        UserGroupDTO userGroupDTO = userGroupService.createGroup(userGroup_regular).block();
+
+        List<UserGroupCompactDTO> userGroupCompactDTOList = userGroupService.getAllReadableGroups().block();
+        Optional<UserGroupCompactDTO> provisionGroup = userGroupCompactDTOList.stream().filter(userGroupCompactDTO -> userGroupCompactDTO.getName().equals(userGroup_provisioning.getName())).findAny();
+        Optional<UserGroupCompactDTO> regularGroup = userGroupCompactDTOList.stream().filter(userGroupCompactDTO -> userGroupCompactDTO.getName().equals(userGroup_regular.getName())).findAny();
+        assertThat(regularGroup.isPresent()).isTrue();
+        assertThat(provisionGroup.isPresent()).isTrue();
+    }
+
+    @Test
+    @WithUserDetails("provisioningUser")
+    public void createProvisionedUserGroup_RegularUserGroup_getAllUserGroupsShouldReturnBoth_toProvisioningUser() {
+        String testName = "createProvisionedUserGroup_RegularUserGroup_getAllUserGroupsShouldReturnProvisioningUserGroup_toProvisioningUser";
+
+        UserGroup userGroup_provisioning = new UserGroup();
+        userGroup_provisioning.setName(testName + "_provisionedGroup");
+        ProvisionResourceDto provisionedUserGroup = userGroupService.createProvisionGroup(userGroup_provisioning).block();
+
+        UserGroup userGroup_regular = new UserGroup();
+        userGroup_regular.setName(testName + "_regularGroup");
+        UserGroupDTO userGroupDTO = userGroupService.createGroup(userGroup_regular).block();
+
+        assertThat(userGroupDTO).isNull();
+
+        List<UserGroupCompactDTO> userGroupCompactDTOList = userGroupService.getAllReadableGroups().block();
+        Optional<UserGroupCompactDTO> provisionGroup = userGroupCompactDTOList.stream().filter(userGroupCompactDTO -> userGroupCompactDTO.getName().equals(userGroup_provisioning.getName())).findAny();
+        Optional<UserGroupCompactDTO> regularGroup = userGroupCompactDTOList.stream().filter(userGroupCompactDTO -> userGroupCompactDTO.getName().equals(userGroup_regular.getName())).findAny();
+        assertThat(regularGroup.isPresent()).isFalse();
+        assertThat(provisionGroup.isPresent()).isTrue();
     }
 }

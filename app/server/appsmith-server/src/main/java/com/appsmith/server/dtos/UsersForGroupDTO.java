@@ -11,6 +11,7 @@ import lombok.Setter;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Set;
 
 import static java.lang.Boolean.TRUE;
@@ -24,8 +25,15 @@ public class UsersForGroupDTO {
     @NotNull
     Set<String> usernames;
 
+    List<String> userIds;
+
     @NotNull
     Set<String> groupIds;
+
+    public UsersForGroupDTO(Set<String> usernames, Set<String> groupIds) {
+        this.usernames = usernames;
+        this.groupIds = groupIds;
+    }
 
     public static Mono<Boolean> validate(UsersForGroupDTO usersForGroupDTO) {
         // validate the input

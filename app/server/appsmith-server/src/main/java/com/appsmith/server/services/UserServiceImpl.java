@@ -277,15 +277,26 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                 .flatMap(this::updateProvisionUserPoliciesAndProvisionFlag);
         Mono<User> userMono = repository.findById(userId, MANAGE_USERS)
                 .switchIfEmpty(updateUserPolicyPostRead);
-        if (userUpdateDTO.hasUserUpdates()) {
-            User userUpdate = new User();
-            userUpdate.setName(userUpdateDTO.getName());
-            userUpdate.setPolicies(null);
-            userMono = userMono
-                    .then(this.update(userId, userUpdate));
+        if (StringUtils.isEmpty(userUpdateDTO.getName()) && StringUtils.isEmpty(userUpdateDTO.getEmail())) {
+            return userMono
+                    .map(this::getProvisionResourceDto);
         }
+        User userUpdate = new User();
+        if (StringUtils.isNotEmpty(userUpdateDTO.getName())) {
+            userUpdate.setName(userUpdateDTO.getName());
+        }
+        if (StringUtils.isNotEmpty(userUpdateDTO.getEmail())) {
+            // Convert email to lower case before saving
+            userUpdate.setEmail(userUpdateDTO.getEmail().toLowerCase());
+        }
+        // Setting below elements to null, so that they are not copied as empty values
+        // and update the user resource incorrectly.
+        userUpdate.setPolicies(null);
+        userUpdate.setIsProvisioned(null);
         return userMono
+                .then(this.update(userId, userUpdate))
                 .map(this::getProvisionResourceDto);
+
     }
 
     @Override

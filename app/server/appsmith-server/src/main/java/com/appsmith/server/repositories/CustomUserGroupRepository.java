@@ -2,6 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.dtos.PagedDomain;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
@@ -28,4 +29,6 @@ public interface CustomUserGroupRepository extends AppsmithRepository<UserGroup>
     Mono<Long> countAllReadableUserGroups();
 
     Flux<UserGroup> getAllByUsersIn(Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission);
+
+    Mono<PagedDomain<UserGroup>> findUserGroupsWithParamsPaginated(int count, int startIndex, List<String> groupNames, List<String> filterUserIds, Optional<AclPermission> aclPermission);
 }

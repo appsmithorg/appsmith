@@ -5,6 +5,7 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ProvisionResourceDto;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserRepository;
@@ -471,6 +472,62 @@ public class TenantResourcesTest {
                     );
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void groupsRolesTabTest_ProvisionedGroup() {
+        if (superAdminPermissionGroupId == null) {
+            superAdminPermissionGroupId = userUtils.getSuperAdminPermissionGroup().block().getId();
+        }
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName("groupsRolesTabTest_ProvisionedGroup Group");
+        ProvisionResourceDto provisionResourceDto = userGroupService.createProvisionGroup(userGroup).block();
+        UserGroup provisionedUserGroup = (UserGroup) provisionResourceDto.getResource();
+
+        PermissionGroup permissionGroup = new PermissionGroup();
+        String roleName = UUID.randomUUID().toString();
+        permissionGroup.setName(roleName);
+        PermissionGroup createdRole = permissionGroupService.create(permissionGroup).block();
+
+        Mono<RoleTabDTO> groupsAndRolesTabMono = tenantResources.createGroupsAndRolesTab(superAdminPermissionGroupId);
+
+        StepVerifier.create(groupsAndRolesTabMono)
+                .assertNext(groupsAndRolesTab -> {
+                    assertThat(groupsAndRolesTab).isNotNull();
+                    assertThat(groupsAndRolesTab.getPermissions()).isSameAs(RoleTab.GROUPS_ROLES.getViewablePermissions());
+
+                    EntityView topView = groupsAndRolesTab.getData();
+                    assertThat(topView.getType()).isEqualTo(Tenant.class.getSimpleName());
+                    // assert that both the groups and roles are present as children
+                    assertThat(topView.getEntities().size()).isEqualTo(2);
+
+                    BaseView groupsTopView = topView.getEntities().stream().filter(entity -> entity.getName().equals("Groups")).findFirst().get();
+                    BaseView rolesTopView = topView.getEntities().stream().filter(entity -> entity.getName().equals("Roles")).findFirst().get();
+
+                    // Assert that the super admin has permissions to create, edit, delete, view, invite and remove users for all groups
+                    // Also, associate role should be disabled since it doesn't apply to groups.
+                    List<Integer> perms = List.of(1, 1, 1, 1, 1, 1, -1);
+                    assertThat(groupsTopView.getEnabled()).isEqualTo(perms);
+                    assertThat(groupsTopView.getChildren().size()).isEqualTo(1);
+
+                    // Assert that the created group is returned in the view
+                    List<BaseView> groupEntities = (List<BaseView>) groupsTopView.getChildren().stream().findFirst().get().getEntities();
+                    BaseView createdGroupView = groupEntities.stream()
+                            .filter(groupEntity -> groupEntity.getId().equals(provisionedUserGroup.getId()))
+                            .findFirst()
+                            .get();
+                    assertThat(createdGroupView.getName()).isEqualTo(provisionedUserGroup.getName());
+                    assertThat(createdGroupView.getId()).isEqualTo(provisionedUserGroup.getId());
+                    // Assert that create and associate roles are disabled.
+                    // Assert that only read group is enabled.
+                    perms = List.of(-1, -1, -1, 1, -1, -1, -1);
+                    assertThat(createdGroupView.getEnabled()).isEqualTo(perms);
+                    assertThat(createdGroupView.getChildren()).isNull();
+                })
+                .verifyComplete();
+
     }
 
 }

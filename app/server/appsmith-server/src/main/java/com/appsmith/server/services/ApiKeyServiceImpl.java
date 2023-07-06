@@ -49,11 +49,18 @@ public class ApiKeyServiceImpl extends BaseService<ApiKeyRepository, UserApiKey,
          * Fetching the tenant with MANAGE_TENANT permission assures that.
          */
         Mono<Tenant> tenantMono = tenantService.getDefaultTenant(AclPermission.MANAGE_TENANT)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "create API Keys")));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "create API Keys")))
+                .cache();
         Mono<User> userMono = tenantMono.then(userRepository.findByCaseInsensitiveEmail(apiKeyRequestDto.getEmail())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.USER_NOT_FOUND, apiKeyRequestDto.getEmail()))));
-        return userMono
-                .flatMap(user -> {
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.USER_NOT_FOUND, apiKeyRequestDto.getEmail()))))
+                .cache();
+        Mono<Boolean> archiveExistingUserApiKeyMono = userMono
+                .flatMap(user -> userApiKeyRepository.getByUserIdWithoutPermission(user.getId()))
+                .flatMap(userApiKey -> userApiKeyRepository.archiveById(userApiKey.getId()))
+                .thenReturn(Boolean.TRUE);
+        return Mono.zip(archiveExistingUserApiKeyMono, userMono)
+                .flatMap(pair -> {
+                    User user = pair.getT2();
                     UserApiKey userApiKey = new UserApiKey();
                     userApiKey.setUserId(user.getId());
                     userApiKey.setApiKey(generateToken(user.getId()));

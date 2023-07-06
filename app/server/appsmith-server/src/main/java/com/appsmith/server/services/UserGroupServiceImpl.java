@@ -6,12 +6,15 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.ProvisionResourceMetadata;
 import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
+import com.appsmith.server.dtos.ProvisionResourceDto;
 import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
 import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
@@ -21,8 +24,11 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PermissionGroupUtils;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
+import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.solutions.PolicySolution;
 import jakarta.validation.Validator;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -38,8 +44,10 @@ import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuples;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -50,12 +58,20 @@ import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.REMOVE_USERS_FROM_USER_GROUPS;
+import static com.appsmith.server.constants.Constraint.NO_RECORD_LIMIT;
 import static com.appsmith.server.constants.FieldName.GROUP_ID;
 import static com.appsmith.server.constants.FieldName.EVENT_DATA;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_USERS_INVITED;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_REMOVED_USERS;
+import static com.appsmith.server.constants.QueryParams.COUNT;
+import static com.appsmith.server.constants.QueryParams.FILTER_DELIMITER;
+import static com.appsmith.server.constants.QueryParams.GROUP_NAME_FILTER;
+import static com.appsmith.server.constants.QueryParams.GROUP_USERID_FILTER;
+import static com.appsmith.server.constants.QueryParams.START_INDEX;
 import static com.appsmith.server.constants.ce.FieldNameCE.CLOUD_HOSTED_EXTRA_PROPS;
 import static com.appsmith.server.dtos.UsersForGroupDTO.validate;
+import static com.appsmith.server.enums.ProvisionResourceType.GROUP;
+import static com.appsmith.server.helpers.CollectionUtils.findSymmetricDiff;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -73,6 +89,9 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     private final ModelMapper modelMapper;
     private final PermissionGroupUtils permissionGroupUtils;
     private final UserDataRepository userDataRepository;
+    private final UserUtils userUtils;
+    private final PolicySolution policySolution;
+    private final UserRepository userRepository;
 
     public UserGroupServiceImpl(Scheduler scheduler,
                                 Validator validator,
@@ -87,7 +106,10 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                                 UserService userService,
                                 ModelMapper modelMapper,
                                 PermissionGroupUtils permissionGroupUtils,
-                                UserDataRepository userDataRepository) {
+                                UserDataRepository userDataRepository,
+                                UserUtils userUtils,
+                                PolicySolution policySolution,
+                                UserRepository userRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
@@ -97,6 +119,9 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
         this.modelMapper = modelMapper;
         this.permissionGroupUtils = permissionGroupUtils;
         this.userDataRepository = userDataRepository;
+        this.userUtils = userUtils;
+        this.policySolution = policySolution;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -125,29 +150,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
 
     @Override
     public Mono<UserGroupDTO> createGroup(UserGroup userGroup) {
-        Mono<Boolean> isCreateAllowedMono = sessionUserService.getCurrentUser()
-                .flatMap(user -> tenantService.findById(user.getTenantId(), CREATE_USER_GROUPS))
-                .map(tenant -> TRUE)
-                .switchIfEmpty(Mono.just(FALSE));
-
-        Mono<UserGroup> userGroupMono = isCreateAllowedMono
-                .flatMap(allowed -> !allowed ?
-                        Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "create user groups")) :
-                        Mono.just(userGroup)
-                );
-
-        return Mono.zip(
-                        userGroupMono,
-                        tenantService.getDefaultTenant()
-                )
-                .flatMap(tuple -> {
-                    UserGroup userGroupWithPolicy = tuple.getT1();
-                    Tenant defaultTenant = tuple.getT2();
-                    userGroupWithPolicy.setTenantId(defaultTenant.getId());
-                    userGroupWithPolicy = generateAndSetUserGroupPolicies(defaultTenant, userGroupWithPolicy);
-
-                    return super.create(userGroupWithPolicy);
-                })
+        return createUserGroup(userGroup)
                 .flatMap(savedUserGroup -> getGroupById(savedUserGroup.getId()));
     }
 
@@ -521,4 +524,166 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                 })
                 .then(Mono.just(TRUE));
     }
+
+    @Override
+    public Mono<ProvisionResourceDto> updateProvisionGroup(String id, UserGroup resource) {
+        return repository.findById(id, MANAGE_USER_GROUPS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "update user groups")))
+                .flatMap(userGroup -> {
+                    List<String> updateCacheForUserIds = findSymmetricDiff(resource.getUsers(), userGroup.getUsers()).stream().toList();
+                    userGroup.setName(resource.getName());
+                    userGroup.setDescription(resource.getDescription());
+                    userGroup.setUsers(resource.getUsers());
+                    Mono<Long> updateCacheForUserIdsMono = permissionGroupService.cleanPermissionGroupCacheForUsers(updateCacheForUserIds)
+                            .thenReturn(1L);
+                    Mono<UserGroup> updateUserGroupMono = super.update(id, userGroup).cache();
+                    return Mono.zip(updateUserGroupMono, updateCacheForUserIdsMono)
+                            .then(updateUserGroupMono);
+                })
+                .map(this::getProvisionResourceDto);
+    }
+
+    @Override
+    public Mono<ProvisionResourceDto> getProvisionGroup(String groupId) {
+        return repository.findById(groupId, READ_USER_GROUPS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Group", groupId)))
+                .map(this::getProvisionResourceDto);
+    }
+
+    @Override
+    public Mono<PagedDomain<ProvisionResourceDto>> getProvisionGroups(MultiValueMap<String, String> queryParams) {
+        int count = NO_RECORD_LIMIT;
+        int startIndex = 0;
+        List<String> groupNames = List.of();
+        List<String> groupMembers = List.of();
+
+        if (org.apache.commons.lang3.StringUtils.isNotEmpty(queryParams.getFirst(COUNT))) {
+            count = Integer.parseInt(queryParams.getFirst(COUNT));
+        }
+        if (org.apache.commons.lang3.StringUtils.isNotEmpty(queryParams.getFirst(START_INDEX))) {
+            startIndex = Integer.parseInt(queryParams.getFirst(START_INDEX));
+        }
+        if (org.apache.commons.lang3.StringUtils.isNotEmpty(queryParams.getFirst(GROUP_NAME_FILTER))) {
+            groupNames = Arrays.stream(queryParams.getFirst(GROUP_NAME_FILTER).split(FILTER_DELIMITER)).toList();
+        }
+
+        if (org.apache.commons.lang3.StringUtils.isNotEmpty(queryParams.getFirst(GROUP_USERID_FILTER))) {
+            groupMembers = Arrays.stream(queryParams.getFirst(GROUP_USERID_FILTER).split(FILTER_DELIMITER)).toList();
+        }
+
+        return repository.findUserGroupsWithParamsPaginated(count, startIndex, groupNames, groupMembers, Optional.of(READ_USER_GROUPS))
+                .map(pagedUserGroups -> {
+                    List<ProvisionResourceDto> provisionedUsersDto = pagedUserGroups.getContent().stream()
+                            .map(this::getProvisionResourceDto)
+                            .toList();
+                    return PagedDomain.<ProvisionResourceDto>builder()
+                            .total(pagedUserGroups.getTotal())
+                            .count(pagedUserGroups.getCount())
+                            .startIndex(pagedUserGroups.getStartIndex())
+                            .content(provisionedUsersDto)
+                            .build();
+                });
+    }
+
+    @Override
+    public Mono<ProvisionResourceDto> createProvisionGroup(UserGroup userGroup) {
+        return createUserGroup(userGroup)
+                .flatMap(this::updateProvisionUserGroupPoliciesAndProvisionFlag)
+                .map(this::getProvisionResourceDto);
+    }
+
+    @Override
+    public Mono<List<UserGroupDTO>> removeUsersFromProvisionGroup(UsersForGroupDTO removeUsersFromGroupDTO) {
+        List<String> userIds = removeUsersFromGroupDTO.getUserIds();
+        return tenantService.getDefaultTenantId()
+                .flatMap(tenantId -> userRepository.getUserEmailsByIdsAndTenantId(userIds, tenantId, Optional.empty())
+                        .collect(Collectors.toSet())
+                        .flatMap(userEmails -> {
+                            UsersForGroupDTO userEmailsFromGroupDTO = new UsersForGroupDTO();
+                            userEmailsFromGroupDTO.setUsernames(userEmails);
+                            userEmailsFromGroupDTO.setGroupIds(removeUsersFromGroupDTO.getGroupIds());
+                            return this.removeUsers(userEmailsFromGroupDTO);
+                        }));
+    }
+
+    @Override
+    public Mono<List<UserGroupDTO>> addUsersToProvisionGroup(UsersForGroupDTO addUsersFromGroupDTO) {
+        List<String> userIds = addUsersFromGroupDTO.getUserIds();
+        return tenantService.getDefaultTenantId()
+                .flatMap(tenantId -> userRepository.getUserEmailsByIdsAndTenantId(userIds, tenantId, Optional.empty())
+                        .collect(Collectors.toSet())
+                        .flatMap(userEmails -> {
+                            UsersForGroupDTO userEmailsFromGroupDTO = new UsersForGroupDTO();
+                            userEmailsFromGroupDTO.setUsernames(userEmails);
+                            userEmailsFromGroupDTO.setGroupIds(addUsersFromGroupDTO.getGroupIds());
+                            return this.inviteUsers(userEmailsFromGroupDTO, null);
+                        }));
+    }
+
+    private ProvisionResourceDto getProvisionResourceDto(UserGroup userGroup) {
+        ProvisionResourceMetadata metadata= ProvisionResourceMetadata.builder()
+                .created(userGroup.getCreatedAt().toString())
+                .lastModified(userGroup.getUpdatedAt().toString())
+                .resourceType(GROUP.getValue())
+                .build();
+        return ProvisionResourceDto.builder()
+                .resource(userGroup)
+                .metadata(metadata)
+                .build();
+    }
+
+
+    /**
+     * The method edits the existing permissions on the User group resource for Manage, Delete, Invite users to & Remove users from User group permissions.
+     * It removes the existing Manage, Delete, Invite users and Remove users permissions for the user group,
+     * so that Instance Admin is not able to edit, delete, invite users to or remove users from the User group.
+     * It then gives the above-mentioned permissions for the user group to Provision Role, so that the user group can be managed by it.
+     * The methods also sets the isProvisioned flag in User resource to True.
+     * @param userGroup
+     * @return
+     */
+    private Mono<UserGroup> updateProvisionUserGroupPoliciesAndProvisionFlag(UserGroup userGroup) {
+        return userUtils.getProvisioningRole()
+                .flatMap(provisioningRole -> {
+                    userGroup.setIsProvisioned(Boolean.TRUE);
+                    Set<Policy> currentUserPolicies = userGroup.getPolicies();
+                    Set<Policy> userGroupPoliciesWithReadUserGroup = currentUserPolicies.stream()
+                            .filter(policy -> policy.getPermission().equals(READ_USER_GROUPS.getValue()))
+                            .collect(Collectors.toSet());
+                    userGroup.setPolicies(userGroupPoliciesWithReadUserGroup);
+                    Map<String, Policy> newManageUserGroupPolicy = policySolution.generatePolicyFromPermissionWithPermissionGroup(MANAGE_USER_GROUPS, provisioningRole.getId());
+                    Map<String, Policy> newDeleteUserGroupPolicy = policySolution.generatePolicyFromPermissionWithPermissionGroup(DELETE_USER_GROUPS, provisioningRole.getId());
+                    policySolution.addPoliciesToExistingObject(newManageUserGroupPolicy, userGroup);
+                    policySolution.addPoliciesToExistingObject(newDeleteUserGroupPolicy, userGroup);
+                    return repository.save(userGroup);
+                });
+    }
+
+    private Mono<UserGroup> createUserGroup(UserGroup userGroup) {
+        Mono<Boolean> isCreateAllowedMono = sessionUserService.getCurrentUser()
+                .flatMap(user -> tenantService.findById(user.getTenantId(), CREATE_USER_GROUPS))
+                .map(tenant -> TRUE)
+                .switchIfEmpty(Mono.just(FALSE));
+
+        Mono<UserGroup> userGroupMono = isCreateAllowedMono
+                .flatMap(allowed -> !allowed ?
+                        Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "create user groups")) :
+                        Mono.just(userGroup)
+                );
+
+        return Mono.zip(
+                        userGroupMono,
+                        tenantService.getDefaultTenant()
+                )
+                .flatMap(tuple -> {
+                    UserGroup userGroupWithPolicy = tuple.getT1();
+                    Tenant defaultTenant = tuple.getT2();
+                    userGroupWithPolicy.setTenantId(defaultTenant.getId());
+                    userGroupWithPolicy = generateAndSetUserGroupPolicies(defaultTenant, userGroupWithPolicy);
+
+                    return super.create(userGroupWithPolicy);
+                });
+    }
+
+
 }

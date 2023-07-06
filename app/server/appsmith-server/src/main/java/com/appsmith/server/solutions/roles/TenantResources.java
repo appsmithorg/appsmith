@@ -244,7 +244,12 @@ public class TenantResources {
                                     UserGroup.class, policyGenerator);
                     userGroupDto.setEnabled(permissionsTuple.getT1());
 
-                    return userGroupDto;
+                    return Tuples.of(userGroupDto, userGroup);
+                })
+                .map(pair -> {
+                    BaseView permissionGroupDto = pair.getT1();
+                    UserGroup userGroup = pair.getT2();
+                    return updateEnabledForUserGroups(permissionGroupDto, userGroup);
                 })
                 .collectList()
                 .map(userGroupDTOs -> {
@@ -323,7 +328,8 @@ public class TenantResources {
         List<String> includeFields = new ArrayList<>(
                 List.of(
                         fieldName(QUserGroup.userGroup.policies),
-                        fieldName(QUserGroup.userGroup.name)
+                        fieldName(QUserGroup.userGroup.name),
+                        fieldName(QUserGroup.userGroup.isProvisioned)
                 )
         );
         return userGroupRepository.findAllByTenantIdWithoutPermission(tenantId, includeFields);
@@ -578,6 +584,29 @@ public class TenantResources {
 
         return workspaceHoverMapMono
                 .then(trimmedHoverMapMono);
+    }
+
+    /**
+     * Check if the UserGroup is Provisioned or not.
+     * If provisioned, then disable the EDIT, DELETE, INVITE_USER, REMOVE_USER permissions to be given from the GAC Screen.
+     * @param userGroupDto
+     * @param userGroup
+     * @return
+     */
+    private BaseView updateEnabledForUserGroups(BaseView userGroupDto,
+                                                UserGroup userGroup) {
+        if (Boolean.TRUE.equals(userGroup.getIsProvisioned())) {
+            List<PermissionViewableName> viewablePermissions = RoleTab.GROUPS_ROLES.getViewablePermissions();
+            int indexOfEditPermission = viewablePermissions.indexOf(PermissionViewableName.EDIT);
+            int indexOfDeletePermission = viewablePermissions.indexOf(PermissionViewableName.DELETE);
+            int indexOfInviteUserPermission = viewablePermissions.indexOf(INVITE_USER);
+            int indexOfRemoveUserPermission = viewablePermissions.indexOf(REMOVE_USER);
+            userGroupDto.getEnabled().set(indexOfDeletePermission, -1);
+            userGroupDto.getEnabled().set(indexOfEditPermission, -1);
+            userGroupDto.getEnabled().set(indexOfInviteUserPermission, -1);
+            userGroupDto.getEnabled().set(indexOfRemoveUserPermission, -1);
+        }
+        return userGroupDto;
     }
 
     /*

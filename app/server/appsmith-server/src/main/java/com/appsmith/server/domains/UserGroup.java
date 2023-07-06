@@ -22,6 +22,8 @@ public class UserGroup extends BaseDomain {
 
     String tenantId;
 
+    Boolean isProvisioned = false;
+
     /*
     TODO: Ideally, the client should NOT set this field when creating or updating the user groups. Users will be added to
      user groups through the /invite API

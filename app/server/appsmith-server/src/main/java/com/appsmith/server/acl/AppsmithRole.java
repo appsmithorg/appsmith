@@ -44,6 +44,7 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_APPLICATIO
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.PROVISIONING_ROLE;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_ADMINISTRATOR_DESCRIPTION;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_DEVELOPER_DESCRIPTION;
@@ -70,6 +71,11 @@ public enum AppsmithRole {
                     CREATE_WORKSPACES, CREATE_PERMISSION_GROUPS, CREATE_USER_GROUPS,
                     READ_TENANT_AUDIT_LOGS, MANAGE_TENANT, TENANT_MANAGE_ALL_USERS
             )
+    ),
+    PROVISION_ROLE(
+            PROVISIONING_ROLE,
+            "",
+            Set.of(CREATE_USER_GROUPS, TENANT_READ_ALL_USERS)
     ),
     /**
      * Default Application Developer Role

@@ -18,4 +18,6 @@ public interface CustomUserRepository extends CustomUserRepositoryCE {
 
     Mono<PagedDomain<User>> getUsersWithParamsPaginated(int count, int startIndex, List<String> filterEmails, Optional<AclPermission> aclPermission);
 
+    Flux<String> getUserEmailsByIdsAndTenantId(List<String> userIds, String tenantId, Optional<AclPermission> aclPermission);
+
 }
