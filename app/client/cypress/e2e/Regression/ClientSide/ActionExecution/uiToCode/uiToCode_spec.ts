@@ -9,9 +9,7 @@ import {
 
 describe("UI to Code", () => {
   before(() => {
-    cy.fixture("buttondsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("buttondsl");
     apiPage.CreateApi("Api1", "GET");
     apiPage.CreateApi("Api2", "POST");
   });

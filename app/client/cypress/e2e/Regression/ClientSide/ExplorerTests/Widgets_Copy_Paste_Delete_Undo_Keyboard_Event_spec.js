@@ -7,9 +7,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 before(() => {
-  cy.fixture("formWithInputdsl").then((val) => {
-    agHelper.AddDsl(val);
-  });
+  agHelper.AddDsl("formWithInputdsl");
 });
 
 describe("Test Suite to validate copy/delete/undo functionalites", function () {

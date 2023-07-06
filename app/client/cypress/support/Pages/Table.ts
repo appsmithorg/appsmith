@@ -522,15 +522,12 @@ export class Table {
     tableVersion: "v1" | "v2" = "v1",
     networkCall = "viewPage",
   ) {
-    cy.url().then(($currentUrl) => {
-      this.deployMode.StubWindowNAssert(
-        this._tableRowColumnData(row, col, tableVersion),
-        expectedURL,
-        $currentUrl,
-        networkCall,
-      );
-      this.WaitUntilTableLoad(0, 0, tableVersion);
-    });
+    this.deployMode.StubWindowNAssert(
+      this._tableRowColumnData(row, col, tableVersion),
+      expectedURL,
+      networkCall,
+    );
+    this.WaitUntilTableLoad(0, 0, tableVersion);
   }
 
   public AddColumn(colId: string) {
@@ -609,12 +606,14 @@ export class Table {
     colIndex: number,
     newValue: "" | number | string,
     toSaveNewValue = false,
+    force = false,
   ) {
     this.agHelper.UpdateInputValue(
       this._tableRow(rowIndex, colIndex, "v2") +
         " " +
         this._editCellEditorInput,
       newValue.toString(),
+      force,
     );
     toSaveNewValue &&
       this.agHelper.TypeText(this._editCellEditorInput, "{enter}", 0, true);
