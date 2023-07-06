@@ -6,9 +6,7 @@ import {
 
 describe("Binding the multiple widgets and validating default data", function () {
   before(() => {
-    cy.fixture("Invalid_binding_dsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Invalid_binding_dsl");
   });
 
   it("1. Dropdown widget test with invalid binding value", function () {

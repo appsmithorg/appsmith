@@ -47,9 +47,7 @@ function checkSelectedRadioValue(selector, value) {
 
 describe("List widget v2 - Basic Child Widget Interaction", () => {
   before(() => {
-    cy.fixture("Listv2/emptyList").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Listv2/emptyList");
     cy.get(publishLocators.containerWidget).should("have.length", 3);
   });
 

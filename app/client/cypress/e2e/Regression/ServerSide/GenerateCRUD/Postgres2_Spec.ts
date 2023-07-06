@@ -76,12 +76,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   it("3. Validate Select record from Postgress datasource & verify query response", () => {
     entityExplorer.ActionTemplateMenuByEntityName("public.vessels", "SELECT");
     dataSources.RunQueryNVerifyResponseViews(10);
-    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("371681");
-    });
-    dataSources.ReadQueryTableResponse(6).then(($cellData) => {
-      expect($cellData).to.eq("Passenger");
-    });
+    dataSources.AssertQueryTableResponse(0, "371681");
+    dataSources.AssertQueryTableResponse(6, "Passenger");
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,

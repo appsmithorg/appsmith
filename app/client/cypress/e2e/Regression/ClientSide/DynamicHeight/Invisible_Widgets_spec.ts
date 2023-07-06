@@ -6,9 +6,7 @@ describe("Fixed Invisible widgets and auto height containers", () => {
   before(() => {
     // Create a page with a divider below a button widget and a checkbox widget below a filepicker widget
     // Button widget and filepicker widgets are fixed height widgets
-    cy.fixture("autoHeightInvisibleWidgetsDSL").then((val: any) => {
-      AggregateHelper.AddDsl(val);
-    });
+    AggregateHelper.AddDsl("autoHeightInvisibleWidgetsDSL");
   });
 
   it("1. Divider should be below Button Widget in edit mode", () => {

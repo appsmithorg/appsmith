@@ -1,5 +1,5 @@
-const dsl = require("../../../../fixtures/jsFunctionTriggerDsl.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import datasourceFormData from "../../../../fixtures/datasources.json";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
 const jsEditor = ObjectsRegistry.JSEditor;
@@ -8,14 +8,11 @@ const ee = ObjectsRegistry.EntityExplorer;
 
 describe("JS data update on button click", function () {
   before(() => {
-    agHelper.AddDsl(dsl);
+    agHelper.AddDsl("jsFunctionTriggerDsl");
   });
 
   it("1. Populates js function data when triggered via button click", function () {
-    apiPage.CreateAndFillApi(
-      "https://jsonplaceholder.typicode.com/posts",
-      "Api1",
-    );
+    apiPage.CreateAndFillApi(datasourceFormData.mockApiUrl, "Api1");
 
     const jsObjectString = `export default {
         myVar1: [],

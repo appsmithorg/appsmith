@@ -25,9 +25,7 @@ describe(" Nested List Widgets ", function () {
   });
 
   it("1. Pasting - should show toast when nesting is greater than 3", function () {
-    cy.fixture("Listv2/copy_paste_listv2_dsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Listv2/copy_paste_listv2_dsl");
     cy.openPropertyPaneByWidgetName("List1", "listwidgetv2");
     // Copy List1
     cy.get(widgetsPage.copyWidget).click({ force: true });
@@ -137,10 +135,8 @@ describe(" Nested List Widgets ", function () {
   });
 
   it("3. Accessing CurrentView, SelectedItemView and TriggeredItemView from Sibling List widget", () => {
-    cy.fixture("Listv2/ListV2_nested_sibling_listwidget_dsl").then((val) => {
-      agHelper.AddDsl(val);
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Listv2/ListV2_nested_sibling_listwidget_dsl");
+    agHelper.AddDsl("Listv2/ListV2_nested_sibling_listwidget_dsl");
 
     cy.waitUntil(() =>
       cy

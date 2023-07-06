@@ -9,9 +9,7 @@ import {
 
 describe("Text-Chart Binding Functionality", function () {
   before(() => {
-    cy.fixture("ChartTextDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("ChartTextDsl");
   });
 
   it("1. Text-Chart Binding Functionality View", function () {

@@ -3,10 +3,9 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Widget Grouping", function () {
   before(() => {
-    cy.fixture("buttonGroupDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("buttonGroupDsl");
   });
+
   it("1. Button widgets widget on click info message valdiation with font family", function () {
     cy.get(".t--buttongroup-widget button")
       .contains("Add")
