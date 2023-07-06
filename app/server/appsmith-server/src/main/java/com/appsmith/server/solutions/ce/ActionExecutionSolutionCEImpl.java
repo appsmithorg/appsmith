@@ -41,7 +41,6 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
-import com.appsmith.server.solutions.DatasourceStorageTransferSolution;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -86,7 +85,6 @@ import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_REQUEST_PARSING;
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_SERVER_EXECUTION;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
-import static com.appsmith.external.models.DatasourceStorage.createDatasourceStorageFromDatasource;
 import static com.appsmith.server.constants.AnalyticsConstants.DATASOURCE_CREATED_AT_SHORTNAME;
 import static com.appsmith.server.constants.AnalyticsConstants.DATASOURCE_ID_SHORTNAME;
 import static com.appsmith.server.constants.AnalyticsConstants.DATASOURCE_IS_MOCK_SHORTNAME;
@@ -122,7 +120,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     static final String EXECUTE_ACTION_DTO = "executeActionDTO";
     static final String PARAMETER_MAP = "parameterMap";
     List<Pattern> patternList = new ArrayList<>();
-    private DatasourceStorageTransferSolution datasourceStorageTransferSolution;
 
     public ActionExecutionSolutionCEImpl(NewActionService newActionService,
                                          ActionPermission actionPermission,
@@ -139,8 +136,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                          AuthenticationValidator authenticationValidator,
                                          DatasourcePermission datasourcePermission,
                                          AnalyticsService analyticsService,
-                                         DatasourceStorageService datasourceStorageService,
-                                         DatasourceStorageTransferSolution datasourceStorageTransferSolution) {
+                                         DatasourceStorageService datasourceStorageService) {
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.observationRegistry = observationRegistry;
@@ -157,7 +153,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.datasourcePermission = datasourcePermission;
         this.analyticsService = analyticsService;
         this.datasourceStorageService = datasourceStorageService;
-        this.datasourceStorageTransferSolution = datasourceStorageTransferSolution;
 
 
         this.patternList.add(Pattern.compile(PARAM_KEY_REGEX));
@@ -520,7 +515,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         datasourceStorageMono = Mono.empty();
                     } else {
                         // For embedded datasource, we are simply relying on datasource configuration property
-                        datasourceStorageMono = Mono.just(createDatasourceStorageFromDatasource(datasource, environmentId));
+                        datasourceStorageMono = Mono.just(datasourceStorageService.getDatasourceStorageFromDatasource(datasource, environmentId));
                     }
 
                     return datasourceStorageMono

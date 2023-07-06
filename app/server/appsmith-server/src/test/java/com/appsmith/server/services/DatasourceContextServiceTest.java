@@ -141,7 +141,7 @@ public class DatasourceContextServiceTest {
         datasource.setWorkspaceId("workspaceId1");
         datasource.setPluginId("mockPluginId");
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(defaultEnvironmentId, datasourceStorageService.createDatasourceStorageDTOFromDatasourceStorage(datasourceStorage));
         datasource.setDatasourceStorages(storages);
 
         doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", datasourcePermission.getDeletePermission());
@@ -376,7 +376,8 @@ public class DatasourceContextServiceTest {
         DatasourceStorageDTO datasourceStorageDTO = createdDatasource.getDatasourceStorages().get(defaultEnvironmentId);
         assert datasourceStorageDTO != null;
 
-        DatasourceStorage createdDatasourceStorage = DatasourceStorage.createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
+        DatasourceStorage createdDatasourceStorage =
+                datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
 
         DatasourceContextIdentifier datasourceContextIdentifier =
                 new DatasourceContextIdentifier(createdDatasource.getId(), defaultEnvironmentId);

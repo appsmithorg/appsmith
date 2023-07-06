@@ -16,7 +16,6 @@ import com.appsmith.server.repositories.DatasourceStorageRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourcePermission;
-import com.appsmith.server.solutions.DatasourceStorageTransferSolution;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -29,27 +28,23 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
-import static com.appsmith.external.models.DatasourceStorage.createDatasourceStorageFromDatasourceStorageDTO;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 @Slf4j
 public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceCE {
 
     protected final DatasourceStorageRepository repository;
-    private final DatasourceStorageTransferSolution datasourceStorageTransferSolution;
     private final DatasourcePermission datasourcePermission;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final AnalyticsService analyticsService;
 
     public DatasourceStorageServiceCEImpl(DatasourceStorageRepository repository,
-                                          DatasourceStorageTransferSolution datasourceStorageTransferSolution,
                                           DatasourcePermission datasourcePermission,
                                           PluginService pluginService,
                                           PluginExecutorHelper pluginExecutorHelper,
                                           AnalyticsService analyticsService) {
         this.repository = repository;
-        this.datasourceStorageTransferSolution = datasourceStorageTransferSolution;
         this.datasourcePermission = datasourcePermission;
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
@@ -305,4 +300,51 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         return datasourceStorage;
     }
 
+    @Override
+    public DatasourceStorage createDatasourceStorageFromDatasourceStorageDTO(DatasourceStorageDTO datasourceStorageDTO) {
+        DatasourceStorage datasourceStorage = new DatasourceStorage();
+        datasourceStorage.setId(datasourceStorageDTO.getId());
+        datasourceStorage.setDatasourceId(datasourceStorageDTO.getDatasourceId());
+        datasourceStorage.setEnvironmentId(datasourceStorageDTO.getEnvironmentId());
+        datasourceStorage.setDatasourceConfiguration(datasourceStorageDTO.getDatasourceConfiguration());
+        datasourceStorage.setIsConfigured(datasourceStorageDTO.getIsConfigured());
+        datasourceStorage.setPluginId(datasourceStorageDTO.getPluginId());
+        datasourceStorage.setWorkspaceId(datasourceStorageDTO.getWorkspaceId());
+        if (datasourceStorageDTO.getInvalids() != null) {
+            datasourceStorage.getInvalids().addAll(datasourceStorageDTO.getInvalids());
+        }
+        if (datasourceStorageDTO.getMessages() != null) {
+            datasourceStorage.getMessages().addAll(datasourceStorageDTO.getMessages());
+        }
+
+        return datasourceStorage;
+    }
+
+    @Override
+    public DatasourceStorageDTO createDatasourceStorageDTOFromDatasourceStorage(DatasourceStorage datasourceStorage) {
+        DatasourceStorageDTO datasourceStorageDTO = new DatasourceStorageDTO();
+        datasourceStorageDTO.setId(datasourceStorage.getId());
+        datasourceStorageDTO.setDatasourceId(datasourceStorage.getDatasourceId());
+        datasourceStorageDTO.setEnvironmentId(datasourceStorage.getEnvironmentId());
+        datasourceStorageDTO.setDatasourceConfiguration(datasourceStorage.getDatasourceConfiguration());
+        datasourceStorageDTO.setIsConfigured(datasourceStorage.getIsConfigured());
+        datasourceStorageDTO.setInvalids(datasourceStorage.getInvalids());
+        datasourceStorageDTO.setMessages(datasourceStorage.getMessages());
+
+        return datasourceStorageDTO;
+    }
+
+    @Override
+    public DatasourceStorage createDatasourceStorageFromDatasource(Datasource datasource, String environmentId) {
+        DatasourceStorage datasourceStorage = new DatasourceStorage(
+                datasource.getId(),
+                environmentId,
+                datasource.getDatasourceConfiguration(),
+                datasource.getIsConfigured(),
+                datasource.getInvalids(),
+                datasource.getMessages());
+
+        datasourceStorage.prepareTransientFields(datasource);
+        return datasourceStorage;
+    }
 }

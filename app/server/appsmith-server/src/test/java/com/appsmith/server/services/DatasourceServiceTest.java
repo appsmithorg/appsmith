@@ -1794,7 +1794,8 @@ public class DatasourceServiceTest {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor())).thenReturn(Mono.just(new MockPluginExecutor()));
-        DatasourceStorage datasourceStorage = DatasourceStorage.createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
+        DatasourceStorage datasourceStorage =
+                datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
         Mockito.doReturn(Mono.just(datasourceStorage)).when(datasourceStorageService).create(Mockito.any());
         Datasource dbDatasource = datasourceService.create(datasource).block();
 

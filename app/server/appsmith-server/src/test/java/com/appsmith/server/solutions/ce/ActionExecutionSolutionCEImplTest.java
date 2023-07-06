@@ -23,7 +23,6 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
-import com.appsmith.server.solutions.DatasourceStorageTransferSolution;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.BeforeEach;
@@ -107,8 +106,6 @@ class ActionExecutionSolutionCEImplTest {
     AnalyticsService analyticsService;
     @MockBean
     DatasourceStorageService datasourceStorageService;
-    @MockBean
-    DatasourceStorageTransferSolution datasourceStorageTransferSolution;
 
     private BodyExtractor.Context context;
 
@@ -132,8 +129,7 @@ class ActionExecutionSolutionCEImplTest {
                 authenticationValidator,
                 datasourcePermission,
                 analyticsService,
-                datasourceStorageService,
-                datasourceStorageTransferSolution);
+                datasourceStorageService);
 
         ObservationRegistry.ObservationConfig mockObservationConfig = Mockito.mock(ObservationRegistry.ObservationConfig.class);
         Mockito.when(observationRegistry.observationConfig()).thenReturn(mockObservationConfig);

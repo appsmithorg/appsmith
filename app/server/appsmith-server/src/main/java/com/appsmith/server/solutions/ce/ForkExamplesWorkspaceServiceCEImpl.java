@@ -584,7 +584,7 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                                                             if (auth != null) {
                                                                 auth.setIsAuthorized(null);
                                                             }
-                                                            return storageDTOToFork.softEquals(new DatasourceStorageDTO(existingStorage));
+                                                            return storageDTOToFork.softEquals(datasourceStorageService.createDatasourceStorageDTOFromDatasourceStorage(existingStorage));
                                                         })
                                                         .switchIfEmpty(Mono.just(false));
                                             })

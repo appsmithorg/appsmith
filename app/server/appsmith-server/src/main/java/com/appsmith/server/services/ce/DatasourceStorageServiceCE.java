@@ -44,4 +44,11 @@ public interface DatasourceStorageServiceCE {
     DatasourceStorageDTO getDatasourceStorageDTOFromDatasource(Datasource datasource, String environmentId);
 
     DatasourceStorage getDatasourceStorageFromDatasource(Datasource datasource, String environmentId);
+
+    DatasourceStorage createDatasourceStorageFromDatasourceStorageDTO(DatasourceStorageDTO datasourceStorageDTO);
+
+    DatasourceStorageDTO createDatasourceStorageDTOFromDatasourceStorage(DatasourceStorage datasourceStorage);
+
+    DatasourceStorage createDatasourceStorageFromDatasource(Datasource datasource, String environmentId);
+
 }

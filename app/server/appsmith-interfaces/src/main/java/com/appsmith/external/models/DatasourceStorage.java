@@ -118,38 +118,6 @@ public class DatasourceStorage extends BaseDomain {
         this.gitSyncId = datasource.getGitSyncId();
     }
 
-    public static DatasourceStorage createDatasourceStorageFromDatasourceStorageDTO(DatasourceStorageDTO datasourceStorageDTO) {
-        DatasourceStorage datasourceStorage = new DatasourceStorage();
-        datasourceStorage.setId(datasourceStorageDTO.getId());
-        datasourceStorage.datasourceId = datasourceStorageDTO.getDatasourceId();
-        datasourceStorage.environmentId = datasourceStorageDTO.getEnvironmentId();
-        datasourceStorage.datasourceConfiguration = datasourceStorageDTO.getDatasourceConfiguration();
-        datasourceStorage.isConfigured = datasourceStorageDTO.getIsConfigured();
-        datasourceStorage.pluginId = datasourceStorageDTO.getPluginId();
-        datasourceStorage.workspaceId = datasourceStorageDTO.getWorkspaceId();
-        if (datasourceStorageDTO.invalids != null) {
-            datasourceStorage.invalids.addAll(datasourceStorageDTO.getInvalids());
-        }
-        if (datasourceStorageDTO.getMessages() != null) {
-            datasourceStorage.messages.addAll(datasourceStorageDTO.getMessages());
-        }
-
-        return datasourceStorage;
-    }
-
-    public static DatasourceStorage createDatasourceStorageFromDatasource(Datasource datasource, String environmentId) {
-        DatasourceStorage datasourceStorage = new DatasourceStorage(
-                datasource.getId(),
-                environmentId,
-                datasource.getDatasourceConfiguration(),
-                datasource.getIsConfigured(),
-                datasource.getInvalids(),
-                datasource.getMessages());
-
-        datasourceStorage.prepareTransientFields(datasource);
-        return datasourceStorage;
-    }
-
     @JsonView(Views.Public.class)
     public boolean getIsValid() {
         return CollectionUtils.isEmpty(invalids);

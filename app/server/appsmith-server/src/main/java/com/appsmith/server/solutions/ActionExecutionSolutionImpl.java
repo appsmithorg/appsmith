@@ -34,11 +34,10 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
                                        AuthenticationValidator authenticationValidator,
                                        DatasourcePermission datasourcePermission,
                                        AnalyticsService analyticsService,
-                                       DatasourceStorageService datasourceStorageService,
-                                       DatasourceStorageTransferSolution datasourceStorageTransferSolution) {
+                                       DatasourceStorageService datasourceStorageService) {
         super(newActionService, actionPermission, observationRegistry, objectMapper, repository, datasourceService,
                 pluginService, datasourceContextService, pluginExecutorHelper, newPageService, applicationService,
                 sessionUserService, authenticationValidator, datasourcePermission, analyticsService,
-                datasourceStorageService, datasourceStorageTransferSolution);
+                datasourceStorageService);
     }
 }
