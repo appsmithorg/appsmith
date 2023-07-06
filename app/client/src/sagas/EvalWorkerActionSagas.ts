@@ -1,4 +1,4 @@
-import { all, call, fork, put, spawn, take } from "redux-saga/effects";
+import { all, call, put, spawn, take } from "redux-saga/effects";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
@@ -30,16 +30,11 @@ import isEmpty from "lodash/isEmpty";
 import type { UnEvalTree } from "entities/DataTree/dataTreeFactory";
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 import type { LintTreeSagaRequestData } from "plugins/Linting/types";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 export type UpdateDataTreeMessageData = {
   workerResponse: EvalTreeResponseData;
   unevalTree: UnEvalTree;
 };
-import { logJSActionExecution } from "./analyticsSaga";
-import { uniq } from "lodash";
-import type {
-  TriggerKind,
-  TriggerSource,
-} from "constants/AppsmithActionConstants/ActionConstants";
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {
@@ -111,27 +106,18 @@ export function* processTriggerHandler(message: any) {
   if (messageType === MessageType.REQUEST)
     yield call(evalWorker.respond, message.messageId, result);
 }
-export function* handleJSExecutionLog(
-  data: TMessage<{
-    data: {
-      jsFnFullName: string;
-      isSuccess: boolean;
-      triggerMeta: {
-        source: TriggerSource;
-        triggerPropertyName: string | undefined;
-        triggerKind: TriggerKind | undefined;
-      };
-    }[];
-  }>,
-) {
+export function* handleJSExecutionLog(data: TMessage<{ data: string[] }>) {
   const {
-    body: { data: executionData },
+    body: { data: executedFns },
   } = data;
-  const executedFns = uniq(
-    executionData.map((execData) => execData.jsFnFullName),
-  );
-  yield fork(logJSActionExecution, executionData);
-  yield call(logJSFunctionExecution, executedFns);
+
+  for (const executedFn of executedFns) {
+    AnalyticsUtil.logEvent("EXECUTE_ACTION", {
+      type: "JS",
+      name: executedFn,
+    });
+  }
+  yield call(logJSFunctionExecution, data);
 }
 
 export function* handleEvalWorkerMessage(message: TMessage<any>) {
