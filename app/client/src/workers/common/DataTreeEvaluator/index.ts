@@ -71,7 +71,6 @@ import {
   isObject,
   isUndefined,
   set,
-  union,
   unset,
 } from "lodash";
 
@@ -500,17 +499,13 @@ export default class DataTreeEvaluator {
     const updateDependencyStartTime = performance.now();
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
-    const {
-      dependenciesOfRemovedPaths,
-      extraPathsToLint,
-      pathsToClearErrorsFor,
-      removedPaths,
-    } = updateDependencyMap({
-      configTree,
-      dataTreeEvalRef: this,
-      translatedDiffs,
-      unEvalDataTree: localUnEvalTree,
-    });
+    const { dependenciesOfRemovedPaths, pathsToClearErrorsFor, removedPaths } =
+      updateDependencyMap({
+        configTree,
+        dataTreeEvalRef: this,
+        translatedDiffs,
+        unEvalDataTree: localUnEvalTree,
+      });
     const updateDependencyEndTime = performance.now();
 
     this.updateEvalTreeWithChanges({ differences });
@@ -539,7 +534,6 @@ export default class DataTreeEvaluator {
         totalUpdateTreeSetupStartTime,
         dependenciesOfRemovedPaths,
         removedPaths,
-        extraPathsToLint,
         translatedDiffs,
         pathsToClearErrorsFor,
         findDifferenceTime,
@@ -601,7 +595,6 @@ export default class DataTreeEvaluator {
       totalUpdateTreeSetupStartTime?: any;
       dependenciesOfRemovedPaths?: string[];
       removedPaths?: string[];
-      extraPathsToLint?: string[];
       translatedDiffs?: DataTreeDiff[];
       pathsToClearErrorsFor?: any[];
       pathsToSkipFromEval?: string[];
@@ -613,7 +606,6 @@ export default class DataTreeEvaluator {
   ) {
     const {
       dependenciesOfRemovedPaths = [],
-      extraPathsToLint = [],
       removedPaths = [],
       totalUpdateTreeSetupStartTime = performance.now(),
       translatedDiffs = [],
@@ -685,7 +677,7 @@ export default class DataTreeEvaluator {
     return {
       unEvalUpdates: translatedDiffs,
       evalOrder: evaluationOrder,
-      lintOrder: union(evaluationOrder, extraPathsToLint),
+      lintOrder: evaluationOrder,
       nonDynamicFieldValidationOrder: Array.from(
         nonDynamicFieldValidationOrderSet,
       ),

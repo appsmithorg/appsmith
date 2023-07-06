@@ -34,7 +34,7 @@ import {
   updateMap,
 } from "./utils";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
-import { difference, isEmpty, set, uniq } from "lodash";
+import { difference, isEmpty, set } from "lodash";
 import { isWidgetActionOrJsObject } from "../DataTreeEvaluator/utils";
 import { asyncJsFunctionInDataFields } from "workers/Evaluation/JSObject/asyncJSFunctionBoundToDataField";
 
@@ -121,13 +121,6 @@ interface UpdateDependencyMap {
   dependenciesOfRemovedPaths: string[];
   pathsToClearErrorsFor: any[];
   removedPaths: string[];
-  /** Some paths do not need to go through evaluation, but require linting
-   *  For example:
-   *  1. For changes in paths that trigger fields depend on, the triggerFields need to be "linted" but not evaluated.
-   *  2. Paths containing invalid references - Eg. for binding {{Api1.unknown}} in button.text, although Api1.unknown
-   *     is not a valid reference, when Api1 is deleted button.text needs to be linted
-   */
-  extraPathsToLint: string[];
 }
 export const updateDependencyMap = ({
   configTree,
@@ -145,7 +138,6 @@ export const updateDependencyMap = ({
   let didUpdateValidationDependencyMap = false;
   const dependenciesOfRemovedPaths: Array<string> = [];
   const removedPaths: Array<string> = [];
-  let extraPathsToLint: string[] = [];
   const pathsToClearErrorsFor: any[] = [];
   const {
     dependencyMap,
@@ -213,16 +205,11 @@ export const updateDependencyMap = ({
                       { deleteOnEmpty: true, replaceValue: true },
                     );
                     // Update asyncJSFunctionsInDatafieldsMap
-                    const updatedAsyncJSFunctions =
-                      asyncJsFunctionInDataFields.update(
-                        entityDependent,
-                        validReferences,
-                        unEvalDataTree,
-                        configTree,
-                      );
-
-                    extraPathsToLint = extraPathsToLint.concat(
-                      updatedAsyncJSFunctions,
+                    asyncJsFunctionInDataFields.update(
+                      entityDependent,
+                      validReferences,
+                      unEvalDataTree,
+                      configTree,
                     );
 
                     dataTreeEvalErrors = dataTreeEvalErrors.concat(
@@ -294,9 +281,6 @@ export const updateDependencyMap = ({
             invalidReferencesMap[path].forEach((invalidReference) => {
               if (isChildPropertyPath(fullPropertyPath, invalidReference)) {
                 updateMap(newlyValidReferencesMap, invalidReference, [path]);
-                if (!dependencyMap[invalidReference]) {
-                  extraPathsToLint.push(path);
-                }
               }
             });
           });
@@ -317,15 +301,11 @@ export const updateDependencyMap = ({
                       // update the dependency map
                       updateMap(dependencyMap, fullPath, validReferences);
                       // Update asyncJSMap
-                      const updatedAsyncJSFunctions =
-                        asyncJsFunctionInDataFields.update(
-                          fullPath,
-                          validReferences,
-                          unEvalDataTree,
-                          configTree,
-                        );
-                      extraPathsToLint = extraPathsToLint.concat(
-                        updatedAsyncJSFunctions,
+                      asyncJsFunctionInDataFields.update(
+                        fullPath,
+                        validReferences,
+                        unEvalDataTree,
+                        configTree,
                       );
 
                       // Since the previously invalid reference has become valid,
@@ -423,22 +403,6 @@ export const updateDependencyMap = ({
                 dependencyMap[dependencyPath],
                 toRemove,
               );
-              // If we find any invalid reference (untracked in the dependency map) for this path,
-              // which is a child of the deleted path, add it to the of paths to lint.
-              // Example scenario => For {{Api1.unknown}} in button.text, if Api1 is deleted, we need to lint button.text
-              // Although, "Api1.unknown" is not a valid reference
-
-              if (invalidReferencesMap[dependencyPath]) {
-                invalidReferencesMap[dependencyPath].forEach(
-                  (invalidReference) => {
-                    if (
-                      isChildPropertyPath(fullPropertyPath, invalidReference)
-                    ) {
-                      extraPathsToLint.push(dependencyPath);
-                    }
-                  },
-                );
-              }
 
               // Since we are removing previously valid references,
               // We also update the invalidReferenceMap for this path
@@ -449,13 +413,11 @@ export const updateDependencyMap = ({
           });
 
           // update asyncJsFunctionInDataFields
-          const updatedAsyncJSFunctions =
-            asyncJsFunctionInDataFields.handlePathDeletion(
-              fullPropertyPath,
-              unEvalDataTree,
-              configTree,
-            );
-          extraPathsToLint = extraPathsToLint.concat(updatedAsyncJSFunctions);
+          asyncJsFunctionInDataFields.handlePathDeletion(
+            fullPropertyPath,
+            unEvalDataTree,
+            configTree,
+          );
 
           break;
         }
@@ -499,17 +461,14 @@ export const updateDependencyMap = ({
                 extractDependencyErrors,
               );
               // update asyncFunctionInSyncfieldsMap
-              const updatedAsyncJSFunctions =
-                asyncJsFunctionInDataFields.handlePathEdit(
-                  fullPropertyPath,
-                  validReferences,
-                  unEvalDataTree,
-                  inverseDependencyMap,
-                  configTree,
-                );
-              extraPathsToLint = extraPathsToLint.concat(
-                updatedAsyncJSFunctions,
+              asyncJsFunctionInDataFields.handlePathEdit(
+                fullPropertyPath,
+                validReferences,
+                unEvalDataTree,
+                inverseDependencyMap,
+                configTree,
               );
+
               // We found a new dynamic binding for this property path. We update the dependency map by overwriting the
               // dependencies for this property path with the newly found dependencies
 
@@ -560,16 +519,12 @@ export const updateDependencyMap = ({
               delete dependencyMap[fullPropertyPath];
               delete invalidReferencesMap[fullPropertyPath];
               // update asyncFunctionInSyncfieldsMap
-              const updatedAsyncJSFunctions =
-                asyncJsFunctionInDataFields.handlePathEdit(
-                  fullPropertyPath,
-                  [],
-                  unEvalDataTree,
-                  inverseDependencyMap,
-                  configTree,
-                );
-              extraPathsToLint = extraPathsToLint.concat(
-                updatedAsyncJSFunctions,
+              asyncJsFunctionInDataFields.handlePathEdit(
+                fullPropertyPath,
+                [],
+                unEvalDataTree,
+                inverseDependencyMap,
+                configTree,
               );
             }
           }
@@ -641,6 +596,5 @@ export const updateDependencyMap = ({
     pathsToClearErrorsFor,
     dependenciesOfRemovedPaths,
     removedPaths,
-    extraPathsToLint: uniq(extraPathsToLint),
   };
 };
