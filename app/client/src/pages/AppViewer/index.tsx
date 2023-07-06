@@ -41,7 +41,7 @@ import HtmlTitle from "./AppViewerHtmlTitle";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { ThemeProvider as WDSThemeProvider } from "components/wds/ThemeProvider";
-import { selectFeatureFlags } from "selectors/featureFlagsSelectors";
+import { useFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -176,8 +176,7 @@ function AppViewer(props: Props) {
     };
   }, [selectedTheme.properties.fontFamily.appFont]);
 
-  const featureFlags = useSelector(selectFeatureFlags);
-  const isWDSV2Enabled = featureFlags.wds_v2;
+  const isWDSV2Enabled = useFeatureFlagCheck("ab_wds_enabled");
   const backgroundForBody = isWDSV2Enabled
     ? "var(--color-bg)"
     : selectedTheme.properties.colors.backgroundColor;
@@ -185,7 +184,7 @@ function AppViewer(props: Props) {
   return (
     <WDSThemeProvider
       borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-      seedColor={selectedTheme.properties.colors.primaryColor || "#000"}
+      seedColor={selectedTheme.properties.colors.primaryColor}
     >
       <ThemeProvider theme={lightTheme}>
         <EditorContextProvider renderMode="PAGE">

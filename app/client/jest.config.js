@@ -31,6 +31,9 @@ module.exports = {
     "design-system-old": "<rootDir>/node_modules/design-system-old/build",
     "@design-system/widgets-old":
       "<rootDir>/node_modules/@design-system/widgets-old",
+    "@design-system/widgets": "<rootDir>/node_modules/@design-system/widgets",
+    "@design-system/headless": "<rootDir>/node_modules/@design-system/headless",
+    "@design-system/theming": "<rootDir>/node_modules/@design-system/theming",
     "design-system": "<rootDir>/node_modules/design-system/build",
     "^proxy-memoize$": "<rootDir>/node_modules/proxy-memoize/dist/wrapper.cjs",
     // @blueprintjs packages need to be resolved to the `esnext` directory. The default `esm` directory
@@ -49,9 +52,6 @@ module.exports = {
     "^@blueprintjs/select$":
       "<rootDir>/node_modules/@blueprintjs/select/lib/esnext",
     "design-system": "<rootDir>/node_modules/design-system/build",
-    "@design-system/widgets": "<rootDir>/node_modules/@design-system/widgets",
-    "@design-system/headless": "<rootDir>/node_modules/@design-system/headless",
-    "@design-system/theming": "<rootDir>/node_modules/@design-system/theming",
   },
   globals: {
     "ts-jest": {
