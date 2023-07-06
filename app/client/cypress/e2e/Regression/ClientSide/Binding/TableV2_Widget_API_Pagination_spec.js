@@ -37,7 +37,7 @@ describe("Test Create Api and Bind to Table widget V2", function () {
       .should("contain", "2");
   });
 
-  it("2. should check whether the next page button is disabled and not clickable when last page is reached", () => {
+  it("2. Bug #22477: should check whether the next page button is disabled and not clickable when last page is reached", () => {
     /**
      * Flow:
      * Update total records count to 20
@@ -47,6 +47,7 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     propPane.UpdatePropertyFieldValue("Total Records", "20");
     agHelper.GetNClick(table._nextPage("v2"));
 
+    agHelper.GetElement(table._nextPage("v2")).should("have.attr", "disabled");
     agHelper.AssertElementAbsence(commonlocators._toastMsg);
   });
 });
