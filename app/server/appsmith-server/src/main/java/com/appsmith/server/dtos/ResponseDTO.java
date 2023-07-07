@@ -48,5 +48,4 @@ public class ResponseDTO<T> implements Serializable {
 
         return error.getCode() + ": " + error.getMessage();
     }
-
 }

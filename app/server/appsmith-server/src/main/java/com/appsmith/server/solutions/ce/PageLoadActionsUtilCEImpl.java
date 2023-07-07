@@ -61,12 +61,12 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * Dropdown1.options -> Dropdown1
      */
     private final String IMMEDIATE_PARENT_REGEX = "^(.*)(\\..*|\\[.*\\])$";
+
     private final Pattern parentPattern = Pattern.compile(IMMEDIATE_PARENT_REGEX);
 
     // TODO : This should contain all the static global variables present on the page like `appsmith`, etc.
     // TODO : Add all the global variables exposed on the client side.
     private final Set<String> APPSMITH_GLOBAL_VARIABLES = Set.of();
-
 
     /**
      * This function computes the sequenced on page load actions.
@@ -90,13 +90,14 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * in parallel. But one set of actions MUST finish execution before the next set of actions can be executed
      * in the list.
      */
-    public Mono<List<Set<DslActionDTO>>> findAllOnLoadActions(String pageId,
-                                                              Integer evaluatedVersion,
-                                                              Set<String> widgetNames,
-                                                              Set<ActionDependencyEdge> edges,
-                                                              Map<String, Set<String>> widgetDynamicBindingsMap,
-                                                              List<ActionDTO> flatPageLoadActions,
-                                                              Set<String> actionsUsedInDSL) {
+    public Mono<List<Set<DslActionDTO>>> findAllOnLoadActions(
+            String pageId,
+            Integer evaluatedVersion,
+            Set<String> widgetNames,
+            Set<ActionDependencyEdge> edges,
+            Map<String, Set<String>> widgetDynamicBindingsMap,
+            List<ActionDTO> flatPageLoadActions,
+            Set<String> actionsUsedInDSL) {
 
         Set<String> onPageLoadActionSet = new HashSet<>();
         Set<String> explicitUserSetOnLoadActions = new HashSet<>();
@@ -104,7 +105,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
 
         // Function `extractAndSetActionBindingsInGraphEdges` updates this map to keep a track of all the actions which
         // have been discovered while walking the actions to ensure that we don't end up in a recursive infinite loop
-        // in case of a cyclical relationship between actions (and not specific paths) and helps us exit at the appropriate
+        // in case of a cyclical relationship between actions (and not specific paths) and helps us exit at the
+        // appropriate
         // junction.
         // e.g : Consider the following relationships :
         // Api1.actionConfiguration.body <- Api2.data.users[0].name
@@ -117,26 +119,31 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 .cache();
 
-        Mono<Map<String, ActionDTO>> actionNameToActionMapMono = allActionsByPageIdFlux.collectMap(ActionDTO::getValidName, action -> action).cache();
+        Mono<Map<String, ActionDTO>> actionNameToActionMapMono = allActionsByPageIdFlux
+                .collectMap(ActionDTO::getValidName, action -> action)
+                .cache();
 
-        Mono<Set<String>> actionsInPageMono = allActionsByPageIdFlux.map(ActionDTO::getValidName).collect(Collectors.toSet()).cache();
+        Mono<Set<String>> actionsInPageMono = allActionsByPageIdFlux
+                .map(ActionDTO::getValidName)
+                .collect(Collectors.toSet())
+                .cache();
 
         Set<EntityDependencyNode> actionBindingsInDsl = new HashSet<>();
-        Mono<Set<ActionDependencyEdge>> directlyReferencedActionsAddedToGraphMono =
-                addDirectlyReferencedActionsToGraph(
-                        edges,
-                        actionsUsedInDSL,
-                        bindingsFromActions,
-                        actionsFoundDuringWalk,
-                        widgetDynamicBindingsMap,
-                        actionNameToActionMapMono,
-                        actionBindingsInDsl,
-                        evaluatedVersion);
+        Mono<Set<ActionDependencyEdge>> directlyReferencedActionsAddedToGraphMono = addDirectlyReferencedActionsToGraph(
+                edges,
+                actionsUsedInDSL,
+                bindingsFromActions,
+                actionsFoundDuringWalk,
+                widgetDynamicBindingsMap,
+                actionNameToActionMapMono,
+                actionBindingsInDsl,
+                evaluatedVersion);
 
         // This following `createAllEdgesForPageMono` publisher traverses the actions and widgets to add all possible
         // edges between all possible entity paths
 
-        // First find all the actions in the page whose name matches the possible entity names found in the bindings in the widget
+        // First find all the actions in the page whose name matches the possible entity names found in the bindings in
+        // the widget
         Mono<Set<ActionDependencyEdge>> createAllEdgesForPageMono = directlyReferencedActionsAddedToGraphMono
                 // Add dependencies of all on page load actions set by the user in the graph
                 .flatMap(updatedEdges -> addExplicitUserSetOnLoadActionsToGraph(
@@ -148,7 +155,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                         actionNameToActionMapMono,
                         actionBindingsInDsl,
                         evaluatedVersion))
-                // For all the actions found so far, recursively walk the dynamic bindings of the actions to find more relationships with other actions (& widgets)
+                // For all the actions found so far, recursively walk the dynamic bindings of the actions to find more
+                // relationships with other actions (& widgets)
                 .flatMap(updatedEdges -> recursivelyAddActionsAndTheirDependentsToGraphFromBindings(
                         updatedEdges,
                         actionsFoundDuringWalk,
@@ -162,22 +170,25 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                     return addWidgetRelationshipToGraph(updatedEdges, widgetDynamicBindingsMap, evaluatedVersion);
                 });
 
-
         // Create a graph given edges
-        Mono<DirectedAcyclicGraph<String, DefaultEdge>> createGraphMono = Mono.zip(actionsInPageMono, createAllEdgesForPageMono)
+        Mono<DirectedAcyclicGraph<String, DefaultEdge>> createGraphMono = Mono.zip(
+                        actionsInPageMono, createAllEdgesForPageMono)
                 .map(tuple -> {
                     Set<String> allActions = tuple.getT1();
                     Set<ActionDependencyEdge> updatedEdges = tuple.getT2();
                     return constructDAG(allActions, widgetNames, updatedEdges, actionBindingsInDsl);
-                }).cache();
+                })
+                .cache();
 
         // Generate on page load schedule
-        Mono<List<Set<String>>> computeOnPageLoadScheduleNamesMono = Mono.zip(actionNameToActionMapMono, createGraphMono)
+        Mono<List<Set<String>>> computeOnPageLoadScheduleNamesMono = Mono.zip(
+                        actionNameToActionMapMono, createGraphMono)
                 .map(tuple -> {
                     Map<String, ActionDTO> actionNameToActionMap = tuple.getT1();
                     DirectedAcyclicGraph<String, DefaultEdge> graph = tuple.getT2();
 
-                    return computeOnPageLoadActionsSchedulingOrder(graph, onPageLoadActionSet, actionNameToActionMap, explicitUserSetOnLoadActions);
+                    return computeOnPageLoadActionsSchedulingOrder(
+                            graph, onPageLoadActionSet, actionNameToActionMap, explicitUserSetOnLoadActions);
                 })
                 .map(onPageLoadActionsSchedulingOrder -> {
                     // Find all explicitly turned on actions which haven't found their way into the scheduling order
@@ -204,27 +215,23 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                     return onPageLoadActionsSchedulingOrder;
                 });
 
-
         // Transform the schedule order into client feasible DTO
         Mono<List<Set<DslActionDTO>>> computeCompletePageLoadActionScheduleMono =
                 filterAndTransformSchedulingOrderToDTO(
-                        onPageLoadActionSet,
-                        actionNameToActionMapMono,
-                        computeOnPageLoadScheduleNamesMono)
+                                onPageLoadActionSet, actionNameToActionMapMono, computeOnPageLoadScheduleNamesMono)
                         .cache();
-
 
         // With the final on page load scheduling order, also set the on page load actions which would be updated
         // by the caller function
-        Mono<List<ActionDTO>> flatPageLoadActionsMono = computeCompletePageLoadActionScheduleMono.then(actionNameToActionMapMono).map(actionMap -> {
-            onPageLoadActionSet.stream().forEach(actionName -> flatPageLoadActions.add(actionMap.get(actionName)));
-            return flatPageLoadActions;
-        });
+        Mono<List<ActionDTO>> flatPageLoadActionsMono = computeCompletePageLoadActionScheduleMono
+                .then(actionNameToActionMapMono)
+                .map(actionMap -> {
+                    onPageLoadActionSet.stream()
+                            .forEach(actionName -> flatPageLoadActions.add(actionMap.get(actionName)));
+                    return flatPageLoadActions;
+                });
 
-        return createGraphMono
-                .then(flatPageLoadActionsMono)
-                .then(computeCompletePageLoadActionScheduleMono);
-
+        return createGraphMono.then(flatPageLoadActionsMono).then(computeCompletePageLoadActionScheduleMono);
     }
 
     /**
@@ -243,9 +250,10 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param computeOnPageLoadScheduleNamesMono
      * @return
      */
-    private Mono<List<Set<DslActionDTO>>> filterAndTransformSchedulingOrderToDTO(Set<String> onPageLoadActionSet,
-                                                                                 Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
-                                                                                 Mono<List<Set<String>>> computeOnPageLoadScheduleNamesMono) {
+    private Mono<List<Set<DslActionDTO>>> filterAndTransformSchedulingOrderToDTO(
+            Set<String> onPageLoadActionSet,
+            Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+            Mono<List<Set<String>>> computeOnPageLoadScheduleNamesMono) {
 
         return Mono.zip(computeOnPageLoadScheduleNamesMono, actionNameToActionMapMono)
                 .map(tuple -> {
@@ -285,9 +293,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param evalVersion               : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
      * @return A set of any possible reference found in the binding that qualifies as a global entity reference
      */
-    private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
-                                                                        Set<String> bindings,
-                                                                        int evalVersion) {
+    private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(
+            Mono<Map<String, ActionDTO>> actionNameToActionMapMono, Set<String> bindings, int evalVersion) {
         return getPossibleEntityReferences(actionNameToActionMapMono, bindings, evalVersion, null);
     }
 
@@ -302,10 +309,11 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param bindingsInDsl             : All references are also added to this set if they should be qualified to run on page load first.
      * @return A set of any possible reference found in the binding that qualifies as a global entity reference
      */
-    private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
-                                                                        Set<String> bindings,
-                                                                        int evalVersion,
-                                                                        Set<EntityDependencyNode> bindingsInDsl) {
+    private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(
+            Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+            Set<String> bindings,
+            int evalVersion,
+            Set<EntityDependencyNode> bindingsInDsl) {
         // We want to be finding both type of references
         final int entityTypes = ACTION_ENTITY_REFERENCES | WIDGET_ENTITY_REFERENCES;
 
@@ -322,47 +330,55 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
 
                     // From these references, we will try to validate action references at this point
                     // Each identified node is already annotated with the expected type of entity we need to search for
-                    bindingToPossibleParentMap.entrySet()
-                            .stream()
-                            .forEach(entry -> {
-                                Set<EntityDependencyNode> bindingsWithActionReference = new HashSet<>();
-                                entry.getValue()
-                                        .stream()
-                                        .forEach(binding -> {
-                                            // For each possible reference node, check if the reference was to an action
-                                            ActionDTO actionDTO = actionMap.get(binding.getValidEntityName());
+                    bindingToPossibleParentMap.entrySet().stream().forEach(entry -> {
+                        Set<EntityDependencyNode> bindingsWithActionReference = new HashSet<>();
+                        entry.getValue().stream().forEach(binding -> {
+                            // For each possible reference node, check if the reference was to an action
+                            ActionDTO actionDTO = actionMap.get(binding.getValidEntityName());
 
-                                            if (actionDTO != null) {
-                                                // If it was, and had been identified as the same type of action as what exists in this app,
-                                                if ((PluginType.JS.equals(actionDTO.getPluginType()) && EntityReferenceType.JSACTION.equals(binding.getEntityReferenceType()))
-                                                        || (!PluginType.JS.equals(actionDTO.getPluginType()) && EntityReferenceType.ACTION.equals(binding.getEntityReferenceType()))) {
-                                                    // Copy over some data from the identified action, this ensures that we do not have to query the DB again later
-                                                    binding.setIsAsync(actionDTO.getActionConfiguration().getIsAsync());
-                                                    binding.setActionDTO(actionDTO);
-                                                    bindingsWithActionReference.add(binding);
-                                                    // Only if this is not an async JS function action and is not a direct JS function call,
-                                                    // add it to a possible on page load action call.
-                                                    // This discards the following type:
-                                                    // {{ JSObject1.asyncFunc() }}
-                                                    if (!(TRUE.equals(binding.getIsAsync()) && TRUE.equals(binding.getIsFunctionCall()))) {
-                                                        possibleEntitiesReferences.add(binding);
-                                                    }
-                                                    // We're ignoring any reference that was identified as a widget but actually matched an action
-                                                    // We wouldn't have discarded JS collection names here, but this is just an optimization, so it's fine
-                                                }
-                                            } else {
-                                                // If the reference node was identified as a widget, directly add it as a possible reference
-                                                // Because we are not doing any validations for widget references at this point
-                                                if (EntityReferenceType.WIDGET.equals(binding.getEntityReferenceType())) {
-                                                    possibleEntitiesReferences.add(binding);
-                                                }
-                                            }
-                                        });
-
-                                if (!bindingsWithActionReference.isEmpty() && bindingsInDsl != null) {
-                                    bindingsInDsl.addAll(bindingsWithActionReference);
+                            if (actionDTO != null) {
+                                // If it was, and had been identified as the same type of action as what exists in this
+                                // app,
+                                if ((PluginType.JS.equals(actionDTO.getPluginType())
+                                                && EntityReferenceType.JSACTION.equals(
+                                                        binding.getEntityReferenceType()))
+                                        || (!PluginType.JS.equals(actionDTO.getPluginType())
+                                                && EntityReferenceType.ACTION.equals(
+                                                        binding.getEntityReferenceType()))) {
+                                    // Copy over some data from the identified action, this ensures that we do not have
+                                    // to query the DB again later
+                                    binding.setIsAsync(
+                                            actionDTO.getActionConfiguration().getIsAsync());
+                                    binding.setActionDTO(actionDTO);
+                                    bindingsWithActionReference.add(binding);
+                                    // Only if this is not an async JS function action and is not a direct JS function
+                                    // call,
+                                    // add it to a possible on page load action call.
+                                    // This discards the following type:
+                                    // {{ JSObject1.asyncFunc() }}
+                                    if (!(TRUE.equals(binding.getIsAsync())
+                                            && TRUE.equals(binding.getIsFunctionCall()))) {
+                                        possibleEntitiesReferences.add(binding);
+                                    }
+                                    // We're ignoring any reference that was identified as a widget but actually matched
+                                    // an action
+                                    // We wouldn't have discarded JS collection names here, but this is just an
+                                    // optimization, so it's fine
                                 }
-                            });
+                            } else {
+                                // If the reference node was identified as a widget, directly add it as a possible
+                                // reference
+                                // Because we are not doing any validations for widget references at this point
+                                if (EntityReferenceType.WIDGET.equals(binding.getEntityReferenceType())) {
+                                    possibleEntitiesReferences.add(binding);
+                                }
+                            }
+                        });
+
+                        if (!bindingsWithActionReference.isEmpty() && bindingsInDsl != null) {
+                            bindingsInDsl.addAll(bindingsWithActionReference);
+                        }
+                    });
 
                     return possibleEntitiesReferences;
                 });
@@ -377,7 +393,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param evalVersion : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
      * @return A mono of a map of each of the provided binding values to the possible set of EntityDependencyNodes found in the binding
      */
-    private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(Set<String> bindings, int types, int evalVersion) {
+    private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(
+            Set<String> bindings, int types, int evalVersion) {
         Flux<Tuple2<String, Set<String>>> findingToReferencesFlux =
                 astService.getPossibleReferencesFromDynamicBinding(new ArrayList<>(bindings), evalVersion);
         return MustacheHelper.getPossibleEntityParentsMap(findingToReferencesFlux, types);
@@ -401,39 +418,47 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param evalVersion
      * @return
      */
-    private Mono<Set<ActionDependencyEdge>> addDirectlyReferencedActionsToGraph(Set<ActionDependencyEdge> edges,
-                                                                                Set<String> actionsUsedInDSL,
-                                                                                Set<String> bindingsFromActions,
-                                                                                Map<String, EntityDependencyNode> actionsFoundDuringWalk,
-                                                                                Map<String, Set<String>> widgetDynamicBindingsMap,
-                                                                                Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
-                                                                                Set<EntityDependencyNode> actionBindingsInDsl,
-                                                                                int evalVersion) {
+    private Mono<Set<ActionDependencyEdge>> addDirectlyReferencedActionsToGraph(
+            Set<ActionDependencyEdge> edges,
+            Set<String> actionsUsedInDSL,
+            Set<String> bindingsFromActions,
+            Map<String, EntityDependencyNode> actionsFoundDuringWalk,
+            Map<String, Set<String>> widgetDynamicBindingsMap,
+            Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+            Set<EntityDependencyNode> actionBindingsInDsl,
+            int evalVersion) {
         return Flux.fromIterable(widgetDynamicBindingsMap.entrySet())
                 .flatMap(entry -> {
                     String widgetName = entry.getKey();
-                    // For each widget in the DSL that has a dynamic binding, we define an entity dependency node beforehand
+                    // For each widget in the DSL that has a dynamic binding, we define an entity dependency node
+                    // beforehand
                     // This will be a leaf node in the DAG that is constructed for on page load dependencies
-                    EntityDependencyNode widgetDependencyNode = new EntityDependencyNode(EntityReferenceType.WIDGET, widgetName, widgetName, null, null, null);
+                    EntityDependencyNode widgetDependencyNode = new EntityDependencyNode(
+                            EntityReferenceType.WIDGET, widgetName, widgetName, null, null, null);
                     Set<String> bindingsInWidget = entry.getValue();
-                    return getPossibleEntityReferences(actionNameToActionMapMono, bindingsInWidget, evalVersion, actionBindingsInDsl)
+                    return getPossibleEntityReferences(
+                                    actionNameToActionMapMono, bindingsInWidget, evalVersion, actionBindingsInDsl)
                             .flatMapMany(Flux::fromIterable)
                             // Add dependencies of the actions found in the DSL in the graph
                             // We are ignoring the widget references at this point
                             // TODO: Possible optimization in the future
                             .flatMap(possibleEntity -> {
                                 if (EntityReferenceType.ACTION.equals(possibleEntity.getEntityReferenceType())
-                                        || EntityReferenceType.JSACTION.equals(possibleEntity.getEntityReferenceType())) {
+                                        || EntityReferenceType.JSACTION.equals(
+                                                possibleEntity.getEntityReferenceType())) {
                                     edges.add(new ActionDependencyEdge(possibleEntity, widgetDependencyNode));
-                                    // This action is directly referenced in the DSL. This action is an ideal candidate for on page load
+                                    // This action is directly referenced in the DSL. This action is an ideal candidate
+                                    // for on page load
                                     actionsUsedInDSL.add(possibleEntity.getValidEntityName());
                                     ActionDTO actionDTO = possibleEntity.getActionDTO();
-                                    return newActionService.fillSelfReferencingDataPaths(actionDTO)
+                                    return newActionService
+                                            .fillSelfReferencingDataPaths(actionDTO)
                                             .map(newActionDTO -> {
                                                 possibleEntity.setActionDTO(newActionDTO);
                                                 return newActionDTO;
                                             })
-                                            .flatMap(newActionDTO -> extractAndSetActionBindingsInGraphEdges(possibleEntity,
+                                            .flatMap(newActionDTO -> extractAndSetActionBindingsInGraphEdges(
+                                                    possibleEntity,
                                                     edges,
                                                     bindingsFromActions,
                                                     actionNameToActionMapMono,
@@ -471,10 +496,11 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param actionBindingsInDsl
      * @return
      */
-    private DirectedAcyclicGraph<String, DefaultEdge> constructDAG(Set<String> actionNames,
-                                                                   Set<String> widgetNames,
-                                                                   Set<ActionDependencyEdge> edges,
-                                                                   Set<EntityDependencyNode> actionBindingsInDsl) {
+    private DirectedAcyclicGraph<String, DefaultEdge> constructDAG(
+            Set<String> actionNames,
+            Set<String> widgetNames,
+            Set<ActionDependencyEdge> edges,
+            Set<EntityDependencyNode> actionBindingsInDsl) {
 
         DirectedAcyclicGraph<String, DefaultEdge> actionSchedulingGraph = new DirectedAcyclicGraph<>(DefaultEdge.class);
 
@@ -490,7 +516,6 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         // TODO : Handle the above global variables provided by appsmith in the following filtering.
         edges = edges.stream()
                 .filter(edge -> {
-
                     String source = edge.getSourceNode().getReferenceString();
                     String target = edge.getTargetNode().getReferenceString();
 
@@ -509,12 +534,16 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                     // Assert that the vertices which are entire property paths have a possible parent which is either
                     // an action or a widget or a static variable provided by appsmith at page/application level.
                     vertices.stream().forEach(vertex -> {
-                        Optional<String> validEntity = getPossibleParents(vertex).stream().filter(parent -> {
-                            if (!actionNames.contains(parent) && !widgetNames.contains(parent) && !APPSMITH_GLOBAL_VARIABLES.contains(parent)) {
-                                return false;
-                            }
-                            return true;
-                        }).findFirst();
+                        Optional<String> validEntity = getPossibleParents(vertex).stream()
+                                .filter(parent -> {
+                                    if (!actionNames.contains(parent)
+                                            && !widgetNames.contains(parent)
+                                            && !APPSMITH_GLOBAL_VARIABLES.contains(parent)) {
+                                        return false;
+                                    }
+                                    return true;
+                                })
+                                .findFirst();
 
                         // If any of the generated entity names from the path are valid appsmith entity name,
                         // the vertex is considered valid
@@ -546,8 +575,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
 
             Set<EntityDependencyNode> edgeVertices = Set.of(source, target);
 
-            edgeVertices.stream().forEach(vertex -> implicitParentChildEdges.addAll(generateParentChildRelationships(vertex)));
-
+            edgeVertices.stream()
+                    .forEach(vertex -> implicitParentChildEdges.addAll(generateParentChildRelationships(vertex)));
         }
 
         edges.addAll(implicitParentChildEdges);
@@ -584,15 +613,23 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param entityDependencyNode
      * @param actionDataFromConfigurationEdges
      */
-    private void addImplicitActionConfigurationDependency(EntityDependencyNode entityDependencyNode, Set<ActionDependencyEdge> actionDataFromConfigurationEdges) {
-        if (Set.of(EntityReferenceType.ACTION, EntityReferenceType.JSACTION).contains(entityDependencyNode.getEntityReferenceType())) {
+    private void addImplicitActionConfigurationDependency(
+            EntityDependencyNode entityDependencyNode, Set<ActionDependencyEdge> actionDataFromConfigurationEdges) {
+        if (Set.of(EntityReferenceType.ACTION, EntityReferenceType.JSACTION)
+                .contains(entityDependencyNode.getEntityReferenceType())) {
             if (entityDependencyNode.isValidDynamicBinding()) {
-                EntityDependencyNode sourceDependencyNode = new EntityDependencyNode(entityDependencyNode.getEntityReferenceType(), entityDependencyNode.getValidEntityName(), entityDependencyNode.getValidEntityName() + ".actionConfiguration", entityDependencyNode.getIsAsync(), entityDependencyNode.getIsFunctionCall(), entityDependencyNode.getActionDTO());
-                actionDataFromConfigurationEdges.add(new ActionDependencyEdge(sourceDependencyNode, entityDependencyNode));
+                EntityDependencyNode sourceDependencyNode = new EntityDependencyNode(
+                        entityDependencyNode.getEntityReferenceType(),
+                        entityDependencyNode.getValidEntityName(),
+                        entityDependencyNode.getValidEntityName() + ".actionConfiguration",
+                        entityDependencyNode.getIsAsync(),
+                        entityDependencyNode.getIsFunctionCall(),
+                        entityDependencyNode.getActionDTO());
+                actionDataFromConfigurationEdges.add(
+                        new ActionDependencyEdge(sourceDependencyNode, entityDependencyNode));
             }
         }
     }
-
 
     /**
      * This function takes a Directed Acyclic Graph and computes on page load actions. The final results is a list of set
@@ -606,15 +643,18 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param actionNameToActionMap : All the action names for the page
      * @return
      */
-    private List<Set<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String, DefaultEdge> dag,
-                                                                      Set<String> onPageLoadActionSet,
-                                                                      Map<String, ActionDTO> actionNameToActionMap,
-                                                                      Set<String> explicitUserSetOnLoadActions) {
+    private List<Set<String>> computeOnPageLoadActionsSchedulingOrder(
+            DirectedAcyclicGraph<String, DefaultEdge> dag,
+            Set<String> onPageLoadActionSet,
+            Map<String, ActionDTO> actionNameToActionMap,
+            Set<String> explicitUserSetOnLoadActions) {
         Map<String, Integer> pageLoadActionAndLevelMap = new HashMap<>();
         List<Set<String>> onPageLoadActions = new ArrayList<>();
 
         // Find all root nodes to start the BFS traversal from
-        List<String> rootNodes = dag.vertexSet().stream().filter(key -> dag.incomingEdgesOf(key).size() == 0).collect(Collectors.toList());
+        List<String> rootNodes = dag.vertexSet().stream()
+                .filter(key -> dag.incomingEdgesOf(key).size() == 0)
+                .collect(Collectors.toList());
 
         BreadthFirstIterator<String, DefaultEdge> bfsIterator = new BreadthFirstIterator<>(dag, rootNodes);
 
@@ -628,7 +668,12 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 onPageLoadActions.add(new HashSet<>());
             }
 
-            Set<String> actionsFromBinding = actionCandidatesForPageLoadFromBinding(actionNameToActionMap, vertex, pageLoadActionAndLevelMap, onPageLoadActions, explicitUserSetOnLoadActions);
+            Set<String> actionsFromBinding = actionCandidatesForPageLoadFromBinding(
+                    actionNameToActionMap,
+                    vertex,
+                    pageLoadActionAndLevelMap,
+                    onPageLoadActions,
+                    explicitUserSetOnLoadActions);
             onPageLoadActions.get(level).addAll(actionsFromBinding);
             for (String action : actionsFromBinding) {
                 pageLoadActionAndLevelMap.put(action, level);
@@ -637,9 +682,10 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         }
 
         // Trim all empty sets from the list before returning.
-        return onPageLoadActions.stream().filter(setOfActions -> !setOfActions.isEmpty()).collect(Collectors.toList());
+        return onPageLoadActions.stream()
+                .filter(setOfActions -> !setOfActions.isEmpty())
+                .collect(Collectors.toList());
     }
-
 
     /**
      * This function gets a set of binding names that come from other actions. It looks for actions in the page with
@@ -650,11 +696,12 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      *
      * @return
      */
-    private Mono<Set<ActionDependencyEdge>> recursivelyAddActionsAndTheirDependentsToGraphFromBindings(Set<ActionDependencyEdge> edges,
-                                                                                                       Map<String, EntityDependencyNode> actionsFoundDuringWalk,
-                                                                                                       Set<String> dynamicBindings,
-                                                                                                       Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
-                                                                                                       int evalVersion) {
+    private Mono<Set<ActionDependencyEdge>> recursivelyAddActionsAndTheirDependentsToGraphFromBindings(
+            Set<ActionDependencyEdge> edges,
+            Map<String, EntityDependencyNode> actionsFoundDuringWalk,
+            Set<String> dynamicBindings,
+            Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+            int evalVersion) {
         if (dynamicBindings == null || dynamicBindings.isEmpty()) {
             return Mono.just(edges);
         }
@@ -664,24 +711,40 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         Set<String> newBindings = new HashSet<>();
 
         // First fetch all the actions in the page whose name matches the words found in all the dynamic bindings
-        Mono<List<EntityDependencyNode>> findAndAddActionsInBindingsMono = getPossibleEntityReferences(actionNameToActionMapMono, dynamicBindings, evalVersion).flatMapMany(Flux::fromIterable)
+        Mono<List<EntityDependencyNode>> findAndAddActionsInBindingsMono = getPossibleEntityReferences(
+                        actionNameToActionMapMono, dynamicBindings, evalVersion)
+                .flatMapMany(Flux::fromIterable)
                 // Add dependencies of the actions found in the DSL in the graph.
                 .flatMap(possibleEntity -> {
-                    if (Set.of(EntityReferenceType.JSACTION, EntityReferenceType.ACTION).contains(possibleEntity.getEntityReferenceType())) {
+                    if (Set.of(EntityReferenceType.JSACTION, EntityReferenceType.ACTION)
+                            .contains(possibleEntity.getEntityReferenceType())) {
                         ActionDTO actionDTO = possibleEntity.getActionDTO();
-                        return newActionService.fillSelfReferencingDataPaths(actionDTO).map(newActionDTO -> {
-                            possibleEntity.setActionDTO(newActionDTO);
-                            return newActionDTO;
-                        }).then(extractAndSetActionBindingsInGraphEdges(possibleEntity, edges, newBindings, actionNameToActionMapMono, actionsFoundDuringWalk, null, evalVersion)).thenReturn(possibleEntity);
+                        return newActionService
+                                .fillSelfReferencingDataPaths(actionDTO)
+                                .map(newActionDTO -> {
+                                    possibleEntity.setActionDTO(newActionDTO);
+                                    return newActionDTO;
+                                })
+                                .then(extractAndSetActionBindingsInGraphEdges(
+                                        possibleEntity,
+                                        edges,
+                                        newBindings,
+                                        actionNameToActionMapMono,
+                                        actionsFoundDuringWalk,
+                                        null,
+                                        evalVersion))
+                                .thenReturn(possibleEntity);
                     } else {
                         return Mono.empty();
                     }
-                }).collectList();
+                })
+                .collectList();
 
         return findAndAddActionsInBindingsMono.flatMap(entityDependencyNodes -> {
             // Now that the next set of bindings have been found, find recursively all actions by these names
             // and their bindings
-            return recursivelyAddActionsAndTheirDependentsToGraphFromBindings(edges, actionsFoundDuringWalk, newBindings, actionNameToActionMapMono, evalVersion);
+            return recursivelyAddActionsAndTheirDependentsToGraphFromBindings(
+                    edges, actionsFoundDuringWalk, newBindings, actionNameToActionMapMono, evalVersion);
         });
     }
 
@@ -703,31 +766,41 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param bindingsFromActions
      * @return
      */
-    private Mono<Set<ActionDependencyEdge>> addExplicitUserSetOnLoadActionsToGraph(String pageId,
-                                                                                   Set<ActionDependencyEdge> edges,
-                                                                                   Set<String> explicitUserSetOnLoadActions,
-                                                                                   Map<String, EntityDependencyNode> actionsFoundDuringWalk,
-                                                                                   Set<String> bindingsFromActions,
-                                                                                   Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
-                                                                                   Set<EntityDependencyNode> actionBindingsInDsl,
-                                                                                   int evalVersion) {
+    private Mono<Set<ActionDependencyEdge>> addExplicitUserSetOnLoadActionsToGraph(
+            String pageId,
+            Set<ActionDependencyEdge> edges,
+            Set<String> explicitUserSetOnLoadActions,
+            Map<String, EntityDependencyNode> actionsFoundDuringWalk,
+            Set<String> bindingsFromActions,
+            Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+            Set<EntityDependencyNode> actionBindingsInDsl,
+            int evalVersion) {
 
-        //First fetch all the actions which have been tagged as on load by the user explicitly.
-        return newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(pageId)
+        // First fetch all the actions which have been tagged as on load by the user explicitly.
+        return newActionService
+                .findUnpublishedOnLoadActionsExplicitSetByUserInPage(pageId)
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 .flatMap(newActionService::fillSelfReferencingDataPaths)
                 // Add the vertices and edges to the graph for these actions
                 .flatMap(actionDTO -> {
-                    EntityDependencyNode entityDependencyNode = new EntityDependencyNode(actionDTO.getPluginType().equals(PluginType.JS) ? EntityReferenceType.JSACTION : EntityReferenceType.ACTION, actionDTO.getValidName(), null, null, false, actionDTO);
+                    EntityDependencyNode entityDependencyNode = new EntityDependencyNode(
+                            actionDTO.getPluginType().equals(PluginType.JS)
+                                    ? EntityReferenceType.JSACTION
+                                    : EntityReferenceType.ACTION,
+                            actionDTO.getValidName(),
+                            null,
+                            null,
+                            false,
+                            actionDTO);
                     explicitUserSetOnLoadActions.add(actionDTO.getValidName());
                     return extractAndSetActionBindingsInGraphEdges(
-                            entityDependencyNode,
-                            edges,
-                            bindingsFromActions,
-                            actionNameToActionMapMono,
-                            actionsFoundDuringWalk,
-                            actionBindingsInDsl,
-                            evalVersion)
+                                    entityDependencyNode,
+                                    edges,
+                                    bindingsFromActions,
+                                    actionNameToActionMapMono,
+                                    actionsFoundDuringWalk,
+                                    actionBindingsInDsl,
+                                    evalVersion)
                             .thenReturn(actionDTO);
                 })
                 .collectList()
@@ -750,13 +823,14 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param bindingsFromActions
      * @param actionsFoundDuringWalk
      */
-    private Mono<Void> extractAndSetActionBindingsInGraphEdges(EntityDependencyNode entityDependencyNode,
-                                                               Set<ActionDependencyEdge> edges,
-                                                               Set<String> bindingsFromActions,
-                                                               Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
-                                                               Map<String, EntityDependencyNode> actionsFoundDuringWalk,
-                                                               Set<EntityDependencyNode> bindingsInDsl,
-                                                               int evalVersion) {
+    private Mono<Void> extractAndSetActionBindingsInGraphEdges(
+            EntityDependencyNode entityDependencyNode,
+            Set<ActionDependencyEdge> edges,
+            Set<String> bindingsFromActions,
+            Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+            Map<String, EntityDependencyNode> actionsFoundDuringWalk,
+            Set<EntityDependencyNode> bindingsInDsl,
+            int evalVersion) {
 
         ActionDTO action = entityDependencyNode.getActionDTO();
 
@@ -778,24 +852,40 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         Set<String> allBindings = new HashSet<>();
         actionBindingMap.values().stream().forEach(bindings -> allBindings.addAll(bindings));
 
-        // TODO : Throw an error on action save when bindings from dynamic binding path list do not match the json path keys
+        // TODO : Throw an error on action save when bindings from dynamic binding path list do not match the json path
+        // keys
         //  and get the client to recompute the dynamic binding path list and try again.
         if (!allBindings.containsAll(action.getJsonPathKeys())) {
             Set<String> invalidBindings = new HashSet<>(action.getJsonPathKeys());
             invalidBindings.removeAll(allBindings);
-            log.error("Invalid dynamic binding path list for action id {}. Not taking the following bindings in " + "consideration for computing on page load actions : {}", action.getId(), invalidBindings);
+            log.error(
+                    "Invalid dynamic binding path list for action id {}. Not taking the following bindings in "
+                            + "consideration for computing on page load actions : {}",
+                    action.getId(),
+                    invalidBindings);
         }
 
         Set<String> bindingPaths = actionBindingMap.keySet();
 
         return Flux.fromIterable(bindingPaths)
                 .flatMap(bindingPath -> {
-                    EntityDependencyNode actionDependencyNode = new EntityDependencyNode(entityDependencyNode.getEntityReferenceType(), entityDependencyNode.getValidEntityName(), bindingPath, null, false, action);
-                    return getPossibleEntityReferences(actionNameToActionMapMono, actionBindingMap.get(bindingPath), evalVersion, bindingsInDsl)
+                    EntityDependencyNode actionDependencyNode = new EntityDependencyNode(
+                            entityDependencyNode.getEntityReferenceType(),
+                            entityDependencyNode.getValidEntityName(),
+                            bindingPath,
+                            null,
+                            false,
+                            action);
+                    return getPossibleEntityReferences(
+                                    actionNameToActionMapMono,
+                                    actionBindingMap.get(bindingPath),
+                                    evalVersion,
+                                    bindingsInDsl)
                             .flatMapMany(Flux::fromIterable)
                             .map(relatedDependencyNode -> {
                                 bindingsFromActions.add(relatedDependencyNode.getReferenceString());
-                                ActionDependencyEdge edge = new ActionDependencyEdge(relatedDependencyNode, actionDependencyNode);
+                                ActionDependencyEdge edge =
+                                        new ActionDependencyEdge(relatedDependencyNode, actionDependencyNode);
                                 edges.add(edge);
                                 return relatedDependencyNode;
                             })
@@ -803,7 +893,6 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 })
                 .collectList()
                 .then();
-
     }
 
     /**
@@ -815,41 +904,38 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param widgetBindingMap
      * @return
      */
-    private Mono<Set<ActionDependencyEdge>> addWidgetRelationshipToGraph(Set<ActionDependencyEdge> edges,
-                                                                         Map<String, Set<String>> widgetBindingMap,
-                                                                         int evalVersion) {
+    private Mono<Set<ActionDependencyEdge>> addWidgetRelationshipToGraph(
+            Set<ActionDependencyEdge> edges, Map<String, Set<String>> widgetBindingMap, int evalVersion) {
         final int entityTypes = WIDGET_ENTITY_REFERENCES;
         // This part will ensure that we are discovering widget to widget relationships.
         return Flux.fromIterable(widgetBindingMap.entrySet())
-                .flatMap(widgetBindingEntries -> getPossibleEntityParentsMap(widgetBindingEntries.getValue(), entityTypes, evalVersion)
+                .flatMap(widgetBindingEntries -> getPossibleEntityParentsMap(
+                                widgetBindingEntries.getValue(), entityTypes, evalVersion)
                         .map(possibleParentsMap -> {
                             possibleParentsMap.entrySet().stream().forEach(entry -> {
-
                                 if (entry.getValue() == null || entry.getValue().isEmpty()) {
                                     return;
                                 }
-                                String widgetPath = widgetBindingEntries.getKey().trim();
+                                String widgetPath =
+                                        widgetBindingEntries.getKey().trim();
                                 String[] widgetPathParts = widgetPath.split("\\.");
                                 String widgetName = widgetPath;
                                 if (widgetPathParts.length > 0) {
                                     widgetName = widgetPathParts[0];
                                 }
-                                EntityDependencyNode entityDependencyNode = new EntityDependencyNode(EntityReferenceType.WIDGET, widgetName, widgetPath, null, null, null);
+                                EntityDependencyNode entityDependencyNode = new EntityDependencyNode(
+                                        EntityReferenceType.WIDGET, widgetName, widgetPath, null, null, null);
                                 entry.getValue().stream().forEach(widgetDependencyNode -> {
-                                    ActionDependencyEdge edge = new ActionDependencyEdge(widgetDependencyNode, entityDependencyNode);
+                                    ActionDependencyEdge edge =
+                                            new ActionDependencyEdge(widgetDependencyNode, entityDependencyNode);
                                     edges.add(edge);
                                 });
-
-
                             });
                             return possibleParentsMap;
-
                         }))
                 .collectList()
                 .then(Mono.just(edges));
-
     }
-
 
     private boolean hasUserSetActionToNotRunOnPageLoad(ActionDTO unpublishedAction) {
         if (TRUE.equals(unpublishedAction.getUserSetOnLoad()) && !TRUE.equals(unpublishedAction.getExecuteOnLoad())) {
@@ -891,9 +977,12 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 String[] fields = fieldPath.split("[].\\[]");
                 // For nested fields, the parent dsl to search in would shift by one level every iteration
                 Object parent = configurationObj;
-                Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
+                Iterator<String> fieldsIterator = Arrays.stream(fields)
+                        .filter(fieldToken -> !fieldToken.isBlank())
+                        .iterator();
                 boolean isLeafNode = false;
-                // This loop will end at either a leaf node, or the last identified JSON field (by throwing an exception)
+                // This loop will end at either a leaf node, or the last identified JSON field (by throwing an
+                // exception)
                 // Valid forms of the fieldPath for this search could be:
                 // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
                 while (fieldsIterator.hasNext()) {
@@ -933,7 +1022,9 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                         Set<String> mustacheKeysFromFields;
                         // Stricter extraction of dynamic bindings
                         if (isBindingPresentInString) {
-                            mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent).stream().map(token -> token.getValue()).collect(Collectors.toSet());
+                            mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent).stream()
+                                    .map(token -> token.getValue())
+                                    .collect(Collectors.toSet());
                         } else {
                             // this must be a JS function. No need to extract mustache. The entire string is JS body
                             mustacheKeysFromFields = Set.of((String) parent);
@@ -946,7 +1037,6 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                         }
                         completePathToDynamicBindingMap.put(completePath, mustacheKeysFromFields);
                     }
-
                 }
             }
         }
@@ -976,7 +1066,13 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 Matcher matcher = parentPattern.matcher(entityDependencyNode.getReferenceString());
                 matcher.find();
                 parent = matcher.group(1);
-                EntityDependencyNode parentDependencyNode = new EntityDependencyNode(entityDependencyNode.getEntityReferenceType(), entityDependencyNode.getValidEntityName(), parent, entityDependencyNode.getIsAsync(), entityDependencyNode.getIsFunctionCall(), entityDependencyNode.getActionDTO());
+                EntityDependencyNode parentDependencyNode = new EntityDependencyNode(
+                        entityDependencyNode.getEntityReferenceType(),
+                        entityDependencyNode.getValidEntityName(),
+                        parent,
+                        entityDependencyNode.getIsAsync(),
+                        entityDependencyNode.getIsFunctionCall(),
+                        entityDependencyNode.getActionDTO());
                 edges.add(new ActionDependencyEdge(entityDependencyNode, parentDependencyNode));
                 entityDependencyNode = parentDependencyNode;
             } catch (IllegalStateException | IndexOutOfBoundsException e) {
@@ -1003,11 +1099,12 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      * @param existingPageLoadActions
      * @return
      */
-    private Set<String> actionCandidatesForPageLoadFromBinding(Map<String, ActionDTO> actionNameToActionMap,
-                                                               String vertex,
-                                                               Map<String, Integer> pageLoadActionsLevelMap,
-                                                               List<Set<String>> existingPageLoadActions,
-                                                               Set<String> explicitUserSetOnLoadActions) {
+    private Set<String> actionCandidatesForPageLoadFromBinding(
+            Map<String, ActionDTO> actionNameToActionMap,
+            String vertex,
+            Map<String, Integer> pageLoadActionsLevelMap,
+            List<Set<String>> existingPageLoadActions,
+            Set<String> explicitUserSetOnLoadActions) {
 
         Set<String> onPageLoadCandidates = new HashSet<>();
 
@@ -1026,7 +1123,6 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                  *  referenced in any widget or action)
                  *  o or, it is not a function call i.e. the data of this call is being referred to in the binding.
                  */
-
                 String validBinding;
                 if (explicitUserSetOnLoadActions.contains(entity)) {
                     validBinding = entity + "." + "actionConfiguration";
@@ -1036,7 +1132,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
 
                 // If the reference is to a sync JS function, discard it from the scheduling order
                 ActionDTO actionDTO = actionNameToActionMap.get(entity);
-                if (PluginType.JS.equals(actionDTO.getPluginType()) && FALSE.equals(actionDTO.getActionConfiguration().getIsAsync())) {
+                if (PluginType.JS.equals(actionDTO.getPluginType())
+                        && FALSE.equals(actionDTO.getActionConfiguration().getIsAsync())) {
                     isCandidateForPageLoad = FALSE;
                 }
 
@@ -1078,10 +1175,10 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         }
 
         if (actionDTO.getActionConfiguration() != null) {
-            dslActionDTO.setTimeoutInMillisecond(actionDTO.getActionConfiguration().getTimeoutInMillisecond());
+            dslActionDTO.setTimeoutInMillisecond(
+                    actionDTO.getActionConfiguration().getTimeoutInMillisecond());
         }
 
         return dslActionDTO;
     }
-
 }

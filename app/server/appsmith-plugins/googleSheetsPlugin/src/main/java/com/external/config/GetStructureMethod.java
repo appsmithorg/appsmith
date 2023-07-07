@@ -44,19 +44,21 @@ public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
 
     @Override
     public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
-        if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
+        if (methodConfig.getTableHeaderIndex() != null
+                && !methodConfig.getTableHeaderIndex().isBlank()) {
             try {
                 if (Integer.parseInt(methodConfig.getTableHeaderIndex()) <= 0) {
-                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             ErrorMessages.INVALID_TABLE_HEADER_INDEX);
                 }
             } catch (NumberFormatException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        ErrorMessages.INVALID_TABLE_HEADER_INDEX);
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.INVALID_TABLE_HEADER_INDEX);
             }
         } else {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    ErrorMessages.INVALID_TABLE_HEADER_INDEX);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.INVALID_TABLE_HEADER_INDEX);
         }
         return true;
     }
@@ -66,14 +68,13 @@ public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
 
         final List<String> ranges = validateInputs(methodConfig);
 
-        UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
-                methodConfig.getSpreadsheetId() /* spreadsheet Id */
-                        + "/values:batchGet"
-        );
+        UriComponentsBuilder uriBuilder = getBaseUriBuilder(
+                this.BASE_SHEETS_API_URL, methodConfig.getSpreadsheetId() /* spreadsheet Id */ + "/values:batchGet");
         uriBuilder.queryParam("majorDimension", "ROWS");
         uriBuilder.queryParam("ranges", ranges);
 
-        return webClient.method(HttpMethod.GET)
+        return webClient
+                .method(HttpMethod.GET)
                 .uri(uriBuilder.build(false).toUri())
                 .body(BodyInserters.empty());
     }
@@ -81,10 +82,11 @@ public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
     private List<String> validateInputs(MethodConfig methodConfig) {
         // Setting default values
         int rowOffset = 0;
-        int rowLimit = 1; //Get header and next row for types
+        int rowLimit = 1; // Get header and next row for types
         int tableHeaderIndex = 1;
 
-        if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
+        if (methodConfig.getTableHeaderIndex() != null
+                && !methodConfig.getTableHeaderIndex().isBlank()) {
             try {
                 tableHeaderIndex = Integer.parseInt(methodConfig.getTableHeaderIndex());
                 if (tableHeaderIndex <= 0) {
@@ -97,18 +99,22 @@ public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
 
         return List.of(
                 "'" + methodConfig.getSheetName() + "'!" + tableHeaderIndex + ":" + tableHeaderIndex,
-                "'" + methodConfig.getSheetName() + "'!" + (tableHeaderIndex + rowOffset + 1) + ":" + (tableHeaderIndex + rowOffset + rowLimit));
+                "'" + methodConfig.getSheetName() + "'!" + (tableHeaderIndex + rowOffset + 1) + ":"
+                        + (tableHeaderIndex + rowOffset + rowLimit));
     }
 
     @Override
-    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
+    public JsonNode transformExecutionResponse(
+            JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
-            throw new AppsmithPluginException(GSheetsPluginError.QUERY_EXECUTION_FAILED, ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
+            throw new AppsmithPluginException(
+                    GSheetsPluginError.QUERY_EXECUTION_FAILED, ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
         }
 
         ArrayNode valueRanges = (ArrayNode) response.get("valueRanges");
         ArrayNode headers = (ArrayNode) valueRanges.get(0).get("values");
-        ArrayNode values = valueRanges.get(1) != null ? (ArrayNode) valueRanges.get(1).get("values") : null;
+        ArrayNode values =
+                valueRanges.get(1) != null ? (ArrayNode) valueRanges.get(1).get("values") : null;
         int valueSize = 0;
 
         if (headers == null || headers.isEmpty()) {
@@ -135,7 +141,8 @@ public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
 
             for (int i = 0; i < values.size(); i++) {
                 ArrayNode row = (ArrayNode) values.get(i);
-                RowObject rowObject = new RowObject( headerArray,
+                RowObject rowObject = new RowObject(
+                        headerArray,
                         objectMapper.convertValue(row, String[].class),
                         rowOffset - tableHeaderIndex + i - 1);
                 collectedCells.add(rowObject.getValueMap());
@@ -143,7 +150,6 @@ public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
         } else {
             RowObject rowObject = new RowObject(headerArray, new String[0], 0);
             collectedCells.add(rowObject.getValueMap());
-
         }
 
         preFilteringResponse = this.objectMapper.valueToTree(collectedCells);
@@ -191,14 +197,17 @@ public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
     }
 
     @Override
-    public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
+    public JsonNode transformTriggerResponse(
+            JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
-            throw new AppsmithPluginException(GSheetsPluginError.QUERY_EXECUTION_FAILED, ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
+            throw new AppsmithPluginException(
+                    GSheetsPluginError.QUERY_EXECUTION_FAILED, ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
         }
 
         ArrayNode valueRanges = (ArrayNode) response.get("valueRanges");
         ArrayNode headers = (ArrayNode) valueRanges.get(0).get("values");
-        ArrayNode values = valueRanges.get(1) != null ? (ArrayNode) valueRanges.get(1).get("values") : null;
+        ArrayNode values =
+                valueRanges.get(1) != null ? (ArrayNode) valueRanges.get(1).get("values") : null;
         int valueSize = 0;
 
         if (headers == null || headers.isEmpty()) {
@@ -214,15 +223,11 @@ public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
         Set<String> columnsSet = sanitizeHeaders(headers, valueSize);
 
         List<Map<String, String>> columnsList = new ArrayList<>();
-        columnsSet
-                .stream()
-                .forEach(columnName -> {
-                    columnsList.add(Map.of(
-                            "label", columnName,
-                            "value", columnName
-                    ));
-                });
-
+        columnsSet.stream().forEach(columnName -> {
+            columnsList.add(Map.of(
+                    "label", columnName,
+                    "value", columnName));
+        });
 
         return this.objectMapper.valueToTree(columnsList);
     }

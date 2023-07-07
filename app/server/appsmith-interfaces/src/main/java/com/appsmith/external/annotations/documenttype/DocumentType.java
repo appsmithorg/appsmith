@@ -17,5 +17,4 @@ import java.lang.annotation.Target;
 public @interface DocumentType {
 
     public String value() default "";
-
 }

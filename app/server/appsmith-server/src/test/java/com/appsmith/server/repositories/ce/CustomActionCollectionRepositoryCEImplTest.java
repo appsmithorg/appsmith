@@ -29,14 +29,15 @@ public class CustomActionCollectionRepositoryCEImplTest {
         String applicationId = UUID.randomUUID().toString();
         List<ActionCollection> actionCollections = new ArrayList<>();
 
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             ActionCollection actionCollection = new ActionCollection();
             actionCollection.setWorkspaceId("action" + i + "workspace" + i);
             actionCollection.setApplicationId(applicationId);
             actionCollections.add(actionCollection);
         }
 
-        Flux<ActionCollection> actionCollectionFlux = actionCollectionRepository.saveAll(actionCollections)
+        Flux<ActionCollection> actionCollectionFlux = actionCollectionRepository
+                .saveAll(actionCollections)
                 .collectList()
                 .flatMap(actionCollections1 -> {
                     actionCollections1.forEach(newAction -> {
@@ -62,7 +63,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
         String duplicateId = new ObjectId().toString();
         List<ActionCollection> actionCollections = new ArrayList<>();
 
-        for(int i = 0; i < 2; i++) {
+        for (int i = 0; i < 2; i++) {
             ActionCollection actionCollection = new ActionCollection();
             actionCollection.setId(duplicateId);
             actionCollections.add(actionCollection);
@@ -77,7 +78,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
         List<ActionCollection> actionCollectionList = new ArrayList<>();
         String applicationId = UUID.randomUUID().toString();
 
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             String generatedId = new ObjectId().toString();
             ActionCollection actionCollection = new ActionCollection();
             actionCollection.setId(generatedId);
@@ -87,7 +88,8 @@ public class CustomActionCollectionRepositoryCEImplTest {
             actionCollectionList.add(actionCollection);
         }
 
-        Mono<List<ActionCollection>> actionCollectionsMono = actionCollectionRepository.bulkInsert(actionCollectionList)
+        Mono<List<ActionCollection>> actionCollectionsMono = actionCollectionRepository
+                .bulkInsert(actionCollectionList)
                 .thenMany(actionCollectionRepository.findByApplicationId(applicationId))
                 .collectList();
 

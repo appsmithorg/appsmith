@@ -28,10 +28,10 @@ import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXE
 @NoArgsConstructor
 @Document
 public class ActionConfiguration implements AppsmithDomain {
-    private static final int MIN_TIMEOUT_VALUE = 0;     // in Milliseconds
+    private static final int MIN_TIMEOUT_VALUE = 0; // in Milliseconds
     private static final int MAX_TIMEOUT_VALUE = 60000; // in Milliseconds
-    private static final String TIMEOUT_OUT_OF_RANGE_MESSAGE = "'Query timeout' field must be an integer between "
-            + MIN_TIMEOUT_VALUE + " and " + MAX_TIMEOUT_VALUE;
+    private static final String TIMEOUT_OUT_OF_RANGE_MESSAGE =
+            "'Query timeout' field must be an integer between " + MIN_TIMEOUT_VALUE + " and " + MAX_TIMEOUT_VALUE;
     /*
      * Any of the fields mentioned below could be represented in mustache
      * template. If the mustache template is found, it would be replaced
@@ -41,10 +41,9 @@ public class ActionConfiguration implements AppsmithDomain {
      * action execution.
      */
 
-    @Range(min = MIN_TIMEOUT_VALUE,
-            max = MAX_TIMEOUT_VALUE,
-            message = TIMEOUT_OUT_OF_RANGE_MESSAGE)
+    @Range(min = MIN_TIMEOUT_VALUE, max = MAX_TIMEOUT_VALUE, message = TIMEOUT_OUT_OF_RANGE_MESSAGE)
     Integer timeoutInMillisecond;
+
     PaginationType paginationType = PaginationType.NONE;
 
     // API fields
@@ -113,7 +112,8 @@ public class ActionConfiguration implements AppsmithDomain {
     }
 
     public Integer getTimeoutInMillisecond() {
-        return (timeoutInMillisecond == null || timeoutInMillisecond <= 0) ?
-                DEFAULT_ACTION_EXECUTION_TIMEOUT_MS : timeoutInMillisecond;
+        return (timeoutInMillisecond == null || timeoutInMillisecond <= 0)
+                ? DEFAULT_ACTION_EXECUTION_TIMEOUT_MS
+                : timeoutInMillisecond;
     }
 }
