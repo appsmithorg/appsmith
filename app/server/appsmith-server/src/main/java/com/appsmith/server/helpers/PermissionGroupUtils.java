@@ -38,8 +38,7 @@ public class PermissionGroupUtils {
     }
 
     private Mono<Set<String>> getAutoCreatedPermissionGroupIds() {
-        if (this.autoCreatedPermissionGroupIds != null)
-            return Mono.just(this.autoCreatedPermissionGroupIds);
+        if (this.autoCreatedPermissionGroupIds != null) return Mono.just(this.autoCreatedPermissionGroupIds);
 
         Set<String> tempSet = new HashSet<>();
 
@@ -58,9 +57,10 @@ public class PermissionGroupUtils {
     }
 
     public Mono<Boolean> isAutoCreated(PermissionGroup permissionGroup) {
-        return getAutoCreatedPermissionGroupIds().map(autoCreatedPermissionGroupIdSet ->
-                autoCreatedPermissionGroupIdSet.contains(permissionGroup.getId())
-                        || Objects.nonNull(permissionGroup.getDefaultDomainType()));
+        return getAutoCreatedPermissionGroupIds()
+                .map(autoCreatedPermissionGroupIdSet ->
+                        autoCreatedPermissionGroupIdSet.contains(permissionGroup.getId())
+                                || Objects.nonNull(permissionGroup.getDefaultDomainType()));
     }
 
     public Flux<PermissionGroupInfoDTO> mapToPermissionGroupInfoDto(Flux<PermissionGroup> permissionGroupFlux) {
@@ -69,7 +69,8 @@ public class PermissionGroupUtils {
                 .map(tuple -> {
                     PermissionGroup permissionGroup = tuple.getT1();
                     boolean isAutoCreated = tuple.getT2();
-                    PermissionGroupInfoDTO permissionGroupInfoDTO = modelMapper.map(permissionGroup, PermissionGroupInfoDTO.class);
+                    PermissionGroupInfoDTO permissionGroupInfoDTO =
+                            modelMapper.map(permissionGroup, PermissionGroupInfoDTO.class);
                     permissionGroupInfoDTO.setAutoCreated(isAutoCreated);
                     return permissionGroupInfoDTO;
                 });
@@ -80,8 +81,8 @@ public class PermissionGroupUtils {
                 .filter(policy -> policy.getPermission().equalsIgnoreCase(READ_PERMISSION_GROUPS.getValue()))
                 .findFirst();
 
-        boolean readPolicyNotPresentOrEmpty = readPolicy.isEmpty() || readPolicy.get().getPermissionGroups().isEmpty();
+        boolean readPolicyNotPresentOrEmpty =
+                readPolicy.isEmpty() || readPolicy.get().getPermissionGroups().isEmpty();
         return role.getName().endsWith(FieldName.SUFFIX_USER_MANAGEMENT_ROLE) && readPolicyNotPresentOrEmpty;
     }
-
 }

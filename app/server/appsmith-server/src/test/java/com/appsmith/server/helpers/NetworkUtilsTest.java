@@ -16,9 +16,6 @@ class NetworkUtilsTest {
         airgapInstanceConfig.setAirgapEnabled(true);
         NetworkUtils networkUtils = new NetworkUtils(airgapInstanceConfig);
         Mono<String> ipMono = networkUtils.getExternalAddress();
-        StepVerifier
-            .create(ipMono)
-            .expectNext("unknown")
-            .verifyComplete();
+        StepVerifier.create(ipMono).expectNext("unknown").verifyComplete();
     }
 }

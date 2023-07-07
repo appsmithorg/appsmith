@@ -11,5 +11,4 @@ public class ActionPermissionImpl extends ActionPermissionCEImpl implements Acti
     public AclPermission getDeletePermission() {
         return AclPermission.DELETE_ACTIONS;
     }
-
 }

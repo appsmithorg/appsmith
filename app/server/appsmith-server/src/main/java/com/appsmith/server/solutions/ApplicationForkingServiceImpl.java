@@ -26,7 +26,8 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEImpl implements ApplicationForkingService {
+public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEImpl
+        implements ApplicationForkingService {
 
     private final ApplicationService applicationService;
     private final SessionUserService sessionUserService;
@@ -42,25 +43,34 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
 
     private final WorkspaceService workspaceService;
 
-    public ApplicationForkingServiceImpl(ApplicationService applicationService,
-                                         WorkspaceService workspaceService,
-                                         ForkExamplesWorkspace examplesWorkspaceCloner,
-                                         SessionUserService sessionUserService,
-                                         AnalyticsService analyticsService,
-                                         ResponseUtils responseUtils,
-                                         WorkspacePermission workspacePermission,
-                                         ApplicationPermission applicationPermission,
-                                         PermissionGroupService permissionGroupService,
-                                         NewPageRepository newPageRepository,
-                                         NewActionRepository newActionRepository,
-                                         ActionCollectionRepository actionCollectionRepository,
-                                         WorkspaceRepository workspaceRepository,
-                                         PagePermission pagePermission,
-                                         ActionPermission actionPermission,
-                                         ImportExportApplicationService importExportApplicationService) {
+    public ApplicationForkingServiceImpl(
+            ApplicationService applicationService,
+            WorkspaceService workspaceService,
+            ForkExamplesWorkspace examplesWorkspaceCloner,
+            SessionUserService sessionUserService,
+            AnalyticsService analyticsService,
+            ResponseUtils responseUtils,
+            WorkspacePermission workspacePermission,
+            ApplicationPermission applicationPermission,
+            PermissionGroupService permissionGroupService,
+            NewPageRepository newPageRepository,
+            NewActionRepository newActionRepository,
+            ActionCollectionRepository actionCollectionRepository,
+            WorkspaceRepository workspaceRepository,
+            PagePermission pagePermission,
+            ActionPermission actionPermission,
+            ImportExportApplicationService importExportApplicationService) {
 
-        super(applicationService, workspaceService, examplesWorkspaceCloner, sessionUserService, analyticsService,
-                responseUtils, workspacePermission, applicationPermission, importExportApplicationService);
+        super(
+                applicationService,
+                workspaceService,
+                examplesWorkspaceCloner,
+                sessionUserService,
+                analyticsService,
+                responseUtils,
+                workspacePermission,
+                applicationPermission,
+                importExportApplicationService);
 
         this.applicationService = applicationService;
         this.sessionUserService = sessionUserService;
@@ -77,58 +87,78 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
     }
 
     @Override
-    public Mono<Application> forkApplicationToWorkspaceWithEnvironment(String srcApplicationId, String targetWorkspaceId, String environmentId) {
-        Mono<String> fromEnvironmentIdMono = applicationService.findById(srcApplicationId)
+    public Mono<Application> forkApplicationToWorkspaceWithEnvironment(
+            String srcApplicationId, String targetWorkspaceId, String environmentId) {
+        Mono<String> fromEnvironmentIdMono = applicationService
+                .findById(srcApplicationId)
                 .map(Application::getWorkspaceId)
                 .flatMap(workspaceService::getDefaultEnvironmentId);
 
-        return fromEnvironmentIdMono
-                .flatMap(fromEnvironmentId -> super.forkApplicationToWorkspaceWithEnvironment(
-                        srcApplicationId,
-                        targetWorkspaceId,
-                        fromEnvironmentId));
+        return fromEnvironmentIdMono.flatMap(fromEnvironmentId -> super.forkApplicationToWorkspaceWithEnvironment(
+                srcApplicationId, targetWorkspaceId, fromEnvironmentId));
     }
 
     @Override
-    public Mono<ApplicationImportDTO> forkApplicationToWorkspace(String srcApplicationId, String targetWorkspaceId, String branchName) {
-        Mono<Application> applicationMono = applicationService.findBranchedApplicationId(branchName, srcApplicationId, applicationPermission.getEditPermission())
-                .flatMap(branchedApplicationId -> applicationService.findById(branchedApplicationId, applicationPermission.getEditPermission()));
+    public Mono<ApplicationImportDTO> forkApplicationToWorkspace(
+            String srcApplicationId, String targetWorkspaceId, String branchName) {
+        Mono<Application> applicationMono = applicationService
+                .findBranchedApplicationId(branchName, srcApplicationId, applicationPermission.getEditPermission())
+                .flatMap(branchedApplicationId ->
+                        applicationService.findById(branchedApplicationId, applicationPermission.getEditPermission()));
 
-        Flux<BaseDomain> pageFlux = applicationMono
-                .flatMapMany(application -> newPageRepository
-                        .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
-                        .flatMap(newPageRepository::setUserPermissionsInObject));
-        Flux<BaseDomain> actionFlux = applicationMono
-                .flatMapMany(application -> newActionRepository
-                        .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
-                        .flatMap(newActionRepository::setUserPermissionsInObject));
-        Flux<BaseDomain> actionCollectionFlux = applicationMono
-                .flatMapMany(application -> actionCollectionRepository
-                        .findAllByApplicationIds(List.of(application.getId()), List.of("id", "policies"))
-                        .flatMap(actionCollectionRepository::setUserPermissionsInObject));
-        Flux<BaseDomain> workspaceFlux = Flux.from(workspaceRepository.retrieveById(targetWorkspaceId)
+        Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
+                .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
+                .flatMap(newPageRepository::setUserPermissionsInObject));
+        Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
+                .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
+                .flatMap(newActionRepository::setUserPermissionsInObject));
+        Flux<BaseDomain> actionCollectionFlux = applicationMono.flatMapMany(application -> actionCollectionRepository
+                .findAllByApplicationIds(List.of(application.getId()), List.of("id", "policies"))
+                .flatMap(actionCollectionRepository::setUserPermissionsInObject));
+        Flux<BaseDomain> workspaceFlux = Flux.from(workspaceRepository
+                .retrieveById(targetWorkspaceId)
                 .flatMap(workspaceRepository::setUserPermissionsInObject));
 
-        Mono<Boolean> pagesValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(pageFlux,
-                FieldName.PAGE, permissionGroupService.getSessionUserPermissionGroupIds(),
-                pagePermission.getEditPermission(), AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
-        Mono<Boolean> actionsValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(actionFlux,
-                FieldName.ACTION, permissionGroupService.getSessionUserPermissionGroupIds(),
-                actionPermission.getEditPermission(), AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
-        Mono<Boolean> actionCollectionsValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(actionCollectionFlux,
-                FieldName.ACTION, permissionGroupService.getSessionUserPermissionGroupIds(),
-                actionPermission.getEditPermission(), AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
-        Mono<Boolean> workspaceValidatedForCreateApplicationPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
-                workspaceFlux, FieldName.WORKSPACE, permissionGroupService.getSessionUserPermissionGroupIds(),
-                workspacePermission.getApplicationCreatePermission(), AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
-        Mono<Boolean> workspaceValidatedForCreateDatasourcePermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
-                workspaceFlux, FieldName.WORKSPACE, permissionGroupService.getSessionUserPermissionGroupIds(),
-                workspacePermission.getDatasourceCreatePermission(), AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
+        Mono<Boolean> pagesValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                pageFlux,
+                FieldName.PAGE,
+                permissionGroupService.getSessionUserPermissionGroupIds(),
+                pagePermission.getEditPermission(),
+                AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
+        Mono<Boolean> actionsValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                actionFlux,
+                FieldName.ACTION,
+                permissionGroupService.getSessionUserPermissionGroupIds(),
+                actionPermission.getEditPermission(),
+                AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
+        Mono<Boolean> actionCollectionsValidatedForPermission =
+                UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                        actionCollectionFlux,
+                        FieldName.ACTION,
+                        permissionGroupService.getSessionUserPermissionGroupIds(),
+                        actionPermission.getEditPermission(),
+                        AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
+        Mono<Boolean> workspaceValidatedForCreateApplicationPermission =
+                UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                        workspaceFlux,
+                        FieldName.WORKSPACE,
+                        permissionGroupService.getSessionUserPermissionGroupIds(),
+                        workspacePermission.getApplicationCreatePermission(),
+                        AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
+        Mono<Boolean> workspaceValidatedForCreateDatasourcePermission =
+                UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                        workspaceFlux,
+                        FieldName.WORKSPACE,
+                        permissionGroupService.getSessionUserPermissionGroupIds(),
+                        workspacePermission.getDatasourceCreatePermission(),
+                        AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
 
-        return Mono.when(pagesValidatedForPermission, actionsValidatedForPermission, actionCollectionsValidatedForPermission,
-                        workspaceValidatedForCreateApplicationPermission, workspaceValidatedForCreateDatasourcePermission)
+        return Mono.when(
+                        pagesValidatedForPermission,
+                        actionsValidatedForPermission,
+                        actionCollectionsValidatedForPermission,
+                        workspaceValidatedForCreateApplicationPermission,
+                        workspaceValidatedForCreateDatasourcePermission)
                 .then(super.forkApplicationToWorkspace(srcApplicationId, targetWorkspaceId, branchName));
     }
-
-
 }

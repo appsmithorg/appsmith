@@ -17,7 +17,7 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
-@ChangeUnit(order = "102-EE", id="add-single-session-env-variable-tenant-configuration")
+@ChangeUnit(order = "102-EE", id = "add-single-session-env-variable-tenant-configuration")
 public class Migration102EeAddSingleSessionEnvVarToTenantConfiguration {
     private final MongoTemplate mongoTemplate;
 
@@ -26,8 +26,7 @@ public class Migration102EeAddSingleSessionEnvVarToTenantConfiguration {
     }
 
     @RollbackExecution
-    public void executionRollback() {
-    }
+    public void executionRollback() {}
 
     @Execution
     public void addSingleSessionEnvVarToTenantConfiguration() {
@@ -35,7 +34,8 @@ public class Migration102EeAddSingleSessionEnvVarToTenantConfiguration {
         tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
         Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
-        boolean singleSessionPerUserEnabled = Boolean.parseBoolean(System.getenv(String.valueOf(APPSMITH_ENABLE_SINGLE_SESSION_PER_USER)));
+        boolean singleSessionPerUserEnabled =
+                Boolean.parseBoolean(System.getenv(String.valueOf(APPSMITH_ENABLE_SINGLE_SESSION_PER_USER)));
 
         TenantConfiguration defaultTenantConfiguration = new TenantConfiguration();
         if (Objects.nonNull(defaultTenant.getTenantConfiguration())) {

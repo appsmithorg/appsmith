@@ -44,14 +44,11 @@ public class Migration111EEAddPublicPermissionGroupToEnvironments {
     @Execution
     public void executeMigration() {
         // First get the value of publicPermissionGroupId for this instance
-        Criteria publicPermissionGroupCriterion = Criteria
-                .where(fieldName(QConfig.config1.name)).is(PUBLIC_PERMISSION_GROUP);
-        Query publicPermissionGroupQuery = new Query()
-                .addCriteria(publicPermissionGroupCriterion);
-        Config publicPermissionGroupConfig = mongoTemplate
-                .findOne(publicPermissionGroupQuery, Config.class);
-        String publicPermissionGroupId = publicPermissionGroupConfig
-                .getConfig().getAsString(PERMISSION_GROUP_ID);
+        Criteria publicPermissionGroupCriterion =
+                Criteria.where(fieldName(QConfig.config1.name)).is(PUBLIC_PERMISSION_GROUP);
+        Query publicPermissionGroupQuery = new Query().addCriteria(publicPermissionGroupCriterion);
+        Config publicPermissionGroupConfig = mongoTemplate.findOne(publicPermissionGroupQuery, Config.class);
+        String publicPermissionGroupId = publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID);
 
         // Get a set of all the workspaceIds
         // that have any applications that have been set to public
@@ -59,44 +56,46 @@ public class Migration111EEAddPublicPermissionGroupToEnvironments {
                 .andOperator(
                         olderCheckForDeletedCriteria(),
                         newerCheckForDeletedCriteria(),
-                        Criteria.where(fieldName(QApplication.application.policies)).elemMatch(
-                                new Criteria().andOperator(
-                                        Criteria.where("permission").is(AclPermission.READ_APPLICATIONS.getValue()),
-                                        Criteria.where("permissionGroups").in(publicPermissionGroupId)
-                                ))
-                );
+                        Criteria.where(fieldName(QApplication.application.policies))
+                                .elemMatch(new Criteria()
+                                        .andOperator(
+                                                Criteria.where("permission")
+                                                        .is(AclPermission.READ_APPLICATIONS.getValue()),
+                                                Criteria.where("permissionGroups")
+                                                        .in(publicPermissionGroupId))));
 
         Query publicApplicationsQuery = new Query().addCriteria(publicApplicationsCriteria);
         publicApplicationsQuery.fields().include(fieldName(QApplication.application.workspaceId));
 
-        final Query performanceOptimizedpublicApplicationsQuery = CompatibilityUtils
-                .optimizeQueryForNoCursorTimeout(mongoTemplate, publicApplicationsQuery, Application.class);
+        final Query performanceOptimizedpublicApplicationsQuery = CompatibilityUtils.optimizeQueryForNoCursorTimeout(
+                mongoTemplate, publicApplicationsQuery, Application.class);
 
-        Set<String> workspaceIds = mongoTemplate.find(performanceOptimizedpublicApplicationsQuery, Application.class)
-                .parallelStream()
-                .map(application -> application.getWorkspaceId())
-                .collect(Collectors.toSet());
+        Set<String> workspaceIds =
+                mongoTemplate.find(performanceOptimizedpublicApplicationsQuery, Application.class).parallelStream()
+                        .map(application -> application.getWorkspaceId())
+                        .collect(Collectors.toSet());
 
         // Now use an update many to update all applicable environments
         // with the public permission group for the execute permission
-        Criteria applicableEnvironmentsCriteria = new Criteria().andOperator(
-                olderCheckForDeletedCriteria(),
-                newerCheckForDeletedCriteria(),
-                Criteria.where(fieldName(QEnvironment.environment.workspaceId)).in(workspaceIds),
-                // We're adding this last criterion to avoid updating environments that are already updated
-                // In case of re-runs
-                Criteria.where(fieldName(QEnvironment.environment.policies)).elemMatch(
-                        new Criteria().andOperator(
-                                Criteria.where("permission")
-                                        .is(AclPermission.EXECUTE_ENVIRONMENTS.getValue()),
-                                Criteria.where("permissionGroups").nin(publicPermissionGroupId)
-                        ))
-        );
+        Criteria applicableEnvironmentsCriteria = new Criteria()
+                .andOperator(
+                        olderCheckForDeletedCriteria(),
+                        newerCheckForDeletedCriteria(),
+                        Criteria.where(fieldName(QEnvironment.environment.workspaceId))
+                                .in(workspaceIds),
+                        // We're adding this last criterion to avoid updating environments that are already updated
+                        // In case of re-runs
+                        Criteria.where(fieldName(QEnvironment.environment.policies))
+                                .elemMatch(new Criteria()
+                                        .andOperator(
+                                                Criteria.where("permission")
+                                                        .is(AclPermission.EXECUTE_ENVIRONMENTS.getValue()),
+                                                Criteria.where("permissionGroups")
+                                                        .nin(publicPermissionGroupId))));
         Query applicableEnvironmentsQuery = new Query().addCriteria(applicableEnvironmentsCriteria);
 
         Update environmentUpdateQuery = new Update().addToSet("policies.$.permissionGroups", publicPermissionGroupId);
 
         mongoTemplate.updateMulti(applicableEnvironmentsQuery, environmentUpdateQuery, Environment.class);
-
     }
 }

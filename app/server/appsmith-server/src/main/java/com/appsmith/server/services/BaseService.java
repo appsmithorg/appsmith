@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -27,14 +26,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toSet;
-
 @Slf4j
-public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepository<T>, T extends BaseDomain, ID extends Serializable>
+public abstract class BaseService<
+                R extends BaseRepository<T, ID> & AppsmithRepository<T>, T extends BaseDomain, ID extends Serializable>
         implements CrudService<T, ID> {
 
     final Scheduler scheduler;
@@ -49,12 +45,13 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
 
     protected final AnalyticsService analyticsService;
 
-    public BaseService(Scheduler scheduler,
-                       Validator validator,
-                       MongoConverter mongoConverter,
-                       ReactiveMongoTemplate reactiveMongoTemplate,
-                       R repository,
-                       AnalyticsService analyticsService) {
+    public BaseService(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            R repository,
+            AnalyticsService analyticsService) {
         this.scheduler = scheduler;
         this.validator = validator;
         this.mongoConverter = mongoConverter;
@@ -89,9 +86,11 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
         Map<String, Object> updateMap = update.toMap();
         updateMap.entrySet().stream().forEach(entry -> updateObj.set(entry.getKey(), entry.getValue()));
 
-        return mongoTemplate.updateFirst(query, updateObj, resource.getClass())
+        return mongoTemplate
+                .updateFirst(query, updateObj, resource.getClass())
                 .flatMap(obj -> repository.findById(id))
-                .flatMap(savedResource -> analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource)));
+                .flatMap(savedResource ->
+                        analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource)));
     }
 
     protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {
@@ -111,7 +110,8 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
 
     @Override
     public Flux<T> get(MultiValueMap<String, String> params) {
-        // In the base service we aren't handling the query parameters. In order to filter records using the query params,
+        // In the base service we aren't handling the query parameters. In order to filter records using the query
+        // params,
         // each service must implement it for their usecase. Need to come up with a better strategy for doing this.
         return repository.findAll();
     }
@@ -122,7 +122,8 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return repository.findById(id)
+        return repository
+                .findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));
     }
 
@@ -131,7 +132,8 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
         return Mono.just(object)
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
-                .flatMap(savedResource -> analyticsService.sendCreateEvent(savedResource, getAnalyticsProperties(savedResource)));
+                .flatMap(savedResource ->
+                        analyticsService.sendCreateEvent(savedResource, getAnalyticsProperties(savedResource)));
     }
 
     protected DBObject getDbObject(Object o) {
@@ -153,14 +155,14 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
      * @return Mono<T>
      */
     protected Mono<T> validateObject(T obj) {
-        return Mono.just(obj)
-                .map(validator::validate)
-                .flatMap(constraint -> {
-                    if (constraint.isEmpty()) {
-                        return Mono.just(obj);
-                    }
-                    return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, constraint.stream().findFirst().get().getPropertyPath()));
-                });
+        return Mono.just(obj).map(validator::validate).flatMap(constraint -> {
+            if (constraint.isEmpty()) {
+                return Mono.just(obj);
+            }
+            return Mono.error(new AppsmithException(
+                    AppsmithError.INVALID_PARAMETER,
+                    constraint.stream().findFirst().get().getPropertyPath()));
+        });
     }
 
     @Override

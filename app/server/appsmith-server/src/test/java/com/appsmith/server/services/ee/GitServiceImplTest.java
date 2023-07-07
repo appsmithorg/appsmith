@@ -3,6 +3,7 @@ package com.appsmith.server.services.ee;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.services.GitService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,8 +16,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
-
-import jakarta.validation.Validator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -33,8 +32,10 @@ public class GitServiceImplTest {
 
     @MockBean
     Scheduler scheduler;
+
     @MockBean
     Validator validator;
+
     @MockBean
     ObjectMapper objectMapper;
 
@@ -42,18 +43,15 @@ public class GitServiceImplTest {
     @Test
     public void isRepoLimitReached_anyState_alwaysFalse() {
         Mockito.when(commonConfig.isCloudHosting()).thenReturn(false);
-        StepVerifier
-                .create(gitService.isRepoLimitReached(null, null))
+        StepVerifier.create(gitService.isRepoLimitReached(null, null))
                 .assertNext(isRepoLimit -> assertEquals(false, isRepoLimit))
                 .verifyComplete();
 
-        StepVerifier
-                .create(gitService.isRepoLimitReached("", true))
+        StepVerifier.create(gitService.isRepoLimitReached("", true))
                 .assertNext(isRepoLimit -> assertEquals(false, isRepoLimit))
                 .verifyComplete();
 
-        StepVerifier
-                .create(gitService.isRepoLimitReached("workspaceId", false))
+        StepVerifier.create(gitService.isRepoLimitReached("workspaceId", false))
                 .assertNext(isRepoLimit -> assertEquals(false, isRepoLimit))
                 .verifyComplete();
     }
@@ -64,19 +62,21 @@ public class GitServiceImplTest {
 
         // False because there are no git connected apps
         GitService gitService1 = Mockito.spy(gitService);
-        Mockito.doReturn(Mono.just(Boolean.FALSE)).when(gitService1).isRepoLimitReached(Mockito.anyString(), Mockito.anyBoolean());
+        Mockito.doReturn(Mono.just(Boolean.FALSE))
+                .when(gitService1)
+                .isRepoLimitReached(Mockito.anyString(), Mockito.anyBoolean());
 
-        StepVerifier
-                .create(gitService1.isRepoLimitReached("", false))
+        StepVerifier.create(gitService1.isRepoLimitReached("", false))
                 .assertNext(isRepoLimit -> assertEquals(false, isRepoLimit))
                 .verifyComplete();
 
         // Connect 3 private repos
         GitService gitService2 = Mockito.spy(gitService);
-        Mockito.doReturn(Mono.just(Boolean.TRUE)).when(gitService2).isRepoLimitReached(Mockito.anyString(), Mockito.anyBoolean());
+        Mockito.doReturn(Mono.just(Boolean.TRUE))
+                .when(gitService2)
+                .isRepoLimitReached(Mockito.anyString(), Mockito.anyBoolean());
 
-        StepVerifier
-                .create(gitService2.isRepoLimitReached("", false))
+        StepVerifier.create(gitService2.isRepoLimitReached("", false))
                 .assertNext(isRepoLimit -> assertEquals(true, isRepoLimit))
                 .verifyComplete();
     }

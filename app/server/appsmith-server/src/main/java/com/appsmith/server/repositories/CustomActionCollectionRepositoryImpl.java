@@ -14,9 +14,13 @@ import java.util.List;
 import static com.appsmith.server.constants.Constraint.NO_RECORD_LIMIT;
 
 @Component
-public class CustomActionCollectionRepositoryImpl extends CustomActionCollectionRepositoryCEImpl implements CustomActionCollectionRepository {
+public class CustomActionCollectionRepositoryImpl extends CustomActionCollectionRepositoryCEImpl
+        implements CustomActionCollectionRepository {
 
-    public CustomActionCollectionRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomActionCollectionRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
@@ -24,12 +28,6 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
     public Flux<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields) {
         Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
 
-        return queryAll(
-                List.of(applicationCriteria),
-                includeFields,
-                null,
-                null,
-                NO_RECORD_LIMIT
-        );
+        return queryAll(List.of(applicationCriteria), includeFields, null, null, NO_RECORD_LIMIT);
     }
 }

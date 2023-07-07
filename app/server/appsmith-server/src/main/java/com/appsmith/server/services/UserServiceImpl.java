@@ -20,7 +20,6 @@ import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -29,6 +28,7 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.UserServiceCEImpl;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -82,35 +82,54 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     private final PolicySolution policySolution;
     private final PolicyGenerator policyGenerator;
 
-    public UserServiceImpl(Scheduler scheduler,
-                           Validator validator,
-                           MongoConverter mongoConverter,
-                           ReactiveMongoTemplate reactiveMongoTemplate,
-                           UserRepository repository,
-                           WorkspaceService workspaceService,
-                           AnalyticsService analyticsService,
-                           SessionUserService sessionUserService,
-                           PasswordResetTokenRepository passwordResetTokenRepository,
-                           PasswordEncoder passwordEncoder,
-                           EmailSender emailSender,
-                           ApplicationRepository applicationRepository,
-                           PolicySolution policySolution,
-                           CommonConfig commonConfig,
-                           EmailConfig emailConfig,
-                           UserChangedHandler userChangedHandler,
-                           EncryptionService encryptionService,
-                           UserDataService userDataService,
-                           TenantService tenantService,
-                           PermissionGroupService permissionGroupService,
-                           UserUtils userUtils,
-                           PermissionGroupRepository permissionGroupRepository,
-                           UserGroupRepository userGroupRepository,
-                           PolicyGenerator policyGenerator) {
+    public UserServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            UserRepository repository,
+            WorkspaceService workspaceService,
+            AnalyticsService analyticsService,
+            SessionUserService sessionUserService,
+            PasswordResetTokenRepository passwordResetTokenRepository,
+            PasswordEncoder passwordEncoder,
+            EmailSender emailSender,
+            ApplicationRepository applicationRepository,
+            PolicySolution policySolution,
+            CommonConfig commonConfig,
+            EmailConfig emailConfig,
+            UserChangedHandler userChangedHandler,
+            EncryptionService encryptionService,
+            UserDataService userDataService,
+            TenantService tenantService,
+            PermissionGroupService permissionGroupService,
+            UserUtils userUtils,
+            PermissionGroupRepository permissionGroupRepository,
+            UserGroupRepository userGroupRepository,
+            PolicyGenerator policyGenerator) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, workspaceService, analyticsService,
-                sessionUserService, passwordResetTokenRepository, passwordEncoder, emailSender, applicationRepository,
-                policySolution, commonConfig, emailConfig, userChangedHandler, encryptionService, userDataService, tenantService,
-                permissionGroupService, userUtils);
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                workspaceService,
+                analyticsService,
+                sessionUserService,
+                passwordResetTokenRepository,
+                passwordEncoder,
+                emailSender,
+                applicationRepository,
+                policySolution,
+                commonConfig,
+                emailConfig,
+                userChangedHandler,
+                encryptionService,
+                userDataService,
+                tenantService,
+                permissionGroupService,
+                userUtils);
 
         this.userDataService = userDataService;
         this.tenantService = tenantService;
@@ -125,12 +144,12 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
 
     @Override
     public Mono<UserProfileDTO> buildUserProfileDTO(User user) {
-        Mono<Tenant> tenantWithConfigurationMono = tenantService.getTenantConfiguration().cache();
+        Mono<Tenant> tenantWithConfigurationMono =
+                tenantService.getTenantConfiguration().cache();
         Mono<UserProfileDTO> userProfileDTOMono = Mono.zip(
                         super.buildUserProfileDTO(user),
                         userDataService.getForCurrentUser().defaultIfEmpty(new UserData()),
-                        ReactiveSecurityContextHolder.getContext()
-                )
+                        ReactiveSecurityContextHolder.getContext())
                 // Add EE specific metadata to the user profile.
                 .flatMap(tuple -> {
                     final UserProfileDTO profile = tuple.getT1();
@@ -149,10 +168,10 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                         profile.setUserClaims(userData.getUserClaims());
 
                         if (LoginSource.OIDC.equals(loginSource)) {
-                            // Add the ID claims here as metadata which can be exposed by the client to appsmith developers
+                            // Add the ID claims here as metadata which can be exposed by the client to appsmith
+                            // developers
                             profile.setIdToken(userData.getOidcIdTokenClaims());
                         }
-
                     }
 
                     // Add checks to turn on super user mode if required
@@ -166,32 +185,41 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                     // If the user has access to >0 permission groups or >0 user groups, or can read audit logs, then
                     // show them the admin settings page by turning on super admin mode
                     return Mono.zip(
-                            permissionGroupRepository.countAllReadablePermissionGroupsForUser(user),
-                            userGroupRepository.countAllReadableUserGroups(),
-                            tenantService.getDefaultTenant(AclPermission.READ_TENANT_AUDIT_LOGS)
-                                    .switchIfEmpty(Mono.just(new Tenant()))
-                    ).map(tuple2 -> {
-                        boolean isAnyPermissionGroupReadable = tuple2.getT1() > 0;
-                        boolean isAnyUserGroupReadable = tuple2.getT2() > 0;
-                        boolean isAuditLogsReadable = tuple2.getT3().getId() != null;
-                        if (isAnyPermissionGroupReadable || isAnyUserGroupReadable || isAuditLogsReadable) {
-                            profile.setAdminSettingsVisible(true);
-                        }
-                        return profile;
-                    });
+                                    permissionGroupRepository.countAllReadablePermissionGroupsForUser(user),
+                                    userGroupRepository.countAllReadableUserGroups(),
+                                    tenantService
+                                            .getDefaultTenant(AclPermission.READ_TENANT_AUDIT_LOGS)
+                                            .switchIfEmpty(Mono.just(new Tenant())))
+                            .map(tuple2 -> {
+                                boolean isAnyPermissionGroupReadable = tuple2.getT1() > 0;
+                                boolean isAnyUserGroupReadable = tuple2.getT2() > 0;
+                                boolean isAuditLogsReadable = tuple2.getT3().getId() != null;
+                                if (isAnyPermissionGroupReadable || isAnyUserGroupReadable || isAuditLogsReadable) {
+                                    profile.setAdminSettingsVisible(true);
+                                }
+                                return profile;
+                            });
                 });
-        Mono<UserProfileDTO> userProfileDTOWithRolesAndGroups = Mono.zip(userProfileDTOMono, tenantWithConfigurationMono)
+        Mono<UserProfileDTO> userProfileDTOWithRolesAndGroups = Mono.zip(
+                        userProfileDTOMono, tenantWithConfigurationMono)
                 .flatMap(pair -> {
                     UserProfileDTO userProfileDTO = pair.getT1();
                     Tenant defaultTenantWithConfiguration = pair.getT2();
-                    if (Boolean.TRUE.equals(defaultTenantWithConfiguration.getTenantConfiguration().getShowRolesAndGroups())) {
+                    if (Boolean.TRUE.equals(defaultTenantWithConfiguration
+                            .getTenantConfiguration()
+                            .getShowRolesAndGroups())) {
                         Mono<List<String>> rolesUserHasBeenAssignedMono = Mono.just(List.of());
                         Mono<List<String>> groupsUsersIsPartOfMono = Mono.just(List.of());
 
                         if (StringUtils.isNotEmpty(user.getId())) {
-                            rolesUserHasBeenAssignedMono = permissionGroupService.getRoleNamesAssignedToUserIds(Set.of(user.getId())).collectList();
-                            groupsUsersIsPartOfMono = userGroupRepository.getAllByUsersIn(Set.of(user.getId()),
-                                            Optional.of(List.of(fieldName(QUserGroup.userGroup.name))), Optional.empty())
+                            rolesUserHasBeenAssignedMono = permissionGroupService
+                                    .getRoleNamesAssignedToUserIds(Set.of(user.getId()))
+                                    .collectList();
+                            groupsUsersIsPartOfMono = userGroupRepository
+                                    .getAllByUsersIn(
+                                            Set.of(user.getId()),
+                                            Optional.of(List.of(fieldName(QUserGroup.userGroup.name))),
+                                            Optional.empty())
                                     .map(UserGroup::getName)
                                     .collectList();
                         }
@@ -225,15 +253,12 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
      * @return
      */
     private ProvisionResourceDto getProvisionResourceDto(User user) {
-        ProvisionResourceMetadata metadata= ProvisionResourceMetadata.builder()
+        ProvisionResourceMetadata metadata = ProvisionResourceMetadata.builder()
                 .created(user.getCreatedAt().toString())
                 .lastModified(user.getUpdatedAt().toString())
                 .resourceType(USER.getValue())
                 .build();
-        return ProvisionResourceDto.builder()
-                .resource(user)
-                .metadata(metadata)
-                .build();
+        return ProvisionResourceDto.builder().resource(user).metadata(metadata).build();
     }
 
     /**
@@ -246,22 +271,28 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
      * @return
      */
     private Mono<User> updateProvisionUserPoliciesAndProvisionFlag(User user) {
-        return userUtils.getProvisioningRole()
-                .flatMap(provisioningRole -> {
-                    user.setIsProvisioned(Boolean.TRUE);
-                    Set<Policy> currentUserPolicies = user.getPolicies();
-                    Set<Policy> userPoliciesWithoutDeleteAndManageUser = currentUserPolicies.stream()
-                            .filter(policy -> ! policy.getPermission().equals(DELETE_USERS.getValue()) &&
-                                    ! policy.getPermission().equals(MANAGE_USERS.getValue()))
-                            .collect(Collectors.toSet());
-                    user.setPolicies(userPoliciesWithoutDeleteAndManageUser);
-                    Map<String, Policy> newDeleteAndManagePolicy = Map.of(
-                            DELETE_USERS.getValue(), Policy.builder().permission(DELETE_USERS.getValue()).permissionGroups(Set.of(provisioningRole.getId())).build(),
-                            MANAGE_USERS.getValue(), Policy.builder().permission(MANAGE_USERS.getValue()).permissionGroups(Set.of(provisioningRole.getId())).build()
-                    );
-                    policySolution.addPoliciesToExistingObject(newDeleteAndManagePolicy, user);
-                    return repository.save(user);
-                });
+        return userUtils.getProvisioningRole().flatMap(provisioningRole -> {
+            user.setIsProvisioned(Boolean.TRUE);
+            Set<Policy> currentUserPolicies = user.getPolicies();
+            Set<Policy> userPoliciesWithoutDeleteAndManageUser = currentUserPolicies.stream()
+                    .filter(policy -> !policy.getPermission().equals(DELETE_USERS.getValue())
+                            && !policy.getPermission().equals(MANAGE_USERS.getValue()))
+                    .collect(Collectors.toSet());
+            user.setPolicies(userPoliciesWithoutDeleteAndManageUser);
+            Map<String, Policy> newDeleteAndManagePolicy = Map.of(
+                    DELETE_USERS.getValue(),
+                            Policy.builder()
+                                    .permission(DELETE_USERS.getValue())
+                                    .permissionGroups(Set.of(provisioningRole.getId()))
+                                    .build(),
+                    MANAGE_USERS.getValue(),
+                            Policy.builder()
+                                    .permission(MANAGE_USERS.getValue())
+                                    .permissionGroups(Set.of(provisioningRole.getId()))
+                                    .build());
+            policySolution.addPoliciesToExistingObject(newDeleteAndManagePolicy, user);
+            return repository.save(user);
+        });
     }
 
     @Override
@@ -273,24 +304,31 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
 
     @Override
     public Mono<ProvisionResourceDto> updateProvisionUser(String userId, UserUpdateDTO userUpdateDTO) {
-        Mono<User> updateUserPolicyPostRead = repository.findById(userId, READ_USERS)
-                .flatMap(this::updateProvisionUserPoliciesAndProvisionFlag);
-        Mono<User> userMono = repository.findById(userId, MANAGE_USERS)
-                .switchIfEmpty(updateUserPolicyPostRead);
-        if (userUpdateDTO.hasUserUpdates()) {
-            User userUpdate = new User();
-            userUpdate.setName(userUpdateDTO.getName());
-            userUpdate.setPolicies(null);
-            userMono = userMono
-                    .then(this.update(userId, userUpdate));
+        Mono<User> updateUserPolicyPostRead =
+                repository.findById(userId, READ_USERS).flatMap(this::updateProvisionUserPoliciesAndProvisionFlag);
+        Mono<User> userMono = repository.findById(userId, MANAGE_USERS).switchIfEmpty(updateUserPolicyPostRead);
+        if (StringUtils.isEmpty(userUpdateDTO.getName()) && StringUtils.isEmpty(userUpdateDTO.getEmail())) {
+            return userMono.map(this::getProvisionResourceDto);
         }
-        return userMono
-                .map(this::getProvisionResourceDto);
+        User userUpdate = new User();
+        if (StringUtils.isNotEmpty(userUpdateDTO.getName())) {
+            userUpdate.setName(userUpdateDTO.getName());
+        }
+        if (StringUtils.isNotEmpty(userUpdateDTO.getEmail())) {
+            // Convert email to lower case before saving
+            userUpdate.setEmail(userUpdateDTO.getEmail().toLowerCase());
+        }
+        // Setting below elements to null, so that they are not copied as empty values
+        // and update the user resource incorrectly.
+        userUpdate.setPolicies(null);
+        userUpdate.setIsProvisioned(null);
+        return userMono.then(this.update(userId, userUpdate)).map(this::getProvisionResourceDto);
     }
 
     @Override
     public Mono<ProvisionResourceDto> getProvisionUser(String userId) {
-        return repository.findById(userId, READ_USERS)
+        return repository
+                .findById(userId, READ_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "User", userId)))
                 .map(this::getProvisionResourceDto);
     }
@@ -308,10 +346,12 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
             startIndex = Integer.parseInt(queryParams.getFirst(START_INDEX));
         }
         if (StringUtils.isNotEmpty(queryParams.getFirst(EMAIL_FILTER))) {
-            emails = Arrays.stream(queryParams.getFirst(EMAIL_FILTER).split(FILTER_DELIMITER)).toList();
+            emails = Arrays.stream(queryParams.getFirst(EMAIL_FILTER).split(FILTER_DELIMITER))
+                    .toList();
         }
 
-        return repository.getUsersWithParamsPaginated(count, startIndex, emails, Optional.of(READ_USERS))
+        return repository
+                .getUsersWithParamsPaginated(count, startIndex, emails, Optional.of(READ_USERS))
                 .map(pagedUsers -> {
                     List<ProvisionResourceDto> provisionedUsersDto = pagedUsers.getContent().stream()
                             .map(this::getProvisionResourceDto)
@@ -325,52 +365,51 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                 });
     }
 
-
     @Override
     public Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params, String origin) {
-        return tenantService.getDefaultTenant()
-                .map(tenant -> {
-                    final TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                    String primaryColor = DEFAULT_PRIMARY_COLOR;
-                    String backgroundColor = DEFAULT_BACKGROUND_COLOR;
-                    String fontColor = DEFAULT_FONT_COLOR;
-                    String logoUrl = StringUtils.isNotEmpty(origin) ? origin + tenantConfiguration.getBrandLogoUrl() : null;
+        return tenantService.getDefaultTenant().map(tenant -> {
+            final TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+            String primaryColor = DEFAULT_PRIMARY_COLOR;
+            String backgroundColor = DEFAULT_BACKGROUND_COLOR;
+            String fontColor = DEFAULT_FONT_COLOR;
+            String logoUrl = StringUtils.isNotEmpty(origin) ? origin + tenantConfiguration.getBrandLogoUrl() : null;
 
-                    if (tenantConfiguration.isWhitelabelEnabled()) {
-                        final TenantConfiguration.BrandColors brandColors = tenantConfiguration.getBrandColors();
-                        if (brandColors != null) {
-                            primaryColor = StringUtils.defaultIfEmpty(brandColors.getPrimary(), primaryColor);
-                            backgroundColor = StringUtils.defaultIfEmpty(brandColors.getBackground(), backgroundColor);
-                            fontColor = StringUtils.defaultIfEmpty(brandColors.getFont(), fontColor);
-                        }
-                    }
+            if (tenantConfiguration.isWhitelabelEnabled()) {
+                final TenantConfiguration.BrandColors brandColors = tenantConfiguration.getBrandColors();
+                if (brandColors != null) {
+                    primaryColor = StringUtils.defaultIfEmpty(brandColors.getPrimary(), primaryColor);
+                    backgroundColor = StringUtils.defaultIfEmpty(brandColors.getBackground(), backgroundColor);
+                    fontColor = StringUtils.defaultIfEmpty(brandColors.getFont(), fontColor);
+                }
+            }
 
-                    params.put("instanceName", StringUtils.defaultIfEmpty(tenantConfiguration.getInstanceName(), "Appsmith"));
-                    params.put("logoUrl", StringUtils.defaultIfEmpty(logoUrl, DEFAULT_APPSMITH_LOGO));
-                    params.put("brandPrimaryColor", primaryColor);
-                    params.put("brandBackgroundColor", backgroundColor);
-                    params.put("brandFontColor", fontColor);
-                    return params;
-                });
+            params.put("instanceName", StringUtils.defaultIfEmpty(tenantConfiguration.getInstanceName(), "Appsmith"));
+            params.put("logoUrl", StringUtils.defaultIfEmpty(logoUrl, DEFAULT_APPSMITH_LOGO));
+            params.put("brandPrimaryColor", primaryColor);
+            params.put("brandBackgroundColor", backgroundColor);
+            params.put("brandFontColor", fontColor);
+            return params;
+        });
     }
 
     @Override
     public Mono<User> userCreate(User user, boolean isAdminUser) {
         Mono<User> userCreateAndDefaultRoleAssignmentMono = super.userCreate(user, isAdminUser)
                 // After creating the user, assign the default role to the newly created user.
-                .flatMap(createdUser -> userUtils.getDefaultUserPermissionGroup()
+                .flatMap(createdUser -> userUtils
+                        .getDefaultUserPermissionGroup()
                         .flatMap(permissionGroup -> {
-                            log.debug("Assigning default user role to newly created user {}", createdUser.getUsername());
-                            return permissionGroupService.bulkAssignToUsersWithoutPermission(permissionGroup, List.of(createdUser));
+                            log.debug(
+                                    "Assigning default user role to newly created user {}", createdUser.getUsername());
+                            return permissionGroupService.bulkAssignToUsersWithoutPermission(
+                                    permissionGroup, List.of(createdUser));
                         })
-                        .then(Mono.just(createdUser))
-                );
+                        .then(Mono.just(createdUser)));
 
         //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
         //  subscriber has cancelled its subscription, the user create method will still generate its event.
-        return Mono.create(sink -> userCreateAndDefaultRoleAssignmentMono
-                .subscribe(sink::success, sink::error, null, sink.currentContext())
-        );
+        return Mono.create(sink -> userCreateAndDefaultRoleAssignmentMono.subscribe(
+                sink::success, sink::error, null, sink.currentContext()));
     }
 
     /**
@@ -379,13 +418,14 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
      */
     @Override
     protected Mono<User> addUserPolicies(User savedUser) {
-        return super.addUserPolicies(savedUser).zipWith(tenantService.getDefaultTenant())
+        return super.addUserPolicies(savedUser)
+                .zipWith(tenantService.getDefaultTenant())
                 .map(pair -> {
                     User user = pair.getT1();
                     Tenant tenant = pair.getT2();
-                    Map<String, Policy> userPoliciesMapWithNewPermissions = policyGenerator.getAllChildPolicies(tenant.getPolicies(), Tenant.class, User.class)
-                            .stream()
-                            .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
+                    Map<String, Policy> userPoliciesMapWithNewPermissions =
+                            policyGenerator.getAllChildPolicies(tenant.getPolicies(), Tenant.class, User.class).stream()
+                                    .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
                     policySolution.addPoliciesToExistingObject(userPoliciesMapWithNewPermissions, user);
                     return user;
                 });

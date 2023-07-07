@@ -64,16 +64,27 @@ public class DatasourceStorageServiceTest {
         Mockito.when(customDatasourceRepository.findById(Mockito.anyString(), Mockito.any(AclPermission.class)))
                 .thenReturn(Mono.just(testDatasource));
 
-        Mono<DatasourceStorage> renderedDatasourceStorageMono = datasourceStorageService
-                .findByDatasourceAndEnvironmentIdForExecution(testDatasource, null);
+        Mono<DatasourceStorage> renderedDatasourceStorageMono =
+                datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(testDatasource, null);
 
         StepVerifier.create(renderedDatasourceStorageMono)
                 .assertNext(datasourceStorage -> {
                     assertThat(datasourceStorage).isNotNull();
                     assertThat(datasourceStorage.getDatasourceConfiguration()).isNotNull();
-                    assertThat(datasourceStorage.getDatasourceConfiguration().getHeaders()).isNotEmpty();
-                    assertThat(datasourceStorage.getDatasourceConfiguration().getHeaders().get(0).getKey()).isEqualTo(testHeaderKey);
-                    assertThat(datasourceStorage.getDatasourceConfiguration().getHeaders().get(0).getValue()).isEqualTo(renderedValue);
+                    assertThat(datasourceStorage.getDatasourceConfiguration().getHeaders())
+                            .isNotEmpty();
+                    assertThat(datasourceStorage
+                                    .getDatasourceConfiguration()
+                                    .getHeaders()
+                                    .get(0)
+                                    .getKey())
+                            .isEqualTo(testHeaderKey);
+                    assertThat(datasourceStorage
+                                    .getDatasourceConfiguration()
+                                    .getHeaders()
+                                    .get(0)
+                                    .getValue())
+                            .isEqualTo(renderedValue);
                 })
                 .verifyComplete();
     }

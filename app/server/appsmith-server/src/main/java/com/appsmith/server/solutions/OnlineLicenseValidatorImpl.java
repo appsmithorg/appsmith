@@ -1,8 +1,8 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.dtos.LicenseValidationResponseDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -24,9 +24,10 @@ import reactor.core.publisher.Mono;
 public class OnlineLicenseValidatorImpl extends BaseLicenseValidatorImpl implements LicenseValidator {
     private final CloudServicesConfig cloudServicesConfig;
 
-    public OnlineLicenseValidatorImpl(ReleaseNotesService releaseNotesService,
-                                      ConfigService configService,
-                                      CloudServicesConfig cloudServicesConfig) {
+    public OnlineLicenseValidatorImpl(
+            ReleaseNotesService releaseNotesService,
+            ConfigService configService,
+            CloudServicesConfig cloudServicesConfig) {
         super(releaseNotesService, configService);
         this.cloudServicesConfig = cloudServicesConfig;
     }
@@ -37,7 +38,7 @@ public class OnlineLicenseValidatorImpl extends BaseLicenseValidatorImpl impleme
      * @param tenant
      * @return License
      */
-    public Mono<TenantConfiguration.License> licenseCheck(Tenant tenant) {
+    public Mono<License> licenseCheck(Tenant tenant) {
         log.debug("Initiating online license check");
         final String baseUrl = cloudServicesConfig.getBaseUrl();
         if (StringUtils.isEmpty(baseUrl)) {
@@ -47,9 +48,9 @@ public class OnlineLicenseValidatorImpl extends BaseLicenseValidatorImpl impleme
             System.exit(1);
         }
 
-        TenantConfiguration.License license = Boolean.TRUE.equals(isLicenseKeyValid(tenant))
+        License license = Boolean.TRUE.equals(isLicenseKeyValid(tenant))
                 ? tenant.getTenantConfiguration().getLicense()
-                : new TenantConfiguration.License();
+                : new License();
 
         if (StringUtils.isEmpty(license.getKey())) {
             log.debug("License key not found for tenant {}", tenant.getId());
@@ -58,24 +59,20 @@ public class OnlineLicenseValidatorImpl extends BaseLicenseValidatorImpl impleme
 
         return this.populateLicenseValidationRequest(tenant)
                 .flatMap(requestDTO -> {
-                            return WebClientUtils.create(
-                                            cloudServicesConfig.getBaseUrl() + "/api/v1/license/validate"
-                                    )
-                                    .post()
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .accept(MediaType.APPLICATION_JSON)
-                                    .body(BodyInserters.fromValue(requestDTO))
-                                    .retrieve()
-                                    .onStatus(
-                                            HttpStatusCode::isError,
-                                            response -> Mono.error(new AppsmithException(
-                                                    AppsmithError.CLOUD_SERVICES_ERROR,
-                                                    "unable to connect to cloud-services with error status ", response.statusCode()))
-                                    )
-                                    .bodyToMono(new ParameterizedTypeReference<ResponseDTO<LicenseValidationResponseDTO>>() {
-                                    });
-                        }
-                )
+                    return WebClientUtils.create(cloudServicesConfig.getBaseUrl() + "/api/v1/license/validate")
+                            .post()
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .body(BodyInserters.fromValue(requestDTO))
+                            .retrieve()
+                            .onStatus(
+                                    HttpStatusCode::isError,
+                                    response -> Mono.error(new AppsmithException(
+                                            AppsmithError.CLOUD_SERVICES_ERROR,
+                                            "unable to connect to cloud-services with error status ",
+                                            response.statusCode())))
+                            .bodyToMono(new ParameterizedTypeReference<ResponseDTO<LicenseValidationResponseDTO>>() {});
+                })
                 .map(ResponseDTO::getData)
                 .map(licenseValidationResponse -> {
                     log.debug("License validation completed for tenant {}", tenant.getId());
@@ -84,6 +81,7 @@ public class OnlineLicenseValidatorImpl extends BaseLicenseValidatorImpl impleme
                     license.setType(licenseValidationResponse.getLicenseType());
                     license.setStatus(licenseValidationResponse.getLicenseStatus());
                     license.setOrigin(licenseValidationResponse.getOrigin());
+                    license.setPlan(licenseValidationResponse.getLicensePlan());
                     return license;
                 });
     }

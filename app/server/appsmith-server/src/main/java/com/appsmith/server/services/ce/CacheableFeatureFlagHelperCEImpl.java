@@ -28,8 +28,8 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
 
     private final CloudServicesConfig cloudServicesConfig;
 
-    public CacheableFeatureFlagHelperCEImpl(TenantService tenantService, ConfigService configService,
-                                            CloudServicesConfig cloudServicesConfig) {
+    public CacheableFeatureFlagHelperCEImpl(
+            TenantService tenantService, ConfigService configService, CloudServicesConfig cloudServicesConfig) {
         this.tenantService = tenantService;
         this.configService = configService;
         this.cloudServicesConfig = cloudServicesConfig;
@@ -59,10 +59,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
         return Mono.zip(instanceIdMono, defaultTenantIdMono)
                 .flatMap(tuple2 -> {
                     return this.getRemoteFeatureFlagsByIdentity(
-                            new FeatureFlagIdentities(
-                                    tuple2.getT1(),
-                                    tuple2.getT2(),
-                                    Set.of(userIdentifier)));
+                            new FeatureFlagIdentities(tuple2.getT1(), tuple2.getT2(), Set.of(userIdentifier)));
                 })
                 .map(newValue -> newValue.get(userIdentifier));
     }
@@ -74,9 +71,8 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                 .body(BodyInserters.fromValue(identity))
                 .exchangeToMono(clientResponse -> {
                     if (clientResponse.statusCode().is2xxSuccessful()) {
-                        return clientResponse.bodyToMono(new ParameterizedTypeReference<ResponseDTO<Map<String,
-                                Map<String, Boolean>>>>() {
-                        });
+                        return clientResponse.bodyToMono(
+                                new ParameterizedTypeReference<ResponseDTO<Map<String, Map<String, Boolean>>>>() {});
                     } else {
                         return clientResponse.createError();
                     }
@@ -85,8 +81,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                 .onErrorMap(
                         // Only map errors if we haven't already wrapped them into an AppsmithException
                         e -> !(e instanceof AppsmithException),
-                        e -> new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, e.getMessage())
-                )
+                        e -> new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, e.getMessage()))
                 .onErrorResume(error -> {
                     // We're gobbling up errors here so that all feature flags are turned off by default
                     // This will be problematic if we do not maintain code to reflect validity of flags

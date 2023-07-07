@@ -61,18 +61,17 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
                 datasourceRepository,
                 userRepository,
                 projectProperties,
-                networkUtils
-        );
+                networkUtils);
         this.tenantService = tenantService;
         this.airgapInstanceConfig = airgapInstanceConfig;
         this.usagePulseService = usagePulseService;
     }
 
-
-    @Scheduled(initialDelay =  3 * 60 * 1000 /* three minutes */, fixedRate = 1 * 60 * 60 * 1000 /* one hour */)
+    @Scheduled(initialDelay = 3 * 60 * 1000 /* three minutes */, fixedRate = 1 * 60 * 60 * 1000 /* one hour */)
     public void licenseCheck() {
         log.debug("Initiating Periodic License Check");
-        tenantService.checkAndUpdateDefaultTenantLicense()
+        tenantService
+                .checkAndUpdateDefaultTenantLicense()
                 .subscribeOn(Schedulers.boundedElastic())
                 .block();
     }
@@ -87,13 +86,13 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             return;
         }
         log.debug("Sending Usage Pulse");
-        while(Boolean.TRUE.equals(usagePulseService.sendAndUpdateUsagePulse()
-            .subscribeOn(Schedulers.boundedElastic())
-            .block())) {
+        while (Boolean.TRUE.equals(usagePulseService
+                .sendAndUpdateUsagePulse()
+                .subscribeOn(Schedulers.boundedElastic())
+                .block())) {
             // Sleep to delay continues requests
             Thread.sleep(2000);
         }
         log.debug("Completed Sending Usage Pulse");
     }
-
 }

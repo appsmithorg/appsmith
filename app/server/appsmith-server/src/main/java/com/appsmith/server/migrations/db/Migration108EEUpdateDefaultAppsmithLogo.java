@@ -25,19 +25,17 @@ import static com.appsmith.server.domains.TenantConfiguration.APPSMITH_DEFAULT_L
 import static com.appsmith.server.domains.TenantConfiguration.ASSET_PREFIX;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
-@ChangeUnit(order = "108-EE", id="update-default-appsmith-logo-asset", author = "")
+@ChangeUnit(order = "108-EE", id = "update-default-appsmith-logo-asset", author = "")
 @RequiredArgsConstructor
 @Slf4j
 public class Migration108EEUpdateDefaultAppsmithLogo {
-
 
     private final MongoTemplate mongoTemplate;
 
     private final String logoPath = "images/appsmith-logo-no-margin.png";
 
     @RollbackExecution
-    public void rollBackExecution() {
-    }
+    public void rollBackExecution() {}
 
     @Execution
     public void updateDefaultLogoAsset() {
@@ -51,21 +49,24 @@ public class Migration108EEUpdateDefaultAppsmithLogo {
             // Abort migration in case reading and saving the asset failed for IOException
             return;
         }
-        // For airgap enabled instances as the public internet is not available we need to remove the internet dependency
+        // For airgap enabled instances as the public internet is not available we need to remove the internet
+        // dependency
         // for default Appsmith logo for email templates.
         Query defaultAppsmithLogoQuery = new Query();
-        defaultAppsmithLogoQuery.addCriteria(Criteria.where(fieldName(QAsset.asset.name)).is(APPSMITH_DEFAULT_LOGO));
+        defaultAppsmithLogoQuery.addCriteria(
+                Criteria.where(fieldName(QAsset.asset.name)).is(APPSMITH_DEFAULT_LOGO));
         Asset existingDefaultAsset = mongoTemplate.findAndRemove(defaultAppsmithLogoQuery, Asset.class);
 
         defaultLogoAsset = mongoTemplate.save(defaultLogoAsset);
         // Attach asset prefix to match the naming conventions for asset urls.
         String defaultLogoSpec = ASSET_PREFIX + defaultLogoAsset.getId();
 
-        String whiteLabelLogoFieldName
-            = fieldName(QTenant.tenant.tenantConfiguration) + "." + fieldName(QTenant.tenant.tenantConfiguration.whiteLabelLogo);
+        String whiteLabelLogoFieldName = fieldName(QTenant.tenant.tenantConfiguration) + "."
+                + fieldName(QTenant.tenant.tenantConfiguration.whiteLabelLogo);
 
         Query query = new Query();
-        query.addCriteria(Criteria.where(fieldName(QTenant.tenant.tenantConfiguration)).exists(true));
+        query.addCriteria(
+                Criteria.where(fieldName(QTenant.tenant.tenantConfiguration)).exists(true));
 
         if (existingDefaultAsset != null && !StringUtils.isEmpty(existingDefaultAsset.getId())) {
             query.addCriteria(Criteria.where(whiteLabelLogoFieldName).is(ASSET_PREFIX + existingDefaultAsset.getId()));
@@ -90,7 +91,7 @@ public class Migration108EEUpdateDefaultAppsmithLogo {
             ClassLoader classLoader = getClass().getClassLoader();
             InputStream inputStream = classLoader.getResourceAsStream(logoPath);
             imageData = Objects.requireNonNull(inputStream).readAllBytes();
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.debug("Unable to read file with error: {}", e.getMessage());
             return null;
         }
@@ -100,4 +101,3 @@ public class Migration108EEUpdateDefaultAppsmithLogo {
         return defaultLogoAsset;
     }
 }
-

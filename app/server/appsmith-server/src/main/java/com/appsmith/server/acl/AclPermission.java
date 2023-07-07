@@ -2,6 +2,7 @@ package com.appsmith.server.acl;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.Environment;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -16,8 +17,6 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.external.models.Environment;
-
 import lombok.Getter;
 
 @Getter
@@ -54,11 +53,10 @@ public enum AclPermission {
     CREATE_WORKSPACES("createWorkspaces:tenant", Tenant.class),
     READ_TENANT_AUDIT_LOGS("readAuditLogs:tenant", Tenant.class),
 
-
     // Does the user have manage workspace permission
     @Deprecated
     USER_MANAGE_WORKSPACES("manage:userWorkspace", User.class),
-    //Does the user have read workspace permissions
+    // Does the user have read workspace permissions
     @Deprecated
     USER_READ_WORKSPACES("read:userWorkspace", User.class),
 
@@ -167,7 +165,6 @@ public enum AclPermission {
     // AuditLogs Permission
     READ_AUDIT_LOGS("read:auditLogs", AuditLog.class),
     ;
-
 
     private final String value;
     private final Class<? extends BaseDomain> entity;

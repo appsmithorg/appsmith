@@ -36,12 +36,11 @@ public class ReactiveRemoteJWKSource implements ReactiveJWKSource {
     @Override
     public Mono<List<JWK>> get(JWKSelector jwkSelector) {
         // @formatter:off
-        return this.cachedJWKSet.get()
+        return this.cachedJWKSet
+                .get()
                 .switchIfEmpty(Mono.defer(() -> getJWKSet()))
                 .flatMap((jwkSet) -> get(jwkSelector, jwkSet))
-                .switchIfEmpty(Mono.defer(() -> getJWKSet()
-                        .map((jwkSet) -> jwkSelector.select(jwkSet)))
-                );
+                .switchIfEmpty(Mono.defer(() -> getJWKSet().map((jwkSet) -> jwkSelector.select(jwkSet))));
         // @formatter:on
     }
 
@@ -76,14 +75,13 @@ public class ReactiveRemoteJWKSource implements ReactiveJWKSource {
      */
     private Mono<JWKSet> getJWKSet() {
         // @formatter:off
-        return this.webClient.get()
+        return this.webClient
+                .get()
                 .uri(this.jwkSetURL)
                 .retrieve()
                 .bodyToMono(String.class)
                 .map(this::parse)
-                .doOnNext((jwkSet) -> this.cachedJWKSet
-                        .set(Mono.just(jwkSet))
-                )
+                .doOnNext((jwkSet) -> this.cachedJWKSet.set(Mono.just(jwkSet)))
                 .cache();
         // @formatter:on
     }
@@ -91,8 +89,7 @@ public class ReactiveRemoteJWKSource implements ReactiveJWKSource {
     private JWKSet parse(String body) {
         try {
             return JWKSet.parse(body);
-        }
-        catch (ParseException ex) {
+        } catch (ParseException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -118,5 +115,4 @@ public class ReactiveRemoteJWKSource implements ReactiveJWKSource {
     void setWebClient(WebClient webClient) {
         // NOOP. We don't let this be overridden. This is the whole reason we're overriding this class.
     }
-
 }

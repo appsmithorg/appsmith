@@ -38,28 +38,27 @@ public class AirgapUnsupportedPathFilter implements WebFilter {
     private static final String WILDCARD_SUFFIX = "/**";
 
     private static final List<String> blockedPaths = List.of(
-        APP_TEMPLATE_URL + WILDCARD_SUFFIX,
-        MARKETPLACE_URL + WILDCARD_SUFFIX,
-        DATASOURCE_URL + MOCKS,
-        USAGE_PULSE_URL + WILDCARD_SUFFIX,
-        APPLICATION_URL + RELEASE_ITEMS,
-        SAAS_URL + WILDCARD_SUFFIX
-    );
+            APP_TEMPLATE_URL + WILDCARD_SUFFIX,
+            MARKETPLACE_URL + WILDCARD_SUFFIX,
+            DATASOURCE_URL + MOCKS,
+            USAGE_PULSE_URL + WILDCARD_SUFFIX,
+            APPLICATION_URL + RELEASE_ITEMS,
+            SAAS_URL + WILDCARD_SUFFIX);
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public Mono<Void> filter(@NotNull ServerWebExchange exchange, @NotNull WebFilterChain chain) {
-        if (!airgapInstanceConfig.isAirgapEnabled() || !isRequestPathMatched(exchange.getRequest().getPath())) {
+        if (!airgapInstanceConfig.isAirgapEnabled()
+                || !isRequestPathMatched(exchange.getRequest().getPath())) {
             return chain.filter(exchange);
         }
-        log.info("Client is trying to access blocked URI path in air-gap instance {}", exchange.getRequest().getPath());
+        log.info(
+                "Client is trying to access blocked URI path in air-gap instance {}",
+                exchange.getRequest().getPath());
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
     private boolean isRequestPathMatched(RequestPath requestPath) {
         AntPathMatcher matcher = new AntPathMatcher();
-        return blockedPaths
-                .stream()
-                .anyMatch(blockedPath -> matcher.match(blockedPath, requestPath.value()));
+        return blockedPaths.stream().anyMatch(blockedPath -> matcher.match(blockedPath, requestPath.value()));
     }
 }

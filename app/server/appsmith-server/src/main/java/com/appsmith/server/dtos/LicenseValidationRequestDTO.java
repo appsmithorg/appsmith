@@ -9,4 +9,3 @@ public class LicenseValidationRequestDTO {
     private String tenantId;
     private String appsmithVersion;
 }
-

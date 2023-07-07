@@ -10,5 +10,4 @@ public class AuditLogConstants {
     public static final String NUMBER_OF_DAYS = "numberOfDays";
     public static final String SORT_ORDER = "sortOrder";
     public static final String CURSOR = "cursor";
-
 }

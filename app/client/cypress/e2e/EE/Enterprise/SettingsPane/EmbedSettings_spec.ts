@@ -1,10 +1,11 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("In-app embed settings", () => {
-  beforeEach(() => {
-    cy.intercept("GET", "/api/v1/users/features", {
-      fixture: "featureFlagsComplement.json",
-    }).as("featureFlags");
+  before(() => {
+    featureFlagIntercept({
+      APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY: true,
+    });
   });
 
   function ValidateSnippetUrl(

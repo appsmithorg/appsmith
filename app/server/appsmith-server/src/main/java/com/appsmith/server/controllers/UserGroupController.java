@@ -42,7 +42,9 @@ public class UserGroupController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<UserGroupDTO>> create(@Valid @RequestBody UserGroup resource) {
-        log.debug("Going to create resource from user group controller {}", resource.getClass().getName());
+        log.debug(
+                "Going to create resource from user group controller {}",
+                resource.getClass().getName());
         return service.createGroup(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
@@ -50,15 +52,15 @@ public class UserGroupController {
     @GetMapping("")
     public Mono<ResponseDTO<List<UserGroup>>> getAll() {
         log.debug("Going to get all resources from user group controller");
-        return service.get(new LinkedMultiValueMap<>()).collectList()
+        return service.get(new LinkedMultiValueMap<>())
+                .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
     @GetMapping("/{id}")
     public Mono<ResponseDTO<UserGroupDTO>> getById(@PathVariable String id) {
         log.debug("Going to get resource from user group controller for id: {}", id);
-        return service.getGroupById(id)
-                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+        return service.getGroupById(id).map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
     @GetMapping("/add-member")
@@ -76,8 +78,7 @@ public class UserGroupController {
     }
 
     @PutMapping("/{id}")
-    public Mono<ResponseDTO<UserGroupDTO>> update(@PathVariable String id,
-                                                  @RequestBody UserGroup resource) {
+    public Mono<ResponseDTO<UserGroupDTO>> update(@PathVariable String id, @RequestBody UserGroup resource) {
         log.debug("Going to update resource from user group controller with id: {}", id);
         return service.updateGroup(id, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
@@ -91,8 +92,8 @@ public class UserGroupController {
     }
 
     @PostMapping("/invite")
-    public Mono<ResponseDTO<List<UserGroupDTO>>> inviteUsers(@RequestBody UsersForGroupDTO inviteUsersToGroupDTO,
-                                                             @RequestHeader("Origin") String originHeader) {
+    public Mono<ResponseDTO<List<UserGroupDTO>>> inviteUsers(
+            @RequestBody UsersForGroupDTO inviteUsersToGroupDTO, @RequestHeader("Origin") String originHeader) {
         return service.inviteUsers(inviteUsersToGroupDTO, originHeader)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
@@ -104,10 +105,10 @@ public class UserGroupController {
     }
 
     @PutMapping("/users")
-    public Mono<ResponseDTO<List<UserGroupDTO>>> bulkChangeMembership(@RequestBody UpdateGroupMembershipDTO updateGroupMembershipDTO,
-                                                                      @RequestHeader("Origin") String originHeader) {
+    public Mono<ResponseDTO<List<UserGroupDTO>>> bulkChangeMembership(
+            @RequestBody UpdateGroupMembershipDTO updateGroupMembershipDTO,
+            @RequestHeader("Origin") String originHeader) {
         return service.changeGroupsForUser(updateGroupMembershipDTO, originHeader)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
-
 }

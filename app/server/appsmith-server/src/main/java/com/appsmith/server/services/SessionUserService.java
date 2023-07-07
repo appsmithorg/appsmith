@@ -7,5 +7,4 @@ import reactor.core.publisher.Mono;
 public interface SessionUserService extends SessionUserServiceCE {
 
     Mono<Void> logoutExistingSessions(String email, WebFilterExchange exchange);
-
 }

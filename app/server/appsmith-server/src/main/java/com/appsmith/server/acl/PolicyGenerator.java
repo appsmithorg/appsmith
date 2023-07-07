@@ -62,7 +62,6 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_DATASOURCES;
 
-
 @Component
 public class PolicyGenerator extends PolicyGeneratorCE {
 
@@ -160,7 +159,8 @@ public class PolicyGenerator extends PolicyGeneratorCE {
     @Override
     protected void createApplicationPolicyGraph() {
         super.createApplicationPolicyGraph();
-        // Remove the edge which gives make public application from manage workspace and replace it with explicit permission
+        // Remove the edge which gives make public application from manage workspace and replace it with explicit
+        // permission
         hierarchyGraph.removeEdge(MANAGE_WORKSPACES, MAKE_PUBLIC_APPLICATIONS);
         hierarchyGraph.addEdge(WORKSPACE_MAKE_PUBLIC_APPLICATIONS, MAKE_PUBLIC_APPLICATIONS);
         hierarchyGraph.addEdge(WORKSPACE_INVITE_USERS, INVITE_USERS_APPLICATIONS);
@@ -171,7 +171,6 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         lateralGraph.addEdge(DELETE_APPLICATIONS, READ_APPLICATIONS);
         lateralGraph.addEdge(MAKE_PUBLIC_APPLICATIONS, READ_APPLICATIONS);
         lateralGraph.addEdge(EXPORT_APPLICATIONS, READ_APPLICATIONS);
-
     }
 
     @Override
@@ -205,7 +204,6 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         lateralGraph.addEdge(CREATE_DATASOURCE_ACTIONS, READ_DATASOURCES);
 
         lateralGraph.addEdge(WORKSPACE_READ_DATASOURCES, WORKSPACE_EXECUTE_DATASOURCES);
-
     }
 
     @Override
@@ -218,21 +216,21 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         lateralGraph.addEdge(DELETE_USERS, READ_USERS);
     }
 
-    public Set<AclPermission> getLateralPermissions(AclPermission permission, Set<AclPermission> interestingPermissions) {
+    public Set<AclPermission> getLateralPermissions(
+            AclPermission permission, Set<AclPermission> interestingPermissions) {
         Set<DefaultEdge> lateralEdges = lateralGraph.outgoingEdgesOf(permission);
         return lateralEdges.stream()
                 .map(lateralGraph::getEdgeTarget)
                 .filter(interestingPermissions::contains)
                 .collect(Collectors.toSet());
-
     }
 
-    public Set<AclPermission> getHierarchicalPermissions(AclPermission permission, Set<AclPermission> interestingPermissions) {
+    public Set<AclPermission> getHierarchicalPermissions(
+            AclPermission permission, Set<AclPermission> interestingPermissions) {
         Set<DefaultEdge> hierarchicalEdges = hierarchyGraph.outgoingEdgesOf(permission);
         return hierarchicalEdges.stream()
                 .map(hierarchyGraph::getEdgeTarget)
                 .filter(interestingPermissions::contains)
                 .collect(Collectors.toSet());
     }
-
 }

@@ -9,13 +9,13 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserUtils;
-import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.WorkspaceServiceCEImpl;
 import com.appsmith.server.solutions.PermissionGroupPermission;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -42,29 +42,44 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
 
     private final EnvironmentService environmentService;
 
-    public WorkspaceServiceImpl(Scheduler scheduler,
-                                Validator validator,
-                                MongoConverter mongoConverter,
-                                ReactiveMongoTemplate reactiveMongoTemplate,
-                                WorkspaceRepository repository,
-                                AnalyticsService analyticsService,
-                                PluginRepository pluginRepository,
-                                SessionUserService sessionUserService,
-                                AssetRepository assetRepository,
-                                AssetService assetService,
-                                ApplicationRepository applicationRepository,
-                                PermissionGroupService permissionGroupService,
-                                PolicySolution policySolution,
-                                ModelMapper modelMapper,
-                                WorkspacePermission workspacePermission,
-                                PermissionGroupPermission permissionGroupPermission,
-                                TenantService tenantService,
-                                UserUtils userUtils,
-                                EnvironmentService environmentService) {
+    public WorkspaceServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            WorkspaceRepository repository,
+            AnalyticsService analyticsService,
+            PluginRepository pluginRepository,
+            SessionUserService sessionUserService,
+            AssetRepository assetRepository,
+            AssetService assetService,
+            ApplicationRepository applicationRepository,
+            PermissionGroupService permissionGroupService,
+            PolicySolution policySolution,
+            ModelMapper modelMapper,
+            WorkspacePermission workspacePermission,
+            PermissionGroupPermission permissionGroupPermission,
+            TenantService tenantService,
+            UserUtils userUtils,
+            EnvironmentService environmentService) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                pluginRepository, sessionUserService, assetRepository, assetService, applicationRepository,
-                permissionGroupService, policySolution, modelMapper, workspacePermission, permissionGroupPermission);
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService,
+                pluginRepository,
+                sessionUserService,
+                assetRepository,
+                assetService,
+                applicationRepository,
+                permissionGroupService,
+                policySolution,
+                modelMapper,
+                workspacePermission,
+                permissionGroupPermission);
 
         this.tenantService = tenantService;
         this.userUtils = userUtils;
@@ -80,14 +95,16 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
     public Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace) {
 
         if (!isDefaultWorkspace) {
-            return tenantService.getDefaultTenant(CREATE_WORKSPACES)
+            return tenantService
+                    .getDefaultTenant(CREATE_WORKSPACES)
                     .map(tenant -> TRUE)
                     .switchIfEmpty(Mono.just(FALSE));
         }
 
         // If this is a default workspace being created, then this user is not yet logged in. We should check if
         // this user would be allowed to create a workspace if they were logged in.
-        return tenantService.getDefaultTenant()
+        return tenantService
+                .getDefaultTenant()
                 .zipWith(userUtils.getDefaultUserPermissionGroup())
                 .map(tuple -> {
                     Tenant tenant = tuple.getT1();
@@ -115,8 +132,7 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                                     () -> {
                                         // Since this policy itself doesn't exist, the user is not allowed to
                                         isAllowed.set(FALSE);
-                                    }
-                            );
+                                    });
 
                     return isAllowed.get();
                 });
@@ -124,7 +140,8 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
 
     @Override
     public Mono<String> getDefaultEnvironmentId(String workspaceId) {
-        return environmentService.findByWorkspaceId(workspaceId)
+        return environmentService
+                .findByWorkspaceId(workspaceId)
                 .filter(Environment::getIsDefault)
                 .next()
                 .map(Environment::getId);
@@ -132,18 +149,18 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
 
     @Override
     public Mono<String> verifyEnvironmentIdByWorkspaceId(String workspaceId, String environmentId) {
-        return environmentService.findByWorkspaceId(workspaceId)
+        return environmentService
+                .findByWorkspaceId(workspaceId)
                 .filter(environment -> environment.getId().equals(environmentId))
                 .next()
                 .map(Environment::getId)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
-                        FieldName.ENVIRONMENT_ID, environmentId)));
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.ENVIRONMENT_ID, environmentId)));
     }
 
     @Override
     public Flux<Environment> getDefaultEnvironment(String workspaceId) {
-        return environmentService.findByWorkspaceId(workspaceId)
-                .filter(Environment::getIsDefault);
+        return environmentService.findByWorkspaceId(workspaceId).filter(Environment::getIsDefault);
     }
 
     @Override
@@ -154,13 +171,11 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
 
     @Override
     protected Mono<Workspace> createWorkspaceDependents(Workspace createdWorkspace) {
-        return environmentService.createDefaultEnvironments(createdWorkspace)
-                .then(Mono.just(createdWorkspace));
+        return environmentService.createDefaultEnvironments(createdWorkspace).then(Mono.just(createdWorkspace));
     }
 
     @Override
     protected Mono<Workspace> archiveWorkspaceDependents(Workspace workspace) {
-        return environmentService.archiveByWorkspaceId(workspace.getId())
-                .then(Mono.just(workspace));
+        return environmentService.archiveByWorkspaceId(workspace.getId()).then(Mono.just(workspace));
     }
 }

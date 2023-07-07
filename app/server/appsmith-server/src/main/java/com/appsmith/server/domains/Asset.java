@@ -26,5 +26,4 @@ public class Asset extends BaseDomain {
     byte[] data;
 
     String name;
-
 }

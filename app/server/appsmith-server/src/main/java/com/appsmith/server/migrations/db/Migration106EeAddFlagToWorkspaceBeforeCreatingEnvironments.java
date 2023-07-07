@@ -33,28 +33,32 @@ public class Migration106EeAddFlagToWorkspaceBeforeCreatingEnvironments {
 
     @Execution
     public void executeMigration() {
-        //Temporarily mark all workspaces for processing
-        mongoTemplate.updateMulti(new Query().addCriteria(getValidWorkspacesToAddEnvs()),
+        // Temporarily mark all workspaces for processing
+        mongoTemplate.updateMulti(
+                new Query().addCriteria(getValidWorkspacesToAddEnvs()),
                 new Update().set(migrationFlag, false),
                 Workspace.class);
     }
 
     public static Criteria getValidWorkspacesToAddEnvs() {
-        return new Criteria().andOperator(
-                // Check for migration flag
-                where(migrationFlag).exists(false),
-                //Older check for deleted
-                new Criteria().orOperator(
-                        where(FieldName.DELETED).exists(false),
-                        where(FieldName.DELETED).is(false)
-                ),
-                //New check for deleted
-                new Criteria().orOperator(
-                        where(FieldName.DELETED_AT).exists(false),
-                        where(FieldName.DELETED_AT).is(null)
-                ),
-                where(fieldName(QWorkspace.workspace.defaultPermissionGroups)).exists(true),
-                where(fieldName(QWorkspace.workspace.defaultPermissionGroups)).not().size(0)
-        );
+        return new Criteria()
+                .andOperator(
+                        // Check for migration flag
+                        where(migrationFlag).exists(false),
+                        // Older check for deleted
+                        new Criteria()
+                                .orOperator(
+                                        where(FieldName.DELETED).exists(false),
+                                        where(FieldName.DELETED).is(false)),
+                        // New check for deleted
+                        new Criteria()
+                                .orOperator(
+                                        where(FieldName.DELETED_AT).exists(false),
+                                        where(FieldName.DELETED_AT).is(null)),
+                        where(fieldName(QWorkspace.workspace.defaultPermissionGroups))
+                                .exists(true),
+                        where(fieldName(QWorkspace.workspace.defaultPermissionGroups))
+                                .not()
+                                .size(0));
     }
 }

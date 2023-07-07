@@ -26,9 +26,7 @@ public class AirgapUnsupportedPathFilterTest {
 
     @BeforeEach
     public void setup() {
-        Mockito
-            .when(instanceConfig.isAirgapEnabled())
-            .thenReturn(true);
+        Mockito.when(instanceConfig.isAirgapEnabled()).thenReturn(true);
     }
 
     @Test
@@ -63,25 +61,24 @@ public class AirgapUnsupportedPathFilterTest {
 
         Mono<Void> resultMono = airgapFilter.filter(exchange, chain);
 
-        StepVerifier
-            .create(resultMono)
-            .expectErrorMatches(exception -> exception instanceof AppsmithException
-                && exception.getMessage().equals(AppsmithError.UNSUPPORTED_OPERATION.getMessage()))
-            .verify();
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(exception -> exception instanceof AppsmithException
+                        && exception.getMessage().equals(AppsmithError.UNSUPPORTED_OPERATION.getMessage()))
+                .verify();
     }
 
     @Test
     public void airgapFilter_blockingMockDatasourcePath_sendBadRequestCode() {
 
-        MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get(Url.DATASOURCE_URL + Url.MOCKS));
+        MockServerWebExchange exchange =
+                MockServerWebExchange.from(MockServerHttpRequest.get(Url.DATASOURCE_URL + Url.MOCKS));
 
         Mono<Void> resultMono = airgapFilter.filter(exchange, chain);
 
-        StepVerifier
-            .create(resultMono)
-            .expectErrorMatches(exception -> exception instanceof AppsmithException
-                && exception.getMessage().equals(AppsmithError.UNSUPPORTED_OPERATION.getMessage()))
-            .verify();
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(exception -> exception instanceof AppsmithException
+                        && exception.getMessage().equals(AppsmithError.UNSUPPORTED_OPERATION.getMessage()))
+                .verify();
     }
 
     @Test
@@ -91,11 +88,10 @@ public class AirgapUnsupportedPathFilterTest {
 
         Mono<Void> resultMono = airgapFilter.filter(exchange, chain);
 
-        StepVerifier
-            .create(resultMono)
-            .expectErrorMatches(exception -> exception instanceof AppsmithException
-                && exception.getMessage().equals(AppsmithError.UNSUPPORTED_OPERATION.getMessage()))
-            .verify();
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(exception -> exception instanceof AppsmithException
+                        && exception.getMessage().equals(AppsmithError.UNSUPPORTED_OPERATION.getMessage()))
+                .verify();
     }
 
     @Test
@@ -105,24 +101,23 @@ public class AirgapUnsupportedPathFilterTest {
 
         Mono<Void> resultMono = airgapFilter.filter(exchange, chain);
 
-        StepVerifier
-            .create(resultMono)
-            .expectErrorMatches(exception -> exception instanceof AppsmithException
-                && exception.getMessage().equals(AppsmithError.UNSUPPORTED_OPERATION.getMessage()))
-            .verify();
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(exception -> exception instanceof AppsmithException
+                        && exception.getMessage().equals(AppsmithError.UNSUPPORTED_OPERATION.getMessage()))
+                .verify();
     }
 
     @Test
     public void airgapFilter_blockingReleaseItemsPath_sendBadRequestCode() {
 
-        MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get(Url.APPLICATION_URL + Url.RELEASE_ITEMS));
+        MockServerWebExchange exchange =
+                MockServerWebExchange.from(MockServerHttpRequest.get(Url.APPLICATION_URL + Url.RELEASE_ITEMS));
 
         Mono<Void> resultMono = airgapFilter.filter(exchange, chain);
 
-        StepVerifier
-            .create(resultMono)
-            .expectErrorMatches(exception -> exception instanceof AppsmithException
-                && exception.getMessage().equals(AppsmithError.UNSUPPORTED_OPERATION.getMessage()))
-            .verify();
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(exception -> exception instanceof AppsmithException
+                        && exception.getMessage().equals(AppsmithError.UNSUPPORTED_OPERATION.getMessage()))
+                .verify();
     }
 }

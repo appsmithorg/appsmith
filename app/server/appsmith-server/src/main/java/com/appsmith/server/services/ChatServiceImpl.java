@@ -42,67 +42,64 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public Mono<ChatGenerationResponseDTO> generateCode(ChatGenerationDTO chatGenerationDTO, ChatGenerationType type) {
         FeatureFlagEnum featureFlagEnum = this.getFeatureFlagByType(type);
-        Mono<Boolean> featureFlagMono = this.featureFlagService.check(featureFlagEnum)
+        Mono<Boolean> featureFlagMono = this.featureFlagService
+                .check(featureFlagEnum)
                 .filter(isAllowed -> isAllowed)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
 
-        Mono<LicenseValidationRequestDTO> requestDTOMono = tenantService.getDefaultTenant()
-                .flatMap(licenseValidator::populateLicenseValidationRequest);
+        Mono<LicenseValidationRequestDTO> requestDTOMono =
+                tenantService.getDefaultTenant().flatMap(licenseValidator::populateLicenseValidationRequest);
 
         // TODO: Change this to get current tenant when multitenancy is introduced
         return Mono.zip(
                         featureFlagMono,
                         configService.getInstanceId(),
                         sessionUserService.getCurrentUser(),
-                        requestDTOMono
-                )
+                        requestDTOMono)
                 .flatMap(tuple -> {
-
-
                     String instanceId = tuple.getT2();
                     String userId = tuple.getT3().getId();
                     LicenseValidationRequestDTO licenseValidationRequestDTO = tuple.getT4();
-                    ChatGenerationRequestDTO chatGenerationRequestDTO =
-                            new ChatGenerationRequestDTO(chatGenerationDTO, userId, instanceId, licenseValidationRequestDTO);
-                    return populateRequestMeta(chatGenerationDTO, type)
-                            .flatMap(ignored -> WebClientUtils
-                                    .create(cloudServicesConfig.getBaseUrl() + "/api/v1/chat/chat-generation")
-                                    .post()
-                                    .uri(builder -> builder.queryParam("type", type).build())
-                                    .body(BodyInserters.fromValue(chatGenerationRequestDTO))
-                                    .exchangeToMono(clientResponse -> {
-                                        if (clientResponse.statusCode().is2xxSuccessful()) {
-                                            return clientResponse.bodyToMono(new ParameterizedTypeReference<ResponseDTO<ChatGenerationResponseDTO>>() {
-                                            });
-                                        } else {
-                                            return clientResponse.createError();
-                                        }
-                                    })
-                                    .map(ResponseDTO::getData)
-                                    .onErrorMap(
-                                            WebClientResponseException.class,
-                                            e -> {
-                                                ResponseDTO<ChatGenerationResponseDTO> responseDTO;
-                                                try {
-                                                    responseDTO = e.getResponseBodyAs(new ParameterizedTypeReference<>() {
-                                                    });
-                                                } catch (DecodingException | IllegalStateException e2) {
-                                                    return e;
-                                                }
-                                                if (responseDTO != null &&
-                                                        responseDTO.getResponseMeta() != null &&
-                                                        responseDTO.getResponseMeta().getError() != null) {
-                                                    return new AppsmithException(
-                                                            AppsmithError.APPSMITH_AI_ERROR,
-                                                            responseDTO.getResponseMeta().getError().getMessage());
-                                                }
-                                                return e;
-                                            })
-                                    .onErrorMap(
-                                            // Only map errors if we haven't already wrapped them into an AppsmithException
-                                            e -> !(e instanceof AppsmithException),
-                                            e -> new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, e.getMessage())
-                                    ));
+                    ChatGenerationRequestDTO chatGenerationRequestDTO = new ChatGenerationRequestDTO(
+                            chatGenerationDTO, userId, instanceId, licenseValidationRequestDTO);
+                    return populateRequestMeta(chatGenerationDTO, type).flatMap(ignored -> WebClientUtils.create(
+                                    cloudServicesConfig.getBaseUrl() + "/api/v1/chat/chat-generation")
+                            .post()
+                            .uri(builder -> builder.queryParam("type", type).build())
+                            .body(BodyInserters.fromValue(chatGenerationRequestDTO))
+                            .exchangeToMono(clientResponse -> {
+                                if (clientResponse.statusCode().is2xxSuccessful()) {
+                                    return clientResponse.bodyToMono(
+                                            new ParameterizedTypeReference<
+                                                    ResponseDTO<ChatGenerationResponseDTO>>() {});
+                                } else {
+                                    return clientResponse.createError();
+                                }
+                            })
+                            .map(ResponseDTO::getData)
+                            .onErrorMap(WebClientResponseException.class, e -> {
+                                ResponseDTO<ChatGenerationResponseDTO> responseDTO;
+                                try {
+                                    responseDTO = e.getResponseBodyAs(new ParameterizedTypeReference<>() {});
+                                } catch (DecodingException | IllegalStateException e2) {
+                                    return e;
+                                }
+                                if (responseDTO != null
+                                        && responseDTO.getResponseMeta() != null
+                                        && responseDTO.getResponseMeta().getError() != null) {
+                                    return new AppsmithException(
+                                            AppsmithError.APPSMITH_AI_ERROR,
+                                            responseDTO
+                                                    .getResponseMeta()
+                                                    .getError()
+                                                    .getMessage());
+                                }
+                                return e;
+                            })
+                            .onErrorMap(
+                                    // Only map errors if we haven't already wrapped them into an AppsmithException
+                                    e -> !(e instanceof AppsmithException),
+                                    e -> new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, e.getMessage())));
                 });
     }
 
@@ -111,20 +108,21 @@ public class ChatServiceImpl implements ChatService {
             String datasourceId = chatGenerationDTO.getMeta().getDatasourceId();
             if (datasourceId != null) {
 
-                Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId)
-                        .zipWhen(datasource -> pluginService.findById(datasource.getPluginId()),
+                Mono<Datasource> datasourceMono = datasourceService
+                        .findById(datasourceId)
+                        .zipWhen(
+                                datasource -> pluginService.findById(datasource.getPluginId()),
                                 ((datasource, plugin) -> {
                                     datasource.setPluginName(plugin.getName());
                                     return datasource;
                                 }));
 
-                return Mono.zip(datasourceMono,
-                                datasourceStructureSolution.getStructure(datasourceId, false, null))
-
+                return Mono.zip(datasourceMono, datasourceStructureSolution.getStructure(datasourceId, false, null))
                         .map(tuple2 -> {
                             Datasource datasource = tuple2.getT1();
                             DatasourceStructure structure = tuple2.getT2();
-                            ChatGenerationDTO.ChatGenerationDatasourceStructure metaStructure = new ChatGenerationDTO.ChatGenerationDatasourceStructure();
+                            ChatGenerationDTO.ChatGenerationDatasourceStructure metaStructure =
+                                    new ChatGenerationDTO.ChatGenerationDatasourceStructure();
                             metaStructure.setPluginName(datasource.getPluginName());
                             metaStructure.setDatasourceName(datasource.getName());
                             metaStructure.setStructure(structure);
@@ -138,9 +136,9 @@ public class ChatServiceImpl implements ChatService {
 
     private FeatureFlagEnum getFeatureFlagByType(ChatGenerationType type) {
         FeatureFlagEnum featureFlagEnum = FeatureFlagEnum.ask_ai;
-        if(type == ChatGenerationType.SQL) {
+        if (type == ChatGenerationType.SQL) {
             featureFlagEnum = FeatureFlagEnum.ask_ai_sql;
-        } else if(type == ChatGenerationType.JS_FUNC) {
+        } else if (type == ChatGenerationType.JS_FUNC) {
             featureFlagEnum = FeatureFlagEnum.ask_ai_js;
         }
         return featureFlagEnum;

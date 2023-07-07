@@ -1,6 +1,5 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.external.models.BaseDomain;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;

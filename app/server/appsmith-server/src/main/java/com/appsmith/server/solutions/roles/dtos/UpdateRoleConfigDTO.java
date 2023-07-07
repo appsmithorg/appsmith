@@ -14,5 +14,4 @@ public class UpdateRoleConfigDTO {
     String tabName;
 
     Set<UpdateRoleEntityDTO> entitiesChanged;
-    
 }

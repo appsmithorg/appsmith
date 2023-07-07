@@ -23,7 +23,10 @@ public class CustomEnvironmentRepositoryImpl extends CustomEnvironmentRepository
         implements CustomEnvironmentRepository {
 
     @Autowired
-    public CustomEnvironmentRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomEnvironmentRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
@@ -46,24 +49,16 @@ public class CustomEnvironmentRepositoryImpl extends CustomEnvironmentRepository
 
     @Override
     public Mono<Environment> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission) {
-        return queryOne(List.of(notDeleted(),
-                                workspaceIdCriteria(workspaceId),
-                                nameCriteria(name)),
-                        aclPermission);
+        return queryOne(List.of(notDeleted(), workspaceIdCriteria(workspaceId), nameCriteria(name)), aclPermission);
     }
 
     @Override
     public Flux<Environment> findByWorkspaceId(String workspaceId) {
-        return queryMany(List.of(
-                workspaceIdCriteria(workspaceId),
-                notDeleted()));
+        return queryMany(List.of(workspaceIdCriteria(workspaceId), notDeleted()));
     }
 
     @Override
     public Mono<Environment> findByNameAndWorkspaceId(String name, String workspaceId) {
-        return queryOne(List.of(
-                notDeleted(),
-                workspaceIdCriteria(workspaceId),
-                nameCriteria(name)));
+        return queryOne(List.of(notDeleted(), workspaceIdCriteria(workspaceId), nameCriteria(name)));
     }
 }

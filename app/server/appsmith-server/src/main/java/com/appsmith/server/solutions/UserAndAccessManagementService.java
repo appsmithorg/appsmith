@@ -15,5 +15,4 @@ public interface UserAndAccessManagementService extends UserAndAccessManagementS
     Mono<Boolean> deleteUser(String userId);
 
     Mono<Boolean> changeRoleAssociations(UpdateRoleAssociationDTO updateRoleAssociationDTO);
-
 }

@@ -10,5 +10,4 @@ import java.util.Set;
 public interface UserGroupRepository extends BaseRepository<UserGroup, String>, CustomUserGroupRepository {
 
     Flux<UserGroup> findAllByUsersIn(Set<String> userIds);
-    
 }

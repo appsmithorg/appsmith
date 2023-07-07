@@ -18,8 +18,11 @@ import java.util.List;
 public class CustomWorkspaceRepositoryImpl extends CustomWorkspaceRepositoryCEImpl
         implements CustomWorkspaceRepository {
 
-    public CustomWorkspaceRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter,
-            SessionUserService sessionUserService, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomWorkspaceRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            SessionUserService sessionUserService,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, sessionUserService, cacheableRepositoryHelper);
     }
 
@@ -29,9 +32,6 @@ public class CustomWorkspaceRepositoryImpl extends CustomWorkspaceRepositoryCEIm
                 List.of(Criteria.where(fieldName(QWorkspace.workspace.tenantId)).is(tenantId)),
                 includeFields,
                 null,
-                null
-        );
+                null);
     }
-
-
 }

@@ -7,6 +7,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.repositories.ce.CustomUserRepositoryCEImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -21,13 +22,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.server.helpers.RegexHelper.getStringsToRegex;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
 @Slf4j
 public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl implements CustomUserRepository {
 
-    public CustomUserRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomUserRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
@@ -55,24 +60,39 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
                 Optional.of(includedFields),
                 aclPermission,
                 Optional.empty(),
-                NO_RECORD_LIMIT
-        );
+                NO_RECORD_LIMIT);
     }
 
     @Override
-    public Mono<PagedDomain<User>> getUsersWithParamsPaginated(int count, int startIndex, List<String> filterEmails, Optional<AclPermission> aclPermission) {
+    public Mono<PagedDomain<User>> getUsersWithParamsPaginated(
+            int count, int startIndex, List<String> filterEmails, Optional<AclPermission> aclPermission) {
         List<Criteria> criteriaList = new ArrayList<>();
         Sort sortWithEmail = Sort.by(Sort.Direction.ASC, fieldName(QUser.user.email));
-        if(!Optional.ofNullable(filterEmails).isEmpty() && filterEmails.size() > 0) {
-            criteriaList.add(where(fieldName(QUser.user.email)).in(filterEmails));
+        // Keeping this a case-insensitive, because provisioning clients require case-insensitive searches on emails.
+        if (CollectionUtils.isNotEmpty(filterEmails)) {
+            criteriaList.add(where(fieldName(QUser.user.email)).regex(getStringsToRegex(filterEmails), "i"));
         }
         Flux<User> userFlux = queryAll(criteriaList, Optional.empty(), aclPermission, sortWithEmail, count, startIndex);
         Mono<Long> countMono = count(criteriaList, aclPermission);
-        return Mono.zip(countMono, userFlux.collectList())
-                .map(pair -> {
-                    Long totalFilteredUsers = pair.getT1();
-                    List<User> usersPage = pair.getT2();
-                    return new PagedDomain<>(usersPage, usersPage.size(), startIndex, totalFilteredUsers);
-                });
+        return Mono.zip(countMono, userFlux.collectList()).map(pair -> {
+            Long totalFilteredUsers = pair.getT1();
+            List<User> usersPage = pair.getT2();
+            return new PagedDomain<>(usersPage, usersPage.size(), startIndex, totalFilteredUsers);
+        });
+    }
+
+    @Override
+    public Flux<String> getUserEmailsByIdsAndTenantId(
+            List<String> userIds, String tenantId, Optional<AclPermission> aclPermission) {
+        Criteria criteriaUserIds = Criteria.where(fieldName(QUser.user.id)).in(userIds);
+        Criteria criteriaTenantId =
+                Criteria.where(fieldName(QUser.user.tenantId)).is(tenantId);
+        List<String> includeFields = List.of(fieldName(QUser.user.email));
+        return queryAll(
+                        List.of(criteriaUserIds, criteriaTenantId),
+                        Optional.of(includeFields),
+                        aclPermission,
+                        Optional.empty())
+                .map(User::getEmail);
     }
 }

@@ -83,17 +83,18 @@ public class WorkspaceResources {
     private final EnvironmentService environmentService;
     private final FeatureFlagService featureFlagService;
 
-    public WorkspaceResources(WorkspaceRepository workspaceRepository,
-                              ApplicationRepository applicationRepository,
-                              NewPageRepository pageRepository,
-                              NewActionRepository actionRepository,
-                              ActionCollectionRepository actionCollectionRepository,
-                              DatasourceRepository datasourceRepository,
-                              ResponseUtils responseUtils,
-                              TenantService tenantService,
-                              PolicyGenerator policyGenerator,
-                              EnvironmentService environmentService,
-                              FeatureFlagService featureFlagService) {
+    public WorkspaceResources(
+            WorkspaceRepository workspaceRepository,
+            ApplicationRepository applicationRepository,
+            NewPageRepository pageRepository,
+            NewActionRepository actionRepository,
+            ActionCollectionRepository actionCollectionRepository,
+            DatasourceRepository datasourceRepository,
+            ResponseUtils responseUtils,
+            TenantService tenantService,
+            PolicyGenerator policyGenerator,
+            EnvironmentService environmentService,
+            FeatureFlagService featureFlagService) {
 
         this.workspaceRepository = workspaceRepository;
         this.applicationRepository = applicationRepository;
@@ -108,7 +109,8 @@ public class WorkspaceResources {
         this.featureFlagService = featureFlagService;
     }
 
-    public Mono<RoleTabDTO> createApplicationResourcesTabView(String permissionGroupId, CommonAppsmithObjectData dataFromRepositoryForAllTabs) {
+    public Mono<RoleTabDTO> createApplicationResourcesTabView(
+            String permissionGroupId, CommonAppsmithObjectData dataFromRepositoryForAllTabs) {
 
         Flux<Workspace> workspaceFlux = dataFromRepositoryForAllTabs.getWorkspaceFlux();
         Flux<Application> applicationFlux = dataFromRepositoryForAllTabs.getApplicationFlux();
@@ -116,35 +118,60 @@ public class WorkspaceResources {
         Flux<NewAction> actionFlux = dataFromRepositoryForAllTabs.getActionFlux();
         Flux<ActionCollection> actionCollectionFlux = dataFromRepositoryForAllTabs.getActionCollectionFlux();
 
-        Mono<Map<String, Collection<NewAction>>> pageActionNotDtoMapMono = dataFromRepositoryForAllTabs.getPageActionMapMono();
-        Mono<Map<String, Collection<ActionResourceDTO>>> pageActionsMapMono = pageActionNotDtoMapMono
-                .map(pageActionCollectionNotDtoMap ->
-                        getPageActionsMap(pageActionCollectionNotDtoMap, RoleTab.APPLICATION_RESOURCES, permissionGroupId)
-                );
+        Mono<Map<String, Collection<NewAction>>> pageActionNotDtoMapMono =
+                dataFromRepositoryForAllTabs.getPageActionMapMono();
+        Mono<Map<String, Collection<ActionResourceDTO>>> pageActionsMapMono =
+                pageActionNotDtoMapMono.map(pageActionCollectionNotDtoMap -> getPageActionsMap(
+                        pageActionCollectionNotDtoMap, RoleTab.APPLICATION_RESOURCES, permissionGroupId));
 
-        Mono<Map<String, Collection<ActionCollection>>> pageActionCollectionNotDtoMapMono = dataFromRepositoryForAllTabs.getPageActionCollectionMapMono();
-        Mono<Map<String, Collection<ActionCollectionResourceDTO>>> pageActionCollectionMapMono = pageActionCollectionNotDtoMapMono
-                .map(pageActionCollectionNotDtoMap ->
-                        getPageActionCollectionMap(pageActionCollectionNotDtoMap, RoleTab.APPLICATION_RESOURCES, permissionGroupId)
-                );
+        Mono<Map<String, Collection<ActionCollection>>> pageActionCollectionNotDtoMapMono =
+                dataFromRepositoryForAllTabs.getPageActionCollectionMapMono();
+        Mono<Map<String, Collection<ActionCollectionResourceDTO>>> pageActionCollectionMapMono =
+                pageActionCollectionNotDtoMapMono.map(pageActionCollectionNotDtoMap -> getPageActionCollectionMap(
+                        pageActionCollectionNotDtoMap, RoleTab.APPLICATION_RESOURCES, permissionGroupId));
 
-        Mono<Map<String, Collection<Application>>> workspaceApplicationsMapMono = dataFromRepositoryForAllTabs.getWorkspaceApplicationMapMono();
-        Mono<Map<String, Collection<NewPage>>> applicationPagesMapMono = dataFromRepositoryForAllTabs.applicationPageMapMono;
+        Mono<Map<String, Collection<Application>>> workspaceApplicationsMapMono =
+                dataFromRepositoryForAllTabs.getWorkspaceApplicationMapMono();
+        Mono<Map<String, Collection<NewPage>>> applicationPagesMapMono =
+                dataFromRepositoryForAllTabs.applicationPageMapMono;
 
         // Get the permission hover interaction hashmap
-        Mono<Map<String, Set<IdPermissionDTO>>> linkedPermissionsMono = getHoverPermissionMapForApplicationResources(RoleTab.APPLICATION_RESOURCES, workspaceFlux, workspaceApplicationsMapMono, applicationPagesMapMono, pageActionsMapMono, pageActionCollectionMapMono);
+        Mono<Map<String, Set<IdPermissionDTO>>> linkedPermissionsMono = getHoverPermissionMapForApplicationResources(
+                RoleTab.APPLICATION_RESOURCES,
+                workspaceFlux,
+                workspaceApplicationsMapMono,
+                applicationPagesMapMono,
+                pageActionsMapMono,
+                pageActionCollectionMapMono);
 
         // Get the map for disabled edit interaction
-        Mono<Map<String, Set<IdPermissionDTO>>> disableMapForApplicationResourcesMono = getDisableMapForApplicationResources(RoleTab.APPLICATION_RESOURCES, workspaceFlux, applicationFlux, pageFlux, actionFlux, actionCollectionFlux);
+        Mono<Map<String, Set<IdPermissionDTO>>> disableMapForApplicationResourcesMono =
+                getDisableMapForApplicationResources(
+                        RoleTab.APPLICATION_RESOURCES,
+                        workspaceFlux,
+                        applicationFlux,
+                        pageFlux,
+                        actionFlux,
+                        actionCollectionFlux);
 
-        Mono<EntityView> entityViewMono = Mono.zip(workspaceApplicationsMapMono, applicationPagesMapMono, pageActionsMapMono, pageActionCollectionMapMono)
+        Mono<EntityView> entityViewMono = Mono.zip(
+                        workspaceApplicationsMapMono,
+                        applicationPagesMapMono,
+                        pageActionsMapMono,
+                        pageActionCollectionMapMono)
                 .flatMap(tuple -> {
                     Map<String, Collection<Application>> workspaceApplications = tuple.getT1();
                     Map<String, Collection<NewPage>> applicationPages = tuple.getT2();
                     Map<String, Collection<ActionResourceDTO>> pageActions = tuple.getT3();
                     Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollections = tuple.getT4();
 
-                    return getWorkspaceDTOsForApplicationResources(permissionGroupId, workspaceFlux, workspaceApplications, applicationPages, pageActions, pageActionCollections)
+                    return getWorkspaceDTOsForApplicationResources(
+                                    permissionGroupId,
+                                    workspaceFlux,
+                                    workspaceApplications,
+                                    applicationPages,
+                                    pageActions,
+                                    pageActionCollections)
                             .collectList()
                             .map(workspaceDTOs -> {
                                 EntityView entityView = new EntityView();
@@ -169,43 +196,58 @@ public class WorkspaceResources {
                 });
     }
 
-    public Mono<RoleTabDTO> createDatasourceResourcesTabView(String permissionGroupId, CommonAppsmithObjectData dataFromRepositoryForAllTabs) {
+    public Mono<RoleTabDTO> createDatasourceResourcesTabView(
+            String permissionGroupId, CommonAppsmithObjectData dataFromRepositoryForAllTabs) {
         Flux<Workspace> workspaceFlux = dataFromRepositoryForAllTabs.getWorkspaceFlux();
         Flux<Datasource> datasourceFlux = dataFromRepositoryForAllTabs.getDatasourceFlux();
         Flux<NewAction> actionFlux = dataFromRepositoryForAllTabs.getActionFlux();
         Flux<NewPage> pageFlux = dataFromRepositoryForAllTabs.getPageFlux();
         Flux<Environment> environmentFlux = dataFromRepositoryForAllTabs.getEnvironmentFlux();
-        Mono<Map<String, Collection<Datasource>>> workspaceDatasourceNotDtoMapMono = dataFromRepositoryForAllTabs.getWorkspaceDatasourceMapMono();
-        Mono<Map<String, Collection<Application>>> workspaceApplicationMapMono = dataFromRepositoryForAllTabs.getWorkspaceApplicationMapMono();
-        Mono<Map<String, Collection<NewPage>>> applicationPageMapMono = dataFromRepositoryForAllTabs.getApplicationPageMapMono();
-        Mono<Map<String, Collection<NewAction>>> pageActionNotDtoMapMono = dataFromRepositoryForAllTabs.getPageActionMapMono();
-        Mono<Map<String, Collection<ActionCollection>>> pageActionCollectionNotDtoMapMono = dataFromRepositoryForAllTabs.getPageActionCollectionMapMono();
-        Mono<Map<String, Collection<Environment>>> workspaceEnvironmentNotDtoMapMono = dataFromRepositoryForAllTabs.getWorkspaceEnvironmentMapMono();
+        Mono<Map<String, Collection<Datasource>>> workspaceDatasourceNotDtoMapMono =
+                dataFromRepositoryForAllTabs.getWorkspaceDatasourceMapMono();
+        Mono<Map<String, Collection<Application>>> workspaceApplicationMapMono =
+                dataFromRepositoryForAllTabs.getWorkspaceApplicationMapMono();
+        Mono<Map<String, Collection<NewPage>>> applicationPageMapMono =
+                dataFromRepositoryForAllTabs.getApplicationPageMapMono();
+        Mono<Map<String, Collection<NewAction>>> pageActionNotDtoMapMono =
+                dataFromRepositoryForAllTabs.getPageActionMapMono();
+        Mono<Map<String, Collection<ActionCollection>>> pageActionCollectionNotDtoMapMono =
+                dataFromRepositoryForAllTabs.getPageActionCollectionMapMono();
+        Mono<Map<String, Collection<Environment>>> workspaceEnvironmentNotDtoMapMono =
+                dataFromRepositoryForAllTabs.getWorkspaceEnvironmentMapMono();
 
-        Mono<Map<String, Collection<ActionResourceDTO>>> pageActionsMapMono = pageActionNotDtoMapMono
-                .map(pageActionNotDtoMap -> getPageActionsMap(pageActionNotDtoMap, RoleTab.DATASOURCES_QUERIES, permissionGroupId));
+        Mono<Map<String, Collection<ActionResourceDTO>>> pageActionsMapMono =
+                pageActionNotDtoMapMono.map(pageActionNotDtoMap ->
+                        getPageActionsMap(pageActionNotDtoMap, RoleTab.DATASOURCES_QUERIES, permissionGroupId));
 
-        Mono<Map<String, Collection<ActionCollectionResourceDTO>>> pageActionCollectionMapMono = pageActionCollectionNotDtoMapMono
-                .map(pageActionCollectionNotDtoMap -> getPageActionCollectionMap(pageActionCollectionNotDtoMap, RoleTab.DATASOURCES_QUERIES, permissionGroupId));
+        Mono<Map<String, Collection<ActionCollectionResourceDTO>>> pageActionCollectionMapMono =
+                pageActionCollectionNotDtoMapMono.map(pageActionCollectionNotDtoMap -> getPageActionCollectionMap(
+                        pageActionCollectionNotDtoMap, RoleTab.DATASOURCES_QUERIES, permissionGroupId));
 
-        Mono<Map<String, Collection<DatasourceResourceDTO>>> workspaceDatasourcesDtoMap = workspaceDatasourceNotDtoMapMono
-                .map(workspaceDatasourceNotDtoMap -> getWorkspaceDatasourceMap(workspaceDatasourceNotDtoMap,
-                        RoleTab.DATASOURCES_QUERIES, permissionGroupId));
+        Mono<Map<String, Collection<DatasourceResourceDTO>>> workspaceDatasourcesDtoMap =
+                workspaceDatasourceNotDtoMapMono.map(workspaceDatasourceNotDtoMap -> getWorkspaceDatasourceMap(
+                        workspaceDatasourceNotDtoMap, RoleTab.DATASOURCES_QUERIES, permissionGroupId));
 
-        Mono<Map<String, Collection<EnvironmentResourceDTO>>> workspaceEnvironmentResourceDtoMapMono = workspaceEnvironmentNotDtoMapMono
-                .map(workspaceEnvironmentnotDtoMap -> getWorkspaceEnvironmentMap(workspaceEnvironmentnotDtoMap,
-                        RoleTab.DATASOURCES_QUERIES, permissionGroupId));
+        Mono<Map<String, Collection<EnvironmentResourceDTO>>> workspaceEnvironmentResourceDtoMapMono =
+                workspaceEnvironmentNotDtoMapMono.map(workspaceEnvironmentnotDtoMap -> getWorkspaceEnvironmentMap(
+                        workspaceEnvironmentnotDtoMap, RoleTab.DATASOURCES_QUERIES, permissionGroupId));
 
         // Get the permission hover map for the tab
         Mono<Map<String, Set<IdPermissionDTO>>> linkedPermissionsMono = getLinkedPermissionsForDatasourceResources(
-                RoleTab.DATASOURCES_QUERIES, workspaceFlux, workspaceDatasourceNotDtoMapMono,
-                datasourceFlux, actionFlux, pageFlux, workspaceEnvironmentNotDtoMapMono, environmentFlux, permissionGroupId);
-
+                RoleTab.DATASOURCES_QUERIES,
+                workspaceFlux,
+                workspaceDatasourceNotDtoMapMono,
+                datasourceFlux,
+                actionFlux,
+                pageFlux,
+                workspaceEnvironmentNotDtoMapMono,
+                environmentFlux,
+                permissionGroupId);
 
         // Get the map for disabled edit interaction
-        Mono<Map<String, Set<IdPermissionDTO>>> disableMapForDatasourceResourcesMono = getDisableMapsForDatasourceResources(
-                RoleTab.DATASOURCES_QUERIES, workspaceFlux, datasourceFlux, environmentFlux);
-
+        Mono<Map<String, Set<IdPermissionDTO>>> disableMapForDatasourceResourcesMono =
+                getDisableMapsForDatasourceResources(
+                        RoleTab.DATASOURCES_QUERIES, workspaceFlux, datasourceFlux, environmentFlux);
 
         Mono<EntityView> entityViewMono = Mono.zip(
                         workspaceDatasourcesDtoMap,
@@ -230,8 +272,7 @@ public class WorkspaceResources {
                             applicationPages,
                             pageActions,
                             pageActionCollections,
-                            workspaceEnvironments
-                    );
+                            workspaceEnvironments);
                 })
                 .collectList()
                 .map(workspaceDTOs -> {
@@ -256,15 +297,17 @@ public class WorkspaceResources {
                 });
     }
 
-    private Flux<BaseView> getWorkspaceDTOsForDatasourceResources(String permissionGroupId,
-                                                                  Flux<Workspace> workspaceFlux,
-                                                                  Map<String, Collection<DatasourceResourceDTO>> workspaceDatasourceMap,
-                                                                  Map<String, Collection<Application>> workspaceApplicationMap,
-                                                                  Map<String, Collection<NewPage>> applicationPageMap,
-                                                                  Map<String, Collection<ActionResourceDTO>> pageActionsMap,
-                                                                  Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollectionMap,
-                                                                  Map<String, Collection<EnvironmentResourceDTO>> workspaceEnvironmentMap) {
-        return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
+    private Flux<BaseView> getWorkspaceDTOsForDatasourceResources(
+            String permissionGroupId,
+            Flux<Workspace> workspaceFlux,
+            Map<String, Collection<DatasourceResourceDTO>> workspaceDatasourceMap,
+            Map<String, Collection<Application>> workspaceApplicationMap,
+            Map<String, Collection<NewPage>> applicationPageMap,
+            Map<String, Collection<ActionResourceDTO>> pageActionsMap,
+            Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollectionMap,
+            Map<String, Collection<EnvironmentResourceDTO>> workspaceEnvironmentMap) {
+        return featureFlagService
+                .check(FeatureFlagEnum.release_datasource_environments_enabled)
                 .flatMapMany(isFeatureFlag -> workspaceFlux
                         .map(workspace -> generateBaseViewDto(
                                 workspace,
@@ -294,16 +337,17 @@ public class WorkspaceResources {
 
                             Mono<List<BaseView>> applicationsDTOsMono = Mono.just(List.of());
 
-                            // In case the workspace does not have any applications, proceed ahead by returning an empty list
+                            // In case the workspace does not have any applications, proceed ahead by returning an empty
+                            // list
                             if (!CollectionUtils.isEmpty(applications)) {
-                                applicationsDTOsMono = getFilteredApplicationDTOMonoForDatasourceTab(
-                                        getApplicationDTOs(permissionGroupId,
+                                applicationsDTOsMono = getFilteredApplicationDTOMonoForDatasourceTab(getApplicationDTOs(
+                                                permissionGroupId,
                                                 applicationPageMap,
                                                 pageActionsMap,
                                                 pageActionCollectionMap,
                                                 applications,
-                                                RoleTab.DATASOURCES_QUERIES)
-                                ).collectList();
+                                                RoleTab.DATASOURCES_QUERIES))
+                                        .collectList();
                             }
 
                             if (TRUE.equals(isFeatureFlag)) {
@@ -312,43 +356,40 @@ public class WorkspaceResources {
                                 environmentsView.setName("Environments");
                                 EntityView environmentsEntityView = new EntityView();
                                 environmentsEntityView.setType(Environment.class.getSimpleName());
-                                List<EnvironmentResourceDTO> environmentResourceDTOS =
-                                        (List<EnvironmentResourceDTO>) workspaceEnvironmentMap.get(workspaceDTO.getId());
+                                List<EnvironmentResourceDTO> environmentResourceDTOS = (List<EnvironmentResourceDTO>)
+                                        workspaceEnvironmentMap.get(workspaceDTO.getId());
                                 environmentsEntityView.setEntities(environmentResourceDTOS);
                                 environmentsView.setChildren(Set.of(environmentsEntityView));
 
-                                return applicationsDTOsMono
-                                        .map(applicationDTOs -> {
-                                            EntityView applicationsEntity = new EntityView();
-                                            applicationsEntity.setType(Application.class.getSimpleName());
-                                            applicationsEntity.setEntities(applicationDTOs);
-                                            applicationsView.setChildren(Set.of(applicationsEntity));
-                                            header.setEntities(List.of(environmentsView, datasourcesView, applicationsView));
-                                            workspaceDTO.setChildren(Set.of(header));
-                                            return workspaceDTO;
-                                        });
+                                return applicationsDTOsMono.map(applicationDTOs -> {
+                                    EntityView applicationsEntity = new EntityView();
+                                    applicationsEntity.setType(Application.class.getSimpleName());
+                                    applicationsEntity.setEntities(applicationDTOs);
+                                    applicationsView.setChildren(Set.of(applicationsEntity));
+                                    header.setEntities(List.of(environmentsView, datasourcesView, applicationsView));
+                                    workspaceDTO.setChildren(Set.of(header));
+                                    return workspaceDTO;
+                                });
                             }
 
-                            return applicationsDTOsMono
-                                    .map(applicationDTOs -> {
-                                        EntityView applicationsEntity = new EntityView();
-                                        applicationsEntity.setType(Application.class.getSimpleName());
-                                        applicationsEntity.setEntities(applicationDTOs);
-                                        applicationsView.setChildren(Set.of(applicationsEntity));
+                            return applicationsDTOsMono.map(applicationDTOs -> {
+                                EntityView applicationsEntity = new EntityView();
+                                applicationsEntity.setType(Application.class.getSimpleName());
+                                applicationsEntity.setEntities(applicationDTOs);
+                                applicationsView.setChildren(Set.of(applicationsEntity));
 
-                                        header.setEntities(List.of(datasourcesView, applicationsView));
+                                header.setEntities(List.of(datasourcesView, applicationsView));
 
-                                        workspaceDTO.setChildren(Set.of(header));
-                                        return workspaceDTO;
-                                    });
-
+                                workspaceDTO.setChildren(Set.of(header));
+                                return workspaceDTO;
+                            });
                         }));
     }
 
-
-    private Map<String, Collection<DatasourceResourceDTO>> getWorkspaceDatasourceMap
-            (Map<String, Collection<Datasource>> workspaceDatasourceNotDtoMap, RoleTab roleTab, String
-                    permissionGroupId) {
+    private Map<String, Collection<DatasourceResourceDTO>> getWorkspaceDatasourceMap(
+            Map<String, Collection<Datasource>> workspaceDatasourceNotDtoMap,
+            RoleTab roleTab,
+            String permissionGroupId) {
         Map<String, Collection<DatasourceResourceDTO>> workspaceDatasourceMap = new HashMap<>();
         workspaceDatasourceNotDtoMap.forEach((workspaceId, datasources) -> {
             Collection<DatasourceResourceDTO> datasourceResourceDTOS = datasources.stream()
@@ -373,23 +414,24 @@ public class WorkspaceResources {
         return workspaceDatasourceMap;
     }
 
-    private Map<String, Collection<ActionCollectionResourceDTO>> getPageActionCollectionMap
-            (Map<String, Collection<ActionCollection>> pageActionCollectionNotDtoMap, RoleTab roleTab, String
-                    permissionGroupId) {
+    private Map<String, Collection<ActionCollectionResourceDTO>> getPageActionCollectionMap(
+            Map<String, Collection<ActionCollection>> pageActionCollectionNotDtoMap,
+            RoleTab roleTab,
+            String permissionGroupId) {
         Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollectionMap = new HashMap<>();
         pageActionCollectionNotDtoMap.forEach((pageId, actionCollections) -> {
             Collection<ActionCollectionResourceDTO> actionCollectionDTOList = actionCollections.stream()
                     .map(actionCollection -> {
                         ActionCollectionResourceDTO actionCollectionDTO = new ActionCollectionResourceDTO();
                         actionCollectionDTO.setId(actionCollection.getId());
-                        actionCollectionDTO.setName(actionCollection.getUnpublishedCollection().getName());
-                        Tuple2<List<Integer>, List<Integer>> permissionsTuple =
-                                getRoleViewPermissionDTO(
-                                        roleTab,
-                                        permissionGroupId,
-                                        actionCollection.getPolicies(),
-                                        Action.class,
-                                        policyGenerator);
+                        actionCollectionDTO.setName(
+                                actionCollection.getUnpublishedCollection().getName());
+                        Tuple2<List<Integer>, List<Integer>> permissionsTuple = getRoleViewPermissionDTO(
+                                roleTab,
+                                permissionGroupId,
+                                actionCollection.getPolicies(),
+                                Action.class,
+                                policyGenerator);
                         actionCollectionDTO.setEnabled(permissionsTuple.getT1());
                         actionCollectionDTO.setEditable(permissionsTuple.getT2());
                         return actionCollectionDTO;
@@ -400,8 +442,8 @@ public class WorkspaceResources {
         return pageActionCollectionMap;
     }
 
-    private Map<String, Collection<ActionResourceDTO>> getPageActionsMap
-            (Map<String, Collection<NewAction>> pageActionNotDtoMap, RoleTab roleTab, String permissionGroupId) {
+    private Map<String, Collection<ActionResourceDTO>> getPageActionsMap(
+            Map<String, Collection<NewAction>> pageActionNotDtoMap, RoleTab roleTab, String permissionGroupId) {
         Map<String, Collection<ActionResourceDTO>> pageActionsMap = new HashMap<>();
         pageActionNotDtoMap.forEach((pageId, actions) -> {
             Collection<ActionResourceDTO> actionDTOList = actions.stream()
@@ -410,13 +452,8 @@ public class WorkspaceResources {
                         actionDTO.setId(action.getId());
                         actionDTO.setName(action.getUnpublishedAction().getName());
                         actionDTO.setPluginId(action.getPluginId());
-                        Tuple2<List<Integer>, List<Integer>> permissionsTuple =
-                                getRoleViewPermissionDTO(
-                                        roleTab,
-                                        permissionGroupId,
-                                        action.getPolicies(),
-                                        Action.class,
-                                        policyGenerator);
+                        Tuple2<List<Integer>, List<Integer>> permissionsTuple = getRoleViewPermissionDTO(
+                                roleTab, permissionGroupId, action.getPolicies(), Action.class, policyGenerator);
                         actionDTO.setEnabled(permissionsTuple.getT1());
                         actionDTO.setEditable(permissionsTuple.getT2());
                         return actionDTO;
@@ -455,89 +492,101 @@ public class WorkspaceResources {
         return workspaceEnvironmentMap;
     }
 
-    private Flux<BaseView> getWorkspaceDTOsForApplicationResources(String permissionGroupId,
-                                                                   Flux<Workspace> workspaceFlux,
-                                                                   Map<String, Collection<Application>> workspaceApplications,
-                                                                   Map<String, Collection<NewPage>> applicationPages,
-                                                                   Map<String, Collection<ActionResourceDTO>> pageActions,
-                                                                   Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollections) {
+    private Flux<BaseView> getWorkspaceDTOsForApplicationResources(
+            String permissionGroupId,
+            Flux<Workspace> workspaceFlux,
+            Map<String, Collection<Application>> workspaceApplications,
+            Map<String, Collection<NewPage>> applicationPages,
+            Map<String, Collection<ActionResourceDTO>> pageActions,
+            Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollections) {
         return workspaceFlux
-                .map(workspace -> generateBaseViewDto(workspace, Workspace.class, workspace.getName(), RoleTab.APPLICATION_RESOURCES, permissionGroupId, policyGenerator))
+                .map(workspace -> generateBaseViewDto(
+                        workspace,
+                        Workspace.class,
+                        workspace.getName(),
+                        RoleTab.APPLICATION_RESOURCES,
+                        permissionGroupId,
+                        policyGenerator))
                 .flatMap(workspaceDTO -> {
                     Collection<Application> applications = workspaceApplications.get(workspaceDTO.getId());
 
                     Mono<List<BaseView>> applicationsDTOsMono = Mono.just(List.of());
 
                     if (!CollectionUtils.isEmpty(applications)) {
-                        applicationsDTOsMono = getApplicationDTOs(permissionGroupId, applicationPages, pageActions, pageActionCollections, applications, RoleTab.APPLICATION_RESOURCES)
+                        applicationsDTOsMono = getApplicationDTOs(
+                                        permissionGroupId,
+                                        applicationPages,
+                                        pageActions,
+                                        pageActionCollections,
+                                        applications,
+                                        RoleTab.APPLICATION_RESOURCES)
                                 .collectList();
                     }
 
-                    return applicationsDTOsMono
-                            .map(applicationDTOs -> {
-                                EntityView applicationsEntity = new EntityView();
-                                applicationsEntity.setType(Application.class.getSimpleName());
-                                applicationsEntity.setEntities(applicationDTOs);
-                                workspaceDTO.setChildren(Set.of(applicationsEntity));
-                                return workspaceDTO;
-                            });
-
+                    return applicationsDTOsMono.map(applicationDTOs -> {
+                        EntityView applicationsEntity = new EntityView();
+                        applicationsEntity.setType(Application.class.getSimpleName());
+                        applicationsEntity.setEntities(applicationDTOs);
+                        workspaceDTO.setChildren(Set.of(applicationsEntity));
+                        return workspaceDTO;
+                    });
                 });
     }
 
-    private Flux<BaseView> getApplicationDTOs(String permissionGroupId,
-                                              Map<String, Collection<NewPage>> applicationPages,
-                                              Map<String, Collection<ActionResourceDTO>> pageActions,
-                                              Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollections,
-                                              Collection<Application> applications,
-                                              RoleTab roleTab) {
-        return Flux.fromIterable(applications)
-                .flatMap(application -> {
-                    BaseView applicationDTO = new BaseView();
-                    applicationDTO.setId(application.getId());
-                    applicationDTO.setName(application.getName());
-                    Tuple2<List<Integer>, List<Integer>> permissionsTuple = getRoleViewPermissionDTO(roleTab, permissionGroupId, application.getPolicies(), Application.class, policyGenerator);
-                    applicationDTO.setEnabled(permissionsTuple.getT1());
-                    applicationDTO.setEditable(permissionsTuple.getT2());
+    private Flux<BaseView> getApplicationDTOs(
+            String permissionGroupId,
+            Map<String, Collection<NewPage>> applicationPages,
+            Map<String, Collection<ActionResourceDTO>> pageActions,
+            Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollections,
+            Collection<Application> applications,
+            RoleTab roleTab) {
+        return Flux.fromIterable(applications).flatMap(application -> {
+            BaseView applicationDTO = new BaseView();
+            applicationDTO.setId(application.getId());
+            applicationDTO.setName(application.getName());
+            Tuple2<List<Integer>, List<Integer>> permissionsTuple = getRoleViewPermissionDTO(
+                    roleTab, permissionGroupId, application.getPolicies(), Application.class, policyGenerator);
+            applicationDTO.setEnabled(permissionsTuple.getT1());
+            applicationDTO.setEditable(permissionsTuple.getT2());
 
-                    // Get the default unpublished & published pages for the application.
-                    // This is to show the home page to the user in the application resources tab
-                    Set<String> defaultPageIds = new HashSet<>();
-                    Optional<ApplicationPage> unpublishedDefaultPage = application.getPages()
-                            .stream()
-                            .filter(ApplicationPage::getIsDefault)
-                            .findFirst();
-                    unpublishedDefaultPage.ifPresent(applicationPage -> defaultPageIds.add(applicationPage.getId()));
+            // Get the default unpublished & published pages for the application.
+            // This is to show the home page to the user in the application resources tab
+            Set<String> defaultPageIds = new HashSet<>();
+            Optional<ApplicationPage> unpublishedDefaultPage = application.getPages().stream()
+                    .filter(ApplicationPage::getIsDefault)
+                    .findFirst();
+            unpublishedDefaultPage.ifPresent(applicationPage -> defaultPageIds.add(applicationPage.getId()));
 
-                    if (application.getPublishedPages() != null) {
-                        Optional<ApplicationPage> publishedDefaultPage = application.getPublishedPages()
-                                .stream()
-                                .filter(ApplicationPage::getIsDefault)
-                                .findFirst();
+            if (application.getPublishedPages() != null) {
+                Optional<ApplicationPage> publishedDefaultPage = application.getPublishedPages().stream()
+                        .filter(ApplicationPage::getIsDefault)
+                        .findFirst();
 
-                        publishedDefaultPage.ifPresent(applicationPage -> defaultPageIds.add(applicationPage.getId()));
-                    }
-                    Collection<NewPage> pages = applicationPages.get(application.getId());
-                    if (pages == null) {
-                        return Mono.just(applicationDTO);
-                    }
-                    return getPageActionDTOs(permissionGroupId, pageActions, pageActionCollections, defaultPageIds, pages, roleTab)
-                            .map(pageDTOs -> {
-                                EntityView entityView = new EntityView();
-                                entityView.setType(NewPage.class.getSimpleName());
-                                entityView.setEntities(pageDTOs);
-                                applicationDTO.setChildren(Set.of(entityView));
-                                return applicationDTO;
-                            });
-                });
+                publishedDefaultPage.ifPresent(applicationPage -> defaultPageIds.add(applicationPage.getId()));
+            }
+            Collection<NewPage> pages = applicationPages.get(application.getId());
+            if (pages == null) {
+                return Mono.just(applicationDTO);
+            }
+            return getPageActionDTOs(
+                            permissionGroupId, pageActions, pageActionCollections, defaultPageIds, pages, roleTab)
+                    .map(pageDTOs -> {
+                        EntityView entityView = new EntityView();
+                        entityView.setType(NewPage.class.getSimpleName());
+                        entityView.setEntities(pageDTOs);
+                        applicationDTO.setChildren(Set.of(entityView));
+                        return applicationDTO;
+                    });
+        });
     }
 
-    private Mono<List<PageResourcesDTO>> getPageActionDTOs(String permissionGroupId,
-                                                           Map<String, Collection<ActionResourceDTO>> pageActions,
-                                                           Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollections,
-                                                           Set<String> defaultPageIds,
-                                                           Collection<NewPage> pages,
-                                                           RoleTab roleTab) {
+    private Mono<List<PageResourcesDTO>> getPageActionDTOs(
+            String permissionGroupId,
+            Map<String, Collection<ActionResourceDTO>> pageActions,
+            Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollections,
+            Set<String> defaultPageIds,
+            Collection<NewPage> pages,
+            RoleTab roleTab) {
         return Flux.fromIterable(pages)
                 .map(page -> {
                     List<BaseView> actionDTOs = (List) pageActions.get(page.getId());
@@ -546,7 +595,8 @@ public class WorkspaceResources {
                     PageResourcesDTO pageDTO = new PageResourcesDTO();
                     pageDTO.setId(page.getId());
                     pageDTO.setName(page.getUnpublishedPage().getName());
-                    Tuple2<List<Integer>, List<Integer>> permissionsTuple = getRoleViewPermissionDTO(roleTab, permissionGroupId, page.getPolicies(), Page.class, policyGenerator);
+                    Tuple2<List<Integer>, List<Integer>> permissionsTuple = getRoleViewPermissionDTO(
+                            roleTab, permissionGroupId, page.getPolicies(), Page.class, policyGenerator);
                     pageDTO.setEnabled(permissionsTuple.getT1());
                     pageDTO.setEditable(permissionsTuple.getT2());
 
@@ -579,32 +629,46 @@ public class WorkspaceResources {
                 .collectList();
     }
 
-    private Mono<Map<String, Set<IdPermissionDTO>>> getDisableMapForApplicationResources(RoleTab roleTab,
-                                                                                         Flux<Workspace> workspaceFlux,
-                                                                                         Flux<Application> applicationFlux,
-                                                                                         Flux<NewPage> pageFlux,
-                                                                                         Flux<NewAction> actionFlux,
-                                                                                         Flux<ActionCollection> actionCollectionFlux) {
+    private Mono<Map<String, Set<IdPermissionDTO>>> getDisableMapForApplicationResources(
+            RoleTab roleTab,
+            Flux<Workspace> workspaceFlux,
+            Flux<Application> applicationFlux,
+            Flux<NewPage> pageFlux,
+            Flux<NewAction> actionFlux,
+            Flux<ActionCollection> actionCollectionFlux) {
         Set<AclPermission> tabPermissions = roleTab.getPermissions();
 
-        Set<AclPermission> workspacePermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Workspace.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> workspaceLateralMap = getLateralPermMap(workspacePermissions, policyGenerator, roleTab);
+        Set<AclPermission> workspacePermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Workspace.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> workspaceLateralMap =
+                getLateralPermMap(workspacePermissions, policyGenerator, roleTab);
 
-        Set<AclPermission> applicationPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Application.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> applicationLateralMap = getLateralPermMap(applicationPermissions, policyGenerator, roleTab);
+        Set<AclPermission> applicationPermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Application.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> applicationLateralMap =
+                getLateralPermMap(applicationPermissions, policyGenerator, roleTab);
 
-        Set<AclPermission> pagePermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Page.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> pageLateralMap = getLateralPermMap(pagePermissions, policyGenerator, roleTab);
+        Set<AclPermission> pagePermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Page.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> pageLateralMap =
+                getLateralPermMap(pagePermissions, policyGenerator, roleTab);
 
-        Set<AclPermission> actionPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Action.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> actionLateralMap = getLateralPermMap(actionPermissions, policyGenerator, roleTab);
+        Set<AclPermission> actionPermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Action.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> actionLateralMap =
+                getLateralPermMap(actionPermissions, policyGenerator, roleTab);
 
         ConcurrentHashMap<String, Set<IdPermissionDTO>> disableMap = new ConcurrentHashMap<>();
 
         Mono<Void> updateWorkspaceDisableMapMono = workspaceFlux
                 .map(workspace -> {
                     String workspaceId = workspace.getId();
-                    generateLateralPermissionDTOsAndUpdateMap(workspaceLateralMap, disableMap, workspaceId, workspaceId, Workspace.class);
+                    generateLateralPermissionDTOsAndUpdateMap(
+                            workspaceLateralMap, disableMap, workspaceId, workspaceId, Workspace.class);
                     return workspaceId;
                 })
                 .then();
@@ -612,13 +676,13 @@ public class WorkspaceResources {
         Mono<Void> updateApplicationDisableMapMono = applicationFlux
                 .map(application -> {
                     String applicationId = application.getId();
-                    generateLateralPermissionDTOsAndUpdateMap(applicationLateralMap, disableMap, applicationId, applicationId, Application.class);
+                    generateLateralPermissionDTOsAndUpdateMap(
+                            applicationLateralMap, disableMap, applicationId, applicationId, Application.class);
                     return applicationId;
                 })
                 .then();
 
-        Mono<Void> updatePageDisableMapMono = pageFlux
-                .map(page -> {
+        Mono<Void> updatePageDisableMapMono = pageFlux.map(page -> {
                     String pageId = page.getId();
                     generateLateralPermissionDTOsAndUpdateMap(pageLateralMap, disableMap, pageId, pageId, Page.class);
                     return pageId;
@@ -628,7 +692,8 @@ public class WorkspaceResources {
         Mono<Void> updateActionDisableMapMono = actionFlux
                 .map(action -> {
                     String actionId = action.getId();
-                    generateLateralPermissionDTOsAndUpdateMap(actionLateralMap, disableMap, actionId, actionId, Action.class);
+                    generateLateralPermissionDTOsAndUpdateMap(
+                            actionLateralMap, disableMap, actionId, actionId, Action.class);
                     return actionId;
                 })
                 .then();
@@ -636,7 +701,8 @@ public class WorkspaceResources {
         Mono<Void> updateActionCollectionDisableMapMono = actionCollectionFlux
                 .map(actionCollection -> {
                     String actionCollectionId = actionCollection.getId();
-                    generateLateralPermissionDTOsAndUpdateMap(actionLateralMap, disableMap, actionCollectionId, actionCollectionId, Action.class);
+                    generateLateralPermissionDTOsAndUpdateMap(
+                            actionLateralMap, disableMap, actionCollectionId, actionCollectionId, Action.class);
                     return actionCollectionId;
                 })
                 .then();
@@ -646,137 +712,193 @@ public class WorkspaceResources {
                         updateApplicationDisableMapMono,
                         updatePageDisableMapMono,
                         updateActionDisableMapMono,
-                        updateActionCollectionDisableMapMono
-                )
+                        updateActionCollectionDisableMapMono)
                 .then(Mono.just(disableMap))
                 .map(disableMap1 -> {
                     disableMap1.values().removeIf(Set::isEmpty);
                     return disableMap1;
                 });
-
     }
 
-    private Mono<Map<String, Set<IdPermissionDTO>>> getHoverPermissionMapForApplicationResources(RoleTab roleTab,
-                                                                                                 Flux<Workspace> workspaceFlux,
-                                                                                                 Mono<Map<String, Collection<Application>>> workspaceApplicationMapMono,
-                                                                                                 Mono<Map<String, Collection<NewPage>>> applicationPageMapMono,
-                                                                                                 Mono<Map<String, Collection<ActionResourceDTO>>> pageActionMapMono,
-                                                                                                 Mono<Map<String, Collection<ActionCollectionResourceDTO>>> pageActionCollectionMapMono) {
+    private Mono<Map<String, Set<IdPermissionDTO>>> getHoverPermissionMapForApplicationResources(
+            RoleTab roleTab,
+            Flux<Workspace> workspaceFlux,
+            Mono<Map<String, Collection<Application>>> workspaceApplicationMapMono,
+            Mono<Map<String, Collection<NewPage>>> applicationPageMapMono,
+            Mono<Map<String, Collection<ActionResourceDTO>>> pageActionMapMono,
+            Mono<Map<String, Collection<ActionCollectionResourceDTO>>> pageActionCollectionMapMono) {
 
         Set<AclPermission> tabPermissions = roleTab.getPermissions();
 
-        Set<AclPermission> workspacePermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Workspace.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> workspaceHierarchicalLateralMap = getHierarchicalLateralPermMap(workspacePermissions, policyGenerator, roleTab);
+        Set<AclPermission> workspacePermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Workspace.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> workspaceHierarchicalLateralMap =
+                getHierarchicalLateralPermMap(workspacePermissions, policyGenerator, roleTab);
 
-        Set<AclPermission> applicationPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Application.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> applicationHierarchicalLateralMap = getHierarchicalLateralPermMap(applicationPermissions, policyGenerator, roleTab);
+        Set<AclPermission> applicationPermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Application.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> applicationHierarchicalLateralMap =
+                getHierarchicalLateralPermMap(applicationPermissions, policyGenerator, roleTab);
 
-        Set<AclPermission> pagePermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Page.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> pageHierarchicalLateralMap = getHierarchicalLateralPermMap(pagePermissions, policyGenerator, roleTab);
+        Set<AclPermission> pagePermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Page.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> pageHierarchicalLateralMap =
+                getHierarchicalLateralPermMap(pagePermissions, policyGenerator, roleTab);
 
-        Set<AclPermission> actionPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Action.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> actionHierarchicalLateralMap = getHierarchicalLateralPermMap(actionPermissions, policyGenerator, roleTab);
+        Set<AclPermission> actionPermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Action.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> actionHierarchicalLateralMap =
+                getHierarchicalLateralPermMap(actionPermissions, policyGenerator, roleTab);
 
-        Set<AclPermission> actionCollectionPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Action.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> actionCollectionHierarchicalLateralMap = getHierarchicalLateralPermMap(actionCollectionPermissions, policyGenerator, roleTab);
+        Set<AclPermission> actionCollectionPermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Action.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> actionCollectionHierarchicalLateralMap =
+                getHierarchicalLateralPermMap(actionCollectionPermissions, policyGenerator, roleTab);
 
         ConcurrentHashMap<String, Set<IdPermissionDTO>> hoverMap = new ConcurrentHashMap<>();
 
-        return Mono.zip(workspaceApplicationMapMono, applicationPageMapMono, pageActionMapMono, pageActionCollectionMapMono)
+        return Mono.zip(
+                        workspaceApplicationMapMono,
+                        applicationPageMapMono,
+                        pageActionMapMono,
+                        pageActionCollectionMapMono)
                 .flatMapMany(tuple -> {
                     Map<String, Collection<Application>> workspaceApplicationMap = tuple.getT1();
                     Map<String, Collection<NewPage>> applicationPageMap = tuple.getT2();
                     Map<String, Collection<ActionResourceDTO>> pageActionMap = tuple.getT3();
                     Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollectionMap = tuple.getT4();
 
-                    return workspaceFlux
-                            .map(workspace -> {
-                                String workspaceId = workspace.getId();
+                    return workspaceFlux.map(workspace -> {
+                        String workspaceId = workspace.getId();
 
-                                generateLateralPermissionDTOsAndUpdateMap(workspaceHierarchicalLateralMap, hoverMap, workspaceId, workspaceId, Workspace.class);
+                        generateLateralPermissionDTOsAndUpdateMap(
+                                workspaceHierarchicalLateralMap, hoverMap, workspaceId, workspaceId, Workspace.class);
 
-                                Collection<Application> applications = workspaceApplicationMap.get(workspace.getId());
+                        Collection<Application> applications = workspaceApplicationMap.get(workspace.getId());
 
-                                if (!CollectionUtils.isEmpty(applications)) {
-                                    applications.stream()
-                                            .forEach(application -> {
+                        if (!CollectionUtils.isEmpty(applications)) {
+                            applications.stream().forEach(application -> {
+                                String applicationId = application.getId();
 
-                                                String applicationId = application.getId();
+                                generateLateralPermissionDTOsAndUpdateMap(
+                                        workspaceHierarchicalLateralMap,
+                                        hoverMap,
+                                        workspaceId,
+                                        applicationId,
+                                        Application.class);
+                                generateLateralPermissionDTOsAndUpdateMap(
+                                        applicationHierarchicalLateralMap,
+                                        hoverMap,
+                                        applicationId,
+                                        applicationId,
+                                        Application.class);
 
-                                                generateLateralPermissionDTOsAndUpdateMap(workspaceHierarchicalLateralMap, hoverMap, workspaceId, applicationId, Application.class);
-                                                generateLateralPermissionDTOsAndUpdateMap(applicationHierarchicalLateralMap, hoverMap, applicationId, applicationId, Application.class);
+                                Collection<NewPage> pages = applicationPageMap.get(application.getId());
+                                if (!CollectionUtils.isEmpty(pages)) {
+                                    pages.stream().forEach(page -> {
+                                        String pageId = page.getId();
 
-                                                Collection<NewPage> pages = applicationPageMap.get(application.getId());
-                                                if (!CollectionUtils.isEmpty(pages)) {
-                                                    pages.stream()
-                                                            .forEach(page -> {
+                                        generateLateralPermissionDTOsAndUpdateMap(
+                                                applicationHierarchicalLateralMap,
+                                                hoverMap,
+                                                applicationId,
+                                                pageId,
+                                                Page.class);
+                                        generateLateralPermissionDTOsAndUpdateMap(
+                                                pageHierarchicalLateralMap, hoverMap, pageId, pageId, Page.class);
 
-                                                                String pageId = page.getId();
+                                        Collection<ActionResourceDTO> actions = pageActionMap.get(page.getId());
+                                        if (!CollectionUtils.isEmpty(actions)) {
+                                            actions.stream().forEach(action -> {
+                                                String actionId = action.getId();
 
-                                                                generateLateralPermissionDTOsAndUpdateMap(applicationHierarchicalLateralMap, hoverMap, applicationId, pageId, Page.class);
-                                                                generateLateralPermissionDTOsAndUpdateMap(pageHierarchicalLateralMap, hoverMap, pageId, pageId, Page.class);
-
-                                                                Collection<ActionResourceDTO> actions = pageActionMap.get(page.getId());
-                                                                if (!CollectionUtils.isEmpty(actions)) {
-                                                                    actions.stream()
-                                                                            .forEach(action -> {
-
-                                                                                String actionId = action.getId();
-
-                                                                                generateLateralPermissionDTOsAndUpdateMap(pageHierarchicalLateralMap, hoverMap, pageId, actionId, Action.class);
-                                                                                generateLateralPermissionDTOsAndUpdateMap(actionHierarchicalLateralMap, hoverMap, actionId, actionId, Action.class);
-                                                                            });
-                                                                }
-
-                                                                Collection<ActionCollectionResourceDTO> actionCollections = pageActionCollectionMap.get(page.getId());
-                                                                if (!CollectionUtils.isEmpty(actionCollections)) {
-                                                                    actionCollections.stream()
-                                                                            .forEach(actionCollection -> {
-
-                                                                                String actionCollectionId = actionCollection.getId();
-
-                                                                                generateLateralPermissionDTOsAndUpdateMap(pageHierarchicalLateralMap, hoverMap, pageId, actionCollectionId, Action.class);
-                                                                                generateLateralPermissionDTOsAndUpdateMap(actionCollectionHierarchicalLateralMap, hoverMap, actionCollectionId, actionCollectionId, Action.class);
-                                                                            });
-                                                                }
-                                                            });
-                                                }
+                                                generateLateralPermissionDTOsAndUpdateMap(
+                                                        pageHierarchicalLateralMap,
+                                                        hoverMap,
+                                                        pageId,
+                                                        actionId,
+                                                        Action.class);
+                                                generateLateralPermissionDTOsAndUpdateMap(
+                                                        actionHierarchicalLateralMap,
+                                                        hoverMap,
+                                                        actionId,
+                                                        actionId,
+                                                        Action.class);
                                             });
-                                }
-                                return workspace;
+                                        }
 
+                                        Collection<ActionCollectionResourceDTO> actionCollections =
+                                                pageActionCollectionMap.get(page.getId());
+                                        if (!CollectionUtils.isEmpty(actionCollections)) {
+                                            actionCollections.stream().forEach(actionCollection -> {
+                                                String actionCollectionId = actionCollection.getId();
+
+                                                generateLateralPermissionDTOsAndUpdateMap(
+                                                        pageHierarchicalLateralMap,
+                                                        hoverMap,
+                                                        pageId,
+                                                        actionCollectionId,
+                                                        Action.class);
+                                                generateLateralPermissionDTOsAndUpdateMap(
+                                                        actionCollectionHierarchicalLateralMap,
+                                                        hoverMap,
+                                                        actionCollectionId,
+                                                        actionCollectionId,
+                                                        Action.class);
+                                            });
+                                        }
+                                    });
+                                }
                             });
+                        }
+                        return workspace;
+                    });
                 })
                 .then(Mono.just(hoverMap))
                 .map(hoverMap1 -> {
                     hoverMap1.values().removeIf(Set::isEmpty);
                     return hoverMap1;
                 });
-
     }
 
-    private Mono<Map<String, Set<IdPermissionDTO>>> getDisableMapsForDatasourceResources(RoleTab roleTab,
-                                                                                         Flux<Workspace> workspaceFlux,
-                                                                                         Flux<Datasource> datasourceFlux,
-                                                                                         Flux<Environment> environmentFlux) {
+    private Mono<Map<String, Set<IdPermissionDTO>>> getDisableMapsForDatasourceResources(
+            RoleTab roleTab,
+            Flux<Workspace> workspaceFlux,
+            Flux<Datasource> datasourceFlux,
+            Flux<Environment> environmentFlux) {
 
         Set<AclPermission> tabPermissions = roleTab.getPermissions();
 
-        Set<AclPermission> workspacePermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Workspace.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> workspaceLateralMap = getLateralPermMap(workspacePermissions, policyGenerator, roleTab);
+        Set<AclPermission> workspacePermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Workspace.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> workspaceLateralMap =
+                getLateralPermMap(workspacePermissions, policyGenerator, roleTab);
 
-        Set<AclPermission> datasourcePermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Datasource.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> datasourceLateralMap = getLateralPermMap(datasourcePermissions, policyGenerator, roleTab);
+        Set<AclPermission> datasourcePermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Datasource.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> datasourceLateralMap =
+                getLateralPermMap(datasourcePermissions, policyGenerator, roleTab);
 
-        Set<AclPermission> environmentPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Environment.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> environmentLateralMap = getLateralPermMap(environmentPermissions, policyGenerator, roleTab);
+        Set<AclPermission> environmentPermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Environment.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> environmentLateralMap =
+                getLateralPermMap(environmentPermissions, policyGenerator, roleTab);
 
         ConcurrentHashMap<String, Set<IdPermissionDTO>> disableMap = new ConcurrentHashMap<>();
 
         Mono<Void> updateWorkspaceDisableMapMono = workspaceFlux
                 .map(workspace -> {
                     String workspaceId = workspace.getId();
-                    generateLateralPermissionDTOsAndUpdateMap(workspaceLateralMap, disableMap, workspaceId, workspaceId, Workspace.class);
+                    generateLateralPermissionDTOsAndUpdateMap(
+                            workspaceLateralMap, disableMap, workspaceId, workspaceId, Workspace.class);
                     return workspaceId;
                 })
                 .then();
@@ -784,22 +906,20 @@ public class WorkspaceResources {
         Mono<Void> updateDatasourceDisableMapMono = datasourceFlux
                 .map(datasource -> {
                     String datasourceId = datasource.getId();
-                    generateLateralPermissionDTOsAndUpdateMap(datasourceLateralMap, disableMap, datasourceId, datasourceId, Datasource.class);
+                    generateLateralPermissionDTOsAndUpdateMap(
+                            datasourceLateralMap, disableMap, datasourceId, datasourceId, Datasource.class);
                     return datasourceId;
                 })
                 .then();
 
-        return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
+        return featureFlagService
+                .check(FeatureFlagEnum.release_datasource_environments_enabled)
                 .flatMap(isFeatureFlag -> {
                     if (FALSE.equals(isFeatureFlag)) {
-                        return Mono.when(
-                                        updateWorkspaceDisableMapMono,
-                                        updateDatasourceDisableMapMono
-                                )
+                        return Mono.when(updateWorkspaceDisableMapMono, updateDatasourceDisableMapMono)
                                 .then(Mono.just(disableMap))
                                 .map(disableMap1 -> {
-                                    disableMap1.values()
-                                            .removeIf(Set::isEmpty);
+                                    disableMap1.values().removeIf(Set::isEmpty);
                                     return disableMap1;
                                 });
                     }
@@ -820,121 +940,143 @@ public class WorkspaceResources {
                     return Mono.when(
                                     updateWorkspaceDisableMapMono,
                                     updateDatasourceDisableMapMono,
-                                    updateEnvironmentDisableMapMono
-                            )
+                                    updateEnvironmentDisableMapMono)
                             .then(Mono.just(disableMap))
                             .map(disableMap1 -> {
-                                disableMap1.values()
-                                        .removeIf(Set::isEmpty);
+                                disableMap1.values().removeIf(Set::isEmpty);
                                 return disableMap1;
                             });
                 });
-
     }
 
-    private Mono<Map<String, Set<IdPermissionDTO>>> getLinkedPermissionsForDatasourceResources(RoleTab roleTab,
-                                                                                               Flux<Workspace> workspaceFlux,
-                                                                                               Mono<Map<String, Collection<Datasource>>> workspaceDatasourceMapMono,
-                                                                                               Flux<Datasource> datasourceFlux,
-                                                                                               Flux<NewAction> actionFlux,
-                                                                                               Flux<NewPage> pageFlux,
-                                                                                               Mono<Map<String, Collection<Environment>>> workspaceEnvironmentMapMono,
-                                                                                               Flux<Environment> environmentFlux,
-                                                                                               String permissionGroupId) {
+    private Mono<Map<String, Set<IdPermissionDTO>>> getLinkedPermissionsForDatasourceResources(
+            RoleTab roleTab,
+            Flux<Workspace> workspaceFlux,
+            Mono<Map<String, Collection<Datasource>>> workspaceDatasourceMapMono,
+            Flux<Datasource> datasourceFlux,
+            Flux<NewAction> actionFlux,
+            Flux<NewPage> pageFlux,
+            Mono<Map<String, Collection<Environment>>> workspaceEnvironmentMapMono,
+            Flux<Environment> environmentFlux,
+            String permissionGroupId) {
 
         Set<AclPermission> tabPermissions = roleTab.getPermissions();
 
-        Set<AclPermission> workspacePermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Workspace.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> workspaceHierarchicalLateralMap = getHierarchicalLateralPermMap(workspacePermissions, policyGenerator, roleTab);
+        Set<AclPermission> workspacePermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Workspace.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> workspaceHierarchicalLateralMap =
+                getHierarchicalLateralPermMap(workspacePermissions, policyGenerator, roleTab);
 
-        Set<AclPermission> datasourcePermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Datasource.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> datasourceHierarchicalLateralMap = getHierarchicalLateralPermMap(datasourcePermissions, policyGenerator, roleTab);
+        Set<AclPermission> datasourcePermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Datasource.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> datasourceHierarchicalLateralMap =
+                getHierarchicalLateralPermMap(datasourcePermissions, policyGenerator, roleTab);
 
-        Set<AclPermission> environmentPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Environment.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> environmentHierarchicalLateralMap = getHierarchicalLateralPermMap(environmentPermissions, policyGenerator, roleTab);
+        Set<AclPermission> environmentPermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Environment.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> environmentHierarchicalLateralMap =
+                getHierarchicalLateralPermMap(environmentPermissions, policyGenerator, roleTab);
 
         ConcurrentHashMap<String, Set<IdPermissionDTO>> hoverMap = new ConcurrentHashMap<>();
 
         Mono<Boolean> workspaceDatasourcesHoverMapMono = workspaceDatasourceMapMono
                 .flatMapMany(workspaceDatasourceMap -> {
+                    return workspaceFlux.map(workspace -> {
+                        String workspaceId = workspace.getId();
 
-                    return workspaceFlux
-                            .map(workspace -> {
-                                String workspaceId = workspace.getId();
+                        generateLateralPermissionDTOsAndUpdateMap(
+                                workspaceHierarchicalLateralMap, hoverMap, workspaceId, workspaceId, Workspace.class);
 
-                                generateLateralPermissionDTOsAndUpdateMap(workspaceHierarchicalLateralMap, hoverMap, workspaceId, workspaceId, Workspace.class);
+                        Collection<Datasource> datasources = workspaceDatasourceMap.get(workspace.getId());
 
-                                Collection<Datasource> datasources = workspaceDatasourceMap.get(workspace.getId());
-
-                                if (!CollectionUtils.isEmpty(datasources)) {
-                                    datasources.stream()
-                                            .forEach(datasource -> {
-                                                String datasourceId = datasource.getId();
-                                                generateLateralPermissionDTOsAndUpdateMap(workspaceHierarchicalLateralMap, hoverMap, workspaceId, datasourceId, Datasource.class);
-                                                generateLateralPermissionDTOsAndUpdateMap(datasourceHierarchicalLateralMap, hoverMap, datasourceId, datasourceId, Datasource.class);
-                                            });
-                                }
-
-                                return workspace;
-
+                        if (!CollectionUtils.isEmpty(datasources)) {
+                            datasources.stream().forEach(datasource -> {
+                                String datasourceId = datasource.getId();
+                                generateLateralPermissionDTOsAndUpdateMap(
+                                        workspaceHierarchicalLateralMap,
+                                        hoverMap,
+                                        workspaceId,
+                                        datasourceId,
+                                        Datasource.class);
+                                generateLateralPermissionDTOsAndUpdateMap(
+                                        datasourceHierarchicalLateralMap,
+                                        hoverMap,
+                                        datasourceId,
+                                        datasourceId,
+                                        Datasource.class);
                             });
+                        }
+
+                        return workspace;
+                    });
                 })
                 .then(Mono.just(TRUE));
-
 
         // Compute Datasource - Actions hover map interaction
         Mono<Map<String, Collection<NewAction>>> datasourceActionsMapMono = actionFlux
                 // We are only interested with external datasources for this interaction. Skip the rest.
-                .filter(
-                        action -> action.getUnpublishedAction() != null
-                                && action.getUnpublishedAction().getDatasource() != null
-                                && action.getUnpublishedAction().getDatasource().getId() != null
-                )
+                .filter(action -> action.getUnpublishedAction() != null
+                        && action.getUnpublishedAction().getDatasource() != null
+                        && action.getUnpublishedAction().getDatasource().getId() != null)
                 .collectMultimap(
-                        action -> action.getUnpublishedAction().getDatasource().getId(), Function.identity()
-                ).cache();
+                        action -> action.getUnpublishedAction().getDatasource().getId(), Function.identity())
+                .cache();
 
-        Mono<Map<String, Set<String>>> pageIdToReadPagePermissionGroupsMono = pageFlux
-                .collectMap(
-                        page -> page.getId(),
-                        page -> page.getPolicies().stream().filter(policy -> policy.getPermission().equals(READ_PAGES.getValue())).findFirst().map(policy -> policy.getPermissionGroups()).get()
-                );
+        Mono<Map<String, Set<String>>> pageIdToReadPagePermissionGroupsMono =
+                pageFlux.collectMap(page -> page.getId(), page -> page.getPolicies().stream()
+                        .filter(policy -> policy.getPermission().equals(READ_PAGES.getValue()))
+                        .findFirst()
+                        .map(policy -> policy.getPermissionGroups())
+                        .get());
 
-//        Mono<Boolean> datasourceActionsAddedToHoverMapDto = Mono.zip(datasourceActionsMapMono, pageIdToReadPagePermissionGroupsMono)
-//                .flatMapMany(tuple -> {
-//                    Map<String, Collection<NewAction>> datasourceActionsMap = tuple.getT1();
-//                    Map<String, Set<String>> pageIdToReadPagePermissionGroups = tuple.getT2();
-//
-//                    return datasourceFlux
-//                            .flatMap(datasource -> {
-//                                String datasourceId = datasource.getId();
-//                                Collection<NewAction> actions = datasourceActionsMap.get(datasourceId);
-//                                PermissionViewableName datasourcePermissionViewableName = getPermissionViewableName(EXECUTE_DATASOURCES);
-//                                PermissionViewableName actionPermissionViewableName = getPermissionViewableName(EXECUTE_ACTIONS);
-//                                if (!CollectionUtils.isEmpty(actions)) {
-//                                    String sourceIdPermissionDto = datasourceId + "_" + datasourcePermissionViewableName;
-//                                    actions.stream()
-//                                            .forEach(action -> {
-//                                                if (action.getUnpublishedAction() == null || action.getUnpublishedAction().getPageId() == null) {
-//                                                    return;
-//                                                }
-//
-//                                                String pageId = action.getUnpublishedAction().getPageId();
-//                                                Set<String> readPagePermissionGroups = pageIdToReadPagePermissionGroups.get(pageId);
-//                                                // All we care about is if the page has view permission on it, we can show the action on hover
-//                                                // of execute on the datasource
-//                                                if (!readPagePermissionGroups.contains(permissionGroupId)) {
-//                                                    return;
-//                                                }
-//                                                // generate execute datasource -> execute action relationship in the hovermap
-//                                                IdPermissionDTO actionPermissionDto = new IdPermissionDTO(action.getId(), actionPermissionViewableName);
-//                                                hoverMap.merge(sourceIdPermissionDto, Set.of(actionPermissionDto), Sets::union);
-//                                            });
-//                                }
-//                                return Mono.just(TRUE);
-//                            });
-//                })
-//                .then(Mono.just(TRUE));
+        //        Mono<Boolean> datasourceActionsAddedToHoverMapDto = Mono.zip(datasourceActionsMapMono,
+        // pageIdToReadPagePermissionGroupsMono)
+        //                .flatMapMany(tuple -> {
+        //                    Map<String, Collection<NewAction>> datasourceActionsMap = tuple.getT1();
+        //                    Map<String, Set<String>> pageIdToReadPagePermissionGroups = tuple.getT2();
+        //
+        //                    return datasourceFlux
+        //                            .flatMap(datasource -> {
+        //                                String datasourceId = datasource.getId();
+        //                                Collection<NewAction> actions = datasourceActionsMap.get(datasourceId);
+        //                                PermissionViewableName datasourcePermissionViewableName =
+        // getPermissionViewableName(EXECUTE_DATASOURCES);
+        //                                PermissionViewableName actionPermissionViewableName =
+        // getPermissionViewableName(EXECUTE_ACTIONS);
+        //                                if (!CollectionUtils.isEmpty(actions)) {
+        //                                    String sourceIdPermissionDto = datasourceId + "_" +
+        // datasourcePermissionViewableName;
+        //                                    actions.stream()
+        //                                            .forEach(action -> {
+        //                                                if (action.getUnpublishedAction() == null ||
+        // action.getUnpublishedAction().getPageId() == null) {
+        //                                                    return;
+        //                                                }
+        //
+        //                                                String pageId = action.getUnpublishedAction().getPageId();
+        //                                                Set<String> readPagePermissionGroups =
+        // pageIdToReadPagePermissionGroups.get(pageId);
+        //                                                // All we care about is if the page has view permission on it,
+        // we can show the action on hover
+        //                                                // of execute on the datasource
+        //                                                if (!readPagePermissionGroups.contains(permissionGroupId)) {
+        //                                                    return;
+        //                                                }
+        //                                                // generate execute datasource -> execute action relationship
+        // in the hovermap
+        //                                                IdPermissionDTO actionPermissionDto = new
+        // IdPermissionDTO(action.getId(), actionPermissionViewableName);
+        //                                                hoverMap.merge(sourceIdPermissionDto,
+        // Set.of(actionPermissionDto), Sets::union);
+        //                                            });
+        //                                }
+        //                                return Mono.just(TRUE);
+        //                            });
+        //                })
+        //                .then(Mono.just(TRUE));
 
         // Trim the hover map before returning
         Mono<Map<String, Set<IdPermissionDTO>>> trimmedHoverMapMono = Mono.just(hoverMap)
@@ -943,31 +1085,44 @@ public class WorkspaceResources {
                     return hoverMap1;
                 });
 
-        return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
+        return featureFlagService
+                .check(FeatureFlagEnum.release_datasource_environments_enabled)
                 .flatMap(isFeatureFlag -> {
                     if (FALSE.equals(isFeatureFlag)) {
-                        return workspaceDatasourcesHoverMapMono
-                                .then(trimmedHoverMapMono);
+                        return workspaceDatasourcesHoverMapMono.then(trimmedHoverMapMono);
                     }
 
                     Mono<Boolean> workspaceEnvironmentsHoverMapMono = workspaceEnvironmentMapMono
                             .flatMapMany(workspaceEnvironmentMap -> {
-                                return workspaceFlux
-                                        .map(workspace -> {
-                                            String workspaceId = workspace.getId();
-                                            generateLateralPermissionDTOsAndUpdateMap(workspaceHierarchicalLateralMap, hoverMap, workspaceId, workspaceId, Workspace.class);
-                                            Collection<Environment> environments = workspaceEnvironmentMap.get(workspace.getId());
-                                            if (!CollectionUtils.isEmpty(environments)) {
-                                                environments.stream()
-                                                        .forEach(environment -> {
-                                                            String environmentId = environment.getId();
-                                                            generateLateralPermissionDTOsAndUpdateMap(workspaceHierarchicalLateralMap, hoverMap, workspaceId, environmentId, Environment.class);
-                                                            generateLateralPermissionDTOsAndUpdateMap(environmentHierarchicalLateralMap, hoverMap, environmentId, environmentId, Environment.class);
-                                                        });
-                                            }
-                                            return workspace;
+                                return workspaceFlux.map(workspace -> {
+                                    String workspaceId = workspace.getId();
+                                    generateLateralPermissionDTOsAndUpdateMap(
+                                            workspaceHierarchicalLateralMap,
+                                            hoverMap,
+                                            workspaceId,
+                                            workspaceId,
+                                            Workspace.class);
+                                    Collection<Environment> environments =
+                                            workspaceEnvironmentMap.get(workspace.getId());
+                                    if (!CollectionUtils.isEmpty(environments)) {
+                                        environments.stream().forEach(environment -> {
+                                            String environmentId = environment.getId();
+                                            generateLateralPermissionDTOsAndUpdateMap(
+                                                    workspaceHierarchicalLateralMap,
+                                                    hoverMap,
+                                                    workspaceId,
+                                                    environmentId,
+                                                    Environment.class);
+                                            generateLateralPermissionDTOsAndUpdateMap(
+                                                    environmentHierarchicalLateralMap,
+                                                    hoverMap,
+                                                    environmentId,
+                                                    environmentId,
+                                                    Environment.class);
                                         });
-
+                                    }
+                                    return workspace;
+                                });
                             })
                             .then(Mono.just(TRUE));
 
@@ -975,9 +1130,7 @@ public class WorkspaceResources {
                             .then(workspaceEnvironmentsHoverMapMono)
                             .then(trimmedHoverMapMono);
                 });
-
     }
-
 
     public CommonAppsmithObjectData getDataFromRepositoryForAllTabs() {
 
@@ -987,11 +1140,16 @@ public class WorkspaceResources {
         List<String> workspaceIncludeFields = new ArrayList<>(includeFields);
         workspaceIncludeFields.add(FieldName.NAME);
 
-        Flux<Workspace> workspaceFlux = tenantService.getDefaultTenantId()
-                .flatMapMany(tenantId -> workspaceRepository.findAllByTenantIdWithoutPermission(tenantId, workspaceIncludeFields))
+        Flux<Workspace> workspaceFlux = tenantService
+                .getDefaultTenantId()
+                .flatMapMany(tenantId ->
+                        workspaceRepository.findAllByTenantIdWithoutPermission(tenantId, workspaceIncludeFields))
                 .cache();
 
-        Mono<Set<String>> workspaceIdsMono = workspaceFlux.mapNotNull(Workspace::getId).collect(Collectors.toSet()).cache();
+        Mono<Set<String>> workspaceIdsMono = workspaceFlux
+                .mapNotNull(Workspace::getId)
+                .collect(Collectors.toSet())
+                .cache();
 
         Flux<Environment> environmentFlux = workspaceIdsMono
                 .flatMapMany(Flux::fromIterable)
@@ -1012,72 +1170,101 @@ public class WorkspaceResources {
         datasourceIncludeFields.add(fieldName(QDatasource.datasource.pluginId));
         datasourceIncludeFields.add(fieldName(QDatasource.datasource.workspaceId));
         Flux<Datasource> datasourceFlux = workspaceIdsMono
-                .flatMapMany(workspaceIds -> datasourceRepository.findAllByWorkspaceIdsWithoutPermission(workspaceIds, datasourceIncludeFields))
+                .flatMapMany(workspaceIds -> datasourceRepository.findAllByWorkspaceIdsWithoutPermission(
+                        workspaceIds, datasourceIncludeFields))
                 .cache();
 
-        Mono<List<String>> applicationIdsMono = applicationFlux.mapNotNull(Application::getId).collectList();
+        Mono<List<String>> applicationIdsMono =
+                applicationFlux.mapNotNull(Application::getId).collectList();
 
-        Flux<NewPage> pagesFlux = applicationIdsMono.flatMapMany(applicationIds -> {
+        Flux<NewPage> pagesFlux = applicationIdsMono
+                .flatMapMany(applicationIds -> {
+                    List<String> pageIncludeFields = new ArrayList<>(includeFields);
+                    pageIncludeFields.add(fieldName(QNewAction.newAction.applicationId));
+                    pageIncludeFields.add(fieldName(QNewPage.newPage.unpublishedPage) + "."
+                            + fieldName(QNewPage.newPage.unpublishedPage.name));
+                    pageIncludeFields.add(fieldName(QNewPage.newPage.publishedPage) + "."
+                            + fieldName(QNewPage.newPage.publishedPage.name));
+                    return pageRepository.findAllByApplicationIdsWithoutPermission(applicationIds, pageIncludeFields);
+                })
+                .cache();
 
-            List<String> pageIncludeFields = new ArrayList<>(includeFields);
-            pageIncludeFields.add(fieldName(QNewAction.newAction.applicationId));
-            pageIncludeFields.add(fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.name));
-            pageIncludeFields.add(fieldName(QNewPage.newPage.publishedPage) + "." + fieldName(QNewPage.newPage.publishedPage.name));
-            return pageRepository.findAllByApplicationIdsWithoutPermission(applicationIds, pageIncludeFields);
-        }).cache();
+        Flux<NewAction> actionFlux = applicationIdsMono
+                .flatMapMany(applicationIds -> {
+                    List<String> actionIncludeFields = new ArrayList<>(includeFields);
+                    actionIncludeFields.add(fieldName(QNewAction.newAction.pluginId));
+                    actionIncludeFields.add(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                            + fieldName(QNewAction.newAction.unpublishedAction.name));
+                    actionIncludeFields.add(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                            + fieldName(QNewAction.newAction.unpublishedAction.pageId));
+                    actionIncludeFields.add(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                            + fieldName(QNewAction.newAction.unpublishedAction.datasource) + "."
+                            + fieldName(QNewAction.newAction.unpublishedAction.datasource.id));
+                    actionIncludeFields.add(fieldName(QNewAction.newAction.publishedAction) + "."
+                            + fieldName(QNewAction.newAction.publishedAction.name));
+                    actionIncludeFields.add(fieldName(QNewAction.newAction.publishedAction) + "."
+                            + fieldName(QNewAction.newAction.publishedAction.pageId));
+                    return actionRepository.findAllNonJSActionsByApplicationIds(applicationIds, actionIncludeFields);
+                })
+                .cache();
 
-        Flux<NewAction> actionFlux = applicationIdsMono.flatMapMany(applicationIds -> {
+        Flux<ActionCollection> actionCollectionFlux = applicationIdsMono
+                .flatMapMany(applicationIds -> {
+                    List<String> actionCollectionIncludeFields = new ArrayList<>(includeFields);
+                    actionCollectionIncludeFields.add(
+                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
+                                    + fieldName(QActionCollection.actionCollection.unpublishedCollection.name));
+                    actionCollectionIncludeFields.add(
+                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
+                                    + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId));
+                    actionCollectionIncludeFields.add(fieldName(QActionCollection.actionCollection.publishedCollection)
+                            + "." + fieldName(QActionCollection.actionCollection.publishedCollection.name));
+                    actionCollectionIncludeFields.add(fieldName(QActionCollection.actionCollection.publishedCollection)
+                            + "." + fieldName(QActionCollection.actionCollection.publishedCollection.pageId));
 
-            List<String> actionIncludeFields = new ArrayList<>(includeFields);
-            actionIncludeFields.add(fieldName(QNewAction.newAction.pluginId));
-            actionIncludeFields.add(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.name));
-            actionIncludeFields.add(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId));
-            actionIncludeFields.add(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.datasource) + "." + fieldName(QNewAction.newAction.unpublishedAction.datasource.id));
-            actionIncludeFields.add(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.name));
-            actionIncludeFields.add(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.pageId));
-            return actionRepository.findAllNonJSActionsByApplicationIds(applicationIds, actionIncludeFields);
-        }).cache();
-
-        Flux<ActionCollection> actionCollectionFlux = applicationIdsMono.flatMapMany(applicationIds -> {
-
-            List<String> actionCollectionIncludeFields = new ArrayList<>(includeFields);
-            actionCollectionIncludeFields.add(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.name));
-            actionCollectionIncludeFields.add(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId));
-            actionCollectionIncludeFields.add(fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.name));
-            actionCollectionIncludeFields.add(fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.pageId));
-
-            return actionCollectionRepository.findAllByApplicationIds(applicationIds, actionCollectionIncludeFields);
-        }).cache();
+                    return actionCollectionRepository.findAllByApplicationIds(
+                            applicationIds, actionCollectionIncludeFields);
+                })
+                .cache();
 
         // Creating maps for faster lookup during hierarchy creation
-        Mono<Map<String, Collection<Application>>> workspaceApplicationsMapMono = applicationFlux.collectMultimap(
-                Application::getWorkspaceId, Function.identity()
-        ).cache();
+        Mono<Map<String, Collection<Application>>> workspaceApplicationsMapMono = applicationFlux
+                .collectMultimap(Application::getWorkspaceId, Function.identity())
+                .cache();
 
-        Mono<Map<String, Collection<NewPage>>> applicationPagesMapMono = pagesFlux.collectMultimap(
-                NewPage::getApplicationId, Function.identity()
-        ).cache();
+        Mono<Map<String, Collection<NewPage>>> applicationPagesMapMono = pagesFlux
+                .collectMultimap(NewPage::getApplicationId, Function.identity())
+                .cache();
 
         Mono<Map<String, Collection<NewAction>>> pageActionsMapMono = actionFlux
-                .collectMultimap(
-                        action -> action.getUnpublishedAction().getPageId(), Function.identity()
-                ).cache();
+                .collectMultimap(action -> action.getUnpublishedAction().getPageId(), Function.identity())
+                .cache();
 
         Mono<Map<String, Collection<ActionCollection>>> pageActionCollectionMapMono = actionCollectionFlux
                 .collectMultimap(
-                        actionCollection -> actionCollection.getUnpublishedCollection().getPageId(), Function.identity()
-                ).cache();
+                        actionCollection ->
+                                actionCollection.getUnpublishedCollection().getPageId(),
+                        Function.identity())
+                .cache();
 
         Mono<Map<String, Collection<Datasource>>> workspaceDatasourcesMapMono = datasourceFlux
-                .collectMultimap(
-                        Datasource::getWorkspaceId, Function.identity()
-                ).cache();
+                .collectMultimap(Datasource::getWorkspaceId, Function.identity())
+                .cache();
 
-        CommonAppsmithObjectData commonAppsmithObjectData =
-                new CommonAppsmithObjectData(workspaceFlux, applicationFlux, pagesFlux, actionFlux,
-                        actionCollectionFlux, datasourceFlux, environmentFlux,
-                        workspaceApplicationsMapMono, applicationPagesMapMono, pageActionsMapMono,
-                        pageActionCollectionMapMono, workspaceDatasourcesMapMono, workspaceEnvironmentMapMono);
+        CommonAppsmithObjectData commonAppsmithObjectData = new CommonAppsmithObjectData(
+                workspaceFlux,
+                applicationFlux,
+                pagesFlux,
+                actionFlux,
+                actionCollectionFlux,
+                datasourceFlux,
+                environmentFlux,
+                workspaceApplicationsMapMono,
+                applicationPagesMapMono,
+                pageActionsMapMono,
+                pageActionCollectionMapMono,
+                workspaceDatasourcesMapMono,
+                workspaceEnvironmentMapMono);
 
         return commonAppsmithObjectData;
     }
@@ -1089,15 +1276,18 @@ public class WorkspaceResources {
                     for (EntityView child : children) {
                         List<? extends BaseView> childEntities = child.getEntities();
                         List<? extends BaseView> newChildEntities = childEntities.stream()
-                                .filter(childEntity -> !childEntity.getChildren().isEmpty()).collect(Collectors.toList());
+                                .filter(childEntity ->
+                                        !childEntity.getChildren().isEmpty())
+                                .collect(Collectors.toList());
                         child.setEntities(newChildEntities);
                     }
-                    Set<EntityView> newChildren = children.stream().filter(child -> !child.getEntities().isEmpty()).collect(Collectors.toSet());
+                    Set<EntityView> newChildren = children.stream()
+                            .filter(child -> !child.getEntities().isEmpty())
+                            .collect(Collectors.toSet());
                     applicationDTOEntity.setChildren(newChildren);
                     return applicationDTOEntity;
                 })
-                .filter(applicationDTOEntity -> !applicationDTOEntity.getChildren().isEmpty());
+                .filter(applicationDTOEntity ->
+                        !applicationDTOEntity.getChildren().isEmpty());
     }
-
-
 }

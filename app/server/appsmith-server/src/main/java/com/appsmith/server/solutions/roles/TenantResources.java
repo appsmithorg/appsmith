@@ -48,10 +48,10 @@ import static com.appsmith.server.acl.AclPermission.TENANT_READ_PERMISSION_GROUP
 import static com.appsmith.server.acl.AclPermission.TENANT_READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_REMOVE_USER_FROM_ALL_USER_GROUPS;
 import static com.appsmith.server.constants.FieldName.AUDIT_LOGS;
-import static com.appsmith.server.constants.FieldName.TENANT_GROUP;
-import static com.appsmith.server.constants.FieldName.TENANT_ROLE;
 import static com.appsmith.server.constants.FieldName.CUSTOM_ROLES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_ROLES;
+import static com.appsmith.server.constants.FieldName.TENANT_GROUP;
+import static com.appsmith.server.constants.FieldName.TENANT_ROLE;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static com.appsmith.server.solutions.roles.HelperUtil.generateLateralPermissionDTOsAndUpdateMap;
 import static com.appsmith.server.solutions.roles.HelperUtil.getHierarchicalLateralPermMap;
@@ -77,26 +77,25 @@ public class TenantResources {
             TENANT_READ_USER_GROUPS,
             TENANT_DELETE_USER_GROUPS,
             TENANT_ADD_USER_TO_ALL_USER_GROUPS,
-            TENANT_REMOVE_USER_FROM_ALL_USER_GROUPS
-    );
+            TENANT_REMOVE_USER_FROM_ALL_USER_GROUPS);
 
     Set<AclPermission> tenantRolePermissions = Set.of(
             CREATE_PERMISSION_GROUPS,
             TENANT_MANAGE_PERMISSION_GROUPS,
             TENANT_READ_PERMISSION_GROUPS,
             TENANT_DELETE_PERMISSION_GROUPS,
-            TENANT_ASSIGN_PERMISSION_GROUPS
-    );
+            TENANT_ASSIGN_PERMISSION_GROUPS);
 
     Set<AclPermission> tenantWorkspacePermissionsForOther = Set.of(CREATE_WORKSPACES);
 
     Set<AclPermission> tenantAuditLogPermissionForOther = Set.of(READ_TENANT_AUDIT_LOGS);
 
-    public TenantResources(TenantRepository tenantRepository,
-                           UserGroupRepository userGroupRepository,
-                           PermissionGroupRepository permissionGroupRepository,
-                           PolicyGenerator policyGenerator,
-                           PermissionGroupUtils permissionGroupUtils) {
+    public TenantResources(
+            TenantRepository tenantRepository,
+            UserGroupRepository userGroupRepository,
+            PermissionGroupRepository permissionGroupRepository,
+            PolicyGenerator policyGenerator,
+            PermissionGroupUtils permissionGroupUtils) {
 
         this.tenantRepository = tenantRepository;
         this.userGroupRepository = userGroupRepository;
@@ -105,43 +104,51 @@ public class TenantResources {
         this.permissionGroupUtils = permissionGroupUtils;
     }
 
-    public Mono<RoleTabDTO> createOthersTab(String permissionGroupId, CommonAppsmithObjectData dataFromRepositoryForAllTabs) {
+    public Mono<RoleTabDTO> createOthersTab(
+            String permissionGroupId, CommonAppsmithObjectData dataFromRepositoryForAllTabs) {
 
         EntityView entityView = new EntityView();
         entityView.setType(Tenant.class.getSimpleName());
 
         Flux<Workspace> workspaceFlux = dataFromRepositoryForAllTabs.getWorkspaceFlux();
 
-        return tenantRepository.findBySlug(FieldName.DEFAULT)
-                .flatMap(tenant -> {
-                    Mono<BaseView> workspaceBaseViewMono = generateWorkspaceBaseViewForOther(tenant, permissionGroupId, workspaceFlux);
-                    Mono<BaseView> auditLogViewMono = generateAuditLogBaseViewForOther(tenant, permissionGroupId);
-                    // Commenting the calculation of the hover map today because there is no relationship between permissions on the tab. The same function
-                    // call can be uncommented when newer related permissions are introduced in the tab which requires creation of hover map
-//                    Mono<Map<String, Set<IdPermissionDTO>>> hoverMapMono = getLinkedPermissionsForOtherRoles(RoleTab.OTHERS, workspaceFlux);
-                    Mono<Map<String, Set<IdPermissionDTO>>> hoverMapMono = Mono.just(Map.of());
+        return tenantRepository.findBySlug(FieldName.DEFAULT).flatMap(tenant -> {
+            Mono<BaseView> workspaceBaseViewMono =
+                    generateWorkspaceBaseViewForOther(tenant, permissionGroupId, workspaceFlux);
+            Mono<BaseView> auditLogViewMono = generateAuditLogBaseViewForOther(tenant, permissionGroupId);
+            // Commenting the calculation of the hover map today because there is no relationship between permissions on
+            // the tab. The same function
+            // call can be uncommented when newer related permissions are introduced in the tab which requires creation
+            // of hover map
+            //                    Mono<Map<String, Set<IdPermissionDTO>>> hoverMapMono =
+            // getLinkedPermissionsForOtherRoles(RoleTab.OTHERS, workspaceFlux);
+            Mono<Map<String, Set<IdPermissionDTO>>> hoverMapMono = Mono.just(Map.of());
 
-                    return Mono.zip(workspaceBaseViewMono, auditLogViewMono, hoverMapMono)
-                            .map(tuple -> {
+            return Mono.zip(workspaceBaseViewMono, auditLogViewMono, hoverMapMono)
+                    .map(tuple -> {
+                        entityView.setEntities(List.of(tuple.getT1(), tuple.getT2()));
 
-                                entityView.setEntities(List.of(tuple.getT1(), tuple.getT2()));
-
-                                RoleTabDTO roleTabDTO = new RoleTabDTO();
-                                roleTabDTO.setData(entityView);
-                                roleTabDTO.setPermissions(RoleTab.OTHERS.getViewablePermissions());
-                                roleTabDTO.setHoverMap(tuple.getT3());
-                                return roleTabDTO;
-                            });
-                });
+                        RoleTabDTO roleTabDTO = new RoleTabDTO();
+                        roleTabDTO.setData(entityView);
+                        roleTabDTO.setPermissions(RoleTab.OTHERS.getViewablePermissions());
+                        roleTabDTO.setHoverMap(tuple.getT3());
+                        return roleTabDTO;
+                    });
+        });
     }
 
-    Mono<BaseView> generateWorkspaceBaseViewForOther(Tenant tenant, String permissionGroupId, Flux<Workspace> workspaceFlux) {
+    Mono<BaseView> generateWorkspaceBaseViewForOther(
+            Tenant tenant, String permissionGroupId, Flux<Workspace> workspaceFlux) {
 
         BaseView baseView = new BaseView();
         baseView.setId(tenant.getId());
         baseView.setName("Workspaces");
-        Tuple2<List<Integer>, List<Integer>> roleViewPermissionDTO = getRoleViewPermissionDTO(permissionGroupId,
-                Tenant.class, policyGenerator, tenant.getPolicies(), tenantWorkspacePermissionsForOther,
+        Tuple2<List<Integer>, List<Integer>> roleViewPermissionDTO = getRoleViewPermissionDTO(
+                permissionGroupId,
+                Tenant.class,
+                policyGenerator,
+                tenant.getPolicies(),
+                tenantWorkspacePermissionsForOther,
                 RoleTab.OTHERS.getViewablePermissions());
         baseView.setEnabled(roleViewPermissionDTO.getT1());
         // Add the individual workspaces to the base view as children
@@ -150,16 +157,18 @@ public class TenantResources {
                     BaseView workspaceDto = new BaseView();
                     workspaceDto.setId(workspace.getId());
                     workspaceDto.setName(workspace.getName());
-                    Tuple2<List<Integer>, List<Integer>> permissionsTuple =
-                            getRoleViewPermissionDTO(RoleTab.OTHERS, permissionGroupId, workspace.getPolicies(),
-                                    Workspace.class, policyGenerator);
+                    Tuple2<List<Integer>, List<Integer>> permissionsTuple = getRoleViewPermissionDTO(
+                            RoleTab.OTHERS,
+                            permissionGroupId,
+                            workspace.getPolicies(),
+                            Workspace.class,
+                            policyGenerator);
                     workspaceDto.setEnabled(permissionsTuple.getT1());
 
                     return workspaceDto;
                 })
                 .collectList()
                 .map(workspaceDtos -> {
-
                     EntityView workspaceEntityView = new EntityView();
                     workspaceEntityView.setType(Workspace.class.getSimpleName());
                     workspaceEntityView.setEntities(workspaceDtos);
@@ -174,8 +183,12 @@ public class TenantResources {
         BaseView baseView = new BaseView();
         baseView.setId(tenant.getId());
         baseView.setName(AUDIT_LOGS);
-        Tuple2<List<Integer>, List<Integer>> roleViewPermissionDTO = getRoleViewPermissionDTO(permissionGroupId,
-                Tenant.class, policyGenerator, tenant.getPolicies(), tenantAuditLogPermissionForOther,
+        Tuple2<List<Integer>, List<Integer>> roleViewPermissionDTO = getRoleViewPermissionDTO(
+                permissionGroupId,
+                Tenant.class,
+                policyGenerator,
+                tenant.getPolicies(),
+                tenantAuditLogPermissionForOther,
                 RoleTab.OTHERS.getViewablePermissions());
         baseView.setEnabled(roleViewPermissionDTO.getT1());
 
@@ -188,39 +201,36 @@ public class TenantResources {
         EntityView entityView = new EntityView();
         entityView.setType(Tenant.class.getSimpleName());
 
-        return tenantRepository.findBySlug(FieldName.DEFAULT)
-                .flatMap(tenant -> {
+        return tenantRepository.findBySlug(FieldName.DEFAULT).flatMap(tenant -> {
+            Flux<UserGroup> userGroupFlux = getAllUserGroups(tenant.getId()).cache();
+            Flux<PermissionGroup> permissionGroupFlux =
+                    getAllPermissionGroups(tenant.getId()).cache();
 
-                    Flux<UserGroup> userGroupFlux = getAllUserGroups(tenant.getId()).cache();
-                    Flux<PermissionGroup> permissionGroupFlux = getAllPermissionGroups(tenant.getId()).cache();
+            // Get the permission hover map for the tab
+            Mono<Map<String, Set<IdPermissionDTO>>> linkedPermissionsMono = getLinkedPermissionsForGroupsRoles(
+                    RoleTab.GROUPS_ROLES, tenant, userGroupFlux, permissionGroupFlux);
 
-                    // Get the permission hover map for the tab
-                    Mono<Map<String, Set<IdPermissionDTO>>> linkedPermissionsMono =
-                            getLinkedPermissionsForGroupsRoles(RoleTab.GROUPS_ROLES, tenant, userGroupFlux,
-                                    permissionGroupFlux);
+            // Get the permission disable map for the tab
+            Mono<Map<String, Set<IdPermissionDTO>>> disablePermissionMapMono =
+                    getDisableMapsForForGroupsRoles(RoleTab.GROUPS_ROLES, tenant, userGroupFlux, permissionGroupFlux);
 
-                    // Get the permission disable map for the tab
-                    Mono<Map<String, Set<IdPermissionDTO>>> disablePermissionMapMono =
-                            getDisableMapsForForGroupsRoles(RoleTab.GROUPS_ROLES, tenant, userGroupFlux,
-                                    permissionGroupFlux);
+            Mono<BaseView> groupsBaseViewMono = generateGroupsBaseView(tenant, permissionGroupId, userGroupFlux);
+            Mono<BaseView> rolesBaseViewMono = generateRolesBaseView(tenant, permissionGroupId, permissionGroupFlux);
 
-                    Mono<BaseView> groupsBaseViewMono = generateGroupsBaseView(tenant, permissionGroupId, userGroupFlux);
-                    Mono<BaseView> rolesBaseViewMono = generateRolesBaseView(tenant, permissionGroupId, permissionGroupFlux);
+            return Mono.zip(groupsBaseViewMono, rolesBaseViewMono, linkedPermissionsMono, disablePermissionMapMono)
+                    .map(tuple -> {
+                        // Add roles and groups tenant views to the entity as base views
+                        entityView.setEntities(List.of(tuple.getT1(), tuple.getT2()));
 
-                    return Mono.zip(groupsBaseViewMono, rolesBaseViewMono, linkedPermissionsMono, disablePermissionMapMono)
-                            .map(tuple -> {
-                                // Add roles and groups tenant views to the entity as base views
-                                entityView.setEntities(List.of(tuple.getT1(), tuple.getT2()));
+                        RoleTabDTO roleTabDTO = new RoleTabDTO();
+                        roleTabDTO.setData(entityView);
+                        roleTabDTO.setPermissions(RoleTab.GROUPS_ROLES.getViewablePermissions());
+                        roleTabDTO.setHoverMap(tuple.getT3());
+                        roleTabDTO.setDisableHelperMap(tuple.getT4());
 
-                                RoleTabDTO roleTabDTO = new RoleTabDTO();
-                                roleTabDTO.setData(entityView);
-                                roleTabDTO.setPermissions(RoleTab.GROUPS_ROLES.getViewablePermissions());
-                                roleTabDTO.setHoverMap(tuple.getT3());
-                                roleTabDTO.setDisableHelperMap(tuple.getT4());
-
-                                return roleTabDTO;
-                            });
-                });
+                        return roleTabDTO;
+                    });
+        });
     }
 
     Mono<BaseView> generateGroupsBaseView(Tenant tenant, String permissionGroupId, Flux<UserGroup> userGroupFlux) {
@@ -228,8 +238,12 @@ public class TenantResources {
         BaseView baseView = new BaseView();
         baseView.setId(tenant.getId());
         baseView.setName("Groups");
-        Tuple2<List<Integer>, List<Integer>> roleViewPermissionDTO = getRoleViewPermissionDTO(permissionGroupId,
-                Tenant.class, policyGenerator, tenant.getPolicies(), tenantGroupPermissions,
+        Tuple2<List<Integer>, List<Integer>> roleViewPermissionDTO = getRoleViewPermissionDTO(
+                permissionGroupId,
+                Tenant.class,
+                policyGenerator,
+                tenant.getPolicies(),
+                tenantGroupPermissions,
                 RoleTab.GROUPS_ROLES.getViewablePermissions());
         baseView.setEnabled(roleViewPermissionDTO.getT1());
 
@@ -239,16 +253,23 @@ public class TenantResources {
                     BaseView userGroupDto = new BaseView();
                     userGroupDto.setId(userGroup.getId());
                     userGroupDto.setName(userGroup.getName());
-                    Tuple2<List<Integer>, List<Integer>> permissionsTuple =
-                            getRoleViewPermissionDTO(RoleTab.GROUPS_ROLES, permissionGroupId, userGroup.getPolicies(),
-                                    UserGroup.class, policyGenerator);
+                    Tuple2<List<Integer>, List<Integer>> permissionsTuple = getRoleViewPermissionDTO(
+                            RoleTab.GROUPS_ROLES,
+                            permissionGroupId,
+                            userGroup.getPolicies(),
+                            UserGroup.class,
+                            policyGenerator);
                     userGroupDto.setEnabled(permissionsTuple.getT1());
 
-                    return userGroupDto;
+                    return Tuples.of(userGroupDto, userGroup);
+                })
+                .map(pair -> {
+                    BaseView permissionGroupDto = pair.getT1();
+                    UserGroup userGroup = pair.getT2();
+                    return updateEnabledForUserGroups(permissionGroupDto, userGroup);
                 })
                 .collectList()
                 .map(userGroupDTOs -> {
-
                     EntityView userGroupEntityView = new EntityView();
                     userGroupEntityView.setType(UserGroup.class.getSimpleName());
                     userGroupEntityView.setEntities(userGroupDTOs);
@@ -258,13 +279,18 @@ public class TenantResources {
                 });
     }
 
-    Mono<BaseView> generateRolesBaseView(Tenant tenant, String permissionGroupId, Flux<PermissionGroup> permissionGroupFlux) {
+    Mono<BaseView> generateRolesBaseView(
+            Tenant tenant, String permissionGroupId, Flux<PermissionGroup> permissionGroupFlux) {
 
         BaseView baseView = new BaseView();
         baseView.setId(tenant.getId());
         baseView.setName("Roles");
-        Tuple2<List<Integer>, List<Integer>> roleViewPermissionDTO = getRoleViewPermissionDTO(permissionGroupId,
-                Tenant.class, policyGenerator, tenant.getPolicies(), tenantRolePermissions,
+        Tuple2<List<Integer>, List<Integer>> roleViewPermissionDTO = getRoleViewPermissionDTO(
+                permissionGroupId,
+                Tenant.class,
+                policyGenerator,
+                tenant.getPolicies(),
+                tenantRolePermissions,
                 RoleTab.GROUPS_ROLES.getViewablePermissions());
         baseView.setEnabled(roleViewPermissionDTO.getT1());
 
@@ -274,9 +300,12 @@ public class TenantResources {
                     BaseView permissionGroupDto = new BaseView();
                     permissionGroupDto.setId(permissionGroup.getId());
                     permissionGroupDto.setName(permissionGroup.getName());
-                    Tuple2<List<Integer>, List<Integer>> permissionsTuple =
-                            getRoleViewPermissionDTO(RoleTab.GROUPS_ROLES, permissionGroupId, permissionGroup.getPolicies(),
-                                    PermissionGroup.class, policyGenerator);
+                    Tuple2<List<Integer>, List<Integer>> permissionsTuple = getRoleViewPermissionDTO(
+                            RoleTab.GROUPS_ROLES,
+                            permissionGroupId,
+                            permissionGroup.getPolicies(),
+                            PermissionGroup.class,
+                            policyGenerator);
                     permissionGroupDto.setEnabled(permissionsTuple.getT1());
                     return Mono.zip(Mono.just(permissionGroupDto), Mono.just(permissionGroup));
                 })
@@ -287,12 +316,17 @@ public class TenantResources {
                 })
                 .collectList()
                 .map(pgBaseView -> {
-                    List<BaseView> defaultPgBaseView = pgBaseView.stream().filter(Tuple2::getT2).map(Tuple2::getT1).toList();
-                    List<BaseView> customPgBaseView = pgBaseView.stream().filter(tuple -> ! tuple.getT2()).map(Tuple2::getT1).toList();
+                    List<BaseView> defaultPgBaseView = pgBaseView.stream()
+                            .filter(Tuple2::getT2)
+                            .map(Tuple2::getT1)
+                            .toList();
+                    List<BaseView> customPgBaseView = pgBaseView.stream()
+                            .filter(tuple -> !tuple.getT2())
+                            .map(Tuple2::getT1)
+                            .toList();
                     return Tuples.of(defaultPgBaseView, customPgBaseView);
                 })
                 .map(pgBaseViewTuple -> {
-
                     EntityView header = new EntityView();
                     header.setType("Header");
 
@@ -320,42 +354,44 @@ public class TenantResources {
     }
 
     private Flux<UserGroup> getAllUserGroups(String tenantId) {
-        List<String> includeFields = new ArrayList<>(
-                List.of(
-                        fieldName(QUserGroup.userGroup.policies),
-                        fieldName(QUserGroup.userGroup.name)
-                )
-        );
+        List<String> includeFields = new ArrayList<>(List.of(
+                fieldName(QUserGroup.userGroup.policies),
+                fieldName(QUserGroup.userGroup.name),
+                fieldName(QUserGroup.userGroup.isProvisioned)));
         return userGroupRepository.findAllByTenantIdWithoutPermission(tenantId, includeFields);
     }
 
     private Flux<PermissionGroup> getAllPermissionGroups(String tenantId) {
-        List<String> includeFields = new ArrayList<>(
-                List.of(
-                        fieldName(QPermissionGroup.permissionGroup.policies),
-                        fieldName(QPermissionGroup.permissionGroup.name),
-                        fieldName(QPermissionGroup.permissionGroup.defaultDomainId),
-                        fieldName(QPermissionGroup.permissionGroup.defaultDomainType)
-                )
-        );
+        List<String> includeFields = new ArrayList<>(List.of(
+                fieldName(QPermissionGroup.permissionGroup.policies),
+                fieldName(QPermissionGroup.permissionGroup.name),
+                fieldName(QPermissionGroup.permissionGroup.defaultDomainId),
+                fieldName(QPermissionGroup.permissionGroup.defaultDomainType)));
         return permissionGroupRepository.findAllByTenantIdWithoutPermission(tenantId, includeFields);
     }
 
-    private Mono<Map<String, Set<IdPermissionDTO>>> getDisableMapsForForGroupsRoles(RoleTab roleTab,
-                                                                                    Tenant tenant,
-                                                                                    Flux<UserGroup> userGroupFlux,
-                                                                                    Flux<PermissionGroup> permissionGroupFlux) {
+    private Mono<Map<String, Set<IdPermissionDTO>>> getDisableMapsForForGroupsRoles(
+            RoleTab roleTab, Tenant tenant, Flux<UserGroup> userGroupFlux, Flux<PermissionGroup> permissionGroupFlux) {
 
         Set<AclPermission> tabPermissions = roleTab.getPermissions();
 
-        Set<AclPermission> tenantPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Tenant.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> tenantLateralMap = getLateralPermMap(tenantPermissions, policyGenerator, roleTab);
+        Set<AclPermission> tenantPermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Tenant.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> tenantLateralMap =
+                getLateralPermMap(tenantPermissions, policyGenerator, roleTab);
 
-        Set<AclPermission> userGroupPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(UserGroup.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> userGroupLateralMap = getLateralPermMap(userGroupPermissions, policyGenerator, roleTab);
+        Set<AclPermission> userGroupPermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(UserGroup.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> userGroupLateralMap =
+                getLateralPermMap(userGroupPermissions, policyGenerator, roleTab);
 
-        Set<AclPermission> permissionGroupPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(PermissionGroup.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> permissionGroupLateralMap = getLateralPermMap(permissionGroupPermissions, policyGenerator, roleTab);
+        Set<AclPermission> permissionGroupPermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(PermissionGroup.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> permissionGroupLateralMap =
+                getLateralPermMap(permissionGroupPermissions, policyGenerator, roleTab);
 
         String tenantId = tenant.getId();
         ConcurrentHashMap<String, Set<IdPermissionDTO>> disableMap = new ConcurrentHashMap<>();
@@ -367,7 +403,8 @@ public class TenantResources {
         Mono<Boolean> userGroupDisableMapMono = userGroupFlux
                 .map(userGroup -> {
                     String userGroupId = userGroup.getId();
-                    generateLateralPermissionDTOsAndUpdateMap(userGroupLateralMap, disableMap, userGroupId, userGroupId, UserGroup.class);
+                    generateLateralPermissionDTOsAndUpdateMap(
+                            userGroupLateralMap, disableMap, userGroupId, userGroupId, UserGroup.class);
                     return userGroup;
                 })
                 .then(Mono.just(TRUE));
@@ -376,7 +413,12 @@ public class TenantResources {
         Mono<Boolean> permissionGroupDisableMapMono = permissionGroupFlux
                 .map(permissionGroup -> {
                     String permissionGroupId = permissionGroup.getId();
-                    generateLateralPermissionDTOsAndUpdateMap(permissionGroupLateralMap, disableMap, permissionGroupId, permissionGroupId, PermissionGroup.class);
+                    generateLateralPermissionDTOsAndUpdateMap(
+                            permissionGroupLateralMap,
+                            disableMap,
+                            permissionGroupId,
+                            permissionGroupId,
+                            PermissionGroup.class);
                     return permissionGroup;
                 })
                 .then(Mono.just(TRUE));
@@ -389,23 +431,23 @@ public class TenantResources {
                 });
         separateRolesAndGroupsDisableLateralPermission(disableMap, tenantId);
 
-        return Mono.when(userGroupDisableMapMono, permissionGroupDisableMapMono)
-                .then(trimmedHoverMapMono);
-
+        return Mono.when(userGroupDisableMapMono, permissionGroupDisableMapMono).then(trimmedHoverMapMono);
     }
 
-    private void separateRolesAndGroupsDisableLateralPermission(ConcurrentHashMap<String, Set<IdPermissionDTO>> disableMap,
-                                                                String tenantId) {
+    private void separateRolesAndGroupsDisableLateralPermission(
+            ConcurrentHashMap<String, Set<IdPermissionDTO>> disableMap, String tenantId) {
         Map<String, Set<IdPermissionDTO>> newDisableMap = new HashMap<>();
         disableMap.forEach((key, value) -> {
             if (key.startsWith(tenantId)) {
                 String tenantGroupKey = key + "_" + TENANT_GROUP;
                 String tenantRoleKey = key + "_" + TENANT_ROLE;
                 Set<IdPermissionDTO> tenantGroupSet = value.stream()
-                        .filter(idPermissionDTO -> PermissionViewableName.getAllGroupRelatedPermission().contains(idPermissionDTO.getP()))
+                        .filter(idPermissionDTO -> PermissionViewableName.getAllGroupRelatedPermission()
+                                .contains(idPermissionDTO.getP()))
                         .collect(Collectors.toSet());
                 Set<IdPermissionDTO> tenantRoleSet = value.stream()
-                        .filter(idPermissionDTO -> PermissionViewableName.getAllRoleRelatedPermission().contains(idPermissionDTO.getP()))
+                        .filter(idPermissionDTO -> PermissionViewableName.getAllRoleRelatedPermission()
+                                .contains(idPermissionDTO.getP()))
                         .collect(Collectors.toSet());
                 if (key.endsWith(INVITE_USER.getName()) || key.endsWith(REMOVE_USER.getName())) {
                     newDisableMap.put(tenantGroupKey, tenantGroupSet);
@@ -427,26 +469,34 @@ public class TenantResources {
      * This will help the Client flow permissions to the respective groups only.
      * Earlier, the client would have to iterate over all the groups and roles and flow the permissions.
      */
-    private Mono<Map<String, Set<IdPermissionDTO>>> getLinkedPermissionsForGroups(RoleTab roleTab,
-                                                                                  String tenantId,
-                                                                                  Flux<UserGroup> userGroupFlux) {
+    private Mono<Map<String, Set<IdPermissionDTO>>> getLinkedPermissionsForGroups(
+            RoleTab roleTab, String tenantId, Flux<UserGroup> userGroupFlux) {
         Set<AclPermission> tabPermissions = roleTab.getPermissions();
-        Set<AclPermission> tenantPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Tenant.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> tenantHierarchicalLateralMap = getHierarchicalLateralPermMap(tenantPermissions, policyGenerator, roleTab);
+        Set<AclPermission> tenantPermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Tenant.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> tenantHierarchicalLateralMap =
+                getHierarchicalLateralPermMap(tenantPermissions, policyGenerator, roleTab);
 
-        Set<AclPermission> userGroupPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(UserGroup.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> userGroupHierarchicalLateralMap = getHierarchicalLateralPermMap(userGroupPermissions, policyGenerator, roleTab);
+        Set<AclPermission> userGroupPermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(UserGroup.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> userGroupHierarchicalLateralMap =
+                getHierarchicalLateralPermMap(userGroupPermissions, policyGenerator, roleTab);
 
         ConcurrentHashMap<String, Set<IdPermissionDTO>> hoverMap = new ConcurrentHashMap<>();
         // Add lateral permissions interaction for tenant
-        generateLateralPermissionDTOsAndUpdateMap(tenantHierarchicalLateralMap, hoverMap, tenantId, tenantId, Tenant.class);
+        generateLateralPermissionDTOsAndUpdateMap(
+                tenantHierarchicalLateralMap, hoverMap, tenantId, tenantId, Tenant.class);
 
         // Add hierarchical and lateral permissions interaction for user groups
         Mono<Boolean> userGroupHoverMapMono = userGroupFlux
                 .map(userGroup -> {
                     String userGroupId = userGroup.getId();
-                    generateLateralPermissionDTOsAndUpdateMap(tenantHierarchicalLateralMap, hoverMap, tenantId, userGroupId, UserGroup.class);
-                    generateLateralPermissionDTOsAndUpdateMap(userGroupHierarchicalLateralMap, hoverMap, userGroupId, userGroupId, UserGroup.class);
+                    generateLateralPermissionDTOsAndUpdateMap(
+                            tenantHierarchicalLateralMap, hoverMap, tenantId, userGroupId, UserGroup.class);
+                    generateLateralPermissionDTOsAndUpdateMap(
+                            userGroupHierarchicalLateralMap, hoverMap, userGroupId, userGroupId, UserGroup.class);
                     return userGroup;
                 })
                 .then(Mono.just(TRUE));
@@ -463,8 +513,7 @@ public class TenantResources {
                     hoverMap1.forEach((key, value) -> {
                         if (key.startsWith(tenantId)) {
                             updatedMap.put(key + "_" + TENANT_GROUP, value);
-                        }
-                        else {
+                        } else {
                             updatedMap.put(key, value);
                         }
                     });
@@ -480,26 +529,38 @@ public class TenantResources {
      * This will help the Client flow permissions to the respective roles only.
      * Earlier, the client would have to iterate over all the groups and roles and flow the permissions.
      */
-    private Mono<Map<String, Set<IdPermissionDTO>>> getLinkedPermissionsForRoles(RoleTab roleTab,
-                                                                                 String tenantId,
-                                                                                 Flux<PermissionGroup> permissionGroupFlux) {
+    private Mono<Map<String, Set<IdPermissionDTO>>> getLinkedPermissionsForRoles(
+            RoleTab roleTab, String tenantId, Flux<PermissionGroup> permissionGroupFlux) {
         Set<AclPermission> tabPermissions = roleTab.getPermissions();
-        Set<AclPermission> tenantPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Tenant.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> tenantHierarchicalLateralMap = getHierarchicalLateralPermMap(tenantPermissions, policyGenerator, roleTab);
+        Set<AclPermission> tenantPermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Tenant.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> tenantHierarchicalLateralMap =
+                getHierarchicalLateralPermMap(tenantPermissions, policyGenerator, roleTab);
 
-        Set<AclPermission> permissionGroupPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(PermissionGroup.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> permissionGroupHierarchicalLateralMap = getHierarchicalLateralPermMap(permissionGroupPermissions, policyGenerator, roleTab);
+        Set<AclPermission> permissionGroupPermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(PermissionGroup.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> permissionGroupHierarchicalLateralMap =
+                getHierarchicalLateralPermMap(permissionGroupPermissions, policyGenerator, roleTab);
 
         ConcurrentHashMap<String, Set<IdPermissionDTO>> hoverMap = new ConcurrentHashMap<>();
         // Add lateral permissions interaction for tenant
-        generateLateralPermissionDTOsAndUpdateMap(tenantHierarchicalLateralMap, hoverMap, tenantId, tenantId, Tenant.class);
+        generateLateralPermissionDTOsAndUpdateMap(
+                tenantHierarchicalLateralMap, hoverMap, tenantId, tenantId, Tenant.class);
 
         // Add hierarchical and lateral permissions interaction for permission groups
         Mono<Boolean> permissionGroupHoverMapMono = permissionGroupFlux
                 .map(permissionGroup -> {
                     String permissionGroupId = permissionGroup.getId();
-                    generateLateralPermissionDTOsAndUpdateMap(tenantHierarchicalLateralMap, hoverMap, tenantId, permissionGroupId, PermissionGroup.class);
-                    generateLateralPermissionDTOsAndUpdateMap(permissionGroupHierarchicalLateralMap, hoverMap, permissionGroupId, permissionGroupId, PermissionGroup.class);
+                    generateLateralPermissionDTOsAndUpdateMap(
+                            tenantHierarchicalLateralMap, hoverMap, tenantId, permissionGroupId, PermissionGroup.class);
+                    generateLateralPermissionDTOsAndUpdateMap(
+                            permissionGroupHierarchicalLateralMap,
+                            hoverMap,
+                            permissionGroupId,
+                            permissionGroupId,
+                            PermissionGroup.class);
                     return permissionGroup;
                 })
                 .flatMap(permissionGroup -> updateHoverMapPermissionsForPermissionGroup(hoverMap, permissionGroup))
@@ -513,13 +574,15 @@ public class TenantResources {
                     /*
                      * Remove the Invite User and Remove User permission, because the Roles  have no use of these permissions.
                      */
-                    hoverMap1.entrySet().removeIf(entry -> entry.getKey().contains(INVITE_USER.getName()) || entry.getKey().contains(REMOVE_USER.getName()));
+                    hoverMap1
+                            .entrySet()
+                            .removeIf(entry -> entry.getKey().contains(INVITE_USER.getName())
+                                    || entry.getKey().contains(REMOVE_USER.getName()));
                     Map<String, Set<IdPermissionDTO>> updatedMap = new ConcurrentHashMap<>();
                     hoverMap1.forEach((key, value) -> {
                         if (key.startsWith(tenantId)) {
                             updatedMap.put(key + "_" + TENANT_ROLE, value);
-                        }
-                        else {
+                        } else {
                             updatedMap.put(key, value);
                         }
                     });
@@ -529,13 +592,13 @@ public class TenantResources {
         return permissionGroupHoverMapMono.then(trimmedHoverMapMono);
     }
 
-    private Mono<Map<String, Set<IdPermissionDTO>>> getLinkedPermissionsForGroupsRoles(RoleTab roleTab,
-                                                                                       Tenant tenant,
-                                                                                       Flux<UserGroup> userGroupFlux,
-                                                                                       Flux<PermissionGroup> permissionGroupFlux) {
+    private Mono<Map<String, Set<IdPermissionDTO>>> getLinkedPermissionsForGroupsRoles(
+            RoleTab roleTab, Tenant tenant, Flux<UserGroup> userGroupFlux, Flux<PermissionGroup> permissionGroupFlux) {
 
-        Mono<Map<String, Set<IdPermissionDTO>>> userGroupHoverPermissionMono = getLinkedPermissionsForGroups(roleTab, tenant.getId(), userGroupFlux);
-        Mono<Map<String, Set<IdPermissionDTO>>> permissionGroupHoverPermissionMono = getLinkedPermissionsForRoles(roleTab, tenant.getId(), permissionGroupFlux);
+        Mono<Map<String, Set<IdPermissionDTO>>> userGroupHoverPermissionMono =
+                getLinkedPermissionsForGroups(roleTab, tenant.getId(), userGroupFlux);
+        Mono<Map<String, Set<IdPermissionDTO>>> permissionGroupHoverPermissionMono =
+                getLinkedPermissionsForRoles(roleTab, tenant.getId(), permissionGroupFlux);
 
         return Mono.zip(userGroupHoverPermissionMono, permissionGroupHoverPermissionMono)
                 .map(tuple -> {
@@ -551,12 +614,15 @@ public class TenantResources {
     /*
     This method is currently unused since the current relationships covered in the tab are unrelated. This method is kept for future use.
      */
-    private Mono<Map<String, Set<IdPermissionDTO>>> getLinkedPermissionsForOtherRoles(RoleTab roleTab,
-                                                                                      Flux<Workspace> workspaceFlux) {
+    private Mono<Map<String, Set<IdPermissionDTO>>> getLinkedPermissionsForOtherRoles(
+            RoleTab roleTab, Flux<Workspace> workspaceFlux) {
         Set<AclPermission> tabPermissions = roleTab.getPermissions();
 
-        Set<AclPermission> workspacePermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Workspace.class)).collect(Collectors.toSet());
-        Map<AclPermission, Set<AclPermission>> workspaceHierarchicalLateralMap = getHierarchicalLateralPermMap(workspacePermissions, policyGenerator, roleTab);
+        Set<AclPermission> workspacePermissions = tabPermissions.stream()
+                .filter(permission -> permission.getEntity().equals(Workspace.class))
+                .collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> workspaceHierarchicalLateralMap =
+                getHierarchicalLateralPermMap(workspacePermissions, policyGenerator, roleTab);
 
         ConcurrentHashMap<String, Set<IdPermissionDTO>> hoverMap = new ConcurrentHashMap<>();
 
@@ -564,7 +630,8 @@ public class TenantResources {
         Mono<Boolean> workspaceHoverMapMono = workspaceFlux
                 .map(workspace -> {
                     String workspaceId = workspace.getId();
-                    generateLateralPermissionDTOsAndUpdateMap(workspaceHierarchicalLateralMap, hoverMap, workspaceId, workspaceId, Workspace.class);
+                    generateLateralPermissionDTOsAndUpdateMap(
+                            workspaceHierarchicalLateralMap, hoverMap, workspaceId, workspaceId, Workspace.class);
                     return workspace;
                 })
                 .then(Mono.just(TRUE));
@@ -576,15 +643,36 @@ public class TenantResources {
                     return hoverMap1;
                 });
 
-        return workspaceHoverMapMono
-                .then(trimmedHoverMapMono);
+        return workspaceHoverMapMono.then(trimmedHoverMapMono);
+    }
+
+    /**
+     * Check if the UserGroup is Provisioned or not.
+     * If provisioned, then disable the EDIT, DELETE, INVITE_USER, REMOVE_USER permissions to be given from the GAC Screen.
+     * @param userGroupDto
+     * @param userGroup
+     * @return
+     */
+    private BaseView updateEnabledForUserGroups(BaseView userGroupDto, UserGroup userGroup) {
+        if (Boolean.TRUE.equals(userGroup.getIsProvisioned())) {
+            List<PermissionViewableName> viewablePermissions = RoleTab.GROUPS_ROLES.getViewablePermissions();
+            int indexOfEditPermission = viewablePermissions.indexOf(PermissionViewableName.EDIT);
+            int indexOfDeletePermission = viewablePermissions.indexOf(PermissionViewableName.DELETE);
+            int indexOfInviteUserPermission = viewablePermissions.indexOf(INVITE_USER);
+            int indexOfRemoveUserPermission = viewablePermissions.indexOf(REMOVE_USER);
+            userGroupDto.getEnabled().set(indexOfDeletePermission, -1);
+            userGroupDto.getEnabled().set(indexOfEditPermission, -1);
+            userGroupDto.getEnabled().set(indexOfInviteUserPermission, -1);
+            userGroupDto.getEnabled().set(indexOfRemoveUserPermission, -1);
+        }
+        return userGroupDto;
     }
 
     /*
      * Checks if the Permission Group is auto-created or not and disables the Delete and Edit permissions.
      */
-    private Mono<Tuple2<BaseView, Boolean>> updateEnabledForPermissionGroup(BaseView permissionGroupDto,
-                                                                            PermissionGroup permissionGroup) {
+    private Mono<Tuple2<BaseView, Boolean>> updateEnabledForPermissionGroup(
+            BaseView permissionGroupDto, PermissionGroup permissionGroup) {
         return permissionGroupUtils.isAutoCreated(permissionGroup).map(autoCreated -> {
             if (autoCreated) {
                 List<PermissionViewableName> viewablePermissions = RoleTab.GROUPS_ROLES.getViewablePermissions();
@@ -605,8 +693,8 @@ public class TenantResources {
      * auto-created role's DELETE permission has VIEW permission, then
      * we replace DELETE permission for auto-created role in parent role with VIEW permission for auto-created role.
      */
-    private Mono<Boolean> updateHoverMapPermissionsForPermissionGroup(Map<String, Set<IdPermissionDTO>> hoverMap,
-                                                                      PermissionGroup permissionGroup) {
+    private Mono<Boolean> updateHoverMapPermissionsForPermissionGroup(
+            Map<String, Set<IdPermissionDTO>> hoverMap, PermissionGroup permissionGroup) {
         return permissionGroupUtils.isAutoCreated(permissionGroup).map(autoCreated -> {
             if (autoCreated) {
                 String deletePermissionKey = permissionGroup.getId() + "_" + PermissionViewableName.DELETE.getName();
@@ -615,15 +703,21 @@ public class TenantResources {
                 hoverMap.forEach((key, value) -> {
                     if (value.contains(new IdPermissionDTO(permissionGroup.getId(), PermissionViewableName.EDIT))) {
                         hoverMap.merge(key, hoverMap.get(editPermissionKey), Sets::union);
-                        hoverMap.put(key, hoverMap.get(key).stream()
-                                .filter(setValue -> !setValue.equals(new IdPermissionDTO(permissionGroup.getId(), PermissionViewableName.EDIT)))
-                                .collect(Collectors.toSet()));
+                        hoverMap.put(
+                                key,
+                                hoverMap.get(key).stream()
+                                        .filter(setValue -> !setValue.equals(new IdPermissionDTO(
+                                                permissionGroup.getId(), PermissionViewableName.EDIT)))
+                                        .collect(Collectors.toSet()));
                     }
                     if (value.contains(new IdPermissionDTO(permissionGroup.getId(), PermissionViewableName.DELETE))) {
                         hoverMap.merge(key, hoverMap.get(deletePermissionKey), Sets::union);
-                        hoverMap.put(key, hoverMap.get(key).stream()
-                                .filter(setValue -> !setValue.equals(new IdPermissionDTO(permissionGroup.getId(), PermissionViewableName.DELETE)))
-                                .collect(Collectors.toSet()));
+                        hoverMap.put(
+                                key,
+                                hoverMap.get(key).stream()
+                                        .filter(setValue -> !setValue.equals(new IdPermissionDTO(
+                                                permissionGroup.getId(), PermissionViewableName.DELETE)))
+                                        .collect(Collectors.toSet()));
                     }
                 });
                 hoverMap.remove(editPermissionKey);

@@ -24,33 +24,37 @@ public class DatasourceStorageServiceImpl extends DatasourceStorageServiceCEImpl
     private final VariableReplacementService variableReplacementService;
     private final EnvironmentService environmentService;
 
-
-
-    public DatasourceStorageServiceImpl(DatasourceStorageRepository repository,
-                                        DatasourceStorageTransferSolution datasourceStorageTransferSolution,
-                                        DatasourcePermission datasourcePermission,
-                                        PluginService pluginService,
-                                        PluginExecutorHelper pluginExecutorHelper,
-                                        AnalyticsService analyticsService,
-                                        VariableReplacementService variableReplacementService,
-                                        EnvironmentService environmentService) {
-        super(repository, datasourceStorageTransferSolution, datasourcePermission, pluginService, pluginExecutorHelper,
+    public DatasourceStorageServiceImpl(
+            DatasourceStorageRepository repository,
+            DatasourceStorageTransferSolution datasourceStorageTransferSolution,
+            DatasourcePermission datasourcePermission,
+            PluginService pluginService,
+            PluginExecutorHelper pluginExecutorHelper,
+            AnalyticsService analyticsService,
+            VariableReplacementService variableReplacementService,
+            EnvironmentService environmentService) {
+        super(
+                repository,
+                datasourceStorageTransferSolution,
+                datasourcePermission,
+                pluginService,
+                pluginExecutorHelper,
                 analyticsService);
         this.variableReplacementService = variableReplacementService;
         this.environmentService = environmentService;
     }
 
     @Override
-    public Mono<DatasourceStorage> findByDatasourceAndEnvironmentIdForExecution(Datasource datasource, String environmentId) {
+    public Mono<DatasourceStorage> findByDatasourceAndEnvironmentIdForExecution(
+            Datasource datasource, String environmentId) {
         return super.findByDatasourceAndEnvironmentIdForExecution(datasource, environmentId)
                 .flatMap(datasourceStorage -> {
-                    Mono<AppsmithDomain> datasourceConfigurationMono = this.variableReplacementService
-                            .replaceAll(datasourceStorage.getDatasourceConfiguration());
-                    return datasourceConfigurationMono
-                            .flatMap(configuration -> {
-                                datasourceStorage.setDatasourceConfiguration((DatasourceConfiguration) configuration);
-                                return Mono.just(datasourceStorage);
-                            });
+                    Mono<AppsmithDomain> datasourceConfigurationMono =
+                            this.variableReplacementService.replaceAll(datasourceStorage.getDatasourceConfiguration());
+                    return datasourceConfigurationMono.flatMap(configuration -> {
+                        datasourceStorage.setDatasourceConfiguration((DatasourceConfiguration) configuration);
+                        return Mono.just(datasourceStorage);
+                    });
                 });
     }
 
@@ -64,8 +68,8 @@ public class DatasourceStorageServiceImpl extends DatasourceStorageServiceCEImpl
 
         Mono<Environment> environmentMono = environmentService.findById(datasourceStorage.getEnvironmentId());
         return environmentMono
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ENVIRONMENT,
-                        datasourceStorage.getEnvironmentId())))
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.ENVIRONMENT, datasourceStorage.getEnvironmentId())))
                 .map(environment -> datasourceStorage);
     }
 

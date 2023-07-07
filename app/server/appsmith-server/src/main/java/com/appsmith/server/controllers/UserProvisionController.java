@@ -27,39 +27,44 @@ public class UserProvisionController {
     private final UserService userService;
     private final UserAndAccessManagementService userAndAccessManagementService;
 
-    public UserProvisionController(UserService userService,
-                                   UserAndAccessManagementService userAndAccessManagementService) {
+    public UserProvisionController(
+            UserService userService, UserAndAccessManagementService userAndAccessManagementService) {
         this.userService = userService;
         this.userAndAccessManagementService = userAndAccessManagementService;
     }
 
     @GetMapping
-    public Mono<ResponseDTO<PagedDomain<ProvisionResourceDto>>> getAllUsers(@RequestParam MultiValueMap<String, String> queryParams) {
-        return userService.getProvisionUsers(queryParams)
+    public Mono<ResponseDTO<PagedDomain<ProvisionResourceDto>>> getAllUsers(
+            @RequestParam MultiValueMap<String, String> queryParams) {
+        return userService
+                .getProvisionUsers(queryParams)
                 .map(provisionUsers -> new ResponseDTO<>(HttpStatus.OK.value(), provisionUsers, null));
     }
 
     @GetMapping("/{id}")
     public Mono<ResponseDTO<ProvisionResourceDto>> getUser(@PathVariable String id) {
-        return userService.getProvisionUser(id)
-                .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
+        return userService.getProvisionUser(id).map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 
     @PostMapping
     public Mono<ResponseDTO<ProvisionResourceDto>> createUser(@RequestBody User user) {
-        return userService.createProvisionUser(user)
+        return userService
+                .createProvisionUser(user)
                 .map(createdUser -> new ResponseDTO<>(HttpStatus.OK.value(), createdUser, null));
     }
 
     @PutMapping("/{userId}")
-    public Mono<ResponseDTO<ProvisionResourceDto>> updateUser(@PathVariable String userId, @RequestBody UserUpdateDTO userUpdateDTO) {
-        return userService.updateProvisionUser(userId, userUpdateDTO)
+    public Mono<ResponseDTO<ProvisionResourceDto>> updateUser(
+            @PathVariable String userId, @RequestBody UserUpdateDTO userUpdateDTO) {
+        return userService
+                .updateProvisionUser(userId, userUpdateDTO)
                 .map(updatedUser -> new ResponseDTO<>(HttpStatus.OK.value(), updatedUser, null));
     }
 
     @DeleteMapping("/{userId}")
     public Mono<ResponseDTO<String>> deleteUser(@PathVariable String userId) {
-        return userAndAccessManagementService.deleteUser(userId)
+        return userAndAccessManagementService
+                .deleteUser(userId)
                 .map(deleted -> new ResponseDTO<>(HttpStatus.NO_CONTENT.value(), null, null));
     }
 }

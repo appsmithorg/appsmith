@@ -13,7 +13,6 @@ import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.AnalyticEventDTO;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -22,6 +21,7 @@ import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
+import com.appsmith.server.solutions.PolicySolution;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -48,35 +48,54 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     private final PolicySolution policySolution;
     private final NewPageService newPageService;
 
-    public NewActionServiceImpl(Scheduler scheduler,
-                                Validator validator,
-                                MongoConverter mongoConverter,
-                                ReactiveMongoTemplate reactiveMongoTemplate,
-                                NewActionRepository repository,
-                                AnalyticsService analyticsService,
-                                DatasourceService datasourceService,
-                                PluginService pluginService,
-                                PluginExecutorHelper pluginExecutorHelper,
-                                MarketplaceService marketplaceService,
-                                PolicyGenerator policyGenerator,
-                                NewPageService newPageService,
-                                ApplicationService applicationService,
-                                PolicySolution policySolution,
-                                ConfigService configService,
-                                ResponseUtils responseUtils,
-                                PermissionGroupService permissionGroupService,
-                                DatasourcePermission datasourcePermission,
-                                ApplicationPermission applicationPermission,
-                                PagePermission pagePermission,
-                                ActionPermission actionPermission,
-                                ObservationRegistry observationRegistry,
-                                PermissionGroupRepository permissionGroupRepository) {
+    public NewActionServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            NewActionRepository repository,
+            AnalyticsService analyticsService,
+            DatasourceService datasourceService,
+            PluginService pluginService,
+            PluginExecutorHelper pluginExecutorHelper,
+            MarketplaceService marketplaceService,
+            PolicyGenerator policyGenerator,
+            NewPageService newPageService,
+            ApplicationService applicationService,
+            PolicySolution policySolution,
+            ConfigService configService,
+            ResponseUtils responseUtils,
+            PermissionGroupService permissionGroupService,
+            DatasourcePermission datasourcePermission,
+            ApplicationPermission applicationPermission,
+            PagePermission pagePermission,
+            ActionPermission actionPermission,
+            ObservationRegistry observationRegistry,
+            PermissionGroupRepository permissionGroupRepository) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                datasourceService, pluginService, pluginExecutorHelper, marketplaceService,
-                policyGenerator, newPageService, applicationService, policySolution,
-                configService, responseUtils, permissionGroupService, datasourcePermission,
-                applicationPermission, pagePermission, actionPermission, observationRegistry);
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService,
+                datasourceService,
+                pluginService,
+                pluginExecutorHelper,
+                marketplaceService,
+                policyGenerator,
+                newPageService,
+                applicationService,
+                policySolution,
+                configService,
+                responseUtils,
+                permissionGroupService,
+                datasourcePermission,
+                applicationPermission,
+                pagePermission,
+                actionPermission,
+                observationRegistry);
 
         this.permissionGroupRepository = permissionGroupRepository;
         this.datasourceService = datasourceService;
@@ -84,7 +103,6 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
         this.policySolution = policySolution;
         this.newPageService = newPageService;
     }
-
 
     /**
      * To send action related general analytics events
@@ -95,8 +113,8 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
      */
     public Mono<NewAction> sendNewActionAnalyticsEvent(AnalyticEventDTO analyticEventDTO, String origin) {
         switch (analyticEventDTO.getEvent()) {
-            // JSObject function execute events are executed from frontend on browser
-            // This will be reported to backend via API for Audit Logs
+                // JSObject function execute events are executed from frontend on browser
+                // This will be reported to backend via API for Audit Logs
             case EXECUTE:
                 return this.findById(analyticEventDTO.getResourceId(), AclPermission.EXECUTE_ACTIONS)
                         .filter(newAction -> newAction.getPluginType().equals(PluginType.JS))
@@ -105,17 +123,22 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                             analyticsProperties.put(FieldName.AUDIT_LOGS_ORIGIN, origin);
                             if (analyticEventDTO.getMetadata().containsKey(FieldName.AUDIT_LOGS_VIEW_MODE)) {
                                 if (null != analyticEventDTO.getMetadata().get(FieldName.AUDIT_LOGS_VIEW_MODE)) {
-                                    Boolean isViewMode = (Boolean) analyticEventDTO.getMetadata().get(FieldName.AUDIT_LOGS_VIEW_MODE);
-                                    String applicationMode = isViewMode ? ApplicationMode.PUBLISHED.toString() : ApplicationMode.EDIT.toString();
+                                    Boolean isViewMode = (Boolean)
+                                            analyticEventDTO.getMetadata().get(FieldName.AUDIT_LOGS_VIEW_MODE);
+                                    String applicationMode = isViewMode
+                                            ? ApplicationMode.PUBLISHED.toString()
+                                            : ApplicationMode.EDIT.toString();
                                     analyticsProperties.put(FieldName.AUDIT_LOGS_VIEW_MODE, applicationMode);
                                 }
                                 // In case of JSObjects, the function name is passed from client
                                 if (null != analyticEventDTO.getMetadata().get(FieldName.AUDIT_LOGS_ACTION_NAME)) {
-                                    String actionName = (String) analyticEventDTO.getMetadata().get(FieldName.AUDIT_LOGS_ACTION_NAME);
+                                    String actionName = (String)
+                                            analyticEventDTO.getMetadata().get(FieldName.AUDIT_LOGS_ACTION_NAME);
                                     analyticsProperties.put(FieldName.AUDIT_LOGS_ACTION_NAME, actionName);
                                 }
                             }
-                            return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, newAction, analyticsProperties);
+                            return analyticsService.sendObjectEvent(
+                                    AnalyticsEvents.EXECUTE_ACTION, newAction, analyticsProperties);
                         });
         }
         return Mono.empty();
@@ -132,27 +155,29 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     @Override
     public Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction) {
         Mono<ActionDTO> actionDTOMono = super.validateAndSaveActionToRepository(newAction);
-        return actionDTOMono
-                .flatMap(actionDTO -> {
-                    // We don't want to update the Datasource policy if Plugin Type is JS
-                    // Or the Datasource doesn't exist.
-                    if (actionDTO.getPluginType() == PluginType.JS || StringUtils.isEmpty(actionDTO.getDatasource().getId())) {
-                        return Mono.just(actionDTO);
-                    }
-                    return newPageService.findById(actionDTO.getPageId(), Optional.empty())
-                            .flatMap(newPage -> {
-                                Mono<Map<String, List<String>>> mapPermissionToDefaultApplicationRoleIdMono =
-                                        getMapDatasourcePermissionToDefaultAppRoleIds(newPage.getApplicationId());
-                                return mapPermissionToDefaultApplicationRoleIdMono
-                                        .flatMap(mapPermissionToDefaultApplicationRoleId -> {
-                                            if (mapPermissionToDefaultApplicationRoleId.isEmpty()) {
-                                                return Mono.just(actionDTO);
-                                            }
-                                            Mono<Datasource> datasourceMono = updateDatasourcePolicyMap(actionDTO.getDatasource().getId(), mapPermissionToDefaultApplicationRoleId);
-                                            return datasourceMono.thenReturn(actionDTO);
-                                        });
-                            });
-                });
+        return actionDTOMono.flatMap(actionDTO -> {
+            // We don't want to update the Datasource policy if Plugin Type is JS
+            // Or the Datasource doesn't exist.
+            if (actionDTO.getPluginType() == PluginType.JS
+                    || StringUtils.isEmpty(actionDTO.getDatasource().getId())) {
+                return Mono.just(actionDTO);
+            }
+            return newPageService
+                    .findById(actionDTO.getPageId(), Optional.empty())
+                    .flatMap(newPage -> {
+                        Mono<Map<String, List<String>>> mapPermissionToDefaultApplicationRoleIdMono =
+                                getMapDatasourcePermissionToDefaultAppRoleIds(newPage.getApplicationId());
+                        return mapPermissionToDefaultApplicationRoleIdMono.flatMap(
+                                mapPermissionToDefaultApplicationRoleId -> {
+                                    if (mapPermissionToDefaultApplicationRoleId.isEmpty()) {
+                                        return Mono.just(actionDTO);
+                                    }
+                                    Mono<Datasource> datasourceMono = updateDatasourcePolicyMap(
+                                            actionDTO.getDatasource().getId(), mapPermissionToDefaultApplicationRoleId);
+                                    return datasourceMono.thenReturn(actionDTO);
+                                });
+                    });
+        });
     }
 
     /**
@@ -164,33 +189,33 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
      * @param permissionToPermissionGroupIdMap
      * @return
      */
-    private Mono<Datasource> updateDatasourcePolicyMap(String datasourceId, Map<String, List<String>> permissionToPermissionGroupIdMap) {
-        return datasourceService.findById(datasourceId)
-                .flatMap(datasource -> {
-                    boolean doAllPermissionsExist = permissionToPermissionGroupIdMap.entrySet().stream()
-                            .map(entry -> {
-                                List<String> defaultApplicationRoleIds = entry.getValue();
-                                return defaultApplicationRoleIds.stream()
-                                        .map(id -> permissionGroupService.isEntityAccessible(datasource, entry.getKey(), id))
-                                        .allMatch(Boolean.TRUE::equals);
-                            }).allMatch(Boolean.TRUE::equals);
+    private Mono<Datasource> updateDatasourcePolicyMap(
+            String datasourceId, Map<String, List<String>> permissionToPermissionGroupIdMap) {
+        return datasourceService.findById(datasourceId).flatMap(datasource -> {
+            boolean doAllPermissionsExist = permissionToPermissionGroupIdMap.entrySet().stream()
+                    .map(entry -> {
+                        List<String> defaultApplicationRoleIds = entry.getValue();
+                        return defaultApplicationRoleIds.stream()
+                                .map(id -> permissionGroupService.isEntityAccessible(datasource, entry.getKey(), id))
+                                .allMatch(Boolean.TRUE::equals);
+                    })
+                    .allMatch(Boolean.TRUE::equals);
 
-                    if (doAllPermissionsExist) {
-                        return Mono.just(datasource);
-                    }
-                    Map<String, Policy> datasourcePolicyMap = new HashMap<>();
-                    permissionToPermissionGroupIdMap.forEach((permission, roleIds) -> {
-                        Policy policy = Policy.builder()
-                                .permission(permission)
-                                .permissionGroups(new HashSet<>(roleIds))
-                                .build();
-                        datasourcePolicyMap.put(permission, policy);
-                    });
-                    Datasource updatedDatasource = policySolution.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
-                    return datasourceService.save(updatedDatasource);
-                });
+            if (doAllPermissionsExist) {
+                return Mono.just(datasource);
+            }
+            Map<String, Policy> datasourcePolicyMap = new HashMap<>();
+            permissionToPermissionGroupIdMap.forEach((permission, roleIds) -> {
+                Policy policy = Policy.builder()
+                        .permission(permission)
+                        .permissionGroups(new HashSet<>(roleIds))
+                        .build();
+                datasourcePolicyMap.put(permission, policy);
+            });
+            Datasource updatedDatasource = policySolution.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+            return datasourceService.save(updatedDatasource);
+        });
     }
-
 
     /**
      * Generates a Map Mono for datasource permissions to list of default application role ids.
@@ -205,16 +230,20 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
      * @return
      */
     private Mono<Map<String, List<String>>> getMapDatasourcePermissionToDefaultAppRoleIds(String applicationId) {
-        return permissionGroupRepository.findByDefaultApplicationId(applicationId, Optional.empty())
+        return permissionGroupRepository
+                .findByDefaultApplicationId(applicationId, Optional.empty())
                 .collectList()
                 .map(defaultApplicationRoles -> {
                     Map<String, List<String>> mapPermissionToDefaultApplicationRoleId = new HashMap<>();
                     defaultApplicationRoles.forEach(defaultApplicationRole -> {
                         if (defaultApplicationRole.getName().startsWith(FieldName.APPLICATION_VIEWER)) {
-                            AppsmithRole.APPLICATION_VIEWER.getPermissions()
-                                    .stream()
-                                    .filter(aclPermission -> aclPermission.getEntity().equals(Datasource.class))
-                                    .forEach(aclPermission -> mapPermissionToDefaultApplicationRoleId.merge(aclPermission.getValue(), List.of(defaultApplicationRole.getId()), ListUtils::union));
+                            AppsmithRole.APPLICATION_VIEWER.getPermissions().stream()
+                                    .filter(aclPermission ->
+                                            aclPermission.getEntity().equals(Datasource.class))
+                                    .forEach(aclPermission -> mapPermissionToDefaultApplicationRoleId.merge(
+                                            aclPermission.getValue(),
+                                            List.of(defaultApplicationRole.getId()),
+                                            ListUtils::union));
                         }
                     });
                     return mapPermissionToDefaultApplicationRoleId;

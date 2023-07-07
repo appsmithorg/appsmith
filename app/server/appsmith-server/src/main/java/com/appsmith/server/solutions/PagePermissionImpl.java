@@ -15,5 +15,4 @@ public class PagePermissionImpl extends PagePermissionCEImpl implements PagePerm
     public AclPermission getDeletePermission() {
         return AclPermission.DELETE_PAGES;
     }
-
 }

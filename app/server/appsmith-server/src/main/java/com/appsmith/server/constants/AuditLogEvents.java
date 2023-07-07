@@ -68,7 +68,7 @@ public class AuditLogEvents {
     }
 
     // Map of AnalyticEvent name with their corresponding Audit Log Action name
-    public final static Map<String, String> eventMap = Map.ofEntries(
+    public static final Map<String, String> eventMap = Map.ofEntries(
             entry(AnalyticsEvents.CREATE.getEventName(), FieldName.CREATED),
             entry(AnalyticsEvents.UPDATE.getEventName(), FieldName.UPDATED),
             entry(AnalyticsEvents.DELETE.getEventName(), FieldName.DELETED),
@@ -82,23 +82,36 @@ public class AuditLogEvents {
             entry(AnalyticsEvents.LOGIN.getEventName(), FieldName.LOGGED_IN),
             entry(AnalyticsEvents.LOGOUT.getEventName(), FieldName.LOGGED_OUT),
             entry(AnalyticsEvents.FIRST_LOGIN.getEventName(), FieldName.SIGNED_UP),
-//            Note: This change signifies that the event Analytics event: `EXECUTE_INVITE_USERS` will not be translated
-//            into an action event in the AuditLogs. Hence, this event will not be logged as part of Audit Logs.
-//            entry(AnalyticsEvents.EXECUTE_INVITE_USERS.getEventName(), FieldName.INVITED),
+            //            Note: This change signifies that the event Analytics event: `EXECUTE_INVITE_USERS` will not be
+            // translated
+            //            into an action event in the AuditLogs. Hence, this event will not be logged as part of Audit
+            // Logs.
+            //            entry(AnalyticsEvents.EXECUTE_INVITE_USERS.getEventName(), FieldName.INVITED),
             entry(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName(), FieldName.UPDATED),
             entry(AnalyticsEvents.INSTANCE_SETTING_UPDATED.getEventName(), FieldName.UPDATED),
             entry(AnalyticsEvents.INVITE_USERS_TO_USER_GROUPS.getEventName(), FieldName.INVITE_USERS_TO_USER_GROUPS),
-            entry(AnalyticsEvents.REMOVE_USERS_FROM_USER_GROUPS.getEventName(), FieldName.REMOVE_USERS_FROM_USER_GROUPS),
+            entry(
+                    AnalyticsEvents.REMOVE_USERS_FROM_USER_GROUPS.getEventName(),
+                    FieldName.REMOVE_USERS_FROM_USER_GROUPS),
             entry(AnalyticsEvents.ASSIGNED_TO_PERMISSION_GROUP.getEventName(), FieldName.ASSIGNED_TO_PERMISSION_GROUPS),
-            entry(AnalyticsEvents.UNASSIGNED_FROM_PERMISSION_GROUP.getEventName(), FieldName.UNASSIGNED_FROM_PERMISSION_GROUPS),
-            entry(AnalyticsEvents.ASSIGNED_USERS_TO_PERMISSION_GROUP.getEventName(), FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS),
-            entry(AnalyticsEvents.UNASSIGNED_USERS_FROM_PERMISSION_GROUP.getEventName(), FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS),
-            entry(AnalyticsEvents.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUP.getEventName(), FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS),
-            entry(AnalyticsEvents.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUP.getEventName(), FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS)
-    );
+            entry(
+                    AnalyticsEvents.UNASSIGNED_FROM_PERMISSION_GROUP.getEventName(),
+                    FieldName.UNASSIGNED_FROM_PERMISSION_GROUPS),
+            entry(
+                    AnalyticsEvents.ASSIGNED_USERS_TO_PERMISSION_GROUP.getEventName(),
+                    FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS),
+            entry(
+                    AnalyticsEvents.UNASSIGNED_USERS_FROM_PERMISSION_GROUP.getEventName(),
+                    FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS),
+            entry(
+                    AnalyticsEvents.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUP.getEventName(),
+                    FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS),
+            entry(
+                    AnalyticsEvents.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUP.getEventName(),
+                    FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS));
 
     // Map of Appsmith resource name with their corresponding Audit Log resource name
-    public final static Map<String, String> resourceMap = Map.ofEntries(
+    public static final Map<String, String> resourceMap = Map.ofEntries(
             entry(Workspace.class.getSimpleName(), FieldName.WORKSPACE),
             entry(Datasource.class.getSimpleName(), FieldName.DATASOURCE),
             entry(DatasourceStorage.class.getSimpleName(), FieldName.DATASOURCE),
@@ -110,21 +123,17 @@ public class AuditLogEvents {
             entry(UserGroup.class.getSimpleName(), FieldName.GROUP),
             entry(PermissionGroup.class.getSimpleName(), FieldName.ROLE),
             entry(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName(), FieldName.INSTANCE_SETTING),
-            entry(AnalyticsEvents.INSTANCE_SETTING_UPDATED.getEventName(), FieldName.INSTANCE_SETTING)
-    );
+            entry(AnalyticsEvents.INSTANCE_SETTING_UPDATED.getEventName(), FieldName.INSTANCE_SETTING));
 
-    public final static Map<String, String> authenticationMethodsMap = Map.ofEntries(
+    public static final Map<String, String> authenticationMethodsMap = Map.ofEntries(
             entry(APPSMITH_OAUTH2_GOOGLE_CLIENT_ID.toString(), FieldName.GOOGLE),
             entry(APPSMITH_OAUTH2_GITHUB_CLIENT_ID.toString(), FieldName.GITHUB),
             entry(APPSMITH_OAUTH2_OIDC_CLIENT_ID.toString(), FieldName.OIDC),
             entry(APPSMITH_SSO_SAML_ENABLED.toString(), FieldName.SAML),
-            entry(User.class.getSimpleName(), FieldName.USER)
-    );
+            entry(User.class.getSimpleName(), FieldName.USER));
 
     // Audit Logs use different naming than the one in ApplicationMode
-    public final static Map<String, String> appModeMap = Map.ofEntries(
+    public static final Map<String, String> appModeMap = Map.ofEntries(
             entry(ApplicationMode.EDIT.toString(), FieldName.AUDIT_LOG_APP_MODE_EDIT),
-            entry(ApplicationMode.PUBLISHED.toString(), FieldName.AUDIT_LOG_APP_MODE_VIEW)
-    );
-
+            entry(ApplicationMode.PUBLISHED.toString(), FieldName.AUDIT_LOG_APP_MODE_VIEW));
 }

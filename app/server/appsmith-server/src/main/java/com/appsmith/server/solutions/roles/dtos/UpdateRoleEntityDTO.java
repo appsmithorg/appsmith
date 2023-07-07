@@ -18,5 +18,4 @@ public class UpdateRoleEntityDTO {
     List<Integer> permissions;
 
     String name;
-
 }
