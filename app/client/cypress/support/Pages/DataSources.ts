@@ -853,7 +853,7 @@ export class DataSources {
     this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
   }
 
-  public ReconnectDSbyName(
+  public ReconnectDSbyType(
     dsName: "PostgreSQL" | "MySQL" | "MongoDB" | "S3" | "MongoDBUri",
   ) {
     this.WaitForReconnectModalToAppear();
