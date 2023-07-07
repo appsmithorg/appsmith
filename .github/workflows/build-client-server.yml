@@ -31,7 +31,7 @@ jobs:
         id: fetch_pr
         if: github.event_name == 'workflow_dispatch'
         run: |
-          res=`curl -s -H "Authorization: Bearer ${{ secrets.APPSMITH_CI_TEST_PAT}}" https://api.github.com/repos/${{ github.repository }}/pulls?head=appsmithorg:${{ github.ref_name }}`
+          res=`curl -s -H "Authorization: Bearer ${{ secrets.APPSMITH_CI_TEST_PAT}}" https://api.github.com/repos/${{ github.repository }}/pulls?head=appsmithorg:test/flakyfix`
           echo "$res"
           response_length=`echo "$res" | jq -r 'length'`
           if [[ $response_length -ne '0' ]]; then
