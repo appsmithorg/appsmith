@@ -94,7 +94,7 @@ const SettingsContainer = styled.div`
 
 const SettingsRowWrapper = styled.div`
   border-radius: var(--ads-v2-border-radius);
-  overflow: hidden;
+  overflow-y: scroll;
 `;
 
 function SettingsHeading({ grow, hasInfo, info, text }: SettingsHeadingProps) {
