@@ -102,7 +102,13 @@ const ExplorerDatasourceEntity = React.memo(
 
     //Debounce fetchDatasourceStructure request.
     const debounceFetchDatasourceRequest = debounce(async () => {
-      dispatch(fetchDatasourceStructure(props.datasource.id, true));
+      dispatch(
+        fetchDatasourceStructure(
+          props.datasource.id,
+          true,
+          DatasourceStructureContext.EXPLORER,
+        ),
+      );
     }, 300);
 
     const getDatasourceStructure = useCallback(

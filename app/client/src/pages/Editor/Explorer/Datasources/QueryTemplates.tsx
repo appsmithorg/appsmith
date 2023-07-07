@@ -17,12 +17,8 @@ import { MenuItem } from "design-system";
 import type { Plugin } from "api/PluginApi";
 import { DatasourceStructureContext } from "./DatasourceStructureContainer";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import {
-  AB_TESTING_EVENT_KEYS,
-  FEATURE_FLAG,
-} from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { setFeatureFlagShownStatus } from "utils/storage";
-import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 import styled from "styled-components";
 
 type QueryTemplatesProps = {
@@ -57,9 +53,6 @@ export function QueryTemplates(props: QueryTemplatesProps) {
   const dataSource: Datasource | undefined = useSelector((state: AppState) =>
     getDatasource(state, props.datasourceId),
   );
-  const isEnabledForQueryBinding = useSelector((state) =>
-    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_binding_enabled),
-  );
   const plugin: Plugin | undefined = useSelector((state: AppState) =>
     getPlugin(state, !!dataSource?.pluginId ? dataSource.pluginId : ""),
   );
@@ -92,11 +85,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
             dataSource: dataSource?.name,
             datasourceId: props.datasourceId,
             pluginName: plugin?.name,
-            isWalkthroughOpened,
-            [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
-              FEATURE_FLAG.ab_ds_schema_enabled,
-            [AB_TESTING_EVENT_KEYS.abTestingFlagValue]:
-              isEnabledForQueryBinding,
+            queryType: template.title,
           },
           ...queryactionConfiguration,
         }),
