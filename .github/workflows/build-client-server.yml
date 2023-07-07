@@ -165,7 +165,7 @@ jobs:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       previous-workflow-run-id: ${{ fromJson(needs.file-check.outputs.runId) }}
 
-  ci-test-result:
+  ci-test-limited-result:
     needs: [ file-check, ci-test-limited ]
     # Only run if the ci-test-limited with matrices step is successful
     if: always()
@@ -264,7 +264,7 @@ jobs:
         if: needs.ci-test-limited.result != 'success'
         run: exit 1
 
-  ci-test-result-existing:
+  ci-test-limited-result-existing:
     needs: [ file-check, ci-test-limited-existing-docker-image ]
     # Only run if the ci-test-limited with matrices step is successful
     if: needs.file-check.outputs.runId != '0'
