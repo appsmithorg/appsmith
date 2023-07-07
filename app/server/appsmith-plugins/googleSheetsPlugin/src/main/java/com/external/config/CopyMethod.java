@@ -22,11 +22,14 @@ public class CopyMethod implements ExecutionMethod {
 
     @Override
     public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
-        if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SPREADSHEET_URL_ERROR_MSG);
+        if (methodConfig.getSpreadsheetId() == null
+                || methodConfig.getSpreadsheetId().isBlank()) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SPREADSHEET_URL_ERROR_MSG);
         }
         if (methodConfig.getSheetId() == null || methodConfig.getSheetId().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SHEET_ID_ERROR_MSG);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SHEET_ID_ERROR_MSG);
         }
         return true;
     }
@@ -34,17 +37,17 @@ public class CopyMethod implements ExecutionMethod {
     @Override
     public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
 
-        UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
+        UriComponentsBuilder uriBuilder = getBaseUriBuilder(
+                this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
                         + "/sheets/"
                         + methodConfig.getSheetId() /* sheet Id*/
                         + ":copyTo",
-                true
-        );
+                true);
 
-        return webClient.method(HttpMethod.POST)
+        return webClient
+                .method(HttpMethod.POST)
                 .uri(uriBuilder.build(true).toUri())
                 .body(BodyInserters.fromObject(methodConfig.getRowObjects()));
     }
-
 }
