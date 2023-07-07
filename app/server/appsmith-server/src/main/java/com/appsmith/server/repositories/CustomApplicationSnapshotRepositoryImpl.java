@@ -6,8 +6,12 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CustomApplicationSnapshotRepositoryImpl extends CustomApplicationSnapshotRepositoryCEImpl implements CustomApplicationSnapshotRepository {
-    public CustomApplicationSnapshotRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+public class CustomApplicationSnapshotRepositoryImpl extends CustomApplicationSnapshotRepositoryCEImpl
+        implements CustomApplicationSnapshotRepository {
+    public CustomApplicationSnapshotRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 }

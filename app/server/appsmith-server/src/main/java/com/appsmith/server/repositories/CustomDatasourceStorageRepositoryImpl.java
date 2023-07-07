@@ -11,9 +11,10 @@ import org.springframework.stereotype.Component;
 public class CustomDatasourceStorageRepositoryImpl extends CustomDatasourceStorageRepositoryCEImpl
         implements CustomDatasourceStorageRepository {
 
-    public CustomDatasourceStorageRepositoryImpl(ReactiveMongoOperations mongoOperations,
-                                                              MongoConverter mongoConverter,
-                                                              CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomDatasourceStorageRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 }

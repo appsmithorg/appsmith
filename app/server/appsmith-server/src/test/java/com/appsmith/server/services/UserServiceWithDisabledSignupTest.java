@@ -82,8 +82,7 @@ public class UserServiceWithDisabledSignupTest {
 
         Mono<User> userMono = userService.create(newUser).cache();
 
-        Mono<Set<String>> assignedToUsersMono = userMono
-                .flatMap(user -> {
+        Mono<Set<String>> assignedToUsersMono = userMono.flatMap(user -> {
                     String workspaceName = user.computeFirstName() + "'s apps";
                     return workspaceRepository.findByName(workspaceName);
                 })
@@ -115,8 +114,7 @@ public class UserServiceWithDisabledSignupTest {
 
         Mono<User> userMono = userService.create(newUser).cache();
 
-        Mono<Set<String>> assignedToUsersMono = userMono
-                .flatMap(user -> {
+        Mono<Set<String>> assignedToUsersMono = userMono.flatMap(user -> {
                     String workspaceName = user.computeFirstName() + "'s apps";
                     return workspaceRepository.findByName(workspaceName);
                 })
@@ -136,7 +134,6 @@ public class UserServiceWithDisabledSignupTest {
                     assertThat(user.getPolicies()).isNotEmpty();
 
                     assertThat(workspaceAssignedToUsers).contains(user.getId());
-
                 })
                 .verifyComplete();
     }

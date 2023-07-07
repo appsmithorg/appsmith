@@ -6,7 +6,6 @@ import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -69,7 +68,7 @@ public class ActionDTO implements Identifiable {
     @JsonView(Views.Public.class)
     ActionConfiguration actionConfiguration;
 
-    //this attribute carries error messages while processing the actionCollection
+    // this attribute carries error messages while processing the actionCollection
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Transient
     @JsonView(Views.Public.class)
@@ -101,7 +100,6 @@ public class ActionDTO implements Identifiable {
     @JsonView(Views.Public.class)
     Set<String> messages = new HashSet<>();
 
-
     // This is a list of keys that the client whose values the client needs to send during action execution.
     // These are the Mustache keys that the server will replace before invoking the API
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -113,11 +111,11 @@ public class ActionDTO implements Identifiable {
 
     @Transient
     @JsonView(Views.Public.class)
-    String templateId; //If action is created via a template, store the id here.
+    String templateId; // If action is created via a template, store the id here.
 
     @Transient
     @JsonView(Views.Public.class)
-    String providerId; //If action is created via a template, store the template's provider id here.
+    String providerId; // If action is created via a template, store the template's provider id here.
 
     @Transient
     @JsonView(Views.Public.class)
@@ -155,7 +153,8 @@ public class ActionDTO implements Identifiable {
     @JsonView(Views.Internal.class)
     DefaultResources defaultResources;
 
-    // This field will be used to store analytics data related to this specific domain object. It's been introduced in order to track
+    // This field will be used to store analytics data related to this specific domain object. It's been introduced in
+    // order to track
     // success metrics of modules. Learn more on GitHub issue#24734
     @JsonView(Views.Public.class)
     AnalyticsInfo eventData;

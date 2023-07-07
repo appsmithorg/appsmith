@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 public class MergeStatusDTO {
 
-    @JsonProperty(value="isMergeAble")
+    @JsonProperty(value = "isMergeAble")
     boolean MergeAble;
 
     // Merge status received from JGIT
