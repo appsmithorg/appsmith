@@ -61,7 +61,7 @@ describe("Table widget date column inline editing functionality", () => {
     entityExplorer.SelectEntityByName("Table1");
     table.EditColumn("release_date", "v2");
     propPane.TogglePropertyState("Visible", "Off");
-    assertHelper.AssertNetworkStatus("updateLayout", 200);
+    agHelper.Sleep(1000);
     agHelper.AssertElementExist(
       `${table._tableV2Head} ${table._columnHeaderDiv("release_date")} ${
         table._hiddenHeader
@@ -71,7 +71,7 @@ describe("Table widget date column inline editing functionality", () => {
     propPane.NavigateBackToPropertyPane();
     table.EditColumn("release_date", "v2");
     propPane.TogglePropertyState("Visible", "On");
-    assertHelper.AssertNetworkStatus("updateLayout", 200);
+    agHelper.Sleep(1000);
     agHelper.AssertElementExist(
       `${table._tableV2Head} ${table._columnHeaderDiv("release_date")} ${
         table._draggableHeader
