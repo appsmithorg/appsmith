@@ -39,7 +39,8 @@ public class EmailBasedRolloutStrategyTest {
 
         User user = new User();
         user.setEmail("test@EXAMPLE.com");
-        Mockito.when(executionContext.getValue(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(user);
+        Mockito.when(executionContext.getValue(Mockito.anyString(), Mockito.anyBoolean()))
+                .thenReturn(user);
 
         boolean evaluate = strategy.evaluate("test-feature", null, executionContext);
         assertTrue(evaluate);
@@ -52,7 +53,8 @@ public class EmailBasedRolloutStrategyTest {
 
         User user = new User();
         user.setEmail("test@random.com");
-        Mockito.when(executionContext.getValue(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(user);
+        Mockito.when(executionContext.getValue(Mockito.anyString(), Mockito.anyBoolean()))
+                .thenReturn(user);
 
         boolean evaluate = strategy.evaluate("test-feature", null, executionContext);
         assertFalse(evaluate);
