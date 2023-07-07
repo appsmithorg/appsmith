@@ -14,9 +14,7 @@ describe("DateTime Datatype tests", function () {
   let dsName: any, query: string;
 
   before("Create Postgress DS", () => {
-    cy.fixture("Datatypes/DateTimeDTdsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Datatypes/DateTimeDTdsl");
     appSettings.OpenPaneAndChangeThemeColors(22, 32);
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {

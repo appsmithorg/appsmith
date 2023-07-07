@@ -111,9 +111,7 @@ describe("Validate API request body panel", () => {
 
   it("7. Checks MultiPart form data for a File Type upload + Bug 12476", () => {
     const imageNameToUpload = "ConcreteHouse.jpg";
-    cy.fixture("multiPartFormDataDsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("multiPartFormDataDsl");
 
     apiPage.CreateAndFillApi(
       "https://api.cloudinary.com/v1_1/appsmithautomationcloud/image/upload?upload_preset=fbbhg4xu",

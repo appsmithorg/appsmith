@@ -22,6 +22,7 @@ public class ApplicationGitReference {
     Map<String, Object> actionCollections;
     Map<String, String> actionCollectionBody;
     Map<String, Object> pages;
+    Map<String, String> pageDsl;
     Map<String, Object> datasources;
     Map<String, Object> jsLibraries;
 

@@ -4,5 +4,4 @@ import com.appsmith.server.repositories.ce.AssetRepositoryCE;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AssetRepository extends AssetRepositoryCE {
-}
+public interface AssetRepository extends AssetRepositoryCE {}

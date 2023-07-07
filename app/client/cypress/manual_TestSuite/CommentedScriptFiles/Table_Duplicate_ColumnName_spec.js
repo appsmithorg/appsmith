@@ -2,9 +2,7 @@ import * as _ from "../../support/Objects/ObjectsCore";
 
 describe("prevent duplicate column name in table", function () {
   before(() => {
-    cy.fixture("tableNewDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableNewDsl");
   });
 
   //todo(yash/tolu/pawan) reverting this test for now

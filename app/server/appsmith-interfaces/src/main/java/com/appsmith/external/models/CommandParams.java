@@ -12,4 +12,3 @@ public class CommandParams {
 
     List<Param> headerParams;
 }
-

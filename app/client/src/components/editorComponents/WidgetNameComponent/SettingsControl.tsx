@@ -131,12 +131,7 @@ export function SettingsControl(props: SettingsControlProps) {
         style={getStyles(props.activity, props.errorCount, isSnipingMode)}
         widgetWidth={props.widgetWidth}
       >
-        {!!props.errorCount && !isSnipingMode && (
-          <>
-            {errorIcon}
-            <span className="t--widget-error-count">{props.errorCount}</span>
-          </>
-        )}
+        {!!props.errorCount && !isSnipingMode && errorIcon}
         {isSnipingMode && (
           <Icon
             color="var(--ads-v2-color-white)"

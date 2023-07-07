@@ -7,9 +7,7 @@ const iconAlignmentProperty = ".t--property-control-position";
 
 describe("Button Widget Functionality", function () {
   before(() => {
-    cy.fixture("newFormDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("newFormDsl");
   });
 
   beforeEach(() => {

@@ -85,7 +85,10 @@ public class Aggregate extends MongoCommand {
                     commandDocument.put("pipeline", arrayListFromInput);
                 }
             } catch (JsonParseException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, MongoPluginErrorMessages.PIPELINE_ARRAY_PARSING_FAILED_ERROR_MSG, e.getMessage());
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        MongoPluginErrorMessages.PIPELINE_ARRAY_PARSING_FAILED_ERROR_MSG,
+                        e.getMessage());
             }
         } else {
             // The command expects the pipelines to be sent in an array. Parse and create a single element array
@@ -93,7 +96,9 @@ public class Aggregate extends MongoCommand {
             // check for enclosing curly bracket to make json validation more strict
             final String jsonObject = this.pipeline.trim();
             if (jsonObject.charAt(jsonObject.length() - 1) != '}') {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, MongoPluginErrorMessages.PIPELINE_STAGE_NOT_VALID_ERROR_MSG);
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        MongoPluginErrorMessages.PIPELINE_STAGE_NOT_VALID_ERROR_MSG);
             }
 
             Document document = parseSafely("Array of pipelines", this.pipeline);
@@ -158,18 +163,15 @@ public class Aggregate extends MongoCommand {
         setDataValueSafelyInFormData(configMap, AGGREGATE_PIPELINES, "[ {\"$sort\" : {\"_id\": 1} } ]");
         setDataValueSafelyInFormData(configMap, AGGREGATE_LIMIT, "10");
 
-        String rawQuery = "{\n" +
-                "  \"aggregate\": \"" + collectionName + "\",\n" +
-                "  \"pipeline\": " + "[ {\"$sort\" : {\"_id\": 1} } ],\n" +
-                "  \"limit\": 10,\n" +
-                "  \"explain\": \"true\"\n" + // Specifies to return the information on the processing of the pipeline. (This also avoids the use of the 'cursor' aggregate key according to Mongo doc)
+        String rawQuery = "{\n" + "  \"aggregate\": \""
+                + collectionName + "\",\n" + "  \"pipeline\": "
+                + "[ {\"$sort\" : {\"_id\": 1} } ],\n" + "  \"limit\": 10,\n"
+                + "  \"explain\": \"true\"\n"
+                + // Specifies to return the information on the processing of the pipeline. (This also avoids the use of
+                // the 'cursor' aggregate key according to Mongo doc)
                 "}\n";
         setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
-        return Collections.singletonList(new DatasourceStructure.Template(
-                "Aggregate",
-                null,
-                configMap
-        ));
+        return Collections.singletonList(new DatasourceStructure.Template("Aggregate", null, configMap));
     }
 }

@@ -25,7 +25,7 @@ describe("Table widget one click binding feature", () => {
       entityExplorer.SelectEntityByName("Table1", "Widgets");
 
       oneClickBinding.ChooseAndAssertForm(
-        `New from ${dsName}`,
+        `${dsName}`,
         dsName,
         "public.users",
         "name",
@@ -45,7 +45,7 @@ describe("Table widget one click binding feature", () => {
     agHelper.AssertElementExist(table._showPageItemsCount);
     table.EnableEditableOfColumn("id", "v2");
 
-    agHelper.GetNClick(table._addNewRow, 0, true);
+    table.AddNewRow();
 
     //const randomNumber = Cypress._.random(10, 100, false);
     //cy.log("randomeNumber: " + randomNumber);

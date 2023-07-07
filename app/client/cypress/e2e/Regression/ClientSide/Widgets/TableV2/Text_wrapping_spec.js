@@ -8,9 +8,7 @@ describe("Table Widget text wrapping functionality", function () {
 
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
-    cy.fixture("Table/TextWrappingDSL").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Table/TextWrappingDSL");
   });
 
   it("1. should check that cell is not wrapped when cell wrapping is disabled", () => {

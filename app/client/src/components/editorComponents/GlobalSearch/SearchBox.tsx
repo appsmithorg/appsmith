@@ -1,16 +1,12 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import { connectSearchBox } from "react-instantsearch-dom";
-import type { SearchBoxProvided } from "react-instantsearch-core";
 import type { AppState } from "@appsmith/reducers";
 import {
   createMessage,
   CREATE_NEW_OMNIBAR_PLACEHOLDER,
   OMNIBAR_PLACEHOLDER,
-  OMNIBAR_PLACEHOLDER_DOC,
   OMNIBAR_PLACEHOLDER_NAV,
-  OMNIBAR_PLACEHOLDER_SNIPPETS,
 } from "@appsmith/constants/messages";
 import type { SearchCategory } from "./utils";
 import { isMenu, SEARCH_CATEGORY_ID } from "./utils";
@@ -73,10 +69,6 @@ const CategoryDisplay = styled.div`
 
 const getPlaceHolder = (categoryId: SEARCH_CATEGORY_ID) => {
   switch (categoryId) {
-    case SEARCH_CATEGORY_ID.SNIPPETS:
-      return OMNIBAR_PLACEHOLDER_SNIPPETS;
-    case SEARCH_CATEGORY_ID.DOCUMENTATION:
-      return OMNIBAR_PLACEHOLDER_DOC;
     case SEARCH_CATEGORY_ID.NAVIGATION:
       return OMNIBAR_PLACEHOLDER_NAV;
     case SEARCH_CATEGORY_ID.ACTION_OPERATION:
@@ -91,7 +83,7 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
   }
 };
 
-type SearchBoxProps = SearchBoxProvided & {
+type SearchBoxProps = {
   query: string;
   setQuery: (query: string) => void;
   category: SearchCategory;
@@ -170,4 +162,4 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
   );
 }
 
-export default connectSearchBox<SearchBoxProps>(SearchBox);
+export default SearchBox;
