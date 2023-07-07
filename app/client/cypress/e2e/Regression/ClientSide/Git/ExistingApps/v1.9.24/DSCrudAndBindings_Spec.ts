@@ -91,7 +91,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
     });
     table.CloseFilter();
     table.DownloadFromTable("Download as CSV");
-    // table.ValidateDownloadNVerify("data_table.csv", "Bangladesh");
+    table.ValidateDownloadNVerify("data_table.csv", "Bangladesh");
 
     agHelper.GetNClick(entityExplorer._pageNameDiv("Public.astronauts"));
     agHelper.AssertText(

@@ -42,6 +42,7 @@ export class GitSync {
 
   public _discardChanges = ".t--discard-button";
   public _discardCallout = "[data-testid='t--discard-callout']";
+  public _gitStatusChanges = "[data-testid='t--git-change-statuses']";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
