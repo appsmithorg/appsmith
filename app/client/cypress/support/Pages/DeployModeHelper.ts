@@ -148,6 +148,7 @@ export class DeployMode {
     cy.xpath(this._jsonFormFieldByName(fieldName))
       .eq(index)
       .click()
+      .clear()
       .type(value, { delay: 0 })
       .wait(200);
   }

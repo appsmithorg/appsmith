@@ -1,6 +1,7 @@
 import {
   agHelper,
   dataSources,
+  deployMode,
   draggableWidgets,
   entityExplorer,
   gitSync,
@@ -44,6 +45,8 @@ describe("Import and validate older app (app created in older versions of Appsmi
     agHelper.AssertText(gitSync._gitPullCount, "text", "4");
     agHelper.GetNClick(gitSync._bottomBarCommit);
     agHelper.AssertElementVisible(gitSync._gitSyncModal);
+
+    //This is expected due to Canvas Splitting PR changes in v1.9.24
     agHelper.GetNAssertElementText(
       gitSync._gitStatusChanges,
       "4 pages modified",
@@ -54,18 +57,21 @@ describe("Import and validate older app (app created in older versions of Appsmi
       "Some of the changes above are due to an improved file structure designed to reduce merge conflicts. You can safely commit them to your repository.",
       "contain.text",
     );
+    agHelper.GetNClick(gitSync._commitButton);
+    cy.wait("@commit", { timeout: 35000 }).should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
     gitSync.CloseGitSyncModal();
+    cy.latestDeployPreview();
   });
 
   it("2. Validate CRUD pages - Mongo , MySql, Postgres pages", () => {
-    entityExplorer.AssertEntityPresenceInExplorer("ListingAndReviews");
-    entityExplorer.AssertEntityPresenceInExplorer("CountryFlags");
-    entityExplorer.AssertEntityPresenceInExplorer("Public.astronauts");
-
     //Mongo CRUD page validation
     //Assert table data
     agHelper.AssertText(
-      locators._widgetInCanvas(draggableWidgets.TEXT),
+      locators._widgetInDeployed(draggableWidgets.TEXT),
       "text",
       "listingAndReviews Data",
     );
@@ -80,10 +86,10 @@ describe("Import and validate older app (app created in older versions of Appsmi
     });
 
     //MySql CRUD page validation
-    entityExplorer.SelectEntityByName("CountryFlags", "Pages");
+    agHelper.GetNClickByContains(locators._deployedPage, "CountryFlags");
     //Assert table data
     agHelper.AssertText(
-      locators._widgetInCanvas(draggableWidgets.TEXT),
+      locators._widgetInDeployed(draggableWidgets.TEXT),
       "text",
       "countryFlags Data",
     );
@@ -101,9 +107,9 @@ describe("Import and validate older app (app created in older versions of Appsmi
     table.ValidateDownloadNVerify("data_table.csv", "Bangladesh");
 
     //Postgres CRUD page validation
-    entityExplorer.SelectEntityByName("Public.astronauts", "Pages");
+    agHelper.GetNClickByContains(locators._deployedPage, "Public.astronauts");
     agHelper.AssertText(
-      locators._widgetInCanvas(draggableWidgets.TEXT),
+      locators._widgetInDeployed(draggableWidgets.TEXT),
       "text",
       "public_astronauts Data",
     );
@@ -117,10 +123,8 @@ describe("Import and validate older app (app created in older versions of Appsmi
     table.RemoveFilter();
 
     //Update table data
-    agHelper.ClearTextField(locators._jsonFormInputField("statusid"));
-    agHelper.TypeText(locators._jsonFormInputField("statusid"), "5");
-    agHelper.ClearTextField(locators._jsonFormInputField("statusname"));
-    agHelper.TypeText(locators._jsonFormInputField("statusname"), "Active");
+    deployMode.EnterJSONInputValue("Statusid", "5");
+    deployMode.EnterJSONInputValue("Statusname", "Active");
     agHelper.Sleep(500);
     agHelper.ClickButton("Update");
 
@@ -135,21 +139,18 @@ describe("Import and validate older app (app created in older versions of Appsmi
   });
 
   it("3. Validate widgets & bindings", () => {
-    agHelper.VisitNAssert(
-      "http://localhost/app/upgradeapptolatestversion/listingandreviews-64a83886606eac23c36b7a81/edit?branch=master",
-    );
-    agHelper.GetNClick(entityExplorer._pageNameDiv("Widgets"));
+    agHelper.GetNClickByContains(locators._deployedPage, "Widgets");
     agHelper.AssertElementVisible(
-      locators._widgetInCanvas(draggableWidgets.AUDIO),
+      locators._widgetInDeployed(draggableWidgets.AUDIO),
     );
     agHelper.AssertElementVisible(
-      locators._widgetInCanvas(draggableWidgets.AUDIORECORDER),
+      locators._widgetInDeployed(draggableWidgets.AUDIORECORDER),
     );
     agHelper.AssertElementVisible(
-      locators._widgetInCanvas(draggableWidgets.DOCUMENT_VIEWER),
+      locators._widgetInDeployed(draggableWidgets.DOCUMENT_VIEWER),
     );
     agHelper.AssertElementVisible(
-      locators._widgetInCanvas(draggableWidgets.CHART),
+      locators._widgetInDeployed(draggableWidgets.CHART),
     );
 
     //Button
@@ -159,10 +160,10 @@ describe("Import and validate older app (app created in older versions of Appsmi
 
     //Checkbox group
     agHelper.AssertElementVisible(
-      locators._widgetInCanvas(draggableWidgets.CHECKBOXGROUP),
+      locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
     );
     agHelper.GetNAssertElementText(
-      locators._widgetInCanvas(draggableWidgets.CHECKBOXGROUP),
+      locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
       "Select AstronautUlf MerboldAndreas MogensenWubbo OckelsThomas ReiterAnil Menon",
       "have.text",
     );
@@ -183,7 +184,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
 
     //Currency input
     agHelper.TypeText(
-      locators._widgetInCanvas(draggableWidgets.CURRENCY_INPUT) + " input",
+      locators._widgetInDeployed(draggableWidgets.CURRENCY_INPUT) + " input",
       "10",
     );
     agHelper.WaitUntilToastDisappear(
@@ -192,7 +193,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
 
     //Table
     agHelper.TypeText(
-      locators._widgetInCanvas("inputwidgetv2") + " input",
+      locators._widgetInDeployed("inputwidgetv2") + " input",
       "144",
     );
     table.ReadTableRowColumnData(0, 3, "v2").then(($cellData) => {
@@ -203,13 +204,11 @@ describe("Import and validate older app (app created in older versions of Appsmi
     agHelper.ClickButton("Add customer Details");
     agHelper.AssertElementVisible(locators._modal);
 
-    agHelper.UpdateInput(locators._jsonFormField("customer_name"), "TestUser");
-    agHelper.UpdateInput(locators._jsonFormField("customer_number"), "1");
-    agHelper.UpdateInput(locators._jsonFormField("phone_number"), "999999999");
+    deployMode.EnterJSONInputValue("Customer Name", "TestUser");
+    deployMode.EnterJSONInputValue("Customer Number", "1");
+    deployMode.EnterJSONInputValue("Phone Number", "999999999");
     agHelper.ClickButton("Submit", 1);
     agHelper.WaitUntilToastDisappear("Add Customer Successful!");
-    agHelper.ClickButton("Submit", 1);
-    agHelper.WaitUntilToastDisappear("AddCustomer failed to execute");
     agHelper.ClickButton("Close");
 
     //Delete customer details
@@ -218,7 +217,10 @@ describe("Import and validate older app (app created in older versions of Appsmi
     agHelper.ClickButton("Confirm");
     agHelper.WaitUntilToastDisappear("Delete customer successful!");
     agHelper.ClickButton("Close");
+  });
 
+  it("4. Edit JSObject & Check Updated Data ", () => {
+    deployMode.NavigateBacktoEditor();
     //Edit existing JS object
     entityExplorer.SelectEntityByName("users", "Queries/JS");
     jsEditor.EditJSObj(`export default {
@@ -233,16 +235,24 @@ describe("Import and validate older app (app created in older versions of Appsmi
       myFun2: async () => {
         //use async-await or promises
         await this.myFun1()
-        showAlert("myFun2 Data")
+        return showAlert("myFun2 Data")
       }
     }`);
 
-    //Update property field & validate new response
+    //Update property field
     entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext("onClick", `{{users.myFun2()}}`, true, false);
+
+    //Commit & push new changes
+    gitSync.CommitAndPush();
+    cy.latestDeployPreview();
+
+    //Validate new response
+    agHelper.GetNClickByContains(locators._deployedPage, "Widgets");
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("myFun2 Data");
     agHelper.WaitUntilAllToastsDisappear();
+    deployMode.NavigateBacktoEditor();
   });
 
   after(() => {

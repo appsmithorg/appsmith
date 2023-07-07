@@ -37,7 +37,7 @@ export class GitSync {
     ".t--merge-branch-dropdown-destination";
   private _dropdownmenu = ".rc-select-item-option-content";
   private _openRepoButton = "[data-testid=t--git-repo-button]";
-  private _commitButton = ".t--commit-button";
+  public _commitButton = ".t--commit-button";
   private _commitCommentInput = ".t--commit-comment-input textarea";
 
   public _discardChanges = ".t--discard-button";
