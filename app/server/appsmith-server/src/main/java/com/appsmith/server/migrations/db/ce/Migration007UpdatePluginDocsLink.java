@@ -29,23 +29,28 @@ public class Migration007UpdatePluginDocsLink {
         final Map<String, String> newDocsLinkMap = new HashMap<>();
         newDocsLinkMap.putAll(Map.of(
                 "amazons3-plugin", "https://docs.appsmith.com/reference/datasources/querying-amazon-s3#list-files",
-                "postgres-plugin", "https://docs.appsmith.com/reference/datasources/querying-postgres#create-crud-queries",
+                "postgres-plugin",
+                        "https://docs.appsmith.com/reference/datasources/querying-postgres#create-crud-queries",
                 "mongo-plugin", "https://docs.appsmith.com/reference/datasources/querying-mongodb#create-queries",
                 "mysql-plugin", "https://docs.appsmith.com/reference/datasources/querying-mysql#create-queries",
-                "elasticsearch-plugin", "https://docs.appsmith.com/reference/datasources/querying-elasticsearch#querying-elasticsearch",
+                "elasticsearch-plugin",
+                        "https://docs.appsmith.com/reference/datasources/querying-elasticsearch#querying-elasticsearch",
                 "dynamo-plugin", "https://docs.appsmith.com/reference/datasources/querying-dynamodb#create-queries",
                 "redis-plugin", "https://docs.appsmith.com/reference/datasources/querying-redis#querying-redis",
                 "mssql-plugin", "https://docs.appsmith.com/reference/datasources/querying-mssql#create-queries",
-                "firestore-plugin", "https://docs.appsmith.com/reference/datasources/querying-firestore#understanding-commands",
-                "redshift-plugin", "https://docs.appsmith.com/reference/datasources/querying-redshift#querying-redshift"
-        ));
+                "firestore-plugin",
+                        "https://docs.appsmith.com/reference/datasources/querying-firestore#understanding-commands",
+                "redshift-plugin",
+                        "https://docs.appsmith.com/reference/datasources/querying-redshift#querying-redshift"));
         newDocsLinkMap.putAll(Map.of(
-                "google-sheets-plugin", "https://docs.appsmith.com/reference/datasources/querying-google-sheets#create-queries",
-                "snowflake-plugin", "https://docs.appsmith.com/reference/datasources/querying-snowflake-db#querying-snowflake",
-                "arangodb-plugin", "https://docs.appsmith.com/reference/datasources/querying-arango-db#using-queries-in-applications",
+                "google-sheets-plugin",
+                        "https://docs.appsmith.com/reference/datasources/querying-google-sheets#create-queries",
+                "snowflake-plugin",
+                        "https://docs.appsmith.com/reference/datasources/querying-snowflake-db#querying-snowflake",
+                "arangodb-plugin",
+                        "https://docs.appsmith.com/reference/datasources/querying-arango-db#using-queries-in-applications",
                 "smtp-plugin", "https://docs.appsmith.com/reference/datasources/using-smtp",
-                "graphql-plugin", "https://docs.appsmith.com/reference/datasources/graphql#create-queries"
-        ));
+                "graphql-plugin", "https://docs.appsmith.com/reference/datasources/graphql#create-queries"));
 
         List<Plugin> plugins = mongoTemplate.findAll(Plugin.class);
 

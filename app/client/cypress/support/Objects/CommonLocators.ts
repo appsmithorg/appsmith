@@ -121,7 +121,7 @@ export class CommonLocators {
     `.t--widget-card-draggable-${widgetType}`;
   _propertyToggleValue = (controlToToggle: string) =>
     "//div[contains(@class, 't--property-control-" +
-    controlToToggle +
+    controlToToggle.replace(/ +/g, "").toLowerCase() +
     "')]//input[@type='checkbox']/parent::label";
   _openNavigationTab = (tabToOpen: string) =>
     `//span[text()='${tabToOpen}']/ancestor::div`;

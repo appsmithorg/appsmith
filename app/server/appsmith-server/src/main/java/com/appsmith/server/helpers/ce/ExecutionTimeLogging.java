@@ -23,22 +23,28 @@ public class ExecutionTimeLogging {
 
     public String print() {
         StringBuilder sb = new StringBuilder();
-        sb.append("\nTime consumed for the operation ").append(System.currentTimeMillis() - startTime).append("\n");
+        sb.append("\nTime consumed for the operation ")
+                .append(System.currentTimeMillis() - startTime)
+                .append("\n");
         for (String taskName : taskStartTime.keySet()) {
             sb.append(taskName)
-                    .append(";").append(taskStartTime.get(taskName))
-                    .append(";").append(taskEndTime.getOrDefault(taskName, 0L))
-                    .append(";").append(taskEndTime.getOrDefault(taskName, 0L) - taskStartTime.get(taskName))
+                    .append(";")
+                    .append(taskStartTime.get(taskName))
+                    .append(";")
+                    .append(taskEndTime.getOrDefault(taskName, 0L))
+                    .append(";")
+                    .append(taskEndTime.getOrDefault(taskName, 0L) - taskStartTime.get(taskName))
                     .append("\n");
         }
         return sb.toString();
     }
 
     public <T> Mono<T> measureTask(String name, Mono<T> mono) {
-        //stopWatch.start(name);
+        // stopWatch.start(name);
         return mono.map(time -> {
-            stopTimer(name);
-            return time;
-        }).doOnSubscribe((s) -> startTimer(name));
+                    stopTimer(name);
+                    return time;
+                })
+                .doOnSubscribe((s) -> startTimer(name));
     }
 }

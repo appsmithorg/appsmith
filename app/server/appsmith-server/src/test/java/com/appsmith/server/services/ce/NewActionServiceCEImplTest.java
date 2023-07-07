@@ -7,7 +7,6 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -25,6 +24,7 @@ import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
+import com.appsmith.server.solutions.PolicySolution;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +43,6 @@ import reactor.test.StepVerifier;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 
-
 @ExtendWith(SpringExtension.class)
 @Slf4j
 public class NewActionServiceCEImplTest {
@@ -52,58 +51,83 @@ public class NewActionServiceCEImplTest {
 
     @MockBean
     Scheduler scheduler;
+
     @MockBean
     Validator validator;
+
     @MockBean
     MongoConverter mongoConverter;
+
     @MockBean
     ReactiveMongoTemplate reactiveMongoTemplate;
+
     @MockBean
     AnalyticsService analyticsService;
+
     @MockBean
     DatasourceService datasourceService;
+
     @MockBean
     PluginService pluginService;
+
     @MockBean
     DatasourceContextService datasourceContextService;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
+
     @MockBean
     MarketplaceService marketplaceService;
+
     @MockBean
     PolicyGenerator policyGenerator;
+
     @MockBean
     NewPageService newPageService;
+
     @MockBean
     ApplicationService applicationService;
+
     @MockBean
     SessionUserService sessionUserService;
+
     @MockBean
     PolicySolution policySolution;
+
     @MockBean
     AuthenticationValidator authenticationValidator;
+
     @MockBean
     ConfigService configService;
+
     @MockBean
     ResponseUtils responseUtils;
+
     @MockBean
     PermissionGroupService permissionGroupService;
+
     @MockBean
     NewActionRepository newActionRepository;
+
     @MockBean
     DatasourcePermission datasourcePermission;
+
     @MockBean
     ApplicationPermission applicationPermission;
+
     @MockBean
     PagePermission pagePermission;
+
     @MockBean
     ActionPermission actionPermission;
+
     @MockBean
     ObservationRegistry observationRegistry;
 
     @BeforeEach
     public void setup() {
-        newActionService = new NewActionServiceCEImpl(scheduler,
+        newActionService = new NewActionServiceCEImpl(
+                scheduler,
                 validator,
                 mongoConverter,
                 reactiveMongoTemplate,
@@ -126,7 +150,8 @@ public class NewActionServiceCEImplTest {
                 actionPermission,
                 observationRegistry);
 
-        ObservationRegistry.ObservationConfig mockObservationConfig = Mockito.mock(ObservationRegistry.ObservationConfig.class);
+        ObservationRegistry.ObservationConfig mockObservationConfig =
+                Mockito.mock(ObservationRegistry.ObservationConfig.class);
         Mockito.when(observationRegistry.observationConfig()).thenReturn(mockObservationConfig);
     }
 
@@ -136,8 +161,7 @@ public class NewActionServiceCEImplTest {
         Plugin testPlugin = new Plugin();
         testPlugin.setId("testId");
         testPlugin.setType(PluginType.DB);
-        Mockito.when(pluginService.findById(anyString()))
-                .thenReturn(Mono.just(testPlugin));
+        Mockito.when(pluginService.findById(anyString())).thenReturn(Mono.just(testPlugin));
 
         NewAction action = new NewAction();
         action.setPluginId(null);
@@ -164,8 +188,7 @@ public class NewActionServiceCEImplTest {
         Plugin testPlugin = new Plugin();
         testPlugin.setId("testId");
         testPlugin.setType(PluginType.JS);
-        Mockito.when(pluginService.findByPackageName(anyString()))
-                .thenReturn(Mono.just(testPlugin));
+        Mockito.when(pluginService.findByPackageName(anyString())).thenReturn(Mono.just(testPlugin));
 
         NewAction action = new NewAction();
         action.setPluginId(null);
@@ -183,5 +206,4 @@ public class NewActionServiceCEImplTest {
                 })
                 .verifyComplete();
     }
-
 }
