@@ -441,7 +441,7 @@ export class HomePage {
   }
 
   public ImportGitApp(intoWorkspaceName = "") {
-    cy.get(this._homeIcon).click({ force: true });
+    this.NavigateToHome();
     if (intoWorkspaceName)
       this.agHelper.GetNClick(this._optionsIconInWorkspace(intoWorkspaceName));
     else this.agHelper.GetNClick(this._optionsIcon);
