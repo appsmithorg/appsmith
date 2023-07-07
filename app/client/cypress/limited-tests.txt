@@ -1,1 +1,1 @@
-cypress/e2e/**/**/*
+cypress/e2e/Regression/ClientSide/BugTests/InputTruncateCheck_Spec.ts
