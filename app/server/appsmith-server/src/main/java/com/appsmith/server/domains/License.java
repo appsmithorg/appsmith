@@ -4,6 +4,4 @@ import com.appsmith.server.domains.ce.LicenseCE;
 import lombok.Data;
 
 @Data
-public class License extends LicenseCE {
-
-}
+public class License extends LicenseCE {}

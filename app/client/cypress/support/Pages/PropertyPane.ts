@@ -107,6 +107,20 @@ export class PropertyPane {
   }`;
   private _propPaneSelectedItem = (option: string) =>
     `.t--property-control-${option} span.rc-select-selection-item span`;
+  _autoHeightLimitMin = "[data-testid='t--auto-height-overlay-handles-min']";
+  _autoHeightLimitMin_div =
+    "[data-testid='t--auto-height-overlay-handles-min'] div";
+  _autoHeightLimitMax = "[data-testid='t--auto-height-overlay-handles-max']";
+  _labelContains = (value: string) => `label:Contains('${value}')`;
+  _showColumnButton = ".t--show-column-btn";
+  _propertyPaneHeightLabel =
+    ".t--property-pane-section-general .t--property-control-label:contains('Height')";
+  _tabId1 = ".t--tabid-tab1";
+  _tabId2 = ".t--tabid-tab2";
+  _showTabsProperty = ".t--property-control-showtabs input";
+  _addOptionProperty = ".t--property-control-options-add";
+  _optionContent = ".rc-select-item-option-content";
+  _dropdownOptionSpan = ".t--dropdown-option span";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
@@ -198,6 +212,7 @@ export class PropertyPane {
         .should("not.be.checked");
     }
     this.agHelper.AssertAutoSave();
+    this.assertHelper.AssertNetworkStatus("updateLayout");
   }
 
   public MoveToTab(tab: "Content" | "Style") {

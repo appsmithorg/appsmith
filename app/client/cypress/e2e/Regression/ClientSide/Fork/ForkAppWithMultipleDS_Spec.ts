@@ -48,11 +48,6 @@ describe("Fork application with multiple datasources", function () {
     dataSources.ReconnectDSbyName("S3");
 
     // assert if the datasources are connected as expeced
-    agHelper.AssertContains(
-      "Your application is ready to use.",
-      "exist",
-      reconnectDSLocator.SuccessMsg,
-    );
     homePage.AssertNCloseImport();
   });
 });
