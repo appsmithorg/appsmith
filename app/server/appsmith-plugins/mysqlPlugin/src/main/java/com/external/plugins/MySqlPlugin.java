@@ -42,6 +42,8 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 import reactor.pool.PoolShutdownException;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -65,6 +67,7 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 import static com.appsmith.external.helpers.PluginUtils.MATCH_QUOTED_WORDS_REGEX;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
+import static com.appsmith.external.helpers.SSHUtils.createSSHTunnel;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static com.external.plugins.exceptions.MySQLErrorMessages.CONNECTION_VALIDITY_CHECK_FAILED_ERROR_MSG;
 import static com.external.utils.MySqlDatasourceUtils.getNewConnectionPool;
@@ -569,9 +572,11 @@ public class MySqlPlugin extends BasePlugin {
         @Override
         public Mono<ConnectionPool> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             ConnectionPool pool = null;
+            ServerSocket serverSocket = null;
             try {
-                pool = getNewConnectionPool(datasourceConfiguration);
-            } catch (AppsmithPluginException e) {
+                serverSocket = createSSHTunnel();
+                pool = getNewConnectionPool(datasourceConfiguration, serverSocket);
+            } catch (AppsmithPluginException | IOException e) {
                 return Mono.error(e);
             }
             return Mono.just(pool);

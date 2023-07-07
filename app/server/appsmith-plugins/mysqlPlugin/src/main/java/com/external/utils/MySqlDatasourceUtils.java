@@ -12,12 +12,12 @@ import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.pool.ConnectionPoolConfiguration;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Option;
-import org.apache.commons.lang.ObjectUtils;
 import org.mariadb.r2dbc.MariadbConnectionConfiguration;
 import org.mariadb.r2dbc.MariadbConnectionFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.net.ServerSocket;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -59,7 +59,8 @@ public class MySqlDatasourceUtils {
      */
     public static final Duration BACKGROUND_EVICTION_TIME = Duration.ofMinutes(5);
 
-    public static ConnectionFactoryOptions.Builder getBuilder(DatasourceConfiguration datasourceConfiguration) {
+    public static ConnectionFactoryOptions.Builder getBuilder(
+            DatasourceConfiguration datasourceConfiguration, ServerSocket serverSocket) {
         DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
         StringBuilder urlBuilder = new StringBuilder();
@@ -70,7 +71,8 @@ public class MySqlDatasourceUtils {
             final List<String> hosts = new ArrayList<>();
 
             for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                hosts.add(endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 3306L));
+                //hosts.add(endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 3306L));
+                hosts.add("localhost:" + serverSocket.getLocalPort());
             }
 
             urlBuilder.append(String.join(",", hosts)).append("/");
@@ -200,9 +202,9 @@ public class MySqlDatasourceUtils {
         return invalids;
     }
 
-    public static ConnectionPool getNewConnectionPool(DatasourceConfiguration datasourceConfiguration)
-            throws AppsmithPluginException {
-        ConnectionFactoryOptions.Builder ob = getBuilder(datasourceConfiguration);
+    public static ConnectionPool getNewConnectionPool(
+            DatasourceConfiguration datasourceConfiguration, ServerSocket serverSocket) throws AppsmithPluginException {
+        ConnectionFactoryOptions.Builder ob = getBuilder(datasourceConfiguration, serverSocket);
         ob = addSslOptionsToBuilder(datasourceConfiguration, ob);
         MariadbConnectionFactory connectionFactory =
                 MariadbConnectionFactory.from(MariadbConnectionConfiguration.fromOptions(ob.build())
