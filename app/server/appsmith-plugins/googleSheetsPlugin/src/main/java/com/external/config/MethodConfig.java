@@ -6,14 +6,12 @@ import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.external.constants.ErrorMessages;
 import com.external.constants.FieldName;
-import com.external.plugins.exceptions.GSheetsPluginError;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -72,28 +70,20 @@ public class MethodConfig {
         this.sheetName = getTrimmedStringDataValueSafelyFromFormData(formData, SHEET_NAME);
         this.rowObjects = getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.ROW_OBJECTS);
 
-        if (validDataConfigurationPresentInFormData(formData, FieldName.WHERE,
-                new TypeReference<Map<String, Object>>() {
-                })) {
+        if (validDataConfigurationPresentInFormData(
+                formData, FieldName.WHERE, new TypeReference<Map<String, Object>>() {})) {
             Map<String, Object> whereForm = getDataValueSafelyFromFormData(
-                    formData,
-                    FieldName.WHERE,
-                    new TypeReference<Map<String, Object>>() {
-                    },
-                    new HashMap<>());
+                    formData, FieldName.WHERE, new TypeReference<Map<String, Object>>() {}, new HashMap<>());
             this.whereConditions = parseWhereClause(whereForm);
         }
 
-        this.projection = getDataValueSafelyFromFormData(formData, FieldName.PROJECTION, new TypeReference<>() {
-        });
+        this.projection = getDataValueSafelyFromFormData(formData, FieldName.PROJECTION, new TypeReference<>() {});
         // Always add rowIndex to a valid projection
         if (this.projection != null && !this.projection.isEmpty()) {
             this.projection.add("rowIndex");
         }
-        this.sortBy = getDataValueSafelyFromFormData(formData, FieldName.SORT_BY, new TypeReference<>() {
-        });
-        this.paginateBy = getDataValueSafelyFromFormData(formData, FieldName.PAGINATION, new TypeReference<>() {
-        });
+        this.sortBy = getDataValueSafelyFromFormData(formData, FieldName.SORT_BY, new TypeReference<>() {});
+        this.paginateBy = getDataValueSafelyFromFormData(formData, FieldName.PAGINATION, new TypeReference<>() {});
     }
 
     private void setSpreadsheetUrlFromSpreadsheetId() {
@@ -101,7 +91,9 @@ public class MethodConfig {
         if (matcher.find()) {
             this.spreadsheetId = matcher.group(1);
         } else {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.SPREADSHEET_ID_NOT_FOUND_IN_URL_ERROR_MSG);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    ErrorMessages.SPREADSHEET_ID_NOT_FOUND_IN_URL_ERROR_MSG);
         }
     }
 
@@ -117,5 +109,4 @@ public class MethodConfig {
                 setSpreadsheetUrlFromSpreadsheetId();
         }
     }
-
 }

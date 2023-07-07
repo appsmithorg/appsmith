@@ -1,25 +1,5 @@
 package com.external.plugins;
 
-import static com.appsmith.external.constants.DisplayDataType.JSON;
-import static com.appsmith.external.constants.DisplayDataType.RAW;
-import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
-import static com.external.plugins.constants.FieldName.BODY;
-import static com.external.plugins.constants.FieldName.COMMAND;
-import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -33,14 +13,31 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
-
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.appsmith.external.constants.DisplayDataType.JSON;
+import static com.appsmith.external.constants.DisplayDataType.RAW;
+import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
+import static com.external.plugins.constants.FieldName.BODY;
+import static com.external.plugins.constants.FieldName.COMMAND;
+import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for MongoPlugin
  */
-
 @Testcontainers
 public class MongoPluginRegexTest {
     MongoPlugin.MongoPluginExecutor pluginExecutor = new MongoPlugin.MongoPluginExecutor();
@@ -60,7 +57,6 @@ public class MongoPluginRegexTest {
         port = mongoContainer.getFirstMappedPort();
         String uri = "mongodb://" + address + ":" + port;
         mongoClient = MongoClients.create(uri);
-
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -82,8 +78,6 @@ public class MongoPluginRegexTest {
         return dsConfig;
     }
 
-    
-
     @Test
     public void testRegexStringQueryWithSmartSubstitution() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
@@ -96,29 +90,27 @@ public class MongoPluginRegexTest {
         setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
 
-
-        String rawFind = "{ find: \"users\", \n " +
-                "filter: {\"name\":{$regex: \"{{appsmith.store.variable}}\"}}}";
+        String rawFind = "{ find: \"users\", \n " + "filter: {\"name\":{$regex: \"{{appsmith.store.variable}}\"}}}";
         setDataValueSafelyInFormData(configMap, BODY, rawFind);
 
         actionConfiguration.setFormData(configMap);
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "[a-zA-Z]{0,3}.*Ci.*")));
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
-                                                                                                                                                executeActionDTO,
-                                                                                                                                                dsConfig,
-                                                                                                                                                actionConfiguration));
+        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection ->
+                pluginExecutor.executeParameterized(clientConnection, executeActionDTO, dsConfig, actionConfiguration));
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
                     assertNotNull(actionExecutionResult);
                     assertTrue(actionExecutionResult.getIsExecutionSuccess());
                     assertEquals(1, ((ArrayNode) actionExecutionResult.getBody()).size());
-                    assertEquals(List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(), actionExecutionResult.getDataTypes().toString());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW))
+                                    .toString(),
+                            actionExecutionResult.getDataTypes().toString());
                 })
                 .verifyComplete();
     }
-
 
     @Test
     public void testRegexNumberQueryWithSmartSubstitution() {
@@ -132,25 +124,26 @@ public class MongoPluginRegexTest {
         setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
 
-        String rawFind = "{ find: \"teams\", \n " +
-                "filter: {\"goals_allowed\":{$regex: \"{{appsmith.store.variable}}\"}}}";
+        String rawFind =
+                "{ find: \"teams\", \n " + "filter: {\"goals_allowed\":{$regex: \"{{appsmith.store.variable}}\"}}}";
         setDataValueSafelyInFormData(configMap, BODY, rawFind);
 
         actionConfiguration.setFormData(configMap);
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "35")));
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
-                                                                                                                                                executeActionDTO,
-                                                                                                                                                dsConfig,
-                                                                                                                                                actionConfiguration));
+        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection ->
+                pluginExecutor.executeParameterized(clientConnection, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
                     assertNotNull(actionExecutionResult);
                     assertTrue(actionExecutionResult.getIsExecutionSuccess());
                     assertEquals(1, ((ArrayNode) actionExecutionResult.getBody()).size());
-                    assertEquals(List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(), actionExecutionResult.getDataTypes().toString());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW))
+                                    .toString(),
+                            actionExecutionResult.getDataTypes().toString());
                 })
                 .verifyComplete();
     }
@@ -167,26 +160,26 @@ public class MongoPluginRegexTest {
         setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
 
-
-        String rawFind = "{ find: \"teams\", \n " +
-                "filter: {\"best_scoreline\":{$regex: \"{{appsmith.store.variable}}\"}}}";
+        String rawFind =
+                "{ find: \"teams\", \n " + "filter: {\"best_scoreline\":{$regex: \"{{appsmith.store.variable}}\"}}}";
         setDataValueSafelyInFormData(configMap, BODY, rawFind);
 
         actionConfiguration.setFormData(configMap);
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "5-.*")));
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
-                                                                                                                                                executeActionDTO,
-                                                                                                                                                dsConfig,
-                                                                                                                                                actionConfiguration));
+        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection ->
+                pluginExecutor.executeParameterized(clientConnection, executeActionDTO, dsConfig, actionConfiguration));
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
                     assertNotNull(actionExecutionResult);
                     assertTrue(actionExecutionResult.getIsExecutionSuccess());
                     System.out.println(actionExecutionResult.getBody());
                     assertEquals(1, ((ArrayNode) actionExecutionResult.getBody()).size());
-                    assertEquals(List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(), actionExecutionResult.getDataTypes().toString());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW))
+                                    .toString(),
+                            actionExecutionResult.getDataTypes().toString());
                 })
                 .verifyComplete();
     }
@@ -203,30 +196,29 @@ public class MongoPluginRegexTest {
         setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
 
-
-        String rawFind = "{ find: \"teams\", \n " +
-                "filter: {\"goal_difference\":{$regex: \"{{appsmith.store.variable}}\"}}}";
+        String rawFind =
+                "{ find: \"teams\", \n " + "filter: {\"goal_difference\":{$regex: \"{{appsmith.store.variable}}\"}}}";
         setDataValueSafelyInFormData(configMap, BODY, rawFind);
 
         actionConfiguration.setFormData(configMap);
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "-7")));
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
-                                                                                                                                                executeActionDTO,
-                                                                                                                                                dsConfig,
-                                                                                                                                                actionConfiguration));
+        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection ->
+                pluginExecutor.executeParameterized(clientConnection, executeActionDTO, dsConfig, actionConfiguration));
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
                     assertNotNull(actionExecutionResult);
                     assertTrue(actionExecutionResult.getIsExecutionSuccess());
                     System.out.println(actionExecutionResult.getBody());
                     assertEquals(1, ((ArrayNode) actionExecutionResult.getBody()).size());
-                    assertEquals(List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(), actionExecutionResult.getDataTypes().toString());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW))
+                                    .toString(),
+                            actionExecutionResult.getDataTypes().toString());
                 })
                 .verifyComplete();
     }
-
 
     @Test
     public void testRegexNegativeDecimalNumberQueryWithSmartSubstitution() {
@@ -240,28 +232,26 @@ public class MongoPluginRegexTest {
         setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
 
-
-        String rawFind = "{ find: \"teams\", \n " +
-                "filter: {\"xGD\":{$regex: \"{{appsmith.store.variable}}\"}}}";
+        String rawFind = "{ find: \"teams\", \n " + "filter: {\"xGD\":{$regex: \"{{appsmith.store.variable}}\"}}}";
         setDataValueSafelyInFormData(configMap, BODY, rawFind);
 
         actionConfiguration.setFormData(configMap);
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setParams(List.of(new Param("appsmith.store.variable", "-2.5")));
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection -> pluginExecutor.executeParameterized(clientConnection,
-                                                                                                                                                executeActionDTO,
-                                                                                                                                                dsConfig,
-                                                                                                                                                actionConfiguration));
+        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection ->
+                pluginExecutor.executeParameterized(clientConnection, executeActionDTO, dsConfig, actionConfiguration));
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
                     assertNotNull(actionExecutionResult);
                     assertTrue(actionExecutionResult.getIsExecutionSuccess());
                     System.out.println(actionExecutionResult.getBody());
                     assertEquals(1, ((ArrayNode) actionExecutionResult.getBody()).size());
-                    assertEquals(List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(), actionExecutionResult.getDataTypes().toString());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW))
+                                    .toString(),
+                            actionExecutionResult.getDataTypes().toString());
                 })
                 .verifyComplete();
     }
-
 }

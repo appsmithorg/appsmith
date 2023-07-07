@@ -30,8 +30,8 @@ public class ExecutionUtils {
      * @throws AppsmithPluginException
      * @throws StaleConnectionException
      */
-    public static List<Map<String, Object>> getRowsFromQueryResult(Connection connection, String query) throws
-            AppsmithPluginException, StaleConnectionException {
+    public static List<Map<String, Object>> getRowsFromQueryResult(Connection connection, String query)
+            throws AppsmithPluginException, StaleConnectionException {
         List<Map<String, Object>> rowsList = new ArrayList<>();
         ResultSet resultSet = null;
         Statement statement = null;
@@ -63,7 +63,11 @@ public class ExecutionUtils {
                 throw new StaleConnectionException(e.getMessage());
             }
             log.error("Exception caught when executing Snowflake query. Cause: ", e);
-            throw new AppsmithPluginException(SnowflakePluginError.QUERY_EXECUTION_FAILED, SnowflakeErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, e.getMessage(), "SQLSTATE: " + e.getSQLState() );
+            throw new AppsmithPluginException(
+                    SnowflakePluginError.QUERY_EXECUTION_FAILED,
+                    SnowflakeErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
+                    e.getMessage(),
+                    "SQLSTATE: " + e.getSQLState());
 
         } finally {
             if (resultSet != null) {

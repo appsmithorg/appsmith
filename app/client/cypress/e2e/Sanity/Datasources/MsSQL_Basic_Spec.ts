@@ -239,7 +239,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       action: "Delete",
       entityType: entityItems.Datasource,
     });
-    dataSources.StopNDeleteContainer(containerName);
+    //dataSources.StopNDeleteContainer(containerName); //commenting to check if MsSQL specific container deletion is causing issues
   });
 
   function runQueryNValidate(query: string, columnHeaders: string[]) {

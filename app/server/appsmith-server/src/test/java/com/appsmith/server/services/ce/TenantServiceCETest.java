@@ -17,7 +17,6 @@ import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 public class TenantServiceCETest {
@@ -40,9 +39,9 @@ public class TenantServiceCETest {
                 .assertNext(tenant -> {
                     assertThat(tenant.getTenantConfiguration()).isNotNull();
                     assertThat(tenant.getTenantConfiguration().getLicense()).isNotNull();
-                    assertThat(tenant.getTenantConfiguration().getLicense().getPlan()).isEqualTo(LicensePlan.FREE);
+                    assertThat(tenant.getTenantConfiguration().getLicense().getPlan())
+                            .isEqualTo(LicensePlan.FREE);
                 })
                 .verifyComplete();
-
     }
 }

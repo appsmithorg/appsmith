@@ -35,8 +35,7 @@ public class MongoErrorUtils extends AppsmithPluginErrorUtils {
             }
 
             externalError = ((AppsmithPluginException) error).getExternalError();
-        }
-        else {
+        } else {
             externalError = error;
         }
 
@@ -44,7 +43,8 @@ public class MongoErrorUtils extends AppsmithPluginErrorUtils {
             MongoCommandException mongoCommandError = (MongoCommandException) externalError;
             int errorCode = mongoCommandError.getCode();
 
-            // Error codes ref: https://github.com/mongodb/mongo/blob/50dc6dbe394c42d03659aa3410954f1e3ff46740/src/mongo/base/error_codes.err#L12
+            // Error codes ref:
+            // https://github.com/mongodb/mongo/blob/50dc6dbe394c42d03659aa3410954f1e3ff46740/src/mongo/base/error_codes.err#L12
             switch (errorCode) {
                 case 9: // FailedToParse error
 
@@ -55,7 +55,8 @@ public class MongoErrorUtils extends AppsmithPluginErrorUtils {
                      *
                      * Return string: 'limit' field must be numeric.
                      */
-                    return getLast(mongoCommandError.getErrorMessage().split("\\.")).trim() + ".";
+                    return getLast(mongoCommandError.getErrorMessage().split("\\."))
+                                    .trim() + ".";
                 default:
 
                     /**
@@ -68,8 +69,7 @@ public class MongoErrorUtils extends AppsmithPluginErrorUtils {
                      */
                     return mongoCommandError.getErrorMessage().split("\\.")[0].trim() + ".";
             }
-        }
-        else if (externalError instanceof MongoSecurityException) {
+        } else if (externalError instanceof MongoSecurityException) {
             MongoSecurityException mongoSecurityError = (MongoSecurityException) externalError;
             int errorCode = mongoSecurityError.getCode();
             switch (errorCode) {
