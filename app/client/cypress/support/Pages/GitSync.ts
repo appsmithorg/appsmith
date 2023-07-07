@@ -39,8 +39,9 @@ export class GitSync {
   private _openRepoButton = "[data-testid=t--git-repo-button]";
   private _commitButton = ".t--commit-button";
   private _commitCommentInput = ".t--commit-comment-input textarea";
-  private _discardChanges = ".t--discard-button";
-  public _gitStatusChanges = "[data-testid='t--git-change-statuses']";
+
+  public _discardChanges = ".t--discard-button";
+  public _discardCallout = "[data-testid='t--discard-callout']";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
