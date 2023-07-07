@@ -4,6 +4,7 @@ import {
   agHelper,
   propPane,
   draggableWidgets,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation", function () {
@@ -23,7 +24,7 @@ describe("Dynamic Height Width validation", function () {
           )
           .then((updatedListHeight: number) => {
             expect(currentListHeight).to.equal(updatedListHeight);
-            agHelper.GetNAssertContains(locators._pagination, "5");
+            table.AssertPageNumber_List(5);
           });
       });
   });
