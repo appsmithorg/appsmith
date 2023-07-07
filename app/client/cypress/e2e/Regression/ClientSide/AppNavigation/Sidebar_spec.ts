@@ -12,7 +12,6 @@ describe("Test Sidebar navigation style", function () {
     // Import an application
     homePage.NavigateToHome();
     homePage.ImportApp("appNavigationTestingAppWithLongPageNamesAndTitle.json");
-
     assertHelper
       .WaitForNetworkCall("@importNewApplication")
       .then((interception) => {
@@ -82,9 +81,7 @@ describe("Test Sidebar navigation style", function () {
     agHelper.AssertElementExist(appSettings.locators._applicationName);
     agHelper.AssertElementExist(appSettings.locators._shareButton);
     agHelper.AssertElementExist(locators._backToEditor);
-    agHelper.AssertElementExist(
-      homePage._profileMenu,
-    );
+    agHelper.AssertElementExist(homePage._profileMenu);
   });
 
   it("5. Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu", () => {

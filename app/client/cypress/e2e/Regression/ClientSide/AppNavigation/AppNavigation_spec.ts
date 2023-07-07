@@ -25,9 +25,7 @@ describe("General checks for app navigation", function () {
     agHelper.AssertElementExist(appSettings.locators._applicationName);
     agHelper.AssertElementExist(appSettings.locators._shareButton);
     agHelper.AssertElementExist(locators._backToEditor);
-    agHelper.AssertElementExist(
-      homePage._profileMenu,
-    );
+    agHelper.AssertElementExist(homePage._profileMenu);
   });
 
   it("3. Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu", () => {
