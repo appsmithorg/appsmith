@@ -826,7 +826,7 @@ export class DataSources {
     }
   }
 
-  public ReconnectDataSource(
+  public ReconnectSingleDSNAssert(
     dbName: string,
     dsName: "PostgreSQL" | "MySQL" | "MongoDB",
   ) {
@@ -836,6 +836,7 @@ export class DataSources {
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     else if (dsName == "MongoDB") this.FillMongoDSForm();
     this.agHelper.GetNClick(this._saveDs);
+    this.SaveDatasource(true);
     this.assertHelper.AssertNetworkStatus("@getPage", 200);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
