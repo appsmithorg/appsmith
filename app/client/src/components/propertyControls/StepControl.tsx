@@ -13,7 +13,7 @@ const MIN = 0;
 const MAX = 100;
 
 class StepControl extends BaseControl<StepControlProps> {
-  componentRef = React.createRef<HTMLDivElement>();
+  componentRef = React.createRef<HTMLInputElement>();
 
   componentDidMount() {
     this.componentRef.current?.addEventListener(
@@ -64,15 +64,13 @@ class StepControl extends BaseControl<StepControlProps> {
       <NumberInput
         max={max}
         min={min}
-        onChange={(value: number, isUpdatedViaKeyboard: boolean) => {
-          this.updateProperty(
-            this.props.propertyName,
-            value,
-            isUpdatedViaKeyboard,
-          );
+        // TODO: UI builders -> confirm isUpdatedViaKeyboard is needed going forward
+        onChange={(value: string | undefined, isUpdatedViaKeyboard = false) => {
+          const v = value ? parseFloat(value.replace(/[^0-9.-]+/g, "")) : 0;
+          this.updateProperty(this.props.propertyName, v, isUpdatedViaKeyboard);
         }}
         ref={this.componentRef}
-        steps={steps}
+        scale={steps}
         suffix={suffix}
         value={this.props.propertyValue}
       />
