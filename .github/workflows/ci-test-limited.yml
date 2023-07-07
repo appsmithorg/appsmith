@@ -117,13 +117,9 @@ jobs:
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           while IFS= read -r line
           do
-            if [[ $line =~ ^#|^\/\/ ]]; then
-              continue
-            else
-              spec_name=$(echo $line | awk -F'/' '{print $NF}')
-              failed_spec_env=$(find . -name $spec_name | sed 's|./||')
-              echo "$failed_spec_env" >> $GITHUB_ENV
-            fi
+            spec_name=$(echo $line | awk -F'/' '{print $NF}')
+            failed_spec_env=$(find . -name $spec_name | sed 's|./||')
+            echo "$failed_spec_env" >> $GITHUB_ENV
           done < ~/combined_failed_spec_ci/combined_failed_spec_ci
           echo "EOF" >> $GITHUB_ENV
 
@@ -131,9 +127,15 @@ jobs:
       - name: Get specs to run
         if: steps.run_result.outputs.run_result != 'success'
         run: |
-          specs_to_run=$(cat app/client/cypress/limited-tests.txt)
           echo "specs_to_run<<EOF" >> $GITHUB_ENV
-          echo "$specs_to_run" >> $GITHUB_ENV
+          while IFS= read -r line
+          do
+            if [[ $line =~ ^#|^\/\/ ]]; then
+              continue
+            else
+              echo "$line" >> $GITHUB_ENV
+            fi
+          done < app/client/cypress/limited-tests.txt
           echo "EOF" >> $GITHUB_ENV
 
       # In case of run-id provided download the artifact from the previous run

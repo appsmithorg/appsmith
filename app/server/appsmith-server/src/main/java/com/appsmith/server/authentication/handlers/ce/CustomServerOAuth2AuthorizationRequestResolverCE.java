@@ -183,13 +183,15 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
                 .build());
     }
 
-    protected void addAttributesAndAdditionalParameters(ClientRegistration clientRegistration,
-                                                        Map<String, Object> attributes,
-                                                        Map<String, Object> additionalParameters) {
+    protected void addAttributesAndAdditionalParameters(
+            ClientRegistration clientRegistration,
+            Map<String, Object> attributes,
+            Map<String, Object> additionalParameters) {
 
-        if (!CollectionUtils.isEmpty(clientRegistration.getScopes()) &&
-                clientRegistration.getScopes().contains(OidcScopes.OPENID)) {
-            // Section 3.1.2.1 Authentication Request - https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+        if (!CollectionUtils.isEmpty(clientRegistration.getScopes())
+                && clientRegistration.getScopes().contains(OidcScopes.OPENID)) {
+            // Section 3.1.2.1 Authentication Request -
+            // https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
             // scope
             // 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
             addNonceParameters(attributes, additionalParameters);
@@ -201,7 +203,8 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
             if (commonConfig.getOauthAllowedDomains().size() == 1) {
                 // Incase there's only 1 domain, we can do a further optimization to let the user select a specific one
                 // from the list
-                additionalParameters.put("hd", commonConfig.getOauthAllowedDomains().get(0));
+                additionalParameters.put(
+                        "hd", commonConfig.getOauthAllowedDomains().get(0));
             } else {
                 // Add multiple domains to the list of allowed domains
                 additionalParameters.put("hd", commonConfig.getOauthAllowedDomains());
