@@ -4,5 +4,4 @@ import com.appsmith.server.solutions.ce.ApplicationPermissionCEImpl;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ApplicationPermissionImpl extends ApplicationPermissionCEImpl implements ApplicationPermission {
-}
+public class ApplicationPermissionImpl extends ApplicationPermissionCEImpl implements ApplicationPermission {}

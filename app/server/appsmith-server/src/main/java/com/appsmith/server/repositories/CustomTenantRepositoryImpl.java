@@ -6,9 +6,10 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 
 public class CustomTenantRepositoryImpl extends CustomTenantRepositoryCEImpl implements CustomTenantRepository {
 
-    public CustomTenantRepositoryImpl(ReactiveMongoOperations mongoOperations,
-                                      MongoConverter mongoConverter,
-                                      CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomTenantRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
 
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }

@@ -8,11 +8,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class CustomGroupRepositoryImpl extends CustomGroupRepositoryCEImpl
-        implements CustomGroupRepository {
+public class CustomGroupRepositoryImpl extends CustomGroupRepositoryCEImpl implements CustomGroupRepository {
 
-    public CustomGroupRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomGroupRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
-
 }

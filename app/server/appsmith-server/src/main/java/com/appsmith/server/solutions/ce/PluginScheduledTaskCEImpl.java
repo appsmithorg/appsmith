@@ -22,13 +22,13 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
 
     private Instant lastUpdatedAt = null;
 
-
     // Number of milliseconds between the start of each scheduled calls to this method.
     @Scheduled(initialDelay = 30 * 1000 /* 30 seconds */, fixedRate = 2 * 60 * 60 * 1000 /* two hours */)
     public void updateRemotePlugins() {
         // Moving the fetch and update remote plugins to helper classes to have custom implementation for business
         // edition
-        pluginScheduledTaskUtils.fetchAndUpdateRemotePlugins(lastUpdatedAt)
+        pluginScheduledTaskUtils
+                .fetchAndUpdateRemotePlugins(lastUpdatedAt)
                 // Set new updated time
                 .doOnSuccess(success -> this.lastUpdatedAt = Instant.now())
                 .subscribeOn(Schedulers.single())

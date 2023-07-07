@@ -111,27 +111,23 @@ public class UpdateMany extends MongoCommand {
         setDataValueSafelyInFormData(configMap, COMMAND, "UPDATE");
         setDataValueSafelyInFormData(configMap, COLLECTION, collectionName);
         setDataValueSafelyInFormData(configMap, UPDATE_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
-        setDataValueSafelyInFormData(configMap, UPDATE_OPERATION, "{ \"$set\": { \"" + filterFieldName + "\": \"new value\" } }");
+        setDataValueSafelyInFormData(
+                configMap, UPDATE_OPERATION, "{ \"$set\": { \"" + filterFieldName + "\": \"new value\" } }");
         setDataValueSafelyInFormData(configMap, UPDATE_LIMIT, "ALL");
 
-        String rawQuery = "{\n" +
-                "  \"update\": \"" + collectionName + "\",\n" +
-                "  \"updates\": [\n" +
-                "    {\n" +
-                "      \"q\": {\n" +
-                "        \"_id\": ObjectId(\"id_of_document_to_update\")\n" +
-                "      },\n" +
-                "      \"u\": { \"$set\": { \"" + filterFieldName + "\": \"new value\" } }\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}\n";
+        String rawQuery = "{\n" + "  \"update\": \""
+                + collectionName + "\",\n" + "  \"updates\": [\n"
+                + "    {\n"
+                + "      \"q\": {\n"
+                + "        \"_id\": ObjectId(\"id_of_document_to_update\")\n"
+                + "      },\n"
+                + "      \"u\": { \"$set\": { \""
+                + filterFieldName + "\": \"new value\" } }\n" + "    }\n"
+                + "  ]\n"
+                + "}\n";
         setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
-        return Collections.singletonList(new DatasourceStructure.Template(
-                "Update",
-                null,
-                configMap
-        ));
+        return Collections.singletonList(new DatasourceStructure.Template("Update", null, configMap));
     }
 
     /**

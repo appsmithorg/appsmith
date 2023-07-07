@@ -191,6 +191,7 @@ export default class DependencyMap {
         queue.push(n);
       }
     }
+
     return reachableNodes;
   }
 }
