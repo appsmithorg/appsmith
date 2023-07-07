@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from "react";
+import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createActionRequest } from "actions/pluginActionActions";
 import type { AppState } from "@appsmith/reducers";
@@ -16,12 +16,10 @@ import { integrationEditorURL } from "RouteBuilder";
 import { MenuItem } from "design-system";
 import type { Plugin } from "api/PluginApi";
 import { DatasourceStructureContext } from "./DatasourceStructureContainer";
-import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import {
   AB_TESTING_EVENT_KEYS,
   FEATURE_FLAG,
 } from "@appsmith/entities/FeatureFlag";
-import { setFeatureFlagShownStatus } from "utils/storage";
 import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 import styled from "styled-components";
 
@@ -49,8 +47,6 @@ const TemplateMenuItem = styled(MenuItem)`
 
 export function QueryTemplates(props: QueryTemplatesProps) {
   const dispatch = useDispatch();
-  const { isOpened: isWalkthroughOpened, popFeature } =
-    useContext(WalkthroughContext) || {};
   const applicationId = useSelector(getCurrentApplicationId);
   const actions = useSelector((state: AppState) => state.entities.actions);
   const currentPageId = useSelector(getCurrentPageId);
@@ -92,7 +88,6 @@ export function QueryTemplates(props: QueryTemplatesProps) {
             dataSource: dataSource?.name,
             datasourceId: props.datasourceId,
             pluginName: plugin?.name,
-            isWalkthroughOpened,
             [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
               FEATURE_FLAG.ab_ds_schema_enabled,
             [AB_TESTING_EVENT_KEYS.abTestingFlagValue]:
@@ -101,11 +96,6 @@ export function QueryTemplates(props: QueryTemplatesProps) {
           ...queryactionConfiguration,
         }),
       );
-
-      if (isWalkthroughOpened) {
-        popFeature && popFeature();
-        setFeatureFlagShownStatus(FEATURE_FLAG.ab_ds_schema_enabled, true);
-      }
 
       history.push(
         integrationEditorURL({

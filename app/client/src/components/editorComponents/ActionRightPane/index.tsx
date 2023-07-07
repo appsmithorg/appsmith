@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import { Classes, getTypographyByKey } from "design-system-old";
@@ -19,8 +19,6 @@ import {
   BACK_TO_CANVAS,
   createMessage,
   NO_CONNECTIONS,
-  SCHEMA_WALKTHROUGH_DESC,
-  SCHEMA_WALKTHROUGH_TITLE,
 } from "@appsmith/constants/messages";
 import type {
   SuggestedWidget,
@@ -37,10 +35,7 @@ import DatasourceStructureHeader from "pages/Editor/Explorer/Datasources/Datasou
 import { DatasourceStructureContainer as DataStructureList } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
-import {
-  AB_TESTING_EVENT_KEYS,
-  FEATURE_FLAG,
-} from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
   getDatasourceStructureById,
   getPluginDatasourceComponentFromId,
@@ -48,16 +43,6 @@ import {
 } from "selectors/entitiesSelector";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
-import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import {
-  getFeatureFlagShownStatus,
-  isUserSignedUpFlagSet,
-  setFeatureFlagShownStatus,
-} from "utils/storage";
-import { getCurrentUser } from "selectors/usersSelectors";
-
-const SCHEMA_GUIDE_GIF =
-  "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/schema.gif";
 
 const SCHEMA_SECTION_ID = "t--api-right-pane-schema";
 
@@ -276,8 +261,6 @@ function ActionSidebar({
   const widgets = useSelector(getWidgets);
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
-  const user = useSelector(getCurrentUser);
-  const { pushFeature } = useContext(WalkthroughContext) || {};
   const params = useParams<{
     pageId: string;
     apiId?: string;
@@ -330,60 +313,9 @@ function ActionSidebar({
     }
   }, []);
 
-  const checkAndShowWalkthrough = async () => {
-    const isFeatureWalkthroughShown = await getFeatureFlagShownStatus(
-      FEATURE_FLAG.ab_ds_schema_enabled,
-    );
-
-    const isNewUser = user && (await isUserSignedUpFlagSet(user.email));
-    // Adding walkthrough tutorial
-    isNewUser &&
-      !isFeatureWalkthroughShown &&
-      pushFeature &&
-      pushFeature({
-        targetId: SCHEMA_SECTION_ID,
-        onDismiss: async () => {
-          AnalyticsUtil.logEvent("WALKTHROUGH_DISMISSED", {
-            [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
-              FEATURE_FLAG.ab_ds_schema_enabled,
-            [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForDSSchema,
-          });
-          await setFeatureFlagShownStatus(
-            FEATURE_FLAG.ab_ds_schema_enabled,
-            true,
-          );
-        },
-        details: {
-          title: createMessage(SCHEMA_WALKTHROUGH_TITLE),
-          description: createMessage(SCHEMA_WALKTHROUGH_DESC),
-          imageURL: SCHEMA_GUIDE_GIF,
-        },
-        offset: {
-          position: "left",
-          left: -40,
-          highlightPad: 5,
-          indicatorLeft: -3,
-          style: {
-            transform: "none",
-          },
-        },
-        eventParams: {
-          [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
-            FEATURE_FLAG.ab_ds_schema_enabled,
-          [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForDSSchema,
-        },
-      });
-  };
-
   const showSchema =
     isEnabledForDSSchema &&
     pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm;
-
-  useEffect(() => {
-    if (showSchema) {
-      checkAndShowWalkthrough();
-    }
-  }, [showSchema]);
 
   const hasWidgets = Object.keys(widgets).length > 1;
 
