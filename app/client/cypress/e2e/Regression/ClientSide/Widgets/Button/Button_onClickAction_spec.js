@@ -38,7 +38,6 @@ describe("Button Widget Functionality", function () {
     );
     cy.SaveAndRunAPI();
 
-    // Going to HomePage where the button widget is located and opening it's property pane.
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("Container3");
     _.entityExplorer.SelectEntityByName("Button1");
@@ -69,8 +68,9 @@ describe("Button Widget Functionality", function () {
     // Creating a mock query
     // cy.CreateMockQuery("Query1");
     _.dataSources.CreateDataSource("Postgres");
-    _.entityExplorer.ActionTemplateMenuByEntityName("public.film", "SELECT");
-    // Going to HomePage where the button widget is located and opeing it's property pane.
+    _.dataSources.CreateQueryAfterDSSaved(
+      `SELECT * FROM public."film" LIMIT 10;`,
+    );
     _.entityExplorer.ExpandCollapseEntity("Container3");
     _.entityExplorer.SelectEntityByName("Button1");
 
