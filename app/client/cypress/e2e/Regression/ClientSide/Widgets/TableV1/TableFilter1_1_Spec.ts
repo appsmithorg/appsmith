@@ -2,9 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Verify various Table_Filter combinations", function () {
   before(() => {
-    cy.fixture("tablev1NewDsl").then((val: any) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tablev1NewDsl");
   });
 
   it("1. Adding Data to Table Widget", function () {

@@ -7,9 +7,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget property pane feature validation", function () {
   before(() => {
-    cy.fixture("tableV2NewDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableV2NewDsl");
   });
 
   it("1. Test to validate table pagination is disabled", function () {

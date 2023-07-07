@@ -4,6 +4,4 @@ import com.appsmith.server.migrations.solutions.ce.DatasourceStorageMigrationSol
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class DatasourceStorageMigrationSolution extends DatasourceStorageMigrationSolutionCE {
-
-}
+public class DatasourceStorageMigrationSolution extends DatasourceStorageMigrationSolutionCE {}

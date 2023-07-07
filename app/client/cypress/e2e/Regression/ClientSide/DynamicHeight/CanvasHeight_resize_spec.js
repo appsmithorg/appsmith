@@ -8,9 +8,7 @@ describe("Dynamic Height Width validation with multiple containers and text widg
   it("1. Validate change with auto height width for widgets", function () {
     const textMsg =
       "Dynamic panel validation for text widget wrt height Dynamic panel validation for text widget wrt height Dynamic panel validation for text widget wrt height";
-    cy.fixture("dynamicHeightCanvasResizeDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("dynamicHeightCanvasResizeDsl");
     cy.get(".t--widget-containerwidget")
       .eq(0)
       .invoke("css", "height")

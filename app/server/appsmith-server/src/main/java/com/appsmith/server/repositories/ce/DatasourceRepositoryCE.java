@@ -15,5 +15,4 @@ public interface DatasourceRepositoryCE extends BaseRepository<Datasource, Strin
     Flux<Datasource> findAllByWorkspaceId(String workspaceId);
 
     Mono<Long> countByDeletedAtNull();
-
 }

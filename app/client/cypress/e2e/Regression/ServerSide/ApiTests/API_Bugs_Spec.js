@@ -17,9 +17,7 @@ describe("Rest Bugs tests", function () {
   });
 
   it("1. Bug 5550: Not able to run APIs in parallel", function () {
-    cy.fixture("apiParallelDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("apiParallelDsl");
     cy.get(".ads-v2-spinner").should("not.exist");
 
     //Api 1
@@ -147,9 +145,7 @@ describe("Rest Bugs tests", function () {
   });
 
   it("3. Bug 4775: No Cyclical dependency when Api returns an error", function () {
-    cy.fixture("apiTableDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("apiTableDsl");
     cy.wait(5000); //settling time for dsl!
     cy.get(".ads-v2-spinner").should("not.exist");
     //Api 1
