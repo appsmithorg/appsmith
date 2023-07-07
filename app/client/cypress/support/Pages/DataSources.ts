@@ -50,10 +50,10 @@ export class DataSources {
   private _addNewDataSource = ".t--entity-add-btn.datasources button";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
-  public _host = "input[name*='datasourceConfiguration.endpoints[0].host']";
-  public _port = "input[name*='datasourceConfiguration.endpoints[0].port']";
+  public _host = "input[name$='.datasourceConfiguration.endpoints[0].host']";
+  public _port = "input[name$='.datasourceConfiguration.endpoints[0].port']";
   _databaseName =
-    "input[name*='datasourceConfiguration.authentication.databaseName']";
+    "input[name$='.datasourceConfiguration.authentication.databaseName']";
   private _username =
     "input[name$='.datasourceConfiguration.authentication.username']";
   private _section = (name: string) =>
@@ -62,7 +62,7 @@ export class DataSources {
     this._section(name) +
     "/following-sibling::div/div[@class ='bp3-collapse-body']";
   private _password =
-    "input[name *= 'datasourceConfiguration.authentication.password']";
+    "input[name $= '.datasourceConfiguration.authentication.password']";
   private defaultDatabaseName =
     "input[name*='datasourceConfiguration.connection.defaultDatabaseName']";
   private _testDs = ".t--test-datasource";
@@ -446,20 +446,16 @@ export class DataSources {
     );
   }
 
-  public FillMongoDSForm(shouldAddTrailingSpaces = false, oldApp = false) {
+  public FillMongoDSForm(shouldAddTrailingSpaces = false) {
     const hostAddress = shouldAddTrailingSpaces
       ? this.hp.mongo_host + "  "
       : this.hp.mongo_host;
     this.agHelper.UpdateInputValue(this._host, hostAddress);
     this.agHelper.UpdateInputValue(this._port, this.hp.mongo_port.toString());
-    if (!oldApp) {
-      cy.get(this._databaseName).clear().type(this.hp.mongo_databaseName);
-    } else {
-      this.agHelper.UpdateInputValue(
-        this.defaultDatabaseName,
-        this.hp.mongo_databaseName,
-      );
-    }
+    this.agHelper.UpdateInputValue(
+      this._databaseName,
+      this.hp.mongo_databaseName,
+    );
   }
 
   public FillMySqlDSForm(shouldAddTrailingSpaces = false) {
@@ -861,29 +857,6 @@ export class DataSources {
     this.agHelper.AssertElementVisible(this._reconnectModalDSToopTipIcon);
   }
 
-  public ReconnectDataSourceForOldApp(
-    dbName: string,
-    dsName: "PostgreSQL" | "MySQL" | "MongoDB",
-  ) {
-    this.agHelper.AssertElementVisible(this._reconnectModal);
-    this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
-    this.agHelper.AssertElementVisible(
-      this._activeDSListReconnectModal(dsName),
-    );
-    this.agHelper.AssertElementVisible(
-      this._activeDSListReconnectModal(dbName),
-    );
-
-    this.agHelper.GetNClickByContains(this._reconnectModalDSToolTip, dbName);
-    this.agHelper.AssertElementVisible(this._reconnectModalDSToopTipIcon);
-
-    this.ValidateNSelectDropdown("Connection mode", "Read / Write");
-    if (dsName == "PostgreSQL") this.FillPostgresDSForm();
-    else if (dsName == "MySQL") this.FillMySqlDSForm();
-    else if (dsName == "MongoDB") this.FillMongoDSForm(true, true);
-    this.agHelper.GetNClick(this._saveDs);
-  }
-  
   public WaitForReconnectModalToAppear() {
     this.agHelper.AssertElementVisible(this._reconnectModal);
     this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded

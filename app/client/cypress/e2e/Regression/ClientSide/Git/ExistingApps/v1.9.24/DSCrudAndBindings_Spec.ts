@@ -31,9 +31,9 @@ describe("Import and validate older app (app created in older versions of Appsmi
     agHelper.AssertElementVisible(reconnectDatasourceModal.Modal);
 
     //Reconnect datasources
-    dataSources.ReconnectDataSourceForOldApp("mongo-TED", "MongoDB");
-    dataSources.ReconnectDataSourceForOldApp("mysql-TED", "MySQL");
-    dataSources.ReconnectDataSourceForOldApp("postgres-TED", "PostgreSQL");
+    dataSources.ReconnectDSbyName("MongoDB");
+    dataSources.ReconnectDSbyName("MySQL");
+    dataSources.ReconnectDSbyName("PostgreSQL");
     agHelper.AssertElementVisible(reconnectDatasourceModal.ImportSuccessModal);
     agHelper.ContainsNClick("Got it");
   });
