@@ -41,7 +41,6 @@ public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>,
     protected HeaderUtils headerUtils;
     protected HintMessageUtils hintMessageUtils;
 
-
     // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
     // `WebClient` instance was loaded as an auto-wired bean.
     protected ExchangeStrategies EXCHANGE_STRATEGIES;
@@ -56,8 +55,7 @@ public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>,
         this.headerUtils = new HeaderUtils();
         this.datasourceUtils = new DatasourceUtils();
         this.hintMessageUtils = new HintMessageUtils();
-        this.EXCHANGE_STRATEGIES = ExchangeStrategies
-                .builder()
+        this.EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
                 .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(sharedConfig.getCodecSize()))
                 .build();
     }
@@ -73,8 +71,8 @@ public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>,
     }
 
     @Override
-    public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration,
-                                          boolean isEmbeddedDatasource) {
+    public Set<String> validateDatasource(
+            DatasourceConfiguration datasourceConfiguration, boolean isEmbeddedDatasource) {
         /* Use the default validation routine for REST API based plugins */
         return datasourceUtils.validateDatasource(datasourceConfiguration, isEmbeddedDatasource);
     }
@@ -86,9 +84,11 @@ public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>,
          * the following variant should be used:
          * validateDatasource(DatasourceConfiguration datasourceConfiguration, boolean isEmbeddedDatasource)
          */
-        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_VALIDATE_DATASOURCE_ERROR, "This method should " +
-                "not be used for this plugin as it may have embedded datasource. Please use validateDatasource" +
-                "(dsConfig, isEmbedded).");
+        throw new AppsmithPluginException(
+                AppsmithPluginError.PLUGIN_VALIDATE_DATASOURCE_ERROR,
+                "This method should "
+                        + "not be used for this plugin as it may have embedded datasource. Please use validateDatasource"
+                        + "(dsConfig, isEmbedded).");
     }
 
     @Override
@@ -100,16 +100,17 @@ public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>,
     }
 
     @Override
-    public Mono<ActionExecutionResult> execute(APIConnection apiConnection,
-                                               DatasourceConfiguration datasourceConfiguration,
-                                               ActionConfiguration actionConfiguration) {
+    public Mono<ActionExecutionResult> execute(
+            APIConnection apiConnection,
+            DatasourceConfiguration datasourceConfiguration,
+            ActionConfiguration actionConfiguration) {
         // Unused function
         return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
     }
 
     @Override
-    public Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(ActionConfiguration actionConfiguration,
-                                                                  DatasourceConfiguration datasourceConfiguration) {
+    public Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(
+            ActionConfiguration actionConfiguration, DatasourceConfiguration datasourceConfiguration) {
         /* Use the default hint message flow for REST API based plugins */
         return hintMessageUtils.getHintMessages(actionConfiguration, datasourceConfiguration);
     }

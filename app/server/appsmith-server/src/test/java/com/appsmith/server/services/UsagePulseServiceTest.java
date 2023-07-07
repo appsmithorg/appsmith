@@ -133,6 +133,5 @@ public class UsagePulseServiceTest {
         assertThat(usagePulseCount).isNotNull();
         assertThat(usagePulseCountForSelfHostedInstance).isEqualTo(usagePulseCount + 1);
         assertThat(usagePulseCountForSelfHostedInstance).isEqualTo(usagePulseCountForCloud);
-
     }
 }

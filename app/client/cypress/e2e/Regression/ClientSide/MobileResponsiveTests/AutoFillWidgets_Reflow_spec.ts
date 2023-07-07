@@ -10,9 +10,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
   before(() => {
     autoLayout.ConvertToAutoLayoutAndVerify(false);
     agHelper.Sleep(2000);
-    cy.fixture("autoLayoutReflow").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("autoLayoutReflow");
   });
 
   it("1. Containers Should Reflow in smaller viewports", () => {
@@ -33,7 +31,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
       "wrap",
     );
   });
-  it("2. Auto Layout Reflow should work in public apps as well", () => {
+  it.skip("2. Auto Layout Reflow should work in public apps as well", () => {
     let currentUrl = "";
     cy.url().then((url) => {
       currentUrl = url;

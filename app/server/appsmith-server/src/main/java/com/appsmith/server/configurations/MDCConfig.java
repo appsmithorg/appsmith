@@ -21,14 +21,14 @@ public class MDCConfig {
 
     @PostConstruct
     void contextOperatorHook() {
-        Hooks.onEachOperator(MDC_CONTEXT_REACTOR_KEY, Operators.lift((sc, subscriber) -> new MdcContextLifter<>(subscriber)));
+        Hooks.onEachOperator(
+                MDC_CONTEXT_REACTOR_KEY, Operators.lift((sc, subscriber) -> new MdcContextLifter<>(subscriber)));
     }
 
     @PreDestroy
     void cleanupHook() {
         Hooks.resetOnEachOperator(MDC_CONTEXT_REACTOR_KEY);
     }
-
 
     /**
      * Helper that copies the state of Reactor [Context] to MDC on the #onNext function.

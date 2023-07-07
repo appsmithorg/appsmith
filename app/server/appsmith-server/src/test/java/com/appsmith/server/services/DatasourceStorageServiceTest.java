@@ -31,20 +31,19 @@ public class DatasourceStorageServiceTest {
 
     @Autowired
     UserRepository userRepository;
+
     @SpyBean
     WorkspaceService workspaceService;
+
     @Autowired
     DatasourceStorageService datasourceStorageService;
-
 
     @BeforeEach
     public void setup() {
         Mono<User> userMono = userRepository.findByEmail("api_user").cache();
-        Workspace workspace =
-                userMono.flatMap(user -> workspaceService.createDefault(new Workspace(), user))
-                        .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!")))
-                        .block();
-
+        Workspace workspace = userMono.flatMap(user -> workspaceService.createDefault(new Workspace(), user))
+                .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!")))
+                .block();
     }
 
     @Test
@@ -62,13 +61,12 @@ public class DatasourceStorageServiceTest {
         DatasourceStorage datasourceStorageTwo =
                 new DatasourceStorage(datasourceId, environmentIdTwo, datasourceConfiguration, null, null, null);
 
-
         datasourceStorageService.save(datasourceStorageOne).block();
         datasourceStorageService.save(datasourceStorageTwo).block();
 
-        Flux<DatasourceStorage> datasourceStorageFlux =
-                datasourceStorageService.findStrictlyByDatasourceId(datasourceId)
-                        .sort(Comparator.comparing(DatasourceStorage::getEnvironmentId));
+        Flux<DatasourceStorage> datasourceStorageFlux = datasourceStorageService
+                .findStrictlyByDatasourceId(datasourceId)
+                .sort(Comparator.comparing(DatasourceStorage::getEnvironmentId));
 
         StepVerifier.create(datasourceStorageFlux)
                 .assertNext(datasourceStorage -> {

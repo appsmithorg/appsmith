@@ -47,7 +47,9 @@ const verifyDefaultItem = () => {
 };
 
 function setUpDataSource() {
-  cy.createAndFillApi("https://api.punkapi.com/v2/beers", "");
+  cy.fixture("datasources").then((datasourceFormData) => {
+    _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"] + "0");
+  });
   cy.RunAPI();
   _.entityExplorer.SelectEntityByName("List1");
   cy.wait(200);
@@ -55,9 +57,7 @@ function setUpDataSource() {
 
 describe("List widget v2 defaultSelectedItem", () => {
   before(() => {
-    cy.fixture("Listv2/ListV2_Reset_dsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Listv2/ListV2_Reset_dsl");
   });
 
   it("1. Loads the Page with the default Selected Item", () => {

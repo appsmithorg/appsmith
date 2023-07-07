@@ -1,11 +1,9 @@
 package com.external.plugins.exceptions;
 
 import com.appsmith.external.exceptions.AppsmithErrorAction;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginErrorCode;
 import com.appsmith.external.exceptions.pluginExceptions.BasePluginError;
 import com.appsmith.external.models.ErrorType;
 import lombok.Getter;
-
 
 @Getter
 public enum SaaSPluginError implements BasePluginError {
@@ -17,8 +15,7 @@ public enum SaaSPluginError implements BasePluginError {
             "API execution error",
             ErrorType.INTERNAL_ERROR,
             "{1}",
-            "{2}"
-    ),
+            "{2}"),
     UNSUPPORTED_PLUGIN_OPERATION(
             500,
             "PE-SAS-5001",
@@ -27,8 +24,7 @@ public enum SaaSPluginError implements BasePluginError {
             "Unsupported operation",
             ErrorType.INTERNAL_ERROR,
             "{0}",
-            "{1}"
-    ),
+            "{1}"),
     ;
 
     private final Integer httpErrorCode;
@@ -42,8 +38,15 @@ public enum SaaSPluginError implements BasePluginError {
 
     private final String downstreamErrorCode;
 
-    SaaSPluginError(Integer httpErrorCode, String appErrorCode, String message, AppsmithErrorAction errorAction,
-                    String title, ErrorType errorType, String downstreamErrorMessage, String downstreamErrorCode) {
+    SaaSPluginError(
+            Integer httpErrorCode,
+            String appErrorCode,
+            String message,
+            AppsmithErrorAction errorAction,
+            String title,
+            ErrorType errorType,
+            String downstreamErrorMessage,
+            String downstreamErrorCode) {
         this.httpErrorCode = httpErrorCode;
         this.appErrorCode = appErrorCode;
         this.errorType = errorType;
@@ -70,5 +73,7 @@ public enum SaaSPluginError implements BasePluginError {
     }
 
     @Override
-    public String getErrorType() { return this.errorType.toString(); }
+    public String getErrorType() {
+        return this.errorType.toString();
+    }
 }

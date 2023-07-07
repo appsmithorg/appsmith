@@ -46,7 +46,8 @@ public class FileCreateMethod implements ExecutionMethod {
 
     @Override
     public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
-        if (methodConfig.getSpreadsheetName() == null || methodConfig.getSpreadsheetName().isBlank()) {
+        if (methodConfig.getSpreadsheetName() == null
+                || methodConfig.getSpreadsheetName().isBlank()) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                     ErrorMessages.MISSING_SPREADSHEET_NAME_ERROR_MSG);
@@ -82,12 +83,11 @@ public class FileCreateMethod implements ExecutionMethod {
                 sheet.setData(List.of(gridData));
 
                 final Map<Integer, RowObject> collectedRows = StreamSupport.stream(bodyNode.spliterator(), false)
-                        .map(rowJson ->
-                        {
-                            RowObject rowObject = new RowObject(
-                                    this.objectMapper.convertValue(rowJson, TypeFactory
-                                            .defaultInstance()
-                                            .constructMapType(LinkedHashMap.class, String.class, String.class)))
+                        .map(rowJson -> {
+                            RowObject rowObject = new RowObject(this.objectMapper.convertValue(
+                                            rowJson,
+                                            TypeFactory.defaultInstance()
+                                                    .constructMapType(LinkedHashMap.class, String.class, String.class)))
                                     .initialize();
                             if (ref.startingRow == null || rowObject.getCurrentRowIndex() < ref.startingRow) {
                                 ref.startingRow = rowObject.getCurrentRowIndex();
@@ -100,26 +100,25 @@ public class FileCreateMethod implements ExecutionMethod {
                             if (ref.headers.isEmpty()) {
                                 ref.headers.addAll(rowObject.getValueMap().keySet());
                             } else {
-                                ref.unknownHeaders.addAll(rowObject.getValueMap().keySet());
+                                ref.unknownHeaders.addAll(
+                                        rowObject.getValueMap().keySet());
                             }
 
                             return rowObject;
                         })
                         .collect(Collectors.toUnmodifiableMap(
-                                RowObject::getCurrentRowIndex,
-                                rowObject -> rowObject,
-                                (a, b) -> b));
+                                RowObject::getCurrentRowIndex, rowObject -> rowObject, (a, b) -> b));
 
                 ref.headers.addAll(ref.unknownHeaders);
 
-//                if (!ref.unknownHeaders.isEmpty()) {
-//                    throw new AppsmithPluginException(
-//                            AppsmithPluginError.PLUGIN_ERROR,
-//                            "Unable to parse request body. " +
-//                                    "Expected all row objects to have same headers. " +
-//                                    "Found extra headers:"
-//                                    + ref.unknownHeaders);
-//                }
+                //                if (!ref.unknownHeaders.isEmpty()) {
+                //                    throw new AppsmithPluginException(
+                //                            AppsmithPluginError.PLUGIN_ERROR,
+                //                            "Unable to parse request body. " +
+                //                                    "Expected all row objects to have same headers. " +
+                //                                    "Found extra headers:"
+                //                                    + ref.unknownHeaders);
+                //                }
 
                 ref.startingRow = ref.startingRow > 0 ? ref.startingRow : 0;
                 gridData.setStartRow(0);
@@ -128,14 +127,18 @@ public class FileCreateMethod implements ExecutionMethod {
                 final String[] headerArray = ref.headers.toArray(new String[ref.headers.size()]);
 
                 List<RowData> collect = IntStream.range(0, ref.endingRow + 1)
-                        .mapToObj(rowIndex -> collectedRows.getOrDefault(rowIndex, new RowObject(new LinkedHashMap<>())))
+                        .mapToObj(
+                                rowIndex -> collectedRows.getOrDefault(rowIndex, new RowObject(new LinkedHashMap<>())))
                         .map(row -> row.getAsSheetRowData(headerArray))
                         .collect(Collectors.toCollection(ArrayList::new));
 
-                collect.add(0, new RowData()
-                        .setValues(Arrays.stream(headerArray)
-                                .map(header -> new CellData().setUserEnteredValue(new ExtendedValue().setStringValue(header)))
-                                .collect(Collectors.toList())));
+                collect.add(
+                        0,
+                        new RowData()
+                                .setValues(Arrays.stream(headerArray)
+                                        .map(header -> new CellData()
+                                                .setUserEnteredValue(new ExtendedValue().setStringValue(header)))
+                                        .collect(Collectors.toList())));
 
                 gridData.setRowData(collect);
 
@@ -149,7 +152,8 @@ public class FileCreateMethod implements ExecutionMethod {
 
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL, "", true);
 
-        return webClient.method(HttpMethod.POST)
+        return webClient
+                .method(HttpMethod.POST)
                 .uri(uriBuilder.build(true).toUri())
                 .body(BodyInserters.fromValue(spreadsheet));
     }

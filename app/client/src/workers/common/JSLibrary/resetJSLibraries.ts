@@ -4,6 +4,7 @@ import parser from "fast-xml-parser";
 import forge from "node-forge";
 import { defaultLibraries } from "./index";
 import { JSLibraries, libraryReservedIdentifiers } from "./index";
+import { invalidEntityIdentifiers } from "../DependencyMap/utils";
 
 const defaultLibImplementations = {
   lodash: _,
@@ -29,7 +30,9 @@ export function resetJSLibraries() {
       // @ts-expect-error: Types are not available
       self[key] = undefined;
     }
+    //we have to update invalidEntityIdentifiers as well
     delete libraryReservedIdentifiers[key];
+    delete invalidEntityIdentifiers[key];
   }
 
   JSLibraries.forEach((library) => {

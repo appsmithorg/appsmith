@@ -7,9 +7,7 @@ import {
 
 describe("Dynamic Height Width validation for Visibility", function () {
   before(() => {
-    cy.fixture("invisibleWidgetdsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("invisibleWidgetdsl");
   });
   it("1. Validating visbility/invisiblity of widget with dynamic height feature", function () {
     //changing the Text Name and verifying

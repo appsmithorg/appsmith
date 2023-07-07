@@ -28,9 +28,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
   before(() => {
     //appId = localStorage.getItem("applicationId");
     //cy.log("appID:" + appId);
-    cy.fixture("inputdsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("inputdsl");
   });
 
   it(

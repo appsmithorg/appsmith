@@ -9,9 +9,7 @@ import {
 
 describe("Binding the multiple input Widget", function () {
   before(() => {
-    cy.fixture("MultipleInput").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("MultipleInput");
   });
 
   Cypress.on("uncaught:exception", (err, runnable) => {

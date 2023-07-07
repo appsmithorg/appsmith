@@ -6,9 +6,7 @@ const dsl = require("../../../../../fixtures/tableAndTextDsl.json");
 
 describe("Table Widget Filtered Table data in autocomplete", function () {
   before(() => {
-    cy.fixture("tableAndTextDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableAndTextDsl");
   });
 
   it("Table Widget Functionality To Filter and search data", function () {
