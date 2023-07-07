@@ -17,7 +17,7 @@ import { setEvalContext } from "./evaluate";
 
 export function evalTreeWithChanges(
   updatedValuePaths: string[][],
-  callback?: (value: unknown) => void,
+  metaUpdates: EvalMetaUpdates = [],
 ) {
   let evalOrder: string[] = [];
   let jsUpdates: Record<string, JSUpdate> = {};
@@ -28,7 +28,7 @@ export function evalTreeWithChanges(
   const errors: EvalError[] = [];
   const logs: any[] = [];
   const dependencies: DependencyMap = {};
-  let evalMetaUpdates: EvalMetaUpdates = [];
+  let evalMetaUpdates: EvalMetaUpdates = metaUpdates;
   let staleMetaIds: string[] = [];
   const pathsToClearErrorsFor: any[] = [];
   let unevalTree: UnEvalTree = {};
@@ -100,8 +100,4 @@ export function evalTreeWithChanges(
       method: MAIN_THREAD_ACTION.UPDATE_DATATREE,
     },
   });
-
-  if (callback) {
-    callback(dataTree);
-  }
 }
