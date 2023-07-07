@@ -129,22 +129,26 @@ describe("Git Bugs", function () {
         "exist",
         _.gitSync._discardCallout,
       );
+      // discard changes and assert its discarded
       _.agHelper.GetNClick(_.locators._dialogCloseButton);
     });
   });
 
-  // skipping this test for now, will update test logic and create new PR for it
-  // TODO Parthvi
-  it.skip("6. Bug 24206 : Open repository button is not functional in git sync modal", function () {
+  it("6. Bug 24206 : Open repository button is not functional in git sync modal", function () {
     _.gitSync.SwitchGitBranch("master");
     _.agHelper.GetNClick(_.locators._appEditMenuBtn);
     // cy.wait(_.locators._appEditMenu);
     _.agHelper.GetNClick(_.locators._appEditMenuSettings);
     _.agHelper.GetNClick(_.locators._appThemeSettings);
     _.agHelper.GetNClick(_.locators._appChangeThemeBtn, 0, true);
-    _.agHelper.GetNClick(_.locators._appThemeCard, 1);
+    _.agHelper.GetNClick(_.locators._appThemeCard, 3);
     _.gitSync.CommitAndPush();
     _.gitSync.SwitchGitBranch(tempBranch);
+    _.agHelper.GetNClick(_.locators._appEditMenuBtn);
+    _.agHelper.GetNClick(_.locators._appEditMenuSettings);
+    _.agHelper.GetNClick(_.locators._appThemeSettings);
+    _.agHelper.GetNClick(_.locators._appChangeThemeBtn, 0, true);
+    _.agHelper.GetNClick(_.locators._appThemeCard, 2);
     _.gitSync.CommitAndPush();
     _.gitSync.CheckMergeConflicts("master");
     cy.window().then((win) => {
