@@ -1,8 +1,11 @@
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useCallback, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { Callout, Text } from "design-system";
-import type { ProductAlertState } from "reducers/uiReducers/usersReducer";
+import type {
+  ProductAlertConfig,
+  ProductAlertState,
+} from "reducers/uiReducers/usersReducer";
 import { setMessageConfig } from "@appsmith/sagas/userSagas";
 import type { CalloutLinkProps } from "design-system/build/Callout/Callout.types";
 import moment from "moment/moment";
@@ -11,7 +14,8 @@ import {
   I_UNDERSTAND,
   LEARN_MORE,
 } from "@appsmith/constants/messages";
-import { getIsFirstTimeUserOnboardingEnabled } from "../../selectors/onboardingSelectors";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import { updateProductAlertConfig } from "actions/userActions";
 
 const AlertContainer = styled.div`
   position: absolute;
@@ -40,7 +44,8 @@ const AnimationContainer = styled.div`
 `;
 
 const ProductAlertBanner = () => {
-  const isFirstTimeUserOnboardingEnabled = useSelector(
+  const dispatch = useDispatch();
+  const isSignpostingOverlayOpen = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
   const { config, message }: ProductAlertState | undefined = useSelector(
@@ -48,7 +53,15 @@ const ProductAlertBanner = () => {
   );
   const [dismissed, setDismissed] = useState(false);
 
-  if (isFirstTimeUserOnboardingEnabled) return null;
+  const updateConfig = useCallback(
+    (messageId: string, config: ProductAlertConfig) => {
+      dispatch(updateProductAlertConfig(config));
+      setMessageConfig(messageId, config);
+    },
+    [config],
+  );
+
+  if (isSignpostingOverlayOpen) return null;
   if (!message) return null;
 
   // If dismissed, it will not be shown
@@ -75,7 +88,7 @@ const ProductAlertBanner = () => {
     links.push({
       children: createMessage(I_UNDERSTAND),
       onClick: () => {
-        setMessageConfig(message.messageId, {
+        updateConfig(message.messageId, {
           dismissed: true,
           snoozeTill: new Date(),
         });
@@ -93,14 +106,14 @@ const ProductAlertBanner = () => {
           links={links}
           onClose={() => {
             if (message.remindLaterDays) {
-              setMessageConfig(message.messageId, {
+              updateConfig(message.messageId, {
                 dismissed: false,
                 snoozeTill: moment()
                   .add(message.remindLaterDays, "days")
                   .toDate(),
               });
             } else if (message.canDismiss) {
-              setMessageConfig(message.messageId, {
+              updateConfig(message.messageId, {
                 dismissed: true,
                 snoozeTill: new Date(),
               });

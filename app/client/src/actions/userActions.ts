@@ -9,7 +9,10 @@ import type {
   VerifyTokenRequest,
 } from "@appsmith/api/UserApi";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import type { ProductAlertState } from "reducers/uiReducers/usersReducer";
+import type {
+  ProductAlertConfig,
+  ProductAlertState,
+} from "reducers/uiReducers/usersReducer";
 
 export const logoutUser = (payload?: { redirectURL: string }) => ({
   type: ReduxActionTypes.LOGOUT_USER_INIT,
@@ -126,4 +129,9 @@ export const fetchProductAlertSuccess = (productAlert: ProductAlertState) => ({
 export const fetchProductAlertFailure = (error: any) => ({
   type: ReduxActionErrorTypes.FETCH_PRODUCT_ALERT_FAILED,
   payload: { error, show: false },
+});
+
+export const updateProductAlertConfig = (config: ProductAlertConfig) => ({
+  type: ReduxActionTypes.UPDATE_PRODUCT_ALERT_CONFIG,
+  payload: config,
 });

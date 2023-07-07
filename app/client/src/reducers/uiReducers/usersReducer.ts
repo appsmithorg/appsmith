@@ -199,6 +199,16 @@ const usersReducer = createReducer(initialState, {
     ...state,
     productAlert: action.payload,
   }),
+  [ReduxActionTypes.UPDATE_PRODUCT_ALERT_CONFIG]: (
+    state: UsersReduxState,
+    action: ReduxAction<ProductAlertConfig>,
+  ): UsersReduxState => ({
+    ...state,
+    productAlert: {
+      ...state.productAlert,
+      config: action.payload,
+    },
+  }),
 });
 
 export interface PropertyPanePositionConfig {
