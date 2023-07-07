@@ -32,8 +32,8 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: |
           res=`curl -s -H "Authorization: Bearer ${{ secrets.APPSMITH_CI_TEST_PAT}}" https://api.github.com/repos/appsmithorg/${{ github.repository }}/pulls?head=appsmithorg:${{ github.ref_name }}`
-          response_length=`echo $res | jq -r 'length'`
-          if [[ $response_length -ne 0 ]]; then
+          response_length=`echo '$res' | jq -r 'length'`
+          if [[ $response_length != '0' ]]; then
             pr_number=`echo $res | jq -r '.[0] | .number'`
             echo "pr=$pr_number" >> $GITHUB_OUTPUT
           else
