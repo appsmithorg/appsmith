@@ -50,10 +50,10 @@ public class PluginServiceTest {
 
     @Test
     public void checkPluginExecutor() {
-        Mono<ActionExecutionResult> executeMono = pluginExecutor.execute(new Object(), new DatasourceConfiguration(), new ActionConfiguration());
+        Mono<ActionExecutionResult> executeMono =
+                pluginExecutor.execute(new Object(), new DatasourceConfiguration(), new ActionConfiguration());
 
-        StepVerifier
-                .create(executeMono)
+        StepVerifier.create(executeMono)
                 .assertNext(result -> {
                     assertThat(result).isInstanceOf(ActionExecutionResult.class);
                 })
@@ -75,12 +75,11 @@ public class PluginServiceTest {
 
         Mono<Map> formConfig = pluginService.getFormConfig("random-plugin-id");
 
-        StepVerifier.create(formConfig)
-                .expectError(AppsmithException.class)
-                .verify();
+        StepVerifier.create(formConfig).expectError(AppsmithException.class).verify();
     }
 
-    // The editor form config is not mandatory for plugins. The function should return successfully even if it's not present
+    // The editor form config is not mandatory for plugins. The function should return successfully even if it's not
+    // present
     @Test
     public void getPluginFormWithNullEditorConfig() {
         Map formMap = new HashMap();
@@ -106,7 +105,6 @@ public class PluginServiceTest {
                 })
                 .verifyComplete();
     }
-
 
     @Test
     public void getPluginFormValid() {

@@ -11,7 +11,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-
 public interface ImportExportApplicationServiceCE {
 
     /**
@@ -64,11 +63,12 @@ public interface ImportExportApplicationServiceCE {
      * @param pagesToImport list of page names to be imported. Null or empty list means all pages.
      * @return
      */
-    Mono<Application> mergeApplicationJsonWithApplication(String workspaceId,
-                                                          String applicationId,
-                                                          String branchName,
-                                                          ApplicationJson applicationJson,
-                                                          List<String> pagesToImport);
+    Mono<Application> mergeApplicationJsonWithApplication(
+            String workspaceId,
+            String applicationId,
+            String branchName,
+            ApplicationJson applicationJson,
+            List<String> pagesToImport);
 
     /**
      * This function will save the application to workspace from the application resource
@@ -87,7 +87,8 @@ public interface ImportExportApplicationServiceCE {
      * @param applicationId application which needs to be saved with the updated resources
      * @return Updated application
      */
-    Mono<Application> importApplicationInWorkspaceFromGit(String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName);
+    Mono<Application> importApplicationInWorkspaceFromGit(
+            String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName);
 
     /**
      * This function will replace an existing application with the provided application json. It's the top level method
@@ -98,10 +99,11 @@ public interface ImportExportApplicationServiceCE {
      * @param branchName
      * @return
      */
-    Mono<Application> restoreSnapshot(String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName);
+    Mono<Application> restoreSnapshot(
+            String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName);
 
     Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String orgId);
 
-    Mono<ApplicationImportDTO> getApplicationImportDTO(String applicationId, String workspaceId, Application application);
-
+    Mono<ApplicationImportDTO> getApplicationImportDTO(
+            String applicationId, String workspaceId, Application application);
 }

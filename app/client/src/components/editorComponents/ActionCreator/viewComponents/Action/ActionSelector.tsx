@@ -39,7 +39,7 @@ export default function ActionSelector(props: {
       popoverClassName = "w-[280px] !translate-x-[-17px]";
       break;
     case 1:
-      popoverClassName = "w-[280px] !translate-x-[-36px]";
+      popoverClassName = "w-[280px] !translate-x-[-36px] !translate-y-[-54px]";
       break;
   }
 

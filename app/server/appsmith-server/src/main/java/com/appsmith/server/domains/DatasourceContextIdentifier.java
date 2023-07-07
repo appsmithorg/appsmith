@@ -44,12 +44,13 @@ public class DatasourceContextIdentifier {
     public int hashCode() {
         int result = 0;
         result = hasText(this.getDatasourceId()) ? this.getDatasourceId().hashCode() : result;
-        result = hasText(this.getEnvironmentId()) ? result * 31 + this.getEnvironmentId().hashCode() : result;
+        result = hasText(this.getEnvironmentId())
+                ? result * 31 + this.getEnvironmentId().hashCode()
+                : result;
         return result;
     }
 
     public boolean isKeyValid() {
         return hasText(this.getDatasourceId()) && hasText(this.getEnvironmentId());
     }
-
 }

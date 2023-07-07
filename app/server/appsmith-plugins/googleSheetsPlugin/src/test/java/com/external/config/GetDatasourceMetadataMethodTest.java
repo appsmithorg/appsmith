@@ -13,10 +13,11 @@ public class GetDatasourceMetadataMethodTest {
     public void verifyEmailStorageInPropertiesInDatasourceConfiguration() {
         List<Property> properties = new ArrayList<>();
         String emailAddress = "mockEmailAddress";
-        List<Property> returnedProperties= GetDatasourceMetadataMethod.setPropertiesWithEmailAddress(properties, emailAddress);
-        assert(!returnedProperties.isEmpty());
-        assert(returnedProperties.get(0).getKey().equals(FieldName.EMAIL_ADDRESS));
-        assert(returnedProperties.get(0).getValue().equals(emailAddress));
+        List<Property> returnedProperties =
+                GetDatasourceMetadataMethod.setPropertiesWithEmailAddress(properties, emailAddress);
+        assert (!returnedProperties.isEmpty());
+        assert (returnedProperties.get(0).getKey().equals(FieldName.EMAIL_ADDRESS));
+        assert (returnedProperties.get(0).getValue().equals(emailAddress));
     }
 
     @Test
@@ -27,12 +28,13 @@ public class GetDatasourceMetadataMethodTest {
         properties.add(oldEmailProperty);
 
         String emailAddress = "mockEmailAddress";
-        List<Property> returnedProperties= GetDatasourceMetadataMethod.setPropertiesWithEmailAddress(properties, emailAddress);
-        assert(!returnedProperties.isEmpty());
-        assert(returnedProperties.size() == 1);
-        assert(returnedProperties.get(0).getKey().equals(FieldName.EMAIL_ADDRESS));
-        assert(returnedProperties.get(0).getValue().equals(emailAddress));
-        assert(returnedProperties.get(0).equals(oldEmailProperty));
+        List<Property> returnedProperties =
+                GetDatasourceMetadataMethod.setPropertiesWithEmailAddress(properties, emailAddress);
+        assert (!returnedProperties.isEmpty());
+        assert (returnedProperties.size() == 1);
+        assert (returnedProperties.get(0).getKey().equals(FieldName.EMAIL_ADDRESS));
+        assert (returnedProperties.get(0).getValue().equals(emailAddress));
+        assert (returnedProperties.get(0).equals(oldEmailProperty));
     }
 
     @Test
@@ -42,10 +44,11 @@ public class GetDatasourceMetadataMethodTest {
         properties.add(otherProperty);
 
         String emailAddress = "mockEmailAddress";
-        List<Property> returnedProperties= GetDatasourceMetadataMethod.setPropertiesWithEmailAddress(properties, emailAddress);
-        assert(!returnedProperties.isEmpty());
-        assert(returnedProperties.size() == 1);
-        assert(returnedProperties.get(0).getKey().equals(FieldName.EMAIL_ADDRESS));
-        assert(returnedProperties.get(0).getValue().equals(emailAddress));
+        List<Property> returnedProperties =
+                GetDatasourceMetadataMethod.setPropertiesWithEmailAddress(properties, emailAddress);
+        assert (!returnedProperties.isEmpty());
+        assert (returnedProperties.size() == 1);
+        assert (returnedProperties.get(0).getKey().equals(FieldName.EMAIL_ADDRESS));
+        assert (returnedProperties.get(0).getValue().equals(emailAddress));
     }
 }
