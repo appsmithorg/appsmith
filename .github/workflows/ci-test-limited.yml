@@ -310,7 +310,7 @@ jobs:
         # https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#environment-files
         run: |
           echo COMMIT_INFO_BRANCH=$(git rev-parse --abbrev-ref HEAD) >> $GITHUB_ENV
-          echo COMMIT_INFO_MESSAGE=TestLimit run on PR# ${{ inputs.pr }} >> $GITHUB_ENV
+          echo COMMIT_INFO_MESSAGE=LimitedTests run on PR# ${{ inputs.pr }} >> $GITHUB_ENV
           echo COMMIT_INFO_EMAIL=$(git show -s --pretty=%ae) >> $GITHUB_ENV
           echo COMMIT_INFO_AUTHOR=$(git show -s --pretty=%an) >> $GITHUB_ENV
           echo COMMIT_INFO_SHA=$(git show -s --pretty=%H) >> $GITHUB_ENV
@@ -333,8 +333,10 @@ jobs:
         env:
           EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
         run: |
-          if [[ ${{ inputs.pr }} -ne 0 ]]; then
+          if [[ ${{ inputs.pr }} -ne 0 && ${{github.event_name}} == 'repository_dispatch' ]]; then
             echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
+          elif [[ ${{ inputs.pr }} -ne 0 && ${{github.event_name}} == 'workflow_dispatch' ]]; then
+            echo "COMMIT_INFO_MESSAGE=Workflow run on PR# ${{ inputs.pr }}" >> $GITHUB_ENV
           else
             echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV
           fi
