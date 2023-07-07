@@ -1,5 +1,5 @@
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
-import _, { isEmpty } from "lodash";
+import _, { get, isEmpty } from "lodash";
 import memoize from "micro-memoize";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
@@ -14,6 +14,140 @@ import type {
 import { OverridingPropertyType } from "./types";
 
 import { setOverridingProperty } from "./utils";
+import { error } from "loglevel";
+
+/**
+ *
+ * Example of setterConfig
+ *
+ * {
+      WIDGET: {
+        TABLE_WIDGET_V2: {
+          __setters: {
+              setIsRequired: {
+                path: "isRequired"
+              },
+          },
+          "text": {
+              __setters:{
+                setIsRequired: {
+                    path: "primaryColumns.$columnId.isRequired"
+                }
+              }
+          }
+          pathToSetters: [{ path: "primaryColumns.$columnId", property: "columnType" }]
+        }
+      }
+    }
+
+    columnId = action
+
+    Expected output
+
+      {
+        Table2: {
+          isRequired: true,
+          __setters: {
+            setIsRequired: {
+              path: "Table2.isRequired"
+            },
+            "primaryColumns.action.setIsRequired": {
+              path: "Table2.primaryColumns.action.isRequired"
+            }
+          },
+        }
+      }
+ */
+
+export function getSetterConfig(
+  setterConfig: Record<string, any>,
+  widget: FlattenedWidgetProps,
+) {
+  const modifiedSetterConfig: Record<string, any> = {};
+
+  try {
+    if (setterConfig.__setters) {
+      modifiedSetterConfig.__setters = {};
+      for (const setterMethodName of Object.keys(setterConfig.__setters)) {
+        const staticConfigSetter = setterConfig.__setters[setterMethodName];
+
+        modifiedSetterConfig.__setters[setterMethodName] = {
+          path: `${widget.widgetName}.${staticConfigSetter.path}`,
+          type: staticConfigSetter.type,
+        };
+
+        if (staticConfigSetter.disabled) {
+          modifiedSetterConfig.__setters[setterMethodName].disabled =
+            staticConfigSetter.disabled;
+        }
+      }
+    }
+
+    if (!setterConfig.pathToSetters || !setterConfig.pathToSetters.length)
+      return modifiedSetterConfig;
+
+    const pathToSetters = setterConfig.pathToSetters;
+
+    //pathToSetters = [{ path: "primaryColumns.$columnId", property: "columnType" }]
+    for (const { path, property } of pathToSetters) {
+      const pathArray = path.split(".");
+      const placeHolder = pathArray[pathArray.length - 1];
+
+      if (placeHolder[0] !== "$") continue;
+
+      //pathToParentObj = primaryColumns
+      const pathToParentObj = pathArray.slice(0, -1).join(".");
+      const accessors = Object.keys(get(widget, pathToParentObj));
+
+      //accessors = action, step, status, task
+      for (const accesskey of accessors) {
+        const fullPath = pathToParentObj + "." + accesskey;
+        const accessorObject = get(widget, fullPath);
+
+        //propertyType = text, button etc
+        const propertyType = accessorObject[property];
+        if (!propertyType) continue;
+
+        // "text": {
+        //     __setters:{
+        //       setIsRequired: {
+        //           path: "primaryColumns.$columnId.isRequired"
+        //       }
+        //     }
+        // }
+        const accessorSetterConfig = setterConfig[propertyType];
+        if (!accessorSetterConfig) continue;
+
+        const accessorSettersMap = accessorSetterConfig.__setters;
+        if (!accessorSettersMap) continue;
+
+        const entries = Object.entries(accessorSettersMap) as [
+          string,
+          Record<string, unknown>,
+        ][];
+
+        for (const [setterName, setterBody] of entries) {
+          //path = primaryColumns.action.isRequired
+          const path = (setterBody as any).path.replace(placeHolder, accesskey);
+          const setterPathArray = path.split(".");
+          setterPathArray.pop();
+          setterPathArray.push(setterName);
+
+          //setterPath = primaryColumns.action.setIsRequired
+          const setterPath = setterPathArray.join(".");
+          modifiedSetterConfig.__setters[setterPath] = {
+            path: `${widget.widgetName}.${path}`, //Table2.primaryColumns.action.isRequired
+            type: setterBody.type,
+          };
+        }
+      }
+    }
+  } catch (e) {
+    error("Error while generating setter config", e);
+  }
+
+  return modifiedSetterConfig;
+}
 
 // We are splitting generateDataTreeWidget into two parts to memoize better as the widget doesn't change very often.
 // Widget changes only when dynamicBindingPathList changes.
@@ -139,6 +273,11 @@ const generateDataTreeWidgetWithoutMeta = (
     "type",
   ];
 
+  const setterConfig = getSetterConfig(
+    WidgetFactory.getWidgetSetterConfig(widget.type),
+    widget,
+  );
+
   const dataTreeWidgetWithoutMetaProps = _.merge(
     {
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
@@ -181,6 +320,7 @@ const generateDataTreeWidgetWithoutMeta = (
       overridingPropertyPaths,
       type: widget.type,
       ...dynamicPathsList,
+      ...setterConfig,
     },
   };
 };
@@ -208,6 +348,7 @@ export const generateDataTreeWidget = (
 
   // overridingMetaProps maps properties that can be overriden by either default values or meta changes to initial values.
   // initial value is set to metaProps value or defaultMetaProps value.
+
   Object.entries(defaultMetaProps).forEach(([key, value]) => {
     if (overridingMetaPropsMap[key]) {
       overridingMetaProps[key] =

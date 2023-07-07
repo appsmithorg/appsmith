@@ -12,6 +12,7 @@ import type { DatePickerType } from "../constants";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import type { SetterConfig } from "entities/AppTheming";
 
 function defaultDateValidation(
   value: unknown,
@@ -393,6 +394,29 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
         }
       }
     }
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
+        setValue: {
+          path: "defaultDate",
+          type: "string",
+        },
+      },
+    };
   }
 
   getPageView() {

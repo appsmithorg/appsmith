@@ -98,6 +98,7 @@ import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { executeJSUpdates } from "actions/pluginActionActions";
+import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
@@ -707,6 +708,13 @@ export function* setAppVersionOnWorkerSaga(action: {
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SET_EVALUATION_VERSION, {
     version,
   });
+}
+
+export function* updateMetaPropsFromEvaluation(
+  evalMetaUpdates: EvalMetaUpdates,
+) {
+  yield put(updateMetaState(evalMetaUpdates));
+  log.debug({ evalMetaUpdatesLength: evalMetaUpdates.length });
 }
 
 export default function* evaluationSagaListeners() {
