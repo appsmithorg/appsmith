@@ -121,7 +121,7 @@ export class CommonLocators {
     `.t--widget-card-draggable-${widgetType}`;
   _propertyToggleValue = (controlToToggle: string) =>
     "//div[contains(@class, 't--property-control-" +
-    controlToToggle +
+    controlToToggle.replace(/ +/g, "").toLowerCase() +
     "')]//input[@type='checkbox']/parent::label";
   _openNavigationTab = (tabToOpen: string) =>
     `//span[text()='${tabToOpen}']/ancestor::div`;
@@ -250,5 +250,12 @@ export class CommonLocators {
   _gitStatusChanges = "[data-testid='t--git-change-statuses']";
   _appNavigationSettings = "#t--navigation-settings-header";
   _appNavigationSettingsShowTitle = "#t--navigation-settings-application-title";
+  _switchGroupControl =
+    ".t--draggable-switchgroupwidget .bp3-control-indicator";
+  _fontSelect = "fontsize .rc-select";
+  _fontInput = "fontsize input";
+  _pagination = ".rc-pagination";
+  _controlOption = ".t--property-control-options";
+  _canvasBody = "[data-testid='div-selection-0']";
   _svg = "svg";
 }

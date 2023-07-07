@@ -620,6 +620,20 @@ export class AggregateHelper extends ReusableHelper {
       .wait(waitTimeInterval);
   }
 
+  public GetClosestNClick(
+    selector: string,
+    closestSelector: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+    ctrlKey = false,
+  ) {
+    return this.ScrollIntoView(selector, index)
+      .closest(closestSelector)
+      .click({ force: force, ctrlKey: ctrlKey })
+      .wait(waitTimeInterval);
+  }
+
   public GetHoverNClick(
     selector: string,
     index = 0,
@@ -1358,6 +1372,18 @@ export class AggregateHelper extends ReusableHelper {
     this.GetElement(widgetSelector).then(($element) => {
       cy.wrap(Number($element.height())).as("eleHeight");
     });
+  }
+
+  public GetWidgetCSSHeight(widgetSelector: string, index = 0) {
+    return this.GetElement(widgetSelector).eq(index).invoke("css", "height");
+  }
+
+  public GetWidgetCSSFrAttribute(
+    widgetSelector: string,
+    attribute: string,
+    index = 0,
+  ) {
+    return this.GetElement(widgetSelector).eq(index).invoke("css", attribute);
   }
 
   GetWidgetByName(widgetName: string) {

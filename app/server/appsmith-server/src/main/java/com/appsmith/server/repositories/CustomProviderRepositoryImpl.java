@@ -8,7 +8,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class CustomProviderRepositoryImpl extends CustomProviderRepositoryCEImpl implements CustomProviderRepository {
 
-    public CustomProviderRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomProviderRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 }

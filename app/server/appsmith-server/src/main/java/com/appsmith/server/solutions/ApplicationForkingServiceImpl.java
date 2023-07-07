@@ -11,17 +11,27 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEImpl implements ApplicationForkingService {
-    public ApplicationForkingServiceImpl(ApplicationService applicationService,
-                                         WorkspaceService workspaceService,
-                                         ForkExamplesWorkspace examplesWorkspaceCloner,
-                                         SessionUserService sessionUserService,
-                                         AnalyticsService analyticsService,
-                                         ResponseUtils responseUtils,
-                                         WorkspacePermission workspacePermission,
-                                         ApplicationPermission applicationPermission,
-                                         ImportExportApplicationService importExportApplicationService) {
-        super(applicationService, workspaceService, examplesWorkspaceCloner, sessionUserService, analyticsService,
-                responseUtils, workspacePermission, applicationPermission, importExportApplicationService);
+public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEImpl
+        implements ApplicationForkingService {
+    public ApplicationForkingServiceImpl(
+            ApplicationService applicationService,
+            WorkspaceService workspaceService,
+            ForkExamplesWorkspace examplesWorkspaceCloner,
+            SessionUserService sessionUserService,
+            AnalyticsService analyticsService,
+            ResponseUtils responseUtils,
+            WorkspacePermission workspacePermission,
+            ApplicationPermission applicationPermission,
+            ImportExportApplicationService importExportApplicationService) {
+        super(
+                applicationService,
+                workspaceService,
+                examplesWorkspaceCloner,
+                sessionUserService,
+                analyticsService,
+                responseUtils,
+                workspacePermission,
+                applicationPermission,
+                importExportApplicationService);
     }
 }

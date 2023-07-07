@@ -131,9 +131,11 @@ public class TemplateUtils {
         setDataValueSafelyInFormData(configMap, BUCKET, bucketName);
         setDataValueSafelyInFormData(configMap, LIST_SIGNED_URL, NO);
         setDataValueSafelyInFormData(configMap, LIST_UNSIGNED_URL, YES);
-        setDataValueSafelyInFormData(configMap, LIST_WHERE, new HashMap<String, Object>() {{
-            put("condition", "AND");
-        }});
+        setDataValueSafelyInFormData(configMap, LIST_WHERE, new HashMap<String, Object>() {
+            {
+                put("condition", "AND");
+            }
+        });
 
         return new Template(LIST_FILES_TEMPLATE_NAME, configMap);
     }
