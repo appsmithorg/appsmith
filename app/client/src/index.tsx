@@ -1,7 +1,3 @@
-// This file must be executed first to set up __webpack_public_path__ for all subsequent imports
-// that might rely on it. This must be a separate file due to ES module hoisting: https://github.com/appsmithorg/appsmith-ee/pull/1628#discussion_r1250949600
-import "./init-public-path";
-
 // This file must be executed as early as possible to ensure the preloads are triggered ASAP
 import "./preload-route-chunks";
 
@@ -26,6 +22,8 @@ import GlobalStyles from "globalStyles";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
+
+__webpack_public_path__ = window.CDN_URL;
 
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 
