@@ -5,7 +5,6 @@ import {
   locators,
   propPane,
   draggableWidgets,
-  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table widget date column inline editing functionality", () => {
@@ -184,7 +183,7 @@ describe("Table widget date column inline editing functionality", () => {
     entityExplorer.SelectEntityByName("Table1");
     propPane.NavigateBackToPropertyPane();
     propPane.TogglePropertyState("Allow adding a row", "On");
-    agHelper.GetNClick(table._addNewRow);
+    table.AddNewRow();
     agHelper.AssertElementAbsence(table._datePicker);
     agHelper.AssertCSS(
       table._editCellEditor,

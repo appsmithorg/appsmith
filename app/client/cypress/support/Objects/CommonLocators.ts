@@ -255,4 +255,5 @@ export class CommonLocators {
   _pagination = ".rc-pagination";
   _controlOption = ".t--property-control-options";
   _canvasBody = "[data-testid='div-selection-0']";
+  _svg = "svg";
 }
