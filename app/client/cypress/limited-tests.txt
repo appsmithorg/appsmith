@@ -1,1 +1,1 @@
-cypress/e2e/Regression/ClientSide/BugTests/AllWidgets_Reset_Spec.ts
+cypress/e2e/Regression/ClientSide/BugTests/CatchBlock_Spec.ts
