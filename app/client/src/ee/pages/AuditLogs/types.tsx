@@ -65,6 +65,11 @@ export type EnvironmentType = {
   name: string;
 };
 
+export type DatasourceType = {
+  id: string;
+  name: string;
+};
+
 /**
  * @property {string} id The id of the log in the database, aka "cursor".
  * @property {string} event is event name in the format <resource>.<action>
@@ -82,6 +87,7 @@ export type EnvironmentType = {
  *   It is a special case for `instance_setting.updated` event.
  * @property {string[]} invitedUsers contains list of users that are invited.
  * @property {EnvironmentType} environment contains the environment the log was generated for e.g datasource created in environment #envname
+ * @property {DatasourceType} datasource contains the datasource information
  *
  */
 export type AuditLogType = {
@@ -102,6 +108,7 @@ export type AuditLogType = {
   userGroup?: UserGroupType;
   permissionGroup?: PermissionGroupType;
   environment?: EnvironmentType;
+  datasource?: DatasourceType;
 };
 
 /**

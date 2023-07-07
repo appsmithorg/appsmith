@@ -11,6 +11,7 @@ export function dbToLogs(serverLogs: any[]): AuditLogType[] {
     application: serverLog.application || {},
     workspace: serverLog.workspace || {},
     environment: serverLog.environment || {},
+    datasource: serverLog.datasource || {},
     user: serverLog.user || {},
     userGroup: serverLog.group || {},
     permissionGroup: serverLog.role || {},

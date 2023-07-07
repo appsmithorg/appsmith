@@ -241,6 +241,18 @@ describe("audit-logs/utils/description", function () {
           hasDescriptiveIcon: true,
           icon: ["edit-box-line", ""],
         },
+        {
+          description: {
+            mainDescription: {
+              resourceType: "Query1",
+              actionType: "executed",
+              environmentDescription: " in production environment",
+            },
+            subDescription: "in Page1",
+          },
+          hasDescriptiveIcon: true,
+          icon: ["execute", ""],
+        },
       ];
       expect(actual).toEqual(expected);
     });

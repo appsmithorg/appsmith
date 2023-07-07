@@ -10,6 +10,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.constants.AnalyticsConstants;
 import com.appsmith.server.constants.AuditLogConstants;
 import com.appsmith.server.constants.AuditLogEvents;
 import com.appsmith.server.constants.FieldName;
@@ -18,6 +19,7 @@ import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.domains.AuditLogApplicationMetadata;
 import com.appsmith.server.domains.AuditLogAuthenticationMetadata;
+import com.appsmith.server.domains.AuditLogDatasourceMetadata;
 import com.appsmith.server.domains.AuditLogDestinationWorkspaceMetadata;
 import com.appsmith.server.domains.AuditLogEnvironmentMetadata;
 import com.appsmith.server.domains.AuditLogGacEntityMetadata;
@@ -82,6 +84,7 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.FieldName.PUBLIC_PERMISSION_GROUP;
 import static org.apache.commons.lang.WordUtils.capitalize;
+import static org.springframework.util.StringUtils.hasText;
 
 @Slf4j
 @Service
@@ -702,6 +705,8 @@ public class AuditLogServiceImpl implements AuditLogService {
         auditLogResource.setId(actionDTO.getId());
         auditLogResource.setName(actionDTO.getName());
 
+        Mono<AuditLogEnvironmentMetadata> environmentMetadataMono = Mono.empty();
+
         // Execution details for query.executed events
         if (AnalyticsEvents.EXECUTE_ACTION.equals(event) && properties != null) {
             if (properties.containsKey(FieldName.IS_SUCCESSFUL_EXECUTION)) {
@@ -722,10 +727,46 @@ public class AuditLogServiceImpl implements AuditLogService {
                 auditLogResource.setExecutionParams(
                         (String) executionParams.stream().collect(Collectors.joining(",", "[", "]")));
             }
+
+            AuditLogDatasourceMetadata datasource = new AuditLogDatasourceMetadata();
+            String envId = "";
+
+            if (properties.containsKey(AnalyticsConstants.ENVIRONMENT_ID_SHORTNAME)) {
+                envId = (String) properties.get(AnalyticsConstants.ENVIRONMENT_ID_SHORTNAME);
+            }
+
+            if (properties.containsKey(AnalyticsConstants.DATASOURCE_NAME_SHORTNAME)) {
+                datasource.setName((String) properties.get(AnalyticsConstants.DATASOURCE_NAME_SHORTNAME));
+            }
+
+            if (properties.containsKey(AnalyticsConstants.DATASOURCE_ID_SHORTNAME)) {
+                datasource.setId((String) properties.get(AnalyticsConstants.DATASOURCE_ID_SHORTNAME));
+            }
+
+            if (eventData.containsKey(FieldName.DATASOURCE)) {
+                DatasourceStorage datasourceStorage = (DatasourceStorage) eventData.get(FieldName.DATASOURCE);
+                datasource.setName(datasourceStorage.getName());
+                datasource.setId(datasourceStorage.getDatasourceId());
+                envId = datasourceStorage.getEnvironmentId();
+            }
+
+            auditLog.setDatasource(datasource);
+            String environmentId = hasText(envId) ? envId : (String) properties.get(AnalyticsConstants.ENVIRONMENT_ID_SHORTNAME);
+            if (hasText(environmentId)) {
+                environmentMetadataMono = environmentRepository.findById(environmentId)
+                        .map(environment -> new AuditLogEnvironmentMetadata(environment.getId(), environment.getName()))
+                        .map(auditLogEnvironmentMetadata ->  {
+                            auditLog.setEnvironment(auditLogEnvironmentMetadata);
+                            return auditLogEnvironmentMetadata;
+                        });
+            }
+
         }
+
         auditLog.setResource(auditLogResource);
 
-        return setPage(auditLog, actionDTO.getPageId(), properties)
+        return environmentMetadataMono
+                .then(setPage(auditLog, actionDTO.getPageId(), properties))
                 .flatMap(newPage -> setApplication(auditLog, actionDTO.getApplicationId(), properties))
                 .flatMap(application -> setWorkspace(auditLog, application.getWorkspaceId(), properties))
                 .thenReturn(auditLog);

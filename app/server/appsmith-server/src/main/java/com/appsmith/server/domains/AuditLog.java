@@ -29,6 +29,8 @@ public class AuditLog extends BaseDomain {
 
     AuditLogEnvironmentMetadata environment;
 
+    AuditLogDatasourceMetadata datasource;
+
     AuditLogMetadata metadata;
 
     AuditLogResource resource;

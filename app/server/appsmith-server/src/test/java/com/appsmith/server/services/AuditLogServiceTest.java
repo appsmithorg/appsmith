@@ -2741,6 +2741,16 @@ public class AuditLogServiceTest {
                     // Misc. fields validation
                     assertThat(auditLog.getAuthentication()).isNull();
                     assertThat(auditLog.getInvitedUsers()).isNull();
+
+                    //Datasource related fields
+                    assertThat(auditLog.getDatasource().getName()).isNotNull();
+                    assertThat(auditLog.getDatasource().getName()).isEqualTo("Default Database 1");
+
+                    //Environment related fields
+                    assertThat(auditLog.getEnvironment().getId()).isNotNull();
+                    assertThat(auditLog.getEnvironment().getId()).isEqualTo(environmentId);
+                    assertThat(auditLog.getEnvironment().getName()).isNotNull();
+                    assertThat(auditLog.getEnvironment().getName()).isEqualTo(CommonFieldName.PRODUCTION_ENVIRONMENT);
                 })
                 .verifyComplete();
     }
@@ -2874,6 +2884,16 @@ public class AuditLogServiceTest {
                     // Misc. fields validation
                     assertThat(auditLog.getAuthentication()).isNull();
                     assertThat(auditLog.getInvitedUsers()).isNull();
+
+                    //Datasource related fields
+                    assertThat(auditLog.getDatasource().getName()).isNotNull();
+                    assertThat(auditLog.getDatasource().getName()).isEqualTo("Default Database");
+
+                    //Environment related fields
+                    assertThat(auditLog.getEnvironment().getId()).isNotNull();
+                    assertThat(auditLog.getEnvironment().getId()).isEqualTo(environmentId);
+                    assertThat(auditLog.getEnvironment().getName()).isNotNull();
+                    assertThat(auditLog.getEnvironment().getName()).isEqualTo(CommonFieldName.PRODUCTION_ENVIRONMENT);
                 })
                 .verifyComplete();
     }
