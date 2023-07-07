@@ -31,9 +31,9 @@ describe("Import and validate older app (app created in older versions of Appsmi
     });
 
     //Reconnect datasources
-    dataSources.ReconnectDSbyName("MongoDB");
-    dataSources.ReconnectDSbyName("MySQL");
-    dataSources.ReconnectDSbyName("PostgreSQL");
+    dataSources.ReconnectDSbyType("MongoDB");
+    dataSources.ReconnectDSbyType("MySQL");
+    dataSources.ReconnectDSbyType("PostgreSQL");
     homePage.AssertNCloseImport();
   });
 
