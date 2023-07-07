@@ -87,20 +87,28 @@ jobs:
           run_result_env=$(cat ~/run_result)
           echo "::set-output name=run_result::$run_result_env"
 
-      # Download failed_spec list for all jobs in case of rerun
-      - uses: actions/download-artifact@v3
+      # In case this is second attempt try restoring failed tests
+      - name: Restore the previous failed combine result
         if: steps.run_result.outputs.run_result == 'failedtest'
+        uses: actions/download-artifact@v3
         with:
-          name: failed-spec-ci
-          path: ~/failed_spec_ci
+          name: combined_failed_spec_ci
+          path: ~/combined_failed_spec_ci
 
-      # In case of rerun combine all the failed specs and set it in env
-      - name: combine all specs for CI in case of rerun
+      # failed_spec_env will contain list of all failed specs
+      # We are using environment variable instead of regular to support multiline
+      - name: Get failed_spec
+        id: failed_spec
         if: steps.run_result.outputs.run_result == 'failedtest'
+        working-directory: app/client
         run: |
-          failed_spec_env=$(cat ~/failed_spec_ci/failed_spec_ci* | sort -u)
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
-          echo "$failed_spec_env" >> $GITHUB_ENV
+          while IFS= read -r line
+          do
+            spec_name=$(echo $line | awk -F'/' '{print $NF}')
+            failed_spec_env=$(find . -name $spec_name | sed 's|./||')
+            echo "$failed_spec_env" >> $GITHUB_ENV
+          done < ~/combined_failed_spec_ci/combined_failed_spec_ci
           echo "EOF" >> $GITHUB_ENV
 
       # Get specs to run
@@ -270,6 +278,7 @@ jobs:
           echo Remote $COMMIT_INFO_REMOTE
 
       - name: Run the cypress test
+        id: cypress_test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         uses: cypress-io/github-action@v5
         env:
@@ -331,6 +340,7 @@ jobs:
 
       # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
+        id: cypress_test_failedtest
         if: steps.run_result.outputs.run_result == 'failedtest'
         uses: cypress-io/github-action@v5
         env:
@@ -459,6 +469,26 @@ jobs:
         with:
           name: server-logs-${{ matrix.job }}
           path: app/server/server-logs.log
+
+      - name: get cypress url dashboard url
+        id: dashboard_url
+        if: always()
+        run: |
+          if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
+            echo ${{ steps.cypress_test.outputs.resultsUrl }} >> ~/cypress_url
+          elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
+            echo ${{ steps.cypress_test_failedtest.outputs.resultsUrl }} >> ~/cypress_url
+          fi
+
+      # Force store previous run result to cache
+      - name: Store the previous run result
+        if: success()
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ~/cypress_url
+          key: ${{ github.run_id }}-dashboard-url-${{ github.run_number }}
+
 
       # Set status = success
       - name: Save the status of the run
