@@ -21,5 +21,4 @@ public class SmartSubstitutionHelper {
 
         return updatedQuery;
     }
-
 }

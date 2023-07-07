@@ -29,7 +29,7 @@ describe("Table widget v2: select column type test", function () {
     propPane.UpdatePropertyFieldValue("Options", "{{null}}");
 
     // 5 while adding a new row
-    agHelper.GetNClick(table._addNewRow, 0, true);
+    table.AddNewRow();
     agHelper.GetNClick(table._tableRow(0, 0, "v2"));
     agHelper.GetNAssertContains(table._selectMenuItem, "No Results Found");
 
@@ -59,7 +59,7 @@ describe("Table widget v2: select column type test", function () {
     propPane.UpdatePropertyFieldValue("Options", "{{[null, null]}}");
 
     // 5 while adding a new row
-    agHelper.GetNClick(table._addNewRow, 0, true);
+    table.AddNewRow();
     agHelper.GetNClick(table._tableRow(0, 0, "v2"));
     agHelper.GetNAssertContains(table._selectMenuItem, "No Results Found");
 

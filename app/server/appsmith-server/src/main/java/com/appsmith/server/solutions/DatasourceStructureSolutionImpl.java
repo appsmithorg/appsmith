@@ -13,17 +13,25 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class DatasourceStructureSolutionImpl extends DatasourceStructureSolutionCEImpl implements DatasourceStructureSolution {
-    public DatasourceStructureSolutionImpl(DatasourceService datasourceService,
-                                           DatasourceStorageService datasourceStorageService,
-                                           PluginExecutorHelper pluginExecutorHelper,
-                                           PluginService pluginService,
-                                           DatasourceContextService datasourceContextService,
-                                           DatasourcePermission datasourcePermission,
-                                           DatasourceStructureService datasourceStructureService,
-                                           AnalyticsService analyticsService) {
-        super(datasourceService, datasourceStorageService, pluginExecutorHelper, pluginService,
-                datasourceContextService, datasourcePermission,
-                datasourceStructureService, analyticsService);
+public class DatasourceStructureSolutionImpl extends DatasourceStructureSolutionCEImpl
+        implements DatasourceStructureSolution {
+    public DatasourceStructureSolutionImpl(
+            DatasourceService datasourceService,
+            DatasourceStorageService datasourceStorageService,
+            PluginExecutorHelper pluginExecutorHelper,
+            PluginService pluginService,
+            DatasourceContextService datasourceContextService,
+            DatasourcePermission datasourcePermission,
+            DatasourceStructureService datasourceStructureService,
+            AnalyticsService analyticsService) {
+        super(
+                datasourceService,
+                datasourceStorageService,
+                pluginExecutorHelper,
+                pluginService,
+                datasourceContextService,
+                datasourcePermission,
+                datasourceStructureService,
+                analyticsService);
     }
 }

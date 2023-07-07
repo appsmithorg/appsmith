@@ -85,7 +85,7 @@ describe("Git Bugs", function () {
       _.agHelper.GetNClick(_.locators._publishButton);
       _.agHelper.WaitUntilEleAppear(_.locators._gitStatusChanges);
       _.agHelper.AssertContains(
-        "Theme modified",
+        Cypress.env("MESSAGES").CHANGES_THEME(),
         "exist",
         _.locators._gitStatusChanges,
       );
@@ -98,16 +98,44 @@ describe("Git Bugs", function () {
       _.agHelper.GetNClick(_.locators._publishButton);
       _.agHelper.WaitUntilEleAppear(_.locators._gitStatusChanges);
       _.agHelper.AssertContains(
-        "Application settings modified",
+        Cypress.env("MESSAGES").CHANGES_APP_SETTINGS(),
         "exist",
         _.locators._gitStatusChanges,
       );
       _.agHelper.GetNClick(_.locators._dialogCloseButton);
     });
   });
+
+  it("5. Bug 24946 : Discard message is missing when only navigation settings are changed", function () {
+    _.gitSync.SwitchGitBranch("master");
+    _.gitSync.CreateGitBranch(`b24946`, true);
+    cy.get("@gitbranchName").then((branchName) => {
+      statusBranch = branchName;
+      _.agHelper.GetNClick(_.locators._appEditMenuBtn);
+      _.agHelper.GetNClick(_.locators._appEditMenuSettings);
+      _.agHelper.GetNClick(_.locators._appNavigationSettings);
+      _.agHelper.GetNClick(_.locators._appNavigationSettingsShowTitle);
+      _.agHelper.GetNClick(_.locators._publishButton);
+      _.agHelper.WaitUntilEleAppear(_.locators._gitStatusChanges);
+      _.agHelper.GetNClick(_.gitSync._discardChanges);
+      _.agHelper.WaitUntilEleAppear(_.gitSync._discardCallout);
+      _.agHelper.AssertContains(
+        Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING(),
+        "exist",
+        _.gitSync._discardCallout,
+      );
+      _.agHelper.AssertContains(
+        Cypress.env("MESSAGES").DISCARD_MESSAGE(),
+        "exist",
+        _.gitSync._discardCallout,
+      );
+      _.agHelper.GetNClick(_.locators._dialogCloseButton);
+    });
+  });
+
   // skipping this test for now, will update test logic and create new PR for it
   // TODO Parthvi
-  it.skip("5. Bug 24206 : Open repository button is not functional in git sync modal", function () {
+  it.skip("6. Bug 24206 : Open repository button is not functional in git sync modal", function () {
     _.gitSync.SwitchGitBranch("master");
     _.entityExplorer.DragDropWidgetNVerify("modalwidget", 50, 50);
     _.gitSync.CommitAndPush();

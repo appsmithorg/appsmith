@@ -185,12 +185,8 @@ describe("DependencyMap utils", function () {
       "Button1.onClick",
       entityConfig,
     );
-    const expectedResult = {
-      isTrigger: true,
-      dependencies: [],
-    };
 
-    expect(expectedResult).toStrictEqual(actualResult);
+    expect([]).toStrictEqual(actualResult);
 
     const entity2 = {
       ENTITY_TYPE: "WIDGET",
@@ -348,10 +344,7 @@ describe("DependencyMap utils", function () {
       "Button1.googleRecaptchaKey",
       entityConfig2,
     );
-    const expected = {
-      isTrigger: false,
-      dependencies: ["JSObject.myVar1"],
-    };
+    const expected = ["JSObject.myVar1"];
 
     expect(expected).toStrictEqual(result);
   });
