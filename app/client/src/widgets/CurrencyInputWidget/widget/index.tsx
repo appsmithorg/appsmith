@@ -64,7 +64,7 @@ export function defaultValueValidation(
   }
   const decimalSeperator = getLocaleDecimalSeperator();
   const defaultDecimalSeperator = ".";
-  if (_.isObject(value)) {
+  if (_.isObject(value) || typeof value === "boolean") {
     return {
       isValid: false,
       parsed: JSON.stringify(value, null, 2),
