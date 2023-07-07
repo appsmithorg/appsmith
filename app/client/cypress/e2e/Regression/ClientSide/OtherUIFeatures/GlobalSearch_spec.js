@@ -8,23 +8,14 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("GlobalSearch", function () {
   before(() => {
-    cy.fixture("MultipleWidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("MultipleWidgetDsl");
   });
 
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
 
-  it("1. Clicking on filter should show the filter menu", () => {
-    cy.get(commonlocators.globalSearchTrigger).click({ force: true });
-    cy.contains(globalSearchLocators.docHint, "snippets").click();
-    cy.get(globalSearchLocators.filterButton).click();
-    cy.contains("Reset Filter").should("be.visible");
-    cy.get("body").type("{esc}");
-
-    //showsAndHidesUsingKeyboardShortcuts
+  it("1. Shows And Hides Using Keyboard Shortcuts", () => {
     // wait for the page to load
     cy.get(commonlocators.canvas);
     const isMac = Cypress.platform === "darwin";

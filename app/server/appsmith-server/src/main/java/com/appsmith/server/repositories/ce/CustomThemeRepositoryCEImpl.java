@@ -25,30 +25,37 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @Component
 @Slf4j
 public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Theme> implements CustomThemeRepositoryCE {
-    public CustomThemeRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomThemeRepositoryCEImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
-
     @Override
     public Flux<Theme> getApplicationThemes(String applicationId, AclPermission aclPermission) {
-        Criteria appThemeCriteria = Criteria.where(fieldName(QTheme.theme.applicationId)).is(applicationId);
-        Criteria systemThemeCriteria = Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
+        Criteria appThemeCriteria =
+                Criteria.where(fieldName(QTheme.theme.applicationId)).is(applicationId);
+        Criteria systemThemeCriteria =
+                Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
         Criteria criteria = new Criteria().orOperator(appThemeCriteria, systemThemeCriteria);
         return queryAll(List.of(criteria), aclPermission);
     }
 
     @Override
     public Flux<Theme> getSystemThemes() {
-        Criteria systemThemeCriteria = Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
+        Criteria systemThemeCriteria =
+                Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
         return queryAll(List.of(systemThemeCriteria), AclPermission.READ_THEMES);
     }
 
     @Override
     public Mono<Theme> getSystemThemeByName(String themeName) {
         String findNameRegex = String.format("^%s$", Pattern.quote(themeName));
-        Criteria criteria = where(fieldName(QTheme.theme.name)).regex(findNameRegex, "i")
-                .and(fieldName(QTheme.theme.isSystemTheme)).is(true);
+        Criteria criteria = where(fieldName(QTheme.theme.name))
+                .regex(findNameRegex, "i")
+                .and(fieldName(QTheme.theme.isSystemTheme))
+                .is(true);
         return queryOne(List.of(criteria), AclPermission.READ_THEMES);
     }
 
@@ -64,18 +71,22 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
                     update.set(fieldName(QTheme.theme.deleted), true);
                     update.set(fieldName(QTheme.theme.deletedAt), Instant.now());
                     return updateByCriteria(List.of(criteria, permissionCriteria), update);
-                }).map(updateResult -> updateResult.getModifiedCount() > 0);
+                })
+                .map(updateResult -> updateResult.getModifiedCount() > 0);
     }
 
     @Override
     public Mono<Boolean> archiveByApplicationId(String applicationId) {
-        return archiveThemeByCriteria(where(fieldName(QTheme.theme.applicationId)).is(applicationId));
+        return archiveThemeByCriteria(
+                where(fieldName(QTheme.theme.applicationId)).is(applicationId));
     }
 
     @Override
     public Mono<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId) {
-        Criteria criteria = where(fieldName(QTheme.theme.id)).in(editModeThemeId, publishedModeThemeId)
-                .and(fieldName(QTheme.theme.isSystemTheme)).is(false);
+        Criteria criteria = where(fieldName(QTheme.theme.id))
+                .in(editModeThemeId, publishedModeThemeId)
+                .and(fieldName(QTheme.theme.isSystemTheme))
+                .is(false);
         return archiveThemeByCriteria(criteria);
     }
 }

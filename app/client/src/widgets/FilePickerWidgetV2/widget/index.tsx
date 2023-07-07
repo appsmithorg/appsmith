@@ -834,6 +834,10 @@ class FilePickerWidget extends BaseWidget<
           isLoading={this.props.isLoading || this.state.isLoading}
           key={this.props.widgetId}
           label={this.props.label}
+          maxWidth={this.props.maxWidth}
+          minHeight={this.props.minHeight}
+          minWidth={this.props.minWidth}
+          shouldFitContent={this.isAutoLayoutMode}
           uppy={this.state.uppy}
           widgetId={this.props.widgetId}
         />

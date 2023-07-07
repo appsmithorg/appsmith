@@ -2,9 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Trigger errors in the debugger", function () {
   before(() => {
-    cy.fixture("debuggerTableDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("debuggerTableDsl");
   });
   it("1. Trigger errors need to be shown in the errors tab", function () {
     cy.openPropertyPane("tablewidget");

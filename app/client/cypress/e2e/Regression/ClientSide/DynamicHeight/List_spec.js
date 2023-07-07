@@ -7,9 +7,7 @@ import {
 describe("Dynamic Height Width validation", function () {
   it("1. Validate change with auto height width for widgets", function () {
     const textMsg = "Dynamic panel validation for text widget wrt height";
-    cy.fixture("dynamicHeightListDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("dynamicHeightListDsl");
     entityExplorer.SelectEntityByName("List1");
     cy.get(".t--widget-listwidget")
       .invoke("css", "height")

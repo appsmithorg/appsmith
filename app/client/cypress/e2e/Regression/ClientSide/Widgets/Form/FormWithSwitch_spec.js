@@ -4,9 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Switch Widget within Form widget Functionality", function () {
   before(() => {
-    cy.fixture("formSwitchDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("formSwitchDsl");
   });
   it("Switch Widget Functionality check with success message", function () {
     //Open switch widget

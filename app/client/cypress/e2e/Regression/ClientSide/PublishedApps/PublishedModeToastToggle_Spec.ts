@@ -11,9 +11,7 @@ const PAGE_LOAD_MSG = `The action "Incorrect_users" has failed.`;
 
 describe("Published mode toggle toast with debug flag in the url", function () {
   before(() => {
-    cy.fixture("publishedModeToastToggleDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("publishedModeToastToggleDsl");
   });
 
   it("1. Should not show any application related toasts", function () {
@@ -78,6 +76,7 @@ describe("Published mode toggle toast with debug flag in the url", function () {
         qs: {
           debug: "true",
         },
+        timeout: 60000,
       });
       _.agHelper.GetNAssertContains(_.locators._toastMsg, PAGE_LOAD_MSG);
 

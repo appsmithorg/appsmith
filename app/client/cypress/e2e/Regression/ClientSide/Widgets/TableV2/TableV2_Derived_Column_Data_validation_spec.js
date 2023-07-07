@@ -9,15 +9,16 @@ import {
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
-    cy.fixture("tableV2TextPaginationDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableV2TextPaginationDsl");
   });
 
   it("1. Create an API and Execute the API and bind with Table V2", function () {
     // Create and execute an API and bind with table
     apiPage.CreateAndFillApi(
       this.dataSet.paginationUrl + this.dataSet.paginationParam,
+    );
+    agHelper.VerifyEvaluatedValue(
+      this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=10",
     );
     apiPage.RunAPI();
     //Validate Table V2 with API data and then add a column

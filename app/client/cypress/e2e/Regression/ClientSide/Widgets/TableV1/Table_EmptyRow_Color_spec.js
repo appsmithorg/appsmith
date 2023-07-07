@@ -3,9 +3,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe("Table Widget empty row color validation", function () {
   before(() => {
-    cy.fixture("tableNewDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableNewDsl");
   });
 
   it("1. Validate cell background of columns", function () {

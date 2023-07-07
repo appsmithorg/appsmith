@@ -4,7 +4,6 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.helpers.FileUtils;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
@@ -24,25 +23,38 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
 
-    public EnvManagerImpl(SessionUserService sessionUserService,
-                          UserService userService,
-                          AnalyticsService analyticsService,
-                          UserRepository userRepository,
-                          PolicyUtils policyUtils,
-                          EmailSender emailSender,
-                          CommonConfig commonConfig,
-                          EmailConfig emailConfig,
-                          JavaMailSender javaMailSender,
-                          GoogleRecaptchaConfig googleRecaptchaConfig,
-                          FileUtils fileUtils,
-                          PermissionGroupService permissionGroupService,
-                          ConfigService configService,
-                          UserUtils userUtils,
-                          TenantService tenantService,
-                          ObjectMapper objectMapper) {
+    public EnvManagerImpl(
+            SessionUserService sessionUserService,
+            UserService userService,
+            AnalyticsService analyticsService,
+            UserRepository userRepository,
+            EmailSender emailSender,
+            CommonConfig commonConfig,
+            EmailConfig emailConfig,
+            JavaMailSender javaMailSender,
+            GoogleRecaptchaConfig googleRecaptchaConfig,
+            FileUtils fileUtils,
+            PermissionGroupService permissionGroupService,
+            ConfigService configService,
+            UserUtils userUtils,
+            TenantService tenantService,
+            ObjectMapper objectMapper) {
 
-        super(sessionUserService, userService, analyticsService, userRepository, policyUtils, emailSender, commonConfig,
-                emailConfig, javaMailSender, googleRecaptchaConfig, fileUtils, permissionGroupService, configService,
-                userUtils, tenantService, objectMapper);
+        super(
+                sessionUserService,
+                userService,
+                analyticsService,
+                userRepository,
+                emailSender,
+                commonConfig,
+                emailConfig,
+                javaMailSender,
+                googleRecaptchaConfig,
+                fileUtils,
+                permissionGroupService,
+                configService,
+                userUtils,
+                tenantService,
+                objectMapper);
     }
 }

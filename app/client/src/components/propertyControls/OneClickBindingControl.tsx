@@ -16,10 +16,8 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
    * with default value by platform
    */
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
-    return [
-      /^{{[^.]*\.data}}$/gi, // {{query1.data}}
-      /^{{}}$/, // {{}}
-    ].some((d) => d.test(value));
+    // {{query1.data}}
+    return /^{{[^.]*\.data}}$/gi.test(value);
   }
 
   static shouldValidateValueOnDynamicPropertyOff() {
@@ -55,6 +53,7 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
     return (
       <WidgetQueryGeneratorForm
         errorMsg={this.getErrorMessage()}
+        expectedType={this.props.expected?.autocompleteDataType || ""}
         onUpdate={this.onUpdatePropertyValue}
         propertyPath={this.props.propertyName}
         propertyValue={this.props.propertyValue}

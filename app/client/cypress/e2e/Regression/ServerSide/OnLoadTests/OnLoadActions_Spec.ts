@@ -18,9 +18,7 @@ describe("Layout OnLoad Actions tests", function () {
   });
 
   it("1. Bug 8595: OnPageLoad execution - when No api to run on Pageload", function () {
-    cy.fixture("onPageLoadActionsDsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("onPageLoadActionsDsl");
     entityExplorer.SelectEntityByName("Widgets");
     entityExplorer.SelectEntityByName("Page1");
     cy.url().then((url) => {
@@ -36,9 +34,7 @@ describe("Layout OnLoad Actions tests", function () {
   });
 
   it("2. Bug 8595: OnPageLoad execution - when Query Parmas added via Params tab", function () {
-    cy.fixture("onPageLoadActionsDsl").then((val: any) => {
-      agHelper.AddDsl(val, locators._imageWidget);
-    });
+    agHelper.AddDsl("onPageLoadActionsDsl", locators._imageWidget);
     apiPage.CreateAndFillApi(
       "https://source.unsplash.com/collection/1599413",
       "RandomFlora",
