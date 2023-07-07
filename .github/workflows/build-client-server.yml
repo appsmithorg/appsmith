@@ -31,8 +31,7 @@ jobs:
         id: fetch_pr
         if: github.event_name == 'workflow_dispatch'
         run: |
-          res=`curl -s -H "Authorization: Bearer ${{ secrets.APPSMITH_CI_TEST_PAT}}" https://api.github.com/repos/${{ github.repository }}/pulls?head=appsmithorg:chore/refactor-oauth2`
-          echo "$res"
+          res=`curl -s -H "Authorization: Bearer ${{ secrets.APPSMITH_CI_TEST_PAT}}" https://api.github.com/repos/${{ github.repository }}/pulls?head=appsmithorg:${{ github.ref_name }}`
           response_length=`echo "$res" | jq -r 'length'`
           if [[ $response_length -ne 0 ]]; then
             pr_number=`echo $res | jq -r '.[0] | .number'`
@@ -268,7 +267,7 @@ jobs:
   ci-test-result-existing:
     needs: [ file-check, ci-test-limited-existing-docker-image ]
     # Only run if the ci-test-limited with matrices step is successful
-    if: always()
+    if: needs.file-check.outputs.runId != '0'
     runs-on: ubuntu-latest
     defaults:
       run:
