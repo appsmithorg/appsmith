@@ -2,11 +2,11 @@ import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
 
 import { Button } from "../Button";
 import { ButtonGroup } from "../ButtonGroup";
-import { TooltipContainer, TooltipTrigger, TooltipContent } from "./";
+import { TooltipRoot, TooltipTrigger, TooltipContent } from "./";
 
 <Meta
   title="Design-system/widgets/Tooltip"
-  component={Tooltip}
+  component={TooltipRoot}
   args={{
     open: undefined,
     onOpenChange: undefined,
@@ -15,12 +15,12 @@ import { TooltipContainer, TooltipTrigger, TooltipContent } from "./";
 
 export const Template = (args) => {
   return (
-    <TooltipContainer {...args}>
+    <TooltipRoot {...args}>
       <TooltipTrigger>
         <Button>My trigger</Button>
       </TooltipTrigger>
       <TooltipContent>My tooltip</TooltipContent>
-    </TooltipContainer>
+    </TooltipRoot>
   );
 };
 
@@ -41,30 +41,30 @@ The placement of the tooltip can be changed by passing the `placement` prop.
 <Canvas>
   <Story name="Tooltip placement">
     <ButtonGroup>
-      <TooltipContainer placement="left">
+      <TooltipRoot placement="left">
         <TooltipTrigger>
           <Button variant="outlined">Left</Button>
         </TooltipTrigger>
         <TooltipContent>My tooltip</TooltipContent>
-      </TooltipContainer>
-      <TooltipContainer placement="top">
+      </TooltipRoot>
+      <TooltipRoot placement="top">
         <TooltipTrigger>
           <Button variant="outlined">Top</Button>
         </TooltipTrigger>
         <TooltipContent>My tooltip</TooltipContent>
-      </TooltipContainer>
-      <TooltipContainer placement="bottom">
+      </TooltipRoot>
+      <TooltipRoot placement="bottom">
         <TooltipTrigger>
           <Button variant="outlined">Bottom</Button>
         </TooltipTrigger>
         <TooltipContent>My tooltip</TooltipContent>
-      </TooltipContainer>
-      <TooltipContainer placement="right">
+      </TooltipRoot>
+      <TooltipRoot placement="right">
         <TooltipTrigger>
           <Button variant="outlined">Right</Button>
         </TooltipTrigger>
         <TooltipContent>My tooltip</TooltipContent>
-      </TooltipContainer>
+      </TooltipRoot>
     </ButtonGroup>
   </Story>
 </Canvas>
@@ -75,7 +75,7 @@ If the trigger is disabled, the tooltip will still be displayed.
 
 <Canvas>
   <Story name="Tooltip disabled">
-    <TooltipContainer>
+    <TooltipRoot>
       <TooltipTrigger>
         <Button
           isDisabled
@@ -87,6 +87,6 @@ If the trigger is disabled, the tooltip will still be displayed.
         </Button>
       </TooltipTrigger>
       <TooltipContent>My tooltip</TooltipContent>
-    </TooltipContainer>
+    </TooltipRoot>
   </Story>
 </Canvas>
