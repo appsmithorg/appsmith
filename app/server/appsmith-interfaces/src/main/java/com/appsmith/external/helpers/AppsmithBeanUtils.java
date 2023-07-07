@@ -30,7 +30,7 @@ public final class AppsmithBeanUtils {
         return emptyNames.toArray(result);
     }
 
-    //Use Spring BeanUtils to copy and ignore null
+    // Use Spring BeanUtils to copy and ignore null
     public static void copyNewFieldValuesIntoOldObject(Object src, Object target) {
         BeanUtils.copyProperties(src, target, getNullPropertyNames(src));
     }
@@ -98,7 +98,6 @@ public final class AppsmithBeanUtils {
         BeanWrapper trgWrap = PropertyAccessorFactory.forBeanPropertyAccess(trg);
 
         props.forEach(p -> trgWrap.setPropertyValue(p, srcWrap.getPropertyValue(p)));
-
     }
 
     public static List<Object> getBeanPropertyValues(Object object) {

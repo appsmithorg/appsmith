@@ -8,7 +8,9 @@ import {
 } from "selectors/gitSyncSelectors";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import {
+  CHANGES_APP_SETTINGS,
   CHANGES_FROM_APPSMITH,
+  CHANGES_THEME,
   createMessage,
   NOT_PUSHED_YET,
   TRY_TO_PULL,
@@ -79,12 +81,12 @@ const STATUS_MAP: GitStatusMap = {
     hasValue: (status?.behindCount || 0) > 0,
   }),
   [Kind.SETTINGS]: (status: GitStatusData) => ({
-    message: `Application settings modified`,
+    message: createMessage(CHANGES_APP_SETTINGS),
     iconName: "settings-2-line",
     hasValue: (status?.modified || []).includes("application.json"),
   }),
   [Kind.THEME]: (status: GitStatusData) => ({
-    message: `Theme modified`,
+    message: createMessage(CHANGES_THEME),
     iconName: "sip-line",
     hasValue: (status?.modified || []).includes("theme.json"),
   }),
