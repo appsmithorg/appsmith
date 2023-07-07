@@ -272,6 +272,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             controlType: "ICON_TABS",
             defaultValue: "left",
             fullWidth: false,
+            hidden: (props: ButtonWidgetProps) => !props.iconName,
+            dependencies: ["iconName"],
             options: [
               {
                 startIcon: "skip-left-line",
@@ -311,6 +313,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
                 value: ButtonPlacementTypes.CENTER,
               },
             ],
+            hidden: (props: ButtonWidgetProps) => !props.iconName,
+            dependencies: ["iconName"],
             defaultValue: ButtonPlacementTypes.CENTER,
             isJSConvertible: true,
             isBindProperty: true,
