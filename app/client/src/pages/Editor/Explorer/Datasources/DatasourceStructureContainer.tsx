@@ -26,6 +26,8 @@ type Props = {
   step: number;
   context: DatasourceStructureContext;
   pluginName?: string;
+  currentActionId?: string;
+  setShowUndo?: (val: boolean) => void;
 };
 
 export enum DatasourceStructureContext {
@@ -143,14 +145,12 @@ const Container = (props: Props) => {
               return (
                 <DatasourceStructure
                   context={props.context}
+                  currentActionId={props.currentActionId || ""}
                   datasourceId={props.datasourceId}
                   dbStructure={structure}
-                  disableTemplateCreation={
-                    props.context !== DatasourceStructureContext.EXPLORER &&
-                    true
-                  }
                   forceExpand={hasSearchedOccured}
                   key={`${props.datasourceId}${structure.name}-${props.context}`}
+                  setShowUndo={props?.setShowUndo}
                   step={props.step + 1}
                 />
               );

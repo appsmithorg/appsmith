@@ -1,5 +1,5 @@
 import type { RefObject } from "react";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { Tag } from "@blueprintjs/core";
 import { isString, noop } from "lodash";
@@ -129,6 +129,7 @@ import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs
 import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
 import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { undoAction } from "actions/pageActions";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -301,6 +302,13 @@ const Wrapper = styled.div`
 const DocumentationButton = styled(Button)`
   position: absolute !important;
   right: 24px;
+  margin: 7px 0px 0px;
+  z-index: 6;
+`;
+
+const UndoButton = styled(Button)`
+  position: absolute !important;
+  right: 180px;
   margin: 7px 0px 0px;
   z-index: 6;
 `;
@@ -485,6 +493,22 @@ export function EditorJSONtoForm(props: Props) {
   }
 
   const dispatch = useDispatch();
+
+  const [showUndo, setShowUndo] = useState(false);
+
+  const undoFn = useCallback(() => {
+    dispatch(undoAction());
+    setShowUndo(false);
+  }, []);
+
+  useEffect(() => {
+    if (!showUndo) return;
+    const timer = setTimeout(() => {
+      setShowUndo(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [showUndo]);
 
   const handleDocumentationClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -1021,6 +1045,16 @@ export function EditorJSONtoForm(props: Props) {
                     </SettingsWrapper>
                   </TabPanelWrapper>
                 </Tabs>
+                {showUndo && (
+                  <Tooltip
+                    content={createMessage(DOCUMENTATION_TOOLTIP)}
+                    placement="top"
+                  >
+                    <UndoButton kind="secondary" onClick={undoFn} size="sm">
+                      Undo
+                    </UndoButton>
+                  </Tooltip>
+                )}
                 {documentationLink && (
                   <Tooltip
                     content={createMessage(DOCUMENTATION_TOOLTIP)}
@@ -1100,6 +1134,7 @@ export function EditorJSONtoForm(props: Props) {
               hasConnections={hasDependencies}
               hasResponse={!!output}
               pluginId={props.pluginId}
+              setShowUndo={setShowUndo}
               suggestedWidgets={executedQueryData?.suggestedWidgets}
             />
           </SidebarWrapper>

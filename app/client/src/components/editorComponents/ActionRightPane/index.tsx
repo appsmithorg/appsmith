@@ -256,6 +256,7 @@ function ActionSidebar({
   hasConnections,
   hasResponse,
   pluginId,
+  setShowUndo,
   suggestedWidgets,
 }: {
   actionName: string;
@@ -269,6 +270,7 @@ function ActionSidebar({
   datasourceId: string;
   pluginId: string;
   context: DatasourceStructureContext;
+  setShowUndo?: (val: boolean) => void;
 }) {
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
@@ -423,9 +425,11 @@ function ActionSidebar({
             <DataStructureListWrapper>
               <DataStructureList
                 context={context}
+                currentActionId={params?.queryId || ""}
                 datasourceId={datasourceId || ""}
                 datasourceStructure={datasourceStructure}
                 pluginName={pluginName}
+                setShowUndo={setShowUndo}
                 step={0}
               />
             </DataStructureListWrapper>

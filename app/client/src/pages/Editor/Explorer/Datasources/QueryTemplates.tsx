@@ -11,7 +11,11 @@ import type { QueryAction } from "entities/Action";
 import history from "utils/history";
 import type { Datasource, QueryTemplate } from "entities/Datasource";
 import { INTEGRATION_TABS } from "constants/routes";
-import { getDatasource, getPlugin } from "selectors/entitiesSelector";
+import {
+  getAction,
+  getDatasource,
+  getPlugin,
+} from "selectors/entitiesSelector";
 import { integrationEditorURL } from "RouteBuilder";
 import { MenuItem } from "design-system";
 import type { Plugin } from "api/PluginApi";
@@ -24,12 +28,16 @@ import {
 import { setFeatureFlagShownStatus } from "utils/storage";
 import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 import styled from "styled-components";
+import { change, getFormValues } from "redux-form";
+import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
+import { diff } from "deep-diff";
 
 type QueryTemplatesProps = {
   templates: QueryTemplate[];
   datasourceId: string;
   onSelect: () => void;
   context: DatasourceStructureContext;
+  currentActionId: string;
 };
 
 enum QueryTemplatesEvent {
@@ -57,6 +65,13 @@ export function QueryTemplates(props: QueryTemplatesProps) {
   const dataSource: Datasource | undefined = useSelector((state: AppState) =>
     getDatasource(state, props.datasourceId),
   );
+  const currentAction = useSelector((state) =>
+    getAction(state, props.currentActionId),
+  );
+  const formName = QUERY_EDITOR_FORM_NAME;
+
+  const formValues = useSelector((state) => getFormValues(formName)(state));
+
   const isEnabledForQueryBinding = useSelector((state) =>
     selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_binding_enabled),
   );
@@ -124,6 +139,52 @@ export function QueryTemplates(props: QueryTemplatesProps) {
     ],
   );
 
+  const updateQueryAction = useCallback(
+    (template: QueryTemplate) => {
+      if (!currentAction) return;
+
+      const queryactionConfiguration: Partial<QueryAction> = {
+        actionConfiguration: {
+          body: template.body,
+          pluginSpecifiedTemplates: template.pluginSpecifiedTemplates,
+          formData: template.configuration,
+          ...template.actionConfiguration,
+        },
+      };
+
+      const newFormValueState = {
+        ...formValues,
+        ...queryactionConfiguration,
+      };
+
+      const differences = diff(formValues, newFormValueState) || [];
+
+      differences.forEach((diff) => {
+        if (diff.kind === "E" || diff.kind === "N") {
+          const path = diff?.path?.join(".") || "";
+          const value = diff?.rhs;
+
+          if (path) {
+            dispatch(change(QUERY_EDITOR_FORM_NAME, path, value));
+          }
+        }
+      });
+
+      if (isWalkthroughOpened) {
+        popFeature && popFeature();
+        setFeatureFlagShownStatus(FEATURE_FLAG.ab_ds_schema_enabled, true);
+      }
+    },
+    [
+      dispatch,
+      actions,
+      currentPageId,
+      applicationId,
+      props.datasourceId,
+      dataSource,
+    ],
+  );
+
   return (
     <>
       {props.templates.map((template) => {
@@ -131,7 +192,11 @@ export function QueryTemplates(props: QueryTemplatesProps) {
           <TemplateMenuItem
             key={template.title}
             onSelect={() => {
-              createQueryAction(template);
+              if (props.currentActionId) {
+                updateQueryAction(template);
+              } else {
+                createQueryAction(template);
+              }
               props.onSelect();
             }}
           >
