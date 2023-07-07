@@ -49,8 +49,10 @@ import listWidgetIconSvg from "../../../widgets/ListWidget/icon.svg";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import {
   getFeatureFlagShownStatus,
+  isUserSignedUpFlagSet,
   setFeatureFlagShownStatus,
 } from "utils/storage";
+import { getCurrentUser } from "selectors/usersSelectors";
 
 const BINDING_GUIDE_GIF =
   "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/binding.gif";
@@ -341,6 +343,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
   const dataTree = useSelector(getDataTree);
   const canvasWidgets = useSelector(getWidgets);
   const applicationId = useSelector(getCurrentApplicationId);
+  const user = useSelector(getCurrentUser);
   const {
     isOpened: isWalkthroughOpened,
     popFeature,
@@ -443,8 +446,10 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
       FEATURE_FLAG.ab_ds_binding_enabled,
     );
 
+    const isNewUser = user && (await isUserSignedUpFlagSet(user.email));
     // Adding walkthrough tutorial
-    !isFeatureWalkthroughShown &&
+    isNewUser &&
+      !isFeatureWalkthroughShown &&
       pushFeature &&
       pushFeature({
         targetId: BINDING_SECTION_ID,

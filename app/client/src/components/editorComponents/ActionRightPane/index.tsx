@@ -51,8 +51,10 @@ import { fetchDatasourceStructure } from "actions/datasourceActions";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import {
   getFeatureFlagShownStatus,
+  isUserSignedUpFlagSet,
   setFeatureFlagShownStatus,
 } from "utils/storage";
+import { getCurrentUser } from "selectors/usersSelectors";
 
 const SCHEMA_GUIDE_GIF =
   "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/schema.gif";
@@ -274,6 +276,7 @@ function ActionSidebar({
   const widgets = useSelector(getWidgets);
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
+  const user = useSelector(getCurrentUser);
   const { pushFeature } = useContext(WalkthroughContext) || {};
   const params = useParams<{
     pageId: string;
@@ -332,8 +335,10 @@ function ActionSidebar({
       FEATURE_FLAG.ab_ds_schema_enabled,
     );
 
+    const isNewUser = user && (await isUserSignedUpFlagSet(user.email));
     // Adding walkthrough tutorial
-    !isFeatureWalkthroughShown &&
+    isNewUser &&
+      !isFeatureWalkthroughShown &&
       pushFeature &&
       pushFeature({
         targetId: SCHEMA_SECTION_ID,
