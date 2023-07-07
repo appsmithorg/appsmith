@@ -15,7 +15,7 @@ export const StyledTooltipContent = styled(
   color: var(--color-fg-on-assistive);
   padding: var(--spacing-2) var(--spacing-3);
   border-radius: var(--border-radius-1);
-  z-index: 9999;
+  z-index: var(--z-index-tooltip);
 
   [data-tooltip-trigger-arrow] {
     fill: var(--color-bg-assistive);

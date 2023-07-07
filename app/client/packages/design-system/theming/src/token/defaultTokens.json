@@ -15,6 +15,13 @@
   "opacity": {
     "disabled": 0.3
   },
+  "zIndex": {
+    "propertyPane": 3,
+    "entityExplorer": 3,
+    "resizer": 4,
+    "peekOverlay": 10,
+    "tooltip": 9999
+  },
   "typography": {
     "heading": {
       "capHeightRatio": 6,

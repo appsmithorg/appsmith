@@ -16,6 +16,7 @@ export class TokensAccessor {
   private opacity?: TokenObj;
   private typography: TypographySource;
   private fontFamily?: FontFamily;
+  private zIndex?: TokenObj;
 
   constructor({
     borderRadius,
@@ -27,6 +28,7 @@ export class TokensAccessor {
     rootUnit,
     seedColor,
     typography,
+    zIndex,
   }: TokenSource) {
     this.seedColor = seedColor;
     this.colorMode = colorMode;
@@ -37,6 +39,7 @@ export class TokensAccessor {
     this.opacity = opacity;
     this.fontFamily = fontFamily;
     this.typography = typography;
+    this.zIndex = zIndex;
   }
 
   updateRootUnit = (rootUnit: number) => {
@@ -75,6 +78,10 @@ export class TokensAccessor {
     this.opacity = opacity;
   };
 
+  updateZIndex = (zIndex: TokenObj) => {
+    this.zIndex = zIndex;
+  };
+
   getAllTokens = () => {
     return {
       rootUnit: this.getRootUnit(),
@@ -85,6 +92,7 @@ export class TokensAccessor {
       ...this.getBoxShadow(),
       ...this.getBorderWidth(),
       ...this.getOpacity(),
+      ...this.getZIndex(),
     };
   };
 
@@ -166,6 +174,12 @@ export class TokensAccessor {
     if (this.opacity == null) return {} as ThemeToken;
 
     return this.createTokenObject(this.opacity, "opacity");
+  };
+
+  getZIndex = () => {
+    if (this.zIndex == null) return {} as ThemeToken;
+
+    return this.createTokenObject(this.zIndex, "zIndex");
   };
 
   private get isLightMode() {

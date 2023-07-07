@@ -40,7 +40,10 @@ import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
 import HtmlTitle from "./AppViewerHtmlTitle";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import { ThemeProvider as WDSThemeProvider } from "components/wds/ThemeProvider";
+import {
+  ThemeProvider as WDSThemeProvider,
+  useTheme,
+} from "@design-system/theming";
 import { useFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 
 const AppViewerBody = styled.section<{
@@ -92,7 +95,10 @@ function AppViewer(props: Props) {
   const currentApplicationDetails: ApplicationPayload | undefined = useSelector(
     getCurrentApplication,
   );
-
+  const { theme } = useTheme({
+    borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
+    seedColor: selectedTheme.properties.colors.primaryColor,
+  });
   const focusRef = useWidgetFocus();
 
   /**
@@ -182,10 +188,7 @@ function AppViewer(props: Props) {
     : selectedTheme.properties.colors.backgroundColor;
 
   return (
-    <WDSThemeProvider
-      borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-      seedColor={selectedTheme.properties.colors.primaryColor}
-    >
+    <WDSThemeProvider theme={theme}>
       <ThemeProvider theme={lightTheme}>
         <EditorContextProvider renderMode="PAGE">
           <WidgetGlobaStyles

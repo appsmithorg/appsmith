@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import type { FlattenSimpleInterpolation } from "styled-components";
 import type { ThemeToken } from "../token";
-import type { Typography, TypographyVariant } from "../typography";
+import type { FontFamily, Typography, TypographyVariant } from "../typography";
+import type { ColorMode } from "../color";
 
 export type Theme = ThemeToken & {
   typography: Typography;
@@ -20,3 +21,11 @@ export interface ThemeProviderProps {
   children: ReactNode;
   className?: string;
 }
+
+export type UseThemeProps = {
+  seedColor?: string;
+  colorMode?: ColorMode;
+  borderRadius?: string;
+  fontFamily?: FontFamily;
+  rootUnit?: number;
+};
