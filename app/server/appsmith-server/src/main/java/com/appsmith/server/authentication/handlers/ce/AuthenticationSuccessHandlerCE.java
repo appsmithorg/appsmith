@@ -104,8 +104,8 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 );
                 // Update the user in separate thread
                 userRepository
-                        .save(user).
-                        subscribeOn(Schedulers.boundedElastic())
+                        .save(user)
+                        .subscribeOn(Schedulers.boundedElastic())
                         .subscribe();
             }
             if (isFromSignup) {

@@ -121,7 +121,8 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                 .flatMap(user -> {
                     String userIdentifier = userIdentifierService.getUserIdentifier(user);
                     // Checks for flags present in cache and if the cache is not expired
-                    return cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier, user)
+                    return cacheableFeatureFlagHelper
+                            .fetchUserCachedFlags(userIdentifier, user)
                             .flatMap(cachedFlags -> {
                                 if (cachedFlags.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES) < this.featureFlagCacheTimeMin) {
                                     return Mono.just(cachedFlags.getFlags());

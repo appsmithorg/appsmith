@@ -105,7 +105,6 @@ public class FeatureFlagServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
     public void evictFeatureFlags_withUserIdentifier_redisKeyDoesNotExist() {
         String userIdentifier = "testIdentifier";
         Mono<Void> evictCache = cacheableFeatureFlagHelper.evictUserCachedFlags(userIdentifier);
