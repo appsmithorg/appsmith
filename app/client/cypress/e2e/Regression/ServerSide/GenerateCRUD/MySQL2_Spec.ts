@@ -399,7 +399,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
     table.WaitUntilTableLoad();
 
     //Validating loaded table
