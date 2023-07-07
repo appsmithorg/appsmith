@@ -180,7 +180,7 @@ jobs:
   ci-test-limited-result:
     needs: [ file-check, ci-test-limited ]
     # Only run if the ci-test-limited with matrices step is successful
-    if: always()
+    if: needs.file-check.outputs.runId != '0'
     runs-on: ubuntu-latest
     defaults:
       run:
