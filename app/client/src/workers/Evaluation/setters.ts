@@ -5,8 +5,6 @@ import {
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { evalTreeWithChanges } from "./evalTreeWithChanges";
-import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
-import { WorkerMessenger } from "./fns/utils/Messenger";
 import { dataTreeEvaluator } from "./handlers/evalTree";
 import { get, set } from "lodash";
 import { validate } from "./validations";
@@ -100,21 +98,6 @@ class Setters {
 
       overriddenProperties.forEach((propPath) => {
         updatedProperties.push([entityName, propPath]);
-
-        if (propPath.split(".")[0] === "meta") {
-          const metaPropertyPath = propPath.split(".").slice(1);
-
-          evalMetaUpdates.push({
-            widgetId: entity.widgetId,
-            metaPropertyPath,
-            value: parsedValue,
-          });
-
-          WorkerMessenger.request({
-            method: MAIN_THREAD_ACTION.SET_META_PROP_FROM_SETTER,
-            data: { evalMetaUpdates },
-          });
-        }
       });
     }
 
@@ -123,7 +106,8 @@ class Setters {
 
     return new Promise((resolve) => {
       updatedProperties.push([entityName, propertyPath]);
-      evalTreeWithChanges(updatedProperties, resolve);
+      evalTreeWithChanges(updatedProperties, evalMetaUpdates);
+      resolve(parsedValue);
     });
   }
   /** Generates a new setter method */
