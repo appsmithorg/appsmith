@@ -1419,14 +1419,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     importedApplication.setPublishedPages(applicationPageMap.get(VIEW));
                     return applicationPageMap;
                 })
-                .then(newActionService.importActions(
-                        importedNewActionList,
-                        importedApplication,
-                        branchName,
-                        pageNameMap,
-                        pluginMap,
-                        datasourceMap,
-                        permissionProvider))
+                .flatMap(unused -> newActionService.importActions(importedNewActionList, importedApplication, branchName, pageNameMap, pluginMap, datasourceMap, permissionProvider))
                 .flatMap(importActionResultDTO -> {
                     log.info(
                             "Actions imported. applicationId {}, result: {}",
