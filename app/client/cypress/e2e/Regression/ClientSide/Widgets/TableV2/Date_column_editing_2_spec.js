@@ -3,9 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table widget date column inline editing functionality", () => {
   before(() => {
-    cy.fixture("Table/DateCellEditingDSL").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Table/DateCellEditingDSL");
   });
 
   it.skip("1. should check that changing property pane time precision changes the date picker time precision", () => {

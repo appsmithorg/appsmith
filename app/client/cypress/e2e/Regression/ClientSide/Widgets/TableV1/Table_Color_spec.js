@@ -3,9 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget property pane feature validation", function () {
   before(() => {
-    cy.fixture("tableNewDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableNewDsl");
   });
 
   it("1. Test to validate text color and text background", function () {

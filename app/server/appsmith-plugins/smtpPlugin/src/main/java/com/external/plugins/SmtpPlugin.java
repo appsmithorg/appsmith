@@ -14,6 +14,8 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.plugins.exceptions.SMTPErrorMessages;
 import com.external.plugins.exceptions.SMTPPluginError;
+import jakarta.activation.DataHandler;
+import jakarta.activation.DataSource;
 import jakarta.mail.AuthenticationFailedException;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
@@ -37,9 +39,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
-import jakarta.activation.DataHandler;
-import jakarta.activation.DataSource;
-
 import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
@@ -62,27 +61,41 @@ public class SmtpPlugin extends BasePlugin {
         private static final String ENCODING = "UTF-8";
 
         @Override
-        public Mono<ActionExecutionResult> execute(Session connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> execute(
+                Session connection,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration) {
 
             MimeMessage message = getMimeMessage(connection);
             ActionExecutionResult result = new ActionExecutionResult();
             try {
-                String fromAddress = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.from");
-                String toAddress = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.to");
-                String ccAddress = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.cc");
-                String bccAddress = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.bcc");
-                String subject = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.subject");
-                String bodyType = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.bodyType");
-                Boolean isReplyTo = (Boolean) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.isReplyTo");
-                String replyTo = Boolean.TRUE.equals(isReplyTo) ?
-                        (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.replyTo") : null;
+                String fromAddress =
+                        (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.from");
+                String toAddress =
+                        (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.to");
+                String ccAddress =
+                        (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.cc");
+                String bccAddress =
+                        (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.bcc");
+                String subject = (String)
+                        PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.subject");
+                String bodyType = (String)
+                        PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.bodyType");
+                Boolean isReplyTo = (Boolean)
+                        PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.isReplyTo");
+                String replyTo = Boolean.TRUE.equals(isReplyTo)
+                        ? (String) PluginUtils.getValueSafelyFromFormData(
+                                actionConfiguration.getFormData(), "send.replyTo")
+                        : null;
 
                 if (!StringUtils.hasText(toAddress)) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    return Mono.error(new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             SMTPErrorMessages.RECIPIENT_ADDRESS_NOT_FOUND_ERROR_MSG));
                 }
                 if (!StringUtils.hasText(fromAddress)) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    return Mono.error(new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             SMTPErrorMessages.SENDER_ADDRESS_NOT_FOUND_ERROR_MSG));
                 }
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toAddress, false));
@@ -112,25 +125,27 @@ public class SmtpPlugin extends BasePlugin {
                 message.setContent(multipart);
 
                 // Look for any attachments that need to be sent along with this email
-                String attachmentsStr = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.attachments");
+                String attachmentsStr = (String)
+                        PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.attachments");
 
                 if (StringUtils.hasText(attachmentsStr)) {
-                    MultipartFormDataDTO[] attachmentData = objectMapper.readValue(
-                            attachmentsStr,
-                            MultipartFormDataDTO[].class
-                    );
+                    MultipartFormDataDTO[] attachmentData =
+                            objectMapper.readValue(attachmentsStr, MultipartFormDataDTO[].class);
 
                     // Iterate over each attachment and add it to the main multipart body of the email
                     for (MultipartFormDataDTO attachment : attachmentData) {
                         MimeBodyPart attachBodyPart = getMimeBodyPart();
 
-                        // Decode the base64 data received in the input by first removing the sequence data:image/png;base64,
+                        // Decode the base64 data received in the input by first removing the sequence
+                        // data:image/png;base64,
                         // from the start of the string.
                         Base64.Decoder decoder = Base64.getDecoder();
                         String attachmentStr = String.valueOf(attachment.getData());
                         if (!attachmentStr.contains(BASE64_DELIMITER)) {
-                            return Mono.error(new AppsmithPluginException(SMTPPluginError.MAIL_SENDING_FAILED,
-                                    String.format(SMTPErrorMessages.INVALID_ATTACHMENT_ERROR_MSG, attachment.getName())));
+                            return Mono.error(new AppsmithPluginException(
+                                    SMTPPluginError.MAIL_SENDING_FAILED,
+                                    String.format(
+                                            SMTPErrorMessages.INVALID_ATTACHMENT_ERROR_MSG, attachment.getName())));
                         }
                         byte[] bytes = decoder.decode(attachmentStr.split(BASE64_DELIMITER)[1]);
                         DataSource emailDatasource = new ByteArrayDataSource(bytes, attachment.getType());
@@ -154,18 +169,21 @@ public class SmtpPlugin extends BasePlugin {
 
                 log.debug("Sent the email successfully");
             } catch (MessagingException e) {
-                return Mono.error(new AppsmithPluginException(SMTPPluginError.MAIL_SENDING_FAILED,
-                        SMTPErrorMessages.MAIL_SENDING_FAILED_ERROR_MSG, e.getMessage()));
+                return Mono.error(new AppsmithPluginException(
+                        SMTPPluginError.MAIL_SENDING_FAILED,
+                        SMTPErrorMessages.MAIL_SENDING_FAILED_ERROR_MSG,
+                        e.getMessage()));
             } catch (IOException e) {
-                return Mono.error(new AppsmithPluginException(SMTPPluginError.MAIL_SENDING_FAILED,
-                        SMTPErrorMessages.UNPARSABLE_EMAIL_BODY_OR_ATTACHMENT_ERROR_MSG, e.getMessage()));
+                return Mono.error(new AppsmithPluginException(
+                        SMTPPluginError.MAIL_SENDING_FAILED,
+                        SMTPErrorMessages.UNPARSABLE_EMAIL_BODY_OR_ATTACHMENT_ERROR_MSG,
+                        e.getMessage()));
             }
 
             return Mono.just(result);
         }
 
-        @NotNull
-        MimeBodyPart getMimeBodyPart() {
+        @NotNull MimeBodyPart getMimeBodyPart() {
             return new MimeBodyPart();
         }
 
@@ -226,9 +244,9 @@ public class SmtpPlugin extends BasePlugin {
             }
 
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            if (authentication == null || !StringUtils.hasText(authentication.getUsername()) ||
-                    !StringUtils.hasText(authentication.getPassword())
-            ) {
+            if (authentication == null
+                    || !StringUtils.hasText(authentication.getUsername())
+                    || !StringUtils.hasText(authentication.getPassword())) {
                 invalids.add(new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR).getMessage());
             }
 
@@ -258,6 +276,5 @@ public class SmtpPlugin extends BasePlugin {
                     })
                     .map(DatasourceTestResult::new);
         }
-
     }
 }

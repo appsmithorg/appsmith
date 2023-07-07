@@ -16,8 +16,17 @@ declare global {
   }
 }
 
+// Preloading is disabled in LinkRelPreload_spec.js
+const isPreloadingDisabled =
+  new URL(window.location.href).searchParams.get("disableChunkPreload") ===
+  "true";
+
 const currentMode = getModeForPathname(window.location.pathname);
-if (window.__APPSMITH_CHUNKS_TO_PRELOAD && currentMode) {
+if (
+  !isPreloadingDisabled &&
+  window.__APPSMITH_CHUNKS_TO_PRELOAD &&
+  currentMode
+) {
   window.__APPSMITH_CHUNKS_TO_PRELOAD[currentMode]
     // __webpack_public_path__ might be set on runtime when the CDN is used in EE
     .map((url) => __webpack_public_path__ + url)

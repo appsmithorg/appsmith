@@ -31,10 +31,7 @@ const tableData = `[
 const checkboxSelector = " .bp3-checkbox input[type='checkbox']";
 describe("Checkbox column type funtionality test", () => {
   before(() => {
-    cy.dragAndDropToCanvas("tablewidgetv2", {
-      x: 150,
-      y: 300,
-    });
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
     _.propPane.EnterJSContext("Table data", tableData);
     cy.editColumn("completed");
     cy.changeColumnType("Checkbox");
@@ -91,7 +88,7 @@ describe("Checkbox column type funtionality test", () => {
       const selector = $elemClass + checkboxSelector;
 
       // Verify if checkbox is disabled when Editable is off
-      _.propPane.TogglePropertyState("Editable", "off");
+      _.agHelper.AssertExistingToggleState("Editable", "false");
       cy.get(selector).should("be.disabled");
 
       // Verify if checkbox is enabled when Editable is on

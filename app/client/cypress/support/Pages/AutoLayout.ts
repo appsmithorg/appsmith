@@ -27,6 +27,7 @@ export class AutoLayout {
   _containerWidgetSelector = getWidgetSelector(WIDGET.CONTAINER);
 
   _flexComponentClass = `*[class^="flex-container"]`;
+  private _flexLayerClass = ".auto-layout-layer";
 
   private autoConvertButton = "#t--layout-conversion-cta";
 
@@ -144,6 +145,9 @@ export class AutoLayout {
         .siblings(this._flexComponentClass)
         .should("not.exist");
     }
+  }
+  public getAutoLayoutLayerClassName(widgetId: string, index: number) {
+    return `${this._flexLayerClass}-${widgetId}-${index}`;
   }
 
   public VerifyIfChildWidgetPositionInFlexContainer(

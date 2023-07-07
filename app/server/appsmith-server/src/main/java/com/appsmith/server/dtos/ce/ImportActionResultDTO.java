@@ -43,6 +43,7 @@ public class ImportActionResultDTO {
      * @return
      */
     public String getGist() {
-        return String.format("existing actions: %d, imported actions: %d", existingActions.size(), importedActionIds.size());
+        return String.format(
+                "existing actions: %d, imported actions: %d", existingActions.size(), importedActionIds.size());
     }
 }

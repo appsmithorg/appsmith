@@ -684,6 +684,9 @@ class FilePickerWidget extends BaseWidget<
           }
           key={this.props.widgetId}
           label={this.props.label}
+          maxWidth={this.props.maxWidth}
+          minHeight={this.props.minHeight}
+          minWidth={this.props.minWidth}
           openModal={async () => {
             // If Uppy is still loading, show a spinner to indicate that handling the click
             // will take some time.
@@ -702,6 +705,7 @@ class FilePickerWidget extends BaseWidget<
             dashboardPlugin.openModal();
             this.setState({ isUppyModalOpen: true });
           }}
+          shouldFitContent={this.isAutoLayoutMode}
           widgetId={this.props.widgetId}
         />
 

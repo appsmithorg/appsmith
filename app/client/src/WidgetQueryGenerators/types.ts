@@ -60,7 +60,7 @@ export type ActionConfigurationMongoDB = {
   formData: MongoDBFormData;
 };
 
-export type ActionConfigurationPostgreSQL = {
+export type ActionConfigurationSQL = {
   pluginSpecifiedTemplates: Array<object>;
 };
 

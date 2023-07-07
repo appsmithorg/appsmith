@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -44,26 +44,33 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
 
     @Override
     public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
-        if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SPREADSHEET_URL_ERROR_MSG);
+        if (methodConfig.getSpreadsheetId() == null
+                || methodConfig.getSpreadsheetId().isBlank()) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SPREADSHEET_URL_ERROR_MSG);
         }
         if (methodConfig.getSheetName() == null || methodConfig.getSheetName().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.MISSING_SPREADSHEET_NAME_ERROR_MSG);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    ErrorMessages.MISSING_SPREADSHEET_NAME_ERROR_MSG);
         }
-        if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
+        if (methodConfig.getTableHeaderIndex() != null
+                && !methodConfig.getTableHeaderIndex().isBlank()) {
             try {
                 if (Integer.parseInt(methodConfig.getTableHeaderIndex()) <= 0) {
-                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             ErrorMessages.INVALID_TABLE_HEADER_INDEX);
                 }
             } catch (NumberFormatException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         ErrorMessages.INVALID_TABLE_HEADER_INDEX,
                         e.getMessage());
             }
         } else {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    ErrorMessages.INVALID_TABLE_HEADER_INDEX);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.INVALID_TABLE_HEADER_INDEX);
         }
         JsonNode bodyNode;
         try {
@@ -73,16 +80,14 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         ErrorMessages.EMPTY_UPDATE_ROW_OBJECTS_MESSAGE,
-                        e.getMessage()
-                );
+                        e.getMessage());
             }
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,e.getMessage());
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage());
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
                     methodConfig.getRowObjects(),
-                    ErrorMessages.EXPECTED_LIST_OF_ROW_OBJECTS_ERROR_MSG  + " Error: " + e.getMessage()
-            );
+                    ErrorMessages.EXPECTED_LIST_OF_ROW_OBJECTS_ERROR_MSG + " Error: " + e.getMessage());
         }
 
         if (!bodyNode.isArray()) {
@@ -94,23 +99,26 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
 
     @Override
     public Mono<Object> executePrerequisites(MethodConfig methodConfig, OAuth2 oauth2) {
-        WebClient client = WebClientUtils.builder()
-                .exchangeStrategies(EXCHANGE_STRATEGIES)
-                .build();
+        WebClient client =
+                WebClientUtils.builder().exchangeStrategies(EXCHANGE_STRATEGIES).build();
         final RowsGetMethod rowsGetMethod = new RowsGetMethod(this.objectMapper);
 
         Map<Integer, RowObject> rowObjectMapFromBody = null;
         try {
-            rowObjectMapFromBody = this.getRowObjectMapFromBody(this.objectMapper.readTree(methodConfig.getRowObjects()));
+            rowObjectMapFromBody =
+                    this.getRowObjectMapFromBody(this.objectMapper.readTree(methodConfig.getRowObjects()));
         } catch (JsonProcessingException e) {
             // Should never enter here
         }
 
         assert rowObjectMapFromBody != null;
-        final Integer rowStart = Integer.parseInt(methodConfig.getTableHeaderIndex()) + ((TreeMap<Integer, RowObject>) rowObjectMapFromBody).firstKey() + 1;
-        final Integer rowEnd = Integer.parseInt(methodConfig.getTableHeaderIndex()) + ((TreeMap<Integer, RowObject>) rowObjectMapFromBody).lastKey() + 1;
-        final MethodConfig newMethodConfig = methodConfig
-                .toBuilder()
+        final Integer rowStart = Integer.parseInt(methodConfig.getTableHeaderIndex())
+                + ((TreeMap<Integer, RowObject>) rowObjectMapFromBody).firstKey()
+                + 1;
+        final Integer rowEnd = Integer.parseInt(methodConfig.getTableHeaderIndex())
+                + ((TreeMap<Integer, RowObject>) rowObjectMapFromBody).lastKey()
+                + 1;
+        final MethodConfig newMethodConfig = methodConfig.toBuilder()
                 .queryFormat("RANGE")
                 .spreadsheetRange(rowStart + ":" + rowEnd)
                 .projection(new ArrayList<>())
@@ -132,8 +140,7 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
 
                     if (responseBody == null) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                GSheetsPluginError.QUERY_EXECUTION_FAILED,
-                                ErrorMessages.NULL_RESPONSE_BODY_ERROR_MSG));
+                                GSheetsPluginError.QUERY_EXECUTION_FAILED, ErrorMessages.NULL_RESPONSE_BODY_ERROR_MSG));
                     }
                     String jsonBody = new String(responseBody);
                     JsonNode jsonNodeBody;
@@ -141,22 +148,18 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
                         jsonNodeBody = objectMapper.readTree(jsonBody);
                     } catch (IOException e) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                                new String(responseBody),
-                                e.getMessage()
-                        ));
+                                AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, new String(responseBody), e.getMessage()));
                     }
 
-
-                    if (response.getStatusCode() != null && !response.getStatusCode().is2xxSuccessful()) {
-                        if (jsonNodeBody.get("error") != null && jsonNodeBody.get("error").get("message") !=null) {
+                    if (response.getStatusCode() != null
+                            && !response.getStatusCode().is2xxSuccessful()) {
+                        if (jsonNodeBody.get("error") != null
+                                && jsonNodeBody.get("error").get("message") != null) {
                             throw Exceptions.propagate(new AppsmithPluginException(
-                                        GSheetsPluginError.QUERY_EXECUTION_FAILED,
-                                        ErrorMessages.UNSUCCESSFUL_RESPONSE_ERROR_MSG,
-                                        jsonNodeBody.get("error").get("message").toString(),
-                                        "HTTP " + response.getStatusCode()
-                                    )
-                            );
+                                    GSheetsPluginError.QUERY_EXECUTION_FAILED,
+                                    ErrorMessages.UNSUCCESSFUL_RESPONSE_ERROR_MSG,
+                                    jsonNodeBody.get("error").get("message").toString(),
+                                    "HTTP " + response.getStatusCode()));
                         }
 
                         throw Exceptions.propagate(new AppsmithPluginException(
@@ -165,29 +168,27 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
                     }
 
                     // This is the object with the original values in the referred row
-                    final JsonNode jsonNode = rowsGetMethod
-                            .transformExecutionResponse(jsonNodeBody, methodConfig, null);
+                    final JsonNode jsonNode =
+                            rowsGetMethod.transformExecutionResponse(jsonNodeBody, methodConfig, null);
 
                     if (jsonNode == null || jsonNode.isEmpty()) {
                         throw Exceptions.propagate(new AppsmithPluginException(
                                 GSheetsPluginError.QUERY_EXECUTION_FAILED,
-                                ErrorMessages.NO_DATA_FOUND_CURRENT_ROW_INDEX_ERROR_MSG
-                        ));
+                                ErrorMessages.NO_DATA_FOUND_CURRENT_ROW_INDEX_ERROR_MSG));
                     }
 
                     // This is the rowObject for original values
-                    final List<RowObject> returnedRowObjects =
-                            new ArrayList<>(this.getRowObjectMapFromBody(jsonNode).values());
+                    final List<RowObject> returnedRowObjects = new ArrayList<>(
+                            this.getRowObjectMapFromBody(jsonNode).values());
 
                     boolean updatable = false;
 
                     // We replace these original values with new ones
                     for (RowObject rowObject : returnedRowObjects) {
                         if (finalRowObjectMapFromBody.containsKey(rowObject.getCurrentRowIndex())) {
-                            final Map<String, String> valueMap =
-                                    finalRowObjectMapFromBody
-                                            .get(rowObject.getCurrentRowIndex())
-                                            .getValueMap();
+                            final Map<String, String> valueMap = finalRowObjectMapFromBody
+                                    .get(rowObject.getCurrentRowIndex())
+                                    .getValueMap();
                             // We replace these original values with new ones
                             final Map<String, String> returnedRowObjectValueMap = rowObject.getValueMap();
                             for (Map.Entry<String, String> entry : returnedRowObjectValueMap.entrySet()) {
@@ -202,20 +203,13 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
 
                     if (Boolean.FALSE.equals(updatable)) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                GSheetsPluginError.QUERY_EXECUTION_FAILED,
-                                ErrorMessages.NOTHING_TO_UPDATE_ERROR_MSG
-                        ));
+                                GSheetsPluginError.QUERY_EXECUTION_FAILED, ErrorMessages.NOTHING_TO_UPDATE_ERROR_MSG));
                     }
 
                     methodConfig.setBody(returnedRowObjects);
                     assert jsonNodeBody != null;
                     methodConfig.setSpreadsheetRange(
-                            jsonNodeBody
-                                    .get("valueRanges")
-                                    .get(1)
-                                    .get("range")
-                                    .asText()
-                    );
+                            jsonNodeBody.get("valueRanges").get(1).get("range").asText());
                     return methodConfig;
                 });
     }
@@ -223,36 +217,35 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
     @Override
     public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
 
-        UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
+        UriComponentsBuilder uriBuilder = getBaseUriBuilder(
+                this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
                         + "/values/"
                         + URLEncoder.encode(methodConfig.getSpreadsheetRange(), StandardCharsets.UTF_8),
-                true
-        );
+                true);
 
         uriBuilder.queryParam("valueInputOption", "USER_ENTERED");
         uriBuilder.queryParam("includeValuesInResponse", Boolean.TRUE);
 
         final List<RowObject> body1 = (List<RowObject>) methodConfig.getBody();
         List<List<Object>> collect = body1.stream()
-                .map(row -> row.getAsSheetValues(body1.get(0).getValueMap().keySet().toArray(new String[0])))
+                .map(row ->
+                        row.getAsSheetValues(body1.get(0).getValueMap().keySet().toArray(new String[0])))
                 .collect(Collectors.toList());
 
-        return webClient.method(HttpMethod.PUT)
+        return webClient
+                .method(HttpMethod.PUT)
                 .uri(uriBuilder.build(true).toUri())
                 .body(BodyInserters.fromValue(Map.of(
-                        "range", methodConfig.getSpreadsheetRange(),
-                        "majorDimension", "ROWS",
-                        "values", collect
-                )));
+                        "range", methodConfig.getSpreadsheetRange(), "majorDimension", "ROWS", "values", collect)));
     }
 
     @Override
-    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
+    public JsonNode transformExecutionResponse(
+            JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw new AppsmithPluginException(
-                    GSheetsPluginError.QUERY_EXECUTION_FAILED,
-                    ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
+                    GSheetsPluginError.QUERY_EXECUTION_FAILED, ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
         }
 
         return this.objectMapper.valueToTree(Map.of("message", "Updated sheet successfully!"));
@@ -261,29 +254,23 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
     private Map<Integer, RowObject> getRowObjectMapFromBody(JsonNode body) {
 
         if (!body.isArray()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                     ErrorMessages.EXPECTED_ARRAY_OF_ROW_OBJECT_MESSAGE);
         }
 
         if (body.isEmpty()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    ErrorMessages.EMPTY_UPDATE_ROW_OBJECTS_MESSAGE);
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, ErrorMessages.EMPTY_UPDATE_ROW_OBJECTS_MESSAGE);
         }
 
-        return StreamSupport
-                .stream(body.spliterator(), false)
-                .map(rowJson -> new RowObject(
-                        this.objectMapper.convertValue(rowJson, TypeFactory
-                                .defaultInstance()
-                                .constructMapType(LinkedHashMap.class, String.class, String.class)))
+        return StreamSupport.stream(body.spliterator(), false)
+                .map(rowJson -> new RowObject(this.objectMapper.convertValue(
+                                rowJson,
+                                TypeFactory.defaultInstance()
+                                        .constructMapType(LinkedHashMap.class, String.class, String.class)))
                         .initialize())
                 .collect(Collectors.toMap(
-                        RowObject::getCurrentRowIndex,
-                        rowObject -> rowObject,
-                        (r1, r2) -> r2,
-                        TreeMap::new
-                ));
-
+                        RowObject::getCurrentRowIndex, rowObject -> rowObject, (r1, r2) -> r2, TreeMap::new));
     }
-
 }

@@ -17,7 +17,11 @@ function FilePickerComponent(props: FilePickerComponentProps) {
       buttonColor={props.buttonColor}
       disabled={props.isDisabled}
       loading={props.isLoading}
+      maxWidth={props.maxWidth}
+      minHeight={props.minHeight}
+      minWidth={props.minWidth}
       onClick={props.openModal}
+      shouldFitContent={props.shouldFitContent}
       text={computedLabel}
     />
   );
@@ -30,6 +34,10 @@ export interface FilePickerComponentProps extends ComponentProps {
   buttonColor: string;
   borderRadius: string;
   boxShadow?: string;
+  shouldFitContent: boolean;
+  maxWidth?: number;
+  minWidth?: number;
+  minHeight?: number;
 }
 
 FilePickerComponent.defaultProps = {

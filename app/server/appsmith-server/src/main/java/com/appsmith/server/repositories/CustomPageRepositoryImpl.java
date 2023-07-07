@@ -6,11 +6,12 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CustomPageRepositoryImpl extends CustomPageRepositoryCEImpl
-        implements CustomPageRepository {
+public class CustomPageRepositoryImpl extends CustomPageRepositoryCEImpl implements CustomPageRepository {
 
-    public CustomPageRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomPageRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
-
 }

@@ -4,6 +4,4 @@ import com.appsmith.server.repositories.ce.InviteUserRepositoryCE;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface InviteUserRepository extends InviteUserRepositoryCE {
-
-}
+public interface InviteUserRepository extends InviteUserRepositoryCE {}
