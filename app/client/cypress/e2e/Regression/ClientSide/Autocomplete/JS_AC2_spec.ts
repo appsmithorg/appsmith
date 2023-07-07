@@ -107,7 +107,7 @@ describe("Autocomplete tests", () => {
   });
 
   it("3. Bug #15429 Random keystrokes trigger autocomplete to show up", () => {
-    // create js object
+    // create js object & assert no hints just show up
     jsEditor.CreateJSObject(
       `export default
       myFunc1() {
@@ -123,16 +123,6 @@ describe("Autocomplete tests", () => {
         prettify: false,
       },
     );
-
-    //Paste the code and assert that the hints are not present
-    jsEditor.CreateJSObject(`const x = "Hello world;"`, {
-      paste: true,
-      completeReplace: true,
-      toRun: false,
-      shouldCreateNewJSObj: false,
-      prettify: false,
-    });
-
     agHelper.AssertElementAbsence(locators._hints);
 
     //Paste the code and assert that the hints are not present
@@ -155,6 +145,7 @@ describe("Autocomplete tests", () => {
     agHelper.AssertElementAbsence(locators._hints);
 
     agHelper.GetElement(jsEditor._lineinJsEditor(4)).click();
+    agHelper.WaitUntilAllToastsDisappear();
 
     //Assert that hints are not present inside the string
     agHelper.TypeText(locators._codeMirrorTextArea, `const x = "`);
