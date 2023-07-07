@@ -9670,7 +9670,7 @@ __metadata:
     dayjs: ^1.10.6
     deep-diff: ^1.0.2
     design-system: "npm:@appsmithorg/design-system@2.1.14"
-    design-system-old: "npm:@appsmithorg/design-system-old@1.1.10"
+    design-system-old: "npm:@appsmithorg/design-system-old@1.1.11-alpha.0"
     diff: ^5.0.0
     dotenv: ^8.1.0
     downloadjs: ^1.4.7
@@ -13685,9 +13685,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"design-system-old@npm:@appsmithorg/design-system-old@1.1.10":
-  version: 1.1.10
-  resolution: "@appsmithorg/design-system-old@npm:1.1.10"
+"design-system-old@npm:@appsmithorg/design-system-old@1.1.11-alpha.0":
+  version: 1.1.11-alpha.0
+  resolution: "@appsmithorg/design-system-old@npm:1.1.11-alpha.0"
   dependencies:
     emoji-mart: 3.0.1
   peerDependencies:
@@ -13707,7 +13707,7 @@ __metadata:
     remixicon-react: ^1.0.0
     styled-components: 5.3.6
     tinycolor2: ^1.4.2
-  checksum: 9eb74a7d59f3db7f6b19f31fecf0381247a094a8655cf4a5e64b7318e2659e28c643382f429d2aed601acf1209c062de7fb6071fa03ea0e5eb3830f840384fa7
+  checksum: 08ff2ee3ac57c2c5fdb4e7669fdcdfe77f2722cac47babf5c2a5a004aade9ef0a43beed47868353b2a7859b8303be9e7f3701c63af8652819fedd10829f00240
   languageName: node
   linkType: hard
 
