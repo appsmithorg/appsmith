@@ -5,10 +5,8 @@
  */
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
-import AutoHeightContainerWrapper from "components/autoHeight/AutoHeightContainerWrapper";
+
 import AutoHeightOverlayContainer from "components/autoHeightOverlay";
-import FlexComponent from "components/designSystems/appsmith/autoLayout/FlexComponent";
-import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import type { EditorContextType } from "components/editorComponents/EditorContextProvider";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
@@ -32,7 +30,7 @@ import {
 } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { Stylesheet } from "entities/AppTheming";
-import { get, isFunction, memoize } from "lodash";
+import { get, memoize } from "lodash";
 import type { Context, ReactNode, RefObject } from "react";
 import React, { Component } from "react";
 import type {
@@ -43,13 +41,7 @@ import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import shallowequal from "shallowequal";
 import type { CSSProperties } from "styled-components";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
-import {
-  FlexVerticalAlignment,
-  LayoutDirection,
-} from "utils/autoLayout/constants";
 import type {
   DataTreeEvaluationProps,
   EvaluationError,
@@ -58,20 +50,21 @@ import type {
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { CanvasWidgetStructure, FlattenedWidgetProps } from "./constants";
-import Skeleton from "./Skeleton";
+
 import {
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,
-  isAutoHeightEnabledForWidget,
-  isAutoHeightEnabledForWidgetWithLimits,
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
-import AutoLayoutDimensionObserver from "components/designSystems/appsmith/autoLayout/AutoLayoutDimensionObeserver";
-import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import WidgetComponentBoundary from "components/editorComponents/WidgetComponentBoundary";
 import type { AutocompletionDefinitions } from "./constants";
-import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import type {
+  LayoutDirection,
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "utils/autoLayout/constants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 /***
  * BaseWidget
@@ -251,7 +244,6 @@ abstract class BaseWidget<
       shouldUpdate && updateWidgetAutoHeight(widgetId, paddedHeight);
     }
   };
-
   selectWidgetRequest = (
     selectionRequestType: SelectionRequestType,
     payload?: string[],
@@ -344,63 +336,13 @@ abstract class BaseWidget<
   };
 
   getComponentDimensions = () => {
-    return this.calculateWidgetBounds(
-      this.props.rightColumn,
-      this.props.leftColumn,
-      this.props.topRow,
-      this.props.bottomRow,
-      this.props.parentColumnSpace,
-      this.props.parentRowSpace,
-      this.props.mobileLeftColumn,
-      this.props.mobileRightColumn,
-      this.props.mobileTopRow,
-      this.props.mobileBottomRow,
-      this.props.isMobile,
-      this.props.isFlexChild,
-    );
+    return this.props.getComponentDimensions
+      ? this.props.getComponentDimensions()
+      : {
+          componentWidth: 0,
+          componentHeight: 0,
+        };
   };
-
-  calculateWidgetBounds(
-    rightColumn: number,
-    leftColumn: number,
-    topRow: number,
-    bottomRow: number,
-    parentColumnSpace: number,
-    parentRowSpace: number,
-    mobileLeftColumn?: number,
-    mobileRightColumn?: number,
-    mobileTopRow?: number,
-    mobileBottomRow?: number,
-    isMobile?: boolean,
-    isFlexChild?: boolean,
-  ): {
-    componentWidth: number;
-    componentHeight: number;
-  } {
-    let left = leftColumn;
-    let right = rightColumn;
-    let top = topRow;
-    let bottom = bottomRow;
-    if (isFlexChild && isMobile) {
-      if (mobileLeftColumn !== undefined && parentColumnSpace !== 1) {
-        left = mobileLeftColumn;
-      }
-      if (mobileRightColumn !== undefined && parentColumnSpace !== 1) {
-        right = mobileRightColumn;
-      }
-      if (mobileTopRow !== undefined && parentRowSpace !== 1) {
-        top = mobileTopRow;
-      }
-      if (mobileBottomRow !== undefined && parentRowSpace !== 1) {
-        bottom = mobileBottomRow;
-      }
-    }
-
-    return {
-      componentWidth: (right - left) * parentColumnSpace,
-      componentHeight: (bottom - top) * parentRowSpace,
-    };
-  }
 
   getLabelWidth = () => {
     return (Number(this.props.labelWidth) || 0) * this.props.parentColumnSpace;
@@ -412,7 +354,6 @@ abstract class BaseWidget<
       0,
     );
   }, JSON.stringify);
-
   render() {
     return this.getWidgetView();
   }
@@ -479,35 +420,6 @@ abstract class BaseWidget<
   makeSnipeable(content: ReactNode) {
     return <SnipeableComponent {...this.props}>{content}</SnipeableComponent>;
   }
-
-  makePositioned(content: ReactNode) {
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
-
-    return (
-      <PositionedContainer
-        componentHeight={componentHeight}
-        componentWidth={componentWidth}
-        focused={this.props.focused}
-        isDisabled={this.props.isDisabled}
-        isVisible={this.props.isVisible}
-        leftColumn={this.props.leftColumn}
-        noContainerOffset={this.props.noContainerOffset}
-        parentColumnSpace={this.props.parentColumnSpace}
-        parentId={this.props.parentId}
-        parentRowSpace={this.props.parentRowSpace}
-        ref={this.props.wrapperRef}
-        resizeDisabled={this.props.resizeDisabled}
-        selected={this.props.selected}
-        topRow={this.props.topRow}
-        widgetId={this.props.widgetId}
-        widgetName={this.props.widgetName}
-        widgetType={this.props.type}
-      >
-        {content}
-      </PositionedContainer>
-    );
-  }
-
   get isAutoLayoutMode() {
     return this.props.appPositioningType === AppPositioningTypes.AUTO;
   }
@@ -568,33 +480,6 @@ abstract class BaseWidget<
     );
   }
 
-  makeFlex(content: ReactNode) {
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
-    return (
-      <FlexComponent
-        alignment={this.props.alignment}
-        componentHeight={componentHeight}
-        componentWidth={componentWidth}
-        direction={this.props.direction || LayoutDirection.Horizontal}
-        flexVerticalAlignment={
-          this.props.flexVerticalAlignment || FlexVerticalAlignment.Bottom
-        }
-        focused={this.props.focused}
-        isMobile={this.props.isMobile || false}
-        isResizeDisabled={this.props.resizeDisabled}
-        parentColumnSpace={this.props.parentColumnSpace}
-        parentId={this.props.parentId}
-        renderMode={this.props.renderMode}
-        responsiveBehavior={this.props.responsiveBehavior}
-        selected={this.props.selected}
-        widgetId={this.props.widgetId}
-        widgetName={this.props.widgetName}
-        widgetType={this.props.type}
-      >
-        {content}
-      </FlexComponent>
-    );
-  }
   addWidgetComponentBoundary = (
     content: ReactNode,
     widgetProps: WidgetProps,
@@ -604,91 +489,7 @@ abstract class BaseWidget<
     </WidgetComponentBoundary>
   );
 
-  getWidgetComponent = () => {
-    const { renderMode, type } = this.props;
-
-    /**
-     * The widget mount calls the withWidgetProps with the widgetId and type to fetch the
-     * widget props. During the computation of the props (in withWidgetProps) if the evaluated
-     * values are not present (which will not be during mount), the widget type is changed to
-     * SKELETON_WIDGET.
-     *
-     * Note:- This is done to retain the old rendering flow without any breaking changes.
-     * This could be refactored into not changing the widget type but to have a boolean flag.
-     */
-    if (type === "SKELETON_WIDGET" || this.props.deferRender) {
-      return <Skeleton />;
-    }
-
-    let content =
-      renderMode === RenderModes.CANVAS
-        ? this.getCanvasView()
-        : this.getPageView();
-
-    // This `if` code is responsible for the unmount of the widgets
-    // while toggling the dynamicHeight property
-    // Adding a check for the Modal Widget early
-    // to avoid deselect Modal in its unmount effect.
-    if (
-      !this.props.isFlexChild &&
-      isAutoHeightEnabledForWidget(this.props) &&
-      !this.props.isAutoGeneratedWidget && // To skip list widget's auto generated widgets
-      !this.props.detachFromLayout // To skip Modal widget issue #18697
-    ) {
-      return (
-        <AutoHeightContainerWrapper
-          onUpdateDynamicHeight={(height) => this.updateAutoHeight(height)}
-          widgetProps={this.props}
-        >
-          {content}
-        </AutoHeightContainerWrapper>
-      );
-    }
-    if (this.props.isFlexChild && !this.props.detachFromLayout) {
-      const autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
-        this.props.type,
-      ).autoDimension;
-
-      const shouldObserveWidth = isFunction(autoDimensionConfig)
-        ? autoDimensionConfig(this.props).width
-        : autoDimensionConfig?.width;
-      const shouldObserveHeight = isFunction(autoDimensionConfig)
-        ? autoDimensionConfig(this.props).height
-        : autoDimensionConfig?.height;
-
-      if (!shouldObserveHeight && !shouldObserveWidth) return content;
-
-      const { componentHeight, componentWidth } = this.getComponentDimensions();
-
-      const { minHeight, minWidth } = getWidgetMinMaxDimensionsInPixel(
-        this.props,
-        this.props.mainCanvasWidth || 0,
-      );
-
-      return (
-        <AutoLayoutDimensionObserver
-          height={componentHeight}
-          isFillWidget={
-            this.props.responsiveBehavior === ResponsiveBehavior.Fill
-          }
-          minHeight={minHeight ?? 0}
-          minWidth={minWidth ?? 0}
-          onDimensionUpdate={this.updateWidgetDimensions}
-          shouldObserveHeight={shouldObserveHeight || false}
-          shouldObserveWidth={shouldObserveWidth || false}
-          type={this.props.type}
-          width={componentWidth}
-        >
-          {content}
-        </AutoLayoutDimensionObserver>
-      );
-    }
-
-    content = this.addWidgetComponentBoundary(content, this.props);
-    return this.addErrorBoundary(content);
-  };
-
-  private updateWidgetDimensions = (width: number, height: number) => {
+  updateWidgetDimensions = (width: number, height: number) => {
     const { updateWidgetDimension } = this.context;
     if (!updateWidgetDimension) return;
     updateWidgetDimension(
@@ -699,44 +500,7 @@ abstract class BaseWidget<
   };
 
   private getWidgetView(): ReactNode {
-    let content: ReactNode;
-
-    switch (this.props.renderMode) {
-      case RenderModes.CANVAS:
-        content = this.getWidgetComponent();
-        if (!this.props.detachFromLayout) {
-          if (
-            !this.props.resizeDisabled &&
-            this.props.type !== "SKELETON_WIDGET"
-          )
-            content = this.makeResizable(content);
-          content = this.showWidgetName(content);
-          content = this.makeDraggable(content);
-          content = this.makeSnipeable(content);
-          // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
-          if (this.props.isFlexChild) {
-            content = this.makeFlex(content);
-          } else {
-            content = this.makePositioned(content);
-          }
-          if (isAutoHeightEnabledForWidgetWithLimits(this.props)) {
-            content = this.addAutoHeightOverlay(content);
-          }
-        }
-
-        return content;
-
-      // return this.getCanvasView();
-      case RenderModes.PAGE:
-        content = this.getWidgetComponent();
-        if (!this.props.detachFromLayout) {
-          if (this.props.isFlexChild) content = this.makeFlex(content);
-          else content = this.makePositioned(content);
-        }
-        return content;
-      default:
-        throw Error("RenderMode not defined");
-    }
+    return this.props.getWidgetView(this.getPageView());
   }
 
   updateOneClickBindingOptionsVisibility(visibility: boolean) {

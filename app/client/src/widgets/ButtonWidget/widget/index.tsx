@@ -450,6 +450,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       "isFormValid" in this.props &&
       !this.props.isFormValid;
     const isDisabled = this.props.isDisabled || disabled;
+
     return (
       <ButtonComponent
         borderRadius={this.props.borderRadius}

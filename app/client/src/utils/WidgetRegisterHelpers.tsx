@@ -18,13 +18,17 @@ import {
   WidgetFeatureProps,
 } from "./WidgetFeatures";
 import { withLazyRender } from "widgets/withLazyRender";
+import { withBaseWidgetHOC } from "widgets/BaseWidgetHOC";
 
 const generateWidget = memoize(function getWidgetComponent(
   Widget: typeof BaseWidget,
   needsMeta: boolean,
   eagerRender: boolean,
 ) {
-  let widget = needsMeta ? withMeta(Widget) : Widget;
+  let widget = withBaseWidgetHOC(Widget);
+
+  //@ts-expect-error: type mismatch
+  widget = needsMeta ? withMeta(widget) : widget;
 
   //@ts-expect-error: type mismatch
   widget = withWidgetProps(widget);
