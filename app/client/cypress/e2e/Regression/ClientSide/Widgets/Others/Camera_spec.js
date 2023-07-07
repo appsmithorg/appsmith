@@ -2,9 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Camera Widget", () => {
   before(() => {
-    cy.fixture("CameraDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("CameraDsl");
   });
 
   beforeEach(() => {

@@ -2,9 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Modal Widget Functionality", function () {
   before(() => {
-    cy.fixture("modalScroll").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("modalScroll");
   });
 
   it("1. [Bug]- 11415 - Open  Modal from button and test scroll", () => {

@@ -5,9 +5,7 @@ import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Dropdown Widget Functionality", function () {
   before(() => {
-    cy.fixture("widgetPopupDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("widgetPopupDsl");
   });
 
   it("1. Verify dropdown width of Select widgets and menu button", function () {

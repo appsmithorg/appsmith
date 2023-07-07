@@ -109,6 +109,7 @@ type StyledTextProps = React.PropsWithChildren<{
   textColor?: string;
   fontStyle?: string;
   fontSize?: TextSize;
+  minHeight?: number;
 }>;
 
 export const StyledText = styled(Text)<StyledTextProps>`
@@ -153,9 +154,11 @@ export const StyledText = styled(Text)<StyledTextProps>`
     white-space: pre-wrap;
     text-align: ${(props) => props.textAlign.toLowerCase()};
   }
-  .auto-layout & span {
-    min-height: 32px;
-  }
+  ${({ minHeight }) => `
+    span {
+      ${minHeight ? `min-height: ${minHeight}px;` : ""}
+    }
+  `}
 `;
 
 const ModalContent = styled.div<{
@@ -224,6 +227,7 @@ export interface TextComponentProps extends ComponentProps {
   leftColumn?: number;
   rightColumn?: number;
   topRow?: number;
+  minHeight?: number;
 }
 
 type State = {
@@ -292,6 +296,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
       fontFamily,
       fontSize,
       fontStyle,
+      minHeight,
       overflow,
       text,
       textAlign,
@@ -311,6 +316,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
             fontSize={fontSize}
             fontStyle={fontStyle}
             isTruncated={this.state.isTruncated}
+            minHeight={minHeight}
             overflow={overflow}
             ref={this.textRef}
             textAlign={textAlign}

@@ -4,6 +4,7 @@ import {
 } from "@appsmith/constants/messages";
 import difference from "lodash/difference";
 import type { Def } from "tern";
+import { invalidEntityIdentifiers } from "workers/common/DependencyMap/utils";
 import {
   JSLibraries,
   libraryReservedIdentifiers,
@@ -145,7 +146,9 @@ export function installLibrary(request: EvalWorkerSyncRequest) {
 
     //Reserve accessor names.
     for (const acc of accessor) {
+      //we have to update invalidEntityIdentifiers as well
       libraryReservedIdentifiers[acc] = true;
+      invalidEntityIdentifiers[acc] = true;
     }
 
     return { success: true, defs, accessor };
@@ -165,7 +168,9 @@ export function uninstallLibrary(request: EvalWorkerSyncRequest) {
         //@ts-expect-error ignore
         self[key] = undefined;
       }
+      //we have to update invalidEntityIdentifiers as well
       delete libraryReservedIdentifiers[key];
+      delete invalidEntityIdentifiers[key];
     }
     return { success: true };
   } catch (e) {
@@ -189,7 +194,9 @@ export function loadLibraries(request: EvalWorkerSyncRequest) {
   const keysAfter = Object.keys(self);
   const newKeys = difference(keysAfter, keysBefore);
   for (const key of newKeys) {
+    //we have to update invalidEntityIdentifiers as well
     libraryReservedIdentifiers[key] = true;
+    invalidEntityIdentifiers[key] = true;
   }
   JSLibraries.push(...data);
   return { success: !message, message };

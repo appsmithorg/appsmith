@@ -154,9 +154,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
       "country",
       "places_to_visit",
     ]);
-    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("1");
-    });
+    dataSources.AssertQueryTableResponse(0, "1");
 
     //Filter by country & return specific columns
     let query = `FOR document IN ${collectionName}
@@ -165,9 +163,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders(["country", "places_to_visit"]);
-    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("Japan");
-    });
+    dataSources.AssertQueryTableResponse(0, "Japan");
 
     //Insert a new place
     entityExplorer.ActionTemplateMenuByEntityName(
@@ -209,9 +205,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
     dataSources.EnterQuery(query);
     dataSources.RunQueryNVerifyResponseViews();
     dataSources.AssertQueryResponseHeaders(["writesExecuted", "writesIgnored"]);
-    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("1");
-    }); //confirming write is successful
+    dataSources.AssertQueryTableResponse(0, "1"); //confirming write is successful
 
     //Filter for Array type & verify for the newly added place also
     query = `FOR doc IN ${collectionName}
@@ -220,18 +214,10 @@ describe("Validate Arango & CURL Import Datasources", () => {
         RETURN { country: doc.country, name: place.name }`;
     dataSources.EnterQuery(query);
     dataSources.RunQueryNVerifyResponseViews(5); //Verify all records are filtered
-    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("Japan");
-    });
-    dataSources.ReadQueryTableResponse(1).then(($cellData) => {
-      expect($cellData).to.eq("Mount Fuji");
-    });
-    dataSources.ReadQueryTableResponse(6).then(($cellData) => {
-      expect($cellData).to.eq("Brazil");
-    });
-    dataSources.ReadQueryTableResponse(7).then(($cellData) => {
-      expect($cellData).to.eq("Iguazu Falls");
-    }); //making sure new inserted record is also considered for filtering
+    dataSources.AssertQueryTableResponse(0, "Japan");
+    dataSources.AssertQueryTableResponse(1, "Mount Fuji");
+    dataSources.AssertQueryTableResponse(6, "Brazil");
+    dataSources.AssertQueryTableResponse(7, "Iguazu Falls"); //making sure new inserted record is also considered for filtering
 
     //Update Japan to Australia
     entityExplorer.ActionTemplateMenuByEntityName(
@@ -266,9 +252,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
       "Select",
     );
     dataSources.RunQueryNVerifyResponseViews(1);
-    dataSources.ReadQueryTableResponse(3).then(($cellData) => {
-      expect($cellData).to.eq("Australia");
-    });
+    dataSources.AssertQueryTableResponse(3, "Australia");
 
     //Delete record from collection
     entityExplorer.ActionTemplateMenuByEntityName(
@@ -296,15 +280,9 @@ describe("Validate Arango & CURL Import Datasources", () => {
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
 
-    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("France");
-    });
-    dataSources.ReadQueryTableResponse(1).then(($cellData) => {
-      expect($cellData).to.eq("USA");
-    });
-    dataSources.ReadQueryTableResponse(2).then(($cellData) => {
-      expect($cellData).to.eq("Brazil");
-    });
+    dataSources.AssertQueryTableResponse(0, "France");
+    dataSources.AssertQueryTableResponse(1, "USA");
+    dataSources.AssertQueryTableResponse(2, "Brazil");
   });
 
   //To add test for duplicate collection name

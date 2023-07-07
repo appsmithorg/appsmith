@@ -5,9 +5,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Explorer hidden widget Selection", () => {
   before(() => {
-    cy.fixture("explorerHiddenWidgets").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("explorerHiddenWidgets");
   });
   afterEach(() => {
     cy.get(commonLocators.canvas).click({ force: true });

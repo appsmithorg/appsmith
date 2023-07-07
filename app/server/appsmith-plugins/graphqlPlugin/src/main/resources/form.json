@@ -206,7 +206,7 @@
           "placeholderText": "Client secret",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
-          "encrypted":true,
+          "encrypted": true,
           "hidden": {
             "path": "datasourceConfiguration.authentication.authenticationType",
             "comparison": "NOT_EQUALS",

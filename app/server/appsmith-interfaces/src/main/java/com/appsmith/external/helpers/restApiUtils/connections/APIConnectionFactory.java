@@ -2,14 +2,13 @@ package com.appsmith.external.helpers.restApiUtils.connections;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BasicAuth;
+import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
-import com.appsmith.external.models.ApiKeyAuth;
-import com.appsmith.external.models.BearerTokenAuth;
 import reactor.core.publisher.Mono;
-
 
 public class APIConnectionFactory {
 

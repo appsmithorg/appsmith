@@ -198,6 +198,7 @@ export class PropertyPane {
         .should("not.be.checked");
     }
     this.agHelper.AssertAutoSave();
+    this.assertHelper.AssertNetworkStatus("updateLayout");
   }
 
   public MoveToTab(tab: "Content" | "Style") {

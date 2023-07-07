@@ -30,14 +30,15 @@ public class CustomNewActionRepositoryCEImplTest {
         String applicationId = UUID.randomUUID().toString();
         List<NewAction> newActionList = new ArrayList<>();
 
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             NewAction newAction = new NewAction();
             newAction.setWorkspaceId("action" + i + "workspace" + i);
             newAction.setApplicationId(applicationId);
             newActionList.add(newAction);
         }
 
-        Flux<NewAction> newActionFlux = newActionRepository.saveAll(newActionList)
+        Flux<NewAction> newActionFlux = newActionRepository
+                .saveAll(newActionList)
                 .collectList()
                 .flatMap(newActions -> {
                     newActions.forEach(newAction -> {
@@ -63,22 +64,21 @@ public class CustomNewActionRepositoryCEImplTest {
         String duplicateId = new ObjectId().toString();
         List<NewAction> actionList = new ArrayList<>();
 
-        for(int i = 0; i < 2; i++) {
+        for (int i = 0; i < 2; i++) {
             NewAction action = new NewAction();
             action.setId(duplicateId);
             actionList.add(action);
         }
 
-        StepVerifier.create(newActionRepository.bulkInsert(actionList))
-                .verifyError();
+        StepVerifier.create(newActionRepository.bulkInsert(actionList)).verifyError();
     }
 
     @Test
     public void bulkInsert_WhenInsertedWithProvidedId_InsertedWithProvidedId() {
         List<NewAction> actionList = new ArrayList<>();
-       String applicationId = UUID.randomUUID().toString();
+        String applicationId = UUID.randomUUID().toString();
 
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             String generatedId = new ObjectId().toString();
             NewAction action = new NewAction();
             action.setId(generatedId);
@@ -88,7 +88,8 @@ public class CustomNewActionRepositoryCEImplTest {
             actionList.add(action);
         }
 
-        Mono<List<NewAction>> newActionsMono = newActionRepository.bulkInsert(actionList)
+        Mono<List<NewAction>> newActionsMono = newActionRepository
+                .bulkInsert(actionList)
                 .thenMany(newActionRepository.findByApplicationId(applicationId))
                 .collectList();
 
