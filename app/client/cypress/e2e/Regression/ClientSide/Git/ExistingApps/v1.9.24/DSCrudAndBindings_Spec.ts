@@ -134,6 +134,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
 
     //Button
     agHelper.ClickButton("Alert button");
+    agHelper.Sleep(500);
     agHelper.ValidateToastMessage("404 hit : invalidApi failed to execute");
 
     //Checkbox group
