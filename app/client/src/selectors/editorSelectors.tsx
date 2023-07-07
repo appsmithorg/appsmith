@@ -345,15 +345,15 @@ export const getWidgetCards = createSelector(
       }
 
       // if wds_vs is not enabled, hide all wds_v2 widgets
-      if (
-        Object.values(WDS_V2_WIDGET_MAP).includes(config.type) &&
-        featureFlags.ab_wds_enabled === false
-      ) {
-        return false;
-      }
+      // if (
+      //   Object.values(WDS_V2_WIDGET_MAP).includes(config.type) &&
+      //   (featureFlags.ab_wds_enabled || true) === false
+      // ) {
+      //   return false;
+      // }
 
       // if wds is enabled, only show the wds_v2 widgets
-      if (featureFlags.ab_wds_enabled === true) {
+      if (featureFlags.ab_wds_enabled === true || true) {
         return Object.values(WDS_V2_WIDGET_MAP).includes(config.type);
       }
 

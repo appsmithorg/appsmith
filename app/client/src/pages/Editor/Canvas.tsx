@@ -12,7 +12,10 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 import { getViewportClassName } from "utils/autoLayout/AutoLayoutUtils";
-import { ThemeProvider as WDSThemeProvider } from "components/wds/ThemeProvider";
+import {
+  ThemeProvider as WDSThemeProvider,
+  useTheme,
+} from "@design-system/theming";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
 interface CanvasProps {
@@ -39,6 +42,10 @@ const Canvas = (props: CanvasProps) => {
   );
   const selectedTheme = useSelector(getSelectedAppTheme);
   const isWDSV2Enabled = useFeatureFlagCheck("ab_wds_enabled");
+  const { theme } = useTheme({
+    borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
+    seedColor: selectedTheme.properties.colors.primaryColor,
+  });
 
   /**
    * background for canvas
@@ -65,10 +72,7 @@ const Canvas = (props: CanvasProps) => {
   const paddingBottomClass = props.isAutoLayout ? "" : "pb-52";
   try {
     return (
-      <WDSThemeProvider
-        borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-        seedColor={selectedTheme.properties.colors.primaryColor}
-      >
+      <WDSThemeProvider theme={theme}>
         <Container
           $isAutoLayout={!!props.isAutoLayout}
           background={backgroundForCanvas}

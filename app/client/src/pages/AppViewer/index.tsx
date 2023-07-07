@@ -48,7 +48,11 @@ import {
   datasourceEnvEnabled,
   selectFeatureFlagCheck,
 } from "@appsmith/selectors/featureFlagsSelectors";
-import { ThemeProvider as WDSThemeProvider } from "components/wds/ThemeProvider";
+import {
+  ThemeProvider as WDSThemeProvider,
+  useTheme,
+} from "@design-system/theming";
+import { useFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -103,7 +107,10 @@ function AppViewer(props: Props) {
   const currentApplicationDetails: ApplicationPayload | undefined = useSelector(
     getCurrentApplication,
   );
-
+  const { theme } = useTheme({
+    borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
+    seedColor: selectedTheme.properties.colors.primaryColor,
+  });
   const focusRef = useWidgetFocus();
 
   const workspaceId = currentApplicationDetails?.workspaceId || "";
@@ -189,10 +196,7 @@ function AppViewer(props: Props) {
     : selectedTheme.properties.colors.backgroundColor;
 
   return (
-    <WDSThemeProvider
-      borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-      seedColor={selectedTheme.properties.colors.primaryColor}
-    >
+    <WDSThemeProvider theme={theme}>
       <ThemeProvider theme={lightTheme}>
         <EditorContextProvider renderMode="PAGE">
           <WidgetGlobaStyles

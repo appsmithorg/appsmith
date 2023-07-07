@@ -12,7 +12,8 @@ export type TokenType =
   | "borderRadius"
   | "boxShadow"
   | "borderWidth"
-  | "opacity";
+  | "opacity"
+  | "zIndex";
 
 export interface Token {
   value: string | number;
@@ -33,6 +34,7 @@ export interface TokenSource {
   fontFamily?: FontFamily;
   sizing?: TokenObj;
   spacing?: TokenObj;
+  zIndex?: TokenObj;
 }
 
 export type TokenObj = { [key: string]: string | number };

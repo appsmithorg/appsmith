@@ -1,55 +1,16 @@
 import Color from "colorjs.io";
 import { useEffect, useState } from "react";
-import type { ColorMode } from "@design-system/theming";
+import type { TokenSource } from "@design-system/theming";
 import { TokensAccessor, defaultTokens } from "@design-system/theming";
 
-type UseThemeProps = {
-  seedColor?: string;
-  colorMode?: ColorMode;
-  borderRadius?: string;
-};
+import type { UseThemeProps } from "./types";
+
+const tokensAccessor = new TokensAccessor(defaultTokens as TokenSource);
 
 export function useTheme(props: UseThemeProps) {
-  const {
-    borderRadius = "0px",
-    colorMode = "light",
-    seedColor = "#000",
-  } = props;
-
-  const tokensAccessor = new TokensAccessor({
-    ...defaultTokens,
-    borderRadius: {
-      "1": borderRadius,
-    },
-    colorMode,
-    seedColor,
-  });
+  const { borderRadius, colorMode, fontFamily, rootUnit, seedColor } = props;
 
   const [theme, setTheme] = useState(tokensAccessor.getAllTokens());
-
-  useEffect(() => {
-    if (seedColor) {
-      let color;
-
-      try {
-        color = Color.parse(seedColor);
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(error);
-      }
-
-      if (color) {
-        tokensAccessor.updateSeedColor(seedColor);
-
-        setTheme((prevState) => {
-          return {
-            ...prevState,
-            ...tokensAccessor.getColors(),
-          };
-        });
-      }
-    }
-  }, [seedColor]);
 
   useEffect(() => {
     if (colorMode) {
@@ -78,6 +39,58 @@ export function useTheme(props: UseThemeProps) {
       });
     }
   }, [borderRadius]);
+
+  useEffect(() => {
+    if (seedColor) {
+      let color;
+
+      try {
+        color = Color.parse(seedColor);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
+      }
+
+      if (color) {
+        tokensAccessor.updateSeedColor(seedColor);
+
+        setTheme((prevState) => {
+          return {
+            ...prevState,
+            ...tokensAccessor.getColors(),
+          };
+        });
+      }
+    }
+  }, [seedColor]);
+
+  useEffect(() => {
+    if (fontFamily) {
+      tokensAccessor.updateFontFamily(fontFamily);
+
+      setTheme((prevState) => {
+        return {
+          ...prevState,
+          ...tokensAccessor.getTypography(),
+        };
+      });
+    }
+  }, [fontFamily]);
+
+  useEffect(() => {
+    if (rootUnit) {
+      tokensAccessor.updateRootUnit(defaultTokens.rootUnit * rootUnit);
+
+      setTheme((prevState) => {
+        return {
+          ...prevState,
+          rootUnit: tokensAccessor.getRootUnit(),
+          ...tokensAccessor.getSpacing(),
+          ...tokensAccessor.getTypography(),
+        };
+      });
+    }
+  }, [rootUnit]);
 
   return { theme, setTheme };
 }

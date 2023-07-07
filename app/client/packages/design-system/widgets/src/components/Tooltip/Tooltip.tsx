@@ -1,23 +1,21 @@
 import React from "react";
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "./";
+import { TooltipRoot, TooltipContent, TooltipTrigger } from "./";
 
-export type WithTooltipProps = {
-  tooltip?: string;
+export type TooltipProps = {
+  tooltip?: React.ReactNode;
   children: React.ReactElement;
 };
 
-export type TooltipProps = WithTooltipProps;
-
-export function WithTooltip(props: TooltipProps) {
+export function Tooltip(props: TooltipProps) {
   const { children, tooltip } = props;
 
   if (!tooltip) return children;
 
   return (
-    <Tooltip>
+    <TooltipRoot>
       <TooltipTrigger>{children}</TooltipTrigger>
       <TooltipContent>{tooltip}</TooltipContent>
-    </Tooltip>
+    </TooltipRoot>
   );
 }
