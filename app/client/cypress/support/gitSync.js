@@ -9,7 +9,7 @@ import { ObjectsRegistry } from "../support/Objects/Registry";
 
 let gitSync = ObjectsRegistry.GitSync,
   agHelper = ObjectsRegistry.AggregateHelper,
-  hostPort = ObjectsRegistry.DefaultHostPort;
+  tedTestConfig = ObjectsRegistry.TEDTestConfigs;
 
 const commonLocators = require("../locators/commonlocators.json");
 const GITHUB_API_BASE = "https://api.github.com";
@@ -342,7 +342,7 @@ Cypress.Commands.add(
     );
     cy.get(gitSyncLocators.gitRepoInput).type(
       //`git@github.com:${owner}/${repo}.git`,
-      `${hostPort.GITEA_API_URL_TED}/${repo}.git`,
+      `${tedTestConfig.GITEA_API_URL_TED}/${repo}.git`,
     );
     cy.get(gitSyncLocators.generateDeployKeyBtn).click();
     cy.wait(`@generateKey-${repo}`).then((result) => {
@@ -365,7 +365,7 @@ Cypress.Commands.add(
 
       cy.request({
         method: "POST",
-        url: `${hostPort.GITEA_API_BASE_TED}:${hostPort.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys`,
+        url: `${tedTestConfig.GITEA_API_BASE_TED}:${tedTestConfig.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys`,
         headers: {
           Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
         },
@@ -475,7 +475,7 @@ Cypress.Commands.add(
 
           cy.request({
             method: "POST",
-            url: `${hostPort.GITEA_API_BASE_TED}:${hostPort.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys`,
+            url: `${tedTestConfig.GITEA_API_BASE_TED}:${tedTestConfig.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys`,
             headers: {
               Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
             },
