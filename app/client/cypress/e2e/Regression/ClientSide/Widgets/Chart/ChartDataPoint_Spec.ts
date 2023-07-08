@@ -12,8 +12,8 @@ let dataSet: any, dsl: any;
 describe("Input widget test with default value from chart datapoint", () => {
   //beforeEach - becasuse to enable re-attempt passing!
   beforeEach(() => {
+    agHelper.AddDsl("ChartDsl");
     cy.fixture("ChartDsl").then((val: any) => {
-      agHelper.AddDsl(val);
       dsl = val;
     });
     cy.fixture("testdata").then(function (data: any) {

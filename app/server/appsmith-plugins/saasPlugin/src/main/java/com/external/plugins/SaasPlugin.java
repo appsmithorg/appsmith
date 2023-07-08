@@ -67,28 +67,39 @@ public class SaasPlugin extends BasePlugin {
             saasObjectMapper.disable(MapperFeature.USE_ANNOTATIONS);
             saasObjectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             saasObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            this.EXCHANGE_STRATEGIES = ExchangeStrategies
-                    .builder()
+            this.EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
                     .codecs(clientDefaultCodecsConfigurer -> {
-                        clientDefaultCodecsConfigurer.defaultCodecs().jackson2JsonEncoder(new Jackson2JsonEncoder(saasObjectMapper, MediaType.APPLICATION_JSON));
+                        clientDefaultCodecsConfigurer
+                                .defaultCodecs()
+                                .jackson2JsonEncoder(
+                                        new Jackson2JsonEncoder(saasObjectMapper, MediaType.APPLICATION_JSON));
                         clientDefaultCodecsConfigurer.defaultCodecs().maxInMemorySize(sharedConfig.getCodecSize());
                     })
                     .build();
         }
 
         @Override
-        public Mono<ActionExecutionResult> execute(ExecutePluginDTO connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> execute(
+                ExecutePluginDTO connection,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration) {
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
 
-            final String datasourceConfigurationCommand = datasourceConfiguration.getAuthentication().getAuthenticationType();
+            final String datasourceConfigurationCommand =
+                    datasourceConfiguration.getAuthentication().getAuthenticationType();
             if (datasourceConfigurationCommand == null || datasourceConfigurationCommand.isEmpty()) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, SaaSErrorMessages.MISSING_DATASOURCE_TEMPLATE_NAME_ERROR_MSG));
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        SaaSErrorMessages.MISSING_DATASOURCE_TEMPLATE_NAME_ERROR_MSG));
             }
 
-            final String actionConfigurationCommand = (String) actionConfiguration.getFormData().get("command");
+            final String actionConfigurationCommand =
+                    (String) actionConfiguration.getFormData().get("command");
             if (actionConfigurationCommand == null || actionConfigurationCommand.isEmpty()) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, SaaSErrorMessages.MISSING_ACTION_TEMPLATE_NAME_ERROR_MSG));
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        SaaSErrorMessages.MISSING_ACTION_TEMPLATE_NAME_ERROR_MSG));
             }
 
             connection.setActionConfiguration(actionConfiguration);
@@ -98,7 +109,10 @@ public class SaasPlugin extends BasePlugin {
             UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
             URI uri = null;
             try {
-                uri = uriBuilder.uri(new URI(sharedConfig.getRemoteExecutionUrl())).build(true).toUri();
+                uri = uriBuilder
+                        .uri(new URI(sharedConfig.getRemoteExecutionUrl()))
+                        .build(true)
+                        .toUri();
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
@@ -106,14 +120,14 @@ public class SaasPlugin extends BasePlugin {
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, List.of(), objectMapper);
 
-
             // Initializing webClient to be used for http call
             WebClient.Builder webClientBuilder = WebClientUtils.builder();
             webClientBuilder.defaultHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE);
             final RequestCaptureFilter requestCaptureFilter = new RequestCaptureFilter(objectMapper);
             webClientBuilder.filter(requestCaptureFilter);
 
-            WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
+            WebClient client =
+                    webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
 
             String valueAsString = "";
             try {
@@ -132,43 +146,41 @@ public class SaasPlugin extends BasePlugin {
                             try {
                                 return saasObjectMapper.readValue(body, ActionExecutionResult.class);
                             } catch (IOException e) {
-                                throw Exceptions.propagate(
-                                        new AppsmithPluginException(
-                                                AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                                                body,
-                                                e.getMessage()
-                                        )
-                                );
+                                throw Exceptions.propagate(new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, body, e.getMessage()));
                             }
                         } else {
-                            throw Exceptions.propagate(
-                                    new AppsmithPluginException(
-                                            SaaSPluginError.API_EXECUTION_FAILED,
-                                            SaaSErrorMessages.API_EXECUTION_FAILED_ERROR_MSG,
-                                            body
-                                    )
-                            );
+                            throw Exceptions.propagate(new AppsmithPluginException(
+                                    SaaSPluginError.API_EXECUTION_FAILED,
+                                    SaaSErrorMessages.API_EXECUTION_FAILED_ERROR_MSG,
+                                    body));
                         }
                     })
                     .onErrorResume(error -> {
                         errorResult.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest));
                         errorResult.setIsExecutionSuccess(false);
-                        if (! (error instanceof AppsmithPluginException)) {
-                            error = new AppsmithPluginException(SaaSPluginError.API_EXECUTION_FAILED, SaaSErrorMessages.API_EXECUTION_FAILED_ERROR_MSG, error.getMessage());
+                        if (!(error instanceof AppsmithPluginException)) {
+                            error = new AppsmithPluginException(
+                                    SaaSPluginError.API_EXECUTION_FAILED,
+                                    SaaSErrorMessages.API_EXECUTION_FAILED_ERROR_MSG,
+                                    error.getMessage());
                         }
                         errorResult.setErrorInfo(error);
                         return Mono.just(errorResult);
                     });
-
         }
 
-        private Mono<ResponseEntity<byte[]>> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, Object requestBody,
-                                                      int iteration, String contentType) {
+        private Mono<ResponseEntity<byte[]>> httpCall(
+                WebClient webClient,
+                HttpMethod httpMethod,
+                URI uri,
+                Object requestBody,
+                int iteration,
+                String contentType) {
             if (iteration == MAX_REDIRECTS) {
                 return Mono.error(new AppsmithPluginException(
                         SaaSPluginError.API_EXECUTION_FAILED,
-                        String.format(SaaSErrorMessages.MAX_REDIRECT_LIMIT_REACHED_ERROR_MSG, MAX_REDIRECTS)
-                ));
+                        String.format(SaaSErrorMessages.MAX_REDIRECT_LIMIT_REACHED_ERROR_MSG, MAX_REDIRECTS)));
             }
 
             assert requestBody instanceof BodyInserter<?, ?>;
@@ -180,10 +192,12 @@ public class SaasPlugin extends BasePlugin {
                     .body((BodyInserter<?, ? super ClientHttpRequest>) finalRequestBody)
                     .retrieve()
                     .toEntity(byte[].class)
-                    .doOnError(e -> Mono.error(new AppsmithPluginException(SaaSPluginError.API_EXECUTION_FAILED, SaaSErrorMessages.API_EXECUTION_FAILED_ERROR_MSG, e)))
+                    .doOnError(e -> Mono.error(new AppsmithPluginException(
+                            SaaSPluginError.API_EXECUTION_FAILED, SaaSErrorMessages.API_EXECUTION_FAILED_ERROR_MSG, e)))
                     .flatMap(response -> {
                         if (response.getStatusCode().is3xxRedirection()) {
-                            String redirectUrl = response.getHeaders().getLocation().toString();
+                            String redirectUrl =
+                                    response.getHeaders().getLocation().toString();
                             /**
                              * TODO
                              * In case the redirected URL is not absolute (complete), create the new URL using the relative path
@@ -195,10 +209,13 @@ public class SaasPlugin extends BasePlugin {
                             try {
                                 redirectUri = new URI(redirectUrl);
                             } catch (URISyntaxException e) {
-                                return Mono.error(new AppsmithPluginException(SaaSPluginError.API_EXECUTION_FAILED, SaaSErrorMessages.URI_SYNTAX_WRONG_ERROR_MSG, e));
+                                return Mono.error(new AppsmithPluginException(
+                                        SaaSPluginError.API_EXECUTION_FAILED,
+                                        SaaSErrorMessages.URI_SYNTAX_WRONG_ERROR_MSG,
+                                        e));
                             }
-                            return httpCall(webClient, httpMethod, redirectUri, finalRequestBody, iteration + 1,
-                                    contentType);
+                            return httpCall(
+                                    webClient, httpMethod, redirectUri, finalRequestBody, iteration + 1, contentType);
                         }
                         return Mono.just(response);
                     });
@@ -210,8 +227,7 @@ public class SaasPlugin extends BasePlugin {
         }
 
         @Override
-        public void datasourceDestroy(ExecutePluginDTO connection) {
-        }
+        public void datasourceDestroy(ExecutePluginDTO connection) {}
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {

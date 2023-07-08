@@ -43,9 +43,7 @@ describe("Handle Cases while conversion", () => {
     homePage.NavigateToHome();
     homePage.CreateNewApplication();
 
-    cy.fixture("templatePageWithNullbindings").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("templatePageWithNullbindings");
 
     autoLayout.ConvertToAutoLayoutAndVerify();
   });
@@ -54,9 +52,7 @@ describe("Handle Cases while conversion", () => {
     homePage.NavigateToHome();
     homePage.CreateNewApplication();
 
-    cy.fixture("conversionDslWithDynamicBindings").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("conversionDslWithDynamicBindings");
 
     autoLayout.ConvertToAutoLayoutAndVerify();
     autoLayout.UseSnapshotFromBanner();

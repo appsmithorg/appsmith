@@ -91,46 +91,47 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public AddDsl(
-    dsl: string,
+    dslFile: string,
     elementToCheckPresenceaftDslLoad: string | "" = "",
     reloadWithoutCache = true,
   ) {
     let pageid: string, layoutId;
     let appId: string | null;
-    cy.url().then((url) => {
-      pageid = url.split("/")[5]?.split("-").pop() as string;
-      cy.log(pageid + "page id");
-      //Fetch the layout id
-      cy.request("GET", "api/v1/pages/" + pageid).then((response: any) => {
-        const respBody = JSON.stringify(response.body);
-        const parsedData = JSON.parse(respBody).data;
-        layoutId = parsedData.layouts[0].id;
-        appId = parsedData.applicationId;
-
-        // Dumping the DSL to the created page
-        cy.request({
-          method: "PUT",
-          url:
-            "api/v1/layouts/" +
-            layoutId +
-            "/pages/" +
-            pageid +
-            "?applicationId=" +
-            appId,
-          body: dsl,
-          headers: {
-            "X-Requested-By": "Appsmith",
-          },
-        }).then((dslDumpResp) => {
-          //cy.log("Pages resposne is : " + dslDumpResp.body);
-          expect(dslDumpResp.status).equal(200);
-          this.Sleep(3000); //for dsl to settle in layouts api & then refresh
-          this.RefreshPage(reloadWithoutCache);
-          if (elementToCheckPresenceaftDslLoad)
-            this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
-          this.Sleep(2000); //settling time for dsl
-          this.AssertElementAbsence(this.locator._loading); //Checks the spinner is gone & dsl loaded!
-          this.AssertElementAbsence(this.locator._animationSpnner, 20000); //Checks page is loaded with dsl!
+    cy.fixture(dslFile).then((val) => {
+      cy.url().then((url) => {
+        pageid = url.split("/")[5]?.split("-").pop() as string;
+        cy.log(pageid + "page id");
+        //Fetch the layout id
+        cy.request("GET", "api/v1/pages/" + pageid).then((response: any) => {
+          const respBody = JSON.stringify(response.body);
+          const parsedData = JSON.parse(respBody).data;
+          layoutId = parsedData.layouts[0].id;
+          appId = parsedData.applicationId;
+          // Dumping the DSL to the created page
+          cy.request({
+            method: "PUT",
+            url:
+              "api/v1/layouts/" +
+              layoutId +
+              "/pages/" +
+              pageid +
+              "?applicationId=" +
+              appId,
+            body: val,
+            headers: {
+              "X-Requested-By": "Appsmith",
+            },
+          }).then((dslDumpResp) => {
+            //cy.log("Pages resposne is : " + dslDumpResp.body);
+            expect(dslDumpResp.status).equal(200);
+            this.Sleep(3000); //for dsl to settle in layouts api & then refresh
+            this.RefreshPage(reloadWithoutCache);
+            if (elementToCheckPresenceaftDslLoad)
+              this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
+            this.Sleep(2000); //settling time for dsl
+            this.AssertElementAbsence(this.locator._loading); //Checks the spinner is gone & dsl loaded!
+            this.AssertElementAbsence(this.locator._animationSpnner, 20000); //Checks page is loaded with dsl!
+          });
         });
       });
     });
@@ -619,6 +620,20 @@ export class AggregateHelper extends ReusableHelper {
       .wait(waitTimeInterval);
   }
 
+  public GetClosestNClick(
+    selector: string,
+    closestSelector: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+    ctrlKey = false,
+  ) {
+    return this.ScrollIntoView(selector, index)
+      .closest(closestSelector)
+      .click({ force: force, ctrlKey: ctrlKey })
+      .wait(waitTimeInterval);
+  }
+
   public GetHoverNClick(
     selector: string,
     index = 0,
@@ -856,13 +871,20 @@ export class AggregateHelper extends ReusableHelper {
   ) {
     this.Sleep(2000);
     this.assertHelper.AssertDocumentReady();
-    // cy.window()
-    //   .then((win) => {
-    //     win.location.reload();
-    //   })
-    cy.reload(reloadWithoutCache).then(() => {
-      this.assertHelper.AssertDocumentReady();
+    // // cy.window()
+    // //   .then((win) => {
+    // //     win.location.reload();
+    // //   })
+    // cy.reload(reloadWithoutCache).then(() => {
+    //   this.assertHelper.AssertDocumentReady();
+    // });
+
+    cy.url().then((url) => {
+      cy.window({ timeout: 60000 }).then((win) => {
+        win.location.href = url;
+      });
     });
+    this.assertHelper.AssertDocumentReady();
     this.Sleep(2000);
     this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
   }
@@ -1053,11 +1075,11 @@ export class AggregateHelper extends ReusableHelper {
     this.Sleep(500); //for value set to settle
   }
 
-  public UpdateInputValue(selector: string, value: string) {
+  public UpdateInputValue(selector: string, value: string, force = false) {
     this.GetElement(selector)
       .closest("input")
       .scrollIntoView({ easing: "linear" })
-      .clear()
+      .clear({ force })
       .then(($input: any) => {
         if (value !== "") {
           cy.wrap($input).type(value, { delay: 3 });
@@ -1352,8 +1374,16 @@ export class AggregateHelper extends ReusableHelper {
     });
   }
 
-  GetWidgetCSSHeight(widgetSelector: string) {
-    return this.GetElement(widgetSelector).invoke("css", "height");
+  public GetWidgetCSSHeight(widgetSelector: string, index = 0) {
+    return this.GetElement(widgetSelector).eq(index).invoke("css", "height");
+  }
+
+  public GetWidgetCSSFrAttribute(
+    widgetSelector: string,
+    attribute: string,
+    index = 0,
+  ) {
+    return this.GetElement(widgetSelector).eq(index).invoke("css", attribute);
   }
 
   GetWidgetByName(widgetName: string) {

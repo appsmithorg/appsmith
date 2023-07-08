@@ -5,9 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 let dsname;
 describe("Chart Widget Skeleton Loading Functionality", function () {
   before(() => {
-    cy.fixture("ChartLoadingDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("ChartLoadingDsl");
   });
 
   it(

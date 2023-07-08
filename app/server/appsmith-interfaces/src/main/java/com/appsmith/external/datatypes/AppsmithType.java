@@ -6,5 +6,6 @@ import java.util.function.Predicate;
 
 public interface AppsmithType extends Predicate<String> {
     String performSmartSubstitution(String value);
+
     DataType type();
 }

@@ -13,9 +13,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   });
 
   before(() => {
-    cy.fixture("datePicker2dsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("datePicker2dsl");
   });
 
   it("1. Datepicker default date validation with js binding", function () {
@@ -79,9 +77,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   });
 
   it("5. Datepicker should not change the display data unless user selects the date", () => {
-    cy.fixture("datePickerdsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("datePickerdsl");
 
     cy.openPropertyPane("datepickerwidget2");
 
@@ -115,9 +111,8 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   });
 
   it("6. Datepicker input value changes to work with selected date formats", function () {
-    cy.fixture("datePickerdsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("datePickerdsl");
+
     _.entityExplorer.SelectEntityByName("DatePicker1");
     _.propPane.EnterJSContext("Min Date", "2021-01-01");
     _.propPane.EnterJSContext("Max Date", "2021-10-10");
@@ -147,9 +142,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   });
 
   it("7. Check isDirty meta property", function () {
-    cy.fixture("datePickerdsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("datePickerdsl");
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(".t--property-control-text", `{{DatePicker1.isDirty}}`);
     // Init isDirty

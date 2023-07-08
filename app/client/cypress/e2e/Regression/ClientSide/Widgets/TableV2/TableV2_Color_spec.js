@@ -11,9 +11,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   });
 
   beforeEach(() => {
-    cy.fixture("tableV2NewDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableV2NewDsl");
   });
 
   it("1. Test to validate text color and text background", function () {

@@ -3,9 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("MultiSelect Widget Functionality", function () {
   before(() => {
-    cy.fixture("emptyDSL").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("emptyDSL");
   });
   beforeEach(() => {
     cy.wait(3000);

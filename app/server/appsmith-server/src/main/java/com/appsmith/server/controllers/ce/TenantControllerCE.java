@@ -46,5 +46,4 @@ public class TenantControllerCE {
         return service.updateDefaultTenantConfiguration(tenantConfiguration)
                 .map(tenant -> new ResponseDTO<>(HttpStatus.OK.value(), tenant, null));
     }
-
 }

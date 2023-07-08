@@ -6,13 +6,11 @@ import type { Datasource } from "entities/Datasource";
 import { ActionType } from "entities/Datasource";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getPluginTypeFromDatasourceId } from "selectors/entitiesSelector";
-import styled from "styled-components";
 import {
-  setGlobalSearchQuery,
-  toggleShowGlobalSearchModal,
-} from "actions/globalSearchActions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+  getPlugin,
+  getPluginTypeFromDatasourceId,
+} from "selectors/entitiesSelector";
+import styled from "styled-components";
 import {
   GOOGLE_SHEETS_AUTHORIZE_DATASOURCE,
   GOOGLE_SHEETS_LEARN_MORE,
@@ -21,6 +19,8 @@ import {
   DATASOURCE_INTERCOM_TEXT,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { DocsLink, openDoc } from "constants/DocumentationLinks";
+import type { Plugin } from "api/PluginApi";
 const { intercomAppID } = getAppsmithConfigs();
 
 const StyledAuthMessage = styled.div<{ isInViewMode: boolean }>`
@@ -55,6 +55,10 @@ export default function AuthMessage(props: AuthMessageProps) {
   const pluginType = useSelector((state: AppState) =>
     getPluginTypeFromDatasourceId(state, datasource.id),
   );
+  const pluginId: string = props?.datasource?.pluginId || "";
+  const plugin: Plugin | undefined = useSelector((state) =>
+    getPlugin(state, pluginId),
+  );
   const handleOauthAuthorization: any = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!pluginType || !pageId) return;
@@ -62,14 +66,7 @@ export default function AuthMessage(props: AuthMessageProps) {
   };
   const handleDocumentationClick: any = (e: React.MouseEvent) => {
     e.stopPropagation();
-    e.preventDefault();
-    const query = "Google Sheets";
-    dispatch(setGlobalSearchQuery(query));
-    dispatch(toggleShowGlobalSearchModal());
-    AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
-      source: "DATASOURCE_DOCUMENTATION_CLICK",
-      query,
-    });
+    openDoc(DocsLink.QUERY, plugin?.documentationLink, plugin?.name);
   };
 
   const getCallOutLinks = () => {

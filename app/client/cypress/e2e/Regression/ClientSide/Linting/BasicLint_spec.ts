@@ -366,4 +366,62 @@ describe("Linting", () => {
       agHelper.AssertElementExist(locators._lintErrorElement);
     },
   );
+  it("10. Should not clear unrelated lint errors", () => {
+    const JS_OBJECT_WITH_MULTPLE_ERRORS = `export default {
+      myFun1: () => {
+        return error1;
+      },
+      myFun2: ()=>{
+       return error2
+      }
+    }`;
+    const JS_OBJECT_WITH_MYFUN2_EDITED = `export default {
+      myFun1: () => {
+        return error1;
+      },
+      myFun2: ()=>{
+       return "error cleared"
+      }
+    }`;
+
+    jsEditor.CreateJSObject(JS_OBJECT_WITH_MULTPLE_ERRORS, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+      prettify: false,
+    });
+    agHelper.AssertElementExist(locators._lintErrorElement);
+
+    jsEditor.EditJSObj(JS_OBJECT_WITH_MYFUN2_EDITED, false);
+
+    agHelper.AssertElementExist(locators._lintErrorElement);
+  });
+  it("11. Shows correct lint error when js object has duplicate keys", () => {
+    const JS_OBJECT_WITH_DUPLICATE_KEYS = `export default {
+        myVar1: [],
+        myVar2: {},
+        myFun1 () {
+            //	write code here
+            //	this.myVar1 = [1,2,3]
+        
+        },
+        async myFun1 () {
+            //	use async-await or promises
+            //	await storeValue('varName', 'hello world') 
+        }
+    }`;
+
+    jsEditor.CreateJSObject(JS_OBJECT_WITH_DUPLICATE_KEYS, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+      prettify: false,
+    });
+
+    agHelper
+      .AssertElementExist(locators._lintErrorElement)
+      .should("have.length", 1);
+  });
 });

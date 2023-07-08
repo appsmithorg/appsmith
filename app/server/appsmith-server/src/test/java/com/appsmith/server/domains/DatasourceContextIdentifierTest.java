@@ -13,7 +13,7 @@ public class DatasourceContextIdentifierTest {
     public void verifyDsMapKeyEquality() {
         String dsId = new ObjectId().toHexString();
         String defaultEnvironmentId = new ObjectId().toHexString();
-        DatasourceContextIdentifier keyObj = new DatasourceContextIdentifier(dsId, defaultEnvironmentId );
+        DatasourceContextIdentifier keyObj = new DatasourceContextIdentifier(dsId, defaultEnvironmentId);
         DatasourceContextIdentifier keyObj1 = new DatasourceContextIdentifier(dsId, defaultEnvironmentId);
         assertEquals(keyObj, keyObj1);
     }
@@ -33,7 +33,7 @@ public class DatasourceContextIdentifierTest {
         assertNotEquals(keyObj, keyObj2);
 
         // with same datasource but different environment id
-        String differentEnvironmentId  = new ObjectId().toHexString();
+        String differentEnvironmentId = new ObjectId().toHexString();
         DatasourceContextIdentifier keyObj3 = new DatasourceContextIdentifier(dsId, differentEnvironmentId);
         assertNotEquals(keyObj, keyObj3);
     }
