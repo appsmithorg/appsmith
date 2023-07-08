@@ -23,7 +23,7 @@ import { EmbedSettings } from "../Pages/AppSettings/EmbedSettings";
 import { Templates } from "../Pages/Templates";
 import { Onboarding } from "../Pages/Onboarding";
 import { AutoLayout } from "../Pages/AutoLayout";
-import { DefaultHostPort } from "./Hostport";
+import { TEDTestConfigs } from "./TestConfigs";
 import { AssertHelper } from "../Pages/AssertHelper";
 import { ReusableHelper } from "./ReusableHelper";
 
@@ -244,12 +244,12 @@ export class ObjectsRegistry {
     return ObjectsRegistry.autoLayout__;
   }
 
-  private static defaultHostPort__: DefaultHostPort;
-  static get DefaultHostPort(): DefaultHostPort {
-    if (ObjectsRegistry.defaultHostPort__ === undefined) {
-      ObjectsRegistry.defaultHostPort__ = new DefaultHostPort();
+  private static tedTestConfigs__: TEDTestConfigs;
+  static get TEDTestConfigs(): TEDTestConfigs {
+    if (ObjectsRegistry.tedTestConfigs__ === undefined) {
+      ObjectsRegistry.tedTestConfigs__ = new TEDTestConfigs();
     }
-    return ObjectsRegistry.defaultHostPort__;
+    return ObjectsRegistry.tedTestConfigs__;
   }
 }
 

@@ -7,6 +7,7 @@ import {
   jsEditor,
   locators,
   propPane,
+  tedTestConfig,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Validate JS Object Refactoring does not affect the comments & variables", () => {
@@ -43,22 +44,20 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
     });
 
     //Selecting paintings table from MySQL DS
-    cy.fixture("datasources").then((datasourceFormData: any) => {
-      //Initialize new JSObject with custom code
-      jsEditor.CreateJSObject(jsCode);
-      //Initialize new Query entity with custom query
-      dataSources.CreateQueryFromOverlay(
-        dsName,
-        query,
-        refactorInput.query.oldName,
-      ); //Creating query from EE overlay
-      //Initialize new API entity with custom header
-      apiPage.CreateAndFillApi(
-        datasourceFormData["mockApiUrl"],
-        refactorInput.api.oldName,
-      );
-      apiPage.EnterHeader("key1", `{{\tJSObject1.myVar1}}`);
-    });
+    //Initialize new JSObject with custom code
+    jsEditor.CreateJSObject(jsCode);
+    //Initialize new Query entity with custom query
+    dataSources.CreateQueryFromOverlay(
+      dsName,
+      query,
+      refactorInput.query.oldName,
+    ); //Creating query from EE overlay
+    //Initialize new API entity with custom header
+    apiPage.CreateAndFillApi(
+      tedTestConfig.mockApiUrl,
+      refactorInput.api.oldName,
+    );
+    apiPage.EnterHeader("key1", `{{\tJSObject1.myVar1}}`);
   });
 
   it("1. Refactor Widget, API, Query and JSObject", () => {

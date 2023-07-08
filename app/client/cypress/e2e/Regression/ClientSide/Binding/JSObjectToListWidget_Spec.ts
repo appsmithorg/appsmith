@@ -7,9 +7,7 @@ describe("Validate JSObj binding to Table widget", () => {
   });
 
   it("1. Add users api and bind to JSObject", () => {
-    cy.fixture("datasources").then((datasourceFormData: any) => {
-      _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"]);
-    });
+    _.apiPage.CreateAndFillApi(_.tedTestConfig.mockApiUrl);
     _.apiPage.RunAPI();
     _.agHelper.GetNClick(_.dataSources._queryResponse("JSON"));
     _.apiPage.ReadApiResponsebyKey("name");
