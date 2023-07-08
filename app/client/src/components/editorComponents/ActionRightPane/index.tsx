@@ -2,7 +2,7 @@ import React, { useContext, useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import { Classes, getTypographyByKey } from "design-system-old";
-import { Button, Icon, Link, Text } from "design-system";
+import { Button, Divider, Icon, Link, Text } from "design-system";
 import { useState } from "react";
 import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
@@ -53,6 +53,7 @@ import {
   getFeatureFlagShownStatus,
   setFeatureFlagShownStatus,
 } from "utils/storage";
+import { PluginName } from "entities/Action";
 
 const SCHEMA_GUIDE_GIF =
   "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/schema.gif";
@@ -62,9 +63,6 @@ const SCHEMA_SECTION_ID = "t--api-right-pane-schema";
 const SideBar = styled.div`
   height: 100%;
   width: 100%;
-  & > div {
-    margin-top: ${(props) => props.theme.spaces[11]}px;
-  }
 
   & > a {
     margin-top: 0;
@@ -114,6 +112,7 @@ const SideBar = styled.div`
 const BackToCanvasLink = styled(Link)`
   margin-left: ${(props) => props.theme.spaces[1] + 1}px;
   margin-top: ${(props) => props.theme.spaces[11]}px;
+  margin-bottom: ${(props) => props.theme.spaces[11]}px;
 `;
 
 const Label = styled.span`
@@ -181,8 +180,8 @@ const DataStructureListWrapper = styled.div`
   height: 100%;
 `;
 
-const SchemaSideBarSection = styled.div<{ height: number }>`
-  margin-top: ${(props) => props.theme.spaces[11]}px;
+const SchemaSideBarSection = styled.div<{ height: number; marginTop?: number }>`
+  margin-top: ${(props) => props?.marginTop && `${props.marginTop}px`};
   height: auto;
   display: flex;
   width: 100%;
@@ -374,7 +373,8 @@ function ActionSidebar({
 
   const showSchema =
     isEnabledForDSSchema &&
-    pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm;
+    pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm &&
+    pluginName !== PluginName.SMTP;
 
   useEffect(() => {
     if (showSchema) {
@@ -436,6 +436,9 @@ function ActionSidebar({
           </Collapsible>
         </SchemaSideBarSection>
       )}
+
+      {showSchema && isEnabledForQueryBinding && <Divider />}
+
       {hasConnections && !isEnabledForQueryBinding && (
         <Connections
           actionName={actionName}
@@ -460,7 +463,7 @@ function ActionSidebar({
           </Collapsible>
         )}
       {showSuggestedWidgets && (
-        <SchemaSideBarSection height={40}>
+        <SchemaSideBarSection height={40} marginTop={12}>
           <SuggestedWidgets
             actionName={actionName}
             hasWidgets={hasWidgets}

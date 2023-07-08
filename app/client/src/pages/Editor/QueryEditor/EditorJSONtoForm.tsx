@@ -9,7 +9,12 @@ import {
   getPluginNameFromId,
 } from "selectors/entitiesSelector";
 import FormControl from "../FormControl";
-import type { Action, QueryAction, SaaSAction } from "entities/Action";
+import {
+  PluginName,
+  type Action,
+  type QueryAction,
+  type SaaSAction,
+} from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
@@ -130,6 +135,7 @@ import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceSt
 import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { undoAction } from "actions/pageActions";
+import { UndoRedoToastContext, showUndoRedoToast } from "utils/replayHelpers";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -503,6 +509,16 @@ export function EditorJSONtoForm(props: Props) {
 
   useEffect(() => {
     if (!showUndo) return;
+    // for toast
+    showUndoRedoToast(
+      actionName,
+      false,
+      false,
+      true,
+      UndoRedoToastContext.QUERY_TEMPLATES,
+    );
+
+    // for browser
     const timer = setTimeout(() => {
       setShowUndo(false);
     }, 5000);
@@ -912,8 +928,8 @@ export function EditorJSONtoForm(props: Props) {
   // or if any of the flags are true, We should open the actionpane by default.
   const shouldOpenActionPaneByDefault =
     ((hasDependencies || !!output) && !guidedTourEnabled) ||
-    isEnabledForDSSchema ||
-    isEnabledForQueryBinding;
+    ((isEnabledForDSSchema || isEnabledForQueryBinding) &&
+      currentActionPluginName !== PluginName.SMTP);
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
@@ -1050,7 +1066,7 @@ export function EditorJSONtoForm(props: Props) {
                     content={createMessage(DOCUMENTATION_TOOLTIP)}
                     placement="top"
                   >
-                    <UndoButton kind="secondary" onClick={undoFn} size="sm">
+                    <UndoButton kind="primary" onClick={undoFn} size="sm">
                       Undo
                     </UndoButton>
                   </Tooltip>
