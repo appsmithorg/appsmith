@@ -90,22 +90,28 @@ jobs:
         run: vercel build --yes --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy Project Artifacts to Vercel
-        id: set-dpurl
         run: |
-          vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} >> ~/run_result.txt
-          echo "::set-output name=dpurl::$(cat ~/run_result.txt)"
+          vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} | tee -a ~/run_result.txt
 
-      - name: vercel-notify
-        uses: peter-evans/create-or-update-comment@v2
+      - uses: actions/github-script@v6
         with:
-           issue-number: ${{ github.event.client_payload.pull_request.number }}
-           body: |
-             Deploy-Preview-URL: ${{ steps.set-dpurl.outputs.dpurl }}
-             if [[ "${{ github.repository }}" == appsmithorg/appsmith ]]; then
-               echo '🚨 *Note*: The release environment runs EE code, so using a frontend-only DP on this repo, will' \
-                'likely behave unexpectedly. Consider using a full DP instead.' \
-                '[Learn more](https://notion.so/031b87bce3404e3a95240d4c14c82e46).'
-             fi
+          script: |
+            const dpUrl = require("fs").readFileSync(process.env.HOME + "/run_result.txt", "utf8")
+            const bodyLines = ["Deploy-Preview-URL: " + dpUrl]
+            if (context.repo.repo === "appsmith") {
+              bodyLines.push(
+                "",
+                "🚨 *Note*: The release environment runs EE code, so using a frontend-only DP on this repo, will",
+                "likely behave unexpectedly. Consider using a full DP instead.",
+                "[Learn more](https://notion.so/031b87bce3404e3a95240d4c14c82e46).",
+              ]
+            }
+            github.rest.issues.createComment({
+              issue_number: context.payload.pull_request.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: bodyLines.join("\n"),
+            })
 
 
   push-image:
