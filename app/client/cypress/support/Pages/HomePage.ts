@@ -110,11 +110,13 @@ export class HomePage {
   // _appRenameTooltip =
   //   '//span[text()="Rename application"]/ancestor::div[contains(@class,"rc-tooltip")]';
   _appRenameTooltip = "span:contains('Rename application')";
-  _sharePublicToggle = "//div[contains(@class, 't--share-public-toggle')]//input[@role='switch']";
+  _sharePublicToggle =
+    "//div[contains(@class, 't--share-public-toggle')]//input[@role='switch']";
   _modeSwitchToggle = ".t--comment-mode-switch-toggle";
- _textInputType = "input[type='text']";
+  _textInputType = "input[type='text']";
   _appsContainer = ".t--applications-container";
-  
+  _shareButton = "//button//span[2][text()='Share']";
+
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
   }

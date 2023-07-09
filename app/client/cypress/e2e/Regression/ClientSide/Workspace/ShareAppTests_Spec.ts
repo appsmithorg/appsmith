@@ -4,7 +4,7 @@ import {
   deployMode,
   homePage,
   assertHelper,
-  inviteModal
+  inviteModal,
 } from "../../../../support/Objects/ObjectsCore";
 
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
