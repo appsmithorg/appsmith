@@ -3,7 +3,12 @@ import PageLoadingBar from "pages/common/PageLoadingBar";
 import { retryPromise } from "utils/AppsmithUtils";
 
 const Page = React.lazy(() =>
-  retryPromise(() => import(/* webpackChunkName: "settings" */ "./index")),
+  retryPromise(
+    () =>
+      import(
+        /* webpackChunkName: "settings" */ "@appsmith/pages/AdminSettings/index"
+      ),
+  ),
 );
 
 const AdminSettingsLoader = (props: any) => {
