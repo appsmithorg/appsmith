@@ -215,7 +215,7 @@
                                                     "id",
                                                     "name"
                                                 ],
-                                                "dynamicPropertyPathList": [],
+                                                "dynamicPropertyPathList": [{"key": "tableData"}],
                                                 "displayName": "Table",
                                                 "bottomRow": 28,
                                                 "columnWidthMap": {

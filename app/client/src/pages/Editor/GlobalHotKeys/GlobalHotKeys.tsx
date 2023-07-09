@@ -1,8 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import { Hotkey, Hotkeys } from "@blueprintjs/core";
-import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
+import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
 import {
   closePropertyPane,
   closeTableFilterPane,
@@ -29,7 +28,6 @@ import {
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
 import { redoAction, undoAction } from "actions/pageActions";
-import { Toaster, Variant } from "design-system-old";
 
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import type { APP_MODE } from "entities/App";
@@ -47,6 +45,7 @@ import { GitSyncModalTab } from "entities/GitSync";
 import { matchBuilderPath } from "constants/routes";
 import { toggleInstaller } from "actions/JSLibraryActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { toast } from "design-system";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 type Props = {
@@ -144,30 +143,9 @@ class GlobalHotKeys extends React.Component<Props> {
           allowInInput
           combo="mod + plus"
           global
-          label="Create New"
+          label="Create new"
           onKeyDown={(e) =>
             this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.ACTION_OPERATION)
-          }
-        />
-        <Hotkey
-          allowInInput
-          combo="mod + j"
-          global
-          label="Lookup code snippets"
-          onKeyDown={(e) => {
-            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.SNIPPETS);
-            AnalyticsUtil.logEvent("SNIPPET_LOOKUP", {
-              source: "HOTKEY_COMBO",
-            });
-          }}
-        />
-        <Hotkey
-          allowInInput
-          combo="mod + l"
-          global
-          label="Search documentation"
-          onKeyDown={(e) =>
-            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.DOCUMENTATION)
           }
         />
         <Hotkey
@@ -199,7 +177,7 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="mod + c"
           global
           group="Canvas"
-          label="Copy Widget"
+          label="Copy widget"
           onKeyDown={(e: any) => {
             if (this.stopPropagationIfWidgetSelected(e)) {
               this.props.copySelectedWidget();
@@ -223,7 +201,7 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="backspace"
           global
           group="Canvas"
-          label="Delete Widget"
+          label="Delete widget"
           onKeyDown={(e: any) => {
             if (this.stopPropagationIfWidgetSelected(e) && isMacOrIOS()) {
               this.props.deleteSelectedWidget();
@@ -234,7 +212,7 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="del"
           global
           group="Canvas"
-          label="Delete Widget"
+          label="Delete widget"
           onKeyDown={(e: any) => {
             if (this.stopPropagationIfWidgetSelected(e)) {
               this.props.deleteSelectedWidget();
@@ -337,9 +315,8 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Save progress"
           onKeyDown={() => {
-            Toaster.show({
-              text: createMessage(SAVE_HOTKEY_TOASTER_MESSAGE),
-              variant: Variant.info,
+            toast.show(createMessage(SAVE_HOTKEY_TOASTER_MESSAGE), {
+              kind: "info",
             });
           }}
           preventDefault

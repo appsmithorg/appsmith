@@ -58,6 +58,7 @@ public class UserSessionDTO {
     /**
      * Given an authentication token, typically from a Spring Security context, create a UserSession object. This
      * UserSession object can then be serialized to JSON and stored in Redis.
+     *
      * @param authentication The token to create the UserSession from. Usually an instance of UsernamePasswordAuthenticationToken or Oauth2AuthenticationToken.
      * @return A UserSession object representing the user's session, with details from the given token.
      */
@@ -80,11 +81,13 @@ public class UserSessionDTO {
         session.authorities = authentication.getAuthorities();
 
         if (authentication instanceof OAuth2AuthenticationToken) {
-            session.authorizedClientRegistrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+            session.authorizedClientRegistrationId =
+                    ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
         } else if (authentication instanceof UsernamePasswordAuthenticationToken) {
             session.authorizedClientRegistrationId = PASSWORD_PROVIDER;
         } else {
-            throw new IllegalArgumentException("Unsupported authentication type: " + authentication.getClass().getName());
+            throw new IllegalArgumentException("Unsupported authentication type: "
+                    + authentication.getClass().getName());
         }
 
         return session;
@@ -93,6 +96,7 @@ public class UserSessionDTO {
     /**
      * Performs the reverse of fromToken method. Given a UserSession object, create a Spring Security authentication
      * token. This authentication token can then be wrapped in a SecurityContext and used as the user's session.
+     *
      * @return A Spring Security authentication token representing the user's session. Usually an instance of UsernamePasswordAuthenticationToken or Oauth2AuthenticationToken.
      */
     public Authentication makeToken() {
@@ -114,10 +118,8 @@ public class UserSessionDTO {
 
         } else if (ALLOWED_OAUTH_PROVIDERS.contains(authorizedClientRegistrationId)) {
             return new OAuth2AuthenticationToken(user, authorities, authorizedClientRegistrationId);
-
         }
 
         throw new IllegalArgumentException("Invalid registration ID " + authorizedClientRegistrationId);
     }
-
 }

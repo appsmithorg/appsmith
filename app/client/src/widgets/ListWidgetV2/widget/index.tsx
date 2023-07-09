@@ -34,7 +34,7 @@ import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 import type { WidgetState } from "../../BaseWidget";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type {
   TabContainerWidgetProps,
   TabsWidgetProps,
@@ -44,6 +44,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -112,6 +113,7 @@ export type MetaWidgetCache = {
 type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
   canExtend?: boolean;
   shouldScrollContents?: boolean;
+  isListWidgetCanvas?: boolean;
 };
 
 type RenderChildrenOption = {
@@ -157,34 +159,50 @@ class ListWidget extends BaseWidget<
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return (widget: ListWidgetProps, extraDefsToDefine?: ExtraDef) => ({
-      "!doc":
-        "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
-      "!url": "https://docs.appsmith.com/widget-reference/list",
-      backgroundColor: {
-        "!type": "string",
-        "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+    return (widget: ListWidgetProps, extraDefsToDefine?: ExtraDef) => {
+      const obj = {
+        "!doc":
+          "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
+        "!url": "https://docs.appsmith.com/widget-reference/list",
+        backgroundColor: {
+          "!type": "string",
+          "!url":
+            "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+        },
+        isVisible: DefaultAutocompleteDefinitions.isVisible,
+        itemSpacing: "number",
+        selectedItem: generateTypeDef(widget.selectedItem, extraDefsToDefine),
+        selectedItemView: generateTypeDef(
+          widget.selectedItemView,
+          extraDefsToDefine,
+        ),
+        triggeredItem: generateTypeDef(widget.triggeredItem, extraDefsToDefine),
+        triggeredItemView: generateTypeDef(
+          widget.triggeredItemView,
+          extraDefsToDefine,
+        ),
+        listData: generateTypeDef(widget.listData, extraDefsToDefine),
+        pageNo: generateTypeDef(widget.pageNo),
+        pageSize: generateTypeDef(widget.pageSize),
+        currentItemsView: generateTypeDef(
+          widget.currentItemsView,
+          extraDefsToDefine,
+        ),
+      };
+
+      return obj;
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
       },
-      isVisible: DefaultAutocompleteDefinitions.isVisible,
-      itemSpacing: "number",
-      selectedItem: generateTypeDef(widget.selectedItem, extraDefsToDefine),
-      selectedItemView: generateTypeDef(
-        widget.selectedItemView,
-        extraDefsToDefine,
-      ),
-      triggeredItem: generateTypeDef(widget.triggeredItem, extraDefsToDefine),
-      triggeredItemView: generateTypeDef(
-        widget.triggeredItemView,
-        extraDefsToDefine,
-      ),
-      listData: generateTypeDef(widget.listData, extraDefsToDefine),
-      pageNo: generateTypeDef(widget.pageNo),
-      pageSize: generateTypeDef(widget.pageSize),
-      currentItemsView: generateTypeDef(
-        widget.currentItemsView,
-        extraDefsToDefine,
-      ),
-    });
+    };
   }
 
   static getDerivedPropertiesMap() {
@@ -562,7 +580,7 @@ class ListWidget extends BaseWidget<
       });
     }
 
-    //To Add Auto Layout flex layer for meta Canvas Widgets
+    //To Add auto-layout flex layer for meta Canvas Widgets
     if (metaWidget.type === "CANVAS_WIDGET" && metaWidget.flexLayers) {
       metaWidget.flexLayers = getMetaFlexLayers(
         metaWidget.flexLayers,
@@ -605,6 +623,14 @@ class ListWidget extends BaseWidget<
   };
 
   getTemplateBottomRow = () => {
+    if (
+      this.props.appPositioningType === AppPositioningTypes.AUTO &&
+      this.props.isMobile
+    ) {
+      return (
+        this.getMainContainer()?.mobileBottomRow || DEFAULT_TEMPLATE_BOTTOM_ROW
+      );
+    }
     return this.getMainContainer()?.bottomRow || DEFAULT_TEMPLATE_BOTTOM_ROW;
   };
 
@@ -1108,11 +1134,20 @@ class ListWidget extends BaseWidget<
           child.rightColumn = componentWidth;
           child.canExtend = true;
           child.positioning = this.props.positioning;
+          if (this.props.appPositioningType === AppPositioningTypes.AUTO) {
+            child.isListWidgetCanvas = true;
+          }
           child.children = child.children?.map((container, viewIndex) => {
             const rowIndex = viewIndex + startIndex;
             const focused =
               this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;
             const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
+            if (
+              this.props.appPositioningType === AppPositioningTypes.AUTO &&
+              container.children?.[0]
+            ) {
+              container.children[0].isListWidgetCanvas = true;
+            }
             return {
               ...container,
               focused,

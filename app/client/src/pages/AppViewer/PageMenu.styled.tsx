@@ -62,4 +62,5 @@ export const StyledNavLink = styled(NavLink)<{
 }>`
   color: ${({ navColorStyle, primaryColor }) =>
     getMenuItemTextColor(primaryColor, navColorStyle, true)};
+  word-wrap: break-word;
 `;

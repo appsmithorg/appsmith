@@ -43,3 +43,17 @@ async function asyncRequestMessageListener(
 
 self.addEventListener("message", syncRequestMessageListener);
 self.addEventListener("message", asyncRequestMessageListener);
+
+self.addEventListener("error", (e) => {
+  if (e instanceof ErrorEvent) {
+    console.error(e.message);
+  } else {
+    console.error(e);
+  }
+});
+
+self.addEventListener("unhandledrejection", (e) => {
+  // We might want to send this error to the main thread in the future.
+  // console error will log the error to the logs tab against trigger field.
+  console.error(e.reason.message);
+});

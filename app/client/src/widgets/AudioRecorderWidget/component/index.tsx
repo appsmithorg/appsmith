@@ -4,15 +4,27 @@ import { Button, Icon } from "@blueprintjs/core";
 import { useReactMediaRecorder } from "react-media-recorder";
 import { useStopwatch } from "react-timer-hook";
 
-import { ReactComponent as RecorderDefaultIcon } from "assets/icons/widget/recorder/recorder_default.svg";
-import { ReactComponent as RecorderRecordingIcon } from "assets/icons/widget/recorder/recorder_recording.svg";
-import { ReactComponent as RecorderPauseIcon } from "assets/icons/widget/recorder/recorder_pause.svg";
-import { ReactComponent as RecorderCompleteIcon } from "assets/icons/widget/recorder/recorder_complete.svg";
-import { ReactComponent as RecorderNoPermissionIcon } from "assets/icons/widget/recorder/recorder_no_permission.svg";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { darkenHover } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import type { ThemeProp } from "widgets/constants";
+import { importSvg } from "design-system-old";
+
+const RecorderDefaultIcon = importSvg(
+  () => import("assets/icons/widget/recorder/recorder_default.svg"),
+);
+const RecorderRecordingIcon = importSvg(
+  () => import("assets/icons/widget/recorder/recorder_recording.svg"),
+);
+const RecorderPauseIcon = importSvg(
+  () => import("assets/icons/widget/recorder/recorder_pause.svg"),
+);
+const RecorderCompleteIcon = importSvg(
+  () => import("assets/icons/widget/recorder/recorder_complete.svg"),
+);
+const RecorderNoPermissionIcon = importSvg(
+  () => import("assets/icons/widget/recorder/recorder_no_permission.svg"),
+);
 
 export enum RecorderStatusTypes {
   PERMISSION_PROMPT = "PERMISSION_PROMPT",

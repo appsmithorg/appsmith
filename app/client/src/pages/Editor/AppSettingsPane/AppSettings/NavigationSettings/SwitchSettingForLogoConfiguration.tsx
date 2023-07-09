@@ -1,10 +1,8 @@
 import React from "react";
 import type { Dispatch, SetStateAction } from "react";
-import StyledPropertyHelpLabel from "./StyledPropertyHelpLabel";
-import SwitchWrapper from "../../Components/SwitchWrapper";
-import { Switch } from "design-system-old";
+import { Switch } from "design-system";
 import type { LogoConfigurationSwitches } from ".";
-import _ from "lodash";
+import kebabCase from "lodash/kebabCase";
 
 const SwitchSettingForLogoConfiguration = (props: {
   label: string;
@@ -20,7 +18,6 @@ const SwitchSettingForLogoConfiguration = (props: {
     label,
     logoConfigurationSwitches,
     setLogoConfigurationSwitches,
-    tooltip,
   } = props;
 
   // updateSetting("logoConfiguration", !isChecked);
@@ -28,29 +25,19 @@ const SwitchSettingForLogoConfiguration = (props: {
 
   return (
     <div className="pt-4">
-      <div className="flex justify-between content-center">
-        <StyledPropertyHelpLabel
-          label={label}
-          lineHeight="1.17"
-          maxWidth="270px"
-          tooltip={tooltip}
-        />
-
-        <SwitchWrapper>
-          <Switch
-            checked={logoConfigurationSwitches[keyName]}
-            className="mb-0"
-            id={`t--navigation-settings-${_.kebabCase(keyName)}`}
-            large
-            onChange={() => {
-              setLogoConfigurationSwitches({
-                ...logoConfigurationSwitches,
-                [keyName]: !logoConfigurationSwitches[keyName],
-              });
-            }}
-          />
-        </SwitchWrapper>
-      </div>
+      <Switch
+        className="mb-0"
+        id={`t--navigation-settings-${kebabCase(keyName)}`}
+        isSelected={logoConfigurationSwitches[keyName]}
+        onChange={() => {
+          setLogoConfigurationSwitches({
+            ...logoConfigurationSwitches,
+            [keyName]: !logoConfigurationSwitches[keyName],
+          });
+        }}
+      >
+        {label}
+      </Switch>
     </div>
   );
 };

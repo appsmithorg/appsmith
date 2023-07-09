@@ -122,7 +122,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     view: ViewTypes.TEXT_VIEW,
   },
   [FieldType.QUERY_PARAMS_FIELD]: {
-    label: () => "Query Params",
+    label: () => "Query params",
     defaultText: "",
     exampleText: "navigateTo('Page1', { a: 1 }, 'SAME_WINDOW')",
     options: () => null,
@@ -365,9 +365,9 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     view: ViewTypes.TEXT_VIEW,
   },
   [FieldType.SHOW_MODAL_FIELD]: {
-    label: () => "Modal Name",
+    label: () => "Modal name",
     options: (props: FieldProps) => props.modalDropdownList,
-    defaultText: "Select Modal",
+    defaultText: "Select modal",
     exampleText: "showModal('Modal1')",
     getter: (value: any) => {
       return modalGetter(value);
@@ -378,9 +378,9 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     view: ViewTypes.SELECTOR_VIEW,
   },
   [FieldType.CLOSE_MODAL_FIELD]: {
-    label: () => "Modal Name",
+    label: () => "Modal name",
     options: (props: FieldProps) => props.modalDropdownList,
-    defaultText: "Select Modal",
+    defaultText: "Select modal",
     exampleText: "closeModal('Modal1')",
     getter: (value: any) => {
       return modalGetter(value);
@@ -394,7 +394,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     label: () => "Widget",
     exampleText: "resetWidget('Modal1', true)",
     options: (props: FieldProps) => props.widgetOptionTree,
-    defaultText: "Select Widget",
+    defaultText: "Select widget",
     getter: (value: any) => {
       return enumTypeGetter(value, 0);
     },
@@ -421,10 +421,10 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     view: ViewTypes.SELECTOR_VIEW,
   },
   [FieldType.PAGE_SELECTOR_FIELD]: {
-    label: () => "Choose Page",
+    label: () => "Choose page",
     exampleText: "navigateTo('Page1', { a: 1 }, 'SAME_WINDOW')",
     options: (props: FieldProps) => props.pageDropdownOptions,
-    defaultText: "Select Page",
+    defaultText: "Select page",
     getter: (value: any) => {
       return enumTypeGetter(value, 0, "");
     },

@@ -1,24 +1,25 @@
 import styled from "styled-components";
 import React from "react";
-import { Button, Size, Text, TextType } from "design-system-old";
-import { Variant } from "design-system-old/build/constants/variants";
+import { Button, Text } from "design-system";
 import type { FooterProps } from "./types";
-import { createMessage } from "design-system-old/build/constants/messages";
-import { AVAILABLE_ON_BUSINESS, UPGRADE } from "../../constants/messages";
+import {
+  AVAILABLE_ON_BUSINESS,
+  createMessage,
+  UPGRADE,
+} from "@appsmith/constants/messages";
 
 const FooterContainer = styled.div`
-  position: fixed;
+  position: absolute;
   bottom: 0;
   left: 0;
-  width: calc(100% - 264px - 16px);
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
   height: 112px;
-  margin-left: calc(264px + 16px);
   gap: 20px;
   padding: 16px 20px;
-  background-color: var(--ads-color-black-0);
+  background-color: var(--ads-v2-color-bg);
 
   & .left {
     min-width: 362px;
@@ -43,23 +44,25 @@ export function FooterComponent(props: FooterProps) {
       <div className="left">
         {showHeading && (
           <div className="heading-container">
-            <Text type={TextType.H1}>
+            <Text
+              color="var(ads-v2-color-fg-emphasis-plus)"
+              kind="heading-m"
+              renderAs="h1"
+            >
               {createMessage(AVAILABLE_ON_BUSINESS)}
             </Text>
           </div>
         )}
         <div className="text-container">
-          <Text type={TextType.P1}>{message}</Text>
+          <Text color="var(--ads-v2-color-fg)" renderAs="p">
+            {message}
+          </Text>
         </div>
       </div>
       <div className="right">
-        <Button
-          onClick={onClick}
-          size={Size.large}
-          text={createMessage(UPGRADE)}
-          type="button"
-          variant={Variant.info}
-        />
+        <Button onClick={onClick} size="md">
+          {createMessage(UPGRADE)}
+        </Button>
       </div>
     </FooterContainer>
   );

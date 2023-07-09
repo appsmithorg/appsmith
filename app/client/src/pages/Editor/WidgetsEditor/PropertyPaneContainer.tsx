@@ -1,5 +1,4 @@
 import { setPropertyPaneWidthAction } from "actions/propertyPaneActions";
-import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 import PropertyPaneSidebar from "components/editorComponents/PropertyPaneSidebar";
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,13 +25,11 @@ function PropertyPaneContainer() {
   }, []);
 
   return (
-    <AIWindow enableOutsideClick windowType="popover">
-      <PropertyPaneSidebar
-        onDragEnd={onRightSidebarDragEnd}
-        onWidthChange={onRightSidebarWidthChange}
-        width={propertyPaneWidth}
-      />
-    </AIWindow>
+    <PropertyPaneSidebar
+      onDragEnd={onRightSidebarDragEnd}
+      onWidthChange={onRightSidebarWidthChange}
+      width={propertyPaneWidth}
+    />
   );
 }
 

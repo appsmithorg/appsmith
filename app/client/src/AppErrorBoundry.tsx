@@ -4,6 +4,7 @@ import AppCrashImage from "assets/images/404-image.png";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Button } from "design-system";
 
 const Wrapper = styled.div`
   display: flex;
@@ -22,17 +23,6 @@ const Wrapper = styled.div`
   .button-position {
     margin: auto;
   }
-`;
-
-const RetryButton = styled.button`
-  background-color: #f3672a;
-  color: white;
-  height: 40px;
-  width: 300px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 17px;
 `;
 
 class AppErrorBoundary extends Component {
@@ -60,9 +50,10 @@ class AppErrorBoundary extends Component {
               Please try again using the button below. <br />
               If the issue persists, please contact us
             </p>
-            <RetryButton onClick={() => window.location.reload()}>
-              {"Retry"}
-            </RetryButton>
+            <br />
+            <Button onClick={() => window.location.reload()} size="md">
+              Retry
+            </Button>
           </div>
         </Wrapper>
       );

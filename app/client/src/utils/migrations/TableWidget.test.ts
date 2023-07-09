@@ -9,6 +9,7 @@ import {
   migrateTableWidgetNumericColumnName,
   migrateTableWidgetV2ValidationBinding,
   migrateTableWidgetV2SelectOption,
+  migrateTableWidgetTableDataJsMode,
 } from "./TableWidget";
 
 const input1: DSLWidget = {
@@ -2724,6 +2725,105 @@ describe("migrateTableWidgetV2SelectOption", () => {
               selectOptions: "{{[{label: 1, value: 2}]}}",
             },
           },
+        },
+      ],
+    });
+  });
+});
+
+describe("migrateTableWidgetTableDataJsMode", () => {
+  it("should test that tableData js mode is enabled", () => {
+    expect(
+      migrateTableWidgetTableDataJsMode({
+        children: [
+          {
+            widgetName: "Table",
+            type: "TABLE_WIDGET_V2",
+            primaryColumns: {
+              step: {
+                columnType: "select",
+                selectOptions: "[{label: 1, value: 2}]",
+              },
+              task: {
+                columnType: "select",
+                selectOptions: "{{[{label: 1, value: 2}]}}",
+              },
+              status: {
+                columnType: "text",
+                selectOptions: "{{[{label: 1, value: 2}]}}",
+              },
+            },
+          },
+          {
+            widgetName: "Table1",
+            type: "TABLE_WIDGET_V2",
+            primaryColumns: {
+              step: {
+                columnType: "select",
+                selectOptions: "[{label: 1, value: 2}]",
+              },
+              task: {
+                columnType: "select",
+                selectOptions: "{{[{label: 1, value: 2}]}}",
+              },
+              status: {
+                columnType: "text",
+                selectOptions: "{{[{label: 1, value: 2}]}}",
+              },
+            },
+            dynamicPropertyPathList: [{ key: "test" }],
+          },
+          {
+            widgetName: "Text",
+            type: "TEXT_WIDGET",
+            dynamicPropertyPathList: [{ key: "test" }],
+          },
+        ],
+      } as any as DSLWidget),
+    ).toEqual({
+      children: [
+        {
+          widgetName: "Table",
+          type: "TABLE_WIDGET_V2",
+          primaryColumns: {
+            step: {
+              columnType: "select",
+              selectOptions: "[{label: 1, value: 2}]",
+            },
+            task: {
+              columnType: "select",
+              selectOptions: "{{[{label: 1, value: 2}]}}",
+            },
+            status: {
+              columnType: "text",
+              selectOptions: "{{[{label: 1, value: 2}]}}",
+            },
+          },
+          dynamicPropertyPathList: [{ key: "tableData" }],
+        },
+        {
+          widgetName: "Table1",
+          type: "TABLE_WIDGET_V2",
+          primaryColumns: {
+            step: {
+              columnType: "select",
+              selectOptions: "[{label: 1, value: 2}]",
+            },
+            task: {
+              columnType: "select",
+              selectOptions: "{{[{label: 1, value: 2}]}}",
+            },
+            status: {
+              columnType: "text",
+              selectOptions: "{{[{label: 1, value: 2}]}}",
+            },
+          },
+          dynamicPropertyPathList: [{ key: "test" }, { key: "tableData" }],
+        },
+        {
+          widgetName: "Text",
+          type: "TEXT_WIDGET",
+          dynamicPropertyPathList: [{ key: "test" }],
         },
       ],
     });

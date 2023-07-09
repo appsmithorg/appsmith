@@ -9,7 +9,7 @@ describe("Text view component", () => {
     label: "Key",
     value: "{{storeValue(,'1')}}",
     get: () => {
-      return 1;
+      return "";
     },
     set: () => {
       return 1;

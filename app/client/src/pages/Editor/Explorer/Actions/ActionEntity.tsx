@@ -8,8 +8,13 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { getAction, getPlugins } from "selectors/entitiesSelector";
-import type { Action, PluginType } from "entities/Action";
+import {
+  getAction,
+  getDatasource,
+  getPlugins,
+} from "selectors/entitiesSelector";
+import type { Action, StoredDatasource } from "entities/Action";
+import { PluginType } from "entities/Action";
 import { keyBy } from "lodash";
 import { getActionConfig } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -18,6 +23,7 @@ import {
   hasDeleteActionPermission,
   hasManageActionPermission,
 } from "@appsmith/utils/permissionHelpers";
+import type { Datasource } from "entities/Datasource";
 
 const getUpdateActionNameReduxAction = (id: string, name: string) => {
   return saveActionName({ id, name });
@@ -37,6 +43,9 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const location = useLocation();
+  const datasource = useSelector((state) =>
+    getDatasource(state, (action?.datasource as StoredDatasource)?.id),
+  ) as Datasource;
 
   const config = getActionConfig(props.type);
   const url = config?.getURL(
@@ -57,6 +66,13 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       fromUrl: location.pathname,
       toUrl: url,
       name: action.name,
+    });
+    AnalyticsUtil.logEvent("EDIT_ACTION_CLICK", {
+      actionId: action?.id,
+      datasourceId: datasource?.id,
+      pluginName: pluginGroups[action?.pluginId]?.name,
+      actionType: action?.pluginType === PluginType.DB ? "Query" : "API",
+      isMock: !!datasource?.isMock,
     });
   }, [url, location.pathname, action.name]);
 
@@ -81,7 +97,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       action={switchToAction}
       active={props.isActive}
       canEditEntityName={canManageAction}
-      className="action"
+      className="action t--action-entity"
       contextMenu={contextMenu}
       entityId={action.id}
       icon={icon}

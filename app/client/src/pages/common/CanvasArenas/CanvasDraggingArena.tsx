@@ -1,3 +1,4 @@
+import type { AppState } from "@appsmith/reducers";
 import { theme } from "constants/DefaultTheme";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import React, { useMemo } from "react";
@@ -70,6 +71,11 @@ export function CanvasDraggingArena({
     stickyCanvasRef,
     slidingArenaRef,
   });
+
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
+
   return showCanvas ? (
     <StickyCanvasArena
       canExtend={canExtend}
@@ -78,6 +84,7 @@ export function CanvasDraggingArena({
       getRelativeScrollingParent={getNearestParentCanvas}
       id={`div-dragarena-${widgetId}`}
       ref={canvasRef}
+      shouldObserveIntersection={isDragging}
       showCanvas={showCanvas}
       snapColSpace={snapColumnSpace}
       snapRowSpace={snapRowSpace}

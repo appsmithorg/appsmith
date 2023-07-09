@@ -10,7 +10,6 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -35,7 +34,7 @@ public class Action extends BaseDomain {
     @JsonView(Views.Public.class)
     Datasource datasource;
 
-    //Organizations migrated to workspaces, kept the field as depricated to support the old migration
+    // Organizations migrated to workspaces, kept the field as depricated to support the old migration
     @Deprecated
     @JsonView(Views.Public.class)
     String organizationId;
@@ -73,7 +72,6 @@ public class Action extends BaseDomain {
     @JsonView(Views.Public.class)
     Set<String> invalids;
 
-
     // This is a list of keys that the client whose values the client needs to send during action execution.
     // These are the Mustache keys that the server will replace before invoking the API
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -84,10 +82,10 @@ public class Action extends BaseDomain {
     String cacheResponse;
 
     @JsonView(Views.Public.class)
-    String templateId; //If action is created via a template, store the id here.
+    String templateId; // If action is created via a template, store the id here.
 
     @JsonView(Views.Public.class)
-    String providerId; //If action is created via a template, store the template's provider id here.
+    String providerId; // If action is created via a template, store the template's provider id here.
 
     @Transient
     @JsonView(Views.Public.class)

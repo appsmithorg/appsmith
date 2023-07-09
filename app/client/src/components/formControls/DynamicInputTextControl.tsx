@@ -14,7 +14,6 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
 import _ from "lodash";
-import { Colors } from "constants/Colors";
 
 // Enum for the different types of input fields
 export enum INPUT_TEXT_INPUT_TYPES {
@@ -26,13 +25,17 @@ export enum INPUT_TEXT_INPUT_TYPES {
 
 const StyledDynamicTextField = styled(DynamicTextField)`
   .CodeEditorTarget .CodeMirror.CodeMirror-wrap {
-    background-color: ${Colors.WHITE};
+    background-color: var(--ads-v2-color-bg);
   }
   .CodeEditorTarget .CodeMirror.CodeMirror-wrap:hover {
-    background-color: ${Colors.ALABASTER_ALT};
+    background-color: var(--ads-v2-color-bg);
+    border-color: var(--ads-v2-color-border-emphasis);
   }
   &&& .t--code-editor-wrapper {
     border: none;
+  }
+  .CodeEditorTarget {
+    border-radius: var(--ads-v2-border-radius);
   }
 `;
 
@@ -68,7 +71,7 @@ export function InputText(props: {
     };
   }
 
-  let customStyle = { width: "280px", minHeight: "38px" };
+  let customStyle = { width: "270px", minHeight: "36px" };
   if (!!props.customStyles && _.isEmpty(props.customStyles) === false) {
     customStyle = { ...props.customStyles };
     if ("width" in props.customStyles) {

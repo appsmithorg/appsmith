@@ -19,6 +19,7 @@ import log from "loglevel";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import type { SetterConfig } from "entities/AppTheming";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
@@ -93,7 +94,7 @@ class FilePickerWidget extends BaseWidget<
           {
             propertyName: "allowedFileTypes",
             helpText: "Restricts the type of files which can be uploaded",
-            label: "Allowed File Types",
+            label: "Allowed file types",
             controlType: "DROP_DOWN",
             isMultiSelect: true,
             placeholderText: "Select file types",
@@ -155,7 +156,7 @@ class FilePickerWidget extends BaseWidget<
           {
             helpText: "Set the format of the data read from the files",
             propertyName: "fileDataType",
-            label: "Data Format",
+            label: "Data format",
             controlType: "DROP_DOWN",
             options: [
               {
@@ -206,7 +207,7 @@ class FilePickerWidget extends BaseWidget<
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -469,6 +470,21 @@ class FilePickerWidget extends BaseWidget<
 
   componentWillUnmount() {
     this.state.uppy.close();
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+      },
+    };
   }
 
   getPageView() {

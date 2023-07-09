@@ -4,7 +4,6 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -47,7 +46,7 @@ public class UserData extends BaseDomain {
     @JsonView(Views.Public.class)
     private String releaseNotesViewedVersion;
 
-    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
+    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
     @Deprecated
     @JsonView(Views.Public.class)
     private List<String> recentlyUsedOrgIds;
@@ -59,7 +58,6 @@ public class UserData extends BaseDomain {
     // list of application ids that were recently accessed by the user
     @JsonView(Views.Public.class)
     private List<String> recentlyUsedAppIds;
-
 
     // Map of defaultApplicationIds with the GitProfiles. For fallback/default git profile per user default will be the
     // the key for the map
@@ -89,7 +87,7 @@ public class UserData extends BaseDomain {
     }
 
     @JsonView(Views.Public.class)
-    public Map<String, GitProfile> setGitProfileByKey(String key, GitProfile gitProfile){
+    public Map<String, GitProfile> setGitProfileByKey(String key, GitProfile gitProfile) {
         if (CollectionUtils.isNullOrEmpty(this.getGitProfiles())) {
             return Map.of(key, gitProfile);
         }
@@ -101,5 +99,4 @@ public class UserData extends BaseDomain {
     public UserData(String userId) {
         this.userId = userId;
     }
-
 }

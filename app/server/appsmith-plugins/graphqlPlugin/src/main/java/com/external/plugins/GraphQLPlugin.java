@@ -79,10 +79,11 @@ public class GraphQLPlugin extends BasePlugin {
          * @return
          */
         @Override
-        public Mono<ActionExecutionResult> executeParameterized(APIConnection connection,
-                                                                ExecuteActionDTO executeActionDTO,
-                                                                DatasourceConfiguration datasourceConfiguration,
-                                                                ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> executeParameterized(
+                APIConnection connection,
+                ExecuteActionDTO executeActionDTO,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration) {
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
@@ -92,16 +93,15 @@ public class GraphQLPlugin extends BasePlugin {
             if (TRUE.equals(smartSubstitution)) {
                 /* Apply smart JSON substitution logic to mustache binding values in query variables */
                 if (!isBlank(variables)) {
-                    List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(variables);
+                    List<MustacheBindingToken> mustacheKeysInOrder =
+                            MustacheHelper.extractMustacheKeysInOrder(variables);
                     // Replace all the bindings with a ? as expected in a prepared statement.
-                    String updatedVariables = MustacheHelper.replaceMustacheWithPlaceholder(variables, mustacheKeysInOrder);
+                    String updatedVariables =
+                            MustacheHelper.replaceMustacheWithPlaceholder(variables, mustacheKeysInOrder);
 
                     try {
-                        updatedVariables = (String) smartSubstitutionOfBindings(updatedVariables,
-                                mustacheKeysInOrder,
-                                executeActionDTO.getParams(),
-                                parameters,
-                                false);
+                        updatedVariables = (String) smartSubstitutionOfBindings(
+                                updatedVariables, mustacheKeysInOrder, executeActionDTO.getParams(), parameters, false);
                         setValueSafelyInPropertyList(properties, QUERY_VARIABLES_INDEX, updatedVariables);
                     } catch (AppsmithPluginException e) {
                         ActionExecutionResult errorResult = new ActionExecutionResult();
@@ -119,11 +119,8 @@ public class GraphQLPlugin extends BasePlugin {
                     String updatedQuery = MustacheHelper.replaceMustacheWithPlaceholder(query, mustacheKeysInOrder);
 
                     try {
-                        updatedQuery = (String) smartSubstitutionOfBindings(updatedQuery,
-                                mustacheKeysInOrder,
-                                executeActionDTO.getParams(),
-                                parameters,
-                                true);
+                        updatedQuery = (String) smartSubstitutionOfBindings(
+                                updatedQuery, mustacheKeysInOrder, executeActionDTO.getParams(), parameters, true);
                         actionConfiguration.setBody(updatedQuery);
                     } catch (AppsmithPluginException e) {
                         ActionExecutionResult errorResult = new ActionExecutionResult();
@@ -147,7 +144,8 @@ public class GraphQLPlugin extends BasePlugin {
                 return Mono.error(e);
             }
 
-            if (actionConfiguration.getPaginationType() != null && !PaginationType.NONE.equals(actionConfiguration.getPaginationType())) {
+            if (actionConfiguration.getPaginationType() != null
+                    && !PaginationType.NONE.equals(actionConfiguration.getPaginationType())) {
                 updateVariablesWithPaginationValues(actionConfiguration, executeActionDTO);
             }
 
@@ -157,10 +155,11 @@ public class GraphQLPlugin extends BasePlugin {
             return this.executeCommon(connection, datasourceConfiguration, actionConfiguration, parameters);
         }
 
-        public Mono<ActionExecutionResult> executeCommon(APIConnection apiConnection,
-                                                         DatasourceConfiguration datasourceConfiguration,
-                                                         ActionConfiguration actionConfiguration,
-                                                         List<Map.Entry<String, String>> insertedParams) {
+        public Mono<ActionExecutionResult> executeCommon(
+                APIConnection apiConnection,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration,
+                List<Map.Entry<String, String>> insertedParams) {
 
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
@@ -173,16 +172,16 @@ public class GraphQLPlugin extends BasePlugin {
 
             URI uri;
             try {
-                uri = uriUtils.createUriWithQueryParams(actionConfiguration, datasourceConfiguration, url,
-                        encodeParamsToggle);
+                uri = uriUtils.createUriWithQueryParams(
+                        actionConfiguration, datasourceConfiguration, url, encodeParamsToggle);
             } catch (URISyntaxException e) {
-                ActionExecutionRequest actionExecutionRequest =
-                        RequestCaptureFilter.populateRequestFields(actionConfiguration, null, insertedParams, objectMapper);
+                ActionExecutionRequest actionExecutionRequest = RequestCaptureFilter.populateRequestFields(
+                        actionConfiguration, null, insertedParams, objectMapper);
                 actionExecutionRequest.setUrl(url);
-                errorResult.setErrorInfo(
-                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, GraphQLErrorMessages.URI_SYNTAX_WRONG_ERROR_MSG, e.getMessage()
-                        )
-                    );
+                errorResult.setErrorInfo(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        GraphQLErrorMessages.URI_SYNTAX_WRONG_ERROR_MSG,
+                        e.getMessage()));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
@@ -190,28 +189,26 @@ public class GraphQLPlugin extends BasePlugin {
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
 
-            WebClient.Builder webClientBuilder = restAPIActivateUtils.getWebClientBuilder(actionConfiguration,
-                    datasourceConfiguration);
+            WebClient.Builder webClientBuilder =
+                    restAPIActivateUtils.getWebClientBuilder(actionConfiguration, datasourceConfiguration);
 
             String reqContentType = headerUtils.getRequestContentType(actionConfiguration, datasourceConfiguration);
 
             /* Check for content type */
             final String contentTypeError = headerUtils.verifyContentType(actionConfiguration.getHeaders());
             if (contentTypeError != null) {
-                errorResult.setErrorInfo(
-                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, GraphQLErrorMessages.INVALID_CONTENT_TYPE_ERROR_MSG
-                        )
-                    );
+                errorResult.setErrorInfo(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        GraphQLErrorMessages.INVALID_CONTENT_TYPE_ERROR_MSG));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
 
             HttpMethod httpMethod = actionConfiguration.getHttpMethod();
             if (httpMethod == null) {
-                errorResult.setErrorInfo(
-                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, GraphQLErrorMessages.NO_HTTP_METHOD_ERROR_MSG
-                        )
-                    );
+                errorResult.setErrorInfo(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        GraphQLErrorMessages.NO_HTTP_METHOD_ERROR_MSG));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
@@ -261,31 +258,40 @@ public class GraphQLPlugin extends BasePlugin {
                  * Only POST and GET HTTP methods are supported by GraphQL specifications.
                  * Ref: https://graphql.org/learn/serving-over-http/
                  */
-                return Mono.error(
-                        new AppsmithPluginException(
-                                GraphQLPluginError.QUERY_EXECUTION_FAILED,
-                                String.format(GraphQLErrorMessages.UNEXPECTED_HTTP_METHOD_ERROR_MSG, httpMethod)
-                        )
-                );
+                return Mono.error(new AppsmithPluginException(
+                        GraphQLPluginError.QUERY_EXECUTION_FAILED,
+                        String.format(GraphQLErrorMessages.UNEXPECTED_HTTP_METHOD_ERROR_MSG, httpMethod)));
             }
 
             final RequestCaptureFilter requestCaptureFilter = new RequestCaptureFilter(objectMapper);
-            Object requestBodyObj = dataUtils.getRequestBodyObject(actionConfiguration, reqContentType,
-                    encodeParamsToggle, httpMethod);
-            WebClient client = restAPIActivateUtils.getWebClient(webClientBuilder, apiConnection, reqContentType,
-                    EXCHANGE_STRATEGIES, requestCaptureFilter);
+            Object requestBodyObj =
+                    dataUtils.getRequestBodyObject(actionConfiguration, reqContentType, encodeParamsToggle, httpMethod);
+            WebClient client = restAPIActivateUtils.getWebClient(
+                    webClientBuilder, apiConnection, reqContentType, EXCHANGE_STRATEGIES, requestCaptureFilter);
 
             /* Triggering the actual REST API call */
             Set<String> hintMessages = new HashSet<>();
-            return restAPIActivateUtils.triggerApiCall(
-                        client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
-                        objectMapper, hintMessages, errorResult, requestCaptureFilter
-                    )
+            return restAPIActivateUtils
+                    .triggerApiCall(
+                            client,
+                            httpMethod,
+                            uri,
+                            requestBodyObj,
+                            actionExecutionRequest,
+                            objectMapper,
+                            hintMessages,
+                            errorResult,
+                            requestCaptureFilter)
                     .onErrorResume(error -> {
-                        errorResult.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest));
+                        boolean isBodySentWithApiRequest = requestBodyObj == null ? false : true;
+                        errorResult.setRequest(requestCaptureFilter.populateRequestFields(
+                                actionExecutionRequest, isBodySentWithApiRequest));
                         errorResult.setIsExecutionSuccess(false);
-                        if (! (error instanceof AppsmithPluginException)) {
-                            error = new AppsmithPluginException(GraphQLPluginError.QUERY_EXECUTION_FAILED, GraphQLErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, error);
+                        if (!(error instanceof AppsmithPluginException)) {
+                            error = new AppsmithPluginException(
+                                    GraphQLPluginError.QUERY_EXECUTION_FAILED,
+                                    GraphQLErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
+                                    error);
                         }
                         errorResult.setErrorInfo(error);
                         return Mono.just(errorResult);
@@ -293,17 +299,19 @@ public class GraphQLPlugin extends BasePlugin {
         }
 
         @Override
-        public Object substituteValueInInput(int index,
-                                             String binding,
-                                             String value,
-                                             Object input,
-                                             List<Map.Entry<String, String>> insertedParams,
-                                             Object... args) {
+        public Object substituteValueInInput(
+                int index,
+                String binding,
+                String value,
+                Object input,
+                List<Map.Entry<String, String>> insertedParams,
+                Object... args) {
             boolean isInputQueryBody = (boolean) args[0];
             Param param = (Param) args[1];
             if (!isInputQueryBody) {
                 String queryVariables = (String) input;
-                return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(queryVariables, value, null, insertedParams, null, param);
+                return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(
+                        queryVariables, value, null, insertedParams, null, param);
             } else {
                 String queryBody = (String) input;
                 return smartlyReplaceGraphQLQueryBodyPlaceholderWithValue(queryBody, value, insertedParams);
@@ -318,7 +326,8 @@ public class GraphQLPlugin extends BasePlugin {
          */
         @Override
         public Set<String> getSelfReferencingDataPaths() {
-            return Set.of("pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value.limitBased.limit.value",
+            return Set.of(
+                    "pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value.limitBased.limit.value",
                     "pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value.limitBased.offset.value",
                     "pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value.cursorBased.next.limit.value",
                     "pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value.cursorBased.next.cursor.value",

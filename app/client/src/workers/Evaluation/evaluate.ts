@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
@@ -7,10 +7,13 @@ import { Severity } from "entities/AppsmithConsole";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
-import { DOM_APIS } from "./SetupDOM";
+import DOM_APIS from "./domApis";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
+import log from "loglevel";
+import * as Sentry from "@sentry/react";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 
 export type EvalResult = {
   result: any;
@@ -121,6 +124,7 @@ const beginsWithLineBreakRegex = /^\s+|\s+$/;
 export type EvalContext = Record<string, any>;
 export interface createEvaluationContextArgs {
   dataTree: DataTree;
+  configTree?: ConfigTree;
   context?: EvaluateContext;
   isTriggerBased: boolean;
   evalArguments?: Array<unknown>;
@@ -138,6 +142,7 @@ export interface createEvaluationContextArgs {
  */
 export const createEvaluationContext = (args: createEvaluationContextArgs) => {
   const {
+    configTree = {},
     context,
     dataTree,
     evalArguments,
@@ -158,6 +163,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
   addDataTreeToContext({
     EVAL_CONTEXT,
     dataTree,
+    configTree,
     removeEntityFunctions: !!removeEntityFunctions,
     isTriggerBased,
   });
@@ -204,6 +210,7 @@ export const getUserScriptToEvaluate = (
 };
 
 export function setEvalContext({
+  configTree,
   context,
   dataTree,
   evalArguments,
@@ -212,6 +219,7 @@ export function setEvalContext({
 }: {
   context?: EvaluateContext;
   dataTree: DataTree;
+  configTree?: ConfigTree;
   evalArguments?: Array<any>;
   isDataField: boolean;
   isTriggerBased: boolean;
@@ -220,6 +228,7 @@ export function setEvalContext({
 
   const evalContext = createEvaluationContext({
     dataTree,
+    configTree,
     context,
     evalArguments,
     isTriggerBased,
@@ -234,6 +243,7 @@ export default function evaluateSync(
   isJSCollection: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
+  configTree?: ConfigTree,
 ): EvalResult {
   return (function () {
     resetWorkerGlobalScope();
@@ -257,6 +267,7 @@ export default function evaluateSync(
 
     setEvalContext({
       dataTree,
+      configTree,
       isDataField: true,
       isTriggerBased: isJSCollection,
       context,
@@ -295,6 +306,7 @@ export default function evaluateSync(
 export async function evaluateAsync(
   userScript: string,
   dataTree: DataTree,
+  configTree: ConfigTree,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ) {
@@ -307,6 +319,7 @@ export async function evaluateAsync(
 
     setEvalContext({
       dataTree,
+      configTree,
       isDataField: false,
       isTriggerBased: true,
       context,
@@ -315,14 +328,20 @@ export async function evaluateAsync(
 
     try {
       result = await indirectEval(script);
-    } catch (e) {
-      const error = e as Error;
-      const errorMessage = error.name
-        ? { name: error.name, message: error.message }
-        : {
-            name: "UncaughtPromiseRejection",
-            message: `${error.message}`,
-          };
+    } catch (e: any) {
+      let errorMessage;
+      if (e instanceof Error) {
+        errorMessage = { name: e.name, message: e.message };
+      } else {
+        // this covers cases where any primitive value is thrown
+        // for eg., throw "error";
+        // These types of errors might have a name/message but are not an instance of Error class
+        const message = convertAllDataTypesToString(e);
+        errorMessage = {
+          name: e?.name || "Error",
+          message: e?.message || message,
+        };
+      }
       errors.push({
         errorMessage: errorMessage,
         severity: Severity.ERROR,
@@ -337,4 +356,31 @@ export async function evaluateAsync(
       };
     }
   })();
+}
+
+export function convertAllDataTypesToString(e: any) {
+  // Functions do not get converted properly with JSON.stringify
+  // So using String fot functions
+  // Types like [], {} get converted to "" using String
+  // hence using JSON.stringify for the rest
+  if (typeof e === "function") {
+    return String(e);
+  } else {
+    try {
+      return JSON.stringify(e);
+    } catch (error) {
+      log.debug(error);
+      Sentry.captureException(error);
+    }
+  }
+}
+
+export function shouldAddSetter(setter: any, entity: DataTreeEntity) {
+  const isDisabledExpression = setter.disabled;
+
+  if (!isDisabledExpression) return true;
+
+  const isDisabledFn = new Function("options", isDisabledExpression);
+
+  return !isDisabledFn({ entity });
 }

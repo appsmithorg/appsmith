@@ -3,7 +3,6 @@ package com.appsmith.server.dtos;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -44,7 +43,8 @@ public class ActionViewDTO {
     // and hence would return an action execution error.
     @JsonView(Views.Public.class)
     public Integer getTimeoutInMillisecond() {
-        return (timeoutInMillisecond == null || timeoutInMillisecond <= 0) ?
-                DEFAULT_ACTION_EXECUTION_TIMEOUT_MS : timeoutInMillisecond;
+        return (timeoutInMillisecond == null || timeoutInMillisecond <= 0)
+                ? DEFAULT_ACTION_EXECUTION_TIMEOUT_MS
+                : timeoutInMillisecond;
     }
 }

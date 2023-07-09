@@ -4,7 +4,14 @@ import {
   toggleShowDeviationDialog,
   toggleShowEndTourDialog,
 } from "actions/onboardingActions";
-import { Button, Category, DialogComponent, Size } from "design-system-old";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+} from "design-system";
 import {
   CANCEL_DIALOG,
   createMessage,
@@ -17,38 +24,7 @@ import {
   showDeviatingDialogSelector,
   showEndTourDialogSelector,
 } from "selectors/onboardingSelectors";
-import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-
-const ButtonsWrapper = styled.div`
-  display: flex;
-  gap: ${(props) => props.theme.spaces[9]}px;
-  justify-content: flex-end;
-  margin-top: ${(props) => props.theme.spaces[12]}px;
-
-  .cancel {
-    color: ${(props) => props.theme.colors.guidedTour.cancelButton.color};
-    border-color: ${(props) =>
-      props.theme.colors.guidedTour.cancelButton.borderColor};
-
-    :hover {
-      background-color: ${(props) =>
-        props.theme.colors.guidedTour.cancelButton.hoverBackgroundColor};
-    }
-  }
-
-  .end {
-    background-color: ${(props) =>
-      props.theme.colors.guidedTour.endButton.backgroundColor};
-    border-color: ${(props) =>
-      props.theme.colors.guidedTour.endButton.borderColor};
-
-    :hover {
-      background-color: ${(props) =>
-        props.theme.colors.guidedTour.endButton.hoverBackgroundColor};
-    }
-  }
-`;
 
 function GuidedTourDialog() {
   const showDeviatingDialog = useSelector(showDeviatingDialogSelector);
@@ -74,34 +50,36 @@ function GuidedTourDialog() {
   };
 
   return (
-    <DialogComponent
-      canEscapeKeyClose
-      isOpen={showEndTourDialog || showDeviatingDialog}
-      onClose={onClose}
-      title={title}
+    <Modal
+      onOpenChange={onClose}
+      open={showEndTourDialog || showDeviatingDialog}
     >
-      <span>
-        You will be able to restart this tutorial at any time by clicking on{" "}
-        <b>Welcome Tour</b> at the bottom left of the home page
-      </span>
-      <ButtonsWrapper>
-        <Button
-          category={Category.secondary}
-          className="cancel"
-          onClick={onClose}
-          size={Size.large}
-          tag="button"
-          text={createMessage(CANCEL_DIALOG)}
-        />
-        <Button
-          className="end"
-          onClick={endTour}
-          size={Size.large}
-          tag="button"
-          text={createMessage(END_CONFIRMATION)}
-        />
-      </ButtonsWrapper>
-    </DialogComponent>
+      <ModalContent
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        // Don't close Modal when pressed outside
+        onInteractOutside={(e) => e.preventDefault()}
+        style={{ width: "640px" }}
+      >
+        <ModalHeader>{title}</ModalHeader>
+        <ModalBody>
+          You will be able to restart this tutorial at any time by clicking on{" "}
+          <b>Welcome tour</b> at the bottom left of the home page
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            className="cancel"
+            kind="secondary"
+            onClick={onClose}
+            size="md"
+          >
+            {createMessage(CANCEL_DIALOG)}
+          </Button>
+          <Button className="end" onClick={endTour} size="md">
+            {createMessage(END_CONFIRMATION)}
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 }
 

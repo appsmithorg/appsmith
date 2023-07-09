@@ -6,9 +6,9 @@ import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.util.DuplicateKeyExceptionUtils;
+import com.appsmith.server.filters.MDCFilter;
 import com.appsmith.server.helpers.RedisUtils;
 import io.micrometer.core.instrument.util.StringUtils;
-import com.appsmith.server.filters.MDCFilter;
 import io.sentry.Sentry;
 import io.sentry.SentryLevel;
 import io.sentry.protocol.User;
@@ -29,7 +29,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
-
 
 /**
  * This class catches all the Exceptions and formats them into a proper ResponseDTO<ErrorDTO> object before
@@ -53,17 +52,15 @@ public class GlobalExceptionHandler {
         error.printStackTrace(printWriter);
         String stringStackTrace = stringWriter.toString();
 
-        Sentry.configureScope(
-                scope -> {
-                    /**
-                     * Send stack trace as a string message. This is a work around till it is figured out why raw
-                     * stack trace is not visible on Sentry dashboard.
-                     * */
-                    scope.setExtra("Stack Trace", stringStackTrace);
-                    scope.setLevel(SentryLevel.ERROR);
-                    scope.setTag("source", "appsmith-internal-server");
-                }
-        );
+        Sentry.configureScope(scope -> {
+            /**
+             * Send stack trace as a string message. This is a work around till it is figured out why raw
+             * stack trace is not visible on Sentry dashboard.
+             * */
+            scope.setExtra("Stack Trace", stringStackTrace);
+            scope.setLevel(SentryLevel.ERROR);
+            scope.setTag("source", "appsmith-internal-server");
+        });
 
         if (error instanceof BaseException) {
             BaseException baseError = (BaseException) error;
@@ -100,10 +97,17 @@ public class GlobalExceptionHandler {
         ResponseDTO<ErrorDTO> response;
 
         // Do special formatting for this error to run the message string into valid jsonified string
-        if (AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.getAppErrorCode().equals(e.getError().getAppErrorCode())) {
-            response = new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), e.getErrorType(), "{" + e.getMessage() + "}", e.getTitle()));
+        if (AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE
+                .getAppErrorCode()
+                .equals(e.getError().getAppErrorCode())) {
+            response = new ResponseDTO<>(
+                    e.getHttpStatus(),
+                    new ErrorDTO(e.getAppErrorCode(), e.getErrorType(), "{" + e.getMessage() + "}", e.getTitle()));
         } else {
-            response = new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), e.getErrorType(), e.getMessage(), e.getTitle(), e.getReferenceDoc()));
+            response = new ResponseDTO<>(
+                    e.getHttpStatus(),
+                    new ErrorDTO(
+                            e.getAppErrorCode(), e.getErrorType(), e.getMessage(), e.getTitle(), e.getReferenceDoc()));
         }
 
         return getResponseDTOMono(urlPath, response);
@@ -111,28 +115,41 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     @ResponseBody
-    public Mono<ResponseDTO<ErrorDTO>> catchDuplicateKeyException(org.springframework.dao.DuplicateKeyException e, ServerWebExchange exchange) {
+    public Mono<ResponseDTO<ErrorDTO>> catchDuplicateKeyException(
+            org.springframework.dao.DuplicateKeyException e, ServerWebExchange exchange) {
         AppsmithError appsmithError = AppsmithError.DUPLICATE_KEY;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
 
         String urlPath = exchange.getRequest().getPath().toString();
-        String conflictingObjectName = DuplicateKeyExceptionUtils.extractConflictingObjectName(e.getCause().getMessage());
-        ResponseDTO<ErrorDTO> response =  new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
-                appsmithError.getMessage(conflictingObjectName), appsmithError.getTitle()));
+        String conflictingObjectName = DuplicateKeyExceptionUtils.extractConflictingObjectName(
+                e.getCause().getMessage());
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(
+                appsmithError.getHttpErrorCode(),
+                new ErrorDTO(
+                        appsmithError.getAppErrorCode(),
+                        appsmithError.getErrorType(),
+                        appsmithError.getMessage(conflictingObjectName),
+                        appsmithError.getTitle()));
 
         return getResponseDTOMono(urlPath, response);
     }
 
     @ExceptionHandler
     @ResponseBody
-    public Mono<ResponseDTO<ErrorDTO>> catchTimeoutException(java.util.concurrent.TimeoutException e, ServerWebExchange exchange) {
+    public Mono<ResponseDTO<ErrorDTO>> catchTimeoutException(
+            java.util.concurrent.TimeoutException e, ServerWebExchange exchange) {
         AppsmithError appsmithError = AppsmithError.PLUGIN_EXECUTION_TIMEOUT;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         String urlPath = exchange.getRequest().getPath().toString();
-        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
-                appsmithError.getMessage(), appsmithError.getTitle()));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(
+                appsmithError.getHttpErrorCode(),
+                new ErrorDTO(
+                        appsmithError.getAppErrorCode(),
+                        appsmithError.getErrorType(),
+                        appsmithError.getMessage(),
+                        appsmithError.getTitle()));
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -144,25 +161,27 @@ public class GlobalExceptionHandler {
         AppsmithError appsmithError = AppsmithError.VALIDATION_FAILURE;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         Map<String, String> errors = new HashMap<>();
-        exc.getBindingResult()
-                .getAllErrors()
-                .forEach(
-                        (error) -> {
-                            String fieldName = ((FieldError) error).getField();
-                            String errorMessage = error.getDefaultMessage();
-                            errors.put(fieldName, errorMessage);
-                        });
+        exc.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
         String urlPath = exchange.getRequest().getPath().toString();
-        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
-                appsmithError.getMessage(errors.toString()), appsmithError.getTitle()));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(
+                appsmithError.getHttpErrorCode(),
+                new ErrorDTO(
+                        appsmithError.getAppErrorCode(),
+                        appsmithError.getErrorType(),
+                        appsmithError.getMessage(errors.toString()),
+                        appsmithError.getTitle()));
 
         return getResponseDTOMono(urlPath, response);
     }
 
-
     @ExceptionHandler
     @ResponseBody
-    public Mono<ResponseDTO<ErrorDTO>> catchServerWebInputException(ServerWebInputException e, ServerWebExchange exchange) {
+    public Mono<ResponseDTO<ErrorDTO>> catchServerWebInputException(
+            ServerWebInputException e, ServerWebExchange exchange) {
         AppsmithError appsmithError = AppsmithError.GENERIC_BAD_REQUEST;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
@@ -170,12 +189,19 @@ public class GlobalExceptionHandler {
         if (e.getMethodParameter() != null) {
             errorMessage = "Malformed parameter '" + e.getMethodParameter().getParameterName()
                     + "' for " + e.getMethodParameter().getContainingClass().getSimpleName()
-                    + (e.getMethodParameter().getMethod() != null ? "." + e.getMethodParameter().getMethod().getName() : "");
+                    + (e.getMethodParameter().getMethod() != null
+                            ? "." + e.getMethodParameter().getMethod().getName()
+                            : "");
         }
 
         String urlPath = exchange.getRequest().getPath().toString();
-        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
-                appsmithError.getMessage(errorMessage), appsmithError.getTitle()));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(
+                appsmithError.getHttpErrorCode(),
+                new ErrorDTO(
+                        appsmithError.getAppErrorCode(),
+                        appsmithError.getErrorType(),
+                        appsmithError.getMessage(errorMessage),
+                        appsmithError.getTitle()));
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -187,8 +213,9 @@ public class GlobalExceptionHandler {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         String urlPath = exchange.getRequest().getPath().toString();
-        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                e.getMessage(), e.getErrorType(), e.getTitle()));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(
+                appsmithError.getHttpErrorCode(),
+                new ErrorDTO(appsmithError.getAppErrorCode(), e.getMessage(), e.getErrorType(), e.getTitle()));
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -200,21 +227,32 @@ public class GlobalExceptionHandler {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         String urlPath = exchange.getRequest().getPath().toString();
-        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getErrorType(), appsmithError.getMessage(), appsmithError.getTitle()));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(
+                appsmithError.getHttpErrorCode(),
+                new ErrorDTO(
+                        appsmithError.getAppErrorCode(),
+                        appsmithError.getErrorType(),
+                        appsmithError.getMessage(),
+                        appsmithError.getTitle()));
 
         return getResponseDTOMono(urlPath, response);
     }
 
     @ExceptionHandler
     @ResponseBody
-    public Mono<ResponseDTO<ErrorDTO>> catchDataBufferLimitException(DataBufferLimitException e, ServerWebExchange exchange) {
+    public Mono<ResponseDTO<ErrorDTO>> catchDataBufferLimitException(
+            DataBufferLimitException e, ServerWebExchange exchange) {
         AppsmithError appsmithError = AppsmithError.FILE_PART_DATA_BUFFER_ERROR;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         String urlPath = exchange.getRequest().getPath().toString();
-        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
-                appsmithError.getMessage(e.getMessage()), appsmithError.getTitle()));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(
+                appsmithError.getHttpErrorCode(),
+                new ErrorDTO(
+                        appsmithError.getAppErrorCode(),
+                        appsmithError.getErrorType(),
+                        appsmithError.getMessage(e.getMessage()),
+                        appsmithError.getTitle()));
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -234,20 +272,24 @@ public class GlobalExceptionHandler {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         String urlPath = exchange.getRequest().getPath().toString();
-        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
-                appsmithError.getMessage(), appsmithError.getTitle()));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(
+                appsmithError.getHttpErrorCode(),
+                new ErrorDTO(
+                        appsmithError.getAppErrorCode(),
+                        appsmithError.getErrorType(),
+                        appsmithError.getMessage(),
+                        appsmithError.getTitle()));
 
         return getResponseDTOMono(urlPath, response);
     }
 
     private Mono<ResponseDTO<ErrorDTO>> getResponseDTOMono(String urlPath, ResponseDTO<ErrorDTO> response) {
-        if(urlPath.contains("/git") && urlPath.contains("/app")) {
+        if (urlPath.contains("/git") && urlPath.contains("/app")) {
             String appId = urlPath.substring(urlPath.lastIndexOf('/') + 1);
-            if(StringUtils.isEmpty(appId)) {
+            if (StringUtils.isEmpty(appId)) {
                 return Mono.just(response);
             }
-            return redisUtils.releaseFileLock(appId)
-                    .then(Mono.just(response));
+            return redisUtils.releaseFileLock(appId).then(Mono.just(response));
         }
         return Mono.just(response);
     }

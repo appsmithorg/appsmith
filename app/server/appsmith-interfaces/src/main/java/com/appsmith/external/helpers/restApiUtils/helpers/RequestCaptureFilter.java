@@ -45,13 +45,13 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
     }
 
     @Override
-    @NonNull
-    public Mono<ClientResponse> filter(@NonNull ClientRequest request, ExchangeFunction next) {
+    @NonNull public Mono<ClientResponse> filter(@NonNull ClientRequest request, ExchangeFunction next) {
         this.request = request;
         return next.exchange(request);
     }
 
-    public ActionExecutionRequest populateRequestFields(ActionExecutionRequest existing) {
+    public ActionExecutionRequest populateRequestFields(
+            ActionExecutionRequest existing, boolean isBodySentWithApiRequest) {
         final ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
 
         if (request == null) {
@@ -62,7 +62,8 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
 
         actionExecutionRequest.setUrl(request.url().toString());
         actionExecutionRequest.setHttpMethod(request.method());
-        MultiValueMap<String, String> headers = CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
+        MultiValueMap<String, String> headers =
+                CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
         AtomicBoolean isMultipart = new AtomicBoolean(false);
         request.headers().forEach((header, value) -> {
             if (HttpHeaders.AUTHORIZATION.equalsIgnoreCase(header) || "api_key".equalsIgnoreCase(header)) {
@@ -70,7 +71,8 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
             } else {
                 headers.addAll(header, value);
             }
-            if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(header) && MULTIPART_FORM_DATA_VALUE.equalsIgnoreCase(value.get(0))) {
+            if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(header)
+                    && MULTIPART_FORM_DATA_VALUE.equalsIgnoreCase(value.get(0))) {
                 isMultipart.set(true);
             }
         });
@@ -82,7 +84,9 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
 
         // Apart from multipart, refer to the request that was actually sent
         if (!isMultipart.get()) {
-            actionExecutionRequest.setBody(bodyReceiver.receiveValue(this.request.body()));
+            if (isBodySentWithApiRequest) {
+                actionExecutionRequest.setBody(bodyReceiver.receiveValue(this.request.body()));
+            }
         } else {
             actionExecutionRequest.setBody(existing.getBody());
         }
@@ -90,10 +94,11 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
         return actionExecutionRequest;
     }
 
-    public static ActionExecutionRequest populateRequestFields(ActionConfiguration actionConfiguration,
-                                                               URI uri,
-                                                               List<Map.Entry<String, String>> insertedParams,
-                                                               ObjectMapper objectMapper) {
+    public static ActionExecutionRequest populateRequestFields(
+            ActionConfiguration actionConfiguration,
+            URI uri,
+            List<Map.Entry<String, String>> insertedParams,
+            ObjectMapper objectMapper) {
 
         ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
 
@@ -106,15 +111,15 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
         AtomicReference<String> reqContentType = new AtomicReference<>();
 
         if (actionConfiguration.getHeaders() != null) {
-            MultiValueMap<String, String> reqMultiMap = CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
+            MultiValueMap<String, String> reqMultiMap =
+                    CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
 
-            actionConfiguration.getHeaders()
-                    .forEach(header -> {
-                        if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(header.getKey())) {
-                            reqContentType.set((String) header.getValue());
-                        }
-                        reqMultiMap.put(header.getKey(), Arrays.asList((String) header.getValue()));
-                    });
+            actionConfiguration.getHeaders().forEach(header -> {
+                if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(header.getKey())) {
+                    reqContentType.set((String) header.getValue());
+                }
+                reqMultiMap.put(header.getKey(), Arrays.asList((String) header.getValue()));
+            });
             actionExecutionRequest.setHeaders(objectMapper.valueToTree(reqMultiMap));
         }
 

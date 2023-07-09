@@ -1,5 +1,5 @@
-import { ENTITY_TYPE } from "design-system-old";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "pages/common/SearchSnippets";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 
 const dataTree: DataTree = {

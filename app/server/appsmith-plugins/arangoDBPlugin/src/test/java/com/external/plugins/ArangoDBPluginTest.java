@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.stubbing.Answer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -37,10 +38,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.external.plugins.exceptions.ArangoDBErrorMessages.DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Testcontainers
 public class ArangoDBPluginTest {
@@ -62,13 +66,12 @@ public class ArangoDBPluginTest {
             .withExposedPorts(8529)
             .waitingFor(Wait.forHttp("/"));
 
-
     @BeforeAll
     public static void setUp() {
         address = container.getContainerIpAddress();
         port = container.getFirstMappedPort();
 
-        //connect
+        // connect
         arangoDB = new ArangoDB.Builder()
                 .host(address, port)
                 .user(user)
@@ -77,64 +80,62 @@ public class ArangoDBPluginTest {
                 .useProtocol(Protocol.HTTP_VPACK)
                 .build();
 
-
         arangoDB.createDatabase(dbName);
         ArangoDatabase arangoDatabase = arangoDB.db(dbName);
 
-        //create collection
+        // create collection
         CollectionSchema schema = new CollectionSchema();
-        schema.setRule("{\n" +
-                "  \"message\": \"\",\n" +
-                "  \"level\": \"strict\",\n" +
-                "  \"rule\": {\n" +
-                "    \"properties\": {\n" +
-                "      \"name\": {\n" +
-                "        \"type\": \"string\"\n" +
-                "      },\n" +
-                "      \"dob\": {\n" +
-                "        \"required\": [\n" +
-                "          \"day\",\n" +
-                "          \"month\",\n" +
-                "          \"year\"\n" +
-                "        ],\n" +
-                "        \"type\": \"object\",\n" +
-                "        \"properties\": {\n" +
-                "          \"year\": {\n" +
-                "            \"type\": \"integer\"\n" +
-                "          },\n" +
-                "          \"month\": {\n" +
-                "            \"type\": \"integer\"\n" +
-                "          },\n" +
-                "          \"day\": {\n" +
-                "            \"type\": \"integer\"\n" +
-                "          }\n" +
-                "        }\n" +
-                "      },\n" +
-                "      \"netWorth\": {\n" +
-                "        \"type\": \"string\"\n" +
-                "      },\n" +
-                "      \"age\": {\n" +
-                "        \"type\": \"integer\"\n" +
-                "      },\n" +
-                "      \"gender\": {\n" +
-                "        \"type\": \"string\"\n" +
-                "      },\n" +
-                "      \"luckyNumber\": {\n" +
-                "        \"type\": \"integer\"\n" +
-                "      }\n" +
-                "    },\n" +
-                "    \"$schema\": \"http://json-schema.org/draft-04/schema#\",\n" +
-                "    \"type\": \"object\",\n" +
-                "    \"required\": [\n" +
-                "      \"age\",\n" +
-                "      \"dob\",\n" +
-                "      \"gender\",\n" +
-                "      \"luckyNumber\",\n" +
-                "      \"name\",\n" +
-                "      \"netWorth\"\n" +
-                "    ]\n" +
-                "  }\n" +
-                "}");
+        schema.setRule("{\n" + "  \"message\": \"\",\n"
+                + "  \"level\": \"strict\",\n"
+                + "  \"rule\": {\n"
+                + "    \"properties\": {\n"
+                + "      \"name\": {\n"
+                + "        \"type\": \"string\"\n"
+                + "      },\n"
+                + "      \"dob\": {\n"
+                + "        \"required\": [\n"
+                + "          \"day\",\n"
+                + "          \"month\",\n"
+                + "          \"year\"\n"
+                + "        ],\n"
+                + "        \"type\": \"object\",\n"
+                + "        \"properties\": {\n"
+                + "          \"year\": {\n"
+                + "            \"type\": \"integer\"\n"
+                + "          },\n"
+                + "          \"month\": {\n"
+                + "            \"type\": \"integer\"\n"
+                + "          },\n"
+                + "          \"day\": {\n"
+                + "            \"type\": \"integer\"\n"
+                + "          }\n"
+                + "        }\n"
+                + "      },\n"
+                + "      \"netWorth\": {\n"
+                + "        \"type\": \"string\"\n"
+                + "      },\n"
+                + "      \"age\": {\n"
+                + "        \"type\": \"integer\"\n"
+                + "      },\n"
+                + "      \"gender\": {\n"
+                + "        \"type\": \"string\"\n"
+                + "      },\n"
+                + "      \"luckyNumber\": {\n"
+                + "        \"type\": \"integer\"\n"
+                + "      }\n"
+                + "    },\n"
+                + "    \"$schema\": \"http://json-schema.org/draft-04/schema#\",\n"
+                + "    \"type\": \"object\",\n"
+                + "    \"required\": [\n"
+                + "      \"age\",\n"
+                + "      \"dob\",\n"
+                + "      \"gender\",\n"
+                + "      \"luckyNumber\",\n"
+                + "      \"name\",\n"
+                + "      \"netWorth\"\n"
+                + "    ]\n"
+                + "  }\n"
+                + "}");
         schema.setMessage("");
         schema.setLevel(CollectionSchema.Level.NONE);
         CollectionCreateOptions options = new CollectionCreateOptions();
@@ -148,19 +149,23 @@ public class ArangoDBPluginTest {
         arangoDatabase.createCollection(collectionName, options);
         collection.grantAccess(user, Permissions.RW);
 
-        //insert test documents
-        collection.insertDocuments(
-                List.of(Map.of(
-                                "name", "Cierra Vega",
-                                "gender", "F",
-                                "age", 20,
-                                "luckyNumber", 987654321L,
-                                "dob", LocalDate.of(2018, 12, 31),
-                                "netWorth", new BigDecimal("123456.789012")
-                        ),
-                        Map.of("name", "Alden Cantrell", "gender", "M", "age", 30),
-                        Map.of("name", "Kierra Gentry", "gender", "F", "age", 40)
-                ));
+        // insert test documents
+        collection.insertDocuments(List.of(
+                Map.of(
+                        "name",
+                        "Cierra Vega",
+                        "gender",
+                        "F",
+                        "age",
+                        20,
+                        "luckyNumber",
+                        987654321L,
+                        "dob",
+                        LocalDate.of(2018, 12, 31),
+                        "netWorth",
+                        new BigDecimal("123456.789012")),
+                Map.of("name", "Alden Cantrell", "gender", "M", "age", 30),
+                Map.of("name", "Kierra Gentry", "gender", "F", "age", 40)));
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -208,14 +213,11 @@ public class ArangoDBPluginTest {
         Mono<ArangoDatabase> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("FOR user IN users" +
-                " FILTER user.age > 30" +
-                " SORT user.id ASC" +
-                " LIMIT 10" +
-                " RETURN user");
+        actionConfiguration.setBody(
+                "FOR user IN users" + " FILTER user.age > 30" + " SORT user.id ASC" + " LIMIT 10" + " RETURN user");
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn ->
-                pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        Mono<Object> executeMono =
+                dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
@@ -242,14 +244,14 @@ public class ArangoDBPluginTest {
         Mono<ArangoDatabase> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("INSERT {" +
-                " name: 'John Smith'," +
-                " email: ['john@appsmith.com](mailto:%22john@appsmith.com)']," +
-                " gender: 'M'," +
-                " testKeyWord: ' Return '," +
-                " age: 50" +
-                " } INTO users");
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        actionConfiguration.setBody("INSERT {" + " name: 'John Smith',"
+                + " email: ['john@appsmith.com](mailto:%22john@appsmith.com)'],"
+                + " gender: 'M',"
+                + " testKeyWord: ' Return ',"
+                + " age: 50"
+                + " } INTO users");
+        Mono<Object> executeMono =
+                dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
@@ -268,7 +270,8 @@ public class ArangoDBPluginTest {
     @Test
     public void testStructure() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<DatasourceStructure> structureMono = pluginExecutor.datasourceCreate(dsConfig)
+        Mono<DatasourceStructure> structureMono = pluginExecutor
+                .datasourceCreate(dsConfig)
                 .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig));
 
         StepVerifier.create(structureMono)
@@ -276,40 +279,77 @@ public class ArangoDBPluginTest {
                     assertNotNull(structure);
                     assertEquals(1, structure.getTables().size());
 
-                    final DatasourceStructure.Table possessionsTable = structure.getTables().get(0);
+                    final DatasourceStructure.Table possessionsTable =
+                            structure.getTables().get(0);
                     assertEquals("users", possessionsTable.getName());
                     assertEquals(DatasourceStructure.TableType.COLLECTION, possessionsTable.getType());
                     assertArrayEquals(
-                            new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("_id", "String", null, true),
-                                    new DatasourceStructure.Column("_key", "String", null, true),
-                                    new DatasourceStructure.Column("_rev", "String", null, true),
-                                    new DatasourceStructure.Column("age", "Long", null, false),
-                                    new DatasourceStructure.Column("dob", "Object", null, false),
-                                    new DatasourceStructure.Column("gender", "String", null, false),
-                                    new DatasourceStructure.Column("luckyNumber", "Long", null, false),
-                                    new DatasourceStructure.Column("name", "String", null, false),
-                                    new DatasourceStructure.Column("netWorth", "String", null, false),
+                            new DatasourceStructure.Column[] {
+                                new DatasourceStructure.Column("_id", "String", null, true),
+                                new DatasourceStructure.Column("_key", "String", null, true),
+                                new DatasourceStructure.Column("_rev", "String", null, true),
+                                new DatasourceStructure.Column("age", "Long", null, false),
+                                new DatasourceStructure.Column("dob", "Object", null, false),
+                                new DatasourceStructure.Column("gender", "String", null, false),
+                                new DatasourceStructure.Column("luckyNumber", "Long", null, false),
+                                new DatasourceStructure.Column("name", "String", null, false),
+                                new DatasourceStructure.Column("netWorth", "String", null, false),
                             },
-                            possessionsTable.getColumns().toArray()
-                    );
+                            possessionsTable.getColumns().toArray());
 
                     assertArrayEquals(
-                            new DatasourceStructure.Key[]{},
-                            possessionsTable.getKeys().toArray()
-                    );
-
+                            new DatasourceStructure.Key[] {},
+                            possessionsTable.getKeys().toArray());
                 })
                 .verifyComplete();
     }
 
     @Test
     public void verifyUniquenessOfArangoDBPluginErrorCode() {
-        assert (Arrays.stream(ArangoDBPluginError.values()).map(ArangoDBPluginError::getAppErrorCode).distinct().count() == ArangoDBPluginError.values().length);
+        assert (Arrays.stream(ArangoDBPluginError.values())
+                        .map(ArangoDBPluginError::getAppErrorCode)
+                        .distinct()
+                        .count()
+                == ArangoDBPluginError.values().length);
 
-        assert (Arrays.stream(ArangoDBPluginError.values()).map(ArangoDBPluginError::getAppErrorCode)
-                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-ARN"))
-                .collect(Collectors.toList()).size() == 0);
+        assert (Arrays.stream(ArangoDBPluginError.values())
+                        .map(ArangoDBPluginError::getAppErrorCode)
+                        .filter(appErrorCode -> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-ARN"))
+                        .collect(Collectors.toList())
+                        .size()
+                == 0);
+    }
 
+    @Test
+    public void testErrorMessageOnBadHostAddress() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getEndpoints().get(0).setHost("arango.bad.host");
+        Mono<DatasourceTestResult> testDsResult = pluginExecutor.testDatasource(dsConfig);
+        StepVerifier.create(testDsResult)
+                .assertNext(dsTestResult -> {
+                    assertEquals(1, dsTestResult.getInvalids().size());
+                    assertEquals(
+                            DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG,
+                            dsTestResult.getInvalids().stream().toList().get(0));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testErrorMessageOnTestDatasourceTimeout() {
+        ArangoDatabase mockConnection = mock(ArangoDatabase.class);
+        when(mockConnection.getVersion()).thenAnswer((Answer<String>) invocation -> {
+            Thread.sleep(30 * 1000);
+            return "test_version";
+        });
+        Mono<DatasourceTestResult> testDsResult = pluginExecutor.testDatasource(mockConnection);
+        StepVerifier.create(testDsResult)
+                .assertNext(dsTestResult -> {
+                    assertEquals(1, dsTestResult.getInvalids().size());
+                    assertEquals(
+                            DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG,
+                            dsTestResult.getInvalids().stream().toList().get(0));
+                })
+                .verifyComplete();
     }
 }

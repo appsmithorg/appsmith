@@ -21,7 +21,6 @@ public class CustomApplicationRepositoryImplTest {
     @Autowired
     ApplicationRepository applicationRepository;
 
-
     @Test
     public void getAllApplicationId_WhenDataExists_ReturnsList() {
         String randomWorkspaceId = UUID.randomUUID().toString();
@@ -33,20 +32,25 @@ public class CustomApplicationRepositoryImplTest {
         application2.setWorkspaceId(randomWorkspaceId);
         application2.setName("my another test app");
 
-        Mono<List<String>> appIds = applicationRepository.saveAll(List.of(application1, application2))
+        Mono<List<String>> appIds = applicationRepository
+                .saveAll(List.of(application1, application2))
                 .then(applicationRepository.getAllApplicationId(randomWorkspaceId));
 
-        StepVerifier.create(appIds).assertNext(strings -> {
-            assertThat(strings.size()).isEqualTo(2);
-        }).verifyComplete();
+        StepVerifier.create(appIds)
+                .assertNext(strings -> {
+                    assertThat(strings.size()).isEqualTo(2);
+                })
+                .verifyComplete();
     }
 
     @Test
     public void getAllApplicationId_WhenNoneExists_ReturnsEmptyList() {
         String randomWorkspaceId = UUID.randomUUID().toString();
         Mono<List<String>> appIds = applicationRepository.getAllApplicationId(randomWorkspaceId);
-        StepVerifier.create(appIds).assertNext(strings -> {
-            assertThat(CollectionUtils.isEmpty(strings)).isTrue();
-        }).verifyComplete();
+        StepVerifier.create(appIds)
+                .assertNext(strings -> {
+                    assertThat(CollectionUtils.isEmpty(strings)).isTrue();
+                })
+                .verifyComplete();
     }
 }

@@ -4,9 +4,6 @@ import { Colors } from "./Colors";
 import * as FontFamilies from "./Fonts";
 import tinycolor from "tinycolor2";
 import { Alignment, Classes } from "@blueprintjs/core";
-import { AlertIcons } from "icons/AlertIcons";
-import type { IconProps } from "constants/IconConstants";
-import type { JSXElementConstructor } from "react";
 import type { Typography, TypographyKeys } from "./typography";
 import { typography } from "./typography";
 
@@ -15,27 +12,35 @@ import {
   TABLE_SCROLLBAR_HEIGHT,
   TABLE_SCROLLBAR_WIDTH,
 } from "widgets/TableWidgetV2/component/Constants";
+import { Icon } from "design-system";
+import React from "react";
 export type FontFamily = (typeof FontFamilies)[keyof typeof FontFamilies];
 
 export const IntentColors: Record<string, Color> = {
-  primary: Colors.GREEN,
-  success: Colors.PURPLE,
-  secondary: Colors.BLACK_PEARL,
-  danger: Colors.ERROR_RED,
-  none: Colors.GEYSER_LIGHT,
-  warning: Colors.JAFFA,
-  successLight: Colors.GREEN,
+  primary: "var(--ads-v2-color-fg-success)",
+  success: "var(--ads-v2-color-fg-success)",
+  secondary: "var(--ads-v2-color-fg-information)",
+  danger: "var(--ads-v2-color-fg-error)",
+  none: "var(--ads-v2-color-fg-information)",
+  warning: "var(--ads-v2-color-fg-error)",
+  successLight: "var(--ads-v2-color-fg-success)",
 };
 
 export type Intent = (typeof IntentColors)[keyof typeof IntentColors];
 
-export const IntentIcons: Record<Intent, JSXElementConstructor<IconProps>> = {
-  primary: AlertIcons.SUCCESS,
-  success: AlertIcons.SUCCESS,
-  secondary: AlertIcons.INFO,
-  danger: AlertIcons.ERROR,
-  none: AlertIcons.INFO,
-  warning: AlertIcons.WARNING,
+export const IntentIcons: Record<Intent, React.ReactNode> = {
+  primary: <Icon color="var(--ads-v2-color-fg-success)" name="close-circle" />,
+  success: <Icon color="var(--ads-v2-color-fg-success)" name="close-circle" />,
+  secondary: (
+    <Icon color="var(--ads-v2-color-fg-information)" name="information-fill" />
+  ),
+  danger: (
+    <Icon color="var(--ads-v2-color-fg-error)" name="close-circle-fill" />
+  ),
+  none: (
+    <Icon color="var(--ads-v2-color-fg-information)" name="information-fill" />
+  ),
+  warning: <Icon color="var(--ads-v2-color-fg-warning)" name="alert-fill" />,
 };
 
 export enum Skin {
@@ -566,33 +571,7 @@ export const hideScrollbar = css`
   }
 `;
 
-export const thinScrollbar = css`
-  ::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  /* Track */
-  ::-webkit-scrollbar-track {
-    border-radius: 10px;
-  }
-
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: 10px;
-  }
-  &:hover {
-    ::-webkit-scrollbar-thumb {
-      background: ${getColorWithOpacity(Colors.CHARCOAL, 0.5)};
-      border-radius: 10px;
-    }
-  }
-
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background: ${getColorWithOpacity(Colors.CHARCOAL, 0.5)};
-  }
-`;
+export const thinScrollbar = css``;
 // export const adsTheme: any = {
 //   space: [0, 3, 14, 7, 16, 11, 26, 10, 4, 26, 30, 36, 4, 6, 11],
 // };
@@ -2901,11 +2880,11 @@ export const theme: Theme = {
       color: Colors.MYSTIC,
     },
   ],
-  sidebarWidth: "250px",
+  sidebarWidth: "256px",
   homePage: {
     header: 48,
     leftPane: {
-      width: 240,
+      width: 256,
       leftPadding: 16,
       rightMargin: 12,
     },
@@ -2920,7 +2899,7 @@ export const theme: Theme = {
   },
   headerHeight: "48px",
   smallHeaderHeight: "40px",
-  bottomBarHeight: "34px",
+  bottomBarHeight: "37px",
   pageTabsHeight: "32px",
   integrationsPageUnusableHeight: "182px",
   backBanner: "30px",

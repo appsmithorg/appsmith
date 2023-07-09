@@ -1,42 +1,44 @@
 import React from "react";
+import styled from "styled-components";
 import type { InfoBlockProps } from "./InfoBlock";
 import { InfoBlock } from "./InfoBlock";
-import type { DropdownOption } from "design-system-old";
+import type { CalloutKind, SegmentedControlOption } from "design-system";
 import {
-  BannerMessage,
   Button,
-  Category,
-  Collapsible,
-  Dropdown,
-  Icon,
-  IconSize,
-  Size,
+  SegmentedControl,
   Spinner,
-  TextType,
+  Callout,
+  Icon,
   Text,
-  Variant,
-} from "design-system-old";
-import { Colors } from "constants/Colors";
+} from "design-system";
 import type { ConversionCompleteLayoutProps } from "./ConversionCompleteLayout";
 import { ConversionCompleteLayout } from "./ConversionCompleteLayout";
 
-type ConversionFormProps = {
-  onCancel: () => void;
-};
+const SnapshotContainer = styled.div`
+  height: 3.5rem;
+  display: flex;
+  flex-direction: row;
+  border-width: 1px;
+  align-items: center;
+  gap: var(--ads-v2-spaces-3);
+  padding-left: var(--ads-v2-spaces-3);
+  margin-right: 1px;
+  border: 1px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
+`;
+
+type ButtonInfo = { text: string; closeModal?: boolean; onClick: () => void };
 
 export type ConversionProps = {
   bannerMessageDetails?: {
     message: string;
-    backgroundColor: string;
-    iconName: string;
-    iconColor: string;
-    textColor: string;
+    kind: CalloutKind;
   };
   cancelButtonText?: string;
   infoBlocks?: InfoBlockProps[];
   spinner?: string;
-  primaryButton?: { text: string; onClick: () => void; variant?: Variant };
-  secondaryButton?: { text: string; onClick: () => void };
+  primaryButton?: ButtonInfo;
+  secondaryButton?: ButtonInfo;
   conversionComplete?: ConversionCompleteLayoutProps;
   collapsibleMessage?: {
     title: string;
@@ -44,9 +46,9 @@ export type ConversionProps = {
     messagePoints: string[];
   };
   selectDropDown?: {
-    selected: DropdownOption;
-    onSelect: (value: string, option: DropdownOption) => void;
-    options: DropdownOption[];
+    selected: string;
+    onSelect: (value: string) => void;
+    options: SegmentedControlOption[];
     labelText: string;
   };
   snapShotDetails?: {
@@ -57,169 +59,150 @@ export type ConversionProps = {
   };
 };
 
-//This Conversion form renders conversion form flow based on props from conversionHook
-export function ConversionForm<T>(
-  conversionHook: (onCancel: () => void, hookProps?: T) => ConversionProps,
-  hookProps?: T,
+export function ConversionForm(
+  props: ConversionProps & { closeModal: () => void },
 ) {
-  return (props: ConversionFormProps) => {
-    const {
-      bannerMessageDetails,
-      cancelButtonText,
-      collapsibleMessage,
-      conversionComplete,
-      infoBlocks,
-      primaryButton,
-      secondaryButton,
-      selectDropDown,
-      snapShotDetails,
-      spinner,
-    } = conversionHook(props.onCancel, hookProps);
+  const {
+    bannerMessageDetails,
+    closeModal,
+    collapsibleMessage,
+    conversionComplete,
+    infoBlocks,
+    primaryButton,
+    secondaryButton,
+    selectDropDown,
+    snapShotDetails,
+    spinner,
+  } = props;
 
-    const snapShotStyles: React.CSSProperties = {};
-    if (snapShotDetails) {
-      if (!snapShotDetails.labelText) {
-        snapShotStyles.marginTop = "24px";
-      }
-
-      if (!snapShotDetails.postText) {
-        snapShotStyles.marginBottom = "16px";
-      }
+  const snapShotStyles: React.CSSProperties = {};
+  if (snapShotDetails) {
+    if (!snapShotDetails.labelText) {
+      snapShotStyles.marginTop = "24px";
     }
 
-    return (
-      <>
-        {bannerMessageDetails && (
-          <BannerMessage
-            backgroundColor={bannerMessageDetails.backgroundColor}
-            fontWeight="600"
-            icon={bannerMessageDetails.iconName}
-            iconColor={bannerMessageDetails.iconColor}
-            iconFlexPosition="start"
-            iconSize={IconSize.XXXL}
-            intentLine
-            message={bannerMessageDetails.message}
-            textColor={bannerMessageDetails.textColor}
-          />
-        )}
+    if (!snapShotDetails.postText) {
+      snapShotStyles.marginBottom = "16px";
+    }
+  }
 
-        {infoBlocks &&
-          infoBlocks.length > 0 &&
-          infoBlocks.map((infoBlock: InfoBlockProps, index: number) => (
-            <InfoBlock
-              header={infoBlock.header}
-              icon={infoBlock.icon}
-              info={infoBlock.info}
-              key={index}
-            />
-          ))}
-
-        {spinner && (
-          <div className="flex flex-col items-center py-11">
-            <Spinner size={IconSize.XXXXL} />
-            <Text className="pt-4" type={TextType.P0}>
-              {spinner}
-            </Text>
-          </div>
-        )}
-        {conversionComplete && (
-          <ConversionCompleteLayout {...conversionComplete} />
-        )}
-        {collapsibleMessage && (
-          <Collapsible className="px-2" title={collapsibleMessage.title}>
-            <Text color={Colors.GRAY_900} type={TextType.P1}>
-              {collapsibleMessage.messageHeader}
-            </Text>
-            <ul className="text-sm text-gray-500 list-disc pl-4">
-              {collapsibleMessage.messagePoints.map((text, id) => (
-                <li key={id}>{text}</li>
-              ))}
-            </ul>
-          </Collapsible>
-        )}
-        {selectDropDown && (
-          <>
-            <div className="pt-6 pb-1">
-              <Text type={TextType.P1}>{selectDropDown.labelText}</Text>
-            </div>
-            <Dropdown
-              onSelect={selectDropDown.onSelect}
-              options={selectDropDown.options}
-              selected={selectDropDown.selected}
-              showLabelOnly
-            />
-          </>
-        )}
-
-        {snapShotDetails && (
-          <>
-            {snapShotDetails.labelText && (
-              <div className="pt-6 pb-2">
-                <Text type={TextType.P0} weight={400}>
-                  {snapShotDetails.labelText}
-                </Text>
-              </div>
-            )}
-            <div
-              className="h-14 flex flex-row border border-gray-200 items-center"
-              style={snapShotStyles}
-            >
-              <Icon
-                className="mx-3"
-                clickable={false}
-                fillColor={Colors.GRAY_600}
-                name={snapShotDetails.icon}
-                size={IconSize.XXXL}
-                withWrapper
-                wrapperColor={Colors.GRAY_600_OPAQUE}
-              />
-              <Text type={TextType.H4}>{snapShotDetails.text}</Text>
-            </div>
-            {snapShotDetails.postText && (
-              <div className="pt-2 mb-3">
-                <Text type={TextType.P3} weight={400}>
-                  {snapShotDetails.postText}
-                </Text>
-              </div>
-            )}
-          </>
-        )}
-        <div className="flex flex-row pt-6 justify-between align-">
-          {cancelButtonText ? (
-            <Button
-              category={Category.tertiary}
-              className="t--convert-cancel-button"
-              onClick={props.onCancel}
-              size={Size.large}
-              tag="button"
-              text={cancelButtonText}
-            />
-          ) : (
-            <div />
-          )}
-          <div className="flex flex-row justify-items-end gap-6">
-            {secondaryButton && (
-              <Button
-                category={Category.secondary}
-                onClick={secondaryButton.onClick}
-                size={Size.large}
-                tag="button"
-                text={secondaryButton.text}
-              />
-            )}
-            {primaryButton && (
-              <Button
-                category={Category.primary}
-                onClick={primaryButton.onClick}
-                size={Size.large}
-                tag="button"
-                text={primaryButton.text}
-                variant={primaryButton.variant || Variant.info}
-              />
-            )}
-          </div>
-        </div>
-      </>
-    );
+  const onPrimaryButtonClick = (primaryButton: ButtonInfo) => {
+    primaryButton.onClick();
+    if (primaryButton.closeModal) {
+      closeModal();
+    }
   };
+
+  return (
+    <>
+      {bannerMessageDetails && (
+        <Callout kind={bannerMessageDetails.kind}>
+          {bannerMessageDetails.message}
+        </Callout>
+      )}
+
+      {infoBlocks &&
+        infoBlocks.length > 0 &&
+        infoBlocks.map((infoBlock: InfoBlockProps, index: number) => (
+          <InfoBlock
+            header={infoBlock.header}
+            icon={infoBlock.icon}
+            info={infoBlock.info}
+            key={index}
+          />
+        ))}
+
+      {spinner && (
+        <div className="flex flex-col items-center py-11">
+          <Spinner size="lg" />
+          <Text kind="action-l" renderAs="p">
+            {spinner}
+          </Text>
+        </div>
+      )}
+      {conversionComplete && (
+        <ConversionCompleteLayout {...conversionComplete} />
+      )}
+      {collapsibleMessage && (
+        <div className="px-2">
+          <Text kind="heading-s" renderAs="h4">
+            {collapsibleMessage.messageHeader}
+          </Text>
+          <ul className="list-disc pl-4 mt-1">
+            {collapsibleMessage.messagePoints.map((text, id) => (
+              <li key={id}>
+                <Text kind="action-m">{text}</Text>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {selectDropDown && (
+        <div className="w-2/4">
+          <div className="pt-6 pb-2">
+            <Text kind="action-l" renderAs="p">
+              {selectDropDown.labelText}
+            </Text>
+          </div>
+          <SegmentedControl
+            onChange={selectDropDown.onSelect}
+            options={selectDropDown.options}
+            value={selectDropDown.selected}
+          />
+        </div>
+      )}
+
+      {snapShotDetails && (
+        <>
+          {snapShotDetails.labelText && (
+            <div className="pt-6 pb-2">
+              <Text kind="action-l" renderAs="p">
+                {snapShotDetails.labelText}
+              </Text>
+            </div>
+          )}
+          <SnapshotContainer style={snapShotStyles}>
+            <Icon
+              className="mx-1"
+              color="var(--ads-v2-color-gray-600)"
+              name={snapShotDetails.icon}
+              size="lg"
+            />
+            <Text kind="action-l" renderAs="p">
+              {snapShotDetails.text}
+            </Text>
+          </SnapshotContainer>
+          {snapShotDetails.postText && (
+            <div className="pt-2 mb-3">
+              <Text kind="action-l" renderAs="p">
+                {snapShotDetails.postText}
+              </Text>
+            </div>
+          )}
+        </>
+      )}
+      <div className="mt-6 flex">
+        <div className="flex flex-row ml-auto gap-6">
+          {secondaryButton && (
+            <Button
+              kind="secondary"
+              onClick={secondaryButton.onClick}
+              size="md"
+            >
+              {secondaryButton.text}
+            </Button>
+          )}
+          {primaryButton && (
+            <Button
+              kind="primary"
+              onClick={() => onPrimaryButtonClick(primaryButton)}
+              size="md"
+            >
+              {primaryButton.text}
+            </Button>
+          )}
+        </div>
+      </div>
+    </>
+  );
 }

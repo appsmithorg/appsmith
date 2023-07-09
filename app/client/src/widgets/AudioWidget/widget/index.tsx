@@ -5,12 +5,13 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import React, { lazy, Suspense } from "react";
 import type ReactPlayer from "react-player";
 import { retryPromise } from "utils/AppsmithUtils";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import type { SetterConfig } from "entities/AppTheming";
 
 const AudioComponent = lazy(() => retryPromise(() => import("../component")));
 
@@ -29,6 +30,25 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
       "!url": "https://docs.appsmith.com/widget-reference/audio",
       playState: "number",
       autoPlay: "bool",
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setURL: {
+          path: "url",
+          type: "string",
+        },
+        setPlaying: {
+          path: "autoPlay",
+          type: "boolean",
+        },
+      },
     };
   }
 
@@ -68,7 +88,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "autoPlay",
-            label: "Auto Play",
+            label: "Auto play",
             helpText: "Audio will be automatically played",
             controlType: "SWITCH",
             isJSConvertible: true,
@@ -88,7 +108,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,

@@ -25,11 +25,11 @@ const BlankStateWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  color: ${(props) => props.theme.colors.debugger.blankState.color};
+  color: var(--ads-v2-color-fg);
   ${getTypographyByKey("p1")}
 
   .debugger-shortcut {
-    color: ${(props) => props.theme.colors.debugger.blankState.shortcut};
+    color: var(--ads-v2-color-fg);
     ${getTypographyByKey("h5")}
   }
 `;
@@ -57,6 +57,7 @@ export function BlankState(props: {
 
 export enum DEBUGGER_TAB_KEYS {
   RESPONSE_TAB = "response",
+  HEADER_TAB = "headers",
   ERROR_TAB = "ERROR",
   LOGS_TAB = "LOGS_TAB",
   INSPECT_TAB = "INSPECT_TAB",

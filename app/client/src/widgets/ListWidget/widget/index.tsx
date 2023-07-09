@@ -3,7 +3,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { PrivateWidgets } from "entities/DataTree/types";
 import equal from "fast-deep-equal/es6";
 import { klona } from "klona/lite";
@@ -79,6 +79,18 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       pageSize: generateTypeDef(widget.pageSize),
     });
   }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+      },
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return PropertyPaneContentConfig;
   }
@@ -465,7 +477,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
           /**
            * Following conditions are special cases written to support
-           * Dynamic Menu Items (Menu Button Widget) inside the List Widget.
+           * Dynamic Menu Items (Menu button Widget) inside the List Widget.
            *
            * This is an interim fix since List Widget V2 is just around the corner.
            *
@@ -480,7 +492,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
            * However, if the {{currentItem}} binding is not used, then we only need one
            * single value for all menu items.
            *
-           * Dynamic Menu Items (Menu Button Widget) -
+           * Dynamic Menu Items (Menu button Widget) -
            * https://github.com/appsmithorg/appsmith/pull/17652
            */
           if (
@@ -888,7 +900,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const templateBottomRow = get(
       this.props.childWidgets,
       "0.children.0.bottomRow",
-    );
+    ) as unknown as number;
     const templateHeight =
       templateBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 

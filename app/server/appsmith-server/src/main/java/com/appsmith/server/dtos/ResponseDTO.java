@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 
@@ -49,5 +48,4 @@ public class ResponseDTO<T> implements Serializable {
 
         return error.getCode() + ": " + error.getMessage();
     }
-
 }

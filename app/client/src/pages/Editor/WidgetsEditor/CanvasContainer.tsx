@@ -15,7 +15,7 @@ import { getCanvasClassName } from "utils/generators";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import classNames from "classnames";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
-import { IconSize, Spinner } from "design-system-old";
+import { Spinner } from "design-system";
 import equal from "fast-deep-equal/es6";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { useDispatch } from "react-redux";
@@ -33,6 +33,8 @@ import {
 } from "utils/hooks/useDynamicAppLayout";
 import Canvas from "../Canvas";
 import { CanvasResizer } from "widgets/CanvasResizer";
+import type { AppState } from "@appsmith/reducers";
+import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
 
 type CanvasContainerProps = {
   isPreviewMode: boolean;
@@ -116,6 +118,7 @@ function CanvasContainer(props: CanvasContainerProps) {
     pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
+  const showAnonymousDataPopup = useSelector(getIsAnonymousDataPopupVisible);
 
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
@@ -127,11 +130,14 @@ function CanvasContainer(props: CanvasContainerProps) {
   }, []);
 
   const fontFamily = `${selectedTheme.properties.fontFamily.appFont}, sans-serif`;
+  const isAutoCanvasResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  );
 
   let node: ReactNode;
   const pageLoading = (
     <Centered>
-      <Spinner />
+      <Spinner size="sm" />
     </Centered>
   );
 
@@ -184,12 +190,15 @@ function CanvasContainer(props: CanvasContainerProps) {
         className={classNames({
           [`${getCanvasClassName()} scrollbar-thin`]: true,
           "mt-0": shouldShowSnapShotBanner || !shouldHaveTopMargin,
-          "mt-4": !shouldShowSnapShotBanner && showCanvasTopSection,
+          "mt-4":
+            !shouldShowSnapShotBanner &&
+            (showCanvasTopSection || showAnonymousDataPopup),
           "mt-8":
             !shouldShowSnapShotBanner &&
             shouldHaveTopMargin &&
             !showCanvasTopSection &&
-            !isPreviewingNavigation,
+            !isPreviewingNavigation &&
+            !showAnonymousDataPopup,
           "mt-24": shouldShowSnapShotBanner,
         })}
         id={"canvas-viewport"}
@@ -202,6 +211,7 @@ function CanvasContainer(props: CanvasContainerProps) {
         style={{
           height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
           fontFamily: fontFamily,
+          pointerEvents: isAutoCanvasResizing ? "none" : "auto",
         }}
       >
         <WidgetGlobaStyles
@@ -210,7 +220,7 @@ function CanvasContainer(props: CanvasContainerProps) {
         />
         {isAppThemeChanging && (
           <div className="fixed top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-white/70 z-[2]">
-            <Spinner size={IconSize.XXL} />
+            <Spinner size="md" />
           </div>
         )}
         {node}

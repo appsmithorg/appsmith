@@ -14,7 +14,7 @@ const StyledIcon = styled.div<{
   width: 14px;
   border-radius: 100%;
   margin-right: 4px;
-  border: 1px solid ${Colors.GREY_200};
+  border: 1px solid var(--ads-v2-color-border);
 `;
 
 const ColorStyleIcon = (props: {

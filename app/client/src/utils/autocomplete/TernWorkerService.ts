@@ -5,6 +5,8 @@ import { TernWorkerAction } from "./types";
 const ternWorker = new Worker(
   new URL("../../workers/Tern/tern.worker.ts", import.meta.url),
   {
+    // Note: the `Worker` part of the name is slightly important – LinkRelPreload_spec.js
+    // relies on it to find workers in the list of all requests.
     name: "TernWorker",
     type: "module",
   },
@@ -26,7 +28,6 @@ function TernWorkerServer(this: any, ts: any) {
   const worker = (ts.worker = ternWorker);
   worker.postMessage({
     type: TernWorkerAction.INIT,
-    defs: ts.options.defs,
     plugins: ts.options.plugins,
     scripts: ts.options.workerDeps,
   });

@@ -4,5 +4,6 @@ import com.appsmith.server.acl.AclPermission;
 
 public interface PagePermissionCE {
     AclPermission getDeletePermission();
+
     AclPermission getActionCreatePermission();
 }

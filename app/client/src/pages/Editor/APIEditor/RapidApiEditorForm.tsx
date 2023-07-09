@@ -12,7 +12,6 @@ import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValue
 import ApiResponseView from "components/editorComponents/ApiResponseView";
 import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import CredentialsTooltip from "components/editorComponents/form/CredentialsTooltip";
-import { FormIcons } from "icons/FormIcons";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination from "./Pagination";
 import type { PaginationType, Action } from "entities/Action";
@@ -21,6 +20,7 @@ import { NameWrapper } from "./CommonEditorForm";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { getActionData } from "../../../selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
+import { Icon } from "design-system";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 const Form = styled.form`
@@ -198,7 +198,7 @@ function RapidApiEditorForm(props: Props) {
           />
           <DynamicTextField
             disabled
-            leftIcon={FormIcons.SLASH_ICON}
+            leftIcon={<Icon name="slash" />}
             name="actionConfiguration.path"
             placeholder="v1/method"
           />
@@ -247,7 +247,9 @@ function RapidApiEditorForm(props: Props) {
                             label=""
                             name="actionConfiguration.bodyFormData"
                             pushFields={false}
-                            rightIcon={FormIcons.INFO_ICON}
+                            /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
+                            // @ts-ignore
+                            rightIcon={<Icon name="info" />}
                           />
                         )}
                       </PostbodyContainer>

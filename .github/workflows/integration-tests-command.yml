@@ -20,13 +20,36 @@ jobs:
             Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
             PR: ${{ github.event.client_payload.pull_request.number }}.
             Perf tests will be available at <https://app.appsmith.com/app/performance-infra-dashboard/pr-details-638dd7cd2913ba43778b915e?pr=${{ github.event.client_payload.pull_request.number }}&runId=${{ github.run_id }}_${{github.run_attempt}}>
+  changeset:
+    runs-on: ubuntu-latest
+    # Required permissions
+    permissions:
+      pull-requests: read
+    # Set job outputs to values from filter step
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        ref: ${{ github.event.client_payload.pull_request.merge.ref }}
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        base: ${{ github.event.client_payload.pull_request.base.ref }}
+        ref: ${{ github.event.client_payload.pull_request.head.ref }}
+        filters: |
+          backend:
+            - 'app/server/**'
 
   server-build:
     name: server-build
+    needs: [changeset]
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
+      skip-tests: ${{ needs.changeset.outputs.backend == 'false' }}
 
   client-build:
     name: client-build
@@ -34,6 +57,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
+      check-test-files: "true"
 
   rts-build:
     name: rts-build
@@ -86,6 +110,16 @@ jobs:
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
+  perf-test-v2:
+    needs: [ build-docker-image ]
+    # Only run if the build step is successful
+    if: success()
+    name: perf-test
+    uses: ./.github/workflows/perf-test-v2.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.client_payload.pull_request.number }}
+
   ci-test-result:
     needs: [ci-test, perf-test ]
     # Only run if the ci-test with matrices step is successful
@@ -106,6 +140,23 @@ jobs:
         run: |
           rm -f ~/failed_spec_ci
           rm -f ~/combined_failed_spec_ci
+      
+      # Force store previous cypress dashboard url from cache
+      - name: Store the previous cypress dashboard url
+        if: success()
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/cypress_url
+          key: ${{ github.run_id }}-dashboard-url-${{ github.run_number }}
+          restore-keys: |
+            ${{ github.run_id }}-dashboard-url
+
+      - name: Print cypress dashboard url
+        id: dashboard_url
+        run: |
+          cypress_url=$(cat ~/cypress_url)
+          echo "dashboard_url=$cypress_url" >> $GITHUB_OUTPUT
 
       # Download failed_spec list for all jobs
       - uses: actions/download-artifact@v3
@@ -122,17 +173,6 @@ jobs:
           echo "Debugging: failed specs in ~/failed_spec_ci/failed_spec_ci*"
           cat ~/failed_spec_ci/failed_spec_ci*
           cat ~/failed_spec_ci/failed_spec_ci* | sort -u >> ~/combined_failed_spec_ci
-
-      # Force save the CI failed spec list into a cache
-      - name: Store the combined run result for CI
-        if: needs.ci-test.result != 'success'
-        uses: martijnhols/actions-cache/save@v3
-        with:
-          path: |
-            ~/combined_failed_spec_ci
-          key: ${{ github.run_id }}-"ci-test-result"
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}
             
       # Upload combined failed CI spec list to a file
       # This is done for debugging.
@@ -167,6 +207,7 @@ jobs:
           body: |
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
             Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
+            Cypress dashboard: <a href="${{ steps.dashboard_url.outputs.dashboard_url }}" target="_blank"> Click here!</a>
             The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
             To know the list of identified flaky tests - <a href="https://app.appsmith.com/applications/613868bedd7786286ddd4a6a/pages/63ec710e8e503f763651791a" target="_blank">Refer here</a>
 
@@ -178,8 +219,8 @@ jobs:
           body: |
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
             Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
-            All cypress tests have passed 🎉
-          
+            Cypress dashboard url: <a href="${{ steps.dashboard_url.outputs.dashboard_url }}" target="_blank">Click here!</a>
+            All cypress tests have passed 🎉🎉🎉
 
       # Update check run called "ci-test-result"
       - name: Mark ci-test-result job as complete

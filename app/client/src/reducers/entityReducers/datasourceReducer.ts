@@ -6,12 +6,14 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import type {
   Datasource,
+  DatasourceStorage,
   DatasourceStructure,
   MockDatasource,
 } from "entities/Datasource";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import type { DropdownOption } from "design-system-old";
 import produce from "immer";
+import { assign } from "lodash";
 
 export interface DatasourceDataState {
   list: Datasource[];
@@ -299,6 +301,43 @@ const datasourceReducer = createReducer(initialState, {
       ],
     };
   },
+  [ReduxActionTypes.UPDATE_DATASOURCE_STORAGE_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<DatasourceStorage>,
+  ): DatasourceDataState => {
+    return {
+      ...state,
+      loading: false,
+      list: state.list.map((datasource) => {
+        if (datasource.id === action.payload.datasourceId)
+          return {
+            ...datasource,
+            datasourceStorages: {
+              [`${action.payload.environmentId}`]: action.payload,
+            },
+          };
+
+        return datasource;
+      }),
+      unconfiguredList: state.unconfiguredList.map((datasource) => {
+        if (datasource.id === action.payload.datasourceId)
+          return {
+            ...datasource,
+            datasourceStorages: {
+              [`${action.payload.environmentId}`]: action.payload,
+            },
+          };
+
+        return datasource;
+      }),
+      recentDatasources: [
+        action.payload.datasourceId,
+        ...state.recentDatasources.filter(
+          (ds) => ds !== action.payload.datasourceId,
+        ),
+      ],
+    };
+  },
   [ReduxActionTypes.UPDATE_DATASOURCE_IMPORT_SUCCESS]: (
     state: DatasourceDataState,
     action: ReduxAction<Datasource>,
@@ -337,6 +376,15 @@ const datasourceReducer = createReducer(initialState, {
     state: DatasourceDataState,
     action: ReduxAction<Datasource>,
   ): DatasourceDataState => {
+    return produce(state, (draftState) => {
+      draftState.loading = false;
+      draftState.list.forEach((datasource) => {
+        if (datasource.id === action.payload.id) {
+          assign(datasource, action.payload);
+        }
+      });
+    });
+
     return {
       ...state,
       loading: false,

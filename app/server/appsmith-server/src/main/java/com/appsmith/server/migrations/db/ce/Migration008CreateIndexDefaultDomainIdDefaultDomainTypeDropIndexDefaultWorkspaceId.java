@@ -1,6 +1,5 @@
 package com.appsmith.server.migrations.db.ce;
 
-
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
 import io.mongock.api.annotations.ChangeUnit;
@@ -19,29 +18,33 @@ public class Migration008CreateIndexDefaultDomainIdDefaultDomainTypeDropIndexDef
 
     private final MongoTemplate mongoTemplate;
 
-    private final static String oldPermissionGroupIndexNameDefaultWorkspaceIdDeleted = "permission_group_workspace_deleted_compound_index";
+    // An old index that's no longer present in the source.
+    private static final String oldPermissionGroupIndexNameDefaultWorkspaceIdDeleted =
+            "permission_group_workspace_deleted_compound_index";
 
-    private final static String newPermissionGroupIndexNameDefaultDomainIdDefaultDomainType = "permission_group_domainId_domainType_deleted_deleted_compound_index";
+    public static final String newPermissionGroupIndexNameDefaultDomainIdDefaultDomainType =
+            "permission_group_domainId_domainType_deleted";
 
-    public Migration008CreateIndexDefaultDomainIdDefaultDomainTypeDropIndexDefaultWorkspaceId(MongoTemplate mongoTemplate) {
+    public Migration008CreateIndexDefaultDomainIdDefaultDomainTypeDropIndexDefaultWorkspaceId(
+            MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
     @RollbackExecution
-    public void rollBackExecution() {
-    }
+    public void rollBackExecution() {}
 
     @Execution
     public void createNewIndexDefaultDomainIdDefaultDomainTypeAndDropOldIndexDefaultWorkspaceId() {
         dropIndexIfExists(mongoTemplate, PermissionGroup.class, oldPermissionGroupIndexNameDefaultWorkspaceIdDeleted);
-        dropIndexIfExists(mongoTemplate, PermissionGroup.class, newPermissionGroupIndexNameDefaultDomainIdDefaultDomainType);
+        dropIndexIfExists(
+                mongoTemplate, PermissionGroup.class, newPermissionGroupIndexNameDefaultDomainIdDefaultDomainType);
 
         Index newIndexDefaultDomainIdDefaultDomainTypeDeletedDeletedAt = makeIndex(
-                fieldName(QPermissionGroup.permissionGroup.defaultDomainId),
-                fieldName(QPermissionGroup.permissionGroup.defaultDomainType),
-                fieldName(QPermissionGroup.permissionGroup.deleted),
-                fieldName(QPermissionGroup.permissionGroup.deletedAt)
-        ).named(newPermissionGroupIndexNameDefaultDomainIdDefaultDomainType);
+                        fieldName(QPermissionGroup.permissionGroup.defaultDomainId),
+                        fieldName(QPermissionGroup.permissionGroup.defaultDomainType),
+                        fieldName(QPermissionGroup.permissionGroup.deleted),
+                        fieldName(QPermissionGroup.permissionGroup.deletedAt))
+                .named(newPermissionGroupIndexNameDefaultDomainIdDefaultDomainType);
 
         ensureIndexes(mongoTemplate, PermissionGroup.class, newIndexDefaultDomainIdDefaultDomainTypeDeletedDeletedAt);
     }

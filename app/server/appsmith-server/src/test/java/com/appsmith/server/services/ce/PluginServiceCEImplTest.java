@@ -5,6 +5,7 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +21,6 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.scheduler.Scheduler;
 
-import jakarta.validation.Validator;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,22 +35,31 @@ public class PluginServiceCEImplTest {
 
     @MockBean
     Scheduler scheduler;
+
     @MockBean
     Validator validator;
+
     @MockBean
     MongoConverter mongoConverter;
+
     @MockBean
     ReactiveMongoTemplate reactiveMongoTemplate;
+
     @MockBean
     PluginRepository repository;
+
     @MockBean
     AnalyticsService analyticsService;
+
     @MockBean
     WorkspaceService workspaceService;
+
     @MockBean
     PluginManager pluginManager;
+
     @MockBean
     ReactiveRedisTemplate<String, String> reactiveTemplate;
+
     @MockBean
     ChannelTopic topic;
 
@@ -62,8 +71,17 @@ public class PluginServiceCEImplTest {
     public void setUp() {
         objectMapper = new ObjectMapper();
         pluginService = new PluginServiceCEImpl(
-                scheduler, validator, mongoConverter, reactiveMongoTemplate,
-                repository, analyticsService, workspaceService, pluginManager, reactiveTemplate, topic, objectMapper);
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService,
+                workspaceService,
+                pluginManager,
+                reactiveTemplate,
+                topic,
+                objectMapper);
     }
 
     @Test
@@ -72,7 +90,8 @@ public class PluginServiceCEImplTest {
         final ClassPathResource mockExample = new ClassPathResource("test_assets/PluginServiceTest/mock-example.json");
         final ClassLoader classLoader = Mockito.mock(ClassLoader.class);
         Mockito.when(classLoader.getResourceAsStream("editor/root.json")).thenReturn(mockEditor.getInputStream());
-        Mockito.when(classLoader.getResourceAsStream("editor/mock-example.json")).thenReturn(mockExample.getInputStream());
+        Mockito.when(classLoader.getResourceAsStream("editor/mock-example.json"))
+                .thenReturn(mockExample.getInputStream());
         final PluginWrapper pluginWrapper = Mockito.mock(PluginWrapper.class);
         Mockito.when(pluginWrapper.getPluginClassLoader()).thenReturn(classLoader);
         Mockito.when(pluginManager.getPlugin("test-plugin")).thenReturn(pluginWrapper);

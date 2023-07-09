@@ -49,6 +49,7 @@
                 "defaultSelectedRowIndex": "0",
                 "hideCard": false,
                 "parentColumnSpace": 17.265625,
+                "dynamicPropertyPathList": [{"key": "tableData"}],
                 "dynamicTriggerPathList": [],
                 "dynamicBindingPathList": [
                     {

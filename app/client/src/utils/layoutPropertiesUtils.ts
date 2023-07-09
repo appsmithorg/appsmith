@@ -175,7 +175,7 @@ export const generateVerticalAlignmentConfig = (
   return {
     helpText: "Vertical alignment with respect to the siblings in the same row",
     propertyName: "flexVerticalAlignment",
-    label: "Vertical Alignment",
+    label: "Vertical alignment",
     controlType: "DROP_DOWN",
     defaultValue: value,
     options: [

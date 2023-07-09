@@ -7,7 +7,7 @@ import BaseWidget from "widgets/BaseWidget";
 
 import { Colors } from "constants/Colors";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import ProgressComponent from "../component";
 import { ProgressType, ProgressVariant } from "../constants";
 import type { AutocompletionDefinitions } from "widgets/constants";
@@ -23,7 +23,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
             helpText:
               "Determines if progress indicator will be determinate or not",
             propertyName: "isIndeterminate",
-            label: "Infinite Loading",
+            label: "Infinite loading",
             controlType: "SWITCH",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -74,7 +74,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
           {
             helpText: "Sets the number of steps",
             propertyName: "steps",
-            label: "Number of Steps",
+            label: "Number of steps",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter number of steps",
             isBindProperty: true,
@@ -119,7 +119,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
             helpText:
               "Controls the visibility with the value of progress indicator",
             propertyName: "showResult",
-            label: "Show Result",
+            label: "Show result",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -151,7 +151,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
           {
             helpText: "Sets the color of the progress indicator",
             propertyName: "fillColor",
-            label: "Fill Color",
+            label: "Fill color",
             controlType: "COLOR_PICKER",
             defaultColor: Colors.GREEN,
             isBindProperty: true,
@@ -186,6 +186,21 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setProgress: {
+          path: "progress",
+          type: "number",
+        },
+      },
+    };
   }
 
   getPageView() {

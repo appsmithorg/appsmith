@@ -52,6 +52,9 @@ const ExplorerDatasourceEntity = React.memo(
           pageId,
           pluginPackageName: props.plugin.packageName,
           datasourceId: props.datasource.id,
+          params: {
+            viewMode: true,
+          },
         });
       } else {
         url = datasourcesEditorIdURL({
@@ -82,6 +85,10 @@ const ExplorerDatasourceEntity = React.memo(
       return state.entities.datasources.structure[props.datasource.id];
     });
 
+    const isFetchingDatasourceStructure = useSelector((state: AppState) => {
+      return state.entities.datasources.fetchingDatasourceStructure;
+    });
+
     const expandDatasourceId = useSelector((state: AppState) => {
       return state.ui.datasourcePane.expandDatasourceId;
     });
@@ -93,13 +100,18 @@ const ExplorerDatasourceEntity = React.memo(
 
     const getDatasourceStructure = useCallback(
       (isOpen: boolean) => {
-        if (!datasourceStructure && isOpen) {
+        if (!datasourceStructure && !isFetchingDatasourceStructure && isOpen) {
           debounceFetchDatasourceRequest();
         }
 
         dispatch(expandDatasourceEntity(isOpen ? props.datasource.id : ""));
       },
-      [datasourceStructure, props.datasource.id, dispatch],
+      [
+        datasourceStructure,
+        props.datasource.id,
+        dispatch,
+        isFetchingDatasourceStructure,
+      ],
     );
 
     const nameTransformFn = useCallback(

@@ -1,35 +1,21 @@
+import { Icon } from "design-system";
 import React from "react";
-import { ControlIcons } from "icons/ControlIcons";
 import styled from "styled-components";
 
-const StyledIncreaseIcon = styled(ControlIcons.INCREASE_CONTROL)`
+const StyledIncreaseIcon = styled(Icon)`
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
   cursor: pointer;
-  width: 40px;
-  height: 32px;
-  svg {
-    path {
-      fill: ${(props) => props.theme.colors.paneSectionLabel};
-    }
-  }
 `;
 
-const StyledDecreaseIcon = styled(ControlIcons.DECREASE_CONTROL)`
+const StyledDecreaseIcon = styled(Icon)`
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
   cursor: pointer;
-  width: 40px;
-  height: 32px;
-  svg {
-    path {
-      fill: ${(props) => props.theme.colors.paneSectionLabel};
-    }
-  }
 `;
 
 const StepWrapper = styled.div`
@@ -80,9 +66,17 @@ export function StepComponent(props: StepComponentProps) {
   }
   return (
     <StepWrapper>
-      <StyledDecreaseIcon height={2} onClick={decrease} width={12} />
+      <StyledDecreaseIcon
+        name="decrease-control"
+        onClick={decrease}
+        size="lg"
+      />
       <InputWrapper>{props.displayFormat(props.value)}</InputWrapper>
-      <StyledIncreaseIcon height={12} onClick={increase} width={12} />
+      <StyledIncreaseIcon
+        name="increase-control"
+        onClick={increase}
+        size="lg"
+      />
     </StepWrapper>
   );
 }

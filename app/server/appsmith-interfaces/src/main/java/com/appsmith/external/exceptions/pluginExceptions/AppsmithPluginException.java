@@ -36,10 +36,14 @@ public class AppsmithPluginException extends BaseException {
         return this.error.getErrorAction();
     }
 
-    public String getTitle() { return this.error.getTitle(); }
+    public String getTitle() {
+        return this.error.getTitle();
+    }
 
     @Override
-    public String getErrorType() { return this.error.getErrorType(); }
+    public String getErrorType() {
+        return this.error.getErrorType();
+    }
 
     @Override
     public String getDownstreamErrorMessage() {
@@ -52,6 +56,8 @@ public class AppsmithPluginException extends BaseException {
     }
 
     public String getAppErrorCode() {
-        return this.error == null ? AppsmithPluginErrorCode.GENERIC_PLUGIN_ERROR.getCode() : this.error.getAppErrorCode();
+        return this.error == null
+                ? AppsmithPluginErrorCode.GENERIC_PLUGIN_ERROR.getCode()
+                : this.error.getAppErrorCode();
     }
 }

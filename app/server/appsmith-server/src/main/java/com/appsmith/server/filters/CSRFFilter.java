@@ -14,16 +14,14 @@ import reactor.core.publisher.Mono;
 
 import java.util.Set;
 
-import static java.util.stream.Collectors.toMap;
-
 @Slf4j
 public class CSRFFilter implements WebFilter {
 
     private static final Set<String> EXEMPT = Set.of(
             Url.LOGIN_URL,
-            Url.USER_URL,  // For signup request
-            Url.USER_URL + "/super"  // For superuser signup request
-    );
+            Url.USER_URL, // For signup request
+            Url.USER_URL + "/super" // For superuser signup request
+            );
 
     private static final String X_REQUESTED_BY_NAME = "X-Requested-By";
     private static final String X_REQUESTED_BY_VALUE = "Appsmith";
@@ -44,12 +42,9 @@ public class CSRFFilter implements WebFilter {
 
             log.error("CSRF header requirements not satisfied to {}. Rejecting request.", request.getPath());
             return Mono.error(new AppsmithException(
-                    AppsmithError.CSRF_TOKEN_INVALID,
-                    "CSRF header requirements not satisfied. Rejecting request."
-            ));
+                    AppsmithError.CSRF_TOKEN_INVALID, "CSRF header requirements not satisfied. Rejecting request."));
         }
 
         return chain.filter(exchange);
     }
-
 }

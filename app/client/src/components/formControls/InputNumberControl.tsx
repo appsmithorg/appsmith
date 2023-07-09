@@ -26,7 +26,7 @@ export function InputText(props: {
   const { dataType, label, name, placeholder } = props;
 
   return (
-    <FormGroup data-cy={name}>
+    <FormGroup data-testid={name}>
       <Text type={TextType.P1}>{label}</Text>
       <NumberField dataType={dataType} name={name} placeholder={placeholder} />
     </FormGroup>

@@ -1,11 +1,11 @@
 import { startCase } from "lodash";
-import classNames from "classnames";
 import React, { useState } from "react";
 import styled from "styled-components";
 
 import type { AppTheme } from "entities/AppTheming";
-import { TooltipComponent } from "design-system-old";
+import { Tooltip } from "design-system";
 import ColorPickerComponent from "components/propertyControls/ColorPickerComponentV2";
+import { capitalizeFirstLetter } from "utils/helpers";
 
 interface ThemeColorControlProps {
   theme: AppTheme;
@@ -14,8 +14,17 @@ interface ThemeColorControlProps {
 
 const ColorBox = styled.div<{
   background: string;
+  // selectedColor: string;
 }>`
   background: ${({ background }) => background};
+  border: 2px solid var(--ads-v2-color-border);
+  width: 20px;
+  height: 20px;
+  border-radius: var(--ads-v2-border-radius-circle);
+  cursor: pointer;
+  &.selected {
+    border-color: var(--ads-v2-color-border-emphasis);
+  }
 `;
 
 function ThemeColorControl(props: ThemeColorControlProps) {
@@ -30,14 +39,15 @@ function ThemeColorControl(props: ThemeColorControlProps) {
         {Object.keys(theme.properties.colors).map(
           (colorName: string, index: number) => {
             return (
-              <TooltipComponent content={startCase(colorName)} key={index}>
+              <Tooltip
+                content={capitalizeFirstLetter(startCase(colorName))}
+                key={index}
+              >
                 <ColorBox
                   background={userDefinedColors[colorName]}
-                  className={classNames({
-                    "w-6 h-6 rounded-full border-2 cursor-pointer ring-gray-700":
-                      true,
-                    "ring-1": selectedColor === colorName,
-                  })}
+                  className={selectedColor === colorName ? "selected" : ""}
+                  // selectedColor={colorName}
+                  data-testid={`theme-${colorName}`}
                   onClick={() => {
                     setAutoFocus(
                       selectedColor === colorName ? !autoFocus : true,
@@ -45,14 +55,14 @@ function ThemeColorControl(props: ThemeColorControlProps) {
                     setSelectedColor(colorName);
                   }}
                 />
-              </TooltipComponent>
+              </Tooltip>
             );
           },
         )}
       </div>
       {selectedColor && (
         <div className="pt-1 space-y-1">
-          <h3>{startCase(selectedColor)}</h3>
+          <h3>{capitalizeFirstLetter(startCase(selectedColor))}</h3>
           <ColorPickerComponent
             autoFocus={autoFocus}
             changeColor={(color: string) => {

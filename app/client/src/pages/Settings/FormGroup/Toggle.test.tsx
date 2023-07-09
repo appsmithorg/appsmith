@@ -49,8 +49,8 @@ describe("Toggle", () => {
   it("is rendered", () => {
     renderComponent();
     const inputEl = document.querySelector("input");
-    expect(inputEl?.value).toBeDefined();
-    expect(inputEl?.value).toEqual("true"); // value = ![setting.id]
+    expect(inputEl?.checked).toBeDefined();
+    expect(inputEl?.checked).toEqual(true); // value = ![setting.id]
     expect(inputEl?.hasAttribute("checked"));
   });
 
@@ -58,6 +58,6 @@ describe("Toggle", () => {
     renderComponent();
     const inputEl = document.querySelector("input");
     inputEl?.click();
-    expect(inputEl?.value).toEqual("false");
+    expect(inputEl?.checked).toEqual(false);
   });
 });

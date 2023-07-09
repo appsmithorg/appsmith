@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon } from "design-system-old";
+import { Icon } from "design-system";
 import { AppsmithFunction, FieldType } from "../../constants";
 import type { ActionTree } from "../../types";
 import { FIELD_GROUP_CONFIG } from "../../FieldGroup/FieldGroupConfig";
@@ -22,50 +22,50 @@ function GetIconForAction(
       return () => <Icon name="no-action" />;
 
     case AppsmithFunction.navigateTo:
-      return () => <Icon name="navigate-to" />;
+      return () => <Icon name="page-line" />;
 
     case AppsmithFunction.showAlert:
-      return () => <Icon name="show-alert" />;
+      return () => <Icon name="message-2-line" />;
 
     case AppsmithFunction.storeValue:
-      return () => <Icon name="store-value" />;
+      return () => <Icon name="folder-download-line" />;
 
     case AppsmithFunction.copyToClipboard:
-      return () => <Icon name="copy-to-clipboard" />;
+      return () => <Icon name="copy-control" />;
 
     case AppsmithFunction.download:
-      return () => <Icon name="download-action" />;
+      return () => <Icon name="download-line" />;
 
     case AppsmithFunction.jsFunction:
-      return () => <Icon name="execute-js" />;
+      return () => <Icon name="js" />;
 
     case AppsmithFunction.closeModal:
     case AppsmithFunction.showModal:
-      return () => <Icon name="modal" />;
+      return () => <Icon name="show-modal" />;
 
     case AppsmithFunction.resetWidget:
-      return () => <Icon name="reset-widget" />;
+      return () => <Icon name="restart-line" />;
 
     case AppsmithFunction.clearStore:
-      return () => <Icon name="clear-store" />;
+      return () => <Icon name="folder-reduce-line" />;
 
     case AppsmithFunction.removeValue:
-      return () => <Icon name="remove-store" />;
+      return () => <Icon name="folder-line" />;
 
     case AppsmithFunction.setInterval:
-      return () => <Icon name="set-interval" />;
+      return () => <Icon name="timer-flash-line" />;
 
     case AppsmithFunction.clearInterval:
-      return () => <Icon name="clear-interval" />;
+      return () => <Icon name="timer-line" />;
 
     case AppsmithFunction.getGeolocation:
-      return () => <Icon name="get-geolocation" />;
+      return () => <Icon name="map-2-line" />;
 
     case AppsmithFunction.watchGeolocation:
-      return () => <Icon name="watch-geolocation" />;
+      return () => <Icon name="map-pin-user-line" />;
 
     case AppsmithFunction.stopWatchGeolocation:
-      return () => <Icon name="stop-watch-geolocation" />;
+      return () => <Icon name="map-pin-5-line" />;
 
     case AppsmithFunction.integration:
       const functionName = getFunctionName(
@@ -84,10 +84,10 @@ function GetIconForAction(
         }
       }
 
-      return () => <Icon name="execute-query" />;
+      return () => <Icon name="query-main" />;
 
     case AppsmithFunction.postWindowMessage:
-      return () => <Icon name="post-message" />;
+      return () => <Icon name="chat-upload-icon" />;
   }
 }
 
@@ -166,7 +166,7 @@ function getActionHeading(
     case AppsmithFunction.removeValue:
       return (
         FIELD_CONFIG[FieldType.KEY_TEXT_FIELD_REMOVE_VALUE].getter(code) ||
-        "Add Key"
+        "Add key"
       );
 
     case AppsmithFunction.setInterval:
@@ -177,7 +177,7 @@ function getActionHeading(
 
     case AppsmithFunction.clearInterval:
       return (
-        FIELD_CONFIG[FieldType.CLEAR_INTERVAL_ID_FIELD].getter(code) || "Add ID"
+        FIELD_CONFIG[FieldType.CLEAR_INTERVAL_ID_FIELD].getter(code) || "Add Id"
       );
 
     case AppsmithFunction.getGeolocation:

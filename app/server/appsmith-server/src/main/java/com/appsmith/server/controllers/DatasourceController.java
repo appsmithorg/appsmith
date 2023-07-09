@@ -14,12 +14,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(Url.DATASOURCE_URL)
 public class DatasourceController extends DatasourceControllerCE {
 
-    public DatasourceController(DatasourceService service,
-                                DatasourceStructureSolution datasourceStructureSolution,
-                                AuthenticationService authenticationService,
-                                MockDataService datasourceService,
-                                DatasourceTriggerSolution datasourceTriggerSolution) {
-
-        super(service, datasourceStructureSolution, authenticationService, datasourceService, datasourceTriggerSolution);
+    public DatasourceController(
+            DatasourceService service,
+            DatasourceStructureSolution datasourceStructureSolution,
+            AuthenticationService authenticationService,
+            MockDataService datasourceService,
+            DatasourceTriggerSolution datasourceTriggerSolution) {
+        super(
+                service,
+                datasourceStructureSolution,
+                authenticationService,
+                datasourceService,
+                datasourceTriggerSolution);
     }
 }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ff4j>
+    <autocreate>false</autocreate>
+    <audit>false</audit>
+    <features>
+        <feature uid="APP_NAVIGATION_LOGO_UPLOAD" enable="true"
+                 description="Logo upload feature for app viewer navigation">
+            <flipstrategy class="com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy">
+                <param name="emailDomains" value="appsmith.com,moolya.com"/>
+            </flipstrategy>
+        </feature>
+        <feature uid="APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY" enable="true"
+                 description="In Share and embed settings, give option of `navbar` feature(ultimately controls the share button in app(embed) view)">
+            <flipstrategy class="com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy">
+                <param name="emailDomains" value="appsmith.com,moolya.com"/>
+            </flipstrategy>
+        </feature>
+    </features>
+</ff4j>

@@ -42,5 +42,8 @@ public interface WorkspaceServiceCE extends CrudService<Workspace, String> {
     Flux<Workspace> getAll();
 
     Mono<Workspace> archiveById(String s);
+
     Mono<Boolean> isCreateWorkspaceAllowed(Boolean isDefaultWorkspace);
+
+    Mono<String> getDefaultEnvironmentId(String workspaceId);
 }

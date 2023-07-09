@@ -2,47 +2,18 @@ import React from "react";
 import styled from "styled-components";
 import type { SocialLoginType } from "@appsmith/constants/SocialLogin";
 import { getSocialLoginButtonProps } from "@appsmith/constants/SocialLogin";
-import { getTypographyByKey } from "design-system-old";
 import type { EventName } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router-dom";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { Button } from "design-system";
 
 const ThirdPartyAuthWrapper = styled.div`
   display: flex;
   flex-direction: column;
-`;
-
-//TODO(abhinav): Port this to use themes.
-const StyledSocialLoginButton = styled.a`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: solid 1px ${(props) => props.theme.colors.auth.socialBtnBorder};
-  margin-bottom: ${(props) => props.theme.spaces[4]}px;
-
-  &:only-child,
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  &:hover {
-    text-decoration: none;
-    background-color: ${(props) => props.theme.colors.auth.socialBtnHighlight};
-  }
-
-  & .login-method {
-    ${getTypographyByKey("btnLarge")}
-    color: ${(props) => props.theme.colors.auth.socialBtnText};
-    text-transform: uppercase;
-  }
-`;
-
-const ButtonLogo = styled.img`
-  margin: ${(props) => props.theme.spaces[2]}px;
-  width: 24px;
+  gap: var(--ads-v2-spaces-3);
 `;
 
 type SignInType = "SIGNIN" | "SIGNUP";
@@ -62,8 +33,9 @@ function SocialLoginButton(props: {
     url += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
   }
   return (
-    <StyledSocialLoginButton
+    <Button
       href={url}
+      kind="secondary"
       onClick={() => {
         let eventName: EventName = "LOGIN_CLICK";
         if (props.type === "SIGNUP") {
@@ -79,12 +51,18 @@ function SocialLoginButton(props: {
           loginMethod: props.name.toUpperCase(),
         });
       }}
+      renderAs="a"
+      size="md"
+      startIcon={
+        ["Google", "Github"].includes(props.name)
+          ? props.name.toLowerCase() + `-fill`
+          : "key-2-line"
+      }
     >
-      <ButtonLogo alt={` ${props.name} login`} src={props.logo} />
       <div className="login-method" data-testid={`login-with-${props.name}`}>
-        {props.label ?? `continue with ${props.name}`}
+        {props.label ?? `Continue with ${props.name}`}
       </div>
-    </StyledSocialLoginButton>
+    </Button>
   );
 }
 

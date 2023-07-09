@@ -7,13 +7,18 @@ import {
 import type { JSCollection } from "entities/JSCollection";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
+export enum JSEditorTab {
+  CODE = "CODE",
+  SETTINGS = "SETTINGS",
+}
+
 export interface JsPaneReduxState {
   isCreating: boolean;
   isFetching: boolean;
   isSaving: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
   isDirty: Record<string, boolean>;
-  selectedConfigTabIndex: number;
+  selectedConfigTab: JSEditorTab;
   responseTabHeight: number;
 }
 
@@ -24,7 +29,7 @@ const initialState: JsPaneReduxState = {
   isDeleting: {},
   isDirty: {},
   responseTabHeight: ActionExecutionResizerHeight,
-  selectedConfigTabIndex: 0,
+  selectedConfigTab: JSEditorTab.CODE,
 };
 
 const jsPaneReducer = createReducer(initialState, {
@@ -171,12 +176,12 @@ const jsPaneReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.SET_JS_PANE_CONFIG_SELECTED_TAB]: (
     state: JsPaneReduxState,
-    action: ReduxAction<{ selectedTabIndex: number }>,
+    action: ReduxAction<{ selectedTab: JSEditorTab }>,
   ) => {
-    const { selectedTabIndex } = action.payload;
+    const { selectedTab } = action.payload;
     return {
       ...state,
-      selectedConfigTabIndex: selectedTabIndex,
+      selectedConfigTab: selectedTab,
     };
   },
 });

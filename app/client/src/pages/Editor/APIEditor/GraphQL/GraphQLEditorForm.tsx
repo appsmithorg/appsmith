@@ -24,7 +24,6 @@ import QueryEditor from "./QueryEditor";
 import { tailwindLayers } from "constants/Layers";
 import VariableEditor from "./VariableEditor";
 import Pagination from "./Pagination";
-import { Colors } from "constants/Colors";
 
 const ResizeableDiv = styled.div`
   display: flex;
@@ -38,8 +37,8 @@ const BodyWrapper = styled.div`
   overflow: hidden;
   &&&& .CodeMirror {
     height: 100%;
-    border-top: 1px solid var(--appsmith-color-black-250);
-    border-bottom: 1px solid var(--appsmith-color-black-250);
+    border-top: 1px solid var(--ads-v2-color-border);
+    border-bottom: 1px solid var(--ads-v2-color-border);
     border-radius: 0;
     padding: 0;
   }
@@ -54,10 +53,11 @@ const ResizerHandler = styled.div<{ resizing: boolean }>`
   width: 6px;
   height: 100%;
   margin-left: 2px;
-  border-right: 1px solid ${Colors.GREY_200};
-  background: ${(props) => (props.resizing ? Colors.GREY_4 : "transparent")};
+  border-right: 1px solid var(--ads-v2-color-border);
+  background: ${(props) =>
+    props.resizing ? "var(--ads-v2-color-border)" : "transparent"};
   &:hover {
-    background: ${Colors.GREY_4};
+    background: var(--ads-v2-color-border);
     border-color: transparent;
   }
 `;
@@ -127,6 +127,7 @@ function GraphQLEditorForm(props: Props) {
             ref={sizeableRef}
             style={{
               width: `${variableEditorWidth}px`,
+              paddingRight: "2px",
             }}
           >
             <VariableEditor actionName={actionName} theme={theme} />

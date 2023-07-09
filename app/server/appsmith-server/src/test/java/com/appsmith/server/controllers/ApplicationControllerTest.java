@@ -4,8 +4,8 @@ import com.appsmith.server.configurations.RedisTestContainerConfig;
 import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ApplicationImportDTO;
-import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
+import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ApplicationSnapshotService;
@@ -36,9 +36,6 @@ import java.io.IOException;
 @WebFluxTest(ApplicationController.class)
 @Import({SecurityTestConfig.class, RedisUtils.class, RedisTestContainerConfig.class})
 public class ApplicationControllerTest {
-    @Autowired
-    private WebTestClient webTestClient;
-
     @MockBean
     ApplicationService applicationService;
 
@@ -63,6 +60,9 @@ public class ApplicationControllerTest {
     @MockBean
     UserDataService userDataService;
 
+    @Autowired
+    private WebTestClient webTestClient;
+
     private String getFileName(int length) {
         StringBuilder fileName = new StringBuilder();
         for (int count = 0; count < length; count++) {
@@ -76,7 +76,11 @@ public class ApplicationControllerTest {
         MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
 
         bodyBuilder
-                .part("file", new ClassPathResource("test_assets/ImportExportServiceTest/invalid-json-without-app.json").getFile(), MediaType.APPLICATION_JSON)
+                .part(
+                        "file",
+                        new ClassPathResource("test_assets/ImportExportServiceTest/invalid-json-without-app.json")
+                                .getFile(),
+                        MediaType.APPLICATION_JSON)
                 .header("Content-Disposition", "form-data; name=\"file\"; filename=" + fileName)
                 .header("Content-Type", "application/json");
         return bodyBuilder;
@@ -86,13 +90,14 @@ public class ApplicationControllerTest {
     @WithMockUser
     public void whenFileUploadedWithLongHeader_thenVerifyErrorStatus() throws IOException {
 
-        Mockito.when(importExportApplicationService.extractFileAndUpdateNonGitConnectedApplication(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(importExportApplicationService.extractFileAndSaveApplication(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(new ApplicationImportDTO()));
 
         final String fileName = getFileName(130 * 1024);
         MultipartBodyBuilder bodyBuilder = createBodyBuilder(fileName);
 
-        webTestClient.post()
+        webTestClient
+                .post()
                 .uri(Url.APPLICATION_URL + "/import/orgId")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(BodyInserters.fromMultipartData(bodyBuilder.build()))
@@ -100,29 +105,31 @@ public class ApplicationControllerTest {
                 .expectStatus()
                 .isEqualTo(500)
                 .expectBody()
-                .json("{\n" +
-                        "    \"responseMeta\": {\n" +
-                        "        \"status\": 500,\n" +
-                        "        \"success\": false,\n" +
-                        "        \"error\": {\n" +
-                        "            \"code\": "+ AppsmithErrorCode.FILE_PART_DATA_BUFFER_ERROR.getCode() +",\n" +
-                        "            \"message\": \"Failed to upload file with error: Part headers exceeded the memory usage limit of 131072 bytes\"\n" +
-                        "        }\n" +
-                        "    }\n" +
-                        "}");
+                .json("{\n" + "    \"responseMeta\": {\n"
+                        + "        \"status\": 500,\n"
+                        + "        \"success\": false,\n"
+                        + "        \"error\": {\n"
+                        + "            \"code\": "
+                        + AppsmithErrorCode.FILE_PART_DATA_BUFFER_ERROR.getCode() + ",\n"
+                        + "            \"message\": \"Failed to upload file with error: Part headers exceeded the memory usage limit of 131072 bytes\"\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "}");
     }
 
     @Test
     @WithMockUser
     public void whenFileUploadedWithShortHeader_thenVerifySuccessStatus() throws IOException {
 
-        Mockito.when(importExportApplicationService.extractFileAndUpdateNonGitConnectedApplication(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(importExportApplicationService.extractFileAndSaveApplication(
+                        Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(new ApplicationImportDTO()));
 
         final String fileName = getFileName(2 * 1024);
         MultipartBodyBuilder bodyBuilder = createBodyBuilder(fileName);
 
-        webTestClient.post()
+        webTestClient
+                .post()
                 .uri(Url.APPLICATION_URL + "/import/orgId")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(BodyInserters.fromMultipartData(bodyBuilder.build()))

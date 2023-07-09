@@ -7,7 +7,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import moment from "moment";
 import { sample } from "lodash";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 export const required = (value: any) => {
   if (value === undefined || value === null || value === "") {

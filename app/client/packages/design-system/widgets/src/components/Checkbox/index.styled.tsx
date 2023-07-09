@@ -1,48 +1,24 @@
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { Checkbox as HeadlessCheckbox } from "@design-system/headless";
 
 import type { CheckboxProps } from ".";
-
-// Note: these styles will shared across radio, checkbox and toggle components
-// so we will be moving the types (labelPosition) and styles to a common place
-export const labelStyles = css<Pick<CheckboxProps, "labelPosition">>`
-  position: relative;
-  display: flex;
-  gap: var(--spacing-2);
-  cursor: pointer;
-
-  ${({ labelPosition }) => css`
-    justify-content: ${labelPosition === "left" ? "space-between" : undefined};
-    flex-direction: ${labelPosition === "left" ? "row-reverse" : "row"};
-  `};
-
-  &[data-label] {
-    min-height: calc(5 * var(--sizing-root-unit));
-    display: flex;
-    align-items: center;
-  }
-
-  /**
-  * ----------------------------------------------------------------------------
-  * DISABLED
-  *-----------------------------------------------------------------------------
-  */
-  &[data-disabled] {
-    pointer-events: none;
-    opacity: var(--opacity-disabled);
-  }
-`;
+import { inlineLabelStyles } from "../../styles/inlineLabelStyles";
 
 export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
-  ${labelStyles}
+  ${inlineLabelStyles}
 
   [data-icon] {
-    width: calc(5 * var(--sizing-root-unit));
-    height: calc(5 * var(--sizing-root-unit));
-    border-width: var(--border-width-1);
-    border-style: solid;
-    border-radius: var(--border-radius-1);
-    border-color: var(--color-bd-neutral);
+    --checkbox-border-width: var(--border-width-2);
+    --checkbox-border-color: var(--color-bd-neutral);
+    // Note: we are using box-shadow as the border to avoid the border from
+    // changing the size of the checkbox and icon
+    --checkbox-box-shadow: 0px 0px 0px var(--checkbox-border-width)
+      var(--checkbox-border-color) inset;
+
+    width: calc(4 * var(--root-unit));
+    height: calc(4 * var(--root-unit));
+    box-shadow: var(--checkbox-box-shadow);
+    border-radius: clamp(0px, var(--border-radius-1), 0.375rem);
     color: transparent;
     display: inline-flex;
     align-items: center;
@@ -52,7 +28,7 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
   }
 
   &[data-hovered]:not([data-disabled]) [data-icon] {
-    border-color: var(--color-bd-neutral-hover);
+    --checkbox-border-color: var(--color-bd-neutral-hover);
   }
 
   /**
@@ -62,14 +38,16 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
  */
   &[data-state="checked"] [data-icon],
   &[data-state="indeterminate"] [data-icon] {
+    --checkbox-border-color: var(--color-bg-accent);
+
     background-color: var(--color-bg-accent);
-    border-color: var(--color-bg-accent);
     color: var(--color-fg-on-accent);
   }
 
   &[data-hovered][data-state="checked"]:not([data-disabled]) [data-icon],
   &[data-hovered][data-state="indeterminate"]:not([data-disabled]) [data-icon] {
-    border-color: var(--color-bg-accent-hover);
+    --checkbox-border-color: var(--color-bg-accent-hover);
+
     background-color: var(--color-bg-accent-hover);
     color: var(--color-fg-on-accent);
   }
@@ -80,7 +58,8 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
   *-----------------------------------------------------------------------------
   */
   &[data-focused] [data-icon] {
-    box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-bd-focus);
+    box-shadow: var(--checkbox-box-shadow), 0 0 0 2px var(--color-bg),
+      0 0 0 4px var(--color-bd-focus);
   }
 
   /**
@@ -89,10 +68,10 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
  *-----------------------------------------------------------------------------
  */
   &[data-invalid] [data-icon] {
-    border-color: var(--color-bd-negative);
+    --checkbox-border-color: var(--color-bd-negative);
   }
 
   &[data-hovered][data-invalid] [data-icon] {
-    border-color: var(--color-bd-negative-hover);
+    --checkbox-border-color: var(--color-bd-negative-hover);
   }
 `;

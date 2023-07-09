@@ -2,10 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
 import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
-import { StyledLabel } from "./Common";
 import TextInput from "./TextInput";
 import Toggle from "./Toggle";
-import Text from "./Text";
+import TextComponent from "./Text";
 import Button from "./Button";
 import { getFormValues } from "redux-form";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
@@ -15,13 +14,12 @@ import {
   LEARN_MORE,
   REDIRECT_URL_TOOLTIP,
 } from "@appsmith/constants/messages";
-import { CalloutV2 } from "design-system-old";
-import { CopyUrlReduxForm } from "pages/Settings/FormGroup/CopyUrlForm";
+import { Callout, Text } from "design-system";
+import CopyUrlForm from "./CopyUrlForm";
 import Accordion from "./Accordion";
 import TagInputField from "./TagInputField";
 import Dropdown from "./Dropdown";
 import { Classes } from "@blueprintjs/core";
-import { Colors } from "constants/Colors";
 import Checkbox from "./Checkbox";
 import Radio from "./Radio";
 import { useDispatch } from "react-redux";
@@ -43,11 +41,11 @@ const GroupWrapper = styled.div`
   }
 `;
 
-const GroupHeader = styled(StyledLabel)`
-  text-transform: capitalize;
+const GroupHeader = styled(Text)`
   margin-bottom: ${(props) => props.theme.spaces[9]}px;
   font-size: 20px;
   font-weight: 500;
+  margin-bottom: 8px;
 `;
 
 const GroupBody = styled.div`
@@ -57,21 +55,25 @@ const GroupBody = styled.div`
   & .callout-link {
     > div {
       margin-top: 0px;
+      margin-bottom: 12px;
     }
   }
   &&&& {
     // TagInput in design system has a right margin
     .tag-input > div {
-      margin: 0;
+      margin-right: 0;
     }
 
     .tag-input .${Classes.TAG_INPUT} {
       box-shadow: none;
+      border-radius: var(--ads-v2-border-radius);
+      border: 1px solid var(--ads-v2-color-border);
     }
 
     .tag-input .${Classes.TAG} {
-      color: ${Colors.GRAY_700};
-      background-color: ${Colors.GRAY_200};
+      color: var(--ads-v2-color-fg);
+      background-color: var(--ads-v2-color-bg-subtle);
+      border-radius: var(--ads-v2-border-radius);
       ${(props) => getTypographyByKey(props, "h5")}
       // Cursor on close icon need to be a pointer
       svg:hover {
@@ -80,8 +82,17 @@ const GroupBody = styled.div`
     }
 
     .tag-input .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
-      border: 1.2px solid var(--appsmith-color-black-900);
+      border: 1px solid var(--ads-v2-color-border-emphasis-plus);
     }
+  }
+
+  .t--admin-settings-toggle {
+    width: fit-content;
+    min-width: 260px;
+  }
+
+  label {
+    user-select: none;
   }
 `;
 
@@ -98,7 +109,15 @@ export default function Group({
 
   return (
     <GroupWrapper data-testid="admin-settings-group-wrapper">
-      {name && <GroupHeader>{createMessage(() => name)}</GroupHeader>}
+      {name && (
+        <GroupHeader
+          color="var(--ads-v2-color-fg-emphasis-plus)"
+          data-testid="admin-settings-form-group-label"
+          renderAs="span"
+        >
+          {createMessage(() => name)}
+        </GroupHeader>
+      )}
       <GroupBody>
         {settings &&
           settings.map((setting) => {
@@ -162,27 +181,27 @@ export default function Group({
                     data-testid="admin-settings-group-link"
                     key={setting.name || setting.id}
                   >
-                    {setting.action ? (
-                      <CalloutV2
-                        actionLabel={createMessage(LEARN_MORE)}
-                        desc={createMessage(() => setting.label || "")}
-                        onClick={
-                          (() => {
-                            if (setting.action) {
-                              setting.action(calloutDispatch);
-                            }
-                          }) as unknown as React.MouseEvent<HTMLElement>
-                        }
-                        type={setting.calloutType || "Notify"}
-                      />
-                    ) : (
-                      <CalloutV2
-                        actionLabel={createMessage(LEARN_MORE)}
-                        desc={createMessage(() => setting.label || "")}
-                        type={setting.calloutType || "Notify"}
-                        url={setting.url}
-                      />
-                    )}
+                    <Callout
+                      kind={setting?.calloutType || "info"}
+                      links={[
+                        {
+                          children: createMessage(LEARN_MORE),
+                          ...(setting.url && { to: setting.url }),
+                          ...(setting.action && {
+                            onClick: (e: any) => {
+                              if (setting.action) {
+                                e.preventDefault();
+                                setting.action(
+                                  calloutDispatch,
+                                ) as unknown as React.MouseEventHandler<HTMLElement>;
+                              }
+                            },
+                          }),
+                        },
+                      ]}
+                    >
+                      {createMessage(() => setting.label || "")}
+                    </Callout>
                   </div>
                 );
               case SettingTypes.TEXT:
@@ -192,7 +211,7 @@ export default function Group({
                     data-testid="admin-settings-group-text"
                     key={setting.name || setting.id}
                   >
-                    <Text setting={setting} />
+                    <TextComponent setting={setting} />
                   </div>
                 );
               case SettingTypes.BUTTON:
@@ -227,15 +246,14 @@ export default function Group({
                     data-testid="admin-settings-uneditable-field"
                     key={setting.name || setting.id}
                   >
-                    <CopyUrlReduxForm
-                      fieldName={setting.fieldName}
-                      form={setting.formName}
+                    <CopyUrlForm
+                      fieldName={setting.fieldName || ""}
                       helpText={setting.helpText}
-                      title={setting.label}
+                      title={setting.label || ""}
                       tooltip={
                         setting.tooltip || createMessage(REDIRECT_URL_TOOLTIP)
                       }
-                      value={setting.value}
+                      value={setting.value || ""}
                     />
                   </div>
                 );
@@ -247,7 +265,7 @@ export default function Group({
                     key={setting.name || setting.id}
                   >
                     <TagInputField
-                      data-cy="t--tag-input"
+                      data-testid="t--tag-input"
                       intent="success"
                       label={setting.label}
                       name={setting.name || setting.id}

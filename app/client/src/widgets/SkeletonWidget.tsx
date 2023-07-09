@@ -37,6 +37,7 @@ export const CONFIG = {
     default: SkeletonWidget.getDefaultPropertiesMap(),
     meta: SkeletonWidget.getMetaPropertiesMap(),
     config: SkeletonWidget.getPropertyPaneConfig(),
+    autocompleteDefinitions: SkeletonWidget.getAutocompleteDefinitions(),
   },
 };
 

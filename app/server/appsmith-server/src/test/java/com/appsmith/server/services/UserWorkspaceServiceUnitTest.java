@@ -3,8 +3,8 @@ package com.appsmith.server.services;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserDataRepository;
@@ -36,11 +36,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DirtiesContext
 @Slf4j
 public class UserWorkspaceServiceUnitTest {
-    @Autowired UserDataRepository userDataRepository;
-    @Autowired UserDataService userDataService;
-    @Autowired WorkspaceService workspaceService;
-    @Autowired PermissionGroupRepository permissionGroupRepository;
-    @Autowired UserWorkspaceService userWorkspaceService;
+    @Autowired
+    UserDataRepository userDataRepository;
+
+    @Autowired
+    UserDataService userDataService;
+
+    @Autowired
+    WorkspaceService workspaceService;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    UserWorkspaceService userWorkspaceService;
 
     ModelMapper modelMapper;
 
@@ -87,8 +96,7 @@ public class UserWorkspaceServiceUnitTest {
                 .block();
 
         Mono<List<MemberInfoDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(testWorkspace.getId());
-        StepVerifier
-                .create(workspaceMembers)
+        StepVerifier.create(workspaceMembers)
                 .assertNext(userAndGroupDTOs -> {
                     assertEquals(0, userAndGroupDTOs.size());
                 })
@@ -99,8 +107,7 @@ public class UserWorkspaceServiceUnitTest {
     public void getWorkspaceMembers_WhenNoOrgFound_ThrowsException() {
         String sampleWorkspaceId = "test-org-id";
         Mono<List<MemberInfoDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(sampleWorkspaceId);
-        StepVerifier
-                .create(workspaceMembers)
+        StepVerifier.create(workspaceMembers)
                 .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.WORKSPACE, sampleWorkspaceId))
                 .verify();
     }
@@ -113,16 +120,21 @@ public class UserWorkspaceServiceUnitTest {
         workspace.setName("workspace_" + UUID.randomUUID());
         Mono<Workspace> workspaceMono = workspaceService.create(workspace);
 
-        Mono<List<MemberInfoDTO>> listMono = userDataService.getForCurrentUser().flatMap(userData -> {
+        Mono<List<MemberInfoDTO>> listMono = userDataService
+                .getForCurrentUser()
+                .flatMap(userData -> {
                     userData.setProfilePhotoAssetId("sample-photo-id");
                     return userDataRepository.save(userData);
-                }).then(workspaceMono)
+                })
+                .then(workspaceMono)
                 .flatMap(createdWorkspace -> userWorkspaceService.getWorkspaceMembers(createdWorkspace.getId()));
 
-        StepVerifier.create(listMono).assertNext(workspaceMemberInfoDTOS -> {
-            assertThat(workspaceMemberInfoDTOS.size()).isEqualTo(1);
-            assertThat(workspaceMemberInfoDTOS.get(0).getPhotoId()).isEqualTo("sample-photo-id");
-        }).verifyComplete();
+        StepVerifier.create(listMono)
+                .assertNext(workspaceMemberInfoDTOS -> {
+                    assertThat(workspaceMemberInfoDTOS.size()).isEqualTo(1);
+                    assertThat(workspaceMemberInfoDTOS.get(0).getPhotoId()).isEqualTo("sample-photo-id");
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -135,12 +147,11 @@ public class UserWorkspaceServiceUnitTest {
         Workspace secondWorkspace = new Workspace();
         secondWorkspace.setName("second-workspace-" + UUID.randomUUID());
 
-        Mono<Tuple2<Workspace, Workspace>> createWorkspacesMono = Mono.zip(
-                workspaceService.create(firstWorkspace),
-                workspaceService.create(secondWorkspace)
-        );
+        Mono<Tuple2<Workspace, Workspace>> createWorkspacesMono =
+                Mono.zip(workspaceService.create(firstWorkspace), workspaceService.create(secondWorkspace));
 
-        Mono<Map<String, List<MemberInfoDTO>>> mapMono = userDataService.getForCurrentUser()
+        Mono<Map<String, List<MemberInfoDTO>>> mapMono = userDataService
+                .getForCurrentUser()
                 .flatMap(userData -> {
                     userData.setProfilePhotoAssetId("sample-photo-id");
                     return userDataRepository.save(userData);
@@ -149,19 +160,21 @@ public class UserWorkspaceServiceUnitTest {
                 .flatMap(workspaces -> {
                     Set<String> createdIds = Set.of(
                             Objects.requireNonNull(workspaces.getT1().getId()),
-                            Objects.requireNonNull(workspaces.getT2().getId())
-                    );
+                            Objects.requireNonNull(workspaces.getT2().getId()));
                     return userWorkspaceService.getWorkspaceMembers(createdIds);
                 });
 
-        StepVerifier.create(mapMono).assertNext(workspaceMemberInfoDTOSMap -> {
-            assertThat(workspaceMemberInfoDTOSMap.size()).isEqualTo(2); // should have 2 entries for 2 workspaces
-            workspaceMemberInfoDTOSMap.values().forEach(workspaceMemberInfoDTOS -> {
-                // should have one entry for the creator member only, get that
-                MemberInfoDTO workspaceMemberInfoDTO = workspaceMemberInfoDTOS.get(0);
-                // we already set profile photo for the current user, check it exists in response
-                assertThat(workspaceMemberInfoDTO.getPhotoId()).isEqualTo("sample-photo-id");
-            });
-        }).verifyComplete();
+        StepVerifier.create(mapMono)
+                .assertNext(workspaceMemberInfoDTOSMap -> {
+                    assertThat(workspaceMemberInfoDTOSMap.size())
+                            .isEqualTo(2); // should have 2 entries for 2 workspaces
+                    workspaceMemberInfoDTOSMap.values().forEach(workspaceMemberInfoDTOS -> {
+                        // should have one entry for the creator member only, get that
+                        MemberInfoDTO workspaceMemberInfoDTO = workspaceMemberInfoDTOS.get(0);
+                        // we already set profile photo for the current user, check it exists in response
+                        assertThat(workspaceMemberInfoDTO.getPhotoId()).isEqualTo("sample-photo-id");
+                    });
+                })
+                .verifyComplete();
     }
 }

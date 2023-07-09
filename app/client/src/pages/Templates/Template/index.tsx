@@ -2,16 +2,10 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import history from "utils/history";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
-import {
-  Button,
-  getTypographyByKey,
-  Size,
-  TooltipComponent as Tooltip,
-} from "design-system-old";
+import { Button, Tooltip, Text } from "design-system";
 import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
 import LargeTemplate from "./LargeTemplate";
-import { Colors } from "constants/Colors";
 import {
   createMessage,
   FORK_THIS_TEMPLATE,
@@ -20,15 +14,14 @@ import { templateIdUrl } from "RouteBuilder";
 import { Position } from "@blueprintjs/core";
 
 const TemplateWrapper = styled.div`
-  border: 1px solid ${Colors.GEYSER_LIGHT};
-  margin-bottom: ${(props) => props.theme.spaces[12]}px;
-  transition: all 1s ease-out;
+  border: 1px solid var(--ads-v2-color-border);
+  margin-bottom: 24px;
   cursor: pointer;
-  background-color: ${Colors.WHITE};
+  background-color: var(--ads-v2-color-bg);
+  border-radius: var(--ads-v2-border-radius);
 
   &:hover {
-    box-shadow: 0px 20px 24px -4px rgba(16, 24, 40, 0.1),
-      0px 8px 8px -4px rgba(16, 24, 40, 0.04);
+    border-color: var(--ads-v2-color-border-emphasis);
   }
 `;
 
@@ -38,33 +31,28 @@ const ImageWrapper = styled.div`
 `;
 
 const StyledImage = styled.img`
-  box-shadow: 0px 17.52px 24.82px rgba(0, 0, 0, 0.09);
   object-fit: contain;
   width: 100%;
   height: 236px;
 `;
 
 const TemplateContent = styled.div`
-  border-top: 0.73px solid ${Colors.GEYSER_LIGHT};
-  padding: 16px 25px;
+  padding: 0 25px 16px 25px;
   display: flex;
   flex-direction: column;
   flex: 1;
 
   .title {
-    ${getTypographyByKey("h1")}
-    color: ${Colors.EBONY_CLAY};
+    color: var(--ads-v2-color-fg-emphasis-plus);
   }
   .categories {
-    ${getTypographyByKey("h4")}
-    font-weight: normal;
-    color: var(--appsmith-color-black-800);
+    // font-weight: normal;
+    color: var(--ads-v2-color-fg-emphasis);
     margin-top: ${(props) => props.theme.spaces[1]}px;
   }
   .description {
     margin-top: ${(props) => props.theme.spaces[2]}px;
-    color: var(--appsmith-color-black-700);
-    ${getTypographyByKey("p1")}
+    color: var(--ads-v2-color-fg);
   }
 `;
 
@@ -79,22 +67,6 @@ const TemplateDatasources = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: ${(props) => props.theme.spaces[1]}px;
-`;
-
-const StyledButton = styled(Button)`
-  border-radius: 18px;
-  && {
-    & > span {
-      margin-right: ${(props) => props.theme.spaces[0]}px;
-    }
-  }
-  height: 31px;
-  width: 31px;
-
-  svg {
-    height: 20px;
-    width: 20px;
-  }
 `;
 
 export interface TemplateProps {
@@ -154,16 +126,22 @@ export function TemplateLayout(props: TemplateLayoutProps) {
       />
       <TemplateWrapper
         className={props.className}
-        data-cy="template-card"
+        data-testid="template-card"
         onClick={onClick}
       >
         <ImageWrapper className="image-wrapper">
           <StyledImage src={screenshotUrls[0]} />
         </ImageWrapper>
-        <TemplateContent>
-          <div className="title">{title}</div>
-          <div className="categories">{functions.join(" • ")}</div>
-          <div className="description">{description}</div>
+        <TemplateContent className="template-content">
+          <Text className="title" kind="heading-m" renderAs="h1">
+            {title}
+          </Text>
+          <Text className="categories" kind="heading-s" renderAs="h4">
+            {functions.join(" • ")}
+          </Text>
+          <Text className="description" kind="body-m">
+            {description}
+          </Text>
           <TemplateContentFooter>
             <TemplateDatasources>
               {datasources.map((pluginPackageName) => {
@@ -178,15 +156,14 @@ export function TemplateLayout(props: TemplateLayoutProps) {
             {props.isForkingEnabled && (
               <Tooltip
                 content={createMessage(FORK_THIS_TEMPLATE)}
-                minimal
-                position={Position.BOTTOM}
+                placement={Position.BOTTOM}
               >
-                <StyledButton
+                <Button
                   className="t--fork-template fork-button"
-                  icon="plus"
+                  isIconButton
                   onClick={onForkButtonTrigger}
-                  size={Size.medium}
-                  tag="button"
+                  size="sm"
+                  startIcon="plus"
                 />
               </Tooltip>
             )}

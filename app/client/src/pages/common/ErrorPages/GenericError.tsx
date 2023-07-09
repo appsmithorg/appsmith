@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Size } from "design-system-old";
+import { Button } from "design-system";
 
 import Page from "./Page";
 import {
@@ -16,17 +16,17 @@ function GenericError(props: { errorCode?: string }) {
     <Page
       cta={
         <Button
-          category="primary"
           className="button-position"
-          icon="right-arrow"
-          iconAlignment="right"
+          endIcon="right-arrow"
+          kind="primary"
           onClick={() => {
             dispatch(flushErrors());
             window.open("https://discord.gg/rBTTVJp", "_blank");
           }}
-          size={Size.large}
-          text="Contact us on discord"
-        />
+          size="md"
+        >
+          Contact us on discord
+        </Button>
       }
       description={createMessage(PAGE_CLIENT_ERROR_DESCRIPTION)}
       errorCode={props.errorCode}

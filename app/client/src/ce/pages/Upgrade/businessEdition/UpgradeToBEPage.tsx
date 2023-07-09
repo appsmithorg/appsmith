@@ -16,6 +16,15 @@ export const UpgradeToBEPageWrapper = styled.div`
   background: linear-gradient(90deg, #fff 20px, transparent 1%) center,
     linear-gradient(#fff 20px, transparent 1%) center, #d2ddec;
   background-size: 22px 22px;
+  position: relative;
+
+  .upgrade-page-footer-container {
+    height: 90px;
+    z-index: 2;
+    .left {
+      min-width: 100px;
+    }
+  }
 `;
 
 export const ImageContainer = styled.div`
@@ -23,19 +32,6 @@ export const ImageContainer = styled.div`
   img {
     height: calc(100vh - 400px);
     object-fit: contain;
-  }
-`;
-
-export const FooterContainer = styled.div`
-  display: flex;
-  .upgrade-page-footer-container {
-    width: calc(100% - 256px);
-    margin-left: 256px;
-    height: 90px;
-    z-index: 2;
-    .left {
-      min-width: 100px;
-    }
   }
 `;
 
@@ -94,14 +90,14 @@ export const UpgradeToBEPage = () => {
           <ContentWrapper className="content-wrapper">
             <LeftWrapper>
               <img
-                alt="Upgrade to Business Edition"
+                alt="Upgrade to Business edition"
                 loading="lazy"
                 src={BUSINESS_FEATURES_IMAGE}
               />
             </LeftWrapper>
             <ImageContainer>
               <img
-                alt="Upgrade to Business Edition"
+                alt="Upgrade to Business edition"
                 loading="lazy"
                 src={UPGRADE_BOX_IMAGE}
               />
@@ -109,13 +105,11 @@ export const UpgradeToBEPage = () => {
           </ContentWrapper>
         </FlexContainer>
       </Overlay>
-      <FooterContainer>
-        <FooterComponent
-          message={createMessage(MOVE_TO_BUSINESS_EDITION, "?")}
-          onClick={() => onUpgrade()}
-          showHeading={false}
-        />
-      </FooterContainer>
+      <FooterComponent
+        message={createMessage(MOVE_TO_BUSINESS_EDITION, "?")}
+        onClick={() => onUpgrade()}
+        showHeading={false}
+      />
     </UpgradeToBEPageWrapper>
   );
 };

@@ -72,6 +72,11 @@ export const GLOBAL_DEFS = {
     label: "string",
     value: "string",
   },
+  $__dropdrowOptionWithChildren__$: {
+    label: "string",
+    value: "string",
+    children: "[$__dropdrowOptionWithChildren__$]",
+  },
   $__chartDataPoint__$: {
     x: "string",
     y: "string",

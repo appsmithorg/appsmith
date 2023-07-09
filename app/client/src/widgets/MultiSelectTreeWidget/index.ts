@@ -19,7 +19,7 @@ export const CONFIG = {
   name: "Multi TreeSelect",
   iconSVG: IconSVG,
   needsMeta: true,
-  searchTags: ["dropdown"],
+  searchTags: ["dropdown", "multiselecttree"],
   defaults: {
     rows: 7,
     columns: 20,
@@ -70,6 +70,7 @@ export const CONFIG = {
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+    setterConfig: Widget.getSetterConfig(),
   },
   autoLayout: {
     disabledPropsDefaults: {

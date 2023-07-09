@@ -66,10 +66,11 @@ public class RestApiPlugin extends BasePlugin {
          * @return
          */
         @Override
-        public Mono<ActionExecutionResult> executeParameterized(APIConnection connection,
-                                                                ExecuteActionDTO executeActionDTO,
-                                                                DatasourceConfiguration datasourceConfiguration,
-                                                                ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> executeParameterized(
+                APIConnection connection,
+                ExecuteActionDTO executeActionDTO,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration) {
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
@@ -81,15 +82,15 @@ public class RestApiPlugin extends BasePlugin {
                 if (actionConfiguration.getBody() != null) {
 
                     // First extract all the bindings in order
-                    List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(actionConfiguration.getBody());
+                    List<MustacheBindingToken> mustacheKeysInOrder =
+                            MustacheHelper.extractMustacheKeysInOrder(actionConfiguration.getBody());
                     // Replace all the bindings with a ? as expected in a prepared statement.
-                    String updatedBody = MustacheHelper.replaceMustacheWithPlaceholder(actionConfiguration.getBody(), mustacheKeysInOrder);
+                    String updatedBody = MustacheHelper.replaceMustacheWithPlaceholder(
+                            actionConfiguration.getBody(), mustacheKeysInOrder);
 
                     try {
-                        updatedBody = (String) smartSubstitutionOfBindings(updatedBody,
-                                mustacheKeysInOrder,
-                                executeActionDTO.getParams(),
-                                parameters);
+                        updatedBody = (String) smartSubstitutionOfBindings(
+                                updatedBody, mustacheKeysInOrder, executeActionDTO.getParams(), parameters);
                     } catch (AppsmithPluginException e) {
                         ActionExecutionResult errorResult = new ActionExecutionResult();
                         errorResult.setIsExecutionSuccess(false);
@@ -104,12 +105,17 @@ public class RestApiPlugin extends BasePlugin {
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
             // If the action is paginated, update the configurations to update the correct URL.
-            if (actionConfiguration.getPaginationType() != null &&
-                    PaginationType.URL.equals(actionConfiguration.getPaginationType()) &&
-                    executeActionDTO.getPaginationField() != null) {
+            if (actionConfiguration.getPaginationType() != null
+                    && PaginationType.URL.equals(actionConfiguration.getPaginationType())
+                    && executeActionDTO.getPaginationField() != null) {
                 List<Property> paginationQueryParamsList = new ArrayList<>();
-                updateDatasourceConfigurationForPagination(actionConfiguration, datasourceConfiguration, paginationQueryParamsList,executeActionDTO.getPaginationField());
-                updateActionConfigurationForPagination(actionConfiguration, paginationQueryParamsList,executeActionDTO.getPaginationField());
+                updateDatasourceConfigurationForPagination(
+                        actionConfiguration,
+                        datasourceConfiguration,
+                        paginationQueryParamsList,
+                        executeActionDTO.getPaginationField());
+                updateActionConfigurationForPagination(
+                        actionConfiguration, paginationQueryParamsList, executeActionDTO.getPaginationField());
             }
 
             // Filter out any empty headers
@@ -119,10 +125,11 @@ public class RestApiPlugin extends BasePlugin {
             return this.executeCommon(connection, datasourceConfiguration, actionConfiguration, parameters);
         }
 
-        public Mono<ActionExecutionResult> executeCommon(APIConnection apiConnection,
-                                                         DatasourceConfiguration datasourceConfiguration,
-                                                         ActionConfiguration actionConfiguration,
-                                                         List<Map.Entry<String, String>> insertedParams) {
+        public Mono<ActionExecutionResult> executeCommon(
+                APIConnection apiConnection,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration,
+                List<Map.Entry<String, String>> insertedParams) {
 
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
@@ -138,13 +145,16 @@ public class RestApiPlugin extends BasePlugin {
 
             URI uri;
             try {
-                uri = uriUtils.createUriWithQueryParams(actionConfiguration, datasourceConfiguration, url,
-                        encodeParamsToggle);
+                uri = uriUtils.createUriWithQueryParams(
+                        actionConfiguration, datasourceConfiguration, url, encodeParamsToggle);
             } catch (Exception e) {
-                ActionExecutionRequest actionExecutionRequest =
-                        RequestCaptureFilter.populateRequestFields(actionConfiguration, null, insertedParams, objectMapper);
+                ActionExecutionRequest actionExecutionRequest = RequestCaptureFilter.populateRequestFields(
+                        actionConfiguration, null, insertedParams, objectMapper);
                 actionExecutionRequest.setUrl(url);
-                errorResult.setErrorInfo(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, RestApiErrorMessages.URI_SYNTAX_WRONG_ERROR_MSG, e.getMessage()));
+                errorResult.setErrorInfo(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        RestApiErrorMessages.URI_SYNTAX_WRONG_ERROR_MSG,
+                        e.getMessage()));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
@@ -152,50 +162,67 @@ public class RestApiPlugin extends BasePlugin {
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
 
-            WebClient.Builder webClientBuilder = restAPIActivateUtils.getWebClientBuilder(actionConfiguration,
-                    datasourceConfiguration);
+            WebClient.Builder webClientBuilder =
+                    restAPIActivateUtils.getWebClientBuilder(actionConfiguration, datasourceConfiguration);
             String reqContentType = headerUtils.getRequestContentType(actionConfiguration, datasourceConfiguration);
 
             /* Check for content type */
             final String contentTypeError = headerUtils.verifyContentType(actionConfiguration.getHeaders());
             if (contentTypeError != null) {
-                errorResult.setErrorInfo(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, RestApiErrorMessages.INVALID_CONTENT_TYPE_ERROR_MSG));
+                errorResult.setErrorInfo(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        RestApiErrorMessages.INVALID_CONTENT_TYPE_ERROR_MSG));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
 
             HttpMethod httpMethod = actionConfiguration.getHttpMethod();
             if (httpMethod == null) {
-                errorResult.setErrorInfo(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, RestApiErrorMessages.NO_HTTP_METHOD_ERROR_MSG));
+                errorResult.setErrorInfo(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        RestApiErrorMessages.NO_HTTP_METHOD_ERROR_MSG));
                 errorResult.setRequest(actionExecutionRequest);
                 return Mono.just(errorResult);
             }
 
             final RequestCaptureFilter requestCaptureFilter = new RequestCaptureFilter(objectMapper);
-            Object requestBodyObj = dataUtils.getRequestBodyObject(actionConfiguration, reqContentType,
-                    encodeParamsToggle, httpMethod);
-            WebClient client = restAPIActivateUtils.getWebClient(webClientBuilder, apiConnection, reqContentType,
-                    EXCHANGE_STRATEGIES, requestCaptureFilter);
+            Object requestBodyObj =
+                    dataUtils.getRequestBodyObject(actionConfiguration, reqContentType, encodeParamsToggle, httpMethod);
+            WebClient client = restAPIActivateUtils.getWebClient(
+                    webClientBuilder, apiConnection, reqContentType, EXCHANGE_STRATEGIES, requestCaptureFilter);
 
             /* Triggering the actual REST API call */
-            return restAPIActivateUtils.triggerApiCall(
-                        client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
-                        objectMapper, hintMessages, errorResult, requestCaptureFilter
-                    )
+            return restAPIActivateUtils
+                    .triggerApiCall(
+                            client,
+                            httpMethod,
+                            uri,
+                            requestBodyObj,
+                            actionExecutionRequest,
+                            objectMapper,
+                            hintMessages,
+                            errorResult,
+                            requestCaptureFilter)
                     .onErrorResume(error -> {
-                        errorResult.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest));
+                        boolean isBodySentWithApiRequest = requestBodyObj == null ? false : true;
+                        errorResult.setRequest(requestCaptureFilter.populateRequestFields(
+                                actionExecutionRequest, isBodySentWithApiRequest));
                         errorResult.setIsExecutionSuccess(false);
-                        if (! (error instanceof AppsmithPluginException)) {
-                            error = new AppsmithPluginException(RestApiPluginError.API_EXECUTION_FAILED, RestApiErrorMessages.API_EXECUTION_FAILED_ERROR_MSG, error);
+                        if (!(error instanceof AppsmithPluginException)) {
+                            error = new AppsmithPluginException(
+                                    RestApiPluginError.API_EXECUTION_FAILED,
+                                    RestApiErrorMessages.API_EXECUTION_FAILED_ERROR_MSG,
+                                    error);
                         }
                         errorResult.setErrorInfo(error);
                         return Mono.just(errorResult);
                     });
         }
 
-        private ActionConfiguration updateActionConfigurationForPagination(ActionConfiguration actionConfiguration,
-                                                                           List<Property> queryParamsList,
-                                                                           PaginationField paginationField) {
+        private ActionConfiguration updateActionConfigurationForPagination(
+                ActionConfiguration actionConfiguration,
+                List<Property> queryParamsList,
+                PaginationField paginationField) {
             if (PaginationField.NEXT.equals(paginationField) || PaginationField.PREV.equals(paginationField)) {
                 actionConfiguration.setPath("");
                 actionConfiguration.setQueryParameters(queryParamsList);
@@ -203,27 +230,31 @@ public class RestApiPlugin extends BasePlugin {
             return actionConfiguration;
         }
 
-        private DatasourceConfiguration updateDatasourceConfigurationForPagination(ActionConfiguration actionConfiguration,
-                                                                                   DatasourceConfiguration datasourceConfiguration,
-                                                                                   List<Property> paginationQueryParamsList,
-                                                                                   PaginationField paginationField) {
+        private DatasourceConfiguration updateDatasourceConfigurationForPagination(
+                ActionConfiguration actionConfiguration,
+                DatasourceConfiguration datasourceConfiguration,
+                List<Property> paginationQueryParamsList,
+                PaginationField paginationField) {
 
             if (PaginationField.NEXT.equals(paginationField)) {
                 if (actionConfiguration.getNext() == null) {
                     datasourceConfiguration.setUrl(null);
                 } else {
-                    paginationQueryParamsList.addAll(decodeUrlAndGetAllQueryParams(datasourceConfiguration,actionConfiguration.getNext()));
+                    paginationQueryParamsList.addAll(
+                            decodeUrlAndGetAllQueryParams(datasourceConfiguration, actionConfiguration.getNext()));
                 }
             } else if (PaginationField.PREV.equals(paginationField)) {
-                paginationQueryParamsList.addAll(decodeUrlAndGetAllQueryParams(datasourceConfiguration,actionConfiguration.getPrev()));
+                paginationQueryParamsList.addAll(
+                        decodeUrlAndGetAllQueryParams(datasourceConfiguration, actionConfiguration.getPrev()));
             }
 
             return datasourceConfiguration;
         }
 
-        private List<Property> decodeUrlAndGetAllQueryParams(DatasourceConfiguration datasourceConfiguration, String inputUrl) {
+        private List<Property> decodeUrlAndGetAllQueryParams(
+                DatasourceConfiguration datasourceConfiguration, String inputUrl) {
 
-            String decodedUrl = URLDecoder.decode(inputUrl,StandardCharsets.UTF_8);
+            String decodedUrl = URLDecoder.decode(inputUrl, StandardCharsets.UTF_8);
 
             String[] urlParts = decodedUrl.split("\\?");
             datasourceConfiguration.setUrl(urlParts[0]);
@@ -247,7 +278,7 @@ public class RestApiPlugin extends BasePlugin {
             return new ArrayList<>();
         }
 
-    private List<Property> getQueryParamListFromUrlSuffix(String queryParams) {
+        private List<Property> getQueryParamListFromUrlSuffix(String queryParams) {
 
             String[] queryParamArray = queryParams.split("&");
 
@@ -259,11 +290,11 @@ public class RestApiPlugin extends BasePlugin {
                 String key = keyValue.length > 0 ? keyValue[0] : "";
                 String value = keyValue.length > 1 ? keyValue[1] : "";
 
-                if (key.length() == 0) {
+                if (key.isEmpty()) {
                     continue;
                 }
 
-                Property property = new Property(key,value);
+                Property property = new Property(key, value);
                 queryParamList.add(property);
             }
 
@@ -271,15 +302,17 @@ public class RestApiPlugin extends BasePlugin {
         }
 
         @Override
-        public Object substituteValueInInput(int index,
-                                             String binding,
-                                             String value,
-                                             Object input,
-                                             List<Map.Entry<String, String>> insertedParams,
-                                             Object... args) {
+        public Object substituteValueInInput(
+                int index,
+                String binding,
+                String value,
+                Object input,
+                List<Map.Entry<String, String>> insertedParams,
+                Object... args) {
             String jsonBody = (String) input;
             Param param = (Param) args[0];
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null, param);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(
+                    jsonBody, value, null, insertedParams, null, param);
         }
     }
 }

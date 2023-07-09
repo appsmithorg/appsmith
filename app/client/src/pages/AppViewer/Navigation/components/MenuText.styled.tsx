@@ -21,7 +21,5 @@ export const StyledMenuItemText = styled.div<{
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    display: flex;
-    align-items: center;
   }
 `;

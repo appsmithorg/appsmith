@@ -1,32 +1,16 @@
 import { Collapse } from "@blueprintjs/core";
-import { get } from "lodash";
 import { isString } from "lodash";
 import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import type { PropsWithChildren } from "react";
 import React, { useState } from "react";
 import ReactJson from "react-json-view";
-import styled, { useTheme } from "styled-components";
+import styled from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { getLogIcon } from "./helpers";
-import type { IconName } from "design-system-old";
-import {
-  AppIcon,
-  Classes,
-  getTypographyByKey,
-  Icon,
-  IconSize,
-  Text,
-  TextType,
-  TooltipComponent,
-} from "design-system-old";
-import {
-  createMessage,
-  TROUBLESHOOT_ISSUE,
-} from "@appsmith/constants/messages";
+import { Classes, getTypographyByKey } from "design-system-old";
 import ContextualMenu from "./ContextualMenu";
-import { Colors } from "constants/Colors";
-import type { Theme } from "constants/DefaultTheme";
+import { Button } from "design-system";
 import moment from "moment";
 
 const InnerWrapper = styled.div`
@@ -40,20 +24,17 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   padding: 8px 16px 8px 16px;
 
   &.${Severity.INFO} {
-    border-bottom: 1px solid
-      ${(props) => props.theme.colors.debugger.info.borderBottom};
+    border-bottom: 1px solid var(--ads-v2-color-border);
   }
 
   &.${Severity.ERROR} {
-    background-color: #fff8f8;
-    border-bottom: 1px solid #ffebeb;
+    background-color: var(--ads-v2-color-bg-error);
+    border-bottom: 1px solid var(--ads-v2-color-border);
   }
 
   &.${Severity.WARNING} {
-    background-color: ${(props) =>
-      props.theme.colors.debugger.warning.backgroundColor};
-    border-bottom: 1px solid
-      ${(props) => props.theme.colors.debugger.warning.borderBottom};
+    background-color: var(--ads-v2-color-bg-warning);
+    border-bottom: 1px solid var(--ads-v2-color-border);
   }
 
   .${Classes.ICON} {
@@ -65,24 +46,14 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       props.collapsed
         ? `transform: rotate(-90deg);`
         : `transform: rotate(0deg); `};
-    padding-right: 4px;
   }
   .debugger-time {
     ${getTypographyByKey("h6")}
     letter-spacing: -0.24px;
     margin-left: 4px;
     margin-right: 4px;
-    &.${Severity.INFO} {
-      color: ${(props) => props.theme.colors.debugger.info.time};
-    }
-
-    &.${Severity.ERROR} {
-      color: ${(props) => props.theme.colors.debugger.error.time};
-    }
-
-    &.${Severity.WARNING} {
-      color: ${(props) => props.theme.colors.debugger.warning.time};
-    }
+    color: var(--ads-v2-color-fg-muted);
+    width: max-content;
   }
   .debugger-occurences {
     height: 16px;
@@ -91,16 +62,16 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: ${Colors.GRAY_900};
+    color: var(--ads-v2-color-fg-emphasis);
     &.${Severity.INFO} {
-      background-color: ${Colors.GREY_200};
+      background-color: var(--ads-v2-color-bg-information);
     }
     margin-right: 4px;
     &.${Severity.ERROR} {
-      background-color: ${Colors.RED_150};
+      background-color: var(--ads-v2-color-bg-error);
     }
     &.${Severity.WARNING} {
-      background-color: ${Colors.WARNING_DEBUGGER_GROUPING_BADGE};
+      background-color: var(--ads-v2-color-bg-warning);
     }
     ${getTypographyByKey("u2")}
   }
@@ -112,7 +83,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     max-width: 60%;
 
     .debugger-label {
-      color: ${(props) => props.theme.colors.debugger.label};
+      color: var(--ads-v2-color-fg-emphasis);
       ${getTypographyByKey("p1")}
       line-height: 14px;
       font-size: 12px;
@@ -126,7 +97,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       user-select: all; /* Likely future */
     }
     .debugger-entity {
-      color: ${(props) => props.theme.colors.debugger.entity};
+      color: var(--ads-v2-color-fg-emphasis);
       ${getTypographyByKey("h6")}
       margin-left: 6px;
 
@@ -135,34 +106,28 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
 
         &:hover {
           text-decoration: underline;
-          text-decoration-color: ${(props) =>
-            props.theme.colors.debugger.entity};
+          text-decoration-color: var(--ads-v2-color-fg-emphasis);
         }
       }
     }
   }
   .debugger-timetaken {
-    color: ${(props) => props.theme.colors.debugger.entity};
+    color: var(--ads-v2-color-fg-emphasis);
     margin-left: 5px;
     ${getTypographyByKey("p2")}
     line-height: 19px;
   }
 
   .debugger-entity-link {
+    // TODO: unclear why this file and ErrorLogItem.tsx have different styles when they look so similar
     margin-left: auto;
     ${getTypographyByKey("btnMedium")};
-    color: ${(props) => props.theme.colors.debugger.entityLink};
-    text-transform: uppercase;
+    color: var(--ads-v2-color-fg-emphasis);
     cursor: pointer;
-  }
-`;
-
-const StyledSearchIcon = styled(AppIcon)`
-  height: 14px;
-  width: 14px;
-  svg {
-    height: 14px;
-    width: 14px;
+    width: max-content;
+    > span {
+      font-size: 12px;
+    }
   }
 `;
 
@@ -173,12 +138,20 @@ const ContextWrapper = styled.div`
 `;
 
 const JsonWrapper = styled.div`
-  padding-top: ${(props) => props.theme.spaces[1]}px;
+  padding: ${(props) => props.theme.spaces[1] - 1}px 0
+    ${(props) => props.theme.spaces[5]}px;
   svg {
-    color: ${(props) => props.theme.colors.debugger.jsonIcon} !important;
+    color: var(--ads-v2-color-fg-muted) !important;
     height: 12px !important;
     width: 12px !important;
     vertical-align: baseline !important;
+  }
+  .object-key-val span,
+  .icon-container {
+    vertical-align: middle;
+  }
+  .brace-row {
+    vertical-align: bottom;
   }
 `;
 
@@ -186,19 +159,23 @@ type StyledCollapseProps = PropsWithChildren<{
   category: LOG_CATEGORY;
 }>;
 
+const StyledButton = styled(Button)<{ isVisible: boolean }>`
+  visibility: ${(props) => (props.isVisible ? "visible" : "hidden")};
+`;
+
 const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
   margin-top: ${(props) =>
     props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
-      ? " -20px"
+      ? " -30px"
       : " 4px"};
-  margin-left: 92px;
+  margin-left: 133px;
 
   .debugger-message {
     ${getTypographyByKey("p2")}
     line-height: 14px;
     letter-spacing: -0.24px;
     font-size: 12px;
-    color: ${(props) => props.theme.colors.debugger.message};
+    color: var(--ads-v2-color-fg-emphasis);
   }
 
   .${Classes.ICON} {
@@ -224,7 +201,7 @@ const showToggleIcon = (e: Log) => {
 
 export const getLogItemProps = (e: Log) => {
   return {
-    icon: getLogIcon(e) as IconName,
+    icon: getLogIcon(e) as string,
     timestamp: e.timestamp,
     source: e.source,
     label: e.text,
@@ -243,7 +220,7 @@ export const getLogItemProps = (e: Log) => {
 
 type LogItemProps = {
   collapsable?: boolean;
-  icon: IconName;
+  icon: string;
   timestamp: string;
   label: string;
   timeTaken: string;
@@ -279,7 +256,6 @@ function LogItem(props: LogItemProps) {
 
   const messages = props.messages || [];
   const { collapsable } = props;
-  const theme = useTheme() as Theme;
   return (
     <Wrapper
       className={props.severity}
@@ -289,15 +265,12 @@ function LogItem(props: LogItemProps) {
       }}
     >
       <InnerWrapper>
-        <Icon
-          clickable={collapsable}
-          fillColor={
-            props.severity === Severity.ERROR
-              ? get(theme, "colors.debugger.error.hoverIconColor")
-              : ""
-          }
-          name={props.icon}
-          size={IconSize.XL}
+        <Button
+          isDisabled={collapsable}
+          isIconButton
+          kind={props.severity === Severity.ERROR ? "error" : "tertiary"}
+          size="md"
+          startIcon={props.icon}
         />
         <span className={`debugger-time ${props.severity}`}>
           {props.severity === Severity.ERROR
@@ -305,14 +278,15 @@ function LogItem(props: LogItemProps) {
             : props.timestamp}
         </span>
 
-        <Icon
+        <StyledButton
           className={`${Classes.ICON} debugger-toggle`}
-          clickable={collapsable}
-          fillColor={get(theme, "colors.debugger.jsonIcon")}
-          invisible={!collapsable}
-          name={"expand-more"}
+          isDisabled={!collapsable}
+          isIconButton
+          isVisible={!!collapsable}
+          kind="tertiary"
           onClick={() => setIsOpen(!isOpen)}
-          size={IconSize.XL}
+          size="sm"
+          startIcon={"expand-more"}
         />
         {!(
           props.collapsable &&
@@ -346,21 +320,13 @@ function LogItem(props: LogItemProps) {
                     entity={props.source}
                     error={{ message: { name: "", message: "" } }}
                   >
-                    <TooltipComponent
-                      content={
-                        <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-                          {createMessage(TROUBLESHOOT_ISSUE)}
-                        </Text>
-                      }
-                      minimal
-                      position="bottom-left"
-                    >
-                      <StyledSearchIcon
-                        className={`${Classes.ICON}`}
-                        name={"help"}
-                        size={IconSize.SMALL}
-                      />
-                    </TooltipComponent>
+                    <Button
+                      className={`${Classes.ICON}`}
+                      isIconButton
+                      kind="tertiary"
+                      size="sm"
+                      startIcon={"question"}
+                    />
                   </ContextualMenu>
                 </ContextWrapper>
               )}

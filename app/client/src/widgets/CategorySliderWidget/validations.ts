@@ -12,7 +12,7 @@ export function optionsCustomValidation(
     if (options.length < 2) {
       return {
         isValid: false,
-        parsed: options,
+        parsed: [],
         messages: [
           {
             name: "ValidationError",

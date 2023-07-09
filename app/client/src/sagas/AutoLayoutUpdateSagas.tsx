@@ -5,7 +5,10 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type {
+  CanvasWidgetsReduxState,
+  UpdateWidgetsPayload,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   all,
   call,
@@ -19,7 +22,11 @@ import {
   alterLayoutForMobile,
   getCanvasDimensions,
 } from "utils/autoLayout/AutoLayoutUtils";
-import { getWidgets } from "./selectors";
+import {
+  getCanvasAndMetaWidgets,
+  getWidgets,
+  getWidgetsMeta,
+} from "./selectors";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   GridDefaults,
@@ -34,7 +41,6 @@ import {
 } from "selectors/editorSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import convertDSLtoAuto from "utils/DSLConversions/fixedToAutoLayout";
 import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
@@ -46,7 +52,10 @@ import {
   setBottomRow,
   setRightColumn,
 } from "utils/autoLayout/flexWidgetUtils";
-import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
+import {
+  updateMultipleMetaWidgetPropertiesAction,
+  updateMultipleWidgetPropertiesAction,
+} from "actions/controlActions";
 import { isEmpty } from "lodash";
 import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
 import { updateApplication } from "@appsmith/actions/applicationActions";
@@ -54,6 +63,14 @@ import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { AppState } from "@appsmith/reducers";
+import { nestDSL, flattenDSL } from "@shared/dsl";
+
+function* shouldRunSaga(saga: any, action: ReduxAction<unknown>) {
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
+  if (isAutoLayout) {
+    yield call(saga, action);
+  }
+}
 
 export function* updateLayoutForMobileCheckpoint(
   actionPayload: ReduxAction<{
@@ -88,14 +105,27 @@ export function* updateLayoutForMobileCheckpoint(
       allWidgets = yield select(getWidgets);
     }
 
-    const mainCanvasWidth: number = yield select(getMainCanvasWidth);
+    const metaProps: Record<string, any> = yield select(getWidgetsMeta);
     const updatedWidgets: CanvasWidgetsReduxState = isMobile
-      ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, mainCanvasWidth)
-      : alterLayoutForDesktop(allWidgets, parentId, mainCanvasWidth);
+      ? alterLayoutForMobile(
+          allWidgets,
+          parentId,
+          canvasWidth,
+          canvasWidth,
+          false,
+          metaProps,
+        )
+      : alterLayoutForDesktop(
+          allWidgets,
+          parentId,
+          canvasWidth,
+          false,
+          metaProps,
+        );
     yield put(updateAndSaveLayout(updatedWidgets));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
     log.debug(
-      "Auto Layout : updating layout for mobile viewport took",
+      "Auto-layout : updating layout for mobile viewport took",
       performance.now() - start,
       "ms",
     );
@@ -128,25 +158,19 @@ export function* updateLayoutPositioningSaga(
 
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
-    //Convert Fixed Layout to Auto
+    //Convert fixed layout to auto-layout
     if (payloadPositioningType === AppPositioningTypes.AUTO) {
-      const denormalizedDSL = CanvasWidgetsNormalizer.denormalize(
-        MAIN_CONTAINER_WIDGET_ID,
-        { canvasWidgets: allWidgets },
-      );
+      const nestedDSL = nestDSL(allWidgets);
 
-      const autoDSL = convertDSLtoAuto(denormalizedDSL);
+      const autoDSL = convertDSLtoAuto(nestedDSL);
       log.debug("autoDSL", autoDSL);
 
-      yield put(
-        updateAndSaveLayout(
-          CanvasWidgetsNormalizer.normalize(autoDSL).entities.canvasWidgets,
-        ),
-      );
+      const flattenedDSL = flattenDSL(autoDSL);
+      yield put(updateAndSaveLayout(flattenedDSL));
 
       yield call(recalculateAutoLayoutColumnsAndSave);
     }
-    // Convert Auto layout to fixed
+    // Convert auto-layout to fixed
     else {
       yield put(
         updateAndSaveLayout(convertNormalizedDSLToFixed(allWidgets, "DESKTOP")),
@@ -206,7 +230,9 @@ function* updateWidgetDimensionsSaga(
 ) {
   let { height, width } = action.payload;
   const { widgetId } = action.payload;
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const allWidgets: CanvasWidgetsReduxState = yield select(
+    getCanvasAndMetaWidgets,
+  );
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const isWidgetResizing: boolean = yield select(getIsResizing);
@@ -272,10 +298,11 @@ function* updateWidgetDimensionsSaga(
 function* processAutoLayoutDimensionUpdatesSaga() {
   if (Object.keys(autoLayoutWidgetDimensionUpdateBatch).length === 0) return;
 
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const allWidgets: CanvasWidgetsReduxState = yield select(
+    getCanvasAndMetaWidgets,
+  );
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
-
   let widgets = allWidgets;
   const widgetsOld = { ...widgets };
   const parentIds = new Set<string>();
@@ -319,7 +346,7 @@ function* processAutoLayoutDimensionUpdatesSaga() {
       [widgetId]: widgetToBeUpdated,
     };
   }
-
+  const metaProps: Record<string, any> = yield select(getWidgetsMeta);
   // Update the position of all the widgets
   for (const parentId of parentIds) {
     widgets = updateWidgetPositions(
@@ -327,6 +354,8 @@ function* processAutoLayoutDimensionUpdatesSaga() {
       parentId,
       isMobile,
       mainCanvasWidth,
+      false,
+      metaProps,
     );
   }
 
@@ -351,6 +380,7 @@ function* processAutoLayoutDimensionUpdatesSaga() {
       "mobileBottomRow",
       "mobileLeftColumn",
       "mobileRightColumn",
+      "height",
     ];
 
     for (const prop of positionProperties) {
@@ -368,11 +398,26 @@ function* processAutoLayoutDimensionUpdatesSaga() {
     );
   }
 
+  const canvasWidgetsToUpdate: UpdateWidgetsPayload = {};
+  const metaWidgetsToUpdate: UpdateWidgetsPayload = {};
+
+  for (const widgetId in widgetsToUpdate) {
+    const widget = widgets[widgetId];
+    if (widget.isMetaWidget) {
+      metaWidgetsToUpdate[widgetId] = widgetsToUpdate[widgetId];
+    } else {
+      canvasWidgetsToUpdate[widgetId] = widgetsToUpdate[widgetId];
+    }
+  }
+
   // Push all updates to the CanvasWidgetsReducer.
   // Note that we're not calling `UPDATE_LAYOUT`
   // as we don't need to trigger an eval
-  if (!isEmpty(widgetsToUpdate)) {
-    yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
+  if (!isEmpty(canvasWidgetsToUpdate)) {
+    yield put(updateMultipleWidgetPropertiesAction(canvasWidgetsToUpdate));
+  }
+  if (!isEmpty(metaWidgetsToUpdate)) {
+    yield put(updateMultipleMetaWidgetPropertiesAction(metaWidgetsToUpdate));
   }
 
   // clear the batch after processing
@@ -394,6 +439,59 @@ export function* updateApplicationLayoutType(
   );
 }
 
+function* updatePositionsOnTabChangeSaga(
+  action: ReduxAction<{ selectedTabWidgetId: string; widgetId: string }>,
+) {
+  const { selectedTabWidgetId, widgetId } = action.payload;
+  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  if (!selectedTabWidgetId || !allWidgets[selectedTabWidgetId]) return;
+  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+  const mainCanvasWidth: number = yield select(getMainCanvasWidth);
+  const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+
+  const updatedWidgets: CanvasWidgetsReduxState = updateWidgetPositions(
+    allWidgets,
+    selectedTabWidgetId,
+    isMobile,
+    mainCanvasWidth,
+    false,
+    {
+      ...metaProps,
+      [widgetId]: { ...metaProps[widgetId], selectedTabWidgetId },
+    },
+  );
+  yield put(updateAndSaveLayout(updatedWidgets));
+}
+
+// TODO: BATCH_UPDATE_MULTIPLE_WIDGETS_PROPERTY is already updating the height of tabs widget and the canvas. Why?
+function* updatePositionsSaga(action: ReduxAction<{ widgetId: string }>) {
+  const { widgetId } = action.payload;
+  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  if (!widgetId || !allWidgets[widgetId]) return;
+  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+  const mainCanvasWidth: number = yield select(getMainCanvasWidth);
+  const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+  let canvasId: string = widgetId;
+  if (allWidgets[canvasId].type === "TABS_WIDGET") {
+    // For tabs widget, recalculate the height of child canvas.
+    if (
+      metaProps &&
+      metaProps[canvasId] &&
+      metaProps[canvasId]?.selectedTabWidgetId
+    )
+      canvasId = metaProps[canvasId]?.selectedTabWidgetId;
+  }
+  const updatedWidgets: CanvasWidgetsReduxState = updateWidgetPositions(
+    allWidgets,
+    canvasId,
+    isMobile,
+    mainCanvasWidth,
+    false,
+    metaProps,
+  );
+  yield put(updateAndSaveLayout(updatedWidgets));
+}
+
 export default function* layoutUpdateSagas() {
   yield all([
     takeLatest(
@@ -412,6 +510,16 @@ export default function* layoutUpdateSagas() {
       50,
       ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
       processAutoLayoutDimensionUpdatesSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.UPDATE_POSITIONS_ON_TAB_CHANGE,
+      shouldRunSaga,
+      updatePositionsOnTabChangeSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
+      shouldRunSaga,
+      updatePositionsSaga,
     ),
   ]);
 }

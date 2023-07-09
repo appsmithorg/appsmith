@@ -1,48 +1,37 @@
 import * as React from "react";
 
-import { ButtonGroup, TooltipComponent } from "design-system-old";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { borderRadiusOptions } from "constants/ThemeConstants";
 import type { DSEventDetail } from "utils/AppsmithUtils";
+import { SegmentedControl, Tooltip } from "design-system";
 import {
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
 
-/**
- * ----------------------------------------------------------------------------
- * TYPES
- *-----------------------------------------------------------------------------
- */
 export interface BorderRadiusOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;
 }
 
 const options = Object.keys(borderRadiusOptions).map((optionKey) => ({
-  icon: (
-    <TooltipComponent
-      content={optionKey}
-      key={optionKey}
-      openOnTargetFocus={false}
-    >
+  label: (
+    <Tooltip content={optionKey} key={optionKey}>
       <div
-        className="w-5 h-5 border-t-2 border-l-2 border-gray-500"
-        style={{ borderTopLeftRadius: borderRadiusOptions[optionKey] }}
+        className="w-5 h-5 border-t-2 border-l-2"
+        style={{
+          borderColor: "var(--ads-v2-color-fg)",
+          borderTopLeftRadius: borderRadiusOptions[optionKey],
+        }}
       />
-    </TooltipComponent>
+    </Tooltip>
   ),
   value: borderRadiusOptions[optionKey],
 }));
 
 const optionsValues = new Set(Object.values(borderRadiusOptions));
 
-/**
- * ----------------------------------------------------------------------------
- * COMPONENT
- *-----------------------------------------------------------------------------
- */
 class BorderRadiusOptionsControl extends BaseControl<BorderRadiusOptionsControlProps> {
   componentRef = React.createRef<HTMLDivElement>();
 
@@ -78,17 +67,18 @@ class BorderRadiusOptionsControl extends BaseControl<BorderRadiusOptionsControlP
 
   public render() {
     return (
-      <ButtonGroup
-        options={options}
-        ref={this.componentRef}
-        selectButton={(value, isUpdatedViaKeyboard = false) => {
+      <SegmentedControl
+        isFullWidth={false}
+        onChange={(value, isUpdatedViaKeyboard = false) => {
           this.updateProperty(
             this.props.propertyName,
             value,
             isUpdatedViaKeyboard,
           );
         }}
-        values={this.props.evaluatedValue ? [this.props.evaluatedValue] : []}
+        options={options}
+        ref={this.componentRef}
+        value={this.props.evaluatedValue || ""}
       />
     );
   }

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { DialogComponent } from "design-system-old";
+import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  allTemplatesFiltersSelector,
   templateModalOpenSelector,
   templatesCountSelector,
 } from "selectors/templatesSelectors";
@@ -15,7 +16,18 @@ import { fetchDefaultPlugins } from "actions/pluginActions";
 import TemplateDetailedView from "./TemplateDetailedView";
 import { isEmpty } from "lodash";
 import type { AppState } from "@appsmith/reducers";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
+import TemplateModalHeader from "./Header";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
+const ModalContentWrapper = styled(ModalContent)`
+  width: 100%;
+  overflow-y: hidden;
+`;
+const ModalBodyWrapper = styled(ModalBody)`
+  width: 100%;
+  overflow-y: hidden;
+`;
 function TemplatesModal() {
   const templatesModalOpen = useSelector(templateModalOpenSelector);
   const dispatch = useDispatch();
@@ -23,13 +35,16 @@ function TemplatesModal() {
   const pluginListLength = useSelector(
     (state: AppState) => state.entities.plugins.defaultPluginList.length,
   );
-  const filters = useSelector(
-    (state: AppState) => state.ui.templates.allFilters,
-  );
+  const filters = useSelector(allTemplatesFiltersSelector);
   const [showTemplateDetails, setShowTemplateDetails] = useState("");
 
   useEffect(() => {
     setShowTemplateDetails("");
+    if (templatesModalOpen) {
+      dispatch({
+        type: ReduxActionTypes.RESET_TEMPLATE_FILTERS,
+      });
+    }
   }, [templatesModalOpen]);
 
   useEffect(() => {
@@ -50,9 +65,11 @@ function TemplatesModal() {
     }
   }, [filters]);
 
-  const onClose = () => {
-    dispatch(showTemplatesModal(false));
-    setShowTemplateDetails("");
+  const onClose = (open: boolean) => {
+    if (open === false) {
+      dispatch(showTemplatesModal(false));
+      setShowTemplateDetails("");
+    }
   };
 
   const onTemplateClick = (id: string) => {
@@ -60,24 +77,38 @@ function TemplatesModal() {
   };
 
   return (
-    <DialogComponent
-      canEscapeKeyClose
-      canOutsideClickClose
-      isOpen={templatesModalOpen}
-      noModalBodyMarginTop
-      onClose={onClose}
-      width={"90%"}
-    >
-      {!!showTemplateDetails ? (
-        <TemplateDetailedView
-          onBackPress={() => setShowTemplateDetails("")}
-          onClose={onClose}
-          templateId={showTemplateDetails}
-        />
-      ) : (
-        <TemplatesList onClose={onClose} onTemplateClick={onTemplateClick} />
-      )}
-    </DialogComponent>
+    <Modal onOpenChange={(open) => onClose(open)} open={templatesModalOpen}>
+      <ModalContentWrapper data-testid="t--templates-dialog-component">
+        <ModalHeader>
+          {!!showTemplateDetails ? (
+            <TemplateModalHeader
+              onBackPress={() => setShowTemplateDetails("")}
+              // onClose={() => onClose(false)}
+            />
+          ) : (
+            <TemplateModalHeader
+              className="modal-header"
+              hideBackButton
+              // onClose={() => onClose(false)}
+            />
+          )}
+        </ModalHeader>
+        <ModalBodyWrapper>
+          {!!showTemplateDetails ? (
+            <TemplateDetailedView
+              onBackPress={() => setShowTemplateDetails("")}
+              onClose={() => onClose(false)}
+              templateId={showTemplateDetails}
+            />
+          ) : (
+            <TemplatesList
+              onClose={() => onClose(false)}
+              onTemplateClick={onTemplateClick}
+            />
+          )}
+        </ModalBodyWrapper>
+      </ModalContentWrapper>
+    </Modal>
   );
 }
 

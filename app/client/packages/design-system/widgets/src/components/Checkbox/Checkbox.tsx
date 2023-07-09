@@ -16,11 +16,7 @@ export const Checkbox = forwardRef(
 
     return (
       <StyledCheckbox labelPosition={labelPosition} ref={ref} {...rest}>
-        {children && (
-          <div className="label">
-            <Text>{children}</Text>
-          </div>
-        )}
+        {children && <Text>{children}</Text>}
       </StyledCheckbox>
     );
   },

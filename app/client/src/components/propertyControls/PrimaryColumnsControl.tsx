@@ -6,10 +6,7 @@ import * as Sentry from "@sentry/react";
 import _ from "lodash";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { StyledPropertyPaneButton } from "./StyledControls";
-import styled from "styled-components";
 import type { Indices } from "constants/Layers";
-import { Size, Category } from "design-system-old";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -27,22 +24,7 @@ import { getEvalErrorPath, getEvalValuePath } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-
-const TabsWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
-
-const AddColumnButton = styled(StyledPropertyPaneButton)`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  &&&& {
-    margin-top: 12px;
-    margin-bottom: 8px;
-  }
-`;
+import { Button } from "design-system";
 
 interface ReduxStateProps {
   dynamicData: DataTree;
@@ -160,7 +142,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
       !_.isNull(this.state.focusedIndex) &&
       _.includes(this.state.duplicateColumnIds, column?.id);
     return (
-      <TabsWrapper>
+      <div className="flex flex-col w-full gap-1">
         <EvaluatedValuePopupWrapper {...this.props} isFocused={isFocused}>
           <DraggableListControl
             deleteOption={this.deleteOption}
@@ -174,7 +156,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
               DraggableListCard({
                 ...props,
                 isDelete: false,
-                placeholder: "Column Title",
+                placeholder: "Column title",
               })
             }
             toggleVisibility={this.toggleVisibility}
@@ -184,17 +166,16 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
           />
         </EvaluatedValuePopupWrapper>
 
-        <AddColumnButton
-          category={Category.secondary}
-          className="t--add-column-btn"
-          icon="plus"
+        <Button
+          className="self-end t--add-column-btn"
+          kind="tertiary"
           onClick={this.addNewColumn}
-          size={Size.medium}
-          tag="button"
-          text="Add a new column"
-          type="button"
-        />
-      </TabsWrapper>
+          size="md"
+          startIcon="plus"
+        >
+          Add new column
+        </Button>
+      </div>
     );
   }
 

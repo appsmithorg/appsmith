@@ -218,11 +218,7 @@
                         "minDynamicHeight": 4,
                         "maxDynamicHeight": 9000,
                         "dynamicHeight": "FIXED",
-                        "searchTags": [
-                          "typography",
-                          "paragraph",
-                          "label"
-                        ],
+                        "searchTags": ["typography", "paragraph", "label"],
                         "type": "TEXT_WIDGET",
                         "hideCard": false,
                         "isDeprecated": false,
@@ -280,11 +276,7 @@
                         "minDynamicHeight": 4,
                         "maxDynamicHeight": 9000,
                         "dynamicHeight": "FIXED",
-                        "searchTags": [
-                          "typography",
-                          "paragraph",
-                          "label"
-                        ],
+                        "searchTags": ["typography", "paragraph", "label"],
                         "type": "TEXT_WIDGET",
                         "hideCard": false,
                         "isDeprecated": false,
@@ -354,11 +346,7 @@
                 "maxDynamicHeight": 9000,
                 "dynamicHeight": "FIXED",
                 "shouldScrollContents": false,
-                "searchTags": [
-                  "div",
-                  "parent",
-                  "group"
-                ],
+                "searchTags": ["div", "parent", "group"],
                 "type": "CONTAINER_WIDGET",
                 "hideCard": false,
                 "isDeprecated": false,
@@ -371,9 +359,7 @@
                 "disallowCopy": true,
                 "noContainerOffset": true,
                 "positioning": "vertical",
-                "disabledWidgetFeatures": [
-                  "dynamicHeight"
-                ],
+                "disabledWidgetFeatures": ["dynamicHeight"],
                 "widgetId": "djr56i94xr",
                 "renderMode": "CANVAS",
                 "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -567,12 +553,7 @@
                 "minDynamicHeight": 4,
                 "maxDynamicHeight": 9000,
                 "dynamicHeight": "FIXED",
-                "searchTags": [
-                  "form",
-                  "text input",
-                  "number",
-                  "textarea"
-                ],
+                "searchTags": ["form", "text input", "number", "textarea"],
                 "type": "INPUT_WIDGET_V2",
                 "hideCard": false,
                 "isDeprecated": false,
@@ -630,12 +611,7 @@
                 "minDynamicHeight": 4,
                 "maxDynamicHeight": 9000,
                 "dynamicHeight": "FIXED",
-                "searchTags": [
-                  "form",
-                  "text input",
-                  "number",
-                  "textarea"
-                ],
+                "searchTags": ["form", "text input", "number", "textarea"],
                 "type": "INPUT_WIDGET_V2",
                 "hideCard": false,
                 "isDeprecated": false,
@@ -693,12 +669,7 @@
                 "minDynamicHeight": 4,
                 "maxDynamicHeight": 9000,
                 "dynamicHeight": "FIXED",
-                "searchTags": [
-                  "form",
-                  "text input",
-                  "number",
-                  "textarea"
-                ],
+                "searchTags": ["form", "text input", "number", "textarea"],
                 "type": "INPUT_WIDGET_V2",
                 "hideCard": false,
                 "isDeprecated": false,
@@ -756,12 +727,7 @@
                 "minDynamicHeight": 4,
                 "maxDynamicHeight": 9000,
                 "dynamicHeight": "FIXED",
-                "searchTags": [
-                  "form",
-                  "text input",
-                  "number",
-                  "textarea"
-                ],
+                "searchTags": ["form", "text input", "number", "textarea"],
                 "type": "INPUT_WIDGET_V2",
                 "hideCard": false,
                 "isDeprecated": false,
@@ -819,12 +785,7 @@
                 "minDynamicHeight": 4,
                 "maxDynamicHeight": 9000,
                 "dynamicHeight": "FIXED",
-                "searchTags": [
-                  "form",
-                  "text input",
-                  "number",
-                  "textarea"
-                ],
+                "searchTags": ["form", "text input", "number", "textarea"],
                 "type": "INPUT_WIDGET_V2",
                 "hideCard": false,
                 "isDeprecated": false,
@@ -882,12 +843,7 @@
                 "minDynamicHeight": 4,
                 "maxDynamicHeight": 9000,
                 "dynamicHeight": "FIXED",
-                "searchTags": [
-                  "form",
-                  "text input",
-                  "number",
-                  "textarea"
-                ],
+                "searchTags": ["form", "text input", "number", "textarea"],
                 "type": "INPUT_WIDGET_V2",
                 "hideCard": false,
                 "isDeprecated": false,
@@ -945,12 +901,7 @@
                 "minDynamicHeight": 4,
                 "maxDynamicHeight": 9000,
                 "dynamicHeight": "FIXED",
-                "searchTags": [
-                  "form",
-                  "text input",
-                  "number",
-                  "textarea"
-                ],
+                "searchTags": ["form", "text input", "number", "textarea"],
                 "type": "INPUT_WIDGET_V2",
                 "hideCard": false,
                 "isDeprecated": false,
@@ -1008,12 +959,7 @@
                 "minDynamicHeight": 4,
                 "maxDynamicHeight": 9000,
                 "dynamicHeight": "FIXED",
-                "searchTags": [
-                  "form",
-                  "text input",
-                  "number",
-                  "textarea"
-                ],
+                "searchTags": ["form", "text input", "number", "textarea"],
                 "type": "INPUT_WIDGET_V2",
                 "hideCard": false,
                 "isDeprecated": false,
@@ -1071,12 +1017,7 @@
                 "minDynamicHeight": 4,
                 "maxDynamicHeight": 9000,
                 "dynamicHeight": "FIXED",
-                "searchTags": [
-                  "form",
-                  "text input",
-                  "number",
-                  "textarea"
-                ],
+                "searchTags": ["form", "text input", "number", "textarea"],
                 "type": "INPUT_WIDGET_V2",
                 "hideCard": false,
                 "isDeprecated": false,
@@ -1137,11 +1078,7 @@
         "maxDynamicHeight": 9000,
         "dynamicHeight": "AUTO_HEIGHT",
         "shouldScrollContents": true,
-        "searchTags": [
-          "div",
-          "parent",
-          "group"
-        ],
+        "searchTags": ["div", "parent", "group"],
         "type": "CONTAINER_WIDGET",
         "hideCard": false,
         "isDeprecated": false,

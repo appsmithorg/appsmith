@@ -1,40 +1,52 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.0.6</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
+        <!-- lookup parent from repository -->
     </parent>
-
-    <modelVersion>4.0.0</modelVersion>
     <groupId>com.appsmith</groupId>
     <artifactId>integrated</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Integrated Appsmith</name>
 
+    <modules>
+        <module>reactive-caching</module>
+        <module>appsmith-interfaces</module>
+        <module>appsmith-plugins</module>
+        <module>appsmith-server</module>
+        <module>appsmith-git</module>
+    </modules>
+
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <deploy.disabled>true</deploy.disabled>
+        <h2.version>2.1.210</h2.version>
         <java.version>17</java.version>
         <javadoc.disabled>true</javadoc.disabled>
-        <deploy.disabled>true</deploy.disabled>
-        <source.disabled>true</source.disabled>
-        <project.groupId>com.appsmith</project.groupId>
-        <project.version>1.0-SNAPSHOT</project.version>
-        <!-- By default skip the dockerization step. Only activate if necessary -->
-        <skipDockerBuild>true</skipDockerBuild>
-        <spring-boot.version>3.0.6</spring-boot.version>
-        <h2.version>2.1.210</h2.version>
-        <testcontainers.version>1.17.3</testcontainers.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <mockito.version>4.4.0</mockito.version>
         <mockwebserver.version>5.0.0-alpha.2</mockwebserver.version>
         <okhttp3.version>4.10.0</okhttp3.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.groupId>com.appsmith</project.groupId>
+        <project.version>1.0-SNAPSHOT</project.version>
         <reactor-test.version>3.5.1</reactor-test.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <!-- By default skip the dockerization step. Only activate if necessary -->
+        <skipDockerBuild>true</skipDockerBuild>
+        <!-- We're forcing this version temporarily to fix CVE-2022-1471-->
+        <snakeyaml.version>2.0</snakeyaml.version>
+        <source.disabled>true</source.disabled>
+        <spotless.version>2.36.0</spotless.version>
+        <spring-boot.version>3.0.6</spring-boot.version>
+        <testcontainers.version>1.17.3</testcontainers.version>
     </properties>
 
     <build>
@@ -65,6 +77,12 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M5</version>
+                <configuration>
+                    <!-- Allow JUnit to access the test classes -->
+                    <argLine>--add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.time=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED</argLine>
+                </configuration>
                 <dependencies>
                     <dependency>
                         <groupId>org.junit.jupiter</groupId>
@@ -78,14 +96,6 @@
                         </exclusions>
                     </dependency>
                 </dependencies>
-                <configuration>
-                    <!-- Allow JUnit to access the test classes -->
-                    <argLine>
-                        --add-opens java.base/java.lang=ALL-UNNAMED
-                        --add-opens java.base/java.time=ALL-UNNAMED
-                        --add-opens java.base/java.util=ALL-UNNAMED
-                    </argLine>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -110,17 +120,66 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.version}</version>
+                <configuration>
+                    <formats>
+                        <!-- you can define as many formats as you want, each is independent -->
+                        <format>
+                            <!-- define the files to apply to -->
+                            <includes>
+                                <include>*.md</include>
+                                <include>.gitignore</include>
+                            </includes>
+                            <!-- define the steps to apply to those files -->
+                            <trimTrailingWhitespace/>
+                            <endWithNewline/>
+                            <indent>
+                                <tabs>true</tabs>
+                                <spacesPerTab>2</spacesPerTab>
+                            </indent>
+                        </format>
+                    </formats>
+                    <!-- define a language-specific format -->
+                    <java>
+                        <!-- Cleanthat will refactor your code, but it may break your style: apply it before your formatter -->
+                        <cleanthat/>
+                        <!-- apply a specific flavor of google-java-format and reflow long strings -->
+                        <palantirJavaFormat/>
+                        <importOrder>
+                            <order>,javax|java,\#</order>
+                        </importOrder>
+                        <removeUnusedImports/>
+                        <formatAnnotations/>
+                    </java>
+                    <pom>
+                        <includes>
+                            <include>pom.xml</include>
+                        </includes>
+                        <sortPom>
+                            <encoding>UTF-8</encoding>
+                            <keepBlankLines>true</keepBlankLines>
+                            <nrOfIndentSpace>4</nrOfIndentSpace>
+                            <indentBlankLines>false</indentBlankLines>
+                            <indentSchemaLocation>true</indentSchemaLocation>
+                            <expandEmptyElements>false</expandEmptyElements>
+                            <sortProperties>true</sortProperties>
+                        </sortPom>
+                    </pom>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>apply</goal>
+                        </goals>
+                        <phase>compile</phase>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
 
     </build>
 
-    <modules>
-        <module>reactive-caching</module>
-        <module>appsmith-interfaces</module>
-        <module>appsmith-plugins</module>
-        <module>appsmith-server</module>
-        <module>appsmith-git</module>
-    </modules>
-
 </project>
-

@@ -4,8 +4,10 @@ import type { Ref } from "react";
 import React, { forwardRef, useState, useCallback } from "react";
 
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
-import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
-import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
+import { importSvg } from "design-system-old";
+
+const CrossIcon = importSvg(() => import("assets/icons/ads/cross.svg"));
+const SearchIcon = importSvg(() => import("assets/icons/ads/search.svg"));
 
 /*eslint-disable react/display-name */
 export const ExplorerSearch = forwardRef(

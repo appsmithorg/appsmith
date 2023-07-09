@@ -8,10 +8,9 @@ import {
 } from "react-router-dom";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
-import type { MenuItemProps, TabProp } from "design-system-old";
-import { TabComponent } from "design-system-old";
 import styled from "styled-components";
 
+import { Tabs, Tab, TabsList, TabPanel } from "design-system";
 import MemberSettings from "@appsmith/pages/workspace/Members";
 import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
@@ -22,7 +21,6 @@ import {
 import { useMediaQuery } from "react-responsive";
 import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import { debounce } from "lodash";
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { SettingsPageHeader } from "./SettingsPageHeader";
 import { navigateToTab } from "@appsmith/pages/workspace/helpers";
@@ -37,17 +35,29 @@ import {
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { APPLICATIONS_URL } from "constants/routes";
+import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 
 const { cloudHosting } = getAppsmithConfigs();
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
+type TabProp = {
+  key: string;
+  title: string;
+  count?: number;
+  panelComponent?: JSX.Element;
+};
+
 const SettingsWrapper = styled.div<{
   isMobile?: boolean;
 }>`
-  width: ${(props) => (props.isMobile ? "345px" : "916px")};
-  margin: 0 auto;
+  width: ${(props) => (props.isMobile ? "345px" : "978px")};
+  margin: var(--ads-v2-spaces-7) auto;
   height: 100%;
+  padding-left: var(--ads-v2-spaces-7);
+  overflow: hidden;
+  padding-left: ${(props) =>
+    props.isMobile ? "0" : "var(--ads-v2-spaces-7);"};
   &::-webkit-scrollbar {
     width: 0px;
   }
@@ -56,33 +66,32 @@ const SettingsWrapper = styled.div<{
     ${({ isMobile }) =>
       !isMobile &&
       `
-      padding: 104px 0 0;
+      padding: 106px 0 0;
   `}
   }
 `;
 
 const StyledStickyHeader = styled(StickyHeader)<{ isMobile?: boolean }>`
-  padding-top: 24px;
+  /* padding-top: 24px; */
   ${({ isMobile }) =>
     !isMobile &&
     `
-  top: 48px;
+  top: 72px;
   position: fixed;
-  width: 916px;
+  width: 954px;
   `}
 `;
-
 export const TabsWrapper = styled.div`
-  .react-tabs {
-    margin-left: 8px;
-  }
-  .react-tabs__tab-list {
-    border-bottom: 1px solid var(--appsmith-color-black-200);
-    padding: 36px 0 0;
-    width: 908px;
-  }
-  .react-tabs__tab-panel {
-    height: calc(100% - 76px);
+  padding-top: var(--ads-v2-spaces-4);
+
+  .ads-v2-tabs {
+    height: 100%;
+    overflow: hidden;
+
+    .tab-panel {
+      overflow: auto;
+      height: calc(100% - 46px);
+    }
   }
 `;
 
@@ -108,6 +117,7 @@ export default function Settings() {
   const history = useHistory();
 
   const currentTab = location.pathname.split("/").pop();
+  // const [selectedTab, setSelectedTab] = useState(currentTab);
 
   const isMemberofTheWorkspace = isPermitted(
     currentWorkspace?.userPermissions || [],
@@ -187,19 +197,15 @@ export default function Settings() {
       key: "members",
       title: "Members",
       panelComponent: MemberSettingsComponent,
-      // icon: "gear",
-      // iconSize: IconSize.XL,
     },
     {
       key: "general",
       title: "General Settings",
       panelComponent: GeneralSettingsComponent,
-      // icon: "user-2",
-      // iconSize: IconSize.XL,
     },
   ].filter(Boolean) as TabProp[];
 
-  const pageMenuItems: MenuItemProps[] = [
+  const pageMenuItems: any[] = [
     {
       icon: "book-line",
       className: "documentation-page-menu-item",
@@ -211,7 +217,7 @@ export default function Settings() {
   ];
 
   const isMembersPage = tabArr.length > 1 && currentTab === TABS.MEMBERS;
-  const isGeneralPage = tabArr.length === 1 && currentTab === TABS.GENERAL;
+  // const isGeneralPage = tabArr.length === 1 && currentTab === TABS.GENERAL;
 
   const isMobile: boolean = useMediaQuery({ maxWidth: 767 });
   return (
@@ -234,26 +240,47 @@ export default function Settings() {
           className="tabs-wrapper"
           data-testid="t--user-edit-tabs-wrapper"
         >
-          <TabComponent
-            onSelect={(index: number) =>
-              navigateToTab(tabArr[index].key, location, history)
+          <Tabs
+            defaultValue={currentTab}
+            onValueChange={(key: string) =>
+              navigateToTab(key, location, history)
             }
-            selectedIndex={isMembersPage ? 0 : isGeneralPage ? 0 : 1}
-            tabs={tabArr}
-          />
+            value={currentTab}
+          >
+            <TabsList>
+              {tabArr.map((tab) => {
+                return (
+                  <Tab
+                    data-testid={`t--tab-${tab.key}`}
+                    key={tab.key}
+                    value={tab.key}
+                  >
+                    <div className="tab-item">{tab.title}</div>
+                  </Tab>
+                );
+              })}
+            </TabsList>
+            {tabArr.map((tab) => {
+              return (
+                <TabPanel className="tab-panel" key={tab.key} value={tab.key}>
+                  {tab.panelComponent}
+                </TabPanel>
+              );
+            })}
+          </Tabs>
         </TabsWrapper>
       </SettingsWrapper>
-      <FormDialogComponent
-        Form={WorkspaceInviteUsersForm}
-        canOutsideClickClose
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onOpenOrClose={handleFormOpenOrClose}
-        placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
-        title={`Invite Users to ${currentWorkspace?.name}`}
-        trigger
-        workspaceId={workspaceId}
-      />
+      {currentWorkspace && (
+        <FormDialogComponent
+          Form={WorkspaceInviteUsersForm}
+          hideDefaultTrigger
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          onOpenOrClose={handleFormOpenOrClose}
+          placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
+          workspace={currentWorkspace}
+        />
+      )}
     </>
   );
 }

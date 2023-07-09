@@ -9,7 +9,6 @@ import type {
 import { get, isUndefined, set } from "lodash";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
-  getEvalErrorPath,
   getEvalValuePath,
   isPathDynamicTrigger,
   PropertyEvaluationErrorType,
@@ -169,10 +168,7 @@ export function getValidatedTree(
           addErrorToEntityProperty({
             errors: evalErrors,
             evalProps,
-            fullPropertyPath: getEvalErrorPath(`${entityKey}.${property}`, {
-              isPopulated: false,
-              fullPath: true,
-            }),
+            fullPropertyPath: `${entityKey}.${property}`,
             dataTree: tree,
             configTree,
           });

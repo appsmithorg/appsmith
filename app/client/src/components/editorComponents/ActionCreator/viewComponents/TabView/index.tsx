@@ -3,10 +3,25 @@ import {
   ControlWrapper,
   FieldWrapper,
 } from "components/propertyControls/StyledControls";
-import { Switcher } from "design-system-old";
+import { SegmentedControl } from "design-system";
 import React from "react";
 
+type Option = {
+  id: string;
+  text: string;
+  action: () => void;
+};
+
 export function TabView(props: TabViewProps) {
+  const onClick = (id: string) => {
+    const selectedOption = props.switches.find(
+      (option: Option) => option.id === id,
+    );
+
+    if (selectedOption && selectedOption.action) {
+      selectedOption.action();
+    }
+  };
   return (
     <FieldWrapper className="tab-view">
       <ControlWrapper>
@@ -15,7 +30,14 @@ export function TabView(props: TabViewProps) {
             {props.label}
           </label>
         )}
-        <Switcher activeObj={props.activeObj} switches={props.switches} />
+        <SegmentedControl
+          onChange={onClick}
+          options={props.switches.map((option: Option) => ({
+            label: option.text,
+            value: option.id,
+          }))}
+          value={props.activeObj.id}
+        />
       </ControlWrapper>
     </FieldWrapper>
   );

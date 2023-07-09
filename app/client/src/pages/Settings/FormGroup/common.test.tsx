@@ -66,7 +66,7 @@ describe("FormGroup", () => {
       "admin-settings-form-group-subtext",
     );
     expect(formGroupSubtext).toHaveLength(1);
-    expect(formGroupSubtext[0].textContent).toBe(`* ${setting.subText}`);
+    expect(formGroupSubtext[0].textContent).toBe(`${setting.subText}`);
   });
 
   it("is rendered with children", () => {

@@ -3,61 +3,63 @@ import * as Sentry from "@sentry/react";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { PopoverPosition } from "@blueprintjs/core";
-import { Button, Category, Size, TooltipComponent } from "design-system-old";
+import { Button, Tooltip } from "design-system";
 
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import ConversionButton from "../CanvasLayoutConversion/ConversionButton";
 import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
-import {
-  getIsAutoLayout,
-  isAutoLayoutEnabled,
-} from "selectors/editorSelectors";
+import { getIsAutoLayout } from "selectors/editorSelectors";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Title = styled.p`
-  color: ${Colors.GRAY_800};
+  color: var(--ads-v2-color-fg);
+`;
+const MainHeading = styled.h3`
+  color: var(--ads-v2-color-fg-emphasis);
 `;
 export function CanvasPropertyPane() {
   const dispatch = useDispatch();
 
   const openAppSettingsPane = () => {
+    AnalyticsUtil.logEvent("APP_SETTINGS_BUTTON_CLICK");
     dispatch(openAppSettingsPaneAction());
   };
-  const isAutoLayoutFeatureEnabled = useSelector(isAutoLayoutEnabled);
   const isAutoLayout = useSelector(getIsAutoLayout);
   return (
     <div className="relative ">
-      <h3 className="px-4 py-3 text-sm font-medium uppercase">Properties</h3>
+      <MainHeading className="px-4 py-3 text-sm font-medium">
+        Properties
+      </MainHeading>
 
       <div className="mt-3 space-y-6">
         <div className="px-4 space-y-2">
           {!isAutoLayout && (
             <>
-              <Title className="text-sm">Canvas Size</Title>
+              <Title className="text-sm">Canvas size</Title>
               <MainContainerLayoutControl />
             </>
           )}
-          {isAutoLayoutFeatureEnabled && <ConversionButton />}
-          <TooltipComponent
+          <ConversionButton />
+          <Tooltip
             content={
               <>
                 <p className="text-center">Update your app theme, URL</p>
                 <p className="text-center">and other settings</p>
               </>
             }
-            position={PopoverPosition.BOTTOM}
+            placement="bottom"
           >
             <Button
-              category={Category.secondary}
-              fill
-              id="t--app-settings-cta"
+              UNSAFE_width="100%"
+              className="t--app-settings-cta"
+              kind="secondary"
               onClick={openAppSettingsPane}
-              size={Size.medium}
-              text="App Settings"
-            />
-          </TooltipComponent>
+              size="md"
+            >
+              App settings
+            </Button>
+          </Tooltip>
         </div>
       </div>
     </div>

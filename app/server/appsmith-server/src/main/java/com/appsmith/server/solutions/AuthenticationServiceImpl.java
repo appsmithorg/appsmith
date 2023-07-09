@@ -5,7 +5,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.ce.AuthenticationServiceCEImpl;
@@ -15,19 +15,27 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class AuthenticationServiceImpl extends AuthenticationServiceCEImpl implements AuthenticationService {
-
-    public AuthenticationServiceImpl(DatasourceService datasourceService,
-                                     PluginService pluginService,
-                                     RedirectHelper redirectHelper,
-                                     NewPageService newPageService,
-                                     CloudServicesConfig cloudServicesConfig,
-                                     ConfigService configService,
-                                     DatasourcePermission datasourcePermission,
-                                     PagePermission pagePermission,
-                                     PluginExecutorHelper pluginExecutorHelper,
-                                     FeatureFlagService featureFlagService) {
-
-        super(datasourceService, pluginService, redirectHelper, newPageService, cloudServicesConfig, configService,
-                datasourcePermission, pagePermission, pluginExecutorHelper, featureFlagService);
+    public AuthenticationServiceImpl(
+            DatasourceService datasourceService,
+            PluginService pluginService,
+            RedirectHelper redirectHelper,
+            NewPageService newPageService,
+            CloudServicesConfig cloudServicesConfig,
+            ConfigService configService,
+            DatasourcePermission datasourcePermission,
+            PagePermission pagePermission,
+            PluginExecutorHelper pluginExecutorHelper,
+            DatasourceStorageService datasourceStorageService) {
+        super(
+                datasourceService,
+                pluginService,
+                redirectHelper,
+                newPageService,
+                cloudServicesConfig,
+                configService,
+                datasourcePermission,
+                pagePermission,
+                pluginExecutorHelper,
+                datasourceStorageService);
     }
 }

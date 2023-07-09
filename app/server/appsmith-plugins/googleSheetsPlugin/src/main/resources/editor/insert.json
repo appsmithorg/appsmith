@@ -19,14 +19,14 @@
     },
     {
       "controlType": "SECTION",
-      "label": "Row Objects",
+      "label": "Row objects",
       "description": "",
       "conditionals": {
         "show": "{{actionConfiguration.formData.entityType.data === 'ROWS' || actionConfiguration.formData.entityType.data === 'SPREADSHEET'}}"
       },
       "children": [
         {
-          "label": "Row Object",
+          "label": "Row object",
           "tooltipText": "A single object to be inserted",
           "propertyName": "create_rowObjectWithSmartSubstitute",
           "configProperty": "actionConfiguration.formData.rowObjects.data",
@@ -39,7 +39,7 @@
           "placeholderText": "{\n  \"name\": {{nameInput.text}},\n  \"dob\": {{dobPicker.formattedDate}},\n  \"gender\": {{genderSelect.selectedOptionValue}} \n}"
         },
         {
-          "label": "Row Object",
+          "label": "Row object",
           "tooltipText": "A single object to be inserted",
           "propertyName": "create_rowObjectWithoutSmartSubstitute",
           "configProperty": "actionConfiguration.formData.rowObjects.data",
@@ -52,7 +52,7 @@
           "placeholderText": "{\n  \"name\": {{nameInput.text}},\n  \"dob\": {{dobPicker.formattedDate}},\n  \"gender\": {{genderSelect.selectedOptionValue}} \n}"
         },
         {
-          "label": "Row Object(s)",
+          "label": "Row object(s)",
           "tooltipText": "An array of objects to be inserted",
           "propertyName": "create_rowObjectsWithSmartSubstitute",
           "configProperty": "actionConfiguration.formData.rowObjects.data",
@@ -64,7 +64,7 @@
           "placeholderText": "[{\n  \"name\": {{nameInput.text}},\n  \"dob\": {{dobPicker.formattedDate}},\n  \"gender\": {{genderSelect.selectedOptionValue}} \n}]"
         },
         {
-          "label": "Row Object(s)",
+          "label": "Row object(s)",
           "tooltipText": "An array of objects to be inserted",
           "propertyName": "create_rowObjectsWithoutSmartSubstitute",
           "configProperty": "actionConfiguration.formData.rowObjects.data",

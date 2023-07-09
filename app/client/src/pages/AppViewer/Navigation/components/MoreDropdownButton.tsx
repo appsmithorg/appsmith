@@ -4,7 +4,7 @@ import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { Icon } from "design-system-old";
+import { Icon } from "design-system";
 import MenuText from "./MenuText";
 import classNames from "classnames";
 import {
@@ -64,7 +64,7 @@ const MoreDropdownButton = ({
                 NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON,
             })}
             name="context-menu"
-            size="large"
+            size="md"
           />
         )}
 

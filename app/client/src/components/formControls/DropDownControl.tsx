@@ -2,8 +2,6 @@ import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import styled from "styled-components";
-import type { DropdownOption } from "design-system-old";
-import { Dropdown } from "design-system-old";
 import type { ControlType } from "constants/PropertyControlConstants";
 import { get, isNil } from "lodash";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
@@ -18,12 +16,14 @@ import {
   MATCH_ACTION_CONFIG_PROPERTY,
 } from "workers/Evaluation/formEval";
 import type { Action } from "entities/Action";
+import type { SelectOptionProps } from "design-system";
+import { Icon, Option, Select } from "design-system";
 
 const DropdownSelect = styled.div<{
   width: string;
 }>`
-  font-size: 14px;
-  width: ${(props) => (props?.width ? props?.width : "280px")};
+  /* font-size: 14px; */
+  width: ${(props) => (props?.width ? props?.width : "270px")};
 `;
 
 class DropDownControl extends BaseControl<Props> {
@@ -82,7 +82,7 @@ class DropDownControl extends BaseControl<Props> {
 
   render() {
     const styles = {
-      width: "280px",
+      // width: "280px",
       ...("customStyles" in this.props &&
       typeof this.props.customStyles === "object"
         ? this.props.customStyles
@@ -92,7 +92,7 @@ class DropDownControl extends BaseControl<Props> {
     return (
       <DropdownSelect
         className={`t--${this?.props?.configProperty}`}
-        data-cy={this.props.configProperty}
+        data-testid={this.props.configProperty}
         style={styles}
         width={styles.width}
       >
@@ -136,18 +136,18 @@ function renderDropdown(
       }
     }
   }
-  let options: DropdownOption[] = [];
-  let selectedOptions: DropdownOption[] = [];
+  let options: SelectOptionProps[] = [];
+  let selectedOptions: SelectOptionProps[] = [];
   if (typeof props.options === "object" && Array.isArray(props.options)) {
     options = props.options;
     selectedOptions =
-      options.filter((option: DropdownOption) => {
+      options.filter((option: SelectOptionProps) => {
         if (props.isMultiSelect)
           return selectedValue.includes(option.value as string);
         else return selectedValue === option.value;
       }) || [];
   }
-  // Function to handle selction of options
+  // Function to handle selection of options
   const onSelectOptions = (value: string | undefined) => {
     if (!isNil(value)) {
       if (props.isMultiSelect) {
@@ -162,7 +162,7 @@ function renderDropdown(
     }
   };
 
-  // Function to handle deselction of options
+  // Function to handle deselection of options
   const onRemoveOptions = (value: string | undefined) => {
     if (!isNil(value)) {
       if (props.isMultiSelect) {
@@ -183,7 +183,7 @@ function renderDropdown(
   if (props.options.length > 0) {
     if (props.isMultiSelect) {
       const tempSelectedValues: string[] = [];
-      selectedOptions.forEach((option: DropdownOption) => {
+      selectedOptions.forEach((option: SelectOptionProps) => {
         if (selectedValue.includes(option.value as string)) {
           tempSelectedValues.push(option.value as string);
         }
@@ -194,7 +194,7 @@ function renderDropdown(
       }
     } else {
       let tempSelectedValues = "";
-      selectedOptions.forEach((option: DropdownOption) => {
+      selectedOptions.forEach((option: SelectOptionProps) => {
         if (selectedValue === (option.value as string)) {
           tempSelectedValues = option.value as string;
         }
@@ -229,30 +229,37 @@ function renderDropdown(
   }
 
   return (
-    <Dropdown
-      allowDeselection={props?.isMultiSelect}
-      boundary="window"
-      cypressSelector={`t--dropdown-${props?.configProperty}`}
-      disabled={props.disabled}
-      dontUsePortal={false}
-      dropdownMaxHeight="250px"
-      enableSearch={props.isSearchable}
+    <Select
+      data-testid={`t--dropdown-${props?.configProperty}`}
+      defaultValue={props.initialValue}
+      isDisabled={props.disabled}
       isLoading={props.isLoading}
       isMultiSelect={props?.isMultiSelect}
-      onSelect={onSelectOptions}
-      optionWidth={props.optionWidth || props.width}
-      options={options}
+      onDeselect={onRemoveOptions}
+      onSelect={(value) => onSelectOptions(value)}
       placeholder={props?.placeholderText}
-      removeSelectedOption={onRemoveOptions}
-      selected={props.isMultiSelect ? selectedOptions : selectedOptions[0]}
-      showLabelOnly
-      width={props.width}
-    />
+      showSearch={props.isSearchable}
+      value={props.isMultiSelect ? selectedOptions : selectedOptions[0]}
+    >
+      {options.map((option) => {
+        return (
+          <Option
+            aria-label={option.label}
+            isDisabled={option.isDisabled}
+            key={option.value}
+            value={option.value}
+          >
+            {option.icon && <Icon color={option.color} name={option.icon} />}
+            {option.label}
+          </Option>
+        );
+      })}
+    </Select>
   );
 }
 
 export interface DropDownControlProps extends ControlProps {
-  options: DropdownOption[];
+  options: SelectOptionProps[];
   optionWidth?: string;
   placeholderText: string;
   propertyValue: string;
@@ -279,14 +286,12 @@ const mapStateToProps = (
   ownProps: DropDownControlProps,
 ): {
   isLoading: boolean;
-  options: DropdownOption[];
+  options: SelectOptionProps[];
   formValues: Partial<Action>;
 } => {
   // Added default options to prevent error when options is undefined
   let isLoading = false;
-  let options: DropdownOption[] = ownProps.fetchOptionsConditionally
-    ? []
-    : ownProps.options;
+  let options = ownProps.fetchOptionsConditionally ? [] : ownProps.options;
   const formValues: Partial<Action> = getFormValues(ownProps.formName)(state);
 
   try {
@@ -307,5 +312,5 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   },
 });
 
-// Connecting this componenet to the state to allow for dynamic fetching of options to be updated.
+// Connecting this component to the state to allow for dynamic fetching of options to be updated.
 export default connect(mapStateToProps, mapDispatchToProps)(DropDownControl);

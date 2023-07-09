@@ -264,6 +264,7 @@ export function isJSObjectVariable(
   configTree: ConfigTree,
 ) {
   const entityConfig = configTree[jsObjectName] as JSActionEntityConfig;
+  if (!entityConfig) return false;
   const entity = configTree[jsObjectName];
   const variables = entityConfig.variables;
   return (

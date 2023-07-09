@@ -1,16 +1,8 @@
 import type { MutableRefObject } from "react";
 import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
-import {
-  Icon,
-  IconSize,
-  Spinner,
-  Toaster,
-  TooltipComponent,
-  Variant,
-} from "design-system-old";
-import { Colors } from "constants/Colors";
-import Entity, { EntityClassNames } from "../Entity";
+import { Button, Icon, Spinner, toast, Tooltip } from "design-system";
+import Entity, { AddButtonWrapper, EntityClassNames } from "../Entity";
 import {
   createMessage,
   customJSLibraryMessages,
@@ -23,14 +15,12 @@ import {
 } from "selectors/entitiesSelector";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import { Collapse } from "@blueprintjs/core";
-import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import useClipboard from "utils/hooks/useClipboard";
 import {
   toggleInstaller,
   uninstallLibraryInit,
 } from "actions/JSLibraryActions";
 import EntityAddButton from "../Entity/AddButton";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import type { TJSLibrary } from "workers/common/JSLibrary";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
@@ -46,7 +36,7 @@ const docsURLMap = recommendedLibraries.reduce((acc, lib) => {
 const Library = styled.li`
   list-style: none;
   flex-direction: column;
-  color: ${Colors.GRAY_700};
+  color: var(--ads-v2-color-fg);
   font-weight: 400;
   display: flex;
   justify-content: space-between;
@@ -59,38 +49,18 @@ const Library = styled.li`
     height: 36px;
   }
 
-  .share {
-    display: none;
-    width: 30px;
-    height: 36px;
-    background: transparent;
-    margin-left: 8px;
-    flex-shrink: 0;
-  }
-
   &:hover {
-    background: ${Colors.SEA_SHELL};
+    background: var(--ads-v2-color-bg-subtle);
 
     & .t--open-new-tab {
       display: block;
     }
 
     & .delete,
-    .share {
+    .open-link {
       display: flex;
       align-items: center;
       justify-content: center;
-      background: transparent;
-      &:hover {
-        background: black;
-        .uninstall-library,
-        .open-link {
-          color: white;
-          svg > path {
-            fill: white;
-          }
-        }
-      }
     }
   }
 
@@ -111,11 +81,13 @@ const Library = styled.li`
     display: none;
   }
 
-  .delete {
+  .delete,
+  .open-link {
     display: none;
     width: 30px;
     height: 36px;
-    background: transparent;
+    margin-left: 4px;
+    /* background: transparent; */
     flex-shrink: 0;
   }
 
@@ -132,7 +104,7 @@ const Library = styled.li`
     font-size: 12px;
     font-weight: 400;
     padding: 4px 8px;
-    color: ${Colors.GRAY_700};
+    color: var(--ads-v2-color-fg);
     display: flex;
     align-items: center;
     gap: 4px;
@@ -141,7 +113,7 @@ const Library = styled.li`
     .accessor {
       padding-left: 8px;
       flex-grow: 1;
-      outline: 1px solid #b3b3b3 !important;
+      outline: 1px solid var(--ads-v2-color-border) !important;
       font-size: 12px;
       font-family: monospace;
       background: white;
@@ -150,7 +122,8 @@ const Library = styled.li`
       width: calc(100% - 80px);
       justify-content: space-between;
       align-items: center;
-      color: ${Colors.ENTERPRISE_DARK};
+      color: var(--ads-v2-color-fg-emphasis);
+      border-radius: var(--ads-v2-border-radius);
       > div {
         height: 100%;
         display: flex;
@@ -158,10 +131,10 @@ const Library = styled.li`
         justify-content: center;
         background: transparent;
         width: 25px;
-        &: hover {
-          background: ${Colors.SHARK2};
+        &:hover {
+          background: var(--ads-v2-color-bg-muted);
           > svg > path {
-            fill: ${Colors.WHITE};
+            fill: var(--ads-v2-color-fg);
           }
         }
       }
@@ -200,20 +173,21 @@ const PrimaryCTA = function ({ lib }: { lib: TJSLibrary }) {
   if (installationStatus[url] === InstallState.Queued)
     return (
       <div className="loading">
-        <Spinner size={IconSize.MEDIUM} />
+        <Spinner size="md" />
       </div>
     );
 
   if (url) {
     //Default libraries will not have url
     return (
-      <div className="delete" onClick={uninstallLibrary}>
-        <Icon
-          className="uninstall-library t--uninstall-library"
-          name="trash-outline"
-          size={IconSize.MEDIUM}
-        />
-      </div>
+      <Button
+        className="delete uninstall-library t--uninstall-library"
+        isIconButton
+        kind="error"
+        onClick={uninstallLibrary}
+        size="sm"
+        startIcon="delete-bin-line"
+      />
     );
   }
 
@@ -233,9 +207,8 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
 
   const copyToClipboard = useCallback(() => {
     write(lib.accessor[lib.accessor.length - 1]);
-    Toaster.show({
-      text: "Copied to clipboard",
-      variant: Variant.success,
+    toast.show("Copied to clipboard", {
+      kind: "success",
     });
   }, [lib.accessor]);
 
@@ -249,19 +222,20 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
       >
         <Icon
           className={isOpen ? "open-collapse" : ""}
-          fillColor={Colors.GREY_7}
           name="right-arrow-2"
-          size={IconSize.XXXL}
+          size={"md"}
         />
         <div className="flex items-center flex-start flex-1 overflow-hidden">
           <Name>{lib.name}</Name>
           {docsURL && (
-            <div className="share" onClick={openDocs(docsURL)}>
-              <Icon
+            <div className="share">
+              <Button
                 className="open-link"
-                fillColor={Colors.GRAY_700}
-                name="share-2"
-                size={IconSize.SMALL}
+                isIconButton
+                kind="tertiary"
+                onClick={openDocs(docsURL)}
+                size="sm"
+                startIcon="share-box-line"
               />
             </div>
           )}
@@ -276,9 +250,14 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
           Available as{" "}
           <div className="accessor">
             {lib.accessor[lib.accessor.length - 1]}{" "}
-            <div>
-              <CopyIcon onClick={copyToClipboard} />
-            </div>
+            <Button
+              // className="open-link"
+              isIconButton
+              kind="tertiary"
+              onClick={copyToClipboard}
+              size="sm"
+              startIcon="copy-control"
+            />
           </div>
         </div>
       </Collapse>
@@ -314,23 +293,23 @@ function JSDependencies() {
 
   return (
     <Entity
-      className={"libraries"}
+      className={"group libraries"}
       customAddButton={
-        <TooltipComponent
-          boundary="viewport"
-          className={EntityClassNames.TOOLTIP}
+        <Tooltip
           content={createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
-          disabled={isOpen}
-          hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-          position="right"
+          isDisabled={isOpen}
+          placement="right"
+          {...(isOpen ? { visible: false } : {})}
         >
-          <EntityAddButton
-            className={`${EntityClassNames.ADD_BUTTON} group libraries h-100 ${
-              isOpen ? "selected" : ""
-            }`}
-            onClick={openInstaller}
-          />
-        </TooltipComponent>
+          <AddButtonWrapper>
+            <EntityAddButton
+              className={`${
+                EntityClassNames.ADD_BUTTON
+              } group libraries h-100 ${isOpen ? "selected" : ""}`}
+              onClick={openInstaller}
+            />
+          </AddButtonWrapper>
+        </Tooltip>
       }
       entityId="library_section"
       icon={null}

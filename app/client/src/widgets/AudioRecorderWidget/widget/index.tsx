@@ -3,7 +3,7 @@ import React from "react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { createBlobUrl } from "utils/AppsmithUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -72,7 +72,7 @@ class AudioRecorderWidget extends BaseWidget<
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -124,7 +124,7 @@ class AudioRecorderWidget extends BaseWidget<
           {
             propertyName: "accentColor",
             helpText: "Changes the color of the recorder button",
-            label: "Button Color",
+            label: "Button color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -134,11 +134,11 @@ class AudioRecorderWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Border and Shadow",
+        sectionName: "Border and shadow",
         children: [
           {
             propertyName: "borderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
@@ -149,7 +149,7 @@ class AudioRecorderWidget extends BaseWidget<
           },
           {
             propertyName: "boxShadow",
-            label: "Box Shadow",
+            label: "Box shadow",
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
@@ -235,6 +235,21 @@ class AudioRecorderWidget extends BaseWidget<
       });
     }
   };
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+      },
+    };
+  }
 
   getPageView() {
     const {

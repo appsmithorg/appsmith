@@ -1,105 +1,317 @@
-import React, { useEffect } from "react";
-import styled, { createGlobalStyle, useTheme } from "styled-components";
-import { Popover, Position } from "@blueprintjs/core";
-
-import DocumentationSearch from "components/designSystems/appsmith/help/DocumentationSearch";
-import { Icon, IconSize, TooltipComponent } from "design-system-old";
+import React, { useEffect, useState } from "react";
 
 import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { useSelector } from "react-redux";
-import bootIntercom from "utils/bootIntercom";
+import { useDispatch, useSelector } from "react-redux";
+import bootIntercom, { updateIntercomProperties } from "utils/bootIntercom";
 import {
+  APPSMITH_DISPLAY_VERSION,
+  CONTINUE,
   createMessage,
   HELP_RESOURCE_TOOLTIP,
+  INTERCOM_CONSENT_MESSAGE,
 } from "@appsmith/constants/messages";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { useCallback } from "react";
-import { useState } from "react";
-import type { Theme } from "constants/DefaultTheme";
-import { BottomBarCTAStyles } from "./BottomBar/styles";
+import {
+  Button,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+  Tooltip,
+  MenuSeparator,
+  Text,
+} from "design-system";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import moment from "moment/moment";
+import styled from "styled-components";
+import {
+  getFirstTimeUserOnboardingModal,
+  getIsFirstTimeUserOnboardingEnabled,
+  getSignpostingSetOverlay,
+  getSignpostingTooltipVisible,
+  getSignpostingUnreadSteps,
+  inGuidedTour,
+} from "selectors/onboardingSelectors";
+import SignpostingPopup from "pages/Editor/FirstTimeUserOnboarding/Modal";
+import { showSignpostingModal } from "actions/onboardingActions";
+import { triggerWelcomeTour } from "./FirstTimeUserOnboarding/Utils";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import TooltipContent from "./FirstTimeUserOnboarding/TooltipContent";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
 
-const HelpPopoverStyle = createGlobalStyle`
-  .bp3-popover.bp3-minimal.navbar-help-popover {
-    margin-top: 0 !important;
-  }
-`;
+const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
-const StyledTrigger = styled.div`
+const HelpFooter = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  font-size: 12px;
-  line-height: 14px;
-  font-weight: 400;
-  padding: 9px 16px;
-  border-left: 1px solid #e7e7e7;
-  cursor: pointer;
-  ${BottomBarCTAStyles}
-  -webkit-user-select: none; /* Safari */
-  -ms-user-select: none; /* IE 10 and IE 11 */
-  user-select: none; /* Standard syntax */
+  justify-content: space-between;
+  font-size: 8px;
+`;
+const UnreadSteps = styled.div`
+  position: absolute;
+  height: 6px;
+  width: 6px;
+  border-radius: 50%;
+  top: 10px;
+  left: 22px;
+  background-color: var(--ads-v2-color-fg-error);
+`;
+const ConsentContainer = styled.div`
+  padding: 10px;
+`;
+const ActionsRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
 `;
 
-function HelpButton() {
+type HelpItem = {
+  label: string;
+  link?: string;
+  id?: string;
+  icon: string;
+};
+
+const HELP_MENU_ITEMS: HelpItem[] = [
+  {
+    icon: "book-line",
+    label: "Documentation",
+    link: "https://docs.appsmith.com/",
+  },
+  {
+    icon: "bug-line",
+    label: "Report a bug",
+    link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
+  },
+];
+
+if (intercomAppID && window.Intercom) {
+  HELP_MENU_ITEMS.push({
+    icon: "chat-help",
+    label: "Chat with us",
+    id: "intercom-trigger",
+  });
+}
+
+export function IntercomConsent({
+  showIntercomConsent,
+}: {
+  showIntercomConsent: (val: boolean) => void;
+}) {
   const user = useSelector(getCurrentUser);
-  const theme = useTheme() as Theme;
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const instanceId = useSelector(getInstanceId);
+  const dispatch = useDispatch();
+
+  const sendUserDataToIntercom = () => {
+    updateIntercomProperties(instanceId, user);
+    dispatch(
+      updateUserDetails({
+        intercomConsentGiven: true,
+      }),
+    );
+    dispatch(updateIntercomConsent());
+    showIntercomConsent(false);
+    window.Intercom("show");
+  };
+  return (
+    <ConsentContainer>
+      <ActionsRow>
+        <Button
+          isIconButton
+          kind="tertiary"
+          onClick={() => showIntercomConsent(false)}
+          size="sm"
+          startIcon="arrow-left"
+        />
+      </ActionsRow>
+      <div className="mb-3" data-testid="t--intercom-consent-text">
+        <Text kind="body-s" renderAs="p">
+          {createMessage(INTERCOM_CONSENT_MESSAGE)}
+        </Text>
+      </div>
+      <Button kind="primary" onClick={sendUserDataToIntercom} size="sm">
+        {createMessage(CONTINUE)}
+      </Button>
+    </ConsentContainer>
+  );
+}
+
+function HelpButtonTooltip(props: {
+  isFirstTimeUserOnboardingEnabled: boolean;
+  showSignpostingTooltip: boolean;
+}) {
+  if (props.isFirstTimeUserOnboardingEnabled) {
+    return (
+      <TooltipContent showSignpostingTooltip={props.showSignpostingTooltip} />
+    );
+  }
+
+  return <>{createMessage(HELP_RESOURCE_TOOLTIP)}</>;
+}
+
+function HelpButton() {
+  const [showIntercomConsent, setShowIntercomConsent] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const user = useSelector(getCurrentUser);
+  const dispatch = useDispatch();
+  const isFirstTimeUserOnboardingEnabled = useSelector(
+    getIsFirstTimeUserOnboardingEnabled,
+  );
+  const guidedTourEnabled = useSelector(inGuidedTour);
+  const showSignpostingTooltip = useSelector(getSignpostingTooltipVisible);
+  const onboardingModalOpen = useSelector(getFirstTimeUserOnboardingModal);
+  const unreadSteps = useSelector(getSignpostingUnreadSteps);
+  const setOverlay = useSelector(getSignpostingSetOverlay);
+  const isAirgappedInstance = isAirgapped();
+  const showUnreadSteps =
+    !!unreadSteps.length &&
+    isFirstTimeUserOnboardingEnabled &&
+    !onboardingModalOpen;
+  const menuProps = isFirstTimeUserOnboardingEnabled
+    ? {
+        open: onboardingModalOpen,
+      }
+    : {};
+  const tooltipProps = isFirstTimeUserOnboardingEnabled
+    ? {
+        visible: showTooltip || showSignpostingTooltip,
+        onVisibleChange: setShowTooltip,
+      }
+    : {};
 
   useEffect(() => {
     bootIntercom(user);
   }, [user?.email]);
 
-  const onOpened = useCallback(() => {
-    AnalyticsUtil.logEvent("OPEN_HELP", { page: "Editor" });
-    setIsHelpOpen(true);
-  }, []);
-
-  const onClose = useCallback(() => {
-    setIsHelpOpen(false);
-  }, []);
-
   return (
-    <TooltipComponent
-      content={createMessage(HELP_RESOURCE_TOOLTIP)}
-      disabled={isHelpOpen}
-      hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-      modifiers={{
-        preventOverflow: { enabled: true },
+    <Menu
+      onOpenChange={(open) => {
+        if (open) {
+          if (isFirstTimeUserOnboardingEnabled) {
+            dispatch(showSignpostingModal(true));
+            setShowTooltip(false);
+          }
+          setShowIntercomConsent(false);
+          AnalyticsUtil.logEvent("OPEN_HELP", {
+            page: "Editor",
+            signpostingActive: isFirstTimeUserOnboardingEnabled,
+          });
+        }
       }}
-      position={"bottom"}
+      {...menuProps}
     >
-      <Popover
-        minimal
-        modifiers={{
-          offset: {
-            enabled: true,
-            offset: "0, 6",
-          },
-        }}
-        onClosed={onClose}
-        onOpened={onOpened}
-        popoverClassName="navbar-help-popover"
-        position={Position.BOTTOM_RIGHT}
-      >
-        <>
-          <HelpPopoverStyle />
-          <StyledTrigger className="help-popover">
-            <Icon
-              fillColor={theme.colors.globalSearch.helpIcon}
-              name="question-line"
-              size={IconSize.XL}
-            />
-            <span>Help</span>
-          </StyledTrigger>
-        </>
-        <div style={{ width: HELP_MODAL_WIDTH }}>
-          <DocumentationSearch hideMinimizeBtn hideSearch hitsPerPage={4} />
+      <MenuTrigger>
+        <div className="relative">
+          <Tooltip
+            align={{
+              targetOffset: [5, 0],
+            }}
+            content={
+              <HelpButtonTooltip
+                isFirstTimeUserOnboardingEnabled={
+                  isFirstTimeUserOnboardingEnabled
+                }
+                showSignpostingTooltip={showSignpostingTooltip}
+              />
+            }
+            destroyTooltipOnHide={isFirstTimeUserOnboardingEnabled}
+            isDisabled={onboardingModalOpen}
+            mouseLeaveDelay={0}
+            placement="bottomRight"
+            {...tooltipProps}
+          >
+            <Button
+              data-testid="t--help-button"
+              kind="tertiary"
+              size="md"
+              startIcon="question-line"
+            >
+              Help
+            </Button>
+          </Tooltip>
+          {showUnreadSteps && <UnreadSteps className="unread" />}
         </div>
-      </Popover>
-    </TooltipComponent>
+      </MenuTrigger>
+      {isFirstTimeUserOnboardingEnabled ? (
+        <SignpostingPopup
+          setOverlay={setOverlay}
+          setShowIntercomConsent={setShowIntercomConsent}
+          showIntercomConsent={showIntercomConsent}
+        />
+      ) : (
+        <MenuContent collisionPadding={10} style={{ width: HELP_MODAL_WIDTH }}>
+          {showIntercomConsent ? (
+            <IntercomConsent showIntercomConsent={setShowIntercomConsent} />
+          ) : (
+            <>
+              {!isAirgappedInstance && !guidedTourEnabled && (
+                <>
+                  <MenuItem
+                    data-testid="editor-welcome-tour"
+                    onSelect={() => {
+                      triggerWelcomeTour(dispatch);
+                      AnalyticsUtil.logEvent("HELP_MENU_WELCOME_TOUR_CLICK");
+                    }}
+                    startIcon="guide"
+                  >
+                    Try guided tour
+                  </MenuItem>
+                  <MenuSeparator />
+                </>
+              )}
+              {HELP_MENU_ITEMS.map((item) => (
+                <MenuItem
+                  id={item.id}
+                  key={item.label}
+                  onSelect={(e) => {
+                    if (item.link) {
+                      window.open(item.link, "_blank");
+                    }
+                    if (item.id === "intercom-trigger") {
+                      e?.preventDefault();
+                      if (intercomAppID && window.Intercom) {
+                        if (user?.isIntercomConsentGiven || cloudHosting) {
+                          window.Intercom("show");
+                        } else {
+                          setShowIntercomConsent(true);
+                        }
+                      }
+                    }
+                  }}
+                  startIcon={item.icon}
+                >
+                  {item.label}
+                </MenuItem>
+              ))}
+            </>
+          )}
+
+          {appVersion.id && (
+            <>
+              <MenuSeparator />
+              <MenuItem className="menuitem-nohover">
+                <HelpFooter>
+                  <span>
+                    {createMessage(
+                      APPSMITH_DISPLAY_VERSION,
+                      appVersion.edition,
+                      appVersion.id,
+                      cloudHosting,
+                    )}
+                  </span>
+                  <span>
+                    Released {moment(appVersion.releaseDate).fromNow()}
+                  </span>
+                </HelpFooter>
+              </MenuItem>
+            </>
+          )}
+        </MenuContent>
+      )}
+    </Menu>
   );
 }
 

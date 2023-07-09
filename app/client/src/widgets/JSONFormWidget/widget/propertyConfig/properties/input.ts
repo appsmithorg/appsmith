@@ -1,4 +1,4 @@
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { CurrencyDropdownOptions } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
 import { FieldType, INPUT_TYPES } from "widgets/JSONFormWidget/constants";
 import type { HiddenFnParams } from "../helper";
@@ -215,7 +215,7 @@ const PROPERTIES = {
         propertyName: "defaultValue",
         helpText:
           "Sets the default text of the field. The text is updated if the default text changes",
-        label: "Default Value",
+        label: "Default value",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         placeholderText: "John Doe",
         isBindProperty: true,
@@ -232,16 +232,44 @@ const PROPERTIES = {
           },
         },
         hidden: (...args: HiddenFnParams) =>
-          getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
+          getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES) ||
+          getSchemaItem(...args).fieldTypeMatches(FieldType.PHONE_NUMBER_INPUT),
+        dependencies: ["schema"],
+      },
+      {
+        helpText:
+          "Sets the default text of the widget. The text is updated if the default text changes",
+        propertyName: "defaultValue",
+        label: "Default value",
+        controlType: "JSON_FORM_COMPUTE_VALUE",
+        placeholderText: "(000) 000-0000",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: defaultValueValidation,
+            expected: {
+              type: "string",
+              example: `(000) 000-0000`,
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(
+            FieldType.PHONE_NUMBER_INPUT,
+          ),
         dependencies: ["schema"],
       },
       {
         propertyName: "dialCode",
         helpText: "Changes the country code",
-        label: "Default Country Code",
+        label: "Default country code",
         enableSearch: true,
         dropdownHeight: "195px",
         controlType: "DROP_DOWN",
+        virtual: true,
         searchPlaceholderText: "Search by code or country name",
         options: ISDCodeDropdownOptions,
         hidden: (...args: HiddenFnParams) =>
@@ -259,6 +287,7 @@ const PROPERTIES = {
         enableSearch: true,
         dropdownHeight: "195px",
         controlType: "DROP_DOWN",
+        virtual: true,
         searchPlaceholderText: "Search by code or name",
         options: CurrencyDropdownOptions,
         hidden: (...args: HiddenFnParams) =>
@@ -284,7 +313,7 @@ const PROPERTIES = {
       },
       {
         propertyName: "allowCurrencyChange",
-        label: "Allow Currency Change",
+        label: "Allow currency change",
         helpText: "Search by currency or country",
         controlType: "SWITCH",
         isBindProperty: true,
@@ -297,7 +326,7 @@ const PROPERTIES = {
       {
         propertyName: "decimalsInCurrency",
         helpText: "No. of decimals in currency input",
-        label: "Decimals Allowed",
+        label: "Decimals allowed",
         controlType: "DROP_DOWN",
         options: [
           {
@@ -450,7 +479,7 @@ const PROPERTIES = {
         propertyName: "errorMessage",
         helpText:
           "The error message to display if the regex or valid property check fails",
-        label: "Error Message",
+        label: "Error message",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         placeholderText: "Not a valid email!",
         inputType: "TEXT",
@@ -534,14 +563,15 @@ const PROPERTIES = {
         label: "Position",
         helpText: "Sets the icon position of input field",
         controlType: "ICON_TABS",
-        fullWidth: true,
+        defaultValue: "left",
+        fullWidth: false,
         options: [
           {
-            icon: "VERTICAL_LEFT",
+            startIcon: "skip-left-line",
             value: "left",
           },
           {
-            icon: "VERTICAL_RIGHT",
+            startIcon: "skip-right-line",
             value: "right",
           },
         ],

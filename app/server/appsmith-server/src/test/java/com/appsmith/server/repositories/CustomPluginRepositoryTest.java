@@ -24,19 +24,22 @@ public class CustomPluginRepositoryTest {
 
     @Test
     public void findDefaultPluginIcons_WhenResultFound_OnlyDefaultInstallPluginsReturned() {
-        String randomPackageId = "plugin-" + UUID.randomUUID().toString();
+        String randomPackageId = "plugin-" + UUID.randomUUID();
         Plugin plugin = new Plugin();
         plugin.setPackageName(randomPackageId);
         plugin.setDefaultInstall(false);
         plugin.setName("My Plugin");
 
-        Mono<List<Plugin>> pluginListMono = pluginRepository.save(plugin).then(
-                pluginRepository.findDefaultPluginIcons().collectList()
-        );
-        StepVerifier.create(pluginListMono).assertNext(plugins -> {
-            Optional<Plugin> createdPlugin = plugins.stream().filter(p -> p.getPackageName().equals(randomPackageId))
-                    .findAny();
-            assertThat(createdPlugin.isPresent()).isFalse();
-        }).verifyComplete();
+        Mono<List<Plugin>> pluginListMono = pluginRepository
+                .save(plugin)
+                .then(pluginRepository.findDefaultPluginIcons().collectList());
+        StepVerifier.create(pluginListMono)
+                .assertNext(plugins -> {
+                    Optional<Plugin> createdPlugin = plugins.stream()
+                            .filter(p -> p.getPackageName().equals(randomPackageId))
+                            .findAny();
+                    assertThat(createdPlugin.isPresent()).isFalse();
+                })
+                .verifyComplete();
     }
 }

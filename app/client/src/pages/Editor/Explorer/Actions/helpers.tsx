@@ -1,6 +1,11 @@
 import type { ReactNode } from "react";
 import React, { useMemo } from "react";
-import { dbQueryIcon, ApiMethodIcon, EntityIcon } from "../ExplorerIcons";
+import {
+  dbQueryIcon,
+  ApiMethodIcon,
+  EntityIcon,
+  ENTITY_ICON_SIZE,
+} from "../ExplorerIcons";
 import { isGraphqlPlugin, PluginType } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 
@@ -79,7 +84,10 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
       }
       if (plugin && plugin.iconLocation)
         return (
-          <EntityIcon>
+          <EntityIcon
+            height={`${ENTITY_ICON_SIZE}px`}
+            width={`${ENTITY_ICON_SIZE}px`}
+          >
             <img alt="entityIcon" src={getAssetUrl(plugin.iconLocation)} />
           </EntityIcon>
         );

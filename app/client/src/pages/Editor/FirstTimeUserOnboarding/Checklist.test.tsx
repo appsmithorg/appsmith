@@ -11,6 +11,7 @@ import { fireEvent, render, screen } from "test/testUtils";
 import OnboardingChecklist from "./Checklist";
 import { getStore, initialState } from "./testUtils";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
+import "@testing-library/jest-dom";
 
 let container: any = null;
 
@@ -30,6 +31,16 @@ jest.mock("react-redux", () => {
 jest.mock("utils/history", () => ({
   push: history,
   listen: jest.fn(),
+}));
+
+jest.mock("utils/lazyLottie", () => ({
+  loadAnimation: () => {
+    return {
+      play: jest.fn(),
+      destroy: jest.fn(),
+      goToAndStop: jest.fn(),
+    };
+  },
 }));
 
 function renderComponent(store: any) {
@@ -69,20 +80,16 @@ describe("Checklist", () => {
     const wrapper = screen.getAllByTestId("checklist-wrapper");
     expect(wrapper.length).toBe(1);
     const completionInfo = screen.getAllByTestId("checklist-completion-info");
-    expect(completionInfo[0].innerHTML).toBe("0 of 5");
-    const datasourceButton = screen.getAllByTestId(
-      "checklist-datasource-button",
-    );
+    expect(completionInfo[0].innerHTML).toBe("0 of 5 ");
+    const datasourceButton = screen.getAllByTestId("checklist-datasource");
     expect(datasourceButton.length).toBe(1);
-    const actionButton = screen.getAllByTestId("checklist-action-button");
+    const actionButton = screen.getAllByTestId("checklist-action");
     expect(actionButton.length).toBe(1);
-    const widgetButton = screen.getAllByTestId("checklist-widget-button");
+    const widgetButton = screen.getAllByTestId("checklist-widget");
     expect(widgetButton.length).toBe(1);
-    const connectionButton = screen.getAllByTestId(
-      "checklist-connection-button",
-    );
+    const connectionButton = screen.getAllByTestId("checklist-connection");
     expect(connectionButton.length).toBe(1);
-    const deployButton = screen.getAllByTestId("checklist-deploy-button");
+    const deployButton = screen.getAllByTestId("checklist-deploy");
     expect(deployButton.length).toBe(1);
     const banner = screen.queryAllByTestId("checklist-completion-banner");
     expect(banner.length).toBe(0);
@@ -95,13 +102,27 @@ describe("Checklist", () => {
     );
   });
 
+  it("disabled items should not be clickable", () => {
+    renderComponent(getStore(0));
+    const wrapper = screen.getAllByTestId("checklist-wrapper");
+    expect(wrapper.length).toBe(1);
+
+    const actionButton = screen.queryAllByTestId("checklist-action");
+    dispatch.mockClear();
+    fireEvent.click(actionButton[0]);
+    expect(dispatch).toHaveBeenCalledTimes(0);
+
+    const connectionButton = screen.queryAllByTestId("checklist-connection");
+    dispatch.mockClear();
+    fireEvent.click(connectionButton[0]);
+    expect(dispatch).toHaveBeenCalledTimes(0);
+  });
+
   it("with `add a datasource` task checked off", () => {
     renderComponent(getStore(1));
-    const datasourceButton = screen.queryAllByTestId(
-      "checklist-datasource-button",
-    );
-    expect(datasourceButton.length).toBe(0);
-    const actionButton = screen.queryAllByTestId("checklist-action-button");
+    const datasourceButton = screen.queryAllByTestId("checklist-datasource");
+    expect(datasourceButton[0]).toHaveStyle("cursor: auto");
+    const actionButton = screen.queryAllByTestId("checklist-action");
     fireEvent.click(actionButton[0]);
     expect(history).toHaveBeenCalledWith(
       integrationEditorURL({
@@ -113,9 +134,9 @@ describe("Checklist", () => {
 
   it("with `add a query` task checked off", () => {
     renderComponent(getStore(2));
-    const actionButton = screen.queryAllByTestId("checklist-action-button");
-    expect(actionButton.length).toBe(0);
-    const widgetButton = screen.queryAllByTestId("checklist-widget-button");
+    const actionButton = screen.queryAllByTestId("checklist-action");
+    expect(actionButton[0]).toHaveStyle("cursor: auto");
+    const widgetButton = screen.queryAllByTestId("checklist-widget");
     fireEvent.click(widgetButton[0]);
     expect(history).toHaveBeenCalledWith(
       builderURL({ pageId: initialState.entities.pageList.currentPageId }),
@@ -133,11 +154,9 @@ describe("Checklist", () => {
   it("with `add a widget` task checked off", () => {
     const store: any = getStore(3);
     renderComponent(store);
-    const widgetButton = screen.queryAllByTestId("checklist-widget-button");
-    expect(widgetButton.length).toBe(0);
-    const connectionButton = screen.queryAllByTestId(
-      "checklist-connection-button",
-    );
+    const widgetButton = screen.queryAllByTestId("checklist-widget");
+    expect(widgetButton[0]).toHaveStyle("cursor: auto");
+    const connectionButton = screen.queryAllByTestId("checklist-connection");
     fireEvent.click(connectionButton[0]);
     expect(dispatch).toHaveBeenCalledWith(
       bindDataOnCanvas({
@@ -151,11 +170,9 @@ describe("Checklist", () => {
   it("with `connect your data` task checked off", () => {
     useIsWidgetActionConnectionPresent = true;
     renderComponent(getStore(4));
-    const connectionButton = screen.queryAllByTestId(
-      "checklist-connection-button",
-    );
-    expect(connectionButton.length).toBe(0);
-    const deployButton = screen.queryAllByTestId("checklist-deploy-button");
+    const connectionButton = screen.queryAllByTestId("checklist-connection");
+    expect(connectionButton[0]).toHaveStyle("cursor: auto");
+    const deployButton = screen.queryAllByTestId("checklist-deploy");
     fireEvent.click(deployButton[0]);
     expect(dispatch).toHaveBeenCalledWith({
       type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,

@@ -149,7 +149,7 @@ jobs:
           cd app/client
           yarn install \
           --cwd cypress \
-          --modules-folder ../node_modules
+          --modules-folder node_modules
 
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
@@ -231,7 +231,7 @@ jobs:
           install: false
           parallel: true
           config-file: cypress_ci.json
-          group: "Electrons on Github Action Fat Container"
+          group: "Chrome-Fat Container tests"
           spec: "cypress/integration/Regression_TestSuite/ServerSideTests/Datasources/*"
           working-directory: app/client
           # tag will be either "push" or "pull_request"

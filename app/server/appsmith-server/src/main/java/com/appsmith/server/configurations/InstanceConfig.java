@@ -23,11 +23,11 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     private final InstanceConfigHelper instanceConfigHelper;
 
-
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
 
-        Mono<Void> registrationAndRtsCheckMono = configService.getByName(Appsmith.APPSMITH_REGISTERED)
+        Mono<Void> registrationAndRtsCheckMono = configService
+                .getByName(Appsmith.APPSMITH_REGISTERED)
                 .filter(config -> Boolean.TRUE.equals(config.getConfig().get("value")))
                 .switchIfEmpty(instanceConfigHelper.registerInstance())
                 .onErrorResume(errorSignal -> {
@@ -37,7 +37,8 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 .then(instanceConfigHelper.performRtsHealthCheck())
                 .doFinally(ignored -> instanceConfigHelper.printReady());
 
-        Mono<?> startupProcess = instanceConfigHelper.checkInstanceSchemaVersion()
+        Mono<?> startupProcess = instanceConfigHelper
+                .checkInstanceSchemaVersion()
                 .flatMap(signal -> registrationAndRtsCheckMono)
                 // Prefill the server cache with anonymous user permission group ids.
                 .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache())
@@ -46,7 +47,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
         try {
             startupProcess.block();
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.debug("Application start up encountered an error: {}", e.getMessage());
             Sentry.captureException(e);
         }
@@ -55,5 +56,4 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
     public boolean getIsRtsAccessible() {
         return instanceConfigHelper.getIsRtsAccessible();
     }
-
 }

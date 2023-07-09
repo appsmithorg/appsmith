@@ -2,23 +2,15 @@ import React from "react";
 
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import { Icon, TextType, Text } from "design-system-old";
+import { TextType, Text } from "design-system-old";
 import { getIsPageSaving, getPageSavingError } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
 import { createMessage, EDITOR_HEADER } from "@appsmith/constants/messages";
+import { Icon, Spinner } from "design-system";
 
 const SaveStatusContainer = styled.div`
   align-items: center;
   display: flex;
-`;
-
-const StyledLoader = styled(Icon)`
-  animation: spin 2s linear infinite;
-  @keyframes spin {
-    100% {
-      transform: rotate(360deg);
-    }
-  }
 `;
 
 export function EditorSaveIndicator() {
@@ -28,9 +20,7 @@ export function EditorSaveIndicator() {
   let saveStatusIcon: React.ReactNode;
   let saveStatusText = "";
   if (isSaving) {
-    saveStatusIcon = (
-      <StyledLoader className="t--save-status-is-saving" name="refresh" />
-    );
+    saveStatusIcon = <Spinner className="t--save-status-is-saving" />;
     saveStatusText = createMessage(EDITOR_HEADER.saving);
   } else {
     if (pageSaveError) {

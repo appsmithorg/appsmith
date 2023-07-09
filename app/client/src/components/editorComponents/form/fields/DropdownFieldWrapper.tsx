@@ -1,20 +1,10 @@
-import { Dropdown } from "design-system-old";
-import { Colors } from "constants/Colors";
 import React, { useEffect, useState } from "react";
-import type { WrappedFieldInputProps } from "redux-form";
+import type { SelectOptionProps } from "design-system";
+import { Select, Option } from "design-system";
 
-type DropdownWrapperProps = {
-  placeholder: string;
-  input: WrappedFieldInputProps;
-  options: Array<{ id?: string; value: string; label?: string }>;
-  className?: string;
-  width?: string;
-  height?: string;
-  optionWidth?: string;
-  disabled?: boolean;
-};
+type DropdownFieldWrapperProps = SelectOptionProps & { placeholder?: string };
 
-function DropdownFieldWrapper(props: DropdownWrapperProps) {
+function DropdownFieldWrapper(props: DropdownFieldWrapperProps) {
   const selectedValueHandler = () => {
     if (
       props.input &&
@@ -24,8 +14,6 @@ function DropdownFieldWrapper(props: DropdownWrapperProps) {
       return props.input.value.value;
     } else if (props.input && typeof props.input.value === "string") {
       return props.input.value;
-    } else if (props.placeholder) {
-      return props.placeholder;
     }
   };
   const [selectedOption, setSelectedOption] = useState<any>({
@@ -40,17 +28,22 @@ function DropdownFieldWrapper(props: DropdownWrapperProps) {
   }, [props.input.value, props.placeholder]);
 
   return (
-    <Dropdown
-      bgColor={Colors.CODE_GRAY}
+    <Select
       className={props.className}
-      disabled={props.disabled}
-      height={props.height}
+      defaultValue={selectedOption.value}
+      isDisabled={props.disabled}
       onSelect={onSelectHandler}
-      optionWidth={props.optionWidth}
-      options={props.options}
-      selected={selectedOption}
-      width={props.width}
-    />
+      placeholder={props.placeholder}
+      value={selectedOption.value}
+    >
+      {props.options.map((option: SelectOptionProps) => {
+        return (
+          <Option key={option.id} value={option.value}>
+            {option.value}
+          </Option>
+        );
+      })}
+    </Select>
   );
 }
 

@@ -2,6 +2,7 @@ import type CodeMirror from "codemirror";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import type { ActionEntity } from "entities/DataTree/types";
+import { trim } from "lodash";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { EditorSize } from "./EditorConfig";
 
@@ -121,3 +122,16 @@ export const removeNewLineCharsIfRequired = (
   }
   return resultVal;
 };
+
+// Checks if string at the position of the cursor is empty
+export function isCursorOnEmptyToken(editor: CodeMirror.Editor) {
+  const currentCursorPosition = editor.getCursor();
+  const { string: stringAtCurrentPosition } = editor.getTokenAt(
+    currentCursorPosition,
+  );
+  const isEmptyString = !(
+    stringAtCurrentPosition && trim(stringAtCurrentPosition)
+  );
+
+  return isEmptyString;
+}

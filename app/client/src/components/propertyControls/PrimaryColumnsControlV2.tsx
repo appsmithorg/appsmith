@@ -6,11 +6,8 @@ import * as Sentry from "@sentry/react";
 import _, { toString } from "lodash";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "styled-components";
 import type { Indices } from "constants/Layers";
-import { Size, Category } from "design-system-old";
-import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
@@ -29,30 +26,25 @@ import {
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalValuePath, isDynamicValue } from "utils/DynamicBindingUtils";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-import { Checkbox, CheckboxType } from "design-system-old";
+import { Checkbox } from "design-system";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
-import { Colors } from "constants/Colors";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
-
-const TabsWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
-
-const AddColumnButton = styled(StyledPropertyPaneButton)`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  &&&& {
-    margin-top: 12px;
-    margin-bottom: 8px;
-  }
-`;
-
+import { Button } from "design-system";
 const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
   position: relative;
   ${(props) => props.rightPadding && `right: 6px;`}
+  align-items: center;
+  .ads-v2-checkbox {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+  }
+`;
+
+const EmptyStateLabel = styled.div`
+  margin: 20px 0px;
+  text-align: center;
+  color: var(--ads-v2-color-fg);
 `;
 
 interface ReduxStateProps {
@@ -92,7 +84,6 @@ const getOriginalColumn = (
 type State = {
   focusedIndex: number | null;
   duplicateColumnIds: string[];
-  hasEditableColumn: boolean;
   hasScrollableList: boolean;
 };
 
@@ -119,12 +110,8 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     this.state = {
       focusedIndex: null,
       duplicateColumnIds,
-      hasEditableColumn: false,
       hasScrollableList: false,
     };
-  }
-  componentDidMount() {
-    this.checkAndUpdateIfEditableColumnPresent();
   }
 
   componentDidUpdate(prevProps: ControlProps): void {
@@ -146,7 +133,6 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
         frozenColumnIndex === 0 ? columns.length - 1 : frozenColumnIndex,
         true,
       );
-      this.checkAndUpdateIfEditableColumnPresent();
     }
 
     const listElement = document.querySelector(`.${LIST_CLASSNAME}`);
@@ -169,7 +155,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
 
     // If there are no columns, show empty state
     if (Object.keys(columns).length === 0) {
-      return <EmptyDataState />;
+      return <EmptyStateLabel>Table columns will appear here</EmptyStateLabel>;
     }
     // Get an empty array of length of columns
     let columnOrder: string[] = new Array(Object.keys(columns).length);
@@ -219,23 +205,20 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
       <>
         <div className="flex pt-2 pb-2 justify-between">
           <div>{Object.values(reorderedColumns).length} columns</div>
-          {this.state.hasEditableColumn && (
+          {this.isEditableColumnPresent() && (
             <EdtiableCheckboxWrapper
               className="flex t--uber-editable-checkbox"
               rightPadding={this.state.hasScrollableList}
             >
               <span className="mr-2">Editable</span>
               <Checkbox
-                backgroundColor={Colors.GREY_600}
-                isDefaultChecked={this.isAllColumnsEditable()}
-                label=""
-                onCheckChange={this.toggleAllColumnsEditability}
-                type={CheckboxType.SECONDARY}
+                isSelected={this.isAllColumnsEditable()}
+                onChange={this.toggleAllColumnsEditability}
               />
             </EdtiableCheckboxWrapper>
           )}
         </div>
-        <TabsWrapper>
+        <div className="flex flex-col w-full gap-1">
           <EvaluatedValuePopupWrapper {...this.props} isFocused={isFocused}>
             <DraggableListControl
               className={LIST_CLASSNAME}
@@ -251,7 +234,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
                 DraggableListCard({
                   ...props,
                   showCheckbox: true,
-                  placeholder: "Column Title",
+                  placeholder: "Column title",
                 })
               }
               toggleCheckbox={this.toggleCheckbox}
@@ -261,18 +244,16 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
               updateOption={this.updateOption}
             />
           </EvaluatedValuePopupWrapper>
-
-          <AddColumnButton
-            category={Category.secondary}
-            className="t--add-column-btn"
-            icon="plus"
+          <Button
+            className="self-end t--add-column-btn"
+            kind="tertiary"
             onClick={this.addNewColumn}
-            size={Size.medium}
-            tag="button"
-            text="Add a new column"
-            type="button"
-          />
-        </TabsWrapper>
+            size="sm"
+            startIcon="plus"
+          >
+            Add new column
+          </Button>
+        </div>
       </>
     );
   }
@@ -471,16 +452,10 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     }
   };
 
-  checkAndUpdateIfEditableColumnPresent = () => {
-    const hasEditableColumn = !!Object.values(this.props.propertyValue).find(
-      (column) => isColumnTypeEditable((column as ColumnProperties).columnType),
+  isEditableColumnPresent = () => {
+    return Object.values(this.props.propertyValue).some((column) =>
+      isColumnTypeEditable((column as ColumnProperties).columnType),
     );
-
-    if (hasEditableColumn !== this.state.hasEditableColumn) {
-      this.setState({
-        hasEditableColumn,
-      });
-    }
   };
 
   static getControlType() {

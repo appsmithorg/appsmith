@@ -1,49 +1,57 @@
 import { mergeProps } from "@react-aria/utils";
 import { useFocusRing } from "@react-aria/focus";
 import { useHover } from "@react-aria/interactions";
-import CheckIcon from "remixicon-react/CheckLineIcon";
 import { useToggleState } from "@react-stately/toggle";
 import { useFocusableRef } from "@react-spectrum/utils";
-import SubtractIcon from "remixicon-react/SubtractLineIcon";
 import React, { forwardRef, useContext, useRef } from "react";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
-import type { FocusableRef, StyleProps } from "@react-types/shared";
 import type { SpectrumCheckboxProps } from "@react-types/checkbox";
+import type { FocusableRef, StyleProps } from "@react-types/shared";
 import { useCheckbox, useCheckboxGroupItem } from "@react-aria/checkbox";
 
+import { CheckIcon } from "./icons/CheckIcon";
 import { CheckboxGroupContext } from "./context";
+import { SubtractIcon } from "./icons/SubtractIcon";
+import type { CheckboxGroupContextType } from "./context";
+
+export type InlineLabelProps = {
+  labelPosition?: "left" | "right";
+};
 
 export interface CheckboxProps
-  extends Omit<SpectrumCheckboxProps, keyof StyleProps> {
+  extends Omit<SpectrumCheckboxProps, keyof StyleProps>,
+    InlineLabelProps {
   icon?: React.ReactNode;
   className?: string;
-  labelPosition?: "left" | "right";
 }
 
 export type CheckboxRef = FocusableRef<HTMLLabelElement>;
 
+const ICON_SIZE = 14;
+
 export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
   const {
-    className,
-    icon = <CheckIcon />,
-    isDisabled = false,
-    isIndeterminate = false,
-    children,
     autoFocus,
+    children,
+    className,
+    icon = <CheckIcon size={ICON_SIZE} />,
+    isDisabled: isDisabledProp = false,
+    isIndeterminate = false,
     validationState,
   } = props;
   const state = useToggleState(props);
   const inputRef = useRef<HTMLInputElement>(null);
   const domRef = useFocusableRef(ref, inputRef);
   const { visuallyHiddenProps } = useVisuallyHidden();
-  const { hoverProps, isHovered } = useHover({ isDisabled });
   const { focusProps, isFocusVisible } = useFocusRing({ autoFocus });
 
   // The hooks will be swapped based on whether the checkbox is a part of a CheckboxGroup.
   // Although this approach is not conventional since hooks cannot usually be called conditionally,
   // it should be safe in this case since the checkbox is not expected to be added or removed from the group.
-  const groupState = useContext(CheckboxGroupContext);
-  const { inputProps } = groupState
+  const context = useContext(CheckboxGroupContext) as CheckboxGroupContextType;
+  const isDisabled = isDisabledProp || context?.isDisabled;
+  const { hoverProps, isHovered } = useHover({ isDisabled });
+  const { inputProps } = context?.state
     ? // eslint-disable-next-line react-hooks/rules-of-hooks
       useCheckboxGroupItem(
         {
@@ -56,8 +64,9 @@ export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
           // the props for this individual checkbox, and not from the group via context.
           isRequired: props.isRequired,
           validationState: props.validationState,
+          isDisabled: isDisabled,
         },
-        groupState,
+        context?.state,
         inputRef,
       )
     : // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -74,7 +83,7 @@ export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
       {...hoverProps}
       className={className}
       data-disabled={isDisabled ? "" : undefined}
-      data-focussed={isFocusVisible ? "" : undefined}
+      data-focused={isFocusVisible ? "" : undefined}
       data-hovered={isHovered ? "" : undefined}
       data-invalid={validationState === "invalid" ? "" : undefined}
       data-label=""
@@ -86,7 +95,7 @@ export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
         ref={inputRef}
       />
       <span aria-hidden="true" data-icon="" role="presentation">
-        {isIndeterminate ? <SubtractIcon /> : icon}
+        {isIndeterminate ? <SubtractIcon size={ICON_SIZE} /> : icon}
       </span>
       {children}
     </label>

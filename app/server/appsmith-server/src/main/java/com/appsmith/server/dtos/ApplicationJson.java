@@ -1,7 +1,7 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceConfigurationStructure;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.views.Views;
@@ -44,10 +44,10 @@ public class ApplicationJson {
     Application exportedApplication;
 
     @JsonView(Views.Public.class)
-    List<Datasource> datasourceList;
+    List<DatasourceStorage> datasourceList;
 
     @JsonView(Views.Public.class)
-    List<DatasourceConfigurationStructure> datasourceConfigurationStructureList;
+    List<DatasourceStorageStructure> datasourceConfigurationStructureList;
 
     @JsonView({Views.Public.class, Views.Export.class})
     List<CustomJSLib> customJSLibList;

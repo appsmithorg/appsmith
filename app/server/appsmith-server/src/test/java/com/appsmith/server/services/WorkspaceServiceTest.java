@@ -1,6 +1,8 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
@@ -16,8 +18,8 @@ import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
-import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -62,6 +64,7 @@ import reactor.util.function.Tuple6;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -92,6 +95,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DirtiesContext
 @Slf4j
 public class WorkspaceServiceTest {
+
+    private static final String origin = "http://appsmith-local.test";
 
     @Autowired
     WorkspaceService workspaceService;
@@ -124,8 +129,12 @@ public class WorkspaceServiceTest {
     RoleGraph roleGraph;
 
     @Autowired
-    private AssetRepository assetRepository;
+    MongoTemplate mongoTemplate;
 
+    Workspace workspace;
+
+    @Autowired
+    private AssetRepository assetRepository;
 
     @Autowired
     private PermissionGroupRepository permissionGroupRepository;
@@ -136,15 +145,8 @@ public class WorkspaceServiceTest {
     @Autowired
     private PluginService pluginService;
 
-    @Autowired
-    MongoTemplate mongoTemplate;
-
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
-
-    Workspace workspace;
-
-    private static String origin = "http://appsmith-local.test";
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
@@ -163,23 +165,24 @@ public class WorkspaceServiceTest {
 
         Mono<User> userMono = userRepository.findByEmail("api_user").cache();
 
-        Workspace workspace = userMono
-                .flatMap(user -> workspaceService.createDefault(new Workspace(), user))
+        Workspace workspace = userMono.flatMap(user -> workspaceService.createDefault(new Workspace(), user))
                 .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!")))
                 .block();
 
         Mono<Set<PermissionGroup>> defaultPermissionGroupMono = Mono.just(workspace)
                 .flatMap(workspace1 -> {
                     Set<String> defaultPermissionGroups = workspace1.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups).collect(Collectors.toSet());
+                    return permissionGroupRepository
+                            .findAllById(defaultPermissionGroups)
+                            .collect(Collectors.toSet());
                 });
 
-        Mono<Set<PermissionGroup>> userPermissionGroupsSetMono = userMono
-                .flatMapMany(user -> permissionGroupRepository.findByAssignedToUserIdsIn(user.getId()))
+        Mono<Set<PermissionGroup>> userPermissionGroupsSetMono = userMono.flatMapMany(
+                        user -> permissionGroupRepository.findByAssignedToUserIdsIn(user.getId()))
                 .collect(Collectors.toSet());
 
-
-        StepVerifier.create(Mono.zip(Mono.just(workspace), userMono, defaultPermissionGroupMono, userPermissionGroupsSetMono))
+        StepVerifier.create(Mono.zip(
+                        Mono.just(workspace), userMono, defaultPermissionGroupMono, userPermissionGroupsSetMono))
                 .assertNext(tuple -> {
                     Workspace workspace1 = tuple.getT1();
                     User user = tuple.getT2();
@@ -194,14 +197,14 @@ public class WorkspaceServiceTest {
 
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
                     Set<String> userPermissionGroupIds = userPermissionGroups.stream()
                             .map(PermissionGroup::getId)
                             .collect(Collectors.toSet());
 
                     assertThat(userPermissionGroupIds).contains(adminPermissionGroup.getId());
-
                 })
                 .verifyComplete();
     }
@@ -216,9 +219,11 @@ public class WorkspaceServiceTest {
         User user = userService.create(newUser).block();
 
         String workspaceName = user.computeFirstName() + "'s apps";
-        Workspace defaultWorkspace = workspaceRepository.findByName(workspaceName).block();
+        Workspace defaultWorkspace =
+                workspaceRepository.findByName(workspaceName).block();
 
-        PermissionGroup permissionGroup = permissionGroupRepository.findByDefaultDomainIdAndDefaultDomainType(defaultWorkspace.getId(), Workspace.class.getSimpleName())
+        PermissionGroup permissionGroup = permissionGroupRepository
+                .findByDefaultDomainIdAndDefaultDomainType(defaultWorkspace.getId(), Workspace.class.getSimpleName())
                 .filter(pg -> pg.getName().startsWith(ADMINISTRATOR))
                 .blockFirst();
 
@@ -239,8 +244,10 @@ public class WorkspaceServiceTest {
     public void nullCreateWorkspace() {
         Mono<Workspace> workspaceResponse = workspaceService.create(null);
         StepVerifier.create(workspaceResponse)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.WORKSPACE)))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.WORKSPACE)))
                 .verify();
     }
 
@@ -250,8 +257,8 @@ public class WorkspaceServiceTest {
         workspace.setName(null);
         Mono<Workspace> workspaceResponse = workspaceService.create(workspace);
         StepVerifier.create(workspaceResponse)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME)))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME)))
                 .verify();
     }
 
@@ -259,7 +266,8 @@ public class WorkspaceServiceTest {
     @WithUserDetails(value = "api_user")
     public void validCreateWorkspaceTest() {
 
-        Mono<Workspace> workspaceResponse = workspaceService.create(workspace)
+        Mono<Workspace> workspaceResponse = workspaceService
+                .create(workspace)
                 .switchIfEmpty(Mono.error(new Exception("create is returning empty!!")))
                 .cache();
 
@@ -281,84 +289,137 @@ public class WorkspaceServiceTest {
 
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
                     PermissionGroup developerPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
                     PermissionGroup viewerPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
-                    Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+                    Policy manageWorkspaceAppPolicy = Policy.builder()
+                            .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
 
-                    Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
+                    Policy manageWorkspacePolicy = Policy.builder()
+                            .permission(MANAGE_WORKSPACES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId()))
                             .build();
 
-                    Policy workspaceCreateApplicationPolicy = Policy.builder().permission(AclPermission.WORKSPACE_CREATE_APPLICATION.getValue())
+                    Policy workspaceCreateApplicationPolicy = Policy.builder()
+                            .permission(AclPermission.WORKSPACE_CREATE_APPLICATION.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
 
-                    Policy workspaceCreateDataSourcePolicy = Policy.builder().permission(AclPermission.WORKSPACE_CREATE_DATASOURCE.getValue())
+                    Policy workspaceCreateDataSourcePolicy = Policy.builder()
+                            .permission(AclPermission.WORKSPACE_CREATE_DATASOURCE.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
 
-                    Policy deleteWorkspacePolicy = Policy.builder().permission(AclPermission.DELETE_WORKSPACES.getValue())
+                    Policy deleteWorkspacePolicy = Policy.builder()
+                            .permission(AclPermission.DELETE_WORKSPACES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId()))
                             .build();
 
-                    Policy workspaceDeleteApplicationaPolicy = Policy.builder().permission(AclPermission.WORKSPACE_DELETE_APPLICATIONS.getValue())
+                    Policy workspaceDeleteApplicationaPolicy = Policy.builder()
+                            .permission(AclPermission.WORKSPACE_DELETE_APPLICATIONS.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
 
-                    Policy workspaceDeleteDatasourcesPolicy = Policy.builder().permission(AclPermission.WORKSPACE_DELETE_DATASOURCES.getValue())
+                    Policy workspaceDeleteDatasourcesPolicy = Policy.builder()
+                            .permission(AclPermission.WORKSPACE_DELETE_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
 
                     assertThat(workspace1.getPolicies()).isNotEmpty();
-                    assertThat(workspace1.getPolicies()).containsAll(Set.of(manageWorkspaceAppPolicy, manageWorkspacePolicy,
-                            workspaceCreateApplicationPolicy, workspaceCreateDataSourcePolicy, deleteWorkspacePolicy,
-                            workspaceDeleteApplicationaPolicy, workspaceDeleteDatasourcesPolicy));
+                    assertThat(workspace1.getPolicies())
+                            .containsAll(Set.of(
+                                    manageWorkspaceAppPolicy,
+                                    manageWorkspacePolicy,
+                                    workspaceCreateApplicationPolicy,
+                                    workspaceCreateDataSourcePolicy,
+                                    deleteWorkspacePolicy,
+                                    workspaceDeleteApplicationaPolicy,
+                                    workspaceDeleteDatasourcesPolicy));
                     assertThat(workspace1.getSlug()).isEqualTo(TextUtils.makeSlug(workspace.getName()));
                     assertThat(workspace1.getEmail()).isEqualTo("api_user");
                     assertThat(workspace1.getIsAutoGeneratedWorkspace()).isNull();
                     assertThat(workspace1.getTenantId()).isEqualTo(user.getTenantId());
 
                     // Assert admin permission group policies
-                    adminPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue()))
-                            .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).contains(adminPermissionGroup.getId()));
+                    adminPermissionGroup.getPolicies().stream()
+                            .filter(policy -> policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue()))
+                            .findFirst()
+                            .ifPresent(policy ->
+                                    assertThat(policy.getPermissionGroups()).contains(adminPermissionGroup.getId()));
 
-                    adminPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUP_MEMBERS.getValue()))
-                            .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).containsAll(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId())));
+                    adminPermissionGroup.getPolicies().stream()
+                            .filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUP_MEMBERS.getValue()))
+                            .findFirst()
+                            .ifPresent(policy -> assertThat(policy.getPermissionGroups())
+                                    .containsAll(Set.of(
+                                            adminPermissionGroup.getId(),
+                                            developerPermissionGroup.getId(),
+                                            viewerPermissionGroup.getId())));
 
-                    adminPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
-                            .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).contains(adminPermissionGroup.getId()));
-
+                    adminPermissionGroup.getPolicies().stream()
+                            .filter(policy -> policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
+                            .findFirst()
+                            .ifPresent(policy ->
+                                    assertThat(policy.getPermissionGroups()).contains(adminPermissionGroup.getId()));
 
                     // Assert developer permission group policies
-                    developerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue()))
-                            .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).containsAll(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId())));
+                    developerPermissionGroup.getPolicies().stream()
+                            .filter(policy -> policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue()))
+                            .findFirst()
+                            .ifPresent(policy -> assertThat(policy.getPermissionGroups())
+                                    .containsAll(
+                                            Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId())));
 
-                    developerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUP_MEMBERS.getValue()))
-                            .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).containsAll(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId())));
+                    developerPermissionGroup.getPolicies().stream()
+                            .filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUP_MEMBERS.getValue()))
+                            .findFirst()
+                            .ifPresent(policy -> assertThat(policy.getPermissionGroups())
+                                    .containsAll(Set.of(
+                                            adminPermissionGroup.getId(),
+                                            developerPermissionGroup.getId(),
+                                            viewerPermissionGroup.getId())));
 
-                    developerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
-                            .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).containsAll(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId())));
-
+                    developerPermissionGroup.getPolicies().stream()
+                            .filter(policy -> policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
+                            .findFirst()
+                            .ifPresent(policy -> assertThat(policy.getPermissionGroups())
+                                    .containsAll(
+                                            Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId())));
 
                     // Assert viewer permission group policies
-                    viewerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue()))
-                            .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).containsAll(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId())));
-                    viewerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUP_MEMBERS.getValue()))
-                            .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).containsAll(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId())));
-                    viewerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
-                            .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).containsAll(Set.of(adminPermissionGroup.getId(), viewerPermissionGroup.getId())));
-
-
+                    viewerPermissionGroup.getPolicies().stream()
+                            .filter(policy -> policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue()))
+                            .findFirst()
+                            .ifPresent(policy -> assertThat(policy.getPermissionGroups())
+                                    .containsAll(Set.of(
+                                            adminPermissionGroup.getId(),
+                                            developerPermissionGroup.getId(),
+                                            viewerPermissionGroup.getId())));
+                    viewerPermissionGroup.getPolicies().stream()
+                            .filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUP_MEMBERS.getValue()))
+                            .findFirst()
+                            .ifPresent(policy -> assertThat(policy.getPermissionGroups())
+                                    .containsAll(Set.of(
+                                            adminPermissionGroup.getId(),
+                                            developerPermissionGroup.getId(),
+                                            viewerPermissionGroup.getId())));
+                    viewerPermissionGroup.getPolicies().stream()
+                            .filter(policy -> policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
+                            .findFirst()
+                            .ifPresent(policy -> assertThat(policy.getPermissionGroups())
+                                    .containsAll(Set.of(adminPermissionGroup.getId(), viewerPermissionGroup.getId())));
                 })
                 .verifyComplete();
     }
@@ -379,8 +440,8 @@ public class WorkspaceServiceTest {
     public void getWorkspaceNullId() {
         Mono<Workspace> workspaceMono = workspaceService.getById(null);
         StepVerifier.create(workspaceMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ID)))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ID)))
                 .verify();
     }
 
@@ -393,7 +454,8 @@ public class WorkspaceServiceTest {
         workspace.setWebsite("https://example.com");
         workspace.setSlug("test-for-get-name");
         Mono<Workspace> createWorkspace = workspaceService.create(workspace);
-        Mono<Workspace> getWorkspace = createWorkspace.flatMap(t -> workspaceService.findById(t.getId(), READ_WORKSPACES));
+        Mono<Workspace> getWorkspace =
+                createWorkspace.flatMap(t -> workspaceService.findById(t.getId(), READ_WORKSPACES));
         StepVerifier.create(getWorkspace)
                 .assertNext(t -> {
                     assertThat(t).isNotNull();
@@ -413,14 +475,12 @@ public class WorkspaceServiceTest {
         workspace.setWebsite("https://example.com");
         workspace.setSlug("test-update-name");
 
-        Mono<Workspace> createWorkspace = workspaceService.create(workspace)
-                .cache();
-        Mono<Workspace> updateWorkspace = createWorkspace
-                .flatMap(t -> {
-                    Workspace newWorkspace = new Workspace();
-                    newWorkspace.setDomain("abc.com");
-                    return workspaceService.update(t.getId(), newWorkspace);
-                });
+        Mono<Workspace> createWorkspace = workspaceService.create(workspace).cache();
+        Mono<Workspace> updateWorkspace = createWorkspace.flatMap(t -> {
+            Workspace newWorkspace = new Workspace();
+            newWorkspace.setDomain("abc.com");
+            return workspaceService.update(t.getId(), newWorkspace);
+        });
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = createWorkspace
                 .flatMapMany(savedWorkspace -> {
@@ -440,21 +500,26 @@ public class WorkspaceServiceTest {
                     List<PermissionGroup> permissionGroups = tuple.getT2();
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
                     PermissionGroup developerPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
                     PermissionGroup viewerPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
-                    Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+                    Policy manageWorkspaceAppPolicy = Policy.builder()
+                            .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
 
-                    Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
+                    Policy manageWorkspacePolicy = Policy.builder()
+                            .permission(MANAGE_WORKSPACES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId()))
                             .build();
 
@@ -487,11 +552,14 @@ public class WorkspaceServiceTest {
                     final Workspace changes = new Workspace();
                     changes.setId(t.getT2().getId());
                     changes.setDomain("abc.com");
-                    return workspaceService.update(t.getT1().getId(), changes)
-                            .zipWhen(updatedWorkspace ->
-                                    workspaceRepository.findById(t.getT2().getId(), READ_WORKSPACES)
-                                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, t.getT2().getId())))
-                            );
+                    return workspaceService
+                            .update(t.getT1().getId(), changes)
+                            .zipWhen(updatedWorkspace -> workspaceRepository
+                                    .findById(t.getT2().getId(), READ_WORKSPACES)
+                                    .switchIfEmpty(Mono.error(new AppsmithException(
+                                            AppsmithError.NO_RESOURCE_FOUND,
+                                            FieldName.WORKSPACE,
+                                            t.getT2().getId()))));
                 });
 
         StepVerifier.create(updateWorkspace)
@@ -514,11 +582,13 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void inValidupdateWorkspaceEmptyName() {
-        Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+        Policy manageWorkspaceAppPolicy = Policy.builder()
+                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
                 .users(Set.of("api_user"))
                 .build();
 
-        Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
+        Policy manageWorkspacePolicy = Policy.builder()
+                .permission(MANAGE_WORKSPACES.getValue())
                 .users(Set.of("api_user"))
                 .build();
 
@@ -528,43 +598,43 @@ public class WorkspaceServiceTest {
         workspace.setWebsite("https://example.com");
         workspace.setSlug("test-update-name");
         Mono<Workspace> createWorkspace = workspaceService.create(workspace);
-        Mono<Workspace> updateWorkspace = createWorkspace
-                .flatMap(t -> {
-                    Workspace newWorkspace = new Workspace();
-                    newWorkspace.setName("");
-                    return workspaceService.update(t.getId(), newWorkspace);
-                });
+        Mono<Workspace> updateWorkspace = createWorkspace.flatMap(t -> {
+            Workspace newWorkspace = new Workspace();
+            newWorkspace.setName("");
+            return workspaceService.update(t.getId(), newWorkspace);
+        });
 
         StepVerifier.create(updateWorkspace)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME)))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME)))
                 .verify();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void validUpdateWorkspaceValidEmail() {
-        Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+        Policy manageWorkspaceAppPolicy = Policy.builder()
+                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
                 .users(Set.of("api_user"))
                 .build();
 
-        Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
+        Policy manageWorkspacePolicy = Policy.builder()
+                .permission(MANAGE_WORKSPACES.getValue())
                 .users(Set.of("api_user"))
                 .build();
 
         String[] validEmails = {"valid@email.com", "valid@email.co.in", "valid@email-assoc.co.in"};
-        for (String validEmail: validEmails) {
+        for (String validEmail : validEmails) {
             Workspace workspace = new Workspace();
             workspace.setName("Test Update Name");
             workspace.setDomain("example.com");
             workspace.setWebsite("https://example.com");
             workspace.setSlug("test-update-name");
-            Mono<Workspace> updateWorkspace = workspaceService.create(workspace)
-                    .flatMap(t -> {
-                        Workspace newWorkspace = new Workspace();
-                        newWorkspace.setEmail(validEmail);
-                        return workspaceService.update(t.getId(), newWorkspace);
-                    });
+            Mono<Workspace> updateWorkspace = workspaceService.create(workspace).flatMap(t -> {
+                Workspace newWorkspace = new Workspace();
+                newWorkspace.setEmail(validEmail);
+                return workspaceService.update(t.getId(), newWorkspace);
+            });
             StepVerifier.create(updateWorkspace)
                     .assertNext(t -> {
                         assertThat(t).isNotNull();
@@ -577,11 +647,13 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void validUpdateWorkspaceInvalidEmail() {
-        Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+        Policy manageWorkspaceAppPolicy = Policy.builder()
+                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
                 .users(Set.of("api_user"))
                 .build();
 
-        Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
+        Policy manageWorkspacePolicy = Policy.builder()
+                .permission(MANAGE_WORKSPACES.getValue())
                 .users(Set.of("api_user"))
                 .build();
 
@@ -592,15 +664,16 @@ public class WorkspaceServiceTest {
             workspace.setDomain("example.com");
             workspace.setWebsite("https://example.com");
             workspace.setSlug("test-update-name");
-            Mono<Workspace> updateWorkspace = workspaceService.create(workspace)
-                    .flatMap(t -> {
-                        Workspace newWorkspace = new Workspace();
-                        newWorkspace.setEmail(invalidEmail);
-                        return workspaceService.update(t.getId(), newWorkspace);
-                    });
+            Mono<Workspace> updateWorkspace = workspaceService.create(workspace).flatMap(t -> {
+                Workspace newWorkspace = new Workspace();
+                newWorkspace.setEmail(invalidEmail);
+                return workspaceService.update(t.getId(), newWorkspace);
+            });
             StepVerifier.create(updateWorkspace)
-                    .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                            throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.EMAIL)))
+                    .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                            && throwable
+                                    .getMessage()
+                                    .equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.EMAIL)))
                     .verify();
         }
     }
@@ -608,31 +681,47 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void validUpdateWorkspaceValidWebsite() {
-        Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+        Policy manageWorkspaceAppPolicy = Policy.builder()
+                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
                 .users(Set.of("api_user"))
                 .build();
 
-        Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
+        Policy manageWorkspacePolicy = Policy.builder()
+                .permission(MANAGE_WORKSPACES.getValue())
                 .users(Set.of("api_user"))
                 .build();
 
-        String[] validWebsites = {"https://www.valid.website.com", "http://www.valid.website.com",
-                "https://valid.website.com", "http://valid.website.com", "www.valid.website.com", "valid.website.com",
-                "valid-website.com", "valid.12345.com", "12345.com", "https://www.valid.website.com/",
-                "http://www.valid.website.com/", "https://valid.website.complete/", "http://valid.website.com/",
-                "www.valid.website.com/", "valid.website.com/", "valid-website.com/", "valid.12345.com/", "12345.com/"};
-        for (String validWebsite: validWebsites) {
+        String[] validWebsites = {
+            "https://www.valid.website.com",
+            "http://www.valid.website.com",
+            "https://valid.website.com",
+            "http://valid.website.com",
+            "www.valid.website.com",
+            "valid.website.com",
+            "valid-website.com",
+            "valid.12345.com",
+            "12345.com",
+            "https://www.valid.website.com/",
+            "http://www.valid.website.com/",
+            "https://valid.website.complete/",
+            "http://valid.website.com/",
+            "www.valid.website.com/",
+            "valid.website.com/",
+            "valid-website.com/",
+            "valid.12345.com/",
+            "12345.com/"
+        };
+        for (String validWebsite : validWebsites) {
             Workspace workspace = new Workspace();
             workspace.setName("Test Update Name");
             workspace.setDomain("example.com");
             workspace.setWebsite("https://example.com");
             workspace.setSlug("test-update-name");
-            Mono<Workspace> updateWorkspace = workspaceService.create(workspace)
-                    .flatMap(t -> {
-                        Workspace newWorkspace = new Workspace();
-                        newWorkspace.setWebsite(validWebsite);
-                        return workspaceService.update(t.getId(), newWorkspace);
-                    });
+            Mono<Workspace> updateWorkspace = workspaceService.create(workspace).flatMap(t -> {
+                Workspace newWorkspace = new Workspace();
+                newWorkspace.setWebsite(validWebsite);
+                return workspaceService.update(t.getId(), newWorkspace);
+            });
             StepVerifier.create(updateWorkspace)
                     .assertNext(t -> {
                         assertThat(t).isNotNull();
@@ -645,35 +734,38 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void validUpdateWorkspaceInvalidWebsite() {
-        Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+        Policy manageWorkspaceAppPolicy = Policy.builder()
+                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
                 .users(Set.of("api_user"))
                 .build();
 
-        Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
+        Policy manageWorkspacePolicy = Policy.builder()
+                .permission(MANAGE_WORKSPACES.getValue())
                 .users(Set.of("api_user"))
                 .build();
 
-        String[] invalidWebsites = {"htp://www.invalid.website.com", "htp://invalid.website.com", "htp://www", "www",
-                "www."};
+        String[] invalidWebsites = {
+            "htp://www.invalid.website.com", "htp://invalid.website.com", "htp://www", "www", "www."
+        };
         for (String invalidWebsite : invalidWebsites) {
             Workspace workspace = new Workspace();
             workspace.setName("Test Update Name");
             workspace.setDomain("example.com");
             workspace.setWebsite("https://example.com");
             workspace.setSlug("test-update-name");
-            Mono<Workspace> updateWorkspace = workspaceService.create(workspace)
-                    .flatMap(t -> {
-                        Workspace newWorkspace = new Workspace();
-                        newWorkspace.setWebsite(invalidWebsite);
-                        return workspaceService.update(t.getId(), newWorkspace);
-                    });
+            Mono<Workspace> updateWorkspace = workspaceService.create(workspace).flatMap(t -> {
+                Workspace newWorkspace = new Workspace();
+                newWorkspace.setWebsite(invalidWebsite);
+                return workspaceService.update(t.getId(), newWorkspace);
+            });
             StepVerifier.create(updateWorkspace)
-                    .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                            throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.WEBSITE)))
+                    .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                            && throwable
+                                    .getMessage()
+                                    .equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.WEBSITE)))
                     .verify();
         }
     }
-
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -688,7 +780,8 @@ public class WorkspaceServiceTest {
         secondWorkspace.setDomain(firstWorkspace.getDomain());
         secondWorkspace.setWebsite(firstWorkspace.getWebsite());
 
-        Mono<Workspace> firstWorkspaceCreation = workspaceService.create(firstWorkspace).cache();
+        Mono<Workspace> firstWorkspaceCreation =
+                workspaceService.create(firstWorkspace).cache();
         Mono<Workspace> secondWorkspaceCreation = firstWorkspaceCreation.then(workspaceService.create(secondWorkspace));
 
         StepVerifier.create(Mono.zip(firstWorkspaceCreation, secondWorkspaceCreation))
@@ -705,15 +798,20 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getAllUserRolesForWorkspaceDomainAsAdministrator() {
-        Mono<List<PermissionGroupInfoDTO>> userRolesForWorkspace = workspaceService.create(workspace)
-                .flatMap(createdWorkspace -> workspaceService.getPermissionGroupsForWorkspace(createdWorkspace.getId()));
+        Mono<List<PermissionGroupInfoDTO>> userRolesForWorkspace = workspaceService
+                .create(workspace)
+                .flatMap(
+                        createdWorkspace -> workspaceService.getPermissionGroupsForWorkspace(createdWorkspace.getId()));
 
         StepVerifier.create(userRolesForWorkspace)
                 .assertNext(userGroupInfos -> {
                     assertThat(userGroupInfos).isNotEmpty();
-                    assertThat(userGroupInfos).anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.ADMINISTRATOR));
-                    assertThat(userGroupInfos).anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.VIEWER));
-                    assertThat(userGroupInfos).anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.DEVELOPER));
+                    assertThat(userGroupInfos)
+                            .anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.ADMINISTRATOR));
+                    assertThat(userGroupInfos)
+                            .anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.VIEWER));
+                    assertThat(userGroupInfos)
+                            .anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.DEVELOPER));
                 })
                 .verifyComplete();
     }
@@ -729,21 +827,26 @@ public class WorkspaceServiceTest {
         Workspace createdWorkspace = workspaceService.create(testWorkspace).block();
 
         List<PermissionGroup> permissionGroups = permissionGroupRepository
-                .findAllById(createdWorkspace.getDefaultPermissionGroups()).collectList().block();
+                .findAllById(createdWorkspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
 
         String adminPermissionGroupId = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                .findFirst().get()
+                .findFirst()
+                .get()
                 .getId();
 
         String developerPermissionGroupId = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                .findFirst().get()
+                .findFirst()
+                .get()
                 .getId();
 
         String viewerPermissionGroupId = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                .findFirst().get()
+                .findFirst()
+                .get()
                 .getId();
 
         // Invite another admin
@@ -772,8 +875,7 @@ public class WorkspaceServiceTest {
 
         Mono<List<MemberInfoDTO>> usersMono = userWorkspaceService.getWorkspaceMembers(createdWorkspace.getId());
 
-        StepVerifier
-                .create(usersMono)
+        StepVerifier.create(usersMono)
                 .assertNext(users -> {
                     assertThat(users).isNotNull();
                     assertThat(users.size()).isEqualTo(6);
@@ -802,7 +904,6 @@ public class WorkspaceServiceTest {
                     assertEquals(userAndGroupDTO.getRoles().size(), 1);
                     assertThat(userAndGroupDTO.getUsername()).isEqualTo("d1@usertest.com");
                     assertThat(userAndGroupDTO.getRoles().get(0).getName()).startsWith(VIEWER);
-
                 })
                 .verifyComplete();
     }
@@ -819,16 +920,17 @@ public class WorkspaceServiceTest {
         toCreate.setDomain("example.com");
         toCreate.setWebsite("https://example.com");
 
-        Workspace workspace = workspaceService
-                .create(toCreate)
-                .block();
+        Workspace workspace = workspaceService.create(toCreate).block();
 
         List<PermissionGroup> permissionGroups = permissionGroupRepository
-                .findAllById(workspace.getDefaultPermissionGroups()).collectList().block();
+                .findAllById(workspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
 
         String adminPermissionGroupId = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                .findFirst().get()
+                .findFirst()
+                .get()
                 .getId();
 
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
@@ -837,10 +939,14 @@ public class WorkspaceServiceTest {
         inviteUsersDTO.setUsernames(users);
         inviteUsersDTO.setPermissionGroupId(adminPermissionGroupId);
 
-        List<User> createdUsers = userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin).block();
+        List<User> createdUsers = userAndAccessManagementService
+                .inviteUsers(inviteUsersDTO, origin)
+                .block();
 
         List<PermissionGroup> permissionGroupsAfterInvite = permissionGroupRepository
-                .findAllById(workspace.getDefaultPermissionGroups()).collectList().block();
+                .findAllById(workspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
 
         // Do the assertions now
         assertThat(workspace).isNotNull();
@@ -848,15 +954,18 @@ public class WorkspaceServiceTest {
 
         PermissionGroup adminPermissionGroup = permissionGroupsAfterInvite.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup developerPermissionGroup = permissionGroupsAfterInvite.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup viewerPermissionGroup = permissionGroupsAfterInvite.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         User api_user = userService.findByEmail("api_user").block();
         User newUser = createdUsers.get(0);
@@ -864,20 +973,25 @@ public class WorkspaceServiceTest {
         // assert that both the new user and api_user have admin roles
         assertThat(adminPermissionGroup.getAssignedToUserIds()).containsAll(Set.of(newUser.getId(), api_user.getId()));
 
-        Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+        Policy manageWorkspaceAppPolicy = Policy.builder()
+                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
                 .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                 .build();
 
-        Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
+        Policy manageWorkspacePolicy = Policy.builder()
+                .permission(MANAGE_WORKSPACES.getValue())
                 .permissionGroups(Set.of(adminPermissionGroup.getId()))
                 .build();
 
-        Policy readWorkspacePolicy = Policy.builder().permission(READ_WORKSPACES.getValue())
-                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+        Policy readWorkspacePolicy = Policy.builder()
+                .permission(READ_WORKSPACES.getValue())
+                .permissionGroups(Set.of(
+                        adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
                 .build();
 
         assertThat(workspace.getPolicies()).isNotEmpty();
-        assertThat(workspace.getPolicies()).containsAll(Set.of(manageWorkspaceAppPolicy, manageWorkspacePolicy, readWorkspacePolicy));
+        assertThat(workspace.getPolicies())
+                .containsAll(Set.of(manageWorkspaceAppPolicy, manageWorkspacePolicy, readWorkspacePolicy));
 
         assertThat(newUser).isNotNull();
         assertThat(newUser.getIsEnabled()).isFalse();
@@ -895,16 +1009,17 @@ public class WorkspaceServiceTest {
         toCreate.setDomain("example.com");
         toCreate.setWebsite("https://example.com");
 
-        Workspace workspace = workspaceService
-                .create(toCreate)
-                .block();
+        Workspace workspace = workspaceService.create(toCreate).block();
 
         List<PermissionGroup> permissionGroups = permissionGroupRepository
-                .findAllById(workspace.getDefaultPermissionGroups()).collectList().block();
+                .findAllById(workspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
 
         String viewerPermissionGroupId = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                .findFirst().get()
+                .findFirst()
+                .get()
                 .getId();
 
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
@@ -913,10 +1028,14 @@ public class WorkspaceServiceTest {
         inviteUsersDTO.setUsernames(users);
         inviteUsersDTO.setPermissionGroupId(viewerPermissionGroupId);
 
-        List<User> createdUsers = userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin).block();
+        List<User> createdUsers = userAndAccessManagementService
+                .inviteUsers(inviteUsersDTO, origin)
+                .block();
 
         List<PermissionGroup> permissionGroupsAfterInvite = permissionGroupRepository
-                .findAllById(workspace.getDefaultPermissionGroups()).collectList().block();
+                .findAllById(workspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
 
         // Do the assertions now
         assertThat(workspace).isNotNull();
@@ -924,15 +1043,18 @@ public class WorkspaceServiceTest {
 
         PermissionGroup adminPermissionGroup = permissionGroupsAfterInvite.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup developerPermissionGroup = permissionGroupsAfterInvite.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup viewerPermissionGroup = permissionGroupsAfterInvite.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         User api_user = userService.findByEmail("api_user").block();
         User newUser = createdUsers.get(0);
@@ -942,20 +1064,25 @@ public class WorkspaceServiceTest {
         // assert that api_user has admin role
         assertThat(adminPermissionGroup.getAssignedToUserIds()).containsAll(Set.of(api_user.getId()));
 
-        Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+        Policy manageWorkspaceAppPolicy = Policy.builder()
+                .permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
                 .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                 .build();
 
-        Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
+        Policy manageWorkspacePolicy = Policy.builder()
+                .permission(MANAGE_WORKSPACES.getValue())
                 .permissionGroups(Set.of(adminPermissionGroup.getId()))
                 .build();
 
-        Policy readWorkspacePolicy = Policy.builder().permission(READ_WORKSPACES.getValue())
-                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+        Policy readWorkspacePolicy = Policy.builder()
+                .permission(READ_WORKSPACES.getValue())
+                .permissionGroups(Set.of(
+                        adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
                 .build();
 
         assertThat(workspace.getPolicies()).isNotEmpty();
-        assertThat(workspace.getPolicies()).containsAll(Set.of(manageWorkspaceAppPolicy, manageWorkspacePolicy, readWorkspacePolicy));
+        assertThat(workspace.getPolicies())
+                .containsAll(Set.of(manageWorkspaceAppPolicy, manageWorkspacePolicy, readWorkspacePolicy));
 
         assertThat(newUser).isNotNull();
         assertThat(newUser.getIsEnabled()).isFalse();
@@ -974,12 +1101,10 @@ public class WorkspaceServiceTest {
         workspace.setDomain("example.com");
         workspace.setWebsite("https://example.com");
 
-        Mono<Workspace> workspaceMono = workspaceService
-                .create(workspace)
-                .cache();
+        Workspace workspace1 = workspaceService.create(workspace).block();
 
-        Flux<PermissionGroup> permissionGroupFlux = workspaceMono
-                .flatMapMany(workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()));
+        Flux<PermissionGroup> permissionGroupFlux =
+                permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups());
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
         Mono<PermissionGroup> adminPermissionGroupMono = permissionGroupFlux
@@ -987,30 +1112,31 @@ public class WorkspaceServiceTest {
                 .single();
 
         // Create an application for this workspace
-        Mono<Application> applicationMono = workspaceMono
-                .flatMap(workspace1 -> {
-                    Application application = new Application();
-                    application.setName("User Management Admin Test Application");
-                    return applicationPageService.createApplication(application, workspace1.getId());
-                });
+
+        Application application = new Application();
+        application.setName("User Management Admin Test Application");
+        Mono<Application> applicationMono = applicationPageService.createApplication(application, workspace1.getId());
 
         // Create datasource for this workspace
-        Mono<Datasource> datasourceMono = workspaceMono
+        Mono<Datasource> datasourceMono = workspaceService
+                .getDefaultEnvironmentId(workspace1.getId())
                 .zipWith(pluginService.findByPackageName("postgres-plugin"))
                 .flatMap(tuple2 -> {
-                    Workspace org = tuple2.getT1();
+                    String defaultEnvironmentId = tuple2.getT1();
                     Plugin plugin = tuple2.getT2();
                     Datasource datasource = new Datasource();
                     datasource.setName("test datasource");
-                    datasource.setWorkspaceId(org.getId());
+                    datasource.setWorkspaceId(workspace1.getId());
                     datasource.setPluginId(plugin.getId());
+                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+                    HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+                    storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+                    datasource.setDatasourceStorages(storages);
                     return datasourceService.create(datasource);
                 });
 
-        Mono<Workspace> userAddedToWorkspaceMono = Mono.zip(workspaceMono, adminPermissionGroupMono)
-                .flatMap(tuple -> {
-                    Workspace workspace1 = tuple.getT1();
-                    PermissionGroup adminPermissionGroup = tuple.getT2();
+        Mono<Workspace> userAddedToWorkspaceMono = adminPermissionGroupMono
+                .flatMap(adminPermissionGroup -> {
                     // Add user to workspace
                     InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
                     ArrayList<String> users = new ArrayList<>();
@@ -1018,42 +1144,43 @@ public class WorkspaceServiceTest {
                     inviteUsersDTO.setUsernames(users);
                     inviteUsersDTO.setPermissionGroupId(adminPermissionGroup.getId());
 
-                    return userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin).zipWith(workspaceMono);
+                    return userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin);
                 })
-                .flatMap(tuple -> {
-                    Workspace t2 = tuple.getT2();
-                    return workspaceService.findById(t2.getId(), READ_WORKSPACES);
-                });
+                .flatMap(tuple -> workspaceService.findById(workspace1.getId(), READ_WORKSPACES));
 
-        Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Admin Test Application",
-                        READ_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
+        Mono<Application> readApplicationByNameMono = applicationService
+                .findByName("User Management Admin Test Application", READ_APPLICATIONS)
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
-        Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Admin Test Workspace")
+        Mono<Workspace> readWorkspaceByNameMono = workspaceRepository
+                .findByName("Member Management Admin Test Workspace")
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "workspace by name")));
 
-        Mono<Datasource> readDatasourceByNameMono = workspaceMono.flatMap(workspace1 ->
-                datasourceRepository.findByNameAndWorkspaceId("test datasource", workspace1.getId(), READ_DATASOURCES)
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Datasource")))
-        );
+        Mono<Datasource> readDatasourceByNameMono = datasourceRepository
+                .findByNameAndWorkspaceId("test datasource", workspace1.getId(), READ_DATASOURCES)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Datasource")));
 
         Mono<User> userTestMono = userService.findByEmail("usertest@usertest.com");
         Mono<User> api_userMono = userService.findByEmail("api_user");
 
-        Mono<Tuple6<Application, Workspace, Datasource, List<PermissionGroup>, User, User>> testMono = workspaceMono
-                // create application and datasource
-                .then(Mono.zip(applicationMono, datasourceMono))
+        Mono<Tuple6<Application, Workspace, Datasource, List<PermissionGroup>, User, User>> testMono = Mono.zip(
+                        applicationMono, datasourceMono)
                 // Now add the user
                 .then(userAddedToWorkspaceMono)
                 // Read application, workspace and datasource now to confirm the policies.
-                .then(Mono.zip(readApplicationByNameMono, readWorkspaceByNameMono, readDatasourceByNameMono,
-                        permissionGroupFlux.collectList(), userTestMono, api_userMono));
+                .then(Mono.zip(
+                        readApplicationByNameMono,
+                        readWorkspaceByNameMono,
+                        readDatasourceByNameMono,
+                        permissionGroupFlux.collectList(),
+                        userTestMono,
+                        api_userMono));
 
-        StepVerifier
-                .create(testMono)
+        StepVerifier.create(testMono)
                 .assertNext(tuple -> {
-                    Application application = tuple.getT1();
-                    Workspace workspace1 = tuple.getT2();
+                    Application app = tuple.getT1();
+                    Workspace workspace2 = tuple.getT2();
                     Datasource datasource = tuple.getT3();
                     List<PermissionGroup> permissionGroups = tuple.getT4();
                     User userTest = tuple.getT5();
@@ -1061,50 +1188,64 @@ public class WorkspaceServiceTest {
 
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
                     PermissionGroup developerPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
                     PermissionGroup viewerPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
                     // assert that both the user test and api_user have admin roles
-                    assertThat(adminPermissionGroup.getAssignedToUserIds()).containsAll(Set.of(userTest.getId(), api_user.getId()));
+                    assertThat(adminPermissionGroup.getAssignedToUserIds())
+                            .containsAll(Set.of(userTest.getId(), api_user.getId()));
 
-                    assertThat(workspace1).isNotNull();
+                    assertThat(workspace2).isNotNull();
 
                     // Now assert that the application and datasource have correct permissions in the policies
 
-                    Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                    Policy manageAppPolicy = Policy.builder()
+                            .permission(MANAGE_APPLICATIONS.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                    Policy readAppPolicy = Policy.builder()
+                            .permission(READ_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(
+                                    adminPermissionGroup.getId(),
+                                    developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId()))
                             .build();
 
-                    assertThat(application.getPolicies()).isNotEmpty();
-                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                    assertThat(app.getPolicies()).isNotEmpty();
+                    assertThat(app.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
 
                     /*
                      * Check for datasource permissions after the user addition
                      */
-                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                    Policy manageDatasourcePolicy = Policy.builder()
+                            .permission(MANAGE_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                    Policy readDatasourcePolicy = Policy.builder()
+                            .permission(READ_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                    Policy executeDatasourcePolicy = Policy.builder()
+                            .permission(EXECUTE_DATASOURCES.getValue())
+                            .permissionGroups(Set.of(
+                                    adminPermissionGroup.getId(),
+                                    developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId()))
                             .build();
 
                     assertThat(datasource.getPolicies()).isNotEmpty();
-                    assertThat(datasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy,
-                            executeDatasourcePolicy));
-
+                    assertThat(datasource.getPolicies())
+                            .containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
                 })
                 .verifyComplete();
     }
@@ -1122,24 +1263,21 @@ public class WorkspaceServiceTest {
         workspace.setDomain("example.com");
         workspace.setWebsite("https://example.com");
 
-        Mono<Workspace> workspaceMono = workspaceService
-                .create(workspace)
-                .cache();
+        Mono<Workspace> workspaceMono = workspaceService.create(workspace).cache();
 
-        Flux<PermissionGroup> permissionGroupFlux = workspaceMono
-                .flatMapMany(workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()));
+        Flux<PermissionGroup> permissionGroupFlux = workspaceMono.flatMapMany(
+                workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()));
 
         Mono<PermissionGroup> viewerPermissionGroupMono = permissionGroupFlux
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
                 .single();
 
         // Create an application for this workspace
-        Mono<Application> applicationMono = workspaceMono
-                .flatMap(workspace1 -> {
-                    Application application = new Application();
-                    application.setName("User Management Viewer Test Application");
-                    return applicationPageService.createApplication(application, workspace1.getId());
-                });
+        Mono<Application> applicationMono = workspaceMono.flatMap(workspace1 -> {
+            Application application = new Application();
+            application.setName("User Management Viewer Test Application");
+            return applicationPageService.createApplication(application, workspace1.getId());
+        });
 
         Mono<Workspace> userAddedToWorkspaceMono = Mono.zip(workspaceMono, viewerPermissionGroupMono)
                 .flatMap(tuple -> {
@@ -1152,18 +1290,22 @@ public class WorkspaceServiceTest {
                     inviteUsersDTO.setUsernames(users);
                     inviteUsersDTO.setPermissionGroupId(viewerPermissionGroup.getId());
 
-                    return userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin).zipWith(workspaceMono);
+                    return userAndAccessManagementService
+                            .inviteUsers(inviteUsersDTO, origin)
+                            .zipWith(workspaceMono);
                 })
                 .flatMap(tuple -> {
                     Workspace t2 = tuple.getT2();
                     return workspaceService.findById(t2.getId(), READ_WORKSPACES);
                 });
 
-        Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Viewer Test Application",
-                        READ_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
+        Mono<Application> readApplicationByNameMono = applicationService
+                .findByName("User Management Viewer Test Application", READ_APPLICATIONS)
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
-        Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Viewer Test Workspace")
+        Mono<Workspace> readWorkspaceByNameMono = workspaceRepository
+                .findByName("Member Management Viewer Test Workspace")
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "workspace by name")));
 
         Mono<User> userTestMono = userService.findByEmail("usertest@usertest.com");
@@ -1172,11 +1314,14 @@ public class WorkspaceServiceTest {
         Mono<Tuple5<Application, Workspace, List<PermissionGroup>, User, User>> testMono = workspaceMono
                 .then(applicationMono)
                 .then(userAddedToWorkspaceMono)
-                .then(Mono.zip(readApplicationByNameMono, readWorkspaceByNameMono, permissionGroupFlux.collectList(),
-                        userTestMono, api_userMono));
+                .then(Mono.zip(
+                        readApplicationByNameMono,
+                        readWorkspaceByNameMono,
+                        permissionGroupFlux.collectList(),
+                        userTestMono,
+                        api_userMono));
 
-        StepVerifier
-                .create(testMono)
+        StepVerifier.create(testMono)
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
                     Workspace workspace1 = tuple.getT2();
@@ -1188,30 +1333,37 @@ public class WorkspaceServiceTest {
 
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
                     PermissionGroup developerPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
                     PermissionGroup viewerPermissionGroup = permissionGroups.stream()
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
 
                     // assert that api_user has admin role and usertest has viewer role
                     assertThat(adminPermissionGroup.getAssignedToUserIds()).contains(api_user.getId());
                     assertThat(viewerPermissionGroup.getAssignedToUserIds()).contains(userTest.getId());
 
-                    Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                    Policy manageAppPolicy = Policy.builder()
+                            .permission(MANAGE_APPLICATIONS.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                    Policy readAppPolicy = Policy.builder()
+                            .permission(READ_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(
+                                    adminPermissionGroup.getId(),
+                                    developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId()))
                             .build();
 
                     assertThat(application.getPolicies()).isNotEmpty();
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-
                 })
                 .verifyComplete();
     }
@@ -1227,12 +1379,11 @@ public class WorkspaceServiceTest {
         workspace.setDomain("example.com");
         workspace.setWebsite("https://example.com");
 
-        Mono<Workspace> workspaceMono = workspaceService
-                .create(workspace)
-                .cache();
+        Mono<Workspace> workspaceMono = workspaceService.create(workspace).cache();
 
         Mono<PermissionGroup> viewerGroupMono = workspaceMono
-                .flatMapMany(workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()))
+                .flatMapMany(
+                        workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()))
                 .filter(userGroup -> userGroup.getName().startsWith(FieldName.VIEWER))
                 .single();
 
@@ -1253,17 +1404,16 @@ public class WorkspaceServiceTest {
 
         Mono<Workspace> readWorkspaceMono = workspaceRepository.findByName("Add Bulk Viewers to Test Workspace");
 
-        Mono<Workspace> workspaceAfterUpdateMono = userAddedToWorkspaceMono
-                .then(readWorkspaceMono);
+        Mono<Workspace> workspaceAfterUpdateMono = userAddedToWorkspaceMono.then(readWorkspaceMono);
 
         Mono<PermissionGroup> viewerGroupMonoAfterInvite = userAddedToWorkspaceMono
                 .then(workspaceMono)
-                .flatMapMany(workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()))
+                .flatMapMany(
+                        workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()))
                 .filter(userGroup -> userGroup.getName().startsWith(FieldName.VIEWER))
                 .single();
 
-        StepVerifier
-                .create(Mono.zip(userAddedToWorkspaceMono, workspaceAfterUpdateMono, viewerGroupMonoAfterInvite))
+        StepVerifier.create(Mono.zip(userAddedToWorkspaceMono, workspaceAfterUpdateMono, viewerGroupMonoAfterInvite))
                 .assertNext(tuple -> {
                     List<User> users = tuple.getT1();
                     Workspace workspace1 = tuple.getT2();
@@ -1273,7 +1423,8 @@ public class WorkspaceServiceTest {
                     assertThat(workspace1.getName()).isEqualTo("Add Bulk Viewers to Test Workspace");
 
                     // assert that the created users are assigned the viewer role
-                    assertThat(viewerPermissionGroup.getAssignedToUserIds()).containsAll(users.stream().map(User::getId).collect(Collectors.toList()));
+                    assertThat(viewerPermissionGroup.getAssignedToUserIds())
+                            .containsAll(users.stream().map(User::getId).collect(Collectors.toList()));
 
                     for (User user : users) {
                         assertThat(user.getId()).isNotNull();
@@ -1291,12 +1442,10 @@ public class WorkspaceServiceTest {
         workspace.setDomain("example.com");
         workspace.setWebsite("https://example.com");
 
-        Mono<Workspace> workspaceMono = workspaceService
-                .create(workspace)
-                .cache();
+        Mono<Workspace> workspaceMono = workspaceService.create(workspace).cache();
 
-        Flux<PermissionGroup> permissionGroupFlux = workspaceMono
-                .flatMapMany(workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()));
+        Flux<PermissionGroup> permissionGroupFlux = workspaceMono.flatMapMany(
+                workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()));
 
         Mono<PermissionGroup> adminPermissionGroupMono = permissionGroupFlux
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
@@ -1310,7 +1459,6 @@ public class WorkspaceServiceTest {
         ArrayList<String> users = new ArrayList<>();
         users.add("usertest@usertest.com");
         inviteUsersDTO.setUsernames(users);
-
 
         Mono<List<User>> userAddedToWorkspaceTwiceMono = adminPermissionGroupMono
                 .flatMap(adminPermissionGroup -> {
@@ -1329,13 +1477,13 @@ public class WorkspaceServiceTest {
                     return userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin);
                 });
 
-
-        StepVerifier
-                .create(userAddedToWorkspaceTwiceMono)
+        StepVerifier.create(userAddedToWorkspaceTwiceMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage()
-                        .equals(AppsmithError.USER_ALREADY_EXISTS_IN_WORKSPACE
-                                .getMessage("usertest@usertest.com", "Administrator - addUserToWorkspaceIfUserAlreadyMember_throwsError")))
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.USER_ALREADY_EXISTS_IN_WORKSPACE.getMessage(
+                                        "usertest@usertest.com",
+                                        "Administrator - addUserToWorkspaceIfUserAlreadyMember_throwsError")))
                 .verify();
     }
 
@@ -1389,12 +1537,14 @@ public class WorkspaceServiceTest {
     @WithUserDetails(value = "api_user")
     public void uploadWorkspaceLogo_nullFilePart() throws IOException {
         Mono<Workspace> createWorkspace = workspaceService.create(workspace).cache();
-        final Mono<Workspace> resultMono = createWorkspace
-                .flatMap(workspace -> workspaceService.uploadLogo(workspace.getId(), null));
+        final Mono<Workspace> resultMono =
+                createWorkspace.flatMap(workspace -> workspaceService.uploadLogo(workspace.getId(), null));
 
         StepVerifier.create(resultMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.VALIDATION_FAILURE.getMessage("Please upload a valid image.")))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.VALIDATION_FAILURE.getMessage("Please upload a valid image.")))
                 .verify();
     }
 
@@ -1402,23 +1552,32 @@ public class WorkspaceServiceTest {
     @WithUserDetails(value = "api_user")
     public void uploadWorkspaceLogo_largeFilePart() throws IOException {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
-        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-                .read(new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo_large.png"), new DefaultDataBufferFactory(), 4096);
-        assertThat(dataBufferFlux.count().block()).isGreaterThan((int) Math.ceil(Constraint.WORKSPACE_LOGO_SIZE_KB / 4.0));
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils.read(
+                new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo_large.png"),
+                new DefaultDataBufferFactory(),
+                4096);
+        assertThat(dataBufferFlux.count().block())
+                .isGreaterThan((int) Math.ceil(Constraint.WORKSPACE_LOGO_SIZE_KB / 4.0));
 
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
         Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
 
         // The pre-requisite of creating an workspace has been blocked for code readability
         // The duration sets an upper limit for this test to run
-        String workspaceId = workspaceService.create(workspace).blockOptional(Duration.ofSeconds(3)).map(Workspace::getId).orElse(null);
+        String workspaceId = workspaceService
+                .create(workspace)
+                .blockOptional(Duration.ofSeconds(3))
+                .map(Workspace::getId)
+                .orElse(null);
         assertThat(workspaceId).isNotNull();
 
         final Mono<Workspace> resultMono = workspaceService.uploadLogo(workspaceId, filepart);
 
         StepVerifier.create(resultMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.PAYLOAD_TOO_LARGE.getMessage(Constraint.WORKSPACE_LOGO_SIZE_KB)))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.PAYLOAD_TOO_LARGE.getMessage(Constraint.WORKSPACE_LOGO_SIZE_KB)))
                 .verify();
     }
 
@@ -1427,8 +1586,10 @@ public class WorkspaceServiceTest {
     public void testDeleteLogo_invalidWorkspace() {
         Mono<Workspace> deleteLogo = workspaceService.deleteLogo("");
         StepVerifier.create(deleteLogo)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.WORKSPACE, "")))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.WORKSPACE, "")))
                 .verify();
     }
 
@@ -1436,21 +1597,23 @@ public class WorkspaceServiceTest {
     @WithUserDetails(value = "api_user")
     public void testUpdateAndDeleteLogo_validLogo() throws IOException {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
-        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-                .read(new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo.png"), new DefaultDataBufferFactory(), 4096).cache();
-        assertThat(dataBufferFlux.count().block()).isLessThanOrEqualTo((int) Math.ceil(Constraint.WORKSPACE_LOGO_SIZE_KB / 4.0));
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils.read(
+                        new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo.png"),
+                        new DefaultDataBufferFactory(),
+                        4096)
+                .cache();
+        assertThat(dataBufferFlux.count().block())
+                .isLessThanOrEqualTo((int) Math.ceil(Constraint.WORKSPACE_LOGO_SIZE_KB / 4.0));
 
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
         Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
 
         Mono<Workspace> createWorkspace = workspaceService.create(workspace).cache();
 
-        final Mono<Tuple2<Workspace, Asset>> resultMono = createWorkspace
-                .flatMap(workspace -> workspaceService.uploadLogo(workspace.getId(), filepart)
-                        .flatMap(workspaceWithLogo -> Mono.zip(
-                                Mono.just(workspaceWithLogo),
-                                assetRepository.findById(workspaceWithLogo.getLogoAssetId()))
-                        ));
+        final Mono<Tuple2<Workspace, Asset>> resultMono = createWorkspace.flatMap(workspace -> workspaceService
+                .uploadLogo(workspace.getId(), filepart)
+                .flatMap(workspaceWithLogo -> Mono.zip(
+                        Mono.just(workspaceWithLogo), assetRepository.findById(workspaceWithLogo.getLogoAssetId()))));
 
         StepVerifier.create(resultMono)
                 .assertNext(tuple -> {
@@ -1463,7 +1626,8 @@ public class WorkspaceServiceTest {
                 })
                 .verifyComplete();
 
-        Mono<Workspace> deleteLogo = createWorkspace.flatMap(workspace -> workspaceService.deleteLogo(workspace.getId()));
+        Mono<Workspace> deleteLogo =
+                createWorkspace.flatMap(workspace -> workspaceService.deleteLogo(workspace.getId()));
         StepVerifier.create(deleteLogo)
                 .assertNext(x -> {
                     assertThat(x.getLogoAssetId()).isNull();
@@ -1478,18 +1642,17 @@ public class WorkspaceServiceTest {
         Workspace workspace = new Workspace();
         workspace.setName("Test org to test delete org");
 
-        Mono<Workspace> deleteWorkspaceMono = workspaceService.create(workspace)
+        Mono<Workspace> deleteWorkspaceMono = workspaceService
+                .create(workspace)
                 .flatMap(savedWorkspace -> {
                     Application application = new Application();
                     application.setWorkspaceId(savedWorkspace.getId());
                     application.setName("Test app to test delete org");
                     return applicationPageService.createApplication(application);
-                }).flatMap(application ->
-                        workspaceService.archiveById(application.getWorkspaceId())
-                );
+                })
+                .flatMap(application -> workspaceService.archiveById(application.getWorkspaceId()));
 
-        StepVerifier
-                .create(deleteWorkspaceMono)
+        StepVerifier.create(deleteWorkspaceMono)
                 .expectErrorMessage(AppsmithError.UNSUPPORTED_OPERATION.getMessage())
                 .verify();
     }
@@ -1511,13 +1674,11 @@ public class WorkspaceServiceTest {
         // api user has read org permission but no manage org permission
         workspace.setPolicies(new HashSet<>(Set.of(readWorkspacePolicy, manageWorkspacePolicy)));
 
-        Mono<Workspace> deleteWorkspaceMono = workspaceRepository.save(workspace)
-                .flatMap(savedWorkspace ->
-                        workspaceService.archiveById(savedWorkspace.getId())
-                );
+        Mono<Workspace> deleteWorkspaceMono = workspaceRepository
+                .save(workspace)
+                .flatMap(savedWorkspace -> workspaceService.archiveById(savedWorkspace.getId()));
 
-        StepVerifier
-                .create(deleteWorkspaceMono)
+        StepVerifier.create(deleteWorkspaceMono)
                 .expectError(AppsmithException.class)
                 .verify();
     }
@@ -1530,18 +1691,18 @@ public class WorkspaceServiceTest {
 
         Workspace savedWorkspace = workspaceService.create(workspace).block();
 
-        Mono<Workspace> deleteWorkspaceMono = workspaceService.archiveById(savedWorkspace.getId())
-                                .then(workspaceRepository.findById(savedWorkspace.getId()));
+        Mono<Workspace> deleteWorkspaceMono = workspaceService
+                .archiveById(savedWorkspace.getId())
+                .then(workspaceRepository.findById(savedWorkspace.getId()));
 
         // using verifyComplete() only. If the Mono emits any data, it will fail the stepverifier
         // as it doesn't expect an onNext signal at this point.
-        StepVerifier
-                .create(deleteWorkspaceMono)
-                .verifyComplete();
+        StepVerifier.create(deleteWorkspaceMono).verifyComplete();
 
         // verify that all the default permision groups are also deleted
-        Mono<List<PermissionGroup>> defaultPermissionGroupsMono =
-                permissionGroupRepository.findAllById(savedWorkspace.getDefaultPermissionGroups()).collectList();
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = permissionGroupRepository
+                .findAllById(savedWorkspace.getDefaultPermissionGroups())
+                .collectList();
 
         StepVerifier.create(defaultPermissionGroupsMono)
                 .assertNext(permissionGroups -> {
@@ -1553,17 +1714,16 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void save_WhenNameIsPresent_SlugGenerated() {
-        String uniqueString = UUID.randomUUID().toString();  // to make sure name is not conflicted with other tests
+        String uniqueString = UUID.randomUUID().toString(); // to make sure name is not conflicted with other tests
         Workspace workspace = new Workspace();
         workspace.setName("My Workspace " + uniqueString);
 
         String finalName = "Renamed Workspace " + uniqueString;
 
-        Mono<Workspace> workspaceMono = workspaceService.create(workspace)
-                .flatMap(savedWorkspace -> {
-                    savedWorkspace.setName(finalName);
-                    return workspaceService.save(savedWorkspace);
-                });
+        Mono<Workspace> workspaceMono = workspaceService.create(workspace).flatMap(savedWorkspace -> {
+            savedWorkspace.setName(finalName);
+            return workspaceService.save(savedWorkspace);
+        });
 
         StepVerifier.create(workspaceMono)
                 .assertNext(savedWorkspace -> {
@@ -1575,17 +1735,16 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void update_WhenNameIsNotPresent_SlugIsNotGenerated() {
-        String uniqueString = UUID.randomUUID().toString();  // to make sure name is not conflicted with other tests
+        String uniqueString = UUID.randomUUID().toString(); // to make sure name is not conflicted with other tests
         String initialName = "My Workspace " + uniqueString;
         Workspace workspace = new Workspace();
         workspace.setName(initialName);
 
-        Mono<Workspace> workspaceMono = workspaceService.create(workspace)
-                .flatMap(savedWorkspace -> {
-                    Workspace workspaceDto = new Workspace();
-                    workspaceDto.setWebsite("https://appsmith.com");
-                    return workspaceService.update(savedWorkspace.getId(), workspaceDto);
-                });
+        Mono<Workspace> workspaceMono = workspaceService.create(workspace).flatMap(savedWorkspace -> {
+            Workspace workspaceDto = new Workspace();
+            workspaceDto.setWebsite("https://appsmith.com");
+            return workspaceService.update(savedWorkspace.getId(), workspaceDto);
+        });
 
         StepVerifier.create(workspaceMono)
                 .assertNext(savedWorkspace -> {
@@ -1598,13 +1757,14 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void update_NewName_GroupNamesUpdated() {
-        String uniqueString = UUID.randomUUID().toString();  // to make sure name is not conflicted with other tests
+        String uniqueString = UUID.randomUUID().toString(); // to make sure name is not conflicted with other tests
         String initialName = "My Workspace " + uniqueString;
         String newName = "New Name " + uniqueString;
         Workspace workspace = new Workspace();
         workspace.setName(initialName);
 
-        Mono<Workspace> workspaceNameUpdateMono = workspaceService.create(workspace)
+        Mono<Workspace> workspaceNameUpdateMono = workspaceService
+                .create(workspace)
                 .flatMap(savedWorkspace -> {
                     Workspace workspaceDto = new Workspace();
                     workspaceDto.setName(newName);
@@ -1612,8 +1772,10 @@ public class WorkspaceServiceTest {
                 })
                 .cache();
 
-        Mono<List<PermissionGroup>> permissionGroupsMono = workspaceNameUpdateMono
-                .flatMap(savedWorkspace -> permissionGroupRepository.findAllById(savedWorkspace.getDefaultPermissionGroups()).collectList());
+        Mono<List<PermissionGroup>> permissionGroupsMono =
+                workspaceNameUpdateMono.flatMap(savedWorkspace -> permissionGroupRepository
+                        .findAllById(savedWorkspace.getDefaultPermissionGroups())
+                        .collectList());
 
         StepVerifier.create(Mono.zip(workspaceNameUpdateMono, permissionGroupsMono))
                 .assertNext(tuple -> {
@@ -1631,7 +1793,6 @@ public class WorkspaceServiceTest {
                             assertThat(name).isEqualTo(generateDefaultRoleNameForResource(VIEWER, newName));
                         }
                     }
-
                 })
                 .verifyComplete();
     }
@@ -1646,25 +1807,34 @@ public class WorkspaceServiceTest {
         Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         Update updateAddAdditionalField = new Update().set(additionalField, true);
-        Query queryWorkspace = new Query(Criteria.where(fieldName(QWorkspace.workspace.id)).is(createdWorkspace.getId()));
-        UpdateResult updateResult = mongoTemplate.updateMulti(queryWorkspace, updateAddAdditionalField, Workspace.class);
+        Query queryWorkspace =
+                new Query(Criteria.where(fieldName(QWorkspace.workspace.id)).is(createdWorkspace.getId()));
+        UpdateResult updateResult =
+                mongoTemplate.updateMulti(queryWorkspace, updateAddAdditionalField, Workspace.class);
 
         assertThat(updateResult.wasAcknowledged()).isTrue();
         assertThat(updateResult.getMatchedCount()).isEqualTo(1);
         assertThat(updateResult.getModifiedCount()).isEqualTo(1);
 
-        Criteria criteriaAdditionalField = new Criteria().andOperator(Criteria.where(fieldName(QWorkspace.workspace.id)).is(createdWorkspace.getId()), Criteria.where(additionalField).exists(true));
+        Criteria criteriaAdditionalField = new Criteria()
+                .andOperator(
+                        Criteria.where(fieldName(QWorkspace.workspace.id)).is(createdWorkspace.getId()),
+                        Criteria.where(additionalField).exists(true));
         Query queryWorkspaceWithAdditionalField = new Query(criteriaAdditionalField);
 
-        long countWorkspaceWithAdditionalField = mongoTemplate.count(queryWorkspaceWithAdditionalField, Workspace.class);
+        long countWorkspaceWithAdditionalField =
+                mongoTemplate.count(queryWorkspaceWithAdditionalField, Workspace.class);
         assertThat(countWorkspaceWithAdditionalField).isEqualTo(1);
 
         Workspace updateWorkspace = new Workspace();
         updateWorkspace.setName(testName + " updated");
-        Workspace updatedWorkspace = workspaceService.update(createdWorkspace.getId(), updateWorkspace).block();
+        Workspace updatedWorkspace = workspaceService
+                .update(createdWorkspace.getId(), updateWorkspace)
+                .block();
         assertThat(updatedWorkspace.getName()).isEqualTo(testName + " updated");
 
-        long countWorkspaceWithAdditionalFieldAfterUpdate = mongoTemplate.count(queryWorkspaceWithAdditionalField, Workspace.class);
+        long countWorkspaceWithAdditionalFieldAfterUpdate =
+                mongoTemplate.count(queryWorkspaceWithAdditionalField, Workspace.class);
         assertThat(countWorkspaceWithAdditionalFieldAfterUpdate).isEqualTo(1);
     }
 }

@@ -120,16 +120,16 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     }, waitForParamsForSearchFocus);
-    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
-      "bp3-icon-(none)",
-    );
+    expect(
+      document.querySelector("a.bp3-active")?.children[0].classList,
+    ).toMatchSnapshot();
     // used to shift the focus from search
     userEvent.keyboard("{ArrowDown}");
 
     userEvent.keyboard("{ArrowDown}");
-    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
-      "bp3-icon-add-row-bottom",
-    );
+    expect(
+      document.querySelector("a.bp3-active")?.children[0].classList,
+    ).toMatchSnapshot();
   });
 
   it("Pressing '{ArrowUp}' should navigate the icon selection upwards", async () => {
@@ -139,23 +139,23 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     }, waitForParamsForSearchFocus);
-    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
-      "bp3-icon-(none)",
-    );
+    expect(
+      document.querySelector("a.bp3-active")?.children[0].classList,
+    ).toMatchSnapshot();
     // used to shift the focus from search
     userEvent.keyboard("{ArrowDown}");
 
     userEvent.keyboard("{ArrowDown}");
     userEvent.keyboard("{ArrowDown}");
     userEvent.keyboard("{ArrowDown}");
-    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
-      "bp3-icon-align-right",
-    );
+    expect(
+      document.querySelector("a.bp3-active")?.children[0].classList,
+    ).toMatchSnapshot();
 
     userEvent.keyboard("{ArrowUp}");
-    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
-      "bp3-icon-airplane",
-    );
+    expect(
+      document.querySelector("a.bp3-active")?.children[0].classList,
+    ).toMatchSnapshot();
   });
 
   it("Pressing '{ArrowRight}' should navigate the icon selection towards right", async () => {
@@ -165,16 +165,16 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     }, waitForParamsForSearchFocus);
-    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
-      "bp3-icon-(none)",
-    );
+    expect(
+      document.querySelector("a.bp3-active")?.children[0].classList,
+    ).toMatchSnapshot();
     // used to shift the focus from search
     userEvent.keyboard("{ArrowDown}");
 
     userEvent.keyboard("{ArrowRight}");
-    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
-      "bp3-icon-add",
-    );
+    expect(
+      document.querySelector("a.bp3-active")?.children[0].classList,
+    ).toMatchSnapshot();
   });
 
   it("Pressing '{ArrowLeft}' should navigate the icon selection towards left", async () => {
@@ -184,23 +184,23 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     }, waitForParamsForSearchFocus);
-    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
-      "bp3-icon-(none)",
-    );
+    expect(
+      document.querySelector("a.bp3-active")?.children[0].classList,
+    ).toMatchSnapshot();
     // used to shift the focus from search
     userEvent.keyboard("{ArrowDown}");
 
     userEvent.keyboard("{ArrowRight}");
     userEvent.keyboard("{ArrowRight}");
     userEvent.keyboard("{ArrowRight}");
-    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
-      "bp3-icon-add-column-right",
-    );
+    expect(
+      document.querySelector("a.bp3-active")?.children[0].classList,
+    ).toMatchSnapshot();
 
     userEvent.keyboard("{ArrowLeft}");
-    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
-      "bp3-icon-add-column-left",
-    );
+    expect(
+      document.querySelector("a.bp3-active")?.children[0].classList,
+    ).toMatchSnapshot();
   });
 
   it("Pressing '{Enter}' or ' ' should select the icon", async () => {
@@ -214,24 +214,20 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     }, waitForParamsForSearchFocus);
-    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
-      "bp3-icon-(none)",
-    );
+    expect(
+      document.querySelector("a.bp3-active")?.children[0].classList,
+    ).toMatchSnapshot();
     // used to shift the focus from search
     userEvent.keyboard("{ArrowDown}");
 
     userEvent.keyboard("{ArrowDown}");
     userEvent.keyboard("{ArrowRight}");
-    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
-      "bp3-icon-add-row-top",
-    );
+    expect(
+      document.querySelector("a.bp3-active")?.children[0].classList,
+    ).toMatchSnapshot();
     userEvent.keyboard(" ");
     expect(handleOnSelect).toHaveBeenCalledTimes(1);
-    expect(handleOnSelect).toHaveBeenLastCalledWith(
-      "iconName",
-      "add-row-top",
-      true,
-    );
+    expect(handleOnSelect.mock.calls[0]).toMatchSnapshot();
     await waitForElementToBeRemoved(screen.getByRole("list"));
 
     userEvent.keyboard("{Enter}");
@@ -239,18 +235,14 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     }, waitForParamsForSearchFocus);
-    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
-      "bp3-icon-add-row-top",
-    );
+    expect(
+      document.querySelector("a.bp3-active")?.children[0].classList,
+    ).toMatchSnapshot();
     userEvent.keyboard("{ArrowDown}");
     userEvent.keyboard("{ArrowRight}");
     userEvent.keyboard(" ");
     expect(handleOnSelect).toHaveBeenCalledTimes(2);
-    expect(handleOnSelect).toHaveBeenLastCalledWith(
-      "iconName",
-      "add-to-artifact",
-      true,
-    );
+    expect(handleOnSelect.mock.calls[1]).toMatchSnapshot();
   });
 });
 

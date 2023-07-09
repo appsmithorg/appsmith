@@ -62,6 +62,23 @@
           "placeholderText": "Awesome email subject"
         },
         {
+          "label": "Body type",
+          "configProperty": "actionConfiguration.formData.send.bodyType",
+          "controlType": "DROP_DOWN",
+          "initialValue": "text/plain",
+          "options": [
+            {
+              "label": "Plain text",
+              "value": "text/plain"
+            },
+            {
+              "label": "HTML",
+              "value": "text/html"
+            }
+          ],
+          "evaluationSubstitutionType": "TEMPLATE"
+        },
+        {
           "label": "Body",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT",

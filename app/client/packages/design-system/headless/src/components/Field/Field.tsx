@@ -1,5 +1,4 @@
 import React, { forwardRef } from "react";
-import { filterDOMProps } from "@react-aria/utils";
 import type { SpectrumFieldProps } from "@react-types/label";
 
 import { Label } from "./Label";
@@ -11,23 +10,22 @@ export type FieldRef = any;
 
 export const Field = forwardRef((props: FieldProps, ref: FieldRef) => {
   const {
-    label,
-    labelPosition = "top",
-    labelAlign,
-    isRequired,
-    necessityIndicator,
-    includeNecessityIndicatorInAccessibilityName,
-    validationState,
-    errorMessage,
-    isDisabled,
-    showErrorIcon,
-    labelProps,
-    errorMessageProps = {},
-    elementType,
     children,
+    elementType,
+    errorMessage,
+    errorMessageProps = {},
+    includeNecessityIndicatorInAccessibilityName,
+    isDisabled,
+    isRequired,
+    label,
+    labelAlign,
+    labelPosition = "top",
+    labelProps,
+    necessityIndicator,
+    showErrorIcon,
+    validationState,
     wrapperClassName,
     wrapperProps = {},
-    ...otherProps
   } = props;
   const hasErrorText = errorMessage && validationState === "invalid";
 
@@ -40,24 +38,6 @@ export const Field = forwardRef((props: FieldProps, ref: FieldRef) => {
         showErrorIcon={showErrorIcon}
         validationState={validationState}
       />
-    );
-  };
-
-  const renderChildren = () => {
-    if (labelPosition === "side") {
-      return (
-        <div className="wrapper">
-          {children}
-          {hasErrorText && renderErrorText()}
-        </div>
-      );
-    }
-
-    return (
-      <>
-        {children}
-        {hasErrorText && renderErrorText()}
-      </>
     );
   };
 
@@ -79,7 +59,6 @@ export const Field = forwardRef((props: FieldProps, ref: FieldRef) => {
 
   return (
     <div
-      {...filterDOMProps(otherProps)}
       {...wrapperProps}
       className={wrapperClassName}
       data-align={labelAlign}
@@ -88,8 +67,11 @@ export const Field = forwardRef((props: FieldProps, ref: FieldRef) => {
       data-position={labelPosition}
       ref={ref}
     >
-      <div>{labelAndContextualHelp}</div>
-      {renderChildren()}
+      {labelAndContextualHelp}
+      <div data-field-wrapper="">
+        {children}
+        {hasErrorText && renderErrorText()}
+      </div>
     </div>
   );
 });

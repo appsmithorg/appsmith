@@ -213,10 +213,12 @@ export default class AppEditorEngine extends AppEngine {
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
     );
-    AnalyticsUtil.logEvent("EDITOR_OPEN", {
-      appId: currentApplication.id,
-      appName: currentApplication.name,
-    });
+    if (currentApplication) {
+      AnalyticsUtil.logEvent("EDITOR_OPEN", {
+        appId: currentApplication.id,
+        appName: currentApplication.name,
+      });
+    }
     yield put(loadGuidedTourInit());
     if (isFirstTimeUserOnboardingComplete) {
       yield put({

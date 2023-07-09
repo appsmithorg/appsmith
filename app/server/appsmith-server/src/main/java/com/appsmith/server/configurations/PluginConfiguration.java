@@ -17,9 +17,8 @@ public class PluginConfiguration {
         public CustomPluginManager() {
             super();
             pluginDescriptorFinder = "development".equals(System.getProperty("pf4j.mode"))
-                ? new PropertiesPluginDescriptorFinder("target/classes/plugin.properties")
-                : new PropertiesPluginDescriptorFinder();
+                    ? new PropertiesPluginDescriptorFinder("target/classes/plugin.properties")
+                    : new PropertiesPluginDescriptorFinder();
         }
     }
-
 }

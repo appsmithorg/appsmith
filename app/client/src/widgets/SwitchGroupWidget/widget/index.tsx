@@ -10,7 +10,7 @@ import BaseWidget from "widgets/BaseWidget";
 
 import { LabelPosition } from "components/constants";
 import type { TextSize } from "constants/WidgetConstants";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import type { OptionProps } from "../component";
@@ -72,7 +72,7 @@ class SwitchGroupWidget extends BaseWidget<
             helpText:
               "Selects values of the options checked by default. Enter comma separated values for multiple selected",
             propertyName: "defaultSelectedValues",
-            label: "Default Selected Values",
+            label: "Default selected values",
             placeholderText: "Enter option values",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
@@ -125,13 +125,14 @@ class SwitchGroupWidget extends BaseWidget<
             propertyName: "labelAlignment",
             label: "Alignment",
             controlType: "LABEL_ALIGNMENT_OPTIONS",
+            fullWidth: false,
             options: [
               {
-                icon: "LEFT_ALIGN",
+                startIcon: "align-left",
                 value: Alignment.LEFT,
               },
               {
-                icon: "RIGHT_ALIGN",
+                startIcon: "align-right",
                 value: Alignment.RIGHT,
               },
             ],
@@ -225,7 +226,7 @@ class SwitchGroupWidget extends BaseWidget<
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -253,14 +254,33 @@ class SwitchGroupWidget extends BaseWidget<
     ];
   }
 
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisable: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
+      },
+    };
+  }
+
   static getPropertyPaneStyleConfig() {
     return [
       {
-        sectionName: "Label Styles",
+        sectionName: "Label styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Font Color",
+            label: "Font color",
             helpText: "Control the color of the label associated",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
@@ -270,7 +290,7 @@ class SwitchGroupWidget extends BaseWidget<
           },
           {
             propertyName: "labelTextSize",
-            label: "Font Size",
+            label: "Font size",
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
@@ -318,11 +338,11 @@ class SwitchGroupWidget extends BaseWidget<
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "BOLD_FONT",
+                icon: "text-bold",
                 value: "BOLD",
               },
               {
-                icon: "ITALICS_FONT",
+                icon: "text-italic",
                 value: "ITALIC",
               },
             ],
@@ -341,16 +361,17 @@ class SwitchGroupWidget extends BaseWidget<
             helpText: "Sets the alignment of the widget",
             label: "Alignment",
             controlType: "ICON_TABS",
+            defaultValue: Alignment.LEFT,
             fullWidth: true,
             isBindProperty: true,
             isTriggerProperty: false,
             options: [
               {
-                label: "Left",
+                startIcon: "skip-left-line",
                 value: Alignment.LEFT,
               },
               {
-                label: "Right",
+                startIcon: "skip-right-line",
                 value: Alignment.RIGHT,
               },
             ],
@@ -363,7 +384,7 @@ class SwitchGroupWidget extends BaseWidget<
           {
             propertyName: "accentColor",
             helpText: "Sets the background color of the widget",
-            label: "Accent Color",
+            label: "Accent color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,

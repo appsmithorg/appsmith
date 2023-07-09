@@ -5,7 +5,7 @@ import { MenuItemsSource } from "./constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "Menu Button",
+  name: "Menu button",
   iconSVG: IconSVG,
   defaults: {
     label: "Open Menu",
@@ -56,6 +56,7 @@ export const CONFIG = {
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+    setterConfig: Widget.getSetterConfig(),
   },
   autoLayout: {
     defaults: {
@@ -72,6 +73,7 @@ export const CONFIG = {
           return {
             minWidth: "120px",
             maxWidth: "360px",
+            minHeight: "40px",
           };
         },
       },

@@ -1,6 +1,5 @@
 import { Icon } from "@blueprintjs/core";
-import { Text, TextType } from "design-system-old";
-import { Colors } from "constants/Colors";
+import { Text } from "design-system";
 import { createMessage, LEARN_MORE } from "@appsmith/constants/messages";
 import React from "react";
 import { useDispatch } from "react-redux";
@@ -10,7 +9,7 @@ import type { SettingComponentProps } from "./Common";
 const LinkWrapper = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[16]}px;
   margin-top: 3px;
-  background: ${(props) => props.theme.settings.linkBg};
+  background: var(--ads-v2-color-bg);
   padding: ${(props) => props.theme.spaces[3]}px
     ${(props) => props.theme.spaces[7]}px;
   display: inline-block;
@@ -21,30 +20,21 @@ const StyledLink = styled.a`
   text-transform: uppercase;
   &&,
   &:hover {
-    color: ${(props) => props.theme.colors.settings.link};
+    color: var(--ads-v2-color-fg-emphasis);
     text-decoration: none;
   }
 `;
 
-const StyledText = styled(Text)`
-  font-weight: 600;
-  font-size: 11px;
-`;
-
 const StyledIcon = styled(Icon)`
   && {
-    color: ${(props) => props.theme.colors.settings.link};
+    color: var(--ads-v2-color-fg);
     transform: translate(2px, -1px);
 
     svg:hover path {
-      fill: ${(props) => props.theme.colors.settings.link};
+      fill: var(--ads-v2-color-fg-emphasis);
       cursor: pointer;
     }
   }
-`;
-
-const LinkLabel = styled.span`
-  color: ${Colors.MIRAGE};
 `;
 
 export default function Link({ setting }: SettingComponentProps) {
@@ -66,13 +56,18 @@ export default function Link({ setting }: SettingComponentProps) {
       data-testid="admin-settings-link"
     >
       <StyledLink data-testid="admin-settings-link-anchor" {...linkProps}>
-        <LinkLabel data-testid="admin-settings-link-label">
+        <Text
+          color="var(--ads-v2-color-fg)"
+          data-testid="admin-settings-link-label"
+          renderAs="span"
+        >
           {createMessage(() => setting.label || "")}
-        </LinkLabel>
+        </Text>
         &nbsp;
-        <StyledText type={TextType.P1}>{createMessage(LEARN_MORE)}</StyledText>
-        &nbsp;
-        <StyledIcon icon="arrow-right" iconSize={11} />
+        <Text renderAs="p">
+          {createMessage(LEARN_MORE)}{" "}
+          <StyledIcon icon="arrow-right" iconSize={11} />
+        </Text>
       </StyledLink>
     </LinkWrapper>
   );

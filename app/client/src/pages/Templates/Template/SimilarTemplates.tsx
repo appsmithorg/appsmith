@@ -4,7 +4,7 @@ import {
   VIEW_ALL_TEMPLATES,
 } from "@appsmith/constants/messages";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
-import { FontWeight, TextType, Text, Icon, IconSize } from "design-system-old";
+import { Text, Link } from "design-system";
 import React from "react";
 import type { MasonryProps } from "react-masonry-css";
 import Masonry from "react-masonry-css";
@@ -33,13 +33,13 @@ export const SimilarTemplatesTitleWrapper = styled.div`
   justify-content: space-between;
 `;
 
-const BackButtonWrapper = styled.div<{ width?: number }>`
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: ${(props) => props.theme.spaces[2]}px;
-  ${(props) => props.width && `width: ${props.width};`}
-`;
+// const BackButtonWrapper = styled.div<{ width?: number }>`
+//   cursor: pointer;
+//   display: flex;
+//   align-items: center;
+//   gap: ${(props) => props.theme.spaces[2]}px;
+//   ${(props) => props.width && `width: ${props.width};`}
+// `;
 
 type SimilarTemplatesProp = {
   similarTemplates: TemplateInterface[];
@@ -60,13 +60,12 @@ function SimilarTemplates(props: SimilarTemplatesProp) {
     <SimilarTemplatesWrapper className={props.className}>
       <Section>
         <SimilarTemplatesTitleWrapper>
-          <Text type={TextType.H1} weight={FontWeight.BOLD}>
+          <Text kind="heading-m" renderAs="h4">
             {createMessage(SIMILAR_TEMPLATES)}
           </Text>
-          <BackButtonWrapper onClick={props.onBackPress}>
-            <Text type={TextType.P4}>{createMessage(VIEW_ALL_TEMPLATES)}</Text>
-            <Icon name="view-all" size={IconSize.XL} />
-          </BackButtonWrapper>
+          <Link endIcon="view-all" onClick={props.onBackPress}>
+            {createMessage(VIEW_ALL_TEMPLATES)}
+          </Link>
         </SimilarTemplatesTitleWrapper>
         <Masonry
           breakpointCols={props.breakpointCols}

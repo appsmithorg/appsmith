@@ -2,12 +2,12 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.dtos.Permission;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import jakarta.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,8 +23,8 @@ public class PermissionGroup extends BaseDomain {
 
     String description;
 
-    //TODO: refactor this to defaultDocumentId, as we can use this to store associated document id for 
-    //which we are auto creating this permission group.
+    // TODO: refactor this to defaultDocumentId, as we can use this to store associated document id for
+    // which we are auto creating this permission group.
     @Deprecated
     String defaultWorkspaceId;
 

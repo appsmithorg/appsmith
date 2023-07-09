@@ -1,12 +1,9 @@
-import { Popover, PopoverInteractionKind, Position } from "@blueprintjs/core";
 import React, { useMemo } from "react";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import ProfileImage from "./ProfileImage";
-import { ScrollIndicator } from "design-system-old";
-import type { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 import { getUserApplicationsWorkspacesList } from "@appsmith/selectors/applicationSelectors";
+import { AvatarGroup } from "design-system";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 
@@ -14,64 +11,33 @@ const UserImageContainer = styled.div<{ isMobile?: boolean }>`
   display: flex;
   margin-right: ${({ isMobile }) => (isMobile ? 0 : 24)}px;
 
-  .workspace-share-user-icons {
-    cursor: default;
-    margin-right: -6px;
-    width: 24px;
-    height: 24px;
-    border: 1px solid ${(props) => props.theme.colors.homepageBackground};
-    display: inline-flex;
-  }
-
   div.bp3-popover-arrow {
     display: inline-block;
     transform: translate(3px, 0px);
   }
 `;
 
-const ProfileImagePopover = styled.div`
-  padding: 10px;
-  font-size: 14px;
-`;
-
-const ProfileImageListPopover = styled.ul`
-  list-style-type: none;
-  font-size: 14px;
-  margin: 0;
-  padding: 5px;
-  max-height: 40vh;
-  overflow-y: auto;
-
-  &::-webkit-scrollbar-thumb {
-    background-color: transparent;
-  }
-
-  &::-webkit-scrollbar {
-    width: 0;
-  }
-`;
-
-const ProfileImageListItem = styled.li`
-  padding: 3px;
-  display: flex;
-  align-items: center;
-`;
-
-const ProfileImageListName = styled.span`
-  margin-left: 12px;
-`;
-
-const ProfileImageMore = styled(ProfileImage)`
-  &.workspace-share-user-icons {
-    cursor: pointer;
-  }
-`;
-
 export default function SharedUserList(props: any) {
   const currentUser = useSelector(getCurrentUser);
-  const scrollWrapperRef = React.createRef<HTMLUListElement>();
   const userWorkspaces = useSelector(getUserApplicationsWorkspacesList);
   const isMobile = useIsMobileDevice();
+
+  const convertUsersToAvatar = (users: any) => {
+    return users.map((user: any) => {
+      const name = user.name || user.username;
+      return {
+        label:
+          user.username +
+          (user.username === currentUser?.username ? " (You)" : ""),
+        image: user.photoId
+          ? `/api/${USER_PHOTO_ASSET_URL}/${user.photoId}`
+          : undefined,
+        firstLetter: name.charAt(0),
+        className: "t--workspace-share-user-icons",
+      };
+    });
+  };
+
   const allUsers = useMemo(() => {
     const workspace: any = userWorkspaces.find((workspaceObject: any) => {
       const { workspace } = workspaceObject;
@@ -79,70 +45,12 @@ export default function SharedUserList(props: any) {
     });
 
     const { users } = workspace;
-    return users?.filter((user: any) => user.userId) || [];
+    const newUsers = users?.filter((user: any) => user.userId) || [];
+    return convertUsersToAvatar(newUsers);
   }, [userWorkspaces]);
   return (
     <UserImageContainer isMobile={isMobile}>
-      {allUsers.slice(0, 5).map((el: WorkspaceUser) => (
-        <Popover
-          boundary="viewport"
-          hoverCloseDelay={100}
-          interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}
-          key={el.username}
-          position={Position.BOTTOM}
-          transitionDuration={0}
-          usePortal={false}
-        >
-          <ProfileImage
-            className="workspace-share-user-icons"
-            source={
-              el.photoId
-                ? `/api/${USER_PHOTO_ASSET_URL}/${el.photoId}`
-                : undefined
-            }
-            userName={el.name ? el.name : el.username}
-          />
-          <ProfileImagePopover>
-            {el.username}
-            {el.username === currentUser?.username ? " (You)" : ""}
-          </ProfileImagePopover>
-        </Popover>
-      ))}
-      {allUsers.length > 5 ? (
-        <Popover
-          hoverCloseDelay={0}
-          interactionKind={PopoverInteractionKind.CLICK}
-          position={Position.BOTTOM}
-          transitionDuration={0}
-          usePortal={false}
-        >
-          <ProfileImageMore
-            className="workspace-share-user-icons"
-            commonName={`+${allUsers.length - 5}`}
-          />
-          <ProfileImageListPopover ref={scrollWrapperRef}>
-            {allUsers.slice(5).map((el: WorkspaceUser) => (
-              <ProfileImageListItem key={el.username}>
-                <ProfileImage
-                  className="workspace-share-user-icons"
-                  source={
-                    el.photoId
-                      ? `/api/${USER_PHOTO_ASSET_URL}/${el.photoId}`
-                      : undefined
-                  }
-                  userName={el.name ? el.name : el.username}
-                />
-                <ProfileImageListName>{el.username}</ProfileImageListName>
-              </ProfileImageListItem>
-            ))}
-            <ScrollIndicator
-              alwaysShowScrollbar
-              containerRef={scrollWrapperRef}
-              mode="DARK"
-            />
-          </ProfileImageListPopover>
-        </Popover>
-      ) : null}
+      <AvatarGroup avatars={allUsers} size="sm" />
     </UserImageContainer>
   );
 }

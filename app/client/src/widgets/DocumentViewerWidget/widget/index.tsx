@@ -1,12 +1,13 @@
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import React from "react";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import DocumentViewerComponent from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import type { SetterConfig } from "entities/AppTheming";
 
 export function documentUrlValidation(value: unknown): ValidationResponse {
   // applied validations if value exist
@@ -86,7 +87,7 @@ class DocumentViewerWidget extends BaseWidget<
             helpText:
               "Preview document URL supports txt, pdf, docx, ppt, pptx, xlsx file formats, but base64 ppt/pptx are not supported.",
             propertyName: "docUrl",
-            label: "Document Link",
+            label: "Document link",
             controlType: "INPUT_TEXT",
             placeholderText: "URL / Base64",
             isBindProperty: true,
@@ -120,7 +121,7 @@ class DocumentViewerWidget extends BaseWidget<
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -132,6 +133,21 @@ class DocumentViewerWidget extends BaseWidget<
         ],
       },
     ];
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setURL: {
+          path: "docUrl",
+          type: "string",
+        },
+      },
+    };
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {

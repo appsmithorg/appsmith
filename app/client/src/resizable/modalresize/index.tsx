@@ -331,10 +331,10 @@ export const Resizable = function Resizable(props: ResizableProps) {
   );
 
   const wrapperClassName = useMemo(() => {
-    return `${props.className} resize-wrapper show-boundary ${
-      pointerEvents ? "" : "pointer-event-none"
-    }`;
-  }, [props.className, pointerEvents]);
+    return `${props.className} resize-wrapper ${
+      showResizeBoundary ? "show-boundary" : ""
+    } ${pointerEvents ? "" : "pointer-event-none"}`;
+  }, [props.className, pointerEvents, showResizeBoundary]);
 
   return (
     <Spring

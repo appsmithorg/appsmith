@@ -48,7 +48,7 @@ export default [
     propertyName: "validation.errorMessage",
     helpText:
       "The error message to display if the regex or valid property check fails",
-    label: "Error Message",
+    label: "Error message",
     controlType: "TABLE_INLINE_EDIT_VALIDATION_CONTROL",
     dependencies: ["primaryColumns"],
     placeholderText: "Not a valid value!",

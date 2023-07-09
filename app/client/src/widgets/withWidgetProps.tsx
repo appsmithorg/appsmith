@@ -8,6 +8,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
+  WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
@@ -26,6 +27,7 @@ import {
   getFlattenedChildCanvasWidgets,
   previewModeSelector,
   getIsAutoLayoutMobileBreakPoint,
+  getCanvasWidth,
 } from "selectors/editorSelectors";
 import {
   createCanvasWidget,
@@ -44,6 +46,7 @@ import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import ConfigTreeActions from "utils/configTree";
 import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
+import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
@@ -64,6 +67,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
     );
+
+    const mainCanvasWidth = useSelector(getCanvasWidth);
     const metaWidget = useSelector(getMetaWidget(widgetId));
 
     const mainCanvasProps = useSelector((state: AppState) =>
@@ -237,6 +242,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       renderMode === RenderModes.CANVAS &&
       !isPreviewMode;
 
+    widgetProps.maincanvasWidth = mainCanvasWidth;
+
     // We don't render invisible widgets in view mode
     if (shouldCollapseWidgetInViewOrPreviewMode) {
       // This flag (isMetaWidget) is used to prevent the Auto height saga from updating
@@ -285,6 +292,29 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       } else {
         dispatch(checkContainersForAutoHeightAction());
       }
+    }
+
+    // Sets the min/max height/width of the widget
+    if (isAutoLayout) {
+      const minMaxDimensions = getWidgetMinMaxDimensionsInPixel(
+        widgetProps,
+        mainCanvasWidth,
+      );
+      widgetProps = {
+        ...widgetProps,
+        minWidth: minMaxDimensions.minWidth
+          ? minMaxDimensions.minWidth - 2 * WIDGET_PADDING
+          : undefined,
+        minHeight: minMaxDimensions.minHeight
+          ? minMaxDimensions.minHeight - 2 * WIDGET_PADDING
+          : undefined,
+        maxWidth: minMaxDimensions.maxWidth
+          ? minMaxDimensions.maxWidth - 2 * WIDGET_PADDING
+          : undefined,
+        maxHeight: minMaxDimensions.maxHeight
+          ? minMaxDimensions.maxHeight - 2 * WIDGET_PADDING
+          : undefined,
+      };
     }
 
     return <WrappedWidget {...widgetProps} />;

@@ -29,6 +29,7 @@ export const CONFIG = {
   name: "Stats Box",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["statbox"],
   isCanvas: true,
   canvasHeightOffset: (props: WidgetProps): number => {
     const offset =
@@ -250,6 +251,7 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+    setterConfig: Widget.getSetterConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
   autoLayout: {

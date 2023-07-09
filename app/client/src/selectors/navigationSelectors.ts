@@ -1,11 +1,9 @@
-import type {
-  DataTree,
-  AppsmithEntity,
-} from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
 import {
   getActionsForCurrentPage,
+  getDatasources,
   getJSCollections,
   getPlugins,
 } from "selectors/entitiesSelector";
@@ -14,16 +12,17 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { jsCollectionIdURL, widgetURL } from "RouteBuilder";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { getActionChildrenNavData } from "utils/NavigationSelector/ActionChildren";
 import { createNavData } from "utils/NavigationSelector/common";
 import { getWidgetChildrenNavData } from "utils/NavigationSelector/WidgetChildren";
 import { getJsChildrenNavData } from "utils/NavigationSelector/JsChildren";
-import { getAppsmithNavData } from "utils/NavigationSelector/AppsmithNavData";
 import {
   getEntityNameAndPropertyPath,
   isJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { AppState } from "@appsmith/reducers";
+import { PluginType } from "entities/Action";
+import type { StoredDatasource } from "entities/Action";
+import type { Datasource } from "entities/Datasource";
 
 export type NavigationData = {
   name: string;
@@ -32,9 +31,11 @@ export type NavigationData = {
   url: string | undefined;
   navigable: boolean;
   children: EntityNavigationData;
-  peekable: boolean;
-  peekData?: unknown;
   key?: string;
+  pluginName?: string;
+  isMock?: boolean;
+  datasourceId?: string;
+  actionType?: string;
 };
 export type EntityNavigationData = Record<string, NavigationData>;
 
@@ -45,6 +46,7 @@ export const getEntitiesForNavigation = createSelector(
   getWidgets,
   getCurrentPageId,
   getDataTree,
+  getDatasources,
   (_: any, entityName: string | undefined) => entityName,
   (
     actions,
@@ -53,6 +55,7 @@ export const getEntitiesForNavigation = createSelector(
     widgets,
     pageId,
     dataTree: DataTree,
+    datasources: Datasource[],
     entityName: string | undefined,
   ) => {
     // data tree retriggers this
@@ -64,9 +67,11 @@ export const getEntitiesForNavigation = createSelector(
       const plugin = plugins.find(
         (plugin) => plugin.id === action.config.pluginId,
       );
+      const datasourceId = (action.config?.datasource as StoredDatasource)?.id;
+      const datasource = datasources.find(
+        (datasource) => datasource.id === datasourceId,
+      );
       const config = getActionConfig(action.config.pluginType);
-      // dataTree used to get entityDefinitions and peekData
-      const result = getActionChildrenNavData(action, dataTree);
       if (!config) return;
       navigationData[action.config.name] = createNavData({
         id: action.config.id,
@@ -78,43 +83,44 @@ export const getEntitiesForNavigation = createSelector(
           action.config.pluginType,
           plugin,
         ),
-        peekable: true,
-        peekData: result?.peekData,
-        children: result?.childNavData || {},
+        children: {},
+        // Adding below data as it is required for analytical events
+        pluginName: plugin?.name,
+        datasourceId: datasource?.id,
+        isMock: datasource?.isMock,
+        actionType:
+          action.config.pluginType === PluginType.DB ? "Query" : "API",
       });
     });
 
     jsActions.forEach((jsAction) => {
-      // dataTree for null check and peekData
+      // dataTree for null check
       const result = getJsChildrenNavData(jsAction, pageId, dataTree);
       navigationData[jsAction.config.name] = createNavData({
         id: jsAction.config.id,
         name: jsAction.config.name,
         type: ENTITY_TYPE.JSACTION,
         url: jsCollectionIdURL({ pageId, collectionId: jsAction.config.id }),
-        peekable: true,
-        peekData: result?.peekData,
         children: result?.childNavData || {},
       });
     });
 
     Object.values(widgets).forEach((widget) => {
-      // dataTree to get entityDefinitions, for url (can use getWidgetByName?) and peekData
-      const result = getWidgetChildrenNavData(widget, dataTree, pageId);
+      // dataTree to get entityDefinitions, for url (can use getWidgetByName?)
+      const result = getWidgetChildrenNavData(
+        widget.widgetName,
+        widget.type,
+        dataTree,
+        pageId,
+      );
       navigationData[widget.widgetName] = createNavData({
         id: widget.widgetId,
         name: widget.widgetName,
         type: ENTITY_TYPE.WIDGET,
         url: widgetURL({ pageId, selectedWidgets: [widget.widgetId] }),
-        peekable: true,
-        peekData: result?.peekData,
         children: result?.childNavData || {},
       });
     });
-    // dataTree to get entity definitions and peekData
-    navigationData["appsmith"] = getAppsmithNavData(
-      dataTree.appsmith as AppsmithEntity,
-    );
     if (
       entityName &&
       isJSAction(dataTree[entityName]) &&

@@ -1,16 +1,17 @@
 import React, { forwardRef } from "react";
 import { useDOMRef } from "@react-spectrum/utils";
-import type { DOMRef } from "@react-types/shared";
 import { filterDOMProps } from "@react-aria/utils";
-import AsteriskIcon from "remixicon-react/AsteriskIcon";
+import type { DOMRef } from "@react-types/shared";
 import type { SpectrumLabelProps } from "@react-types/label";
 
+import { AsteriskIcon } from "./icons/AsteriskIcon";
 export interface LabelProps extends SpectrumLabelProps {
   isEmphasized?: boolean;
+  labelWidth?: string;
 }
 
 export const Label = forwardRef(
-  (props: SpectrumLabelProps, ref: DOMRef<HTMLLabelElement>) => {
+  (props: LabelProps, ref: DOMRef<HTMLLabelElement>) => {
     const {
       children,
       labelPosition = "top",

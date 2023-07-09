@@ -10,12 +10,11 @@ import { VirtuosoGrid } from "react-virtuoso";
 
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { TooltipComponent } from "design-system-old";
-import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
 import _ from "lodash";
 import { generateReactKey } from "utils/generators";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
+import { Tooltip } from "design-system";
 
 const IconSelectContainerStyles = createGlobalStyle<{
   targetWidth: number | undefined;
@@ -30,22 +29,33 @@ const IconSelectContainerStyles = createGlobalStyle<{
         margin: 5px !important;
       }
     }
+    .bp3-button-text {
+      color: var(--ads-v2-color-fg) !important;
+    }
+    .bp3-icon {
+      color: var(--ads-v2-color-fg) !important;
+    }
   `}
 `;
 
 const StyledButton = styled(Button)`
   box-shadow: none !important;
-  border: 1px solid ${Colors.GREY_5};
-  border-radius: 0;
+  border: 1px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
   height: 36px;
   background-color: #ffffff !important;
   > span.bp3-icon-caret-down {
     color: rgb(169, 167, 167);
   }
 
-  &:hover,
+  &:hover {
+    border: 1px solid var(--ads-v2-color-border-emphasis);
+  }
+
   &:focus {
-    border: 1.2px solid var(--appsmith-input-focus-border-color);
+    outline: var(--ads-v2-border-width-outline) solid
+      var(--ads-v2-color-outline);
+    border: 1px solid var(--ads-v2-color-border-emphasis);
   }
 `;
 
@@ -57,15 +67,6 @@ const StyledMenu = styled.ul<GridListProps>`
   max-height: 170px !important;
   padding-left: 5px !important;
   padding-right: 5px !important;
-  &::-webkit-scrollbar {
-    width: 8px;
-    background-color: #eeeeee;
-  }
-  &::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    background-color: #939090;
-  }
   & li {
     list-style: none;
   }
@@ -75,19 +76,27 @@ const StyledMenuItem = styled(MenuItem)`
   flex-direction: column;
   align-items: center;
   padding: 13px 5px;
+
   &:active,
-  &:hover,
   &.bp3-active {
-    background-color: #eeeeee !important;
+    background-color: var(--ads-v2-color-bg-muted) !important;
+    border-radius: var(--ads-v2-border-radius) !important;
   }
+
+  &:hover {
+    background-color: var(--ads-v2-color-bg-subtle) !important;
+    border-radius: var(--ads-v2-border-radius) !important;
+  }
+
   > span.bp3-icon {
     margin-right: 0;
-    color: #939090 !important;
+    color: var(--ads-v2-color-fg) !important;
   }
+
   > div {
     width: 100%;
     text-align: center;
-    color: #939090 !important;
+    color: var(--ads-v2-color-fg) !important;
   }
 `;
 
@@ -192,7 +201,7 @@ class IconSelectControl extends BaseControl<
             enforceFocus: false,
             minimal: true,
             isOpen: this.state.isOpen,
-            popoverClassName: `icon-select-popover-${this.id}`,
+            popoverClassName: `icon-select-popover icon-select-popover-${this.id}`,
             onInteraction: (state) => {
               if (this.state.isOpen !== state)
                 this.debouncedSetState({ isOpen: state });
@@ -393,7 +402,7 @@ class IconSelectControl extends BaseControl<
       return null;
     }
     return (
-      <TooltipComponent content={icon}>
+      <Tooltip content={icon} mouseEnterDelay={0}>
         <StyledMenuItem
           active={modifiers.active}
           icon={icon === NONE ? undefined : icon}
@@ -402,7 +411,7 @@ class IconSelectControl extends BaseControl<
           text={icon === NONE ? NONE : undefined}
           textClassName={icon === NONE ? "bp3-icon-(none)" : ""}
         />
-      </TooltipComponent>
+      </Tooltip>
     );
   };
 

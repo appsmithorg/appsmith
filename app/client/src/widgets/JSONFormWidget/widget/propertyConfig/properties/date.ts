@@ -11,7 +11,7 @@ const PROPERTIES = {
       {
         helpText: "Sets the format of the selected date",
         propertyName: "dateFormat",
-        label: "Date Format",
+        label: "Date format",
         controlType: "DROP_DOWN",
         isJSConvertible: true,
         customJSControl: "JSON_FORM_COMPUTE_VALUE",
@@ -119,7 +119,7 @@ const PROPERTIES = {
         propertyName: "convertToISO",
         label: "Convert to ISO format",
         helpText:
-          "Enabling this always converts the value in ISO form in the formData irrespective of the 'Date Format' selected",
+          "Enabling this always converts the value in ISO form in the formData irrespective of the 'Date format' selected",
         controlType: "SWITCH",
         isJSConvertible: false,
         isBindProperty: true,

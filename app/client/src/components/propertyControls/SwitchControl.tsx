@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { Switch } from "design-system-old";
+import { Switch } from "design-system";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
@@ -10,14 +10,10 @@ import {
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
 
-const StyledSwitch = styled(Switch)`
-  &&&& {
-    padding: 0;
-    margin-bottom: 4px;
-  }
-
-  &&&& .bp3-control-indicator {
-    margin: 0;
+const SwitchContainer = styled.div`
+  .ads-v2-switch__label {
+    justify-content: flex-end;
+    min-width: 0px;
   }
 `;
 
@@ -54,14 +50,13 @@ class SwitchControl extends BaseControl<ControlProps> {
 
   render() {
     return (
-      <div ref={this.containerRef}>
-        <StyledSwitch
-          checked={this.props.propertyValue}
+      <SwitchContainer ref={this.containerRef}>
+        <Switch
           className={this.props.propertyValue ? "checked" : "unchecked"}
-          large
+          isSelected={this.props.propertyValue}
           onChange={this.onToggle}
         />
-      </div>
+      </SwitchContainer>
     );
   }
 

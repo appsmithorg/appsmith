@@ -10,11 +10,10 @@ const Wrapper = styled.span<{
 }>`
   padding: ${(props) => (props.customMessage ? 6 : 8)}px;
   font-size: 12px;
-  color: var(--appsmith-color-black-800);
-  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2), 0px 2px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 0px;
-  background-color: ${(props) =>
-    props.theme.colors.codeMirror.background.hoverState};
+  color: var(--ads-v2-color-fg-muted);
+  box-shadow: var(--ads-v2-shadow-popovers);
+  border-radius: var(--ads-v2-border-radius);
+  background-color: var(--ads-v2-color-bg-muted);
   position: absolute;
   bottom: ${(props) => props.bottomOffset}px;
   transform: translateY(100%);
@@ -24,17 +23,12 @@ const Wrapper = styled.span<{
   z-index: 3;
 `;
 
-const CurlyBraces = styled.span`
-  color: var(--appsmith-color-black-800);
-  background-color: ${(props) =>
-    props.theme.colors.codeMirror.background.hoverState};
-`;
-
 function BindingPrompt(props: {
   promptMessage?: React.ReactNode | string;
   isOpen: boolean;
   editorTheme?: EditorTheme;
   showLightningMenu?: boolean;
+  isAIEnabled?: boolean;
 }): JSX.Element {
   const promptRef = useRef<HTMLDivElement>(null);
   const customMessage = !!props.promptMessage;
@@ -49,14 +43,15 @@ function BindingPrompt(props: {
       ref={promptRef}
       visible={props.isOpen}
     >
-      {props.promptMessage ? (
+      {props.isAIEnabled ? (
+        <>
+          Use <b>/ai</b> to generate JS expressions
+        </>
+      ) : props.promptMessage ? (
         props.promptMessage
       ) : (
         <>
-          Type{" "}
-          <CurlyBraces>
-            {props.showLightningMenu === false ? "{{" : "/"}
-          </CurlyBraces>{" "}
+          Type <span>{props.showLightningMenu === false ? "{{" : "/"}</span>{" "}
           {props.showLightningMenu === false
             ? "to see a list of variables"
             : "to access quick commands"}

@@ -21,7 +21,7 @@ import {
   getExplorerPinned,
 } from "selectors/explorerSelector";
 import { tailwindLayers } from "constants/Layers";
-import { TooltipComponent } from "design-system-old";
+import { Tooltip } from "design-system";
 import { previewModeSelector } from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
@@ -29,10 +29,25 @@ import Pages from "pages/Editor/Explorer/Pages";
 import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
-import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import { getEditingEntityName } from "selectors/entitiesSelector";
+import styled from "styled-components";
+
+const StyledResizer = styled.div<{ resizing: boolean }>`
+  ${(props) =>
+    props.resizing &&
+    `
+  & > div {
+    background-color: var(--ads-v2-color-outline);
+  }
+  `}
+  :hover {
+    & > div {
+      background-color: var(--ads-v2-color-bg-emphasis);
+    }
+  }
+`;
 
 type Props = {
   width: number;
@@ -45,9 +60,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const dispatch = useDispatch();
   const active = useSelector(getExplorerActive);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  let pinned = useSelector(getExplorerPinned);
-  const isMultiPane = useSelector(isMultiPaneActive);
-  if (isMultiPane) pinned = false;
+  const pinned = useSelector(getExplorerPinned);
   const isPreviewMode = useSelector(previewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
@@ -178,13 +191,14 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   return (
     <div
       className={classNames({
-        [`js-entity-explorer t--entity-explorer transform transition-all flex h-[inherit] duration-400 border-r border-gray-200 ${tailwindLayers.entityExplorer}`]:
+        [`js-entity-explorer t--entity-explorer transform transition-all flex h-[inherit] duration-400 border-r ${tailwindLayers.entityExplorer}`]:
           true,
         relative: pinned && !isPreviewingApp,
         "-translate-x-full": (!pinned && !active) || isPreviewingApp,
         "shadow-xl": !pinned,
         fixed: !pinned || isPreviewingApp,
       })}
+      data-testid={active ? "sidebar-active" : "sidebar"}
       id={SIDEBAR_ID}
     >
       {/* SIDEBAR */}
@@ -202,13 +216,14 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         <Explorer />
       </div>
       {/* RESIZER */}
-      <div
+      <StyledResizer
         className={`absolute w-2 h-full -mr-1 ${tailwindLayers.resizer} group cursor-ew-resize`}
         onMouseDown={resizer.onMouseDown}
         onMouseEnter={onHoverResizer}
         onMouseLeave={onHoverEndResizer}
         onTouchEnd={resizer.onMouseUp}
         onTouchStart={resizer.onTouchStart}
+        resizing={resizer.resizing}
         style={{
           left: resizerLeft,
           display: isPreviewingApp ? "none" : "initial",
@@ -216,25 +231,20 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       >
         <div
           className={classNames({
-            "w-1 h-full bg-transparent group-hover:bg-gray-300 transform transition flex items-center":
+            "w-1 h-full bg-transparent transform transition flex items-center":
               true,
-            "bg-blue-500": resizer.resizing,
           })}
         >
-          <TooltipComponent
-            content={
-              <div className="flex items-center justify-between">
-                <span>Drag to resize</span>
-              </div>
-            }
-            hoverOpenDelay={200}
-            isOpen={tooltipIsOpen && !resizer.resizing}
-            position="right"
+          <Tooltip
+            content="Drag to resize"
+            mouseEnterDelay={0.2}
+            placement="right"
+            visible={tooltipIsOpen && !resizer.resizing}
           >
             <div />
-          </TooltipComponent>
+          </Tooltip>
         </div>
-      </div>
+      </StyledResizer>
     </div>
   );
 });

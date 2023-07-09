@@ -5,7 +5,6 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.HealthCheckService;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;

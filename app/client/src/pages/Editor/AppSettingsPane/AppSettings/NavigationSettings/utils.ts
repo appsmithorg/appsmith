@@ -4,11 +4,11 @@ import type {
 } from "constants/AppConstants";
 import { keysOfNavigationSetting } from "constants/AppConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Toaster, Variant } from "design-system-old";
 import {
   APP_NAVIGATION_SETTING,
   createMessage,
 } from "@appsmith/constants/messages";
+import { toast } from "design-system";
 
 export const logEvent = (
   keyName: keyof StringsFromNavigationSetting,
@@ -65,11 +65,10 @@ export const logoImageValidation = (
   // case 1: no file selected
   if (!file) return false;
 
-  // case 2: file size > 2mb
-  if (file.size > 2 * 1024 * 1024) {
-    Toaster.show({
-      text: createMessage(APP_NAVIGATION_SETTING.logoUploadSizeError),
-      variant: Variant.danger,
+  // case 2: file size > 1mb
+  if (file.size > 1 * 1024 * 1024) {
+    toast.show(createMessage(APP_NAVIGATION_SETTING.logoUploadSizeError), {
+      kind: "error",
     });
 
     return false;
@@ -79,9 +78,8 @@ export const logoImageValidation = (
   const validTypes = ["image/jpeg", "image/png"];
 
   if (!validTypes.includes(file.type)) {
-    Toaster.show({
-      text: createMessage(APP_NAVIGATION_SETTING.logoUploadFormatError),
-      variant: Variant.danger,
+    toast.show(createMessage(APP_NAVIGATION_SETTING.logoUploadFormatError), {
+      kind: "error",
     });
 
     return false;

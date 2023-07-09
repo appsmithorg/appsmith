@@ -1,5 +1,3 @@
-import homePage from "../../../locators/HomePage";
-
 describe("Duplicate an application must duplicate every API ,Query widget and Datasource", function () {
   it("Duplicating an application", function () {
     // Navigate to home Page

@@ -1,10 +1,4 @@
 {
   "extends": "../../../tsconfig.json",
-  "include": ["./src/**/*"],
-  "ts-node": {
-    "compilerOptions": {
-      "module": "commonjs",
-      "types": ["node"]
-    }
-  }
+  "include": ["./src/**/*"]
 }

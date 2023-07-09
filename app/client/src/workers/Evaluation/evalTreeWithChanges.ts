@@ -13,8 +13,12 @@ import { MessageType, sendMessage } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import type { JSUpdate } from "utils/JSPaneUtils";
+import { setEvalContext } from "./evaluate";
 
-export function evalTreeWithChanges(updatedValuePaths: string[][]) {
+export function evalTreeWithChanges(
+  updatedValuePaths: string[][],
+  metaUpdates: EvalMetaUpdates = [],
+) {
   let evalOrder: string[] = [];
   let jsUpdates: Record<string, JSUpdate> = {};
   let unEvalUpdates: DataTreeDiff[] = [];
@@ -24,9 +28,11 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
   const errors: EvalError[] = [];
   const logs: any[] = [];
   const dependencies: DependencyMap = {};
-  let evalMetaUpdates: EvalMetaUpdates = [];
+  let evalMetaUpdates: EvalMetaUpdates = metaUpdates;
   let staleMetaIds: string[] = [];
   const pathsToClearErrorsFor: any[] = [];
+  let unevalTree: UnEvalTree = {};
+  let configTree: ConfigTree = {};
 
   if (dataTreeEvaluator) {
     const setupUpdateTreeResponse =
@@ -44,13 +50,24 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
       dataTreeEvaluator.oldConfigTree,
       unEvalUpdates,
     );
+
+    setEvalContext({
+      dataTree: dataTreeEvaluator.getEvalTree(),
+      configTree: dataTreeEvaluator.getConfigTree(),
+      isDataField: false,
+      isTriggerBased: true,
+    });
+
     dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
       evalProps: dataTreeEvaluator.evalProps,
     });
+
     evalMetaUpdates = JSON.parse(
       JSON.stringify(updateResponse.evalMetaUpdates),
     );
     staleMetaIds = updateResponse.staleMetaIds;
+    unevalTree = dataTreeEvaluator.getOldUnevalTree();
+    configTree = dataTreeEvaluator.oldConfigTree;
   }
 
   const evalTreeResponse: EvalTreeResponseData = {
@@ -63,15 +80,17 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
     logs,
     unEvalUpdates,
     isCreateFirstTree,
-    configTree: dataTreeEvaluator?.oldConfigTree as ConfigTree,
+    configTree,
     staleMetaIds,
     pathsToClearErrorsFor,
     isNewWidgetAdded: false,
+    undefinedEvalValuesMap: dataTreeEvaluator?.undefinedEvalValuesMap || {},
+    jsVarsCreatedEvent: [],
   };
 
   const data: UpdateDataTreeMessageData = {
     workerResponse: evalTreeResponse,
-    unevalTree: dataTreeEvaluator?.getOldUnevalTree() as UnEvalTree,
+    unevalTree,
   };
 
   sendMessage.call(self, {

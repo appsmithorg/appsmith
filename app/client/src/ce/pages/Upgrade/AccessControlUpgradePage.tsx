@@ -4,10 +4,10 @@ import UpgradePage from "./UpgradePage";
 import SecureAppsLeastPrivilegeImage from "assets/images/upgrade/access-control/secure-apps-least-privilege.png";
 import RestrictPublicExposureImage from "assets/images/upgrade/access-control/restrict-public-exposure.png";
 import PreventAccidentalDamageImage from "assets/images/upgrade/access-control/prevent-accidental-damage.png";
-import { createMessage } from "design-system-old/build/constants/messages";
 import {
   ACCESS_CONTROL_UPGRADE_PAGE_FOOTER,
   ACCESS_CONTROL_UPGRADE_PAGE_SUB_HEADING,
+  createMessage,
   GRANULAR_ACCESS_CONTROL_FOR_TEAMS,
   INTRODUCING,
   PREVENT_ACCIDENTAL_DAMAGE,
@@ -16,7 +16,6 @@ import {
   RESTRICT_PUBLIC_EXPOSURE_DETAIL1,
   SECURITY_APPS_LEAST_PRIVILEGE,
   SECURITY_APPS_LEAST_PRIVILEGE_DETAIL1,
-  UPGRADE_TO_EE_FEATURE,
 } from "@appsmith/constants/messages";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 
@@ -24,10 +23,6 @@ export function AccessControlUpgradePage() {
   const { onUpgrade } = useOnUpgrade({
     logEventName: "GAC_UPGRADE_CLICK_ADMIN_SETTINGS",
     logEventData: { source: "Granular Access Control" },
-    intercomMessage: createMessage(
-      UPGRADE_TO_EE_FEATURE,
-      "Granular Access Control for teams",
-    ),
   });
 
   const header: Header = {

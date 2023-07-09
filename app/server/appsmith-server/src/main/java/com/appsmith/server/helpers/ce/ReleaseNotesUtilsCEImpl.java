@@ -44,20 +44,22 @@ public class ReleaseNotesUtilsCEImpl implements ReleaseNotesUtilsCE {
             return Mono.justOrEmpty(releaseNodesCache);
         }
 
-        return configService.getInstanceId()
-                .flatMap(instanceId -> WebClientUtils
-                        .create(
-                                baseUrl + "/api/v1/releases?instanceId=" + instanceId +
-                                        // isCloudHosted should be true only for our cloud instance,
-                                        // For docker images that burn the segment key with the image, the CE key will be present
-                                        "&isSourceInstall=" + (commonConfig.isCloudHosting() || StringUtils.isEmpty(segmentConfig.getCeKey())) +
-                                        (StringUtils.isEmpty(commonConfig.getRepo()) ? "" : ("&repo=" + commonConfig.getRepo())) +
-                                        "&version=" + projectProperties.getVersion() +
-                                        "&edition=" + ProjectProperties.EDITION
-                        )
+        return configService
+                .getInstanceId()
+                .flatMap(instanceId -> WebClientUtils.create(baseUrl + "/api/v1/releases?instanceId=" + instanceId +
+                                // isCloudHosted should be true only for our cloud instance,
+                                // For docker images that burn the segment key with the image, the CE key will be
+                                // present
+                                "&isSourceInstall="
+                                + (commonConfig.isCloudHosting() || StringUtils.isEmpty(segmentConfig.getCeKey()))
+                                + (StringUtils.isEmpty(commonConfig.getRepo())
+                                        ? ""
+                                        : ("&repo=" + commonConfig.getRepo()))
+                                + "&version="
+                                + projectProperties.getVersion() + "&edition="
+                                + ProjectProperties.EDITION)
                         .get()
-                        .exchange()
-                )
+                        .exchange())
                 .flatMap(response -> response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<Releases>>() {}))
                 .map(result -> result.getData().getNodes())
                 .map(nodes -> {
@@ -67,5 +69,4 @@ public class ReleaseNotesUtilsCEImpl implements ReleaseNotesUtilsCE {
                 })
                 .doOnError(error -> log.error("Error fetching release notes from cloud services", error));
     }
-
 }

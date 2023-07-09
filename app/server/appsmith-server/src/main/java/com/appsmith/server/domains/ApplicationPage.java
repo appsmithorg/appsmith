@@ -1,14 +1,13 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Transient;
-
-import com.appsmith.external.views.Views;
-import com.fasterxml.jackson.annotation.JsonView;
 
 @Getter
 @Setter
@@ -39,5 +38,4 @@ public class ApplicationPage {
     public boolean isDefault() {
         return Boolean.TRUE.equals(isDefault);
     }
-
 }

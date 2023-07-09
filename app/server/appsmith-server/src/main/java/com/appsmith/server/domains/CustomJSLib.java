@@ -49,9 +49,13 @@ public class CustomJSLib extends BranchAwareDomain {
     String defs;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public CustomJSLib(@JsonProperty("name") String name, @JsonProperty("accessor") Set<String> accessor,
-                       @JsonProperty("url") String url, @JsonProperty("docsUrl") String docsUrl,
-                       @JsonProperty("version") String version, @JsonProperty("defs") String defs) {
+    public CustomJSLib(
+            @JsonProperty("name") String name,
+            @JsonProperty("accessor") Set<String> accessor,
+            @JsonProperty("url") String url,
+            @JsonProperty("docsUrl") String docsUrl,
+            @JsonProperty("version") String version,
+            @JsonProperty("defs") String defs) {
         this.name = name;
         this.accessor = accessor;
         this.url = url;
@@ -77,7 +81,7 @@ public class CustomJSLib extends BranchAwareDomain {
      */
     @Override
     public boolean equals(Object o) {
-        if (! (o instanceof CustomJSLib)) {
+        if (!(o instanceof CustomJSLib)) {
             return false;
         }
 

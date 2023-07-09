@@ -17,7 +17,7 @@ export const CONFIG = {
   },
   type: Widget.getWidgetType(),
   name: "TreeSelect",
-  searchTags: ["dropdown"],
+  searchTags: ["dropdown", "singleselecttree"],
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
@@ -68,6 +68,7 @@ export const CONFIG = {
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+    setterConfig: Widget.getSetterConfig(),
   },
   autoLayout: {
     disabledPropsDefaults: {

@@ -11,10 +11,11 @@ function AppSettingsPane() {
   const portalRef = useRef(null);
 
   // Close app settings pane when clicked outside
-  useOnClickOutside([paneRef, portalRef], () => {
+  useOnClickOutside([paneRef, portalRef], (event) => {
     if (document.getElementById("save-theme-modal")) return;
     if (document.getElementById("delete-theme-modal")) return;
     if (document.getElementById("manual-upgrades-modal")) return;
+    if (document.getElementById("confirm-fork-modal")) return;
 
     // If logo configuration navigation setting dropdown is open
     if (
@@ -30,6 +31,25 @@ function AppSettingsPane() {
     if (document.querySelector(".t--import-application-modal")) {
       return;
     }
+
+    // When we select a new theme font
+    if (
+      document
+        .querySelector(".t--theme-font-dropdown")
+        ?.contains(event?.target as Node)
+    ) {
+      return;
+    }
+
+    // When interacting with the save theme menu
+    if (
+      document
+        .querySelector(".t--save-theme-menu")
+        ?.contains(event?.target as Node)
+    ) {
+      return;
+    }
+
     dispatch(closeAppSettingsPaneAction());
   });
 

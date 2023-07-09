@@ -6,7 +6,6 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ProviderService;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-
 
 @RequestMapping(Url.PROVIDER_URL)
 @Slf4j
@@ -26,7 +24,6 @@ public class ProviderControllerCE extends BaseController<ProviderService, Provid
     @JsonView(Views.Public.class)
     @GetMapping("/categories")
     public Mono<ResponseDTO<List<String>>> getAllCategories() {
-        return service.getAllCategories()
-                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+        return service.getAllCategories().map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 }

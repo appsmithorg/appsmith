@@ -9,49 +9,57 @@ import {
   createMessage,
   EDIT,
   UPGRADE,
-  UPGRADE_TO_EE,
   AUTHENTICATION_METHOD_ENABLED,
+  BUSINESS_TAG,
 } from "@appsmith/constants/messages";
-import type { CalloutType } from "design-system-old";
-import { CalloutV2 } from "design-system-old";
-import { Colors } from "constants/Colors";
-import { Button, Category, Icon, TooltipComponent } from "design-system-old";
+import {
+  Button,
+  Callout,
+  Divider,
+  Icon,
+  Tag,
+  Text,
+  Tooltip,
+} from "design-system";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 
 export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
-  padding: 40px 0 0 24px;
+  padding: var(--ads-v2-spaces-7);
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
   overflow: auto;
 `;
 
-export const SettingsFormWrapper = styled.div``;
-
-export const SettingsHeader = styled.h2`
-  font-size: 24px;
-  font-weight: 500;
-  text-transform: capitalize;
-  margin-bottom: 0;
+export const SettingsFormWrapper = styled.div`
+  max-width: 40rem;
 `;
 
-export const SettingsSubHeader = styled.div`
-  font-size: 14px;
-  margin-bottom: 0;
+export const SettingsHeader = styled(Text)``;
+
+export const SettingsSubHeader = styled(Text)`
+  margin-bottom: 24px;
 `;
 
 const MethodCard = styled.div`
   display: flex;
   align-items: center;
-  margin: 32px 0;
+  margin: 8px 0 0;
+
+  > .ads-v2-icon {
+    margin-right: 8px;
+    object-fit: cover;
+    border-radius: 50%;
+    padding: 5px;
+    align-self: baseline;
+  }
 `;
 
 const Image = styled.img`
   width: 32px;
   height: 32px;
   margin-right: 8px;
-  background: #f0f0f0;
   object-fit: cover;
   border-radius: 50%;
   padding: 5px;
@@ -59,35 +67,29 @@ const Image = styled.img`
 `;
 
 const MethodDetailsWrapper = styled.div`
-  color: #2e3d49;
+  color: var(--ads-v2-color-fg-muted);
   width: 492px;
   margin-right: 60px;
 `;
 
-const MethodTitle = styled.div`
-  font-weight: 500;
-  font-size: 16px;
+const MethodTitle = styled(Text)`
   display: flex;
   align-items: center;
   margin: 0 0 4px;
+  color: var(--ads-v2-color-fg);
 
   svg {
     width: 14px;
     height: 14px;
+    cursor: pointer;
   }
 `;
 
-const MethodDets = styled.div`
-  font-size: 12px;
-  line-height: 16px;
-`;
-
-export type calloutType = "LINK" | "OTHER";
+const MethodDets = styled(Text)``;
 
 export type banner = {
   actionLabel: string;
   title: string;
-  type: CalloutType;
 };
 
 export type AuthMethodType = {
@@ -97,32 +99,14 @@ export type AuthMethodType = {
   subText?: string;
   image?: any;
   needsUpgrade?: boolean;
-  type: calloutType;
   isConnected?: boolean;
   calloutBanner?: banner;
+  icon?: string;
 };
 
-const StyledAuthButton = styled(Button)`
-  height: 30px;
-  width: 94px;
-  padding: 8px 16px;
-`;
-
-const Label = styled.span<{ business?: boolean }>`
-  display: inline;
-  ${(props) =>
-    props.business
-      ? `
-    border: 1px solid ${Colors.COD_GRAY};
-    color: ${Colors.COD_GRAY};
-    background: #fff;
-  `
-      : `
-    color: ${Colors.GREEN};
-    background: #E5F6EC;
-  `};
-  padding: 0px 4px;
-  font-size: 12px;
+const ButtonWrapper = styled.div`
+  min-width: 100px;
+  text-align: right;
 `;
 
 export function ActionButton({ method }: { method: AuthMethodType }) {
@@ -130,7 +114,6 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
   const { onUpgrade } = useOnUpgrade({
     logEventName: "ADMIN_SETTINGS_UPGRADE_AUTH_METHOD",
     logEventData: { method: method.label },
-    intercomMessage: createMessage(UPGRADE_TO_EE, method.label),
   });
 
   const onClickHandler = (method: AuthMethodType) => {
@@ -155,17 +138,21 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
   };
 
   return (
-    <StyledAuthButton
-      category={method.isConnected ? Category.primary : Category.secondary}
-      className={`t--settings-sub-category-${
-        method.needsUpgrade ? `upgrade-${method.category}` : method.category
-      }`}
-      data-cy="btn-auth-account"
-      onClick={() => onClickHandler(method)}
-      text={createMessage(
-        method.isConnected ? EDIT : !!method.needsUpgrade ? UPGRADE : ENABLE,
-      )}
-    />
+    <ButtonWrapper>
+      <Button
+        className={`t--settings-sub-category-${
+          method.needsUpgrade ? `upgrade-${method.category}` : method.category
+        }`}
+        data-testid="btn-auth-account"
+        kind={"secondary"}
+        onClick={() => onClickHandler(method)}
+        size="md"
+      >
+        {createMessage(
+          method.isConnected ? EDIT : !!method.needsUpgrade ? UPGRADE : ENABLE,
+        )}
+      </Button>
+    </ButtonWrapper>
   );
 }
 
@@ -173,57 +160,83 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
   return (
     <Wrapper>
       <SettingsFormWrapper>
-        <SettingsHeader>
+        <SettingsHeader
+          color="var(--ads-v2-color-fg-emphasis-plus)"
+          kind="heading-l"
+          renderAs="h1"
+        >
           {createMessage(ADMIN_AUTH_SETTINGS_TITLE)}
         </SettingsHeader>
-        <SettingsSubHeader>
+        <SettingsSubHeader
+          color="var(--ads-v2-color-fg-emphasis)"
+          kind="body-m"
+          renderAs="h2"
+        >
           {createMessage(ADMIN_AUTH_SETTINGS_SUBTITLE)}
         </SettingsSubHeader>
         {authMethods &&
           authMethods.map((method) => {
             return (
-              <MethodCard key={method.id}>
-                <Image alt={method.label} src={method.image} />
-                <MethodDetailsWrapper>
-                  <MethodTitle>
-                    {method.label}&nbsp;
-                    {method.needsUpgrade && (
-                      <>
-                        <Label business>Business</Label>
-                        &nbsp;
-                      </>
-                    )}
-                    {method.isConnected && (
-                      <TooltipComponent
-                        autoFocus={false}
-                        content={createMessage(
-                          AUTHENTICATION_METHOD_ENABLED,
-                          method.label,
-                        )}
-                        hoverOpenDelay={0}
-                        minWidth={"180px"}
-                        openOnTargetFocus={false}
-                        position="right"
-                      >
-                        <Icon
-                          className={`${method.category}-green-check`}
-                          fillColor={Colors.GREEN}
-                          name="oval-check"
-                        />
-                      </TooltipComponent>
-                    )}
-                  </MethodTitle>
-                  <MethodDets>{method.subText}</MethodDets>
-                  {method.calloutBanner && (
-                    <CalloutV2
-                      actionLabel={method.calloutBanner.actionLabel}
-                      desc={method.calloutBanner.title}
-                      type={method.calloutBanner.type}
-                    />
+              <div key={method.id}>
+                <MethodCard>
+                  {method.icon ? (
+                    <Icon name={method.icon} size="lg" />
+                  ) : (
+                    <Image alt={method.label} src={method.image} />
                   )}
-                </MethodDetailsWrapper>
-                <ActionButton method={method} />
-              </MethodCard>
+                  <MethodDetailsWrapper>
+                    <MethodTitle
+                      color="var(--ads-v2-color-fg)"
+                      kind="heading-s"
+                      renderAs="p"
+                    >
+                      {method.label}&nbsp;
+                      {method.needsUpgrade && (
+                        <Tag isClosable={false}>
+                          {createMessage(BUSINESS_TAG)}
+                        </Tag>
+                      )}
+                      {method.isConnected && (
+                        <Tooltip
+                          content={createMessage(
+                            AUTHENTICATION_METHOD_ENABLED,
+                            method.label,
+                          )}
+                          placement="right"
+                        >
+                          <Icon
+                            className={`${method.category}-green-check`}
+                            color="var(--ads-v2-color-fg-success)"
+                            name="oval-check-fill"
+                          />
+                        </Tooltip>
+                      )}
+                    </MethodTitle>
+                    <MethodDets
+                      color="var(--ads-v2-color-fg)"
+                      kind="body-s"
+                      renderAs="p"
+                    >
+                      {method.subText}
+                    </MethodDets>
+                    {method.calloutBanner && (
+                      <Callout
+                        kind="info"
+                        links={[
+                          {
+                            children: method.calloutBanner.actionLabel,
+                            to: "",
+                          },
+                        ]}
+                      >
+                        {method.calloutBanner.title}
+                      </Callout>
+                    )}
+                  </MethodDetailsWrapper>
+                  <ActionButton method={method} />
+                </MethodCard>
+                <Divider />
+              </div>
             );
           })}
       </SettingsFormWrapper>

@@ -1,10 +1,10 @@
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
-import { ENTITY_TYPE } from "design-system-old";
 import { PluginType } from "entities/Action";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import initLocalStorage from "../overrides/localStorage";
 import type { ActionEntity } from "entities/DataTree/types";
+import { ENTITY_TYPE } from "pages/common/SearchSnippets";
 
 describe("Tests localStorage implementation in worker", () => {
   const dataTree: DataTree = {

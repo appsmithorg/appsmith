@@ -86,7 +86,7 @@ describe("getOriginalRowIndex", () => {
       selectedRowIndex,
       "step",
     );
-    const expected = -1;
+    const expected = 1;
     expect(result).toStrictEqual(expected);
   });
 
@@ -2071,7 +2071,7 @@ describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
                 },
               ],
               configureMenuItems: {
-                label: "Configure Menu Items",
+                label: "Configure menu items",
                 id: "config",
                 config: {
                   id: "config",
@@ -2152,7 +2152,7 @@ describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
               menuButtonLabel: ["Open Menu", "Open Menu", "Open Menu"],
               sourceData: [],
               configureMenuItems: {
-                label: "Configure Menu Items",
+                label: "Configure menu items",
                 id: "config",
                 config: {
                   id: "config",
@@ -2226,7 +2226,7 @@ describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
               menuItemsSource: "DYNAMIC",
               menuButtonLabel: ["Open Menu", "Open Menu", "Open Menu"],
               configureMenuItems: {
-                label: "Configure Menu Items",
+                label: "Configure menu items",
                 id: "config",
                 config: {
                   id: "config",

@@ -8,7 +8,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { ListWidgetProps } from ".";
 import { getBindingTemplate } from "../constants";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import {
   LIST_WIDGET_V2_TOTAL_RECORD_TOOLTIP,
   createMessage,
@@ -289,7 +289,7 @@ export const PropertyPaneContentConfig = [
         propertyName: "serverSidePagination",
         helpText:
           "Triggered by onPageChange, this helps you show your data one page at a time for better performance.",
-        label: "Server Side Pagination",
+        label: "Server side pagination",
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
@@ -330,12 +330,12 @@ export const PropertyPaneContentConfig = [
     ],
   },
   {
-    sectionName: "Item Selection",
+    sectionName: "Item selection",
     children: [
       {
         propertyName: "defaultSelectedItem",
         helpText: "Selects Item by default by using a valid data identifier",
-        label: "Default Selected Item",
+        label: "Default selected item",
         controlType: "INPUT_TEXT",
         placeholderText: "001",
         isBindProperty: true,
@@ -403,7 +403,7 @@ export const PropertyPaneContentConfig = [
       },
       {
         propertyName: "animateLoading",
-        label: "Animate Loading",
+        label: "Animate loading",
         controlType: "SWITCH",
         helpText:
           "Toggles the loading animation of this List on and off for end-users",
@@ -442,7 +442,7 @@ export const PropertyPaneStyleConfig = [
     children: [
       {
         propertyName: "backgroundColor",
-        label: "Background Color",
+        label: "Background color",
         helpText: "Sets the background color of this List",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
@@ -462,11 +462,11 @@ export const PropertyPaneStyleConfig = [
     ],
   },
   {
-    sectionName: "Border and Shadow",
+    sectionName: "Border and shadow",
     children: [
       {
         propertyName: "borderRadius",
-        label: "Border Radius",
+        label: "Border radius",
         helpText: "Rounds the corners of the List's border",
         controlType: "BORDER_RADIUS_OPTIONS",
         isJSConvertible: true,
@@ -476,7 +476,7 @@ export const PropertyPaneStyleConfig = [
       },
       {
         propertyName: "boxShadow",
-        label: "Box Shadow",
+        label: "Box shadow",
         helpText: "Drops a shadow from the frame of this List",
         controlType: "BOX_SHADOW_OPTIONS",
         isJSConvertible: true,

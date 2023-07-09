@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import styled, { ThemeContext } from "styled-components";
 import type { HTMLDivProps, ICardProps } from "@blueprintjs/core";
-import { Card, Classes, Position } from "@blueprintjs/core";
+import { Card, Classes } from "@blueprintjs/core";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
   hasDeleteApplicationPermission,
@@ -21,31 +21,30 @@ import {
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
 import { noop, omit } from "lodash";
-import type { AppIconName, MenuItemProps } from "design-system-old";
+import type { AppIconName } from "design-system-old";
 import {
   AppIcon,
-  Button,
-  Category,
-  Classes as CsClasses,
   ColorSelector,
   EditableText,
   EditInteractionKind,
-  IconPositions,
-  Icon,
   IconSelector,
-  IconSize,
-  Menu,
-  MenuDivider,
-  MenuItem,
   SavingState,
   Size,
-  Toaster,
   Text,
   TextType,
-  TooltipComponent,
-  Variant,
 } from "design-system-old";
-import { useSelector } from "react-redux";
+import type { MenuItemProps } from "design-system";
+import {
+  Button,
+  Icon,
+  Menu,
+  Divider,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+  Tooltip,
+} from "design-system";
+import { useDispatch, useSelector } from "react-redux";
 import type {
   ApplicationPagePayload,
   UpdateApplicationPayload,
@@ -58,13 +57,14 @@ import {
 import { truncateString, howMuchTimeBeforeText } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
-import { Colors } from "constants/Colors";
 import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
 import { builderURL, viewerURL } from "RouteBuilder";
 import history from "utils/history";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
+import { toast } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { addItemsInContextMenu } from "@appsmith/utils";
+import { getCurrentUser } from "actions/authActions";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -78,7 +78,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
   <div {...omit(props, ["hasReadPermission", "showOverlay", "isMenuOpen"])} />
 ))`
   .bp3-card {
-    border-radius: 0;
+    border-radius: var(--ads-v2-border-radius);
     box-shadow: none;
     padding: 16px;
     display: flex;
@@ -94,6 +94,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
 
         .overlay {
           position: relative;
+          border-radius: var(--ads-v2-border-radius);
           ${
             props.hasReadPermission &&
             `text-decoration: none;
@@ -109,38 +110,6 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
                 display: flex;
                 flex-direction: row;
                 z-index: 1;
-
-                & .t--application-view-link {
-                  border: 2px solid ${Colors.BLACK};
-                  background-color: ${Colors.BLACK};
-                  color: ${Colors.WHITE};
-                }
-
-                & .t--application-view-link:hover {
-                  background-color: transparent;
-                  border: 2px solid ${Colors.BLACK};
-                  color: ${Colors.BLACK};
-
-                  svg {
-                    path {
-                      fill: currentColor;
-                    }
-                  }
-                }
-
-                & .t--application-edit-link, & .t--application-view-link {
-                  span {
-                    margin-right: 2px;
-
-                    svg {
-                      width: 16px;
-                      height: 16px;
-                      path {
-                        fill: currentColor;
-                      }
-                    }
-                  }
-                }
               }`
           }
 
@@ -155,6 +124,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
                 ? `rgba(255, 255, 255, 0.5)`
                 : null
             };
+            border-radius: var(--ads-v2-border-radius);
             @supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
               background-color: transparent;
               backdrop-filter: ${
@@ -190,6 +160,7 @@ const Wrapper = styled(
   height: ${(props) => props.theme.card.minHeight}px;
   position: relative;
   background-color: ${(props) => props.backgroundColor};
+  border-radius: var(--ads-v2-border-radius);
   .overlay {
     display: block;
     position: absolute;
@@ -200,15 +171,8 @@ const Wrapper = styled(
     ${(props) => !props.hasReadPermission && `pointer-events: none;`}
   }
   .bp3-card {
-    border-radius: 0;
+    border-radius: var(--ads-v2-border-radius);
   }
-  .${CsClasses.APP_ICON} {
-    margin: 0 auto;
-    svg {
-      path {
-        fill: #fff;
-      }
-    }
   }
 
   ${({ isMobile }) =>
@@ -226,15 +190,6 @@ const ApplicationImage = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    & {
-      .control {
-        button {
-          span {
-            font-weight: ${(props) => props.theme.fontWeights[3]};
-          }
-        }
-      }
-    }
   }
 `;
 
@@ -269,14 +224,6 @@ const Control = styled.div<{ fixed?: boolean }>`
   }
 `;
 
-const MoreOptionsContainer = styled.div`
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
 const AppNameWrapper = styled.div<{ isFetching: boolean }>`
   padding: 0;
   padding-right: 12px;
@@ -304,7 +251,6 @@ const AppNameWrapper = styled.div<{ isFetching: boolean }>`
 
 type ApplicationCardProps = {
   application: ApplicationPayload;
-  duplicate?: (applicationId: string) => void;
   share?: (applicationId: string) => void;
   delete?: (applicationId: string) => void;
   update?: (id: string, data: UpdateApplicationPayload) => void;
@@ -317,12 +263,6 @@ type ApplicationCardProps = {
   };
   workspaceId: string;
 };
-
-const EditButton = styled(Button)`
-  margin-bottom: 0;
-`;
-
-const ContextDropdownWrapper = styled.div``;
 
 const CircleAppIcon = styled(AppIcon)`
   padding: 12px;
@@ -337,14 +277,14 @@ const CircleAppIcon = styled(AppIcon)`
     width: 100%;
     height: 100%;
     path {
-      fill: #000 !important;
+      fill: var(--ads-v2-color-fg);
     }
   }
 `;
 
 const ModifiedDataComponent = styled.div`
   font-size: 13px;
-  color: #8a8a8a;
+  color: var(--ads-v2-color-fg-muted);
   &::first-letter {
     text-transform: uppercase;
   }
@@ -360,41 +300,17 @@ const CardFooter = styled.div`
 const IconScrollWrapper = styled.div`
   position: relative;
   .t--icon-selected {
-    background-color: rgba(248, 106, 43, 0.2);
-    border: 1px solid ${(props) => props.theme.colors.applications.cardMenuIcon};
+    background-color: var(--ads-v2-color-bg-muted);
+    border: var(--ads-v2-border-color);
     svg {
       path {
-        fill: ${(props) => props.theme.colors.applications.iconColor};
+        fill: var(--ads-v2-color-fg);
       }
     }
   }
-  .icon-selector::-webkit-scrollbar-thumb {
-    background-color: transparent;
-  }
-  .icon-selector::-webkit-scrollbar {
-    width: 0px;
-  }
-`;
-
-const MenuItemWrapper = styled(MenuItem)`
-  &.error-menuitem {
-    .${CsClasses.TEXT} {
-      color: ${Colors.DANGER_SOLID};
-    }
-    .${CsClasses.ICON} {
-      svg {
-        fill: ${Colors.DANGER_SOLID};
-        path {
-          fill: ${Colors.DANGER_SOLID};
-        }
-      }
-    }
-  }
-
-  .${CsClasses.ICON} {
-    svg {
-      width: 18px;
-      height: 18px;
+  svg {
+    path {
+      fill: var(--ads-v2-color-fg);
     }
   }
 `;
@@ -410,18 +326,15 @@ const StyledGitConnectedBadge = styled.div`
   top: -12px;
   right: -12px;
   box-shadow: 0px 2px 16px rgba(0, 0, 0, 0.07);
-  background: ${Colors.WHITE};
+  background: var(--ads-v2-color-bg);
 `;
 
 function GitConnectedBadge() {
   return (
     <StyledGitConnectedBadge>
-      <TooltipComponent
-        content={createMessage(CONNECTED_TO_GIT)}
-        maxWidth="400px"
-      >
-        <Icon fillColor={Colors.GREY_7} name="fork" size={IconSize.XXL} />
-      </TooltipComponent>
+      <Tooltip content={createMessage(CONNECTED_TO_GIT)}>
+        <Icon name="fork" size="md" />
+      </Tooltip>
     </StyledGitConnectedBadge>
   );
 }
@@ -431,6 +344,11 @@ const Container = styled.div<{ isMobile?: boolean }>`
   overflow: visible;
   ${({ isMobile }) => isMobile && `width: 100%;`}
 `;
+
+type ModifiedMenuItemProps = MenuItemProps & {
+  key?: string;
+  "data-testid"?: string;
+};
 
 export function ApplicationCard(props: ApplicationCardProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
@@ -442,15 +360,18 @@ export function ApplicationCard(props: ApplicationCardProps) {
     theme.colors.appCardColors,
   );
   let initials = initialsAndColorCode[0];
-
   const [showOverlay, setShowOverlay] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string>("");
-  const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
+  const [moreActionItems, setMoreActionItems] = useState<
+    ModifiedMenuItemProps[]
+  >([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isForkApplicationModalopen, setForkApplicationModalOpen] =
     useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
+  const dispatch = useDispatch();
 
   const applicationId = props.application?.id;
   const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
@@ -469,50 +390,42 @@ export function ApplicationCard(props: ApplicationCardProps) {
     if (props.share) {
       moreActionItems.push({
         onSelect: shareApp,
-        text: "Share",
-        icon: "share",
-        cypressSelector: "t--share",
-      });
-    }
-    if (
-      props.duplicate &&
-      props.permissions?.hasCreateNewApplicationPermission &&
-      hasEditPermission
-    ) {
-      moreActionItems.push({
-        onSelect: duplicateApp,
-        text: "Duplicate",
-        icon: "duplicate",
-        cypressSelector: "t--duplicate",
+        children: "Share",
+        key: "share",
+        startIcon: "share",
+        "data-testid": "t--share",
       });
     }
     // add fork app option to menu
     if (hasEditPermission) {
       moreActionItems.push({
         onSelect: forkApplicationInitiate,
-        text: "Fork",
-        icon: "fork-2",
-        cypressSelector: "t--fork-app",
+        children: "Fork",
+        key: "fork",
+        startIcon: "fork-2",
+        "data-testid": "t--fork-app",
       });
     }
     if (!!props.enableImportExport && hasExportPermission) {
       moreActionItems.push({
         onSelect: exportApplicationAsJSONFile,
-        text: "Export",
-        icon: "download",
-        cypressSelector: "t--export-app",
+        children: "Export",
+        key: "export",
+        startIcon: "download",
+        "data-testid": "t--export-app",
       });
     }
-    const updatedMoreActionItems: MenuItemProps[] = addItemsInContextMenu(
-      [
-        props.permissions?.hasManageWorkspacePermissions || false,
-        props.permissions?.canInviteToWorkspace || false,
-        !cloudHosting,
-      ],
-      history,
-      props.workspaceId,
-      moreActionItems,
-    );
+    const updatedMoreActionItems: ModifiedMenuItemProps[] =
+      addItemsInContextMenu(
+        [
+          props.permissions?.hasManageWorkspacePermissions || false,
+          props.permissions?.canInviteToWorkspace || false,
+          !cloudHosting,
+        ],
+        history,
+        props.workspaceId,
+        moreActionItems,
+      );
     setMoreActionItems(updatedMoreActionItems);
     addDeleteOption();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -549,9 +462,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
         icon: icon,
       });
   };
-  const duplicateApp = () => {
-    props.duplicate && props.duplicate(applicationId);
-  };
   const shareApp = () => {
     props.share && props.share(applicationId);
   };
@@ -571,9 +481,8 @@ export function ApplicationCard(props: ApplicationCardProps) {
       link.click();
     }
     setIsMenuOpen(false);
-    Toaster.show({
-      text: `Successfully exported ${props.application.name}`,
-      variant: Variant.success,
+    toast.show(`Successfully exported ${props.application.name}`, {
+      kind: "success",
     });
   };
   const forkApplicationInitiate = () => {
@@ -586,34 +495,37 @@ export function ApplicationCard(props: ApplicationCardProps) {
     props.delete && props.delete(applicationId);
   };
   const askForConfirmation = () => {
+    setIsDeleting(true);
     const updatedActionItems = [...moreActionItems];
     updatedActionItems.pop();
     updatedActionItems.push({
       onSelect: deleteApp,
-      text: "Are you sure?",
-      icon: "delete-blank",
-      type: "warning",
-      cypressSelector: "t--delete",
+      children: "Are you sure?",
+      key: "areyousure",
+      startIcon: "delete-bin-line",
+      "data-testid": "t--delete",
     });
     setMoreActionItems(updatedActionItems);
   };
   const addDeleteOption = () => {
     if (props.delete && hasDeletePermission) {
       const index = moreActionItems.findIndex(
-        (el) => el.icon === "delete-blank",
+        (el) => el.startIcon === "delete-bin-line",
       );
       if (index >= 0) {
         moreActionItems.pop();
       }
       moreActionItems.push({
         onSelect: askForConfirmation,
-        text: "Delete",
-        icon: "delete-blank",
-        cypressSelector: "t--delete-confirm",
+        children: "Delete",
+        key: "delete",
+        startIcon: "delete-bin-line",
+        "data-testid": "t--delete-confirm",
       });
       setMoreActionItems(moreActionItems);
     }
   };
+
   if (initials.length < 2 && props.application.name.length > 1) {
     initials += props.application.name[1].toUpperCase() || "";
   }
@@ -625,112 +537,128 @@ export function ApplicationCard(props: ApplicationCardProps) {
   }
 
   const appNameText = (
-    <Text cypressSelector="t--app-card-name" type={TextType.H3}>
+    <Text data-testid="t--app-card-name" type={TextType.H3}>
       {props.application.name}
     </Text>
   );
 
+  const handleMenuOnClose = (open: boolean) => {
+    if (!open && !isDeleting) {
+      setIsMenuOpen(false);
+      setShowOverlay(false);
+      addDeleteOption();
+      if (lastUpdatedValue && props.application.name !== lastUpdatedValue) {
+        props.update &&
+          props.update(applicationId, {
+            name: lastUpdatedValue,
+          });
+      }
+    } else {
+      setIsMenuOpen(true);
+      setIsDeleting(false);
+    }
+  };
+
   const ContextMenu = (
-    <ContextDropdownWrapper>
-      <Menu
-        autoFocus={false}
-        className="more"
-        onClosing={() => {
-          setIsMenuOpen(false);
-          setShowOverlay(false);
-          addDeleteOption();
-          if (lastUpdatedValue && props.application.name !== lastUpdatedValue) {
-            props.update &&
-              props.update(applicationId, {
-                name: lastUpdatedValue,
-              });
-          }
-        }}
-        onOpening={() => {
-          setIsMenuOpen(true);
-        }}
-        position={Position.RIGHT_TOP}
-        target={
-          <MoreOptionsContainer>
-            <Icon
-              fillColor={isMenuOpen ? "#000" : "#8a8a8a"}
-              hoverFillColor="#000"
-              name="context-menu"
-              size={IconSize.XXXL}
-            />
-          </MoreOptionsContainer>
-        }
-      >
-        {hasEditPermission && (
-          <EditableText
-            className="px-3 pt-3 pb-2 t--application-name"
-            defaultValue={props.application.name}
-            editInteractionKind={EditInteractionKind.SINGLE}
-            fill
-            hideEditIcon={false}
-            isError={isErroredSavingName}
-            isInvalid={(value: string) => {
-              if (!value) {
-                return "Name cannot be empty";
-              } else {
-                return false;
-              }
-            }}
-            onBlur={(value: string) => {
-              props.update &&
-                props.update(applicationId, {
-                  name: value,
-                });
-            }}
-            onTextChanged={(value: string) => {
-              setLastUpdatedValue(value);
-            }}
-            placeholder={"Edit text input"}
-            savingState={
-              isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-            }
-            underline
+    <>
+      <Menu className="more" onOpenChange={handleMenuOnClose} open={isMenuOpen}>
+        <MenuTrigger>
+          <Button
+            className="m-0.5"
+            data-testid="t--application-card-context-menu"
+            isIconButton
+            kind="tertiary"
+            size="sm"
+            startIcon="context-menu"
           />
-        )}
-        {hasEditPermission && (
-          <>
-            <ColorSelector
-              colorPalette={theme.colors.appCardColors}
-              defaultValue={selectedColor}
-              fill
-              onSelect={updateColor}
-            />
-            <MenuDivider />
-          </>
-        )}
-        {hasEditPermission && (
-          <IconScrollWrapper>
-            <IconSelector
-              className="icon-selector"
-              fill
-              onSelect={updateIcon}
-              selectedColor={theme.colors.applications.cardMenuIcon}
-              selectedIcon={appIcon}
-            />
-            <MenuDivider />
-          </IconScrollWrapper>
-        )}
-        {moreActionItems.map((item: MenuItemProps) => {
-          return (
-            <MenuItemWrapper
-              key={item.text}
-              {...item}
-              className={item.icon === "delete-blank" ? "error-menuitem" : ""}
-            />
-          );
-        })}
-        <ForkApplicationModal
-          applicationId={applicationId}
-          isModalOpen={isForkApplicationModalopen}
-          setModalClose={setForkApplicationModalOpen}
-        />
+        </MenuTrigger>
+        <MenuContent side="right" style={{ maxHeight: "unset" }}>
+          {hasEditPermission && (
+            <div
+              onKeyDown={(e) => {
+                // This is to prevent the Menu component to take focus away from the input
+                // https://github.com/radix-ui/primitives/issues/1175
+                e.stopPropagation();
+              }}
+            >
+              <EditableText
+                className="px-3 pt-2 pb-2 t--application-name"
+                defaultValue={props.application.name}
+                editInteractionKind={EditInteractionKind.SINGLE}
+                fill
+                hideEditIcon={false}
+                isError={isErroredSavingName}
+                isInvalid={(value: string) => {
+                  if (!value) {
+                    return "Name cannot be empty";
+                  } else {
+                    return false;
+                  }
+                }}
+                onBlur={(value: string) => {
+                  props.update &&
+                    props.update(applicationId, {
+                      name: value,
+                    });
+                }}
+                onTextChanged={(value: string) => {
+                  setLastUpdatedValue(value);
+                }}
+                placeholder={"Edit text input"}
+                savingState={
+                  isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+                }
+                underline
+              />
+            </div>
+          )}
+          {hasEditPermission && (
+            <>
+              <ColorSelector
+                colorPalette={theme.colors.appCardColors}
+                defaultValue={selectedColor}
+                fill
+                onSelect={updateColor}
+              />
+              <Divider />
+            </>
+          )}
+          {hasEditPermission && (
+            <IconScrollWrapper>
+              <IconSelector
+                className="icon-selector"
+                fill
+                onSelect={updateIcon}
+                selectedColor={theme.colors.applications.cardMenuIcon}
+                selectedIcon={appIcon}
+              />
+              <Divider />
+            </IconScrollWrapper>
+          )}
+          <div className="menu-items-wrapper">
+            {moreActionItems.map((item: MenuItemProps) => {
+              const { children, key, ...restMenuItem } = item;
+              return (
+                <MenuItem
+                  {...restMenuItem}
+                  className={
+                    item.startIcon === "delete-bin-line" ? "error-menuitem" : ""
+                  }
+                  key={key}
+                >
+                  {children}
+                </MenuItem>
+              );
+            })}
+          </div>
+        </MenuContent>
       </Menu>
-    </ContextDropdownWrapper>
+      <ForkApplicationModal
+        applicationId={applicationId}
+        isModalOpen={isForkApplicationModalopen}
+        setModalClose={setForkApplicationModalOpen}
+      />
+    </>
   );
 
   const editedByText = () => {
@@ -799,6 +727,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
           params,
         }),
       );
+      dispatch(getCurrentUser());
     },
     [props.application.defaultPageId],
   );
@@ -814,6 +743,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
           params,
         }),
       );
+      dispatch(getCurrentUser());
     },
     [props.application.defaultPageId],
   );
@@ -862,29 +792,27 @@ export function ApplicationCard(props: ApplicationCardProps) {
               <ApplicationImage className="image-container">
                 <Control className="control">
                   {hasEditPermission && !isMenuOpen && (
-                    <EditButton
+                    <Button
                       className="t--application-edit-link"
-                      fill
                       href={editModeURL}
-                      icon={"edit"}
-                      iconPosition={IconPositions.left}
                       onClick={editApp}
-                      size={Size.medium}
-                      text="Edit"
-                    />
+                      size="md"
+                      startIcon={"pencil-line"}
+                    >
+                      Edit
+                    </Button>
                   )}
                   {!isMenuOpen && (
                     <Button
-                      category={Category.secondary}
                       className="t--application-view-link"
-                      fill
                       href={viewModeURL}
-                      icon={"rocket"}
-                      iconPosition={IconPositions.left}
+                      kind="secondary"
                       onClick={launchApp}
-                      size={Size.medium}
-                      text="Launch"
-                    />
+                      size="md"
+                      startIcon={"rocket"}
+                    >
+                      Launch
+                    </Button>
                   )}
                 </Control>
               </ApplicationImage>

@@ -20,6 +20,9 @@ export const STORAGE_KEYS: {
     "FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
   HIDE_CONCURRENT_EDITOR_WARNING_TOAST: "HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
   APP_THEMING_BETA_SHOWN: "APP_THEMING_BETA_SHOWN",
+  FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY:
+    "FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY",
+  SIGNPOSTING_APP_STATE: "SIGNPOSTING_APP_STATE",
 };
 
 const store = localforage.createInstance({
@@ -382,5 +385,36 @@ export const setTemplateNotificationSeen = async (flag: boolean) => {
       error,
     );
     return false;
+  }
+};
+export const getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown =
+  async () => {
+    try {
+      const flag = await store.getItem(
+        STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY,
+      );
+      return flag;
+    } catch (error) {
+      log.error(
+        "An error occurred while fetching FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY",
+      );
+      log.error(error);
+    }
+  };
+
+export const setFirstTimeUserOnboardingTelemetryCalloutVisibility = async (
+  flag: boolean,
+) => {
+  try {
+    await store.setItem(
+      STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY,
+      flag,
+    );
+    return true;
+  } catch (error) {
+    log.error(
+      "An error occurred while fetching FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY",
+    );
+    log.error(error);
   }
 };

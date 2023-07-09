@@ -43,13 +43,10 @@ public class AssetServiceCEImpl implements AssetServiceCE {
             MediaType.IMAGE_JPEG,
             MediaType.IMAGE_PNG,
             MediaType.valueOf("image/x-icon"),
-            MediaType.valueOf("image/vnd.microsoft.icon")
-    );
+            MediaType.valueOf("image/vnd.microsoft.icon"));
 
-    private static final Set<String> ALLOWED_CONTENT_TYPES_STR = Set.of(
-            MediaType.IMAGE_JPEG_VALUE,
-            MediaType.IMAGE_PNG_VALUE
-    );
+    private static final Set<String> ALLOWED_CONTENT_TYPES_STR =
+            Set.of(MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE);
 
     @Override
     public Mono<Asset> getById(String id) {
@@ -62,12 +59,12 @@ public class AssetServiceCEImpl implements AssetServiceCE {
         dataBuffer.readPosition(0);
         if (bufferedImage == null) {
             /*
-                This is true for SVG and ICO images.
-                If ImageIO.read returns bufferedImage as null and the contentType file extension is .png or .jpeg which
-                means the file is not an image type file rather any other corrupted file but the extension has been
-                changed to .png or .jpeg to upload the flawed file. This is a security vulnerability hence reject
-             */
-            if (ALLOWED_CONTENT_TYPES_STR.contains(contentType.toString())){
+               This is true for SVG and ICO images.
+               If ImageIO.read returns bufferedImage as null and the contentType file extension is .png or .jpeg which
+               means the file is not an image type file rather any other corrupted file but the extension has been
+               changed to .png or .jpeg to upload the flawed file. This is a security vulnerability hence reject
+            */
+            if (ALLOWED_CONTENT_TYPES_STR.contains(contentType.toString())) {
                 return false;
             }
         }
@@ -90,11 +87,11 @@ public class AssetServiceCEImpl implements AssetServiceCE {
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
             return Mono.error(new AppsmithException(
                     AppsmithError.VALIDATION_FAILURE,
-                    "Please upload a valid image. Only JPEG, PNG, SVG and ICO are allowed."
-            ));
+                    "Please upload a valid image. Only JPEG, PNG, SVG and ICO are allowed."));
         }
 
-        final Flux<DataBuffer> contentCache = Flux.fromIterable(fileParts).flatMap(Part::content).cache();
+        final Flux<DataBuffer> contentCache =
+                Flux.fromIterable(fileParts).flatMap(Part::content).cache();
 
         return contentCache
                 .map(DataBuffer::readableByteCount)
@@ -128,16 +125,20 @@ public class AssetServiceCEImpl implements AssetServiceCE {
     public Mono<Void> remove(String assetId) {
         final Asset tempAsset = new Asset();
         tempAsset.setId(assetId);
-        return repository.deleteById(assetId)
+        return repository
+                .deleteById(assetId)
                 .then(analyticsService.sendDeleteEvent(tempAsset))
                 .then();
     }
 
-    private Asset createAsset(DataBuffer dataBuffer, MediaType srcContentType, boolean createThumbnail) throws IOException {
+    private Asset createAsset(DataBuffer dataBuffer, MediaType srcContentType, boolean createThumbnail)
+            throws IOException {
         MediaType contentType = srcContentType;
         Boolean isValidImage = checkImageTypeValidation(dataBuffer, contentType);
         if (isValidImage != true) {
-            throw new AppsmithException(AppsmithError.VALIDATION_FAILURE, "Please upload a valid image. Only JPEG, PNG, SVG and ICO are allowed.");
+            throw new AppsmithException(
+                    AppsmithError.VALIDATION_FAILURE,
+                    "Please upload a valid image. Only JPEG, PNG, SVG and ICO are allowed.");
         }
 
         byte[] imageData = null;
@@ -146,7 +147,8 @@ public class AssetServiceCEImpl implements AssetServiceCE {
             try {
                 imageData = resizeImage(dataBuffer);
             } finally {
-                // The `resizeImage` function, calls `ImageIO.read` which changes the read position of this `dataBuffer`.
+                // The `resizeImage` function, calls `ImageIO.read` which changes the read position of this
+                // `dataBuffer`.
                 // This becomes a problem for us, since we attempt to read it ourselves, if the image is not resized.
                 dataBuffer.readPosition(0);
             }
@@ -184,19 +186,17 @@ public class AssetServiceCEImpl implements AssetServiceCE {
 
     @Override
     public Mono<Void> makeImageResponse(ServerWebExchange exchange, String assetId) {
-        return getById(assetId)
-                .flatMap(asset -> {
-                    final String contentType = asset.getContentType();
-                    final ServerHttpResponse response = exchange.getResponse();
+        return getById(assetId).flatMap(asset -> {
+            final String contentType = asset.getContentType();
+            final ServerHttpResponse response = exchange.getResponse();
 
-                    response.setStatusCode(HttpStatus.OK);
+            response.setStatusCode(HttpStatus.OK);
 
-                    if (contentType != null) {
-                        response.getHeaders().set(HttpHeaders.CONTENT_TYPE, contentType);
-                    }
+            if (contentType != null) {
+                response.getHeaders().set(HttpHeaders.CONTENT_TYPE, contentType);
+            }
 
-                    return response.writeWith(Mono.just(new DefaultDataBufferFactory().wrap(asset.getData())));
-                });
+            return response.writeWith(Mono.just(new DefaultDataBufferFactory().wrap(asset.getData())));
+        });
     }
-
 }

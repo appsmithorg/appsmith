@@ -193,7 +193,8 @@
                 "topRow": 44,
                 "bottomRow": 67,
                 "parentId": "0",
-                "dynamicTriggerPathList": []
+                "dynamicTriggerPathList": [],
+                "dynamicPropertyPathList": [{"key": "tableData"}]
             },
             {
                 "isVisible": true,

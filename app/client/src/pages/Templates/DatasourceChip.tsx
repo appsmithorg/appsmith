@@ -1,29 +1,24 @@
-import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "design-system-old";
 import React from "react";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getDefaultPlugin } from "selectors/entitiesSelector";
 import styled from "styled-components";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { Tag } from "design-system";
 
-const StyledDatasourceChip = styled.div`
-  background-color: rgba(248, 248, 248, 0.5);
-  border: 1px solid ${Colors.MERCURY_2};
-  padding: ${(props) =>
-    `${props.theme.spaces[1]}px ${props.theme.spaces[3]}px`};
-  display: inline-flex;
-  align-items: center;
+const StyledDatasourceChip = styled(Tag)`
   .image {
-    height: 15px;
-    width: 15px;
+    height: 13px;
+    margin-right: 4px;
     display: inline-block;
   }
-  span {
-    margin-left: ${(props) => props.theme.spaces[2]}px;
-    ${getTypographyByKey("h6")}
-    letter-spacing: -0.221538px;
-    color: var(--appsmith-color-black-900);
+
+  .ads-v2-text {
+    display: flex;
+    align-items: center;
+  }
+
+  .plugin-name {
+    flex-shrink: 0;
   }
 `;
 
@@ -40,9 +35,9 @@ function DatasourceChip(props: DatasourceChipProps) {
   if (!plugin) return null;
 
   return (
-    <StyledDatasourceChip className={props.className}>
-      <img className="image" src={getAssetUrl(plugin.iconLocation)} />
-      <span>{plugin.name}</span>
+    <StyledDatasourceChip isClosable={false} size="md">
+      <img className="image" src={plugin.iconLocation} />
+      <span className="plugin-name">{plugin.name}</span>
     </StyledDatasourceChip>
   );
 }

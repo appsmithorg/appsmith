@@ -13,9 +13,10 @@ import { getFormValues } from "redux-form";
 import type { AnyAction, Dispatch } from "redux";
 import { bindActionCreators } from "redux";
 import { change } from "redux-form";
-import { JSToggleButton, TooltipComponent } from "design-system-old";
 import { get } from "lodash";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
+import { ToggleButton, Tooltip } from "design-system";
+import styled from "styled-components";
 
 type Props = {
   viewType: ViewTypes;
@@ -63,17 +64,25 @@ function ToggleComponentToJsonHandler(props: HandlerProps) {
     }
   };
 
+  const StyledToggleButton = styled(ToggleButton)`
+    margin-left: 4px;
+  `;
   return (
-    <TooltipComponent
-      content={!!configPropertyPathJsonValue ? JS_TOGGLE_DISABLED_MESSAGE : ""}
+    <Tooltip
+      content={!!configPropertyPathJsonValue && JS_TOGGLE_DISABLED_MESSAGE}
+      isDisabled={!configPropertyPathJsonValue}
     >
-      <JSToggleButton
-        cypressSelector={`t--${props.configProperty}-JS`}
-        handleClick={handleViewTypeSwitch}
-        isActive={viewType === ViewTypes.JSON}
-        isToggleDisabled={!!configPropertyPathJsonValue}
-      />
-    </TooltipComponent>
+      <span>
+        <StyledToggleButton
+          data-testid={`t--${props.configProperty}-JS`}
+          icon="js-toggle-v2"
+          isDisabled={!!configPropertyPathJsonValue}
+          isSelected={viewType === ViewTypes.JSON}
+          onClick={handleViewTypeSwitch}
+          size="sm"
+        />
+      </span>
+    </Tooltip>
   );
 }
 

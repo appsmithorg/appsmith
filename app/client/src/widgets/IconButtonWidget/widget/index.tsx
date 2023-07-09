@@ -10,7 +10,7 @@ import BaseWidget from "widgets/BaseWidget";
 import { IconNames } from "@blueprintjs/icons";
 import type { ButtonVariant } from "components/constants";
 import { ButtonVariantTypes } from "components/constants";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import IconButtonComponent from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
@@ -99,7 +99,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -120,8 +120,9 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "buttonVariant",
-            label: "Button Variant",
+            label: "Button variant",
             controlType: "ICON_TABS",
+            defaultValue: ButtonVariantTypes.PRIMARY,
             fullWidth: true,
             helpText: "Sets the variant of the icon button",
             options: [
@@ -161,7 +162,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
           {
             propertyName: "buttonColor",
             helpText: "Sets the style of the icon button",
-            label: "Button Color",
+            label: "Button color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -176,11 +177,11 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Border and Shadow",
+        sectionName: "Border and shadow",
         children: [
           {
             propertyName: "borderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
@@ -191,7 +192,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
           },
           {
             propertyName: "boxShadow",
-            label: "Box Shadow",
+            label: "Box shadow",
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
@@ -210,6 +211,21 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
       buttonColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "none",
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+      },
     };
   }
 
@@ -234,18 +250,25 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         buttonVariant={buttonVariant}
         hasOnClickAction={!!this.props.onClick}
         height={
-          (this.props.bottomRow - this.props.topRow) * this.props.parentRowSpace
+          this.isAutoLayoutMode
+            ? 32
+            : (this.props.bottomRow - this.props.topRow) *
+              this.props.parentRowSpace
         }
         iconName={iconName}
         isDisabled={isDisabled}
         isVisible={isVisible}
+        minHeight={this.props.minHeight}
+        minWidth={this.props.minWidth}
         onClick={this.handleClick}
         renderMode={this.props.renderMode}
         tooltip={tooltip}
         widgetId={widgetId}
         width={
-          (this.props.rightColumn - this.props.leftColumn) *
-          this.props.parentColumnSpace
+          this.isAutoLayoutMode
+            ? 32
+            : (this.props.rightColumn - this.props.leftColumn) *
+              this.props.parentColumnSpace
         }
       />
     );

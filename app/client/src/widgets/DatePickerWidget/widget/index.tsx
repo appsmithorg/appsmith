@@ -9,9 +9,10 @@ import { ISO_DATE_FORMAT, ValidationTypes } from "constants/WidgetValidation";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import moment from "moment";
 import type { DatePickerType } from "../constants";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import type { SetterConfig } from "entities/AppTheming";
 
 function defaultDateValidation(
   value: unknown,
@@ -219,7 +220,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
           {
             helpText: "Sets the format of the selected date",
             propertyName: "dateFormat",
-            label: "Date Format",
+            label: "Date format",
             controlType: "DROP_DOWN",
             isJSConvertible: true,
             options: [
@@ -280,7 +281,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -393,6 +394,29 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
         }
       }
     }
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
+        setValue: {
+          path: "defaultDate",
+          type: "string",
+        },
+      },
+    };
   }
 
   getPageView() {

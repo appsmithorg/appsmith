@@ -1,13 +1,12 @@
 import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "design-system-old";
-import { Colors } from "constants/Colors";
 
 export const Wrapper = styled.div`
   ${getTypographyByKey("h6")}
   font-weight: 400;
   letter-spacing: -0.195px;
-  color: ${Colors.GRAY_500};
+  color: var(--ads-v2-color-fg);
   flex-shrink: 0;
 `;
 
@@ -17,5 +16,5 @@ export default function LogAdditionalInfo(props: {
   text: string;
   datacy?: string;
 }) {
-  return <Wrapper data-cy={props.datacy}>{`[${props.text}]`}</Wrapper>;
+  return <Wrapper data-testid={props.datacy}>{`[${props.text}]`}</Wrapper>;
 }

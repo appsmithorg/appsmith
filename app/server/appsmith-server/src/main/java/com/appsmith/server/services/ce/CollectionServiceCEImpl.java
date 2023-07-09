@@ -1,34 +1,36 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.CollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import jakarta.validation.Validator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
 @Slf4j
-public class CollectionServiceCEImpl extends BaseService<CollectionRepository, Collection, String> implements CollectionServiceCE {
+public class CollectionServiceCEImpl extends BaseService<CollectionRepository, Collection, String>
+        implements CollectionServiceCE {
 
-    public CollectionServiceCEImpl(Scheduler scheduler,
-                                   Validator validator,
-                                   MongoConverter mongoConverter,
-                                   ReactiveMongoTemplate reactiveMongoTemplate,
-                                   CollectionRepository repository,
-                                   AnalyticsService analyticsService) {
+    public CollectionServiceCEImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            CollectionRepository repository,
+            AnalyticsService analyticsService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
     }
 
@@ -41,7 +43,6 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepository, C
     public Mono<Collection> addActionsToCollection(Collection collection, List<NewAction> actions) {
         collection.setActions(actions);
         return repository.save(collection);
-
     }
 
     @Override
@@ -55,7 +56,8 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepository, C
 
         return repository
                 .findById(collectionId)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.COLLECTION_ID)))
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.COLLECTION_ID)))
                 .flatMap(collection1 -> {
                     List<NewAction> actions = collection1.getActions();
                     if (actions == null) {
@@ -87,7 +89,8 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepository, C
 
         return repository
                 .findById(collectionId)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.COLLECTION_ID)))
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.COLLECTION_ID)))
                 .zipWith(actionMono)
                 .flatMap(tuple -> {
                     Collection collection = tuple.getT1();
@@ -99,7 +102,9 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepository, C
 
                     List<NewAction> actions = collection.getActions();
                     if (actions == null || actions.isEmpty()) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_ID + " or " + FieldName.COLLECTION_ID));
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_PARAMETER,
+                                FieldName.ACTION_ID + " or " + FieldName.COLLECTION_ID));
                     }
                     ListIterator<NewAction> actionIterator = actions.listIterator();
                     while (actionIterator.hasNext()) {

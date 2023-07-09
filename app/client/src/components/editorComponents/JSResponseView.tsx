@@ -12,8 +12,6 @@ import {
   DEBUGGER_LOGS,
   DEBUGGER_ERRORS,
   EXECUTING_FUNCTION,
-  EMPTY_RESPONSE_FIRST_HALF,
-  EMPTY_JS_RESPONSE_LAST_HALF,
   NO_JS_FUNCTION_RETURN_VALUE,
   UPDATING_JS_COLLECTION,
 } from "@appsmith/constants/messages";
@@ -23,15 +21,7 @@ import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import type { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import {
-  Button,
-  Classes,
-  Icon,
-  IconSize,
-  Size,
-  Text,
-  TextType,
-} from "design-system-old";
+import { Text } from "design-system";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
@@ -53,6 +43,7 @@ import {
   showDebugger,
 } from "actions/debuggerActions";
 import {
+  NoResponse,
   ResponseTabErrorContainer,
   ResponseTabErrorContent,
 } from "./ApiResponseView";
@@ -60,28 +51,27 @@ import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity, Log } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { Colors } from "constants/Colors";
+import { CloseDebugger } from "./Debugger/DebuggerTabs";
 
 const ResponseContainer = styled.div`
-  ${ResizerCSS}
+  ${ResizerCSS};
   width: 100%;
   // Minimum height of bottom tabs as it can be resized
   min-height: ${TAB_MIN_HEIGHT};
-  background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
+  background-color: var(--ads-v2-color-bg);
   height: ${ActionExecutionResizerHeight}px;
 
-  .react-tabs__tab-panel {
-    ${CodeEditorWithGutterStyles}
+  .ads-v2-tabs__panel {
+    ${CodeEditorWithGutterStyles};
     overflow-y: auto;
     height: calc(100% - ${TAB_MIN_HEIGHT});
   }
-  border-top: 1px solid ${Colors.GREY_4};
 `;
 
 const ResponseTabWrapper = styled.div`
   display: flex;
-  height: 100%;
   width: 100%;
+
   &.disable * {
     opacity: 0.8;
     pointer-events: none;
@@ -93,56 +83,16 @@ const ResponseTabWrapper = styled.div`
 
 const TabbedViewWrapper = styled.div`
   height: 100%;
-
-  .close-debugger {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    padding: 9px 11px;
-  }
-  &&& {
-    ul.react-tabs__tab-list {
-      padding: 0px ${(props) => props.theme.spaces[11]}px;
-      height: ${TAB_MIN_HEIGHT};
-    }
-  }
 `;
 
 const ResponseViewer = styled.div`
   width: 100%;
-`;
-
-const NoResponseContainer = styled.div`
-  height: 100%;
-  width: max-content;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  margin: 0 auto;
-  &.empty {
-    background-color: #fafafa;
-  }
-  .${Classes.ICON} {
-    margin-right: 0px;
-    svg {
-      width: auto;
-      height: 150px;
-    }
-  }
-  .${Classes.TEXT} {
-    margin-top: ${(props) => props.theme.spaces[9]}px;
-    color: #090707;
-  }
+  padding: 0 var(--ads-v2-spaces-7);
 `;
 
 const NoReturnValueWrapper = styled.div`
   padding-left: ${(props) => props.theme.spaces[12]}px;
   padding-top: ${(props) => props.theme.spaces[6]}px;
-`;
-const InlineButton = styled(Button)`
-  display: inline-flex;
-  margin: 0 4px;
 `;
 
 export enum JSResponseState {
@@ -171,6 +121,7 @@ type Props = ReduxStateProps &
     disabled: boolean;
     isLoading: boolean;
     onButtonClick: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+    selectedJSObject: JSCollectionData | undefined;
   };
 
 function JSResponseView(props: Props) {
@@ -185,7 +136,7 @@ function JSResponseView(props: Props) {
     jsObject,
     onButtonClick,
     responses,
-    seletedJsObject,
+    selectedJSObject,
   } = props;
   const [responseStatus, setResponseStatus] = useState<JSResponseState>(
     JSResponseState.NoResponse,
@@ -228,17 +179,17 @@ function JSResponseView(props: Props) {
     let errorObject: Log | undefined;
     //get JS execution error from redux store.
     if (
-      seletedJsObject &&
-      seletedJsObject.config &&
-      seletedJsObject.activeJSActionId
+      selectedJSObject &&
+      selectedJSObject.config &&
+      selectedJSObject.activeJSActionId
     ) {
       every(filteredErrors, (error) => {
         if (
           includes(
             error.id,
-            seletedJsObject?.config.id +
+            selectedJSObject?.config.id +
               "-" +
-              seletedJsObject?.activeJSActionId,
+              selectedJSObject?.activeJSActionId,
           )
         ) {
           errorObject = error;
@@ -289,22 +240,13 @@ function JSResponseView(props: Props) {
             <ResponseViewer>
               <>
                 {responseStatus === JSResponseState.NoResponse && (
-                  <NoResponseContainer>
-                    <Icon name="no-response" />
-                    <Text type={TextType.P1}>
-                      {createMessage(EMPTY_RESPONSE_FIRST_HALF)}
-                      <InlineButton
-                        disabled={disabled}
-                        isLoading={isLoading}
-                        onClick={onButtonClick}
-                        size={Size.medium}
-                        tag="button"
-                        text="Run"
-                        type="button"
-                      />
-                      {createMessage(EMPTY_JS_RESPONSE_LAST_HALF)}
-                    </Text>
-                  </NoResponseContainer>
+                  <NoResponse
+                    isButtonDisabled={disabled}
+                    isQueryRunning={isLoading}
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    onRunClick={onButtonClick}
+                  />
                 )}
                 {responseStatus === JSResponseState.IsExecuting && (
                   <LoadingOverlayScreen theme={props.theme}>
@@ -313,7 +255,7 @@ function JSResponseView(props: Props) {
                 )}
                 {responseStatus === JSResponseState.NoReturnValue && (
                   <NoReturnValueWrapper>
-                    <Text type={TextType.P1}>
+                    <Text kind="body-m">
                       {createMessage(
                         NO_JS_FUNCTION_RETURN_VALUE,
                         currentFunction?.name,
@@ -369,7 +311,9 @@ function JSResponseView(props: Props) {
 
   // close the debugger
   const onClose = () => dispatch(showDebugger(false));
-  return (
+
+  // Do not render if header tab is selected in the bottom bar.
+  return !(selectedResponseTab === DEBUGGER_TAB_KEYS.HEADER_TAB) ? (
     <ResponseContainer
       className="t--js-editor-bottom-pane-container"
       ref={panelRef}
@@ -387,15 +331,17 @@ function JSResponseView(props: Props) {
           tabs={tabs}
         />
 
-        <Icon
+        <CloseDebugger
           className="close-debugger t--close-debugger"
-          name="close-modal"
+          isIconButton
+          kind="tertiary"
           onClick={onClose}
-          size={IconSize.XL}
+          size="md"
+          startIcon="close-modal"
         />
       </TabbedViewWrapper>
     </ResponseContainer>
-  );
+  ) : null;
 }
 
 const mapStateToProps = (
@@ -406,19 +352,19 @@ const mapStateToProps = (
   const { jsObject } = props;
 
   const errorCount = state.ui.debugger.context.errorCount;
-  const seletedJsObject =
+  const selectedJSObject =
     jsObject &&
     jsActions.find(
       (action: JSCollectionData) => action.config.id === jsObject.id,
     );
-  const responses = (seletedJsObject && seletedJsObject.data) || {};
-  const isDirty = (seletedJsObject && seletedJsObject.isDirty) || {};
-  const isExecuting = (seletedJsObject && seletedJsObject.isExecuting) || {};
+  const responses = (selectedJSObject && selectedJSObject.data) || {};
+  const isDirty = (selectedJSObject && selectedJSObject.isDirty) || {};
+  const isExecuting = (selectedJSObject && selectedJSObject.isExecuting) || {};
   return {
     responses,
     isExecuting,
     isDirty,
-    seletedJsObject,
+    selectedJSObject: selectedJSObject,
     errorCount,
   };
 };

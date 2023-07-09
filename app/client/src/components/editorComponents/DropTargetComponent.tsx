@@ -21,8 +21,8 @@ import DragLayerComponent from "./DragLayerComponent";
 import { useDispatch } from "react-redux";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import {
+  getCurrentAppPositioningType,
   getOccupiedSpacesSelectorForContainer,
-  isAutoLayoutEnabled,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -38,6 +38,7 @@ import {
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -49,6 +50,7 @@ type DropTargetComponentProps = PropsWithChildren<{
   useAutoLayout?: boolean;
   isMobile?: boolean;
   mobileBottomRow?: number;
+  isListWidgetCanvas?: boolean;
 }>;
 
 const StyledDropTarget = styled.div`
@@ -104,6 +106,7 @@ function useUpdateRows(
   mobileBottomRow?: number,
   isMobile?: boolean,
   isAutoLayoutActive?: boolean,
+  isListWidgetCanvas?: boolean,
 ) {
   // This gives us the number of rows
   const snapRows = getCanvasSnapRows(
@@ -172,7 +175,9 @@ function useUpdateRows(
         // in the previous if clause, because, there could be more "dropTargets" updating
         // and this information can only be computed using auto height
 
-        updateHeight(dropTargetRef, rowRef.current);
+        if (!isAutoLayoutActive || !isListWidgetCanvas) {
+          updateHeight(dropTargetRef, rowRef.current);
+        }
       }
       return newRows;
     }
@@ -195,7 +200,10 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
-  const isAutoLayoutActive = useSelector(isAutoLayoutEnabled);
+  const appPositioningType: AppPositioningTypes = useSelector(
+    getCurrentAppPositioningType,
+  );
+  const isAutoLayoutActive = appPositioningType === AppPositioningTypes.AUTO;
   const { contextValue, dropTargetRef, rowRef } = useUpdateRows(
     props.bottomRow,
     props.widgetId,
@@ -203,6 +211,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     props.mobileBottomRow,
     props.isMobile,
     isAutoLayoutActive,
+    props.isListWidgetCanvas,
   );
 
   // Are we currently resizing?
@@ -249,7 +258,9 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     // If the current ref is not set to the new snaprows we've received (based on bottomRow)
     if (rowRef.current !== snapRows && !isDragging && !isResizing) {
       rowRef.current = snapRows;
-      updateHeight(dropTargetRef, snapRows);
+      if (!isAutoLayoutActive || !props.isListWidgetCanvas) {
+        updateHeight(dropTargetRef, snapRows);
+      }
 
       // If we're done dragging, and the parent has auto height enabled
       // It is possible that the auto height has not triggered yet
@@ -266,6 +277,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     props.mobileBottomRow,
     props.isMobile,
     props.parentId,
+    props.isListWidgetCanvas,
     isDragging,
     isResizing,
   ]);
@@ -298,7 +310,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const height = `${rowRef.current * GridDefaults.DEFAULT_GRID_ROW_HEIGHT}px`;
 
   const dropTargetStyles = {
-    height,
+    height: props.isListWidgetCanvas ? "auto" : height,
   };
 
   const shouldOnboard =

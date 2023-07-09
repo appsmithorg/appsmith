@@ -27,24 +27,33 @@ html {
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(209, 213, 219, var(--tw-bg-opacity)) white;
+  scrollbar-color: var(--ads-v2-color-bg-emphasis) transparent;
+}
+
+/* For some reason, margin-left: -160px; is being added to the react-toastify stylesheet on the .Toastify__toast-container--top-center
+and .Toastify__toast-container--bottom-center classes, which messes with the placement of toast. This line resets that. */
+.Toastify__toast-container--top-center,
+.Toastify__toast-container--bottom-center {
+  margin-left: 0;
 }
 
 ::-webkit-scrollbar {
-  height: 6px;
-  width: 6px;
+  height: 5px;
+  width: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-white;
+  background-color: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-transparent;
+  background-color: transparent;
 }
 
 :hover::-webkit-scrollbar-thumb {
-  @apply bg-gray-300;
+  background-color: var(--ads-v2-color-bg-emphasis);
+  border-radius: 36px;
+  opacity: 0.5;
 }
 
 .diagnol-cross {
@@ -62,4 +71,9 @@ html {
 
 .hidden-scrollbar::-webkit-scrollbar {
   display: none; /* for Chrome, Safari, and Opera */
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--ads-v2-color-fg-subtle);
 }

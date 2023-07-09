@@ -1,74 +1,11 @@
-import React, { useMemo } from "react";
+import React from "react";
 import styled from "styled-components";
 
-import { Colors } from "constants/Colors";
-import type { TabProp } from "design-system-old";
-import { TabComponent, TabTitle } from "design-system-old";
-import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
 import { useDispatch, useSelector } from "react-redux";
+import { Tabs, TabsList, Tab, TabPanel } from "design-system";
 import { getSelectedPropertyTabIndex } from "selectors/editorContextSelectors";
 import { setSelectedPropertyTabIndex } from "actions/editorContextActions";
 import type { AppState } from "@appsmith/reducers";
-
-const StyledTabComponent = styled(TabComponent)`
-  height: auto;
-
-  .react-tabs__tab-list {
-    display: none;
-  }
-
-  .react-tabs__tab-panel {
-    overflow: initial;
-    padding-bottom: 18px; // space for the BindingPrompt in case it shows at the last property
-  }
-`;
-
-const StyledTabs = styled(Tabs)`
-  position: sticky;
-  top: 78px;
-  z-index: 3;
-  background: ${Colors.WHITE};
-  padding: 0px 12px;
-  border-bottom: 1px solid ${Colors.GREY_4};
-  padding-bottom: 1px;
-
-  .react-tabs__tab-list {
-    border: 0;
-    margin: 0;
-  }
-
-  .react-tabs__tab .tab-title {
-    font-weight: 500;
-    color: ${Colors.GRAY_700};
-  }
-
-  .react-tabs__tab {
-    border: 2px solid transparent;
-    bottom: -2px;
-  }
-
-  .react-tabs__tab--selected .tab-title {
-    color: ${Colors.GREY_900};
-  }
-
-  .react-tabs__tab:focus {
-    box-shadow: none;
-    &:after {
-      content: none;
-    }
-  }
-
-  .react-tabs__tab--selected {
-    border-width: 2px;
-    border-radius: 0;
-    border-color: transparent;
-    border-bottom: 2px solid var(--ads-color-brand);
-  }
-
-  .tab-title {
-    font-size: 12px;
-  }
-`;
 
 type PropertyPaneTabProps = {
   styleComponent: JSX.Element | null;
@@ -76,6 +13,23 @@ type PropertyPaneTabProps = {
   isPanelProperty?: boolean;
   panelPropertyPath?: string;
 };
+
+const tabs = ["content", "style"];
+
+const StyledTabs = styled(Tabs)`
+  > [role="tabpanel"] {
+    margin-top: 0;
+  }
+
+  > [role="tablist"] {
+    position: sticky;
+    top: 74px;
+    z-index: 3;
+    background: var(--ads-v2-color-white);
+    overflow: hidden;
+    padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-4);
+  }
+`;
 
 export function PropertyPaneTab(props: PropertyPaneTabProps) {
   const dispatch = useDispatch();
@@ -87,44 +41,23 @@ export function PropertyPaneTab(props: PropertyPaneTabProps) {
     dispatch(setSelectedPropertyTabIndex(index, props.panelPropertyPath));
   };
 
-  const tabs = useMemo(() => {
-    const arr: TabProp[] = [];
-    if (props.contentComponent) {
-      arr.push({
-        key: "content",
-        title: "CONTENT",
-        panelComponent: props.contentComponent,
-      });
-    }
-    if (props.styleComponent) {
-      arr.push({
-        key: "style",
-        title: "STYLE",
-        panelComponent: props.styleComponent,
-      });
-    }
-    return arr;
-  }, [props.styleComponent, props.contentComponent]);
-
   return (
-    <>
-      <StyledTabs onSelect={setSelectedIndex} selectedIndex={selectedIndex}>
-        <TabList>
-          {props.contentComponent && (
-            <Tab>
-              <TabTitle className="tab-title">CONTENT</TabTitle>
-            </Tab>
-          )}
-          {props.styleComponent && (
-            <Tab>
-              <TabTitle className="tab-title">STYLE</TabTitle>
-            </Tab>
-          )}
-        </TabList>
-        {props.contentComponent && <TabPanel />}
-        {props.styleComponent && <TabPanel />}
-      </StyledTabs>
-      <StyledTabComponent selectedIndex={selectedIndex} tabs={tabs} />
-    </>
+    <StyledTabs
+      onValueChange={(value) => {
+        setSelectedIndex(tabs.indexOf(value) || 0);
+      }}
+      value={tabs[selectedIndex]}
+    >
+      <TabsList>
+        {props.contentComponent && <Tab value={tabs[0]}>Content</Tab>}
+        {props.styleComponent && <Tab value={tabs[1]}>Style</Tab>}
+      </TabsList>
+      {props.contentComponent && (
+        <TabPanel value={tabs[0]}>{props.contentComponent}</TabPanel>
+      )}
+      {props.styleComponent && (
+        <TabPanel value={tabs[1]}>{props.styleComponent}</TabPanel>
+      )}
+    </StyledTabs>
   );
 }

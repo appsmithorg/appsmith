@@ -10,53 +10,29 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import {
-  Checkbox,
-  emailValidator,
-  getTypographyByKey,
-  TextInput,
-} from "design-system-old";
-import { Colors } from "constants/Colors";
+import { emailValidator } from "design-system-old";
 import { useSelector } from "react-redux";
 import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
+import { Checkbox, Input, Text } from "design-system";
 
-const LabelContainer = styled.div`
+const InputContainer = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 4px;
-`;
-
-const InputContainer = styled.div<{ isValid: boolean }>`
-  display: flex;
-  align-items: center;
-  margin-bottom: ${(props) => props.theme.spaces[props.isValid ? 5 : 10]}px;
-
-  & > div {
-    ${(props) =>
-      !props.isValid ? `border: 1px solid ${Colors.ERROR_RED};` : ""}
-    input {
-      ${(props) => (!props.isValid ? `color: ${Colors.ERROR_RED};` : "")}
-    }
-  }
+  margin-bottom: ${(props) => props.theme.spaces[5]}px;
 `;
 
 const MainContainer = styled.div`
-  width: calc(100% - 30px);
+  width: calc(100% - 39px);
 `;
 
 const DefaultConfigContainer = styled.div`
   display: flex;
   align-items: flex-start;
   margin-top: ${(props) => props.theme.spaces[3]}px;
-`;
-
-const SectionTitle = styled.span`
-  ${getTypographyByKey("u1")};
-  text-transform: uppercase;
-  color: ${Colors.GRAY_900};
+  margin-left: 3px;
 `;
 
 type AuthorInfo = { authorName: string; authorEmail: string };
@@ -159,65 +135,61 @@ function UserGitProfileSettings({
 
   return (
     <MainContainer>
-      <SectionTitle className="label">
+      <Text className="label" color="var(ads-v2-color-fg)" kind="heading-s">
         {createMessage(USER_PROFILE_SETTINGS_TITLE)}
-      </SectionTitle>
+      </Text>
       {showDefaultConfig ? (
         <DefaultConfigContainer>
           <Checkbox
-            cypressSelector="t--use-global-config-checkbox"
-            fill={false}
-            isDefaultChecked={useGlobalConfig}
-            label={createMessage(USE_DEFAULT_CONFIGURATION)}
-            onCheckChange={toggleUseDefaultConfig}
-          />
+            data-testid="t--use-global-config-checkbox"
+            isSelected={useGlobalConfig}
+            onChange={toggleUseDefaultConfig}
+          >
+            {createMessage(USE_DEFAULT_CONFIGURATION)}
+          </Checkbox>
         </DefaultConfigContainer>
       ) : null}
 
       <Space size={5} />
-
       <>
-        <LabelContainer>
-          <span className="label">{createMessage(AUTHOR_NAME)}</span>
-        </LabelContainer>
-
-        <InputContainer isValid={!nameInvalid}>
-          <TextInput
+        <InputContainer>
+          <Input
             className="t--git-config-name-input"
-            dataType="text"
-            disabled={disableInput}
-            errorMsg={
+            errorMessage={
               nameInvalid ? createMessage(AUTHOR_NAME_CANNOT_BE_EMPTY) : ""
             }
-            fill
-            isLoading={isFetchingConfig}
+            isDisabled={disableInput}
+            isValid={!nameInvalid}
+            label={createMessage(AUTHOR_NAME)}
+            // isLoading={isFetchingConfig}
             onBlur={() => setNameInputFocused(false)}
             onChange={(value: string) =>
               changeHandler(AUTHOR_INFO_LABEL.NAME, value)
             }
             onFocus={() => setNameInputFocused(true)}
-            trimValue={false}
+            // trimValue={false}
+            size="md"
+            type="text"
             value={authorInfo.authorName}
           />
         </InputContainer>
-        <LabelContainer>
-          <span className="label">{createMessage(AUTHOR_EMAIL)}</span>
-        </LabelContainer>
-        <InputContainer isValid={!emailInvalid}>
-          <TextInput
+        <InputContainer>
+          <Input
             className="t--git-config-email-input"
-            dataType="email"
-            disabled={disableInput}
-            errorMsg={
+            errorMessage={
               emailInvalid ? createMessage(FORM_VALIDATION_INVALID_EMAIL) : ""
             }
-            fill
-            isLoading={isFetchingConfig}
+            isDisabled={disableInput}
+            isValid={!emailInvalid}
+            label={createMessage(AUTHOR_EMAIL)}
+            // isLoading={isFetchingConfig}
             onBlur={() => setEmailInputFocused(false)}
             onChange={(value: string) =>
               changeHandler(AUTHOR_INFO_LABEL.EMAIL, value)
             }
             onFocus={() => setEmailInputFocused(true)}
+            size="md"
+            type="email"
             value={authorInfo.authorEmail}
           />
         </InputContainer>

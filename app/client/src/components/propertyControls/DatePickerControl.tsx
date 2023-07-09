@@ -2,36 +2,11 @@ import React from "react";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import moment from "moment-timezone";
-import styled from "styled-components";
 import { TimePrecision } from "@blueprintjs/datetime";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
-import { DatePicker } from "design-system-old";
+import { DatePicker } from "design-system";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-
-const DatePickerControlWrapper = styled.div<{ isValid: boolean }>`
-  display: flex;
-  flex-direction: column;
-  margin: 8px 0 0 0;
-
-  &:focus .bp3-input-group input {
-    border: 1px solid var(--appsmith-input-focus-border-color);
-  }
-
-  .vertical-center {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 16px 0 4px 0;
-    .label {
-      color: ${(props) => props.theme.colors.paneText};
-      font-size: ${(props) => props.theme.fontSizes[3]}px;
-    }
-    .bp3-control {
-      margin-bottom: 0px;
-    }
-  }
-`;
 
 class DatePickerControl extends BaseControl<
   DatePickerControlProps,
@@ -101,22 +76,25 @@ class DatePickerControl extends BaseControl<
         : null;
 
     return (
-      <DatePickerControlWrapper isValid ref={this.wrapperRef} tabIndex={0}>
+      <div ref={this.wrapperRef} tabIndex={0}>
         <DatePicker
           closeOnSelection
+          dateFormat="yyyy-MM-dd'T'HH:mm:ss z"
           formatDate={this.formatDate}
           inputRef={this.inputRef}
           maxDate={this.maxDate}
           minDate={this.minDate}
           onChange={this.onDateSelected}
           parseDate={this.parseDate}
-          placeholder="YYYY-MM-DD HH:mm"
+          placeholderText="YYYY-MM-DD HH:mm"
+          portalId="date-picker-control"
+          selected={value}
           showActionsBar
+          showTimeInput
           tabIndex={-1}
           timePrecision={TimePrecision.MINUTE}
-          value={value}
         />
-      </DatePickerControlWrapper>
+      </div>
     );
   }
 

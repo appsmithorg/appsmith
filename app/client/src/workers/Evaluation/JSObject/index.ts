@@ -64,7 +64,7 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
   return localUnEvalTree;
 };
 
-const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
+export const validJSBodyRegex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
 
 /**
  * Here we parse the JSObject and then determine
@@ -86,9 +86,10 @@ export function saveResolvedFunctionsAndJSUpdates(
   entityName: string,
 ) {
   jsPropertiesState.delete(entityName);
-  const correctFormat = regex.test(entity.body);
+  const correctFormat = validJSBodyRegex.test(entity.body);
+  const isEmptyBody = entity.body.trim() === "";
 
-  if (correctFormat) {
+  if (correctFormat || isEmptyBody) {
     try {
       JSObjectCollection.deleteResolvedFunction(entityName);
       JSObjectCollection.deleteUnEvalState(entityName);
@@ -159,8 +160,16 @@ export function saveResolvedFunctionsAndJSUpdates(
                 // in case we need to handle error state
               }
             } else if (parsedElement.type !== "literal") {
+              // when a jsobject property is of the type "prop1" or 'prop1', ast outputs the
+              // key as "\"prop1\"" or "\'prop1\'". We need to remove the extra quotes.
+              const isStringRepresentation =
+                parsedElement.key.startsWith("'") ||
+                parsedElement.key.startsWith('"');
+              const parsedKey = isStringRepresentation
+                ? parsedElement.key.slice(1, -1)
+                : parsedElement.key;
               variables.push({
-                name: parsedElement.key,
+                name: parsedKey,
                 value: parsedElement.value,
               });
               JSObjectCollection.updateUnEvalState(
@@ -188,7 +197,9 @@ export function saveResolvedFunctionsAndJSUpdates(
     } catch (e) {
       //if we need to push error as popup in case
     }
-  } else {
+  }
+
+  if (!correctFormat) {
     const errors = {
       type: EvalErrorTypes.PARSE_JS_ERROR,
       context: {
@@ -199,6 +210,7 @@ export function saveResolvedFunctionsAndJSUpdates(
     };
     dataTreeEvalRef.errors.push(errors);
   }
+
   return jsUpdates;
 }
 
@@ -260,7 +272,7 @@ export function parseJSActions(
     });
   }
 
-  functionDeterminer.setupEval(unEvalDataTree);
+  functionDeterminer.setupEval(unEvalDataTree, dataTreeEvalRef.getConfigTree());
   jsPropertiesState.stopUpdate();
 
   Object.keys(jsUpdates).forEach((entityName) => {
@@ -339,7 +351,7 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
         value,
         `${jsObjectName}.${variableName}`,
       );
-      /* 
+      /*
       JSobject variable values are picked from evalProps until the unevalValue is not modified.
       Hence, we need to set the value in evalProps to ensure it doesn't have stale values.
       */

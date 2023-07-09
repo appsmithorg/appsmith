@@ -23,7 +23,8 @@ public interface GitServiceCE {
 
     Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile);
 
-    Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile, String defaultApplicationId);
+    Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(
+            GitProfile gitProfile, String defaultApplicationId);
 
     Mono<GitProfile> getDefaultGitProfileOrCreateIfEmpty();
 
@@ -33,7 +34,8 @@ public interface GitServiceCE {
 
     Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata);
 
-    Mono<String> commitApplication(GitCommitDTO commitDTO, String defaultApplicationId, String branchName, boolean doAmend);
+    Mono<String> commitApplication(
+            GitCommitDTO commitDTO, String defaultApplicationId, String branchName, boolean doAmend);
 
     Mono<String> commitApplication(GitCommitDTO commitDTO, String defaultApplicationId, String branchName);
 
@@ -49,7 +51,8 @@ public interface GitServiceCE {
 
     Mono<GitPullDTO> pullApplication(String defaultApplicationId, String branchName);
 
-    Mono<List<GitBranchDTO>> listBranchForApplication(String defaultApplicationId, Boolean pruneBranches, String currentBranch);
+    Mono<List<GitBranchDTO>> listBranchForApplication(
+            String defaultApplicationId, Boolean pruneBranches, String currentBranch);
 
     Mono<GitApplicationMetadata> getGitApplicationMetadata(String defaultApplicationId);
 

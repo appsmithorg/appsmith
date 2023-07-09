@@ -5,14 +5,14 @@
       "id": 1,
       "children": [
         {
-          "label": "S3 Service Provider Key",
+          "label": "S3 service provider key",
           "configProperty": "datasourceConfiguration.properties[1].key",
           "controlType": "INPUT_TEXT",
           "initialValue": "s3Provider",
           "hidden": true
         },
         {
-          "label": "S3 Service Provider",
+          "label": "S3 service provider",
           "configProperty": "datasourceConfiguration.properties[1].value",
           "controlType": "DROP_DOWN",
           "isRequired": true,
@@ -27,7 +27,7 @@
               "value": "upcloud"
             },
             {
-              "label": "Digital Ocean Spaces",
+              "label": "Digital Ocean spaces",
               "value": "digital-ocean-spaces"
             },
             {
@@ -49,14 +49,14 @@
           ]
         },
         {
-          "label": "Access Key",
+          "label": "Access key",
           "configProperty": "datasourceConfiguration.authentication.username",
           "controlType": "INPUT_TEXT",
           "isRequired": true,
           "initialValue": ""
         },
         {
-          "label": "Secret Key",
+          "label": "Secret key",
           "configProperty": "datasourceConfiguration.authentication.password",
           "controlType": "INPUT_TEXT",
           "dataType": "PASSWORD",
@@ -78,7 +78,7 @@
           }
         },
         {
-          "label": "Custom Endpoint URL Key",
+          "label": "Custom endpoint URL key",
           "configProperty": "datasourceConfiguration.properties[2].key",
           "controlType": "INPUT_TEXT",
           "initialValue": "customRegion",

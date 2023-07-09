@@ -13,9 +13,9 @@ describe("Selector view component", () => {
         value: "'Page1'",
       },
     ],
-    label: "Choose Page",
+    label: "Choose page",
     value: "{{navigateTo('Page1', {}, 'SAME_WINDOW')}}",
-    defaultText: "Select Page",
+    defaultText: "Select page",
     displayValue: "",
     get: () => {
       return 1;
@@ -27,7 +27,7 @@ describe("Selector view component", () => {
   test("Renders selector view component correctly", () => {
     render(<SelectorView {...props} />);
     expect(screen.getByTestId("selector-view-label")).toHaveTextContent(
-      "Choose Page",
+      "Choose page",
     );
   });
 });

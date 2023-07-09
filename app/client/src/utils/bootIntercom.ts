@@ -1,6 +1,7 @@
 import type { User } from "constants/userConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { sha256 } from "js-sha256";
+import { getLicenseKey } from "@appsmith/utils/licenseHelpers";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -35,7 +36,7 @@ export const updateIntercomProperties = (instanceId: string, user?: User) => {
         !cloudHosting ? appVersion.edition : ""
       } ${appVersion.id}`,
       instanceId,
-      "License ID": "3rd license",
+      "License ID": getLicenseKey(),
     });
   }
 };

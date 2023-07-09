@@ -1,14 +1,13 @@
 package com.appsmith.server.controllers.ce;
 
-import com.appsmith.server.constants.Url;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.AddItemToPageDTO;
 import com.appsmith.server.dtos.ItemDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ItemService;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
@@ -34,15 +33,19 @@ public class ItemControllerCE {
     @GetMapping("")
     public Mono<ResponseDTO<List<ItemDTO>>> getAll(@RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all items by parameters " + params);
-        return service.get(params).collectList()
+        return service.get(params)
+                .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
     @JsonView(Views.Public.class)
     @PostMapping("/addToPage")
     public Mono<ResponseDTO<ActionDTO>> addItemToPage(@RequestBody AddItemToPageDTO addItemToPageDTO) {
-        log.debug("Going to add item {} to page {} with new name {}", addItemToPageDTO.getMarketplaceElement().getItem().getName(),
-                addItemToPageDTO.getPageId(), addItemToPageDTO.getName());
+        log.debug(
+                "Going to add item {} to page {} with new name {}",
+                addItemToPageDTO.getMarketplaceElement().getItem().getName(),
+                addItemToPageDTO.getPageId(),
+                addItemToPageDTO.getName());
         return service.addItemToPage(addItemToPageDTO)
                 .map(action -> new ResponseDTO<>(HttpStatus.CREATED.value(), action, null));
     }

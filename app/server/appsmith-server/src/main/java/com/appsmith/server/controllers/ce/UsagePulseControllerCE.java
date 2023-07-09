@@ -6,7 +6,6 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UsagePulseDTO;
 import com.appsmith.server.services.UsagePulseService;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,8 +25,6 @@ public class UsagePulseControllerCE {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Boolean>> create(@RequestBody @Valid UsagePulseDTO usagePulseDTO) {
-        return service.createPulse(usagePulseDTO)
-                .thenReturn(new ResponseDTO<>(HttpStatus.CREATED.value(), true, null));
+        return service.createPulse(usagePulseDTO).thenReturn(new ResponseDTO<>(HttpStatus.CREATED.value(), true, null));
     }
-
 }

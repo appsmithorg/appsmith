@@ -111,14 +111,14 @@
             "sectionName": "Connection",
             "children": [
               {
-                "label": "Use Mongo Connection String URI Key",
+                "label": "Use mongo connection string URI key",
                 "configProperty": "datasourceConfiguration.properties[0].key",
                 "controlType": "INPUT_TEXT",
-                "initialValue": "Use Mongo Connection String URI",
+                "initialValue": "Use mongo connection string URI",
                 "hidden": true
               },
               {
-                "label": "Use Mongo Connection String URI",
+                "label": "Use mongo connection string URI",
                 "configProperty": "datasourceConfiguration.properties[0].value",
                 "controlType": "DROP_DOWN",
                 "initialValue": "No",
@@ -134,14 +134,14 @@
                 ]
               },
               {
-                "label": "Connection String URI Key",
+                "label": "Connection string URI key",
                 "configProperty": "datasourceConfiguration.properties[1].key",
                 "controlType": "INPUT_TEXT",
-                "initialValue": "Connection String URI",
+                "initialValue": "Connection string URI",
                 "hidden": true
               },
               {
-                "label": "Connection String URI",
+                "label": "Connection string URI",
                 "placeholderText": "mongodb+srv://<username>:<password>@test-db.swrsq.mongodb.net/myDatabase",
                 "configProperty": "datasourceConfiguration.properties[1].value",
                 "controlType": "INPUT_TEXT",
@@ -152,13 +152,13 @@
                 }
               },
               {
-                "label": "Connection Mode",
+                "label": "Connection mode",
                 "configProperty": "datasourceConfiguration.connection.mode",
-                "controlType": "DROP_DOWN",
+                "controlType": "SEGMENTED_CONTROL",
                 "initialValue": "READ_WRITE",
                 "options": [
                   {
-                    "label": "Read Only",
+                    "label": "Read only",
                     "value": "READ_ONLY"
                   },
                   {
@@ -173,13 +173,13 @@
                 }
               },
               {
-                "label": "Connection Type",
+                "label": "Connection type",
                 "configProperty": "datasourceConfiguration.connection.type",
                 "initialValue": "DIRECT",
                 "controlType": "DROP_DOWN",
                 "options": [
                   {
-                    "label": "Direct Connection",
+                    "label": "Direct connection",
                     "value": "DIRECT"
                   },
                   {
@@ -196,7 +196,7 @@
               {
                 "children": [
                   {
-                    "label": "Host Address",
+                    "label": "Host address",
                     "configProperty": "datasourceConfiguration.endpoints[*].host",
                     "controlType": "KEYVALUE_ARRAY",
                     "validationMessage": "Please enter a valid host",
@@ -222,8 +222,8 @@
                 ]
               },
               {
-                "label": "Default Database Name",
-                "placeholderText": "(Optional)",
+                "label": "Default database name",
+                "placeholderText": "(optional)",
                 "configProperty": "datasourceConfiguration.connection.defaultDatabaseName",
                 "controlType": "INPUT_TEXT",
                 "hidden": {
@@ -243,14 +243,14 @@
             },
             "children": [
               {
-                "label": "Database Name",
+                "label": "Database name",
                 "configProperty": "datasourceConfiguration.authentication.databaseName",
                 "controlType": "INPUT_TEXT",
                 "placeholderText": "Database name",
                 "initialValue": "admin"
               },
               {
-                "label": "Authentication Type",
+                "label": "Authentication type",
                 "configProperty": "datasourceConfiguration.authentication.authType",
                 "controlType": "DROP_DOWN",
                 "initialValue": "SCRAM_SHA_1",
@@ -298,7 +298,7 @@
             },
             "children": [
               {
-                "label": "SSL Mode",
+                "label": "SSL mode",
                 "configProperty": "datasourceConfiguration.connection.ssl.authType",
                 "controlType": "DROP_DOWN",
                 "initialValue": "DEFAULT",
@@ -326,14 +326,14 @@
             "id": 1,
             "children": [
               {
-                "label": "Connection Mode",
+                "label": "Connection mode",
                 "configProperty": "datasourceConfiguration.connection.mode",
-                "controlType": "DROP_DOWN",
+                "controlType": "SEGMENTED_CONTROL",
                 "isRequired": true,
                 "initialValue": "READ_WRITE",
                 "options": [
                   {
-                    "label": "Read Only",
+                    "label": "Read only",
                     "value": "READ_ONLY"
                   },
                   {
@@ -345,7 +345,7 @@
               {
                 "children": [
                   {
-                    "label": "Host Address",
+                    "label": "Host address",
                     "configProperty": "datasourceConfiguration.endpoints[*].host",
                     "controlType": "KEYVALUE_ARRAY",
                     "validationMessage": "Please enter a valid host",
@@ -360,7 +360,7 @@
                 ]
               },
               {
-                "label": "Database Name",
+                "label": "Database name",
                 "configProperty": "datasourceConfiguration.authentication.databaseName",
                 "controlType": "INPUT_TEXT",
                 "placeholderText": "Database name",
@@ -397,7 +397,7 @@
             "sectionName": "SSL (optional)",
             "children": [
               {
-                "label": "SSL Mode",
+                "label": "SSL mode",
                 "configProperty": "datasourceConfiguration.connection.ssl.authType",
                 "controlType": "DROP_DOWN",
                 "initialValue": "DEFAULT",
@@ -444,7 +444,7 @@
                 "controlType": "KEYVALUE_ARRAY"
               },
               {
-                "label": "Send Authentication Information Key (Do not edit)",
+                "label": "Send authentication information key (do not edit)",
                 "configProperty": "datasourceConfiguration.properties[0].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
@@ -468,14 +468,14 @@
                 ]
               },
               {
-                "label": "Session Details Signature Key Key (Do not edit)",
+                "label": "Session details signature key key (do not edit)",
                 "configProperty": "datasourceConfiguration.properties[1].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "sessionSignatureKey"
               },
               {
-                "label": "Session Details Signature Key",
+                "label": "Session details signature key",
                 "configProperty": "datasourceConfiguration.properties[1].value",
                 "controlType": "INPUT_TEXT",
                 "hidden": {
@@ -485,7 +485,7 @@
                 }
               },
               {
-                "label": "Authentication Type",
+                "label": "Authentication type",
                 "configProperty": "datasourceConfiguration.authentication.authenticationType",
                 "controlType": "DROP_DOWN",
                 "options": [
@@ -502,24 +502,24 @@
                     "value": "oAuth2"
                   },
                   {
-                    "label": "API Key",
+                    "label": "API key",
                     "value": "apiKey"
                   },
                   {
-                    "label": "Bearer Token",
+                    "label": "Bearer token",
                     "value": "bearerToken"
                   }
                 ]
               },
               {
-                "label": "Grant Type",
+                "label": "Grant type",
                 "configProperty": "datasourceConfiguration.authentication.grantType",
                 "controlType": "INPUT_TEXT",
                 "isRequired": false,
                 "hidden": true
               },
               {
-                "label": "Access Token URL",
+                "label": "Access token URL",
                 "configProperty": "datasourceConfiguration.authentication.accessTokenUrl",
                 "controlType": "INPUT_TEXT",
                 "isRequired": false,
@@ -530,7 +530,7 @@
                 }
               },
               {
-                "label": "Client Id",
+                "label": "Client id",
                 "configProperty": "datasourceConfiguration.authentication.clientId",
                 "controlType": "INPUT_TEXT",
                 "isRequired": false,
@@ -541,7 +541,7 @@
                 }
               },
               {
-                "label": "Client Secret",
+                "label": "Client secret",
                 "configProperty": "datasourceConfiguration.authentication.clientSecret",
                 "dataType": "PASSWORD",
                 "controlType": "INPUT_TEXT",
@@ -564,7 +564,7 @@
                 }
               },
               {
-                "label": "Header Prefix",
+                "label": "Header prefix",
                 "configProperty": "datasourceConfiguration.authentication.headerPrefix",
                 "controlType": "INPUT_TEXT",
                 "placeholderText": "Bearer (default)",
@@ -634,14 +634,14 @@
                 "placeholderText": "https://your-project-id.firebaseio.com"
               },
               {
-                "label": "Project Id",
+                "label": "Project id",
                 "configProperty": "datasourceConfiguration.authentication.username",
                 "controlType": "INPUT_TEXT",
                 "isRequired": true,
                 "initialValue": ""
               },
               {
-                "label": "Service Account Credentials",
+                "label": "Service account credentials",
                 "configProperty": "datasourceConfiguration.authentication.password",
                 "controlType": "INPUT_TEXT",
                 "dataType": "PASSWORD",
@@ -656,7 +656,7 @@
             "sectionName": "General",
             "children": [
               {
-                "label": "Authentication Type",
+                "label": "Authentication type",
                 "configProperty": "datasourceConfiguration.authentication.authenticationType",
                 "controlType": "INPUT_TEXT",
                 "isRequired": false,
@@ -664,7 +664,7 @@
                 "initialValue": "oAuth2"
               },
               {
-                "label": "Grant Type",
+                "label": "Grant type",
                 "configProperty": "datasourceConfiguration.authentication.grantType",
                 "controlType": "INPUT_TEXT",
                 "isRequired": false,
@@ -678,11 +678,11 @@
                 "isRequired": true,
                 "options": [
                   {
-                    "label": "Read Only",
+                    "label": "Read only",
                     "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
                   },
                   {
-                    "label": "Read and Write",
+                    "label": "Read and write",
                     "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
                   }
                 ],
@@ -697,14 +697,14 @@
             "id": 1,
             "children": [
               {
-                "label": "S3 Service Provider Key",
+                "label": "S3 service provider key",
                 "configProperty": "datasourceConfiguration.properties[1].key",
                 "controlType": "INPUT_TEXT",
                 "initialValue": "s3Provider",
                 "hidden": true
               },
               {
-                "label": "S3 Service Provider",
+                "label": "S3 service provider",
                 "configProperty": "datasourceConfiguration.properties[1].value",
                 "controlType": "DROP_DOWN",
                 "isRequired": true,
@@ -719,7 +719,7 @@
                     "value": "upcloud"
                   },
                   {
-                    "label": "Digital Ocean Spaces",
+                    "label": "Digital Ocean spaces",
                     "value": "digital-ocean-spaces"
                   },
                   {
@@ -737,13 +737,13 @@
                 ]
               },
               {
-                "label": "Access Key",
+                "label": "Access key",
                 "configProperty": "datasourceConfiguration.authentication.username",
                 "controlType": "INPUT_TEXT",
                 "initialValue": ""
               },
               {
-                "label": "Secret Key",
+                "label": "Secret key",
                 "configProperty": "datasourceConfiguration.authentication.password",
                 "controlType": "INPUT_TEXT",
                 "dataType": "PASSWORD",
@@ -763,7 +763,7 @@
                 }
               },
               {
-                "label": "Custom Endpoint URL Key",
+                "label": "Custom endpoint URL key",
                 "configProperty": "datasourceConfiguration.properties[2].key",
                 "controlType": "INPUT_TEXT",
                 "initialValue": "customRegion",
@@ -792,7 +792,7 @@
               {
                 "children": [
                   {
-                    "label": "Host Address",
+                    "label": "Host address",
                     "configProperty": "datasourceConfiguration.endpoints[*].host",
                     "controlType": "KEYVALUE_ARRAY",
                     "validationMessage": "Please enter a valid host",
@@ -807,7 +807,7 @@
                 ]
               },
               {
-                "label": "Database Number",
+                "label": "Database number",
                 "configProperty": "datasourceConfiguration.authentication.databaseName",
                 "controlType": "INPUT_TEXT",
                 "dataType": "NUMBER",
@@ -847,19 +847,19 @@
           {
             "options": [
               {
-                "label": "Find Document(s)",
+                "label": "Find document(s)",
                 "value": "FIND"
               },
               {
-                "label": "Insert Document(s)",
+                "label": "Insert document(s)",
                 "value": "INSERT"
               },
               {
-                "label": "Update Document(s)",
+                "label": "Update document(s)",
                 "value": "UPDATE"
               },
               {
-                "label": "Delete Document(s)",
+                "label": "Delete document(s)",
                 "value": "DELETE"
               },
               {
@@ -899,7 +899,7 @@
                 "children": [
                   {
                     "controlType": "SECTION",
-                    "label": "Select Collection to Query",
+                    "label": "Select collection to query",
                     "children": [
                       {
                         "label": "Collection",
@@ -965,7 +965,7 @@
                 "children": [
                   {
                     "controlType": "SECTION",
-                    "label": "Select Collection to Query",
+                    "label": "Select collection to query",
                     "children": [
                       {
                         "label": "Collection",
@@ -1001,7 +1001,7 @@
                 "children": [
                   {
                     "controlType": "SECTION",
-                    "label": "Select Collection to Query",
+                    "label": "Select collection to query",
                     "children": [
                       {
                         "label": "Collection",
@@ -1039,11 +1039,11 @@
                         "initialValue": "SINGLE",
                         "options": [
                           {
-                            "label": "Single Document",
+                            "label": "Single document",
                             "value": "SINGLE"
                           },
                           {
-                            "label": "All Matching Documents",
+                            "label": "All matching documents",
                             "value": "ALL"
                           }
                         ]
@@ -1061,7 +1061,7 @@
                 "children": [
                   {
                     "controlType": "SECTION",
-                    "label": "Select Collection to Query",
+                    "label": "Select collection to query",
                     "children": [
                       {
                         "label": "Collection",
@@ -1091,11 +1091,11 @@
                         "initialValue": "SINGLE",
                         "options": [
                           {
-                            "label": "Single Document",
+                            "label": "Single document",
                             "value": "SINGLE"
                           },
                           {
-                            "label": "All Matching Documents",
+                            "label": "All matching documents",
                             "value": "ALL"
                           }
                         ]
@@ -1113,7 +1113,7 @@
                 "children": [
                   {
                     "controlType": "SECTION",
-                    "label": "Select Collection to Query",
+                    "label": "Select collection to query",
                     "children": [
                       {
                         "label": "Collection",
@@ -1149,7 +1149,7 @@
                 "children": [
                   {
                     "controlType": "SECTION",
-                    "label": "Select Collection to Query",
+                    "label": "Select collection to query",
                     "children": [
                       {
                         "label": "Collection",
@@ -1192,7 +1192,7 @@
                 "children": [
                   {
                     "controlType": "SECTION",
-                    "label": "Select Collection to Query",
+                    "label": "Select collection to query",
                     "children": [
                       {
                         "label": "Collection",
@@ -1208,7 +1208,7 @@
                     "description": "Optional",
                     "children": [
                       {
-                        "label": "Array of Pipelines",
+                        "label": "Array of pipelines",
                         "configProperty": "actionConfiguration.formData.aggregate.arrayPipelines",
                         "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                         "inputType": "JSON",
@@ -1330,7 +1330,7 @@
                 }
               },
               {
-                "label": "Query Parameters",
+                "label": "Query parameters",
                 "configProperty": "actionConfiguration.queryParameters",
                 "controlType": "ARRAY_FIELD",
                 "schema": [
@@ -1395,7 +1395,7 @@
             "id": 1,
             "children": [
               {
-                "label": "Method Key",
+                "label": "Method key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
@@ -1409,51 +1409,51 @@
                 "initialValue": "GET_DOCUMENT",
                 "options": [
                   {
-                    "label": "Get Single Document",
+                    "label": "Get single document",
                     "value": "GET_DOCUMENT"
                   },
                   {
-                    "label": "Get Documents in Collection",
+                    "label": "Get documents in collection",
                     "value": "GET_COLLECTION"
                   },
                   {
-                    "label": "Set Document",
+                    "label": "Set document",
                     "value": "SET_DOCUMENT"
                   },
                   {
-                    "label": "Create Document",
+                    "label": "Create document",
                     "value": "CREATE_DOCUMENT"
                   },
                   {
-                    "label": "Add Document to Collection",
+                    "label": "Add document to collection",
                     "value": "ADD_TO_COLLECTION"
                   },
                   {
-                    "label": "Update Document",
+                    "label": "Update document",
                     "value": "UPDATE_DOCUMENT"
                   },
                   {
-                    "label": "Delete Document",
+                    "label": "Delete document",
                     "value": "DELETE_DOCUMENT"
                   }
                 ]
               },
               {
-                "label": "Collection/Document Path",
+                "label": "Collection/Document path",
                 "configProperty": "actionConfiguration.path",
                 "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                 "isRequired": true,
                 "initialValue": ""
               },
               {
-                "label": "Timestamp Value Path Key",
+                "label": "Timestamp value path key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].key",
                 "controlType": "INPUT_TEXT",
                 "initialValue": "timestampValuePath",
                 "hidden": true
               },
               {
-                "label": "Timestamp Value Path (use dot(.) notation to reference nested key e.g. [\"key1.key2\"])",
+                "label": "Timestamp value path (use dot(.) notation to reference nested key e.g. [\"key1.key2\"])",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].value",
                 "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                 "initialValue": "",
@@ -1465,14 +1465,14 @@
                 }
               },
               {
-                "label": "Delete Key Value Pair Path Key",
+                "label": "Delete key value pair path key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].key",
                 "controlType": "INPUT_TEXT",
                 "initialValue": "deleteKeyValuePairPath",
                 "hidden": true
               },
               {
-                "label": "Delete Key Value Pair Path (use dot(.) notation to reference nested key e.g. [\"key1.key2\"])",
+                "label": "Delete key value pair path (use dot(.) notation to reference nested key e.g. [\"key1.key2\"])",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
                 "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                 "initialValue": "",
@@ -1491,14 +1491,14 @@
                 }
               },
               {
-                "label": "Order By Key",
+                "label": "Order by key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "orderBy"
               },
               {
-                "label": "Order By (JSON array of field names to order by)",
+                "label": "Order by (JSON array of field names to order by)",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
                 "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                 "hidden": {
@@ -1510,14 +1510,14 @@
                 "initialValue": ""
               },
               {
-                "label": "Start After Key",
+                "label": "Start after key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "limit"
               },
               {
-                "label": "Start After",
+                "label": "Start after",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
                 "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                 "hidden": {
@@ -1528,14 +1528,14 @@
                 "initialValue": ""
               },
               {
-                "label": "End Before Key",
+                "label": "End before key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "limit"
               },
               {
-                "label": "End Before",
+                "label": "End before",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
                 "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                 "hidden": {
@@ -1546,14 +1546,14 @@
                 "initialValue": ""
               },
               {
-                "label": "Limit Documents Key",
+                "label": "Limit documents key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "limit"
               },
               {
-                "label": "Limit Documents",
+                "label": "Limit documents",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
                 "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                 "hidden": {
@@ -1564,14 +1564,14 @@
                 "initialValue": "10"
               },
               {
-                "label": "Where Conditions Key",
+                "label": "Where conditions key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "whereConditionTuples"
               },
               {
-                "label": "Where Conditions",
+                "label": "Where conditions",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
                 "controlType": "ARRAY_FIELD",
                 "hidden": {
@@ -1653,7 +1653,7 @@
             "id": 1,
             "children": [
               {
-                "label": "Method Key",
+                "label": "Method key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
@@ -1709,7 +1709,7 @@
                 ]
               },
               {
-                "label": "Spreadsheet URL Key",
+                "label": "Spreadsheet URL key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
@@ -1728,14 +1728,14 @@
                 "initialValue": ""
               },
               {
-                "label": "Spreadsheet Name Key",
+                "label": "Spreadsheet name key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "spreadsheetName"
               },
               {
-                "label": "Spreadsheet Name",
+                "label": "Spreadsheet name",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
                 "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                 "hidden": {
@@ -1746,14 +1746,14 @@
                 "initialValue": ""
               },
               {
-                "label": "Delete Format Key",
+                "label": "Delete format key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[12].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "deleteFormat"
               },
               {
-                "label": "Select Entity",
+                "label": "Select entity",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[12].value",
                 "controlType": "DROP_DOWN",
                 "hidden": {
@@ -1764,24 +1764,24 @@
                 "initialValue": "SHEET",
                 "options": [
                   {
-                    "label": "Single Sheet",
+                    "label": "Single sheet",
                     "value": "SHEET"
                   },
                   {
-                    "label": "Entire Spreadsheet",
+                    "label": "Entire spreadsheet",
                     "value": "SPREADSHEET"
                   }
                 ]
               },
               {
-                "label": "Sheet Name Key",
+                "label": "Sheet name key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "sheetName"
               },
               {
-                "label": "Sheet Name",
+                "label": "Sheet name",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
                 "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                 "hidden": {
@@ -1820,14 +1820,14 @@
                 "initialValue": "Sheet1"
               },
               {
-                "label": "Table Header Index Key",
+                "label": "Table header index key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "tableHeaderIndex"
               },
               {
-                "label": "Table Heading Row Index",
+                "label": "Table heading row index",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].value",
                 "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                 "hidden": {
@@ -1845,14 +1845,14 @@
                 "initialValue": "1"
               },
               {
-                "label": "Query Format Key",
+                "label": "Query format key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "queryFormat"
               },
               {
-                "label": "Query Format",
+                "label": "Query format",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
                 "controlType": "DROP_DOWN",
                 "hidden": {
@@ -1873,14 +1873,14 @@
                 ]
               },
               {
-                "label": "Range Key",
+                "label": "Range key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "range"
               },
               {
-                "label": "Cell Range",
+                "label": "Cell range",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
                 "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                 "hidden": {
@@ -1912,14 +1912,14 @@
                 "placeholderText": "A2:B"
               },
               {
-                "label": "Row Offset Key",
+                "label": "Row offset key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "rowOffset"
               },
               {
-                "label": "Row Offset",
+                "label": "Row offset",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].value",
                 "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                 "hidden": {
@@ -1951,14 +1951,14 @@
                 "placeholderText": "0"
               },
               {
-                "label": "Row Index Key",
+                "label": "Row index key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[11].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "rowIndex"
               },
               {
-                "label": "Row Index",
+                "label": "Row index",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[11].value",
                 "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                 "hidden": {
@@ -1970,14 +1970,14 @@
                 "placeholderText": "0"
               },
               {
-                "label": "Row Limit Key",
+                "label": "Row limit key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "rowLimit"
               },
               {
-                "label": "Row Limit",
+                "label": "Row limit",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
                 "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                 "hidden": {
@@ -2009,14 +2009,14 @@
                 "placeholderText": "10"
               },
               {
-                "label": "Where Key",
+                "label": "Where key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[14].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "where"
               },
               {
-                "label": "Where Conditions",
+                "label": "Where conditions",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[14].value",
                 "controlType": "ARRAY_FIELD",
                 "hidden": {
@@ -2027,7 +2027,7 @@
                 "initialValue": [],
                 "schema": [
                   {
-                    "label": "Column Name",
+                    "label": "Column name",
                     "key": "path",
                     "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                     "placeholderText": "name"
@@ -2077,14 +2077,14 @@
                 ]
               },
               {
-                "label": "Row Object Key",
+                "label": "Row object key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "rowObject"
               },
               {
-                "label": "Row Object",
+                "label": "Row object",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
                 "controlType": "QUERY_DYNAMIC_TEXT",
                 "evaluationSubstitutionType": "SMART_SUBSTITUTE",
@@ -2106,7 +2106,7 @@
                 "placeholderText": "{{\n  {\n    ...Table1.selectedRow, \n    columnName: Input1.text\n  }\n}}"
               },
               {
-                "label": "Row Object",
+                "label": "Row object",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
                 "controlType": "QUERY_DYNAMIC_TEXT",
                 "evaluationSubstitutionType": "SMART_SUBSTITUTE",
@@ -2128,14 +2128,14 @@
                 "placeholderText": "{{\n  {\n    ...Table1.selectedRow, \n    columnName: Input1.text\n  }\n}}"
               },
               {
-                "label": "Row Objects Key",
+                "label": "Row objects key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[10].key",
                 "controlType": "INPUT_TEXT",
                 "hidden": true,
                 "initialValue": "rowObjects"
               },
               {
-                "label": "Row Objects",
+                "label": "Row objects",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[10].value",
                 "controlType": "QUERY_DYNAMIC_TEXT",
                 "evaluationSubstitutionType": "SMART_SUBSTITUTE",
@@ -2157,7 +2157,7 @@
                 "placeholderText": "{{\n  Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
               },
               {
-                "label": "Row Objects",
+                "label": "Row objects",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[10].value",
                 "controlType": "QUERY_DYNAMIC_TEXT",
                 "evaluationSubstitutionType": "SMART_SUBSTITUTE",
@@ -2179,7 +2179,7 @@
                 "placeholderText": "{{\n  Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
               },
               {
-                "label": "Smart JSON Substitution Key",
+                "label": "Smart JSON substitution key",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[13].key",
                 "hidden": true,
                 "controlType": "INPUT_TEXT",
@@ -2228,10 +2228,10 @@
                 "children": [
                   {
                     "controlType": "SECTION",
-                    "label": "Select Bucket to Query",
+                    "label": "Select bucket to query",
                     "children": [
                       {
-                        "label": "Bucket Name",
+                        "label": "Bucket name",
                         "configProperty": "actionConfiguration.formData.bucket",
                         "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                         "evaluationSubstitutionType": "TEMPLATE",
@@ -2292,7 +2292,7 @@
                     "label": "Options",
                     "children": [
                       {
-                        "label": "Generate Signed URL",
+                        "label": "Generate signed URL",
                         "configProperty": "actionConfiguration.formData.list.signedUrl",
                         "controlType": "DROP_DOWN",
                         "initialValue": "NO",
@@ -2308,7 +2308,7 @@
                         ]
                       },
                       {
-                        "label": "Expiry Duration of Signed URL (Minutes)",
+                        "label": "Expiry duration of signed URL (minutes)",
                         "configProperty": "actionConfiguration.formData.list.expiry",
                         "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                         "initialValue": "5",
@@ -2317,7 +2317,7 @@
                         }
                       },
                       {
-                        "label": "Generate Un-signed URL",
+                        "label": "Generate unsigned URL",
                         "configProperty": "actionConfiguration.formData.list.unSignedUrl",
                         "controlType": "DROP_DOWN",
                         "initialValue": "YES",
@@ -2345,10 +2345,10 @@
                 "children": [
                   {
                     "controlType": "SECTION",
-                    "label": "Select Bucket to Query",
+                    "label": "Select bucket to query",
                     "children": [
                       {
-                        "label": "Bucket Name",
+                        "label": "Bucket name",
                         "configProperty": "actionConfiguration.formData.bucket",
                         "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                         "evaluationSubstitutionType": "TEMPLATE",
@@ -2363,13 +2363,13 @@
                     "description": "Optional",
                     "children": [
                       {
-                        "label": "File Path",
+                        "label": "File path",
                         "configProperty": "actionConfiguration.path",
                         "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                         "initialValue": ""
                       },
                       {
-                        "label": "File Data Type",
+                        "label": "File data type",
                         "configProperty": "actionConfiguration.formData.create.dataType",
                         "controlType": "DROP_DOWN",
                         "initialValue": "YES",
@@ -2385,7 +2385,7 @@
                         ]
                       },
                       {
-                        "label": "Expiry Duration of Signed URL (Minutes)",
+                        "label": "Expiry duration of signed URL (minutes)",
                         "configProperty": "actionConfiguration.formData.create.expiry",
                         "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                         "initialValue": "5"
@@ -2410,10 +2410,10 @@
                 "children": [
                   {
                     "controlType": "SECTION",
-                    "label": "Select Bucket to Query",
+                    "label": "Select bucket to query",
                     "children": [
                       {
-                        "label": "Bucket Name",
+                        "label": "Bucket name",
                         "configProperty": "actionConfiguration.formData.bucket",
                         "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                         "evaluationSubstitutionType": "TEMPLATE",
@@ -2428,13 +2428,13 @@
                     "description": "Optional",
                     "children": [
                       {
-                        "label": "File Path",
+                        "label": "File path",
                         "configProperty": "actionConfiguration.path",
                         "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                         "initialValue": ""
                       },
                       {
-                        "label": "File Data Type",
+                        "label": "File data type",
                         "configProperty": "actionConfiguration.formData.read.dataType",
                         "controlType": "DROP_DOWN",
                         "initialValue": "YES",
@@ -2450,13 +2450,13 @@
                         ]
                       },
                       {
-                        "label": "Expiry Duration of Signed URL (Minutes)",
+                        "label": "Expiry duration of signed URL (minutes)",
                         "configProperty": "actionConfiguration.formData.read.expiry",
                         "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                         "initialValue": "5"
                       },
                       {
-                        "label": "Base64 Encode File - Yes/No",
+                        "label": "Base64 encode file - yes/no",
                         "configProperty": "actionConfiguration.formData.read.usingBase64Encoding",
                         "controlType": "DROP_DOWN",
                         "initialValue": "YES",
@@ -2484,10 +2484,10 @@
                 "children": [
                   {
                     "controlType": "SECTION",
-                    "label": "Select Bucket to Query",
+                    "label": "Select bucket to query",
                     "children": [
                       {
-                        "label": "Bucket Name",
+                        "label": "Bucket name",
                         "configProperty": "actionConfiguration.formData.bucket",
                         "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                         "evaluationSubstitutionType": "TEMPLATE",
@@ -2502,13 +2502,13 @@
                     "description": "Optional",
                     "children": [
                       {
-                        "label": "File Path",
+                        "label": "File path",
                         "configProperty": "actionConfiguration.path",
                         "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                         "initialValue": ""
                       },
                       {
-                        "label": "Expiry Duration of Signed URL (Minutes)",
+                        "label": "Expiry duration of signed URL (minutes)",
                         "configProperty": "actionConfiguration.formData.delete.expiry",
                         "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
                         "initialValue": "5"
@@ -2555,7 +2555,7 @@
                 "info": "Ask confirmation from the user each time before refreshing data"
               },
               {
-                "label": "Smart BSON Substitution",
+                "label": "Smart BSON substitution",
                 "info": "Turning on this property fixes the BSON substitution of bindings in the Mongo BSON document by adding/removing quotes intelligently and reduces developer errors",
                 "configProperty": "actionConfiguration.formData.smartSubstitution",
                 "controlType": "SWITCH",
@@ -2611,7 +2611,7 @@
             "id": 1,
             "children": [
               {
-                "label": "Run API on Page load",
+                "label": "Run API on page load",
                 "configProperty": "executeOnLoad",
                 "controlType": "CHECKBOX",
                 "info": "Will refresh data each time the page is loaded"
@@ -2629,7 +2629,7 @@
                 "info": "Encode query params for all APIs. Also encode form body when Content-Type header is set to x-www-form-encoded"
               },
               {
-                "label": "Smart JSON Substitution",
+                "label": "Smart JSON substitution",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "controlType": "CHECKBOX",
                 "info": "Turning on this property fixes the JSON substitution of bindings in API body by adding/removing quotes intelligently and reduces developer errors",
@@ -2690,7 +2690,7 @@
                 "info": "Ask confirmation from the user each time before refreshing data"
               },
               {
-                "label": "Smart JSON Substitution",
+                "label": "Smart JSON substitution",
                 "info": "Turning on this property fixes the JSON substitution of bindings in the Row objects by adding/removing quotes intelligently and reduces developer errors",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[13].value",
                 "controlType": "SWITCH",
@@ -2724,7 +2724,7 @@
                 "info": "Ask confirmation from the user each time before refreshing data"
               },
               {
-                "label": "Smart JSON Substitution",
+                "label": "Smart JSON substitution",
                 "info": "Turning on this property fixes the JSON substitution of bindings in the Content field by adding/removing quotes intelligently and reduces developer errors",
                 "configProperty": "actionConfiguration.formData.smartSubstitution",
                 "controlType": "SWITCH",

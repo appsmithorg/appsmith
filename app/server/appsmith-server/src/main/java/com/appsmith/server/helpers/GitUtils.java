@@ -1,6 +1,5 @@
 package com.appsmith.server.helpers;
 
-
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.util.WebClientUtils;
@@ -28,8 +27,7 @@ public class GitUtils {
         if (StringUtils.isEmptyOrNull(sshUrl)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "ssh url");
         }
-        return sshUrl
-                .replaceFirst(".*git@", "https://")
+        return sshUrl.replaceFirst(".*git@", "https://")
                 .replaceFirst("(\\.[a-zA-Z0-9]*):", "$1/")
                 .replaceFirst("\\.git$", "");
     }
@@ -38,20 +36,23 @@ public class GitUtils {
      * Sample repo urls :
      * git@example.com:username/reponame.git
      * ssh://git@example.org/<workspace_ID>/<repo_name>.git
+     *
      * @param remoteUrl ssh url of repo
      * @return repo name extracted from repo url
      */
     public static String getRepoName(String remoteUrl) {
         // Pattern to match git SSH URL
-        final Matcher matcher = Pattern.compile("((git|ssh|http(s)?)|(git@[\\w\\-\\.]+))(:(\\/\\/)?)([\\w.@:/\\-~]+)(\\.git|)(\\/)?").matcher(remoteUrl);
+        final Matcher matcher = Pattern.compile(
+                        "((git|ssh|http(s)?)|(git@[\\w\\-\\.]+))(:(\\/\\/)?)([\\w.@:/\\-~]+)(\\.git|)(\\/)?")
+                .matcher(remoteUrl);
         if (matcher.find()) {
             // To trim the postfix and prefix
-            return matcher.group(7)
-                    .replaceFirst("\\.git$", "")
-                    .replaceFirst("^(.*[\\\\\\/])", "");
+            return matcher.group(7).replaceFirst("\\.git$", "").replaceFirst("^(.*[\\\\\\/])", "");
         }
-        throw new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Remote URL is incorrect, " +
-                "please add a URL in standard format. Example: git@example.com:username/reponame.git");
+        throw new AppsmithException(
+                AppsmithError.INVALID_GIT_CONFIGURATION,
+                "Remote URL is incorrect, "
+                        + "please add a URL in standard format. Example: git@example.com:username/reponame.git");
     }
 
     /**
@@ -63,8 +64,7 @@ public class GitUtils {
      * @throws IOException exception thrown during openConnection
      */
     public static Mono<Boolean> isRepoPrivate(String remoteHttpsUrl) {
-        return WebClientUtils
-                .create(remoteHttpsUrl)
+        return WebClientUtils.create(remoteHttpsUrl)
                 .get()
                 .httpRequest(httpRequest -> {
                     HttpClientRequest reactorRequest = httpRequest.getNativeRequest();
@@ -90,10 +90,9 @@ public class GitUtils {
      * @return git hosting provider
      */
     public static String getGitProviderName(String sshUrl) {
-        if(StringUtils.isEmptyOrNull(sshUrl)) {
+        if (StringUtils.isEmptyOrNull(sshUrl)) {
             return "";
         }
-        return sshUrl.split("\\.")[0]
-                .replaceFirst("git@", "");
+        return sshUrl.split("\\.")[0].replaceFirst("git@", "");
     }
 }

@@ -1,27 +1,19 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import styled from "styled-components";
-
 import _ from "lodash";
 import {
-  StyledDragIcon,
-  StyledOptionControlInputGroup,
-  StyledEditIcon,
-  StyledDeleteIcon,
-  StyledVisibleIcon,
-  StyledHiddenIcon,
-  StyledCheckbox,
+  StyledIcon,
   StyledActionContainer,
-  StyledPinIcon,
+  InputGroup,
 } from "components/propertyControls/StyledControls";
-import { Colors } from "constants/Colors";
-import { CheckboxType } from "design-system-old";
+import { Button, Checkbox } from "design-system";
 
 const ItemWrapper = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  &.has-duplicate-label > div:nth-child(2) {
-    border: 1px solid ${Colors.DANGER_SOLID};
+  &.has-duplicate-label input[type="text"] {
+    border-color: var(--ads-v2-color-border-error);
   }
 `;
 
@@ -53,6 +45,21 @@ type RenderComponentProps = {
 const PADDING_WITHOUT_CHECKBOX = 60;
 const PADDING_WITH_CHECKBOX = 90;
 
+const StyledInputGroup = styled(InputGroup)<{ rightPadding?: number }>`
+  input {
+    padding-left: 20px;
+    padding-right: ${(props) => props.rightPadding}px;
+    text-overflow: ellipsis;
+  }
+`;
+
+const StyledCheckbox = styled(Checkbox)`
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin-top: 4px;
+  margin-left: 4px;
+`;
 export function DraggableListCard(props: RenderComponentProps) {
   const [value, setValue] = useState(props.item.label);
   const [isEditing, setEditing] = useState(false);
@@ -122,24 +129,28 @@ export function DraggableListCard(props: RenderComponentProps) {
 
   const renderVisibilityIcon = () => {
     return visibility ? (
-      <StyledVisibleIcon
+      <Button
         className="t--show-column-btn"
-        height={20}
+        isIconButton
+        kind="tertiary"
         onClick={() => {
           setVisibility(!visibility);
           toggleVisibility && toggleVisibility(index);
         }}
-        width={20}
+        size="sm"
+        startIcon="eye-on"
       />
     ) : (
-      <StyledHiddenIcon
+      <Button
         className="t--show-column-btn"
-        height={20}
+        isIconButton
+        kind="tertiary"
         onClick={() => {
           setVisibility(!visibility);
           toggleVisibility && toggleVisibility(index);
         }}
-        width={20}
+        size="sm"
+        startIcon="eye-off"
       />
     );
   };
@@ -148,12 +159,12 @@ export function DraggableListCard(props: RenderComponentProps) {
   return (
     <ItemWrapper className={item.isDuplicateLabel ? "has-duplicate-label" : ""}>
       {item?.isDragDisabled ? (
-        <StyledPinIcon height={20} width={20} />
+        <StyledIcon name="pin-3" size="md" />
       ) : (
-        <StyledDragIcon height={20} width={20} />
+        <StyledIcon name="drag-control" size="md" />
       )}
 
-      <StyledOptionControlInputGroup
+      <StyledInputGroup
         autoFocus={index === focusedIndex}
         className={
           props.item.isDuplicateLabel ? `t--has-duplicate-label-${index}` : ""
@@ -173,22 +184,27 @@ export function DraggableListCard(props: RenderComponentProps) {
         width="100%"
       />
       <StyledActionContainer>
-        <StyledEditIcon
+        <Button
           className="t--edit-column-btn"
-          height={20}
+          isIconButton
+          kind="tertiary"
           onClick={() => {
             onEdit && onEdit(index);
           }}
-          width={20}
+          onFocus={(e) => e.stopPropagation()}
+          size="sm"
+          startIcon="settings-2-line"
         />
         {showDelete && (
-          <StyledDeleteIcon
+          <Button
             className="t--delete-column-btn"
-            height={20}
+            isIconButton
+            kind="tertiary"
             onClick={() => {
               deleteOption && deleteOption(index);
             }}
-            width={20}
+            size="sm"
+            startIcon="delete-bin-line"
           />
         )}
         {!showDelete && toggleVisibility && renderVisibilityIcon()}
@@ -199,17 +215,14 @@ export function DraggableListCard(props: RenderComponentProps) {
          */}
         {showCheckbox && (
           <StyledCheckbox
-            backgroundColor={Colors.GREY_600}
             className={`t--card-checkbox ${
               item.isChecked ? "t--checked" : "t--unchecked"
             }`}
-            disabled={item.isCheckboxDisabled}
-            isDefaultChecked={item.isChecked}
-            label=""
-            onCheckChange={(checked: boolean) =>
-              toggleCheckbox && toggleCheckbox(index, checked)
+            isDisabled={item.isCheckboxDisabled}
+            isSelected={item.isChecked}
+            onChange={(isSelected: boolean) =>
+              toggleCheckbox && toggleCheckbox(index, isSelected)
             }
-            type={CheckboxType.SECONDARY}
           />
         )}
       </StyledActionContainer>

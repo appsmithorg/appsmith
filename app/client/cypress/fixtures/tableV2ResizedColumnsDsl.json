@@ -147,7 +147,7 @@
                   "customColumn7": "customColumn7",
                   "customColumn8": "customColumn8"
                 },
-                "dynamicPropertyPathList": [],
+                "dynamicPropertyPathList": [{"key": "tableData"}],
                 "topRow": 4,
                 "bottomRow": 44,
                 "parentRowSpace": 10,

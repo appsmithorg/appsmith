@@ -1,79 +1,41 @@
-import type { NotificationBannerProps } from "design-system-old";
-import { NotificationBanner, NotificationVariant } from "design-system-old";
 import React from "react";
 import {
   createMessage,
-  CURRENT_PAGE_DISCARD_WARNING,
   DISCARD_CHANGES_WARNING,
+  DISCARD_MESSAGE,
 } from "@appsmith/constants/messages";
+import { Callout, Text } from "design-system";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
-import { Text, TextType } from "design-system-old";
-import { useSelector } from "react-redux";
-import { getCurrentPageName } from "selectors/editorSelectors";
-import { getGitStatus } from "selectors/gitSyncSelectors";
-
-function DiscardWarningMessage() {
-  return (
-    <Text color={Colors.ERROR_600} type={TextType.P3}>
-      {createMessage(DISCARD_CHANGES_WARNING)}
-    </Text>
-  );
-}
-
-function CurrentPageDiscardWarningMessage({
-  isCurrentPageDiscardable,
-  pageName,
-}: {
-  isCurrentPageDiscardable: boolean;
-  pageName: string;
-}) {
-  const out = isCurrentPageDiscardable ? (
-    <Text color={Colors.ERROR_600} type={TextType.P3}>
-      {createMessage(CURRENT_PAGE_DISCARD_WARNING, pageName)}
-    </Text>
-  ) : null;
-
-  return out;
-}
 
 const Container = styled.div`
   margin: 8px 0 16px;
 `;
 
 export default function DiscardChangesWarning({
-  discardDocUrl,
   onCloseDiscardChangesWarning,
 }: any) {
-  const currentPageName = useSelector(getCurrentPageName) || "";
-  const modifiedPageList = useSelector(getGitStatus)?.modified.map(
-    (page: string) => page.toLocaleLowerCase(),
-  );
-  const isCurrentPageDiscardable =
-    modifiedPageList?.some((page: string) =>
-      page.includes(currentPageName.toLocaleLowerCase()),
-    ) || false;
+  const discardDocUrl =
+    "https://docs.appsmith.com/advanced-concepts/version-control-with-git/commit-and-push";
 
-  const notificationBannerOptions: NotificationBannerProps = {
-    canClose: true,
-    className: "error",
-    icon: "warning-line",
-    onClose: () => onCloseDiscardChangesWarning(),
-    variant: NotificationVariant.error,
-    learnMoreClickHandler: () => window.open(discardDocUrl, "_blank"),
-  };
   return (
     <Container>
-      <NotificationBanner {...notificationBannerOptions}>
-        <>
-          <DiscardWarningMessage />
-          <br />
-          <CurrentPageDiscardWarningMessage
-            isCurrentPageDiscardable={isCurrentPageDiscardable}
-            pageName={currentPageName}
-          />
-        </>
-      </NotificationBanner>
+      <Callout
+        data-testid="t--discard-callout"
+        isClosable
+        kind="error"
+        links={[
+          {
+            onClick: () => window.open(discardDocUrl, "_blank"),
+            children: "Learn More",
+            endIcon: "right-arrow",
+          },
+        ]}
+        onClose={onCloseDiscardChangesWarning}
+      >
+        <Text kind="heading-xs">{createMessage(DISCARD_CHANGES_WARNING)}</Text>
+        <br />
+        {createMessage(DISCARD_MESSAGE)}
+      </Callout>
     </Container>
   );
 }

@@ -56,7 +56,7 @@
       ]
     },
     {
-      "label": "Cell Range",
+      "label": "Cell range",
       "propertyName": "rows_get_cellRange",
       "tooltipText": "The Google Sheet notation of cells to filter (A1:B)",
       "subtitle": "Specify the google sheet range of cells",

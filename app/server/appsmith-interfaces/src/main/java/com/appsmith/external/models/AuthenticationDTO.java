@@ -5,7 +5,6 @@ import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,17 +15,13 @@ import java.util.Set;
 @Getter
 @Setter
 @EqualsAndHashCode
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        visible = true,
-        property = "authenticationType",
-        defaultImpl = DBAuth.class)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "authenticationType", defaultImpl = DBAuth.class)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = DBAuth.class, name = Authentication.DB_AUTH),
-        @JsonSubTypes.Type(value = OAuth2.class, name = Authentication.OAUTH2),
-        @JsonSubTypes.Type(value = BasicAuth.class, name = Authentication.BASIC),
-        @JsonSubTypes.Type(value = ApiKeyAuth.class, name = Authentication.API_KEY),
-        @JsonSubTypes.Type(value = BearerTokenAuth.class, name = Authentication.BEARER_TOKEN)
+    @JsonSubTypes.Type(value = DBAuth.class, name = Authentication.DB_AUTH),
+    @JsonSubTypes.Type(value = OAuth2.class, name = Authentication.OAUTH2),
+    @JsonSubTypes.Type(value = BasicAuth.class, name = Authentication.BASIC),
+    @JsonSubTypes.Type(value = ApiKeyAuth.class, name = Authentication.API_KEY),
+    @JsonSubTypes.Type(value = BearerTokenAuth.class, name = Authentication.BEARER_TOKEN)
 })
 public class AuthenticationDTO implements AppsmithDomain {
     // In principle, this class should've been abstract. However, when this class is abstract, Spring's deserialization
@@ -37,7 +32,10 @@ public class AuthenticationDTO implements AppsmithDomain {
         NONE,
         IN_PROGRESS,
         SUCCESS,
-        FAILURE
+        FAILURE,
+        FAILURE_ACCESS_DENIED,
+        FAILURE_FILE_NOT_SELECTED,
+        IN_PROGRESS_PERMISSIONS_GRANTED
     };
 
     @JsonView(Views.Public.class)
@@ -59,5 +57,4 @@ public class AuthenticationDTO implements AppsmithDomain {
     public Mono<Boolean> hasExpired() {
         return Mono.just(Boolean.FALSE);
     }
-
 }

@@ -7,7 +7,6 @@ import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ApplicationTemplateService;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
@@ -33,54 +32,64 @@ public class ApplicationTemplateControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping
     public Mono<ResponseDTO<List<ApplicationTemplate>>> getAll() {
-        return applicationTemplateService.getActiveTemplates(null)
+        return applicationTemplateService
+                .getActiveTemplates(null)
                 .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("{templateId}")
     public Mono<ResponseDTO<ApplicationTemplate>> getTemplateDetails(@PathVariable String templateId) {
-        return applicationTemplateService.getTemplateDetails(templateId)
+        return applicationTemplateService
+                .getTemplateDetails(templateId)
                 .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("{templateId}/similar")
-    public Mono<ResponseDTO<List<ApplicationTemplate>>> getSimilarTemplates(@PathVariable String templateId, @RequestParam MultiValueMap<String, String> params) {
-        return applicationTemplateService.getSimilarTemplates(templateId, params).collectList()
+    public Mono<ResponseDTO<List<ApplicationTemplate>>> getSimilarTemplates(
+            @PathVariable String templateId, @RequestParam MultiValueMap<String, String> params) {
+        return applicationTemplateService
+                .getSimilarTemplates(templateId, params)
+                .collectList()
                 .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("filters")
     public Mono<ResponseDTO<ApplicationTemplate>> getFilters() {
-        return applicationTemplateService.getFilters()
+        return applicationTemplateService
+                .getFilters()
                 .map(filters -> new ResponseDTO<>(HttpStatus.OK.value(), filters, null));
     }
 
     @JsonView(Views.Public.class)
     @PostMapping("{templateId}/import/{workspaceId}")
-    public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromTemplate(@PathVariable String templateId,
-                                                                                 @PathVariable String workspaceId) {
-        return applicationTemplateService.importApplicationFromTemplate(templateId, workspaceId)
+    public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromTemplate(
+            @PathVariable String templateId, @PathVariable String workspaceId) {
+        return applicationTemplateService
+                .importApplicationFromTemplate(templateId, workspaceId)
                 .map(importedApp -> new ResponseDTO<>(HttpStatus.OK.value(), importedApp, null));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("recent")
     public Mono<ResponseDTO<List<ApplicationTemplate>>> getRecentlyUsedTemplates() {
-        return applicationTemplateService.getRecentlyUsedTemplates()
+        return applicationTemplateService
+                .getRecentlyUsedTemplates()
                 .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
     }
 
     @JsonView(Views.Public.class)
     @PostMapping("{templateId}/merge/{applicationId}/{organizationId}")
-    public Mono<ResponseDTO<ApplicationImportDTO>> mergeTemplateWithApplication(@PathVariable String templateId,
-                                                                       @PathVariable String applicationId,
-                                                                       @PathVariable String organizationId,
-                                                                       @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-                                                                       @RequestBody(required = false) List<String> pagesToImport) {
-        return applicationTemplateService.mergeTemplateWithApplication(templateId, applicationId, organizationId, branchName, pagesToImport)
+    public Mono<ResponseDTO<ApplicationImportDTO>> mergeTemplateWithApplication(
+            @PathVariable String templateId,
+            @PathVariable String applicationId,
+            @PathVariable String organizationId,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+            @RequestBody(required = false) List<String> pagesToImport) {
+        return applicationTemplateService
+                .mergeTemplateWithApplication(templateId, applicationId, organizationId, branchName, pagesToImport)
                 .map(importedApp -> new ResponseDTO<>(HttpStatus.OK.value(), importedApp, null));
     }
 }

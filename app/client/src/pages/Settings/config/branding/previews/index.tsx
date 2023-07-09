@@ -7,6 +7,7 @@ import FaviconPreview from "./FaviconPreview";
 import NotFoundPreview from "./NotFoundPreview";
 import DashboardPreview from "./DashboardPreview";
 import type { brandColorsKeys } from "../BrandingPage";
+import { ContentBox } from "pages/Settings/components";
 
 export type PreviewsProps = {
   shades: Record<brandColorsKeys, string>;
@@ -59,7 +60,7 @@ const Previews = (props: PreviewsProps) => {
   }, [favicon]);
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,_minmax(330px,_1fr))] gap-4 auto-rows-[200px] pb-8 pointer-events-none select-none">
+    <ContentBox className="grid grid-cols-[repeat(auto-fit,_minmax(300px,_1fr))] gap-8 auto-rows-[240px] border p-8 mb-4 pointer-events-none select-none">
       {/* login */}
       <LoginPreview {...props} logo={logoPreview} />
       <EmailPreview {...props} logo={logoPreview} />
@@ -67,7 +68,7 @@ const Previews = (props: PreviewsProps) => {
       <AppPreview {...props} logo={logoPreview} />
       <NotFoundPreview {...props} logo={logoPreview} />
       <FaviconPreview {...props} favicon={faviconPreview} logo={logoPreview} />
-    </div>
+    </ContentBox>
   );
 };
 

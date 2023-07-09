@@ -2,19 +2,19 @@ import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
-import { TextInput } from "design-system-old";
 import type { AppState } from "@appsmith/reducers";
-import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import type { InputType } from "components/constants";
+import type { InputTypes as DSInputType } from "design-system";
 import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
 import { Field, formValueSelector } from "redux-form";
 import { connect } from "react-redux";
+import { Input } from "design-system";
 
 export const StyledInfo = styled.span`
   font-weight: normal;
   line-height: normal;
-  color: ${Colors.DOVE_GRAY};
+  color: var(--ads-v2-color-fg);
   font-size: 12px;
   margin-left: 1px;
 `;
@@ -22,7 +22,7 @@ export const StyledInfo = styled.span`
 const FieldWrapper = styled.div`
   position: relative;
   min-width: 380px;
-  max-width: 520px;
+  max-width: 545px;
 `;
 
 const SecretDisplayIndicator = styled.input`
@@ -45,7 +45,7 @@ const PASSWORD_EXISTS_INDICATOR = "······";
 function renderComponent(
   props: {
     placeholder: string;
-    dataType?: InputType;
+    dataType?: DSInputType;
     disabled?: boolean;
     reference: any;
     validator?: (value: string) => { isValid: boolean; message: string };
@@ -55,17 +55,17 @@ function renderComponent(
   },
 ) {
   return (
-    <TextInput
-      dataType={props.dataType}
-      disabled={props.disabled || false}
+    <Input
+      errorMessage={props.validator?.(props.input.value).message}
+      isDisabled={props.disabled || false}
+      isValid={props.validator?.(props.input.value).isValid}
       name={props.input?.name}
       onChange={props.input.onChange}
       placeholder={props.placeholder}
       ref={props.reference}
+      size="md"
+      type={props.dataType}
       value={props.input.value}
-      {...props.input}
-      validator={props.validator}
-      width="100%"
     />
   );
 }
@@ -135,7 +135,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
     } = this.props;
 
     return (
-      <FieldWrapper data-cy={configProperty} style={customStyles || {}}>
+      <FieldWrapper data-testid={configProperty} style={customStyles || {}}>
         {this.state.secretDisplayVisible && (
           <SecretDisplayIndicator
             onClick={this.onClickSecretDisplayIndicator}
@@ -166,23 +166,13 @@ class InputTextControl extends BaseControl<InputControlProps> {
     );
   }
 
-  isNumberType(): boolean {
-    const { inputType } = this.props;
-    switch (inputType) {
-      case "CURRENCY":
-      case "INTEGER":
-      case "NUMBER":
-      case "PHONE_NUMBER":
-        return true;
-      default:
-        return false;
-    }
-  }
-
   getType(dataType: InputType | undefined) {
     switch (dataType) {
       case "PASSWORD":
         return "password";
+      case "CURRENCY":
+      case "INTEGER":
+      case "PHONE_NUMBER":
       case "NUMBER":
         return "number";
       default:

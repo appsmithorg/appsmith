@@ -1,12 +1,9 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 
 export class PeekOverlay {
-  private readonly PEEKABLE_ATTRIBUTE = "peek-data";
   private readonly locators = {
     _overlayContainer: "#t--peek-overlay-container",
     _dataContainer: "#t--peek-overlay-data",
-    _peekableCode: (peekableAttr: string) =>
-      `[${this.PEEKABLE_ATTRIBUTE}="${peekableAttr}"]`,
 
     // react json viewer selectors
     _rjv_variableValue: ".variable-value",
@@ -14,18 +11,23 @@ export class PeekOverlay {
       ".pushed-content.object-container .object-content .object-key-val",
     _rjv_firstLevelBraces:
       ".pretty-json-container > .object-content:first-of-type > .object-key-val:first-of-type > span",
+    _fileOperation: (operation: string) =>
+      `.t--file-operation:contains("${operation}")`,
   };
   private readonly agHelper = ObjectsRegistry.AggregateHelper;
 
-  HoverCode(peekableAttribute: string, visibleText?: string) {
-    (visibleText
-      ? this.agHelper.GetNAssertContains(
-          this.locators._peekableCode(peekableAttribute),
-          visibleText,
-        )
-      : this.agHelper.GetElement(this.locators._peekableCode(peekableAttribute))
-    ).realHover();
-    this.agHelper.Sleep();
+  HoverCode(lineNumber: number, tokenNumber: number, verifyText: string) {
+    this.agHelper
+      .GetElement(".CodeMirror-line")
+      .eq(lineNumber)
+      .children()
+      .children()
+      .eq(tokenNumber)
+      .should("have.text", verifyText)
+      .then(($el) => {
+        const pos = $el[0].getBoundingClientRect();
+        this.HoverByPosition({ x: pos.left, y: pos.top });
+      });
   }
 
   IsOverlayOpen(checkIsOpen = true) {
@@ -34,8 +36,15 @@ export class PeekOverlay {
       : this.agHelper.AssertElementAbsence(this.locators._overlayContainer);
   }
 
+  HoverByPosition(position: { x: number; y: number }) {
+    this.agHelper.GetElement("body").realHover({ position });
+    this.agHelper.Sleep();
+  }
+
   ResetHover() {
-    this.agHelper.GetElement("body").realHover({ position: "bottomLeft" });
+    this.agHelper
+      .GetElement(".CodeMirror-code")
+      .realHover({ position: "bottomLeft" });
     this.agHelper.Sleep();
   }
 

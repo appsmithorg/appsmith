@@ -1,5 +1,6 @@
 import React from "react";
-import { Button, FormGroup as StyledFormGroup } from "design-system-old";
+import { FormGroup as StyledFormGroup } from "design-system-old";
+import { Button } from "design-system";
 import FormTextField from "components/utils/ReduxFormTextField";
 import {
   WELCOME_FORM_ROLE_FIELD_NAME,
@@ -21,15 +22,13 @@ import { Field, formValueSelector, reduxForm } from "redux-form";
 import styled from "styled-components";
 import { DropdownWrapper, withDropdown } from "./common";
 import { roleOptions, useCaseOptions } from "./constants";
+import SetupForm from "./SetupForm";
 
 const ActionContainer = styled.div`
   margin-top: ${(props) => props.theme.spaces[15]}px;
 `;
 
 const StyledButton = styled(Button)`
-  width: 136px;
-  height: 38px;
-  font-size: 13px;
   margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 
@@ -43,20 +42,17 @@ type NonSuperUserFormData = {
   role_name?: string;
 };
 
-export function SuperUserForm(props: UserFormProps) {
+export function SuperUserForm() {
   return (
     <ActionContainer>
-      <StyledButton
-        className="t--welcome-form-get-started"
-        onClick={() => props.onGetStarted && props.onGetStarted()}
-        text={createMessage(WELCOME_ACTION)}
-      />
+      <SetupForm />
     </ActionContainer>
   );
 }
 
 const StyledNonSuperUserForm = styled.form`
   width: 400px;
+  margin-right: 3rem;
 `;
 
 const Space = styled.div`
@@ -79,8 +75,6 @@ const validate = (values: any) => {
   return errors;
 };
 
-const DROPDOWN_WIDTH = "400px";
-
 function NonSuperUser(
   props: InjectedFormProps & UserFormProps & NonSuperUserFormData,
 ) {
@@ -100,7 +94,7 @@ function NonSuperUser(
       >
         <Field
           asyncControl
-          component={withDropdown(roleOptions, DROPDOWN_WIDTH)}
+          component={withDropdown(roleOptions)}
           name="role"
           placeholder=""
           type="text"
@@ -116,7 +110,7 @@ function NonSuperUser(
       >
         <Field
           asyncControl
-          component={withDropdown(useCaseOptions, DROPDOWN_WIDTH)}
+          component={withDropdown(useCaseOptions)}
           name="useCase"
           placeholder=""
           type="text"
@@ -124,12 +118,15 @@ function NonSuperUser(
       </DropdownWrapper>
       <ActionContainer>
         <StyledButton
-          className="t--get-started-button"
-          disabled={props.invalid}
-          tag="button"
-          text={createMessage(WELCOME_ACTION)}
+          className="w-full t--get-started-button"
+          isDisabled={props.invalid}
+          kind="primary"
+          renderAs="button"
+          size={"md"}
           type="submit"
-        />
+        >
+          {createMessage(WELCOME_ACTION)}
+        </StyledButton>
       </ActionContainer>
     </StyledNonSuperUserForm>
   );

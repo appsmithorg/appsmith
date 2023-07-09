@@ -121,10 +121,7 @@
                         "dataType": "array",
                         "defaultValue": "{{((sourceData, formData, fieldState) => (Table1.selectedRow.details.type.map(item=> {return {      label: item,        value: item       }})))(UpdateJSONForm.sourceData, UpdateJSONForm.formData, UpdateJSONForm.fieldState)}}",
                         "fieldType": "Multiselect",
-                        "sourceData": [
-                          "Novel",
-                          "Adventure"
-                        ],
+                        "sourceData": ["Novel", "Adventure"],
                         "isCustomField": false,
                         "accessor": "type",
                         "identifier": "type",
@@ -226,10 +223,7 @@
                     "sourceData": {
                       "customer": "Josh William",
                       "title": "Ivanhoe",
-                      "type": [
-                        "Novel",
-                        "Adventure"
-                      ],
+                      "type": ["Novel", "Adventure"],
                       "info": {
                         "published": true,
                         "price": 400
@@ -569,7 +563,7 @@
                 "widgetName": "IconButton1Copy",
                 "onClick": "{{closeModal('UpdateModal')}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                "displayName": "Icon Button",
+                "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634a.svg",
                 "topRow": 1,
                 "bottomRow": 5,
@@ -792,11 +786,7 @@
         },
         "widgetName": "Table1",
         "defaultPageSize": 0,
-        "columnOrder": [
-          "serialid",
-          "details",
-          "customColumn1"
-        ],
+        "columnOrder": ["serialid", "details", "customColumn1"],
         "dynamicPropertyPathList": [],
         "displayName": "Table",
         "bottomRow": 57,
@@ -1055,7 +1045,7 @@
                 "widgetName": "IconButton1",
                 "onClick": "{{closeModal('InsertModal')}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                "displayName": "Icon Button",
+                "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634a.svg",
                 "topRow": 1,
                 "bottomRow": 5,
@@ -1184,10 +1174,7 @@
                         "dataType": "array",
                         "defaultValue": "",
                         "fieldType": "Multiselect",
-                        "sourceData": [
-                          "Novel",
-                          "Adventure"
-                        ],
+                        "sourceData": ["Novel", "Adventure"],
                         "isCustomField": false,
                         "accessor": "type",
                         "identifier": "type",
@@ -1292,10 +1279,7 @@
                     "sourceData": {
                       "customer": "Josh William",
                       "title": "Ivanhoe",
-                      "type": [
-                        "Novel",
-                        "Adventure"
-                      ],
+                      "type": ["Novel", "Adventure"],
                       "info": {
                         "published": true,
                         "price": 400
@@ -1657,7 +1641,7 @@
         "widgetName": "IconButton2",
         "onClick": "{{deleteAllRecords.run(() => selectRecords.run(), () => {})}}",
         "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-        "displayName": "Icon Button",
+        "displayName": "Icon button",
         "iconSVG": "/static/media/icon.1a0c634a.svg",
         "topRow": 2,
         "bottomRow": 6,

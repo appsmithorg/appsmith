@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import FormControl from "pages/Editor/FormControl";
-import { Icon, IconSize } from "design-system-old";
 import styled from "styled-components";
 import { FieldArray, getFormValues } from "redux-form";
 import type { ControlProps } from "./BaseControl";
@@ -8,9 +7,8 @@ import _ from "lodash";
 import { useSelector } from "react-redux";
 import { getBindingOrConfigPathsForWhereClauseControl } from "entities/Action/actionProperties";
 import { WhereClauseSubComponent } from "./utils";
-import { TooltipComponent as Tooltip } from "design-system-old";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
-import { Colors } from "constants/Colors";
+import { Button, Tooltip } from "design-system";
 
 //Dropdwidth and Icon have fixed widths
 const DropdownWidth = 82; //pixel value
@@ -59,11 +57,8 @@ const LogicalFieldValue: any = styled.p<{
   size: string;
 }>`
   ${(props) => (props.width ? "width: " + props.width + ";" : "")}
-  margin: 4px 0px;
-  border: solid 1.2px transparent;
   text-align: right;
-  color: var(--appsmith-color-black-400);
-  font-size: 14px;
+  color: var(--ads-v2-color-fg-muted);
   flex-shrink: 0;
 
   ${(props) =>
@@ -75,17 +70,13 @@ const LogicalFieldValue: any = styled.p<{
 `;
 
 // Component for the delete Icon
-const CenteredIcon = styled(Icon)<{
+const CenteredIconButton = styled(Button)<{
   alignSelf?: string;
   top?: string;
 }>`
   position: relative;
   align-self: ${(props) => (props.alignSelf ? props.alignSelf : "center")};
   top: ${(props) => (props.top ? props.top : "0px")};
-  &.hide {
-    opacity: 0;
-    pointer-events: none;
-  }
 `;
 
 // We are setting a background color for the last two nested levels
@@ -94,9 +85,9 @@ const handleSecondaryBoxBackgroudColor = (
   nestedLevels: number,
 ) => {
   if (currentNestingLevel === nestedLevels) {
-    return `background-color: ${Colors.GRAY_100};`;
+    return `background-color: var(--ads-v2-color-bg-muted);`;
   } else if (currentNestingLevel === nestedLevels - 1) {
-    return `background-color: ${Colors.GRAY_50};`;
+    return `background-color: var(--ads-v2-color-bg-subtle);`;
   } else {
     return "";
   }
@@ -112,10 +103,11 @@ const SecondaryBox = styled.div<{
   display: flex;
   flex-direction: column;
   position: relative;
-  border: solid 1.2px #e0dede;
-  border-width: ${(props) => (props?.showBorder ? "1.2px" : "0px")};
+  border-radius: var(--ads-v2-border-radius);
+  border: solid 1px var(--ads-v2-color-border);
+  border-width: ${(props) => (props?.showBorder ? "1px" : "0px")};
   padding: ${(props) =>
-    props?.showBorder ? "0px 12px 28px 8px" : "4px 12px 24px 0px"};
+    props?.showBorder ? "0px 12px 12px 8px" : "4px 12px 12px 0px"};
   width: 100%;
   // Setting a max width to not have it really elongate on very large screens
   max-width: 2000px;
@@ -127,7 +119,7 @@ const SecondaryBox = styled.div<{
       props.currentNestingLevel,
       props.nestedLevels,
     )}
-    padding-bottom: 20px;
+    padding-bottom: 12px;
   `}
 `;
 
@@ -135,19 +127,24 @@ const SecondaryBox = styled.div<{
 const ConditionWrapper = styled.div<{ size: string }>`
   display: flex;
   flex-direction: row;
-  align-items: start;
+  align-items: center;
   width: 100%;
-  gap: 8px;
-  margin-top: 12px;
+  gap: 5px;
+  margin-top: var(--ads-v2-spaces-3);
+  margin-bottom: 5px;
 
   ${(props) =>
     props.size === "small" &&
     `
-    margin-top: 0px;
+    // margin-top: 0px;
     gap: 0px;
     flex-direction: column;
     align-items: start;
   `}
+  .ads-v2-select>.rc-select-selector {
+    min-width: 80px;
+    background-color: var(--ads-v2-color-bg);
+  }
 `;
 
 // Wrapper to contain a single condition statement
@@ -156,8 +153,8 @@ const ConditionBox = styled.div<{ size?: string }>`
   // The 4 elements(3 input fields and a close button) are horizontally aligned
   // by default
   grid-template-columns: auto 100px auto max-content;
-  grid-column-gap: 12px;
-  grid-row-gap: 8px;
+  grid-column-gap: 5px;
+  grid-row-gap: 5px;
   width: 100%;
 
   ${(props) =>
@@ -166,18 +163,18 @@ const ConditionBox = styled.div<{ size?: string }>`
     // Smallest width of the component such that the text CTA's "ADD GROUP CONDITION"
     // fits in the available space without overflow
     min-width: 325px;
-    margin: 8px 0px;
+    margin: 5px 0px;
     // In small space we shift to a two column layout where the three inputs
     // are verticall aligned one below the other.
     grid-template-columns: repeat(2, max-content);
     grid-template-rows: repeat(3, max-content);
-    grid-column-gap: 8px;
+    grid-column-gap: 5px;
     // The three input fields will be in the first column
     & :not(:nth-child(4)) {
       grid-column-start: 1;
     }
     // The fourth element i.e the close button will be placed in the second row
-    // to have it center aligned 
+    // to have it center aligned
     & :nth-child(4) {
       grid-column-start: 2;
       grid-row-start: 2;
@@ -188,16 +185,9 @@ const ConditionBox = styled.div<{ size?: string }>`
 // Box containing the action buttons to add more filters
 const ActionBox = styled.div<{ marginLeft: string; size: string }>`
   display: flex;
-  margin-top: 16px;
   flex-direction: row;
-  gap: 20px;
-  width: max-content;
-  justify-content: space-between;
-  position: absolute;
-  height: 24px;
-  text-transform: uppercase;
+  gap: 5px;
   background-color: inherit;
-  bottom: 0px;
   margin-left: ${(props) => props.marginLeft};
 
   ${(props) =>
@@ -207,56 +197,22 @@ const ActionBox = styled.div<{ marginLeft: string; size: string }>`
   `}
 `;
 
-// The final button to add more filters/ filter groups
-const AddMoreAction = styled.div<{ isDisabled?: boolean; size?: string }>`
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 14px;
-  letter-spacing: 0.6px;
-  color: ${(props) =>
-    props.isDisabled ? "var(--appsmith-color-black-300)" : "#858282;"};
-
-  // Hide the "ADD GROUP CONDITION" text when in small space and is disabled
-  ${(props) =>
-    props.size === "small" &&
-    props.isDisabled &&
-    `
-    display: none;
-  `}
-`;
-
 const GroupConditionBox = styled.div<{ size: string }>`
   display: flex;
   flex-direction: row;
-  gap: 12px;
+  gap: 5px;
   width: 100%;
 
   ${(props) =>
     props.size === "small" &&
     `
-  gap: 8px;
-  margin: 8px 0px;
+  gap: 5px;
+  margin: 5px 0px;
   flex-direction: row;
   min-width: max-content;
   `}
 `;
 
-const StyledTooltip = styled(Tooltip)`
-  display: flex;
-  align-items: center;
-  .bp3-tooltip.ads-global-tooltip .bp3-popover-content {
-    padding: 8px 12px;
-    line-height: 16px;
-    text-transform: none;
-  }
-  .bp3-tooltip.ads-global-tooltip .bp3-popover-arrow[style*="left"] {
-    left: auto !important;
-    right: 0px;
-  }
-`;
 // Component to display single line of condition, includes 2 inputs and 1 dropdown
 function ConditionComponent(props: any, index: number) {
   // Custom styles have to be passed as props, otherwise the UI will be disproportional
@@ -317,15 +273,16 @@ function ConditionComponent(props: any, index: number) {
         formName={props.formName}
       />
       {/* Component to render the delete icon */}
-      <CenteredIcon
-        cypressSelector={`t--where-clause-delete-[${index}]`}
-        name="cross"
+      <CenteredIconButton
+        data-testid={`t--where-clause-delete-[${index}]`}
+        isIconButton
+        kind="tertiary"
         onClick={(e: React.MouseEvent) => {
           e.stopPropagation();
           props.onDeletePressed(index);
         }}
-        size={IconSize.SMALL}
-        top="-1px"
+        size="md"
+        startIcon="cross-line"
       />
     </ConditionBox>
   );
@@ -431,15 +388,16 @@ function ConditionBlock(props: any) {
                     }}
                     rerenderOnEveryChange={false}
                   />
-                  <CenteredIcon
+                  <CenteredIconButton
                     alignSelf={"start"}
-                    cypressSelector={`t--where-clause-delete-[${index}]`}
-                    name="cross"
+                    data-testid={`t--where-clause-delete-[${index}]`}
+                    kind="tertiary"
                     onClick={(e: React.MouseEvent) => {
                       e.stopPropagation();
                       onDeletePressed(index);
                     }}
-                    size={IconSize.SMALL}
+                    size="md"
+                    startIcon="cross-line"
                     top={"24px"}
                   />
                 </GroupConditionBox>
@@ -461,8 +419,9 @@ function ConditionBlock(props: any) {
           );
         })}
       <ActionBox marginLeft={`${DropdownWidth + Margin}px`} size={size}>
-        <AddMoreAction
+        <Button
           className={`t--where-add-condition[${props?.currentNestingLevel}]`}
+          kind="tertiary"
           onClick={
             () =>
               props.fields.push({
@@ -470,26 +429,27 @@ function ConditionBlock(props: any) {
                 condition: props.comparisonTypes[0].value,
                 value: "",
               })
-            // Add empty and key and value as it will required to create binding paths in getBindingPathsOfAction() at ActionProperties.ts
+            // Add empty and key and value as it will be required to create binding paths in getBindingPathsOfAction() at ActionProperties.ts
           }
+          size="md"
+          startIcon="add-more"
         >
-          <Icon name="add-more-fill" size={IconSize.XL} />
-          <span style={{ marginLeft: "8px" }}>Add Condition</span>
-        </AddMoreAction>
+          Add condition
+        </Button>
         {/* Check if the config allows more nesting, if it does, allow for adding more blocks */}
-        <StyledTooltip
+        <Tooltip
           content={
             <span>
               For S3 only 4 nested where <br /> condition group is allowed.
             </span>
           }
-          disabled={props.currentNestingLevel < props.nestedLevels}
-          donotUsePortal
-          position="bottom"
+          isDisabled={props.currentNestingLevel < props.nestedLevels}
+          placement="bottom"
         >
-          <AddMoreAction
+          <Button
             className={`t--where-add-group-condition[${props?.currentNestingLevel}]`}
             isDisabled={!(props.currentNestingLevel < props.nestedLevels)}
+            kind="tertiary"
             onClick={() => {
               if (props.currentNestingLevel < props.nestedLevels) {
                 props.fields.push({
@@ -502,12 +462,12 @@ function ConditionBlock(props: any) {
                 });
               }
             }}
-            size={size}
+            size="md"
+            startIcon="add-more"
           >
-            <Icon name="add-more-fill" size={IconSize.XL} />
-            <span style={{ marginLeft: "8px" }}>Add Group Condition</span>
-          </AddMoreAction>
-        </StyledTooltip>
+            Add group condition
+          </Button>
+        </Tooltip>
       </ActionBox>
     </SecondaryBox>
   );

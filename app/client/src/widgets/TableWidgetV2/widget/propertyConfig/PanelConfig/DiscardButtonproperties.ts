@@ -109,7 +109,7 @@ export const discardButtonStyleConfig = {
       children: [
         {
           propertyName: "discardButtonColor",
-          label: "Button Color",
+          label: "Button color",
           controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
           helpText: "Changes the color of the button",
           isJSConvertible: true,
@@ -129,7 +129,7 @@ export const discardButtonStyleConfig = {
         },
         {
           propertyName: "discardButtonVariant",
-          label: "Button Variant",
+          label: "Button variant",
           controlType: "ICON_TABS",
           fullWidth: true,
           customJSControl: "TABLE_COMPUTE_VALUE",
@@ -170,7 +170,7 @@ export const discardButtonStyleConfig = {
         },
         {
           propertyName: "discardBorderRadius",
-          label: "Border Radius",
+          label: "Border radius",
           customJSControl: "TABLE_COMPUTE_VALUE",
           isJSConvertible: true,
           helpText:
@@ -217,15 +217,15 @@ export const discardButtonStyleConfig = {
           label: "Position",
           helpText: "Sets the icon alignment of the discard button",
           controlType: "ICON_TABS",
-          fullWidth: true,
+          fullWidth: false,
           defaultValue: "left",
           options: [
             {
-              icon: "VERTICAL_LEFT",
+              startIcon: "skip-left-line",
               value: "left",
             },
             {
-              icon: "VERTICAL_RIGHT",
+              startIcon: "skip-right-line",
               value: "right",
             },
           ],

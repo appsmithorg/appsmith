@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.DslActionDTO;
@@ -7,13 +8,11 @@ import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CompareDslActionDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import net.minidev.json.JSONObject;
-import com.appsmith.external.exceptions.ErrorDTO;
 
 import java.util.List;
 import java.util.Set;
@@ -52,7 +51,8 @@ public class Layout extends BaseDomain {
         return super.getId();
     }
 
-    // this attribute will be used to display errors caused white calculating allOnLoadAction PageLoadActionsUtilCEImpl.java
+    // this attribute will be used to display errors caused white calculating allOnLoadAction
+    // PageLoadActionsUtilCEImpl.java
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView({Views.Public.class, Views.Export.class})
     List<ErrorDTO> layoutOnLoadActionErrors;

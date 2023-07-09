@@ -4,7 +4,8 @@ import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import type { Datasource } from "entities/Datasource";
 import DatasourceCard from "./DatasourceCard";
-import { Button, Category, Size, Text, TextType } from "design-system-old";
+import { Text, TextType } from "design-system-old";
+import { Button } from "design-system";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { keyBy } from "lodash";
 import {
@@ -28,16 +29,13 @@ const QueryHomePage = styled.div`
   }
 `;
 
-const CreateButton = styled(Button)`
-  display: inline;
-  padding: 4px 8px;
-`;
-
 const EmptyActiveDatasource = styled.div`
-  flex: 1;
   display: flex;
+  flex-direction: column;
+  flex: 1;
   align-items: center;
   justify-content: center;
+  gap: 1rem;
 `;
 
 type ActiveDataSourcesProps = {
@@ -71,17 +69,16 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
   if (dataSources.length === 0) {
     return (
       <EmptyActiveDatasource>
-        <Text cypressSelector="t--empty-datasource-list" type={TextType.H3}>
-          {createMessage(EMPTY_ACTIVE_DATA_SOURCES)}&nbsp;
-          <CreateButton
-            category={Category.primary}
-            disabled={!canCreateDatasource}
-            onClick={props.onCreateNew}
-            size={Size.medium}
-            tag="button"
-            text="Create New"
-          />
+        <Text data-testid="t--empty-datasource-list" type={TextType.H3}>
+          {createMessage(EMPTY_ACTIVE_DATA_SOURCES)}
         </Text>
+        <Button
+          isDisabled={!canCreateDatasource}
+          onClick={props.onCreateNew}
+          size="md"
+        >
+          Create new
+        </Button>
       </EmptyActiveDatasource>
     );
   }

@@ -40,7 +40,6 @@ const MenuText = ({ name, navColorStyle, primaryColor }: MenuTextProps) => {
       >
         <div className="relative flex items-center justify-center flex-grow menu-item-text">
           <span ref={tabNameRef}>{name}</span>
-          {ellipsisActive && "..."}
         </div>
       </StyledMenuItemText>
     </TooltipComponent>
