@@ -157,12 +157,7 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
             builder = OAuth2AuthorizationRequest.authorizationCode();
             Map<String, Object> additionalParameters = new HashMap<>();
 
-
             addAttributesAndAdditionalParameters(clientRegistration, attributes, additionalParameters);
-
-            if (StringUtils.hasText(commonConfig.getOidcAudience())) {
-                additionalParameters.put("audience", commonConfig.getOidcAudience());
-            }
 
             builder.additionalParameters(additionalParameters);
             //        } else if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType()))
