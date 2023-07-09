@@ -150,6 +150,7 @@ import {
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
 import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
+import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -1173,17 +1174,19 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
 }
 
 function* fetchDatasourceStructureSaga(
-  action: ReduxAction<{ id: string; ignoreCache: boolean }>,
+  action: ReduxAction<{
+    id: string;
+    ignoreCache: boolean;
+    schemaFetchContext: DatasourceStructureContext;
+  }>,
 ) {
   const datasource = shouldBeDefined<Datasource>(
     yield select(getDatasource, action.payload.id),
     `Datasource not found for id - ${action.payload.id}`,
   );
   const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
-  AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH", {
-    datasourceId: datasource?.id,
-    pluginName: plugin?.name,
-  });
+  let errorMessage = "";
+  let isSuccess = false;
 
   try {
     const response: ApiResponse = yield DatasourcesApi.fetchDatasourceStructure(
@@ -1201,11 +1204,7 @@ function* fetchDatasourceStructureSaga(
       });
 
       if (isEmpty(response.data)) {
-        AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_FAILURE", {
-          datasourceId: datasource?.id,
-          pluginName: plugin?.name,
-          errorMessage: createMessage(DATASOURCE_SCHEMA_NOT_AVAILABLE),
-        });
+        errorMessage = createMessage(DATASOURCE_SCHEMA_NOT_AVAILABLE);
         AppsmithConsole.warning({
           text: "Datasource structure could not be retrieved",
           source: {
@@ -1215,10 +1214,7 @@ function* fetchDatasourceStructureSaga(
           },
         });
       } else {
-        AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_SUCCESS", {
-          datasourceId: datasource?.id,
-          pluginName: plugin?.name,
-        });
+        isSuccess = true;
         AppsmithConsole.info({
           text: "Datasource structure retrieved",
           source: {
@@ -1229,20 +1225,11 @@ function* fetchDatasourceStructureSaga(
         });
       }
       if (!!(response.data as any)?.error) {
-        AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_FAILURE", {
-          datasourceId: datasource?.id,
-          pluginName: plugin?.name,
-          errorCode: (response.data as any).error?.code,
-          errorMessage: (response.data as any).error?.message,
-        });
+        errorMessage = (response.data as any).error?.message;
       }
     }
   } catch (error) {
-    AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_FAILURE", {
-      datasourceId: datasource?.id,
-      pluginName: plugin?.name,
-      errorMessage: (error as any)?.message,
-    });
+    errorMessage = (error as any)?.message;
     yield put({
       type: ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR,
       payload: {
@@ -1260,6 +1247,13 @@ function* fetchDatasourceStructureSaga(
       },
     });
   }
+  AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH", {
+    datasourceId: datasource?.id,
+    pluginName: plugin?.name,
+    errorMessage: errorMessage,
+    isSuccess: isSuccess,
+    source: action.payload.schemaFetchContext,
+  });
 }
 
 function* addAndFetchDatasourceStructureSaga(
@@ -1292,16 +1286,19 @@ function* addAndFetchDatasourceStructureSaga(
   }
 }
 
-function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
+function* refreshDatasourceStructure(
+  action: ReduxAction<{
+    id: string;
+    schemaRefreshContext: DatasourceStructureContext;
+  }>,
+) {
   const datasource = shouldBeDefined<Datasource>(
     yield select(getDatasource, action.payload.id),
     `Datasource is not found for it - ${action.payload.id}`,
   );
   const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
-  AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH", {
-    datasourceId: datasource?.id,
-    pluginName: plugin?.name,
-  });
+  let errorMessage = "";
+  let isSuccess = false;
 
   try {
     const response: ApiResponse = yield DatasourcesApi.fetchDatasourceStructure(
@@ -1319,11 +1316,7 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
       });
 
       if (isEmpty(response.data)) {
-        AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_FAILURE", {
-          datasourceId: datasource?.id,
-          pluginName: plugin?.name,
-          errorMessage: createMessage(DATASOURCE_SCHEMA_NOT_AVAILABLE),
-        });
+        errorMessage = createMessage(DATASOURCE_SCHEMA_NOT_AVAILABLE);
         AppsmithConsole.warning({
           text: "Datasource structure could not be retrieved",
           source: {
@@ -1333,10 +1326,7 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
           },
         });
       } else {
-        AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_SUCCESS", {
-          datasourceId: datasource?.id,
-          pluginName: plugin?.name,
-        });
+        isSuccess = true;
         AppsmithConsole.info({
           text: "Datasource structure retrieved",
           source: {
@@ -1347,20 +1337,11 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
         });
       }
       if (!!(response.data as any)?.error) {
-        AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_FAILURE", {
-          datasourceId: datasource?.id,
-          pluginName: plugin?.name,
-          errorCode: (response.data as any).error?.code,
-          errorMessage: (response.data as any).error?.message,
-        });
+        errorMessage = (response.data as any)?.message;
       }
     }
   } catch (error) {
-    AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_FAILURE", {
-      datasourceId: datasource?.id,
-      pluginName: plugin?.name,
-      errorMessage: (error as any)?.message,
-    });
+    errorMessage = (error as any)?.message;
     yield put({
       type: ReduxActionErrorTypes.REFRESH_DATASOURCE_STRUCTURE_ERROR,
       payload: {
@@ -1378,6 +1359,14 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
       },
     });
   }
+
+  AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH", {
+    datasourceId: datasource?.id,
+    pluginName: plugin?.name,
+    errorMessage: errorMessage,
+    isSuccess: isSuccess,
+    source: action.payload.schemaRefreshContext,
+  });
 }
 
 function* executeDatasourceQuerySaga(

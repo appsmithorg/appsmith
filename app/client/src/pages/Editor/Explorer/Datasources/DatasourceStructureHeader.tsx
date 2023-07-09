@@ -4,6 +4,7 @@ import { Icon, Text } from "design-system";
 import styled from "styled-components";
 import { refreshDatasourceStructure } from "actions/datasourceActions";
 import { SCHEMA_LABEL, createMessage } from "@appsmith/constants/messages";
+import { DatasourceStructureContext } from "./DatasourceStructureContainer";
 
 type Props = {
   datasourceId: string;
@@ -22,7 +23,12 @@ export default function DatasourceStructureHeader(props: Props) {
   const dispatchRefresh = useCallback(
     (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       event.stopPropagation();
-      dispatch(refreshDatasourceStructure(props.datasourceId));
+      dispatch(
+        refreshDatasourceStructure(
+          props.datasourceId,
+          DatasourceStructureContext.QUERY_EDITOR,
+        ),
+      );
     },
     [dispatch, props.datasourceId],
   );
