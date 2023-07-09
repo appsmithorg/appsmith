@@ -40,17 +40,20 @@ describe("Create new workspace and share with a user", function () {
       "App Viewer",
     );
     homePage.FilterApplication(appid);
-    //agHelper.TypeText(homePage._textInputType, appid, 0, true);
     // // eslint-disable-next-line cypress/no-unnecessary-waiting
     agHelper.Sleep(2000);
     agHelper.GetNAssertContains(homePage._appsContainer, workspaceId);
     if (CURRENT_REPO === REPO.CE) {
       agHelper.AssertElementVisible(locators._spanButton("Share"), 0);
     }
-    agHelper.HoverElement(homePage._applicationCard);
+    agHelper.GetElement(homePage._applicationCard).first().trigger("mouseover");
     agHelper.AssertElementAbsence(homePage._appEditIcon);
     homePage.LaunchAppFromAppHover();
     agHelper.Sleep(2000); //for CI
+    agHelper.GetText(locators._emptyPageTxt).then((text) => {
+      const someText = text;
+      expect(someText).to.equal("This page seems to be blank");
+    });
     homePage.LogOutviaAPI();
     agHelper.Sleep(2000); //for CI
   });
@@ -110,10 +113,9 @@ describe("Create new workspace and share with a user", function () {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     homePage.FilterApplication(appid);
     agHelper.Sleep(3000);
-    agHelper
-      .GetElement(homePage._applicationCard)
-      .first()
-      .realHover({ pointer: "mouse" });
+    agHelper.GetElement(homePage._applicationCard).first().trigger("mouseover");
+    agHelper.Sleep(1000);
+    agHelper.AssertElementExist(homePage._appEditIcon);
     agHelper.GetNClick(homePage._appEditIcon, 0, true);
     agHelper.AssertElementAbsence(locators._loading);
     agHelper.GetNClick(inviteModal.locators._shareButton, 0, true);
