@@ -64,10 +64,7 @@ public class OracleDatasourceUtils {
      * +------------+-----------+-----------------+
      */
     public static final String ORACLE_SQL_QUERY_TO_GET_ALL_TABLE_COLUMN_TYPE =
-            "SELECT " +
-            "table_name, column_name, data_type " +
-            "FROM " +
-            "user_tab_cols";
+            "SELECT " + "table_name, column_name, data_type " + "FROM " + "user_tab_cols";
 
     /**
      * Example output:
@@ -79,27 +76,26 @@ public class OracleDatasourceUtils {
      * +------------+-----------+-----------------+-----------------+-------------------+
      */
     public static final String ORACLE_SQL_QUERY_TO_GET_ALL_TABLE_COLUMN_KEY_CONSTRAINTS =
-            "SELECT " +
-            "    cols.table_name, " +
-            "    cols.column_name, " +
-            "    cons.constraint_type, " +
-            "    cons.constraint_name, " +
-            "    cons.r_constraint_name " +
-            "FROM " +
-            "    all_cons_columns cols " +
-            "    JOIN all_constraints cons " +
-            "        ON cols.owner = cons.owner " +
-            "        AND cols.constraint_name = cons.constraint_name " +
-            "    JOIN all_tab_cols tab_cols " +
-            "        ON cols.owner = tab_cols.owner " +
-            "        AND cols.table_name = tab_cols.table_name " +
-            "        AND cols.column_name = tab_cols.column_name " +
-            "WHERE " +
-            "    cons.constraint_type IN ('P', 'R') " +
-            "    AND cons.owner = 'ADMIN' " +
-            "ORDER BY " +
-            "    cols.table_name, " +
-            "    cols.position";
+            "SELECT " + "    cols.table_name, "
+                    + "    cols.column_name, "
+                    + "    cons.constraint_type, "
+                    + "    cons.constraint_name, "
+                    + "    cons.r_constraint_name "
+                    + "FROM "
+                    + "    all_cons_columns cols "
+                    + "    JOIN all_constraints cons "
+                    + "        ON cols.owner = cons.owner "
+                    + "        AND cols.constraint_name = cons.constraint_name "
+                    + "    JOIN all_tab_cols tab_cols "
+                    + "        ON cols.owner = tab_cols.owner "
+                    + "        AND cols.table_name = tab_cols.table_name "
+                    + "        AND cols.column_name = tab_cols.column_name "
+                    + "WHERE "
+                    + "    cons.constraint_type IN ('P', 'R') "
+                    + "    AND cons.owner = 'ADMIN' "
+                    + "ORDER BY "
+                    + "    cols.table_name, "
+                    + "    cols.position";
 
     public static void datasourceDestroy(HikariDataSource connectionPool) {
         if (connectionPool != null) {
@@ -117,7 +113,8 @@ public class OracleDatasourceUtils {
             for (final Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
                 if (isBlank(endpoint.getHost())) {
                     invalids.add(OracleErrorMessages.DS_MISSING_HOSTNAME_ERROR_MSG);
-                } else if (endpoint.getHost().contains("/") || endpoint.getHost().contains(":")) {
+                } else if (endpoint.getHost().contains("/")
+                        || endpoint.getHost().contains(":")) {
                     invalids.add(String.format(OracleErrorMessages.DS_INVALID_HOSTNAME_ERROR_MSG, endpoint.getHost()));
                 }
             }
@@ -153,23 +150,25 @@ public class OracleDatasourceUtils {
         return invalids;
     }
 
-    public static Mono<DatasourceStructure> getStructure(HikariDataSource connectionPool,
-                                                   DatasourceConfiguration datasourceConfiguration) {
+    public static Mono<DatasourceStructure> getStructure(
+            HikariDataSource connectionPool, DatasourceConfiguration datasourceConfiguration) {
         final DatasourceStructure structure = new DatasourceStructure();
         final Map<String, DatasourceStructure.Table> tableNameToTableMap = new LinkedHashMap<>();
 
         return Mono.fromSupplier(() -> {
                     Connection connectionFromPool;
                     try {
-                        connectionFromPool =
-                                oracleDatasourceUtils.getConnectionFromHikariConnectionPool(connectionPool, ORACLE_PLUGIN_NAME);
+                        connectionFromPool = oracleDatasourceUtils.getConnectionFromHikariConnectionPool(
+                                connectionPool, ORACLE_PLUGIN_NAME);
                     } catch (SQLException | StaleConnectionException e) {
                         // The function can throw either StaleConnectionException or SQLException. The
                         // underlying hikari library throws SQLException in case the pool is closed or there is an issue
                         // initializing the connection pool which can also be translated in our world to
                         // StaleConnectionException and should then trigger the destruction and recreation of the pool.
-                        return Mono.error(e instanceof StaleConnectionException ? e :
-                                new StaleConnectionException(e.getMessage()));
+                        return Mono.error(
+                                e instanceof StaleConnectionException
+                                        ? e
+                                        : new StaleConnectionException(e.getMessage()));
                     }
 
                     logHikariCPStatus("Before getting Oracle DB schema", connectionPool);
@@ -182,13 +181,16 @@ public class OracleDatasourceUtils {
                         setPrimaryAndForeignKeyInfoInTables(statement, tableNameToTableMap);
 
                     } catch (SQLException throwable) {
-                        return Mono.error(new AppsmithPluginException( AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
-                                OracleErrorMessages.GET_STRUCTURE_ERROR_MSG, throwable.getCause(),
+                        return Mono.error(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
+                                OracleErrorMessages.GET_STRUCTURE_ERROR_MSG,
+                                throwable.getCause(),
                                 "SQLSTATE: " + throwable.getSQLState()));
                     } finally {
                         logHikariCPStatus("After getting Oracle DB schema", connectionPool);
-                        safelyCloseSingleConnectionFromHikariCP(connectionFromPool, "Error returning Oracle connection to pool " +
-                                "during get structure");
+                        safelyCloseSingleConnectionFromHikariCP(
+                                connectionFromPool,
+                                "Error returning Oracle connection to pool " + "during get structure");
                     }
 
                     // Set SQL query templates
@@ -208,8 +210,8 @@ public class OracleDatasourceUtils {
      * tables to which a foreign key is related to.
      * Please check the SQL query macro definition to find a sample response as comment.
      */
-    private static void setPrimaryAndForeignKeyInfoInTables(Statement statement, Map<String,
-            DatasourceStructure.Table> tableNameToTableMap) throws SQLException {
+    private static void setPrimaryAndForeignKeyInfoInTables(
+            Statement statement, Map<String, DatasourceStructure.Table> tableNameToTableMap) throws SQLException {
         Map<String, String> primaryKeyConstraintNameToTableNameMap = new HashMap<>();
         Map<String, String> primaryKeyConstraintNameToColumnNameMap = new HashMap<>();
         Map<String, String> foreignKeyConstraintNameToTableNameMap = new HashMap<>();
@@ -217,7 +219,7 @@ public class OracleDatasourceUtils {
         Map<String, String> foreignKeyConstraintNameToRemoteConstraintNameMap = new HashMap<>();
 
         try (ResultSet columnsResultSet =
-                     statement.executeQuery(ORACLE_SQL_QUERY_TO_GET_ALL_TABLE_COLUMN_KEY_CONSTRAINTS)) {
+                statement.executeQuery(ORACLE_SQL_QUERY_TO_GET_ALL_TABLE_COLUMN_KEY_CONSTRAINTS)) {
             while (columnsResultSet.next()) {
                 final String tableName = columnsResultSet.getString("TABLE_NAME");
                 final String columnName = columnsResultSet.getString("COLUMN_NAME");
@@ -228,8 +230,7 @@ public class OracleDatasourceUtils {
                 if (ORACLE_PRIMARY_KEY_INDICATOR.equalsIgnoreCase(constraintType)) {
                     primaryKeyConstraintNameToTableNameMap.put(constraintName, tableName);
                     primaryKeyConstraintNameToColumnNameMap.put(constraintName, columnName);
-                }
-                else {
+                } else {
                     foreignKeyConstraintNameToTableNameMap.put(constraintName, tableName);
                     foreignKeyConstraintNameToColumnNameMap.put(constraintName, columnName);
                     foreignKeyConstraintNameToRemoteConstraintNameMap.put(constraintName, remoteConstraintName);
@@ -245,8 +246,7 @@ public class OracleDatasourceUtils {
                         String tableName = primaryKeyConstraintNameToTableNameMap.get(constraintName);
                         DatasourceStructure.Table table = tableNameToTableMap.get(tableName);
                         String columnName = primaryKeyConstraintNameToColumnNameMap.get(constraintName);
-                        table.getKeys().add(new DatasourceStructure.PrimaryKey(constraintName,
-                                List.of(columnName)));
+                        table.getKeys().add(new DatasourceStructure.PrimaryKey(constraintName, List.of(columnName)));
                     });
 
             foreignKeyConstraintNameToColumnNameMap.keySet().stream()
@@ -261,8 +261,9 @@ public class OracleDatasourceUtils {
                         String remoteConstraintName =
                                 foreignKeyConstraintNameToRemoteConstraintNameMap.get(constraintName);
                         String remoteColumn = primaryKeyConstraintNameToColumnNameMap.get(remoteConstraintName);
-                        table.getKeys().add(new DatasourceStructure.ForeignKey(constraintName,
-                                List.of(columnName), List.of(remoteColumn)));
+                        table.getKeys()
+                                .add(new DatasourceStructure.ForeignKey(
+                                        constraintName, List.of(columnName), List.of(remoteColumn)));
                     });
         }
     }
@@ -272,70 +273,77 @@ public class OracleDatasourceUtils {
      * Then read the response and populate Appsmith's Table object with the same.
      * Please check the SQL query macro definition to find a sample response as comment.
      */
-    private static void setTableNamesAndColumnNamesAndColumnTypes(Statement statement, Map<String,
-            DatasourceStructure.Table> tableNameToTableMap) throws SQLException {
-        try (ResultSet columnsResultSet =
-                     statement.executeQuery(ORACLE_SQL_QUERY_TO_GET_ALL_TABLE_COLUMN_TYPE)) {
+    private static void setTableNamesAndColumnNamesAndColumnTypes(
+            Statement statement, Map<String, DatasourceStructure.Table> tableNameToTableMap) throws SQLException {
+        try (ResultSet columnsResultSet = statement.executeQuery(ORACLE_SQL_QUERY_TO_GET_ALL_TABLE_COLUMN_TYPE)) {
             while (columnsResultSet.next()) {
                 final String tableName = columnsResultSet.getString("TABLE_NAME");
                 if (!tableNameToTableMap.containsKey(tableName)) {
-                    tableNameToTableMap.put(tableName, new DatasourceStructure.Table(
-                            DatasourceStructure.TableType.TABLE,
-                            "",
+                    tableNameToTableMap.put(
                             tableName,
-                            new ArrayList<>(),
-                            new ArrayList<>(),
-                            new ArrayList<>()));
+                            new DatasourceStructure.Table(
+                                    DatasourceStructure.TableType.TABLE,
+                                    "",
+                                    tableName,
+                                    new ArrayList<>(),
+                                    new ArrayList<>(),
+                                    new ArrayList<>()));
                 }
                 final DatasourceStructure.Table table = tableNameToTableMap.get(tableName);
-                table.getColumns().add(new DatasourceStructure.Column(
-                        columnsResultSet.getString("COLUMN_NAME"),
-                        columnsResultSet.getString("DATA_TYPE"),
-                        null,
-                        false));
+                table.getColumns()
+                        .add(new DatasourceStructure.Column(
+                                columnsResultSet.getString("COLUMN_NAME"),
+                                columnsResultSet.getString("DATA_TYPE"),
+                                null,
+                                false));
             }
         }
     }
 
     private static void setSQLQueryTemplates(Map<String, DatasourceStructure.Table> tableNameToTableMap) {
-        tableNameToTableMap.values().stream()
-                .forEach(table -> {
-                    LinkedHashMap<String, String> columnNameToSampleColumnDataMap =
-                            new LinkedHashMap<>();
-                    table.getColumns().stream()
-                            .forEach(column -> {
-                                columnNameToSampleColumnDataMap.put(column.getName(),
-                                        getSampleColumnData(column.getType()));
-                            });
+        tableNameToTableMap.values().stream().forEach(table -> {
+            LinkedHashMap<String, String> columnNameToSampleColumnDataMap = new LinkedHashMap<>();
+            table.getColumns().stream().forEach(column -> {
+                columnNameToSampleColumnDataMap.put(column.getName(), getSampleColumnData(column.getType()));
+            });
 
-                    String selectQueryTemplate = MessageFormat.format("SELECT * FROM {0} WHERE " +
-                            "ROWNUM < 10", table.getName());
-                    String insertQueryTemplate = MessageFormat.format("INSERT INTO {0} ({1}) " +
-                                    "VALUES ({2})", table.getName(),
-                            getSampleColumnNamesCSVString(columnNameToSampleColumnDataMap),
-                            getSampleColumnDataCSVString(columnNameToSampleColumnDataMap));
-                    String updateQueryTemplate = MessageFormat.format("UPDATE {0} SET {1} WHERE " +
-                                    "1=0 -- Specify a valid condition here. Removing the condition may " +
-                                    "update every row in the table!", table.getName(),
-                            getSampleOneColumnUpdateString(columnNameToSampleColumnDataMap));
-                    String deleteQueryTemplate = MessageFormat.format("DELETE FROM {0} WHERE 1=0" +
-                            " -- Specify a valid condition here. Removing the condition may " +
-                            "delete everything in the table!", table.getName());
+            String selectQueryTemplate =
+                    MessageFormat.format("SELECT * FROM {0} WHERE " + "ROWNUM < 10", table.getName());
+            String insertQueryTemplate = MessageFormat.format(
+                    "INSERT INTO {0} ({1}) " + "VALUES ({2})",
+                    table.getName(),
+                    getSampleColumnNamesCSVString(columnNameToSampleColumnDataMap),
+                    getSampleColumnDataCSVString(columnNameToSampleColumnDataMap));
+            String updateQueryTemplate = MessageFormat.format(
+                    "UPDATE {0} SET {1} WHERE " + "1=0 -- Specify a valid condition here. Removing the condition may "
+                            + "update every row in the table!",
+                    table.getName(), getSampleOneColumnUpdateString(columnNameToSampleColumnDataMap));
+            String deleteQueryTemplate = MessageFormat.format(
+                    "DELETE FROM {0} WHERE 1=0" + " -- Specify a valid condition here. Removing the condition may "
+                            + "delete everything in the table!",
+                    table.getName());
 
-                    table.getTemplates().add(new DatasourceStructure.Template("SELECT", null,
-                            Map.of("body", Map.of("data", selectQueryTemplate))));
-                    table.getTemplates().add(new DatasourceStructure.Template("INSERT", null,
-                            Map.of("body", Map.of("data", insertQueryTemplate))));
-                    table.getTemplates().add(new DatasourceStructure.Template("UPDATE", null,
-                            Map.of("body", Map.of("data", updateQueryTemplate))));
-                    table.getTemplates().add(new DatasourceStructure.Template("DELETE", null,
-                            Map.of("body", Map.of("data", deleteQueryTemplate))));
-                });
+            table.getTemplates()
+                    .add(new DatasourceStructure.Template(
+                            "SELECT", null, Map.of("body", Map.of("data", selectQueryTemplate))));
+            table.getTemplates()
+                    .add(new DatasourceStructure.Template(
+                            "INSERT", null, Map.of("body", Map.of("data", insertQueryTemplate))));
+            table.getTemplates()
+                    .add(new DatasourceStructure.Template(
+                            "UPDATE", null, Map.of("body", Map.of("data", updateQueryTemplate))));
+            table.getTemplates()
+                    .add(new DatasourceStructure.Template(
+                            "DELETE", null, Map.of("body", Map.of("data", deleteQueryTemplate))));
+        });
     }
 
-    private static String getSampleOneColumnUpdateString(LinkedHashMap<String, String> columnNameToSampleColumnDataMap) {
-        return MessageFormat.format("{0}={1}", columnNameToSampleColumnDataMap.keySet().stream().findFirst().orElse(
-                "id"), columnNameToSampleColumnDataMap.values().stream().findFirst().orElse("'uid'"));
+    private static String getSampleOneColumnUpdateString(
+            LinkedHashMap<String, String> columnNameToSampleColumnDataMap) {
+        return MessageFormat.format(
+                "{0}={1}",
+                columnNameToSampleColumnDataMap.keySet().stream().findFirst().orElse("id"),
+                columnNameToSampleColumnDataMap.values().stream().findFirst().orElse("'uid'"));
     }
 
     private static String getSampleColumnNamesCSVString(LinkedHashMap<String, String> columnNameToSampleColumnDataMap) {
@@ -354,23 +362,24 @@ public class OracleDatasourceUtils {
         switch (type.toUpperCase()) {
             case "NUMBER":
                 return "1";
-            case "FLOAT":   /* Fall through */
+            case "FLOAT": /* Fall through */
             case "DOUBLE":
                 return "1.0";
-            case "CHAR":    /* Fall through */
-            case "NCHAR":   /* Fall through */
+            case "CHAR": /* Fall through */
+            case "NCHAR": /* Fall through */
             case "VARCHAR": /* Fall through */
-            case "VARCHAR2":/* Fall through */
-            case "NVARCHAR":/* Fall through */
+            case "VARCHAR2": /* Fall through */
+            case "NVARCHAR": /* Fall through */
             case "NVARCHAR2":
                 return "'text'";
-            case "NULL":    /* Fall through */
+            case "NULL": /* Fall through */
             default:
                 return "NULL";
         }
     }
 
-    public static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
+    public static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration)
+            throws AppsmithPluginException {
         HikariConfig config = new HikariConfig();
 
         config.setDriverClassName(JDBC_DRIVER);
@@ -390,9 +399,7 @@ public class OracleDatasourceUtils {
         // Set up the connection URL
         StringBuilder urlBuilder = new StringBuilder(ORACLE_URL_PREFIX);
 
-        List<String> hosts = datasourceConfiguration
-                .getEndpoints()
-                .stream()
+        List<String> hosts = datasourceConfiguration.getEndpoints().stream()
                 .map(endpoint -> endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 1521L))
                 .collect(Collectors.toList());
 
@@ -408,11 +415,12 @@ public class OracleDatasourceUtils {
         if (datasourceConfiguration.getConnection() == null
                 || datasourceConfiguration.getConnection().getSsl() == null
                 || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
-            throw new AppsmithPluginException(OraclePluginError.ORACLE_PLUGIN_ERROR,
-                    OracleErrorMessages.SSL_CONFIGURATION_ERROR_MSG);
+            throw new AppsmithPluginException(
+                    OraclePluginError.ORACLE_PLUGIN_ERROR, OracleErrorMessages.SSL_CONFIGURATION_ERROR_MSG);
         }
 
-        SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
+        SSLDetails.AuthType sslAuthType =
+                datasourceConfiguration.getConnection().getSsl().getAuthType();
         switch (sslAuthType) {
             case DISABLE:
                 /* do nothing */
@@ -424,7 +432,8 @@ public class OracleDatasourceUtils {
 
                 break;
             default:
-                throw new AppsmithPluginException(OraclePluginError.ORACLE_PLUGIN_ERROR,
+                throw new AppsmithPluginException(
+                        OraclePluginError.ORACLE_PLUGIN_ERROR,
                         String.format(OracleErrorMessages.INVALID_SSL_OPTION_ERROR_MSG, sslAuthType));
         }
 
@@ -440,8 +449,10 @@ public class OracleDatasourceUtils {
         try {
             datasource = new HikariDataSource(config);
         } catch (HikariPool.PoolInitializationException e) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                    OracleErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG, e.getMessage());
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    OracleErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG,
+                    e.getMessage());
         }
 
         return datasource;
@@ -453,26 +464,27 @@ public class OracleDatasourceUtils {
         int activeConnections = poolProxy.getActiveConnections();
         int totalConnections = poolProxy.getTotalConnections();
         int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-        log.debug(MessageFormat.format("{0}: Hikari Pool stats : active - {1} , idle - {2}, awaiting - {3} , total - {4}",
+        log.debug(MessageFormat.format(
+                "{0}: Hikari Pool stats : active - {1} , idle - {2}, awaiting - {3} , total - {4}",
                 logPrefix, activeConnections, idleConnections, threadsAwaitingConnection, totalConnections));
     }
 
-    public void checkHikariCPConnectionPoolValidity(HikariDataSource connectionPool, String pluginName) throws StaleConnectionException {
+    public void checkHikariCPConnectionPoolValidity(HikariDataSource connectionPool, String pluginName)
+            throws StaleConnectionException {
         if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
-            String printMessage = MessageFormat.format(Thread.currentThread().getName() +
-                    ": Encountered stale connection pool in {0} plugin. Reporting back.", pluginName);
+            String printMessage = MessageFormat.format(
+                    Thread.currentThread().getName()
+                            + ": Encountered stale connection pool in {0} plugin. Reporting back.",
+                    pluginName);
             System.out.println(printMessage);
 
             if (connectionPool == null) {
                 throw new StaleConnectionException(CONNECTION_POOL_NULL_ERROR_MSG);
-            }
-            else if (connectionPool.isClosed()) {
+            } else if (connectionPool.isClosed()) {
                 throw new StaleConnectionException(CONNECTION_POOL_CLOSED_ERROR_MSG);
-            }
-            else if (!connectionPool.isRunning()) {
+            } else if (!connectionPool.isRunning()) {
                 throw new StaleConnectionException(CONNECTION_POOL_NOT_RUNNING_ERROR_MSG);
-            }
-            else {
+            } else {
                 /**
                  * Ideally, code flow is never expected to reach here. However, this section has been added to catch
                  * those cases wherein a developer updates the parent if condition but does not update the nested
@@ -483,8 +495,8 @@ public class OracleDatasourceUtils {
         }
     }
 
-    public Connection getConnectionFromHikariConnectionPool(HikariDataSource connectionPool,
-                                                             String pluginName) throws SQLException {
+    public Connection getConnectionFromHikariConnectionPool(HikariDataSource connectionPool, String pluginName)
+            throws SQLException {
         checkHikariCPConnectionPoolValidity(connectionPool, pluginName);
         return connectionPool.getConnection();
     }

@@ -24,5 +24,4 @@ public class AssetControllerCE {
         exchange.getResponse().getHeaders().set(HttpHeaders.CACHE_CONTROL, "public, max-age=7776000, immutable");
         return service.makeImageResponse(exchange, id);
     }
-
 }

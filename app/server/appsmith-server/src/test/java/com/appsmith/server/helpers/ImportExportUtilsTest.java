@@ -10,7 +10,8 @@ class ImportExportUtilsTest {
 
     @Test
     void getErrorMessage_filterTransactionalError_returnEmptyString() {
-        Throwable throwable = new MongoTransactionException("Command failed with error 251 (NoSuchTransaction): 'Transaction 1 has been aborted.");
+        Throwable throwable = new MongoTransactionException(
+                "Command failed with error 251 (NoSuchTransaction): 'Transaction 1 has been aborted.");
         String errorMessage = ImportExportUtils.getErrorMessage(throwable);
         Assertions.assertEquals(errorMessage, "");
     }

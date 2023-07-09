@@ -27,5 +27,4 @@ public @interface CacheEvict {
      * Whether to evict all keys for a given cache name.
      */
     boolean all() default false;
-    
 }

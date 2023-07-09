@@ -99,7 +99,6 @@ import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { executeJSUpdates } from "actions/pluginActionActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
-import { logDynamicTriggerExecution } from "./analyticsSaga";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -313,6 +312,7 @@ export function* evaluateAndExecuteDynamicTrigger(
   const unEvalTree: ReturnType<typeof getUnevaluatedDataTree> = yield select(
     getUnevaluatedDataTree,
   );
+  // const unEvalTree = unEvalAndConfigTree.unEvalTree;
   log.debug({ execute: dynamicTrigger });
   const response: { errors: EvaluationError[]; result: unknown } = yield call(
     evalWorker.request,
@@ -328,11 +328,6 @@ export function* evaluateAndExecuteDynamicTrigger(
   );
   const { errors = [] } = response as any;
   yield call(dynamicTriggerErrorHandler, errors);
-  yield fork(logDynamicTriggerExecution, {
-    dynamicTrigger,
-    errors,
-    triggerMeta,
-  });
   return response;
 }
 
