@@ -42,10 +42,10 @@ describe("Fork application with multiple datasources", function () {
       homePage.ForkApplication(appname, workspaceId);
     });
     // In the forked application, reconnect all datasources
-    dataSources.ReconnectDSbyName("MongoDBUri");
-    dataSources.ReconnectDSbyName("PostgreSQL");
-    dataSources.ReconnectDSbyName("MySQL");
-    dataSources.ReconnectDSbyName("S3");
+    dataSources.ReconnectDSbyType("MongoDBUri");
+    dataSources.ReconnectDSbyType("PostgreSQL");
+    dataSources.ReconnectDSbyType("MySQL");
+    dataSources.ReconnectDSbyType("S3");
 
     // assert if the datasources are connected as expeced
     homePage.AssertNCloseImport();
