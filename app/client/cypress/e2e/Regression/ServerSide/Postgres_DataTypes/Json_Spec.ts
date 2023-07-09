@@ -18,9 +18,8 @@ describe("Json & JsonB Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    cy.fixture("Datatypes/JsonDTdsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Datatypes/JsonDTdsl");
+
     entityExplorer.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeThemeColors(33, 39);
   });
@@ -344,9 +343,8 @@ describe("Json & JsonB Datatype tests", function () {
   //#region JsonB Datatype
 
   it("14. Importing App & setting theme", () => {
-    cy.fixture("Datatypes/JsonBDTdsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Datatypes/JsonBDTdsl");
+
     entityExplorer.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeThemeColors(12, 23);
   });

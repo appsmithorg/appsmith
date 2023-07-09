@@ -40,6 +40,7 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+    setterConfig: Widget.getSetterConfig(),
   },
   autoLayout: {
     defaults: {
@@ -56,6 +57,7 @@ export const CONFIG = {
           return {
             minWidth: "120px",
             maxWidth: "360px",
+            minHeight: "40px",
           };
         },
       },

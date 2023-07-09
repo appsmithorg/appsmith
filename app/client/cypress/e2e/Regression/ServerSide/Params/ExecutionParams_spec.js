@@ -10,9 +10,7 @@ import {
 describe("API Panel Test Functionality", function () {
   let datasourceName;
   before(() => {
-    cy.fixture("executionParamsDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("executionParamsDsl");
   });
   beforeEach(() => {
     cy.startRoutesForDatasource();

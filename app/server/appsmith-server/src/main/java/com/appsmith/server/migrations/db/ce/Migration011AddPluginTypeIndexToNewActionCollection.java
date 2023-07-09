@@ -27,15 +27,12 @@ public class Migration011AddPluginTypeIndexToNewActionCollection {
 
     @Execution
     public void addingIndexToNewAction() {
-        Index pluginTypeDeletedAtCompoundIndex =
-                makeIndex(fieldName(QNewAction.newAction.applicationId),
+        Index pluginTypeDeletedAtCompoundIndex = makeIndex(
+                        fieldName(QNewAction.newAction.applicationId),
                         fieldName(QNewAction.newAction.pluginType),
                         fieldName(QNewAction.newAction.deletedAt))
-                        .named("applicationId_pluginType_deletedAt_compound_index");
+                .named("applicationId_pluginType_deletedAt_compound_index");
 
         ensureIndexes(mongoTemplate, NewAction.class, pluginTypeDeletedAtCompoundIndex);
     }
-
 }
-
-

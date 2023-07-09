@@ -6,9 +6,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Select Widget Functionality", function () {
   before(() => {
-    cy.fixture("formSelectDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("formSelectDsl");
   });
 
   it("Select Widget name update", function () {

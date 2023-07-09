@@ -18,7 +18,6 @@ import reactor.core.publisher.Mono;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * This code has been copied from {@link WebSessionServerOAuth2AuthorizedClientRepository}
  * which also implements ServerOAuth2AuthorizedClientRepository. This was done to make changes
@@ -58,8 +57,8 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends OAuth2AuthorizedClient> Mono<T> loadAuthorizedClient(String clientRegistrationId, Authentication principal,
-                                                                           ServerWebExchange exchange) {
+    public <T extends OAuth2AuthorizedClient> Mono<T> loadAuthorizedClient(
+            String clientRegistrationId, Authentication principal, ServerWebExchange exchange) {
         Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
         Assert.notNull(exchange, "exchange cannot be null");
         return exchange.getSession()
@@ -68,18 +67,21 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
     }
 
     @Override
-    public Mono<Void> saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal,
-                                           ServerWebExchange exchange) {
+    public Mono<Void> saveAuthorizedClient(
+            OAuth2AuthorizedClient authorizedClient, Authentication principal, ServerWebExchange exchange) {
         Assert.notNull(authorizedClient, "authorizedClient cannot be null");
         Assert.notNull(exchange, "exchange cannot be null");
         Assert.notNull(principal, "authentication object cannot be null");
 
         // Check if the list of configured custom domains match the authenticated principal.
         // This is to provide more control over which accounts can be used to access the application.
-        // TODO: This is not a good way to do this. Ideally, we should pass "hd=example.com" to OAuth2 provider to list relevant accounts only
+        // TODO: This is not a good way to do this. Ideally, we should pass "hd=example.com" to OAuth2 provider to list
+        // relevant accounts only
         if (!commonConfig.getOauthAllowedDomains().isEmpty()) {
             String domain = null;
-            log.debug("Got the principal class as: {}", principal.getPrincipal().getClass().getName());
+            log.debug(
+                    "Got the principal class as: {}",
+                    principal.getPrincipal().getClass().getName());
             if (principal.getPrincipal() instanceof DefaultOidcUser) {
                 DefaultOidcUser userPrincipal = (DefaultOidcUser) principal.getPrincipal();
                 domain = (String) userPrincipal.getAttributes().getOrDefault("hd", "");
@@ -92,7 +94,8 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
         return exchange.getSession()
                 .doOnSuccess(session -> {
                     Map<String, OAuth2AuthorizedClient> authorizedClients = getAuthorizedClients(session);
-                    authorizedClients.put(authorizedClient.getClientRegistration().getRegistrationId(), authorizedClient);
+                    authorizedClients.put(
+                            authorizedClient.getClientRegistration().getRegistrationId(), authorizedClient);
                     session.getAttributes().put(this.sessionAttributeName, authorizedClients);
                 })
                 /*
@@ -105,8 +108,8 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
     }
 
     @Override
-    public Mono<Void> removeAuthorizedClient(String clientRegistrationId, Authentication principal,
-                                             ServerWebExchange exchange) {
+    public Mono<Void> removeAuthorizedClient(
+            String clientRegistrationId, Authentication principal, ServerWebExchange exchange) {
         Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
         Assert.notNull(exchange, "exchange cannot be null");
         return exchange.getSession()
@@ -124,8 +127,9 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
 
     @SuppressWarnings("unchecked")
     private Map<String, OAuth2AuthorizedClient> getAuthorizedClients(WebSession session) {
-        Map<String, OAuth2AuthorizedClient> authorizedClients = session == null ? null :
-                (Map<String, OAuth2AuthorizedClient>) session.getAttribute(this.sessionAttributeName);
+        Map<String, OAuth2AuthorizedClient> authorizedClients = session == null
+                ? null
+                : (Map<String, OAuth2AuthorizedClient>) session.getAttribute(this.sessionAttributeName);
         if (authorizedClients == null) {
             authorizedClients = new HashMap<>();
         }

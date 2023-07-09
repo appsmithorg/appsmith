@@ -8,9 +8,7 @@ const commonlocators = require("../../../locators/commonlocators.json");
 
 describe("JSEditor tests", function () {
   before(() => {
-    cy.fixture("promisesStoreValueDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("promisesStoreValueDsl");
   });
 
   it("1. Testing promises with resetWidget, storeValue action and API call", () => {

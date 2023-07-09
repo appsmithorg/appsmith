@@ -15,23 +15,36 @@ import reactor.core.scheduler.Scheduler;
 @Service
 public class UserDataServiceImpl extends UserDataServiceCEImpl implements UserDataService {
 
-    public UserDataServiceImpl(Scheduler scheduler,
-                               Validator validator,
-                               MongoConverter mongoConverter,
-                               ReactiveMongoTemplate reactiveMongoTemplate,
-                               UserDataRepository repository,
-                               AnalyticsService analyticsService,
-                               UserRepository userRepository,
-                               SessionUserService sessionUserService,
-                               AssetService assetService,
-                               ReleaseNotesService releaseNotesService,
-                               FeatureFlagService featureFlagService,
-                               UserChangedHandler userChangedHandler,
-                               ApplicationRepository applicationRepository,
-                               TenantService tenantService) {
+    public UserDataServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            UserDataRepository repository,
+            AnalyticsService analyticsService,
+            UserRepository userRepository,
+            SessionUserService sessionUserService,
+            AssetService assetService,
+            ReleaseNotesService releaseNotesService,
+            FeatureFlagService featureFlagService,
+            UserChangedHandler userChangedHandler,
+            ApplicationRepository applicationRepository,
+            TenantService tenantService) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, userRepository,
-                sessionUserService, assetService, releaseNotesService, featureFlagService, userChangedHandler,
-                applicationRepository, tenantService);
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService,
+                userRepository,
+                sessionUserService,
+                assetService,
+                releaseNotesService,
+                featureFlagService,
+                userChangedHandler,
+                applicationRepository,
+                tenantService);
     }
 }

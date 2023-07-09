@@ -44,7 +44,7 @@ export const CONFIG = {
     borderWidth: "1",
     dynamicBindingPathList: [],
     primaryColumns: {},
-    tableData: undefined,
+    tableData: "",
     columnWidthMap: {},
     columnOrder: [],
     enableClientSideSearch: true,
@@ -66,6 +66,7 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
     loadingProperties: Widget.getLoadingProperties(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+    setterConfig: Widget.getSetterConfig(),
   },
   methods: {
     getQueryGenerationConfig: (widgetProps: WidgetProps) => {

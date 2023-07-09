@@ -26,7 +26,7 @@ describe("one click binding mongodb datasource", function () {
       entityExplorer.SelectEntityByName("Table1", "Widgets");
 
       oneClickBinding.ChooseAndAssertForm(
-        `New from ${dsName}`,
+        `${dsName}`,
         dsName,
         "netflix",
         "creator",
@@ -76,8 +76,7 @@ describe("one click binding mongodb datasource", function () {
     table.ResetSearch();
 
     //lets create a new row and check to see the insert operation is working
-    agHelper.GetNClick(table._addNewRow);
-    agHelper.AssertElementExist(table._newRow);
+    table.AddNewRow();
 
     const someText = "new row " + Cypress._.random(0, 1e6);
     const searchColumnIndex = 3;

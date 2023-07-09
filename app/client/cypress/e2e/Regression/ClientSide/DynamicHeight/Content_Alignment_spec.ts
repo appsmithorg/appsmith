@@ -1,12 +1,8 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const { AggregateHelper } = ObjectsRegistry;
+import { agHelper } from "../../../../support/Objects/ObjectsCore";
 
 describe("Auto height default widget content alignment", () => {
   before(() => {
-    cy.fixture("autoHeightContentAlignmentDSL").then((val: any) => {
-      AggregateHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("autoHeightContentAlignmentDSL");
   });
 
   it("1. Should have contents centered using align-items css", () => {
