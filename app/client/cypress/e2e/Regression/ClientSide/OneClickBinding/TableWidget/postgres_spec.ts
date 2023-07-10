@@ -59,7 +59,7 @@ describe("Table widget one click binding feature", () => {
 
     // table.EditTableCell(0, 0, randomNumber.toString(), false);//Bug 24623 - since 2 digit id is not typed properly
     table.UpdateTableCell(0, 1, "_");
-    table.UpdateTableCell(0, 2, "appsmith");
+    table.UpdateTableCell(0, 2, "appsmith_");
 
     agHelper.GetNClick(oneClickBindingLocator.dateInput, 0, true);
     agHelper.GetNClick(oneClickBindingLocator.dayViewFromDate, 0, true);
@@ -75,11 +75,11 @@ describe("Table widget one click binding feature", () => {
 
     assertHelper.AssertNetworkStatus("@postExecute");
 
-    agHelper.TypeText(table._searchInput, "appsmith");
+    agHelper.TypeText(table._searchInput, "appsmith_");
 
     assertHelper.AssertNetworkStatus("@postExecute");
 
-    agHelper.AssertElementExist(table._bodyCell("appsmith"));
+    agHelper.AssertElementExist(table._bodyCell("appsmith_"));
 
     agHelper.Sleep();
 
@@ -115,12 +115,12 @@ describe("Table widget one click binding feature", () => {
 
     agHelper.ClearTextField(table._searchInput);
 
-    agHelper.TypeText(table._searchInput, "appsmith");
+    agHelper.TypeText(table._searchInput, "appsmith_");
 
     assertHelper.AssertNetworkStatus("@postExecute");
 
     agHelper.Sleep(2000);
 
-    agHelper.AssertElementAbsence(table._bodyCell("appsmith"));
+    agHelper.AssertElementAbsence(table._bodyCell("appsmith_"));
   });
 });
