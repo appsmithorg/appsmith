@@ -81,7 +81,8 @@
                     <!-- Allow JUnit to access the test classes -->
                     <argLine>--add-opens java.base/java.lang=ALL-UNNAMED
                         --add-opens java.base/java.time=ALL-UNNAMED
-                        --add-opens java.base/java.util=ALL-UNNAMED</argLine>
+                        --add-opens java.base/java.util=ALL-UNNAMED
+                    </argLine>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -174,6 +175,7 @@
                         <goals>
                             <goal>apply</goal>
                         </goals>
+                        <!-- git This gets triggered automatically when we run the build script -->
                         <phase>compile</phase>
                     </execution>
                 </executions>
