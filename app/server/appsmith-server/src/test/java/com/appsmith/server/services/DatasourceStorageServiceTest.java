@@ -130,7 +130,8 @@ public class DatasourceStorageServiceTest {
         datasourceStorageService.create(datasourceStorage).block();
         StepVerifier.create(datasourceStorageService.create(datasourceStorage)).verifyErrorSatisfies(error -> {
             assertThat(error).isInstanceOf(AppsmithException.class);
-            assertThat(((AppsmithException) error).getAppErrorCode()).isEqualTo(AppsmithError.DUPLICATE_DATASOURCE_CONFIGURATION.getAppErrorCode());
+            assertThat(((AppsmithException) error).getAppErrorCode())
+                    .isEqualTo(AppsmithError.DUPLICATE_DATASOURCE_CONFIGURATION.getAppErrorCode());
         });
     }
 

@@ -1890,13 +1890,15 @@ public class ActionExecutionSolutionCETest {
                 });
 
         Mockito.doReturn(Mono.empty())
-                .when(datasourceStorageService).findByDatasourceAndEnvironmentIdForExecution(any(), any());
+                .when(datasourceStorageService)
+                .findByDatasourceAndEnvironmentIdForExecution(any(), any());
 
         StepVerifier.create(resultMono).assertNext(actionExecutionResult -> {
             assertThat(actionExecutionResult.getIsExecutionSuccess()).isEqualTo(false);
             assertThat(actionExecutionResult.getStatusCode())
                     .isEqualTo(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getAppErrorCode());
-            assertThat(actionExecutionResult.getErrorType()).isEqualTo(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getErrorType());
+            assertThat(actionExecutionResult.getErrorType())
+                    .isEqualTo(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getErrorType());
         });
     }
 }
