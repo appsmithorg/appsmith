@@ -2,7 +2,7 @@ import type { Position } from "codemirror";
 import type { LintError } from "utils/DynamicBindingUtils";
 import { JSHINT as jshint } from "jshint";
 import type { LintError as JSHintError } from "jshint";
-import { isEmpty, isNumber, keys } from "lodash";
+import { get, isEmpty, isNumber, keys } from "lodash";
 import type {
   MemberExpressionData,
   AssignmentExpressionData,
@@ -26,6 +26,7 @@ import getLintSeverity from "./getLintSeverity";
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
 import { last } from "lodash";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
+import setters from "workers/Evaluation/setters";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 
@@ -186,18 +187,91 @@ export default function getLintingErrors({
       options?.isJsObject,
     ),
   );
-  const invalidPropertyErrors = getInvalidPropertyErrorsFromScript(
+  const customLintErrors = getCustomErrorsFromScript(
     script,
     data,
     scriptPos,
     originalBinding,
     options?.isJsObject,
   );
-  return jshintErrors.concat(invalidPropertyErrors);
+  return jshintErrors.concat(customLintErrors);
 }
 
-// returns lint errors caused by accessing invalid properties. Eg. jsObject.unknownProperty
-function getInvalidPropertyErrorsFromScript(
+function getAssignmentExpressionErrors({
+  assignmentExpressions,
+  data,
+  originalBinding,
+  script,
+  scriptPos,
+}: {
+  data: Record<string, unknown>;
+  assignmentExpressions: AssignmentExpressionData[];
+  scriptPos: Position;
+  originalBinding: string;
+  script: string;
+}) {
+  const assignmentExpressionErrors: LintError[] = [];
+
+  for (const { object, property } of assignmentExpressions) {
+    const objectName = object.name;
+    const propertyName = isLiteralNode(property)
+      ? (property.value as string)
+      : property.name;
+
+    const entity = data[objectName];
+    if (!entity || !isWidget(entity)) continue;
+
+    const isValidProperty = propertyName in entity;
+
+    const setterAccessorMap = setters.getSetterAccessorMap();
+
+    const methodName = get(setterAccessorMap, `${objectName}.${propertyName}`);
+
+    const suggestionSentence = methodName
+      ? `Use ${methodName}(value) setter method instead.`
+      : `Use ${objectName} setter method instead.`;
+
+    const lintErrorMessage = !isValidProperty
+      ? `${objectName} doesn't have a property named ${propertyName}`
+      : `Direct mutation of widget properties aren't supported. ${suggestionSentence}`;
+
+    const objectStartLine = object.loc.start.line - 1;
+
+    const objectStartCol = object.loc.start.column + 1;
+
+    const variable = isLiteralNode(property)
+      ? `${object.name}["${propertyName}"]`
+      : `${object.name}.${propertyName}`;
+
+    assignmentExpressionErrors.push({
+      errorType: PropertyEvaluationErrorType.LINT,
+      raw: script,
+      severity: getLintSeverity(
+        CustomLintErrorCode.INVALID_ENTITY_PROPERTY,
+        lintErrorMessage,
+      ),
+      errorMessage: {
+        name: "LintingError",
+        message: lintErrorMessage,
+      },
+      errorSegment: variable,
+      originalBinding,
+      variables: [variable, null, null],
+      code: CustomLintErrorCode.INVALID_ENTITY_PROPERTY,
+      line: objectStartLine - scriptPos.line,
+      ch:
+        objectStartLine === scriptPos.line
+          ? objectStartCol - scriptPos.ch
+          : objectStartCol,
+    });
+  }
+  return assignmentExpressionErrors;
+}
+
+// returns lint errors caused by
+// 1. accessing invalid properties. Eg. jsObject.unknownProperty
+// 2. direct mutation of widget properties. Eg. widget1.left = 10
+function getCustomErrorsFromScript(
   script: string,
   data: Record<string, unknown>,
   scriptPos: Position,
@@ -218,6 +292,14 @@ function getInvalidPropertyErrorsFromScript(
       value.assignmentExpressionsData as AssignmentExpressionData[];
     // eslint-disable-next-line no-console
   } catch (e) {}
+
+  const assignmentExpressionErrors = getAssignmentExpressionErrors({
+    assignmentExpressions,
+    script,
+    scriptPos,
+    originalBinding,
+    data,
+  });
 
   const invalidPropertyErrors = invalidTopLevelMemberExpressions.map(
     ({ object, property }): LintError => {
@@ -255,51 +337,6 @@ function getInvalidPropertyErrorsFromScript(
       };
     },
   );
-
-  const assignmentExpressionErrors: LintError[] = [];
-
-  for (const { object, property } of assignmentExpressions) {
-    const objectName = object.name;
-    const propertyName = isLiteralNode(property)
-      ? (property.value as string)
-      : property.name;
-
-    const entity = data[objectName];
-    if (!entity || !isWidget(entity)) continue;
-
-    const isValidProperty = propertyName in entity;
-
-    const lintErrorMessage = !isValidProperty
-      ? `${objectName} doesn't have a property named ${propertyName}`
-      : `Direct mutation of widget properties aren't supported. Use ${objectName} setter method instead.`;
-
-    const objectStartLine = object.loc.start.line - 1;
-
-    const propertyStartColumn = !isLiteralNode(property)
-      ? property.loc.start.column + 1
-      : property.loc.start.column + 2;
-    assignmentExpressionErrors.push({
-      errorType: PropertyEvaluationErrorType.LINT,
-      raw: script,
-      severity: getLintSeverity(
-        CustomLintErrorCode.INVALID_ENTITY_PROPERTY,
-        lintErrorMessage,
-      ),
-      errorMessage: {
-        name: "LintingError",
-        message: lintErrorMessage,
-      },
-      errorSegment: `${object.name}.${propertyName}`,
-      originalBinding,
-      variables: [object.name, propertyName, null, null],
-      code: CustomLintErrorCode.INVALID_ENTITY_PROPERTY,
-      line: objectStartLine - scriptPos.line,
-      ch:
-        objectStartLine === scriptPos.line
-          ? propertyStartColumn - scriptPos.ch
-          : propertyStartColumn,
-    });
-  }
 
   return [...invalidPropertyErrors, ...assignmentExpressionErrors];
 }
