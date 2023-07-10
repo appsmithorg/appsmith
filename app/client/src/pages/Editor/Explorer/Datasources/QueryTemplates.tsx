@@ -27,6 +27,7 @@ import styled from "styled-components";
 import { change, getFormValues } from "redux-form";
 import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import { diff } from "deep-diff";
+import { UndoRedoToastContext, showUndoRedoToast } from "utils/replayHelpers";
 
 type QueryTemplatesProps = {
   templates: QueryTemplate[];
@@ -69,10 +70,6 @@ export function QueryTemplates(props: QueryTemplatesProps) {
 
   const formValues = useSelector((state) => getFormValues(formName)(state));
 
-  const isEnabledForQueryBinding = useSelector((state) =>
-    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_binding_enabled),
-  );
- 
   const plugin: Plugin | undefined = useSelector((state: AppState) =>
     getPlugin(state, !!dataSource?.pluginId ? dataSource.pluginId : ""),
   );
@@ -162,12 +159,29 @@ export function QueryTemplates(props: QueryTemplatesProps) {
             dispatch(change(QUERY_EDITOR_FORM_NAME, path, value));
           }
         }
+
+        // leaving this code intentionally pending on what we want to do with deleted fields
+        // if (diff.kind === "D") {
+        //   const path = diff?.path?.join(".") || "";
+
+        //   if (path && !path.includes(".viewType")) {
+        //     dispatch(change(QUERY_EDITOR_FORM_NAME, path, ""));
+        //   }
+        // }
       });
 
       if (isWalkthroughOpened) {
         popFeature && popFeature();
         setFeatureFlagShownStatus(FEATURE_FLAG.ab_ds_schema_enabled, true);
       }
+
+      showUndoRedoToast(
+        currentAction.name,
+        false,
+        false,
+        true,
+        UndoRedoToastContext.QUERY_TEMPLATES,
+      );
     },
     [
       dispatch,

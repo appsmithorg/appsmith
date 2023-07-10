@@ -288,7 +288,6 @@ function ActionSidebar({
   hasConnections,
   hasResponse,
   pluginId,
-  setShowUndo,
   suggestedWidgets,
 }: {
   actionName: string;
@@ -302,7 +301,6 @@ function ActionSidebar({
   datasourceId: string;
   pluginId: string;
   context: DatasourceStructureContext;
-  setShowUndo?: (val: boolean) => void;
 }) {
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
@@ -471,7 +469,6 @@ function ActionSidebar({
                 datasourceId={datasourceId || ""}
                 datasourceStructure={datasourceStructure}
                 pluginName={pluginName}
-                setShowUndo={setShowUndo}
                 step={0}
               />
             </DataStructureListWrapper>
@@ -504,7 +501,6 @@ function ActionSidebar({
             </SnipingWrapper>
           </Collapsible>
         )}
- 
       {showSuggestedWidgets ? (
         <SchemaSideBarSection height={40} marginTop={12}>
           <SuggestedWidgets

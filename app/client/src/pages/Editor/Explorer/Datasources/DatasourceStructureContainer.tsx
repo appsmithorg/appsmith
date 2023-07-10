@@ -28,7 +28,6 @@ type Props = {
   context: DatasourceStructureContext;
   pluginName?: string;
   currentActionId?: string;
-  setShowUndo?: (val: boolean) => void;
 };
 
 export enum DatasourceStructureContext {
@@ -156,7 +155,6 @@ const Container = (props: Props) => {
                   dbStructure={structure}
                   forceExpand={hasSearchedOccured}
                   key={`${props.datasourceId}${structure.name}-${props.context}`}
-                  setShowUndo={props?.setShowUndo}
                   step={props.step + 1}
                 />
               );

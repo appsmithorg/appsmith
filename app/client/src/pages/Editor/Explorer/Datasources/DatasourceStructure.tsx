@@ -26,7 +26,6 @@ type DatasourceStructureProps = {
   isDefaultOpen?: boolean;
   forceExpand?: boolean;
   currentActionId: string;
-  setShowUndo?: (val: boolean) => void;
 };
 
 const StyledMenuContent = styled(MenuContent)`
@@ -57,10 +56,9 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
   ]);
 
   const onSelect = () => {
-    props?.setShowUndo && props.setShowUndo(true);
     setActive(false);
   };
-   
+
   const onEntityClick = () => {
     AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_TABLE_SELECT", {
       datasourceId: props.datasourceId,
@@ -103,7 +101,7 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
             context={props.context}
             currentActionId={props.currentActionId}
             datasourceId={props.datasourceId}
-            onSelect={() => onSelect()}
+            onSelect={onSelect}
             templates={dbStructure.templates}
           />
         </StyledMenuContent>
