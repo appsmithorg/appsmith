@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.domains.User;
 import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import reactor.test.StepVerifier;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -90,9 +92,10 @@ public class FeatureFlagServiceTest {
     }
 
     @Test
-    public void getFeatureFlags_withUserIdentifier_redisKeyExists() {
+    public void getFeatureFlags_withUserIdentifier_redisKeyExists(){
         String userIdentifier = "testIdentifier";
-        Mono<CachedFlags> cachedFlagsMono = cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier);
+        User dummyUser = new User();
+        Mono<CachedFlags> cachedFlagsMono = cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier, dummyUser);
         Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("featureFlag:" + userIdentifier);
         StepVerifier.create(cachedFlagsMono.then(hasKeyMono))
                 .assertNext(isKeyPresent -> {
@@ -124,4 +127,5 @@ public class FeatureFlagServiceTest {
             return ff4j;
         }
     }
+
 }
