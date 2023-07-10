@@ -8,10 +8,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class CacheableFeatureFlagHelperImpl extends CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHelper {
-    public CacheableFeatureFlagHelperImpl(TenantService tenantService, ConfigService configService,
-                                          CloudServicesConfig cloudServicesConfig, CommonConfig commonConfig,
-                                          UserIdentifierService userIdentifierService) {
+public class CacheableFeatureFlagHelperImpl extends CacheableFeatureFlagHelperCEImpl
+        implements CacheableFeatureFlagHelper {
+    public CacheableFeatureFlagHelperImpl(
+            TenantService tenantService,
+            ConfigService configService,
+            CloudServicesConfig cloudServicesConfig,
+            CommonConfig commonConfig,
+            UserIdentifierService userIdentifierService) {
         super(tenantService, configService, cloudServicesConfig, commonConfig, userIdentifierService);
     }
 }
