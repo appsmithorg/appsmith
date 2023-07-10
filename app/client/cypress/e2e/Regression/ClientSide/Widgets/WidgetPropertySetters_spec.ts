@@ -110,7 +110,7 @@ Object.values(setterMethodsToTest).forEach(
     index,
   ) => {
     describe(`${index + 1}. ${name} method test`, () => {
-      it(`1. DragDrop widget & Label/Text widgets`, () => {
+      it(`1. DragDrop widget & Label/Text widgets and Verify the updated value`, () => {
         entityExplorer.DragDropWidgetNVerify(widget, 300, 200);
         entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 700, 200);
 
@@ -125,9 +125,6 @@ Object.values(setterMethodsToTest).forEach(
           PROPERTY_SELECTOR.TextFieldName,
           valueBinding,
         );
-      });
-
-      it("2. Verify the updated value", () => {
         agHelper.GetNClick(getWidgetSelector(WIDGET.BUTTON));
 
         agHelper.GetText(getWidgetSelector(WIDGET.TEXT)).then(($label) => {
@@ -135,7 +132,7 @@ Object.values(setterMethodsToTest).forEach(
         });
       });
 
-      it("3. Delete all the widgets on canvas", () => {
+      afterEach("Delete all the widgets on canvas", () => {
         agHelper.GetNClick(locators._widgetInCanvas(widget));
         agHelper.PressDelete();
 

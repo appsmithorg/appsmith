@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.domains.User;
 import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -92,7 +93,8 @@ public class FeatureFlagServiceTest {
     @Test
     public void getFeatureFlags_withUserIdentifier_redisKeyExists() {
         String userIdentifier = "testIdentifier";
-        Mono<CachedFlags> cachedFlagsMono = cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier);
+        User dummyUser = new User();
+        Mono<CachedFlags> cachedFlagsMono = cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier, dummyUser);
         Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("featureFlag:" + userIdentifier);
         StepVerifier.create(cachedFlagsMono.then(hasKeyMono))
                 .assertNext(isKeyPresent -> {

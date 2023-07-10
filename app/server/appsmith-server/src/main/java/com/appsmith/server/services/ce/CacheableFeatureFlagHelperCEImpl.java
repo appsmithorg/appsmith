@@ -3,13 +3,16 @@ package com.appsmith.server.services.ce;
 import com.appsmith.caching.annotations.Cache;
 import com.appsmith.caching.annotations.CacheEvict;
 import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFlags;
-import com.appsmith.server.featureflags.FeatureFlagIdentities;
+import com.appsmith.server.featureflags.FeatureFlagIdentityTraits;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.UserIdentifierService;
 import com.appsmith.util.WebClientUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -17,6 +20,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,21 +32,51 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
 
     private final CloudServicesConfig cloudServicesConfig;
 
+    private final CommonConfig commonConfig;
+
+    private final UserIdentifierService userIdentifierService;
+
     public CacheableFeatureFlagHelperCEImpl(
-            TenantService tenantService, ConfigService configService, CloudServicesConfig cloudServicesConfig) {
+            TenantService tenantService,
+            ConfigService configService,
+            CloudServicesConfig cloudServicesConfig,
+            CommonConfig commonConfig,
+            UserIdentifierService userIdentifierService) {
         this.tenantService = tenantService;
         this.configService = configService;
         this.cloudServicesConfig = cloudServicesConfig;
+        this.commonConfig = commonConfig;
+        this.userIdentifierService = userIdentifierService;
     }
 
     @Cache(cacheName = "featureFlag", key = "{#userIdentifier}")
     @Override
-    public Mono<CachedFlags> fetchUserCachedFlags(String userIdentifier) {
-        return this.forceAllRemoteFeatureFlagsForUser(userIdentifier).flatMap(flags -> {
+    public Mono<CachedFlags> fetchUserCachedFlags(String userIdentifier, User user) {
+        return this.forceAllRemoteFeatureFlagsForUser(userIdentifier, user).flatMap(flags -> {
             CachedFlags cachedFlags = new CachedFlags();
             cachedFlags.setRefreshedAt(Instant.now());
             cachedFlags.setFlags(flags);
             return Mono.just(cachedFlags);
+        });
+    }
+
+    private Mono<Map<String, Object>> getUserDefaultTraits(User user) {
+        return configService.getInstanceId().map(instanceId -> {
+            Map<String, Object> userTraits = new HashMap<>();
+            String emailTrait;
+            if (!commonConfig.isCloudHosting()) {
+                emailTrait = userIdentifierService.hash(user.getEmail());
+            } else {
+                emailTrait = user.getEmail();
+            }
+            userTraits.put("email", emailTrait);
+            userTraits.put("instanceId", instanceId);
+            userTraits.put("tenantId", user.getTenantId());
+            userTraits.put("isTelemetryOn", !commonConfig.isTelemetryDisabled());
+            userTraits.put("createdAt", user.getCreatedAt());
+            userTraits.put("defaultTraitsUpdatedAt", Instant.now().getEpochSecond());
+            userTraits.put("type", "user");
+            return userTraits;
         });
     }
 
@@ -52,23 +86,31 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
         return Mono.empty();
     }
 
-    private Mono<Map<String, Boolean>> forceAllRemoteFeatureFlagsForUser(String userIdentifier) {
+    private Mono<Map<String, Boolean>> forceAllRemoteFeatureFlagsForUser(String userIdentifier, User user) {
         Mono<String> instanceIdMono = configService.getInstanceId();
         // TODO: Convert to current tenant when the feature is enabled
         Mono<String> defaultTenantIdMono = tenantService.getDefaultTenantId();
-        return Mono.zip(instanceIdMono, defaultTenantIdMono)
-                .flatMap(tuple2 -> {
-                    return this.getRemoteFeatureFlagsByIdentity(
-                            new FeatureFlagIdentities(tuple2.getT1(), tuple2.getT2(), Set.of(userIdentifier)));
+        return Mono.zip(instanceIdMono, defaultTenantIdMono, getUserDefaultTraits(user))
+                .flatMap(objects -> {
+                    return this.getRemoteFeatureFlagsByIdentity(new FeatureFlagIdentityTraits(
+                            objects.getT1(), objects.getT2(), Set.of(userIdentifier), objects.getT3()));
                 })
                 .map(newValue -> newValue.get(userIdentifier));
     }
 
-    private Mono<Map<String, Map<String, Boolean>>> getRemoteFeatureFlagsByIdentity(FeatureFlagIdentities identity) {
+    /**
+     * This method will call the cloud services which will call the flagsmith sdk.
+     * The default traits and the user identifier are passed to flagsmith sdk which internally will set the traits
+     * for the user and also returns the flags in the same sdk call.
+     * @param featureFlagIdentityTraits
+     * @return
+     */
+    private Mono<Map<String, Map<String, Boolean>>> getRemoteFeatureFlagsByIdentity(
+            FeatureFlagIdentityTraits featureFlagIdentityTraits) {
         return WebClientUtils.create(cloudServicesConfig.getBaseUrl())
                 .post()
                 .uri("/api/v1/feature-flags")
-                .body(BodyInserters.fromValue(identity))
+                .body(BodyInserters.fromValue(featureFlagIdentityTraits))
                 .exchangeToMono(clientResponse -> {
                     if (clientResponse.statusCode().is2xxSuccessful()) {
                         return clientResponse.bodyToMono(

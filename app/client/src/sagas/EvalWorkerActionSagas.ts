@@ -15,7 +15,6 @@ import type {
 import type { TMessage } from "utils/MessageUtil";
 import { MessageType } from "utils/MessageUtil";
 import type { ResponsePayload } from "../sagas/EvaluationsSaga";
-import { updateMetaPropsFromEvaluation } from "../sagas/EvaluationsSaga";
 import {
   evalWorker,
   executeTriggerRequestSaga,
@@ -171,19 +170,6 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
         unevalTree,
         requiresLogging: false,
       });
-      break;
-    }
-
-    case MAIN_THREAD_ACTION.SET_META_PROP_FROM_SETTER: {
-      const { body } = message;
-      const { data } = body;
-      const { evalMetaUpdates } = data;
-
-      /** For widgets like Input, we have to update meta properties like inputText */
-      if (evalMetaUpdates.length) {
-        yield call(updateMetaPropsFromEvaluation, evalMetaUpdates);
-      }
-
       break;
     }
 

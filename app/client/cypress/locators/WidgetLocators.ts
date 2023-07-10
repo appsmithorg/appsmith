@@ -63,3 +63,5 @@ export const getWidgetSelector = (widget: ValueOf<typeof WIDGET>) =>
   `.t--widget-${widget}`;
 export const getWidgetInputSelector = (widget: ValueOf<typeof WIDGET>) =>
   `.t--widget-${widget} input`;
+
+export const modalWidgetSelector = ".t--modal-widget";
