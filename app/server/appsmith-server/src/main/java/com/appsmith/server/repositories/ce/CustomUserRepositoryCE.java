@@ -23,6 +23,11 @@ public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
 
     Mono<Boolean> isUsersEmpty();
 
-    Flux<User> getAllByEmails(Set<String> emails, Optional<AclPermission> aclPermission, int limit, int skip, StringPath sortKey, Sort.Direction sortDirection);
-
+    Flux<User> getAllByEmails(
+            Set<String> emails,
+            Optional<AclPermission> aclPermission,
+            int limit,
+            int skip,
+            StringPath sortKey,
+            Sort.Direction sortDirection);
 }

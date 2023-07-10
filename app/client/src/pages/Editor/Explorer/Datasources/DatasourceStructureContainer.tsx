@@ -19,6 +19,7 @@ import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import DatasourceStructureLoadingContainer from "./DatasourceStructureLoadingContainer";
 import DatasourceStructureNotFound from "./DatasourceStructureNotFound";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type Props = {
   datasourceId: string;
@@ -120,6 +121,11 @@ const Container = (props: Props) => {
       .filter((table) => tables.has(table.name));
 
     setDatasourceStructure({ tables: filteredDastasourceStructure });
+
+    AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_SEARCH", {
+      datasourceId: props.datasourceId,
+      pluginName: props.pluginName,
+    });
   };
 
   if (!isLoading) {

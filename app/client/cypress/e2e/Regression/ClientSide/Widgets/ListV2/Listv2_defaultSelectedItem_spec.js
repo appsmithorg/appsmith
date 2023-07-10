@@ -47,7 +47,9 @@ const verifyDefaultItem = () => {
 };
 
 function setUpDataSource() {
-  cy.createAndFillApi("https://api.punkapi.com/v2/beers", "");
+  cy.fixture("datasources").then((datasourceFormData) => {
+    _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"] + "0");
+  });
   cy.RunAPI();
   _.entityExplorer.SelectEntityByName("List1");
   cy.wait(200);

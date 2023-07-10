@@ -139,6 +139,7 @@ public class ActionExecutionSolutionCETest {
 
     @SpyBean
     AstService astService;
+
     @Autowired
     DatasourceRepository datasourceRepository;
 
@@ -168,17 +169,21 @@ public class ActionExecutionSolutionCETest {
         toCreate.setName("ActionServiceCE_Test");
 
         if (workspaceId == null) {
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
 
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId =
+                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
         }
 
         if (testApp == null && testPage == null) {
-            //Create application and page which will be used by the tests to create actions for.
+            // Create application and page which will be used by the tests to create actions for.
             Application application = new Application();
             application.setName(UUID.randomUUID().toString());
-            testApp = applicationPageService.createApplication(application, workspaceId).block();
+            testApp = applicationPageService
+                    .createApplication(application, workspaceId)
+                    .block();
 
             final String pageId = testApp.getPages().get(0).getId();
 
@@ -212,17 +217,23 @@ public class ActionExecutionSolutionCETest {
             GitApplicationMetadata gitData = new GitApplicationMetadata();
             gitData.setBranchName("actionServiceTest");
             newApp.setGitApplicationMetadata(gitData);
-            gitConnectedApp = applicationPageService.createApplication(newApp, workspaceId)
+            gitConnectedApp = applicationPageService
+                    .createApplication(newApp, workspaceId)
                     .flatMap(application -> {
                         application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
-                        return applicationService.save(application)
-                                .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
+                        return applicationService
+                                .save(application)
+                                .zipWhen(application1 -> importExportApplicationService.exportApplicationById(
+                                        application1.getId(), gitData.getBranchName()));
                     })
                     // Assign the branchName to all the resources connected to the application
-                    .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspaceFromGit(workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                    .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspaceFromGit(
+                            workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                     .block();
 
-            gitConnectedPage = newPageService.findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false).block();
+            gitConnectedPage = newPageService
+                    .findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false)
+                    .block();
 
             branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
         }
@@ -230,7 +241,8 @@ public class ActionExecutionSolutionCETest {
         datasource = new Datasource();
         datasource.setName("Default Database");
         datasource.setWorkspaceId(workspaceId);
-        Plugin installed_plugin = pluginRepository.findByPackageName("restapi-plugin").block();
+        Plugin installed_plugin =
+                pluginRepository.findByPackageName("restapi-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
         DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
@@ -245,12 +257,12 @@ public class ActionExecutionSolutionCETest {
         applicationPageService.deleteApplication(testApp.getId()).block();
         testApp = null;
         testPage = null;
-
     }
 
-    private void executeAndAssertAction(ExecuteActionDTO executeActionDTO,
-                                        ActionExecutionResult mockResult,
-                                        List<ParsedDataType> expectedReturnDataTypes) {
+    private void executeAndAssertAction(
+            ExecuteActionDTO executeActionDTO,
+            ActionExecutionResult mockResult,
+            List<ParsedDataType> expectedReturnDataTypes) {
 
         List<WidgetSuggestionDTO> expectedWidgets = mockResult.getSuggestedWidgets();
         Mono<ActionExecutionResult> actionExecutionResultMono = executeAction(executeActionDTO, mockResult);
@@ -269,51 +281,52 @@ public class ActionExecutionSolutionCETest {
                 .verifyComplete();
     }
 
-    private Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO,
-                                                      ActionExecutionResult mockResult) {
+    private Mono<ActionExecutionResult> executeAction(
+            ExecuteActionDTO executeActionDTO, ActionExecutionResult mockResult) {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(
+                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(mockResult));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId);
+        Mono<ActionExecutionResult> actionExecutionResultMono =
+                actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId);
         return actionExecutionResultMono;
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void testVariableSubstitution() {
-        String json = "{\n" +
-                "  \n" +
-                "  \"deleted\": false,\n" +
-                "  \"config\": {\n" +
-                "    \"CONTAINER_WIDGET\": [\n" +
-                "      {\n" +
-                "        \"_id\": \"7\",\n" +
-                "        \"sectionName\": \"General\",\n" +
-                "        \"children\": [\n" +
-                "          {\n" +
-                "            \"_id\": \"7.1\",\n" +
-                "            \"helpText\": \"Use a html color name, HEX, RGB or RGBA value\",\n" +
-                "            \"placeholderText\": \"#FFFFFF / Gray / rgb(255, 99, 71)\",\n" +
-                "            \"propertyName\": \"backgroundColor\",\n" +
-                "            \"label\": \"Background Color\",\n" +
-                "            \"controlType\": \"INPUT_TEXT\"\n" +
-                "          },\n" +
-                "          {\n" +
-                "            \"_id\": \"7.2\",\n" +
-                "            \"helpText\": \"Controls the visibility of the widget\",\n" +
-                "            \"propertyName\": \"isVisible\",\n" +
-                "            \"label\": \"Visible\",\n" +
-                "            \"controlType\": \"SWITCH\",\n" +
-                "            \"isJSConvertible\": true\n" +
-                "          }\n" +
-                "        ]\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  },\n" +
-                "  \"name\": \"propertyPane\"\n" +
-                "}";
+        String json = "{\n" + "  \n"
+                + "  \"deleted\": false,\n"
+                + "  \"config\": {\n"
+                + "    \"CONTAINER_WIDGET\": [\n"
+                + "      {\n"
+                + "        \"_id\": \"7\",\n"
+                + "        \"sectionName\": \"General\",\n"
+                + "        \"children\": [\n"
+                + "          {\n"
+                + "            \"_id\": \"7.1\",\n"
+                + "            \"helpText\": \"Use a html color name, HEX, RGB or RGBA value\",\n"
+                + "            \"placeholderText\": \"#FFFFFF / Gray / rgb(255, 99, 71)\",\n"
+                + "            \"propertyName\": \"backgroundColor\",\n"
+                + "            \"label\": \"Background Color\",\n"
+                + "            \"controlType\": \"INPUT_TEXT\"\n"
+                + "          },\n"
+                + "          {\n"
+                + "            \"_id\": \"7.2\",\n"
+                + "            \"helpText\": \"Controls the visibility of the widget\",\n"
+                + "            \"propertyName\": \"isVisible\",\n"
+                + "            \"label\": \"Visible\",\n"
+                + "            \"controlType\": \"SWITCH\",\n"
+                + "            \"isJSConvertible\": true\n"
+                + "          }\n"
+                + "        ]\n"
+                + "      }\n"
+                + "    ]\n"
+                + "  },\n"
+                + "  \"name\": \"propertyPane\"\n"
+                + "}";
 
         ActionDTO action = new ActionDTO();
         action.setActionConfiguration(new ActionConfiguration());
@@ -331,7 +344,8 @@ public class ActionExecutionSolutionCETest {
         action.setActionConfiguration(new ActionConfiguration());
         action.getActionConfiguration().setBody("{{Input.text}}");
 
-        ActionDTO renderedAction = actionExecutionSolution.variableSubstitution(action, Map.of("Input.text", "name\nvalue"));
+        ActionDTO renderedAction =
+                actionExecutionSolution.variableSubstitution(action, Map.of("Input.text", "name\nvalue"));
         assertThat(renderedAction).isNotNull();
         assertThat(renderedAction.getActionConfiguration().getBody()).isEqualTo("name\nvalue");
     }
@@ -361,7 +375,8 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
@@ -394,7 +409,8 @@ public class ActionExecutionSolutionCETest {
         action.setName("testActionExecuteNullRequestBody");
         action.setPageId(testPage.getId());
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
@@ -424,14 +440,14 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteDbQuery");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -447,15 +463,14 @@ public class ActionExecutionSolutionCETest {
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHeaders(List.of(
-                new Property("random-header-key", "random-header-value"),
-                new Property("", "")
-        ));
+        actionConfiguration.setHeaders(
+                List.of(new Property("random-header-key", "random-header-value"), new Property("", "")));
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteErrorResponse");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
@@ -463,7 +478,9 @@ public class ActionExecutionSolutionCETest {
 
         AppsmithPluginException pluginException = new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR);
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.error(pluginException));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(
+                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.error(pluginException));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
         Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
@@ -492,10 +509,8 @@ public class ActionExecutionSolutionCETest {
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHeaders(List.of(
-                new Property("random-header-key", "random-header-value"),
-                new Property("", "")
-        ));
+        actionConfiguration.setHeaders(
+                List.of(new Property("random-header-key", "random-header-value"), new Property("", "")));
         actionConfiguration.setPaginationType(PaginationType.URL);
         actionConfiguration.setNext(null);
         action.setActionConfiguration(actionConfiguration);
@@ -504,7 +519,8 @@ public class ActionExecutionSolutionCETest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
@@ -513,7 +529,9 @@ public class ActionExecutionSolutionCETest {
 
         AppsmithPluginException pluginException = new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR);
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.error(pluginException));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(
+                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.error(pluginException));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
         Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
@@ -540,24 +558,25 @@ public class ActionExecutionSolutionCETest {
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHeaders(List.of(
-                new Property("random-header-key", "random-header-value"),
-                new Property("", "")
-        ));
+        actionConfiguration.setHeaders(
+                List.of(new Property("random-header-key", "random-header-value"), new Property("", "")));
         actionConfiguration.setTimeoutInMillisecond(String.valueOf(1000));
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteSecondaryStaleConnection");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.error(new StaleConnectionException())).thenReturn(Mono.error(new StaleConnectionException()));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(
+                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.error(new StaleConnectionException()))
+                .thenReturn(Mono.error(new StaleConnectionException()));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
         Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
@@ -565,7 +584,8 @@ public class ActionExecutionSolutionCETest {
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
-                    assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.STALE_CONNECTION_ERROR.getAppErrorCode());
+                    assertThat(result.getStatusCode())
+                            .isEqualTo(AppsmithPluginError.STALE_CONNECTION_ERROR.getAppErrorCode());
                     assertThat(result.getTitle()).isEqualTo(AppsmithPluginError.STALE_CONNECTION_ERROR.getTitle());
                 })
                 .verifyComplete();
@@ -584,23 +604,23 @@ public class ActionExecutionSolutionCETest {
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHeaders(List.of(
-                new Property("random-header-key", "random-header-value"),
-                new Property("", "")
-        ));
+        actionConfiguration.setHeaders(
+                List.of(new Property("random-header-key", "random-header-value"), new Property("", "")));
         actionConfiguration.setTimeoutInMillisecond(String.valueOf(10));
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteTimeout");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(
+                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenAnswer(x -> Mono.delay(Duration.ofMillis(1000)).ofType(ActionExecutionResult.class));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
@@ -609,12 +629,12 @@ public class ActionExecutionSolutionCETest {
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
-                    assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR.getAppErrorCode());
+                    assertThat(result.getStatusCode())
+                            .isEqualTo(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR.getAppErrorCode());
                     assertThat(result.getTitle()).isEqualTo(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR.getTitle());
                 })
                 .verifyComplete();
     }
-
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -624,13 +644,13 @@ public class ActionExecutionSolutionCETest {
         mockResult.setBody("response-body");
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(
+                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenThrow(new StaleConnectionException())
                 .thenReturn(Mono.just(mockResult));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
-
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -639,13 +659,15 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("checkRecoveryFromStaleConnections");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
+        Mono<ActionExecutionResult> actionExecutionResultMono =
+                actionExecutionSolution.executeAction(executeActionDTO, null);
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(result -> {
@@ -655,17 +677,18 @@ public class ActionExecutionSolutionCETest {
                 .verifyComplete();
     }
 
-
     @Test
     @WithUserDetails(value = "api_user")
     public void executeActionWithExternalDatasource() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
         Mockito.when(pluginService.getEditorConfigLabelMap(Mockito.anyString())).thenReturn(Mono.just(new HashMap<>()));
 
         Datasource externalDatasource = new Datasource();
         externalDatasource.setName("Default Database");
         externalDatasource.setWorkspaceId(workspaceId);
-        Plugin restApiPlugin = pluginRepository.findByPackageName("restapi-plugin").block();
+        Plugin restApiPlugin =
+                pluginRepository.findByPackageName("restapi-plugin").block();
         externalDatasource.setPluginId(restApiPlugin.getId());
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("some url here");
@@ -684,8 +707,8 @@ public class ActionExecutionSolutionCETest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(savedDs);
 
-
-        Mono<ActionExecutionResult> resultMono = layoutActionService.createSingleAction(action, Boolean.FALSE)
+        Mono<ActionExecutionResult> resultMono = layoutActionService
+                .createSingleAction(action, Boolean.FALSE)
                 .flatMap(savedAction -> {
                     ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
                     executeActionDTO.setActionId(savedAction.getId());
@@ -693,9 +716,7 @@ public class ActionExecutionSolutionCETest {
                     return actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId);
                 });
 
-
-        StepVerifier
-                .create(resultMono)
+        StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertThat(result).isNotNull();
                     assertThat(result.getStatusCode()).isEqualTo("200");
@@ -712,11 +733,10 @@ public class ActionExecutionSolutionCETest {
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
-        mockResult.setBody("[\n" +
-                "{\"name\": \"Richard\", \"profession\": \"medical\"},\n" +
-                "{\"name\": \"John\", \"profession\": \"self employed\"},\n" +
-                "{\"name\": \"Mary\", \"profession\": \"engineer\"}\n" +
-                "]");
+        mockResult.setBody("[\n" + "{\"name\": \"Richard\", \"profession\": \"medical\"},\n"
+                + "{\"name\": \"John\", \"profession\": \"self employed\"},\n"
+                + "{\"name\": \"Mary\", \"profession\": \"engineer\"}\n"
+                + "]");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
 
@@ -732,15 +752,20 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.TABLE), new ParsedDataType(DisplayDataType.JSON)
-                        , new ParsedDataType(DisplayDataType.RAW)));
+        executeAndAssertAction(
+                executeActionDTO,
+                mockResult,
+                List.of(
+                        new ParsedDataType(DisplayDataType.TABLE),
+                        new ParsedDataType(DisplayDataType.JSON),
+                        new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -752,15 +777,14 @@ public class ActionExecutionSolutionCETest {
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
-        mockResult.setBody("{\n" +
-                "  \"name\":\"John\",\n" +
-                "  \"age\":30,\n" +
-                "  \"cars\": {\n" +
-                "    \"car1\":\"Ford\",\n" +
-                "    \"car2\":\"BMW\",\n" +
-                "    \"car3\":\"Fiat\"\n" +
-                "  }\n" +
-                " }");
+        mockResult.setBody("{\n" + "  \"name\":\"John\",\n"
+                + "  \"age\":30,\n"
+                + "  \"cars\": {\n"
+                + "    \"car1\":\"Ford\",\n"
+                + "    \"car2\":\"BMW\",\n"
+                + "    \"car3\":\"Fiat\"\n"
+                + "  }\n"
+                + " }");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
 
@@ -776,13 +800,16 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
+        executeAndAssertAction(
+                executeActionDTO,
+                mockResult,
                 List.of(new ParsedDataType(DisplayDataType.JSON), new ParsedDataType(DisplayDataType.RAW)));
     }
 
@@ -795,15 +822,14 @@ public class ActionExecutionSolutionCETest {
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
-        mockResult.setBody("{\n" +
-                "  \"name\":\"John\",\n" +
-                "  \"age\":30,\n" +
-                "  \"cars\": {\n" +
-                "    \"car1\":\"Ford\",\n" +
-                "    \"car2\":\"BMW\",\n" +
-                "    \"car3\":\"Fiat\"\n" +
-                "  }\n" +
-                " }");
+        mockResult.setBody("{\n" + "  \"name\":\"John\",\n"
+                + "  \"age\":30,\n"
+                + "  \"cars\": {\n"
+                + "    \"car1\":\"Ford\",\n"
+                + "    \"car2\":\"BMW\",\n"
+                + "    \"car3\":\"Fiat\"\n"
+                + "  }\n"
+                + " }");
         mockResult.setStatusCode("200");
         mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
         mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
@@ -820,14 +846,14 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -855,7 +881,8 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
@@ -873,36 +900,35 @@ public class ActionExecutionSolutionCETest {
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
-        final String data = "{ \"data\": [\n" +
-                "  {\n" +
-                "    \"x\": \"Mon\",\n" +
-                "    \"y\": 10000\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"x\": \"Tue\",\n" +
-                "    \"y\": 12000\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"x\": \"Wed\",\n" +
-                "    \"y\": 32000\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"x\": \"Thu\",\n" +
-                "    \"y\": 28000\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"x\": \"Fri\",\n" +
-                "    \"y\": 14000\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"x\": \"Sat\",\n" +
-                "    \"y\": 19000\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"x\": \"Sun\",\n" +
-                "    \"y\": 36000\n" +
-                "  }\n" +
-                "]}";
+        final String data = "{ \"data\": [\n" + "  {\n"
+                + "    \"x\": \"Mon\",\n"
+                + "    \"y\": 10000\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"x\": \"Tue\",\n"
+                + "    \"y\": 12000\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"x\": \"Wed\",\n"
+                + "    \"y\": 32000\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"x\": \"Thu\",\n"
+                + "    \"y\": 28000\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"x\": \"Fri\",\n"
+                + "    \"y\": 14000\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"x\": \"Sat\",\n"
+                + "    \"y\": 19000\n"
+                + "  },\n"
+                + "  {\n"
+                + "    \"x\": \"Sun\",\n"
+                + "    \"y\": 36000\n"
+                + "  }\n"
+                + "]}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
 
         mockResult.setIsExecutionSuccess(true);
@@ -926,15 +952,14 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
-
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -945,76 +970,75 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
-        final String data = "{ \"data\": [\n" +
-                "\t{\n" +
-                "\t\t\"id\": \"0001\",\n" +
-                "\t\t\"type\": \"donut\",\n" +
-                "\t\t\"name\": \"Cake\",\n" +
-                "\t\t\"ppu\": 0.55,\n" +
-                "\t\t\"batters\":\n" +
-                "\t\t\t{\n" +
-                "\t\t\t\t\"batter\":\n" +
-                "\t\t\t\t\t[\n" +
-                "\t\t\t\t\t\t{ \"id\": \"1001\", \"type\": \"Regular\" },\n" +
-                "\t\t\t\t\t\t{ \"id\": \"1002\", \"type\": \"Chocolate\" },\n" +
-                "\t\t\t\t\t\t{ \"id\": \"1003\", \"type\": \"Blueberry\" },\n" +
-                "\t\t\t\t\t\t{ \"id\": \"1004\", \"type\": \"Devil's Food\" }\n" +
-                "\t\t\t\t\t]\n" +
-                "\t\t\t},\n" +
-                "\t\t\"topping\":\n" +
-                "\t\t\t[\n" +
-                "\t\t\t\t{ \"id\": \"5001\", \"type\": \"None\" },\n" +
-                "\t\t\t\t{ \"id\": \"5002\", \"type\": \"Glazed\" },\n" +
-                "\t\t\t\t{ \"id\": \"5005\", \"type\": \"Sugar\" },\n" +
-                "\t\t\t\t{ \"id\": \"5007\", \"type\": \"Powdered Sugar\" },\n" +
-                "\t\t\t\t{ \"id\": \"5006\", \"type\": \"Chocolate with Sprinkles\" },\n" +
-                "\t\t\t\t{ \"id\": \"5003\", \"type\": \"Chocolate\" },\n" +
-                "\t\t\t\t{ \"id\": \"5004\", \"type\": \"Maple\" }\n" +
-                "\t\t\t]\n" +
-                "\t},\n" +
-                "\t{\n" +
-                "\t\t\"id\": \"0002\",\n" +
-                "\t\t\"type\": \"donut\",\n" +
-                "\t\t\"name\": \"Raised\",\n" +
-                "\t\t\"ppu\": 0.55,\n" +
-                "\t\t\"batters\":\n" +
-                "\t\t\t{\n" +
-                "\t\t\t\t\"batter\":\n" +
-                "\t\t\t\t\t[\n" +
-                "\t\t\t\t\t\t{ \"id\": \"1001\", \"type\": \"Regular\" }\n" +
-                "\t\t\t\t\t]\n" +
-                "\t\t\t},\n" +
-                "\t\t\"topping\":\n" +
-                "\t\t\t[\n" +
-                "\t\t\t\t{ \"id\": \"5001\", \"type\": \"None\" },\n" +
-                "\t\t\t\t{ \"id\": \"5002\", \"type\": \"Glazed\" },\n" +
-                "\t\t\t\t{ \"id\": \"5005\", \"type\": \"Sugar\" },\n" +
-                "\t\t\t\t{ \"id\": \"5003\", \"type\": \"Chocolate\" },\n" +
-                "\t\t\t\t{ \"id\": \"5004\", \"type\": \"Maple\" }\n" +
-                "\t\t\t]\n" +
-                "\t},\n" +
-                "\t{\n" +
-                "\t\t\"id\": \"0003\",\n" +
-                "\t\t\"type\": \"donut\",\n" +
-                "\t\t\"name\": \"Old Fashioned\",\n" +
-                "\t\t\"ppu\": 0.55,\n" +
-                "\t\t\"batters\":\n" +
-                "\t\t\t{\n" +
-                "\t\t\t\t\"batter\":\n" +
-                "\t\t\t\t\t[\n" +
-                "\t\t\t\t\t\t{ \"id\": \"1001\", \"type\": \"Regular\" },\n" +
-                "\t\t\t\t\t\t{ \"id\": \"1002\", \"type\": \"Chocolate\" }\n" +
-                "\t\t\t\t\t]\n" +
-                "\t\t\t},\n" +
-                "\t\t\"topping\":\n" +
-                "\t\t\t[\n" +
-                "\t\t\t\t{ \"id\": \"5001\", \"type\": \"None\" },\n" +
-                "\t\t\t\t{ \"id\": \"5002\", \"type\": \"Glazed\" },\n" +
-                "\t\t\t\t{ \"id\": \"5003\", \"type\": \"Chocolate\" },\n" +
-                "\t\t\t\t{ \"id\": \"5004\", \"type\": \"Maple\" }\n" +
-                "\t\t\t]\n" +
-                "\t}\n" +
-                "]}";
+        final String data = "{ \"data\": [\n" + "\t{\n"
+                + "\t\t\"id\": \"0001\",\n"
+                + "\t\t\"type\": \"donut\",\n"
+                + "\t\t\"name\": \"Cake\",\n"
+                + "\t\t\"ppu\": 0.55,\n"
+                + "\t\t\"batters\":\n"
+                + "\t\t\t{\n"
+                + "\t\t\t\t\"batter\":\n"
+                + "\t\t\t\t\t[\n"
+                + "\t\t\t\t\t\t{ \"id\": \"1001\", \"type\": \"Regular\" },\n"
+                + "\t\t\t\t\t\t{ \"id\": \"1002\", \"type\": \"Chocolate\" },\n"
+                + "\t\t\t\t\t\t{ \"id\": \"1003\", \"type\": \"Blueberry\" },\n"
+                + "\t\t\t\t\t\t{ \"id\": \"1004\", \"type\": \"Devil's Food\" }\n"
+                + "\t\t\t\t\t]\n"
+                + "\t\t\t},\n"
+                + "\t\t\"topping\":\n"
+                + "\t\t\t[\n"
+                + "\t\t\t\t{ \"id\": \"5001\", \"type\": \"None\" },\n"
+                + "\t\t\t\t{ \"id\": \"5002\", \"type\": \"Glazed\" },\n"
+                + "\t\t\t\t{ \"id\": \"5005\", \"type\": \"Sugar\" },\n"
+                + "\t\t\t\t{ \"id\": \"5007\", \"type\": \"Powdered Sugar\" },\n"
+                + "\t\t\t\t{ \"id\": \"5006\", \"type\": \"Chocolate with Sprinkles\" },\n"
+                + "\t\t\t\t{ \"id\": \"5003\", \"type\": \"Chocolate\" },\n"
+                + "\t\t\t\t{ \"id\": \"5004\", \"type\": \"Maple\" }\n"
+                + "\t\t\t]\n"
+                + "\t},\n"
+                + "\t{\n"
+                + "\t\t\"id\": \"0002\",\n"
+                + "\t\t\"type\": \"donut\",\n"
+                + "\t\t\"name\": \"Raised\",\n"
+                + "\t\t\"ppu\": 0.55,\n"
+                + "\t\t\"batters\":\n"
+                + "\t\t\t{\n"
+                + "\t\t\t\t\"batter\":\n"
+                + "\t\t\t\t\t[\n"
+                + "\t\t\t\t\t\t{ \"id\": \"1001\", \"type\": \"Regular\" }\n"
+                + "\t\t\t\t\t]\n"
+                + "\t\t\t},\n"
+                + "\t\t\"topping\":\n"
+                + "\t\t\t[\n"
+                + "\t\t\t\t{ \"id\": \"5001\", \"type\": \"None\" },\n"
+                + "\t\t\t\t{ \"id\": \"5002\", \"type\": \"Glazed\" },\n"
+                + "\t\t\t\t{ \"id\": \"5005\", \"type\": \"Sugar\" },\n"
+                + "\t\t\t\t{ \"id\": \"5003\", \"type\": \"Chocolate\" },\n"
+                + "\t\t\t\t{ \"id\": \"5004\", \"type\": \"Maple\" }\n"
+                + "\t\t\t]\n"
+                + "\t},\n"
+                + "\t{\n"
+                + "\t\t\"id\": \"0003\",\n"
+                + "\t\t\"type\": \"donut\",\n"
+                + "\t\t\"name\": \"Old Fashioned\",\n"
+                + "\t\t\"ppu\": 0.55,\n"
+                + "\t\t\"batters\":\n"
+                + "\t\t\t{\n"
+                + "\t\t\t\t\"batter\":\n"
+                + "\t\t\t\t\t[\n"
+                + "\t\t\t\t\t\t{ \"id\": \"1001\", \"type\": \"Regular\" },\n"
+                + "\t\t\t\t\t\t{ \"id\": \"1002\", \"type\": \"Chocolate\" }\n"
+                + "\t\t\t\t\t]\n"
+                + "\t\t\t},\n"
+                + "\t\t\"topping\":\n"
+                + "\t\t\t[\n"
+                + "\t\t\t\t{ \"id\": \"5001\", \"type\": \"None\" },\n"
+                + "\t\t\t\t{ \"id\": \"5002\", \"type\": \"Glazed\" },\n"
+                + "\t\t\t\t{ \"id\": \"5003\", \"type\": \"Chocolate\" },\n"
+                + "\t\t\t\t{ \"id\": \"5004\", \"type\": \"Maple\" }\n"
+                + "\t\t\t]\n"
+                + "\t}\n"
+                + "]}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
 
         mockResult.setIsExecutionSuccess(true);
@@ -1038,15 +1062,14 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
-
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1057,68 +1080,67 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
-        final String data = "{ \"data\": [\n" +
-                "    {\n" +
-                "        \"url\": \"images/thumbnails/0001.jpg\",\n" +
-                "        \"width\": 32,\n" +
-                "        \"height\": 32\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"url\": \"images/0001.jpg\",\n" +
-                "        \"width\": 200,\n" +
-                "        \"height\": 200\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"url\": \"images/0002.jpg\",\n" +
-                "        \"width\": 200,\n" +
-                "        \"height\": 200\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"url\": \"images/0002.jpg\",\n" +
-                "        \"width\": 200,\n" +
-                "        \"height\": 200\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"url\": \"images/0003.jpg\",\n" +
-                "        \"width\": 200,\n" +
-                "        \"height\": 200\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"url\": \"images/0004.jpg\",\n" +
-                "        \"width\": 200,\n" +
-                "        \"height\": 200\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"url\": \"images/0005.jpg\",\n" +
-                "        \"width\": 200,\n" +
-                "        \"height\": 200\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"url\": \"images/0006.jpg\",\n" +
-                "        \"width\": 200,\n" +
-                "        \"height\": 200\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"url\": \"images/0007.jpg\",\n" +
-                "        \"width\": 200,\n" +
-                "        \"height\": 200\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"url\": \"images/0008.jpg\",\n" +
-                "        \"width\": 200,\n" +
-                "        \"height\": 200\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"url\": \"images/0009.jpg\",\n" +
-                "        \"width\": 200,\n" +
-                "        \"height\": 200\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"url\": \"images/0010.jpg\",\n" +
-                "        \"width\": 200,\n" +
-                "        \"height\": 200\n" +
-                "    }\n" +
-                "]}";
+        final String data = "{ \"data\": [\n" + "    {\n"
+                + "        \"url\": \"images/thumbnails/0001.jpg\",\n"
+                + "        \"width\": 32,\n"
+                + "        \"height\": 32\n"
+                + "    },\n"
+                + "    {\n"
+                + "        \"url\": \"images/0001.jpg\",\n"
+                + "        \"width\": 200,\n"
+                + "        \"height\": 200\n"
+                + "    },\n"
+                + "    {\n"
+                + "        \"url\": \"images/0002.jpg\",\n"
+                + "        \"width\": 200,\n"
+                + "        \"height\": 200\n"
+                + "    },\n"
+                + "    {\n"
+                + "        \"url\": \"images/0002.jpg\",\n"
+                + "        \"width\": 200,\n"
+                + "        \"height\": 200\n"
+                + "    },\n"
+                + "    {\n"
+                + "        \"url\": \"images/0003.jpg\",\n"
+                + "        \"width\": 200,\n"
+                + "        \"height\": 200\n"
+                + "    },\n"
+                + "    {\n"
+                + "        \"url\": \"images/0004.jpg\",\n"
+                + "        \"width\": 200,\n"
+                + "        \"height\": 200\n"
+                + "    },\n"
+                + "    {\n"
+                + "        \"url\": \"images/0005.jpg\",\n"
+                + "        \"width\": 200,\n"
+                + "        \"height\": 200\n"
+                + "    },\n"
+                + "    {\n"
+                + "        \"url\": \"images/0006.jpg\",\n"
+                + "        \"width\": 200,\n"
+                + "        \"height\": 200\n"
+                + "    },\n"
+                + "    {\n"
+                + "        \"url\": \"images/0007.jpg\",\n"
+                + "        \"width\": 200,\n"
+                + "        \"height\": 200\n"
+                + "    },\n"
+                + "    {\n"
+                + "        \"url\": \"images/0008.jpg\",\n"
+                + "        \"width\": 200,\n"
+                + "        \"height\": 200\n"
+                + "    },\n"
+                + "    {\n"
+                + "        \"url\": \"images/0009.jpg\",\n"
+                + "        \"width\": 200,\n"
+                + "        \"height\": 200\n"
+                + "    },\n"
+                + "    {\n"
+                + "        \"url\": \"images/0010.jpg\",\n"
+                + "        \"width\": 200,\n"
+                + "        \"height\": 200\n"
+                + "    }\n"
+                + "]}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
 
         mockResult.setIsExecutionSuccess(true);
@@ -1142,15 +1164,14 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
-
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1161,24 +1182,23 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
-        final String data = "{ \"data\": [\n" +
-                "    {\n" +
-                "     \"CarType\": \"BMW\",\n" +
-                "     \"carID\": \"bmw123\"\n" +
-                "     },\n" +
-                "      {\n" +
-                "     \"CarType\": \"mercedes\",\n" +
-                "     \"carID\": \"merc123\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "     \"CarType\": \"volvo\",\n" +
-                "     \"carID\": \"vol123r\"\n" +
-                "       },\n" +
-                "       {\n" +
-                "     \"CarType\": \"ford\",\n" +
-                "     \"carID\": \"ford123\"\n" +
-                "       }\n" +
-                "  ]}";
+        final String data = "{ \"data\": [\n" + "    {\n"
+                + "     \"CarType\": \"BMW\",\n"
+                + "     \"carID\": \"bmw123\"\n"
+                + "     },\n"
+                + "      {\n"
+                + "     \"CarType\": \"mercedes\",\n"
+                + "     \"carID\": \"merc123\"\n"
+                + "      },\n"
+                + "      {\n"
+                + "     \"CarType\": \"volvo\",\n"
+                + "     \"carID\": \"vol123r\"\n"
+                + "       },\n"
+                + "       {\n"
+                + "     \"CarType\": \"ford\",\n"
+                + "     \"carID\": \"ford123\"\n"
+                + "       }\n"
+                + "  ]}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
 
         mockResult.setIsExecutionSuccess(true);
@@ -1201,15 +1221,14 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
-
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1241,15 +1260,14 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
-
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1260,9 +1278,9 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
-        final String data = "{ \"data\":[[\"string1\", \"string2\", \"string3\", \"string4\"]," +
-                "[\"string5\", \"string6\", \"string7\", \"string8\"]," +
-                "[\"string9\", \"string10\", \"string11\", \"string12\"]] }";
+        final String data = "{ \"data\":[[\"string1\", \"string2\", \"string3\", \"string4\"],"
+                + "[\"string5\", \"string6\", \"string7\", \"string8\"],"
+                + "[\"string9\", \"string10\", \"string11\", \"string12\"]] }";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
 
         mockResult.setIsExecutionSuccess(true);
@@ -1284,15 +1302,14 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
-
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1324,15 +1341,14 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
-
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1365,15 +1381,14 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
-
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1384,34 +1399,34 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
-        final String data = "{\"data\": {\n" +
-                "    \"next\": \"https://mock-api.appsmith.com/users?page=2&pageSize=10\",\n" +
-                "    \"previous\": null,\n" +
-                "    \"users\": [\n" +
-                "        {\n" +
-                "            \"id\": 3,\n" +
-                "            \"name\": \"Demetre\",\n" +
-                "            \"status\": \"APPROVED\",\n" +
-                "            \"gender\": \"Male\",\n" +
-                "            \"avatar\": \"https://robohash.org/iustooptiocum.jpg?size=100x100&set=set1\",\n" +
-                "            \"email\": \"aaaa@bbb.com\",\n" +
-                "            \"address\": \"262 Saint Paul Park\",\n" +
-                "            \"createdAt\": \"2020-05-01T17:30:50.000Z\",\n" +
-                "            \"updatedAt\": \"2019-10-08T14:55:53.000Z\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"id\": 4,\n" +
-                "            \"name\": \"Currey\",\n" +
-                "            \"status\": \"APPROVED\",\n" +
-                "            \"gender\": \"Female\",\n" +
-                "            \"avatar\": \"https://robohash.org/aspernaturnatusrepellat.jpg?size=100x100&set=set1\",\n" +
-                "            \"email\": \"cbrayson3@taobao.com\",\n" +
-                "            \"address\": \"35180 Lotheville Street!\",\n" +
-                "            \"createdAt\": \"2019-12-30T03:54:23.000Z\",\n" +
-                "            \"updatedAt\": \"2020-08-12T17:43:01.016Z\"\n" +
-                "        }\n" +
-                "    ]\n" +
-                "}}";
+        final String data =
+                "{\"data\": {\n" + "    \"next\": \"https://mock-api.appsmith.com/users?page=2&pageSize=10\",\n"
+                        + "    \"previous\": null,\n"
+                        + "    \"users\": [\n"
+                        + "        {\n"
+                        + "            \"id\": 3,\n"
+                        + "            \"name\": \"Demetre\",\n"
+                        + "            \"status\": \"APPROVED\",\n"
+                        + "            \"gender\": \"Male\",\n"
+                        + "            \"avatar\": \"https://robohash.org/iustooptiocum.jpg?size=100x100&set=set1\",\n"
+                        + "            \"email\": \"aaaa@bbb.com\",\n"
+                        + "            \"address\": \"262 Saint Paul Park\",\n"
+                        + "            \"createdAt\": \"2020-05-01T17:30:50.000Z\",\n"
+                        + "            \"updatedAt\": \"2019-10-08T14:55:53.000Z\"\n"
+                        + "        },\n"
+                        + "        {\n"
+                        + "            \"id\": 4,\n"
+                        + "            \"name\": \"Currey\",\n"
+                        + "            \"status\": \"APPROVED\",\n"
+                        + "            \"gender\": \"Female\",\n"
+                        + "            \"avatar\": \"https://robohash.org/aspernaturnatusrepellat.jpg?size=100x100&set=set1\",\n"
+                        + "            \"email\": \"cbrayson3@taobao.com\",\n"
+                        + "            \"address\": \"35180 Lotheville Street!\",\n"
+                        + "            \"createdAt\": \"2019-12-30T03:54:23.000Z\",\n"
+                        + "            \"updatedAt\": \"2020-08-12T17:43:01.016Z\"\n"
+                        + "        }\n"
+                        + "    ]\n"
+                        + "}}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
 
         mockResult.setIsExecutionSuccess(true);
@@ -1422,7 +1437,8 @@ public class ActionExecutionSolutionCETest {
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TABLE_WIDGET_V2, "users"));
-        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.SELECT_WIDGET, "users", "name", "status"));
+        widgetTypeList.add(
+                WidgetSuggestionHelper.getWidgetNestedData(WidgetType.SELECT_WIDGET, "users", "name", "status"));
         widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.CHART_WIDGET, "users", "name", "id"));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
@@ -1435,15 +1451,14 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
-
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1454,17 +1469,16 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
-        final String data = "{ \"data\": {\n" +
-                "            \"id\": 1,\n" +
-                "            \"name\": \"Barty Crouch\",\n" +
-                "            \"status\": \"APPROVED\",\n" +
-                "            \"gender\": \"\",\n" +
-                "            \"avatar\": \"https://robohash.org/sednecessitatibuset.png?size=100x100&set=set1\",\n" +
-                "            \"email\": \"barty.crouch@gmail.com\",\n" +
-                "            \"address\": \"St Petersberg #911 4th main\",\n" +
-                "            \"createdAt\": \"2020-03-16T18:00:05.000Z\",\n" +
-                "            \"updatedAt\": \"2020-08-12T17:29:31.980Z\"\n" +
-                "        } }";
+        final String data = "{ \"data\": {\n" + "            \"id\": 1,\n"
+                + "            \"name\": \"Barty Crouch\",\n"
+                + "            \"status\": \"APPROVED\",\n"
+                + "            \"gender\": \"\",\n"
+                + "            \"avatar\": \"https://robohash.org/sednecessitatibuset.png?size=100x100&set=set1\",\n"
+                + "            \"email\": \"barty.crouch@gmail.com\",\n"
+                + "            \"address\": \"St Petersberg #911 4th main\",\n"
+                + "            \"createdAt\": \"2020-03-16T18:00:05.000Z\",\n"
+                + "            \"updatedAt\": \"2020-08-12T17:29:31.980Z\"\n"
+                + "        } }";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
 
         mockResult.setIsExecutionSuccess(true);
@@ -1485,15 +1499,14 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
-
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1504,28 +1517,27 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
-        final String data = "{ \"data\": {\n" +
-                "            \"id\": 1,\n" +
-                "            \"name\": \"Barty Crouch\",\n" +
-                "            \"status\": \"APPROVED\",\n" +
-                "            \"gender\": \"\",\n" +
-                "            \"avatar\": \"https://robohash.org/sednecessitatibuset.png?size=100x100&set=set1\",\n" +
-                "            \"email\": \"barty.crouch@gmail.com\",\n" +
-                "            \"address\": \"St Petersberg #911 4th main\",\n" +
-                "            \"createdAt\": \"2020-03-16T18:00:05.000Z\",\n" +
-                "            \"updatedAt\": \"2020-08-12T17:29:31.980Z\"\n" +
-                "        }," +
-                "\"data\": {\n" +
-                "            \"id\": 2,\n" +
-                "            \"name\": \"Jenelle Kibbys\",\n" +
-                "            \"status\": \"APPROVED\",\n" +
-                "            \"gender\": \"Female\",\n" +
-                "            \"avatar\": \"https://robohash.org/quiaasperiorespariatur.bmp?size=100x100&set=set1\",\n" +
-                "            \"email\": \"jkibby1@hp.com\",\n" +
-                "            \"address\": \"85 Tennessee Plaza\",\n" +
-                "            \"createdAt\": \"2019-10-04T03:22:23.000Z\",\n" +
-                "            \"updatedAt\": \"2019-09-11T20:18:38.000Z\"\n" +
-                "        } }";
+        final String data = "{ \"data\": {\n" + "            \"id\": 1,\n"
+                + "            \"name\": \"Barty Crouch\",\n"
+                + "            \"status\": \"APPROVED\",\n"
+                + "            \"gender\": \"\",\n"
+                + "            \"avatar\": \"https://robohash.org/sednecessitatibuset.png?size=100x100&set=set1\",\n"
+                + "            \"email\": \"barty.crouch@gmail.com\",\n"
+                + "            \"address\": \"St Petersberg #911 4th main\",\n"
+                + "            \"createdAt\": \"2020-03-16T18:00:05.000Z\",\n"
+                + "            \"updatedAt\": \"2020-08-12T17:29:31.980Z\"\n"
+                + "        },"
+                + "\"data\": {\n"
+                + "            \"id\": 2,\n"
+                + "            \"name\": \"Jenelle Kibbys\",\n"
+                + "            \"status\": \"APPROVED\",\n"
+                + "            \"gender\": \"Female\",\n"
+                + "            \"avatar\": \"https://robohash.org/quiaasperiorespariatur.bmp?size=100x100&set=set1\",\n"
+                + "            \"email\": \"jkibby1@hp.com\",\n"
+                + "            \"address\": \"85 Tennessee Plaza\",\n"
+                + "            \"createdAt\": \"2019-10-04T03:22:23.000Z\",\n"
+                + "            \"updatedAt\": \"2019-09-11T20:18:38.000Z\"\n"
+                + "        } }";
         final JsonNode arrNode = new ObjectMapper().readTree(data);
 
         mockResult.setIsExecutionSuccess(true);
@@ -1546,15 +1558,14 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
-
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1565,11 +1576,11 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
-        final String data = "{\"data\": {\n" +
-                "    \"next\": \"https://mock-api.appsmith.com/users?page=2&pageSize=10\",\n" +
-                "    \"previous\": null,\n" +
-                "    \"users\": [1, 2, 3]\n" +
-                "}}";
+        final String data =
+                "{\"data\": {\n" + "    \"next\": \"https://mock-api.appsmith.com/users?page=2&pageSize=10\",\n"
+                        + "    \"previous\": null,\n"
+                        + "    \"users\": [1, 2, 3]\n"
+                        + "}}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
 
         mockResult.setIsExecutionSuccess(true);
@@ -1591,15 +1602,14 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
-
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1610,11 +1620,11 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
-        final String data = "{\"data\": {\n" +
-                "    \"next\": \"https://mock-api.appsmith.com/users?page=2&pageSize=10\",\n" +
-                "    \"previous\": null,\n" +
-                "    \"users\": []\n" +
-                "}}";
+        final String data =
+                "{\"data\": {\n" + "    \"next\": \"https://mock-api.appsmith.com/users?page=2&pageSize=10\",\n"
+                        + "    \"previous\": null,\n"
+                        + "    \"users\": []\n"
+                        + "}}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
 
         mockResult.setIsExecutionSuccess(true);
@@ -1635,15 +1645,14 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
-
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1683,14 +1692,14 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1702,7 +1711,8 @@ public class ActionExecutionSolutionCETest {
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         ArrayList<JSONObject> listData = new ArrayList<>();
-        JSONObject jsonObject = new JSONObject(Map.of("url", "images/thumbnails/0001.jpg", "width", "32", "height", "32"));
+        JSONObject jsonObject =
+                new JSONObject(Map.of("url", "images/thumbnails/0001.jpg", "width", "32", "height", "32"));
         listData.add(jsonObject);
         jsonObject = new JSONObject(Map.of("url", "images/0001.jpg", "width", "42", "height", "22"));
         listData.add(jsonObject);
@@ -1730,14 +1740,14 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 
     @Test
@@ -1766,22 +1776,21 @@ public class ActionExecutionSolutionCETest {
         action.setPageId(testPage.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
-
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
-
 
     @Test
     @WithUserDetails(value = "api_user")
     public void executeAction_actionOnMockDatasource_success() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
         Mockito.when(pluginService.getEditorConfigLabelMap(Mockito.anyString())).thenReturn(Mono.just(new HashMap<>()));
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
@@ -1790,13 +1799,16 @@ public class ActionExecutionSolutionCETest {
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody("response-body");
 
-        Plugin installed_plugin = pluginRepository.findByPackageName("restapi-plugin").block();
+        Plugin installed_plugin =
+                pluginRepository.findByPackageName("restapi-plugin").block();
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("Users");
         mockDataSource.setWorkspaceId(workspaceId);
         mockDataSource.setPackageName("postgres-plugin");
         mockDataSource.setPluginId(installed_plugin.getId());
-        Datasource mockDatasource = mockDataService.createMockDataSet(mockDataSource, defaultEnvironmentId).block();
+        Datasource mockDatasource = mockDataService
+                .createMockDataSet(mockDataSource, defaultEnvironmentId)
+                .block();
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         mockResult.setSuggestedWidgets(widgetTypeList);
@@ -1809,13 +1821,13 @@ public class ActionExecutionSolutionCETest {
         action.setName("testActionExecuteDbQuery");
         Datasource datasource1 = mockDatasource;
         action.setDatasource(datasource1);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        executeAndAssertAction(executeActionDTO, mockResult,
-                List.of(new ParsedDataType(DisplayDataType.RAW)));
+        executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
     }
 }

@@ -33,6 +33,19 @@ export const sourceDataValidationFn = (
     };
   }
 
+  if (_.isNumber(value) || _.isBoolean(value)) {
+    return {
+      isValid: false,
+      parsed: {},
+      messages: [
+        {
+          name: "ValidationError",
+          message: `Source data cannot be ${value}`,
+        },
+      ],
+    };
+  }
+
   if (_.isNil(value)) {
     return {
       isValid: true,

@@ -9,12 +9,14 @@ import { SIDEBAR_ID } from "constants/Explorer";
 import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import { getDatasource } from "selectors/entitiesSelector";
+import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { Menu, MenuTrigger, Button, Tooltip, MenuContent } from "design-system";
 import { SHOW_TEMPLATES, createMessage } from "@appsmith/constants/messages";
 import styled from "styled-components";
 import { DatasourceStructureContext } from "./DatasourceStructureContainer";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import type { Plugin } from "api/PluginApi";
 
 type DatasourceStructureProps = {
   dbStructure: DatasourceTable;
@@ -42,6 +44,10 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
     getDatasource(state, props.datasourceId),
   );
 
+  const plugin: Plugin | undefined = useSelector((state) =>
+    getPlugin(state, datasource?.pluginId || ""),
+  );
+
   const datasourcePermissions = datasource?.userPermissions || [];
   const pagePermissions = useSelector(getPagePermissions);
 
@@ -53,6 +59,15 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
   const onSelect = () => {
     props?.setShowUndo && props.setShowUndo(true);
     setActive(false);
+  };
+   
+  const onEntityClick = () => {
+    AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_TABLE_SELECT", {
+      datasourceId: props.datasourceId,
+      pluginName: plugin?.name,
+    });
+
+    canCreateDatasourceActions && setActive(!active);
   };
 
   const lightningMenu =
@@ -100,7 +115,7 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
 
   return (
     <Entity
-      action={() => canCreateDatasourceActions && setActive(!active)}
+      action={onEntityClick}
       active={active}
       className={`datasourceStructure${
         props.context !== DatasourceStructureContext.EXPLORER &&

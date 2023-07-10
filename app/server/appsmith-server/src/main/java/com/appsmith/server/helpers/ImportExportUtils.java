@@ -26,8 +26,8 @@ public class ImportExportUtils {
         // TODO provide actionable insights for different error messages generated from import-export flow
         // Filter out transactional error as these are cryptic and don't provide much info on the error
         return throwable instanceof TransactionException
-                || throwable instanceof MongoTransactionException
-                || throwable instanceof InvalidDataAccessApiUsageException
+                        || throwable instanceof MongoTransactionException
+                        || throwable instanceof InvalidDataAccessApiUsageException
                 ? ""
                 : "Error: " + throwable.getMessage();
     }
@@ -41,11 +41,12 @@ public class ImportExportUtils {
      * @param workspaceId   workspace in which the application supposed to be imported
      * @return
      */
-    public static String sanitizeDatasourceInActionDTO(ActionDTO actionDTO,
-                                                       Map<String, String> datasourceMap,
-                                                       Map<String, String> pluginMap,
-                                                       String workspaceId,
-                                                       boolean isExporting) {
+    public static String sanitizeDatasourceInActionDTO(
+            ActionDTO actionDTO,
+            Map<String, String> datasourceMap,
+            Map<String, String> pluginMap,
+            String workspaceId,
+            boolean isExporting) {
 
         if (actionDTO != null && actionDTO.getDatasource() != null) {
 
@@ -54,7 +55,7 @@ public class ImportExportUtils {
                 ds.setUpdatedAt(null);
             }
             if (ds.getId() != null) {
-                //Mapping ds name in id field
+                // Mapping ds name in id field
                 ds.setId(datasourceMap.get(ds.getId()));
                 ds.setWorkspaceId(null);
                 if (ds.getPluginId() != null) {
@@ -73,7 +74,8 @@ public class ImportExportUtils {
         return "";
     }
 
-    public static void setPropertiesToExistingApplication(Application importedApplication, Application existingApplication) {
+    public static void setPropertiesToExistingApplication(
+            Application importedApplication, Application existingApplication) {
         importedApplication.setId(existingApplication.getId());
         // For the existing application we don't need to default
         // value of the flag

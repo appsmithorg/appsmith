@@ -18,6 +18,10 @@ import WidgetFactory from "./WidgetFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import type { WidgetError } from "widgets/BaseWidget";
+import { get } from "lodash";
+import type { DataTreeError } from "utils/DynamicBindingUtils";
+import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 
 export const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
@@ -40,12 +44,42 @@ export const createCanvasWidget = (
     ? pick(evaluatedWidget, specificChildProps)
     : evaluatedWidget;
 
-  return {
+  const widgetProps = {
     ...evaluatedStaticProps,
     ...evaluatedWidgetConfig,
     ...widgetStaticProps,
   } as any;
+  widgetProps.errors = widgetErrorsFromStaticProps(evaluatedStaticProps);
+  return widgetProps;
 };
+
+function widgetErrorsFromStaticProps(props: Record<string, unknown>) {
+  /**
+   * Evaluation Error Map
+   * {
+     widgetPropertyName : DataTreeError[]
+    }
+   */
+
+  const evaluationErrorMap = get(props, EVAL_ERROR_PATH, {}) as Record<
+    string,
+    DataTreeError[]
+  >;
+  const evaluationErrors: DataTreeError[] =
+    Object.values(evaluationErrorMap).flat();
+  const widgetErrors: WidgetError[] = [];
+  for (const evalError of evaluationErrors) {
+    const widgetError: WidgetError = {
+      name: evalError.errorMessage.name,
+      message: evalError.errorMessage.message,
+      stack: evalError.raw,
+      type: "property",
+    };
+
+    widgetErrors.push(widgetError);
+  }
+  return widgetErrors;
+}
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 export const createLoadingWidget = (

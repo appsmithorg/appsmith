@@ -704,6 +704,8 @@ export const NO_EXISTING_WIDGETS = () => "Display data in a new widget";
 export const BINDING_WALKTHROUGH_TITLE = () => "Display your data";
 export const BINDING_WALKTHROUGH_DESC = () =>
   "You can replace data of an existing widget of your page or you can select a new widget.";
+export const BINDINGS_DISABLED_TOOLTIP = () =>
+  "You can display data when you have a successful response to your query";
 
 // Data Sources pane
 export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
@@ -897,6 +899,8 @@ export const DISCARD_CHANGES = () => "Discard & pull";
 // GIT DEPLOY begin
 export const DEPLOY = () => "Deploy";
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
+export const CHANGES_APP_SETTINGS = () => "Application settings modified";
+export const CHANGES_THEME = () => "Theme modified";
 export const CHANGES_SINCE_LAST_DEPLOYMENT = () =>
   "Changes since last deployment";
 export const CHANGES_ONLY_USER = () => "Changes since last commit";

@@ -604,6 +604,7 @@ export class DataSources {
   }
 
   public TestDatasource(expectedRes = true) {
+    this.agHelper.Sleep(500); //bit of time for CI!
     this.agHelper.GetNClick(this._testDs, 0, false, 0);
     this.agHelper.AssertNetworkDataSuccess("@testDatasource", expectedRes);
     if (expectedRes) {
@@ -612,6 +613,7 @@ export class DataSources {
   }
 
   public SaveDatasource(isForkModal = false) {
+    this.agHelper.Sleep(500); //bit of time for CI!
     this.agHelper.GetNClick(this._saveDs);
     if (!isForkModal) {
       this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
@@ -837,8 +839,7 @@ export class DataSources {
     dbName: string,
     dsName: "PostgreSQL" | "MySQL",
   ) {
-    this.agHelper.AssertElementVisible(this._reconnectModal);
-    this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
+    this.WaitForReconnectModalToAppear();
     this.agHelper.AssertElementVisible(
       this._activeDSListReconnectModal(dsName),
     );
@@ -851,9 +852,16 @@ export class DataSources {
     this.agHelper.AssertElementVisible(this._reconnectModalDSToopTipIcon);
   }
 
-  public ReconnectDSbyName(
+  public WaitForReconnectModalToAppear() {
+    this.agHelper.AssertElementVisible(this._reconnectModal);
+    this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
+  }
+
+  public ReconnectDSbyType(
     dsName: "PostgreSQL" | "MySQL" | "MongoDB" | "S3" | "MongoDBUri",
   ) {
+    this.WaitForReconnectModalToAppear();
+
     if (dsName !== "MongoDBUri")
       this.agHelper.GetNClick(this.locator._visibleTextSpan(dsName));
     else if (dsName == "MongoDBUri")
@@ -1439,7 +1447,7 @@ export class DataSources {
   public StartContainerNVerify(
     containerType: "MsSql" | "Arango" | "Elasticsearch",
     containerName: string,
-    sleepTime = 30000,
+    sleepTime = 40000,
   ) {
     let containerCommand = "";
     switch (containerType) {

@@ -9,13 +9,13 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
-import jakarta.mail.Session;
-import jakarta.mail.Transport;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeBodyPart;
-import jakarta.mail.internet.MimeMessage;
 import com.external.plugins.exceptions.SMTPErrorMessages;
 import com.external.plugins.exceptions.SMTPPluginError;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -28,37 +28,37 @@ import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @Testcontainers
 public class SmtpPluginTest {
-    final static String username = "smtpUser";
-    final static String password = "smtpPass";
+    static final String username = "smtpUser";
+    static final String password = "smtpPass";
     private static String host = "localhost";
     private static Long port = 25L;
 
     @Container
     public static final GenericContainer smtp = new GenericContainer(DockerImageName.parse("maildev/maildev"))
             .withExposedPorts(25)
-            .withCommand("bin/maildev --base-pathname /maildev --incoming-user " + username + " --incoming-pass " + password + " -s 25");
+            .withCommand("bin/maildev --base-pathname /maildev --incoming-user " + username + " --incoming-pass "
+                    + password + " -s 25");
 
     private final SmtpPlugin.SmtpPluginExecutor pluginExecutor = new SmtpPlugin.SmtpPluginExecutor();
-
 
     @BeforeAll
     public static void setup() {
@@ -79,30 +79,21 @@ public class SmtpPluginTest {
 
     private ActionConfiguration createActionConfiguration() {
         return createActionConfiguration(
-                "from@test.com",
-                "to@test.com",
-                "cc@test.com",
-                "bcc@test.com",
-                "replyTo@test.com",
-                "text/html");
+                "from@test.com", "to@test.com", "cc@test.com", "bcc@test.com", "replyTo@test.com", "text/html");
     }
 
     private ActionConfiguration createActionConfiguration(String bodyType) {
         return createActionConfiguration(
-                "from@test.com",
-                "to@test.com",
-                "cc@test.com",
-                "bcc@test.com",
-                "replyTo@test.com",
-                bodyType);
+                "from@test.com", "to@test.com", "cc@test.com", "bcc@test.com", "replyTo@test.com", bodyType);
     }
 
-    private ActionConfiguration createActionConfiguration(String fromAddress,
-                                                          String toAddress,
-                                                          String ccAddress,
-                                                          String bccAddress,
-                                                          String replyTo,
-                                                          String bodyType) {
+    private ActionConfiguration createActionConfiguration(
+            String fromAddress,
+            String toAddress,
+            String ccAddress,
+            String bccAddress,
+            String replyTo,
+            String bodyType) {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         Map<String, Object> formData = new HashMap<>();
         PluginUtils.setValueSafelyInFormData(formData, "send.from", fromAddress);
@@ -124,7 +115,8 @@ public class SmtpPluginTest {
         DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguration();
         invalidDatasourceConfiguration.setEndpoints(List.of(new Endpoint("", 25L)));
 
-        assertEquals(Set.of(SMTPErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG),
+        assertEquals(
+                Set.of(SMTPErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
 
@@ -141,7 +133,8 @@ public class SmtpPluginTest {
         DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguration();
         invalidDatasourceConfiguration.setAuthentication(null);
 
-        assertEquals(Set.of(new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR).getMessage()),
+        assertEquals(
+                Set.of(new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR).getMessage()),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
 
@@ -158,7 +151,6 @@ public class SmtpPluginTest {
                     assertTrue(datasourceTestResult.getInvalids().isEmpty());
                 })
                 .verifyComplete();
-
     }
 
     @Test
@@ -171,12 +163,16 @@ public class SmtpPluginTest {
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(invalidDatasourceConfiguration)
-                .flatMap(session -> pluginExecutor.execute(session, invalidDatasourceConfiguration, actionConfiguration));
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .datasourceCreate(invalidDatasourceConfiguration)
+                .flatMap(session ->
+                        pluginExecutor.execute(session, invalidDatasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
-                .expectErrorMatches(e -> e instanceof AppsmithPluginException &&
-                        ((AppsmithPluginException) e).getDownstreamErrorMessage().contains("535 Invalid username or password"))
+                .expectErrorMatches(e -> e instanceof AppsmithPluginException
+                        && ((AppsmithPluginException) e)
+                                .getDownstreamErrorMessage()
+                                .contains("535 Invalid username or password"))
                 .verify();
     }
 
@@ -185,15 +181,14 @@ public class SmtpPluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
-        PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
-                "send.from", "   ");
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+        PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(), "send.from", "   ");
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .datasourceCreate(datasourceConfiguration)
                 .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
-                .expectErrorMatches(e ->
-                        e instanceof AppsmithPluginException &&
-                                e.getMessage().equals(SMTPErrorMessages.SENDER_ADDRESS_NOT_FOUND_ERROR_MSG))
+                .expectErrorMatches(e -> e instanceof AppsmithPluginException
+                        && e.getMessage().equals(SMTPErrorMessages.SENDER_ADDRESS_NOT_FOUND_ERROR_MSG))
                 .verify();
     }
 
@@ -202,16 +197,14 @@ public class SmtpPluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
-        PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
-                "send.to", "   ");
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+        PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(), "send.to", "   ");
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .datasourceCreate(datasourceConfiguration)
                 .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
-                .expectErrorMatches(e ->
-                        e instanceof AppsmithPluginException &&
-                                e.getMessage().equals(SMTPErrorMessages.RECIPIENT_ADDRESS_NOT_FOUND_ERROR_MSG)
-                )
+                .expectErrorMatches(e -> e instanceof AppsmithPluginException
+                        && e.getMessage().equals(SMTPErrorMessages.RECIPIENT_ADDRESS_NOT_FOUND_ERROR_MSG))
                 .verify();
     }
 
@@ -220,9 +213,9 @@ public class SmtpPluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
-        PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
-                "send.from", "invalid");
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+        PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(), "send.from", "invalid");
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .datasourceCreate(datasourceConfiguration)
                 .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
@@ -235,9 +228,9 @@ public class SmtpPluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
-        PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
-                "send.to", "invalidEmail");
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+        PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(), "send.to", "invalidEmail");
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .datasourceCreate(datasourceConfiguration)
                 .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
@@ -250,9 +243,9 @@ public class SmtpPluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
-        PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
-                "subject", null);
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+        PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(), "subject", null);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .datasourceCreate(datasourceConfiguration)
                 .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
@@ -267,7 +260,8 @@ public class SmtpPluginTest {
         ActionConfiguration actionConfiguration = createActionConfiguration();
         actionConfiguration.setBody(null);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .datasourceCreate(datasourceConfiguration)
                 .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
@@ -285,7 +279,8 @@ public class SmtpPluginTest {
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(), "send.attachments", "");
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .datasourceCreate(datasourceConfiguration)
                 .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
@@ -300,7 +295,8 @@ public class SmtpPluginTest {
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(), "send.attachments", null);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .datasourceCreate(datasourceConfiguration)
                 .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
@@ -315,7 +311,8 @@ public class SmtpPluginTest {
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(), "send.attachments", "randomValue");
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .datasourceCreate(datasourceConfiguration)
                 .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
@@ -328,20 +325,23 @@ public class SmtpPluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
-        String attachmentJson = "[{\n" +
-                "        \"type\": \"image/png\",\n" +
-                "        \"id\": \"uppy-smtp/icon/png-1d-1e-image/png-2854-1635400419555\",\n" +
-                "        \"data\": \"data:image/png;randomValueHere\",\n" +
-                "        \"name\": \"test-icon-file.png\",\n" +
-                "        \"size\": 2854\n" +
-                "    }]";
+        String attachmentJson = "[{\n" + "        \"type\": \"image/png\",\n"
+                + "        \"id\": \"uppy-smtp/icon/png-1d-1e-image/png-2854-1635400419555\",\n"
+                + "        \"data\": \"data:image/png;randomValueHere\",\n"
+                + "        \"name\": \"test-icon-file.png\",\n"
+                + "        \"size\": 2854\n"
+                + "    }]";
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(), "send.attachments", attachmentJson);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .datasourceCreate(datasourceConfiguration)
                 .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
-                .expectErrorMatches(e -> e instanceof AppsmithPluginException && e.getMessage().equals(String.format(SMTPErrorMessages.INVALID_ATTACHMENT_ERROR_MSG, "test-icon-file.png")))
+                .expectErrorMatches(e -> e instanceof AppsmithPluginException
+                        && e.getMessage()
+                                .equals(String.format(
+                                        SMTPErrorMessages.INVALID_ATTACHMENT_ERROR_MSG, "test-icon-file.png")))
                 .verify();
     }
 
@@ -354,7 +354,8 @@ public class SmtpPluginTest {
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(), "send.attachments", "");
 
-        Mono<ActionExecutionResult> resultMono = sessionMono.flatMap(session -> pluginExecutor.execute(session, dsConfig, actionConfiguration));
+        Mono<ActionExecutionResult> resultMono =
+                sessionMono.flatMap(session -> pluginExecutor.execute(session, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
@@ -373,8 +374,10 @@ public class SmtpPluginTest {
         ActionConfiguration actionConfiguration2 = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration2.getFormData(), "send.from", "from2@example.com");
 
-        Mono<ActionExecutionResult> email1Mono = sessionMono.flatMap(session -> pluginExecutor.execute(session, dsConfig, actionConfiguration1));
-        Mono<ActionExecutionResult> email2Mono = sessionMono.flatMap(session -> pluginExecutor.execute(session, dsConfig, actionConfiguration2));
+        Mono<ActionExecutionResult> email1Mono =
+                sessionMono.flatMap(session -> pluginExecutor.execute(session, dsConfig, actionConfiguration1));
+        Mono<ActionExecutionResult> email2Mono =
+                sessionMono.flatMap(session -> pluginExecutor.execute(session, dsConfig, actionConfiguration2));
 
         StepVerifier.create(Mono.zip(email1Mono, email2Mono))
                 .assertNext(tuple -> {
@@ -384,7 +387,6 @@ public class SmtpPluginTest {
                     assertTrue(result2.getIsExecutionSuccess());
                 })
                 .verifyComplete();
-
     }
 
     @Test
@@ -399,14 +401,15 @@ public class SmtpPluginTest {
         SmtpPlugin.SmtpPluginExecutor spySmtp = spy(pluginExecutor);
 
         try (MockedStatic<Transport> transportMock = Mockito.mockStatic(Transport.class)) {
-            Session session = pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+            Session session =
+                    pluginExecutor.datasourceCreate(datasourceConfiguration).block();
 
             when(spySmtp.getMimeMessage(session)).thenReturn(mockMimeMessage);
             when(spySmtp.getMimeBodyPart()).thenReturn(mockMimeBodyPart);
 
             transportMock.when(() -> Transport.send(mockMimeMessage)).thenAnswer((Answer<Void>) invocation -> null);
 
-            spySmtp.execute(session, datasourceConfiguration, actionConfiguration);// test method call
+            spySmtp.execute(session, datasourceConfiguration, actionConfiguration); // test method call
             String ENCODING = "UTF-8";
 
             verify(mockMimeMessage).setSubject("This is a test subject", ENCODING);
@@ -426,14 +429,15 @@ public class SmtpPluginTest {
         SmtpPlugin.SmtpPluginExecutor spySmtp = spy(pluginExecutor);
 
         try (MockedStatic<Transport> transportMock = Mockito.mockStatic(Transport.class)) {
-            Session session = pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+            Session session =
+                    pluginExecutor.datasourceCreate(datasourceConfiguration).block();
 
             when(spySmtp.getMimeMessage(session)).thenReturn(mockMimeMessage);
             when(spySmtp.getMimeBodyPart()).thenReturn(mockMimeBodyPart);
 
             transportMock.when(() -> Transport.send(mockMimeMessage)).thenAnswer((Answer<Void>) invocation -> null);
 
-            spySmtp.execute(session, datasourceConfiguration, actionConfiguration);// test method call
+            spySmtp.execute(session, datasourceConfiguration, actionConfiguration); // test method call
             String ENCODING = "UTF-8";
 
             verify(mockMimeMessage).setSubject("This is a test subject", ENCODING);
@@ -443,11 +447,17 @@ public class SmtpPluginTest {
 
     @Test
     public void verifyUniquenessOfSMTPPluginErrorCode() {
-        assert (Arrays.stream(SMTPPluginError.values()).map(SMTPPluginError::getAppErrorCode).distinct().count() == SMTPPluginError.values().length);
+        assert (Arrays.stream(SMTPPluginError.values())
+                        .map(SMTPPluginError::getAppErrorCode)
+                        .distinct()
+                        .count()
+                == SMTPPluginError.values().length);
 
-        assert (Arrays.stream(SMTPPluginError.values()).map(SMTPPluginError::getAppErrorCode)
-                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-SMT"))
-                .collect(Collectors.toList()).size() == 0);
-
+        assert (Arrays.stream(SMTPPluginError.values())
+                        .map(SMTPPluginError::getAppErrorCode)
+                        .filter(appErrorCode -> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-SMT"))
+                        .collect(Collectors.toList())
+                        .size()
+                == 0);
     }
 }

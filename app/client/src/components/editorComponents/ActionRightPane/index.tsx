@@ -17,6 +17,8 @@ import type { AppState } from "@appsmith/reducers";
 import { getDependenciesFromInverseDependencies } from "../Debugger/helpers";
 import {
   BACK_TO_CANVAS,
+  BINDINGS_DISABLED_TOOLTIP,
+  BINDING_SECTION_LABEL,
   createMessage,
   NO_CONNECTIONS,
   SCHEMA_WALKTHROUGH_DESC,
@@ -35,7 +37,7 @@ import { builderURL } from "RouteBuilder";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import DatasourceStructureHeader from "pages/Editor/Explorer/Datasources/DatasourceStructureHeader";
 import { DatasourceStructureContainer as DataStructureList } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
-import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
+import { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 import {
   AB_TESTING_EVENT_KEYS,
@@ -51,9 +53,12 @@ import { fetchDatasourceStructure } from "actions/datasourceActions";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import {
   getFeatureFlagShownStatus,
+  isUserSignedUpFlagSet,
   setFeatureFlagShownStatus,
 } from "utils/storage";
 import { PluginName } from "entities/Action";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { Tooltip } from "design-system";
 
 const SCHEMA_GUIDE_GIF =
   "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/schema.gif";
@@ -119,10 +124,14 @@ const Label = styled.span`
   cursor: pointer;
 `;
 
-const CollapsibleWrapper = styled.div<{ isOpen: boolean }>`
+const CollapsibleWrapper = styled.div<{
+  isOpen: boolean;
+  isDisabled?: boolean;
+}>`
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  ${(props) => !!props.isDisabled && `opacity: 0.6`};
 
   &&&&&& .${BPClasses.COLLAPSE} {
     flex-grow: 1;
@@ -194,6 +203,12 @@ type CollapsibleProps = {
   children: ReactNode;
   label: string;
   customLabelComponent?: JSX.Element;
+  isDisabled?: boolean;
+};
+
+type DisabledCollapsibleProps = {
+  label: string;
+  tooltipLabel?: string;
 };
 
 export function Collapsible({
@@ -224,6 +239,24 @@ export function Collapsible({
         {children}
       </Collapse>
     </CollapsibleWrapper>
+  );
+}
+
+export function DisabledCollapsible({
+  label,
+  tooltipLabel = "",
+}: DisabledCollapsibleProps) {
+  return (
+    <Tooltip content={tooltipLabel}>
+      <CollapsibleWrapper isDisabled isOpen={false}>
+        <Label className="icon-text">
+          <Icon name="down-arrow" size="lg" />
+          <Text className="label" kind="heading-xs">
+            {label}
+          </Text>
+        </Label>
+      </CollapsibleWrapper>
+    </Tooltip>
   );
 }
 
@@ -275,6 +308,7 @@ function ActionSidebar({
   const widgets = useSelector(getWidgets);
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
+  const user = useSelector(getCurrentUser);
   const { pushFeature } = useContext(WalkthroughContext) || {};
   const params = useParams<{
     pageId: string;
@@ -324,7 +358,13 @@ function ActionSidebar({
       datasourceStructure === undefined &&
       pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm
     ) {
-      dispatch(fetchDatasourceStructure(datasourceId));
+      dispatch(
+        fetchDatasourceStructure(
+          datasourceId,
+          true,
+          DatasourceStructureContext.QUERY_EDITOR,
+        ),
+      );
     }
   }, []);
 
@@ -333,8 +373,10 @@ function ActionSidebar({
       FEATURE_FLAG.ab_ds_schema_enabled,
     );
 
+    const isNewUser = user && (await isUserSignedUpFlagSet(user.email));
     // Adding walkthrough tutorial
-    !isFeatureWalkthroughShown &&
+    isNewUser &&
+      !isFeatureWalkthroughShown &&
       pushFeature &&
       pushFeature({
         targetId: SCHEMA_SECTION_ID,
@@ -462,7 +504,8 @@ function ActionSidebar({
             </SnipingWrapper>
           </Collapsible>
         )}
-      {showSuggestedWidgets && (
+ 
+      {showSuggestedWidgets ? (
         <SchemaSideBarSection height={40} marginTop={12}>
           <SuggestedWidgets
             actionName={actionName}
@@ -470,6 +513,13 @@ function ActionSidebar({
             suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
           />
         </SchemaSideBarSection>
+      ) : (
+        isEnabledForQueryBinding && (
+          <DisabledCollapsible
+            label={createMessage(BINDING_SECTION_LABEL)}
+            tooltipLabel={createMessage(BINDINGS_DISABLED_TOOLTIP)}
+          />
+        )
       )}
     </SideBar>
   );

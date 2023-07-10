@@ -35,6 +35,7 @@ export const WIDGET = {
   RANGE_SLIDER: "rangesliderwidget",
   IFRAME: "iframewidget",
   DIVIDER: "dividerwidget",
+  PROGRESS: "progresswidget",
   MODAL: "modalwidget",
   FORM: "formwidget",
   ICONBUTTON: "iconbuttonwidget",
@@ -62,3 +63,5 @@ export const getWidgetSelector = (widget: ValueOf<typeof WIDGET>) =>
   `.t--widget-${widget}`;
 export const getWidgetInputSelector = (widget: ValueOf<typeof WIDGET>) =>
   `.t--widget-${widget} input`;
+
+export const modalWidgetSelector = ".t--modal-widget";

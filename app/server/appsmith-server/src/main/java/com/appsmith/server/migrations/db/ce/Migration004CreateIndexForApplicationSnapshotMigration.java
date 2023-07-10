@@ -12,7 +12,7 @@ import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
-@ChangeUnit(order = "004", id="create-index-for-application-snapshot-collection")
+@ChangeUnit(order = "004", id = "create-index-for-application-snapshot-collection")
 public class Migration004CreateIndexForApplicationSnapshotMigration {
     private final MongoTemplate mongoTemplate;
 
@@ -21,15 +21,15 @@ public class Migration004CreateIndexForApplicationSnapshotMigration {
     }
 
     @RollbackExecution
-    public void demoRollbackExecution() {
-    }
+    public void demoRollbackExecution() {}
 
     @Execution
     public void addIndexOnApplicationIdAndChunkOrder() {
         Index applicationIdChunkOrderUniqueIndex = makeIndex(
-                fieldName(QApplicationSnapshot.applicationSnapshot.applicationId),
-                fieldName(QApplicationSnapshot.applicationSnapshot.chunkOrder)
-        ).named("applicationId_chunkOrder_unique_index").unique();
+                        fieldName(QApplicationSnapshot.applicationSnapshot.applicationId),
+                        fieldName(QApplicationSnapshot.applicationSnapshot.chunkOrder))
+                .named("applicationId_chunkOrder_unique_index")
+                .unique();
 
         ensureIndexes(mongoTemplate, ApplicationSnapshot.class, applicationIdChunkOrderUniqueIndex);
     }
