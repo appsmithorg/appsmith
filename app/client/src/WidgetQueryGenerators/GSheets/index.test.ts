@@ -68,7 +68,7 @@ describe("GSheets WidgetQueryGenerator", () => {
 
     expect(expr).toEqual([
       {
-        name: "Find_query",
+        name: "Find_someSheet",
         payload: {
           formData: {
             command: {

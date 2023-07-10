@@ -1,6 +1,7 @@
 import type { APIResponseError } from "api/ApiResponses";
 import type { ActionConfig, Property } from "entities/Action";
 import _ from "lodash";
+import type { SSL } from "./RestAPIForm";
 
 export enum AuthType {
   OAUTH2 = "oAuth2",
@@ -119,6 +120,7 @@ export interface DatasourceConfiguration {
   databaseName?: string;
   connection?: {
     mode: DatasourceConnectionMode;
+    ssl: SSL;
   };
 }
 

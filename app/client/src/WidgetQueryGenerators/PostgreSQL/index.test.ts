@@ -155,7 +155,7 @@ OFFSET
 
     expect(expr).toEqual([
       {
-        name: "Select_query",
+        name: "Select_someTable",
         type: "select",
         dynamicBindingPathList: [
           {

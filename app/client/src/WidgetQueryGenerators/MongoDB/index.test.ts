@@ -46,7 +46,7 @@ describe("Mongo WidgetQueryGenerator", () => {
     expect(expr).toEqual([
       {
         type: "select",
-        name: "Find_query",
+        name: "Find_someTable",
         dynamicBindingPathList: [
           {
             key: "formData.find.skip.data",
