@@ -892,7 +892,7 @@ public enum AppsmithError {
             null),
     DUPLICATE_DATASOURCE_CONFIGURATION(
             409,
-            AppsmithErrorCode.DUPLICATE_KEY.getCode(),
+            AppsmithErrorCode.DUPLICATE_DATASOURCE_CONFIGURATION.getCode(),
             "Duplicate Configuration error: Configuration for datasource id: {0} & environment id: {1} already exists. Please reach out to Appsmith customer support to resolve this.",
             AppsmithErrorAction.DEFAULT,
             "Duplicate Configuration",

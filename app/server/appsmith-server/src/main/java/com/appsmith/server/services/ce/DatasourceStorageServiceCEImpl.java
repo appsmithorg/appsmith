@@ -62,7 +62,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
     @Override
     public Mono<DatasourceStorage> create(DatasourceStorage datasourceStorage) {
-        return this.validateDatasourceStorageNonExistence(datasourceStorage)
+        return this.checkDuplicateDatasourceStorage(datasourceStorage)
                 .then(this.validateAndSaveDatasourceStorageToRepository(datasourceStorage))
                 .flatMap(this::populateHintMessages) // For REST API datasource create flow.
                 .flatMap(savedDatasourceStorage -> analyticsService.sendCreateEvent(
@@ -342,7 +342,12 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         return datasourceStorage;
     }
 
-    private Mono<DatasourceStorage> validateDatasourceStorageNonExistence(DatasourceStorage datasourceStorage) {
+    /**
+     * Throws error if a storage with same datasourceId and environmentId exists, otherwise returns an empty mono
+     * @param datasourceStorage
+     * @return empty mono if no storage exists
+     */
+    private Mono<DatasourceStorage> checkDuplicateDatasourceStorage(DatasourceStorage datasourceStorage) {
 
         String datasourceId = datasourceStorage.getDatasourceId();
         String environmentId = datasourceStorage.getEnvironmentId();

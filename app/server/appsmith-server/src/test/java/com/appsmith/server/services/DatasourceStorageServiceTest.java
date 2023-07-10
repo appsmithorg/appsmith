@@ -7,6 +7,7 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -129,13 +130,13 @@ public class DatasourceStorageServiceTest {
         datasourceStorageService.create(datasourceStorage).block();
         StepVerifier.create(datasourceStorageService.create(datasourceStorage)).verifyErrorSatisfies(error -> {
             assertThat(error).isInstanceOf(AppsmithException.class);
-            assertThat(((AppsmithException) error).getAppErrorCode()).isEqualTo("AE-APP-4091");
+            assertThat(((AppsmithException) error).getAppErrorCode()).isEqualTo(AppsmithError.DUPLICATE_DATASOURCE_CONFIGURATION.getAppErrorCode());
         });
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void verifyStorageCreationSuccedsWithDifferentEnvironmentId() {
+    public void verifyStorageCreationSucceedsWithDifferentEnvironmentId() {
 
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         Endpoint endpoint = new Endpoint("https://sample.endpoint", 5432L);

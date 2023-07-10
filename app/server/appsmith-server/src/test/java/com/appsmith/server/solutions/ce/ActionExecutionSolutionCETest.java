@@ -27,7 +27,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.WidgetSuggestionHelper;
@@ -1889,12 +1889,14 @@ public class ActionExecutionSolutionCETest {
                     return actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId);
                 });
 
-        Mockito.doReturn(Mono.empty()).when(datasourceStorageService).findByDatasourceAndEnvironmentId(any(), any());
+        Mockito.doReturn(Mono.empty())
+                .when(datasourceStorageService).findByDatasourceAndEnvironmentIdForExecution(any(), any());
 
-        StepVerifier.create(resultMono).verifyErrorSatisfies(error -> {
-            assertThat(error).isInstanceOf(AppsmithException.class);
-
-            assertThat(((AppsmithException) error).getAppErrorCode()).isEqualTo("AE-DTS-4011");
+        StepVerifier.create(resultMono).assertNext(actionExecutionResult -> {
+            assertThat(actionExecutionResult.getIsExecutionSuccess()).isEqualTo(false);
+            assertThat(actionExecutionResult.getStatusCode())
+                    .isEqualTo(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getAppErrorCode());
+            assertThat(actionExecutionResult.getErrorType()).isEqualTo(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getErrorType());
         });
     }
 }
