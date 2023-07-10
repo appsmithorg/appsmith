@@ -64,7 +64,7 @@ export class EntityExplorer {
   private _moreOptionsPopover =
     "//*[local-name()='g' and @id='Icon/Outline/more-vertical']";
   private _pageClone = ".single-select >div:contains('Clone')";
-  public _pageNameDiv = (pageName: string) =>
+  private _pageNameDiv = (pageName: string) =>
     `.t--entity.page:contains('${pageName}')`;
   private _visibleTextSpan = (spanText: string) =>
     "//span[text()='" + spanText + "']";

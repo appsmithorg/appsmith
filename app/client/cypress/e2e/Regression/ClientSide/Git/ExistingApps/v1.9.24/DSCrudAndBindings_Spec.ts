@@ -61,12 +61,12 @@ describe("Import and validate older app (app created in older versions of Appsmi
     agHelper.GetNClick(gitSync._commitButton);
     assertHelper.AssertNetworkStatus("@commit", 201);
     gitSync.CloseGitSyncModal();
-    cy.latestDeployPreview();
   });
 
-  it("2. Validate CRUD pages - Mongo , MySql, Postgres pages", () => {
+  it("2. Deploy the app & Validate CRUD pages - Mongo , MySql, Postgres pages", () => {
     //Mongo CRUD page validation
     //Assert table data
+    cy.latestDeployPreview();
     agHelper.AssertText(
       locators._widgetInDeployed(draggableWidgets.TEXT),
       "text",

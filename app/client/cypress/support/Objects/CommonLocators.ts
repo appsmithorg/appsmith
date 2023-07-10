@@ -29,7 +29,6 @@ export class CommonLocators {
   _codeEditorTarget = "div.CodeEditorTarget";
   _entityExplorersearch = "#entity-explorer-search";
   _propertyControl = ".t--property-control-";
-  _input = ".bp3-input";
   _propertyControlTextArea = (uiName: string) =>
     this._propertyControl +
     uiName.replace(/ +/g, "").toLowerCase() +
@@ -166,7 +165,6 @@ export class CommonLocators {
     "']/ancestor::div[@class ='rc-select-selection-overflow-item']//span[contains(@class, 'remove-icon')]";
   _listWidget = "div[type='LIST_WIDGET']";
   _dropdownText = ".t--dropdown-option";
-  _jsonFormField = (fieldName: string) => `.t--jsonformfield-${fieldName}`;
   _jsonFormInputField = (fieldName: string) =>
     `.t--jsonformfield-${fieldName} input`;
   _jsonFormHeader = ".t--jsonform-body > div:first-child";
