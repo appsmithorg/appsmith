@@ -66,7 +66,7 @@ function BrandingPage(props: BrandingPageProps) {
 
   return (
     <Wrapper>
-      <UpgradeBanner />
+      <UpgradeBanner needsUpgrade={needsUpgrade} />
       <div className="grid md:grid-cols-[1fr] lg:grid-cols-[max(300px,30%)_1fr] gap-8 mt-4 pr-7">
         <SettingsForm
           control={control}

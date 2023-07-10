@@ -9,6 +9,7 @@ import {
 } from "@appsmith/constants/messages";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import {
+  SettingsFormWrapper,
   SettingsHeader,
   SettingsSubHeader,
 } from "@appsmith/pages/AdminSettings/config/authentication/AuthPage";
@@ -18,43 +19,63 @@ const StyledSettingsSubHeader = styled(SettingsSubHeader)`
   margin: 0;
 `;
 
-const UpgradeBanner = () => {
+const UpgradeBanner = ({ needsUpgrade }: { needsUpgrade: boolean }) => {
   const { onUpgrade } = useOnUpgrade({
     logEventName: "BRANDING_UPGRADE_CLICK",
   });
 
-  return (
-    <div className="pb-4 pr-7">
-      <ContentBox className="flex items-center justify-between p-6 border upgrade-banner">
-        <main>
-          <Tag className="business-tag" isClosable={false}>
-            {createMessage(BUSINESS_TAG)}
-          </Tag>
-          <SettingsHeader
-            className="mt-1"
-            color="var(--ads-v2-color-fg-emphasis-plus)"
-            kind="heading-l"
-            renderAs="h1"
-          >
-            {createMessage(ADMIN_BRANDING_SETTINGS_TITLE)}
-          </SettingsHeader>
-          <StyledSettingsSubHeader
-            className="w-7/12 mt-1"
-            color="var(--ads-v2-color-fg-emphasis)"
-            kind="body-m"
-            renderAs="h2"
-          >
-            {createMessage(ADMIN_BRANDING_SETTINGS_SUBTITLE)}
-          </StyledSettingsSubHeader>
-        </main>
-        <aside>
-          <Button onClick={onUpgrade} size="md" startIcon="star-line">
-            Upgrade
-          </Button>
-        </aside>
-      </ContentBox>
-    </div>
-  );
+  if (needsUpgrade) {
+    return (
+      <div className="pb-4 pr-7">
+        <ContentBox className="flex items-center justify-between p-6 border upgrade-banner">
+          <main>
+            <Tag className="business-tag" isClosable={false}>
+              {createMessage(BUSINESS_TAG)}
+            </Tag>
+            <SettingsHeader
+              className="mt-1"
+              color="var(--ads-v2-color-fg-emphasis-plus)"
+              kind="heading-l"
+              renderAs="h1"
+            >
+              {createMessage(ADMIN_BRANDING_SETTINGS_TITLE)}
+            </SettingsHeader>
+            <StyledSettingsSubHeader
+              className="w-7/12 mt-1"
+              color="var(--ads-v2-color-fg-emphasis)"
+              kind="body-m"
+              renderAs="h2"
+            >
+              {createMessage(ADMIN_BRANDING_SETTINGS_SUBTITLE)}
+            </StyledSettingsSubHeader>
+          </main>
+          <aside>
+            <Button onClick={onUpgrade} size="md" startIcon="star-line">
+              Upgrade
+            </Button>
+          </aside>
+        </ContentBox>
+      </div>
+    );
+  } else
+    return (
+      <SettingsFormWrapper>
+        <SettingsHeader
+          color="var(--ads-v2-color-fg-emphasis-plus)"
+          kind="heading-l"
+          renderAs="h1"
+        >
+          {createMessage(ADMIN_BRANDING_SETTINGS_TITLE)}
+        </SettingsHeader>
+        <SettingsSubHeader
+          color="var(--ads-v2-color-fg-emphasis)"
+          kind="body-m"
+          renderAs="h2"
+        >
+          {createMessage(ADMIN_BRANDING_SETTINGS_SUBTITLE)}
+        </SettingsSubHeader>
+      </SettingsFormWrapper>
+    );
 };
 
 export default UpgradeBanner;
