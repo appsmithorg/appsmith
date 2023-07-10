@@ -6,6 +6,7 @@ import {
   assertHelper,
 } from "../../../support/Objects/ObjectsCore";
 let dsName: any;
+import formControls from "../../../locators/FormControl.json";
 
 describe(
   "excludeForAirgap",
@@ -43,6 +44,13 @@ describe(
       dataSources.CreateMockDB("Users").then((mockDBName) => {
         dsName = mockDBName;
         dataSources.CreateQueryAfterDSSaved();
+
+        // This will validate that query populated in editor uses existing table name
+        agHelper.VerifyCodeInputValue(
+          formControls.postgreSqlBody,
+          "SELECT * FROM public.users LIMIT 10;\n\n",
+        );
+
         dataSources.RunQueryNVerifyResponseViews(1);
         dataSources.NavigateToActiveTab();
         agHelper
