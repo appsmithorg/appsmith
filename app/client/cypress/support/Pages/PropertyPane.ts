@@ -297,6 +297,7 @@ export class PropertyPane {
       valueToEnter,
     );
     toVerifySave && this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
+    this.assertHelper.AssertNetworkStatus("@updateLayout");
   }
 
   public ValidatePropertyFieldValue(

@@ -18,23 +18,11 @@ describe("Binding the multiple widgets and validating default data", function ()
       "Default value",
       testdata.defaultInputWidget + "}}",
     );
-
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     //Dropdown widget test with default value from table widget
     entityExplorer.SelectEntityByName("Dropdown1");
     propPane.UpdatePropertyFieldValue(
       "Options",
       JSON.stringify(testdata.deafultDropDownWidget),
-    );
-
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
     );
   });
 
