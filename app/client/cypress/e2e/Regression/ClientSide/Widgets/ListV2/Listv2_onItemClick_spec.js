@@ -1,6 +1,7 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
+  agHelper,
   draggableWidgets,
   entityExplorer,
 } from "../../../../../support/Objects/ObjectsCore";
@@ -82,10 +83,10 @@ describe("List widget v2 onItemClick", () => {
 
   it("2. List widget V2 with onItemClick should be triggered when child widget without event is clicked", () => {
     cy.get(widgetSelector("Image1")).first().click({ force: true });
-    validateToastExist();
+    agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
 
     cy.get(widgetSelector("Text1")).first().click({ force: true });
-    validateToastExist();
+    agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
 
     deleteAllWidgetsInContainer();
 
@@ -127,7 +128,7 @@ describe("List widget v2 onItemClick", () => {
     cy.get(`${widgetSelector("Button1")} button`)
       .first()
       .click({ force: true });
-    validateToastExist();
+    agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
 
     cy.get(widgetsPage.toggleOnClick).click({ force: true });
     cy.get(".t--property-control-onclick").then(($el) => {
