@@ -16,11 +16,6 @@ import { integrationEditorURL } from "RouteBuilder";
 import { MenuItem } from "design-system";
 import type { Plugin } from "api/PluginApi";
 import { DatasourceStructureContext } from "./DatasourceStructureContainer";
-import {
-  AB_TESTING_EVENT_KEYS,
-  FEATURE_FLAG,
-} from "@appsmith/entities/FeatureFlag";
-import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 import styled from "styled-components";
 
 type QueryTemplatesProps = {
@@ -52,9 +47,6 @@ export function QueryTemplates(props: QueryTemplatesProps) {
   const currentPageId = useSelector(getCurrentPageId);
   const dataSource: Datasource | undefined = useSelector((state: AppState) =>
     getDatasource(state, props.datasourceId),
-  );
-  const isEnabledForQueryBinding = useSelector((state) =>
-    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_binding_enabled),
   );
   const plugin: Plugin | undefined = useSelector((state: AppState) =>
     getPlugin(state, !!dataSource?.pluginId ? dataSource.pluginId : ""),
@@ -88,10 +80,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
             dataSource: dataSource?.name,
             datasourceId: props.datasourceId,
             pluginName: plugin?.name,
-            [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
-              FEATURE_FLAG.ab_ds_schema_enabled,
-            [AB_TESTING_EVENT_KEYS.abTestingFlagValue]:
-              isEnabledForQueryBinding,
+            queryType: template.title,
           },
           ...queryactionConfiguration,
         }),
