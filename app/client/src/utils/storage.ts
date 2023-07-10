@@ -23,6 +23,7 @@ export const STORAGE_KEYS: {
   FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY:
     "FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY",
   SIGNPOSTING_APP_STATE: "SIGNPOSTING_APP_STATE",
+  AI_TRIGGERED: "AI_TRIGGERED",
 };
 
 const store = localforage.createInstance({
@@ -416,5 +417,39 @@ export const setFirstTimeUserOnboardingTelemetryCalloutVisibility = async (
       "An error occurred while fetching FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY",
     );
     log.error(error);
+  }
+};
+
+export const setAIPromptTriggered = async () => {
+  try {
+    let noOfTimesAITriggered: number = await getAIPromptTriggered();
+
+    if (noOfTimesAITriggered >= 5) {
+      return noOfTimesAITriggered;
+    }
+
+    noOfTimesAITriggered += 1;
+    await store.setItem(STORAGE_KEYS.AI_TRIGGERED, noOfTimesAITriggered);
+
+    return noOfTimesAITriggered;
+  } catch (error) {
+    log.error("An error occurred while setting AI_TRIGGERED");
+    log.error(error);
+
+    return 0;
+  }
+};
+
+export const getAIPromptTriggered = async () => {
+  try {
+    const flag: number | null = await store.getItem(STORAGE_KEYS.AI_TRIGGERED);
+
+    if (flag === null) return 0;
+
+    return flag;
+  } catch (error) {
+    log.error("An error occurred while fetching AI_TRIGGERED");
+    log.error(error);
+    return 0;
   }
 };

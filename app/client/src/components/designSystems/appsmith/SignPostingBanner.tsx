@@ -10,7 +10,7 @@ export type SignPostingBannerProps = {
 
 export const Container = styled.div`
   background-color: var(--ads-v2-color-blue-100);
-  width: fit-content;
+  width: 100%;
   display: flex;
 `;
 
@@ -20,7 +20,7 @@ function SignPostingBanner(props: SignPostingBannerProps) {
       <div className="flex items-start">
         <Icon
           className="font-semibold mr-2 flex items-start"
-          color="#2D6BF4"
+          color="var(--ads-v2-color-fg-information)"
           name={props.iconName}
           size="md"
         />

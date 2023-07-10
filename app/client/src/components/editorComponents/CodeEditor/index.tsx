@@ -71,7 +71,7 @@ import {
   bindingHint,
   sqlHint,
 } from "components/editorComponents/CodeEditor/hintHelpers";
-import BindingPrompt from "./BindingPrompt";
+
 import { showBindingPrompt } from "./BindingPromptHelper";
 import { Button } from "design-system";
 import "codemirror/addon/fold/brace-fold";
@@ -158,6 +158,7 @@ import { PeekOverlayExpressionIdentifier, SourceType } from "@shared/ast";
 import type { MultiplexingModeConfig } from "components/editorComponents/CodeEditor/modes";
 import { MULTIPLEXING_MODE_CONFIGS } from "components/editorComponents/CodeEditor/modes";
 import { getDeleteLineShortcut } from "./utils/deleteLine";
+import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/CodeEditorSignPosting";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -1558,6 +1559,7 @@ class CodeEditor extends Component<Props, State> {
             update={this.updateValueWithAIResponse}
           >
             <EditorWrapper
+              AIEnabled
               border={border}
               borderLess={borderLess}
               className={`${className} ${replayHighlightClass} ${
@@ -1575,6 +1577,7 @@ class CodeEditor extends Component<Props, State> {
               isNotHover={this.state.isFocused || this.state.isOpened}
               isRawView={this.props.isRawView}
               isReadOnly={this.props.isReadOnly}
+              mode={this.props.mode}
               onMouseMove={this.handleLintTooltip}
               onMouseOver={this.handleMouseMove}
               ref={this.editorWrapperRef}
@@ -1604,7 +1607,7 @@ class CodeEditor extends Component<Props, State> {
                 ref={this.codeEditorTarget}
                 tabIndex={0}
               >
-                <BindingPrompt
+                <CodeEditorSignPosting
                   editorTheme={this.props.theme}
                   isAIEnabled={this.AIEnabled}
                   isOpen={this.isBindingPromptOpen()}
