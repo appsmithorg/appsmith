@@ -1096,6 +1096,7 @@ export interface ReduxActionErrorPayload {
   message: string;
   source?: string;
   code?: ERROR_CODES;
+  stackTrace?: string;
 }
 
 export interface UpdateCanvasPayload {
