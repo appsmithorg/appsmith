@@ -16,6 +16,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import { importUppy, isUppyLoaded } from "utils/importUppy";
+import type { SetterConfig } from "entities/AppTheming";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
@@ -478,6 +479,21 @@ class FilePickerWidget extends BaseWidget<
     this.loadAndInitUppyOnce().then((uppy) => {
       uppy.close();
     });
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+      },
+    };
   }
 
   getPageView() {
