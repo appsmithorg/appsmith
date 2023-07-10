@@ -30,13 +30,7 @@ describe("Slug URLs", () => {
   it("2. Checks if application slug updates on the URL when application name changes", () => {
     cy.generateUUID().then((appName) => {
       applicationName = appName;
-      cy.AppSetupForRename();
-      cy.get(homePageLocators.applicationName).type(`${appName}` + "{enter}");
-      cy.wait("@updateApplication").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
+      homePage.RenameApplication(applicationName);
       cy.location("pathname").then((pathname) => {
         const pageId = pathname.split("/")[3]?.split("-").pop();
         expect(pathname).to.be.equal(`/app/${appName}/page1-${pageId}/edit`);
