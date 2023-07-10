@@ -128,7 +128,6 @@ describe("List widget v2 onItemClick", () => {
       .first()
       .click({ force: true });
     validateToastExist();
-    cy.get(commonlocators.toastBody).first().click();
 
     cy.get(widgetsPage.toggleOnClick).click({ force: true });
     cy.get(".t--property-control-onclick").then(($el) => {

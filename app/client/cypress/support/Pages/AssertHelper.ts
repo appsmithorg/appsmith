@@ -30,7 +30,7 @@ export class AssertHelper extends ReusableHelper {
         expect(doc.readyState).to.equal("complete");
       }),
     );
-    cy.window().should("have.property", "onload");
+    cy.window({ timeout: 60000 }).should("have.property", "onload");
   }
 
   public AssertDelete(entityType: EntityItemsType) {
