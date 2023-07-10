@@ -1912,7 +1912,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void checkoutRemoteBranch_CustomThemeSetToDefaultAppAndRemoteBranch_AppAndThemesCreated(){
+    public void checkoutRemoteBranch_CustomThemeSetToDefaultAppAndRemoteBranch_AppAndThemesCreated() {
         ApplicationJson applicationJson = createAppJson(filePath).block();
         // set custom theme to the json
         String customThemeName = "Custom theme";
@@ -1931,23 +1931,32 @@ public class GitServiceTest {
 
         List<GitBranchDTO> branchList = new ArrayList<>();
         GitBranchDTO gitBranchDTO = new GitBranchDTO();
-        gitBranchDTO.setBranchName("branchInLocal");
+        gitBranchDTO.setBranchName("branchInLocal2");
         branchList.add(gitBranchDTO);
         gitBranchDTO = new GitBranchDTO();
-        gitBranchDTO.setBranchName("origin/branchInLocal");
+        gitBranchDTO.setBranchName("origin/branchInLocal2");
         branchList.add(gitBranchDTO);
 
-        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(gitExecutor.fetchRemote(
+                        Mockito.any(Path.class),
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        Mockito.anyBoolean(),
+                        Mockito.anyString(),
+                        Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.checkoutRemoteBranch(Mockito.any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just("testBranch"));
-        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
+                        Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
-        Mockito.when(gitExecutor.listBranches(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(gitExecutor.listBranches(
+                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(branchList));
 
         // set custom theme to the git connected application
-        Mono<Theme> setCustomThemeToGitConnectedAppMono = themeService.getSystemTheme(Theme.DEFAULT_THEME_NAME)
+        Mono<Theme> setCustomThemeToGitConnectedAppMono = themeService
+                .getSystemTheme(Theme.DEFAULT_THEME_NAME)
                 .flatMap(systemTheme -> {
                     // we'll create a custom theme by copying properties from the system theme
                     Theme theme = new Theme();
@@ -1955,28 +1964,33 @@ public class GitServiceTest {
                     theme.setSystemTheme(false);
                     theme.setId(null);
                     return themeService.save(theme);
-                }).flatMap(savedCustomTheme -> {
+                })
+                .flatMap(savedCustomTheme -> {
                     gitConnectedApplication.setEditModeThemeId(savedCustomTheme.getId());
                     gitConnectedApplication.setPublishedModeThemeId(savedCustomTheme.getId());
-                    return applicationService.save(gitConnectedApplication)
-                            .thenReturn(savedCustomTheme);
+                    return applicationService.save(gitConnectedApplication).thenReturn(savedCustomTheme);
                 });
 
         Mono<Tuple4<Theme, Application, Theme, Theme>> resultMono =
                 setCustomThemeToGitConnectedAppMono.flatMap(theme -> {
-                    return gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal")
-                            .then(Mono.defer(() -> applicationService.findByBranchNameAndDefaultApplicationId("branchNotInLocal", gitConnectedApplication.getId(), READ_APPLICATIONS)))
+                    return gitService
+                            .checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal2")
+                            .then(Mono.defer(() -> applicationService.findByBranchNameAndDefaultApplicationId(
+                                    "branchNotInLocal2", gitConnectedApplication.getId(), READ_APPLICATIONS)))
                             .flatMap(application -> {
                                 Mono<Theme> defaultAppTheme = Mono.just(theme);
                                 Mono<Application> branchedAppMono = Mono.just(application);
-                                Mono<Theme> editThemeMono = themeService.getApplicationTheme(gitConnectedApplication.getId(), ApplicationMode.EDIT, "branchNotInLocal");
-                                Mono<Theme> publishedThemeMono = themeService.getApplicationTheme(gitConnectedApplication.getId(), ApplicationMode.PUBLISHED, "branchNotInLocal");
+                                Mono<Theme> editThemeMono = themeService.getApplicationTheme(
+                                        gitConnectedApplication.getId(), ApplicationMode.EDIT, "branchNotInLocal2");
+                                Mono<Theme> publishedThemeMono = themeService.getApplicationTheme(
+                                        gitConnectedApplication.getId(),
+                                        ApplicationMode.PUBLISHED,
+                                        "branchNotInLocal2");
                                 return Mono.zip(defaultAppTheme, branchedAppMono, editThemeMono, publishedThemeMono);
                             });
                 });
 
-        StepVerifier
-                .create(resultMono)
+        StepVerifier.create(resultMono)
                 .assertNext(objects -> {
                     Theme themeInDefaultApp = objects.getT1();
                     Application branchedApp = objects.getT2();
@@ -1992,8 +2006,10 @@ public class GitServiceTest {
                     assertThat(editModeThemeInBranchedApp.isSystemTheme()).isFalse();
                     assertThat(viewModeThemeInBranchedApp.isSystemTheme()).isFalse();
                     // names should be same as the name from the application JSON
-                    assertThat(editModeThemeInBranchedApp.getDisplayName()).isEqualTo(editModeCustomTheme.getDisplayName());
-                    assertThat(viewModeThemeInBranchedApp.getDisplayName()).isEqualTo(viewModeCustomTheme.getDisplayName());
+                    assertThat(editModeThemeInBranchedApp.getDisplayName())
+                            .isEqualTo(editModeCustomTheme.getDisplayName());
+                    assertThat(viewModeThemeInBranchedApp.getDisplayName())
+                            .isEqualTo(viewModeCustomTheme.getDisplayName());
                 })
                 .verifyComplete();
     }
