@@ -99,6 +99,7 @@ import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { executeJSUpdates } from "actions/pluginActionActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
+import { waitForWidgetConfigBuild } from "./InitSagas";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -586,10 +587,11 @@ function* evaluationChangeListenerSaga(): any {
   });
   yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
 
-  widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const initAction: EvaluationReduxAction<unknown> = yield take(
     FIRST_EVAL_REDUX_ACTIONS,
   );
+  yield call(waitForWidgetConfigBuild);
+  widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   yield fork(evalAndLintingHandler, false, initAction, {
     shouldReplay: false,
     forceEvaluation: false,

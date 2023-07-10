@@ -21,7 +21,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
-
 @Slf4j
 public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
@@ -42,13 +41,14 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     private final CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
 
     @Autowired
-    public FeatureFlagServiceCEImpl(SessionUserService sessionUserService,
-                                    FF4j ff4j,
-                                    TenantService tenantService,
-                                    ConfigService configService,
-                                    CloudServicesConfig cloudServicesConfig,
-                                    UserIdentifierService userIdentifierService,
-                                    CacheableFeatureFlagHelper cacheableFeatureFlagHelper) {
+    public FeatureFlagServiceCEImpl(
+            SessionUserService sessionUserService,
+            FF4j ff4j,
+            TenantService tenantService,
+            ConfigService configService,
+            CloudServicesConfig cloudServicesConfig,
+            UserIdentifierService userIdentifierService,
+            CacheableFeatureFlagHelper cacheableFeatureFlagHelper) {
         this.sessionUserService = sessionUserService;
         this.ff4j = ff4j;
         this.tenantService = tenantService;
@@ -57,7 +57,6 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         this.userIdentifierService = userIdentifierService;
         this.cacheableFeatureFlagHelper = cacheableFeatureFlagHelper;
     }
-
 
     private Mono<Boolean> checkAll(String featureName, User user) {
         Boolean check = check(featureName, user);
@@ -81,8 +80,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     @Override
     public Mono<Boolean> check(FeatureFlagEnum featureEnum) {
-        return sessionUserService.getCurrentUser()
-                .flatMap(user -> check(featureEnum, user));
+        return sessionUserService.getCurrentUser().flatMap(user -> check(featureEnum, user));
     }
 
     @Override
@@ -93,15 +91,13 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     @Override
     public Mono<Map<String, Boolean>> getAllFeatureFlagsForUser() {
         Mono<User> currentUser = sessionUserService.getCurrentUser().cache();
-        Flux<Tuple2<String, User>> featureUserTuple = Flux.fromIterable(ff4j.getFeatures().keySet())
+        Flux<Tuple2<String, User>> featureUserTuple = Flux.fromIterable(
+                        ff4j.getFeatures().keySet())
                 .flatMap(featureName -> Mono.just(featureName).zipWith(currentUser));
 
         Mono<Map<String, Boolean>> localFlagsForUser = featureUserTuple
                 .filter(objects -> !objects.getT2().isAnonymous())
-                .collectMap(
-                        Tuple2::getT1,
-                        tuple -> check(tuple.getT1(), tuple.getT2())
-                );
+                .collectMap(Tuple2::getT1, tuple -> check(tuple.getT1(), tuple.getT2()));
 
         return Mono.zip(localFlagsForUser, this.getAllRemoteFeatureFlagsForUser())
                 .map(tuple -> {
@@ -117,22 +113,23 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
      */
     private Mono<Map<String, Boolean>> getAllRemoteFeatureFlagsForUser() {
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
-        return userMono
-                .flatMap(user -> {
-                    String userIdentifier = userIdentifierService.getUserIdentifier(user);
-                    // Checks for flags present in cache and if the cache is not expired
-                    return cacheableFeatureFlagHelper
-                            .fetchUserCachedFlags(userIdentifier, user)
-                            .flatMap(cachedFlags -> {
-                                if (cachedFlags.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES) < this.featureFlagCacheTimeMin) {
-                                    return Mono.just(cachedFlags.getFlags());
-                                } else {
-                                    // empty the cache for the userIdentifier as expired
-                                    return cacheableFeatureFlagHelper.evictUserCachedFlags(userIdentifier)
-                                            .then(cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier, user))
-                                            .flatMap(cachedFlagsUpdated -> Mono.just(cachedFlagsUpdated.getFlags()));
-                                }
-                            });
-                });
+        return userMono.flatMap(user -> {
+            String userIdentifier = userIdentifierService.getUserIdentifier(user);
+            // Checks for flags present in cache and if the cache is not expired
+            return cacheableFeatureFlagHelper
+                    .fetchUserCachedFlags(userIdentifier, user)
+                    .flatMap(cachedFlags -> {
+                        if (cachedFlags.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
+                                < this.featureFlagCacheTimeMin) {
+                            return Mono.just(cachedFlags.getFlags());
+                        } else {
+                            // empty the cache for the userIdentifier as expired
+                            return cacheableFeatureFlagHelper
+                                    .evictUserCachedFlags(userIdentifier)
+                                    .then(cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier, user))
+                                    .flatMap(cachedFlagsUpdated -> Mono.just(cachedFlagsUpdated.getFlags()));
+                        }
+                    });
+        });
     }
 }
