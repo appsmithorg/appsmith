@@ -1,2 +1,0 @@
-pushd app/server 
-mvn:spotless check
