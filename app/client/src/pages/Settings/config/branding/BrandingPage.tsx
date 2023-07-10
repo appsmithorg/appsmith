@@ -7,7 +7,10 @@ import SettingsForm from "./SettingsForm";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import { Wrapper } from "@appsmith/pages/AdminSettings/config/authentication/AuthPage";
-import UpgradeBanner from "@appsmith/pages/AdminSettings/config/branding/UpgradeBanner";
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
+import { default as UpgradeBanner_CE } from "ce/pages/AdminSettings/config/branding/UpgradeBanner";
+import { default as UpgradeBanner_EE } from "ee/pages/AdminSettings/config/branding/UpgradeBanner";
+
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 export type brandColorsKeys =
@@ -66,7 +69,7 @@ function BrandingPage(props: BrandingPageProps) {
 
   return (
     <Wrapper>
-      <UpgradeBanner needsUpgrade={needsUpgrade} />
+      {needsUpgrade ? <UpgradeBanner_CE /> : <UpgradeBanner_EE />}
       <div className="grid md:grid-cols-[1fr] lg:grid-cols-[max(300px,30%)_1fr] gap-8 mt-4 pr-7">
         <SettingsForm
           control={control}
