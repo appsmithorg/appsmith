@@ -291,13 +291,15 @@ export class PropertyPane {
     propFieldName: string,
     valueToEnter: string,
     toVerifySave = true,
+    toValidateNetworkCall = true,
   ) {
     this.agHelper.UpdateCodeInput(
       this.locator._existingFieldTextByName(propFieldName),
       valueToEnter,
     );
     toVerifySave && this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
-    this.assertHelper.AssertNetworkStatus("@updateLayout");
+    toValidateNetworkCall &&
+      this.assertHelper.AssertNetworkStatus("@updateLayout");
   }
 
   public ValidatePropertyFieldValue(
