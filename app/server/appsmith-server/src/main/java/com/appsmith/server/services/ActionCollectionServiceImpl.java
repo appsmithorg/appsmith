@@ -17,21 +17,31 @@ import reactor.core.scheduler.Scheduler;
 @Slf4j
 public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl implements ActionCollectionService {
 
-    public ActionCollectionServiceImpl(Scheduler scheduler,
-                                       Validator validator,
-                                       MongoConverter mongoConverter,
-                                       ReactiveMongoTemplate reactiveMongoTemplate,
-                                       ActionCollectionRepository repository,
-                                       AnalyticsService analyticsService,
-                                       NewActionService newActionService,
-                                       PolicyGenerator policyGenerator,
-                                       ApplicationService applicationService,
-                                       ResponseUtils responseUtils,
-                                       ApplicationPermission applicationPermission,
-                                       ActionPermission actionPermission) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                newActionService, policyGenerator, applicationService, responseUtils, applicationPermission,
+    public ActionCollectionServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            ActionCollectionRepository repository,
+            AnalyticsService analyticsService,
+            NewActionService newActionService,
+            PolicyGenerator policyGenerator,
+            ApplicationService applicationService,
+            ResponseUtils responseUtils,
+            ApplicationPermission applicationPermission,
+            ActionPermission actionPermission) {
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService,
+                newActionService,
+                policyGenerator,
+                applicationService,
+                responseUtils,
+                applicationPermission,
                 actionPermission);
-
     }
 }

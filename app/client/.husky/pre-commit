@@ -2,3 +2,7 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 npx lint-staged --cwd app/client && git-secrets --scan --untracked && git-secrets --scan -r
+
+echo "Running Spotless check ..."
+pushd app/server > /dev/null
+(mvn spotless:check 1> /dev/null && popd > /dev/null) || (echo "Spotless check failed, please run mvn spotless:apply" && exit 1)

@@ -6,10 +6,13 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CustomDatasourceRepositoryImpl extends CustomDatasourceRepositoryCEImpl implements CustomDatasourceRepository {
+public class CustomDatasourceRepositoryImpl extends CustomDatasourceRepositoryCEImpl
+        implements CustomDatasourceRepository {
 
-    public CustomDatasourceRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomDatasourceRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
-
 }

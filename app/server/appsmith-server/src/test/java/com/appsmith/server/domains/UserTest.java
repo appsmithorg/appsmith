@@ -29,5 +29,4 @@ public class UserTest {
         one.setEmail("sherlock@gmail.com");
         assertThat(one.computeFirstName()).isEqualTo("Sherlock");
     }
-
 }

@@ -30,7 +30,9 @@ public class EntityDependencyNode {
                 result = false;
             }
         } else if (EntityReferenceType.JSACTION.equals(this.entityReferenceType)) {
-            if (Boolean.TRUE.equals(this.isAsync) && (Boolean.TRUE.equals(this.isFunctionCall) || !this.referenceString.startsWith(this.validEntityName + ".data"))) {
+            if (Boolean.TRUE.equals(this.isAsync)
+                    && (Boolean.TRUE.equals(this.isFunctionCall)
+                            || !this.referenceString.startsWith(this.validEntityName + ".data"))) {
                 result = false;
             }
 
@@ -38,12 +40,14 @@ public class EntityDependencyNode {
                 if (Boolean.TRUE.equals(this.isFunctionCall) && !this.validEntityName.equals(this.referenceString)) {
                     result = false;
                 }
-                if (Boolean.FALSE.equals(this.isFunctionCall) && !this.referenceString.startsWith(this.validEntityName + ".data")) {
+                if (Boolean.FALSE.equals(this.isFunctionCall)
+                        && !this.referenceString.startsWith(this.validEntityName + ".data")) {
                     result = false;
                 }
             }
 
-            // TODO: This one feels a little hacky. Should we introduce another property that handles whether the node is coming from a binding or i
+            // TODO: This one feels a little hacky. Should we introduce another property that handles whether the node
+            // is coming from a binding or i
             if (this.isAsync == null && !this.referenceString.startsWith(this.validEntityName + ".data")) {
                 result = false;
             }

@@ -37,10 +37,13 @@ public class AppSmithErrorWebExceptionHandler extends DefaultErrorWebExceptionHa
             "Failed to deserialize payload. Is the byte array a result of corresponding serialization for DefaultDeserializer";
 
     @Autowired
-    public AppSmithErrorWebExceptionHandler(ErrorAttributes errorAttributes, WebProperties webProperties,
-                                            ServerProperties serverProperties, ApplicationContext applicationContext,
-                                            ObjectProvider<ViewResolver> viewResolvers,
-                                            ServerCodecConfigurer serverCodecConfigurer) {
+    public AppSmithErrorWebExceptionHandler(
+            ErrorAttributes errorAttributes,
+            WebProperties webProperties,
+            ServerProperties serverProperties,
+            ApplicationContext applicationContext,
+            ObjectProvider<ViewResolver> viewResolvers,
+            ServerCodecConfigurer serverCodecConfigurer) {
         super(errorAttributes, webProperties.getResources(), serverProperties.getError(), applicationContext);
         this.setViewResolvers(viewResolvers.orderedStream().collect(Collectors.toList()));
         this.setMessageWriters(serverCodecConfigurer.getWriters());
@@ -54,28 +57,28 @@ public class AppSmithErrorWebExceptionHandler extends DefaultErrorWebExceptionHa
 
     @Nonnull
     private Mono<ServerResponse> render(ServerRequest request) {
-        Map<String, Object> error = getErrorAttributes(request, ErrorAttributeOptions.of(ErrorAttributeOptions.Include.STACK_TRACE));
+        Map<String, Object> error =
+                getErrorAttributes(request, ErrorAttributeOptions.of(ErrorAttributeOptions.Include.STACK_TRACE));
         int errorCode = getHttpStatus(error);
 
-        ServerResponse.BodyBuilder responseBuilder = ServerResponse.status(errorCode)
-                .contentType(MediaType.APPLICATION_JSON);
+        ServerResponse.BodyBuilder responseBuilder =
+                ServerResponse.status(errorCode).contentType(MediaType.APPLICATION_JSON);
 
         if (errorCode == 500 && String.valueOf(error.get("trace")).contains(DESERIALIZATION_ERROR_MESSAGE)) {
-            // If the error is regarding a deserialization error in the session data, then the user is essentially locked out.
-            // They have to use a different browser, or Incognito, or clear their cookies to get back in. So, we'll delete
-            // the SESSION cookie here, so that the user gets sent back to the Login page, and they can unblock themselves.
-            responseBuilder = responseBuilder.cookie(
-                    ResponseCookie.from("SESSION", "")
-                            .httpOnly(true)
-                            .path("/")
-                            .maxAge(0)
-                            .build()
-            );
+            // If the error is regarding a deserialization error in the session data, then the user is essentially
+            // locked out.
+            // They have to use a different browser, or Incognito, or clear their cookies to get back in. So, we'll
+            // delete
+            // the SESSION cookie here, so that the user gets sent back to the Login page, and they can unblock
+            // themselves.
+            responseBuilder = responseBuilder.cookie(ResponseCookie.from("SESSION", "")
+                    .httpOnly(true)
+                    .path("/")
+                    .maxAge(0)
+                    .build());
         }
 
-        return responseBuilder.body(
-                BodyInserters
-                        .fromValue(new ResponseDTO<>(errorCode, new ErrorDTO(String.valueOf(errorCode), String.valueOf(error.get("error")))))
-        );
+        return responseBuilder.body(BodyInserters.fromValue(new ResponseDTO<>(
+                errorCode, new ErrorDTO(String.valueOf(errorCode), String.valueOf(error.get("error"))))));
     }
 }

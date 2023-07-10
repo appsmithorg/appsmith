@@ -25,47 +25,37 @@ import java.util.Set;
 @Slf4j
 public class WebClientUtils {
 
-    private static final Set<String> DISALLOWED_HOSTS = Set.of(
-            "169.254.169.254",
-            "metadata.google.internal"
-    );
+    private static final Set<String> DISALLOWED_HOSTS = Set.of("169.254.169.254", "metadata.google.internal");
 
     public static final String HOST_NOT_ALLOWED = "Host not allowed.";
 
-    public static final ExchangeFilterFunction IP_CHECK_FILTER = ExchangeFilterFunction.ofRequestProcessor(request ->
-            DISALLOWED_HOSTS.contains(request.url().getHost())
+    public static final ExchangeFilterFunction IP_CHECK_FILTER = ExchangeFilterFunction.ofRequestProcessor(
+            request -> DISALLOWED_HOSTS.contains(request.url().getHost())
                     ? Mono.error(new UnknownHostException(HOST_NOT_ALLOWED))
-                    : Mono.just(request)
-    );
+                    : Mono.just(request));
 
-    private WebClientUtils() {
-    }
+    private WebClientUtils() {}
 
     public static WebClient create() {
-        return builder()
-                .build();
+        return builder().build();
     }
 
     public static WebClient create(ConnectionProvider provider) {
-        return builder(provider)
-                .build();
+        return builder(provider).build();
     }
 
     public static WebClient create(String baseUrl) {
-        return builder()
-                .baseUrl(baseUrl)
-                .build();
+        return builder().baseUrl(baseUrl).build();
     }
 
     public static WebClient create(String baseUrl, ConnectionProvider provider) {
-        return builder(provider)
-                .baseUrl(baseUrl)
-                .build();
+        return builder(provider).baseUrl(baseUrl).build();
     }
 
     private static boolean shouldUseSystemProxy() {
         return "true".equals(System.getProperty("java.net.useSystemProxies"))
-                && (!System.getProperty("http.proxyHost", "").isEmpty() || !System.getProperty("https.proxyHost", "").isEmpty());
+                && (!System.getProperty("http.proxyHost", "").isEmpty()
+                        || !System.getProperty("https.proxyHost", "").isEmpty());
     }
 
     public static WebClient.Builder builder() {
@@ -161,5 +151,4 @@ public class WebClientUtils {
             promise.setSuccess(addresses);
         }
     }
-
 }
