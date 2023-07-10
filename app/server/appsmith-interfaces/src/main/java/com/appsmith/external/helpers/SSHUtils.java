@@ -13,7 +13,7 @@ import java.net.ServerSocket;
 
 @NoArgsConstructor
 public class SSHUtils {
-    public static ServerSocket createSSHTunnel() throws IOException {
+    public static SSHTunnelContext createSSHTunnel() throws IOException {
 
         final SSHClient client = new SSHClient();
 
@@ -27,6 +27,8 @@ public class SSHUtils {
         final Parameters params = new Parameters("localhost", 0, "localhost", 3306);
         ss.setReuseAddress(true);
         ss.bind(new InetSocketAddress(params.getLocalHost(), params.getLocalPort()));
+        System.out.println("====== xxxxxxxx ==============");
+        System.out.println("port no: " + ss.getLocalPort());
         //client.newLocalPortForwarder(params, ss).listen();
 
         Runnable serverTask = new Runnable() {
@@ -43,6 +45,7 @@ public class SSHUtils {
         Thread serverThread = new Thread(serverTask);
         serverThread.start();
 
-        return ss;
+
+        return new SSHTunnelContext(ss, serverThread, client);
     }
 }

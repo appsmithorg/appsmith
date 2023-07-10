@@ -7,6 +7,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.SSHTunnelContext;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -29,7 +30,9 @@ import com.external.utils.MySqlErrorUtils;
 import com.external.utils.QueryUtils;
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.spi.*;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import net.schmizz.sshj.SSHClient;
 import org.apache.commons.lang.ObjectUtils;
 import org.mariadb.r2dbc.message.server.ColumnDefinitionPacket;
 import org.pf4j.Extension;
@@ -80,6 +83,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Slf4j
 public class MySqlPlugin extends BasePlugin {
+    public static ServerSocket ss = null;
+    public static Thread th = null;
+    public static SSHClient sshClient = null;
 
     private static final int VALIDATION_CHECK_TIMEOUT = 4; // seconds
     private static final String IS_KEY = "is";
@@ -572,19 +578,25 @@ public class MySqlPlugin extends BasePlugin {
         @Override
         public Mono<ConnectionPool> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             ConnectionPool pool = null;
-            ServerSocket serverSocket = null;
             try {
-                serverSocket = createSSHTunnel();
-                pool = getNewConnectionPool(datasourceConfiguration, serverSocket);
+                SSHTunnelContext sshTunnelContext = createSSHTunnel();
+                ss = sshTunnelContext.getServerSocket();
+                th = sshTunnelContext.getThread();
+                sshClient = sshTunnelContext.getSshClient();
+                pool = getNewConnectionPool(datasourceConfiguration, ss);
             } catch (AppsmithPluginException | IOException e) {
                 return Mono.error(e);
             }
             return Mono.just(pool);
         }
 
+        @SneakyThrows
         @Override
         public void datasourceDestroy(ConnectionPool connectionPool) {
             if (connectionPool != null) {
+                ss.close();
+                sshClient.disconnect();
+                th.stop();
                 connectionPool
                         .disposeLater()
                         .onErrorResume(exception -> {
