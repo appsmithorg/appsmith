@@ -31,4 +31,5 @@ export const draggableWidgets = WIDGET;
 export const fakerHelper = ObjectsRegistry.FakerHelper;
 export const hostPort = ObjectsRegistry.DefaultHostPort;
 export const entityItems = EntityItems;
+export const tabs = ObjectsRegistry.Tabs;
 export const gsheetHelper = ObjectsRegistry.GSheetHelper;
