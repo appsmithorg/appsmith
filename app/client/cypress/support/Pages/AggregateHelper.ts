@@ -1451,6 +1451,15 @@ export class AggregateHelper extends ReusableHelper {
       apiToValidate && this.assertHelper.AssertNetworkStatus(apiToValidate);
   }
 
+  public TypeTextWithoutWait(
+    selector: string,
+    value: string,
+    index = 0,
+    force = false
+  ) {
+    return this.GetElement(selector).eq(index).type(value, {force: force});
+  }
+
   //Not used:
   // private xPathToCss(xpath: string) {
   //     return xpath

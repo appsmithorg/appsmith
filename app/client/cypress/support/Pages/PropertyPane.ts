@@ -521,4 +521,31 @@ export class PropertyPane {
   public GetSelectedItemText(property: string) {
     return this.agHelper.GetText(this._propPaneSelectedItem(property));
   }
+
+
+  public onClickActions (
+    forSuccess: string, forFailure: string, actionType: string , actionValue: string, idx = 0
+    ) {
+
+    this.SelectActionByTitleAndValue(actionType, actionValue);
+    cy.get(this._actionCallbacks).last().click();
+  
+    // add a success callback
+    this.agHelper.GetNClick(this._actionAddCallback("success"),0, false, 500);
+    this.agHelper.GetNClick(this.locator._dropDownValue("Show alert"),0, false, 500);
+    this.agHelper.TypeText(
+      this._actionSelectorFieldByLabel("Message"),
+      forSuccess,
+    );
+    this.agHelper.GetNClick(this._actionSelectorPopupClose);
+  
+    // add a failure callback
+    this.agHelper.GetNClick(this._actionAddCallback("failure"),0, false, 500);
+    this.agHelper.GetNClick(this.locator._dropDownValue("Show alert"),0, false, 500);
+    this.agHelper.TypeText(
+      this._actionSelectorFieldByLabel("Message"),
+      forFailure,
+    );
+    this.agHelper.GetNClick(this._actionSelectorPopupClose);
+  }
 }
