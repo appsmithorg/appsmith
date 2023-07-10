@@ -53,7 +53,7 @@ export const ContentWrapper = styled("div")<{
   contentKind: ContentKind;
   showLineNumbers?: boolean;
   folding?: boolean;
-  height?: string;
+  height?: string | number;
 }>`
   overflow: hidden;
   width: 100%;

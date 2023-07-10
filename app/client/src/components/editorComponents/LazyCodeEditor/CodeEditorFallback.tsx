@@ -7,7 +7,10 @@ import {
   SpinnerContainer,
 } from "./styles";
 import { ContentKind } from "./types";
-import type { EditorProps } from "components/editorComponents/CodeEditor";
+import type {
+  EditorProps,
+  EditorStyleProps,
+} from "components/editorComponents/CodeEditor";
 import { Spinner } from "design-system";
 import { JS_OBJECT_START_STATEMENT } from "workers/Linting/constants";
 
@@ -21,11 +24,11 @@ export default function CodeEditorFallback({
   showLoadingProgress,
 }: Pick<
   EditorProps,
-  "input" | "placeholder" | "showLineNumbers" | "isReadOnly" | "height"
+  "input" | "placeholder" | "showLineNumbers" | "isReadOnly"
 > & {
   onInteracted: () => void;
   showLoadingProgress: boolean;
-}) {
+} & Pick<EditorStyleProps, "height">) {
   const parsedValue = parseInputValue();
 
   let contentKind: ContentKind;
