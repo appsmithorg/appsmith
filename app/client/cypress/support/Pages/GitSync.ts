@@ -254,11 +254,7 @@ export class GitSync {
     if (!assertFailure) {
       // check for commit success
       //adding timeout since commit is taking longer sometimes
-      cy.wait("@commit", { timeout: 35000 }).should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        201,
-      );
+      this.assertHelper.AssertNetworkStatus("@commit", 201);
       cy.wait(3000);
     } else {
       cy.wait("@commit", { timeout: 35000 }).then((interception: any) => {

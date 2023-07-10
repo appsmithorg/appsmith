@@ -1,5 +1,6 @@
 import {
   agHelper,
+  assertHelper,
   dataSources,
   deployMode,
   draggableWidgets,
@@ -58,11 +59,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
       "contain.text",
     );
     agHelper.GetNClick(gitSync._commitButton);
-    cy.wait("@commit", { timeout: 35000 }).should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    assertHelper.AssertNetworkStatus("@commit", 201);
     gitSync.CloseGitSyncModal();
     cy.latestDeployPreview();
   });
