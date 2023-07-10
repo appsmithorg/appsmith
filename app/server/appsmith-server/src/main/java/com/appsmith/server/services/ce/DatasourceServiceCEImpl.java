@@ -195,10 +195,11 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         return datasourceMono.flatMap(savedDatasource -> this.organiseDatasourceStorages(savedDatasource)
                 .flatMap(datasourceStorage -> {
                     // Make sure that we are creating entries only if the id is not already populated
-                    if (datasourceStorage.getId() == null) {
-                        return datasourceStorageService.create(datasourceStorage);
+                    if (hasText(datasourceStorage.getId())) {
+                        return Mono.just(datasourceStorage);
                     }
-                    return Mono.just(datasourceStorage);
+
+                    return datasourceStorageService.create(datasourceStorage);
                 })
                 .map(DatasourceStorageDTO::new)
                 .collectMap(DatasourceStorageDTO::getEnvironmentId)

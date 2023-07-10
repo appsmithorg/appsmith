@@ -62,7 +62,8 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
     @Override
     public Mono<DatasourceStorage> create(DatasourceStorage datasourceStorage) {
-        return this.validateAndSaveDatasourceStorageToRepository(datasourceStorage)
+        return this.validateDatasourceStorageNonExistence(datasourceStorage)
+                .then(this.validateAndSaveDatasourceStorageToRepository(datasourceStorage))
                 .flatMap(this::populateHintMessages) // For REST API datasource create flow.
                 .flatMap(savedDatasourceStorage -> analyticsService.sendCreateEvent(
                         savedDatasourceStorage, getAnalyticsProperties(savedDatasourceStorage)));
@@ -339,5 +340,15 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         datasourceStorage.prepareTransientFields(datasource);
 
         return datasourceStorage;
+    }
+
+    private Mono<DatasourceStorage> validateDatasourceStorageNonExistence(DatasourceStorage datasourceStorage) {
+
+        String datasourceId = datasourceStorage.getDatasourceId();
+        String environmentId = datasourceStorage.getEnvironmentId();
+
+        return this.findStrictlyByDatasourceIdAndEnvironmentId(datasourceId, environmentId)
+                .flatMap(dbDatasourceStorage -> Mono.error(new AppsmithException(
+                        AppsmithError.DUPLICATE_DATASOURCE_CONFIGURATION, datasourceId, environmentId)));
     }
 }
