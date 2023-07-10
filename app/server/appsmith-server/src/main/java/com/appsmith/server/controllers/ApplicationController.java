@@ -16,16 +16,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(Url.APPLICATION_URL)
 public class ApplicationController extends ApplicationControllerCE {
 
-    public ApplicationController(ApplicationService service,
-                                 ApplicationPageService applicationPageService,
-                                 ApplicationFetcher applicationFetcher,
-                                 ApplicationForkingService applicationForkingService,
-                                 ImportExportApplicationService importExportApplicationService,
-                                 ThemeService themeService,
-                                 ApplicationSnapshotService applicationSnapshotService) {
+    public ApplicationController(
+            ApplicationService service,
+            ApplicationPageService applicationPageService,
+            ApplicationFetcher applicationFetcher,
+            ApplicationForkingService applicationForkingService,
+            ImportExportApplicationService importExportApplicationService,
+            ThemeService themeService,
+            ApplicationSnapshotService applicationSnapshotService) {
 
-        super(service, applicationPageService, applicationFetcher, applicationForkingService,
-                importExportApplicationService, themeService, applicationSnapshotService);
-
+        super(
+                service,
+                applicationPageService,
+                applicationFetcher,
+                applicationForkingService,
+                importExportApplicationService,
+                themeService,
+                applicationSnapshotService);
     }
 }

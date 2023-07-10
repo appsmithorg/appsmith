@@ -23,5 +23,4 @@ public class UserUpdateDTO {
     public boolean hasUserDataUpdates() {
         return role != null || useCase != null || isIntercomConsentGiven;
     }
-
 }
