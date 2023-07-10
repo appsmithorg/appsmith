@@ -39,7 +39,7 @@ describe("Autocomplete tests for setters", () => {
 
     //For table widget
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 500, 300);
-    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    entityExplorer.SelectEntityByName("JSObject1");
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.RemoveCharsNType(locators._codeMirrorTextArea, 7, "Table1.set");
 
