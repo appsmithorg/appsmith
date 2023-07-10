@@ -159,6 +159,7 @@ export const CONFIG = {
           }
           return {
             minWidth: `${minWidth}px`,
+            minHeight: "40px",
           };
         },
       },
@@ -176,6 +177,7 @@ export const CONFIG = {
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+    setterConfig: Widget.getSetterConfig(),
   },
 };
 

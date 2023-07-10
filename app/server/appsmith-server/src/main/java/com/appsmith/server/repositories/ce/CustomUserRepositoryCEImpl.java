@@ -28,7 +28,10 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 @Slf4j
 public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User> implements CustomUserRepositoryCE {
 
-    public CustomUserRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomUserRepositoryCEImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
@@ -78,25 +81,26 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     public Mono<Boolean> isUsersEmpty() {
         final Query q = query(new Criteria());
         q.fields().include(fieldName(QUser.user.email));
-        q.limit(2);
-        return mongoOperations.find(q, User.class)
+        // Basically limit to system generated emails plus 1 more.
+        q.limit(getSystemGeneratedUserEmails().size() + 1);
+        return mongoOperations
+                .find(q, User.class)
                 .filter(user -> !getSystemGeneratedUserEmails().contains(user.getEmail()))
                 .count()
                 .map(count -> count == 0);
     }
 
     @Override
-    public Flux<User> getAllByEmails(Set<String> emails, Optional<AclPermission> aclPermission, int limit, int skip, StringPath sortKey, Sort.Direction sortDirection) {
+    public Flux<User> getAllByEmails(
+            Set<String> emails,
+            Optional<AclPermission> aclPermission,
+            int limit,
+            int skip,
+            StringPath sortKey,
+            Sort.Direction sortDirection) {
         Sort sortBy = Sort.by(sortDirection, fieldName(sortKey));
         Criteria emailCriteria = where(fieldName(QUser.user.email)).in(emails);
-        return queryAll(
-                List.of(emailCriteria),
-                Optional.empty(),
-                aclPermission,
-                sortBy,
-                limit,
-                skip
-        );
+        return queryAll(List.of(emailCriteria), Optional.empty(), aclPermission, sortBy, limit, skip);
     }
 
     protected Set<String> getSystemGeneratedUserEmails() {
@@ -104,5 +108,4 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
         systemGeneratedEmails.add(FieldName.ANONYMOUS_USER);
         return systemGeneratedEmails;
     }
-
 }

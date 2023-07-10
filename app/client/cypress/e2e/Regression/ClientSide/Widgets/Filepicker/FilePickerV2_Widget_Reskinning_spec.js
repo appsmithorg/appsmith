@@ -4,9 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Checkbox Widget Functionality", function () {
   before(() => {
-    cy.fixture("filePickerV2WidgetReskinDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("filePickerV2WidgetReskinDsl");
   });
 
   it("1. Elements inside upload modal should follow theme border radius", () => {

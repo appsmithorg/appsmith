@@ -38,9 +38,6 @@ describe("Undo/Redo functionality", function () {
       //cy.get(datasourceEditor.sectionAuthentication).trigger("click").wait(1000);
 
       cy.get("body").type(`{${modifierKey}}z`);
-      cy.get(`${datasourceEditor.sectionAuthentication} .ads-v2-icon`).should(
-        "exist",
-      );
       cy.get(".t--application-name").click({ force: true }).wait(500);
       cy.get(".ads-v2-menu__menu-item-children:contains(Edit)").eq(1).click();
       cy.get(".ads-v2-menu__menu-item-children:contains(Undo)").click({

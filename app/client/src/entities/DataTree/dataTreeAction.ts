@@ -46,6 +46,7 @@ export const generateDataTreeAction = (
   const { bindingPaths, reactivePaths } = getBindingAndReactivePathsOfAction(
     action.config,
     editorConfig,
+    dynamicBindingPathList,
   );
 
   return {

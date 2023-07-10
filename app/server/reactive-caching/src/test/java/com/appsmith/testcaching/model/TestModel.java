@@ -1,7 +1,5 @@
 package com.appsmith.testcaching.model;
 
-import java.time.Instant;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

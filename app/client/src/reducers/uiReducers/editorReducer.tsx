@@ -15,6 +15,7 @@ import type {
 import type { UpdatePageResponse } from "api/PageApi";
 
 const initialState: EditorReduxState = {
+  widgetConfigBuilt: false,
   initialized: false,
   loadingStates: {
     publishing: false,
@@ -219,9 +220,16 @@ const editorReducer = createReducer(initialState, {
       savingEntity: false,
     },
   }),
+  [ReduxActionTypes.WIDGET_INIT_SUCCESS]: (
+    state: EditorReduxState,
+  ): EditorReduxState => ({
+    ...state,
+    widgetConfigBuilt: true,
+  }),
 });
 
 export interface EditorReduxState {
+  widgetConfigBuilt: boolean;
   initialized: boolean;
   pageWidgetId?: string;
   currentLayoutId?: string;

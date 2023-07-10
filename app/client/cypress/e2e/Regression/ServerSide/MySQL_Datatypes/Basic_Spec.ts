@@ -14,9 +14,8 @@ let dsName: any, query: string;
 
 describe("MySQL Datatype tests", function () {
   before("Load dsl, Change theme, Create Mysql DS", () => {
-    cy.fixture("Datatypes/mySQLdsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Datatypes/mySQLdsl");
+
     appSettings.OpenPaneAndChangeTheme("Moon");
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
@@ -130,9 +129,7 @@ describe("MySQL Datatype tests", function () {
     () => {
       entityExplorer.SelectEntityByName("dropTable");
       dataSources.RunQuery();
-      dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-        expect($cellData).to.eq("0"); //Success response for dropped table!
-      });
+      dataSources.AssertQueryTableResponse(0, "0"); //Success response for dropped table!
       entityExplorer.ExpandCollapseEntity("Queries/JS", false);
       entityExplorer.ExpandCollapseEntity("Datasources");
       entityExplorer.ExpandCollapseEntity(dsName);

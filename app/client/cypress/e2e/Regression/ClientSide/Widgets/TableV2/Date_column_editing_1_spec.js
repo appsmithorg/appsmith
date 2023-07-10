@@ -7,9 +7,7 @@ import {
 
 describe("Table widget date column inline editing functionality", () => {
   before(() => {
-    cy.fixture("Table/DateCellEditingDSL").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Table/DateCellEditingDSL");
   });
 
   it("1. should check that edit check box is enabled for date type column in the columns list", () => {
