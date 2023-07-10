@@ -19,10 +19,6 @@ describe("GSheet-Functional Tests", function () {
     spreadSheetName = spreadSheetName + "_" + uuid;
     appName = appName + "-" + uuid;
 
-    //Set initial data to be added in the gsheet
-    let data = GSHEET_DATA[0];
-    data["rowIndex"] = "1";
-
     //Adding query to insert a new spreadsheet
     homePage.NavigateToHome();
     homePage.CreateAppInWorkspace(workspaceName);
@@ -30,7 +26,7 @@ describe("GSheet-Functional Tests", function () {
     gsheetHelper.AddNewSpreadsheetQuery(
       dataSourceName,
       spreadSheetName,
-      JSON.stringify([data]),
+      JSON.stringify([GSHEET_DATA[0]]),
     );
     cy.get("@postExecute").then((interception: any) => {
       expect(
@@ -87,7 +83,7 @@ describe("GSheet-Functional Tests", function () {
   });
 
   it("3. Verify Update one and Update many queries", () => {
-    // add insert one query and verify
+    // add update one query and verify
     gsheetHelper.AddInsertOrUpdateQuery(
       "Update One",
       dataSourceName,
@@ -96,11 +92,11 @@ describe("GSheet-Functional Tests", function () {
     );
     cy.get("@postExecute").then((interception: any) => {
       expect(interception.response.body.data.body.message).to.deep.equal(
-        "Inserted row successfully!",
+        "Updated sheet successfully!",
       );
     });
 
-    // add insert many query and verify
+    // add update many query and verify
     gsheetHelper.AddInsertOrUpdateQuery(
       "Update Many",
       dataSourceName,
@@ -109,7 +105,7 @@ describe("GSheet-Functional Tests", function () {
     );
     cy.get("@postExecute").then((interception: any) => {
       expect(interception.response.body.data.body.message).to.deep.equal(
-        "Inserted rows successfully!",
+        "Updated sheet successfully!",
       );
     });
   });

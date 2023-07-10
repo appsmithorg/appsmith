@@ -89,12 +89,11 @@ export class GsheetHelper {
       operation.toLowerCase().replace(" ", "_") + "_query",
     );
 
-    let inputFieldName = "";
+    let inputField = "";
     if (operation.includes("Insert")) {
-      inputFieldName =
-        operation == "Insert One" ? "Row object" : "Row object(s)";
+      inputField = operation == "Insert One" ? "Row object" : "Row object(s)";
     } else if (operation.includes("Update")) {
-      inputFieldName =
+      inputField =
         operation == "Update One"
           ? "Update row object"
           : "Update row object(s)";
@@ -103,8 +102,7 @@ export class GsheetHelper {
     this.agHelper.EnterValue(rowData, {
       propFieldName: "",
       directInput: false,
-      inputFieldName:
-        operation == "Insert One" ? "Row object" : "Row object(s)",
+      inputFieldName: inputField,
     });
     this.dataSources.RunQuery();
   }
