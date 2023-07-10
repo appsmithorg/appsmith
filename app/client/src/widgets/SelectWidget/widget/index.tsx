@@ -308,6 +308,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                 },
                 dependentPaths: ["serverSideFiltering", "options"],
               },
+              dependentPaths: ["serverSideFiltering", "options"],
             },
             dependencies: ["serverSideFiltering", "options"],
           },
