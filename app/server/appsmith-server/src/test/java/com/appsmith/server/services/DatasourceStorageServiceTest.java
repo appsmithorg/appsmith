@@ -13,7 +13,6 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +22,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -35,7 +33,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@DirtiesContext
 @SpringBootTest
 @Slf4j
 public class DatasourceStorageServiceTest {
@@ -115,8 +112,8 @@ public class DatasourceStorageServiceTest {
 
         Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
         String pluginId = plugin.getId();
-        String datasourceId = new ObjectId().toString();
-        String environmentIdOne = new ObjectId().toString();
+        String datasourceId = "mockedDatasourceId";
+        String environmentIdOne = "mockedEnvironmentId";
 
         DatasourceStorage datasourceStorage = new DatasourceStorage();
         datasourceStorage.setDatasourceId(datasourceId);
@@ -151,8 +148,8 @@ public class DatasourceStorageServiceTest {
 
         Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
         String pluginId = plugin.getId();
-        String datasourceId = new ObjectId().toString();
-        String environmentIdOne = new ObjectId().toString();
+        String datasourceId = "sampleDatasourceId";
+        String environmentIdOne = "sampleEnvironmentId";
 
         DatasourceStorage datasourceStorage = new DatasourceStorage();
         datasourceStorage.setDatasourceId(datasourceId);
@@ -165,7 +162,7 @@ public class DatasourceStorageServiceTest {
 
         datasourceStorageService.create(datasourceStorage).block();
 
-        String environmentId = new ObjectId().toString();
+        String environmentId = "sampleEnvironmentId2";
         datasourceStorage.setEnvironmentId(environmentId);
         StepVerifier.create(datasourceStorageService.create(datasourceStorage)).assertNext(dbDatasourceStorage -> {
             assertThat(dbDatasourceStorage).isNotNull();
