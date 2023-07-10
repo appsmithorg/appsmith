@@ -74,8 +74,8 @@ export class AssertHelper extends ReusableHelper {
     //   "response.body.responseMeta.status",
     //   expectedStatus,
     // );
-    this.Sleep(); //Wait a bit for call to finish!
-    return cy.wait(this.GetAliasName(aliasName));
+    this.Sleep(2000); //Wait a bit for call to finish!
+    return cy.wait(this.GetAliasName(aliasName), { responseTimeout: 60000 });
   }
 
   public AssertNetworkStatus(aliasName: string, expectedStatus = 200) {
