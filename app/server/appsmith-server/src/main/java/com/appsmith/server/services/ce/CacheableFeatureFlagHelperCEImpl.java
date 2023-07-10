@@ -36,9 +36,12 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
 
     private final UserIdentifierService userIdentifierService;
 
-    public CacheableFeatureFlagHelperCEImpl(TenantService tenantService, ConfigService configService,
-                                            CloudServicesConfig cloudServicesConfig, CommonConfig commonConfig,
-                                            UserIdentifierService userIdentifierService) {
+    public CacheableFeatureFlagHelperCEImpl(
+            TenantService tenantService,
+            ConfigService configService,
+            CloudServicesConfig cloudServicesConfig,
+            CommonConfig commonConfig,
+            UserIdentifierService userIdentifierService) {
         this.tenantService = tenantService;
         this.configService = configService;
         this.cloudServicesConfig = cloudServicesConfig;
@@ -58,24 +61,23 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
     }
 
     private Mono<Map<String, Object>> getUserDefaultTraits(User user) {
-        return configService.getInstanceId()
-                .map(instanceId -> {
-                    Map<String, Object> userTraits = new HashMap<>();
-                    String emailTrait;
-                    if (!commonConfig.isCloudHosting()) {
-                        emailTrait = userIdentifierService.hash(user.getEmail());
-                    } else {
-                        emailTrait = user.getEmail();
-                    }
-                    userTraits.put("email", emailTrait);
-                    userTraits.put("instanceId", instanceId);
-                    userTraits.put("tenantId", user.getTenantId());
-                    userTraits.put("isTelemetryOn", !commonConfig.isTelemetryDisabled());
-                    userTraits.put("createdAt", user.getCreatedAt());
-                    userTraits.put("defaultTraitsUpdatedAt", Instant.now().getEpochSecond());
-                    userTraits.put("type", "user");
-                    return userTraits;
-                });
+        return configService.getInstanceId().map(instanceId -> {
+            Map<String, Object> userTraits = new HashMap<>();
+            String emailTrait;
+            if (!commonConfig.isCloudHosting()) {
+                emailTrait = userIdentifierService.hash(user.getEmail());
+            } else {
+                emailTrait = user.getEmail();
+            }
+            userTraits.put("email", emailTrait);
+            userTraits.put("instanceId", instanceId);
+            userTraits.put("tenantId", user.getTenantId());
+            userTraits.put("isTelemetryOn", !commonConfig.isTelemetryDisabled());
+            userTraits.put("createdAt", user.getCreatedAt());
+            userTraits.put("defaultTraitsUpdatedAt", Instant.now().getEpochSecond());
+            userTraits.put("type", "user");
+            return userTraits;
+        });
     }
 
     @CacheEvict(cacheName = "featureFlag", key = "{#userIdentifier}")
@@ -90,13 +92,8 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
         Mono<String> defaultTenantIdMono = tenantService.getDefaultTenantId();
         return Mono.zip(instanceIdMono, defaultTenantIdMono, getUserDefaultTraits(user))
                 .flatMap(objects -> {
-                    return this.getRemoteFeatureFlagsByIdentity(
-                            new FeatureFlagIdentityTraits(
-                                    objects.getT1(),
-                                    objects.getT2(),
-                                    Set.of(userIdentifier),
-                                    objects.getT3())
-                    );
+                    return this.getRemoteFeatureFlagsByIdentity(new FeatureFlagIdentityTraits(
+                            objects.getT1(), objects.getT2(), Set.of(userIdentifier), objects.getT3()));
                 })
                 .map(newValue -> newValue.get(userIdentifier));
     }
@@ -108,16 +105,16 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
      * @param featureFlagIdentityTraits
      * @return
      */
-    private Mono<Map<String, Map<String, Boolean>>> getRemoteFeatureFlagsByIdentity(FeatureFlagIdentityTraits featureFlagIdentityTraits) {
+    private Mono<Map<String, Map<String, Boolean>>> getRemoteFeatureFlagsByIdentity(
+            FeatureFlagIdentityTraits featureFlagIdentityTraits) {
         return WebClientUtils.create(cloudServicesConfig.getBaseUrl())
                 .post()
                 .uri("/api/v1/feature-flags")
                 .body(BodyInserters.fromValue(featureFlagIdentityTraits))
                 .exchangeToMono(clientResponse -> {
                     if (clientResponse.statusCode().is2xxSuccessful()) {
-                        return clientResponse.bodyToMono(new ParameterizedTypeReference<ResponseDTO<Map<String,
-                                Map<String, Boolean>>>>() {
-                        });
+                        return clientResponse.bodyToMono(
+                                new ParameterizedTypeReference<ResponseDTO<Map<String, Map<String, Boolean>>>>() {});
                     } else {
                         return clientResponse.createError();
                     }
@@ -126,8 +123,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                 .onErrorMap(
                         // Only map errors if we haven't already wrapped them into an AppsmithException
                         e -> !(e instanceof AppsmithException),
-                        e -> new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, e.getMessage())
-                )
+                        e -> new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, e.getMessage()))
                 .onErrorResume(error -> {
                     // We're gobbling up errors here so that all feature flags are turned off by default
                     // This will be problematic if we do not maintain code to reflect validity of flags

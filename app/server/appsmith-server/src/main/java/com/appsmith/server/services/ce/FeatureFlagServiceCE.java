@@ -4,7 +4,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Map;
 
 public interface FeatureFlagServiceCE {
@@ -36,5 +35,4 @@ public interface FeatureFlagServiceCE {
      * @return Mono<Map < String, Boolean>>
      */
     Mono<Map<String, Boolean>> getAllFeatureFlagsForUser();
-
 }

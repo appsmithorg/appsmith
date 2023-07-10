@@ -12,5 +12,4 @@ public class S3PluginConstants {
     public static final String AWS_S3_SERVICE_PROVIDER = "amazon-s3";
     public static String DEFAULT_FILE_NAME = "MyFile.txt";
     public static final String ACCESS_DENIED_ERROR_CODE = "AccessDenied";
-
 }
