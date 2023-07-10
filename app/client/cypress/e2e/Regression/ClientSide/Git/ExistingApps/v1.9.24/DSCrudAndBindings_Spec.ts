@@ -120,8 +120,8 @@ describe("Import and validate older app (app created in older versions of Appsmi
     table.RemoveFilter();
 
     //Update table data
-    deployMode.EnterJSONInputValue("Statusid", "5");
-    deployMode.EnterJSONInputValue("Statusname", "Active");
+    deployMode.EnterJSONInputValue("Statusid", "5", 0, true);
+    deployMode.EnterJSONInputValue("Statusname", "Active", 0, true);
     agHelper.Sleep(500);
     agHelper.ClickButton("Update");
 
@@ -201,9 +201,9 @@ describe("Import and validate older app (app created in older versions of Appsmi
     agHelper.ClickButton("Add customer Details");
     agHelper.AssertElementVisible(locators._modal);
 
-    deployMode.EnterJSONInputValue("Customer Name", "TestUser");
-    deployMode.EnterJSONInputValue("Customer Number", "1");
-    deployMode.EnterJSONInputValue("Phone Number", "999999999");
+    deployMode.EnterJSONInputValue("Customer Name", "TestUser", 0, true);
+    deployMode.EnterJSONInputValue("Customer Number", "1", 0, true);
+    deployMode.EnterJSONInputValue("Phone Number", "999999999", 0, true);
     agHelper.ClickButton("Submit", 1);
     agHelper.WaitUntilToastDisappear("Add Customer Successful!");
     agHelper.ClickButton("Close");

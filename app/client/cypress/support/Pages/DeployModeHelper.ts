@@ -144,11 +144,17 @@ export class DeployMode {
     this.agHelper.AssertElementVisible(this._homeAppsmithImage);
   }
 
-  public EnterJSONInputValue(fieldName: string, value: string, index = 0) {
+  public EnterJSONInputValue(
+    fieldName: string,
+    value: string,
+    index = 0,
+    clearField = false,
+  ) {
+    if (clearField) this.ClearJSONFieldValue(fieldName, index);
+
     cy.xpath(this._jsonFormFieldByName(fieldName))
       .eq(index)
       .click()
-      .clear()
       .type(value, { delay: 0 })
       .wait(200);
   }
