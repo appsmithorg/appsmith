@@ -244,6 +244,8 @@ describe("MultiSelect Widget Functionality", function () {
       _.propPane.UpdatePropertyFieldValue(
         "Default selected values",
         JSON.stringify(defaultValue, null, 2),
+        true,
+        false,
       );
       // select other options
       _.agHelper.SelectFromMultiSelect(optionsToSelect);
