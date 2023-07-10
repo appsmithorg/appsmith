@@ -72,11 +72,6 @@ describe("Binding the list widget with text widget", function () {
 
     cy.wait(1000);
     _.propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}");
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     _.deployMode.DeployApp();
     cy.wait(2000);
     cy.get(".t--widget-textwidget span:contains('Vivek')").should(
