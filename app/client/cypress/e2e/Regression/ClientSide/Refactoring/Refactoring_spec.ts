@@ -41,23 +41,23 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
     dataSources.CreateDataSource("MySql", true, false);
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-    });
 
-    //Selecting paintings table from MySQL DS
-    //Initialize new JSObject with custom code
-    jsEditor.CreateJSObject(jsCode);
-    //Initialize new Query entity with custom query
-    dataSources.CreateQueryFromOverlay(
-      dsName,
-      query,
-      refactorInput.query.oldName,
-    ); //Creating query from EE overlay
-    //Initialize new API entity with custom header
-    apiPage.CreateAndFillApi(
-      tedTestConfig.mockApiUrl,
-      refactorInput.api.oldName,
-    );
-    apiPage.EnterHeader("key1", `{{\tJSObject1.myVar1}}`);
+      //Selecting paintings table from MySQL DS
+      //Initialize new JSObject with custom code
+      jsEditor.CreateJSObject(jsCode);
+      //Initialize new Query entity with custom query
+      dataSources.CreateQueryFromOverlay(
+        dsName,
+        query,
+        refactorInput.query.oldName,
+      ); //Creating query from EE overlay
+      //Initialize new API entity with custom header
+      apiPage.CreateAndFillApi(
+        tedTestConfig.mockApiUrl,
+        refactorInput.api.oldName,
+      );
+      apiPage.EnterHeader("key1", `{{\tJSObject1.myVar1}}`);
+    });
   });
 
   it("1. Refactor Widget, API, Query and JSObject", () => {
