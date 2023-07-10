@@ -9,7 +9,6 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.featureflags.FeatureFlagTrait;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -166,10 +165,6 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     if (authentication instanceof OAuth2AuthenticationToken) {
                         modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
                     }
-                    /*
-                       Adding default traits to flagsmith for the logged-in user
-                    */
-                    monos.add(addDefaultUserTraits(user));
 
                     if (isFromSignupFinal) {
                         final String inviteToken = currentUser.getInviteToken();
@@ -204,33 +199,6 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     return Mono.whenDelayError(monos);
                 })
                 .then(redirectionMono);
-    }
-
-    private Mono<Void> addDefaultUserTraits(User user) {
-        String identifier = userIdentifierService.getUserIdentifier(user);
-        List<FeatureFlagTrait> featureFlagTraits = new ArrayList<>();
-        String emailTrait;
-        if (!commonConfig.isCloudHosting()) {
-            emailTrait = userIdentifierService.hash(user.getEmail());
-        } else {
-            emailTrait = user.getEmail();
-        }
-        return configService.getInstanceId().flatMap(instanceId -> {
-            featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "email", emailTrait));
-            featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "instanceId", instanceId));
-            featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "tenantId", user.getTenantId()));
-            featureFlagTraits.add(addTraitKeyValueToTraitObject(
-                    identifier, "is_telemetry_on", String.valueOf(!commonConfig.isTelemetryDisabled())));
-            return featureFlagService.remoteSetUserTraits(featureFlagTraits);
-        });
-    }
-
-    private FeatureFlagTrait addTraitKeyValueToTraitObject(String identifier, String traitKey, String traitValue) {
-        FeatureFlagTrait featureFlagTrait = new FeatureFlagTrait();
-        featureFlagTrait.setIdentifier(identifier);
-        featureFlagTrait.setTraitKey(traitKey);
-        featureFlagTrait.setTraitValue(traitValue);
-        return featureFlagTrait;
     }
 
     protected Mono<Application> createDefaultApplication(String defaultWorkspaceId, Authentication authentication) {
