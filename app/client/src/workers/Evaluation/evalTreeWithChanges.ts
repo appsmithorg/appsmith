@@ -100,8 +100,4 @@ export function evalTreeWithChanges(
       method: MAIN_THREAD_ACTION.UPDATE_DATATREE,
     },
   });
-
-  if (callback) {
-    callback(dataTree);
-  }
 }
