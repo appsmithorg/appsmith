@@ -26,6 +26,7 @@ import { AutoLayout } from "../Pages/AutoLayout";
 import { DefaultHostPort } from "./Hostport";
 import { AssertHelper } from "../Pages/AssertHelper";
 import { ReusableHelper } from "./ReusableHelper";
+import { GsheetHelper } from "../Pages/GSheetHelper";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -250,6 +251,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.defaultHostPort__ = new DefaultHostPort();
     }
     return ObjectsRegistry.defaultHostPort__;
+  }
+
+  private static gsheetHelper__: GsheetHelper;
+  static get GSheetHelper(): GsheetHelper {
+    if (ObjectsRegistry.gsheetHelper__ === undefined) {
+      ObjectsRegistry.gsheetHelper__ = new GsheetHelper();
+    }
+    return ObjectsRegistry.gsheetHelper__;
   }
 }
 
