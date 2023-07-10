@@ -112,12 +112,12 @@ describe("GSheet-Functional Tests", function () {
 
   after("Delete spreadsheet and app", () => {
     gsheetHelper.DeleteSpreadsheetQuery(dataSourceName, spreadSheetName);
-    homePage.NavigateToHome();
-    homePage.DeleteApplication(appName);
     cy.get("@postExecute").then((interception: any) => {
       expect(interception.response.body.data.body.message).to.deep.equal(
         "Deleted spreadsheet successfully!",
       );
     });
+    homePage.NavigateToHome();
+    homePage.DeleteApplication(appName);
   });
 });
