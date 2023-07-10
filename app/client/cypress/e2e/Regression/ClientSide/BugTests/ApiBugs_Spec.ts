@@ -19,7 +19,7 @@ describe("API Bugs", function () {
   before(() => {
     featureFlagIntercept(
       {
-        ab_ds_binding_enabled: true,
+        ab_ds_binding_enabled: false,
       },
       false,
     );
