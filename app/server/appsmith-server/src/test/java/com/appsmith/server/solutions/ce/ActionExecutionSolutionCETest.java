@@ -27,6 +27,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.WidgetSuggestionHelper;
@@ -37,6 +38,7 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutService;
 import com.appsmith.server.services.MockDataService;
@@ -78,6 +80,7 @@ import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -142,6 +145,9 @@ public class ActionExecutionSolutionCETest {
 
     @Autowired
     DatasourceRepository datasourceRepository;
+
+    @SpyBean
+    DatasourceStorageService datasourceStorageService;
 
     Application testApp = null;
 
@@ -283,11 +289,10 @@ public class ActionExecutionSolutionCETest {
 
     private Mono<ActionExecutionResult> executeAction(
             ExecuteActionDTO executeActionDTO, ActionExecutionResult mockResult) {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(
-                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any()))
                 .thenReturn(Mono.just(mockResult));
-        Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
+        Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
 
         Mono<ActionExecutionResult> actionExecutionResultMono =
                 actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId);
@@ -353,8 +358,8 @@ public class ActionExecutionSolutionCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionExecute() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
@@ -389,8 +394,8 @@ public class ActionExecutionSolutionCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionExecuteNullRequestBody() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
@@ -424,8 +429,8 @@ public class ActionExecutionSolutionCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionExecuteDbQuery() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
@@ -456,8 +461,8 @@ public class ActionExecutionSolutionCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionExecuteErrorResponse() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
@@ -480,11 +485,10 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setViewMode(false);
 
         AppsmithPluginException pluginException = new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR);
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(
-                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any()))
                 .thenReturn(Mono.error(pluginException));
-        Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
+        Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
 
         Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
 
@@ -502,8 +506,8 @@ public class ActionExecutionSolutionCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionExecuteNullPaginationParameters() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
@@ -531,11 +535,10 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setPaginationField(PaginationField.NEXT);
 
         AppsmithPluginException pluginException = new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR);
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(
-                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any()))
                 .thenReturn(Mono.error(pluginException));
-        Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
+        Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
 
         Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
 
@@ -551,8 +554,8 @@ public class ActionExecutionSolutionCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionExecuteSecondaryStaleConnection() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
@@ -575,12 +578,11 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(
-                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any()))
                 .thenReturn(Mono.error(new StaleConnectionException()))
                 .thenReturn(Mono.error(new StaleConnectionException()));
-        Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
+        Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
 
         Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
 
@@ -597,8 +599,8 @@ public class ActionExecutionSolutionCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionExecuteTimeout() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
@@ -621,11 +623,10 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(
-                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any()))
                 .thenAnswer(x -> Mono.delay(Duration.ofMillis(1000)).ofType(ActionExecutionResult.class));
-        Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
+        Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
 
         Mono<ActionExecutionResult> executionResultMono = actionExecutionSolution.executeAction(executeActionDTO, null);
 
@@ -646,13 +647,12 @@ public class ActionExecutionSolutionCETest {
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody("response-body");
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(
-                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any()))
                 .thenThrow(new StaleConnectionException())
                 .thenReturn(Mono.just(mockResult));
-        Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionDTO action = new ActionDTO();
@@ -683,8 +683,7 @@ public class ActionExecutionSolutionCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void executeActionWithExternalDatasource() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
         Mockito.when(pluginService.getEditorConfigLabelMap(Mockito.anyString())).thenReturn(Mono.just(new HashMap<>()));
 
         Datasource externalDatasource = new Datasource();
@@ -730,8 +729,8 @@ public class ActionExecutionSolutionCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionExecuteWithTableReturnType() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
@@ -775,8 +774,8 @@ public class ActionExecutionSolutionCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionExecuteWithJsonReturnType() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
@@ -821,8 +820,8 @@ public class ActionExecutionSolutionCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionExecuteWithPreAssignedReturnType() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
@@ -865,8 +864,8 @@ public class ActionExecutionSolutionCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionExecuteReturnTypeWithNullResultBody() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
@@ -901,8 +900,8 @@ public class ActionExecutionSolutionCETest {
     @WithUserDetails(value = "api_user")
     public void testWidgetSuggestionAfterExecutionWithChartWidgetData() throws JsonProcessingException {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
@@ -973,8 +972,8 @@ public class ActionExecutionSolutionCETest {
     @WithUserDetails(value = "api_user")
     public void testWidgetSuggestionAfterExecutionWithTableWidgetData() throws JsonProcessingException {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\": [\n" + "\t{\n"
@@ -1084,8 +1083,8 @@ public class ActionExecutionSolutionCETest {
     @WithUserDetails(value = "api_user")
     public void testWidgetSuggestionAfterExecutionWithListWidgetData() throws JsonProcessingException {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\": [\n" + "    {\n"
@@ -1187,8 +1186,8 @@ public class ActionExecutionSolutionCETest {
     @WithUserDetails(value = "api_user")
     public void testWidgetSuggestionAfterExecutionWithDropdownWidgetData() throws JsonProcessingException {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\": [\n" + "    {\n"
@@ -1245,8 +1244,8 @@ public class ActionExecutionSolutionCETest {
     @WithUserDetails(value = "api_user")
     public void testWidgetSuggestionAfterExecutionWithArrayOfStringsDropDownWidget() throws JsonProcessingException {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\":[\"string1\", \"string2\", \"string3\", \"string4\"] }";
@@ -1285,8 +1284,8 @@ public class ActionExecutionSolutionCETest {
     @WithUserDetails(value = "api_user")
     public void testWidgetSuggestionAfterExecutionWithArrayOfArray() throws JsonProcessingException {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\":[[\"string1\", \"string2\", \"string3\", \"string4\"],"
@@ -1328,8 +1327,8 @@ public class ActionExecutionSolutionCETest {
     @WithUserDetails(value = "api_user")
     public void testWidgetSuggestionAfterExecutionWithEmptyData() throws JsonProcessingException {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\":[] }";
@@ -1367,8 +1366,8 @@ public class ActionExecutionSolutionCETest {
     @WithUserDetails(value = "api_user")
     public void testWidgetSuggestionAfterExecutionWithNumericData() throws JsonProcessingException {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\": [1] }";
@@ -1408,8 +1407,8 @@ public class ActionExecutionSolutionCETest {
     @WithUserDetails(value = "api_user")
     public void testWidgetSuggestionAfterExecutionWithJsonNodeData() throws JsonProcessingException {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data =
@@ -1479,8 +1478,8 @@ public class ActionExecutionSolutionCETest {
     @WithUserDetails(value = "api_user")
     public void testWidgetSuggestionAfterExecutionWithJsonObjectData() throws JsonProcessingException {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\": {\n" + "            \"id\": 1,\n"
@@ -1528,8 +1527,8 @@ public class ActionExecutionSolutionCETest {
     @WithUserDetails(value = "api_user")
     public void testWidgetSuggestionAfterExecutionWithJsonArrayObjectData() throws JsonProcessingException {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\": {\n" + "            \"id\": 1,\n"
@@ -1588,8 +1587,8 @@ public class ActionExecutionSolutionCETest {
     @WithUserDetails(value = "api_user")
     public void testWidgetSuggestionNestedData() throws JsonProcessingException {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data =
@@ -1633,8 +1632,8 @@ public class ActionExecutionSolutionCETest {
     @WithUserDetails(value = "api_user")
     public void testWidgetSuggestionNestedDataEmpty() throws JsonProcessingException {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data =
@@ -1676,8 +1675,8 @@ public class ActionExecutionSolutionCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void suggestWidget_ArrayListData_SuggestTableTextChartDropDownWidget() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         ArrayList<JSONObject> listData = new ArrayList<>();
@@ -1724,8 +1723,8 @@ public class ActionExecutionSolutionCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void suggestWidget_ArrayListData_SuggestTableTextDropDownWidget() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
@@ -1773,8 +1772,8 @@ public class ActionExecutionSolutionCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void suggestWidget_ArrayListDataEmpty_SuggestTextWidget() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         ArrayList<JSONObject> listData = new ArrayList<>();
@@ -1810,10 +1809,9 @@ public class ActionExecutionSolutionCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void executeAction_actionOnMockDatasource_success() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
         Mockito.when(pluginService.getEditorConfigLabelMap(Mockito.anyString())).thenReturn(Mono.just(new HashMap<>()));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
@@ -1851,5 +1849,56 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setViewMode(false);
 
         executeAndAssertAction(executeActionDTO, mockResult, List.of(new ParsedDataType(DisplayDataType.RAW)));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void executeActionNoStorageFound() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginService.getEditorConfigLabelMap(Mockito.anyString())).thenReturn(Mono.just(new HashMap<>()));
+
+        Datasource externalDatasource = new Datasource();
+        externalDatasource.setName("Default Database");
+        externalDatasource.setWorkspaceId(workspaceId);
+        Plugin restApiPlugin =
+                pluginRepository.findByPackageName("restapi-plugin").block();
+        externalDatasource.setPluginId(restApiPlugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("some url here");
+
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
+        externalDatasource.setDatasourceStorages(storages);
+        Datasource savedDs = datasourceService.create(externalDatasource).block();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("actionWithExternalDatasource");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(savedDs);
+
+        Mono<ActionExecutionResult> resultMono = layoutActionService
+                .createSingleAction(action, Boolean.FALSE)
+                .flatMap(savedAction -> {
+                    ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+                    executeActionDTO.setActionId(savedAction.getId());
+                    executeActionDTO.setViewMode(false);
+                    return actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId);
+                });
+
+        Mockito.doReturn(Mono.empty())
+                .when(datasourceStorageService)
+                .findByDatasourceAndEnvironmentIdForExecution(any(), any());
+
+        StepVerifier.create(resultMono).assertNext(actionExecutionResult -> {
+            assertThat(actionExecutionResult.getIsExecutionSuccess()).isEqualTo(false);
+            assertThat(actionExecutionResult.getStatusCode())
+                    .isEqualTo(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getAppErrorCode());
+            assertThat(actionExecutionResult.getErrorType())
+                    .isEqualTo(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getErrorType());
+        });
     }
 }

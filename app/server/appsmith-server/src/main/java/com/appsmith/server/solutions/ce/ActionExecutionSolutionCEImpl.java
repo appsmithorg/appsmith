@@ -514,6 +514,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     }
 
                     return datasourceStorageMono
+                            .switchIfEmpty(Mono.error(
+                                    new AppsmithException(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE)))
                             .flatMap(datasourceStorage -> {
                                 // For embedded datasourceStorage, validate the datasourceStorage for each execution
                                 if (datasourceStorage.getDatasourceId() == null) {
