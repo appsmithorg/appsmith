@@ -135,4 +135,9 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                         }))
                 .thenMany(Flux.fromIterable(storagesToBeSaved.values()));
     }
+
+    @Override
+    public Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId, String pluginId) {
+        return getTrueEnvironmentId(workspaceId, environmentId);
+    }
 }
