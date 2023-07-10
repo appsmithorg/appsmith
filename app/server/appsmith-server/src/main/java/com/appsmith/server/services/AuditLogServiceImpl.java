@@ -751,16 +751,17 @@ public class AuditLogServiceImpl implements AuditLogService {
             }
 
             auditLog.setDatasource(datasource);
-            String environmentId = hasText(envId) ? envId : (String) properties.get(AnalyticsConstants.ENVIRONMENT_ID_SHORTNAME);
+            String environmentId =
+                    hasText(envId) ? envId : (String) properties.get(AnalyticsConstants.ENVIRONMENT_ID_SHORTNAME);
             if (hasText(environmentId)) {
-                environmentMetadataMono = environmentRepository.findById(environmentId)
+                environmentMetadataMono = environmentRepository
+                        .findById(environmentId)
                         .map(environment -> new AuditLogEnvironmentMetadata(environment.getId(), environment.getName()))
-                        .map(auditLogEnvironmentMetadata ->  {
+                        .map(auditLogEnvironmentMetadata -> {
                             auditLog.setEnvironment(auditLogEnvironmentMetadata);
                             return auditLogEnvironmentMetadata;
                         });
             }
-
         }
 
         auditLog.setResource(auditLogResource);
