@@ -835,7 +835,6 @@ export class DataSources {
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     else if (dsName == "MongoDB") this.FillMongoDSForm();
-    this.agHelper.GetNClick(this._saveDs);
     this.SaveDatasource(true);
     this.assertHelper.AssertNetworkStatus("@getPage", 200);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
