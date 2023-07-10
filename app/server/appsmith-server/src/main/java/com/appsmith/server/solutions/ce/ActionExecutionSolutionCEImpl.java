@@ -184,7 +184,9 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             executeActionDTO.setActionId(branchedAction.getId());
                             return Mono.just(executeActionDTO)
                                     .zipWith(datasourceService.getTrueEnvironmentId(
-                                            branchedAction.getWorkspaceId(), environmentId));
+                                            branchedAction.getWorkspaceId(),
+                                            environmentId,
+                                            branchedAction.getPluginId()));
                         }))
                 .flatMap(tuple2 -> this.executeAction(tuple2.getT1(), tuple2.getT2())) // getTrue is temporary call
                 .name(ACTION_EXECUTION_SERVER_EXECUTION)
@@ -936,19 +938,27 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             paramsList.stream().map(param -> param.getValue()).collect(Collectors.toList());
 
                     data.putAll(Map.of(
-                            "request", request,
-                            "pageId", ObjectUtils.defaultIfNull(actionDTO.getPageId(), ""),
-                            "pageName", pageName,
+                            "request",
+                            request,
+                            "pageId",
+                            ObjectUtils.defaultIfNull(actionDTO.getPageId(), ""),
+                            "pageName",
+                            pageName,
                             "isSuccessfulExecution",
-                                    ObjectUtils.defaultIfNull(actionExecutionResult.getIsExecutionSuccess(), false),
-                            "statusCode", ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""),
-                            "timeElapsed", timeElapsed,
-                            "actionCreated", DateUtils.ISO_FORMATTER.format(actionDTO.getCreatedAt()),
-                            "actionId", ObjectUtils.defaultIfNull(actionDTO.getId(), "")));
+                            ObjectUtils.defaultIfNull(actionExecutionResult.getIsExecutionSuccess(), false),
+                            "statusCode",
+                            ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""),
+                            "timeElapsed",
+                            timeElapsed,
+                            "actionCreated",
+                            DateUtils.ISO_FORMATTER.format(actionDTO.getCreatedAt()),
+                            "actionId",
+                            ObjectUtils.defaultIfNull(actionDTO.getId(), "")));
                     data.putAll(Map.of(
                             FieldName.ACTION_EXECUTION_REQUEST_PARAMS_SIZE,
-                                    executeActionDto.getTotalReadableByteCount(),
-                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS_COUNT, executionParams.size()));
+                            executeActionDto.getTotalReadableByteCount(),
+                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS_COUNT,
+                            executionParams.size()));
 
                     ActionExecutionResult.PluginErrorDetails pluginErrorDetails =
                             actionExecutionResult.getPluginErrorDetails();
@@ -963,14 +973,18 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     }
 
                     data.putAll(Map.of(
-                            DATASOURCE_ID_SHORTNAME, ObjectUtils.defaultIfNull(datasourceStorage.getDatasourceId(), ""),
+                            DATASOURCE_ID_SHORTNAME,
+                            ObjectUtils.defaultIfNull(datasourceStorage.getDatasourceId(), ""),
                             ENVIRONMENT_ID_SHORTNAME,
-                                    ObjectUtils.defaultIfNull(datasourceStorage.getEnvironmentId(), ""),
-                            DATASOURCE_NAME_SHORTNAME, datasourceStorage.getName(),
+                            ObjectUtils.defaultIfNull(datasourceStorage.getEnvironmentId(), ""),
+                            DATASOURCE_NAME_SHORTNAME,
+                            datasourceStorage.getName(),
                             DATASOURCE_IS_TEMPLATE_SHORTNAME,
-                                    ObjectUtils.defaultIfNull(datasourceStorage.getIsTemplate(), ""),
-                            DATASOURCE_IS_MOCK_SHORTNAME, ObjectUtils.defaultIfNull(datasourceStorage.getIsMock(), ""),
-                            DATASOURCE_CREATED_AT_SHORTNAME, dsCreatedAt));
+                            ObjectUtils.defaultIfNull(datasourceStorage.getIsTemplate(), ""),
+                            DATASOURCE_IS_MOCK_SHORTNAME,
+                            ObjectUtils.defaultIfNull(datasourceStorage.getIsMock(), ""),
+                            DATASOURCE_CREATED_AT_SHORTNAME,
+                            dsCreatedAt));
 
                     // Add the error message in case of erroneous execution
                     if (FALSE.equals(actionExecutionResult.getIsExecutionSuccess())) {
