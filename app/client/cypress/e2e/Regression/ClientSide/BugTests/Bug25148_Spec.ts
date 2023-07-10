@@ -15,8 +15,9 @@ describe("Bug 25148 - Edit Datasource button was disabled on Authentication tab 
       dataSources.SaveDatasource();
       apiPage.CreateApi("API" + uid, "GET", true);
       apiPage.SelectPaneTab("Authentication");
+      agHelper.AssertElementEnabledDisabled(apiPage._saveAsDS, 0, false);
       // Last one if present on the authentication tab.
-      cy.get(apiPage._saveAsDS).last().should("be.enabled");
+      agHelper.AssertElementEnabledDisabled(apiPage._saveAsDS, 1, false);
     });
   });
 });
