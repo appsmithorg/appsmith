@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.services.CrudService;
@@ -23,4 +24,6 @@ public interface TenantServiceCE extends CrudService<Tenant, String> {
     Mono<Tenant> getDefaultTenant();
 
     Mono<Tenant> updateDefaultTenantConfiguration(TenantConfiguration tenantConfiguration);
+
+    Mono<License> getTenantLicense(String tenantId);
 }

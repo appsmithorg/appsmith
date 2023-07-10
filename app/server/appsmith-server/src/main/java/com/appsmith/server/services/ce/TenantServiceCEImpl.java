@@ -3,6 +3,8 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.License;
+import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -18,7 +20,10 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import java.util.List;
+
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, String> implements TenantServiceCE {
 
@@ -122,6 +127,16 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
     @Override
     public Mono<Tenant> updateDefaultTenantConfiguration(TenantConfiguration tenantConfiguration) {
         return getDefaultTenantId().flatMap(tenantId -> updateTenantConfiguration(tenantId, tenantConfiguration));
+    }
+
+    @Override
+    public Mono<License> getTenantLicense(String tenantId) {
+        List<String> includeFields = List.of(
+                fieldName(QTenant.tenant.id),
+                fieldName(QTenant.tenant.tenantConfiguration) + "."
+                        + fieldName(QTenant.tenant.tenantConfiguration.license));
+        Mono<Tenant> tenantMono = repository.findById(tenantId, includeFields, null);
+        return tenantMono.map(tenant -> tenant.getTenantConfiguration().getLicense());
     }
 
     /**
