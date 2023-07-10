@@ -129,48 +129,51 @@ describe("Git Bugs", function () {
         "exist",
         _.gitSync._discardCallout,
       );
-      // discard changes and assert its discarded
       _.agHelper.GetNClick(_.locators._dialogCloseButton);
     });
   });
 
-  it("6. Bug 24206 : Open repository button is not functional in git sync modal", function () {
-    _.gitSync.SwitchGitBranch("master");
-    _.agHelper.GetNClick(_.locators._appEditMenuBtn);
-    // cy.wait(_.locators._appEditMenu);
-    _.agHelper.GetNClick(_.locators._appEditMenuSettings);
-    _.agHelper.GetNClick(_.locators._appThemeSettings);
-    _.agHelper.GetNClick(_.locators._appChangeThemeBtn, 0, true);
-    _.agHelper.GetNClick(_.locators._appThemeCard, 3);
-    _.gitSync.CommitAndPush();
-    _.gitSync.SwitchGitBranch(tempBranch);
-    _.agHelper.GetNClick(_.locators._appEditMenuBtn);
-    _.agHelper.GetNClick(_.locators._appEditMenuSettings);
-    _.agHelper.GetNClick(_.locators._appThemeSettings);
-    _.agHelper.GetNClick(_.locators._appChangeThemeBtn, 0, true);
-    _.agHelper.GetNClick(_.locators._appThemeCard, 2);
-    _.gitSync.CommitAndPush();
-    _.gitSync.CheckMergeConflicts("master");
-    cy.window().then((win) => {
-      cy.stub(win, "open", (url) => {
-        win.location.href = "http://host.docker.internal/";
-      }).as("repoURL");
-    });
-    _.gitSync.OpenRepositoryAndVerify();
-    cy.get("@repoURL").should("be.called");
+  it("6. Bug 24920: Not able to discard app settings changes for the first time in git connected app ", function () {
+    // add navigation settings changes
+    _.agHelper.GetNClick(_.appSettings.locators._appSettings);
+    _.agHelper.GetNClick(_.appSettings.locators._navigationSettingsTab);
+    _.agHelper.GetNClick(
+      _.appSettings.locators._navigationSettings._orientationOptions._side,
+    );
+    _.agHelper.AssertElementExist(_.appSettings.locators._sideNavbar);
+    // discard
+    _.gitSync.DiscardChanges();
+    _.gitSync.VerifyChangeLog(false);
+
+    // add canvas changes, discard and verify
   });
 
-  // it.only("4. Import application json and validate headers", () => {
-  //   _.homePage.NavigateToHome();
-  //   _.homePage.ImportApp("DeleteGitRepos.json");
-  //   _.deployMode.DeployApp();
-  //   _.agHelper.Sleep(2000);
-  //   for (let i = 0; i < 100; i++) {
-  //     _.agHelper.ClickButton("Delete");
-  //   }
-  // });
+  it("7. Bug 23858 : Branch list in git sync modal is not scrollable", function () {
+    // create git branches
+    _.gitSync.CreateGitBranch(`test1`, true);
+    cy.get("@gitbranchName").then((branchName) => {
+      statusBranch = branchName;
+    });
 
-  after(() => {
-    _.gitSync.DeleteTestGithubRepo(repoName);
+    it("8. Bug 24206 : Open repository button is not functional in git sync modal", function () {
+      _.gitSync.SwitchGitBranch("master");
+      _.appSettings.OpenPaneAndChangeTheme("Moon");
+      _.gitSync.CommitAndPush();
+      _.gitSync.SwitchGitBranch(tempBranch);
+      _.appSettings.OpenPaneAndChangeTheme("Pampas");
+      _.gitSync.CommitAndPush();
+      _.gitSync.CheckMergeConflicts("master");
+      cy.window().then((win) => {
+        cy.stub(win, "open", (url) => {
+          win.location.href = "http://host.docker.internal/";
+        }).as("repoURL");
+      });
+      _.gitSync.OpenRepositoryAndVerify();
+      cy.get("@repoURL").should("be.called");
+    });
+
+    //after(() => {
+    //  _.gitSync.DeleteTestGithubRepo(repoName);
+    // });
   });
 });

@@ -246,6 +246,25 @@ export class GitSync {
     this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
   }
 
+  public VerifyChangeLog(uncommitedChanges = false) {
+    // open gitsync modal and verify no uncommited changes exist
+    this.agHelper.GetNClick(this._bottomBarCommit);
+    this.agHelper.AssertElementVisible(this._gitSyncModal);
+    if (uncommitedChanges) {
+      this.agHelper.AssertElementEnabledDisabled(
+        this._commitCommentInput,
+        0,
+        false,
+      );
+    } else {
+      this.agHelper.AssertElementEnabledDisabled(
+        this._commitCommentInput,
+        0,
+        true,
+      );
+    }
+    this.CloseGitSyncModal();
+  }
   //#region Unused methods
 
   private AuthorizeLocalGitSSH(remoteUrl: string, assertConnect = true) {
