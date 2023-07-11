@@ -28,6 +28,7 @@ import { change, getFormValues } from "redux-form";
 import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import { diff } from "deep-diff";
 import { UndoRedoToastContext, showUndoRedoToast } from "utils/replayHelpers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type QueryTemplatesProps = {
   templates: QueryTemplate[];
@@ -182,6 +183,12 @@ export function QueryTemplates(props: QueryTemplatesProps) {
         true,
         UndoRedoToastContext.QUERY_TEMPLATES,
       );
+
+      AnalyticsUtil.logEvent("AUTOMATIC_QUERY_GENERATION", {
+        datasourceId: props.datasourceId,
+        pluginName: plugin?.name || "",
+        templateCommand: template?.title,
+      });
     },
     [
       dispatch,
