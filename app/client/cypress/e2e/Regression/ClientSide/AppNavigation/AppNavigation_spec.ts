@@ -10,7 +10,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("General checks for app navigation", function () {
-  it.skip("1. App header should appear when there is a single page in the application, and navigation should appear alongside app header when there are two pages", () => {
+  it("1. App header should appear when there is a single page in the application, and navigation should appear alongside app header when there are two pages", () => {
     // App header should appear when there is a single page in the application
     deployMode.DeployApp();
     agHelper.AssertElementVisible(appSettings.locators._header);

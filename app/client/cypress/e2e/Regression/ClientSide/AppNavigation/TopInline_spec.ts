@@ -84,7 +84,7 @@ describe("Test Top + Inline navigation style", function () {
     const pageNameUpdated = "Page1 - with long long name";
     agHelper.GetNClickByContains(
       appSettings.locators._navigationMenuItem,
-      pageName,
+      pageNameUpdated,
       0,
       true,
     );
