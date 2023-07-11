@@ -145,8 +145,8 @@ describe("Range Slider spec", () => {
       });
 
     // Change the Step size to 10
-    _.propPane.UpdatePropertyFieldValue("Min. range", "10");
-    _.propPane.UpdatePropertyFieldValue("Step size", "10");
+    _.propPane.UpdatePropertyFieldValue("Min. range", "10", true, false);
+    _.propPane.UpdatePropertyFieldValue("Step size", "10", true, false);
 
     _.agHelper
       .GetElement(_.locators._sliderThumb)

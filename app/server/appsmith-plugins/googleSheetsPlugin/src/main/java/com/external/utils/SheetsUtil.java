@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 
@@ -17,20 +16,6 @@ public class SheetsUtil {
 
     private static final String FILE_SPECIFIC_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
     private static final int USER_AUTHORIZED_SHEET_IDS_INDEX = 1;
-    static Pattern COLUMN_NAME_PATTERN = Pattern.compile("[a-zA-Z]+");
-
-    public static int getColumnNumber(String columnName) {
-        if (COLUMN_NAME_PATTERN.matcher(columnName.trim()).find()) {
-            int column = 0;
-            for (int i = 0; i < columnName.length(); i++) {
-                String character = String.valueOf(columnName.charAt(i));
-                character = character.toUpperCase();
-                column = column * 26 + ((int) character.charAt(0)) - 64;
-            }
-            return column;
-        }
-        return 1;
-    }
 
     public static Set<String> getUserAuthorizedSheetIds(DatasourceConfiguration datasourceConfiguration) {
         OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
