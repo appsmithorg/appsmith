@@ -6,5 +6,6 @@ import reactor.core.publisher.Mono;
 
 public interface CacheableRepositoryHelper extends CacheableRepositoryHelperCE {
     Mono<Long> getAllReadablePermissionGroupsForUser(User user);
+
     Mono<Void> evictGetAllReadablePermissionGroupsForUser(String email, String tenantId);
 }

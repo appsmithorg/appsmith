@@ -6,7 +6,6 @@ import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.FileUtils;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
@@ -40,34 +39,44 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
 
     private final AssetService assetService;
 
-    private static final Set<String> ASSET_VALUE_KEYS = Set.of(
-        "APPSMITH_BRAND_LOGO",
-        "APPSMITH_BRAND_FAVICON"
-    );
+    private static final Set<String> ASSET_VALUE_KEYS = Set.of("APPSMITH_BRAND_LOGO", "APPSMITH_BRAND_FAVICON");
 
     private static final int MAX_LOGO_SIZE_KB = 1024;
 
-    public EnvManagerImpl(SessionUserService sessionUserService,
-                          UserService userService,
-                          AnalyticsService analyticsService,
-                          UserRepository userRepository,
-                          PolicyUtils policyUtils,
-                          EmailSender emailSender,
-                          CommonConfig commonConfig,
-                          EmailConfig emailConfig,
-                          JavaMailSender javaMailSender,
-                          GoogleRecaptchaConfig googleRecaptchaConfig,
-                          FileUtils fileUtils,
-                          PermissionGroupService permissionGroupService,
-                          ConfigService configService,
-                          UserUtils userUtils,
-                          TenantService tenantService,
-                          ObjectMapper objectMapper,
-                          AssetService assetService) {
+    public EnvManagerImpl(
+            SessionUserService sessionUserService,
+            UserService userService,
+            AnalyticsService analyticsService,
+            UserRepository userRepository,
+            EmailSender emailSender,
+            CommonConfig commonConfig,
+            EmailConfig emailConfig,
+            JavaMailSender javaMailSender,
+            GoogleRecaptchaConfig googleRecaptchaConfig,
+            FileUtils fileUtils,
+            PermissionGroupService permissionGroupService,
+            ConfigService configService,
+            UserUtils userUtils,
+            TenantService tenantService,
+            ObjectMapper objectMapper,
+            AssetService assetService) {
 
-        super(sessionUserService, userService, analyticsService, userRepository, policyUtils, emailSender, commonConfig,
-                emailConfig, javaMailSender, googleRecaptchaConfig, fileUtils, permissionGroupService, configService,
-                userUtils, tenantService, objectMapper);
+        super(
+                sessionUserService,
+                userService,
+                analyticsService,
+                userRepository,
+                emailSender,
+                commonConfig,
+                emailConfig,
+                javaMailSender,
+                googleRecaptchaConfig,
+                fileUtils,
+                permissionGroupService,
+                configService,
+                userUtils,
+                tenantService,
+                objectMapper);
         this.assetService = assetService;
     }
 
@@ -79,7 +88,8 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
      * @return
      */
     @Override
-    public List<Map<String, Object>> getAnalyticsEvents(Map<String, String> originalVariables, Map<String, String> changes, List<String> extraAuthEnvs) {
+    public List<Map<String, Object>> getAnalyticsEvents(
+            Map<String, String> originalVariables, Map<String, String> changes, List<String> extraAuthEnvs) {
         // Adding extra authentication methods that are only present in EE
         extraAuthEnvs.addAll(List.of(APPSMITH_OAUTH2_OIDC_CLIENT_ID.name(), APPSMITH_SSO_SAML_ENABLED.name()));
 
@@ -95,31 +105,32 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
      * @return
      */
     @Override
-    public void setAnalyticsEventAction(Map<String, Object> properties, String newVariable, String originalVariable, String authEnv) {
+    public void setAnalyticsEventAction(
+            Map<String, Object> properties, String newVariable, String originalVariable, String authEnv) {
         // No need to override in case of non SAML authentication methods
-        if(!authEnv.equals(APPSMITH_SSO_SAML_ENABLED.name())){
+        if (!authEnv.equals(APPSMITH_SSO_SAML_ENABLED.name())) {
             super.setAnalyticsEventAction(properties, newVariable, originalVariable, authEnv);
         }
 
-        boolean isAuthenticationConfigAdded = newVariable.equals("true") && (originalVariable == null || originalVariable.equals("false"));
+        boolean isAuthenticationConfigAdded =
+                newVariable.equals("true") && (originalVariable == null || originalVariable.equals("false"));
         boolean isAuthenticationConfigRemoved = newVariable.equals("false") && originalVariable.equals("true");
 
         if (isAuthenticationConfigAdded) {
             properties.put("action", "Added");
-        }
-        else if(isAuthenticationConfigRemoved)  {
+        } else if (isAuthenticationConfigRemoved) {
             properties.put("action", "Removed");
         }
     }
 
     @Override
-    @NotNull
-    public Mono<Map.Entry<String, String>> handleFileUpload(String key, List<Part> parts) {
+    @NotNull public Mono<Map.Entry<String, String>> handleFileUpload(String key, List<Part> parts) {
         if (!ASSET_VALUE_KEYS.contains(key)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, key));
         }
         // TODO: Delete existing/previous logo, if present.
-        return assetService.upload(parts, MAX_LOGO_SIZE_KB, false)
-            .map(asset -> Map.entry(key, ASSET_PREFIX + asset.getId()));
+        return assetService
+                .upload(parts, MAX_LOGO_SIZE_KB, false)
+                .map(asset -> Map.entry(key, ASSET_PREFIX + asset.getId()));
     }
 }

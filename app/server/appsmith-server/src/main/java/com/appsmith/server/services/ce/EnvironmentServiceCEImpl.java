@@ -12,17 +12,18 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import reactor.core.scheduler.Scheduler;
 
 @Slf4j
-public class EnvironmentServiceCEImpl extends BaseService<EnvironmentRepository, Environment, String> implements EnvironmentServiceCE {
+public class EnvironmentServiceCEImpl extends BaseService<EnvironmentRepository, Environment, String>
+        implements EnvironmentServiceCE {
 
     @Autowired
-    public EnvironmentServiceCEImpl(Scheduler scheduler,
-                                    Validator validator,
-                                    MongoConverter mongoConverter,
-                                    ReactiveMongoTemplate reactiveMongoTemplate,
-                                    EnvironmentRepository repository,
-                                    AnalyticsService analyticsService) {
+    public EnvironmentServiceCEImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            EnvironmentRepository repository,
+            AnalyticsService analyticsService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
     }
-
 }

@@ -414,6 +414,10 @@ export const sampleLogsFromRedux = [
       id: "6310905990dbd1242bbecebb",
       name: "Untitled workspace 2",
     },
+    environment: {
+      id: "649c156244f5b26332b61077",
+      name: "production",
+    },
     user: {
       id: "630855734b5d6a0c34890dd8",
       email: "anubhav@appsmith.com",
@@ -438,6 +442,7 @@ export const sampleLogsFromRedux = [
       id: "6310905990dbd1242bbecebb",
       name: "Untitled workspace 2",
     },
+    environment: {},
     isOpen: false,
   },
   {
@@ -462,6 +467,45 @@ export const sampleLogsFromRedux = [
     },
     userPermissions: ["read:auditLogs"],
     workspace: {},
+    isOpen: false,
+  },
+  {
+    event: "query.executed",
+    timestamp: "02/09/2022, 13:01:31",
+    id: "6311b1532cbc9348b2b37fd3",
+    application: {
+      id: "6311a0072cbc9348b2b37f79",
+      name: "My first application",
+    },
+    workspace: {
+      id: "63108d0790dbd1242bbece6b",
+      name: "Untitled workspace 5",
+    },
+    environment: {
+      id: "649c156244f5b26332b61077",
+      name: "production",
+    },
+    datasource: {
+      id: "64a798aadfb4112c9041fe40",
+      name: "Movies",
+    },
+    user: {
+      id: "62f0c1bc3a2d6e7ed2428aa2",
+      email: "a8@appsmith.com",
+      name: "a8@appsmith.com",
+    },
+    resource: {
+      id: "6311b1532cbc9348b2b37fd0",
+      type: "query",
+      name: "Query1",
+    },
+    page: {
+      id: "64a59fc4a35aa51932dd232c",
+      name: "Page1",
+    },
+    metadata: {
+      appsmithVersion: "UNKNOWN",
+    },
     isOpen: false,
   },
 ];

@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ee;
 
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.UsagePulse;
@@ -23,7 +24,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
@@ -42,7 +42,6 @@ public class UsagePulseServiceTest {
     @Autowired
     private CommonConfig commonConfig;
 
-
     @BeforeEach
     public void setup() {
         commonConfig.setCloudHosting(false);
@@ -56,7 +55,7 @@ public class UsagePulseServiceTest {
     public void test_sendUsagePulse_ToCloudServices() {
         Tenant testTenant = new Tenant();
         TenantConfiguration testTenantConfiguration = new TenantConfiguration();
-        TenantConfiguration.License testLicense = new TenantConfiguration.License();
+        License testLicense = new License();
         testLicense.setKey("testLicenseKey");
         testTenantConfiguration.setLicense(testLicense);
         testTenant.setTenantConfiguration(testTenantConfiguration);

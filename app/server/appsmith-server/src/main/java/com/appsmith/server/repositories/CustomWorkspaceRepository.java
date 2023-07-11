@@ -9,5 +9,4 @@ import java.util.List;
 public interface CustomWorkspaceRepository extends CustomWorkspaceRepositoryCE {
 
     Flux<Workspace> findAllByTenantIdWithoutPermission(String tenantId, List<String> includeFields);
-
 }

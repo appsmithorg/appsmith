@@ -4,9 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget V2", () => {
   before("Create an API and Execute the API and bind with Table V", () => {
-    cy.fixture("tableV2TextPaginationDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableV2TextPaginationDsl");
   });
 
   it("1. Create an API and Execute the API and bind with Table", function () {

@@ -35,7 +35,7 @@ export interface JSPropertyPosition {
   keyEndColumn: number;
 }
 
-interface baseJSProperty {
+interface BaseJSProperty {
   key: string;
   value: string;
   type: string;
@@ -43,12 +43,12 @@ interface baseJSProperty {
   rawContent: string;
 }
 
-type JSFunctionProperty = baseJSProperty & {
+export type JSFunctionProperty = BaseJSProperty & {
   arguments: functionParam[];
   // If function uses the "async" keyword
   isMarkedAsync: boolean;
 };
-type JSVarProperty = baseJSProperty;
+export type JSVarProperty = BaseJSProperty;
 
 export type TParsedJSProperty = JSVarProperty | JSFunctionProperty;
 

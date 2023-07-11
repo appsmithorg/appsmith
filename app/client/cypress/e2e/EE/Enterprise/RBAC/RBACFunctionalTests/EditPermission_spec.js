@@ -219,7 +219,6 @@ describe("Edit Permission flow ", function () {
     cy.get(datasourceEditor.port)
       .clear()
       .type(datasourceFormData["mysql-port"]);
-    dataSources.ExpandSectionByName("Authentication");
     cy.get(datasourceEditor.password).type(
       datasourceFormData["mysql-password"],
     );
@@ -232,7 +231,7 @@ describe("Edit Permission flow ", function () {
     );
     // verify create new on omnibar is visible to user
     cy.get(omnibar.globalSearch).click({ force: true });
-    cy.get(omnibar.categoryTitle).eq(1).should("not.have.text", "Create new");
+    cy.get(omnibar.categoryTitle).should("not.have.text", "Create new");
     cy.get("body").click(0, 0, { force: true });
   });
 

@@ -4,6 +4,7 @@ import com.appsmith.server.configurations.AirgapInstanceConfig;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.SegmentConfig;
+import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -44,6 +45,7 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             DatasourceRepository datasourceRepository,
             UserRepository userRepository,
             ProjectProperties projectProperties,
+            NetworkUtils networkUtils,
             TenantService tenantService,
             AirgapInstanceConfig airgapInstanceConfig,
             UsagePulseService usagePulseService) {
@@ -58,18 +60,18 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
                 newActionRepository,
                 datasourceRepository,
                 userRepository,
-                projectProperties
-        );
+                projectProperties,
+                networkUtils);
         this.tenantService = tenantService;
         this.airgapInstanceConfig = airgapInstanceConfig;
         this.usagePulseService = usagePulseService;
     }
 
-
-    @Scheduled(initialDelay =  3 * 60 * 1000 /* three minutes */, fixedRate = 1 * 60 * 60 * 1000 /* one hour */)
+    @Scheduled(initialDelay = 3 * 60 * 1000 /* three minutes */, fixedRate = 1 * 60 * 60 * 1000 /* one hour */)
     public void licenseCheck() {
         log.debug("Initiating Periodic License Check");
-        tenantService.checkAndUpdateDefaultTenantLicense()
+        tenantService
+                .checkAndUpdateDefaultTenantLicense()
                 .subscribeOn(Schedulers.boundedElastic())
                 .block();
     }
@@ -84,13 +86,13 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             return;
         }
         log.debug("Sending Usage Pulse");
-        while(Boolean.TRUE.equals(usagePulseService.sendAndUpdateUsagePulse()
-            .subscribeOn(Schedulers.boundedElastic())
-            .block())) {
+        while (Boolean.TRUE.equals(usagePulseService
+                .sendAndUpdateUsagePulse()
+                .subscribeOn(Schedulers.boundedElastic())
+                .block())) {
             // Sleep to delay continues requests
             Thread.sleep(2000);
         }
         log.debug("Completed Sending Usage Pulse");
     }
-
 }

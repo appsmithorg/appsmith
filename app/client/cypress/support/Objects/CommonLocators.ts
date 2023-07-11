@@ -1,5 +1,6 @@
 export class CommonLocators {
   _body = "body";
+  _inputField = "input";
   _canvasViewport = "#canvas-viewport";
   _emptyPageTxt = ".bp3-heading";
   _chevronUp = ".bp3-icon-chevron-up";
@@ -28,6 +29,20 @@ export class CommonLocators {
   _codeEditorTarget = "div.CodeEditorTarget";
   _entityExplorersearch = "#entity-explorer-search";
   _propertyControl = ".t--property-control-";
+  _propertyControlTextArea = (uiName: string) =>
+    this._propertyControl +
+    uiName.replace(/ +/g, "").toLowerCase() +
+    " " +
+    this._codeMirrorTextArea;
+  _propertyControlInput = (uiName: string) =>
+    this._propertyControl +
+    uiName.replace(/ +/g, "").toLowerCase() +
+    " " +
+    this._inputField;
+  _propertyInputField = (uiName: string) =>
+    `${this._propertyControlTextArea(uiName)}, ${this._propertyControlInput(
+      uiName,
+    )}`;
   _textWidget = ".t--draggable-textwidget .t--text-widget-container span";
   _inputWidget = ".t--draggable-inputwidgetv2 input";
   _publishButton = ".t--application-publish-btn";
@@ -106,7 +121,7 @@ export class CommonLocators {
     `.t--widget-card-draggable-${widgetType}`;
   _propertyToggleValue = (controlToToggle: string) =>
     "//div[contains(@class, 't--property-control-" +
-    controlToToggle +
+    controlToToggle.replace(/ +/g, "").toLowerCase() +
     "')]//input[@type='checkbox']/parent::label";
   _openNavigationTab = (tabToOpen: string) =>
     `//span[text()='${tabToOpen}']/ancestor::div`;
@@ -138,6 +153,8 @@ export class CommonLocators {
   _evaluatedErrorMessage =
     ".t--CodeEditor-evaluatedValue .t--evaluatedPopup-error";
   _evalPopup = ".evaluated-value-popup";
+  _checkboxGroupOptions = (option: string) =>
+    "//div[contains(text(),'" + option + "')]/parent::label/input";
   _multiSelectOptions = (option: string) =>
     "div[title='" + option + "'] input[type='checkbox']";
   _divWithClass = (className: string) =>
@@ -206,6 +223,7 @@ export class CommonLocators {
   _ds_uppy_upload_btn = ".uppy-StatusBar-actionBtn--upload";
 
   _goBack = this._visibleTextSpan("Back") + "/parent::a";
+  _learnMore = this._visibleTextSpan("Learn more") + "/parent::a";
   _resizeHandles = {
     left: "t--resizable-handle-LEFT",
     right: "t--resizable-handle-RIGHT",
@@ -231,7 +249,13 @@ export class CommonLocators {
   _appThemeSettings = "#t--theme-settings-header";
   _appChangeThemeBtn = ".t--change-theme-btn";
   _appThemeCard = ".t--theme-card";
-  _gitStatusChanges = "[data-testid='t--git-change-statuses']";
   _appNavigationSettings = "#t--navigation-settings-header";
   _appNavigationSettingsShowTitle = "#t--navigation-settings-application-title";
+  _switchGroupControl =
+    ".t--draggable-switchgroupwidget .bp3-control-indicator";
+  _fontSelect = "fontsize .rc-select";
+  _fontInput = "fontsize input";
+  _pagination = ".rc-pagination";
+  _controlOption = ".t--property-control-options";
+  _canvasBody = "[data-testid='div-selection-0']";
 }

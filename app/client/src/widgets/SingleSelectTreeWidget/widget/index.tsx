@@ -5,7 +5,7 @@ import { Layers } from "constants/Layers";
 import type { TextSize, WidgetType } from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isArray } from "lodash";
 import type { DefaultValueType } from "rc-tree-select/lib/interface";
@@ -347,6 +347,21 @@ class SingleSelectTreeWidget extends BaseWidget<
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "none",
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
+      },
     };
   }
 

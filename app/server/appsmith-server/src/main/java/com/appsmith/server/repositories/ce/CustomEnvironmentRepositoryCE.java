@@ -1,9 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.external.models.Environment;
+import com.appsmith.server.repositories.AppsmithRepository;
 
-
-public interface CustomEnvironmentRepositoryCE extends AppsmithRepository<Environment> {
-
-}
+public interface CustomEnvironmentRepositoryCE extends AppsmithRepository<Environment> {}

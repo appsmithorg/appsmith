@@ -80,6 +80,9 @@ const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
 export const getIsEditorInitialized = (state: AppState) =>
   state.ui.editor.initialized;
 
+export const getIsWidgetConfigBuilt = (state: AppState) =>
+  state.ui.editor.widgetConfigBuilt;
+
 export const getIsEditorLoading = (state: AppState) =>
   state.ui.editor.loadingStates.loading;
 
@@ -271,18 +274,10 @@ export const getAppPositioningType = (state: AppState) => {
   return AppPositioningTypes.FIXED;
 };
 
-export const isAutoLayoutEnabled = (state: AppState): boolean => {
-  return state.ui.users.featureFlag.data.AUTO_LAYOUT === true;
-};
-
 export const getCurrentAppPositioningType = createSelector(
-  isAutoLayoutEnabled,
   getAppPositioningType,
-  (
-    autoLayoutEnabled: boolean,
-    appPositionType: AppPositioningTypes,
-  ): AppPositioningTypes => {
-    return autoLayoutEnabled ? appPositionType : AppPositioningTypes.FIXED;
+  (appPositionType: AppPositioningTypes): AppPositioningTypes => {
+    return appPositionType || AppPositioningTypes.FIXED;
   },
 );
 

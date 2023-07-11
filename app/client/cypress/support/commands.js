@@ -31,6 +31,7 @@ const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 import RapidMode from "./RapidMode";
+import { featureFlagIntercept } from "./Objects/FeatureFlags";
 
 const propPane = ObjectsRegistry.PropertyPane;
 const agHelper = ObjectsRegistry.AggregateHelper;
@@ -164,18 +165,17 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("testSelfSignedCertificateSettingsInREST", (isOAuth2) => {
-  cy.get(datasource.advancedSettings).click();
   cy.get(datasource.useCertInAuth).should("not.exist");
   cy.get(datasource.certificateDetails).should("not.exist");
-  cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "Yes");
+  // cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "Yes");
+  cy.togglebar(datasource.useSelfSignedCert);
+  cy.get(datasource.useSelfSignedCert).should("be.checked");
   if (isOAuth2) {
     cy.get(datasource.useCertInAuth).should("exist");
   } else {
     cy.get(datasource.useCertInAuth).should("not.exist");
   }
-  cy.get(datasource.certificateDetails).should("exist");
-  cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "No");
-  cy.get(datasource.advancedSettings).click();
+  cy.togglebarDisable(datasource.useSelfSignedCert);
 });
 
 Cypress.Commands.add("addBasicProfileDetails", (username, password) => {
@@ -228,7 +228,7 @@ Cypress.Commands.add("LogOutUser", () => {
 });
 
 Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
-  goToLoginPage && cy.visit("/user/login");
+  goToLoginPage && cy.visit("/user/login", { timeout: 60000 });
   cy.wait(3000); //for login page to load fully for CI runs
   cy.wait("@signUpLogin")
     .its("response.body.responseMeta.status")
@@ -1128,6 +1128,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   }).as("postTenant");
   cy.intercept("PUT", "/api/v1/git/discard/app/*").as("discardChanges");
   cy.intercept("GET", "/api/v1/libraries/*").as("getLibraries");
+  featureFlagIntercept({}, false);
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {

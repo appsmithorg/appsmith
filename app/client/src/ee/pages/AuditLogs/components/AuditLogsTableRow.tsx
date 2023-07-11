@@ -129,6 +129,7 @@ export default function AuditLogsTableRow({
                 <Text className="action-type">
                   {description.mainDescription.actionType}
                 </Text>
+                {description.mainDescription?.environmentDescription || ""}
               </MainDescription>
               <SubDescription renderAs="p">
                 {description.subDescription}

@@ -1,6 +1,7 @@
 import {
   agHelper,
   entityExplorer,
+  propPane,
 } from "../../../../../../support/Objects/ObjectsCore";
 
 const widgetsPage = require("../../../../../../locators/Widgets.json");
@@ -10,10 +11,9 @@ const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
 describe(" File Picker Widget", function () {
   before(() => {
-    cy.fixture("Listv2/simpleLargeListv2").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Listv2/simpleLargeListv2");
   });
+
   it("1. should test allowed values", function () {
     cy.dragAndDropToWidget("filepickerwidgetv2", "listwidgetv2", {
       x: 150,
@@ -61,8 +61,8 @@ describe(" File Picker Widget", function () {
     });
 
     cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "FilePicker_Widget");
-    cy.testJsontext(
-      "text",
+    propPane.UpdatePropertyFieldValue(
+      "Text",
       "{{currentView.FilePicker1.isDirty}}_{{currentView.FilePicker1.isValid}}_{{currentView.FilePicker1.files[0]?.name}}",
     );
     cy.get(

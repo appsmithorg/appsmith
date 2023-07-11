@@ -28,14 +28,15 @@ public class ApiKeyServiceImpl extends BaseService<ApiKeyRepository, UserApiKey,
     private final ApiKeyRepository userApiKeyRepository;
     private final UserRepository userRepository;
 
-    public ApiKeyServiceImpl(MongoConverter mongoConverter,
-                             Validator validator,
-                             ReactiveMongoTemplate reactiveMongoTemplate,
-                             Scheduler scheduler,
-                             AnalyticsService analyticsService,
-                             TenantService tenantService,
-                             ApiKeyRepository repository,
-                             UserRepository userRepository) {
+    public ApiKeyServiceImpl(
+            MongoConverter mongoConverter,
+            Validator validator,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            Scheduler scheduler,
+            AnalyticsService analyticsService,
+            TenantService tenantService,
+            ApiKeyRepository repository,
+            UserRepository userRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.tenantService = tenantService;
         this.userApiKeyRepository = repository;
@@ -48,18 +49,52 @@ public class ApiKeyServiceImpl extends BaseService<ApiKeyRepository, UserApiKey,
          * We want to restrict the API Key generation to Users who are associated with Instance Administrator Role.
          * Fetching the tenant with MANAGE_TENANT permission assures that.
          */
-        Mono<Tenant> tenantMono = tenantService.getDefaultTenant(AclPermission.MANAGE_TENANT)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "create API Keys")));
-        Mono<User> userMono = tenantMono.then(userRepository.findByCaseInsensitiveEmail(apiKeyRequestDto.getEmail())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.USER_NOT_FOUND, apiKeyRequestDto.getEmail()))));
-        return userMono
-                .flatMap(user -> {
+        Mono<Tenant> tenantMono = tenantService
+                .getDefaultTenant(AclPermission.MANAGE_TENANT)
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "create API Keys")))
+                .cache();
+        Mono<User> userMono = tenantMono
+                .then(userRepository
+                        .findByCaseInsensitiveEmail(apiKeyRequestDto.getEmail())
+                        .switchIfEmpty(Mono.error(
+                                new AppsmithException(AppsmithError.USER_NOT_FOUND, apiKeyRequestDto.getEmail()))))
+                .cache();
+        Mono<Boolean> archiveExistingUserApiKeyMono = userMono.flatMap(
+                        user -> userApiKeyRepository.getByUserIdWithoutPermission(user.getId()))
+                .flatMap(userApiKey -> userApiKeyRepository.archiveById(userApiKey.getId()))
+                .thenReturn(Boolean.TRUE);
+        return Mono.zip(archiveExistingUserApiKeyMono, userMono)
+                .flatMap(pair -> {
+                    User user = pair.getT2();
                     UserApiKey userApiKey = new UserApiKey();
                     userApiKey.setUserId(user.getId());
                     userApiKey.setApiKey(generateToken(user.getId()));
                     return userApiKeyRepository.save(userApiKey);
                 })
                 .map(UserApiKey::getApiKey);
+    }
+
+    @Override
+    public Mono<Boolean> archiveApiKey(ApiKeyRequestDto apiKeyRequestDto) {
+        /*
+         * We want to restrict the API Key generation to Users who are associated with Instance Administrator Role.
+         * Fetching the tenant with MANAGE_TENANT permission assures that.
+         */
+        Mono<Tenant> tenantMono = tenantService
+                .getDefaultTenant(AclPermission.MANAGE_TENANT)
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "delete API Keys")))
+                .cache();
+        Mono<User> userMono = tenantMono
+                .then(userRepository
+                        .findByCaseInsensitiveEmail(apiKeyRequestDto.getEmail())
+                        .switchIfEmpty(Mono.error(
+                                new AppsmithException(AppsmithError.USER_NOT_FOUND, apiKeyRequestDto.getEmail()))))
+                .cache();
+        return userMono.flatMap(user -> userApiKeyRepository.getByUserIdWithoutPermission(user.getId()))
+                .flatMap(userApiKey -> userApiKeyRepository.archiveById(userApiKey.getId()))
+                .thenReturn(Boolean.TRUE);
     }
 
     private String generateToken(String userId) {

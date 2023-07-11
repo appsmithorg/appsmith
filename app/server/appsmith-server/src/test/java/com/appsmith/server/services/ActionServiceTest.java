@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
@@ -36,7 +35,6 @@ public class ActionServiceTest {
     @MockBean
     NewActionService newActionService;
 
-
     @Test
     @WithUserDetails(value = "api_user")
     public void testServerSideVariableSubstitution() {
@@ -49,12 +47,12 @@ public class ActionServiceTest {
         Mockito.when(variableReplacementService.replaceAll(Mockito.any(AppsmithDomain.class)))
                 .thenReturn(Mono.just(mockConfiguration));
 
-
         ActionDTO unpublishedAction = new ActionDTO();
         unpublishedAction.setActionConfiguration(new ActionConfiguration());
         unpublishedAction.getActionConfiguration().setBody("<<variable>>");
 
-        Mockito.when(newActionService.findActionDTObyIdAndViewMode(Mockito.anyString(), Mockito.anyBoolean(), Mockito.any(AclPermission.class)))
+        Mockito.when(newActionService.findActionDTObyIdAndViewMode(
+                        Mockito.anyString(), Mockito.anyBoolean(), Mockito.any(AclPermission.class)))
                 .thenReturn(Mono.just(unpublishedAction));
 
         NewAction action = new NewAction();

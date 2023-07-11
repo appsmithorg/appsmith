@@ -34,5 +34,4 @@ public class ApplicationConfigHierarchyManager {
         // Check SegmentConfig class for more details
         commonConfig.setTelemetryDisabled(true);
     }
-
 }

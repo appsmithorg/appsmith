@@ -24,7 +24,7 @@ import static com.appsmith.server.domains.TenantConfiguration.APPSMITH_DEFAULT_L
 import static com.appsmith.server.domains.TenantConfiguration.ASSET_PREFIX;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
-@ChangeUnit(order = "104-EE", id="create-default-appsmith-logo-asset", author = "")
+@ChangeUnit(order = "104-EE", id = "create-default-appsmith-logo-asset", author = "")
 @RequiredArgsConstructor
 @Slf4j
 public class Migration104EECreateDefaultLogoAsset {
@@ -34,15 +34,16 @@ public class Migration104EECreateDefaultLogoAsset {
     private final String logoPath = "images/appsmith-logo-full.png";
 
     @RollbackExecution
-    public void rollBackExecution() {
-    }
+    public void rollBackExecution() {}
 
     @Execution
     public void createDefaultLogoAsset() {
-        // For airgap enabled instances as the public internet is not available we need to remove the internet dependency
+        // For airgap enabled instances as the public internet is not available we need to remove the internet
+        // dependency
         // for default Appsmith logo for email templates.
         Query defaultAppsmithLogoQuery = new Query();
-        defaultAppsmithLogoQuery.addCriteria(Criteria.where(fieldName(QAsset.asset.name)).is(APPSMITH_DEFAULT_LOGO));
+        defaultAppsmithLogoQuery.addCriteria(
+                Criteria.where(fieldName(QAsset.asset.name)).is(APPSMITH_DEFAULT_LOGO));
         Asset defaultLogoAsset = mongoTemplate.findOne(defaultAppsmithLogoQuery, Asset.class);
         if (defaultLogoAsset == null) {
             defaultLogoAsset = createAsset(logoPath);
@@ -55,17 +56,19 @@ public class Migration104EECreateDefaultLogoAsset {
         // Attach asset prefix to match the naming conventions for asset urls.
         String defaultLogoSpec = ASSET_PREFIX + defaultLogoAsset.getId();
 
-        String whiteLabelLogoFieldName
-            = fieldName(QTenant.tenant.tenantConfiguration) + "." + fieldName(QTenant.tenant.tenantConfiguration.whiteLabelLogo);
+        String whiteLabelLogoFieldName = fieldName(QTenant.tenant.tenantConfiguration) + "."
+                + fieldName(QTenant.tenant.tenantConfiguration.whiteLabelLogo);
 
         Query query = new Query();
-        query.addCriteria(
-            Criteria.where(fieldName(QTenant.tenant.tenantConfiguration)).exists(true)
-                .andOperator(Criteria.where(whiteLabelLogoFieldName).exists(false))
-        );
+        query.addCriteria(Criteria.where(fieldName(QTenant.tenant.tenantConfiguration))
+                .exists(true)
+                .andOperator(Criteria.where(whiteLabelLogoFieldName).exists(false)));
 
         Update update = new Update();
-        update.set(fieldName(QTenant.tenant.tenantConfiguration) + "." + fieldName(QTenant.tenant.tenantConfiguration.whiteLabelLogo), defaultLogoSpec);
+        update.set(
+                fieldName(QTenant.tenant.tenantConfiguration) + "."
+                        + fieldName(QTenant.tenant.tenantConfiguration.whiteLabelLogo),
+                defaultLogoSpec);
         // Ideally we expect single update as the multi-tenancy is not available, but this makes sure to provide a
         // fallback for all the tenants once multi-tenancy is introduced
         mongoTemplate.updateMulti(query, update, Tenant.class);
@@ -81,7 +84,7 @@ public class Migration104EECreateDefaultLogoAsset {
             ClassLoader classLoader = getClass().getClassLoader();
             InputStream inputStream = classLoader.getResourceAsStream(logoPath);
             imageData = Objects.requireNonNull(inputStream).readAllBytes();
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.debug("Unable to read file with error: {}", e.getMessage());
             return null;
         }

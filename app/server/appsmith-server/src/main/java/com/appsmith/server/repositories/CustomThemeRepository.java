@@ -9,5 +9,4 @@ import java.util.Optional;
 
 public interface CustomThemeRepository extends CustomThemeRepositoryCE {
     Flux<Theme> getPersistedThemesForApplication(String applicationId, Optional<AclPermission> aclPermission);
-
 }

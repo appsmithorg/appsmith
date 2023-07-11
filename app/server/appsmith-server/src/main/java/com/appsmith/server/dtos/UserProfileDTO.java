@@ -16,5 +16,4 @@ public class UserProfileDTO extends UserProfileCE_DTO {
     Map<String, Object> idToken;
 
     Map<String, Object> userClaims;
-
 }

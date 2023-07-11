@@ -16,22 +16,19 @@ import static com.appsmith.server.constants.Constraint.NO_RECORD_LIMIT;
 
 @Component
 @Slf4j
-public class CustomNewPageRepositoryImpl extends CustomNewPageRepositoryCEImpl
-        implements CustomNewPageRepository {
+public class CustomNewPageRepositoryImpl extends CustomNewPageRepositoryCEImpl implements CustomNewPageRepository {
 
-    public CustomNewPageRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomNewPageRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
     @Override
-    public Flux<NewPage> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields) {
+    public Flux<NewPage> findAllByApplicationIdsWithoutPermission(
+            List<String> applicationIds, List<String> includeFields) {
         Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
-        return queryAll(
-                List.of(applicationCriteria),
-                includeFields,
-                null,
-                null,
-                NO_RECORD_LIMIT
-        );
+        return queryAll(List.of(applicationCriteria), includeFields, null, null, NO_RECORD_LIMIT);
     }
 }

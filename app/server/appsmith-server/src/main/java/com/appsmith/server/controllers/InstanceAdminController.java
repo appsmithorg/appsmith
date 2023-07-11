@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -24,21 +23,17 @@ public class InstanceAdminController extends InstanceAdminControllerCE {
 
     private final SamlConfigurationService samlConfigurationService;
 
-    public InstanceAdminController(EnvManager envManager,
-                                   SamlConfigurationService samlConfigurationService) {
+    public InstanceAdminController(EnvManager envManager, SamlConfigurationService samlConfigurationService) {
         super(envManager);
         this.samlConfigurationService = samlConfigurationService;
     }
 
     @PutMapping("/sso/saml")
     public Mono<ResponseDTO<EnvChangesResponseDTO>> configureSaml(
-            @RequestBody AuthenticationConfigurationDTO config,
-            @RequestHeader(name = "Origin") String origin
-        )
-    {
+            @RequestBody AuthenticationConfigurationDTO config, @RequestHeader(name = "Origin") String origin) {
         log.debug("Configuring SAML SSO {}", config);
-        return samlConfigurationService.configure(config, origin)
+        return samlConfigurationService
+                .configure(config, origin)
                 .map(res -> new ResponseDTO<>(HttpStatus.OK.value(), res, null));
     }
-
 }

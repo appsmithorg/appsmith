@@ -2,6 +2,7 @@ package com.appsmith.server.acl;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.Environment;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -16,8 +17,6 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.external.models.Environment;
-
 import lombok.Getter;
 
 @Getter
@@ -47,16 +46,17 @@ public enum AclPermission {
     TENANT_ADD_USER_TO_ALL_USER_GROUPS("tenantAddUsersToGroups:tenant", Tenant.class),
     TENANT_REMOVE_USER_FROM_ALL_USER_GROUPS("tenantRemoveUserFromGroups:tenant", Tenant.class),
     TENANT_MANAGE_ALL_USERS("tenantManageAllUsers:tenant", Tenant.class),
+    TENANT_DELETE_ALL_USERS("tenantDeleteAllUsers:tenant", Tenant.class),
+    TENANT_READ_ALL_USERS("tenantReadAllUsers:tenant", Tenant.class),
 
     CREATE_USER_GROUPS("createUserGroups:tenant", Tenant.class),
     CREATE_WORKSPACES("createWorkspaces:tenant", Tenant.class),
     READ_TENANT_AUDIT_LOGS("readAuditLogs:tenant", Tenant.class),
 
-
     // Does the user have manage workspace permission
     @Deprecated
     USER_MANAGE_WORKSPACES("manage:userWorkspace", User.class),
-    //Does the user have read workspace permissions
+    // Does the user have read workspace permissions
     @Deprecated
     USER_READ_WORKSPACES("read:userWorkspace", User.class),
 
@@ -71,6 +71,8 @@ public enum AclPermission {
     READ_USERS("read:users", User.class),
     MANAGE_USERS("manage:users", User.class),
     RESET_PASSWORD_USERS("resetPassword:users", User.class),
+
+    DELETE_USERS("delete:users", User.class),
 
     MANAGE_WORKSPACES("manage:workspaces", Workspace.class),
     READ_WORKSPACES("read:workspaces", Workspace.class),
@@ -163,7 +165,6 @@ public enum AclPermission {
     // AuditLogs Permission
     READ_AUDIT_LOGS("read:auditLogs", AuditLog.class),
     ;
-
 
     private final String value;
     private final Class<? extends BaseDomain> entity;

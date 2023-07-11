@@ -4,10 +4,13 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.constants.AnalyticsConstants;
 import com.appsmith.server.constants.AuditLogConstants;
 import com.appsmith.server.constants.AuditLogEvents;
 import com.appsmith.server.constants.FieldName;
@@ -16,7 +19,9 @@ import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.domains.AuditLogApplicationMetadata;
 import com.appsmith.server.domains.AuditLogAuthenticationMetadata;
+import com.appsmith.server.domains.AuditLogDatasourceMetadata;
 import com.appsmith.server.domains.AuditLogDestinationWorkspaceMetadata;
+import com.appsmith.server.domains.AuditLogEnvironmentMetadata;
 import com.appsmith.server.domains.AuditLogGacEntityMetadata;
 import com.appsmith.server.domains.AuditLogGacMetadata;
 import com.appsmith.server.domains.AuditLogGitMetadata;
@@ -26,7 +31,7 @@ import com.appsmith.server.domains.AuditLogPermissionGroupMetadata;
 import com.appsmith.server.domains.AuditLogResource;
 import com.appsmith.server.domains.AuditLogUserGroupMetadata;
 import com.appsmith.server.domains.AuditLogUserMetadata;
-import com.appsmith.server.domains.AuditLogWorkpsaceMetadata;
+import com.appsmith.server.domains.AuditLogWorkspaceMetadata;
 import com.appsmith.server.domains.GacEntityMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -42,6 +47,7 @@ import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AuditLogRepository;
 import com.appsmith.server.repositories.ConfigRepository;
+import com.appsmith.server.repositories.EnvironmentRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.TenantRepository;
@@ -78,6 +84,7 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.FieldName.PUBLIC_PERMISSION_GROUP;
 import static org.apache.commons.lang.WordUtils.capitalize;
+import static org.springframework.util.StringUtils.hasText;
 
 @Slf4j
 @Service
@@ -96,6 +103,7 @@ public class AuditLogServiceImpl implements AuditLogService {
     private final ConfigRepository configRepository;
     private final PluginRepository pluginRepository;
     private final CommonConfig commonConfig;
+    private final EnvironmentRepository environmentRepository;
 
     private static int RECORD_LIMIT = 200;
     private static int EXPORT_RECORD_LIMIT = 5000;
@@ -105,10 +113,7 @@ public class AuditLogServiceImpl implements AuditLogService {
     public static int UPDATE_TIME_LIMIT_SECS = 300;
     public static String FILE_NAME_PREFIX = "audit-logs";
     public static String JSON_FILE_EXTENSION = ".json";
-    public static List<String> autoUpdateEventResources = List.of(
-            FieldName.PAGE,
-            FieldName.QUERY
-    );
+    public static List<String> autoUpdateEventResources = List.of(FieldName.PAGE, FieldName.QUERY);
 
     /**
      * To return all the Audit Logs
@@ -130,14 +135,20 @@ public class AuditLogServiceImpl implements AuditLogService {
         Date startDate = new Date();
         Date endDate = new Date();
 
-        //TODO remove the support for number of days, it should always be date range
-        if (params.getFirst(AuditLogConstants.NUMBER_OF_DAYS) != null && Integer.parseInt(params.getFirst(AuditLogConstants.NUMBER_OF_DAYS)) != 0) {
+        // TODO remove the support for number of days, it should always be date range
+        if (params.getFirst(AuditLogConstants.NUMBER_OF_DAYS) != null
+                && Integer.parseInt(params.getFirst(AuditLogConstants.NUMBER_OF_DAYS)) != 0) {
             isDate = true;
             int numberOfDays = Integer.parseInt(params.getFirst(AuditLogConstants.NUMBER_OF_DAYS));
-            long time = LocalDate.now().atStartOfDay().minusDays(numberOfDays - 1).toInstant(ZoneOffset.UTC).toEpochMilli();
+            long time = LocalDate.now()
+                    .atStartOfDay()
+                    .minusDays(numberOfDays - 1)
+                    .toInstant(ZoneOffset.UTC)
+                    .toEpochMilli();
             startDate = new Date(time);
             endDate = new Date(Instant.now().toEpochMilli());
-        } else if (params.getFirst(AuditLogConstants.START_DATE) != null && params.getFirst(AuditLogConstants.END_DATE) != null) {
+        } else if (params.getFirst(AuditLogConstants.START_DATE) != null
+                && params.getFirst(AuditLogConstants.END_DATE) != null) {
             isDate = true;
             startDate = new Date(Long.parseLong(params.getFirst(AuditLogConstants.START_DATE)));
             endDate = new Date(Long.parseLong(params.getFirst(AuditLogConstants.END_DATE)));
@@ -167,7 +178,8 @@ public class AuditLogServiceImpl implements AuditLogService {
             cursor = params.getFirst(AuditLogConstants.CURSOR);
         }
 
-        return repository.getAuditLog(
+        return repository
+                .getAuditLog(
                         isDate,
                         startDate,
                         endDate,
@@ -178,7 +190,8 @@ public class AuditLogServiceImpl implements AuditLogService {
                         sortOrder,
                         cursor,
                         recordLimits,
-                        AclPermission.READ_AUDIT_LOGS).collectList()
+                        AclPermission.READ_AUDIT_LOGS)
+                .collectList()
                 .onErrorResume(throwable -> {
                     log.error(FILTER_LOG_ERROR, throwable.getMessage());
                     return Mono.empty();
@@ -198,9 +211,14 @@ public class AuditLogServiceImpl implements AuditLogService {
         if (AnalyticsEvents.UPDATE_LAYOUT.equals(event)) {
             event = AnalyticsEvents.UPDATE;
         }
-        boolean isInstanceSettingEvent = AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.equals(event) || AnalyticsEvents.INSTANCE_SETTING_UPDATED.equals(event);
-        String resourceClassName = isInstanceSettingEvent ? AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName() : resource.getClass().getSimpleName();
-        boolean isLogEvent = !commonConfig.isCloudHosting() && AuditLogEvents.eventMap.containsKey(event.getEventName()) && AuditLogEvents.resourceMap.containsKey(resourceClassName);
+        boolean isInstanceSettingEvent = AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.equals(event)
+                || AnalyticsEvents.INSTANCE_SETTING_UPDATED.equals(event);
+        String resourceClassName = isInstanceSettingEvent
+                ? AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName()
+                : resource.getClass().getSimpleName();
+        boolean isLogEvent = !commonConfig.isCloudHosting()
+                && AuditLogEvents.eventMap.containsKey(event.getEventName())
+                && AuditLogEvents.resourceMap.containsKey(resourceClassName);
         AuditLog auditLog = new AuditLog();
 
         if (!isLogEvent) {
@@ -242,7 +260,8 @@ public class AuditLogServiceImpl implements AuditLogService {
         }
 
         return setProperties(auditLog, event, resource, properties)
-                .then(currentUserMono).zipWith(getAuditLogPolicies())
+                .then(currentUserMono)
+                .zipWith(getAuditLogPolicies())
                 .map(tuple -> {
                     User user = tuple.getT1();
                     auditLog.setPolicies(tuple.getT2());
@@ -260,19 +279,20 @@ public class AuditLogServiceImpl implements AuditLogService {
                     The latest event of the same type is updated given that it is the same user who is performing these actions
                     */
                     if (isUpdatedEvent(resourceName, actionName)) {
-                        return repository.updateAuditLogByEventNameUserAndTimeStamp(
-                                eventName,
-                                auditLog1.getUser().getEmail(),
-                                auditLog1.getResource().getId(),
-                                Instant.now().toEpochMilli(),
-                                auditLog1.getResource().getName(),
-                                UPDATE_TIME_LIMIT_SECS
-                        ).flatMap(matchCounters -> {
-                            if (matchCounters > 0) {
-                                return Mono.just(auditLog1);
-                            }
-                            return repository.save(auditLog1);
-                        });
+                        return repository
+                                .updateAuditLogByEventNameUserAndTimeStamp(
+                                        eventName,
+                                        auditLog1.getUser().getEmail(),
+                                        auditLog1.getResource().getId(),
+                                        Instant.now().toEpochMilli(),
+                                        auditLog1.getResource().getName(),
+                                        UPDATE_TIME_LIMIT_SECS)
+                                .flatMap(matchCounters -> {
+                                    if (matchCounters > 0) {
+                                        return Mono.just(auditLog1);
+                                    }
+                                    return repository.save(auditLog1);
+                                });
                     }
                     return repository.save(auditLog1);
                 }) // TODO: Needs to be scheduled in separate thread
@@ -280,7 +300,6 @@ public class AuditLogServiceImpl implements AuditLogService {
                     log.error(LOG_EVENT_ERROR, throwable.getMessage());
                     return Mono.empty();
                 });
-
     }
 
     @Override
@@ -292,8 +311,10 @@ public class AuditLogServiceImpl implements AuditLogService {
         }
         eventList = eventList.stream().sorted().collect(Collectors.toList());
         auditLogFilterDTO.setEventName(eventList);
-        Mono<List<String>> userEmail = tenantRepository.findBySlug(FieldName.DEFAULT)
-                .flatMap(tenant -> userRepository.getAllUserEmail(tenant.getId()).collectList());
+        Mono<List<String>> userEmail = tenantRepository
+                .findBySlug(FieldName.DEFAULT)
+                .flatMap(
+                        tenant -> userRepository.getAllUserEmail(tenant.getId()).collectList());
         return userEmail.map(emailList -> {
             auditLogFilterDTO.setEmails(emailList);
             return auditLogFilterDTO;
@@ -308,26 +329,23 @@ public class AuditLogServiceImpl implements AuditLogService {
      */
     @Override
     public Mono<ExportFileDTO> exportAuditLogs(MultiValueMap<String, String> params) {
-        return this.getAuditLogRecords(params, EXPORT_RECORD_LIMIT).map(
-                records -> {
-                    records.forEach(BaseDomain::sanitiseToExportDBObject);
+        return this.getAuditLogRecords(params, EXPORT_RECORD_LIMIT).map(records -> {
+            records.forEach(BaseDomain::sanitiseToExportDBObject);
 
-                    AuditLogExportDTO exportContent = new AuditLogExportDTO(records, params);
+            AuditLogExportDTO exportContent = new AuditLogExportDTO(records, params);
 
-                    HttpHeaders responseHeaders = new HttpHeaders();
-                    ContentDisposition contentDisposition = ContentDisposition
-                            .builder("attachment")
-                            .filename(generateFileName(), StandardCharsets.UTF_8)
-                            .build();
-                    responseHeaders.setContentDisposition(contentDisposition);
-                    responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+            HttpHeaders responseHeaders = new HttpHeaders();
+            ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
+                    .filename(generateFileName(), StandardCharsets.UTF_8)
+                    .build();
+            responseHeaders.setContentDisposition(contentDisposition);
+            responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 
-                    ExportFileDTO exportFileDTO = new ExportFileDTO();
-                    exportFileDTO.setApplicationResource(exportContent);
-                    exportFileDTO.setHttpHeaders(responseHeaders);
-                    return exportFileDTO;
-                }
-        );
+            ExportFileDTO exportFileDTO = new ExportFileDTO();
+            exportFileDTO.setApplicationResource(exportContent);
+            exportFileDTO.setHttpHeaders(responseHeaders);
+            return exportFileDTO;
+        });
     }
 
     private String generateFileName() {
@@ -338,8 +356,9 @@ public class AuditLogServiceImpl implements AuditLogService {
 
     @Override
     public Mono<List<String>> getAllUsers() {
-        return tenantRepository.findBySlug(FieldName.DEFAULT)
-                .flatMap(tenant -> userRepository.getAllUserEmail(tenant.getId()).collectList());
+        return tenantRepository.findBySlug(FieldName.DEFAULT).flatMap(tenant -> userRepository
+                .getAllUserEmail(tenant.getId())
+                .collectList());
     }
 
     /**
@@ -353,12 +372,16 @@ public class AuditLogServiceImpl implements AuditLogService {
         if (eventName.name().equals(AuditLogEvents.Events.INSTANCE_SETTING_UPDATED.name())) {
             // Special handling for instance_setting.updated event since it has two "_"
             String temporarySeparator = "#";
-            eventNameLower = eventNameLower.replaceFirst(FieldName.AUDIT_LOG_FILTER_EVENT_DELIMITER, temporarySeparator);
-            eventNameLower = eventNameLower.replaceFirst(FieldName.AUDIT_LOG_FILTER_EVENT_DELIMITER, FieldName.AUDIT_LOG_EVENT_DELIMITER);
-            eventNameLower = eventNameLower.replaceFirst(temporarySeparator, FieldName.AUDIT_LOG_FILTER_EVENT_DELIMITER);
+            eventNameLower =
+                    eventNameLower.replaceFirst(FieldName.AUDIT_LOG_FILTER_EVENT_DELIMITER, temporarySeparator);
+            eventNameLower = eventNameLower.replaceFirst(
+                    FieldName.AUDIT_LOG_FILTER_EVENT_DELIMITER, FieldName.AUDIT_LOG_EVENT_DELIMITER);
+            eventNameLower =
+                    eventNameLower.replaceFirst(temporarySeparator, FieldName.AUDIT_LOG_FILTER_EVENT_DELIMITER);
 
         } else {
-            eventNameLower = eventNameLower.replaceFirst(FieldName.AUDIT_LOG_FILTER_EVENT_DELIMITER, FieldName.AUDIT_LOG_EVENT_DELIMITER);
+            eventNameLower = eventNameLower.replaceFirst(
+                    FieldName.AUDIT_LOG_FILTER_EVENT_DELIMITER, FieldName.AUDIT_LOG_EVENT_DELIMITER);
         }
 
         return eventNameLower;
@@ -376,7 +399,8 @@ public class AuditLogServiceImpl implements AuditLogService {
      *                   type is page
      *                   name is resource name
      */
-    private Mono<AuditLog> setProperties(AuditLog auditLog, AnalyticsEvents event, Object resource, Map<String, Object> properties) {
+    private Mono<AuditLog> setProperties(
+            AuditLog auditLog, AnalyticsEvents event, Object resource, Map<String, Object> properties) {
         AuditLogResource auditLogResource = new AuditLogResource();
         auditLogResource.setType(getResourceType(resource));
 
@@ -385,7 +409,9 @@ public class AuditLogServiceImpl implements AuditLogService {
         auditLog.setMetadata(auditLogMetadata);
 
         Map<String, Object> eventData = new HashMap<>();
-        if (properties != null && properties.containsKey(FieldName.EVENT_DATA) && properties.get(FieldName.EVENT_DATA) != null) {
+        if (properties != null
+                && properties.containsKey(FieldName.EVENT_DATA)
+                && properties.get(FieldName.EVENT_DATA) != null) {
             eventData.putAll((Map) properties.get(FieldName.EVENT_DATA));
         }
 
@@ -398,14 +424,18 @@ public class AuditLogServiceImpl implements AuditLogService {
             auditLogMono = setResourceProperties((Workspace) resource, auditLog, auditLogResource);
         } else if (resource instanceof Datasource) {
             auditLogMono = setResourceProperties((Datasource) resource, auditLog, auditLogResource, properties);
+        } else if (resource instanceof DatasourceStorage) {
+            auditLogMono = setResourceProperties((DatasourceStorage) resource, auditLog, auditLogResource, properties);
         } else if (resource instanceof Application) {
             auditLogMono = setResourceProperties((Application) resource, auditLog, auditLogResource, properties, event);
         } else if (resource instanceof NewPage) {
             auditLogMono = setResourceProperties((NewPage) resource, auditLog, auditLogResource, properties);
         } else if (resource instanceof NewAction) {
-            auditLogMono = setResourceProperties((NewAction) resource, auditLog, auditLogResource, properties, event, eventData);
+            auditLogMono = setResourceProperties(
+                    (NewAction) resource, auditLog, auditLogResource, properties, event, eventData);
         } else if (resource instanceof ActionDTO) {
-            auditLogMono = setResourceProperties((ActionDTO) resource, auditLog, auditLogResource, properties, event, eventData);
+            auditLogMono = setResourceProperties(
+                    (ActionDTO) resource, auditLog, auditLogResource, properties, event, eventData);
         } else if (resource instanceof UserGroup) {
             auditLogMono = setResourceProperties((UserGroup) resource, auditLog, auditLogResource, eventData);
         } else if (resource instanceof PermissionGroup) {
@@ -426,11 +456,54 @@ public class AuditLogServiceImpl implements AuditLogService {
                 && properties.containsKey(FieldName.PROVIDER)
                 && properties.containsKey(FieldName.ACTION);
         if (isAuthenticationMethodConfigured) {
-            setAuthentication(auditLog, properties.get(FieldName.ACTION).toString(), properties.get(FieldName.PROVIDER).toString());
+            setAuthentication(
+                    auditLog,
+                    properties.get(FieldName.ACTION).toString(),
+                    properties.get(FieldName.PROVIDER).toString());
             auditLogMono = Mono.just(auditLog);
         }
 
         return auditLogMono;
+    }
+
+    private Mono<AuditLog> setResourceProperties(
+            DatasourceStorage resource,
+            AuditLog auditLog,
+            AuditLogResource auditLogResource,
+            Map<String, Object> properties) {
+        auditLogResource.setId(resource.getDatasourceId());
+        auditLogResource.setName(resource.getName());
+
+        Mono<DatasourceStorage> resourceMono = Mono.just(resource);
+
+        if (resource.getEnvironmentId() != null) {
+            resourceMono = resourceMono
+                    .zipWith(environmentRepository.findById(resource.getEnvironmentId()))
+                    .map(tuple2 -> {
+                        Environment environment = tuple2.getT2();
+                        AuditLogEnvironmentMetadata environmentMetadata =
+                                new AuditLogEnvironmentMetadata(environment.getId(), environment.getName());
+                        auditLog.setEnvironment(environmentMetadata);
+                        return resource;
+                    });
+        }
+
+        // Plugin name is required as DatasourceType in Audit Logs
+        // Plugin name is fetched from DB since delete events does not have pluginName set by default
+        if (!Optional.ofNullable(resource.getPluginId()).isEmpty()) {
+            final Mono<Plugin> setResourceWithPluginNameMono = resourceMono
+                    .flatMap(resource1 -> pluginRepository.findById(resource1.getPluginId()))
+                    .flatMap(plugin -> {
+                        auditLogResource.setDatasourceType(plugin.getName());
+                        auditLog.setResource(auditLogResource);
+                        return Mono.just(plugin);
+                    });
+            return setResourceWithPluginNameMono
+                    .then(setWorkspace(auditLog, resource.getWorkspaceId(), properties))
+                    .thenReturn(auditLog);
+        }
+
+        return resourceMono.thenReturn(auditLog);
     }
 
     /**
@@ -457,7 +530,8 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @param auditLogResource AuditLogResource
      * @return Mono of AuditLog
      */
-    private Mono<AuditLog> setResourceProperties(Workspace workspace, AuditLog auditLog, AuditLogResource auditLogResource) {
+    private Mono<AuditLog> setResourceProperties(
+            Workspace workspace, AuditLog auditLog, AuditLogResource auditLogResource) {
         auditLogResource.setId(workspace.getId());
         auditLogResource.setName(workspace.getName());
         auditLog.setResource(auditLogResource);
@@ -473,13 +547,18 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @param auditLogResource AuditLogResource
      * @return Mono of AuditLog
      */
-    private Mono<AuditLog> setResourceProperties(Datasource datasource, AuditLog auditLog, AuditLogResource auditLogResource, Map<String, Object> properties) {
+    private Mono<AuditLog> setResourceProperties(
+            Datasource datasource,
+            AuditLog auditLog,
+            AuditLogResource auditLogResource,
+            Map<String, Object> properties) {
         auditLogResource.setId(datasource.getId());
         auditLogResource.setName(datasource.getName());
         // Plugin name is required as DatasourceType in Audit Logs
         // Plugin name is fetched from DB since delete events does not have pluginName set by default
         if (!Optional.ofNullable(datasource.getPluginId()).isEmpty()) {
-            final Mono<Plugin> setResourceWithPluginNameMono = pluginRepository.findById(datasource.getPluginId())
+            final Mono<Plugin> setResourceWithPluginNameMono = pluginRepository
+                    .findById(datasource.getPluginId())
                     .flatMap(plugin -> {
                         auditLogResource.setDatasourceType(plugin.getName());
                         auditLog.setResource(auditLogResource);
@@ -501,14 +580,20 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @param auditLogResource AuditLogResource
      * @return Mono of AuditLog
      */
-    private Mono<AuditLog> setResourceProperties(Application application, AuditLog auditLog, AuditLogResource auditLogResource, Map<String, Object> properties, AnalyticsEvents event) {
+    private Mono<AuditLog> setResourceProperties(
+            Application application,
+            AuditLog auditLog,
+            AuditLogResource auditLogResource,
+            Map<String, Object> properties,
+            AnalyticsEvents event) {
         auditLogResource.setId(application.getId());
         auditLogResource.setName(application.getName());
         // Application related event require visibility of application to be logged
         Mono<String> publicPermissionGroupIdMono = getPublicPermissionGroupId();
-        Mono<AuditLogResource> setResourceWithVisibilityMono = publicPermissionGroupIdMono
-                .flatMap(publicPermissionGroupId -> {
-                    boolean isApplicationPublic = isEntityAccessible(application, READ_APPLICATIONS.getValue(), publicPermissionGroupId);
+        Mono<AuditLogResource> setResourceWithVisibilityMono =
+                publicPermissionGroupIdMono.flatMap(publicPermissionGroupId -> {
+                    boolean isApplicationPublic =
+                            isEntityAccessible(application, READ_APPLICATIONS.getValue(), publicPermissionGroupId);
                     auditLogResource.setVisibility(isApplicationPublic ? FieldName.PUBLIC : FieldName.PRIVATE);
                     auditLog.setResource(auditLogResource);
                     return Mono.just(auditLogResource);
@@ -538,7 +623,8 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @param auditLogResource AuditLogResource
      * @return Mono of AuditLog
      */
-    private Mono<AuditLog> setResourceProperties(NewPage newPage, AuditLog auditLog, AuditLogResource auditLogResource, Map<String, Object> properties) {
+    private Mono<AuditLog> setResourceProperties(
+            NewPage newPage, AuditLog auditLog, AuditLogResource auditLogResource, Map<String, Object> properties) {
         auditLogResource.setId(newPage.getId());
         auditLogResource.setName(newPage.getUnpublishedPage().getName());
         auditLog.setResource(auditLogResource);
@@ -559,24 +645,35 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @param eventData        Event Data
      * @return Mono of AuditLog
      */
-    private Mono<AuditLog> setResourceProperties(NewAction newAction, AuditLog auditLog, AuditLogResource auditLogResource, Map<String, Object> properties, AnalyticsEvents event, Map<String, Object> eventData) {
+    private Mono<AuditLog> setResourceProperties(
+            NewAction newAction,
+            AuditLog auditLog,
+            AuditLogResource auditLogResource,
+            Map<String, Object> properties,
+            AnalyticsEvents event,
+            Map<String, Object> eventData) {
         auditLogResource.setId(newAction.getId());
         auditLogResource.setName(newAction.getUnpublishedAction().getName());
 
         // Execution details for query.executed events
         if (AnalyticsEvents.EXECUTE_ACTION.equals(event) && properties != null) {
             if (properties.containsKey(FieldName.IS_SUCCESSFUL_EXECUTION)) {
-                auditLogResource.setExecutionStatus((Boolean) properties.get(FieldName.IS_SUCCESSFUL_EXECUTION) ? FieldName.SUCCESS : FieldName.FAILED);
+                auditLogResource.setExecutionStatus(
+                        (Boolean) properties.get(FieldName.IS_SUCCESSFUL_EXECUTION)
+                                ? FieldName.SUCCESS
+                                : FieldName.FAILED);
             }
             if (properties.containsKey(FieldName.STATUS_CODE)) {
-                auditLogResource.setResponseCode(properties.get(FieldName.STATUS_CODE).toString());
+                auditLogResource.setResponseCode(
+                        properties.get(FieldName.STATUS_CODE).toString());
             }
             if (properties.containsKey(FieldName.TIME_ELAPSED)) {
                 auditLogResource.setResponseTime((Long) properties.get(FieldName.TIME_ELAPSED));
             }
             if (eventData.containsKey(FieldName.ACTION_EXECUTION_REQUEST_PARAMS)) {
                 List<String> executionParams = (List<String>) eventData.get(FieldName.ACTION_EXECUTION_REQUEST_PARAMS);
-                auditLogResource.setExecutionParams((String) executionParams.stream().collect(Collectors.joining(",", "[", "]")));
+                auditLogResource.setExecutionParams(
+                        (String) executionParams.stream().collect(Collectors.joining(",", "[", "]")));
             }
         }
         auditLog.setResource(auditLogResource);
@@ -598,29 +695,79 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @param eventData        Event Data
      * @return Mono of AuditLog
      */
-    private Mono<AuditLog> setResourceProperties(ActionDTO actionDTO, AuditLog auditLog, AuditLogResource auditLogResource, Map<String, Object> properties, AnalyticsEvents event, Map<String, Object> eventData) {
+    private Mono<AuditLog> setResourceProperties(
+            ActionDTO actionDTO,
+            AuditLog auditLog,
+            AuditLogResource auditLogResource,
+            Map<String, Object> properties,
+            AnalyticsEvents event,
+            Map<String, Object> eventData) {
         auditLogResource.setId(actionDTO.getId());
         auditLogResource.setName(actionDTO.getName());
+
+        Mono<AuditLogEnvironmentMetadata> environmentMetadataMono = Mono.empty();
 
         // Execution details for query.executed events
         if (AnalyticsEvents.EXECUTE_ACTION.equals(event) && properties != null) {
             if (properties.containsKey(FieldName.IS_SUCCESSFUL_EXECUTION)) {
-                auditLogResource.setExecutionStatus((Boolean) properties.get(FieldName.IS_SUCCESSFUL_EXECUTION) ? FieldName.SUCCESS : FieldName.FAILED);
+                auditLogResource.setExecutionStatus(
+                        (Boolean) properties.get(FieldName.IS_SUCCESSFUL_EXECUTION)
+                                ? FieldName.SUCCESS
+                                : FieldName.FAILED);
             }
             if (properties.containsKey(FieldName.STATUS_CODE)) {
-                auditLogResource.setResponseCode(properties.get(FieldName.STATUS_CODE).toString());
+                auditLogResource.setResponseCode(
+                        properties.get(FieldName.STATUS_CODE).toString());
             }
             if (properties.containsKey(FieldName.TIME_ELAPSED)) {
                 auditLogResource.setResponseTime((Long) properties.get(FieldName.TIME_ELAPSED));
             }
             if (eventData.containsKey(FieldName.ACTION_EXECUTION_REQUEST_PARAMS)) {
                 List<String> executionParams = (List<String>) eventData.get(FieldName.ACTION_EXECUTION_REQUEST_PARAMS);
-                auditLogResource.setExecutionParams((String) executionParams.stream().collect(Collectors.joining(",", "[", "]")));
+                auditLogResource.setExecutionParams(
+                        (String) executionParams.stream().collect(Collectors.joining(",", "[", "]")));
+            }
+
+            AuditLogDatasourceMetadata datasource = new AuditLogDatasourceMetadata();
+            String envId = "";
+
+            if (properties.containsKey(AnalyticsConstants.ENVIRONMENT_ID_SHORTNAME)) {
+                envId = (String) properties.get(AnalyticsConstants.ENVIRONMENT_ID_SHORTNAME);
+            }
+
+            if (properties.containsKey(AnalyticsConstants.DATASOURCE_NAME_SHORTNAME)) {
+                datasource.setName((String) properties.get(AnalyticsConstants.DATASOURCE_NAME_SHORTNAME));
+            }
+
+            if (properties.containsKey(AnalyticsConstants.DATASOURCE_ID_SHORTNAME)) {
+                datasource.setId((String) properties.get(AnalyticsConstants.DATASOURCE_ID_SHORTNAME));
+            }
+
+            if (eventData.containsKey(FieldName.DATASOURCE)) {
+                DatasourceStorage datasourceStorage = (DatasourceStorage) eventData.get(FieldName.DATASOURCE);
+                datasource.setName(datasourceStorage.getName());
+                datasource.setId(datasourceStorage.getDatasourceId());
+                envId = datasourceStorage.getEnvironmentId();
+            }
+
+            auditLog.setDatasource(datasource);
+            String environmentId =
+                    hasText(envId) ? envId : (String) properties.get(AnalyticsConstants.ENVIRONMENT_ID_SHORTNAME);
+            if (hasText(environmentId)) {
+                environmentMetadataMono = environmentRepository
+                        .findById(environmentId)
+                        .map(environment -> new AuditLogEnvironmentMetadata(environment.getId(), environment.getName()))
+                        .map(auditLogEnvironmentMetadata -> {
+                            auditLog.setEnvironment(auditLogEnvironmentMetadata);
+                            return auditLogEnvironmentMetadata;
+                        });
             }
         }
+
         auditLog.setResource(auditLogResource);
 
-        return setPage(auditLog, actionDTO.getPageId(), properties)
+        return environmentMetadataMono
+                .then(setPage(auditLog, actionDTO.getPageId(), properties))
                 .flatMap(newPage -> setApplication(auditLog, actionDTO.getApplicationId(), properties))
                 .flatMap(application -> setWorkspace(auditLog, application.getWorkspaceId(), properties))
                 .thenReturn(auditLog);
@@ -634,7 +781,8 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @param auditLogResource AuditLogResource
      * @return Mono of AuditLog
      */
-    private Mono<AuditLog> setResourceProperties(UserGroup userGroup, AuditLog auditLog, AuditLogResource auditLogResource, Map<String, Object> properties) {
+    private Mono<AuditLog> setResourceProperties(
+            UserGroup userGroup, AuditLog auditLog, AuditLogResource auditLogResource, Map<String, Object> properties) {
         auditLogResource.setId(userGroup.getId());
         auditLogResource.setName(userGroup.getName());
         auditLog.setResource(auditLogResource);
@@ -660,26 +808,36 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @param auditLogResource AuditLogResource
      * @return Mono of AuditLog
      */
-    private Mono<AuditLog> setResourceProperties(PermissionGroup permissionGroup, AuditLog auditLog, AuditLogResource auditLogResource, Map<String, Object> properties) {
+    private Mono<AuditLog> setResourceProperties(
+            PermissionGroup permissionGroup,
+            AuditLog auditLog,
+            AuditLogResource auditLogResource,
+            Map<String, Object> properties) {
         auditLogResource.setId(permissionGroup.getId());
         auditLogResource.setName(permissionGroup.getName());
         auditLog.setResource(auditLogResource);
         if (MapUtils.isNotEmpty(properties)) {
             AuditLogPermissionGroupMetadata permissionGroupMetadata = new AuditLogPermissionGroupMetadata();
             if (properties.containsKey(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS))
-                permissionGroupMetadata.setAssignedUsers((List) properties.get(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS));
+                permissionGroupMetadata.setAssignedUsers(
+                        (List) properties.get(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS));
             if (properties.containsKey(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS))
-                permissionGroupMetadata.setUnassignedUsers((List) properties.get(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS));
+                permissionGroupMetadata.setUnassignedUsers(
+                        (List) properties.get(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS));
             if (properties.containsKey(FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS))
-                permissionGroupMetadata.setAssignedGroups((List) properties.get(FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS));
+                permissionGroupMetadata.setAssignedGroups(
+                        (List) properties.get(FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS));
             if (properties.containsKey(FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS))
-                permissionGroupMetadata.setUnassignedGroups((List) properties.get(FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS));
+                permissionGroupMetadata.setUnassignedGroups(
+                        (List) properties.get(FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS));
             auditLog.setRole(permissionGroupMetadata);
 
-            if (properties.containsKey(FieldName.GAC_TAB) && properties.containsKey(FieldName.ENTITY_UPDATED_PERMISSIONS)) {
+            if (properties.containsKey(FieldName.GAC_TAB)
+                    && properties.containsKey(FieldName.ENTITY_UPDATED_PERMISSIONS)) {
                 AuditLogGacMetadata auditLogGacMetadata = new AuditLogGacMetadata();
                 auditLogGacMetadata.setTabUpdated((String) properties.get(FieldName.GAC_TAB));
-                List<GacEntityMetadata> entityMetadataList = (List<GacEntityMetadata>) properties.get(FieldName.ENTITY_UPDATED_PERMISSIONS);
+                List<GacEntityMetadata> entityMetadataList =
+                        (List<GacEntityMetadata>) properties.get(FieldName.ENTITY_UPDATED_PERMISSIONS);
                 List<AuditLogGacEntityMetadata> auditLogGacEntityMetadataList = new ArrayList<>();
                 entityMetadataList.forEach(entityMetadata -> {
                     AuditLogGacEntityMetadata auditLogGacEntityMetadata = new AuditLogGacEntityMetadata();
@@ -749,8 +907,8 @@ public class AuditLogServiceImpl implements AuditLogService {
                 NewAction.class.getSimpleName(),
                 ActionDTO.class.getSimpleName(),
                 PermissionGroup.class.getSimpleName(),
-                UserGroup.class.getSimpleName()
-        );
+                UserGroup.class.getSimpleName(),
+                DatasourceStorage.class.getSimpleName());
         String resourceClassName = resource.getClass().getSimpleName();
         if (exceptionResources.contains(resourceClassName)) {
             return capitalize(AuditLogEvents.resourceMap.get(resource.getClass().getSimpleName()));
@@ -777,11 +935,10 @@ public class AuditLogServiceImpl implements AuditLogService {
             return Mono.empty();
         }
 
-        return workspaceRepository.findById(workspaceId)
-                .map(workspace -> {
-                    setWorkspaceProperties(auditLog, workspace);
-                    return workspace;
-                });
+        return workspaceRepository.findById(workspaceId).map(workspace -> {
+            setWorkspaceProperties(auditLog, workspace);
+            return workspace;
+        });
     }
 
     /**
@@ -793,15 +950,17 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @param properties        Extra properties
      * @return Workspace
      */
-    private Mono<Workspace> setWorkspace(AuditLog auditLog, String workspaceId, String sourceWorkspaceId, Map<String, Object> properties) {
-        return workspaceRepository.findById(sourceWorkspaceId)
+    private Mono<Workspace> setWorkspace(
+            AuditLog auditLog, String workspaceId, String sourceWorkspaceId, Map<String, Object> properties) {
+        return workspaceRepository
+                .findById(sourceWorkspaceId)
                 .flatMap(workspace -> {
                     setWorkspaceProperties(auditLog, workspace);
                     return workspaceRepository.findById(workspaceId);
                 })
                 .map(workspace -> {
-
-                    AuditLogDestinationWorkspaceMetadata destinationWorkspaceMetadata = new AuditLogDestinationWorkspaceMetadata();
+                    AuditLogDestinationWorkspaceMetadata destinationWorkspaceMetadata =
+                            new AuditLogDestinationWorkspaceMetadata();
                     destinationWorkspaceMetadata.setId(workspace.getId());
                     destinationWorkspaceMetadata.setName(workspace.getName());
                     auditLog.getWorkspace().setDestination(destinationWorkspaceMetadata);
@@ -824,29 +983,32 @@ public class AuditLogServiceImpl implements AuditLogService {
             applicationMono = Mono.just(application);
         }
         Mono<String> publicPermissionGroupIdMono = getPublicPermissionGroupId();
-        return applicationMono
-                .zipWith(publicPermissionGroupIdMono)
-                .flatMap(tuple -> {
-                    Application application = tuple.getT1();
-                    String publicPermissionGroupId = tuple.getT2();
-                    boolean isApplicationPublic = isEntityAccessible(application, READ_APPLICATIONS.getValue(), publicPermissionGroupId);
+        return applicationMono.zipWith(publicPermissionGroupIdMono).flatMap(tuple -> {
+            Application application = tuple.getT1();
+            String publicPermissionGroupId = tuple.getT2();
+            boolean isApplicationPublic =
+                    isEntityAccessible(application, READ_APPLICATIONS.getValue(), publicPermissionGroupId);
 
-                    // By default, appMode is set to edit mode since this data will be coming via properties for view mode events
-                    String appMode = AuditLogEvents.appModeMap.get(ApplicationMode.EDIT.toString());
-                    Boolean isAppViewModePresent = false;
-                    Map<String, String> eventData = new HashMap<>();
-                    Boolean isEventDataPresent = properties != null && properties.containsKey(FieldName.EVENT_DATA) && properties.get(FieldName.EVENT_DATA) != null;
-                    if (isEventDataPresent) {
-                        eventData = (Map) properties.get(FieldName.EVENT_DATA);
-                        isAppViewModePresent = eventData.containsKey(FieldName.APP_MODE) && eventData.get(FieldName.APP_MODE) != null;
-                    }
-                    if (isEventDataPresent && isAppViewModePresent) {
-                        appMode = AuditLogEvents.appModeMap.get((String) eventData.get(FieldName.APP_MODE));
-                    }
+            // By default, appMode is set to edit mode since this data will be coming via properties for view mode
+            // events
+            String appMode = AuditLogEvents.appModeMap.get(ApplicationMode.EDIT.toString());
+            Boolean isAppViewModePresent = false;
+            Map<String, String> eventData = new HashMap<>();
+            Boolean isEventDataPresent = properties != null
+                    && properties.containsKey(FieldName.EVENT_DATA)
+                    && properties.get(FieldName.EVENT_DATA) != null;
+            if (isEventDataPresent) {
+                eventData = (Map) properties.get(FieldName.EVENT_DATA);
+                isAppViewModePresent =
+                        eventData.containsKey(FieldName.APP_MODE) && eventData.get(FieldName.APP_MODE) != null;
+            }
+            if (isEventDataPresent && isAppViewModePresent) {
+                appMode = AuditLogEvents.appModeMap.get((String) eventData.get(FieldName.APP_MODE));
+            }
 
-                    setApplicationProperties(auditLog, application, isApplicationPublic, appMode);
-                    return Mono.just(application);
-                });
+            setApplicationProperties(auditLog, application, isApplicationPublic, appMode);
+            return Mono.just(application);
+        });
     }
 
     /**
@@ -863,11 +1025,10 @@ public class AuditLogServiceImpl implements AuditLogService {
             setPageProperties(auditLog, newPage);
             return Mono.just(newPage);
         }
-        return pageRepository.findById(pageId)
-                .map(newPage -> {
-                    setPageProperties(auditLog, newPage);
-                    return newPage;
-                });
+        return pageRepository.findById(pageId).map(newPage -> {
+            setPageProperties(auditLog, newPage);
+            return newPage;
+        });
     }
 
     /**
@@ -877,10 +1038,10 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @param workspace Workspace
      */
     private void setWorkspaceProperties(AuditLog auditLog, Workspace workspace) {
-        AuditLogWorkpsaceMetadata auditLogWorkpsaceMetadata = new AuditLogWorkpsaceMetadata();
-        auditLogWorkpsaceMetadata.setId(workspace.getId());
-        auditLogWorkpsaceMetadata.setName(workspace.getName());
-        auditLog.setWorkspace(auditLogWorkpsaceMetadata);
+        AuditLogWorkspaceMetadata auditLogWorkspaceMetadata = new AuditLogWorkspaceMetadata();
+        auditLogWorkspaceMetadata.setId(workspace.getId());
+        auditLogWorkspaceMetadata.setName(workspace.getName());
+        auditLog.setWorkspace(auditLogWorkspaceMetadata);
     }
 
     /**
@@ -891,20 +1052,27 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @param isApplicationPublic Application is public or not
      * @param appMode             Application is opened in view mode or edit mode
      */
-    private void setApplicationProperties(AuditLog auditLog, Application application, Boolean isApplicationPublic, String appMode) {
+    private void setApplicationProperties(
+            AuditLog auditLog, Application application, Boolean isApplicationPublic, String appMode) {
         AuditLogApplicationMetadata applicationMetadata = new AuditLogApplicationMetadata();
         applicationMetadata.setId(application.getId());
         applicationMetadata.setName(application.getName());
         applicationMetadata.setMode(appMode);
         applicationMetadata.setVisibility(isApplicationPublic ? FieldName.PUBLIC : FieldName.PRIVATE);
-        if (application.getGitApplicationMetadata() != null && !StringUtils.isEmpty(application.getGitApplicationMetadata().getBranchName())) {
+        if (application.getGitApplicationMetadata() != null
+                && !StringUtils.isEmpty(application.getGitApplicationMetadata().getBranchName())) {
             AuditLogGitMetadata auditLogGitMetadata = new AuditLogGitMetadata();
-            auditLogGitMetadata.setBranch(application.getGitApplicationMetadata().getBranchName());
+            auditLogGitMetadata.setBranch(
+                    application.getGitApplicationMetadata().getBranchName());
             if (!StringUtils.isEmpty(application.getGitApplicationMetadata().getRemoteUrl())) {
-                auditLogGitMetadata.setRepoURL(application.getGitApplicationMetadata().getRemoteUrl());
+                auditLogGitMetadata.setRepoURL(
+                        application.getGitApplicationMetadata().getRemoteUrl());
             }
             if (application.getGitApplicationMetadata().getIsRepoPrivate() != null) {
-                auditLogGitMetadata.setRepoType(application.getGitApplicationMetadata().getIsRepoPrivate() ? FieldName.PRIVATE : FieldName.PUBLIC);
+                auditLogGitMetadata.setRepoType(
+                        application.getGitApplicationMetadata().getIsRepoPrivate()
+                                ? FieldName.PRIVATE
+                                : FieldName.PUBLIC);
             }
             applicationMetadata.setGit(auditLogGitMetadata);
         }
@@ -926,11 +1094,11 @@ public class AuditLogServiceImpl implements AuditLogService {
     }
 
     private Mono<Set<Policy>> getAuditLogPolicies() {
-        return tenantRepository.findBySlug(FieldName.DEFAULT)
-                .map(tenant -> {
-                    Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(tenant.getPolicies(), Tenant.class, AuditLog.class);
-                    return documentPolicies;
-                });
+        return tenantRepository.findBySlug(FieldName.DEFAULT).map(tenant -> {
+            Set<Policy> documentPolicies =
+                    policyGenerator.getAllChildPolicies(tenant.getPolicies(), Tenant.class, AuditLog.class);
+            return documentPolicies;
+        });
     }
 
     /**
@@ -940,7 +1108,8 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @return
      */
     private Mono<String> getPublicPermissionGroupId() {
-        return configRepository.findByName(PUBLIC_PERMISSION_GROUP)
+        return configRepository
+                .findByName(PUBLIC_PERMISSION_GROUP)
                 .map(configObj -> configObj.getConfig().getAsString(PERMISSION_GROUP_ID));
     }
 
@@ -954,10 +1123,9 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @return
      */
     private boolean isEntityAccessible(BaseDomain object, String permission, String permissionGroupId) {
-        return object.getPolicies()
-                .stream()
-                .filter(policy -> policy.getPermission().equals(permission) &&
-                        policy.getPermissionGroups().contains(permissionGroupId))
+        return object.getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(permission)
+                        && policy.getPermissionGroups().contains(permissionGroupId))
                 .findFirst()
                 .isPresent();
     }

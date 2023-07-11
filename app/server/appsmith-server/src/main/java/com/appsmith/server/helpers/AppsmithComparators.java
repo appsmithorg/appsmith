@@ -10,12 +10,10 @@ import com.appsmith.server.dtos.UserForManagementDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.AppsmithComparatorsCE;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.Comparator;
 import java.util.Objects;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 public class AppsmithComparators extends AppsmithComparatorsCE {
     public static Comparator<UserGroup> userGroupComparator() {
@@ -76,17 +74,16 @@ public class AppsmithComparators extends AppsmithComparatorsCE {
             private int getOrderForName(String name) {
                 if (Objects.nonNull(name) && name.startsWith(FieldName.ADMINISTRATOR)) {
                     return 0;
-                } else if (Objects.nonNull(name) &&
-                        (name.startsWith(FieldName.DEVELOPER) || name.startsWith(FieldName.APPLICATION_DEVELOPER))) {
+                } else if (Objects.nonNull(name)
+                        && (name.startsWith(FieldName.DEVELOPER) || name.startsWith(FieldName.APPLICATION_DEVELOPER))) {
                     return 1;
-                } else if (Objects.nonNull(name) &&
-                        (name.startsWith(FieldName.VIEWER) || name.startsWith(FieldName.APPLICATION_VIEWER))) {
+                } else if (Objects.nonNull(name)
+                        && (name.startsWith(FieldName.VIEWER) || name.startsWith(FieldName.APPLICATION_VIEWER))) {
                     return 2;
                 } else {
                     return 3;
                 }
             }
-
         };
     }
 
@@ -159,8 +156,10 @@ public class AppsmithComparators extends AppsmithComparatorsCE {
                  * Check if the MemberInfoDTO only contains 1 role. This is done, because we need to ensure that while
                  * getting members for a single application, the roles should contain only 1 role, i.e., application default role.
                  */
-                if (CollectionUtils.isEmpty(o1.getRoles()) || o1.getRoles().size() != 1
-                        || CollectionUtils.isEmpty(o2.getRoles()) || o2.getRoles().size() != 1) {
+                if (CollectionUtils.isEmpty(o1.getRoles())
+                        || o1.getRoles().size() != 1
+                        || CollectionUtils.isEmpty(o2.getRoles())
+                        || o2.getRoles().size() != 1) {
                     throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR);
                 }
 
@@ -185,8 +184,6 @@ public class AppsmithComparators extends AppsmithComparatorsCE {
                 }
                 return 2;
             }
-
         };
     }
-
 }

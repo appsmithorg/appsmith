@@ -24,7 +24,8 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
 
     Mono<PermissionGroup> archiveById(String id);
 
-    Mono<PermissionGroup> bulkUnassignFromUserGroupsWithoutPermission(PermissionGroup permissionGroup, Set<String> userGroupIds);
+    Mono<PermissionGroup> bulkUnassignFromUserGroupsWithoutPermission(
+            PermissionGroup permissionGroup, Set<String> userGroupIds);
 
     Mono<PermissionGroup> bulkUnassignFromUserGroups(PermissionGroup permissionGroup, Set<UserGroup> userGroups);
 
@@ -34,7 +35,8 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
 
     Flux<PermissionGroup> findAllByAssignedToGroupIdsIn(Set<String> groupIds);
 
-    Flux<PermissionGroup> getAllByAssignedToUserGroupAndDefaultWorkspace(UserGroup userGroup, Workspace defaultWorkspace, AclPermission aclPermission);
+    Flux<PermissionGroup> getAllByAssignedToUserGroupAndDefaultWorkspace(
+            UserGroup userGroup, Workspace defaultWorkspace, AclPermission aclPermission);
 
     Mono<RoleViewDTO> findConfigurableRoleById(String id);
 
@@ -60,18 +62,23 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
 
     Mono<Set<String>> getAllDirectlyAndIndirectlyAssignedUserIds(PermissionGroup permissionGroup);
 
-    Flux<PermissionGroup> getAllDefaultRolesForApplication(Application application, Optional<AclPermission> aclPermission);
+    Flux<PermissionGroup> getAllDefaultRolesForApplication(
+            Application application, Optional<AclPermission> aclPermission);
 
     Mono<PermissionGroup> bulkAssignToUsersAndGroups(PermissionGroup role, List<User> users, List<UserGroup> groups);
 
     Mono<PermissionGroup> assignToUserGroupAndSendEvent(PermissionGroup permissionGroup, UserGroup userGroup);
 
-    Mono<PermissionGroup> bulkAssignToUserGroupsAndSendEvent(PermissionGroup permissionGroup, Set<UserGroup> userGroups);
+    Mono<PermissionGroup> bulkAssignToUserGroupsAndSendEvent(
+            PermissionGroup permissionGroup, Set<UserGroup> userGroups);
 
     Mono<PermissionGroup> unAssignFromUserGroupAndSendEvent(PermissionGroup permissionGroup, UserGroup userGroup);
 
-    Mono<PermissionGroup> bulkUnAssignFromUserGroupsAndSendEvent(PermissionGroup permissionGroup, Set<UserGroup> userGroups);
+    Mono<PermissionGroup> bulkUnAssignFromUserGroupsAndSendEvent(
+            PermissionGroup permissionGroup, Set<UserGroup> userGroups);
 
     Flux<String> getRoleNamesAssignedToUserIds(Set<String> userIds);
 
+    Mono<Boolean> bulkUnAssignUsersAndUserGroupsFromPermissionGroupsWithoutPermission(
+            List<User> users, List<UserGroup> groups, List<PermissionGroup> roles);
 }

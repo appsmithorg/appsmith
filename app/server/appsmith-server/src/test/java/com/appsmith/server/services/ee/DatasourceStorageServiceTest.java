@@ -1,13 +1,11 @@
 package com.appsmith.server.services.ee;
 
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.Property;
-import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.repositories.CustomDatasourceRepository;
+import com.appsmith.server.repositories.DatasourceStorageRepository;
 import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.VariableReplacementService;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +37,7 @@ public class DatasourceStorageServiceTest {
     VariableReplacementService variableReplacementService;
 
     @MockBean
-    CustomDatasourceRepository customDatasourceRepository;
+    DatasourceStorageRepository datasourceStorageRepository;
 
     @Test
     public void testServerSideVariableReplacement() {
@@ -51,29 +49,40 @@ public class DatasourceStorageServiceTest {
         testDatasource.setId("testDatasourceId");
         testDatasource.setDatasourceConfiguration(testConfigurations);
 
-        ActionDTO testActionDTO = new ActionDTO();
-        testActionDTO.setDatasource(testDatasource);
         String renderedValue = "Server Rendered Value";
         Property renderedHeader = new Property(testHeaderKey, renderedValue);
         DatasourceConfiguration renderedConfiguration = new DatasourceConfiguration();
         renderedConfiguration.setHeaders(List.of(renderedHeader));
 
+        String environmentId = "mockEnvironmentId";
+        DatasourceStorage mockStorage = new DatasourceStorage(testDatasource, environmentId);
         Mockito.when(variableReplacementService.replaceValue(Mockito.any())).thenReturn(Mono.just(renderedValue));
         Mockito.when(variableReplacementService.replaceAll(Mockito.any(AppsmithDomain.class)))
                 .thenReturn(Mono.just(renderedConfiguration));
-        Mockito.when(customDatasourceRepository.findById(Mockito.anyString(), Mockito.any(AclPermission.class)))
-                .thenReturn(Mono.just(testDatasource));
+        Mockito.when(datasourceStorageRepository.findByDatasourceIdAndEnvironmentId(Mockito.anyString(), Mockito.any()))
+                .thenReturn(Mono.just(mockStorage));
 
-        Mono<DatasourceStorage> renderedDatasourceStorageMono = datasourceStorageService
-                .findByDatasourceAndEnvironmentIdForExecution(testDatasource, null);
+        Mono<DatasourceStorage> renderedDatasourceStorageMono =
+                datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(testDatasource, null);
 
         StepVerifier.create(renderedDatasourceStorageMono)
                 .assertNext(datasourceStorage -> {
                     assertThat(datasourceStorage).isNotNull();
                     assertThat(datasourceStorage.getDatasourceConfiguration()).isNotNull();
-                    assertThat(datasourceStorage.getDatasourceConfiguration().getHeaders()).isNotEmpty();
-                    assertThat(datasourceStorage.getDatasourceConfiguration().getHeaders().get(0).getKey()).isEqualTo(testHeaderKey);
-                    assertThat(datasourceStorage.getDatasourceConfiguration().getHeaders().get(0).getValue()).isEqualTo(renderedValue);
+                    assertThat(datasourceStorage.getDatasourceConfiguration().getHeaders())
+                            .isNotEmpty();
+                    assertThat(datasourceStorage
+                                    .getDatasourceConfiguration()
+                                    .getHeaders()
+                                    .get(0)
+                                    .getKey())
+                            .isEqualTo(testHeaderKey);
+                    assertThat(datasourceStorage
+                                    .getDatasourceConfiguration()
+                                    .getHeaders()
+                                    .get(0)
+                                    .getValue())
+                            .isEqualTo(renderedValue);
                 })
                 .verifyComplete();
     }

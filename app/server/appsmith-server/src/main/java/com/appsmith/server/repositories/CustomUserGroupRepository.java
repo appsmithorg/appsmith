@@ -1,7 +1,9 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.dtos.PagedDomain;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
@@ -19,11 +21,27 @@ public interface CustomUserGroupRepository extends AppsmithRepository<UserGroup>
 
     Flux<UserGroup> findAllByIds(Set<String> ids, AclPermission aclPermission);
 
+    Flux<UserGroup> findAllByUsersIn(Set<String> userIds, AclPermission aclPermission);
+
     Mono<UpdateResult> updateById(String id, Update updateObj);
 
     Mono<UserGroup> findByIdAndTenantIdithoutPermission(String id, String tenantId);
 
     Mono<Long> countAllReadableUserGroups();
 
-    Flux<UserGroup> getAllByUsersIn(Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission);
+    Flux<UserGroup> getAllByUsersIn(
+            Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission);
+
+    Mono<PagedDomain<UserGroup>> findUserGroupsWithParamsPaginated(
+            int count,
+            int startIndex,
+            List<String> groupNames,
+            List<String> filterUserIds,
+            Optional<AclPermission> aclPermission);
+
+    Flux<UserGroup> getAllUserGroupsByIsProvisioned(
+            boolean isProvisioned, Optional<List<String>> includeFields, Optional<AclPermission> aclPermission);
+
+    Mono<Boolean> updateProvisionedUserGroupsPoliciesAndIsProvisionedWithoutPermission(
+            Boolean isProvisioned, Set<Policy> policies);
 }

@@ -84,30 +84,28 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
 
         URI uri = uriBuilder.build(true).toUri();
 
-        return getAccessTokenForAdministrativeTask()
-                .flatMap(accessToken -> {
-                    webClientBuilder.defaultHeader(AUTHORIZATION, "Bearer " + accessToken);
-                    WebClient webClient = webClientBuilder.build();
+        return getAccessTokenForAdministrativeTask().flatMap(accessToken -> {
+            webClientBuilder.defaultHeader(AUTHORIZATION, "Bearer " + accessToken);
+            WebClient webClient = webClientBuilder.build();
 
-                    return webClient
-                            .method(HttpMethod.POST)
-                            .uri(uri)
-                            .body(BodyInserters.fromValue(realmRepresentation))
-                            .exchange()
-                            .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
-                            .flatMap(stringResponseEntity -> {
-                                HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
-                                if (!statusCode.is2xxSuccessful()) {
-                                    return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
-                                            generateErrorMessage(stringResponseEntity)));
-                                }
+            return webClient
+                    .method(HttpMethod.POST)
+                    .uri(uri)
+                    .body(BodyInserters.fromValue(realmRepresentation))
+                    .exchange()
+                    .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
+                    .flatMap(stringResponseEntity -> {
+                        HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
+                        if (!statusCode.is2xxSuccessful()) {
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.SAML_CONFIGURATION_FAILURE,
+                                    generateErrorMessage(stringResponseEntity)));
+                        }
 
-                                return Mono.just(TRUE);
-                            });
-                });
-
+                        return Mono.just(TRUE);
+                    });
+        });
     }
-
 
     @Override
     public Mono<Boolean> createClient(String baseUrl) {
@@ -126,17 +124,10 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
         clientRepresentation.put("attributes", new HashMap<>());
         clientRepresentation.put("authenticationFlowBindingOverrides", new HashMap<>());
         clientRepresentation.put("fullScopeAllowed", true);
-        clientRepresentation.put("defaultClientScopes", List.of("web-origins",
-                "roles",
-                "profile",
-                "email"));
-        clientRepresentation.put("optionalClientScopes", List.of("address",
-                "phone",
-                "offline_access",
-                "microprofile-jwt"));
-        clientRepresentation.put("access", Map.of("view", true,
-                "configure", true,
-                "manage", true));
+        clientRepresentation.put("defaultClientScopes", List.of("web-origins", "roles", "profile", "email"));
+        clientRepresentation.put(
+                "optionalClientScopes", List.of("address", "phone", "offline_access", "microprofile-jwt"));
+        clientRepresentation.put("access", Map.of("view", true, "configure", true, "manage", true));
         clientRepresentation.put("authorizationServicesEnabled", "");
 
         WebClient.Builder webClientBuilder = WebClient.builder();
@@ -151,27 +142,27 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
 
         URI uri = uriBuilder.build(true).toUri();
 
-        return getAccessTokenForAdministrativeTask()
-                .flatMap(accessToken -> {
-                    webClientBuilder.defaultHeader(AUTHORIZATION, "Bearer " + accessToken);
-                    WebClient webClient = webClientBuilder.build();
+        return getAccessTokenForAdministrativeTask().flatMap(accessToken -> {
+            webClientBuilder.defaultHeader(AUTHORIZATION, "Bearer " + accessToken);
+            WebClient webClient = webClientBuilder.build();
 
-                    return webClient
-                            .method(HttpMethod.POST)
-                            .uri(uri)
-                            .body(BodyInserters.fromValue(clientRepresentation))
-                            .exchange()
-                            .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
-                            .flatMap(stringResponseEntity -> {
-                                HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
-                                if (!statusCode.is2xxSuccessful()) {
-                                    return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
-                                            generateErrorMessage(stringResponseEntity)));
-                                }
+            return webClient
+                    .method(HttpMethod.POST)
+                    .uri(uri)
+                    .body(BodyInserters.fromValue(clientRepresentation))
+                    .exchange()
+                    .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
+                    .flatMap(stringResponseEntity -> {
+                        HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
+                        if (!statusCode.is2xxSuccessful()) {
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.SAML_CONFIGURATION_FAILURE,
+                                    generateErrorMessage(stringResponseEntity)));
+                        }
 
-                                return Mono.just(TRUE);
-                            });
-                });
+                        return Mono.just(TRUE);
+                    });
+        });
     }
 
     public Mono<String> generateClientSecret() {
@@ -218,7 +209,8 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                                         JsonNode jsonNode = objectMapper.readTree(jsonBody);
                                         return Mono.just(jsonNode.get("value").asText());
                                     } catch (IOException e) {
-                                        return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, jsonBody, e));
+                                        return Mono.error(new AppsmithException(
+                                                AppsmithError.JSON_PROCESSING_ERROR, jsonBody, e));
                                     }
                                 }
 
@@ -241,44 +233,45 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
 
         URI uri = uriBuilder.build(true).toUri();
 
-        return getAccessTokenForAdministrativeTask()
-                .flatMap(accessToken -> {
-                    webClientBuilder.defaultHeader(AUTHORIZATION, "Bearer " + accessToken);
-                    WebClient webClient = webClientBuilder.build();
+        return getAccessTokenForAdministrativeTask().flatMap(accessToken -> {
+            webClientBuilder.defaultHeader(AUTHORIZATION, "Bearer " + accessToken);
+            WebClient webClient = webClientBuilder.build();
 
-                    return webClient
-                            .method(HttpMethod.GET)
-                            .uri(uri)
-                            .exchange()
-                            .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
-                            .flatMap(stringResponseEntity -> {
-                                HttpHeaders headers = stringResponseEntity.getHeaders();
-                                // Find the media type of the response to parse the body as required.
-                                MediaType contentType = headers.getContentType();
-                                byte[] body = stringResponseEntity.getBody();
+            return webClient
+                    .method(HttpMethod.GET)
+                    .uri(uri)
+                    .exchange()
+                    .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
+                    .flatMap(stringResponseEntity -> {
+                        HttpHeaders headers = stringResponseEntity.getHeaders();
+                        // Find the media type of the response to parse the body as required.
+                        MediaType contentType = headers.getContentType();
+                        byte[] body = stringResponseEntity.getBody();
 
-                                if (body != null && MediaType.APPLICATION_JSON.equals(contentType)) {
-                                    String jsonBody = new String(body);
-                                    try {
-                                        JsonNode jsonNode = objectMapper.readTree(jsonBody);
-                                        if (jsonNode != null && JsonNodeType.ARRAY.equals(jsonNode.getNodeType())) {
-                                            Iterator<JsonNode> iter = jsonNode.elements();
-                                            while (iter.hasNext()) {
-                                                JsonNode element = iter.next();
-                                                String clientName = element.get("clientId").asText();
-                                                if (clientId.equals(clientName)) {
-                                                    return Mono.just(element.get("id").asText());
-                                                }
-                                            }
+                        if (body != null && MediaType.APPLICATION_JSON.equals(contentType)) {
+                            String jsonBody = new String(body);
+                            try {
+                                JsonNode jsonNode = objectMapper.readTree(jsonBody);
+                                if (jsonNode != null && JsonNodeType.ARRAY.equals(jsonNode.getNodeType())) {
+                                    Iterator<JsonNode> iter = jsonNode.elements();
+                                    while (iter.hasNext()) {
+                                        JsonNode element = iter.next();
+                                        String clientName =
+                                                element.get("clientId").asText();
+                                        if (clientId.equals(clientName)) {
+                                            return Mono.just(element.get("id").asText());
                                         }
-                                    } catch (IOException e) {
-                                        return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, jsonBody, e));
                                     }
                                 }
+                            } catch (IOException e) {
+                                return Mono.error(
+                                        new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, jsonBody, e));
+                            }
+                        }
 
-                                return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
-                            });
-                });
+                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                    });
+        });
     }
 
     @Override
@@ -299,48 +292,49 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
 
         URI uri = uriBuilder.build(true).toUri();
 
-        return getAccessTokenForAdministrativeTask()
-                .flatMap(accessToken -> {
-                    webClientBuilder.defaultHeader(AUTHORIZATION, "Bearer " + accessToken);
-                    WebClient webClient = webClientBuilder.build();
+        return getAccessTokenForAdministrativeTask().flatMap(accessToken -> {
+            webClientBuilder.defaultHeader(AUTHORIZATION, "Bearer " + accessToken);
+            WebClient webClient = webClientBuilder.build();
 
-                    return webClient
-                            .method(HttpMethod.POST)
-                            .uri(uri)
-                            .body(BodyInserters.fromValue(idPImportRequest))
-                            .exchange()
-                            .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
-                            .flatMap(stringResponseEntity -> {
-                                HttpHeaders headers = stringResponseEntity.getHeaders();
-                                // Find the media type of the response to parse the body as required.
-                                MediaType contentType = headers.getContentType();
-                                HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
-                                if (!statusCode.is2xxSuccessful()) {
-                                    return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
-                                            generateErrorMessage(stringResponseEntity)));
-                                }
+            return webClient
+                    .method(HttpMethod.POST)
+                    .uri(uri)
+                    .body(BodyInserters.fromValue(idPImportRequest))
+                    .exchange()
+                    .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
+                    .flatMap(stringResponseEntity -> {
+                        HttpHeaders headers = stringResponseEntity.getHeaders();
+                        // Find the media type of the response to parse the body as required.
+                        MediaType contentType = headers.getContentType();
+                        HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
+                        if (!statusCode.is2xxSuccessful()) {
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.SAML_CONFIGURATION_FAILURE,
+                                    generateErrorMessage(stringResponseEntity)));
+                        }
 
-                                byte[] body = stringResponseEntity.getBody();
+                        byte[] body = stringResponseEntity.getBody();
 
-                                if (body != null && MediaType.APPLICATION_JSON.equals(contentType)) {
-                                    String jsonBody = new String(body);
-                                    try {
-                                        TypeReference<Map<String, Object>> tr = new TypeReference<>() {
-                                        };
-                                        Map<String, Object> responseMap = objectMapper.readValue(jsonBody, tr);
-                                        return Mono.just(responseMap);
-                                    } catch (IOException e) {
-                                        return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, jsonBody, e));
-                                    }
-                                }
+                        if (body != null && MediaType.APPLICATION_JSON.equals(contentType)) {
+                            String jsonBody = new String(body);
+                            try {
+                                TypeReference<Map<String, Object>> tr = new TypeReference<>() {};
+                                Map<String, Object> responseMap = objectMapper.readValue(jsonBody, tr);
+                                return Mono.just(responseMap);
+                            } catch (IOException e) {
+                                return Mono.error(
+                                        new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, jsonBody, e));
+                            }
+                        }
 
-                                return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
-                            });
-                });
+                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                    });
+        });
     }
 
     @Override
-    public Mono<Boolean> createSamlIdentityProviderOnKeycloak(Map<String, Object> identityProviderRequest, Map<String, String> claims) {
+    public Mono<Boolean> createSamlIdentityProviderOnKeycloak(
+            Map<String, Object> identityProviderRequest, Map<String, String> claims) {
 
         WebClient.Builder webClientBuilder = WebClient.builder();
         webClientBuilder.defaultHeader(HttpHeaders.CONTENT_TYPE, String.valueOf(MediaType.APPLICATION_JSON));
@@ -354,27 +348,27 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
 
         URI uri = uriBuilder.build(true).toUri();
 
-        Mono<Boolean> idpCreateMono = getAccessTokenForAdministrativeTask()
-                .flatMap(accessToken -> {
-                    webClientBuilder.defaultHeader(AUTHORIZATION, "Bearer " + accessToken);
-                    WebClient webClient = webClientBuilder.build();
+        Mono<Boolean> idpCreateMono = getAccessTokenForAdministrativeTask().flatMap(accessToken -> {
+            webClientBuilder.defaultHeader(AUTHORIZATION, "Bearer " + accessToken);
+            WebClient webClient = webClientBuilder.build();
 
-                    return webClient
-                            .method(HttpMethod.POST)
-                            .uri(uri)
-                            .body(BodyInserters.fromValue(identityProviderRequest))
-                            .exchange()
-                            .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
-                            .flatMap(stringResponseEntity -> {
-                                HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
-                                if (!statusCode.is2xxSuccessful()) {
-                                    return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
-                                            generateErrorMessage(stringResponseEntity)));
-                                }
+            return webClient
+                    .method(HttpMethod.POST)
+                    .uri(uri)
+                    .body(BodyInserters.fromValue(identityProviderRequest))
+                    .exchange()
+                    .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
+                    .flatMap(stringResponseEntity -> {
+                        HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
+                        if (!statusCode.is2xxSuccessful()) {
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.SAML_CONFIGURATION_FAILURE,
+                                    generateErrorMessage(stringResponseEntity)));
+                        }
 
-                                return Mono.just(TRUE);
-                            });
-                });
+                        return Mono.just(TRUE);
+                    });
+        });
 
         // Now create mappers in IDP for the custom claims if present.
         if (CollectionUtils.isEmpty(claims)) {
@@ -438,7 +432,8 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                             .flatMap(stringResponseEntity -> {
                                 HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
                                 if (!statusCode.is2xxSuccessful()) {
-                                    return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
+                                    return Mono.error(new AppsmithException(
+                                            AppsmithError.SAML_CONFIGURATION_FAILURE,
                                             generateErrorMessage(stringResponseEntity)));
                                 }
 
@@ -449,8 +444,7 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
         return idpMapperCreateMono;
     }
 
-    @NotNull
-    private static String getUserAttribute(String claim) {
+    @NotNull private static String getUserAttribute(String claim) {
         return "user-attribute-" + claim;
     }
 
@@ -486,7 +480,8 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
     }
 
     @Override
-    public Mono<Boolean> createSamlIdentityProviderExplicitConfiguration(Map<String, Object> configuration, String baseUrl, Map<String, String> claims) {
+    public Mono<Boolean> createSamlIdentityProviderExplicitConfiguration(
+            Map<String, Object> configuration, String baseUrl, Map<String, String> claims) {
 
         if (configuration == null || configuration.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "SAML configuration"));
@@ -518,7 +513,6 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
         configuration.put("nameIDPolicyFormat", emailField);
 
         return createSamlIdentityProviderOnKeycloak(generateSamlIdpFromConfig(configuration, baseUrl), claims);
-
     }
 
     private Map<String, Object> generateSamlIdpFromConfig(Map<String, Object> configuration, String baseUrl) {
@@ -542,9 +536,9 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
         return identityProviderRequest;
     }
 
-
     @Override
-    public Mono<Boolean> createSamlIdentityProviderFromIdpConfigFromUrl(Map<String, String> request, String baseUrl, Map<String, String> claims) {
+    public Mono<Boolean> createSamlIdentityProviderFromIdpConfigFromUrl(
+            Map<String, String> request, String baseUrl, Map<String, String> claims) {
 
         WebClient.Builder webClientBuilder = WebClient.builder();
         webClientBuilder.defaultHeader(HttpHeaders.CONTENT_TYPE, String.valueOf(MediaType.APPLICATION_JSON));
@@ -558,10 +552,9 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
 
         URI uri = uriBuilder.build(true).toUri();
 
-
         return importSamlConfigFromUrl(request, baseUrl)
-                .flatMap(parsedConfigMap -> createSamlIdentityProviderOnKeycloak(generateSamlIdpFromConfig(parsedConfigMap, baseUrl), claims));
-
+                .flatMap(parsedConfigMap -> createSamlIdentityProviderOnKeycloak(
+                        generateSamlIdpFromConfig(parsedConfigMap, baseUrl), claims));
     }
 
     private Mono<String> getAccessTokenForAdministrativeTask() {
@@ -581,11 +574,10 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
         return webClient
                 .method(HttpMethod.POST)
                 .uri(uri)
-                .body(
-                        BodyInserters.fromFormData("grant_type", "password")
-                                .with("client_id", "admin-cli")
-                                .with("username", config.getUsername())
-                                .with("password", config.getPassword()))
+                .body(BodyInserters.fromFormData("grant_type", "password")
+                        .with("client_id", "admin-cli")
+                        .with("username", config.getUsername())
+                        .with("password", config.getPassword()))
                 .exchange()
                 .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                 .flatMap(stringResponseEntity -> {
@@ -602,7 +594,6 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                         } catch (IOException e) {
                             return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, jsonBody, e));
                         }
-
                     }
 
                     return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
@@ -623,39 +614,40 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
 
         URI uri = uriBuilder.build(true).toUri();
 
-        return getAccessTokenForAdministrativeTask()
-                .flatMap(accessToken -> {
-                    webClientBuilder.defaultHeader(AUTHORIZATION, "Bearer " + accessToken);
-                    WebClient webClient = webClientBuilder.build();
+        return getAccessTokenForAdministrativeTask().flatMap(accessToken -> {
+            webClientBuilder.defaultHeader(AUTHORIZATION, "Bearer " + accessToken);
+            WebClient webClient = webClientBuilder.build();
 
-                    return webClient
-                            .method(HttpMethod.DELETE)
-                            .uri(uri)
-                            .exchange()
-                            .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
-                            .flatMap(stringResponseEntity -> {
-                                HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
+            return webClient
+                    .method(HttpMethod.DELETE)
+                    .uri(uri)
+                    .exchange()
+                    .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
+                    .flatMap(stringResponseEntity -> {
+                        HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
 
-                                if (!statusCode.is2xxSuccessful()) {
-                                    return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
-                                            generateErrorMessage(stringResponseEntity)));
-                                }
+                        if (!statusCode.is2xxSuccessful()) {
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.SAML_CONFIGURATION_FAILURE,
+                                    generateErrorMessage(stringResponseEntity)));
+                        }
 
-                                return Mono.just(TRUE);
-                            });
-                });
+                        return Mono.just(TRUE);
+                    });
+        });
     }
 
     @Override
-    public Mono<Boolean> createSamlIdentityProviderFromXml(String importFromXml, String baseUrl, Map<String, String> claims) {
+    public Mono<Boolean> createSamlIdentityProviderFromXml(
+            String importFromXml, String baseUrl, Map<String, String> claims) {
 
         String decodedXML = StringEscapeUtils.unescapeHtml4(importFromXml);
         byte[] xmlBytes = decodedXML.getBytes(StandardCharsets.UTF_8);
         DataBuffer dataBuffer = dataBufferFactory.wrap(xmlBytes);
 
         return importSamlConfigFromData(dataBuffer)
-                .flatMap(parsedConfigMap -> createSamlIdentityProviderOnKeycloak(generateSamlIdpFromConfig(parsedConfigMap, baseUrl), claims));
-
+                .flatMap(parsedConfigMap -> createSamlIdentityProviderOnKeycloak(
+                        generateSamlIdpFromConfig(parsedConfigMap, baseUrl), claims));
     }
 
     private Mono<Map<String, Object>> importSamlConfigFromData(DataBuffer request) {
@@ -676,45 +668,45 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
         builder.part("file", request);
         builder.part("providerId", "saml");
 
-        return getAccessTokenForAdministrativeTask()
-                .flatMap(accessToken -> {
-                    webClientBuilder.defaultHeader(AUTHORIZATION, "Bearer " + accessToken);
-                    WebClient webClient = webClientBuilder.build();
+        return getAccessTokenForAdministrativeTask().flatMap(accessToken -> {
+            webClientBuilder.defaultHeader(AUTHORIZATION, "Bearer " + accessToken);
+            WebClient webClient = webClientBuilder.build();
 
-                    return webClient
-                            .method(HttpMethod.POST)
-                            .uri(uri)
-                            .body(BodyInserters.fromMultipartData(builder.build()))
-                            .exchange()
-                            .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
-                            .flatMap(stringResponseEntity -> {
-                                HttpHeaders headers = stringResponseEntity.getHeaders();
-                                // Find the media type of the response to parse the body as required.
-                                MediaType contentType = headers.getContentType();
-                                HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
+            return webClient
+                    .method(HttpMethod.POST)
+                    .uri(uri)
+                    .body(BodyInserters.fromMultipartData(builder.build()))
+                    .exchange()
+                    .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
+                    .flatMap(stringResponseEntity -> {
+                        HttpHeaders headers = stringResponseEntity.getHeaders();
+                        // Find the media type of the response to parse the body as required.
+                        MediaType contentType = headers.getContentType();
+                        HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
 
-                                if (!statusCode.is2xxSuccessful()) {
-                                    return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
-                                            generateErrorMessage(stringResponseEntity)));
-                                }
+                        if (!statusCode.is2xxSuccessful()) {
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.SAML_CONFIGURATION_FAILURE,
+                                    generateErrorMessage(stringResponseEntity)));
+                        }
 
-                                byte[] body = stringResponseEntity.getBody();
+                        byte[] body = stringResponseEntity.getBody();
 
-                                if (body != null && MediaType.APPLICATION_JSON.equals(contentType)) {
-                                    String jsonBody = new String(body);
-                                    try {
-                                        TypeReference<Map<String, Object>> tr = new TypeReference<>() {
-                                        };
-                                        Map<String, Object> responseMap = objectMapper.readValue(jsonBody, tr);
-                                        return Mono.just(responseMap);
-                                    } catch (IOException e) {
-                                        return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE, jsonBody, e));
-                                    }
-                                }
+                        if (body != null && MediaType.APPLICATION_JSON.equals(contentType)) {
+                            String jsonBody = new String(body);
+                            try {
+                                TypeReference<Map<String, Object>> tr = new TypeReference<>() {};
+                                Map<String, Object> responseMap = objectMapper.readValue(jsonBody, tr);
+                                return Mono.just(responseMap);
+                            } catch (IOException e) {
+                                return Mono.error(
+                                        new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE, jsonBody, e));
+                            }
+                        }
 
-                                return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE));
-                            });
-                });
+                        return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE));
+                    });
+        });
     }
 
     @Override
@@ -727,8 +719,7 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
             mapperCreateMonos.add(createClientMapperOnKeycloak(claim));
         }
 
-        return Flux.merge(mapperCreateMonos)
-                .then(Mono.just(TRUE));
+        return Flux.merge(mapperCreateMonos).then(Mono.just(TRUE));
     }
 
     private Mono<Boolean> createClientMapperOnKeycloak(String claim) {
@@ -778,7 +769,8 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                             .flatMap(stringResponseEntity -> {
                                 HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
                                 if (!statusCode.is2xxSuccessful()) {
-                                    return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
+                                    return Mono.error(new AppsmithException(
+                                            AppsmithError.SAML_CONFIGURATION_FAILURE,
                                             generateErrorMessage(stringResponseEntity)));
                                 }
 

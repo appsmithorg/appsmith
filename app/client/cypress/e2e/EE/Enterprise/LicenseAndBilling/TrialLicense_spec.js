@@ -109,4 +109,28 @@ describe("excludeForAirgap", "Trial License", function () {
     );
     cy.get(LicenseLocators.warningBanner).should("not.exist");
   });
+  it("7. should have Enterprise text in banner for Enterprise", () => {
+    cy.interceptLicenseApi({
+      licenseStatus: "ACTIVE",
+      licenseType: "TRIAL",
+      licenseOrigin: "ENTERPRISE",
+    });
+    cy.reload();
+    cy.get(LicenseLocators.warninngBannerContinueText).should(
+      "contain.text",
+      "Appsmith Enterprise",
+    );
+  });
+  it("8. should have Business text in banner for Business", () => {
+    cy.interceptLicenseApi({
+      licenseStatus: "ACTIVE",
+      licenseType: "TRIAL",
+      licenseOrigin: "SELF_SERVE",
+    });
+    cy.reload();
+    cy.get(LicenseLocators.warninngBannerContinueText).should(
+      "contain.text",
+      "Appsmith Business",
+    );
+  });
 });

@@ -7,7 +7,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 import type { CodeScannerWidgetProps } from "../constants";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
 class CodeScannerWidget extends BaseWidget<
@@ -16,6 +16,21 @@ class CodeScannerWidget extends BaseWidget<
 > {
   static getPropertyPaneContentConfig() {
     return contentConfig;
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisable: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+      },
+    };
   }
 
   static getPropertyPaneStyleConfig() {
@@ -70,6 +85,7 @@ class CodeScannerWidget extends BaseWidget<
         onCodeDetected={this.onCodeDetected}
         placement={this.props.placement}
         scannerLayout={this.props.scannerLayout}
+        shouldButtonFitContent={this.isAutoLayoutMode}
         tooltip={this.props.tooltip}
         widgetId={this.props.widgetId}
       />

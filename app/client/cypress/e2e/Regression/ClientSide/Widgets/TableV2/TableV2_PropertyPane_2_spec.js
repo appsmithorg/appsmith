@@ -11,9 +11,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
-    cy.fixture("tableV2NewDslWithPagination").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableV2NewDslWithPagination");
   });
 
   it("1. Test to validate text color and text background", function () {
@@ -109,9 +107,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   });
 
   it("4. It provides currentRow and currentIndex properties in min validation field", function () {
-    cy.fixture("tableV2NewDslWithPagination").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableV2NewDslWithPagination");
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("orderAmount");
     cy.editColumn("orderAmount");

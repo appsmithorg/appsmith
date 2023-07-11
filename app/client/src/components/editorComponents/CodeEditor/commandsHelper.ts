@@ -52,6 +52,8 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
         enableAIAssistance: boolean;
       },
     ): boolean => {
+      // @ts-expect-error: Types are not available
+      editor.closeHint();
       const { entityType } = entityInfo;
       const currentEntityType =
         entityType || ENTITY_TYPE.ACTION || ENTITY_TYPE.JSACTION;
@@ -78,7 +80,6 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
             featureFlags,
             enableAIAssistance,
           },
-          entityInfo,
         );
         let currentSelection: CommandsCompletion = {
           origin: "",
@@ -99,7 +100,7 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
                 line: cursor.line,
               },
               to: editor.getCursor(),
-              selectedHint: 1,
+              selectedHint: list[0]?.isHeader ? 1 : 0,
             };
             function handleSelection(selected: CommandsCompletion) {
               currentSelection = selected;
@@ -157,8 +158,6 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
         });
         return true;
       }
-      // @ts-expect-error: Types are not available
-      editor.closeHint();
       return false;
     },
   };

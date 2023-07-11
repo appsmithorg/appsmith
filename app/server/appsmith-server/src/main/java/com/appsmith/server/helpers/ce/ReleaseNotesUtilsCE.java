@@ -9,5 +9,4 @@ import java.util.List;
 public interface ReleaseNotesUtilsCE {
 
     Mono<List<ReleaseNode>> getReleaseNodes(List<ReleaseNode> releaseNodesCache, Instant cacheExpiryTime);
-
 }

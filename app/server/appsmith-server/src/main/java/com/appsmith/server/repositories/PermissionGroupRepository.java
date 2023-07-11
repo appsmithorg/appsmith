@@ -10,5 +10,6 @@ import java.util.Set;
 @Repository
 public interface PermissionGroupRepository extends PermissionGroupRepositoryCE, CustomPermissionGroupRepository {
     Flux<PermissionGroup> findAllByAssignedToGroupIdsIn(Set<String> groupIds);
+
     Flux<PermissionGroup> findAllByAssignedToUserIdsIn(Set<String> userIds);
 }

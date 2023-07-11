@@ -3,7 +3,7 @@ import React from "react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { createBlobUrl } from "utils/AppsmithUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -235,6 +235,21 @@ class AudioRecorderWidget extends BaseWidget<
       });
     }
   };
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+      },
+    };
+  }
 
   getPageView() {
     const {

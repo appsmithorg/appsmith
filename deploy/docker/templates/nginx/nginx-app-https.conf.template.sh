@@ -112,6 +112,8 @@ server {
   }
 
   location /api {
+    proxy_read_timeout ${APPSMITH_SERVER_TIMEOUT:-60};
+    proxy_send_timeout ${APPSMITH_SERVER_TIMEOUT:-60};
     proxy_pass http://localhost:8080;
   }
 
@@ -133,6 +135,11 @@ server {
     proxy_set_header Host \$host;
     proxy_set_header Connection 'upgrade';
     proxy_set_header Upgrade \$http_upgrade;
+  }
+
+  location /scim {
+    proxy_pass http://localhost:8886;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
   }
 
   location /auth {

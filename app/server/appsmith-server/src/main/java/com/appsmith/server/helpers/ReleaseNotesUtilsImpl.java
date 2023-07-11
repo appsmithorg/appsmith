@@ -20,12 +20,13 @@ public class ReleaseNotesUtilsImpl extends ReleaseNotesUtilsCEImpl implements Re
 
     private final AirgapInstanceConfig airgapInstanceConfig;
 
-    public ReleaseNotesUtilsImpl(CloudServicesConfig cloudServicesConfig,
-                                 CommonConfig commonConfig,
-                                 SegmentConfig segmentConfig,
-                                 ConfigService configService,
-                                 ProjectProperties projectProperties,
-                                 AirgapInstanceConfig airgapInstanceConfig) {
+    public ReleaseNotesUtilsImpl(
+            CloudServicesConfig cloudServicesConfig,
+            CommonConfig commonConfig,
+            SegmentConfig segmentConfig,
+            ConfigService configService,
+            ProjectProperties projectProperties,
+            AirgapInstanceConfig airgapInstanceConfig) {
 
         super(cloudServicesConfig, commonConfig, segmentConfig, configService, projectProperties);
         this.airgapInstanceConfig = airgapInstanceConfig;

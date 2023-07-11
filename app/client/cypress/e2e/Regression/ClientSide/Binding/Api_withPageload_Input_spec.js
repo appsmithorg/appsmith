@@ -5,9 +5,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the API with pageOnLoad and input Widgets", function () {
   before(() => {
-    cy.fixture("MultipleInput").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("MultipleInput");
   });
 
   it("1. Will load an api on load", function () {

@@ -5,6 +5,4 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class EnvironmentResourceDTO extends BaseView {
-
-}
+public class EnvironmentResourceDTO extends BaseView {}

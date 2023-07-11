@@ -3,11 +3,8 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
-
 const items = dsl.dsl.children[4]?.listData;
-
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
-
 function testJsontextClear(endp) {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
@@ -47,7 +44,7 @@ const verifyDefaultItem = () => {
 };
 
 function setUpDataSource() {
-  cy.createAndFillApi("https://api.punkapi.com/v2/beers", "");
+  _.apiPage.CreateAndFillApi(_.tedTestConfig.mockApiUrl + "0");
   cy.RunAPI();
   _.entityExplorer.SelectEntityByName("List1");
   cy.wait(200);
@@ -55,9 +52,7 @@ function setUpDataSource() {
 
 describe("List widget v2 defaultSelectedItem", () => {
   before(() => {
-    cy.fixture("Listv2/ListV2_Reset_dsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Listv2/ListV2_Reset_dsl");
   });
 
   it("1. Loads the Page with the default Selected Item", () => {

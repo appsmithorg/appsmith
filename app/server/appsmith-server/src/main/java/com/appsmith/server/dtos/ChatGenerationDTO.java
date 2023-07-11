@@ -30,7 +30,6 @@ public class ChatGenerationDTO {
         String datasourceId;
 
         ChatGenerationDatasourceStructure datasourceStructure;
-
     }
 
     @AllArgsConstructor

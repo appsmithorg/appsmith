@@ -30,9 +30,8 @@ public class CustomOidcUserServiceImpl extends CustomOidcUserServiceCEImpl
     private final UserDataService userDataService;
 
     @Autowired
-    public CustomOidcUserServiceImpl(UserRepository repository,
-                                     UserService userService,
-                                     UserDataService userDataService) {
+    public CustomOidcUserServiceImpl(
+            UserRepository repository, UserService userService, UserDataService userDataService) {
 
         super(repository, userService);
         this.repository = repository;
@@ -48,28 +47,24 @@ public class CustomOidcUserServiceImpl extends CustomOidcUserServiceCEImpl
     @Override
     public Mono<User> checkAndCreateUser(OidcUser oidcUser, OidcUserRequest userRequest) {
 
-        return super.checkAndCreateUser(oidcUser, userRequest)
-                .flatMap(user -> {
-                    final UserData updates = new UserData();
+        return super.checkAndCreateUser(oidcUser, userRequest).flatMap(user -> {
+            final UserData updates = new UserData();
 
-                    OAuth2AccessToken accessToken = userRequest.getAccessToken();
-                    Map<String, Object> idTokenClaims = userRequest.getIdToken().getClaims();
-                    Map<String, Object> userClaims = oidcUser.getUserInfo().getClaims();
+            OAuth2AccessToken accessToken = userRequest.getAccessToken();
+            Map<String, Object> idTokenClaims = userRequest.getIdToken().getClaims();
+            Map<String, Object> userClaims = oidcUser.getUserInfo().getClaims();
 
-                    updates.setOidcAccessToken(
-                            new AppsmithOidcAccessToken(
-                                    accessToken.getTokenType(),
-                                    accessToken.getScopes(),
-                                    accessToken.getTokenValue(),
-                                    accessToken.getIssuedAt(),
-                                    accessToken.getExpiresAt())
-                    );
+            updates.setOidcAccessToken(new AppsmithOidcAccessToken(
+                    accessToken.getTokenType(),
+                    accessToken.getScopes(),
+                    accessToken.getTokenValue(),
+                    accessToken.getIssuedAt(),
+                    accessToken.getExpiresAt()));
 
-                    updates.setUserClaims(userClaims);
-                    updates.setOidcIdTokenClaims(idTokenClaims);
+            updates.setUserClaims(userClaims);
+            updates.setOidcIdTokenClaims(idTokenClaims);
 
-                    return userDataService.updateForUser(user, updates)
-                            .thenReturn(user);
-                });
+            return userDataService.updateForUser(user, updates).thenReturn(user);
+        });
     }
 }

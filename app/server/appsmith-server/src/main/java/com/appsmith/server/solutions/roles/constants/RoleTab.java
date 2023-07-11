@@ -82,7 +82,6 @@ import static com.appsmith.server.solutions.roles.constants.PermissionViewableNa
  */
 @Getter
 public enum RoleTab {
-
     APPLICATION_RESOURCES(
             "Application Resources",
             Set.of(
@@ -111,19 +110,10 @@ public enum RoleTab {
                     // Action level permissions
                     MANAGE_ACTIONS,
                     DELETE_ACTIONS,
-                    READ_ACTIONS
-            ),
-            List.of(
-                    CREATE,
-                    EDIT,
-                    DELETE,
-                    VIEW,
-                    MAKE_PUBLIC,
-                    EXPORT
-            ),
+                    READ_ACTIONS),
+            List.of(CREATE, EDIT, DELETE, VIEW, MAKE_PUBLIC, EXPORT),
             // No duplicate entities for this tab
-            null
-    ),
+            null),
     DATASOURCES_QUERIES(
             "Datasources & Queries",
             Set.of(
@@ -148,18 +138,10 @@ public enum RoleTab {
                     EXECUTE_ACTIONS,
 
                     // environment level permissions
-                    EXECUTE_ENVIRONMENTS
-            ),
-            List.of(
-                    EXECUTE,
-                    CREATE,
-                    EDIT,
-                    DELETE,
-                    VIEW
-            ),
+                    EXECUTE_ENVIRONMENTS),
+            List.of(EXECUTE, CREATE, EDIT, DELETE, VIEW),
             // No duplicate entities for this tab
-            null
-    ),
+            null),
     GROUPS_ROLES(
             "Groups & Roles",
             Set.of(
@@ -189,32 +171,25 @@ public enum RoleTab {
                     MANAGE_PERMISSION_GROUPS,
                     DELETE_PERMISSION_GROUPS,
                     READ_PERMISSION_GROUPS,
-                    ASSIGN_PERMISSION_GROUPS
-            ),
+                    ASSIGN_PERMISSION_GROUPS),
+            List.of(CREATE, EDIT, DELETE, VIEW, INVITE_USER, REMOVE_USER, ASSOCIATE_ROLE),
             List.of(
-                    CREATE,
-                    EDIT,
-                    DELETE,
-                    VIEW,
-                    INVITE_USER,
-                    REMOVE_USER,
-                    ASSOCIATE_ROLE
-            ),
-            List.of(
-                    Tuples.of("Groups", Tenant.class,
-                            List.of(CREATE_USER_GROUPS,
+                    Tuples.of(
+                            "Groups",
+                            Tenant.class,
+                            List.of(
+                                    CREATE_USER_GROUPS,
                                     TENANT_MANAGE_USER_GROUPS,
                                     TENANT_READ_USER_GROUPS,
-                                    TENANT_DELETE_USER_GROUPS)
-                    ),
-                    Tuples.of("Roles", Tenant.class,
-                            List.of(CREATE_PERMISSION_GROUPS,
+                                    TENANT_DELETE_USER_GROUPS)),
+                    Tuples.of(
+                            "Roles",
+                            Tenant.class,
+                            List.of(
+                                    CREATE_PERMISSION_GROUPS,
                                     TENANT_MANAGE_PERMISSION_GROUPS,
                                     TENANT_READ_PERMISSION_GROUPS,
-                                    TENANT_DELETE_PERMISSION_GROUPS)
-                    )
-            )
-    ),
+                                    TENANT_DELETE_PERMISSION_GROUPS)))),
     OTHERS(
             "Others",
             Set.of(
@@ -224,20 +199,11 @@ public enum RoleTab {
 
                     // Workspace level permissions
                     MANAGE_WORKSPACES,
-                    DELETE_WORKSPACES
-            )
-            ,
-            List.of(
-                    CREATE,
-                    EDIT,
-                    DELETE,
-                    VIEW
-            ),
+                    DELETE_WORKSPACES),
+            List.of(CREATE, EDIT, DELETE, VIEW),
             List.of(
                     Tuples.of("Workspaces", Tenant.class, List.of(CREATE_WORKSPACES)),
-                    Tuples.of(AUDIT_LOGS, Tenant.class, List.of(READ_TENANT_AUDIT_LOGS))
-            )
-    ),
+                    Tuples.of(AUDIT_LOGS, Tenant.class, List.of(READ_TENANT_AUDIT_LOGS)))),
     ;
 
     private String name;
@@ -245,11 +211,13 @@ public enum RoleTab {
 
     private List<PermissionViewableName> viewablePermissions;
 
-    // Add a representation of duplicate entities in a given tab and the entity type to differentiate the acl permissions
+    // Add a representation of duplicate entities in a given tab and the entity type to differentiate the acl
+    // permissions
     // represented by simpler viewable names
     private List<Tuple3<String, Class<?>, List<AclPermission>>> duplicateEntities;
 
-    RoleTab(String name,
+    RoleTab(
+            String name,
             Set<AclPermission> permissions,
             List<PermissionViewableName> viewablePermissions,
             List<Tuple3<String, Class<?>, List<AclPermission>>> duplicateEntities) {
@@ -266,5 +234,4 @@ public enum RoleTab {
                 .findFirst()
                 .orElse(null);
     }
-
 }

@@ -5,5 +5,4 @@ import reactor.core.publisher.Mono;
 public interface ServerSideVariableReplacement {
 
     Mono<String> replaceValue(String variable);
-    
 }

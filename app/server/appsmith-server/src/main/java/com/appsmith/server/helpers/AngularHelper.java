@@ -57,7 +57,8 @@ public class AngularHelper {
 
         // The parser is implemented as a pointer (marked by `i`) that loops over each character in the template string.
         // There's majorly two states for the parser, plain-text-mode and angular-mode, with the current state
-        // indicated by `isInsideAngularBraces`. This is set to `true` when the pointer encounters a `<<` in plain-text-mode.
+        // indicated by `isInsideAngularBraces`. This is set to `true` when the pointer encounters a `<<` in
+        // plain-text-mode.
         // It is set back to `false` when the pointer encounters a `>>` in angular-mode, but not inside a quoted
         // string. Since the contents inside angular double-braces is supposed to be valid Javascript expression, any
         // any braces inside quoted strings (using single, double or back quotes) should not affect the
@@ -117,11 +118,8 @@ public class AngularHelper {
 
                 } else {
                     currentToken.append(currentChar);
-
                 }
-
             }
-
         }
 
         if (currentToken.length() > 0) {
@@ -182,7 +180,7 @@ public class AngularHelper {
                 renderedMap.put(
                         ((Map.Entry) entry).getKey(), // key
                         renderFieldValues(((Map.Entry) entry).getValue(), context) // value
-                );
+                        );
             }
 
             return (T) renderedMap;
@@ -215,7 +213,6 @@ public class AngularHelper {
             }
             // Otherwise, use the token as is
             rendered.append(token);
-
         }
 
         return StringEscapeUtils.unescapeHtml4(rendered.toString());
@@ -250,7 +247,6 @@ public class AngularHelper {
 
             } else if (obj instanceof String) {
                 keys.addAll(extractAngularKeys((String) obj));
-
             }
         }
 
@@ -272,7 +268,8 @@ public class AngularHelper {
             if (token.startsWith("<<") && token.endsWith(">>")) {
                 // Allowing empty tokens to be added, to be compatible with the previous `extractMustacheKeys` method.
                 // Calling `.trim()` before adding because Mustache compiler strips keys in the template before looking
-                // up a value. Addresses https://www.notion.so/appsmith/Bindings-with-a-space-at-the-start-fail-to-execute-properly-in-the-API-pane-2eb65d5c6064466b9ef059fa01ef3261
+                // up a value. Addresses
+                // https://www.notion.so/appsmith/Bindings-with-a-space-at-the-start-fail-to-execute-properly-in-the-API-pane-2eb65d5c6064466b9ef059fa01ef3261
                 keys.add(token.substring(2, token.length() - 2).trim());
             }
         }

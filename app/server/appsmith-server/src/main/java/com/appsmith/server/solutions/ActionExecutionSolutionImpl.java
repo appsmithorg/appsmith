@@ -4,7 +4,6 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.AppsmithDomain;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -29,44 +28,55 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
 
     private final VariableReplacementService variableReplacementService;
 
-    public ActionExecutionSolutionImpl(NewActionService newActionService,
-                                       ActionPermission actionPermission,
-                                       ObservationRegistry observationRegistry,
-                                       ObjectMapper objectMapper,
-                                       NewActionRepository repository,
-                                       DatasourceService datasourceService,
-                                       PluginService pluginService,
-                                       DatasourceContextService datasourceContextService,
-                                       PluginExecutorHelper pluginExecutorHelper,
-                                       NewPageService newPageService,
-                                       ApplicationService applicationService,
-                                       SessionUserService sessionUserService,
-                                       AuthenticationValidator authenticationValidator,
-                                       DatasourcePermission datasourcePermission,
-                                       AnalyticsService analyticsService,
-                                       DatasourceStorageService datasourceStorageService,
-                                       DatasourceStorageTransferSolution datasourceStorageTransferSolution,
-                                       VariableReplacementService variableReplacementService) {
-        super(newActionService, actionPermission, observationRegistry, objectMapper, repository, datasourceService,
-                pluginService, datasourceContextService, pluginExecutorHelper, newPageService, applicationService,
-                sessionUserService, authenticationValidator, datasourcePermission, analyticsService,
-                datasourceStorageService, datasourceStorageTransferSolution);
+    public ActionExecutionSolutionImpl(
+            NewActionService newActionService,
+            ActionPermission actionPermission,
+            ObservationRegistry observationRegistry,
+            ObjectMapper objectMapper,
+            NewActionRepository repository,
+            DatasourceService datasourceService,
+            PluginService pluginService,
+            DatasourceContextService datasourceContextService,
+            PluginExecutorHelper pluginExecutorHelper,
+            NewPageService newPageService,
+            ApplicationService applicationService,
+            SessionUserService sessionUserService,
+            AuthenticationValidator authenticationValidator,
+            DatasourcePermission datasourcePermission,
+            AnalyticsService analyticsService,
+            DatasourceStorageService datasourceStorageService,
+            VariableReplacementService variableReplacementService) {
+        super(
+                newActionService,
+                actionPermission,
+                observationRegistry,
+                objectMapper,
+                repository,
+                datasourceService,
+                pluginService,
+                datasourceContextService,
+                pluginExecutorHelper,
+                newPageService,
+                applicationService,
+                sessionUserService,
+                authenticationValidator,
+                datasourcePermission,
+                analyticsService,
+                datasourceStorageService);
 
         this.variableReplacementService = variableReplacementService;
     }
 
     @Override
     public Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO) {
-        return super.getValidActionForExecution(executeActionDTO)
-                .flatMap(validAction -> {
-                    Mono<AppsmithDomain> actionConfigurationMono = this.variableReplacementService
-                            .replaceAll(validAction.getActionConfiguration());
-                    return actionConfigurationMono.flatMap(
-                            configuration -> {
-                                validAction.setActionConfiguration((ActionConfiguration) configuration);
-                                return Mono.just(validAction);
-                            });
-                });
+        return super.getValidActionForExecution(executeActionDTO).flatMap(validAction -> {
+            Mono<AppsmithDomain> actionConfigurationMono =
+                    this.variableReplacementService.replaceAll(validAction.getActionConfiguration());
+            return actionConfigurationMono.flatMap(configuration -> {
+                validAction.setActionConfiguration((ActionConfiguration) configuration);
+                return Mono.just(validAction);
+            });
+        });
     }
 
     @Override

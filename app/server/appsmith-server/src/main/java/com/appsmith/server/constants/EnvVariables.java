@@ -47,5 +47,4 @@ public enum EnvVariables {
 
     APPSMITH_HIDE_WATERMARK,
     APPSMITH_ENABLE_SINGLE_SESSION_PER_USER,
-
 }

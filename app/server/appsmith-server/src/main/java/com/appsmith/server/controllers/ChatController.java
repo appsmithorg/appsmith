@@ -28,9 +28,10 @@ public class ChatController {
 
     @JsonView(Views.Public.class)
     @PostMapping("/chat-generation")
-    public Mono<ResponseDTO<ChatGenerationResponseDTO>> generateCode(@RequestParam ChatGenerationType type,
-                                                                     @RequestBody ChatGenerationDTO chatGenerationDTO) {
-        return chatService.generateCode(chatGenerationDTO, type)
+    public Mono<ResponseDTO<ChatGenerationResponseDTO>> generateCode(
+            @RequestParam ChatGenerationType type, @RequestBody ChatGenerationDTO chatGenerationDTO) {
+        return chatService
+                .generateCode(chatGenerationDTO, type)
                 .map(generated -> new ResponseDTO<>(HttpStatus.OK.value(), generated, null));
     }
 }

@@ -47,7 +47,7 @@ import UserProfile from "pages/UserProfile";
 import { getCurrentUser } from "actions/authActions";
 import { getCurrentUserLoading } from "selectors/usersSelectors";
 import Setup from "pages/setup";
-import Settings from "@appsmith/pages/AdminSettings";
+import SettingsLoader from "pages/Settings/loader";
 import SignupSuccess from "pages/setup/SignupSuccess";
 import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
@@ -61,6 +61,7 @@ import {
 } from "@appsmith/selectors/tenantSelectors";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
+import { initCurrentPage } from "../actions/initActions";
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -100,7 +101,7 @@ export function Routes() {
         }
       />
       <SentryRoute
-        component={Settings}
+        component={SettingsLoader}
         exact
         path={ADMIN_SETTINGS_CATEGORY_PATH}
       />
@@ -130,9 +131,11 @@ function AppRouter(props: {
   getCurrentUser: () => void;
   getFeatureFlags: () => void;
   getCurrentTenant: () => void;
+  initCurrentPage: () => void;
   safeCrashCode?: ERROR_CODES;
 }) {
-  const { getCurrentTenant, getCurrentUser, getFeatureFlags } = props;
+  const { getCurrentTenant, getCurrentUser, getFeatureFlags, initCurrentPage } =
+    props;
   const tenantIsLoading = useSelector(isTenantLoading);
   const currentUserIsLoading = useSelector(getCurrentUserLoading);
 
@@ -140,6 +143,7 @@ function AppRouter(props: {
     getCurrentUser();
     getFeatureFlags();
     getCurrentTenant();
+    initCurrentPage();
   }, []);
 
   useBrandingTheme();
@@ -190,6 +194,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   getCurrentUser: () => dispatch(getCurrentUser()),
   getFeatureFlags: () => dispatch(fetchFeatureFlagsInit()),
   getCurrentTenant: () => dispatch(getCurrentTenant(false)),
+  initCurrentPage: () => dispatch(initCurrentPage()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppRouter);

@@ -25,11 +25,10 @@ public class AnalyticsController {
         Mono resultMono = null;
         switch (analyticEventDTO.getResourceType()) {
             case ACTION:
-                resultMono = newActionService.sendNewActionAnalyticsEvent(analyticEventDTO, FieldName.AUDIT_LOGS_ORIGIN_CLIENT);
+                resultMono = newActionService.sendNewActionAnalyticsEvent(
+                        analyticEventDTO, FieldName.AUDIT_LOGS_ORIGIN_CLIENT);
                 break;
         }
-        return resultMono
-                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
+        return resultMono.thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
     }
-
 }
