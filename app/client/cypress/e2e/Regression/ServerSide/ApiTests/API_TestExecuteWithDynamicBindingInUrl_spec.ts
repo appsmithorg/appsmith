@@ -1,10 +1,9 @@
-import datasourceFormData from "../../../../fixtures/datasources.json";
-
 import {
   apiPage,
   agHelper,
   jsEditor,
   entityItems,
+  tedTestConfig,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test API execution with dynamic binding in URL - Bug #24218", () => {
@@ -15,7 +14,7 @@ describe("Test API execution with dynamic binding in URL - Bug #24218", () => {
         myVar1: [],
         myVar2: {},
         myFun1 () {
-          storeValue("api_url", "${datasourceFormData["mockApiUrl"]}");
+          storeValue("api_url", "${tedTestConfig.mockApiUrl}");
         },
         myFun2: async function() {
         }

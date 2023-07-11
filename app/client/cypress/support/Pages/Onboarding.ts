@@ -24,6 +24,7 @@ export class Onboarding {
     this._aggregateHelper.AssertElementVisible(
       OnboardingLocator.datasourcePage,
     );
+    this.closeIntroModal();
     this._aggregateHelper.AssertElementAbsence(
       OnboardingLocator.introModal,
       10000,
