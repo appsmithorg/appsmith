@@ -25,7 +25,7 @@ type DatasourceStructureProps = {
   context: DatasourceStructureContext;
   isDefaultOpen?: boolean;
   forceExpand?: boolean;
-  disableTemplateCreation?: boolean;
+  currentActionId: string;
 };
 
 const StyledMenuContent = styled(MenuContent)`
@@ -55,6 +55,10 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
     ...pagePermissions,
   ]);
 
+  const onSelect = () => {
+    setActive(false);
+  };
+
   const onEntityClick = () => {
     AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_TABLE_SELECT", {
       datasourceId: props.datasourceId,
@@ -65,7 +69,7 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
   };
 
   const lightningMenu =
-    canCreateDatasourceActions && !props?.disableTemplateCreation ? (
+    canCreateDatasourceActions && dbStructure.templates.length > 0 ? (
       <Menu open={active}>
         <Tooltip
           content={createMessage(SHOW_TEMPLATES)}
@@ -95,8 +99,9 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
         >
           <QueryTemplates
             context={props.context}
+            currentActionId={props.currentActionId}
             datasourceId={props.datasourceId}
-            onSelect={() => setActive(false)}
+            onSelect={onSelect}
             templates={dbStructure.templates}
           />
         </StyledMenuContent>

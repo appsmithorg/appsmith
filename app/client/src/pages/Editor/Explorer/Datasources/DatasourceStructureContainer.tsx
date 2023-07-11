@@ -27,6 +27,7 @@ type Props = {
   step: number;
   context: DatasourceStructureContext;
   pluginName?: string;
+  currentActionId?: string;
 };
 
 export enum DatasourceStructureContext {
@@ -90,14 +91,14 @@ const Container = (props: Props) => {
     flatStructure.forEach((structure) => {
       const segments = structure.split("~");
       // if the value is present in the columns, add the column and its parent table.
-      if (segments[1].includes(value)) {
+      if (segments[1].toLowerCase().includes(value)) {
         tables.add(segments[0]);
         columns.add(segments[1]);
         return;
       }
 
       // if the value is present in the table but not in the columns, add the table
-      if (segments[0].includes(value)) {
+      if (segments[0].toLowerCase().includes(value)) {
         tables.add(segments[0]);
         return;
       }
@@ -149,12 +150,9 @@ const Container = (props: Props) => {
               return (
                 <DatasourceStructure
                   context={props.context}
+                  currentActionId={props.currentActionId || ""}
                   datasourceId={props.datasourceId}
                   dbStructure={structure}
-                  disableTemplateCreation={
-                    props.context !== DatasourceStructureContext.EXPLORER &&
-                    true
-                  }
                   forceExpand={hasSearchedOccured}
                   key={`${props.datasourceId}${structure.name}-${props.context}`}
                   step={props.step + 1}

@@ -9,7 +9,12 @@ import {
   getPluginNameFromId,
 } from "selectors/entitiesSelector";
 import FormControl from "../FormControl";
-import type { Action, QueryAction, SaaSAction } from "entities/Action";
+import {
+  PluginName,
+  type Action,
+  type QueryAction,
+  type SaaSAction,
+} from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
@@ -888,8 +893,8 @@ export function EditorJSONtoForm(props: Props) {
   // or if any of the flags are true, We should open the actionpane by default.
   const shouldOpenActionPaneByDefault =
     ((hasDependencies || !!output) && !guidedTourEnabled) ||
-    isEnabledForDSSchema ||
-    isEnabledForQueryBinding;
+    ((isEnabledForDSSchema || isEnabledForQueryBinding) &&
+      currentActionPluginName !== PluginName.SMTP);
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
