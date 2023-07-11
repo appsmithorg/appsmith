@@ -1,5 +1,8 @@
 import BindingPrompt from "components/editorComponents/CodeEditor/BindingPrompt";
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type {
+  EditorTheme,
+  TEditorModes,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import React from "react";
 
 export function CodeEditorSignPosting(props: {
@@ -8,6 +11,7 @@ export function CodeEditorSignPosting(props: {
   editorTheme?: EditorTheme;
   showLightningMenu?: boolean;
   isAIEnabled?: boolean;
+  mode: TEditorModes;
 }): JSX.Element {
   return (
     <BindingPrompt

@@ -1616,6 +1616,7 @@ class CodeEditor extends Component<Props, State> {
                   editorTheme={this.props.theme}
                   isAIEnabled={this.AIEnabled}
                   isOpen={this.isBindingPromptOpen()}
+                  mode={this.props.mode}
                   promptMessage={this.props.promptMessage}
                   showLightningMenu={this.props.showLightningMenu}
                 />
