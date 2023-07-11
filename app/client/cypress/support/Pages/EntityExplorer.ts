@@ -302,7 +302,7 @@ export class EntityExplorer {
     this.agHelper.Sleep(500);
   }
 
-  public DragDropWidgetNVerify(
+  private DragNDropWidget(
     widgetType: string,
     x = 300,
     y = 100,
@@ -342,6 +342,16 @@ export class EntityExplorer {
     )
       .first()
       .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+  }
+
+  public DragDropWidgetNVerify(
+    widgetType: string,
+    x = 300,
+    y = 100,
+    parentWidgetType = "",
+    dropTargetId = "",
+  ) {
+    this.DragNDropWidget(widgetType, x, y, parentWidgetType, dropTargetId);
     this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
     if (widgetType === "modalwidget") {
       cy.get(".t--modal-widget").should("exist");
