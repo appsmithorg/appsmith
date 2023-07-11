@@ -51,7 +51,7 @@ describe(
           "SELECT * FROM public.users LIMIT 10;\n\n",
         );
 
-        dataSources.RunQueryNVerifyResponseViews(1);
+        dataSources.RunQueryNVerifyResponseViews(10);
         dataSources.NavigateToActiveTab();
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))
@@ -60,7 +60,7 @@ describe(
           );
 
         entityExplorer.CreateNewDsQuery(mockDBName);
-        dataSources.RunQueryNVerifyResponseViews(1, true);
+        dataSources.RunQueryNVerifyResponseViews(10, true);
         dataSources.NavigateToActiveTab();
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))
