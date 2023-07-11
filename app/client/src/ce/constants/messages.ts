@@ -869,6 +869,8 @@ export const DISCARD_CHANGES = () => "Discard & pull";
 // GIT DEPLOY begin
 export const DEPLOY = () => "Deploy";
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
+export const CHANGES_APP_SETTINGS = () => "Application settings modified";
+export const CHANGES_THEME = () => "Theme modified";
 export const CHANGES_SINCE_LAST_DEPLOYMENT = () =>
   "Changes since last deployment";
 export const CHANGES_ONLY_USER = () => "Changes since last commit";

@@ -7,10 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 
-public class CustomCollectionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Collection> implements CustomCollectionRepositoryCE {
+public class CustomCollectionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Collection>
+        implements CustomCollectionRepositoryCE {
 
     @Autowired
-    public CustomCollectionRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomCollectionRepositoryCEImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 }

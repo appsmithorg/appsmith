@@ -10,5 +10,4 @@ public class EnvChangesResponseDTO {
 
     @JsonProperty(value = "isRestartRequired")
     boolean isRestartRequired;
-
 }

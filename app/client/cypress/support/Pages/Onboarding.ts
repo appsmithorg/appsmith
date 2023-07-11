@@ -16,10 +16,15 @@ export class Onboarding {
       .GetElement(OnboardingLocator.checklistConnectionBtn)
       .realHover()
       .should("have.css", "cursor", "not-allowed");
-    cy.get(OnboardingLocator.checklistDatasourceBtn).click();
+    this._aggregateHelper.GetHoverNClick(
+      OnboardingLocator.checklistDatasourceBtn,
+      0,
+      true,
+    );
     this._aggregateHelper.AssertElementVisible(
       OnboardingLocator.datasourcePage,
     );
+    this.closeIntroModal();
     this._aggregateHelper.AssertElementAbsence(
       OnboardingLocator.introModal,
       10000,

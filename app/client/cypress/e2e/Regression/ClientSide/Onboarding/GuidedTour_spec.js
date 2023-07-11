@@ -42,7 +42,12 @@ describe("excludeForAirgap", "Guided Tour", function () {
     entityExplorer.SelectEntityByName("CustomersTable");
 
     // Step 3: Add binding to the tableData property
-    propPane.UpdatePropertyFieldValue("Table data", "{{getCustomers.data}}");
+    propPane.UpdatePropertyFieldValue(
+      "Table data",
+      "{{getCustomers.data}}",
+      true,
+      false,
+    );
     cy.get(guidedTourLocators.successButton).click();
     cy.get(guidedTourLocators.infoButton).click();
     // Renaming widgets // Commending below wait due to flakiness
