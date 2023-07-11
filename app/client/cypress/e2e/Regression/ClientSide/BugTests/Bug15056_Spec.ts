@@ -1,10 +1,10 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-import datasourceFormData from "../../../../fixtures/datasources.json";
-
-const agHelper = ObjectsRegistry.AggregateHelper;
-const jsEditor = ObjectsRegistry.JSEditor;
-const apiPage = ObjectsRegistry.ApiPage;
-const ee = ObjectsRegistry.EntityExplorer;
+import {
+  tedTestConfig,
+  agHelper,
+  jsEditor,
+  apiPage,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("JS data update on button click", function () {
   before(() => {
@@ -12,7 +12,7 @@ describe("JS data update on button click", function () {
   });
 
   it("1. Populates js function data when triggered via button click", function () {
-    apiPage.CreateAndFillApi(datasourceFormData.mockApiUrl, "Api1");
+    apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl, "Api1");
 
     const jsObjectString = `export default {
         myVar1: [],
@@ -35,7 +35,7 @@ describe("JS data update on button click", function () {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    ee.SelectEntityByName("Button2", "Widgets");
+    entityExplorer.SelectEntityByName("Button2", "Widgets");
     agHelper.ClickButton("Submit");
     agHelper.AssertContains("myFun1 Data", "exist");
     agHelper.AssertContains("myFun2 Data", "exist");

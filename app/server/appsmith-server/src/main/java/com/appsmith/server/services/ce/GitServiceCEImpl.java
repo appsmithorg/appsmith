@@ -1478,6 +1478,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                     srcApplication.setPages(null);
                     srcApplication.setPublishedPages(null);
                     srcApplication.setGitApplicationMetadata(srcBranchGitData);
+                    srcApplication.setEditModeThemeId(null);
+                    srcApplication.setPublishedModeThemeId(null);
 
                     return applicationService
                             .save(srcApplication)

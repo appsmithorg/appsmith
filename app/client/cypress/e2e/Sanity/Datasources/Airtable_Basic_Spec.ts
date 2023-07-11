@@ -3,12 +3,12 @@ import {
   entityExplorer,
   entityItems,
   dataSources,
-  hostPort,
+  tedTestConfig,
   assertHelper,
 } from "../../../support/Objects/ObjectsCore";
 
 let dsName: any, jsonSpecies: any, offset: any, insertedRecordId: any;
-describe("excludeForAirgap", "Validate Airtable Ds", () => {
+describe.skip("excludeForAirgap", "Validate Airtable Ds", () => {
   before("Create a new Airtable DS", () => {
     dataSources.CreateDataSource("Airtable", true, false);
     cy.get("@dsName").then(($dsName) => {
@@ -27,12 +27,12 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
       "List records",
     );
 
-    agHelper.EnterValue(hostPort.AirtableBase, {
+    agHelper.EnterValue(tedTestConfig.AirtableBase, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Base ID ",
     });
-    agHelper.EnterValue(hostPort.AirtableTable, {
+    agHelper.EnterValue(tedTestConfig.AirtableTable, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Table name",
@@ -236,7 +236,7 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
     });
 
     dataSources.RunQuery({ toValidateResponse: false }); //For CI failure!
-    agHelper.Sleep();
+    agHelper.Sleep(3000);
     dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {

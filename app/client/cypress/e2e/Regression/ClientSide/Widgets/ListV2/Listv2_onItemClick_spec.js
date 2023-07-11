@@ -1,6 +1,7 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
+  agHelper,
   draggableWidgets,
   entityExplorer,
 } from "../../../../../support/Objects/ObjectsCore";
@@ -28,11 +29,6 @@ function deleteAllWidgetsInContainer() {
   cy.wait(1000);
 }
 
-function validateToastExist() {
-  cy.validateToastMessage("ListWidget_Blue_0");
-  cy.wait(1000);
-}
-
 function validateToastDoestExist() {
   cy.wait(500);
   cy.get(commonlocators.toastmsg, { timeout: 100 }).should("not.exist");
@@ -57,35 +53,27 @@ describe("List widget v2 onItemClick", () => {
       .first()
       .click({ force: true });
 
-    cy.validateToastMessage("ListWidget_Blue_0");
-    cy.waitUntil(() =>
-      cy.get(commonlocators.toastmsg).should("not.be.visible"),
-    );
+    agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
+
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
       .eq(1)
       .click({ force: true });
 
-    cy.validateToastMessage("ListWidget_Green_1");
-    cy.waitUntil(() =>
-      cy.get(commonlocators.toastmsg).should("not.be.visible"),
-    );
+    agHelper.WaitUntilToastDisappear("ListWidget_Green_1");
 
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
       .eq(2)
       .click({ force: true });
 
-    cy.validateToastMessage("ListWidget_Red_2");
-    cy.waitUntil(() =>
-      cy.get(commonlocators.toastmsg).should("not.be.visible"),
-    );
+    agHelper.WaitUntilToastDisappear("ListWidget_Red_2");
   });
 
   it("2. List widget V2 with onItemClick should be triggered when child widget without event is clicked", () => {
     cy.get(widgetSelector("Image1")).first().click({ force: true });
-    validateToastExist();
+    agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
 
     cy.get(widgetSelector("Text1")).first().click({ force: true });
-    validateToastExist();
+    agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
 
     deleteAllWidgetsInContainer();
 
@@ -127,8 +115,7 @@ describe("List widget v2 onItemClick", () => {
     cy.get(`${widgetSelector("Button1")} button`)
       .first()
       .click({ force: true });
-    validateToastExist();
-    cy.get(commonlocators.toastBody).first().click();
+    agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
 
     cy.get(widgetsPage.toggleOnClick).click({ force: true });
     cy.get(".t--property-control-onclick").then(($el) => {

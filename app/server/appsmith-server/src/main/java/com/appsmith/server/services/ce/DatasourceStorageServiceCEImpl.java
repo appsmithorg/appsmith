@@ -62,7 +62,8 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
     @Override
     public Mono<DatasourceStorage> create(DatasourceStorage datasourceStorage) {
-        return this.validateAndSaveDatasourceStorageToRepository(datasourceStorage)
+        return this.checkDuplicateDatasourceStorage(datasourceStorage)
+                .then(this.validateAndSaveDatasourceStorageToRepository(datasourceStorage))
                 .flatMap(this::populateHintMessages) // For REST API datasource create flow.
                 .flatMap(savedDatasourceStorage -> analyticsService.sendCreateEvent(
                         savedDatasourceStorage, getAnalyticsProperties(savedDatasourceStorage)));
@@ -339,5 +340,20 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         datasourceStorage.prepareTransientFields(datasource);
 
         return datasourceStorage;
+    }
+
+    /**
+     * Throws error if a storage with same datasourceId and environmentId exists, otherwise returns an empty mono
+     * @param datasourceStorage
+     * @return empty mono if no storage exists
+     */
+    private Mono<DatasourceStorage> checkDuplicateDatasourceStorage(DatasourceStorage datasourceStorage) {
+
+        String datasourceId = datasourceStorage.getDatasourceId();
+        String environmentId = datasourceStorage.getEnvironmentId();
+
+        return this.findStrictlyByDatasourceIdAndEnvironmentId(datasourceId, environmentId)
+                .flatMap(dbDatasourceStorage -> Mono.error(new AppsmithException(
+                        AppsmithError.DUPLICATE_DATASOURCE_CONFIGURATION, datasourceId, environmentId)));
     }
 }
