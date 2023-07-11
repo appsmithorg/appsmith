@@ -226,8 +226,8 @@ describe("Import and validate older app (app created in older versions of Appsmi
       },
       myFun1: async () => {
         //write code here
-        const data = await usersApi.run()
-        return "myFun1 Data"
+        const data = JSON.stringify(await usersApi.run())
+        return data
       },
       myFun2: async () => {
         //use async-await or promises
@@ -236,18 +236,28 @@ describe("Import and validate older app (app created in older versions of Appsmi
       }
     }`);
 
-    //Update property field
+    //Update property field for button
     entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext("onClick", `{{users.myFun2()}}`, true, false);
+
+    //Drag n drop text widget & bind it to myFun1
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);
+    propPane.TypeTextIntoField("Text", `{{users.myFun1.data}}`);
+    agHelper.ValidateToastMessage(
+      "[users.myFun1] will be executed automatically on page load",
+    );
 
     //Commit & push new changes
     gitSync.CommitAndPush();
     cy.latestDeployPreview();
 
-    //Validate new response
+    //Validate new response for button & text widget
     agHelper.GetNClickByContains(locators._deployedPage, "Widgets");
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("myFun2 Data");
+    agHelper
+      .GetText(locators._widgetInDeployed(draggableWidgets.TEXT), "text")
+      .should("not.be.empty");
     agHelper.WaitUntilAllToastsDisappear();
     deployMode.NavigateBacktoEditor();
   });
