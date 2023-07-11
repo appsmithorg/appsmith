@@ -41,7 +41,6 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
-import com.appsmith.server.solutions.DatasourceStorageTransferSolution;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -122,7 +121,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     static final String EXECUTE_ACTION_DTO = "executeActionDTO";
     static final String PARAMETER_MAP = "parameterMap";
     List<Pattern> patternList = new ArrayList<>();
-    private DatasourceStorageTransferSolution datasourceStorageTransferSolution;
 
     public ActionExecutionSolutionCEImpl(
             NewActionService newActionService,
@@ -140,8 +138,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             AuthenticationValidator authenticationValidator,
             DatasourcePermission datasourcePermission,
             AnalyticsService analyticsService,
-            DatasourceStorageService datasourceStorageService,
-            DatasourceStorageTransferSolution datasourceStorageTransferSolution) {
+            DatasourceStorageService datasourceStorageService) {
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.observationRegistry = observationRegistry;
@@ -158,7 +155,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.datasourcePermission = datasourcePermission;
         this.analyticsService = analyticsService;
         this.datasourceStorageService = datasourceStorageService;
-        this.datasourceStorageTransferSolution = datasourceStorageTransferSolution;
 
         this.patternList.add(Pattern.compile(PARAM_KEY_REGEX));
         this.patternList.add(Pattern.compile(BLOB_KEY_REGEX));
@@ -506,9 +502,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     } else if (datasource == null) {
                         datasourceStorageMono = Mono.empty();
                     } else {
-                        // For embedded datasources, we are simply relying on datasource configuration property
-                        datasourceStorageMono = Mono.just(datasourceStorageTransferSolution.initializeDatasourceStorage(
-                                datasource, environmentId));
+                        // For embedded datasource, we are simply relying on datasource configuration property
+                        datasourceStorageMono = Mono.just(new DatasourceStorage(datasource, environmentId));
                     }
 
                     return datasourceStorageMono
