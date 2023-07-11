@@ -39,6 +39,21 @@ app/client/src/ee/pages/Editor/NavigationSettings/LogoInput.tsx @dhruvikn
 app/client/src/ce/entities/FeatureFlag.ts @hetunandu
 app/client/src/ee/entities/FeatureFlag.ts @hetunandu
 app/server/appsmith-server/src/main/resources/features/init-flags.xml @hetunandu
+app/server/appsmith-server/src/main/java/com/appsmith/server/featureflags/* @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/UserIdentifierService.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/UserIdentifierServiceImpl.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/UserIdentifierServiceCE.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/UserIdentifierServiceCEImpl.java @nilanshbansal
+app/server/appsmith-server/src/test/java/com/appsmith/server/services/ce/UserIdentifierServiceCEImplTest.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/CacheableFeatureFlagHelper.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/CacheableFeatureFlagHelperImpl.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/CacheableFeatureFlagHelperCE.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/CacheableFeatureFlagHelperCEImpl.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/FeatureFlagServiceCE.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/FeatureFlagServiceCEImpl.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/FeatureFlagService.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/FeatureFlagServiceImpl.java @nilanshbansal
+app/server/appsmith-server/src/test/java/com/appsmith/server/services/FeatureFlagServiceTest.java @nilanshbansal
 
 # UI Builders Pod
 app/client/generators/* @appsmithorg/ui-builders
