@@ -585,6 +585,8 @@ export interface MemberExpressionData {
 export interface AssignmentExpressionData {
   property: NodeWithLocation<IdentifierNode | LiteralNode>;
   object: NodeWithLocation<IdentifierNode>;
+  start: number;
+  end: number;
 }
 
 export interface AssignmentExpressionNode extends Node {
@@ -711,6 +713,8 @@ export const extractExpressionsFromCode = (
       assignmentExpressionsData.add({
         object,
         property,
+        start: node.start,
+        end: node.end,
       } as AssignmentExpressionData);
     },
   });

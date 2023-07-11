@@ -212,7 +212,7 @@ function getAssignmentExpressionErrors({
 }) {
   const assignmentExpressionErrors: LintError[] = [];
 
-  for (const { object, property } of assignmentExpressions) {
+  for (const { end, object, property, start } of assignmentExpressions) {
     const objectName = object.name;
     const propertyName = isLiteralNode(property)
       ? (property.value as string)
@@ -239,9 +239,16 @@ function getAssignmentExpressionErrors({
 
     const objectStartCol = object.loc.start.column + 1;
 
-    const variable = isLiteralNode(property)
+    let variable = isLiteralNode(property)
       ? `${object.name}["${propertyName}"]`
       : `${object.name}.${propertyName}`;
+
+    const messageLength = end - start;
+
+    variable = variable.concat(
+      variable,
+      " ".repeat(messageLength - variable.length),
+    );
 
     assignmentExpressionErrors.push({
       errorType: PropertyEvaluationErrorType.LINT,
