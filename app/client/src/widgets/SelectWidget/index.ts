@@ -3,12 +3,6 @@ import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
-// import type { WidgetProps } from "widgets/BaseWidget";
-// import { BlueprintOperationTypes } from "widgets/constants";
-// import {
-//   defaultValueExpressionPrefix,
-//   getDefaultValueExpressionSuffix,
-// } from "./constants";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -52,31 +46,6 @@ export const CONFIG = {
     labelTextSize: "0.875rem",
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
-    // blueprint: {
-    //   operations: [
-    //     {
-    //       type: BlueprintOperationTypes.MODIFY_PROPS,
-    //       fn: (widget: WidgetProps) => {
-    //         return [
-    //           {
-    //             widgetId: widget.widgetId,
-    //             propertyName: "defaultOptionValue",
-    //             propertyValue: `${defaultValueExpressionPrefix}"GREEN"${getDefaultValueExpressionSuffix(
-    //               widget,
-    //             )}`,
-    //           },
-    //           {
-    //             widgetId: widget.widgetId,
-    //             propertyName: "dynamicBindingPathList",
-    //             propertyValue: widget.dynamicBindingPathList?.concat([
-    //               { key: "defaultOptionValue" },
-    //             ]),
-    //           },
-    //         ];
-    //       },
-    //     },
-    //   ],
-    // },
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

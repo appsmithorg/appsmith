@@ -112,7 +112,7 @@ export function* bindDataToWidgetSaga(
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
     case WidgetTypes.SELECT_WIDGET:
-      propertyPath = "options";
+      propertyPath = "sourceData";
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
     case WidgetTypes.SWITCH_WIDGET:

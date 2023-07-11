@@ -2,21 +2,11 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
-import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal/es6";
-import type { LoDashStatic } from "lodash";
-import {
-  findIndex,
-  isArray,
-  isNil,
-  isNumber,
-  isString,
-  isPlainObject,
-  uniq,
-} from "lodash";
+import { findIndex, isArray, isNil, isNumber, isString } from "lodash";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
@@ -39,133 +29,13 @@ import {
 } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import type { AutocompletionDefinitions } from "widgets/constants";
-
-export function defaultOptionValueValidation(
-  value: unknown,
-  props: SelectWidgetProps,
-  _: LoDashStatic,
-): ValidationResponse {
-  let isValid;
-  let parsed;
-  let message = { name: "", message: "" };
-  const isServerSideFiltered = props.serverSideFiltering;
-  // TODO: validation of defaultOption is dependent on serverSideFiltering and options, this property should reValidated once the dependencies change
-  //this issue is been tracked here https://github.com/appsmithorg/appsmith/issues/15303
-  let options = props.options;
-  /*
-   * Function to check if the object has `label` and `value`
-   */
-  const hasLabelValue = (obj: any) => {
-    return (
-      _.isPlainObject(value) &&
-      obj.hasOwnProperty("label") &&
-      obj.hasOwnProperty("value") &&
-      _.isString(obj.label) &&
-      (_.isString(obj.value) || _.isFinite(obj.value))
-    );
-  };
-
-  /*
-   * When value is "{label: 'green', value: 'green'}"
-   */
-  if (typeof value === "string") {
-    try {
-      const parsedValue = JSON.parse(value);
-      if (_.isObject(parsedValue)) {
-        value = parsedValue;
-      }
-    } catch (e) {}
-  }
-
-  if (_.isString(value) || _.isFinite(value) || hasLabelValue(value)) {
-    /*
-     * When value is "", "green", 444, {label: "green", value: "green"}
-     */
-    isValid = true;
-    parsed = value;
-  } else {
-    isValid = false;
-    parsed = undefined;
-    message = {
-      name: "TypeError",
-      message:
-        'value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }',
-    };
-  }
-
-  if (isValid && !_.isNil(parsed) && parsed !== "") {
-    if (!Array.isArray(options) && typeof options === "string") {
-      try {
-        const parsedOptions = JSON.parse(options);
-        if (Array.isArray(parsedOptions)) {
-          options = parsedOptions;
-        } else {
-          options = [];
-        }
-      } catch (e) {
-        options = [];
-      }
-    }
-    const parsedValue = (parsed as any).hasOwnProperty("value")
-      ? (parsed as any).value
-      : parsed;
-    const valueIndex = _.findIndex(
-      options,
-      (option) => option.value === parsedValue,
-    );
-
-    if (valueIndex === -1) {
-      if (!isServerSideFiltered) {
-        isValid = false;
-        message = {
-          name: "ValidationError",
-          message: `Default value is missing in options. Please update the value.`,
-        };
-      } else {
-        if (!hasLabelValue(parsed)) {
-          isValid = false;
-          message = {
-            name: "ValidationError",
-            message: `Default value is missing in options. Please use {label : <string | num>, value : < string | num>} format to show default for server side data.`,
-          };
-        }
-      }
-    }
-  }
-  return {
-    isValid,
-    parsed,
-    messages: [message],
-  };
-}
-
-function labelValueKeyOptions(widget: WidgetProps) {
-  const sourceData = widget.sourceData;
-  let parsedValue: Record<string, unknown> | undefined = sourceData;
-
-  if (isString(sourceData)) {
-    try {
-      parsedValue = JSON.parse(sourceData);
-    } catch (e) {}
-  }
-
-  if (isArray(parsedValue)) {
-    return uniq(
-      parsedValue.reduce((keys, obj) => {
-        if (isPlainObject(obj)) {
-          Object.keys(obj).forEach((d) => keys.push(d));
-        }
-
-        return keys;
-      }, []),
-    ).map((d: unknown) => ({
-      label: d,
-      value: d,
-    }));
-  } else {
-    return [];
-  }
-}
+import {
+  defaultOptionValueValidation,
+  labelKeyValidation,
+  labelValueAdditionalAutocompleteData,
+  labelValueKeyOptions,
+  valueKeyValidation,
+} from "./propertyUtils";
 
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   constructor(props: SelectWidgetProps) {
@@ -243,17 +113,20 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             isJSConvertible: true,
-            dependencies: ["sourceData"],
+            evaluatedDependencies: ["sourceData"],
             options: labelValueKeyOptions,
             validation: {
-              type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+              type: ValidationTypes.FUNCTION,
               params: {
-                type: ValidationTypes.TEXT,
-                params: {
-                  required: true,
+                fn: labelKeyValidation,
+                expected: {
+                  type: "String or Array<string>",
+                  example: `color | ["blue", "green"]`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },
+            additionalAutoComplete: labelValueAdditionalAutocompleteData,
           },
           {
             helpText: "",
@@ -271,17 +144,20 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             isJSConvertible: true,
-            dependencies: ["sourceData"],
+            evaluatedDependencies: ["sourceData"],
             options: labelValueKeyOptions,
             validation: {
-              type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+              type: ValidationTypes.FUNCTION,
               params: {
-                type: ValidationTypes.TEXT,
-                params: {
-                  required: true,
+                fn: valueKeyValidation,
+                expected: {
+                  type: "String or Array<string | number | boolean>",
+                  example: `color | [1, "orange"]`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },
+            additionalAutoComplete: labelValueAdditionalAutocompleteData,
           },
           {
             helpText: "Selects the option with value by default",
@@ -306,7 +182,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                   example: `value1 | { "label": "label1", "value": "value1" }`,
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
-                dependentPaths: ["serverSideFiltering", "options"],
               },
               dependentPaths: ["serverSideFiltering", "options"],
             },

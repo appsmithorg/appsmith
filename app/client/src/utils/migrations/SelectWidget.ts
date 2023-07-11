@@ -47,7 +47,6 @@ export function MigrateSelectWidgetOptionToSourceData(currentDSL: DSLWidget) {
       widget.optionValue = "value";
 
       delete widget.options;
-      //need to migrate the default value as well.
     }
   });
 }

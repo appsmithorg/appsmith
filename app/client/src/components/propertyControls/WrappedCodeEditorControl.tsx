@@ -9,7 +9,6 @@ import {
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
 import { isString } from "utils/helpers";
@@ -45,7 +44,7 @@ type InputTextProp = {
   expected?: CodeEditorExpected;
   placeholder?: string;
   dataTreePath?: string;
-  additionalDynamicData: AdditionalDynamicDataTree;
+  additionalDynamicData?: AdditionalDynamicDataTree;
   theme: EditorTheme;
 };
 
@@ -74,16 +73,6 @@ function InputText(props: InputTextProp) {
         }}
         mode={EditorModes.TEXT_WITH_BINDING}
         placeholder={placeholder}
-        promptMessage={
-          <PromptMessage>
-            Access the current cell using{" "}
-            <span className="code-wrapper">
-              <CurlyBraces>{"{{"}</CurlyBraces>
-              currentRow.columnName
-              <CurlyBraces>{"}}"}</CurlyBraces>
-            </span>
-          </PromptMessage>
-        }
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
         theme={theme}
@@ -115,6 +104,7 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
 
   render() {
     const {
+      additionalAutoComplete,
       dataTreePath,
       defaultValue,
       expected,
@@ -129,24 +119,15 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
         : propertyValue
         ? propertyValue
         : defaultValue;
-    const evaluatedProperties = this.props.widgetProperties;
 
-    const columns: Record<string, ColumnProperties> =
-      evaluatedProperties.primaryColumns || {};
-    const currentRow: { [key: string]: any } = {};
-    Object.values(columns).forEach((column) => {
-      currentRow[column.alias || column.originalId] = undefined;
-    });
     // Load default value in evaluated value
     if (value && !propertyValue) {
       this.onTextChange(value);
     }
+
     return (
       <InputText
-        additionalDynamicData={{
-          currentRow,
-          currentIndex: -1,
-        }}
+        additionalDynamicData={additionalAutoComplete}
         dataTreePath={dataTreePath}
         expected={expected}
         label={label}

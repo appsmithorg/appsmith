@@ -3,13 +3,10 @@ import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Layers } from "constants/Layers";
 import type { WidgetType } from "constants/WidgetConstants";
-import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal/es6";
-import type { LoDashStatic } from "lodash";
-import { isPlainObject, uniq } from "lodash";
 import { isArray, isFinite, isString, xorWith } from "lodash";
 import type { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import React from "react";
@@ -31,208 +28,13 @@ import {
   getOptionLabelValueExpressionPrefix,
   optionLabelValueExpressionSuffix,
 } from "../constants";
-
-export function defaultOptionValueValidation(
-  value: unknown,
-  props: MultiSelectWidgetProps,
-  _: LoDashStatic,
-): ValidationResponse {
-  let isValid = false;
-  let parsed: any[] = [];
-  let message = { name: "", message: "" };
-  const isServerSideFiltered = props.serverSideFiltering;
-  // TODO: options shouldn't get un-eval values;
-  let options = props.options;
-
-  const DEFAULT_ERROR_MESSAGE = {
-    name: "TypeError",
-    message:
-      "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
-  };
-  const MISSING_FROM_OPTIONS = {
-    name: "ValidationError",
-    message:
-      "Some or all default values are missing from options. Please update the values.",
-  };
-  const MISSING_FROM_OPTIONS_AND_WRONG_FORMAT = {
-    name: "ValidationError",
-    message:
-      "Default value is missing in options. Please use [{label : <string | num>, value : < string | num>}] format to show default for server side data",
-  };
-  /*
-   * Function to check if the object has `label` and `value`
-   */
-  const hasLabelValue = (obj: any) => {
-    return (
-      _.isPlainObject(obj) &&
-      obj.hasOwnProperty("label") &&
-      obj.hasOwnProperty("value") &&
-      _.isString(obj.label) &&
-      (_.isString(obj.value) || _.isFinite(obj.value))
-    );
-  };
-
-  /*
-   * Function to check for duplicate values in array
-   */
-  const hasUniqueValues = (arr: Array<string>) => {
-    const uniqueValues = new Set(arr);
-
-    return uniqueValues.size === arr.length;
-  };
-
-  /*
-   * When value is "['green', 'red']", "[{label: 'green', value: 'green'}]" and "green, red"
-   */
-  if (_.isString(value) && value.trim() !== "") {
-    try {
-      /*
-       * when value is "['green', 'red']", "[{label: 'green', value: 'green'}]"
-       */
-      const parsedValue = JSON.parse(value);
-      // Only parse value if resulting value is an array or string
-      if (Array.isArray(parsedValue) || _.isString(parsedValue)) {
-        value = parsedValue;
-      }
-    } catch (e) {
-      /*
-       * when value is "green, red", JSON.parse throws error
-       */
-      const splitByComma = (value as string).split(",") || [];
-
-      value = splitByComma.map((s) => s.trim());
-    }
-  }
-
-  /*
-   * When value is "['green', 'red']", "[{label: 'green', value: 'green'}]" and "green, red"
-   */
-  if (Array.isArray(value)) {
-    if (value.every((val) => _.isString(val) || _.isFinite(val))) {
-      /*
-       * When value is ["green", "red"]
-       */
-      if (hasUniqueValues(value)) {
-        isValid = true;
-        parsed = value;
-      } else {
-        parsed = [];
-        message = {
-          name: "ValidationError",
-          message: "values must be unique. Duplicate values found",
-        };
-      }
-    } else if (value.every(hasLabelValue)) {
-      /*
-       * When value is [{label: "green", value: "red"}]
-       */
-      if (hasUniqueValues(value.map((val) => val.value))) {
-        isValid = true;
-        parsed = value;
-      } else {
-        parsed = [];
-        message = {
-          name: "ValidationError",
-          message: "path:value must be unique. Duplicate values found",
-        };
-      }
-    } else {
-      /*
-       * When value is [true, false], [undefined, undefined] etc.
-       */
-      parsed = [];
-      message = DEFAULT_ERROR_MESSAGE;
-    }
-  } else if (_.isString(value) && value.trim() === "") {
-    /*
-     * When value is an empty string
-     */
-    isValid = true;
-    parsed = [];
-  } else if (_.isNumber(value) || _.isString(value)) {
-    /*
-     * When value is a number or just a single string e.g "Blue"
-     */
-    isValid = true;
-    parsed = [value];
-  } else {
-    /*
-     * When value is undefined, null, {} etc.
-     */
-    parsed = [];
-    message = DEFAULT_ERROR_MESSAGE;
-  }
-
-  if (isValid && !_.isNil(parsed) && !_.isEmpty(parsed)) {
-    if (!Array.isArray(options) && typeof options === "string") {
-      try {
-        const parsedOptions = JSON.parse(options);
-        if (Array.isArray(parsedOptions)) {
-          options = parsedOptions;
-        } else {
-          options = [];
-        }
-      } catch (e) {
-        options = [];
-      }
-    }
-
-    const parsedValue = parsed;
-    const areValuesPresent = parsedValue.every((value) => {
-      const index = _.findIndex(
-        options,
-        (option) => option.value === value || option.value === value.value,
-      );
-      return index !== -1;
-    });
-
-    if (!areValuesPresent) {
-      isValid = false;
-      if (!isServerSideFiltered) {
-        message = MISSING_FROM_OPTIONS;
-      } else {
-        if (!parsed.every(hasLabelValue)) {
-          message = MISSING_FROM_OPTIONS_AND_WRONG_FORMAT;
-        } else {
-          message = MISSING_FROM_OPTIONS;
-        }
-      }
-    }
-  }
-  return {
-    isValid,
-    parsed,
-    messages: [message],
-  };
-}
-
-function labelValueKeyOptions(widget: WidgetProps) {
-  const sourceData = widget.sourceData;
-  let parsedValue: Record<string, unknown> | undefined = sourceData;
-
-  if (isString(sourceData)) {
-    try {
-      parsedValue = JSON.parse(sourceData);
-    } catch (e) {}
-  }
-
-  if (isArray(parsedValue)) {
-    return uniq(
-      parsedValue.reduce((keys, obj) => {
-        if (isPlainObject(obj)) {
-          Object.keys(obj).forEach((d) => keys.push(d));
-        }
-
-        return keys;
-      }, []),
-    ).map((d: unknown) => ({
-      label: d,
-      value: d,
-    }));
-  } else {
-    return [];
-  }
-}
+import {
+  defaultOptionValueValidation,
+  labelKeyValidation,
+  labelValueAdditionalAutocompleteData,
+  labelValueKeyOptions,
+  valueKeyValidation,
+} from "./propertyUtils";
 
 class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
@@ -311,45 +113,20 @@ class MultiSelectWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             isJSConvertible: true,
-            dependencies: ["sourceData"],
+            evaluatedDependencies: ["sourceData"],
             options: labelValueKeyOptions,
             validation: {
-              type: ValidationTypes.UNION,
+              type: ValidationTypes.FUNCTION,
               params: {
-                types: [
-                  {
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      required: true,
-                    },
-                  },
-                  {
-                    type: ValidationTypes.ARRAY,
-                    params: {
-                      children: {
-                        type: ValidationTypes.UNION,
-                        params: {
-                          types: [
-                            {
-                              type: ValidationTypes.TEXT,
-                              params: {
-                                required: true,
-                              },
-                            },
-                            {
-                              type: ValidationTypes.NUMBER,
-                              params: {
-                                required: true,
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    },
-                  },
-                ],
+                fn: labelKeyValidation,
+                expected: {
+                  type: "String or Array<string>",
+                  example: `color | ["blue", "green"]`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
               },
             },
+            additionalAutoComplete: labelValueAdditionalAutocompleteData,
           },
           {
             helpText: "",
@@ -367,51 +144,20 @@ class MultiSelectWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             isJSConvertible: true,
-            dependencies: ["sourceData"],
+            evaluatedDependencies: ["sourceData"],
             options: labelValueKeyOptions,
             validation: {
-              type: ValidationTypes.UNION,
+              type: ValidationTypes.FUNCTION,
               params: {
-                types: [
-                  {
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      required: true,
-                    },
-                  },
-                  {
-                    type: ValidationTypes.ARRAY,
-                    params: {
-                      children: {
-                        type: ValidationTypes.UNION,
-                        params: {
-                          types: [
-                            {
-                              type: ValidationTypes.TEXT,
-                              params: {
-                                required: true,
-                              },
-                            },
-                            {
-                              type: ValidationTypes.NUMBER,
-                              params: {
-                                required: true,
-                              },
-                            },
-                            {
-                              type: ValidationTypes.BOOLEAN,
-                              params: {
-                                required: true,
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    },
-                  },
-                ],
+                fn: valueKeyValidation,
+                expected: {
+                  type: "String or Array<string | number | boolean>",
+                  example: `color | [1, "orange"]`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
               },
             },
+            additionalAutoComplete: labelValueAdditionalAutocompleteData,
           },
           {
             helpText: "Selects the option(s) with value by default",
@@ -437,6 +183,7 @@ class MultiSelectWidget extends BaseWidget<
                   autocompleteDataType: AutocompleteDataType.ARRAY,
                 },
               },
+              dependentPaths: ["serverSideFiltering", "options"],
             },
             dependencies: ["serverSideFiltering", "options"],
           },
