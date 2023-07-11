@@ -1,4 +1,4 @@
-export class DefaultHostPort {
+export class TEDTestConfigs {
   mongo_authenticationAuthtype = "SCRAM-SHA-1";
   mongo_host = "host.docker.internal";
   mongo_port = 28017;

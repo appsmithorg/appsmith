@@ -146,20 +146,28 @@ describe("Autocomplete tests", () => {
 
     agHelper.GetElement(jsEditor._lineinJsEditor(4)).click();
     agHelper.WaitUntilAllToastsDisappear();
-
     //Assert that hints are not present inside the string
     agHelper.TypeText(locators._codeMirrorTextArea, `const x = "`);
-
     agHelper.AssertElementAbsence(locators._hints);
 
-    agHelper.SelectNRemoveLineText(jsEditor._lineinJsEditor(4));
-
-    //Assert that hints are not present when line is cleared with backspace
-    agHelper.AssertElementAbsence(locators._hints);
-
-    //Assert that hints are not present when token is a comment
+    //Assert that hints are not present when comment line added into already existing code
+    agHelper.SelectNRemoveLineText(jsEditor._lineinJsEditor(4)); //remove only ""
+    agHelper.AssertElementAbsence(locators._hints); //Assert that hints are not present when line is cleared with backspace
     agHelper.TypeText(locators._codeMirrorTextArea, "// showA'");
+    agHelper.AssertElementAbsence(locators._hints);
 
+    //Check for no showAlert() hint
+    agHelper.GetNClick(jsEditor._lineinJsEditor(4), 0, true);
+    agHelper.SelectNRemoveLineText(locators._codeMirrorTextArea);
+    agHelper.AssertElementAbsence(locators._hints); //Assert that hints are not present when line is removed
+    agHelper.TypeText(locators._codeMirrorTextArea, "// showA");
+    agHelper.AssertElementAbsence(locators._hints); //Assert that hints are not present when token is a comment
+
+    //Check for no hint with any A in it
+    agHelper.GetNClick(jsEditor._lineinJsEditor(4), 0, true);
+    agHelper.SelectNRemoveLineText(locators._codeMirrorTextArea);
+    agHelper.AssertElementAbsence(locators._hints);
+    agHelper.TypeText(locators._codeMirrorTextArea, "// showA'");
     agHelper.AssertElementAbsence(locators._hints);
 
     cy.get("@jsObjName").then((jsObjName) => {

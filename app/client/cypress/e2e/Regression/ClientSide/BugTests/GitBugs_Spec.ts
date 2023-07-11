@@ -1,5 +1,4 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import datasourceFormData from "../../../../fixtures/datasources.json";
 
 let repoName: any;
 let tempBranch: any;
@@ -16,9 +15,8 @@ describe("Git Bugs", function () {
   });
 
   it("1. Bug 16248, When GitSync modal is open, block shortcut action execution", function () {
-    const largeResponseApiUrl = datasourceFormData.mockApiUrl;
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-    _.apiPage.CreateAndFillApi(largeResponseApiUrl, "GitSyncTest");
+    _.apiPage.CreateAndFillApi(_.tedTestConfig.mockApiUrl, "GitSyncTest");
     _.gitSync.OpenGitSyncModal();
     cy.get("body").type(`{${modifierKey}}{enter}`);
     cy.get("@postExecute").should("not.exist");
