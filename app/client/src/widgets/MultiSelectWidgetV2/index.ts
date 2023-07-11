@@ -3,12 +3,6 @@ import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { BlueprintOperationTypes } from "widgets/constants";
-import {
-  defaultValueExpressionPrefix,
-  getDefaultValueExpressionSuffix,
-} from "./constants";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";

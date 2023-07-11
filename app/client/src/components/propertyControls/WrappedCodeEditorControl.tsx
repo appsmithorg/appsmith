@@ -10,31 +10,11 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import styled from "styled-components";
 import { isString } from "utils/helpers";
 import { JSToString, stringToJS } from "./utils";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import type { WidgetProps } from "widgets/BaseWidget";
-
-const PromptMessage = styled.span`
-  line-height: 17px;
-
-  > .code-wrapper {
-    font-family: var(--ads-v2-font-family-code);
-    display: inline-flex;
-    align-items: center;
-  }
-`;
-const CurlyBraces = styled.span`
-  color: var(--ads-v2-color-fg);
-  background-color: var(--ads-v2-color-bg-muted);
-  border-radius: 2px;
-  padding: 2px;
-  margin: 0 2px 0 0;
-  font-size: 10px;
-  font-weight: var(--ads-v2-font-weight-bold);
-`;
 
 type InputTextProp = {
   label: string;
