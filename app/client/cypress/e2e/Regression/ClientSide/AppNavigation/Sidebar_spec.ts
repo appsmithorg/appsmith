@@ -16,9 +16,7 @@ describe("Test Sidebar navigation style", function () {
       .WaitForNetworkCall("@importNewApplication")
       .then((interception) => {
         agHelper.Sleep();
-
         const { isPartialImport } = interception.response.body.data;
-
         if (isPartialImport) {
           homePage.AssertNCloseImport();
         } else {

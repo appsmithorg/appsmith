@@ -17,18 +17,18 @@ describe("Test Sidebar Collapse", function () {
     );
     deployMode.DeployApp();
     agHelper.AssertElementVisible(appSettings.locators._sidebarCollapseButton);
-  //Sidebar should collapse and open on click of collapse button again
-  // Collapse
-  agHelper.GetNClick(appSettings.locators._sidebarCollapseButton, 0, true);
-  agHelper
-    .GetElement(appSettings.locators._sideNavbar)
-    .should("not.have.class", "is-open");
-  // Open
-  agHelper.GetNClick(appSettings.locators._sidebarCollapseButton);
-  agHelper
-    .GetElement(appSettings.locators._sideNavbar)
-    .should("have.class", "is-open");
-  // Back to editor
-  deployMode.NavigateBacktoEditor();
-})
-}
+    //Sidebar should collapse and open on click of collapse button again
+    // Collapse
+    agHelper.GetNClick(appSettings.locators._sidebarCollapseButton, 0, true);
+    agHelper
+      .GetElement(appSettings.locators._sideNavbar)
+      .should("not.have.class", "is-open");
+    // Open
+    agHelper.GetNClick(appSettings.locators._sidebarCollapseButton);
+    agHelper
+      .GetElement(appSettings.locators._sideNavbar)
+      .should("have.class", "is-open");
+    // Back to editor
+    deployMode.NavigateBacktoEditor();
+  });
+});
