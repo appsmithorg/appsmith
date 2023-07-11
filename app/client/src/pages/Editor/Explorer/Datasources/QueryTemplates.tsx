@@ -160,15 +160,13 @@ export function QueryTemplates(props: QueryTemplatesProps) {
             dispatch(change(QUERY_EDITOR_FORM_NAME, path, value));
           }
         }
+      });
 
-        // leaving this code intentionally pending on what we want to do with deleted fields
-        // if (diff.kind === "D") {
-        //   const path = diff?.path?.join(".") || "";
-
-        //   if (path && !path.includes(".viewType")) {
-        //     dispatch(change(QUERY_EDITOR_FORM_NAME, path, ""));
-        //   }
-        // }
+      AnalyticsUtil.logEvent("AUTOMATIC_QUERY_GENERATION", {
+        datasourceId: props.datasourceId,
+        pluginName: plugin?.name || "",
+        templateCommand: template?.title,
+        isWalkthroughOpened,
       });
 
       if (isWalkthroughOpened) {
@@ -183,12 +181,6 @@ export function QueryTemplates(props: QueryTemplatesProps) {
         true,
         UndoRedoToastContext.QUERY_TEMPLATES,
       );
-
-      AnalyticsUtil.logEvent("AUTOMATIC_QUERY_GENERATION", {
-        datasourceId: props.datasourceId,
-        pluginName: plugin?.name || "",
-        templateCommand: template?.title,
-      });
     },
     [
       dispatch,
