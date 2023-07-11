@@ -146,14 +146,12 @@ public class DatasourceTriggerSolutionTest {
         Mockito.when(datasourceStructureSolution.getStructure(Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
                 .thenReturn(Mono.just(testStructure));
 
-        Datasource datasource = datasourceService
-                .findById(datasourceId, datasourcePermission.getReadPermission())
-                .block();
+        datasourceService.findById(datasourceId, datasourcePermission.getReadPermission()).block();
         Mockito.doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
 
         Mono<TriggerResultDTO> tableNameMono = datasourceTriggerSolution.trigger(
                 datasourceId,
-                null,
+                defaultEnvironmentId,
                 new TriggerRequestDTO("ENTITY_SELECTOR", Map.of(), ClientDataDisplayType.DROP_DOWN));
 
         Mono<TriggerResultDTO> columnNamesMono = datasourceTriggerSolution.trigger(
