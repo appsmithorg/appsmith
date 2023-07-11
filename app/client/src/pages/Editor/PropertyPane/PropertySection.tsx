@@ -1,6 +1,13 @@
+/* eslint-disable no-console */
 import { Classes } from "@blueprintjs/core";
 import type { ReactNode, Context } from "react";
-import React, { memo, useState, createContext, useCallback } from "react";
+import React, {
+  memo,
+  useState,
+  createContext,
+  useCallback,
+  useEffect,
+} from "react";
 import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
@@ -88,24 +95,15 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   const dispatch = useDispatch();
   const currentWidgetId = useSelector(getCurrentWidgetId);
   const { isDefaultOpen = true } = props;
-  const isDefaultContextOpen = useSelector(
-    (state: AppState) =>
-      getPropertySectionState(state, {
-        key: `${currentWidgetId}.${props.id}`,
-        panelPropertyPath: props.panelPropertyPath,
-      }),
-    () => true,
+  const isContextOpen = useSelector((state: AppState) =>
+    getPropertySectionState(state, {
+      key: `${currentWidgetId}.${props.id}`,
+      panelPropertyPath: props.panelPropertyPath,
+    }),
   );
+  console.log(isContextOpen, "isContextOpen - DEBUGGER");
   const isSearchResult = props.tag !== undefined;
-  let initialIsOpenState = true;
-  if (isSearchResult) {
-    initialIsOpenState = true;
-  } else if (isDefaultContextOpen !== undefined) {
-    initialIsOpenState = isDefaultContextOpen;
-  } else {
-    initialIsOpenState = !!isDefaultOpen;
-  }
-  const [isOpen, setIsOpen] = useState(initialIsOpenState);
+  const [isOpen, setIsOpen] = useState(!!isContextOpen);
 
   const handleSectionTitleClick = useCallback(() => {
     if (props.collapsible)
@@ -120,6 +118,19 @@ export const PropertySection = memo((props: PropertySectionProps) => {
         return !x;
       });
   }, [props.collapsible, props.id, currentWidgetId]);
+
+  useEffect(() => {
+    let initialIsOpenState = true;
+    if (isSearchResult) {
+      initialIsOpenState = true;
+    } else if (isContextOpen !== undefined) {
+      initialIsOpenState = isContextOpen;
+    } else {
+      initialIsOpenState = !!isDefaultOpen;
+    }
+
+    setIsOpen(initialIsOpenState);
+  }, [isContextOpen, isSearchResult, isDefaultOpen]);
 
   if (!currentWidgetId) return null;
 
