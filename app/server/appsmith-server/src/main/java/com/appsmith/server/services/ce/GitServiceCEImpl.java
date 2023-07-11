@@ -1778,8 +1778,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         importExportApplicationService.exportApplicationById(
                                                 application.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
 
-                                return Mono.zip(exportAppMono, fetchRemoteMono) // run them in parallel
-                                        .map(Tuple2::getT1); // we need the applicationJson only
+                                return Mono.zip(exportAppMono, fetchRemoteMono) // zip will run them in parallel
+                                        .elapsed()
+                                        .map(objects -> {
+                                            log.debug("Time to fetch remote and export app: {} ms", objects.getT1());
+                                            // we need the applicationJson only
+                                            return objects.getT2().getT1();
+                                        });
                             });
 
                     if (Boolean.TRUE.equals(isFileLock)) {
