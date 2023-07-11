@@ -13,7 +13,8 @@ const dataSourceName = "gsheet";
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet";
 describe("GSheet-Functional Tests", function () {
-  before("Add a new app and an add new spreadsheet query", () => {
+  before(function () {
+    //Add a new app and an add new spreadsheet query
     //Setting up the spreadsheet name
     const uuid = Cypress._.random(0, 10000);
     spreadSheetName = spreadSheetName + "_" + uuid;
@@ -110,7 +111,8 @@ describe("GSheet-Functional Tests", function () {
     });
   });
 
-  after("Delete spreadsheet and app", () => {
+  after(function () {
+    // Delete spreadsheet and app
     gsheetHelper.DeleteSpreadsheetQuery(dataSourceName, spreadSheetName);
     cy.get("@postExecute").then((interception: any) => {
       expect(interception.response.body.data.body.message).to.deep.equal(
