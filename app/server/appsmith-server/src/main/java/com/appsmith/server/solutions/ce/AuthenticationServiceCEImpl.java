@@ -100,8 +100,10 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         if (Boolean.TRUE.equals(isTrueEnvironmentIdRequired)) {
             return datasourceService
                     .findById(datasourceId, datasourcePermission.getEditPermission())
-                    .map(Datasource::getWorkspaceId)
-                    .flatMap(workspaceId -> datasourceService.getTrueEnvironmentId(workspaceId, environmentId))
+                    .flatMap(datasource -> {
+                        return datasourceService.getTrueEnvironmentId(
+                                datasource.getWorkspaceId(), environmentId, datasource.getPluginId());
+                    })
                     .flatMap(trueEnvironmentId -> getAuthorizationCodeURLForGenericOAuth2(
                             datasourceId, trueEnvironmentId, pageId, httpRequest));
         }
@@ -121,8 +123,10 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         if (Boolean.TRUE.equals(isTrueEnvironmentIdRequired)) {
             return datasourceService
                     .findById(datasourceId, datasourcePermission.getEditPermission())
-                    .map(Datasource::getWorkspaceId)
-                    .flatMap(workspaceId -> datasourceService.getTrueEnvironmentId(workspaceId, environmentId))
+                    .flatMap(datasource -> {
+                        return datasourceService.getTrueEnvironmentId(
+                                datasource.getWorkspaceId(), environmentId, datasource.getPluginId());
+                    })
                     .flatMap(trueEnvironmentId -> getAppsmithToken(
                             datasourceId, trueEnvironmentId, pageId, branchName, request, importForGit));
         }
@@ -136,8 +140,10 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         if (Boolean.TRUE.equals(isTrueEnvironmentIdRequired)) {
             return datasourceService
                     .findById(datasourceId, datasourcePermission.getEditPermission())
-                    .map(Datasource::getWorkspaceId)
-                    .flatMap(workspaceId -> datasourceService.getTrueEnvironmentId(workspaceId, environmentId))
+                    .flatMap(datasource -> {
+                        return datasourceService.getTrueEnvironmentId(
+                                datasource.getWorkspaceId(), environmentId, datasource.getPluginId());
+                    })
                     .flatMap(trueEnvironmentId ->
                             getAccessTokenFromCloud(datasourceId, trueEnvironmentId, appsmithToken));
         }

@@ -2,7 +2,6 @@ import * as _ from "../../../../../../support/Objects/ObjectsCore";
 const publishPage = require("../../../../../../locators/publishWidgetspage.json");
 const commonLocators = require("../../../../../../locators/commonlocators.json");
 import widgetsJson from "../../../../../../locators/Widgets.json";
-import * as _ from "../../../../../../support/Objects/ObjectsCore";
 
 const tableData = `[
     {

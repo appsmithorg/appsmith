@@ -26,6 +26,7 @@ import { AutoLayout } from "../Pages/AutoLayout";
 import { DefaultHostPort } from "./Hostport";
 import { AssertHelper } from "../Pages/AssertHelper";
 import { ReusableHelper } from "./ReusableHelper";
+import { Tabs } from "../Pages/Tabs";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -114,6 +115,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.table__ = new Table();
     }
     return ObjectsRegistry.table__;
+  }
+
+  private static tabs__: Tabs;
+  static get Tabs(): Tabs {
+    if (ObjectsRegistry.tabs__ === undefined) {
+      ObjectsRegistry.tabs__ = new Tabs();
+    }
+    return ObjectsRegistry.tabs__;
   }
 
   private static propertyPane__: PropertyPane;

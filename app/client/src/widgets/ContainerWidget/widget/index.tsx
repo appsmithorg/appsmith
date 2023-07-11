@@ -13,7 +13,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { compact, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { Positioning } from "utils/autoLayout/constants";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -43,6 +43,17 @@ export class ContainerWidget extends BaseWidget<
         "!url": "https://docs.appsmith.com/widget-reference/container",
       },
       isVisible: DefaultAutocompleteDefinitions.isVisible,
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+      },
     };
   }
 
