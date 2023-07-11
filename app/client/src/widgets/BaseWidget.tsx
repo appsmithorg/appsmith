@@ -3,10 +3,8 @@
  * spawing components based on those props
  * Widgets are also responsible for dispatching actions and updating the state tree
  */
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 
-import AutoHeightOverlayContainer from "components/autoHeightOverlay";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import type { EditorContextType } from "components/editorComponents/EditorContextProvider";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
@@ -23,11 +21,7 @@ import type {
   WidgetType,
 } from "constants/WidgetConstants";
 import { FLEXBOX_PADDING } from "constants/WidgetConstants";
-import {
-  GridDefaults,
-  RenderModes,
-  WIDGET_PADDING,
-} from "constants/WidgetConstants";
+import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { Stylesheet } from "entities/AppTheming";
 import { get, memoize } from "lodash";
@@ -40,7 +34,6 @@ import type {
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import shallowequal from "shallowequal";
-import type { CSSProperties } from "styled-components";
 import AppsmithConsole from "utils/AppsmithConsole";
 import type {
   DataTreeEvaluationProps,
@@ -51,11 +44,6 @@ import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { CanvasWidgetStructure, FlattenedWidgetProps } from "./constants";
 
-import {
-  getWidgetMaxAutoHeight,
-  getWidgetMinAutoHeight,
-  shouldUpdateWidgetHeightAutomatically,
-} from "./WidgetUtils";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import WidgetComponentBoundary from "components/editorComponents/WidgetComponentBoundary";
 import type { AutocompletionDefinitions } from "./constants";
@@ -64,7 +52,6 @@ import type {
   ResponsiveBehavior,
   FlexVerticalAlignment,
 } from "utils/autoLayout/constants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 
 /***
  * BaseWidget
@@ -215,35 +202,6 @@ abstract class BaseWidget<
     if (resetChildrenMetaProperty) resetChildrenMetaProperty(widgetId);
   }
 
-  /*
-    This method calls the action to update widget height
-    We're not using `updateWidgetProperty`, because, the workflow differs
-    We will be computing properties of all widgets which are effected by
-    this change.
-    @param height number: Height of the widget's contents in pixels
-    @return void
-
-    TODO (abhinav): Make sure that this isn't called for scenarios which do not require it
-    This is for performance. We don't want unnecessary code to run
-  */
-  updateAutoHeight = (height: number): void => {
-    const paddedHeight =
-      Math.ceil(
-        Math.ceil(height + WIDGET_PADDING * 2) /
-          GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-      ) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
-    const shouldUpdate = shouldUpdateWidgetHeightAutomatically(
-      paddedHeight,
-      this.props,
-    );
-    const { updateWidgetAutoHeight } = this.context;
-
-    if (updateWidgetAutoHeight) {
-      const { widgetId } = this.props;
-      shouldUpdate && updateWidgetAutoHeight(widgetId, paddedHeight);
-    }
-  };
   selectWidgetRequest = (
     selectionRequestType: SelectionRequestType,
     payload?: string[],
@@ -426,58 +384,6 @@ abstract class BaseWidget<
 
   addErrorBoundary(content: ReactNode) {
     return <ErrorBoundary>{content}</ErrorBoundary>;
-  }
-
-  addAutoHeightOverlay(content: ReactNode, style?: CSSProperties) {
-    // required when the limits have to be updated
-    // simultaneosuly when they move together
-    // to maintain the undo/redo stack
-    const onBatchUpdate = ({
-      maxHeight,
-      minHeight,
-    }: {
-      maxHeight?: number;
-      minHeight?: number;
-    }) => {
-      const modifyObj: Record<string, unknown> = {};
-
-      if (maxHeight !== undefined) {
-        modifyObj["maxDynamicHeight"] = Math.floor(
-          maxHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-        );
-      }
-
-      if (minHeight !== undefined) {
-        modifyObj["minDynamicHeight"] = Math.floor(
-          minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-        );
-      }
-
-      this.batchUpdateWidgetProperty({
-        modify: modifyObj,
-        postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
-      });
-      AnalyticsUtil.logEvent("AUTO_HEIGHT_OVERLAY_HANDLES_UPDATE", modifyObj);
-    };
-
-    const onMaxHeightSet = (maxHeight: number) => onBatchUpdate({ maxHeight });
-
-    const onMinHeightSet = (minHeight: number) => onBatchUpdate({ minHeight });
-
-    return (
-      <>
-        <AutoHeightOverlayContainer
-          {...this.props}
-          batchUpdate={onBatchUpdate}
-          maxDynamicHeight={getWidgetMaxAutoHeight(this.props)}
-          minDynamicHeight={getWidgetMinAutoHeight(this.props)}
-          onMaxHeightSet={onMaxHeightSet}
-          onMinHeightSet={onMinHeightSet}
-          style={style}
-        />
-        {content}
-      </>
-    );
   }
 
   addWidgetComponentBoundary = (

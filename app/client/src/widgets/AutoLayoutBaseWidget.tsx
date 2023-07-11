@@ -12,7 +12,6 @@ import {
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetProps, WidgetState } from "./BaseWidget";
 import Skeleton from "./Skeleton";
-import { isAutoHeightEnabledForWidgetWithLimits } from "./WidgetUtils";
 import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
 import type BaseWidget from "./BaseWidget";
 
@@ -163,10 +162,6 @@ export const getAutoLayoutProps = (
           content = baseWidgetContext.makeSnipeable(content);
 
           content = makeFlex(content);
-
-          if (isAutoHeightEnabledForWidgetWithLimits(props)) {
-            content = baseWidgetContext.addAutoHeightOverlay(content);
-          }
         }
 
         return content;

@@ -1,15 +1,26 @@
 import AutoHeightContainerWrapper from "components/autoHeight/AutoHeightContainerWrapper";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
-import { RenderModes } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  RenderModes,
+  WIDGET_PADDING,
+} from "constants/WidgetConstants";
 import type { ReactNode } from "react";
 import React from "react";
 import type { WidgetProps, WidgetState } from "./BaseWidget";
 import Skeleton from "./Skeleton";
 import {
+  getWidgetMaxAutoHeight,
+  getWidgetMinAutoHeight,
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
+  shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
 import type BaseWidget from "./BaseWidget";
+import type { CSSProperties } from "styled-components";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import AutoHeightOverlayContainer from "components/autoHeightOverlay";
 
 export const getFixedLayoutProps = (
   props: WidgetProps,
@@ -61,9 +72,7 @@ export const getFixedLayoutProps = (
     ) {
       return (
         <AutoHeightContainerWrapper
-          onUpdateDynamicHeight={(height) =>
-            baseWidgetContext.updateAutoHeight(height)
-          }
+          onUpdateDynamicHeight={(height) => updateAutoHeight(height)}
           widgetProps={props}
         >
           {content}
@@ -73,6 +82,88 @@ export const getFixedLayoutProps = (
 
     content = baseWidgetContext.addWidgetComponentBoundary(content, props);
     return baseWidgetContext.addErrorBoundary(content);
+  };
+
+  /*
+  This method calls the action to update widget height
+  We're not using `updateWidgetProperty`, because, the workflow differs
+  We will be computing properties of all widgets which are effected by
+  this change.
+  @param height number: Height of the widget's contents in pixels
+  @return void
+
+  TODO (abhinav): Make sure that this isn't called for scenarios which do not require it
+  This is for performance. We don't want unnecessary code to run
+*/
+  const updateAutoHeight = (height: number): void => {
+    const paddedHeight =
+      Math.ceil(
+        Math.ceil(height + WIDGET_PADDING * 2) /
+          GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      ) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
+    const shouldUpdate = shouldUpdateWidgetHeightAutomatically(
+      paddedHeight,
+      props,
+    );
+    const { updateWidgetAutoHeight } = baseWidgetContext.context;
+
+    if (updateWidgetAutoHeight) {
+      const { widgetId } = props;
+      shouldUpdate && updateWidgetAutoHeight(widgetId, paddedHeight);
+    }
+  };
+
+  const addAutoHeightOverlay = (content: ReactNode, style?: CSSProperties) => {
+    // required when the limits have to be updated
+    // simultaneosuly when they move together
+    // to maintain the undo/redo stack
+    const onBatchUpdate = ({
+      maxHeight,
+      minHeight,
+    }: {
+      maxHeight?: number;
+      minHeight?: number;
+    }) => {
+      const modifyObj: Record<string, unknown> = {};
+
+      if (maxHeight !== undefined) {
+        modifyObj["maxDynamicHeight"] = Math.floor(
+          maxHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        );
+      }
+
+      if (minHeight !== undefined) {
+        modifyObj["minDynamicHeight"] = Math.floor(
+          minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        );
+      }
+
+      baseWidgetContext.batchUpdateWidgetProperty({
+        modify: modifyObj,
+        postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
+      });
+      AnalyticsUtil.logEvent("AUTO_HEIGHT_OVERLAY_HANDLES_UPDATE", modifyObj);
+    };
+
+    const onMaxHeightSet = (maxHeight: number) => onBatchUpdate({ maxHeight });
+
+    const onMinHeightSet = (minHeight: number) => onBatchUpdate({ minHeight });
+
+    return (
+      <>
+        <AutoHeightOverlayContainer
+          {...props}
+          batchUpdate={onBatchUpdate}
+          maxDynamicHeight={getWidgetMaxAutoHeight(props)}
+          minDynamicHeight={getWidgetMinAutoHeight(props)}
+          onMaxHeightSet={onMaxHeightSet}
+          onMinHeightSet={onMinHeightSet}
+          style={style}
+        />
+        {content}
+      </>
+    );
   };
 
   const makePositioned = (content: ReactNode) => {
@@ -119,7 +210,7 @@ export const getFixedLayoutProps = (
           content = makePositioned(content);
 
           if (isAutoHeightEnabledForWidgetWithLimits(props)) {
-            content = baseWidgetContext.addAutoHeightOverlay(content);
+            content = addAutoHeightOverlay(content);
           }
         }
 

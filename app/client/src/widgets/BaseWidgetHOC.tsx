@@ -7,6 +7,7 @@ import { getAutoLayoutProps } from "./AutoLayoutBaseWidget";
 import type { WidgetProps, WidgetState } from "./BaseWidget";
 import BaseWidget from "./BaseWidget";
 import { getFixedLayoutProps } from "./FixedLayoutBaseWidget";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export const withBaseWidgetHOC = (WrappedWidget: typeof BaseWidget) => {
   abstract class BaseWidgetHOC extends BaseWidget<WidgetProps, WidgetState> {
@@ -15,10 +16,14 @@ export const withBaseWidgetHOC = (WrappedWidget: typeof BaseWidget) => {
 
     render() {
       let additionalProps = {};
-      if (this.props.isFlexChild) {
-        additionalProps = getAutoLayoutProps(this.props, this);
-      } else {
-        additionalProps = getFixedLayoutProps(this.props, this);
+      switch (this.props.appPositioningType) {
+        case AppPositioningTypes.AUTO:
+          additionalProps = getAutoLayoutProps(this.props, this);
+          break;
+        case AppPositioningTypes.FIXED:
+        default:
+          additionalProps = getFixedLayoutProps(this.props, this);
+          break;
       }
 
       return <WrappedWidget {...this.props} {...additionalProps} />;
