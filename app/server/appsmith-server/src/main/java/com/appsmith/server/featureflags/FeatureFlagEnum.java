@@ -23,9 +23,7 @@ public enum FeatureFlagEnum {
     // ------------------- End of features for testing -------------------------------------------------------------- //
 
     // ------------------- These are actual feature flags meant to be used across the product ----------------------- //
-    DATASOURCE_ENVIRONMENTS,
-    MULTIPLE_PANES,
-    AUTO_LAYOUT,
+    release_datasource_environments_enabled,
     APP_NAVIGATION_LOGO_UPLOAD,
     APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY,
 

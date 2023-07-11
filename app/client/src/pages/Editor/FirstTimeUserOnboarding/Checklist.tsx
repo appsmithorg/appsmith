@@ -257,7 +257,7 @@ function CheckListItem(props: {
         data-testid={props.testid}
         disabled={props.disabled}
         onClick={
-          props.completed
+          props.completed || props.disabled
             ? () => null
             : () => {
                 props.onClick();
@@ -320,6 +320,7 @@ function CheckListItem(props: {
             targetOffset: [13, 0],
           }}
           content={createMessage(SIGNPOSTING_TOOLTIP.DOCUMENTATION.content)}
+          isDisabled={props.disabled}
           placement={"bottomLeft"}
         >
           <div className="absolute right-3">

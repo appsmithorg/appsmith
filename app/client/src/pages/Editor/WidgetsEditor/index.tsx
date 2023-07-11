@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import Debugger from "components/editorComponents/Debugger";
-
 import {
   getCurrentPageId,
   getCurrentPageName,
@@ -38,7 +36,6 @@ import {
   getIsAppSettingsPaneWithNavigationTabOpen,
 } from "selectors/appSettingsPaneSelectors";
 import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
-import PropertyPaneContainer from "./PropertyPaneContainer";
 import SnapShotBannerCTA from "../CanvasLayoutConversion/SnapShotBannerCTA";
 import { APP_MODE } from "entities/App";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
@@ -47,6 +44,8 @@ import classNames from "classnames";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { getReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
 import AnonymousDataPopup from "../FirstTimeUserOnboarding/AnonymousDataPopup";
+import PropertyPaneContainer from "./PropertyPaneContainer";
+import Debugger from "components/editorComponents/Debugger";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -79,6 +78,7 @@ function WidgetsEditor() {
 
   const shouldShowSnapShotBanner =
     !!readableSnapShotDetails && !isPreviewingNavigation;
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (navigationPreviewRef?.current) {
@@ -205,6 +205,7 @@ function WidgetsEditor() {
               }
               isPreviewMode={isPreviewMode}
               isPublished={isPublished}
+              ref={containerRef}
               sidebarWidth={isPreviewingNavigation ? sidebarWidth : 0}
             >
               {shouldShowSnapShotBanner && (
@@ -213,6 +214,7 @@ function WidgetsEditor() {
                 </div>
               )}
               <CanvasContainer
+                containerRef={containerRef}
                 isAppSettingsPaneWithNavigationTabOpen={
                   AppSettingsTabs.Navigation === appSettingsPaneContext?.type
                 }

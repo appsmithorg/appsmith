@@ -1,7 +1,7 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceDTO;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.TriggerRequestDTO;
@@ -66,7 +66,7 @@ public class DatasourceControllerCE {
 
     @JsonView(Views.Public.class)
     @GetMapping("")
-    public Mono<ResponseDTO<List<DatasourceDTO>>> getAll(@RequestParam MultiValueMap<String, String> params) {
+    public Mono<ResponseDTO<List<Datasource>>> getAll(@RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all resources from datasource controller {}", params);
         return datasourceService.getAllWithStorages(params).collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
@@ -75,20 +75,31 @@ public class DatasourceControllerCE {
     @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<DatasourceDTO>> create(@Valid @RequestBody DatasourceDTO resource,
-                                                   @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+    public Mono<ResponseDTO<Datasource>> create(@Valid @RequestBody Datasource resource,
+                                                   @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
         log.debug("Going to create resource from datasource controller");
-        return datasourceService.create(resource, environmentId)
+        return datasourceService.create(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @JsonView(Views.Public.class)
     @PutMapping("/{id}")
-    public Mono<ResponseDTO<DatasourceDTO>> update(@PathVariable String id,
-                                                   @RequestBody DatasourceDTO datasourceDTO,
+    public Mono<ResponseDTO<Datasource>> update(@PathVariable String id,
+                                                   @RequestBody Datasource datasource,
                                                    @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to update resource from datasource controller with id: {}", id);
-        return datasourceService.update(id, datasourceDTO, environmentId, Boolean.TRUE)
+        return datasourceService.updateDatasource(id, datasource, environmentId, Boolean.TRUE)
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PutMapping("/datasource-storages")
+    public Mono<ResponseDTO<Datasource>> updateDatasourceStorages(@RequestBody DatasourceStorageDTO datasourceStorageDTO,
+                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
+        log.debug("Going to update datasource from datasource controller with id: {} and environmentId: {}",
+                datasourceStorageDTO.getDatasourceId(), datasourceStorageDTO.getEnvironmentId());
+
+        return datasourceService.updateDatasourceStorage(datasourceStorageDTO, activeEnvironmentId , Boolean.TRUE)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
@@ -102,11 +113,11 @@ public class DatasourceControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping("/test")
-    public Mono<ResponseDTO<DatasourceTestResult>> testDatasource(@RequestBody DatasourceDTO datasourceDTO,
-                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+    public Mono<ResponseDTO<DatasourceTestResult>> testDatasource(@RequestBody DatasourceStorageDTO datasourceStorageDTO,
+                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
 
-        log.debug("Going to test the datasource with name: {} and id: {}", datasourceDTO.getName(), datasourceDTO.getId());
-        return datasourceService.testDatasource(datasourceDTO, environmentId)
+        log.debug("Going to test the datasource with id: {}", datasourceStorageDTO.getDatasourceId());
+        return datasourceService.testDatasource(datasourceStorageDTO, activeEnvironmentId)
                 .map(testResult -> new ResponseDTO<>(HttpStatus.OK.value(), testResult, null));
     }
 
@@ -154,8 +165,8 @@ public class DatasourceControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping(Url.MOCKS)
-    public Mono<ResponseDTO<DatasourceDTO>> createMockDataSet(@RequestBody MockDataSource mockDataSource,
-                                                              @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+    public Mono<ResponseDTO<Datasource>> createMockDataSet(@RequestBody MockDataSource mockDataSource,
+                                                           @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
         return mockDataService.createMockDataSet(mockDataSource, environmentId)
                 .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));
     }

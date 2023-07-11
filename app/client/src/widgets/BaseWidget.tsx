@@ -500,7 +500,7 @@ abstract class BaseWidget<
       ? this.getAutoLayoutComponentDimensions()
       : this.getComponentDimensions();
 
-    return !this.props.disablePropertyPane ? (
+    return !this.props.disablePropertyPane && false ? (
       <>
         <WidgetNameComponent
           errorCount={this.getErrorCount(get(this.props, EVAL_ERROR_PATH, {}))}
@@ -600,6 +600,7 @@ abstract class BaseWidget<
         modify: modifyObj,
         postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
       });
+
       AnalyticsUtil.logEvent("AUTO_HEIGHT_OVERLAY_HANDLES_UPDATE", modifyObj);
     };
 
@@ -651,7 +652,6 @@ abstract class BaseWidget<
         hasAutoWidth={autoDimensionConfig?.width}
         isResizeDisabled={this.props.resizeDisabled}
         mainCanvasWidth={this.props.mainCanvasWidth}
-        parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
         renderMode={this.props.renderMode}
         responsiveBehavior={this.props.responsiveBehavior}

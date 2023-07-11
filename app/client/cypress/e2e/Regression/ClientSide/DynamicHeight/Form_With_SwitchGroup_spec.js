@@ -7,9 +7,7 @@ import {
 
 describe("Dynamic Height Width validation", function () {
   it("1. Validate change with auto height width for Form/Switch", function () {
-    cy.fixture("dynamicHeightFormSwitchdsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("dynamicHeightFormSwitchdsl");
     entityExplorer.SelectEntityByName("Form1", "Widgets");
     cy.get(".t--widget-formwidget")
       .invoke("css", "height")

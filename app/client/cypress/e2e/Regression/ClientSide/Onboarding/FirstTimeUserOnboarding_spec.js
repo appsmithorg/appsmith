@@ -186,33 +186,38 @@ describe("FirstTimeUserOnboarding", function () {
   );
 
   it("3. onboarding flow - should check directly opening widget pane", function () {
-    cy.get(OnboardingLocator.checklistDatasourceBtn).should("be.visible");
+    agHelper.AssertElementVisible(OnboardingLocator.checklistDatasourceBtn);
     agHelper.GetNClick(OnboardingLocator.introModalCloseBtn);
     entityExplorer.NavigateToSwitcher("Widgets");
-    cy.get(OnboardingLocator.widgetSidebar).should("be.visible");
-    cy.get(OnboardingLocator.dropTarget).should("be.visible");
-    cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
-    cy.get(OnboardingLocator.textWidgetName).should("be.visible").wait(800);
-    cy.reload();
-    cy.wait("@getPage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
+    agHelper.AssertElementVisible(OnboardingLocator.widgetSidebar);
+    agHelper.AssertElementVisible(OnboardingLocator.dropTarget);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);
+    agHelper.RefreshPage(true, "getPage");
+    agHelper.AssertElementEnabledDisabled(
+      debuggerHelper.locators._helpButton,
+      0,
+      false,
     );
+    agHelper.Sleep(500);
     agHelper.GetNClick(debuggerHelper.locators._helpButton);
     agHelper.AssertElementVisible(OnboardingLocator.introModal);
-    cy.get(OnboardingLocator.textWidgetName).should("be.visible");
+    agHelper.AssertElementVisible(OnboardingLocator.textWidgetName);
   });
 
   it("4. onboarding flow - new apps created should start with signposting", function () {
-    cy.get(OnboardingLocator.checklistDatasourceBtn).should("be.visible");
+    agHelper.AssertElementVisible(OnboardingLocator.checklistDatasourceBtn);
     agHelper.GetNClick(OnboardingLocator.introModalCloseBtn);
-
     homePage.NavigateToHome();
     homePage.CreateNewApplication(false);
-
+    agHelper.AssertElementVisible(locators._dropHere);
+    agHelper.AssertElementEnabledDisabled(
+      debuggerHelper.locators._helpButton,
+      0,
+      false,
+    );
+    agHelper.Sleep(500);
     agHelper.GetNClick(debuggerHelper.locators._helpButton);
-    cy.get(OnboardingLocator.checklistDatasourceBtn).should("be.visible");
+    agHelper.AssertElementVisible(OnboardingLocator.checklistDatasourceBtn);
   });
 
   it("5. onboarding flow - once signposting is completed new apps won't start with signposting", function () {
@@ -223,6 +228,12 @@ describe("FirstTimeUserOnboarding", function () {
     homePage.CreateNewApplication(false);
 
     agHelper.AssertElementExist(locators._dropHere);
+    agHelper.AssertElementEnabledDisabled(
+      debuggerHelper.locators._helpButton,
+      0,
+      false,
+    );
+    agHelper.Sleep(500);
     agHelper.GetNClick(debuggerHelper.locators._helpButton);
     agHelper.AssertElementAbsence(OnboardingLocator.introModal);
   });

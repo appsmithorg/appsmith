@@ -15,9 +15,7 @@ describe("Content Management System App", function () {
     cy.get("@guid").then((uid) => {
       homePage.CreateNewWorkspace("EchoApiCMS" + uid);
       homePage.CreateAppInWorkspace("EchoApiCMS" + uid, "EchoApiCMSApp");
-      cy.fixture("CMSdsl").then((val) => {
-        agHelper.AddDsl(val);
-      });
+      agHelper.AddDsl("CMSdsl");
     });
   });
 

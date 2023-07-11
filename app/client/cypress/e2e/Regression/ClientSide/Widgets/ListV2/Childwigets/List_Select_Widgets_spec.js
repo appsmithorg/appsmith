@@ -11,9 +11,7 @@ const widgetSelectorByType = (name) => `.t--widget-${name}`;
 
 describe("Select Widgets", function () {
   before(() => {
-    cy.fixture("Listv2/simpleLargeListv2").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Listv2/simpleLargeListv2");
   });
 
   it("1. Select Widgets default value", function () {

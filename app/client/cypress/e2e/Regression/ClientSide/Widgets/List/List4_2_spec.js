@@ -9,9 +9,7 @@ describe("Container Widget Functionality", function () {
   const items = JSON.parse(dsl.dsl.children[0].listData);
 
   before(() => {
-    cy.fixture("listdsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("listdsl");
   });
 
   it("1. ListWidget-Copy & Delete Verification", function () {

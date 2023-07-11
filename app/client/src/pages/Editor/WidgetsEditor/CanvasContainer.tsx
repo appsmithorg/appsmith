@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 
 import {
@@ -35,12 +35,14 @@ import Canvas from "../Canvas";
 import { CanvasResizer } from "widgets/CanvasResizer";
 import type { AppState } from "@appsmith/reducers";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
+import OverlayCanvasContainer from "./OverlayCanvas";
 
 type CanvasContainerProps = {
   isPreviewMode: boolean;
   shouldShowSnapShotBanner: boolean;
   navigationHeight?: number;
   isAppSettingsPaneWithNavigationTabOpen?: boolean;
+  containerRef: any;
 };
 
 const Container = styled.section<{
@@ -102,6 +104,7 @@ function CanvasContainer(props: CanvasContainerProps) {
   const { isAppSettingsPaneWithNavigationTabOpen, navigationHeight } = props;
   const dispatch = useDispatch();
   const { isPreviewMode, shouldShowSnapShotBanner } = props;
+  const ref = useRef<HTMLDivElement>(null);
 
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
@@ -208,6 +211,7 @@ function CanvasContainer(props: CanvasContainerProps) {
         isPreviewingNavigation={isPreviewingNavigation}
         key={currentPageId}
         navigationHeight={navigationHeight}
+        ref={ref}
         style={
           {
             "--main-canvas-height": shouldHaveTopMargin
@@ -234,6 +238,11 @@ function CanvasContainer(props: CanvasContainerProps) {
         heightWithTopMargin={heightWithTopMargin}
         isPageInitiated={!isPageInitializing && !!widgetsStructure}
         shouldHaveTopMargin={shouldHaveTopMargin}
+      />
+      <OverlayCanvasContainer
+        canvasWidth={canvasWidth}
+        containerRef={props.containerRef}
+        parentRef={ref}
       />
     </>
   );
