@@ -242,6 +242,11 @@ export const generateQuickCommands = (
       triggerCompletionsPostPick: true,
       description: "Generate code using AI",
       isBeta: true,
+      action: () =>
+        executeCommand({
+          actionType: SlashCommand.ASK_AI,
+          args: {},
+        }),
     });
     actionCommands.unshift(askGPT);
   }
