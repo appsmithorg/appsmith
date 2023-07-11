@@ -94,6 +94,7 @@
     "dayjs": "^1.10.6",
     "deep-diff": "^1.0.2",
     "design-system": "npm:@appsmithorg/design-system@2.1.15",
+    "design-system-alpha": "npm:@appsmithorg/design-system@2.1.15-alpha.6",
     "design-system-old": "npm:@appsmithorg/design-system-old@1.1.10",
     "downloadjs": "^1.4.7",
     "fast-deep-equal": "^3.1.3",

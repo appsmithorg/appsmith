@@ -223,7 +223,7 @@ function Pages() {
       <StyledEntity
         addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
         alwaysShowRightIcon
-        className="group pages"
+        className="group pages p-3"
         collapseRef={pageResizeRef}
         customAddButton={
           <AddPageContextMenu

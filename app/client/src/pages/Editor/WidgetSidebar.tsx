@@ -5,10 +5,6 @@ import { getWidgetCards } from "selectors/editorSelectors";
 import { SearchInput } from "design-system";
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import { debounce } from "lodash";
-import {
-  createMessage,
-  WIDGET_SIDEBAR_CAPTION,
-} from "@appsmith/constants/messages";
 import Fuse from "fuse.js";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -17,6 +13,12 @@ import type {
   WidgetTags,
 } from "constants/WidgetConstants";
 import { groupWidgetCardsByTags } from "./utils";
+import {
+  Collapsible,
+  CollapsibleHeader,
+  CollapsibleContent,
+} from "design-system-alpha";
+import { Text } from "design-system";
 
 function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
@@ -92,10 +94,6 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
         className="flex-grow px-3 mt-3 overflow-y-scroll"
         data-testid="widget-sidebar-scrollable-wrapper"
       >
-        <p className="px-3 py-3 text-sm leading-relaxed t--widget-sidebar">
-          {createMessage(WIDGET_SIDEBAR_CAPTION)}
-        </p>
-
         <div>
           {Object.keys(filteredCards).map((tag) => {
             const cardsForThisTag: WidgetCardProps[] =
@@ -106,17 +104,25 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
             }
 
             return (
-              <div className="pb-3" key={tag}>
-                <p className="pl-3 pb-3 text-sm leading-relaxed font-medium">
-                  {tag}
-                </p>
+              <Collapsible className="pb-1" isOpen key={tag}>
+                <CollapsibleHeader arrowPosition="start">
+                  <Text
+                    className="select-none"
+                    color="var(--ads-v2-color-gray-600)"
+                    kind="heading-xs"
+                  >
+                    {tag}
+                  </Text>
+                </CollapsibleHeader>
 
-                <div className="grid items-stretch grid-cols-3 gap-3 justify-items-stretch">
-                  {cardsForThisTag.map((card) => (
-                    <WidgetCard details={card} key={card.key} />
-                  ))}
-                </div>
-              </div>
+                <CollapsibleContent>
+                  <div className="grid items-stretch grid-cols-3 gap-x-2 gap-y-1 justify-items-stretch">
+                    {cardsForThisTag.map((card) => (
+                      <WidgetCard details={card} key={card.key} />
+                    ))}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             );
           })}
         </div>

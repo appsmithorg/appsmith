@@ -259,8 +259,6 @@ export const SAVE_HOTKEY_TOASTER_MESSAGE = () =>
   "Don't worry about saving, we've got you covered!";
 
 export const WIDGET_SIDEBAR_TITLE = () => `Widgets`;
-export const WIDGET_SIDEBAR_CAPTION = () =>
-  `Drag a widget and drop it on the canvas`;
 export const GOOGLE_RECAPTCHA_KEY_ERROR = () =>
   `Google Re-Captcha token generation failed! Please check the Re-captcha site key.`;
 export const GOOGLE_RECAPTCHA_DOMAIN_ERROR = () =>
