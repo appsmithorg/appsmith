@@ -629,6 +629,9 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                 .getUserEmailsByIdsAndTenantId(userIds, tenantId, Optional.empty())
                 .collect(Collectors.toSet())
                 .flatMap(userEmails -> {
+                    if (CollectionUtils.isEmpty(userEmails)) {
+                        return Mono.just(List.of());
+                    }
                     UsersForGroupDTO userEmailsFromGroupDTO = new UsersForGroupDTO();
                     userEmailsFromGroupDTO.setUsernames(userEmails);
                     userEmailsFromGroupDTO.setGroupIds(removeUsersFromGroupDTO.getGroupIds());
@@ -643,6 +646,9 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                 .getUserEmailsByIdsAndTenantId(userIds, tenantId, Optional.empty())
                 .collect(Collectors.toSet())
                 .flatMap(userEmails -> {
+                    if (CollectionUtils.isEmpty(userEmails)) {
+                        return Mono.just(List.of());
+                    }
                     UsersForGroupDTO userEmailsFromGroupDTO = new UsersForGroupDTO();
                     userEmailsFromGroupDTO.setUsernames(userEmails);
                     userEmailsFromGroupDTO.setGroupIds(addUsersFromGroupDTO.getGroupIds());

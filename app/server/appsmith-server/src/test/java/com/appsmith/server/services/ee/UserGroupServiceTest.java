@@ -23,6 +23,7 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.UserAndAccessManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -81,6 +82,9 @@ public class UserGroupServiceTest {
 
     @Autowired
     UserDataService userDataService;
+
+    @Autowired
+    UserAndAccessManagementService userAndAccessManagementService;
 
     User api_user = null;
     User admin_user = null;
@@ -1054,5 +1058,141 @@ public class UserGroupServiceTest {
                 .findAny();
         assertThat(regularGroup.isPresent()).isFalse();
         assertThat(provisionGroup.isPresent()).isTrue();
+    }
+
+    @Test
+    @WithUserDetails("provisioningUser")
+    public void removeDeletedUserFromUserGroup_shouldReturnEmptyList_shouldNotUpdateUserGroup() {
+        String testName = "removeDeletedUserFromUserGroup_shouldReturnEmptyList_shouldNotUpdateUserGroup";
+        User user1 = new User();
+        user1.setEmail(testName + "_provisioned_user1@appsmith.com");
+        ProvisionResourceDto provisionedUser1 =
+                userService.createProvisionUser(user1).block();
+
+        User user2 = new User();
+        user2.setEmail(testName + "_provisioned_user2@appsmith.com");
+        ProvisionResourceDto provisionedUser2 =
+                userService.createProvisionUser(user2).block();
+
+        UserGroup userGroup_provisioning = new UserGroup();
+        userGroup_provisioning.setName(testName + "_provisionedGroup");
+        ProvisionResourceDto provisionedUserGroup =
+                userGroupService.createProvisionGroup(userGroup_provisioning).block();
+
+        UsersForGroupDTO addUsersForGroupDTO = new UsersForGroupDTO();
+        addUsersForGroupDTO.setGroupIds(
+                Set.of(provisionedUserGroup.getResource().getId()));
+        addUsersForGroupDTO.setUserIds(List.of(
+                provisionedUser1.getResource().getId(),
+                provisionedUser2.getResource().getId()));
+
+        userGroupService.addUsersToProvisionGroup(addUsersForGroupDTO).block();
+
+        ProvisionResourceDto provisionedUserGroupPostInviting = userGroupService
+                .getProvisionGroup(provisionedUserGroup.getResource().getId())
+                .block();
+        UserGroup provisionedUserGroupResourcePostInviting = (UserGroup) provisionedUserGroupPostInviting.getResource();
+        assertThat(provisionedUserGroupResourcePostInviting.getUsers())
+                .containsExactlyInAnyOrder(
+                        provisionedUser1.getResource().getId(),
+                        provisionedUser2.getResource().getId());
+
+        userAndAccessManagementService
+                .deleteUser(provisionedUser2.getResource().getId())
+                .block();
+
+        User deletedProvisionedUser2 =
+                userRepository.findById(provisionedUser2.getResource().getId()).block();
+        assertThat(deletedProvisionedUser2).isNull();
+
+        UsersForGroupDTO removeDeletedUserFromGroupUsersForGroupDTO = new UsersForGroupDTO();
+        removeDeletedUserFromGroupUsersForGroupDTO.setGroupIds(
+                Set.of(provisionedUserGroup.getResource().getId()));
+        removeDeletedUserFromGroupUsersForGroupDTO.setUserIds(
+                List.of(provisionedUser2.getResource().getId()));
+
+        List<UserGroupDTO> updatedUserGroupDTOsPostRemovingDeletedUser = userGroupService
+                .removeUsersFromProvisionGroup(removeDeletedUserFromGroupUsersForGroupDTO)
+                .block();
+
+        // We return an empty list, when we are not able to find any users with the userIds supplied.
+        assertThat(updatedUserGroupDTOsPostRemovingDeletedUser).hasSize(0);
+
+        ProvisionResourceDto provisionedUserGroupPostRemovingDeletedUser = userGroupService
+                .getProvisionGroup(provisionedUserGroup.getResource().getId())
+                .block();
+        UserGroup provisionedUserGroupResourcePostRemovingDeletedUser =
+                (UserGroup) provisionedUserGroupPostRemovingDeletedUser.getResource();
+        assertThat(provisionedUserGroupResourcePostRemovingDeletedUser.getUsers())
+                .containsExactlyInAnyOrder(provisionedUser1.getResource().getId());
+
+        UsersForGroupDTO removeExistingUserFromGroupUsersForGroupDTO = new UsersForGroupDTO();
+        removeExistingUserFromGroupUsersForGroupDTO.setGroupIds(
+                Set.of(provisionedUserGroup.getResource().getId()));
+        removeExistingUserFromGroupUsersForGroupDTO.setUserIds(
+                List.of(provisionedUser1.getResource().getId()));
+
+        List<UserGroupDTO> updatedUserGroupDTOsPostRemovingExistingUser = userGroupService
+                .removeUsersFromProvisionGroup(removeExistingUserFromGroupUsersForGroupDTO)
+                .block();
+
+        assertThat(updatedUserGroupDTOsPostRemovingExistingUser).hasSize(1);
+
+        ProvisionResourceDto provisionedUserGroupPostRemovingExistingUser = userGroupService
+                .getProvisionGroup(provisionedUserGroup.getResource().getId())
+                .block();
+        UserGroup provisionedUserGroupResourcePostRemovingExistingUser =
+                (UserGroup) provisionedUserGroupPostRemovingExistingUser.getResource();
+        assertThat(provisionedUserGroupResourcePostRemovingExistingUser.getUsers())
+                .isEmpty();
+    }
+
+    @Test
+    @WithUserDetails("provisioningUser")
+    public void inviteInvalidUserIdToUserGroup_shouldReturnEmptyList_shouldNotUpdateUserGroup() {
+        String testName = "inviteInvalidUserIdToUserGroup_shouldReturnEmptyList_shouldNotUpdateUserGroup";
+        User user1 = new User();
+        user1.setEmail(testName + "_provisioned_user1@appsmith.com");
+        ProvisionResourceDto provisionedUser1 =
+                userService.createProvisionUser(user1).block();
+
+        UserGroup userGroup_provisioning = new UserGroup();
+        userGroup_provisioning.setName(testName + "_provisionedGroup");
+        ProvisionResourceDto provisionedUserGroup =
+                userGroupService.createProvisionGroup(userGroup_provisioning).block();
+
+        UsersForGroupDTO addUsersForGroupDTO = new UsersForGroupDTO();
+        addUsersForGroupDTO.setGroupIds(
+                Set.of(provisionedUserGroup.getResource().getId()));
+        addUsersForGroupDTO.setUserIds(List.of(provisionedUser1.getResource().getId()));
+
+        userGroupService.addUsersToProvisionGroup(addUsersForGroupDTO).block();
+
+        ProvisionResourceDto provisionedUserGroupPostInviting = userGroupService
+                .getProvisionGroup(provisionedUserGroup.getResource().getId())
+                .block();
+        UserGroup provisionedUserGroupResourcePostInviting = (UserGroup) provisionedUserGroupPostInviting.getResource();
+        assertThat(provisionedUserGroupResourcePostInviting.getUsers())
+                .containsExactlyInAnyOrder(provisionedUser1.getResource().getId());
+
+        UsersForGroupDTO inviteInvalidUserIdToGroupUsersForGroupDTO = new UsersForGroupDTO();
+        inviteInvalidUserIdToGroupUsersForGroupDTO.setGroupIds(
+                Set.of(provisionedUserGroup.getResource().getId()));
+        inviteInvalidUserIdToGroupUsersForGroupDTO.setUserIds(List.of("invalidUserId"));
+
+        List<UserGroupDTO> updatedUserGroupDTOsPostInvitingInvalidUserId = userGroupService
+                .removeUsersFromProvisionGroup(inviteInvalidUserIdToGroupUsersForGroupDTO)
+                .block();
+
+        // We return an empty list, when we are not able to find any users with the userIds supplied.
+        assertThat(updatedUserGroupDTOsPostInvitingInvalidUserId).hasSize(0);
+
+        ProvisionResourceDto provisionedUserGroupPostRemovingDeletedUser = userGroupService
+                .getProvisionGroup(provisionedUserGroup.getResource().getId())
+                .block();
+        UserGroup provisionedUserGroupResourcePostRemovingDeletedUser =
+                (UserGroup) provisionedUserGroupPostRemovingDeletedUser.getResource();
+        assertThat(provisionedUserGroupResourcePostRemovingDeletedUser.getUsers())
+                .containsExactlyInAnyOrder(provisionedUser1.getResource().getId());
     }
 }
