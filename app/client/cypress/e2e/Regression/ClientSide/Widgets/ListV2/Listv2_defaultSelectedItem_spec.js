@@ -3,11 +3,8 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
-
 const items = dsl.dsl.children[4]?.listData;
-
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
-
 function testJsontextClear(endp) {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
@@ -47,9 +44,7 @@ const verifyDefaultItem = () => {
 };
 
 function setUpDataSource() {
-  cy.fixture("datasources").then((datasourceFormData) => {
-    _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"] + "0");
-  });
+  _.apiPage.CreateAndFillApi(_.tedTestConfig.mockApiUrl + "0");
   cy.RunAPI();
   _.entityExplorer.SelectEntityByName("List1");
   cy.wait(200);

@@ -7699,15 +7699,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/papaparse@npm:^5.3.5":
-  version: 5.3.5
-  resolution: "@types/papaparse@npm:5.3.5"
-  dependencies:
-    "@types/node": "*"
-  checksum: f9833662e5536836be9586b9344757d99e22c7cfd6997ab212700c3b623491e28548676e023adfa801fc7c60f3f6d1d417dbf02c5f138442ed9b020b128a7f5f
-  languageName: node
-  linkType: hard
-
 "@types/parse-json@npm:^4.0.0":
   version: 4.0.0
   resolution: "@types/parse-json@npm:4.0.0"
@@ -9595,7 +9586,6 @@ __metadata:
     "@types/node": ^10.12.18
     "@types/node-forge": ^0.10.0
     "@types/object-hash": ^2.2.1
-    "@types/papaparse": ^5.3.5
     "@types/prismjs": ^1.16.1
     "@types/react": ^17.0.2
     "@types/react-beautiful-dnd": ^11.0.4
@@ -9731,7 +9721,6 @@ __metadata:
     node-forge: ^1.3.0
     normalizr: ^3.3.0
     object-hash: ^3.0.0
-    papaparse: ^5.3.2
     path-to-regexp: ^6.2.0
     plop: ^3.1.1
     popper.js: ^1.15.0
@@ -22723,13 +22712,6 @@ __metadata:
   version: 1.0.11
   resolution: "pako@npm:1.0.11"
   checksum: 1be2bfa1f807608c7538afa15d6f25baa523c30ec870a3228a89579e474a4d992f4293859524e46d5d87fd30fa17c5edf34dbef0671251d9749820b488660b16
-  languageName: node
-  linkType: hard
-
-"papaparse@npm:^5.3.2":
-  version: 5.3.2
-  resolution: "papaparse@npm:5.3.2"
-  checksum: a5950ef931a42f6759a8d3823a43dd30f375b37a0ddea6ea5448c0c5024cd226819231958c49c24fbcdeab297c63fd1d630130b3439876ea0fd17d8a267738ae
   languageName: node
   linkType: hard
 

@@ -8,9 +8,8 @@ import {
 describe("Dynamic Height Width validation", function () {
   function validateCssProperties(property) {
     agHelper.GetNClickByContains("button", "Small", 0, true);
-    agHelper.Sleep(2000);
+    agHelper.Sleep(3000);
     entityExplorer.SelectEntityByName("Text1");
-    agHelper.Sleep(2000);
     agHelper
       .GetWidgetCSSFrAttribute(
         locators._widgetInDeployed(draggableWidgets.TEXT),
@@ -27,7 +26,6 @@ describe("Dynamic Height Width validation", function () {
           )
           .then((CurrentValueOfSecondText) => {
             entityExplorer.SelectEntityByName("Text3");
-            agHelper.Sleep(2000);
             agHelper
               .GetWidgetCSSFrAttribute(
                 locators._widgetInDeployed(draggableWidgets.TEXT),
@@ -36,7 +34,6 @@ describe("Dynamic Height Width validation", function () {
               )
               .then((CurrentValueOfThirdText) => {
                 entityExplorer.SelectEntityByName("Text4");
-                agHelper.Sleep(2000);
                 agHelper
                   .GetWidgetCSSFrAttribute(
                     locators._widgetInDeployed(draggableWidgets.TEXT),
@@ -123,9 +120,8 @@ describe("Dynamic Height Width validation", function () {
                                       0,
                                       true,
                                     );
-                                    agHelper.Sleep(2000);
+                                    agHelper.Sleep(3000);
                                     entityExplorer.SelectEntityByName("Text1");
-                                    agHelper.Sleep(2000);
                                     agHelper
                                       .GetWidgetCSSFrAttribute(
                                         locators._widgetInDeployed(
@@ -151,7 +147,6 @@ describe("Dynamic Height Width validation", function () {
                                               entityExplorer.SelectEntityByName(
                                                 "Text3",
                                               );
-                                              agHelper.Sleep(2000);
                                               agHelper
                                                 .GetWidgetCSSFrAttribute(
                                                   locators._widgetInDeployed(
@@ -167,7 +162,6 @@ describe("Dynamic Height Width validation", function () {
                                                     entityExplorer.SelectEntityByName(
                                                       "Text4",
                                                     );
-                                                    agHelper.Sleep(2000);
                                                     agHelper
                                                       .GetWidgetCSSFrAttribute(
                                                         locators._widgetInDeployed(

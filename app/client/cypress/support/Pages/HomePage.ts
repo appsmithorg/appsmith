@@ -113,9 +113,8 @@ export class HomePage {
   _sharePublicToggle =
     "//div[contains(@class, 't--share-public-toggle')]//input[@role='switch']";
   _modeSwitchToggle = ".t--comment-mode-switch-toggle";
-  _textInputType = "input[type='text']";
   _appsContainer = ".t--applications-container";
-  _shareButton = "//button//span[2][text()='Share']";
+  _importFromGitBtn = "div.t--import-json-card + div";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -443,6 +442,17 @@ export class HomePage {
       force: true,
     });
     this.agHelper.Sleep(3500);
+  }
+
+  public ImportGitApp(intoWorkspaceName = "") {
+    this.NavigateToHome();
+    if (intoWorkspaceName)
+      this.agHelper.GetNClick(this._optionsIconInWorkspace(intoWorkspaceName));
+    else this.agHelper.GetNClick(this._optionsIcon);
+    this.agHelper.GetNClick(this._workspaceImport, 0, true);
+    this.agHelper.AssertElementVisible(this._workspaceImportAppModal);
+    this.agHelper.GetNClick(this._importFromGitBtn);
+    this.agHelper.Sleep(1000);
   }
 
   // Do not use this directly, it will fail on EE. Use `InviteUserToApplication` instead

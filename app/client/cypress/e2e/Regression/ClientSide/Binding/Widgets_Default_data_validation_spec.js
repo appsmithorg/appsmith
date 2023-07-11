@@ -4,6 +4,7 @@ const testdata = require("../../../../fixtures/testdata.json");
 import {
   entityExplorer,
   agHelper,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the multiple widgets and validating default data", function () {
@@ -13,21 +14,15 @@ describe("Binding the multiple widgets and validating default data", function ()
 
   it("1. Input widget test with default value from table widget", function () {
     entityExplorer.SelectEntityByName("Input1");
-    cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
-
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
+    propPane.UpdatePropertyFieldValue(
+      "Default value",
+      testdata.defaultInputWidget + "}}",
     );
     //Dropdown widget test with default value from table widget
     entityExplorer.SelectEntityByName("Dropdown1");
-    cy.testJsontext("options", JSON.stringify(testdata.deafultDropDownWidget));
-
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
+    propPane.UpdatePropertyFieldValue(
+      "Options",
+      JSON.stringify(testdata.deafultDropDownWidget),
     );
   });
 

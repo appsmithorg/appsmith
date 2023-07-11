@@ -1451,13 +1451,12 @@ export class AggregateHelper extends ReusableHelper {
       apiToValidate && this.assertHelper.AssertNetworkStatus(apiToValidate);
   }
 
-  public TypeTextWithoutWait(
-    selector: string,
-    value: string,
-    index = 0,
-    force = false
-  ) {
-    return this.GetElement(selector).eq(index).type(value, {force: force});
+  public GetDropTargetId(widgetName: string) {
+    return this.GetWidgetByName(widgetName).invoke("attr", "id");
+  }
+
+  public GetModalDropTargetId() {
+    return this.GetElement(this.locator._modal).invoke("attr", "id");
   }
 
   //Not used:
