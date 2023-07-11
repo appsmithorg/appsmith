@@ -3,11 +3,12 @@ import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import { getWidgetCards } from "selectors/editorSelectors";
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
-import { debounce } from "lodash";
+import { debounce, sortBy } from "lodash";
 import Fuse from "fuse.js";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
+  ESSENTIAL_WIDGETS_ORDER,
   WIDGET_TAGS,
   type WidgetCardsGroupedByTags,
   type WidgetTags,
@@ -125,9 +126,15 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
 
                 <CollapsibleContent>
                   <div className="grid items-stretch grid-cols-3 gap-x-2 gap-y-1 justify-items-stretch">
-                    {cardsForThisTag.map((card) => (
-                      <WidgetCard details={card} key={card.key} />
-                    ))}
+                    {tag === WIDGET_TAGS.ESSENTIAL_WIDGETS
+                      ? sortBy(cardsForThisTag, (widget) => {
+                          return ESSENTIAL_WIDGETS_ORDER[widget.type];
+                        }).map((card) => (
+                          <WidgetCard details={card} key={card.key} />
+                        ))
+                      : cardsForThisTag.map((card) => (
+                          <WidgetCard details={card} key={card.key} />
+                        ))}
                   </div>
                 </CollapsibleContent>
               </Collapsible>

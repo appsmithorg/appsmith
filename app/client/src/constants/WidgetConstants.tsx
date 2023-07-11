@@ -244,3 +244,12 @@ export const WIDGET_TAGS = {
 export type WidgetTags = (typeof WIDGET_TAGS)[keyof typeof WIDGET_TAGS];
 
 export type WidgetCardsGroupedByTags = Record<WidgetTags, WidgetCardProps[]>;
+
+export const ESSENTIAL_WIDGETS_ORDER: Record<WidgetType, number> = {
+  TABLE_WIDGET_V2: 1,
+  JSON_FORM_WIDGET: 2,
+  INPUT_WIDGET_V2: 3,
+  TEXT_WIDGET: 4,
+  SELECT_WIDGET: 5,
+  LIST_WIDGET_V2: 6,
+};
