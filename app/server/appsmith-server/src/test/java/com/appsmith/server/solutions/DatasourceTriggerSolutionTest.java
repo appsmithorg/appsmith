@@ -158,7 +158,7 @@ public class DatasourceTriggerSolutionTest {
 
         Mono<TriggerResultDTO> columnNamesMono = datasourceTriggerSolution.trigger(
                 datasourceId,
-                null,
+                defaultEnvironmentId,
                 new TriggerRequestDTO(
                         "ENTITY_SELECTOR", Map.of("tableName", "Table1"), ClientDataDisplayType.DROP_DOWN));
 
