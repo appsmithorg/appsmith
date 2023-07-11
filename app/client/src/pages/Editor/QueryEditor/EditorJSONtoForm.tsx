@@ -126,11 +126,11 @@ import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
-import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/CodeEditorSignPosting";
 import { isAIEnabled } from "@appsmith/components/editorComponents/GPT/trigger";
 import { selectFeatureFlags } from "selectors/featureFlagsSelectors";
 import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
 import { PluginName } from "entities/Action";
+import { EditorFormSignPosting } from "@appsmith/components/editorComponents/EditorFormSignPosting";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -967,7 +967,7 @@ export function EditorJSONtoForm(props: Props) {
                     className="tab-panel"
                     value={EDITOR_TABS.QUERY}
                   >
-                    <CodeEditorSignPosting
+                    <EditorFormSignPosting
                       isAIEnabled={isAIEnabledForPosting}
                       mode={editorMode}
                     />
