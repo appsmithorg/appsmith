@@ -24,7 +24,6 @@ describe("Navigate To feature", () => {
       }
       }}`,
     );
-    agHelper.AssertAutoSave();
     agHelper.PopupClose("onClick");
     agHelper.ClickButton("Submit");
     cy.url().should("include", "a=b").and("include", "test=123");

@@ -15,19 +15,15 @@ describe("Published mode toggle toast with debug flag in the url", function () {
   });
 
   it("1. Should not show any application related toasts", function () {
-    cy.fixture("datasources").then((datasourceFormData) => {
-      _.apiPage.CreateAndFillApi(
-        datasourceFormData["mockApiUrl"],
-        "Correct_users",
-      );
-      _.apiPage.ToggleOnPageLoadRun(true);
-      _.apiPage.CreateAndFillApi(
-        datasourceFormData["mockApiUrl"].replace("mock-api", "mock-api2err"),
-        "Incorrect_users",
-      );
-      _.apiPage.ToggleOnPageLoadRun(true);
-      _.jsEditor.CreateJSObject(
-        `export default {
+    _.apiPage.CreateAndFillApi(_.tedTestConfig.mockApiUrl, "Correct_users");
+    _.apiPage.ToggleOnPageLoadRun(true);
+    _.apiPage.CreateAndFillApi(
+      _.tedTestConfig.mockApiUrl.replace("mock-api", "mock-api2err"),
+      "Incorrect_users",
+    );
+    _.apiPage.ToggleOnPageLoadRun(true);
+    _.jsEditor.CreateJSObject(
+      `export default {
         async myFun1 () {
           const res = await Correct_users.run();
           showAlert("Hello info", "info");
@@ -38,35 +34,34 @@ describe("Published mode toggle toast with debug flag in the url", function () {
           return res;
         }
       }`,
-        {
-          paste: true,
-          completeReplace: true,
-          toRun: false,
-          shouldCreateNewJSObj: true,
-        },
-      );
-      _.deployMode.DeployApp(undefined, true, true, false);
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      },
+    );
+    _.deployMode.DeployApp(undefined, true, true, false);
 
-      _.agHelper.AssertElementAbsence(_.locators._toastMsg);
+    _.agHelper.AssertElementAbsence(_.locators._toastMsg);
 
-      _.agHelper.ClickButton(SHOW_ALERT_WORKING_BUTTON);
-      _.agHelper.AssertContains(SHOW_ALERT_MSG, "exist", _.locators._toastMsg);
+    _.agHelper.ClickButton(SHOW_ALERT_WORKING_BUTTON);
+    _.agHelper.AssertContains(SHOW_ALERT_MSG, "exist", _.locators._toastMsg);
 
-      _.agHelper.ClickButton(SHOW_ALERT_NOT_WORKING_BUTTON);
-      _.agHelper.AssertContains(
-        SHOW_ALERT_NOT_WORKING_MSG,
-        "not.exist",
-        _.locators._toastMsg,
-      );
+    _.agHelper.ClickButton(SHOW_ALERT_NOT_WORKING_BUTTON);
+    _.agHelper.AssertContains(
+      SHOW_ALERT_NOT_WORKING_MSG,
+      "not.exist",
+      _.locators._toastMsg,
+    );
 
-      _.agHelper.ClickButton(RUN_JS_OBJECT_BUTTON);
-      _.agHelper.AssertContains("Hello success", "exist", _.locators._toastMsg);
-      _.agHelper.AssertContains(
-        RUN_JS_OBJECT_MSG,
-        "not.exist",
-        _.locators._toastMsg,
-      );
-    });
+    _.agHelper.ClickButton(RUN_JS_OBJECT_BUTTON);
+    _.agHelper.AssertContains("Hello success", "exist", _.locators._toastMsg);
+    _.agHelper.AssertContains(
+      RUN_JS_OBJECT_MSG,
+      "not.exist",
+      _.locators._toastMsg,
+    );
   });
 
   it("2. Should show all application related toasts with debug flag true in url", function () {
