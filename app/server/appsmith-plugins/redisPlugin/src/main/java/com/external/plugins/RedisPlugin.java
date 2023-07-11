@@ -27,7 +27,10 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Protocol;
+import redis.clients.jedis.commands.ProtocolCommand;
 import redis.clients.jedis.exceptions.JedisException;
+import redis.clients.jedis.json.JsonProtocol;
+import redis.clients.jedis.search.SearchProtocol;
 import redis.clients.jedis.util.SafeEncoder;
 
 import java.net.URI;
@@ -50,6 +53,8 @@ public class RedisPlugin extends BasePlugin {
     private static final int CONNECTION_TIMEOUT = 60;
     private static final String CMD_KEY = "cmd";
     private static final String ARGS_KEY = "args";
+    private static final String JSON_COMMAND_PREFIX = "JSON";
+    private static final String SEARCH_COMMAND_PREFIX = "FT";
 
     public RedisPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -93,10 +98,11 @@ public class RedisPlugin extends BasePlugin {
                                     RedisErrorMessages.QUERY_PARSING_FAILED_ERROR_MSG));
                         }
 
-                        Protocol.Command command;
+                        ProtocolCommand command;
+                        final String commandRaw = (String) cmdAndArgs.get(CMD_KEY);
                         try {
                             // Commands are in upper case
-                            command = Protocol.Command.valueOf((String) cmdAndArgs.get(CMD_KEY));
+                            command = getProtocolCommand(commandRaw);
                         } catch (IllegalArgumentException exc) {
                             return Mono.error(new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -192,7 +198,7 @@ public class RedisPlugin extends BasePlugin {
              * (5) '{"a":"b"}'
              * Please note that the above example string is not a valid redis cmd and is only mentioned here for info.
              */
-            String redisCmdRegex = "\\\"[^\\\"]+\\\"|'[^']+'|[\\S]+";
+            String redisCmdRegex = "\\$[^\\[\\s]+(?:\\[[^\\]]*\\])*\\S*|\\[.+\\]|\\{.+\\}|\"[^\"]*\"|'[^']*'|\\S+";
             Pattern pattern = Pattern.compile(redisCmdRegex);
             Matcher matcher = pattern.matcher(query);
             Map<String, Object> cmdAndArgs = new HashMap<>();
@@ -212,6 +218,20 @@ public class RedisPlugin extends BasePlugin {
             return cmdAndArgs;
         }
 
+        private ProtocolCommand getProtocolCommand(final String commandRaw) {
+            final String[] commandRawSplited = commandRaw.split("\\.");
+            final String commandPrefix = commandRawSplited[0];
+
+            switch (commandPrefix) {
+                case JSON_COMMAND_PREFIX:
+                    return JsonProtocol.JsonCommand.valueOf(commandRawSplited[1]);
+                case SEARCH_COMMAND_PREFIX:
+                    return SearchProtocol.SearchCommand.valueOf(commandRawSplited[1]);
+                default:
+                    return Protocol.Command.valueOf(commandRaw);
+            }
+        }
+
         // This will be updated as we encounter different outputs.
         private List<Map<String, String>> processCommandOutput(Object commandOutput) {
             if (commandOutput == null) {
@@ -219,9 +239,18 @@ public class RedisPlugin extends BasePlugin {
             } else if (commandOutput instanceof byte[]) {
                 return List.of(Map.of("result", SafeEncoder.encode((byte[]) commandOutput)));
             } else if (commandOutput instanceof List) {
-                List<byte[]> commandList = (List<byte[]>) commandOutput;
+                List<?> commandList = (List) commandOutput;
                 return commandList.stream()
-                        .map(obj -> Map.of("result", SafeEncoder.encode(obj)))
+                        .map(obj -> {
+                            if (obj instanceof Long) {
+                                return Map.of(
+                                        "result",
+                                        SafeEncoder.encode(
+                                                ((Long) obj).toString().getBytes()));
+                            }
+
+                            return Map.of("result", SafeEncoder.encode((byte[]) obj));
+                        })
                         .collect(Collectors.toList());
             } else {
                 return List.of(Map.of("result", String.valueOf(commandOutput)));
