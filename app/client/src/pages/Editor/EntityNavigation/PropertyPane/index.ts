@@ -70,11 +70,12 @@ export default class PropertyPaneNavigation extends PaneNavigation {
 
     // Expand section
     if (navigationConfig.sectionId) {
+      // TODO: We need to make propertyPath work as well
+      // TODO: Section of a panel
       yield put(
         setPropertySectionState(
           `${this.widget.widgetId}.${navigationConfig.sectionId}`,
           true,
-          this.entityInfo?.propertyPath,
         ),
       );
       yield delay(500);

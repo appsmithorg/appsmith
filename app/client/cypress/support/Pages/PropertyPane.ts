@@ -462,6 +462,14 @@ export class PropertyPane {
       this.agHelper.AssertElementExist(this._propertyControl(property));
   }
 
+  public AssertIfPropertyIsVisible(property: string) {
+    this.agHelper.AssertElementVisible(this._propertyControl(property));
+  }
+
+  public AssertIfPropertyIsNotVisible(property: string) {
+    this.agHelper.AssertElementNotVisible(this._propertyControl(property));
+  }
+
   public AddAction(property: string) {
     this.agHelper.GetNClick(this._addAction(property), 0, true);
   }
