@@ -490,6 +490,10 @@ class CodeEditor extends Component<Props, State> {
   handleSlashCommandSelection = (...args: any) => {
     const [command] = args;
     if (command === APPSMITH_AI) {
+      this.props.executeCommand({
+        actionType: SlashCommand.ASK_AI,
+        args: {},
+      });
       this.setState({ showAIWindow: true });
     }
     this.handleAutocompleteVisibility(this.editor);
