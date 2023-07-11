@@ -2,15 +2,15 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import { getWidgetCards } from "selectors/editorSelectors";
-import { SearchInput } from "design-system";
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import { debounce } from "lodash";
 import Fuse from "fuse.js";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type {
-  WidgetCardsGroupedByTags,
-  WidgetTags,
+import {
+  WIDGET_TAGS,
+  type WidgetCardsGroupedByTags,
+  type WidgetTags,
 } from "constants/WidgetConstants";
 import { groupWidgetCardsByTags } from "./utils";
 import {
@@ -18,7 +18,7 @@ import {
   CollapsibleHeader,
   CollapsibleContent,
 } from "design-system-alpha";
-import { Text } from "design-system";
+import { SearchInput, Text } from "design-system";
 
 function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
@@ -26,6 +26,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const [filteredCards, setFilteredCards] =
     useState<WidgetCardsGroupedByTags>(groupedCards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
 
   const fuse = useMemo(() => {
     const options = {
@@ -57,6 +58,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
   }, 1000);
 
   const filterCards = (keyword: string) => {
+    setIsSearching(true);
     sendWidgetSearchAnalytics(keyword);
 
     if (keyword.trim().length > 0) {
@@ -64,6 +66,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
       setFilteredCards(groupWidgetCardsByTags(searchResult));
     } else {
       setFilteredCards(groupedCards);
+      setIsSearching(false);
     }
   };
 
@@ -100,6 +103,11 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
               filteredCards[tag as WidgetTags];
 
             if (!cardsForThisTag?.length) {
+              return null;
+            }
+
+            // We don't need to show essential widgets when the user is searching
+            if (isSearching && tag === WIDGET_TAGS.ESSENTIAL_WIDGETS) {
               return null;
             }
 
