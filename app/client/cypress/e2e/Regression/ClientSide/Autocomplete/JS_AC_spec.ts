@@ -448,15 +448,21 @@ describe("Autocomplete tests", () => {
     //Assert that hints are not present inside the string
     agHelper.TypeText(locators._codeMirrorTextArea, `const x = "`);
 
+    agHelper.Sleep(500);
+
     agHelper.AssertElementAbsence(locators._hints);
 
     agHelper.SelectNRemoveLineText(jsEditor._lineinJsEditor(4));
+
+    agHelper.Sleep(500);
 
     //Assert that hints are not present when line is cleared with backspace
     agHelper.AssertElementAbsence(locators._hints);
 
     //Assert that hints are not present when token is a comment
     agHelper.TypeText(locators._codeMirrorTextArea, "// showA'");
+
+    agHelper.Sleep(500);
 
     agHelper.AssertElementAbsence(locators._hints);
 
