@@ -21,5 +21,4 @@ public class GitAuthDTO {
 
     @JsonView(Views.Public.class)
     List<GitDeployKeyDTO> gitSupportedSSHKeyType;
-
 }

@@ -21,6 +21,5 @@ public class BasicAuth extends AuthenticationDTO {
     String username;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Encrypted
-    String password;
+    @Encrypted String password;
 }

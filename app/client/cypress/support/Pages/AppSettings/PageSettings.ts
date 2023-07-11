@@ -6,7 +6,7 @@ export class PageSettings {
   private appSettings = ObjectsRegistry.AppSettings;
   private assertHelper = ObjectsRegistry.AssertHelper;
 
-  private locators = {
+  public locators = {
     _pageNameField: "#t--page-settings-name",
     _customSlugField: "#t--page-settings-custom-slug",
     _showPageNavSwitch: "#t--page-settings-show-nav-control",

@@ -150,29 +150,6 @@ export const extractInfoFromBindings = (
   );
 };
 
-export function listTriggerFieldDependencies(
-  entity: WidgetEntity,
-  entityName: string,
-  entityConfig: WidgetEntityConfig,
-): DependencyMap {
-  const triggerFieldDependency: DependencyMap = {};
-  if (isWidget(entity)) {
-    const dynamicTriggerPathlist = entityConfig.dynamicTriggerPathList;
-    if (dynamicTriggerPathlist && dynamicTriggerPathlist.length) {
-      dynamicTriggerPathlist.forEach((dynamicPath) => {
-        const propertyPath = dynamicPath.key;
-        const unevalPropValue = get(entity, propertyPath);
-        const { jsSnippets } = getDynamicBindings(unevalPropValue);
-        const existingDeps =
-          triggerFieldDependency[`${entityName}.${propertyPath}`] || [];
-        triggerFieldDependency[`${entityName}.${propertyPath}`] =
-          existingDeps.concat(jsSnippets.filter((jsSnippet) => !!jsSnippet));
-      });
-    }
-  }
-  return triggerFieldDependency;
-}
-
 export function listValidationDependencies(
   entity: WidgetEntity,
   entityName: string,
@@ -321,25 +298,15 @@ export function listEntityPathDependencies(
   entity: WidgetEntity | ActionEntity | JSActionEntity,
   fullPropertyPath: string,
   entityConfig: DataTreeEntityConfig,
-): {
-  isTrigger: boolean;
-  dependencies: string[];
-} {
+): string[] {
   let dependencies: string[] = [];
-  const isTrigger = false;
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
+
   if (isWidget(entity)) {
     if (
       isATriggerPath(entity, propertyPath, entityConfig as WidgetEntityConfig)
     ) {
-      return {
-        isTrigger: true,
-        dependencies: listEntityPathTriggerFieldDependencies(
-          entity,
-          fullPropertyPath,
-          entityConfig as WidgetEntityConfig,
-        ),
-      };
+      return [];
     }
   }
 
@@ -367,24 +334,7 @@ export function listEntityPathDependencies(
       );
     }
   }
-  return { isTrigger, dependencies };
-}
-
-export function listEntityPathTriggerFieldDependencies(
-  entity: WidgetEntity,
-  fullPath: string,
-  entityConfig: WidgetEntityConfig,
-) {
-  let triggerFieldDependencies: string[] = [];
-  const { propertyPath } = getEntityNameAndPropertyPath(fullPath);
-
-  if (isADynamicTriggerPath(entity, propertyPath, entityConfig)) {
-    const unevalPropValue = get(entity, propertyPath);
-    const { jsSnippets } = getDynamicBindings(unevalPropValue);
-    triggerFieldDependencies = jsSnippets.filter((jsSnippet) => !!jsSnippet);
-  }
-
-  return triggerFieldDependencies;
+  return dependencies;
 }
 
 export function isADynamicTriggerPath(

@@ -5,12 +5,12 @@ import com.appsmith.server.domains.User;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class UserIdentifierServiceCEImpl implements UserIdentifierServiceCE{
+public class UserIdentifierServiceCEImpl implements UserIdentifierServiceCE {
 
     private final CommonConfig commonConfig;
 
     @Autowired
-    public UserIdentifierServiceCEImpl(CommonConfig commonConfig){
+    public UserIdentifierServiceCEImpl(CommonConfig commonConfig) {
         this.commonConfig = commonConfig;
     }
 
@@ -22,7 +22,7 @@ public class UserIdentifierServiceCEImpl implements UserIdentifierServiceCE{
      * @return
      */
     @Override
-    public String getUserIdentifier(User user){
+    public String getUserIdentifier(User user) {
         String userIdentifier = user.getUsername();
         if (!commonConfig.isCloudHosting()) {
             userIdentifier = hash(user.getUsername());
@@ -34,6 +34,4 @@ public class UserIdentifierServiceCEImpl implements UserIdentifierServiceCE{
     public String hash(String value) {
         return value == null ? "" : DigestUtils.sha256Hex(value);
     }
-
 }
-

@@ -41,7 +41,7 @@ public class Datasource extends BranchAwareDomain implements Forkable<Datasource
     @JsonView(Views.Public.class)
     String pluginName;
 
-    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
+    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
     @Deprecated
     @JsonView(Views.Public.class)
     String organizationId;
@@ -59,7 +59,6 @@ public class Datasource extends BranchAwareDomain implements Forkable<Datasource
     @Transient
     @JsonView(Views.Public.class)
     Map<String, DatasourceStorageDTO> datasourceStorages = new HashMap<>();
-
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)

@@ -4,7 +4,7 @@ import { QUERY_TYPE } from "../types";
 import type {
   WidgetQueryGenerationConfig,
   WidgetQueryGenerationFormConfig,
-  ActionConfigurationPostgreSQL,
+  ActionConfigurationSQL,
 } from "../types";
 import { removeSpecialChars } from "utils/helpers";
 export default abstract class PostgreSQL extends BaseQueryGenerator {
@@ -190,7 +190,7 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
   public static build(
     widgetConfig: WidgetQueryGenerationConfig,
     formConfig: WidgetQueryGenerationFormConfig,
-    pluginInitalValues: { actionConfiguration: ActionConfigurationPostgreSQL },
+    pluginInitalValues: { actionConfiguration: ActionConfigurationSQL },
   ) {
     const allBuildConfigs = [];
     if (widgetConfig.select) {
