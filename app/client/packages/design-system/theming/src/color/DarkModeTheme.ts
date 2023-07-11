@@ -95,7 +95,7 @@ export class DarkModeTheme implements ColorModeTheme {
       bdPositive: this.bdPositive.to("sRGB").toString(),
       bdPositiveHover: this.bdPositiveHover.to("sRGB").toString(),
       bdWarning: this.bdWarning.to("sRGB").toString(),
-      bdWarningHover: this.bdWarning.to("sRGB").toString(),
+      bdWarningHover: this.bdWarningHover.to("sRGB").toString(),
     };
   };
 
