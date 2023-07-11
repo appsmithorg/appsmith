@@ -37,27 +37,25 @@ describe("Entity bottom bar", () => {
   });
 
   it("3. Api bottom pane should be collapsable", () => {
-    cy.fixture("datasources").then((datasourceFormData: any) => {
-      _.entityExplorer.NavigateToSwitcher("Explorer");
-      _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"]);
-      //Verify if bottom bar opens on clicking debugger icon in api page.
-      _.debuggerHelper.ClickDebuggerIcon();
-      _.debuggerHelper.AssertOpen(PageType.API);
-      //Verify if selected tab is errors in tab title.
-      _.debuggerHelper.AssertSelectedTab("Errors");
-      //Verify if bottom bar is closed on clicking close icon in API page.
-      _.debuggerHelper.CloseBottomBar();
-      _.debuggerHelper.AssertClosed();
-      //Verify if bottom bar opens on clicking debugger icon in api page.
-      _.debuggerHelper.ClickDebuggerIcon();
-      _.debuggerHelper.AssertOpen(PageType.API);
-      //Verify if bottom bar is open on executing api.
-      _.apiPage.RunAPI();
-      _.agHelper.Sleep(1000);
-      _.debuggerHelper.AssertOpen(PageType.API);
-      //verify if response tab is selected on execution api.
-      _.debuggerHelper.AssertSelectedTab("Response");
-    });
+    _.entityExplorer.NavigateToSwitcher("Explorer");
+    _.apiPage.CreateAndFillApi(_.tedTestConfig.mockApiUrl);
+    //Verify if bottom bar opens on clicking debugger icon in api page.
+    _.debuggerHelper.ClickDebuggerIcon();
+    _.debuggerHelper.AssertOpen(PageType.API);
+    //Verify if selected tab is errors in tab title.
+    _.debuggerHelper.AssertSelectedTab("Errors");
+    //Verify if bottom bar is closed on clicking close icon in API page.
+    _.debuggerHelper.CloseBottomBar();
+    _.debuggerHelper.AssertClosed();
+    //Verify if bottom bar opens on clicking debugger icon in api page.
+    _.debuggerHelper.ClickDebuggerIcon();
+    _.debuggerHelper.AssertOpen(PageType.API);
+    //Verify if bottom bar is open on executing api.
+    _.apiPage.RunAPI();
+    _.agHelper.Sleep(1000);
+    _.debuggerHelper.AssertOpen(PageType.API);
+    //verify if response tab is selected on execution api.
+    _.debuggerHelper.AssertSelectedTab("Response");
   });
 
   it("4. Bottom bar in Datasource", () => {
