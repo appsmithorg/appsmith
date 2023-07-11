@@ -59,9 +59,9 @@ import {
 import { PluginName } from "entities/Action";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Tooltip } from "design-system";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
-const SCHEMA_GUIDE_GIF =
-  "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/schema.gif";
+const SCHEMA_GUIDE_GIF = `${ASSETS_CDN_URL}/schema.gif`;
 
 const SCHEMA_SECTION_ID = "t--api-right-pane-schema";
 

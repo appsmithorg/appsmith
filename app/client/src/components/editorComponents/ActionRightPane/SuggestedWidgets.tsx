@@ -54,8 +54,7 @@ import {
 } from "utils/storage";
 import { getCurrentUser } from "selectors/usersSelectors";
 
-const BINDING_GUIDE_GIF =
-  "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/binding.gif";
+const BINDING_GUIDE_GIF = `${ASSETS_CDN_URL}/binding.gif`;
 
 const BINDING_SECTION_ID = "t--api-right-pane-binding";
 
