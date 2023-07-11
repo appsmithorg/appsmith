@@ -62,7 +62,9 @@ export class DataSources {
     this._section(name) +
     "/following-sibling::div/div[@class ='bp3-collapse-body']";
   private _password =
-    "input[name$='.datasourceConfiguration.authentication.password']";
+    "input[name $= '.datasourceConfiguration.authentication.password']";
+  private defaultDatabaseName =
+    "input[name*='datasourceConfiguration.connection.defaultDatabaseName']";
   private _testDs = ".t--test-datasource";
   _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   _saveDs = ".t--save-datasource";
@@ -865,19 +867,23 @@ export class DataSources {
     }
   }
 
-  public ReconnectDataSource(dbName: string, dsName: "PostgreSQL" | "MySQL") {
+  public ReconnectSingleDSNAssert(
+    dbName: string,
+    dsName: "PostgreSQL" | "MySQL" | "MongoDB",
+  ) {
     this.ReconnectModalValidation(dbName, dsName);
     this.ValidateNSelectDropdown("Connection mode", "Read / Write");
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
-    this.agHelper.GetNClick(this._saveDs);
+    else if (dsName == "MongoDB") this.FillMongoDSForm();
+    this.SaveDatasource(true);
     this.assertHelper.AssertNetworkStatus("@getPage", 200);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
   public ReconnectModalValidation(
     dbName: string,
-    dsName: "PostgreSQL" | "MySQL",
+    dsName: "PostgreSQL" | "MySQL" | "MongoDB",
   ) {
     this.WaitForReconnectModalToAppear();
     this.agHelper.AssertElementVisible(
