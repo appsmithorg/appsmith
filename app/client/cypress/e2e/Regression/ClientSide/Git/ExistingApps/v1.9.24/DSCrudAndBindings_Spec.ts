@@ -258,14 +258,12 @@ describe("Import and validate older app (app created in older versions of Appsmi
     agHelper
       .GetText(locators._widgetInDeployed(draggableWidgets.TEXT), "text")
       .should("not.be.empty");
-    agHelper.WaitUntilAllToastsDisappear();
-    deployMode.NavigateBacktoEditor();
-    agHelper.WaitUntilAllToastsDisappear();
   });
 
   after(() => {
     gitSync.DeleteDeployKey(appRepoName, keyId);
-    homePage.NavigateToHome();
+    deployMode.NavigateToHomeDirectly();
+    agHelper.WaitUntilAllToastsDisappear();
     homePage.DeleteApplication(appName);
     homePage.DeleteWorkspace(workspaceName);
   });
