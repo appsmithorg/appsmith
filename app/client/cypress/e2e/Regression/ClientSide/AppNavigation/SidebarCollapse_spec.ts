@@ -30,4 +30,5 @@ describe("Test Sidebar Collapse", function () {
     .should("have.class", "is-open");
   // Back to editor
   deployMode.NavigateBacktoEditor();
-});
+})
+}
