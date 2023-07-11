@@ -580,7 +580,7 @@ export function* fetchProductAlertSaga() {
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const message = response.data;
-      if (message) {
+      if (message.messageId) {
         const config = getMessageConfig(message.messageId);
         yield put(fetchProductAlertSuccess({ message, config }));
       }
