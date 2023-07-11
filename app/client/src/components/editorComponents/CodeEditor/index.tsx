@@ -103,6 +103,7 @@ import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { startingEntityUpdate } from "actions/editorActions";
 import type { SlashCommandPayload } from "entities/Action";
+import { SlashCommand } from "entities/Action";
 import type { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
 import {
