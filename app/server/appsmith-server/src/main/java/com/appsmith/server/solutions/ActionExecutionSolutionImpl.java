@@ -45,7 +45,6 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
             DatasourcePermission datasourcePermission,
             AnalyticsService analyticsService,
             DatasourceStorageService datasourceStorageService,
-            DatasourceStorageTransferSolution datasourceStorageTransferSolution,
             VariableReplacementService variableReplacementService) {
         super(
                 newActionService,
@@ -63,8 +62,7 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
                 authenticationValidator,
                 datasourcePermission,
                 analyticsService,
-                datasourceStorageService,
-                datasourceStorageTransferSolution);
+                datasourceStorageService);
 
         this.variableReplacementService = variableReplacementService;
     }
