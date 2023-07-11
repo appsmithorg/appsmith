@@ -126,6 +126,11 @@ import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
+import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/CodeEditorSignPosting";
+import { isAIEnabled } from "@appsmith/components/editorComponents/GPT/trigger";
+import { selectFeatureFlags } from "selectors/featureFlagsSelectors";
+import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
+import { PluginName } from "entities/Action";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -866,6 +871,14 @@ export function EditorJSONtoForm(props: Props) {
     dispatch(setDebuggerSelectedTab(tabKey));
   }, []);
 
+  const featureFlags = useSelector(selectFeatureFlags);
+  const editorMode =
+    currentActionPluginName === PluginName.POSTGRES
+      ? editorSQLModes.POSTGRESQL_WITH_BINDING
+      : editorSQLModes.MYSQL_WITH_BINDING;
+
+  const isAIEnabledForPosting = isAIEnabled(featureFlags, editorMode);
+
   // close the debugger
   //TODO: move this to a common place
   const onClose = () => dispatch(showDebugger(false));
@@ -954,6 +967,11 @@ export function EditorJSONtoForm(props: Props) {
                     className="tab-panel"
                     value={EDITOR_TABS.QUERY}
                   >
+                    <CodeEditorSignPosting
+                      isAIEnabled={isAIEnabledForPosting}
+                      mode={editorMode}
+                    />
+
                     <SettingsWrapper>
                       {editorConfig && editorConfig.length > 0 ? (
                         renderConfig(editorConfig)

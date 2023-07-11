@@ -7,17 +7,18 @@ import React from "react";
 
 export function CodeEditorSignPosting(props: {
   promptMessage?: React.ReactNode | string;
-  isOpen: boolean;
+  isOpen?: boolean;
   editorTheme?: EditorTheme;
   showLightningMenu?: boolean;
   isAIEnabled?: boolean;
   mode: TEditorModes;
+  forComp?: string;
 }): JSX.Element {
   return (
     <BindingPrompt
       editorTheme={props.editorTheme}
       isAIEnabled={props.isAIEnabled}
-      isOpen={props.isOpen}
+      isOpen={props.isOpen || false}
       promptMessage={props.promptMessage}
       showLightningMenu={props.showLightningMenu}
     />
