@@ -56,7 +56,13 @@ export function* executeActionTriggers(
   let response: unknown[] = [];
   switch (trigger.type) {
     case "RUN_PLUGIN_ACTION":
-      response = yield call(executePluginActionTriggerSaga, trigger, eventType);
+      if (!!trigger.payload.actionId) {
+        response = yield call(
+          executePluginActionTriggerSaga,
+          trigger,
+          eventType,
+        );
+      }
       break;
     case "CLEAR_PLUGIN_ACTION":
       yield put(clearActionResponse(trigger.payload.actionId));

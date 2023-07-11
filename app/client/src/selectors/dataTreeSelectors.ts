@@ -1,6 +1,7 @@
 import { createSelector } from "reselect";
 import {
   getActionsForCurrentPage,
+  getModulesForCurrentPage,
   getAppData,
   getPluginDependencyConfig,
   getPluginEditorConfigs,
@@ -26,6 +27,7 @@ import { DATATREE_INTERNAL_KEYWORDS } from "constants/WidgetValidation";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
+  getModulesForCurrentPage,
   getJSCollectionsForCurrentPage,
   getWidgetsForEval,
   getWidgetsMeta,
@@ -37,6 +39,7 @@ export const getUnevaluatedDataTree = createSelector(
   getMetaWidgets,
   (
     actions,
+    modules,
     jsActions,
     widgets,
     widgetsMeta,
@@ -50,6 +53,7 @@ export const getUnevaluatedDataTree = createSelector(
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
       actions,
+      modules,
       jsActions,
       widgets,
       widgetsMeta,

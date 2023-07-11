@@ -1,4 +1,5 @@
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { isModule } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   getAllPaths,
   DataTreeDiffEvent,
@@ -65,7 +66,12 @@ export function createDependencyMap(
   Object.keys(configTree).forEach((entityName) => {
     const entity = unEvalTree[entityName];
     const entityConfig = configTree[entityName];
-    if (isAction(entity) || isWidget(entity) || isJSAction(entity)) {
+    if (
+      isAction(entity) ||
+      isWidget(entity) ||
+      isJSAction(entity) ||
+      isModule(entity)
+    ) {
       const entityListedDependencies = listEntityDependencies(
         entity,
         entityName,

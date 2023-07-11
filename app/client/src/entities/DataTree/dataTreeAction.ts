@@ -51,6 +51,7 @@ export const generateDataTreeAction = (
   return {
     unEvalEntity: {
       actionId: action.config.id,
+      moduleId: action.config.moduleId,
       run: {},
       clear: {},
       data: action.data ? action.data.body : undefined,
@@ -66,6 +67,7 @@ export const generateDataTreeAction = (
     },
     configEntity: {
       actionId: action.config.id,
+      moduleId: action.config.moduleId,
       name: action.config.name,
       pluginId: action.config.pluginId,
       pluginType: action.config.pluginType,

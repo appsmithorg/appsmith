@@ -4,7 +4,7 @@ import type { EvalWorkerSyncRequest } from "../types";
 
 export default function (request: EvalWorkerSyncRequest) {
   const { data } = request;
-  const { bindings, executionParams } = data;
+  const { bindings, executionParams, moduleId } = data;
   if (!dataTreeEvaluator) {
     return { values: undefined, errors: [] };
   }
@@ -12,6 +12,7 @@ export default function (request: EvalWorkerSyncRequest) {
   const values = dataTreeEvaluator.evaluateActionBindings(
     bindings,
     executionParams,
+    moduleId,
   );
 
   const cleanValues = removeFunctions(values);

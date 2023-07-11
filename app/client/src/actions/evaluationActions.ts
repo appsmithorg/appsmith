@@ -59,6 +59,7 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.RUN_ACTION_SUCCESS,
   ReduxActionErrorTypes.RUN_ACTION_ERROR,
   ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS,
+  ReduxActionTypes.EXECUTE_MODULE_PLUGIN_ACTION_SUCCESS,
   ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
   ReduxActionTypes.CLEAR_ACTION_RESPONSE,
   // JS Actions

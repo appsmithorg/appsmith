@@ -8,6 +8,7 @@ import type { DependencyMap } from "utils/DynamicBindingUtils";
 import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
 import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
+import { generateDataTreeModules } from "entities/DataTree/dataTreeModules";
 import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import type { AppTheme } from "entities/AppTheming";
 import log from "loglevel";
@@ -20,13 +21,14 @@ import type {
   JSActionEntityConfig,
   JSActionEntity,
   WidgetConfig,
+  ModuleEntity,
 } from "./types";
 import { ENTITY_TYPE, EvaluationSubstitutionType } from "./types";
-
 export type UnEvalTreeEntityObject =
   | ActionEntity
   | JSActionEntity
-  | WidgetEntity;
+  | WidgetEntity
+  | ModuleEntity;
 
 export type UnEvalTreeEntity = UnEvalTreeEntityObject | AppsmithEntity | Page[];
 
@@ -43,6 +45,7 @@ export type DataTreeEntityObject =
   | ActionEntity
   | JSActionEntity
   | WidgetEntity
+  | ModuleEntity
   | AppsmithEntity;
 
 export type DataTreeEntity = DataTreeEntityObject | Page[] | ActionDispatcher;
@@ -76,6 +79,7 @@ type DataTreeSeed = {
   jsActions: JSCollectionDataState;
   theme: AppTheme["properties"];
   metaWidgets: MetaWidgetsReduxState;
+  modules: any;
 };
 
 export type DataTreeEntityConfig =
@@ -99,6 +103,7 @@ export class DataTreeFactory {
     editorConfigs,
     jsActions,
     metaWidgets,
+    modules,
     pageList,
     pluginDependencyConfig,
     theme,
@@ -109,10 +114,10 @@ export class DataTreeFactory {
     const configTree: ConfigTree = {};
     const start = performance.now();
     const startActions = performance.now();
-
     actions.forEach((action) => {
       const editorConfig = editorConfigs[action.config.pluginId];
       const dependencyConfig = pluginDependencyConfig[action.config.pluginId];
+
       const { configEntity, unEvalEntity } = generateDataTreeAction(
         action,
         editorConfig,
@@ -124,6 +129,17 @@ export class DataTreeFactory {
     const endActions = performance.now();
 
     const startJsActions = performance.now();
+    // const modulesList = modules;
+
+    modules.forEach((module: any) => {
+      const { configEntity, unEvalEntity } = generateDataTreeModules(
+        module,
+        editorConfigs,
+        pluginDependencyConfig,
+      );
+      dataTree[module.config.name] = unEvalEntity;
+      configTree[module.config.name] = configEntity;
+    });
 
     jsActions.forEach((js) => {
       const { configEntity, unEvalEntity } = generateDataTreeJSAction(js);

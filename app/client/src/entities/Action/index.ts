@@ -140,6 +140,7 @@ export interface BaseAction {
   messages: string[];
   userPermissions?: string[];
   errorReports?: Array<LayoutOnLoadActionErrors>;
+  moduleId?: string;
 }
 
 interface BaseApiAction extends BaseAction {

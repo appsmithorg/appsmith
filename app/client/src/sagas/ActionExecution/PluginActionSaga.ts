@@ -12,9 +12,11 @@ import {
   executePluginActionError,
   executePluginActionRequest,
   executePluginActionSuccess,
+  executeModulePluginActionSuccess,
   runAction,
   updateAction,
 } from "actions/pluginActionActions";
+
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
 
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
@@ -41,6 +43,8 @@ import {
   isActionSaving,
   getJSCollection,
   getDatasource,
+  getModuleAction,
+  getModuleName,
 } from "selectors/entitiesSelector";
 import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import {
@@ -356,15 +360,25 @@ function* evaluateActionParams(
   formData: FormData,
   executeActionRequest: ExecuteActionRequest,
   filePickerInstrumentation: FilePickerInstumentationObject,
+  moduleId?: string,
   executionParams?: Record<string, any> | string,
 ) {
   if (isNil(bindings) || bindings.length === 0) {
     formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
     return [];
   }
+  let moduleName = "";
+  if (!!moduleId) {
+    moduleName = yield select(getModuleName, moduleId);
+  }
   // Evaluated all bindings of the actions. Pass executionParams if any
   // @ts-expect-error: Values can take many types
-  const values = yield call(evaluateActionBindings, bindings, executionParams);
+  const values = yield call(
+    evaluateActionBindings,
+    bindings,
+    executionParams,
+    moduleName,
+  );
 
   const bindingsMap: Record<string, string> = {};
   const bindingBlob = [];
@@ -486,7 +500,7 @@ export default function* executePluginActionTriggerSaga(
   eventType: EventType,
 ) {
   const { payload: pluginPayload } = pluginAction;
-  const { actionId, onError, params } = pluginPayload;
+  const { actionId, moduleId, onError, params } = pluginPayload;
   if (getType(params) !== Types.OBJECT) {
     throw new ActionValidationError(
       "RUN_PLUGIN_ACTION",
@@ -503,10 +517,19 @@ export default function* executePluginActionTriggerSaga(
     actionId,
   );
   const appMode: APP_MODE | undefined = yield select(getAppMode);
-  const action = shouldBeDefined<Action>(
-    yield select(getAction, actionId),
-    `Action not found for id - ${actionId}`,
-  );
+  let action;
+  if (!!moduleId) {
+    action = shouldBeDefined<Action>(
+      yield select(getModuleAction, moduleId, actionId),
+      `Action not found for id - ${actionId}`,
+    );
+  } else {
+    action = shouldBeDefined<Action>(
+      yield select(getAction, actionId),
+      `Action not found for id - ${actionId}`,
+    );
+  }
+
   const datasourceId: string = (action?.datasource as any)?.id;
   const datasource: Datasource = yield select(getDatasource, datasourceId);
   const plugin: Plugin = yield select(getPlugin, action?.pluginId);
@@ -542,6 +565,7 @@ export default function* executePluginActionTriggerSaga(
   const executePluginActionResponse: ExecutePluginActionResponse = yield call(
     executePluginActionSaga,
     action.id,
+    action.moduleId,
     pagination,
     params,
   );
@@ -773,6 +797,7 @@ function* runActionSaga(
     const executePluginActionResponse: ExecutePluginActionResponse = yield call(
       executePluginActionSaga,
       id,
+      undefined,
       paginationField,
       {},
       true,
@@ -1214,6 +1239,7 @@ type ExecutePluginActionResponse = {
  * */
 function* executePluginActionSaga(
   actionOrActionId: PageAction | string,
+  actionModuleId?: string,
   paginationField?: PaginationField,
   params?: Record<string, unknown>,
   isUserInitiated?: boolean,
@@ -1221,9 +1247,19 @@ function* executePluginActionSaga(
   let pluginAction;
   let actionId;
   if (isString(actionOrActionId)) {
-    // @ts-expect-error: plugin Action can take many types
-    pluginAction = yield select(getAction, actionOrActionId);
-    actionId = actionOrActionId;
+    if (!!actionModuleId) {
+      // @ts-expect-error: plugin Action can take many types
+      pluginAction = yield select(
+        getModuleAction,
+        actionModuleId,
+        actionOrActionId,
+      );
+      actionId = actionOrActionId;
+    } else {
+      // @ts-expect-error: plugin Action can take many types
+      pluginAction = yield select(getAction, actionOrActionId);
+      actionId = actionOrActionId;
+    }
   } else {
     pluginAction = shouldBeDefined<Action>(
       yield select(getAction, actionOrActionId.id),
@@ -1294,6 +1330,7 @@ function* executePluginActionSaga(
     formData,
     executeActionRequest,
     filePickerInstrumentation,
+    actionModuleId,
     params,
   );
 
@@ -1307,12 +1344,23 @@ function* executePluginActionSaga(
     yield validateResponse(response);
     payload = createActionExecutionResponse(response);
 
-    yield put(
-      executePluginActionSuccess({
-        id: actionId,
-        response: payload,
-      }),
-    );
+    if (!!actionModuleId) {
+      yield put(
+        executeModulePluginActionSuccess({
+          id: actionId,
+          response: payload,
+          moduleId: actionModuleId,
+        }),
+      );
+    } else {
+      yield put(
+        executePluginActionSuccess({
+          id: actionId,
+          response: payload,
+        }),
+      );
+    }
+
     // TODO: Plugins are not always fetched before on page load actions are executed.
     try {
       let plugin: Plugin | undefined;

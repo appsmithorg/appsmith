@@ -14,6 +14,7 @@ import {
   isAction,
   isJSAction,
   isJSActionConfig,
+  isModule,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 
@@ -32,10 +33,9 @@ import {
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
 import { libraryReservedIdentifiers } from "workers/common/JSLibrary";
 import type {
-  ActionEntityConfig,
-  JSActionEntityConfig,
   ActionEntity,
   JSActionEntity,
+  ModuleEntity,
 } from "entities/DataTree/types";
 
 /** This function extracts validReferences and invalidReferences from a binding {{}}
@@ -221,11 +221,12 @@ const invalidEntityIdentifiers: Record<string, unknown> = {
 };
 
 export function listEntityDependencies(
-  entity: WidgetEntity | ActionEntity | JSActionEntity,
+  entity: WidgetEntity | ActionEntity | JSActionEntity | ModuleEntity,
   entityName: string,
   allPaths: Record<string, true>,
   unEvalDataTree: DataTree,
   configTree: ConfigTree,
+  subEntityName?: string,
 ): DependencyMap {
   let dependencies: DependencyMap = {};
 
@@ -250,13 +251,15 @@ export function listEntityDependencies(
   }
 
   if (isAction(entity) || isJSAction(entity)) {
-    const actionConfig = configTree[entityName] as
-      | JSActionEntityConfig
-      | ActionEntityConfig;
+    const actionConfig = subEntityName
+      ? configTree[entityName][subEntityName]
+      : configTree[entityName];
     Object.entries(actionConfig.dependencyMap).forEach(
       ([path, entityDependencies]) => {
         const actionDependentPaths: Array<string> = [];
-        const mainPath = `${entityName}.${path}`;
+        const mainPath = subEntityName
+          ? `${entityName}.${subEntityName}.${path}`
+          : `${entityName}.${path}`;
         // Only add dependencies for paths which exist at the moment in appsmith world
         if (allPaths.hasOwnProperty(mainPath)) {
           // Only add dependent paths which exist in the data tree. Skip all the other paths to avoid creating
@@ -294,24 +297,77 @@ export function listEntityDependencies(
     }
   }
 
-  if (isAction(entity) || isWidget(entity)) {
+  if (isAction(entity) || isWidget(entity) || isModule(entity)) {
     // add the dynamic binding paths to the dependency map
-    const entityConfig = configTree[entityName];
+    const entityConfig = subEntityName
+      ? configTree[entityName][subEntityName]
+      : configTree[entityName];
     const dynamicBindingPathList =
       getEntityDynamicBindingPathList(entityConfig);
     if (dynamicBindingPathList.length) {
       dynamicBindingPathList.forEach((dynamicPath) => {
         const propertyPath = dynamicPath.key;
         // const unevalPropValue = get(entity, propertyPath);
-        const unevalPropValue = get(unEvalDataTree?.[entityName], propertyPath);
-        const { jsSnippets } = getDynamicBindings(unevalPropValue);
-        const existingDeps =
-          dependencies[`${entityName}.${propertyPath}`] || [];
-        dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
-          jsSnippets.filter((jsSnippet) => !!jsSnippet),
-        );
+        if (subEntityName) {
+          const unevalPropValue = get(
+            unEvalDataTree?.[entityName][subEntityName],
+            propertyPath,
+          );
+          const { jsSnippets } = getDynamicBindings(unevalPropValue);
+          const existingDeps =
+            dependencies[`${entityName}.${subEntityName}.${propertyPath}`] ||
+            [];
+          dependencies[`${entityName}.${subEntityName}.${propertyPath}`] =
+            existingDeps.concat(jsSnippets.filter((jsSnippet) => !!jsSnippet));
+        } else {
+          const unevalPropValue = get(
+            unEvalDataTree?.[entityName],
+            propertyPath,
+          );
+          const { jsSnippets } = getDynamicBindings(unevalPropValue);
+          const existingDeps =
+            dependencies[`${entityName}.${propertyPath}`] || [];
+          dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
+            jsSnippets.filter((jsSnippet) => !!jsSnippet),
+          );
+        }
       });
     }
+  }
+  if (isModule(entity)) {
+    const moduleConfig = configTree[entityName] as any;
+    Object.entries(moduleConfig.dependencyMap).forEach(
+      ([path, entityDependencies]) => {
+        const actionDependentPaths: Array<string> = [];
+        const mainPath = `${path}`;
+        // Only add dependencies for paths which exist at the moment in appsmith world
+        if (allPaths.hasOwnProperty(mainPath)) {
+          // Only add dependent paths which exist in the data tree. Skip all the other paths to avoid creating
+          // a cyclical dependency.
+          entityDependencies.forEach((dependentPath) => {
+            const completePath = `${entityName}.${dependentPath}`;
+            if (allPaths.hasOwnProperty(completePath)) {
+              actionDependentPaths.push(completePath);
+            }
+          });
+          dependencies[mainPath] = actionDependentPaths;
+        }
+      },
+    );
+    const getPublicActions = moduleConfig?.publicActions;
+    getPublicActions.forEach((key: string) => {
+      const moduleEntity: any = entity[key];
+      const entityListedDependencies = listEntityDependencies(
+        moduleEntity as ActionEntity,
+        entityName,
+        allPaths,
+        unEvalDataTree,
+        configTree,
+        key,
+      );
+
+      dependencies = { ...dependencies, ...entityListedDependencies };
+    });
   }
   return dependencies;
 }

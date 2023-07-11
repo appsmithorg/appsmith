@@ -249,6 +249,8 @@ export const getActions = (state: AppState): ActionDataState =>
 export const getJSCollections = (state: AppState): JSCollectionDataState =>
   state.entities.jsActions;
 
+export const getModules = (state: AppState): any => state.entities.modules;
+
 export const getDatasource = (
   state: AppState,
   datasourceId: string,
@@ -434,6 +436,14 @@ export const getActionsForCurrentPage = createSelector(
   },
 );
 
+export const getModulesForCurrentPage = createSelector(
+  getCurrentPageId,
+  getModules,
+  (pageId, modules) => {
+    return modules;
+  },
+);
+
 // Note: getJSCollectionsForCurrentPage (returns a new object everytime)
 export const getJSCollectionsForCurrentPage = createSelector(
   getCurrentPageId,
@@ -495,6 +505,27 @@ export const getAction = (
 ): Action | undefined => {
   const action = find(state.entities.actions, (a) => a.config.id === actionId);
   return action ? action.config : undefined;
+};
+
+export const getModuleAction = (
+  state: AppState,
+  moduleId: string,
+  actionId: string,
+): Action | undefined => {
+  const module = find(state.entities.modules, (a) => a.config.id === moduleId);
+  const action = module.config.publicActions.filter(
+    (b: any) => b.config.id === actionId,
+  );
+  return action ? action[0].config : undefined;
+};
+
+export const getModuleName = (
+  state: AppState,
+  moduleId: string,
+): any | undefined => {
+  const module = find(state.entities.modules, (a) => a.config.id === moduleId);
+
+  return module ? module.config.name : undefined;
 };
 
 export const getActionData = (

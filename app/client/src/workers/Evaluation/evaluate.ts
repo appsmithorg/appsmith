@@ -208,6 +208,7 @@ export const getUserScriptToEvaluate = (
 export function setEvalContext({
   context,
   dataTree,
+  entityContext,
   evalArguments,
   isDataField,
   isTriggerBased,
@@ -217,6 +218,7 @@ export function setEvalContext({
   evalArguments?: Array<any>;
   isDataField: boolean;
   isTriggerBased: boolean;
+  entityContext: Record<string, any>;
 }) {
   self["$isDataField"] = isDataField;
 
@@ -228,6 +230,7 @@ export function setEvalContext({
   });
 
   Object.assign(self, evalContext);
+  Object.assign(self, entityContext);
 }
 
 export default function evaluateSync(
@@ -236,6 +239,7 @@ export default function evaluateSync(
   isJSCollection: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
+  entityContext?: Record<string, any>,
 ): EvalResult {
   return (function () {
     resetWorkerGlobalScope();
@@ -263,6 +267,7 @@ export default function evaluateSync(
       isTriggerBased: isJSCollection,
       context,
       evalArguments,
+      entityContext,
     });
 
     try {

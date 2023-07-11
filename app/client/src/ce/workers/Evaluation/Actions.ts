@@ -11,6 +11,7 @@ import {
 } from "@appsmith/workers/Evaluation/fns";
 import { getEntityForEvalContext } from "workers/Evaluation/getEntityForContext";
 import { klona } from "klona/full";
+import { isModule, isTrueObject } from "./evaluationUtils";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -57,6 +58,26 @@ export const addDataTreeToContext = (args: {
       const fullPath = `${entityFn.path || `${entityName}.${entityFn.name}`}`;
       set(entityFunctionCollection, fullPath, func);
     }
+
+    if (isModule(entity)) {
+      const moduleEntries: any = [Object.entries(entity)[3]];
+      // moduleEntries = moduleEntries.filter((key: string) => key === "Query1");
+      for (const [modEntityName, modEntity] of moduleEntries) {
+        EVAL_CONTEXT[modEntityName] = getEntityForEvalContext(
+          modEntity,
+          modEntityName,
+        );
+        if (!removeEntityFunctions && !isTriggerBased) continue;
+        for (const entityFn of entityFns) {
+          if (!entityFn.qualifier(modEntity)) continue;
+          const func = entityFn.fn(modEntity, modEntityName);
+          const fullPath = `${
+            entityFn.path || `${entityName}.${modEntityName}.${entityFn.name}`
+          }`;
+          set(entityFunctionCollection, fullPath, func);
+        }
+      }
+    }
   }
 
   if (removeEntityFunctions)
@@ -71,7 +92,26 @@ export const addDataTreeToContext = (args: {
   for (const [entityName, funcObj] of Object.entries(
     entityFunctionCollection,
   )) {
-    EVAL_CONTEXT[entityName] = Object.assign({}, dataTree[entityName], funcObj);
+    const entityObj = dataTree[entityName];
+    if (isModule(entityObj)) {
+      const moduleEntity: any = Object.assign({}, dataTree[entityName]);
+
+      for (const [key, value] of Object.entries(funcObj)) {
+        if (isTrueObject(value)) {
+          moduleEntity[key] = Object.assign({}, moduleEntity[key], value);
+        } else {
+          // moduleEntity = Object.assign({}, dataTree[entityName], value);
+          moduleEntity[key] = value;
+        }
+        EVAL_CONTEXT[entityName] = moduleEntity;
+      }
+    } else {
+      EVAL_CONTEXT[entityName] = Object.assign(
+        {},
+        dataTree[entityName],
+        funcObj,
+      );
+    }
   }
 };
 

@@ -374,6 +374,16 @@ export function isAction(
   );
 }
 
+export function isModule(
+  entity: Partial<DataTreeEntity>,
+): entity is ActionEntity {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.MODULE
+  );
+}
+
 export function isAppsmithEntity(
   entity: DataTreeEntity,
 ): entity is AppsmithEntity {
@@ -653,7 +663,12 @@ export const isDynamicLeaf = (
 
   const entityConfig = configTree[entityName];
   const entity = unEvalTree[entityName];
-  if (!isAction(entity) && !isWidget(entity) && !isJSAction(entity))
+  if (
+    !isAction(entity) &&
+    !isWidget(entity) &&
+    !isJSAction(entity) &&
+    !isModule(entity)
+  )
     return false;
   const relativePropertyPath = convertPathToString(propPathEls);
   return (

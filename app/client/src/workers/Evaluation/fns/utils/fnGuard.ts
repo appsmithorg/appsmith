@@ -33,11 +33,16 @@ export function getFnWithGuards(
   fn: (...args: any[]) => unknown,
   fnName: string,
   fnGuards: FnGuard[],
+  insideFun?: string | undefined,
 ) {
   return (...args: any[]) => {
     for (const guard of fnGuards) {
       guard(fn, fnName);
     }
+    if (!!insideFun) {
+      return eval(insideFun)(...args);
+    }
+
     return fn(...args);
   };
 }

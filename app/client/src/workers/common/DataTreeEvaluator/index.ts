@@ -59,6 +59,7 @@ import {
   getStaleMetaStateIds,
   convertJSFunctionsToString,
   DataTreeDiffEvent,
+  isModule,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
@@ -924,7 +925,10 @@ export default class DataTreeEvaluator {
           const entityConfig = oldConfigTree[entityName];
 
           const isADynamicBindingPath =
-            (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
+            (isAction(entity) ||
+              isWidget(entity) ||
+              isJSAction(entity) ||
+              isModule(entity)) &&
             isPathADynamicBinding(entityConfig, propertyPath);
           const isATriggerPath =
             isWidget(entity) &&
@@ -964,6 +968,7 @@ export default class DataTreeEvaluator {
                 contextData,
                 undefined,
                 fullPropertyPath,
+                false,
               );
             } catch (error) {
               this.errors.push({
@@ -1218,6 +1223,7 @@ export default class DataTreeEvaluator {
     contextData?: EvaluateContext,
     callBackData?: Array<any>,
     fullPropertyPath?: string,
+    sendEntityContext?: boolean,
   ) {
     // Get the {{binding}} bound values
     let entity: DataTreeEntity | undefined = undefined;
@@ -1242,7 +1248,12 @@ export default class DataTreeEvaluator {
             ? jsSnippet.replace(/export default/g, "")
             : jsSnippet;
         if (jsSnippet) {
-          if (entity && entityConfig && !propertyPath.includes("body")) {
+          if (
+            entity &&
+            entityConfig &&
+            propertyPath &&
+            !propertyPath.includes("body")
+          ) {
             ExecutionMetaData.setExecutionMetaData({
               triggerMeta: {
                 source: {
@@ -1261,6 +1272,7 @@ export default class DataTreeEvaluator {
             !!entity && isJSAction(entity),
             contextData,
             callBackData,
+            !!sendEntityContext ? entity : undefined,
           );
           if (fullPropertyPath && evalErrors.length) {
             addErrorToEntityProperty({
@@ -1347,6 +1359,7 @@ export default class DataTreeEvaluator {
     isJSObject: boolean,
     contextData?: EvaluateContext,
     callbackData?: Array<any>,
+    entityContext?: Record<string, any>,
   ): EvalResult {
     let evalResponse: EvalResult;
     ExecutionMetaData.setExecutionMetaData({
@@ -1360,6 +1373,7 @@ export default class DataTreeEvaluator {
         isJSObject,
         contextData,
         callbackData,
+        entityContext,
       );
     } catch (error) {
       evalResponse = {
@@ -1656,6 +1670,7 @@ export default class DataTreeEvaluator {
   evaluateActionBindings(
     bindings: string[],
     executionParams?: Record<string, unknown> | string,
+    moduleId?: string,
   ) {
     // We might get execution params as an object or as a string.
     // If the user has added a proper object (valid case) it will be an object
@@ -1693,6 +1708,9 @@ export default class DataTreeEvaluator {
             [EXECUTION_PARAM_KEY]: evaluatedExecutionParams,
           },
         },
+        undefined,
+        moduleId,
+        moduleId ? true : false,
       );
     });
   }

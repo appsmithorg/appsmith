@@ -294,6 +294,7 @@ export function* evaluateTreeSaga(
 export function* evaluateActionBindings(
   bindings: string[],
   executionParams: Record<string, any> | string = {},
+  moduleId: string | undefined,
 ) {
   const workerResponse: { errors: EvalError[]; values: unknown } = yield call(
     evalWorker.request,
@@ -301,6 +302,7 @@ export function* evaluateActionBindings(
     {
       bindings,
       executionParams,
+      moduleId,
     },
   );
 

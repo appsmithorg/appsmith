@@ -237,6 +237,16 @@ export const executePluginActionSuccess = (payload: {
   payload: payload,
 });
 
+export const executeModulePluginActionSuccess = (payload: {
+  id: string;
+  response: ActionResponse;
+  moduleId: string;
+  isPageLoad?: boolean;
+}) => ({
+  type: ReduxActionTypes.EXECUTE_MODULE_PLUGIN_ACTION_SUCCESS,
+  payload: payload,
+});
+
 export const setActionResponseDisplayFormat = (
   payload: UpdateActionPropertyActionPayload,
 ) => ({

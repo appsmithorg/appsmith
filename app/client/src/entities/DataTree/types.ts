@@ -13,6 +13,7 @@ export enum ENTITY_TYPE {
   WIDGET = "WIDGET",
   APPSMITH = "APPSMITH",
   JSACTION = "JSACTION",
+  MODULE = "MODULE",
 }
 
 export enum EvaluationSubstitutionType {
@@ -24,6 +25,7 @@ export enum EvaluationSubstitutionType {
 // Action entity types
 export interface ActionEntity {
   actionId: string;
+  moduleId?: string;
   isLoading: boolean;
   data: ActionResponse["body"];
   run: ActionDispatcher | Record<string, unknown>;
@@ -38,6 +40,15 @@ export interface ActionEntity {
   datasourceUrl: string;
 }
 
+export interface ModuleEntity {
+  ENTITY_TYPE: ENTITY_TYPE.MODULE;
+  moduleId: string;
+  isLoading: boolean;
+  data: ActionResponse["body"];
+  run: any;
+  [propName: string]: any;
+}
+
 export interface ActionEntityConfig {
   dynamicBindingPathList: DynamicPath[];
   bindingPaths: Record<string, EvaluationSubstitutionType>;
@@ -49,6 +60,7 @@ export interface ActionEntityConfig {
   pluginId: PluginId;
   actionId: string;
   name: string;
+  moduleId?: string;
 }
 
 // JSAction (JSObject) entity Types

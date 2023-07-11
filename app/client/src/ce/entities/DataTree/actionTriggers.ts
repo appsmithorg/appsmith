@@ -56,6 +56,7 @@ export interface ActionDescriptionInterface<T, Type extends ActionTriggerKeys> {
 export type RunPluginActionDescription = ActionDescriptionInterface<
   {
     actionId: string;
+    moduleId?: string;
     params?: Record<string, unknown>;
     onSuccess?: string;
     onError?: string;

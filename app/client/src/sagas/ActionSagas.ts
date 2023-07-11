@@ -136,6 +136,7 @@ import {
 import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
+import { modules } from "entities/DataTree/modules";
 
 export function* createDefaultActionPayload(
   pageId: string,
@@ -284,6 +285,12 @@ export function* fetchActionsSaga(
         payload: response.data,
         postEvalActions: action.postEvalActions,
       });
+      yield put({
+        type: ReduxActionTypes.FETCH_MODULES_SUCCESS,
+        payload: modules,
+        postEvalActions: [],
+      });
+
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_ACTIONS_API,
       );

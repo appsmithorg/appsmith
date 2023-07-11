@@ -154,6 +154,7 @@ export interface AppState {
     jsActions: JSCollectionDataState;
     autoHeightLayoutTree: AutoHeightLayoutTreeReduxState;
     canvasLevels: CanvasLevelsReduxState;
+    modules: any;
   };
   evaluations: {
     tree: EvaluatedTreeState;

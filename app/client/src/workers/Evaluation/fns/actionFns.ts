@@ -9,13 +9,16 @@ function runFnDescriptor(
   params = {},
 ) {
   const type = "RUN_PLUGIN_ACTION" as const;
+  // const getAction: any = !!this.moduleId ? configTree.`${this.name}`.publicActions[0].actionId : this;
   const actionParams = isTrueObject(onSuccessOrParams)
     ? onSuccessOrParams
     : params;
   return {
     type,
     payload: {
+      // actionId: !getAction ? this.actionId : getAction.actionId,
       actionId: this.actionId,
+      moduleId: this.moduleId,
       params: actionParams,
       onSuccess:
         typeof onSuccessOrParams === "function"
@@ -40,10 +43,18 @@ export default async function run(
   try {
     const response = await executor(onSuccessOrParams, onError, params);
 
-    // @ts-expect-error: globalThis type is not defined
-    const action = globalThis[this.name];
-    if (action) {
-      action.data = response[0];
+    if (!!this.moduleId) {
+      // @ts-expect-error: globalThis type is not defined
+      const action = globalThis["Query1_1"][this.name];
+      if (action) {
+        action.data = response[0];
+      }
+    } else {
+      // @ts-expect-error: globalThis type is not defined
+      const action = globalThis[this.name];
+      if (action) {
+        action.data = response[0];
+      }
     }
 
     if (typeof onSuccessOrParams === "function") {

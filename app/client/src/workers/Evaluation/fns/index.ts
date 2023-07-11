@@ -44,6 +44,7 @@ import type {
 import run, { clear } from "./actionFns";
 import {
   isAction,
+  isModule,
   isAppsmithEntity,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
@@ -127,6 +128,21 @@ export const entityFns = [
         run.bind(entity as ActionEntity),
         `${entityName}.run`,
         [isAsyncGuard],
+      );
+    },
+  },
+  {
+    name: "run",
+    qualifier: (entity: DataTreeEntity) => isModule(entity),
+    fn: (entity: DataTreeEntity, entityName: string) => {
+      // @ts-expect-error: name is not defined on ActionEntity
+      entity.name = entityName;
+      const runFun = isModule(entity) ? entity?.run : undefined;
+      return getFnWithGuards(
+        run.bind(entity as any),
+        `${entityName}.run`,
+        [isAsyncGuard],
+        runFun as string | undefined,
       );
     },
   },
