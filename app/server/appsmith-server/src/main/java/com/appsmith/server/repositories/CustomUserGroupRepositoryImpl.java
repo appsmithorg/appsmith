@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.QUserGroup;
@@ -31,11 +32,14 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<UserGroup>
         implements CustomUserGroupRepository {
 
+    private final ReactiveMongoOperations reactiveMongoOperations;
+
     public CustomUserGroupRepositoryImpl(
             ReactiveMongoOperations mongoOperations,
             MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+        this.reactiveMongoOperations = mongoOperations;
     }
 
     @Override
@@ -122,5 +126,24 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
             List<UserGroup> userGroupsPage = pair.getT2();
             return new PagedDomain<>(userGroupsPage, userGroupsPage.size(), startIndex, totalFilteredUserGroups);
         });
+    }
+
+    @Override
+    public Flux<UserGroup> getAllUserGroupsByIsProvisioned(
+            boolean isProvisioned, Optional<List<String>> includeFields, Optional<AclPermission> aclPermission) {
+        Criteria criteriaIsProvisioned =
+                Criteria.where(fieldName(QUserGroup.userGroup.isProvisioned)).is(isProvisioned);
+        return queryAll(List.of(criteriaIsProvisioned), includeFields, aclPermission, Optional.empty());
+    }
+
+    @Override
+    public Mono<Boolean> updateProvisionedUserGroupsPoliciesAndIsProvisionedWithoutPermission(
+            Boolean isProvisioned, Set<Policy> policies) {
+        Criteria criteriaIsProvisioned =
+                Criteria.where(fieldName(QUserGroup.userGroup.isProvisioned)).is(true);
+        Update updateGroup = new Update();
+        updateGroup.set(fieldName(QUserGroup.userGroup.isProvisioned), isProvisioned);
+        updateGroup.set(fieldName(QUserGroup.userGroup.policies), policies);
+        return updateByCriteria(List.of(criteriaIsProvisioned), updateGroup).thenReturn(Boolean.TRUE);
     }
 }

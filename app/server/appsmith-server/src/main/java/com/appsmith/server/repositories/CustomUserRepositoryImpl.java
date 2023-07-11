@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.QUser;
@@ -13,6 +14,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -94,5 +96,22 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
                         aclPermission,
                         Optional.empty())
                 .map(User::getEmail);
+    }
+
+    @Override
+    public Mono<Boolean> updateUserPoliciesAndIsProvisionedWithoutPermission(
+            String id, Boolean isProvisioned, Set<Policy> policies) {
+        Update updateUser = new Update();
+        updateUser.set(fieldName(QUser.user.isProvisioned), isProvisioned);
+        updateUser.set(fieldName(QUser.user.policies), policies);
+        return updateById(id, updateUser, Optional.empty()).thenReturn(Boolean.TRUE);
+    }
+
+    @Override
+    public Flux<User> getAllUsersByIsProvisioned(
+            boolean isProvisioned, Optional<List<String>> includeFields, Optional<AclPermission> aclPermission) {
+        Criteria criteriaIsProvisioned =
+                Criteria.where(fieldName(QUser.user.isProvisioned)).is(isProvisioned);
+        return queryAll(List.of(criteriaIsProvisioned), includeFields, aclPermission, Optional.empty());
     }
 }

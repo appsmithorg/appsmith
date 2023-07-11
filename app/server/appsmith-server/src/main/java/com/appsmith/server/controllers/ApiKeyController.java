@@ -28,6 +28,7 @@ public class ApiKeyController {
 
     @PostMapping("")
     public Mono<ResponseDTO<String>> generateApiKeyToken(@RequestBody ApiKeyRequestDto apiKeyRequestDto) {
+        log.debug("Generating API key for email: {}", apiKeyRequestDto.getEmail());
         return apiKeyService
                 .generateApiKey(apiKeyRequestDto)
                 .map(apiKey -> new ResponseDTO<>(HttpStatus.CREATED.value(), apiKey, null));

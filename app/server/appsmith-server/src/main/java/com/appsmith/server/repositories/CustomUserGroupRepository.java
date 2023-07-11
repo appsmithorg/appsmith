@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PagedDomain;
@@ -37,4 +38,10 @@ public interface CustomUserGroupRepository extends AppsmithRepository<UserGroup>
             List<String> groupNames,
             List<String> filterUserIds,
             Optional<AclPermission> aclPermission);
+
+    Flux<UserGroup> getAllUserGroupsByIsProvisioned(
+            boolean isProvisioned, Optional<List<String>> includeFields, Optional<AclPermission> aclPermission);
+
+    Mono<Boolean> updateProvisionedUserGroupsPoliciesAndIsProvisionedWithoutPermission(
+            Boolean isProvisioned, Set<Policy> policies);
 }

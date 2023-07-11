@@ -393,6 +393,24 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .then(instanceRoleUpdatedForUsersAndEnvAdminEmailsUpdatedMono);
     }
 
+    @Override
+    public Mono<Boolean> unAssignUsersAndGroupsFromAllAssociatedRoles(List<User> users, List<UserGroup> groups) {
+        Set<String> userIds = users.stream().map(User::getId).collect(Collectors.toSet());
+        Set<String> groupIds = groups.stream().map(UserGroup::getId).collect(Collectors.toSet());
+        Flux<PermissionGroup> allRolesByAssignedToUsersInFlux =
+                permissionGroupService.findAllByAssignedToUsersIn(userIds);
+        Flux<PermissionGroup> allRolesByAssignedToGroupIdsInFlux =
+                permissionGroupService.findAllByAssignedToGroupIdsIn(groupIds);
+
+        Mono<List<PermissionGroup>> allInterestingRolesMono = Flux.merge(
+                        allRolesByAssignedToGroupIdsInFlux, allRolesByAssignedToUsersInFlux)
+                .collectList();
+
+        return allInterestingRolesMono.flatMap(
+                allRoles -> permissionGroupService.bulkUnAssignUsersAndUserGroupsFromPermissionGroupsWithoutPermission(
+                        users, groups, allRoles));
+    }
+
     private Mono<PermissionGroup> bulkAssignToUsersAndGroups(
             PermissionGroup permissionGroup, List<User> users, List<UserGroup> groups) {
         ensureAssignedToUserIds(permissionGroup);

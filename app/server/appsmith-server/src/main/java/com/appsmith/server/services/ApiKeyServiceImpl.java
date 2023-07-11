@@ -75,6 +75,28 @@ public class ApiKeyServiceImpl extends BaseService<ApiKeyRepository, UserApiKey,
                 .map(UserApiKey::getApiKey);
     }
 
+    @Override
+    public Mono<Boolean> archiveApiKey(ApiKeyRequestDto apiKeyRequestDto) {
+        /*
+         * We want to restrict the API Key generation to Users who are associated with Instance Administrator Role.
+         * Fetching the tenant with MANAGE_TENANT permission assures that.
+         */
+        Mono<Tenant> tenantMono = tenantService
+                .getDefaultTenant(AclPermission.MANAGE_TENANT)
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "delete API Keys")))
+                .cache();
+        Mono<User> userMono = tenantMono
+                .then(userRepository
+                        .findByCaseInsensitiveEmail(apiKeyRequestDto.getEmail())
+                        .switchIfEmpty(Mono.error(
+                                new AppsmithException(AppsmithError.USER_NOT_FOUND, apiKeyRequestDto.getEmail()))))
+                .cache();
+        return userMono.flatMap(user -> userApiKeyRepository.getByUserIdWithoutPermission(user.getId()))
+                .flatMap(userApiKey -> userApiKeyRepository.archiveById(userApiKey.getId()))
+                .thenReturn(Boolean.TRUE);
+    }
+
     private String generateToken(String userId) {
         String seedValue = userId + Instant.now().toString();
         SecureRandom secureRandom = new SecureRandom(seedValue.getBytes());
