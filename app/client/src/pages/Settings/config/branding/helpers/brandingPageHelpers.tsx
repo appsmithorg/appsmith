@@ -5,6 +5,6 @@ import React from "react";
 
 export const getUpgradeBanner = (needsUpgrade: boolean) => {
   if (needsUpgrade) {
-    return <UpgradeBanner_EE />;
-  } else return <UpgradeBanner_CE />;
+    return <UpgradeBanner_CE />;
+  } else return <UpgradeBanner_EE />;
 };
