@@ -13,19 +13,19 @@ describe("General checks for app navigation", function () {
   it.skip("1. App header should appear when there is a single page in the application, and navigation should appear alongside app header when there are two pages", () => {
     // App header should appear when there is a single page in the application
     deployMode.DeployApp();
-    agHelper.AssertElementExist(appSettings.locators._header);
+    agHelper.AssertElementVisible(appSettings.locators._header);
     deployMode.NavigateBacktoEditor();
     // Navigation should appear alongside app header when there are two pages
     entityExplorer.AddNewPage();
     deployMode.DeployApp();
-    agHelper.AssertElementExist(appSettings.locators._topStacked);
+    agHelper.AssertElementVisible(appSettings.locators._topStacked);
     //Application name, share button, edit button, and user dropdown should be available in the app header
-    agHelper.AssertElementExist(appSettings.locators._applicationName);
-    agHelper.AssertElementExist(appSettings.locators._shareButton);
-    agHelper.AssertElementExist(locators._backToEditor);
-    agHelper.AssertElementExist(homePage._profileMenu);
+    agHelper.AssertElementVisible(appSettings.locators._applicationName);
+    agHelper.AssertElementVisible(appSettings.locators._shareButton);
+    agHelper.AssertElementVisible(locators._backToEditor);
+    agHelper.AssertElementVisible(homePage._profileMenu);
     agHelper.GetNClick(homePage._profileMenu);
-    agHelper.AssertElementExist(appSettings.locators._userProfileDropdownMenu);
+    agHelper.AssertElementVisible(appSettings.locators._userProfileDropdownMenu);
     //Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu
     // Share
     agHelper.GetNClick(
@@ -34,8 +34,8 @@ describe("General checks for app navigation", function () {
       true,
     );
     agHelper.Sleep(1000);
-    agHelper.AssertElementExist(locators._backToEditor);
-    agHelper.AssertElementExist(appSettings.locators._modal);
+    agHelper.AssertElementVisible(locators._backToEditor);
+    agHelper.AssertElementVisible(appSettings.locators._modal);
     agHelper.GetNClick(appSettings.locators._modalClose);
     // Edit
     deployMode.NavigateBacktoEditor();
@@ -59,8 +59,8 @@ describe("General checks for app navigation", function () {
         deployMode.DeployApp();
 
         // Assert app header, top stacked navigation and page menu items
-        agHelper.AssertElementExist(appSettings.locators._header);
-        agHelper.AssertElementExist(appSettings.locators._topStacked);
+        agHelper.AssertElementVisible(appSettings.locators._header);
+        agHelper.AssertElementVisible(appSettings.locators._topStacked);
         agHelper.AssertElementLength(
           appSettings.locators._navigationMenuItem,
           10,

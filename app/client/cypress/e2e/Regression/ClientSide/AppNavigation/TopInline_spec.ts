@@ -38,21 +38,21 @@ describe("Test Top + Inline navigation style", function () {
     );
     agHelper.GetNClick(appSettings.locators._navStyleOptions._inline, 0, true);
     deployMode.DeployApp();
-    agHelper.AssertElementExist(appSettings.locators._header);
+    agHelper.AssertElementVisible(appSettings.locators._header);
     agHelper.AssertElementAbsence(appSettings.locators._topStacked);
-    agHelper.AssertElementExist(appSettings.locators._topInline);
+    agHelper.AssertElementVisible(appSettings.locators._topInline);
   });
 
   it("2. More button should exist and when clicked on it, it should open the dropdown with rest of the pages", () => {
     // 'More' button should exist
-    agHelper.AssertElementExist(appSettings.locators._topInlineMoreButton);
+    agHelper.AssertElementVisible(appSettings.locators._topInlineMoreButton);
     // Should open the dropdown
     agHelper.GetNClick(appSettings.locators._topInlineMoreButton, 0, true);
-    agHelper.AssertElementExist(appSettings.locators._topInlineMoreDropdown);
+    agHelper.AssertElementVisible(appSettings.locators._topInlineMoreDropdown);
     agHelper
       .GetElement(appSettings.locators._topInlineMoreDropdown)
       .should("have.class", "bp3-overlay-open");
-    agHelper.AssertElementExist(
+    agHelper.AssertElementVisible(
       appSettings.locators._topInlineMoreDropdownItem,
     );
     agHelper
@@ -114,10 +114,10 @@ describe("Test Top + Inline navigation style", function () {
       0,
     );
     //Application name, share button, edit button, and user dropdown should be available in the app header
-    agHelper.AssertElementExist(appSettings.locators._applicationName);
-    agHelper.AssertElementExist(appSettings.locators._shareButton);
-    agHelper.AssertElementExist(locators._backToEditor);
-    agHelper.AssertElementExist(homePage._profileMenu);
+    agHelper.AssertElementVisible(appSettings.locators._applicationName);
+    agHelper.AssertElementVisible(appSettings.locators._shareButton);
+    agHelper.AssertElementVisible(locators._backToEditor);
+    agHelper.AssertElementVisible(homePage._profileMenu);
   });
 
   it("5. Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu", () => {
@@ -126,11 +126,11 @@ describe("Test Top + Inline navigation style", function () {
       `${appSettings.locators._header} ${appSettings.locators._shareButton}`,
     );
     agHelper.Sleep();
-    agHelper.AssertElementExist(appSettings.locators._modal);
+    agHelper.AssertElementVisible(appSettings.locators._modal);
     agHelper.GetNClick(appSettings.locators._modalClose, 0, true);
     // User profile dropdown
     agHelper.GetNClick(homePage._profileMenu);
-    agHelper.AssertElementExist(appSettings.locators._userProfileDropdownMenu);
+    agHelper.AssertElementVisible(appSettings.locators._userProfileDropdownMenu);
     deployMode.NavigateBacktoEditor();
   });
 });

@@ -9,14 +9,14 @@ import {
 describe("Test app's navigation settings", function () {
   it("1. Open app settings and navigation tab should be there and when the navigation tab is selected, navigation preview should be visible", () => {
     agHelper.GetNClick(appSettings.locators._appSettings);
-    agHelper.AssertElementExist(appSettings.locators._navigationSettingsTab);
+    agHelper.AssertElementVisible(appSettings.locators._navigationSettingsTab);
 
     // Should not exist when the tab is not selected
     agHelper.AssertElementAbsence(appSettings.locators._navigationPreview);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
 
     // Should exist when the tab is selected
-    agHelper.AssertElementExist(appSettings.locators._navigationPreview);
+    agHelper.AssertElementVisible(appSettings.locators._navigationPreview);
   });
 
   it("2. Toggle 'Show navbar' to off, the app header and navigation should not appear when deployed", () => {
@@ -48,7 +48,7 @@ describe("Test app's navigation settings", function () {
       0,
       true,
     );
-    agHelper.AssertElementExist(appSettings.locators._sideNavbar);
+    agHelper.AssertElementVisible(appSettings.locators._sideNavbar);
     deployMode.DeployApp();
     agHelper.AssertElementAbsence(appSettings.locators._header);
     agHelper.AssertElementAbsence(appSettings.locators._topStacked);
@@ -67,9 +67,9 @@ describe("Test app's navigation settings", function () {
     );
     agHelper.GetNClick(appSettings.locators._navStyleOptions._inline, 0, true);
     deployMode.DeployApp();
-    agHelper.AssertElementExist(appSettings.locators._header);
+    agHelper.AssertElementVisible(appSettings.locators._header);
     agHelper.AssertElementAbsence(appSettings.locators._topStacked);
-    agHelper.AssertElementExist(appSettings.locators._topInline);
+    agHelper.AssertElementVisible(appSettings.locators._topInline);
     deployMode.NavigateBacktoEditor();
   });
 });

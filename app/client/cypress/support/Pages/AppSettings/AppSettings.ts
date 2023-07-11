@@ -58,6 +58,8 @@ export class AppSettings {
     _topInlineMoreDropdownItem:
       ".t--app-viewer-navigation-top-inline-more-dropdown-item",
     _scrollArrows: ".scroll-arrows",
+    _getActivePage: (pageName: string) =>
+      `//span[contains(text(),"${pageName}")]//ancestor::a[contains(@class,'is-active')]`,
   };
 
   public errorMessageSelector = (fieldId: string) => {
