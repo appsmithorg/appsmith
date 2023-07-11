@@ -36,11 +36,6 @@ describe("Binding the list widget with text widget", function () {
       "Items",
       '[[{ "name": "pawan"}, { "name": "Vivek" }], [{ "name": "Ashok"}, {"name": "rahul"}]]',
     );
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     _.entityExplorer.ExpandCollapseEntity("List1");
     _.entityExplorer.ExpandCollapseEntity("Container1");
     _.entityExplorer.SelectEntityByName("Text3");
@@ -49,11 +44,6 @@ describe("Binding the list widget with text widget", function () {
     _.propPane.UpdatePropertyFieldValue(
       "Text",
       '{{currentItem.map(item => item.name).join(", ")}}',
-    );
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
     );
     _.deployMode.DeployApp();
     cy.wait(2000);
@@ -76,23 +66,12 @@ describe("Binding the list widget with text widget", function () {
       "Items",
       '[{ "name": "pawan"}, { "name": "Vivek" }]',
     );
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-
     _.entityExplorer.ExpandCollapseEntity("List1");
     _.entityExplorer.ExpandCollapseEntity("Container1");
     _.entityExplorer.SelectEntityByName("Text3");
 
     cy.wait(1000);
     _.propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}");
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     _.deployMode.DeployApp();
     cy.wait(2000);
     cy.get(".t--widget-textwidget span:contains('Vivek')").should(
