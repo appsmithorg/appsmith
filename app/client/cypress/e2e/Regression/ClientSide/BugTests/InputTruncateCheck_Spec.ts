@@ -10,6 +10,7 @@ import {
   apiPage,
   draggableWidgets,
   fakerHelper,
+  tedTestConfig,
 } from "../../../../support/Objects/ObjectsCore";
 
 const widgetsToTest = {
@@ -79,9 +80,7 @@ const widgetsToTest = {
 };
 
 function configureApi() {
-  cy.fixture("datasources").then((datasourceFormData) => {
-    apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], "FirstAPI");
-  });
+  apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl, "FirstAPI");
   apiPage.EnterHeader("value", "{{this.params.value}}");
 }
 
