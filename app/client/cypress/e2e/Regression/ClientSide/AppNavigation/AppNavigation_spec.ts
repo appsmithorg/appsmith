@@ -19,16 +19,14 @@ describe("General checks for app navigation", function () {
     entityExplorer.AddNewPage();
     deployMode.DeployApp();
     agHelper.AssertElementExist(appSettings.locators._topStacked);
-  });
-
-  it("2. Application name, share button, edit button, and user dropdown should be available in the app header", () => {
+    //Application name, share button, edit button, and user dropdown should be available in the app header
     agHelper.AssertElementExist(appSettings.locators._applicationName);
     agHelper.AssertElementExist(appSettings.locators._shareButton);
     agHelper.AssertElementExist(locators._backToEditor);
     agHelper.AssertElementExist(homePage._profileMenu);
   });
 
-  it("3. Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu", () => {
+  it("2. Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu", () => {
     // Share
     agHelper.GetNClick(
       `${appSettings.locators._header} ${appSettings.locators._shareButton}`,
@@ -38,10 +36,7 @@ describe("General checks for app navigation", function () {
     agHelper.AssertElementExist(appSettings.locators._modal);
     agHelper.GetNClick(appSettings.locators._modalClose);
     // Edit
-    agHelper.GetNClick(
-      `${appSettings.locators._header} ${locators._backToEditor}`,
-    );
-    agHelper.AssertElementExist(appSettings.locators._canvas);
+    deployMode.NavigateBacktoEditor();
     // User profile dropdown
     deployMode.DeployApp();
     agHelper.GetNClick(homePage._profileMenu);
@@ -49,7 +44,7 @@ describe("General checks for app navigation", function () {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("4. Import an application, deploy and verify if the Top+Stacked navigation style shows up with all the pages and a page change happens", () => {
+  it("3. Import an application, deploy and verify if the Top+Stacked navigation style shows up with all the pages and a page change happens", () => {
     // Import an application
     homePage.NavigateToHome();
     homePage.ImportApp("appNavigationTestingApp.json");
