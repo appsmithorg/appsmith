@@ -260,6 +260,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
       .should("not.be.empty");
     agHelper.WaitUntilAllToastsDisappear();
     deployMode.NavigateBacktoEditor();
+    agHelper.WaitUntilAllToastsDisappear();
   });
 
   after(() => {
