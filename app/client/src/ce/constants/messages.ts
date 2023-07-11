@@ -696,7 +696,7 @@ export const SUGGESTED_WIDGET_TOOLTIP = () => "Add to canvas";
 export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next mission";
 export const BINDING_SECTION_LABEL = () => "Bindings";
 export const ADD_NEW_WIDGET_SUB_HEADING = () =>
-  "Select how you can display your data";
+  "Select how you want to display data.";
 export const CONNECT_EXISTING_WIDGET_LABEL = () => "Select a Widget";
 export const CONNECT_EXISTING_WIDGET_SUB_HEADING = () =>
   "Replace the data of an existing widget";

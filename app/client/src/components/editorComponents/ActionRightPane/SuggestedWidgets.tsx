@@ -28,7 +28,6 @@ import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { Tooltip } from "design-system";
 import type { TextKind } from "design-system";
-// import chartWidgetIcon from "./../../../widgets/ChartWidget/icon.svg";
 import { Text } from "design-system";
 import {
   AB_TESTING_EVENT_KEYS,
