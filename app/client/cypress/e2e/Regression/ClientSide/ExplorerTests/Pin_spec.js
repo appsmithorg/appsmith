@@ -4,6 +4,7 @@ import {
   locators,
   draggableWidgets,
   installer,
+  homePage,
 } from "../../../../support/Objects/ObjectsCore";
 
 const ExplorerMenu = {
@@ -98,6 +99,7 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
       });
       cy.get(locators._canvas).trigger("mousemove", 500, 400);
       agHelper.AssertElementVisible(entityExplorer._entityExplorer);
+      entityExplorer.PinUnpinEntityExplorer(false);
     },
   );
 
@@ -122,6 +124,21 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
       });
       cy.get(locators._canvas).trigger("mousemove", 500, 400);
       agHelper.AssertElementVisible(entityExplorer._entityExplorer);
+      entityExplorer.PinUnpinEntityExplorer(false);
     },
   );
+
+  it("5. Explorer should be visible by default on a new application", function () {
+    agHelper.AssertElementVisible(entityExplorer._entityExplorer);
+    entityExplorer.PinUnpinEntityExplorer(true);
+    agHelper.GetElement(locators._canvas).trigger("mousemove", 500, 100, {
+      force: true,
+    });
+    agHelper
+      .GetElement(entityExplorer._entityExplorer)
+      .should("not.be.visible");
+    homePage.NavigateToHome();
+    homePage.CreateNewApplication();
+    agHelper.AssertElementVisible(entityExplorer._entityExplorer);
+  });
 });
