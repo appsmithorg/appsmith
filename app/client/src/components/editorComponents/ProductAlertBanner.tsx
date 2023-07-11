@@ -58,14 +58,15 @@ const ProductAlertBanner = () => {
       dispatch(updateProductAlertConfig(config));
       setMessageConfig(messageId, config);
     },
-    [config],
+    [],
   );
 
   if (isSignpostingOverlayOpen) return null;
   if (!message) return null;
 
   // If dismissed, it will not be shown
-  if ((config && config.dismissed) || dismissed) return null;
+  if (config && config.dismissed) return null;
+  if (dismissed) return null;
 
   // If still snoozed, it will not be shown
   if (config && config.snoozeTill) {
