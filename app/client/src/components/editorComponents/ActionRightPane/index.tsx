@@ -250,7 +250,7 @@ export function DisabledCollapsible({
     <Tooltip content={tooltipLabel}>
       <CollapsibleWrapper isDisabled isOpen={false}>
         <Label className="icon-text">
-          <Icon name="down-arrow" size="lg" />
+          <Icon name="arrow-right-s-line" size="lg" />
           <Text className="label" kind="heading-xs">
             {label}
           </Text>
