@@ -61,6 +61,8 @@ describe("excludeForAirgap", "Guided Tour", function () {
         propPane.UpdatePropertyFieldValue(
           "Default value",
           "{{CustomersTable.selectedRow.name}}",
+          true,
+          false,
         );
       } else {
         cy.wait(1000);
@@ -71,6 +73,8 @@ describe("excludeForAirgap", "Guided Tour", function () {
         propPane.UpdatePropertyFieldValue(
           "Default value",
           "{{CustomersTable.selectedRow.name}}",
+          true,
+          false,
         );
       }
     });
@@ -83,6 +87,8 @@ describe("excludeForAirgap", "Guided Tour", function () {
     propPane.UpdatePropertyFieldValue(
       "Default value",
       "{{CustomersTable.selectedRow.email}}",
+      true,
+      false,
     );
     cy.get(".t--entity-name").contains("CountryInput").click({ force: true });
     cy.wait(1000);
@@ -93,6 +99,8 @@ describe("excludeForAirgap", "Guided Tour", function () {
     propPane.UpdatePropertyFieldValue(
       "Default value",
       "{{CustomersTable.selectedRow.country}}",
+      true,
+      false,
     );
     cy.get(".t--entity-name").contains("DisplayImage").click({ force: true });
     cy.get(guidedTourLocators.successButton).click();
