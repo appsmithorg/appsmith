@@ -109,19 +109,24 @@ describe("Test Top + Inline navigation style", function () {
 
   it("5. Navigation's background should be default to white, and should change when background color is set to theme", () => {
     // The background should be white since light color style is default
-    agHelper
-      .GetElement(appSettings.locators._header)
-      .should("have.css", "background-color", "rgb(255, 255, 255)");
-
+    agHelper.AssertCSS(
+      appSettings.locators._header,
+      "background-color",
+      "rgb(255, 255, 255)",
+      0,
+    );
     // Changing color style to theme should change navigation's background color
     deployMode.NavigateBacktoEditor();
     agHelper.GetNClick(appSettings.locators._appSettings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(appSettings.locators._colorStyleOptions._theme, 0, true);
     deployMode.DeployApp();
-    agHelper
-      .GetElement(appSettings.locators._header)
-      .should("have.css", "background-color", "rgb(85, 61, 233)");
+    agHelper.AssertCSS(
+      appSettings.locators._header,
+      "background-color",
+      "rgb(85, 61, 233)",
+      0,
+    );
   });
 
   it("6. Application name, share button, edit button, and user dropdown should be available in the app header", () => {

@@ -62,19 +62,24 @@ describe("Test Sidebar navigation style", function () {
 
   it("3. Sidebar background should be default to white, and should change when background color is set to theme", () => {
     // The background of sidebar should be white since light color style is default
-    agHelper
-      .GetElement(appSettings.locators._sideNavbar)
-      .should("have.css", "background-color", "rgb(255, 255, 255)");
-
+    agHelper.AssertCSS(
+      appSettings.locators._sideNavbar,
+      "background-color",
+      "rgb(255, 255, 255)",
+      0,
+    );
     // Changing color style to theme should change navigation's background color
     deployMode.NavigateBacktoEditor();
     agHelper.GetNClick(appSettings.locators._appSettings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(appSettings.locators._colorStyleOptions._theme, 0, true);
     deployMode.DeployApp();
-    agHelper
-      .GetElement(appSettings.locators._sideNavbar)
-      .should("have.css", "background-color", "rgb(85, 61, 233)");
+    agHelper.AssertCSS(
+      appSettings.locators._sideNavbar,
+      "background-color",
+      "rgb(85, 61, 233)",
+      0,
+    );
   });
 
   it("4. Application name, share button, edit button, and user dropdown should be available in the app sidebar", () => {

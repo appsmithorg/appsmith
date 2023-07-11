@@ -119,10 +119,12 @@ describe("Test Top + Stacked navigation style", function () {
 
   it("4. Navigation's background should be default to white, and should change when background color is set to theme", () => {
     // The background should be white since light color style is default
-    agHelper
-      .GetElement(appNavigationLocators.topStacked)
-      .should("have.css", "background-color", "rgb(255, 255, 255)");
-
+    agHelper.AssertCSS(
+      appNavigationLocators.topStacked,
+      "background-color",
+      "rgb(255, 255, 255)",
+      0,
+    );
     // Changing color style to theme should change navigation's background color
     deployMode.NavigateBacktoEditor();
     agHelper.GetNClick(appNavigationLocators.appSettingsButton);
@@ -133,9 +135,12 @@ describe("Test Top + Stacked navigation style", function () {
       true,
     );
     deployMode.DeployApp();
-    agHelper
-      .GetElement(appNavigationLocators.topStacked)
-      .should("have.css", "background-color", "rgb(85, 61, 233)");
+    agHelper.AssertCSS(
+      appNavigationLocators.topStacked,
+      "background-color",
+      "rgb(85, 61, 233)",
+      0,
+    );
   });
 
   it("5. Application name, share button, edit button, and user dropdown should be available in the app header", () => {
