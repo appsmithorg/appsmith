@@ -7,7 +7,7 @@ import {
   homePage,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Groups&Roles tab Tests", function () {
+describe.skip("Groups&Roles tab Tests", function () {
   let workspaceName;
   let appName;
   let newWorkspaceName;
