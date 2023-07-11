@@ -149,6 +149,10 @@ const mapStateToProps = (state: AppState, ownProps: any): ReduxStateProps => {
         datasourceFromDataSourceList.datasourceStorages[
           currentEnvironment
         ].datasourceId;
+
+      // Adding user permissions for datasource from datasourceFromDataSourceList
+      datasourceMerged.userPermissions =
+        datasourceFromDataSourceList.userPermissions || [];
     }
   }
 

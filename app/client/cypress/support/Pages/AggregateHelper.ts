@@ -1451,6 +1451,14 @@ export class AggregateHelper extends ReusableHelper {
       apiToValidate && this.assertHelper.AssertNetworkStatus(apiToValidate);
   }
 
+  public GetDropTargetId(widgetName: string) {
+    return this.GetWidgetByName(widgetName).invoke("attr", "id");
+  }
+
+  public GetModalDropTargetId() {
+    return this.GetElement(this.locator._modal).invoke("attr", "id");
+  }
+
   //Not used:
   // private xPathToCss(xpath: string) {
   //     return xpath

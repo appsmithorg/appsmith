@@ -135,6 +135,7 @@ export default class DataTreeEvaluator {
   inverseDependencyMap: DependencyMap = {};
   widgetConfigMap: WidgetTypeConfigMap = {};
   evalTree: DataTree = {};
+  configTree: ConfigTree = {};
 
   /**
    * This contains raw evaluated value without any validation or parsing.
@@ -191,6 +192,14 @@ export default class DataTreeEvaluator {
     this.evalTree = evalTree;
   }
 
+  getConfigTree() {
+    return this.configTree;
+  }
+
+  setConfigTree(configTree: ConfigTree) {
+    if (configTree) this.configTree = configTree;
+  }
+
   getUnParsedEvalTree() {
     return this.unParsedEvalTree;
   }
@@ -214,6 +223,8 @@ export default class DataTreeEvaluator {
     jsUpdates: Record<string, JSUpdate>;
     evalOrder: string[];
   } {
+    this.setConfigTree(configTree);
+
     const totalFirstTreeSetupStartTime = performance.now();
     // cloneDeep will make sure not to omit key which has value as undefined.
     const firstCloneStartTime = performance.now();
@@ -239,6 +250,7 @@ export default class DataTreeEvaluator {
     const allKeysGenerationEndTime = performance.now();
 
     const createDependencyMapStartTime = performance.now();
+
     // Create dependency map
     const { dependencyMap, invalidReferencesMap, validationDependencyMap } =
       createDependencyMap(this, localUnEvalTree, configTree);
@@ -390,9 +402,11 @@ export default class DataTreeEvaluator {
     pathsToClearErrorsFor: any[];
     isNewWidgetAdded: boolean;
   } {
+    this.setConfigTree(configTree);
     const totalUpdateTreeSetupStartTime = performance.now();
 
     let localUnEvalTree = Object.assign({}, unEvalTree);
+
     let jsUpdates: Record<string, JSUpdate> = {};
     const diffCheckTimeStartTime = performance.now();
     //update uneval tree from previously saved current state of collection
@@ -410,6 +424,7 @@ export default class DataTreeEvaluator {
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
       ),
     );
+
     //save parsed functions in resolveJSFunctions, update current state of js collection
     const parsedCollections = parseJSActions(
       this,
@@ -888,7 +903,7 @@ export default class DataTreeEvaluator {
     staleMetaIds: string[];
   } {
     const tree = klona(oldUnevalTree);
-    errorModifier.updateAsyncFunctions(tree);
+    errorModifier.updateAsyncFunctions(tree, this.getConfigTree());
     const evalMetaUpdates: EvalMetaUpdates = [];
     const { isFirstTree, metaWidgets, skipRevalidation, unevalUpdates } =
       options;
@@ -1305,6 +1320,7 @@ export default class DataTreeEvaluator {
   async evaluateTriggers(
     userScript: string,
     dataTree: DataTree,
+    configTree: ConfigTree,
     callbackData: Array<unknown>,
     context?: EvaluateContext,
   ) {
@@ -1313,6 +1329,7 @@ export default class DataTreeEvaluator {
     return evaluateAsync(
       jsSnippets[0] || userScript,
       dataTree,
+      configTree,
       context,
       callbackData,
     );
