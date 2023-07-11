@@ -206,6 +206,11 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
             }
         }
 
+        // Remove extra event data property if it's present
+        if (analyticsProperties.containsKey(FieldName.EVENT_DATA)) {
+            analyticsProperties.remove(FieldName.EVENT_DATA);
+        }
+
         final String finalUserId = userId;
 
         return Mono.zip(
