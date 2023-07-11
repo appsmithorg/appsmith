@@ -99,7 +99,9 @@ describe("Test Sidebar navigation style", function () {
     agHelper.GetNClick(appSettings.locators._modalClose, 0, true);
     // User profile dropdown
     agHelper.GetNClick(homePage._profileMenu);
-    agHelper.AssertElementVisible(appSettings.locators._userProfileDropdownMenu);
+    agHelper.AssertElementVisible(
+      appSettings.locators._userProfileDropdownMenu,
+    );
     // Back to editor
     deployMode.NavigateBacktoEditor();
   });

@@ -25,7 +25,9 @@ describe("General checks for app navigation", function () {
     agHelper.AssertElementVisible(locators._backToEditor);
     agHelper.AssertElementVisible(homePage._profileMenu);
     agHelper.GetNClick(homePage._profileMenu);
-    agHelper.AssertElementVisible(appSettings.locators._userProfileDropdownMenu);
+    agHelper.AssertElementVisible(
+      appSettings.locators._userProfileDropdownMenu,
+    );
     //Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu
     // Share
     agHelper.GetNClick(

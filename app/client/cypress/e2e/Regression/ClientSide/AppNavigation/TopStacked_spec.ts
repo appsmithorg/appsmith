@@ -147,7 +147,9 @@ describe("Test Top + Stacked navigation style", function () {
     agHelper.GetNClick(appSettings.locators._modalClose, 0, true);
     // User profile dropdown
     agHelper.GetNClick(homePage._profileMenu);
-    agHelper.AssertElementVisible(appSettings.locators._userProfileDropdownMenu);
+    agHelper.AssertElementVisible(
+      appSettings.locators._userProfileDropdownMenu,
+    );
     // Edit
     deployMode.NavigateBacktoEditor();
   });
