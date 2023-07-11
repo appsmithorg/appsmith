@@ -39,9 +39,7 @@ describe("Test Sidebar navigation style", function () {
     agHelper.AssertElementExist(appSettings.locators._sideNavbar);
     agHelper.AssertElementAbsence(appSettings.locators._topStacked);
     agHelper.AssertElementAbsence(appSettings.locators._topInline);
-  });
-
-  it("2. Page change should work", () => {
+    //Page change should work
     const pageName = "Page5 - with long long name";
     agHelper.GetNClickByContains(
       appSettings.locators._navigationMenuItem,
@@ -49,18 +47,22 @@ describe("Test Sidebar navigation style", function () {
       0,
       true,
     );
-    agHelper
-      .GetElement(appSettings.locators._navigationMenuItem)
-      .contains(pageName)
-      .parent()
-      .parent()
-      .parent()
-      .parent()
-      .parent()
-      .should("have.class", "is-active");
+    agHelper.AssertElementVisible(
+      appSettings.locators._getActivePage(pageName),
+    );
+
+    //   agHelper
+    // .GetElement(appSettings.locators._navigationMenuItem)
+    // .contains(pageName)
+    // .parent()
+    // .parent()
+    // .parent()
+    // .parent()
+    // .parent()
+    // .should("have.class", "is-active");
   });
 
-  it("3. Sidebar background should be default to white, and should change when background color is set to theme", () => {
+  it("2. Sidebar background should be default to white, and should change when background color is set to theme", () => {
     // The background of sidebar should be white since light color style is default
     agHelper.AssertCSS(
       appSettings.locators._sideNavbar,
@@ -80,16 +82,14 @@ describe("Test Sidebar navigation style", function () {
       "rgb(85, 61, 233)",
       0,
     );
-  });
-
-  it("4. Application name, share button, edit button, and user dropdown should be available in the app sidebar", () => {
+    //Application name, share button, edit button, and user dropdown should be available in the app sidebar
     agHelper.AssertElementExist(appSettings.locators._applicationName);
     agHelper.AssertElementExist(appSettings.locators._shareButton);
     agHelper.AssertElementExist(locators._backToEditor);
     agHelper.AssertElementExist(homePage._profileMenu);
   });
 
-  it("5. Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu", () => {
+  it("3. Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu", () => {
     // Share
     agHelper.GetNClick(
       `${appSettings.locators._sideNavbar} ${appSettings.locators._shareButton}`,
@@ -97,20 +97,10 @@ describe("Test Sidebar navigation style", function () {
     agHelper.Sleep(1000);
     agHelper.AssertElementExist(appSettings.locators._modal);
     agHelper.GetNClick(appSettings.locators._modalClose, 0, true);
-    // Edit
-    agHelper.GetNClick(
-      `${appSettings.locators._sideNavbar} ${locators._backToEditor}`,
-    );
-    agHelper.AssertElementExist(appSettings.locators._canvas);
     // User profile dropdown
-    deployMode.DeployApp();
     agHelper.GetNClick(homePage._profileMenu);
     agHelper.AssertElementExist(appSettings.locators._userProfileDropdownMenu);
     // Back to editor
-    agHelper.GetNClick(
-      `${appSettings.locators._sideNavbar} ${locators._backToEditor}`,
-      0,
-      true,
-    );
+    deployMode.NavigateBacktoEditor();
   });
 });

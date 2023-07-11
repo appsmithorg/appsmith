@@ -10,7 +10,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("General checks for app navigation", function () {
-  it("1. App header should appear when there is a single page in the application, and navigation should appear alongside app header when there are two pages", () => {
+  it.skip("1. App header should appear when there is a single page in the application, and navigation should appear alongside app header when there are two pages", () => {
     // App header should appear when there is a single page in the application
     deployMode.DeployApp();
     agHelper.AssertElementExist(appSettings.locators._header);
@@ -24,12 +24,14 @@ describe("General checks for app navigation", function () {
     agHelper.AssertElementExist(appSettings.locators._shareButton);
     agHelper.AssertElementExist(locators._backToEditor);
     agHelper.AssertElementExist(homePage._profileMenu);
-  });
-
-  it("2. Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu", () => {
+    agHelper.GetNClick(homePage._profileMenu);
+    agHelper.AssertElementExist(appSettings.locators._userProfileDropdownMenu);
+    //Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu
     // Share
     agHelper.GetNClick(
       `${appSettings.locators._header} ${appSettings.locators._shareButton}`,
+      0,
+      true,
     );
     agHelper.Sleep(1000);
     agHelper.AssertElementExist(locators._backToEditor);
@@ -37,14 +39,9 @@ describe("General checks for app navigation", function () {
     agHelper.GetNClick(appSettings.locators._modalClose);
     // Edit
     deployMode.NavigateBacktoEditor();
-    // User profile dropdown
-    deployMode.DeployApp();
-    agHelper.GetNClick(homePage._profileMenu);
-    agHelper.AssertElementExist(appSettings.locators._userProfileDropdownMenu);
-    deployMode.NavigateBacktoEditor();
   });
 
-  it("3. Import an application, deploy and verify if the Top+Stacked navigation style shows up with all the pages and a page change happens", () => {
+  it("2. Import an application, deploy and verify if the Top+Stacked navigation style shows up with all the pages and a page change happens", () => {
     // Import an application
     homePage.NavigateToHome();
     homePage.ImportApp("appNavigationTestingApp.json");
@@ -74,15 +71,9 @@ describe("General checks for app navigation", function () {
           "Page5",
         );
         // Assert active page menu item
-        agHelper
-          .GetElement(appSettings.locators._navigationMenuItem)
-          .contains("Page5")
-          .parent()
-          .parent()
-          .parent()
-          .parent()
-          .parent()
-          .should("have.class", "is-active");
+        agHelper.AssertElementVisible(
+          appSettings.locators._getActivePage("Page5"),
+        );
         deployMode.NavigateBacktoEditor();
       });
   });

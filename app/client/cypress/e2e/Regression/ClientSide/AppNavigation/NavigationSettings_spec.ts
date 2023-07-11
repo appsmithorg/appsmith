@@ -29,9 +29,9 @@ describe("Test app's navigation settings", function () {
     deployMode.DeployApp(locators._emptyPageTxt);
     agHelper.AssertElementAbsence(appSettings.locators._header);
     agHelper.AssertElementAbsence(appSettings.locators._topStacked);
-    cy.go("back");
+    //Browser back is used as the Navbar is off and there wont be option to come back to editor
+    agHelper.BrowserNavigation(-1);
     // Wait for the app to load
-    agHelper.Sleep(3000);
     agHelper.GetNClick(appSettings.locators._appSettings, 0, true);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     // Toggle show navbar back to on
@@ -52,7 +52,7 @@ describe("Test app's navigation settings", function () {
     deployMode.DeployApp();
     agHelper.AssertElementAbsence(appSettings.locators._header);
     agHelper.AssertElementAbsence(appSettings.locators._topStacked);
-    agHelper.AssertElementExist(appSettings.locators._sideNavbar);
+    agHelper.AssertElementVisible(appSettings.locators._sideNavbar);
     deployMode.NavigateBacktoEditor();
   });
 
