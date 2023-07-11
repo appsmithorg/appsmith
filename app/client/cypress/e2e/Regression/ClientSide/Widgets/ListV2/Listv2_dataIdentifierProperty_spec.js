@@ -174,6 +174,7 @@ describe("List v2 - Data Identifier property", () => {
 
   it("9. Widgets get displayed when PrimaryKey doesn't exist - SSP", () => {
     _.agHelper.AddDsl("Listv2/ListV2WithNullPrimaryKey");
+    _.agHelper.AddDsl("Listv2/ListV2WithNullPrimaryKey");
     cy.createAndFillApi(
       "https://api.punkapi.com/v2/beers?page={{List1.pageNo}}&per_page={{List1.pageSize}}",
       "",
