@@ -127,7 +127,7 @@ import {
 import WidgetFactory from "utils/WidgetFactory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { builderURL } from "RouteBuilder";
-import { failFastApiCalls } from "./InitSagas";
+import { failFastApiCalls, waitForWidgetConfigBuild } from "./InitSagas";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import { resizePublishedMainCanvasToLowestWidget } from "./WidgetOperationUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
@@ -302,6 +302,8 @@ export function* handleFetchedPage({
     yield call(clearEvalCache);
     // Set url params
     yield call(setDataUrl);
+    // Wait for widget config to be loaded before we can generate the canvas payload
+    yield call(waitForWidgetConfigBuild);
     // Get Canvas payload
     const canvasWidgetsPayload = getCanvasWidgetsPayload(
       fetchPageResponse,
@@ -412,6 +414,8 @@ export function* fetchPublishedPageSaga(
       yield call(clearEvalCache);
       // Set url params
       yield call(setDataUrl);
+      // Wait for widget config to load before we can get the canvas payload
+      yield call(waitForWidgetConfigBuild);
       // Get Canvas payload
       const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
       // resize main canvas
@@ -1122,6 +1126,8 @@ export function* fetchPageDSLSaga(pageId: string) {
     });
     const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
+      // Wait for the Widget config to be loaded before we can migrate the DSL
+      yield call(waitForWidgetConfigBuild);
       const { dsl, layoutId } = extractCurrentDSL(
         fetchPageResponse,
         isAutoLayout,
