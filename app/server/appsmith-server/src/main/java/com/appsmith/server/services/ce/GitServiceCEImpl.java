@@ -1755,10 +1755,32 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 return executionTimeLogging.measureTask(
                                         "checkoutBranch", checkoutBranch(defaultApplicationId, finalBranchName));
                             })
-                            .zipWhen(application -> executionTimeLogging.measureTask(
-                                    "getStatus->exportApplicationById",
-                                    importExportApplicationService.exportApplicationById(
-                                            application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)));
+                            .zipWhen(application -> {
+                                Path repoSuffix = Paths.get(
+                                        application.getWorkspaceId(),
+                                        gitApplicationMetadata.getDefaultApplicationId(),
+                                        gitApplicationMetadata.getRepoName());
+                                GitAuth gitAuth = gitApplicationMetadata.getGitAuth();
+
+                                // Create a Mono to fetch the status from remote
+                                Mono<String> fetchRemoteMono = executionTimeLogging.measureTask(
+                                        "getStatus->gitExecutor.fetchRemote",
+                                        gitExecutor.fetchRemote(
+                                                repoSuffix,
+                                                gitAuth.getPublicKey(),
+                                                gitAuth.getPrivateKey(),
+                                                false,
+                                                branchName,
+                                                false));
+
+                                Mono<ApplicationJson> exportAppMono = executionTimeLogging.measureTask(
+                                        "getStatus->exportApplicationById",
+                                        importExportApplicationService.exportApplicationById(
+                                                application.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
+
+                                return Mono.zip(exportAppMono, fetchRemoteMono) // run them in parallel
+                                        .map(Tuple2::getT1); // we need the applicationJson only
+                            });
 
                     if (Boolean.TRUE.equals(isFileLock)) {
                         // Add file lock for the status API call to avoid sending wrong info on the status
@@ -1804,17 +1826,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     .getStatus(tuple.getT1(), finalBranchName)
                                     .cache());
                     try {
-                        return executionTimeLogging
-                                .measureTask(
-                                        "getStatus->gitExecutor.fetchRemote",
-                                        gitExecutor.fetchRemote(
-                                                tuple.getT1(),
-                                                tuple.getT2().getPublicKey(),
-                                                tuple.getT2().getPrivateKey(),
-                                                true,
-                                                branchName,
-                                                false))
-                                .then(branchedStatusMono)
+                        return branchedStatusMono
                                 // Remove any files which are copied by hard resetting the repo
                                 .then(executionTimeLogging.measureTask(
                                         "getStatus->gitExecutor.resetToLastCommit",
@@ -1832,6 +1844,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .onErrorResume(error -> Mono.error(new AppsmithException(
                                         AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage())));
                     } catch (GitAPIException | IOException e) {
+                        log.error("error occurred", e);
                         return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, e.getMessage()));
                     }
                 });
