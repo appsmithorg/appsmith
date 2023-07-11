@@ -181,4 +181,37 @@ describe("Linting warning for setter methods", function () {
       "Found an action invocation during evaluation. Data fields cannot execute actions.",
     );
   });
+
+  it("Lint error when widget property is re-assigned", function () {
+    entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
+    agHelper.GetNClick(getWidgetSelector(WIDGET.BUTTON));
+    propPane.TypeTextIntoField("Label", "{{Button1.text = 'Hello'}}");
+
+    //Mouse hover to exact warning message
+    agHelper.HoverElement(locators._lintErrorElement);
+    agHelper.AssertContains(
+      "Direct mutation of widget properties aren't supported. Use Button1.setLabel(value) setter method instead.",
+    );
+
+    //Create a JS object
+    jsEditor.CreateJSObject(
+      `export default {
+        myFun1: () => {
+          Button1.isVisible = false;
+        },
+      }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+        prettify: false,
+      },
+    );
+
+    agHelper.HoverElement(locators._lintErrorElement);
+    agHelper.AssertContains(
+      "Direct mutation of widget properties aren't supported. Use Button1.setVisibility(value) setter method instead.",
+    );
+  });
 });
