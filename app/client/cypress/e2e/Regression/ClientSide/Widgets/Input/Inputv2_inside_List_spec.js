@@ -5,9 +5,7 @@ const widgetInput = `.t--widget-${widgetName} input`;
 
 describe("Input widget V2 - ", () => {
   before(() => {
-    cy.fixture("InputWidgetV2InsideListDSL").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("InputWidgetV2InsideListDSL");
   });
 
   it("1. Validate input widget resets OnSubmit", () => {

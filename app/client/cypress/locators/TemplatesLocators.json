@@ -7,5 +7,6 @@
   "startFromTemplateCard": "[data-testid=start-from-template]",
   "templateDialogBox": "[data-testid=t--templates-dialog-component]",
   "selectCheckbox": ".ads-v2-checkbox",
-  "closeButton": "//span[@name='close-x']"
+  "closeButton": "//span[@name='close-x']",
+  "marketingDashboard":"//h1[text()='Marketing Dashboard']/parent::div//button[contains(@class, 't--fork-template')]"
 }

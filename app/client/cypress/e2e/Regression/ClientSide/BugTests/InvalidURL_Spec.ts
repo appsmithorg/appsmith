@@ -28,7 +28,7 @@ describe("Invalid page routing", () => {
     cy.url().then((url) => {
       const urlWithoutQueryParams = url.split("?")[0];
       const invalidURL = urlWithoutQueryParams + "invalid";
-      cy.visit(invalidURL);
+      cy.visit(invalidURL, { timeout: 60000 });
       agHelper.AssertContains(
         `The page you’re looking for either does not exist`,
         "exist",

@@ -51,9 +51,7 @@ describe("JS Function Execution", function () {
   ];
 
   before(() => {
-    cy.fixture("tablev1NewDsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tablev1NewDsl");
     entityExplorer.NavigateToSwitcher("Explorer");
   });
 

@@ -9,7 +9,6 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.featureflags.FeatureFlagTrait;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -25,7 +24,6 @@ import com.appsmith.server.solutions.ForkExamplesWorkspace;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
@@ -75,10 +73,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
      * @return Publishes empty, that completes after handler tasks are finished.
      */
     @Override
-    public Mono<Void> onAuthenticationSuccess(
-            WebFilterExchange webFilterExchange,
-            Authentication authentication
-    ) {
+    public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
         return onAuthenticationSuccess(webFilterExchange, authentication, false, false, null);
     }
 
@@ -87,8 +82,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             Authentication authentication,
             boolean createDefaultApplication,
             boolean isFromSignup,
-            String defaultWorkspaceId
-    ) {
+            String defaultWorkspaceId) {
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
         Mono<Void> redirectionMono;
         User user = (User) authentication.getPrincipal();
@@ -105,18 +99,23 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             // verification this can be eliminated safely
             if (user.getPassword() != null) {
                 user.setPassword(null);
-                user.setSource(
-                        LoginSource.fromString(((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId())
-                );
+                user.setSource(LoginSource.fromString(
+                        ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId()));
                 // Update the user in separate thread
-                userRepository.save(user).subscribeOn(Schedulers.boundedElastic()).subscribe();
+                userRepository
+                        .save(user)
+                        .subscribeOn(Schedulers.boundedElastic())
+                        .subscribe();
             }
             if (isFromSignup) {
                 boolean finalIsFromSignup = isFromSignup;
-                redirectionMono = workspaceService.isCreateWorkspaceAllowed(Boolean.TRUE)
+                redirectionMono = workspaceService
+                        .isCreateWorkspaceAllowed(Boolean.TRUE)
                         .elapsed()
                         .map(pair -> {
-                            log.debug("AuthenticationSuccessHandlerCE::Time taken to check if workspace creation allowed: {} ms", pair.getT1());
+                            log.debug(
+                                    "AuthenticationSuccessHandlerCE::Time taken to check if workspace creation allowed: {} ms",
+                                    pair.getT1());
                             return pair.getT2();
                         })
                         .flatMap(isCreateWorkspaceAllowed -> {
@@ -124,11 +123,13 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                 return createDefaultApplication(defaultWorkspaceId, authentication)
                                         .elapsed()
                                         .map(pair -> {
-                                            log.debug("AuthenticationSuccessHandlerCE::Time taken to create default application: {} ms", pair.getT1());
+                                            log.debug(
+                                                    "AuthenticationSuccessHandlerCE::Time taken to create default application: {} ms",
+                                                    pair.getT1());
                                             return pair.getT2();
                                         })
-                                        .flatMap(defaultApplication ->
-                                                handleOAuth2Redirect(webFilterExchange, defaultApplication, finalIsFromSignup));
+                                        .flatMap(defaultApplication -> handleOAuth2Redirect(
+                                                webFilterExchange, defaultApplication, finalIsFromSignup));
                             }
                             return handleOAuth2Redirect(webFilterExchange, null, finalIsFromSignup);
                         });
@@ -141,18 +142,21 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 redirectionMono = createDefaultApplication(defaultWorkspaceId, authentication)
                         .elapsed()
                         .map(pair -> {
-                            log.debug("AuthenticationSuccessHandlerCE::Time taken to create default application: {} ms", pair.getT1());
+                            log.debug(
+                                    "AuthenticationSuccessHandlerCE::Time taken to create default application: {} ms",
+                                    pair.getT1());
                             return pair.getT2();
                         })
-                        .flatMap(defaultApplication -> redirectHelper.handleRedirect(webFilterExchange, defaultApplication, true)
-                        );
+                        .flatMap(defaultApplication ->
+                                redirectHelper.handleRedirect(webFilterExchange, defaultApplication, true));
             } else {
                 redirectionMono = redirectHelper.handleRedirect(webFilterExchange, null, finalIsFromSignup);
             }
         }
 
         final boolean isFromSignupFinal = isFromSignup;
-        return sessionUserService.getCurrentUser()
+        return sessionUserService
+                .getCurrentUser()
                 .flatMap(currentUser -> {
                     List<Mono<?>> monos = new ArrayList<>();
                     monos.add(userDataService.ensureViewedCurrentVersionReleaseNotes(currentUser));
@@ -161,72 +165,40 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     if (authentication instanceof OAuth2AuthenticationToken) {
                         modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
                     }
-                    /*
-                        Adding default traits to flagsmith for the logged-in user
-                     */
-                    monos.add(addDefaultUserTraits(user));
 
                     if (isFromSignupFinal) {
                         final String inviteToken = currentUser.getInviteToken();
                         final boolean isFromInvite = inviteToken != null;
 
                         // This should hold the role of the user, e.g., `App Viewer`, `Developer`, etc.
-                        final String invitedAs = inviteToken == null ? "" : inviteToken.split(":", 2)[0];
+                        final String invitedAs =
+                                inviteToken == null ? "" : inviteToken.split(":", 2)[0];
 
                         modeOfLogin = "FormSignUp";
                         if (authentication instanceof OAuth2AuthenticationToken) {
-                            modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+                            modeOfLogin =
+                                    ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
                         }
 
                         monos.add(analyticsService.sendObjectEvent(
                                 AnalyticsEvents.FIRST_LOGIN,
                                 currentUser,
                                 Map.of(
-                                        "isFromInvite", isFromInvite,
-                                        "invitedAs", invitedAs,
-                                        FieldName.MODE_OF_LOGIN, modeOfLogin
-                                )
-                        ));
+                                        "isFromInvite",
+                                        isFromInvite,
+                                        "invitedAs",
+                                        invitedAs,
+                                        FieldName.MODE_OF_LOGIN,
+                                        modeOfLogin)));
                         monos.add(examplesWorkspaceCloner.forkExamplesWorkspace());
                     }
 
                     monos.add(analyticsService.sendObjectEvent(
-                            AnalyticsEvents.LOGIN,
-                            currentUser,
-                            Map.of(
-                                    FieldName.MODE_OF_LOGIN, modeOfLogin
-                            )
-                    ));
+                            AnalyticsEvents.LOGIN, currentUser, Map.of(FieldName.MODE_OF_LOGIN, modeOfLogin)));
 
                     return Mono.whenDelayError(monos);
                 })
                 .then(redirectionMono);
-    }
-
-    private Mono<Void> addDefaultUserTraits(User user){
-        String identifier = userIdentifierService.getUserIdentifier(user);
-        List<FeatureFlagTrait> featureFlagTraits = new ArrayList<>();
-        String emailTrait;
-        if (!commonConfig.isCloudHosting()) {
-            emailTrait = userIdentifierService.hash(user.getEmail());
-        } else {
-            emailTrait = user.getEmail();
-        }
-        return configService.getInstanceId()
-                .flatMap(instanceId -> {
-                    featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "email", emailTrait));
-                    featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "instanceId", instanceId));
-                    featureFlagTraits.add(addTraitKeyValueToTraitObject(identifier, "tenantId", user.getTenantId()));
-                    return featureFlagService.remoteSetUserTraits(featureFlagTraits);
-                });
-    }
-
-    private FeatureFlagTrait addTraitKeyValueToTraitObject(String identifier, String traitKey, String traitValue){
-        FeatureFlagTrait featureFlagTrait = new FeatureFlagTrait();
-        featureFlagTrait.setIdentifier(identifier);
-        featureFlagTrait.setTraitKey(traitKey);
-        featureFlagTrait.setTraitValue(traitValue);
-        return featureFlagTrait;
     }
 
     protected Mono<Application> createDefaultApplication(String defaultWorkspaceId, Authentication authentication) {
@@ -238,7 +210,8 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         Mono<Application> applicationMono = Mono.just(application);
         if (defaultWorkspaceId == null) {
 
-            applicationMono = workspaceRepository.findAll(workspacePermission.getEditPermission())
+            applicationMono = workspaceRepository
+                    .findAll(workspacePermission.getEditPermission())
                     .take(1, true)
                     .collectList()
                     .flatMap(workspaces -> {
@@ -253,18 +226,17 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         // In case no workspaces are found for the user, create a new default workspace
                         String email = ((User) authentication.getPrincipal()).getEmail();
 
-                        return userRepository.findByEmail(email)
+                        return userRepository
+                                .findByEmail(email)
                                 .flatMap(user -> workspaceService.createDefault(new Workspace(), user))
                                 .map(workspace -> {
                                     application.setWorkspaceId(workspace.getId());
                                     return application;
                                 });
-
                     });
         }
 
-        return applicationMono
-                .flatMap(application1 -> applicationPageService.createApplication(application1));
+        return applicationMono.flatMap(application1 -> applicationPageService.createApplication(application1));
     }
 
     /**
@@ -280,9 +252,9 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
      */
     @SuppressWarnings(
             // Disabling this because although the reference in the Javadoc is to a private method, it is still useful.
-            "JavadocReference"
-    )
-    private Mono<Void> handleOAuth2Redirect(WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
+            "JavadocReference")
+    private Mono<Void> handleOAuth2Redirect(
+            WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
         String state = exchange.getRequest().getQueryParams().getFirst(Security.QUERY_PARAMETER_STATE);
         String redirectUrl = RedirectHelper.DEFAULT_REDIRECT_URL;
@@ -308,6 +280,4 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
 
         return redirectStrategy.sendRedirect(exchange, URI.create(redirectUrl));
     }
-
-
 }

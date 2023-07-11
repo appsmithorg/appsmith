@@ -66,6 +66,7 @@ export const registerWidget = (
     config.properties.stylesheetConfig,
     config.properties.autocompleteDefinitions,
     config.autoLayout,
+    config.properties.setterConfig,
   );
 
   configureWidget(config);

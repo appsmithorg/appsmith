@@ -1,6 +1,6 @@
 import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { isArray, orderBy } from "lodash";
 import { default as React } from "react";
 import type { WidgetState } from "widgets/BaseWidget";
@@ -114,6 +114,21 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
     return [];
   };
 
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+      },
+    };
+  }
+
   getPageView() {
     const { componentWidth } = this.getComponentDimensions();
     const menuDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
@@ -122,9 +137,13 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
       <MenuButtonComponent
         {...this.props}
         getVisibleItems={this.getVisibleItems}
+        maxWidth={this.props.maxWidth}
         menuDropDownWidth={menuDropDownWidth}
+        minHeight={this.props.minHeight}
+        minWidth={this.props.minWidth}
         onItemClicked={this.menuItemClickHandler}
         renderMode={this.props.renderMode}
+        shouldFitContent={this.isAutoLayoutMode}
         width={componentWidth}
       />
     );

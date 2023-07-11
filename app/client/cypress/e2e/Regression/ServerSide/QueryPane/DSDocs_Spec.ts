@@ -3,6 +3,8 @@ import {
   entityExplorer,
   dataSources,
   entityItems,
+  deployMode,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any;
@@ -13,9 +15,11 @@ describe("Check datasource doc links", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.CreateQueryAfterDSSaved();
-      agHelper.AssertNewTabOpened(() => {
-        agHelper.GetNClick(dataSources._queryDoc);
-      });
+      deployMode.StubWindowNAssert(
+        dataSources._queryDoc,
+        "querying-postgres#create-crud-queries",
+        "getWorkspace",
+      );
     });
   });
 
@@ -24,9 +28,11 @@ describe("Check datasource doc links", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.CreateQueryAfterDSSaved();
-      agHelper.AssertNewTabOpened(() => {
-        agHelper.GetNClick(dataSources._queryDoc);
-      });
+      deployMode.StubWindowNAssert(
+        dataSources._queryDoc,
+        "querying-mongodb#create-queries",
+        "getWorkspace",
+      );
     });
   });
 
@@ -35,9 +41,11 @@ describe("Check datasource doc links", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.CreateQueryAfterDSSaved();
-      agHelper.AssertNewTabOpened(() => {
-        agHelper.GetNClick(dataSources._queryDoc);
-      });
+      deployMode.StubWindowNAssert(
+        dataSources._queryDoc,
+        "querying-mysql#create-queries",
+        "getWorkspace",
+      );
     });
   });
 
@@ -48,11 +56,12 @@ describe("Check datasource doc links", function () {
       entityType: entityItems.Query,
     });
     entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Delete",
-      entityType: entityItems.Datasource,
-      toastToValidate: "deleted successfully",
-    });
+    dataSources.DeleteDatasouceFromActiveTab(dsName);
+    // entityExplorer.ActionContextMenuByEntityName({
+    //   entityNameinLeftSidebar: dsName,
+    //   action: "Delete",
+    //   entityType: entityItems.Datasource,
+    //   toastToValidate: "deleted successfully",
+    // });//Since after query delete, DS is not appearing in EntityExplorer, this has potential to fail
   });
 });

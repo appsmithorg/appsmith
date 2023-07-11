@@ -1,7 +1,6 @@
 package com.appsmith.external.helpers.restApiUtils.helpers;
 
 import com.appsmith.external.models.Property;
-import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 

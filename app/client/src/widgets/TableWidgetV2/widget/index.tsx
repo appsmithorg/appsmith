@@ -99,7 +99,7 @@ import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
 import localStorage from "utils/localStorage";
 import { generateNewColumnOrderFromStickyValue } from "./utilities";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { DateCell } from "../component/cellComponents/DateCell";
 import type { MenuItem } from "widgets/MenuButtonWidget/constants";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
@@ -183,6 +183,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         onSort: queryConfig.select.run,
         enableClientSideSearch: !formConfig.searchableColumn,
         primaryColumnId: formConfig.primaryColumn,
+        isVisibleDownload: false,
       });
     }
 
@@ -317,6 +318,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         previousPageVisited: generateTypeDef(widget.previousPageVisited),
         nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
       };
+
       return config;
     };
   }
@@ -379,6 +381,31 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           discardButtonColor: "{{appsmith.theme.colors.primaryColor}}",
           discardBorderRadius:
             "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        },
+      },
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "string",
+        },
+        setSelectedRowIndex: {
+          path: "defaultSelectedRowIndex",
+          type: "number",
+          disabled: "return options.entity.multiRowSelection",
+        },
+        setSelectedRowIndices: {
+          path: "defaultSelectedRowIndices",
+          type: "array",
+          disabled: "return !options.entity.multiRowSelection",
+        },
+        setData: {
+          path: "tableData",
+          type: "object",
         },
       },
     };

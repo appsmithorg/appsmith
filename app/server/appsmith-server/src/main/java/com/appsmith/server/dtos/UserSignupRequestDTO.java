@@ -26,5 +26,4 @@ public class UserSignupRequestDTO {
     private boolean allowCollectingAnonymousData;
 
     private boolean signupForNewsletter;
-
 }

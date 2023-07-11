@@ -4,11 +4,12 @@ import {
   DATASOURCE_REST_API_FORM,
   DATASOURCE_SAAS_FORM,
 } from "@appsmith/constants/forms";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 import { diff } from "deep-diff";
 import { PluginPackageName, PluginType } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 import { AuthenticationStatus, AuthType } from "entities/Datasource";
-import { isArray } from "lodash";
+import { get, isArray } from "lodash";
 export function isCurrentFocusOnInput() {
   return (
     ["input", "textarea"].indexOf(
@@ -83,17 +84,21 @@ export function isDatasourceAuthorizedForQueryCreation(
   datasource: Datasource,
   plugin: Plugin,
 ): boolean {
+  const currentEnvironment = getCurrentEnvironment();
   if (!datasource) return false;
-  const authType =
-    datasource &&
-    datasource?.datasourceConfiguration?.authentication?.authenticationType;
+  const authType = get(
+    datasource,
+    `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationType`,
+  );
 
   const isGoogleSheetPlugin = isGoogleSheetPluginDS(plugin?.packageName);
   if (isGoogleSheetPlugin) {
     const isAuthorized =
       authType === AuthType.OAUTH2 &&
-      datasource?.datasourceConfiguration?.authentication
-        ?.authenticationStatus === AuthenticationStatus.SUCCESS;
+      get(
+        datasource,
+        `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationStatus`,
+      ) === AuthenticationStatus.SUCCESS;
     return isAuthorized;
   }
 
@@ -118,12 +123,16 @@ export function isGoogleSheetPluginDS(pluginPackageName?: string) {
 export function getDatasourcePropertyValue(
   datasource: Datasource,
   propertyKey: string,
+  currentEnvironment: string,
 ): string | null {
   if (!datasource) {
     return null;
   }
 
-  const properties = datasource?.datasourceConfiguration?.properties;
+  const properties = get(
+    datasource,
+    `datasourceStorages.${currentEnvironment}.datasourceConfiguration.properties`,
+  );
   if (!!properties && properties.length > 0) {
     const propertyObj = properties.find((prop) => prop.key === propertyKey);
     if (!!propertyObj) {
