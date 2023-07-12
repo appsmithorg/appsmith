@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "es6",
+    "resolveJsonModule": true,
     "module": "commonjs",
     "esModuleInterop": true,
     "moduleResolution": "node",
@@ -15,9 +16,11 @@
       "@middlewares/*": ["./src/middlewares/*"],
       "@controllers/*": ["./src/controllers/*"],
       "@rules/*": ["./src/middlewares/rules/*"],
-      "@utils/*": ["./src/utils/*"]
+      "@utils/*": ["./src/utils/*"],
+      "@scim/*": ["./src/scim/*"]
     }
   },
-  "exclude": ["jest.config.js", "src/test"],
+  "exclude": ["jest.config.js", "src/test", "index.js"],
+  "include": ["src/**/*", "src/**/*.json"],
   "lib": ["es2015"]
 }
