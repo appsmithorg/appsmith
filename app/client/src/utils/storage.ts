@@ -23,6 +23,8 @@ export const STORAGE_KEYS: {
   FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY:
     "FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY",
   SIGNPOSTING_APP_STATE: "SIGNPOSTING_APP_STATE",
+  FEATURE_WALKTHROUGH: "FEATURE_WALKTHROUGH",
+  USER_SIGN_UP: "USER_SIGN_UP",
 };
 
 const store = localforage.createInstance({
@@ -415,6 +417,80 @@ export const setFirstTimeUserOnboardingTelemetryCalloutVisibility = async (
     log.error(
       "An error occurred while fetching FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY",
     );
+    log.error(error);
+  }
+};
+
+export const setFeatureFlagShownStatus = async (key: string, value: any) => {
+  try {
+    let flagsJSON: Record<string, any> | null = await store.getItem(
+      STORAGE_KEYS.FEATURE_WALKTHROUGH,
+    );
+
+    if (typeof flagsJSON === "object" && flagsJSON) {
+      flagsJSON[key] = value;
+    } else {
+      flagsJSON = { [key]: value };
+    }
+
+    await store.setItem(STORAGE_KEYS.FEATURE_WALKTHROUGH, flagsJSON);
+    return true;
+  } catch (error) {
+    log.error("An error occurred while updating FEATURE_WALKTHROUGH");
+    log.error(error);
+  }
+};
+
+export const getFeatureFlagShownStatus = async (key: string) => {
+  try {
+    const flagsJSON: Record<string, any> | null = await store.getItem(
+      STORAGE_KEYS.FEATURE_WALKTHROUGH,
+    );
+
+    if (typeof flagsJSON === "object" && flagsJSON) {
+      return !!flagsJSON[key];
+    }
+
+    return false;
+  } catch (error) {
+    log.error("An error occurred while reading FEATURE_WALKTHROUGH");
+    log.error(error);
+  }
+};
+
+export const setUserSignedUpFlag = async (email: string) => {
+  try {
+    let userSignedUp: Record<string, any> | null = await store.getItem(
+      STORAGE_KEYS.USER_SIGN_UP,
+    );
+
+    if (typeof userSignedUp === "object" && userSignedUp) {
+      userSignedUp[email] = Date.now();
+    } else {
+      userSignedUp = { [email]: Date.now() };
+    }
+
+    await store.setItem(STORAGE_KEYS.USER_SIGN_UP, userSignedUp);
+    return true;
+  } catch (error) {
+    log.error("An error occurred while updating USER_SIGN_UP");
+    log.error(error);
+  }
+};
+
+export const isUserSignedUpFlagSet = async (email: string) => {
+  try {
+    const userSignedUp: Record<string, any> | null = await store.getItem(
+      STORAGE_KEYS.USER_SIGN_UP,
+    );
+
+    if (typeof userSignedUp === "object" && userSignedUp) {
+      return !!userSignedUp[email];
+    }
+
+    return false;
+  } catch (error) {
+    log.error("An error occurred while reading USER_SIGN_UP");
     log.error(error);
   }
 };

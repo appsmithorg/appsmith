@@ -345,9 +345,8 @@ export const useFilteredEntities = (
 };
 
 export const useEntityUpdateState = (entityId: string) => {
-  return useSelector(
-    (state: AppState) =>
-      get(state, "ui.explorer.entity.updatingEntity") === entityId,
+  return useSelector((state: AppState) =>
+    get(state, "ui.explorer.entity.updatingEntity")?.includes(entityId),
   );
 };
 

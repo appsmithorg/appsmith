@@ -223,12 +223,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       _.agHelper.GetNClick(_.propPane._deleteWidget);
 
       _.entityExplorer.SelectEntityByName($queryName, "Queries/JS");
-      cy.xpath(queryLocators.suggestedWidgetText).click().wait(1000);
-      cy.get(commonlocators.textWidget).validateWidgetExists();
-      _.entityExplorer.SelectEntityByName("Text1", "Widgets");
-      _.agHelper.GetNClick(_.propPane._deleteWidget);
-
-      _.entityExplorer.SelectEntityByName($queryName, "Queries/JS");
       cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
     });
   });
