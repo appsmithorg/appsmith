@@ -16,6 +16,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { updateProductAlertConfig } from "actions/userActions";
+import { getIsUserLoggedIn } from "selectors/usersSelectors";
 
 const AlertContainer = styled.div`
   position: absolute;
@@ -48,6 +49,7 @@ const ProductAlertBanner = () => {
   const isSignpostingOverlayOpen = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
+  const userIsLoggedIn = useSelector(getIsUserLoggedIn);
   const { config, message }: ProductAlertState | undefined = useSelector(
     (state) => state.ui.users.productAlert,
   );
@@ -61,9 +63,10 @@ const ProductAlertBanner = () => {
     [],
   );
 
+  if (!userIsLoggedIn) return null;
   if (isSignpostingOverlayOpen) return null;
-  if (!message) return null;
 
+  if (!message) return null;
   // If dismissed, it will not be shown
   if (config && config.dismissed) return null;
   if (dismissed) return null;
@@ -81,7 +84,9 @@ const ProductAlertBanner = () => {
   if (message.learnMoreLink) {
     links.push({
       children: createMessage(LEARN_MORE),
-      to: message.learnMoreLink,
+      onClick: () => {
+        window.open(message.learnMoreLink, "_blank");
+      },
     });
   }
 
