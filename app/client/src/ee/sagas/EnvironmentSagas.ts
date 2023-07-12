@@ -10,7 +10,7 @@ import {
   ENVIRONMENT_QUERY_KEY,
   updateLocalStorage,
 } from "@appsmith/utils/Environments";
-import { datasourceEnvEnabled } from "../../selectors/featureFlagsSelectors";
+import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 
 // Saga to handle fetching the environment configs
 function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {

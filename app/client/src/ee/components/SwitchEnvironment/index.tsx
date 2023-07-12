@@ -13,7 +13,7 @@ import {
 } from "@appsmith/selectors/environmentSelectors";
 import { Option, Select, Text } from "design-system";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 
 const Wrapper = styled.div`
   display: flex;
