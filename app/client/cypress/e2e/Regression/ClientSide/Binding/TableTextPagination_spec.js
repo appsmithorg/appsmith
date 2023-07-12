@@ -8,6 +8,7 @@ import {
   agHelper,
   deployMode,
   propPane,
+  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
@@ -142,7 +143,8 @@ describe("Test Create Api and Bind to Table widget", function () {
       false,
     );
     deployMode.DeployApp();
-    cy.wait("@postExecute").then((interception) => {
+    agHelper.AssertElementVisible(draggableWidgets.TABLE);
+    cy.get("@postExecute").then((interception) => {
       let valueToTest = JSON.stringify(
         interception.response.body.data.body[0].name,
       );
