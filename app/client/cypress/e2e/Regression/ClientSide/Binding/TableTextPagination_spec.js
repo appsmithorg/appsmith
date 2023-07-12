@@ -143,8 +143,10 @@ describe("Test Create Api and Bind to Table widget", function () {
       false,
     );
     deployMode.DeployApp();
-    agHelper.AssertElementVisible(draggableWidgets.TABLE);
-    cy.get("@postExecute").then((interception) => {
+    agHelper.AssertElementVisible(
+      locators._widgetInDeployed(draggableWidgets.TABLE_V1),
+    );
+    cy.wait("@postExecute").then((interception) => {
       let valueToTest = JSON.stringify(
         interception.response.body.data.body[0].name,
       );
