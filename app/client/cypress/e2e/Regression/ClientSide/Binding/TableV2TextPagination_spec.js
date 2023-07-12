@@ -9,6 +9,7 @@ import {
   agHelper,
   locators,
   draggableWidgets,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
@@ -142,10 +143,8 @@ describe("Test Create Api and Bind to Table widget", function () {
       apiPageLocators.apiPaginationPrevTest,
       false,
     );
-    deployMode.DeployApp();
-    agHelper.AssertElementVisible(
-      locators._widgetInDeployed(draggableWidgets.TABLE),
-    );
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitUntilTableLoad(0, 0, "v2");
     cy.wait("@postExecute").then((interception) => {
       let valueToTest = JSON.stringify(
         interception.response.body.data.body[0].name,
