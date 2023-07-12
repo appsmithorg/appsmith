@@ -10,6 +10,6 @@ import reactor.core.publisher.Mono;
 public interface ApplicationRepository extends ApplicationRepositoryCE, CustomApplicationRepository {
 
     Flux<Application> findAllByWorkspaceIdIn(Iterable<String> workspaceIds);
-    Mono<Application> findFirstByWorkspaceId(String workspaceId);
 
+    Mono<Application> findFirstByWorkspaceId(String workspaceId);
 }

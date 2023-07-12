@@ -1,6 +1,5 @@
 package com.appsmith.server.configurations;
 
-
 import com.appsmith.server.authentication.converters.ApiKeyAuthenticationConverter;
 import com.appsmith.server.authentication.handlers.AccessDeniedHandler;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
@@ -17,18 +16,20 @@ import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DelegatingReactiveAuthenticationManager;
 import org.springframework.security.authentication.ObservationReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
@@ -46,6 +47,7 @@ import org.springframework.security.web.server.authentication.AuthenticationWebF
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
@@ -53,6 +55,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
 import org.springframework.web.server.session.CookieWebSessionIdResolver;
 import org.springframework.web.server.session.WebSessionIdResolver;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -71,6 +74,7 @@ import static com.appsmith.server.constants.Url.TENANT_URL;
 import static com.appsmith.server.constants.Url.THEME_URL;
 import static com.appsmith.server.constants.Url.USAGE_PULSE_URL;
 import static com.appsmith.server.constants.Url.USER_URL;
+import static com.appsmith.server.constants.ce.UrlCE.ENVIRONMENT_URL;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @EnableWebFluxSecurity
@@ -125,6 +129,9 @@ public class SecurityConfig {
     @Autowired
     private ObservationRegistry observationRegistry;
 
+    @Value("${appsmith.internal.password}")
+    private String INTERNAL_PASSWORD;
+
     /**
      * This routerFunction is required to map /public/** endpoints to the src/main/resources/public folder
      * This is to allow static resources to be served by the server. Couldn't find an easier way to do this,
@@ -140,8 +147,7 @@ public class SecurityConfig {
      */
     @Bean
     public RouterFunction<ServerResponse> publicRouter() {
-        return RouterFunctions
-                .resources("/public/**", new ClassPathResource("public/"));
+        return RouterFunctions.resources("/public/**", new ClassPathResource("public/"));
     }
 
     @Bean
@@ -149,27 +155,56 @@ public class SecurityConfig {
         return new ForwardedHeaderTransformer();
     }
 
+    @Order(Ordered.HIGHEST_PRECEDENCE)
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http,
-                                                         ApiKeyAuthorisationManager apiKeyAuthorisationManager,
-                                                         ApiKeyAuthenticationConverter apiKeyAuthenticationConverter) {
-        ServerAuthenticationEntryPointFailureHandler failureHandler = new ServerAuthenticationEntryPointFailureHandler(authenticationEntryPoint);
+    @ConditionalOnExpression(value = "'${appsmith.internal.password}'.length() > 0")
+    public SecurityWebFilterChain internalWebFilterChain(ServerHttpSecurity http) {
+        return http.securityMatcher(new PathPatternParserServerWebExchangeMatcher("/actuator/**"))
+                .authorizeExchange(authorizeExchangeSpec ->
+                        authorizeExchangeSpec.anyExchange().authenticated())
+                .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationManager(authentication -> {
+                    if (isAuthorizedToAccessInternal(
+                            authentication.getCredentials().toString())) {
+                        return Mono.just(UsernamePasswordAuthenticationToken.authenticated(
+                                authentication.getPrincipal(),
+                                authentication.getCredentials(),
+                                authentication.getAuthorities()));
+                    } else {
+                        return Mono.just(UsernamePasswordAuthenticationToken.unauthenticated(
+                                authentication.getPrincipal(), authentication.getCredentials()));
+                    }
+                }))
+                .build();
+    }
+
+    @Bean
+    public SecurityWebFilterChain securityWebFilterChain(
+            ServerHttpSecurity http,
+            ApiKeyAuthorisationManager apiKeyAuthorisationManager,
+            ApiKeyAuthenticationConverter apiKeyAuthenticationConverter) {
+        ServerAuthenticationEntryPointFailureHandler failureHandler =
+                new ServerAuthenticationEntryPointFailureHandler(authenticationEntryPoint);
         ApiKeyAuthenticationManager apiKeyAuthenticationManager = new ApiKeyAuthenticationManager();
-        AuthenticationWebFilter apiKeyAuthenticationWebFilter = new AuthenticationWebFilter(apiKeyAuthenticationManager);
+        AuthenticationWebFilter apiKeyAuthenticationWebFilter =
+                new AuthenticationWebFilter(apiKeyAuthenticationManager);
         apiKeyAuthenticationWebFilter.setServerAuthenticationConverter(apiKeyAuthenticationConverter);
 
         return http
                 // The native CSRF solution doesn't work with WebFlux, yet, but only for WebMVC. So we make our own.
-                .csrf().disable()
+                .csrf()
+                .disable()
                 .addFilterAt(new CSRFFilter(), SecurityWebFiltersOrder.CSRF)
                 .addFilterAfter(new AirgapUnsupportedPathFilter(airgapInstanceConfig), SecurityWebFiltersOrder.CSRF)
-                // Add a filter at the authentication step, which will convert the x-appsmith-key value to a valid principal
+                // Add a filter at the authentication step, which will convert the x-appsmith-key value to a valid
+                // principal
                 // which can be used for authorisation.
                 .addFilterAt(apiKeyAuthenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .authenticationManager(authenticationManager())
-                .anonymous().principal(createAnonymousUser())
+                .anonymous()
+                .principal(createAnonymousUser())
                 .and()
-                // This returns 401 unauthorized for all requests that are not authenticated but authentication is required
+                // This returns 401 unauthorized for all requests that are not authenticated but authentication is
+                // required
                 // The client will redirect to the login page if we return 401 as Http status response
                 .exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint)
@@ -179,7 +214,8 @@ public class SecurityConfig {
                 // Allow cloud-services to install a remote plugin
                 .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, PLUGIN_URL + "/remote/install"))
                 .access(apiKeyAuthorisationManager)
-                .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGIN_URL),
+                .matchers(
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGIN_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.HEALTH_CHECK),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/super"),
@@ -200,25 +236,30 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, TENANT_URL + "/current"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, ANALYTICS_URL + "/event"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USAGE_PULSE_URL),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CUSTOM_JS_LIB_URL + "/*/view")
-                )
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CUSTOM_JS_LIB_URL + "/*/view"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ENVIRONMENT_URL + "/workspaces/**"))
                 .permitAll()
-                .pathMatchers("/public/**", "/oauth2/**", "/actuator/**").permitAll()
+                .pathMatchers("/public/**", "/oauth2/**", "/actuator/**")
+                .permitAll()
                 .anyExchange()
                 .authenticated()
                 .and()
                 .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationFailureHandler(failureHandler))
-                .formLogin(formLoginSpec -> formLoginSpec.authenticationFailureHandler(failureHandler)
+                .formLogin(formLoginSpec -> formLoginSpec
+                        .authenticationFailureHandler(failureHandler)
                         .loginPage(Url.LOGIN_URL)
                         .authenticationEntryPoint(authenticationEntryPoint)
-                        .requiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, Url.LOGIN_URL))
+                        .requiresAuthenticationMatcher(
+                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, Url.LOGIN_URL))
                         .authenticationSuccessHandler(authenticationSuccessHandler)
                         .authenticationFailureHandler(authenticationFailureHandler))
 
                 // For Github SSO Login, check transformation class: CustomOAuth2UserServiceImpl
                 // For Google SSO Login, check transformation class: CustomOAuth2UserServiceImpl
-                .oauth2Login(oAuth2LoginSpec -> oAuth2LoginSpec.authenticationFailureHandler(failureHandler)
-                        .authorizationRequestResolver(new CustomServerOAuth2AuthorizationRequestResolver(reactiveClientRegistrationRepository, commonConfig, redirectHelper))
+                .oauth2Login(oAuth2LoginSpec -> oAuth2LoginSpec
+                        .authenticationFailureHandler(failureHandler)
+                        .authorizationRequestResolver(new CustomServerOAuth2AuthorizationRequestResolver(
+                                reactiveClientRegistrationRepository, commonConfig, redirectHelper))
                         .authenticationSuccessHandler(authenticationSuccessHandler)
                         .authenticationFailureHandler(authenticationFailureHandler)
                         .authorizedClientRepository(new ClientUserRepository(userService, commonConfig)))
@@ -227,6 +268,11 @@ public class SecurityConfig {
                 .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper, analyticsService))
                 .and()
                 .build();
+    }
+
+    private boolean isAuthorizedToAccessInternal(String password) {
+        // Either configured password is empty, or it's equal to what we received.
+        return StringUtils.isEmpty(INTERNAL_PASSWORD) || INTERNAL_PASSWORD.equals(password);
     }
 
     /**
@@ -250,12 +296,14 @@ public class SecurityConfig {
     private ReactiveAuthenticationManager authenticationManager() {
         List<ReactiveAuthenticationManager> reactiveAuthenticationManagers = new ArrayList<>();
         if (this.reactiveUserDetailsService != null) {
-            UserDetailsRepositoryReactiveAuthenticationManager manager = new UserDetailsRepositoryReactiveAuthenticationManager(this.reactiveUserDetailsService);
+            UserDetailsRepositoryReactiveAuthenticationManager manager =
+                    new UserDetailsRepositoryReactiveAuthenticationManager(this.reactiveUserDetailsService);
             if (this.passwordEncoder != null) {
                 manager.setPasswordEncoder(this.passwordEncoder);
             }
             if (!this.observationRegistry.isNoop()) {
-                reactiveAuthenticationManagers.add(new ObservationReactiveAuthenticationManager(this.observationRegistry, manager));
+                reactiveAuthenticationManagers.add(
+                        new ObservationReactiveAuthenticationManager(this.observationRegistry, manager));
             } else {
                 reactiveAuthenticationManagers.add(manager);
             }
@@ -299,7 +347,6 @@ public class SecurityConfig {
         });
         return idTokenDecoderFactory;
     }
-
 
     private User createAnonymousUser() {
         User user = new User();

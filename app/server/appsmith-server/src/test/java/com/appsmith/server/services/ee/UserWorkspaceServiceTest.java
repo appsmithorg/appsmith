@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ee;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -44,16 +43,35 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 public class UserWorkspaceServiceTest {
 
-    @Autowired UserWorkspaceService userWorkspaceService;
-    @Autowired WorkspaceService workspaceService;
-    @Autowired UserGroupService userGroupService;
-    @Autowired PermissionGroupService permissionGroupService;
-    @Autowired UserRepository userRepository;
-    @Autowired PermissionGroupRepository permissionGroupRepository;
-    @Autowired UserGroupRepository userGroupRepository;
-    @Autowired WorkspaceRepository workspaceRepository;
-    @Autowired UserUtils userUtils;
-    @Autowired UserService userService;
+    @Autowired
+    UserWorkspaceService userWorkspaceService;
+
+    @Autowired
+    WorkspaceService workspaceService;
+
+    @Autowired
+    UserGroupService userGroupService;
+
+    @Autowired
+    PermissionGroupService permissionGroupService;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    UserGroupRepository userGroupRepository;
+
+    @Autowired
+    WorkspaceRepository workspaceRepository;
+
+    @Autowired
+    UserUtils userUtils;
+
+    @Autowired
+    UserService userService;
 
     private User apiUser;
     private User testUser;
@@ -71,9 +89,7 @@ public class UserWorkspaceServiceTest {
     public void test_getWorkspaceMembers() {
         Workspace workspace = new Workspace();
         workspace.setName("UserWorkspaceServiceTest - test_getWorkspaceMembers");
-        Workspace createdWorkspace = workspaceService
-                .create(workspace)
-                .block();
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
@@ -82,7 +98,8 @@ public class UserWorkspaceServiceTest {
 
         UserGroup userGroup = new UserGroup();
         userGroup.setName("UserWorkspaceServiceTest - test_getWorkspaceMembers");
-        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
                 .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
                 .block();
 
@@ -96,11 +113,13 @@ public class UserWorkspaceServiceTest {
 
         PermissionGroup administratorPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(ADMINISTRATOR))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup developerPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         // Assign permissions to a UserGroup created above
         PermissionGroup permissionGroupWithUserGroupAssigned = permissionGroupService
@@ -128,9 +147,7 @@ public class UserWorkspaceServiceTest {
     public void test_updatePermissionGroupForMember_userGroupDoesntExist() {
         Workspace workspace = new Workspace();
         workspace.setName("UserWorkspaceServiceTest - test_updatePermissionGroupForMember_userGroupDoesntExist");
-        Workspace createdWorkspace = workspaceService
-                .create(workspace)
-                .block();
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
@@ -140,12 +157,15 @@ public class UserWorkspaceServiceTest {
         updatePermissionGroupDTO.setUserGroupId("Random User Group Id");
         updatePermissionGroupDTO.setNewPermissionGroupId("Random Permission Group Id");
 
-        Mono<MemberInfoDTO> mono = userWorkspaceService.updatePermissionGroupForMember(createdWorkspace.getId(), updatePermissionGroupDTO, "");
+        Mono<MemberInfoDTO> mono = userWorkspaceService.updatePermissionGroupForMember(
+                createdWorkspace.getId(), updatePermissionGroupDTO, "");
 
         StepVerifier.create(mono)
-                .expectErrorMatches(throwable ->
-                        throwable instanceof AppsmithException &&
-                                throwable.getMessage().contains(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.USER_GROUP, updatePermissionGroupDTO.getUserGroupId())))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .contains(AppsmithError.NO_RESOURCE_FOUND.getMessage(
+                                        FieldName.USER_GROUP, updatePermissionGroupDTO.getUserGroupId())))
                 .verify();
     }
 
@@ -154,9 +174,7 @@ public class UserWorkspaceServiceTest {
     public void test_updatePermissionGroupForMember() {
         Workspace workspace = new Workspace();
         workspace.setName("UserWorkspaceServiceTest - test_updatePermissionGroupForMember");
-        Workspace createdWorkspace = workspaceService
-                .create(workspace)
-                .block();
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
@@ -165,16 +183,19 @@ public class UserWorkspaceServiceTest {
 
         UserGroup userGroup = new UserGroup();
         userGroup.setName("UserWorkspaceServiceTest - test_updatePermissionGroupForMember");
-        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
                 .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
                 .block();
 
         PermissionGroup administratorPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.ADMINISTRATOR))
-                .findFirst().get();
+                .findFirst()
+                .get();
         PermissionGroup developerPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         // Assign permissions to a UserGroup created above
         PermissionGroup permissionGroupWithUserGroupAssigned = permissionGroupService
@@ -214,7 +235,8 @@ public class UserWorkspaceServiceTest {
 
         assertThat(administratorPermissionGroupUpdated.getAssignedToGroupIds()).isEmpty();
         assertThat(developerPermissionGroupUpdated.getAssignedToGroupIds()).hasSize(1);
-        assertThat(developerPermissionGroupUpdated.getAssignedToGroupIds().contains(createdUserGroup.getId())).isTrue();
+        assertThat(developerPermissionGroupUpdated.getAssignedToGroupIds().contains(createdUserGroup.getId()))
+                .isTrue();
 
         memberInfoDTOList = userWorkspaceService
                 .getWorkspaceMembers(createdWorkspace.getId())
@@ -232,10 +254,9 @@ public class UserWorkspaceServiceTest {
     @WithUserDetails("api_user")
     public void test_updatePermissionGroupForMember_singleUserRemoveAdminPermission() {
         Workspace workspace = new Workspace();
-        workspace.setName("UserWorkspaceServiceTest - test_updatePermissionGroupForMember_singleUserRemoveAdminPermission");
-        Workspace createdWorkspace = workspaceService
-                .create(workspace)
-                .block();
+        workspace.setName(
+                "UserWorkspaceServiceTest - test_updatePermissionGroupForMember_singleUserRemoveAdminPermission");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
@@ -244,19 +265,21 @@ public class UserWorkspaceServiceTest {
 
         PermissionGroup developerPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         UpdatePermissionGroupDTO updatePermissionGroupDTO = new UpdatePermissionGroupDTO();
         updatePermissionGroupDTO.setUsername(apiUser.getUsername());
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
 
-        Mono<MemberInfoDTO> memberInfoDTOMono = userWorkspaceService
-                .updatePermissionGroupForMember(createdWorkspace.getId(), updatePermissionGroupDTO, "");
+        Mono<MemberInfoDTO> memberInfoDTOMono = userWorkspaceService.updatePermissionGroupForMember(
+                createdWorkspace.getId(), updatePermissionGroupDTO, "");
 
         StepVerifier.create(memberInfoDTOMono)
-                .expectErrorMatches(throwable ->
-                        throwable instanceof AppsmithException &&
-                                throwable.getMessage().contains(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR.getMessage()))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .contains(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR.getMessage()))
                 .verify();
     }
 
@@ -264,10 +287,9 @@ public class UserWorkspaceServiceTest {
     @WithUserDetails("api_user")
     public void test_updatePermissionGroupForMember_singleUserGroupRemoveAdminPermission() {
         Workspace workspace = new Workspace();
-        workspace.setName("UserWorkspaceServiceTest - test_updatePermissionGroupForMember_singleUserGroupRemoveAdminPermission");
-        Workspace createdWorkspace = workspaceService
-                .create(workspace)
-                .block();
+        workspace.setName(
+                "UserWorkspaceServiceTest - test_updatePermissionGroupForMember_singleUserGroupRemoveAdminPermission");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
@@ -275,19 +297,23 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         UserGroup userGroup = new UserGroup();
-        userGroup.setName("UserWorkspaceServiceTest - test_updatePermissionGroupForMember_singleUserGroupRemoveAdminPermission");
+        userGroup.setName(
+                "UserWorkspaceServiceTest - test_updatePermissionGroupForMember_singleUserGroupRemoveAdminPermission");
         userGroup.setUsers(Set.of(apiUser.getId()));
-        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
                 .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
                 .block();
 
         PermissionGroup administratorPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.ADMINISTRATOR))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup developerPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup updatedAdministratorPermissionGroup = permissionGroupService
                 .unassignFromUser(administratorPermissionGroup, apiUser)
@@ -301,13 +327,14 @@ public class UserWorkspaceServiceTest {
         updatePermissionGroupDTO.setUserGroupId(createdUserGroup.getId());
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
 
-        Mono<MemberInfoDTO> memberInfoDTOMono = userWorkspaceService
-                .updatePermissionGroupForMember(createdWorkspace.getId(), updatePermissionGroupDTO, "");
+        Mono<MemberInfoDTO> memberInfoDTOMono = userWorkspaceService.updatePermissionGroupForMember(
+                createdWorkspace.getId(), updatePermissionGroupDTO, "");
 
         StepVerifier.create(memberInfoDTOMono)
-                .expectErrorMatches(throwable ->
-                        throwable instanceof AppsmithException &&
-                                throwable.getMessage().contains(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR.getMessage()))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .contains(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR.getMessage()))
                 .verify();
     }
 
@@ -315,10 +342,9 @@ public class UserWorkspaceServiceTest {
     @WithUserDetails("api_user")
     public void test_updatePermissionGroupForMember_twoEntitiesUserAndUserGroupRemoveAdminPermissionFromUser() {
         Workspace workspace = new Workspace();
-        workspace.setName("UserWorkspaceServiceTest - test_updatePermissionGroupForMember_twoEntitiesUserAndUserGroupRemoveAdminPermissionFromUser");
-        Workspace createdWorkspace = workspaceService
-                .create(workspace)
-                .block();
+        workspace.setName(
+                "UserWorkspaceServiceTest - test_updatePermissionGroupForMember_twoEntitiesUserAndUserGroupRemoveAdminPermissionFromUser");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
@@ -326,19 +352,23 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         UserGroup userGroup = new UserGroup();
-        userGroup.setName("UserWorkspaceServiceTest - test_updatePermissionGroupForMember_twoEntitiesUserAndUserGroupRemoveAdminPermissionFromUser");
+        userGroup.setName(
+                "UserWorkspaceServiceTest - test_updatePermissionGroupForMember_twoEntitiesUserAndUserGroupRemoveAdminPermissionFromUser");
         userGroup.setUsers(Set.of(apiUser.getId()));
-        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
                 .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
                 .block();
 
         PermissionGroup administratorPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.ADMINISTRATOR))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup developerPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup updatedAdministratorPermissionGroup = permissionGroupService
                 .assignToUserGroup(administratorPermissionGroup, createdUserGroup)
@@ -361,10 +391,9 @@ public class UserWorkspaceServiceTest {
     @WithUserDetails("api_user")
     public void test_updatePermissionGroupForMember_twoEntitiesUserAndUserGroupRemoveAdminPermissionFromUserGroup() {
         Workspace workspace = new Workspace();
-        workspace.setName("UserWorkspaceServiceTest - test_updatePermissionGroupForMember_twoEntitiesUserAndUserGroupRemoveAdminPermissionFromUserGroup");
-        Workspace createdWorkspace = workspaceService
-                .create(workspace)
-                .block();
+        workspace.setName(
+                "UserWorkspaceServiceTest - test_updatePermissionGroupForMember_twoEntitiesUserAndUserGroupRemoveAdminPermissionFromUserGroup");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
@@ -372,19 +401,23 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         UserGroup userGroup = new UserGroup();
-        userGroup.setName("UserWorkspaceServiceTest - test_updatePermissionGroupForMember_twoEntitiesUserAndUserGroupRemoveAdminPermissionFromUserGroup");
+        userGroup.setName(
+                "UserWorkspaceServiceTest - test_updatePermissionGroupForMember_twoEntitiesUserAndUserGroupRemoveAdminPermissionFromUserGroup");
         userGroup.setUsers(Set.of(apiUser.getId()));
-        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
                 .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
                 .block();
 
         PermissionGroup administratorPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.ADMINISTRATOR))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup developerPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup updatedAdministratorPermissionGroup = permissionGroupService
                 .assignToUserGroup(administratorPermissionGroup, createdUserGroup)
@@ -407,10 +440,9 @@ public class UserWorkspaceServiceTest {
     @WithUserDetails("api_user")
     public void test_updatePermissionGroupForMember_twoEntitiesUserGroupsRemoveAdminPermissionFromUserGroup() {
         Workspace workspace = new Workspace();
-        workspace.setName("UserWorkspaceServiceTest - test_updatePermissionGroupForMember_twoEntitiesUserGroupsRemoveAdminPermissionFromUserGroup");
-        Workspace createdWorkspace = workspaceService
-                .create(workspace)
-                .block();
+        workspace.setName(
+                "UserWorkspaceServiceTest - test_updatePermissionGroupForMember_twoEntitiesUserGroupsRemoveAdminPermissionFromUserGroup");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
@@ -418,26 +450,32 @@ public class UserWorkspaceServiceTest {
                 .block();
 
         UserGroup userGroup1 = new UserGroup();
-        userGroup1.setName("UserWorkspaceServiceTest - test_updatePermissionGroupForMember_twoEntitiesUserGroupsRemoveAdminPermissionFromUserGroup - 1");
+        userGroup1.setName(
+                "UserWorkspaceServiceTest - test_updatePermissionGroupForMember_twoEntitiesUserGroupsRemoveAdminPermissionFromUserGroup - 1");
         userGroup1.setUsers(Set.of(apiUser.getId()));
-        UserGroup createdUserGroup1 = userGroupService.createGroup(userGroup1)
+        UserGroup createdUserGroup1 = userGroupService
+                .createGroup(userGroup1)
                 .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
                 .block();
 
         UserGroup userGroup2 = new UserGroup();
-        userGroup2.setName("UserWorkspaceServiceTest - test_updatePermissionGroupForMember_twoEntitiesUserGroupsRemoveAdminPermissionFromUserGroup - 2");
+        userGroup2.setName(
+                "UserWorkspaceServiceTest - test_updatePermissionGroupForMember_twoEntitiesUserGroupsRemoveAdminPermissionFromUserGroup - 2");
         userGroup2.setUsers(Set.of(testUser.getId()));
-        UserGroup createdUserGroup2 = userGroupService.createGroup(userGroup2)
+        UserGroup createdUserGroup2 = userGroupService
+                .createGroup(userGroup2)
                 .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
                 .block();
 
         PermissionGroup administratorPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.ADMINISTRATOR))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup developerPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup updatedAdministratorPermissionGroup = permissionGroupService
                 .bulkAssignToUserGroups(administratorPermissionGroup, Set.of(createdUserGroup1, createdUserGroup2))
@@ -463,10 +501,9 @@ public class UserWorkspaceServiceTest {
     @WithUserDetails("api_user")
     public void test_updatePermissionGroupForMember_twoEntitiesUsersRemoveAdminPermissionFromUser() {
         Workspace workspace = new Workspace();
-        workspace.setName("UserWorkspaceServiceTest - test_updatePermissionGroupForMember_twoEntitiesUsersRemoveAdminPermissionFromUser");
-        Workspace createdWorkspace = workspaceService
-                .create(workspace)
-                .block();
+        workspace.setName(
+                "UserWorkspaceServiceTest - test_updatePermissionGroupForMember_twoEntitiesUsersRemoveAdminPermissionFromUser");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
                 .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
@@ -475,11 +512,13 @@ public class UserWorkspaceServiceTest {
 
         PermissionGroup administratorPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.ADMINISTRATOR))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup developerPermissionGroup = autoCreatedPermissionGroups.stream()
                 .filter(pg -> pg.getName().startsWith(FieldName.DEVELOPER))
-                .findFirst().get();
+                .findFirst()
+                .get();
 
         PermissionGroup updatedAdministratorPermissionGroup = permissionGroupService
                 .assignToUser(administratorPermissionGroup, testUser)
@@ -504,21 +543,24 @@ public class UserWorkspaceServiceTest {
         // Make api_user SUPER ADMIN
         User api_user = userRepository.findByEmail("api_user").block();
         userUtils.makeSuperUser(List.of(api_user)).block();
-        PermissionGroup adminPermissionGroup = userUtils.getSuperAdminPermissionGroup().block();
+        PermissionGroup adminPermissionGroup =
+                userUtils.getSuperAdminPermissionGroup().block();
         System.out.println("Admin Permission Group");
         System.out.println(adminPermissionGroup.getId());
 
         // Create a new User Group
         UserGroup userGroup = new UserGroup();
         userGroup.setName("UserGroup - leaveWorkspace_WhenUserExistsInUserGroup");
-        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
                 .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
                 .block();
 
         UsersForGroupDTO usersForGroupDTO = new UsersForGroupDTO();
         usersForGroupDTO.setUsernames(Set.of("api_user"));
         usersForGroupDTO.setGroupIds(Set.of(createdUserGroup.getId()));
-        List<UserGroupDTO> userGroupDTOList = userGroupService.inviteUsers(usersForGroupDTO, "").block();
+        List<UserGroupDTO> userGroupDTOList =
+                userGroupService.inviteUsers(usersForGroupDTO, "").block();
         assertThat(userGroupDTOList).hasSize(1);
 
         // Create Workspace
@@ -539,13 +581,21 @@ public class UserWorkspaceServiceTest {
         User anotherWorkspaceAdmin = userService.create(user1).block();
 
         // Assign Admin Workspace PG to User and UserGroup
-        workspaceAdminPermissionGroup = permissionGroupService.assignToUser(workspaceAdminPermissionGroup, anotherWorkspaceAdmin).block();
-        workspaceAdminPermissionGroup = permissionGroupService.assignToUserGroup(workspaceAdminPermissionGroup, createdUserGroup).block();
+        workspaceAdminPermissionGroup = permissionGroupService
+                .assignToUser(workspaceAdminPermissionGroup, anotherWorkspaceAdmin)
+                .block();
+        workspaceAdminPermissionGroup = permissionGroupService
+                .assignToUserGroup(workspaceAdminPermissionGroup, createdUserGroup)
+                .block();
 
-        Mono<User> leaveWorkspaceTwiceMono = userWorkspaceService.leaveWorkspace(workspaceId).then(userWorkspaceService.leaveWorkspace(workspaceId));
+        Mono<User> leaveWorkspaceTwiceMono =
+                userWorkspaceService.leaveWorkspace(workspaceId).then(userWorkspaceService.leaveWorkspace(workspaceId));
         StepVerifier.create(leaveWorkspaceTwiceMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().contains(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Workspace is not assigned to the user.")))
+                        && throwable
+                                .getMessage()
+                                .contains(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage(
+                                        "Workspace is not assigned to the user.")))
                 .verify();
     }
 }

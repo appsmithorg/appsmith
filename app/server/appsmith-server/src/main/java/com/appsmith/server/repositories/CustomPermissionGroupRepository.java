@@ -21,7 +21,8 @@ public interface CustomPermissionGroupRepository extends CustomPermissionGroupRe
 
     Flux<PermissionGroup> findAllById(Set<String> ids, AclPermission permission);
 
-    Flux<PermissionGroup> findAllByAssignedToUserGroupIdAndDefaultWorkspaceId(String userGroupId, String workspaceId, AclPermission permission);
+    Flux<PermissionGroup> findAllByAssignedToUserGroupIdAndDefaultWorkspaceId(
+            String userGroupId, String workspaceId, AclPermission permission);
 
     Flux<PermissionGroup> findAllByAssignedToUserIds(Set<String> userIds, AclPermission aclPermission);
 
@@ -35,14 +36,9 @@ public interface CustomPermissionGroupRepository extends CustomPermissionGroupRe
 
     Flux<PermissionGroup> findByDefaultApplicationIds(Set<String> applicationIds, Optional<AclPermission> permission);
 
-    Flux<PermissionGroup> findAllByAssignedToUserIdAndDefaultDomainIdAndDefaultDomainType(String userId,
-                                                                                          String defaultDomainId,
-                                                                                          String defaultDomainType,
-                                                                                          Optional<AclPermission> aclPermission);
+    Flux<PermissionGroup> findAllByAssignedToUserIdAndDefaultDomainIdAndDefaultDomainType(
+            String userId, String defaultDomainId, String defaultDomainType, Optional<AclPermission> aclPermission);
 
-    Flux<PermissionGroup> findAllByAssignedToGroupIdAndDefaultDomainIdAndDefaultDomainType(String groupId,
-                                                                                           String defaultDomainId,
-                                                                                           String defaultDomainType,
-                                                                                           Optional<AclPermission> aclPermission);
-
+    Flux<PermissionGroup> findAllByAssignedToGroupIdAndDefaultDomainIdAndDefaultDomainType(
+            String groupId, String defaultDomainId, String defaultDomainType, Optional<AclPermission> aclPermission);
 }

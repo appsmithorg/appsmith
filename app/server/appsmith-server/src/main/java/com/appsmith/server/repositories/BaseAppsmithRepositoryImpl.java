@@ -17,17 +17,16 @@ import java.util.List;
 @Slf4j
 public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> extends BaseAppsmithRepositoryCEImpl<T> {
 
-    public BaseAppsmithRepositoryImpl(ReactiveMongoOperations mongoOperations,
-                                      MongoConverter mongoConverter,
-                                      CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public BaseAppsmithRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
 
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
-    public Flux<T> queryAllWithoutPermissions(List<Criteria> criterias,
-                                              List<String> includeFields,
-                                              Sort sort,
-                                              int limit) {
+    public Flux<T> queryAllWithoutPermissions(
+            List<Criteria> criterias, List<String> includeFields, Sort sort, int limit) {
         final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
         Query query = new Query();
         if (!CollectionUtils.isEmpty(includeFields)) {
@@ -50,9 +49,6 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> extends B
             query.with(sort);
         }
 
-        return mongoOperations.query(this.genericDomain)
-                .matching(query)
-                .all()
-                .map(obj -> obj);
+        return mongoOperations.query(this.genericDomain).matching(query).all().map(obj -> obj);
     }
 }

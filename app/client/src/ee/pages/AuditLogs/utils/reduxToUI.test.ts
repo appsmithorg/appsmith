@@ -95,9 +95,31 @@ describe("audit-logs/utils/reduxToUI", () => {
       ["event", "timestamp", "id", "user", "metadata"],
       ["event", "timestamp", "id", "user", "metadata"],
       ["event", "timestamp", "id", "workspace", "user", "resource", "metadata"],
-      ["event", "timestamp", "id", "workspace", "user", "resource", "metadata"],
+      [
+        "event",
+        "timestamp",
+        "id",
+        "workspace",
+        "environment",
+        "user",
+        "resource",
+        "metadata",
+      ],
       ["event", "timestamp", "id", "workspace"],
       ["authentication", "event", "id", "metadata", "timestamp", "user"],
+      [
+        "event",
+        "timestamp",
+        "id",
+        "application",
+        "workspace",
+        "environment",
+        "datasource",
+        "user",
+        "resource",
+        "page",
+        "metadata",
+      ],
     ];
     logs.forEach((log, index) => {
       const actualKeys = Object.keys(reduxToUI(log as unknown as AuditLogType));

@@ -26,44 +26,47 @@ import static com.appsmith.server.solutions.roles.constants.AclPermissionAndView
 
 public class HelperUtil {
 
-    public static BaseView generateBaseViewDto(BaseDomain obj,
-                                               Class clazz,
-                                               String name,
-                                               RoleTab roleTab,
-                                               String permissionGroupId,
-                                               PolicyGenerator policyGenerator) {
+    public static BaseView generateBaseViewDto(
+            BaseDomain obj,
+            Class clazz,
+            String name,
+            RoleTab roleTab,
+            String permissionGroupId,
+            PolicyGenerator policyGenerator) {
 
         BaseView baseView = new BaseView();
         baseView.setId(obj.getId());
         baseView.setName(name);
-        Tuple2<List<Integer>, List<Integer>> permissionsTuple = getRoleViewPermissionDTO(roleTab, permissionGroupId, obj.getPolicies(), clazz, policyGenerator);
+        Tuple2<List<Integer>, List<Integer>> permissionsTuple =
+                getRoleViewPermissionDTO(roleTab, permissionGroupId, obj.getPolicies(), clazz, policyGenerator);
         baseView.setEnabled(permissionsTuple.getT1());
         baseView.setEditable(permissionsTuple.getT2());
         return baseView;
     }
 
-    public static Tuple2<List<Integer>, List<Integer>> getRoleViewPermissionDTO(RoleTab roleTab,
-                                                                                String permissionGroupId,
-                                                                                Set<Policy> policies,
-                                                                                Class<? extends BaseDomain> entityType,
-                                                                                PolicyGenerator policyGenerator) {
-
-
+    public static Tuple2<List<Integer>, List<Integer>> getRoleViewPermissionDTO(
+            RoleTab roleTab,
+            String permissionGroupId,
+            Set<Policy> policies,
+            Class<? extends BaseDomain> entityType,
+            PolicyGenerator policyGenerator) {
 
         Set<AclPermission> aclPermissions = roleTab.getPermissions();
         List<PermissionViewableName> viewablePermissions = roleTab.getViewablePermissions();
-        return getRoleViewPermissionDTO(permissionGroupId, entityType, policyGenerator, policies, aclPermissions, viewablePermissions);
+        return getRoleViewPermissionDTO(
+                permissionGroupId, entityType, policyGenerator, policies, aclPermissions, viewablePermissions);
     }
 
-    public static Tuple2<List<Integer>, List<Integer>> getRoleViewPermissionDTO(String permissionGroupId,
-                                                                                Class<? extends BaseDomain> entityType,
-                                                                                PolicyGenerator policyGenerator,
-                                                                                Set<Policy> policies,
-                                                                                Set<AclPermission> aclPermissions,
-                                                                                List<PermissionViewableName> viewablePermissions) {
+    public static Tuple2<List<Integer>, List<Integer>> getRoleViewPermissionDTO(
+            String permissionGroupId,
+            Class<? extends BaseDomain> entityType,
+            PolicyGenerator policyGenerator,
+            Set<Policy> policies,
+            Set<AclPermission> aclPermissions,
+            List<PermissionViewableName> viewablePermissions) {
         Set<PermissionViewableName> unEditablePermissions = new HashSet<>();
-        Map<String, Policy> policyMap = policies.stream()
-                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
+        Map<String, Policy> policyMap =
+                policies.stream().collect(Collectors.toMap(Policy::getPermission, Function.identity()));
 
         // We are using the following codes to signify various states of the checkbox in the client
         // Legend:
@@ -89,7 +92,8 @@ public class HelperUtil {
                     // TODO: Remove this if condition once we have migrated all the manage entity permissions to
                     //  map the ones in RBAC.
                     if (policyMap.get(permission.getValue()) != null) {
-                        Set<String> policyPermissionGroups = policyMap.get(permission.getValue()).getPermissionGroups();
+                        Set<String> policyPermissionGroups =
+                                policyMap.get(permission.getValue()).getPermissionGroups();
 
                         if (policyPermissionGroups.contains(permissionGroupId)) {
 
@@ -98,12 +102,13 @@ public class HelperUtil {
                             // Get the lateral permissions for this particular permission. Those will be marked as
                             // uneditable.
 
-                            Set<PermissionViewableName> lateralPermissions = policyGenerator.getLateralPermissions(permission, aclPermissions)
-                                    .stream()
-                                    .map(permission1 -> getPermissionViewableName(permission1))
-                                    // Filter out the permissions not interesting for the tab
-                                    .filter(viewableName1 -> viewableName1 != null && viewablePermissions.contains(viewableName1))
-                                    .collect(Collectors.toSet());
+                            Set<PermissionViewableName> lateralPermissions =
+                                    policyGenerator.getLateralPermissions(permission, aclPermissions).stream()
+                                            .map(permission1 -> getPermissionViewableName(permission1))
+                                            // Filter out the permissions not interesting for the tab
+                                            .filter(viewableName1 -> viewableName1 != null
+                                                    && viewablePermissions.contains(viewableName1))
+                                            .collect(Collectors.toSet());
                             unEditablePermissions.addAll(lateralPermissions);
                         }
                     }
@@ -118,11 +123,12 @@ public class HelperUtil {
         return Tuples.of(enabled, editable);
     }
 
-    public static void generateLateralPermissionDTOsAndUpdateMap(Map<AclPermission, Set<AclPermission>> hierarchicalLateralMap,
-                                                                 ConcurrentHashMap<String, Set<IdPermissionDTO>> hoverMap,
-                                                                 String sourceId,
-                                                                 String destinationId,
-                                                                 Class destinationType) {
+    public static void generateLateralPermissionDTOsAndUpdateMap(
+            Map<AclPermission, Set<AclPermission>> hierarchicalLateralMap,
+            ConcurrentHashMap<String, Set<IdPermissionDTO>> hoverMap,
+            String sourceId,
+            String destinationId,
+            Class destinationType) {
 
         hierarchicalLateralMap.keySet().forEach(aclPermission -> {
             String sourceIdPermissionDto = sourceId + "_" + getPermissionViewableName(aclPermission);
@@ -139,31 +145,33 @@ public class HelperUtil {
         });
     }
 
-    public static Map<AclPermission, Set<AclPermission>> getHierarchicalLateralPermMap(Set<AclPermission> permissions,
-                                                                                       PolicyGenerator policyGenerator, RoleTab roleTab) {
+    public static Map<AclPermission, Set<AclPermission>> getHierarchicalLateralPermMap(
+            Set<AclPermission> permissions, PolicyGenerator policyGenerator, RoleTab roleTab) {
 
         Set<AclPermission> tabPermissions = roleTab.getPermissions();
 
         Map<AclPermission, Set<AclPermission>> hierarchicalLateralMap = permissions.stream()
                 .map(permission -> {
-                    Set<AclPermission> hierarchicalPermissions = policyGenerator.getHierarchicalPermissions(permission, tabPermissions);
-                    Set<AclPermission> lateralPermissions = policyGenerator.getLateralPermissions(permission, tabPermissions);
+                    Set<AclPermission> hierarchicalPermissions =
+                            policyGenerator.getHierarchicalPermissions(permission, tabPermissions);
+                    Set<AclPermission> lateralPermissions =
+                            policyGenerator.getLateralPermissions(permission, tabPermissions);
                     return Tuples.of(permission, Sets.union(hierarchicalPermissions, lateralPermissions));
                 })
                 .collect(Collectors.toMap(t -> t.getT1(), t -> t.getT2()));
         return hierarchicalLateralMap;
     }
 
-    public static Map<AclPermission, Set<AclPermission>> getLateralPermMap(Set<AclPermission> permissions,
-                                                                           PolicyGenerator policyGenerator, RoleTab roleTab) {
+    public static Map<AclPermission, Set<AclPermission>> getLateralPermMap(
+            Set<AclPermission> permissions, PolicyGenerator policyGenerator, RoleTab roleTab) {
         Set<AclPermission> tabPermissions = roleTab.getPermissions();
 
         return permissions.stream()
                 .map(permission -> {
-                    Set<AclPermission> lateralPermissions = policyGenerator.getLateralPermissions(permission, tabPermissions);
+                    Set<AclPermission> lateralPermissions =
+                            policyGenerator.getLateralPermissions(permission, tabPermissions);
                     return Tuples.of(permission, lateralPermissions);
                 })
                 .collect(Collectors.toMap(t -> t.getT1(), t -> t.getT2()));
     }
-
 }

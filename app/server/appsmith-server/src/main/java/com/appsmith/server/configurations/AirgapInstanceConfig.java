@@ -16,5 +16,4 @@ public class AirgapInstanceConfig {
 
     @Value("${airgap.enabled:false}")
     private boolean isAirgapEnabled;
-
 }

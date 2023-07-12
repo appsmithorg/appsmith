@@ -21,7 +21,8 @@ public class ApiKeyAuthorisationManager implements ReactiveAuthorizationManager<
     private String API_KEY;
 
     @Override
-    public Mono<AuthorizationDecision> check(final Mono<Authentication> authentication, final AuthorizationContext context) {
+    public Mono<AuthorizationDecision> check(
+            final Mono<Authentication> authentication, final AuthorizationContext context) {
 
         if (StringUtils.isEmpty(API_KEY)) {
             return Mono.just(UNAUTHORIZED);
@@ -32,7 +33,8 @@ public class ApiKeyAuthorisationManager implements ReactiveAuthorizationManager<
             return Mono.just(UNAUTHORIZED);
         }
 
-        final List<String> authorizationHeaders = exchange.getRequest().getHeaders().getOrEmpty(HttpHeaders.AUTHORIZATION);
+        final List<String> authorizationHeaders =
+                exchange.getRequest().getHeaders().getOrEmpty(HttpHeaders.AUTHORIZATION);
         if (authorizationHeaders.isEmpty()) {
             return Mono.just(UNAUTHORIZED);
         }

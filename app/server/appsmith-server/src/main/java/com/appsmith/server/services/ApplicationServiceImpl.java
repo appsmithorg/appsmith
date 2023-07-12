@@ -22,17 +22,16 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
-import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.ApplicationServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PermissionGroupPermission;
+import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -86,31 +85,44 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
     private final ApplicationPermission applicationPermission;
     private final SessionUserService sessionUserService;
 
-    public ApplicationServiceImpl(Scheduler scheduler,
-                                  Validator validator,
-                                  MongoConverter mongoConverter,
-                                  ReactiveMongoTemplate reactiveMongoTemplate,
-                                  ApplicationRepository repository,
-                                  AnalyticsService analyticsService,
-                                  PolicySolution policySolution,
-                                  ConfigService configService,
-                                  ResponseUtils responseUtils,
-                                  PermissionGroupService permissionGroupService,
-                                  NewActionRepository newActionRepository,
-                                  AssetService assetService,
-                                  DatasourcePermission datasourcePermission,
-                                  ApplicationPermission applicationPermission,
-                                  PermissionGroupRepository permissionGroupRepository,
-                                  PermissionGroupPermission permissionGroupPermission,
-                                  RoleConfigurationSolution roleConfigurationSolution,
-                                  PolicyGenerator policyGenerator,
-                                  UserService userService,
-                                  UserGroupRepository userGroupRepository,
-                                  SessionUserService sessionUserService) {
+    public ApplicationServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            ApplicationRepository repository,
+            AnalyticsService analyticsService,
+            PolicySolution policySolution,
+            ConfigService configService,
+            ResponseUtils responseUtils,
+            PermissionGroupService permissionGroupService,
+            NewActionRepository newActionRepository,
+            AssetService assetService,
+            DatasourcePermission datasourcePermission,
+            ApplicationPermission applicationPermission,
+            PermissionGroupRepository permissionGroupRepository,
+            PermissionGroupPermission permissionGroupPermission,
+            RoleConfigurationSolution roleConfigurationSolution,
+            PolicyGenerator policyGenerator,
+            UserService userService,
+            UserGroupRepository userGroupRepository,
+            SessionUserService sessionUserService) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policySolution,
-                configService, responseUtils, permissionGroupService, newActionRepository, assetService,
-                 datasourcePermission, applicationPermission);
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService,
+                policySolution,
+                configService,
+                responseUtils,
+                permissionGroupService,
+                newActionRepository,
+                assetService,
+                datasourcePermission,
+                applicationPermission);
         this.permissionGroupService = permissionGroupService;
         this.policySolution = policySolution;
         this.permissionGroupRepository = permissionGroupRepository;
@@ -173,7 +185,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
         defaultDeveloperRole.setDefaultDomainType(Application.class.getSimpleName());
         defaultDeveloperRole.setName(generateDefaultRoleNameForResource(APPLICATION_DEVELOPER, application.getName()));
         defaultDeveloperRole.setDescription(APPLICATION_DEVELOPER_DESCRIPTION);
-        return permissionGroupService.create(defaultDeveloperRole)
+        return permissionGroupService
+                .create(defaultDeveloperRole)
                 /*
                  * Default workspace roles: Admin / Developer are given assign/un-assign/read members for
                  * defaultDeveloperRole.
@@ -201,7 +214,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
         defaultViewerRole.setDefaultDomainType(Application.class.getSimpleName());
         defaultViewerRole.setName(generateDefaultRoleNameForResource(APPLICATION_VIEWER, application.getName()));
         defaultViewerRole.setDescription(APPLICATION_VIEWER_DESCRIPTION);
-        return permissionGroupService.create(defaultViewerRole)
+        return permissionGroupService
+                .create(defaultViewerRole)
                 /*
                  * Default workspace roles: Admin / Developer / App Viewer are given assign/un-assign/read members for
                  * defaultViewerRole.
@@ -227,8 +241,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      * but there is a very minute difference, i.e., here {@code appViewerRole} is coming from the
      * {@code appViewerRoleFlux}.
      */
-    private Mono<PermissionGroup> generateAndUpdatePoliciesForDefaultDeveloperRole(PermissionGroup appDeveloperRole,
-                                                                                   Application application) {
+    private Mono<PermissionGroup> generateAndUpdatePoliciesForDefaultDeveloperRole(
+            PermissionGroup appDeveloperRole, Application application) {
         /*
          * Generate policy map using assign permission group.
          * This way, it will generate a map, which will contain policies related to assign, un-assign and read members
@@ -242,14 +256,14 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                 .filter(role -> role.getDefaultDomainType().equals(Application.class.getSimpleName())
                         && role.getName().startsWith(APPLICATION_VIEWER))
                 .cache();
-        return appViewerRoleFlux.hasElements()
+        return appViewerRoleFlux
+                .hasElements()
                 .flatMap(isAppViewerRolePresent -> {
                     if (isAppViewerRolePresent) {
-                        return appViewerRoleFlux.single()
-                                .flatMap(appViewerRole -> {
-                                    giveDevAppRolePermissionsToViewAppRole(appDeveloperRole, appViewerRole);
-                                    return permissionGroupService.save(appViewerRole);
-                                });
+                        return appViewerRoleFlux.single().flatMap(appViewerRole -> {
+                            giveDevAppRolePermissionsToViewAppRole(appDeveloperRole, appViewerRole);
+                            return permissionGroupService.save(appViewerRole);
+                        });
                     }
                     return Mono.empty();
                 })
@@ -273,8 +287,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      * but there is a very minute difference, i.e., here {@code appViewerRole} is not coming from the
      * {@code appDeveloperRoleFlux} but from outside its context.
      */
-    private Mono<PermissionGroup> generateAndUpdatePoliciesForDefaultViewerRole(PermissionGroup appViewerRole,
-                                                                                Application application) {
+    private Mono<PermissionGroup> generateAndUpdatePoliciesForDefaultViewerRole(
+            PermissionGroup appViewerRole, Application application) {
         /*
          * Generate policy map using assign permission group.
          * This way, it will generate a map, which will contain policies related to assign, un-assign and read members
@@ -288,17 +302,18 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                 .filter(role -> role.getDefaultDomainType().equals(Application.class.getSimpleName())
                         && role.getName().startsWith(APPLICATION_DEVELOPER))
                 .cache();
-        return appDeveloperRoleFlux.hasElements()
+        return appDeveloperRoleFlux
+                .hasElements()
                 .flatMap(isAppDeveloperRolePresent -> {
                     if (isAppDeveloperRolePresent) {
-                        return appDeveloperRoleFlux.single()
-                                .flatMap(developerRole -> {
-                                    giveDevAppRolePermissionsToViewAppRole(developerRole, appViewerRole);
-                                    return permissionGroupService.save(appViewerRole);
-                                });
+                        return appDeveloperRoleFlux.single().flatMap(developerRole -> {
+                            giveDevAppRolePermissionsToViewAppRole(developerRole, appViewerRole);
+                            return permissionGroupService.save(appViewerRole);
+                        });
                     }
                     return Mono.empty();
-                }).switchIfEmpty(permissionGroupService.save(appViewerRole));
+                })
+                .switchIfEmpty(permissionGroupService.save(appViewerRole));
     }
 
     /**
@@ -337,52 +352,67 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      * @param role
      * @return
      */
-    private Mono<PermissionGroup> giveDefaultWorkspaceRolesAccessToRole(String workspaceId,
-                                                                        PermissionGroup role) {
-        Flux<PermissionGroup> allDefaultWorkspaceRoles = permissionGroupRepository
-                .findByDefaultDomainIdAndDefaultDomainType(workspaceId, Workspace.class.getSimpleName());
+    private Mono<PermissionGroup> giveDefaultWorkspaceRolesAccessToRole(String workspaceId, PermissionGroup role) {
+        Flux<PermissionGroup> allDefaultWorkspaceRoles =
+                permissionGroupRepository.findByDefaultDomainIdAndDefaultDomainType(
+                        workspaceId, Workspace.class.getSimpleName());
         /*
          * If the role is Application Developer Role, then we only give Workspace Admin and Developer roles, permissions to access it.
          * If the role is Application Viewer Role, then we give Workspace Admin / Developer / App Viewer roles, permissions to access it.
          */
         Flux<PermissionGroup> requiredDefaultWorkspaceRoles;
         if (role.getName().startsWith(APPLICATION_DEVELOPER)) {
-            requiredDefaultWorkspaceRoles = allDefaultWorkspaceRoles.filter(role1 -> role1.getName().startsWith(ADMINISTRATOR) || role1.getName().startsWith(DEVELOPER))
+            requiredDefaultWorkspaceRoles = allDefaultWorkspaceRoles
+                    .filter(role1 -> role1.getName().startsWith(ADMINISTRATOR)
+                            || role1.getName().startsWith(DEVELOPER))
                     .cache();
         } else if (role.getName().startsWith(APPLICATION_VIEWER)) {
             requiredDefaultWorkspaceRoles = allDefaultWorkspaceRoles;
         } else {
             return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
         }
-        return requiredDefaultWorkspaceRoles.collectList()
-                .map(roles -> {
-                    Set<String> roleIds = roles.stream().map(PermissionGroup::getId).collect(Collectors.toSet());
-                    /*
-                     * Making a deep copy of policies, to avoid unnecessary changes which can be reflected in other policies
-                     * because of the reason mentioned below.
-                     * At times there is a possibility that the permissionGroups data member inside policy for different policies
-                     * may have same reference. Due to this it is a possibility that the changes required for a certain policy
-                     * may end up reflecting in a different policy as well.
-                     */
-                    Set<Policy> copyPolicies = role.getPolicies().stream().map(SerializationUtils::clone).collect(Collectors.toSet());
-                    copyPolicies.stream()
-                            .filter(policy -> policy.getPermission().equals(permissionGroupPermission.getAssignPermission().getValue())
-                                    || policy.getPermission().equals(permissionGroupPermission.getUnAssignPermission().getValue())
-                                    || policy.getPermission().equals(permissionGroupPermission.getMembersReadPermission().getValue()))
-                            .toList()
-                            .forEach(policy -> policy.getPermissionGroups().addAll(roleIds));
-                    role.setPolicies(copyPolicies);
-                    return role;
-                });
+        return requiredDefaultWorkspaceRoles.collectList().map(roles -> {
+            Set<String> roleIds = roles.stream().map(PermissionGroup::getId).collect(Collectors.toSet());
+            /*
+             * Making a deep copy of policies, to avoid unnecessary changes which can be reflected in other policies
+             * because of the reason mentioned below.
+             * At times there is a possibility that the permissionGroups data member inside policy for different policies
+             * may have same reference. Due to this it is a possibility that the changes required for a certain policy
+             * may end up reflecting in a different policy as well.
+             */
+            Set<Policy> copyPolicies =
+                    role.getPolicies().stream().map(SerializationUtils::clone).collect(Collectors.toSet());
+            copyPolicies.stream()
+                    .filter(policy -> policy.getPermission()
+                                    .equals(permissionGroupPermission
+                                            .getAssignPermission()
+                                            .getValue())
+                            || policy.getPermission()
+                                    .equals(permissionGroupPermission
+                                            .getUnAssignPermission()
+                                            .getValue())
+                            || policy.getPermission()
+                                    .equals(permissionGroupPermission
+                                            .getMembersReadPermission()
+                                            .getValue()))
+                    .toList()
+                    .forEach(policy -> policy.getPermissionGroups().addAll(roleIds));
+            role.setPolicies(copyPolicies);
+            return role;
+        });
     }
 
-    private Mono<PermissionGroup> updatePoliciesForApplicationAndRelatedResources(Application application, PermissionGroup applicationRole, String applicationRoleType) {
-        Map<String, List<AclPermission>> permissionListMap = getPermissionListMapForDefaultApplicationRole(applicationRoleType);
+    private Mono<PermissionGroup> updatePoliciesForApplicationAndRelatedResources(
+            Application application, PermissionGroup applicationRole, String applicationRoleType) {
+        Map<String, List<AclPermission>> permissionListMap =
+                getPermissionListMapForDefaultApplicationRole(applicationRoleType);
         Mono<Long> updateAllResourcesWithPermissionForRoleMono = Mono.just(1L);
-        Mono<Long> updateApplicationAndRelatedResourcesWithPermissionsForRoleMono = roleConfigurationSolution
-                .updateApplicationAndRelatedResourcesWithPermissionsForRole(application.getId(), applicationRole.getId(), permissionListMap, Map.of());
-        Mono<Long> updateWorkspaceAndDatasourcesInWorkspaceWithPermissionsForRoleMono = roleConfigurationSolution
-                .updateWorkspaceAndDatasourcesInWorkspaceWithPermissionsForRole(application.getWorkspaceId(), applicationRole.getId(), permissionListMap, Map.of());
+        Mono<Long> updateApplicationAndRelatedResourcesWithPermissionsForRoleMono =
+                roleConfigurationSolution.updateApplicationAndRelatedResourcesWithPermissionsForRole(
+                        application.getId(), applicationRole.getId(), permissionListMap, Map.of());
+        Mono<Long> updateWorkspaceAndDatasourcesInWorkspaceWithPermissionsForRoleMono =
+                roleConfigurationSolution.updateWorkspaceAndDatasourcesInWorkspaceWithPermissionsForRole(
+                        application.getWorkspaceId(), applicationRole.getId(), permissionListMap, Map.of());
         if (APPLICATION_DEVELOPER.equals(applicationRoleType)) {
             /*
              * Updating the resources in sequence, because some common datasources are being updated in both the Monos.
@@ -393,10 +423,10 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                     .then(updateWorkspaceAndDatasourcesInWorkspaceWithPermissionsForRoleMono)
                     .thenReturn(1L);
         } else if (APPLICATION_VIEWER.equals(applicationRoleType)) {
-            updateAllResourcesWithPermissionForRoleMono = updateApplicationAndRelatedResourcesWithPermissionsForRoleMono;
+            updateAllResourcesWithPermissionForRoleMono =
+                    updateApplicationAndRelatedResourcesWithPermissionsForRoleMono;
         }
-        return updateAllResourcesWithPermissionForRoleMono
-                .thenReturn(applicationRole);
+        return updateAllResourcesWithPermissionForRoleMono.thenReturn(applicationRole);
     }
 
     private Map<String, List<AclPermission>> getPermissionListMapForDefaultApplicationRole(String applicationRoleType) {
@@ -409,11 +439,11 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
             throw new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION);
         }
 
-        List<AclPermission> workspacePermissions = appsmithRole.getPermissions()
-                .stream().filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
+        List<AclPermission> workspacePermissions = appsmithRole.getPermissions().stream()
+                .filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
                 .toList();
-        List<AclPermission> applicationPermissions = appsmithRole.getPermissions()
-                .stream().filter(aclPermission -> aclPermission.getEntity().equals(Application.class))
+        List<AclPermission> applicationPermissions = appsmithRole.getPermissions().stream()
+                .filter(aclPermission -> aclPermission.getEntity().equals(Application.class))
                 .toList();
         /*
          * Note: WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS (workspace permission) has a hierarchical relationship
@@ -426,24 +456,32 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
          * In order to keep the flow generic, we are separately calculating all direct and indirect permissions which
          * would be given to the datasource, and combine them.
          */
-        List<AclPermission> directDatasourcePermissions = appsmithRole.getPermissions()
-                .stream().filter(aclPermission -> aclPermission.getEntity().equals(Datasource.class))
+        List<AclPermission> directDatasourcePermissions = appsmithRole.getPermissions().stream()
+                .filter(aclPermission -> aclPermission.getEntity().equals(Datasource.class))
                 .toList();
-        Set<AclPermission> indirectDatasourcePermissions = policyGenerator.getAllChildPermissions(workspacePermissions, Datasource.class);
+        Set<AclPermission> indirectDatasourcePermissions =
+                policyGenerator.getAllChildPermissions(workspacePermissions, Datasource.class);
         List<AclPermission> datasourcePermissions = new ArrayList<>();
         datasourcePermissions.addAll(directDatasourcePermissions);
         datasourcePermissions.addAll(indirectDatasourcePermissions);
-        List<AclPermission> pagePermissions = policyGenerator.getAllChildPermissions(applicationPermissions, Page.class)
-                .stream().toList();
-        List<AclPermission> actionPermissions = policyGenerator.getAllChildPermissions(pagePermissions, Action.class)
-                .stream().toList();
+        List<AclPermission> pagePermissions =
+                policyGenerator.getAllChildPermissions(applicationPermissions, Page.class).stream()
+                        .toList();
+        List<AclPermission> actionPermissions =
+                policyGenerator.getAllChildPermissions(pagePermissions, Action.class).stream()
+                        .toList();
 
-
-        return Map.of(Workspace.class.getSimpleName(), workspacePermissions,
-                Application.class.getSimpleName(), applicationPermissions,
-                Datasource.class.getSimpleName(), datasourcePermissions,
-                NewPage.class.getSimpleName(), pagePermissions,
-                NewAction.class.getSimpleName(), actionPermissions);
+        return Map.of(
+                Workspace.class.getSimpleName(),
+                workspacePermissions,
+                Application.class.getSimpleName(),
+                applicationPermissions,
+                Datasource.class.getSimpleName(),
+                datasourcePermissions,
+                NewPage.class.getSimpleName(),
+                pagePermissions,
+                NewAction.class.getSimpleName(),
+                actionPermissions);
     }
 
     /**
@@ -459,7 +497,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
     public Mono<Void> deleteDefaultRole(Application application, PermissionGroup role) {
         if (StringUtils.isNotEmpty(role.getDefaultDomainId())
                 && role.getDefaultDomainId().equals(application.getId())
-                && (role.getName().startsWith(APPLICATION_VIEWER) || role.getName().startsWith(APPLICATION_DEVELOPER))) {
+                && (role.getName().startsWith(APPLICATION_VIEWER)
+                        || role.getName().startsWith(APPLICATION_DEVELOPER))) {
             return permissionGroupService.deleteWithoutPermission(role.getId());
         } else {
             return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
@@ -479,32 +518,34 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      */
     @Override
     public Mono<List<PermissionGroupInfoDTO>> fetchAllDefaultRoles(String applicationId) {
-        Mono<Application> applicationMono = getById(applicationId)
-                .cache();
+        Mono<Application> applicationMono = getById(applicationId).cache();
 
-        Flux<PermissionGroup> defaultApplicationRolesFlux = applicationMono
-                .flatMapMany(application ->
-                        permissionGroupService.getAllDefaultRolesForApplication(application,
-                                Optional.of(permissionGroupPermission.getAssignPermission())));
-        Flux<PermissionGroup> defaultWorkspaceRolesFlux = applicationMono
-                .flatMapMany(application ->
-                        permissionGroupService.getByDefaultWorkspaces(Set.of(application.getWorkspaceId()),
-                                permissionGroupPermission.getAssignPermission()));
-
+        Flux<PermissionGroup> defaultApplicationRolesFlux =
+                applicationMono.flatMapMany(application -> permissionGroupService.getAllDefaultRolesForApplication(
+                        application, Optional.of(permissionGroupPermission.getAssignPermission())));
+        Flux<PermissionGroup> defaultWorkspaceRolesFlux =
+                applicationMono.flatMapMany(application -> permissionGroupService.getByDefaultWorkspaces(
+                        Set.of(application.getWorkspaceId()), permissionGroupPermission.getAssignPermission()));
 
         // Based on default application roles it creates a set of static application roles.
-        Mono<Set<String>> accessibleApplicationRolesFromDefaultApplicationRolesMono = defaultApplicationRolesFlux.collectList()
+        Mono<Set<String>> accessibleApplicationRolesFromDefaultApplicationRolesMono = defaultApplicationRolesFlux
+                .collectList()
                 .map(defaultApplicationRoles -> {
                     Set<String> staticApplicationRoles = new HashSet<>();
-                    defaultApplicationRoles.stream().map(this::getAccessibleStaticApplicationRoles).forEach(staticApplicationRoles::addAll);
+                    defaultApplicationRoles.stream()
+                            .map(this::getAccessibleStaticApplicationRoles)
+                            .forEach(staticApplicationRoles::addAll);
                     return staticApplicationRoles;
                 });
 
         // Based on default workspace roles it creates a set of static workspace roles.
-        Mono<Set<String>> accessibleApplicationRolesFromDefaultWorkspaceRolesMono = defaultWorkspaceRolesFlux.collectList()
+        Mono<Set<String>> accessibleApplicationRolesFromDefaultWorkspaceRolesMono = defaultWorkspaceRolesFlux
+                .collectList()
                 .map(defaultApplicationRoles -> {
                     Set<String> staticApplicationRoles = new HashSet<>();
-                    defaultApplicationRoles.stream().map(this::getAccessibleStaticApplicationRoles).forEach(staticApplicationRoles::addAll);
+                    defaultApplicationRoles.stream()
+                            .map(this::getAccessibleStaticApplicationRoles)
+                            .forEach(staticApplicationRoles::addAll);
                     return staticApplicationRoles;
                 });
 
@@ -516,11 +557,11 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
          *
          * This ensures that an extra call to DB is only made, if all the static roles are not present.
          */
-        Mono<Set<String>> allAccessibleApplicationRolesMono = accessibleApplicationRolesFromDefaultApplicationRolesMono
-                .flatMap(accessibleApplicationRoles -> {
+        Mono<Set<String>> allAccessibleApplicationRolesMono =
+                accessibleApplicationRolesFromDefaultApplicationRolesMono.flatMap(accessibleApplicationRoles -> {
                     if (!areAllStaticApplicationRolesPresent(accessibleApplicationRoles)) {
-                        return accessibleApplicationRolesFromDefaultWorkspaceRolesMono
-                                .map(accessibleApplicationRoles1 -> {
+                        return accessibleApplicationRolesFromDefaultWorkspaceRolesMono.map(
+                                accessibleApplicationRoles1 -> {
                                     accessibleApplicationRoles.addAll(accessibleApplicationRoles1);
                                     return accessibleApplicationRoles;
                                 });
@@ -528,39 +569,44 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                     return Mono.just(accessibleApplicationRoles);
                 });
 
-        return allAccessibleApplicationRolesMono
-                .zipWith(applicationMono)
-                .map(tuple -> {
-                    Set<String> roleSet = tuple.getT1();
-                    Application application = tuple.getT2();
-                    List<PermissionGroupInfoDTO> roleDescriptionDTOS = new ArrayList<>();
-                    if (roleSet.contains(APPLICATION_DEVELOPER)) {
-                        PermissionGroupInfoDTO roleDescriptionDTO = new PermissionGroupInfoDTO();
-                        roleDescriptionDTO.setName(generateDefaultRoleNameForResource(APPLICATION_DEVELOPER, application.getName()));
-                        roleDescriptionDTO.setDescription(APPLICATION_DEVELOPER_DESCRIPTION);
-                        roleDescriptionDTO.setAutoCreated(Boolean.TRUE);
-                        roleDescriptionDTOS.add(roleDescriptionDTO);
-                    }
-                    if (roleSet.contains(APPLICATION_VIEWER)) {
-                        PermissionGroupInfoDTO roleDescriptionDTO = new PermissionGroupInfoDTO();
-                        roleDescriptionDTO.setName(generateDefaultRoleNameForResource(APPLICATION_VIEWER, application.getName()));
-                        roleDescriptionDTO.setDescription(APPLICATION_VIEWER_DESCRIPTION);
-                        roleDescriptionDTO.setAutoCreated(Boolean.TRUE);
-                        roleDescriptionDTOS.add(roleDescriptionDTO);
-                    }
-                    roleDescriptionDTOS.sort(permissionGroupInfoWithEntityTypeComparator());
-                    return roleDescriptionDTOS;
-                });
+        return allAccessibleApplicationRolesMono.zipWith(applicationMono).map(tuple -> {
+            Set<String> roleSet = tuple.getT1();
+            Application application = tuple.getT2();
+            List<PermissionGroupInfoDTO> roleDescriptionDTOS = new ArrayList<>();
+            if (roleSet.contains(APPLICATION_DEVELOPER)) {
+                PermissionGroupInfoDTO roleDescriptionDTO = new PermissionGroupInfoDTO();
+                roleDescriptionDTO.setName(
+                        generateDefaultRoleNameForResource(APPLICATION_DEVELOPER, application.getName()));
+                roleDescriptionDTO.setDescription(APPLICATION_DEVELOPER_DESCRIPTION);
+                roleDescriptionDTO.setAutoCreated(Boolean.TRUE);
+                roleDescriptionDTOS.add(roleDescriptionDTO);
+            }
+            if (roleSet.contains(APPLICATION_VIEWER)) {
+                PermissionGroupInfoDTO roleDescriptionDTO = new PermissionGroupInfoDTO();
+                roleDescriptionDTO.setName(
+                        generateDefaultRoleNameForResource(APPLICATION_VIEWER, application.getName()));
+                roleDescriptionDTO.setDescription(APPLICATION_VIEWER_DESCRIPTION);
+                roleDescriptionDTO.setAutoCreated(Boolean.TRUE);
+                roleDescriptionDTOS.add(roleDescriptionDTO);
+            }
+            roleDescriptionDTOS.sort(permissionGroupInfoWithEntityTypeComparator());
+            return roleDescriptionDTOS;
+        });
     }
 
     private HashSet<String> getAccessibleStaticApplicationRoles(PermissionGroup role) {
         Set<String> accessibleStaticRoles = Set.of();
-        if ((role.getName().startsWith(APPLICATION_DEVELOPER) && role.getDefaultDomainType().equals(Application.class.getSimpleName()))
-                || (role.getName().startsWith(ADMINISTRATOR) && role.getDefaultDomainType().equals(Workspace.class.getSimpleName()))
-                || (role.getName().startsWith(DEVELOPER) && role.getDefaultDomainType().equals(Workspace.class.getSimpleName()))) {
+        if ((role.getName().startsWith(APPLICATION_DEVELOPER)
+                        && role.getDefaultDomainType().equals(Application.class.getSimpleName()))
+                || (role.getName().startsWith(ADMINISTRATOR)
+                        && role.getDefaultDomainType().equals(Workspace.class.getSimpleName()))
+                || (role.getName().startsWith(DEVELOPER)
+                        && role.getDefaultDomainType().equals(Workspace.class.getSimpleName()))) {
             accessibleStaticRoles = Set.of(APPLICATION_DEVELOPER, APPLICATION_VIEWER);
-        } else if ((role.getName().startsWith(APPLICATION_VIEWER) && role.getDefaultDomainType().equals(Application.class.getSimpleName()))
-                || (role.getName().startsWith(VIEWER) && role.getDefaultDomainType().equals(Workspace.class.getSimpleName()))) {
+        } else if ((role.getName().startsWith(APPLICATION_VIEWER)
+                        && role.getDefaultDomainType().equals(Application.class.getSimpleName()))
+                || (role.getName().startsWith(VIEWER)
+                        && role.getDefaultDomainType().equals(Workspace.class.getSimpleName()))) {
             accessibleStaticRoles = Set.of(APPLICATION_VIEWER);
         }
         return new HashSet<>(accessibleStaticRoles);
@@ -587,25 +633,23 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
             return updateApplicationMono;
         }
         String newApplicationName = application.getName();
-        return updateApplicationMono
-                .flatMap(application1 -> {
-                    /*
-                     * Here we check if the application which has been updated is the application from default branch, or not.
-                     * If the application is from any other branch other than the default branch, we don't update
-                     * the names of default application role.
-                     */
-                    if (!isDefaultBranchApplication(application1)) {
-                        return Mono.just(application1);
-                    }
-                    Flux<PermissionGroup> defaultApplicationRoles = permissionGroupService
-                            .getAllDefaultRolesForApplication(application1, Optional.empty());
-                    Flux<PermissionGroup> updateDefaultApplicationRoles = defaultApplicationRoles
-                            .flatMap(role -> {
-                                role.setName(generateNewDefaultName(role.getName(), newApplicationName));
-                                return permissionGroupService.save(role);
-                            });
-                    return updateDefaultApplicationRoles.then(Mono.just(application1));
-                });
+        return updateApplicationMono.flatMap(application1 -> {
+            /*
+             * Here we check if the application which has been updated is the application from default branch, or not.
+             * If the application is from any other branch other than the default branch, we don't update
+             * the names of default application role.
+             */
+            if (!isDefaultBranchApplication(application1)) {
+                return Mono.just(application1);
+            }
+            Flux<PermissionGroup> defaultApplicationRoles =
+                    permissionGroupService.getAllDefaultRolesForApplication(application1, Optional.empty());
+            Flux<PermissionGroup> updateDefaultApplicationRoles = defaultApplicationRoles.flatMap(role -> {
+                role.setName(generateNewDefaultName(role.getName(), newApplicationName));
+                return permissionGroupService.save(role);
+            });
+            return updateDefaultApplicationRoles.then(Mono.just(application1));
+        });
     }
 
     private String generateNewDefaultName(String oldName, String applicationName) {
@@ -620,7 +664,10 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
 
     private boolean isDefaultBranchApplication(Application application) {
         return Objects.isNull(application.getGitApplicationMetadata())
-                || application.getGitApplicationMetadata().getDefaultApplicationId().equals(application.getId());
+                || application
+                        .getGitApplicationMetadata()
+                        .getDefaultApplicationId()
+                        .equals(application.getId());
     }
 
     /**
@@ -644,7 +691,6 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
         Set<String> groupIds = inviteToApplicationDTO.getGroups();
         String applicationId = inviteToApplicationDTO.getApplicationId();
         String appRoleType = inviteToApplicationDTO.getRoleType();
-
 
         if (CollectionUtils.isEmpty(usernames) && CollectionUtils.isEmpty(groupIds)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, USERNAME + " or " + GROUP_ID));
@@ -682,8 +728,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                          * who already don't exist on the instance. We will need to update the above mentioned method,
                          * and use that to create users and send appropriate mails.
                          */
-                        return userService.findByEmail(username)
-                                .switchIfEmpty(userService.userCreate(newUser, false));
+                        return userService.findByEmail(username).switchIfEmpty(userService.userCreate(newUser, false));
                     })
                     .collectList()
                     .cache();
@@ -693,43 +738,57 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
         }
 
         if (CollectionUtils.isNotEmpty(groupIds)) {
-            groupListMono = userGroupRepository.findAllById(groupIds).collectList().cache();
+            groupListMono =
+                    userGroupRepository.findAllById(groupIds).collectList().cache();
         }
 
         Mono<PermissionGroup> roleAfterInvitation = Mono.zip(defaultAppRoleMono, userListMono, groupListMono)
-                .flatMap(tuple -> permissionGroupService.bulkAssignToUsersAndGroups(tuple.getT1(), tuple.getT2(), tuple.getT3()));
-
+                .flatMap(tuple ->
+                        permissionGroupService.bulkAssignToUsersAndGroups(tuple.getT1(), tuple.getT2(), tuple.getT3()));
 
         Mono<List<MemberInfoDTO>> invitedMembersListMono = Mono.zip(roleAfterInvitation, userListMono, groupListMono)
                 .map(tuple -> {
                     PermissionGroup role = tuple.getT1();
-                    PermissionGroupInfoDTO roleInfoDTO = new PermissionGroupInfoDTO(role.getId(), role.getName(),
-                            role.getDescription(), role.getDefaultDomainId(), role.getDefaultDomainType(), null);
-                    List<MemberInfoDTO> userMembers = tuple.getT2().stream().map(user -> MemberInfoDTO.builder()
-                            .username(user.getUsername()).userId(user.getId()).name(user.getName())
-                            .roles(List.of(roleInfoDTO))
-                            .build()).toList();
-                    List<MemberInfoDTO> groupMembers = tuple.getT3().stream().map(group -> MemberInfoDTO.builder()
-                            .userGroupId(group.getId()).name(group.getName())
-                            .roles(List.of(roleInfoDTO))
-                            .build()).toList();
+                    PermissionGroupInfoDTO roleInfoDTO = new PermissionGroupInfoDTO(
+                            role.getId(),
+                            role.getName(),
+                            role.getDescription(),
+                            role.getDefaultDomainId(),
+                            role.getDefaultDomainType(),
+                            null);
+                    List<MemberInfoDTO> userMembers = tuple.getT2().stream()
+                            .map(user -> MemberInfoDTO.builder()
+                                    .username(user.getUsername())
+                                    .userId(user.getId())
+                                    .name(user.getName())
+                                    .roles(List.of(roleInfoDTO))
+                                    .build())
+                            .toList();
+                    List<MemberInfoDTO> groupMembers = tuple.getT3().stream()
+                            .map(group -> MemberInfoDTO.builder()
+                                    .userGroupId(group.getId())
+                                    .name(group.getName())
+                                    .roles(List.of(roleInfoDTO))
+                                    .build())
+                            .toList();
 
                     return Stream.of(userMembers, groupMembers)
-                            .flatMap(Collection::stream).toList();
+                            .flatMap(Collection::stream)
+                            .toList();
                 });
 
-        return invitedMembersListMono
-                .flatMap(sendInviteUsersToApplicationEvent::thenReturn);
+        return invitedMembersListMono.flatMap(sendInviteUsersToApplicationEvent::thenReturn);
     }
 
-    private Mono<User> sendEventInviteUsersToApplication(User currentUser, Set<String> invitedUserEmails, Application application) {
+    private Mono<User> sendEventInviteUsersToApplication(
+            User currentUser, Set<String> invitedUserEmails, Application application) {
         Map<String, Object> analyticsProperties = new HashMap<>();
         long numberOfUsers = invitedUserEmails.size();
         analyticsProperties.put(FieldName.NUMBER_OF_USERS_INVITED, numberOfUsers);
-        Map<String, Object> eventData = Map.of(FieldName.USER_EMAILS, invitedUserEmails,
-                FieldName.APPLICATION, application.getName());
-        Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.USER_EMAILS, invitedUserEmails,
-                FieldName.APPLICATION, application.getName());
+        Map<String, Object> eventData =
+                Map.of(FieldName.USER_EMAILS, invitedUserEmails, FieldName.APPLICATION, application.getName());
+        Map<String, Object> extraPropsForCloudHostedInstance =
+                Map.of(FieldName.USER_EMAILS, invitedUserEmails, FieldName.APPLICATION, application.getName());
         analyticsProperties.put(FieldName.EVENT_DATA, eventData);
         analyticsProperties.put(FieldName.CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
         return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_INVITE_USERS, currentUser, analyticsProperties);
@@ -753,34 +812,35 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                 || !(roleType.equals(APPLICATION_VIEWER) || roleType.equals(APPLICATION_DEVELOPER))) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ROLE));
         }
-        Mono<Application> applicationMono = findById(applicationId, Optional.of(applicationPermission.getReadPermission()))
+        Mono<Application> applicationMono = findById(
+                        applicationId, Optional.of(applicationPermission.getReadPermission()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, applicationId)))
                 .cache();
         Flux<PermissionGroup> defaultAppRoleFlux = applicationMono
-                .flatMapMany(application -> permissionGroupService
-                        .getAllDefaultRolesForApplication(application, Optional.of(permissionGroupPermission.getAssignPermission())))
+                .flatMapMany(application -> permissionGroupService.getAllDefaultRolesForApplication(
+                        application, Optional.of(permissionGroupPermission.getAssignPermission())))
                 .filter(role -> role.getName().startsWith(roleType))
                 .cache();
-        return defaultAppRoleFlux.hasElements()
-                .flatMap(defaultAppRoleExist -> {
-                    if (defaultAppRoleExist) {
-                        return defaultAppRoleFlux.single();
-                    }
+        return defaultAppRoleFlux.hasElements().flatMap(defaultAppRoleExist -> {
+            if (defaultAppRoleExist) {
+                return defaultAppRoleFlux.single();
+            }
 
-                    // This will get a list of all static default application roles, the user has access to.
-                    Mono<List<PermissionGroupInfoDTO>> userAssignableStaticApplicationRolesMono = fetchAllDefaultRoles(applicationId);
-                    return Mono.zip(userAssignableStaticApplicationRolesMono, applicationMono)
-                            .flatMap(tuple -> {
-                                List<PermissionGroupInfoDTO> staticApplicationRoles = tuple.getT1();
-                                Application application = tuple.getT2();
-                                boolean requiredApplicationRoleCanBeCreated = staticApplicationRoles.stream()
-                                        .anyMatch(staticRole -> staticRole.getName().startsWith(roleType));
-                                if (requiredApplicationRoleCanBeCreated) {
-                                    return createDefaultRole(application, roleType);
-                                }
-                                return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
-                            });
-                });
+            // This will get a list of all static default application roles, the user has access to.
+            Mono<List<PermissionGroupInfoDTO>> userAssignableStaticApplicationRolesMono =
+                    fetchAllDefaultRoles(applicationId);
+            return Mono.zip(userAssignableStaticApplicationRolesMono, applicationMono)
+                    .flatMap(tuple -> {
+                        List<PermissionGroupInfoDTO> staticApplicationRoles = tuple.getT1();
+                        Application application = tuple.getT2();
+                        boolean requiredApplicationRoleCanBeCreated = staticApplicationRoles.stream()
+                                .anyMatch(staticRole -> staticRole.getName().startsWith(roleType));
+                        if (requiredApplicationRoleCanBeCreated) {
+                            return createDefaultRole(application, roleType);
+                        }
+                        return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+                    });
+        });
     }
 
     /**
@@ -800,13 +860,14 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      * @return {@link Mono}<{@link MemberInfoDTO}> updated member info
      */
     @Override
-    public Mono<MemberInfoDTO> updateRoleForMember(String applicationId, UpdateApplicationRoleDTO updateApplicationRoleDTO) {
+    public Mono<MemberInfoDTO> updateRoleForMember(
+            String applicationId, UpdateApplicationRoleDTO updateApplicationRoleDTO) {
         String username = updateApplicationRoleDTO.getUsername();
         String groupId = updateApplicationRoleDTO.getUserGroupId();
         String newRole = updateApplicationRoleDTO.getNewRole();
 
-        if (StringUtils.isNotEmpty(newRole) &&
-                !(newRole.equals(APPLICATION_DEVELOPER) || newRole.equals(APPLICATION_VIEWER))) {
+        if (StringUtils.isNotEmpty(newRole)
+                && !(newRole.equals(APPLICATION_DEVELOPER) || newRole.equals(APPLICATION_VIEWER))) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "New " + ROLE));
         }
 
@@ -821,13 +882,20 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
         MemberInfoDTO memberInfoForUnassignedMember = MemberInfoDTO.builder().build();
 
         if (StringUtils.isNotEmpty(username)) {
-            Mono<User> userMono = userService.findByEmail(username)
-                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, username)))
+            Mono<User> userMono = userService
+                    .findByEmail(username)
+                    .switchIfEmpty(Mono.error(
+                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, username)))
                     .cache();
-            Mono<PermissionGroup> oldDefaultRoleMono = userMono
-                    .flatMap(user -> permissionGroupRepository.findAllByAssignedToUserIdAndDefaultDomainIdAndDefaultDomainType(user.getId(), applicationId, Application.class.getSimpleName(), Optional.of(permissionGroupPermission.getAssignPermission()))
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "No application role assigned")))
-                            .single());
+            Mono<PermissionGroup> oldDefaultRoleMono = userMono.flatMap(user -> permissionGroupRepository
+                    .findAllByAssignedToUserIdAndDefaultDomainIdAndDefaultDomainType(
+                            user.getId(),
+                            applicationId,
+                            Application.class.getSimpleName(),
+                            Optional.of(permissionGroupPermission.getAssignPermission()))
+                    .switchIfEmpty(Mono.error(new AppsmithException(
+                            AppsmithError.ACTION_IS_NOT_AUTHORIZED, "No application role assigned")))
+                    .single());
             unAssignUserFromOldRole_deleteRoleIfRequired_thenRole = oldDefaultRoleMono
                     .zipWith(userMono)
                     .flatMap(pair -> {
@@ -839,11 +907,19 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                     })
                     .flatMap(this::deleteDefaultRoleIfNoUserOrUserGroupAssigned);
         } else if (StringUtils.isNotEmpty(groupId)) {
-            Mono<PermissionGroup> oldDefaultRoleMono = permissionGroupRepository.findAllByAssignedToGroupIdAndDefaultDomainIdAndDefaultDomainType(groupId, applicationId, Application.class.getSimpleName(), Optional.of(permissionGroupPermission.getAssignPermission()))
-                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "No application role assigned")))
+            Mono<PermissionGroup> oldDefaultRoleMono = permissionGroupRepository
+                    .findAllByAssignedToGroupIdAndDefaultDomainIdAndDefaultDomainType(
+                            groupId,
+                            applicationId,
+                            Application.class.getSimpleName(),
+                            Optional.of(permissionGroupPermission.getAssignPermission()))
+                    .switchIfEmpty(Mono.error(new AppsmithException(
+                            AppsmithError.ACTION_IS_NOT_AUTHORIZED, "No application role assigned")))
                     .single();
-            Mono<UserGroup> groupMono = userGroupRepository.findById(groupId)
-                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER_GROUP, groupId)))
+            Mono<UserGroup> groupMono = userGroupRepository
+                    .findById(groupId)
+                    .switchIfEmpty(Mono.error(
+                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER_GROUP, groupId)))
                     .cache();
             unAssignGroupFromOldRole_deleteRoleIfRequired_thenRole = oldDefaultRoleMono
                     .zipWith(groupMono)
@@ -856,8 +932,9 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                     .flatMap(this::deleteDefaultRoleIfNoUserOrUserGroupAssigned);
         }
 
-        Mono<Long> oldDefaultRolePostUnAssignAndDeleteIfRequired = Mono
-                .when(unAssignUserFromOldRole_deleteRoleIfRequired_thenRole, unAssignGroupFromOldRole_deleteRoleIfRequired_thenRole)
+        Mono<Long> oldDefaultRolePostUnAssignAndDeleteIfRequired = Mono.when(
+                        unAssignUserFromOldRole_deleteRoleIfRequired_thenRole,
+                        unAssignGroupFromOldRole_deleteRoleIfRequired_thenRole)
                 .thenReturn(1L);
 
         Mono<List<MemberInfoDTO>> invitedToNewRoleMono = Mono.empty();
@@ -874,8 +951,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
         }
 
         return Mono.when(oldDefaultRolePostUnAssignAndDeleteIfRequired)
-                .then(invitedToNewRoleMono
-                        .map(invitedToNewRole -> invitedToNewRole.stream().findFirst().get()))
+                .then(invitedToNewRoleMono.map(invitedToNewRole ->
+                        invitedToNewRole.stream().findFirst().get()))
                 .switchIfEmpty(Mono.just(memberInfoForUnassignedMember));
     }
 
@@ -887,14 +964,15 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
      */
     private Mono<PermissionGroup> deleteDefaultRoleIfNoUserOrUserGroupAssigned(PermissionGroup defaultRole) {
         Mono<PermissionGroup> roleMono = permissionGroupService.findById(defaultRole.getId());
-        return roleMono
-                .flatMap(role -> {
-                    if (CollectionUtils.isEmpty(role.getAssignedToUserIds())
-                            && CollectionUtils.isEmpty(role.getAssignedToGroupIds())) {
-                        return permissionGroupService.deleteWithoutPermission(role.getId()).thenReturn(role);
-                    }
-                    return Mono.just(role);
-                });
+        return roleMono.flatMap(role -> {
+            if (CollectionUtils.isEmpty(role.getAssignedToUserIds())
+                    && CollectionUtils.isEmpty(role.getAssignedToGroupIds())) {
+                return permissionGroupService
+                        .deleteWithoutPermission(role.getId())
+                        .thenReturn(role);
+            }
+            return Mono.just(role);
+        });
     }
 
     /**
@@ -922,5 +1000,24 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
         roleDescriptionDTOS.sort(permissionGroupInfoWithEntityTypeComparator());
 
         return Mono.just(roleDescriptionDTOS);
+    }
+
+    @Override
+    protected List<Mono<Void>> updatePoliciesForIndependentDomains(
+            Application application, String permissionGroupId, Boolean addViewAccess) {
+        List<Mono<Void>> monos =
+                super.updatePoliciesForIndependentDomains(application, permissionGroupId, addViewAccess);
+
+        Map<String, Policy> environmentPolicyMap = policySolution.generatePolicyFromPermissionWithPermissionGroup(
+                AclPermission.EXECUTE_ENVIRONMENTS, permissionGroupId);
+
+        Mono<Void> environmentMono = policySolution
+                .updateEnvironmentPoliciesByWorkspaceId(
+                        application.getWorkspaceId(), environmentPolicyMap, addViewAccess)
+                .then();
+
+        monos.add(environmentMono);
+
+        return monos;
     }
 }

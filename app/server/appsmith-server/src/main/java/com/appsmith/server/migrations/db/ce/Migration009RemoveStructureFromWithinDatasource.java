@@ -1,6 +1,5 @@
 package com.appsmith.server.migrations.db.ce;
 
-
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.server.migrations.DatabaseChangelog1;
@@ -22,8 +21,8 @@ public class Migration009RemoveStructureFromWithinDatasource {
 
     private final MongoTemplate mongoTemplate;
 
-    public Migration009RemoveStructureFromWithinDatasource(MongoOperations mongoOperations,
-                                                           MongoTemplate mongoTemplate) {
+    public Migration009RemoveStructureFromWithinDatasource(
+            MongoOperations mongoOperations, MongoTemplate mongoTemplate) {
         this.mongoOperations = mongoOperations;
         this.mongoTemplate = mongoTemplate;
     }
@@ -35,12 +34,15 @@ public class Migration009RemoveStructureFromWithinDatasource {
 
     @Execution
     public void executeMigration() {
-        DatabaseChangelog1.dropIndexIfExists(mongoTemplate, DatasourceStorageStructure.class, "dsConfigStructure_dsId_envId");
+        DatabaseChangelog1.dropIndexIfExists(
+                mongoTemplate, DatasourceStorageStructure.class, "dsConfigStructure_dsId_envId");
 
-        DatabaseChangelog1.ensureIndexes(mongoTemplate, DatasourceStorageStructure.class,
+        DatabaseChangelog1.ensureIndexes(
+                mongoTemplate,
+                DatasourceStorageStructure.class,
                 DatabaseChangelog1.makeIndex("datasourceId", "environmentId")
-                        .unique().named("dsConfigStructure_dsId_envId")
-        );
+                        .unique()
+                        .named("dsConfigStructure_dsId_envId"));
 
         Query query = query(where("structure").exists(true));
 

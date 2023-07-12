@@ -28,15 +28,14 @@ public class Migration102EeAddDeleteUserPolicyToAllUsersAndAddTenantPolicyToDefa
     private final PolicySolution policySolution;
     private final MongoTemplate mongoTemplate;
 
-    public Migration102EeAddDeleteUserPolicyToAllUsersAndAddTenantPolicyToDefaultTenant(PolicySolution policySolution,
-                                                                                        MongoTemplate mongoTemplate) {
+    public Migration102EeAddDeleteUserPolicyToAllUsersAndAddTenantPolicyToDefaultTenant(
+            PolicySolution policySolution, MongoTemplate mongoTemplate) {
         this.policySolution = policySolution;
         this.mongoTemplate = mongoTemplate;
     }
 
     @RollbackExecution
-    public void executeRollback() {
-    }
+    public void executeRollback() {}
 
     @Execution
     public void addDeleteUserPolicyToAllUsersAndUpdateTenantWithNewPolicies() {
@@ -52,8 +51,7 @@ public class Migration102EeAddDeleteUserPolicyToAllUsersAndAddTenantPolicyToDefa
                 Policy.builder()
                         .permission(TENANT_READ_USER_GROUPS.getValue())
                         .permissionGroups(Set.of(instanceAdminRoleId))
-                        .build()
-        );
+                        .build());
         policySolution.addPoliciesToExistingObject(tenantDeleteAndReadUsersPolicyMap, defaultTenant);
         mongoTemplate.save(defaultTenant);
 
@@ -65,31 +63,34 @@ public class Migration102EeAddDeleteUserPolicyToAllUsersAndAddTenantPolicyToDefa
         // These conditions will make sure that users with NO policies will not be affected by this Migration.
         // We currently have only one special user: anonymousUser, which does not have any policies and hence
         // DELETE USER policy will not be appended to the user policy.
-        Criteria criteriaUsersWhereDeleteUsersPermissionDoesNotExist = new Criteria().andOperator(
-                Criteria.where("policies").exists(Boolean.TRUE),
-                Criteria.where("policies").not().size(0),
-                // Only add the DELETE_USERS permission if it doesn't exist already. For a brand new instance coming up,
-                // this permission would automatically be added by the migration `addTenantAdminPermissionsToInstanceAdmin`.
-                // This migration adds this permission to existing instances only.
-                Criteria.where("policies.permission").ne(DELETE_USERS.getValue()),
-                notDeleted()
-        );
+        Criteria criteriaUsersWhereDeleteUsersPermissionDoesNotExist = new Criteria()
+                .andOperator(
+                        Criteria.where("policies").exists(Boolean.TRUE),
+                        Criteria.where("policies").not().size(0),
+                        // Only add the DELETE_USERS permission if it doesn't exist already. For a brand new instance
+                        // coming up,
+                        // this permission would automatically be added by the migration
+                        // `addTenantAdminPermissionsToInstanceAdmin`.
+                        // This migration adds this permission to existing instances only.
+                        Criteria.where("policies.permission").ne(DELETE_USERS.getValue()),
+                        notDeleted());
         // THis condition will make sure that the permissions are being added only to the users whose policies have
         // READ_USERS policy.
         // We currently have only one special user: anonymousUser, which does not have any policies and hence
         // READ_USER policy will not be appended to the user policy.
-        Criteria criteriaUsersWhereReadUsersPermissionExists = Criteria
-                .where("policies.permission").is(READ_USERS.getValue())
-                .andOperator(notDeleted());
+        Criteria criteriaUsersWhereReadUsersPermissionExists =
+                Criteria.where("policies.permission").is(READ_USERS.getValue()).andOperator(notDeleted());
 
         Update updateAddDeleteUserPolicyToPolicies = new Update();
         updateAddDeleteUserPolicyToPolicies.addToSet("policies", deleteUserPolicy);
-        mongoTemplate.updateMulti(new Query(criteriaUsersWhereDeleteUsersPermissionDoesNotExist), updateAddDeleteUserPolicyToPolicies, User.class);
+        mongoTemplate.updateMulti(
+                new Query(criteriaUsersWhereDeleteUsersPermissionDoesNotExist),
+                updateAddDeleteUserPolicyToPolicies,
+                User.class);
 
         Update updateExistingReadUsersPolicy = new Update();
         updateExistingReadUsersPolicy.addToSet("policies.$.permissionGroups", instanceAdminRoleId);
-        mongoTemplate.updateMulti(new Query(criteriaUsersWhereReadUsersPermissionExists), updateExistingReadUsersPolicy, User.class);
-
+        mongoTemplate.updateMulti(
+                new Query(criteriaUsersWhereReadUsersPermissionExists), updateExistingReadUsersPolicy, User.class);
     }
-
 }

@@ -14,6 +14,7 @@ import { getGroupandRoleActionDescription } from "./groupAndRoleInvite";
 import camelCase from "lodash/camelCase";
 
 export type MainDescriptionType = {
+  environmentDescription?: string;
   resourceType: string;
   actionType: string;
 };
@@ -70,6 +71,10 @@ function createResourceDescription(
   description.mainDescription.resourceType = data.resource;
   description.mainDescription.actionType =
     ACTION_MAP[data.action]["action"] || "";
+
+  if (data.environment) {
+    description.mainDescription.environmentDescription = ` in ${data.environment} environment`;
+  }
 
   switch (resourceType) {
     case "application":
@@ -136,6 +141,7 @@ export function generateDescription(log: AuditLogType): MultilineDescription {
     page: ellipsis(log.page?.name || "(No page)", 65),
     userName: ellipsis(user?.name || user?.email || "(No Name)", 60),
     userEmail: ellipsis(user?.email || "(No email)", 60),
+    environment: log.environment?.name || "",
   };
 
   if (event === "application.forked") {

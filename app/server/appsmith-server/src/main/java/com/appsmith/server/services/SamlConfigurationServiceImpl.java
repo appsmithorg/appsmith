@@ -33,20 +33,17 @@ public class SamlConfigurationServiceImpl implements SamlConfigurationService {
 
         if (configuration.getIsEnabled() == null || !configuration.getIsEnabled()) {
             // Delete the realm to delete all existing configuration and then update the environment with SAML disabled.
-            return keycloakIntegrationService.deleteRealm()
-                    .then(
-                            envManager.applyChanges(Map.of(
-                                            APPSMITH_SSO_SAML_ENABLED.toString(), "false"
-                                    )
-                            )
-                    );
+            return keycloakIntegrationService
+                    .deleteRealm()
+                    .then(envManager.applyChanges(Map.of(APPSMITH_SSO_SAML_ENABLED.toString(), "false")));
         }
 
         // If a trailing "/" exists in the origin header, trim it
         final String baseUrl = StringUtils.stripEnd(origin, "/");
 
         // New configuration for SAML is being configured for the tenant
-        return envManager.getAll()
+        return envManager
+                .getAll()
                 .flatMap(envVarMap -> {
                     String samlEnabledString = envVarMap.get(APPSMITH_SSO_SAML_ENABLED);
                     if (samlEnabledString != null && Boolean.parseBoolean(samlEnabledString)) {
@@ -59,19 +56,22 @@ public class SamlConfigurationServiceImpl implements SamlConfigurationService {
                 .flatMap(envVarMap -> {
 
                     // In Keycloak, create a realm and client
-                    Mono<Boolean> initializeKeycloakMono = keycloakIntegrationService.createRealm()
+                    Mono<Boolean> initializeKeycloakMono = keycloakIntegrationService
+                            .createRealm()
                             .then(keycloakIntegrationService.createClient(baseUrl));
 
                     return initializeKeycloakMono;
                 })
                 .flatMap(keyclaokInitialized -> {
-                    if (configuration.getImportFromUrl() != null && !configuration.getImportFromUrl().isEmpty()) {
+                    if (configuration.getImportFromUrl() != null
+                            && !configuration.getImportFromUrl().isEmpty()) {
 
                         // We seem to be importing from a URL
                         return keycloakIntegrationService.createSamlIdentityProviderFromIdpConfigFromUrl(
                                 Map.of("url", configuration.getImportFromUrl()), baseUrl, configuration.getClaims());
 
-                    } else if (configuration.getImportFromXml() != null && !configuration.getImportFromXml().isEmpty()) {
+                    } else if (configuration.getImportFromXml() != null
+                            && !configuration.getImportFromXml().isEmpty()) {
 
                         // We seem to be importing from XML
                         return keycloakIntegrationService.createSamlIdentityProviderFromXml(
@@ -95,22 +95,17 @@ public class SamlConfigurationServiceImpl implements SamlConfigurationService {
                     return keycloakIntegrationService.addClientClaims(configuration.getClaims(), baseUrl);
                 })
                 .onErrorResume(AppsmithException.class, error -> {
-                    if (error instanceof AppsmithException &&
-                            error.getAppErrorCode().equals(AppsmithError.SAML_CONFIGURATION_FAILURE.getAppErrorCode())) {
+                    if (error instanceof AppsmithException
+                            && error.getAppErrorCode()
+                                    .equals(AppsmithError.SAML_CONFIGURATION_FAILURE.getAppErrorCode())) {
                         // In case there was an error in configuring SAML, clean up the realm created before
                         // creating the identity provider
-                        return keycloakIntegrationService.deleteRealm()
-                                .then(Mono.error(error));
+                        return keycloakIntegrationService.deleteRealm().then(Mono.error(error));
                     }
 
                     return Mono.error(error);
                 })
                 .flatMap(updatedConfig -> envManager.applyChanges(
-                        Map.of(
-                                APPSMITH_SSO_SAML_ENABLED.toString(), "true",
-                                APPSMITH_BASE_URL.toString(), baseUrl
-                        )
-                ));
-
+                        Map.of(APPSMITH_SSO_SAML_ENABLED.toString(), "true", APPSMITH_BASE_URL.toString(), baseUrl)));
     }
 }

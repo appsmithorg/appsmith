@@ -11,12 +11,13 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 
 public interface EnvironmentService extends EnvironmentServiceCE {
-    //Read methods to fetch environments and its variables.
+    // Read methods to fetch environments and its variables.
     Flux<Environment> findByWorkspaceId(String workspaceId, AclPermission aclPermission);
 
     Flux<Environment> findByWorkspaceId(String workspaceId);
 
     Mono<Environment> findById(String id, AclPermission aclPermission);
+
     Mono<Environment> findById(String id);
 
     Mono<EnvironmentDTO> getEnvironmentDTOByEnvironmentId(String envId);

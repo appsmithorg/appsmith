@@ -19,15 +19,13 @@ public class Migration103EeFixEe102DeleteUserTenantPolicy {
     private final PolicySolution policySolution;
     private final MongoTemplate mongoTemplate;
 
-    public Migration103EeFixEe102DeleteUserTenantPolicy(PolicySolution policySolution,
-                                                        MongoTemplate mongoTemplate) {
+    public Migration103EeFixEe102DeleteUserTenantPolicy(PolicySolution policySolution, MongoTemplate mongoTemplate) {
         this.policySolution = policySolution;
         this.mongoTemplate = mongoTemplate;
     }
 
     @RollbackExecution
-    public void executeRollback() {
-    }
+    public void executeRollback() {}
 
     @Execution
     public void fixTenantPolicyWithTenantReadAllUsers() {
@@ -39,8 +37,7 @@ public class Migration103EeFixEe102DeleteUserTenantPolicy {
                 Policy.builder()
                         .permission(TENANT_READ_ALL_USERS.getValue())
                         .permissionGroups(Set.of(instanceAdminRoleId))
-                        .build()
-        );
+                        .build());
 
         policySolution.addPoliciesToExistingObject(tenantDeleteAndReadUsersPolicyMap, defaultTenant);
         mongoTemplate.save(defaultTenant);

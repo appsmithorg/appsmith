@@ -43,10 +43,9 @@ class ReleaseNotesUtilsTest {
         Mockito.when(instanceConfig.isAirgapEnabled()).thenReturn(true);
         Mono<List<ReleaseNode>> resultMono = releaseNotesUtils.getReleaseNodes(releaseNodesCache, Instant.now());
 
-        StepVerifier
-            .create(resultMono)
-            .assertNext(releaseNodes -> Assertions.assertEquals(releaseNodes, new ArrayList<>()))
-            .verifyComplete();
+        StepVerifier.create(resultMono)
+                .assertNext(releaseNodes -> Assertions.assertEquals(releaseNodes, new ArrayList<>()))
+                .verifyComplete();
     }
 
     @Test
@@ -54,11 +53,11 @@ class ReleaseNotesUtilsTest {
 
         Mockito.when(instanceConfig.isAirgapEnabled()).thenReturn(false);
 
-        Mono<List<ReleaseNode>> resultMono = releaseNotesUtils.getReleaseNodes(releaseNodesCache, Instant.now().plusSeconds(10));
+        Mono<List<ReleaseNode>> resultMono = releaseNotesUtils.getReleaseNodes(
+                releaseNodesCache, Instant.now().plusSeconds(10));
 
-        StepVerifier
-            .create(resultMono)
-            .assertNext(releaseNodes -> Assertions.assertEquals(releaseNodes, releaseNodesCache))
-            .verifyComplete();
+        StepVerifier.create(resultMono)
+                .assertNext(releaseNodes -> Assertions.assertEquals(releaseNodes, releaseNodesCache))
+                .verifyComplete();
     }
 }

@@ -20,25 +20,22 @@ public class UserDataVariableReplacement implements ServerSideVariableReplacemen
 
             ServerSideVariable userDataVariableType = Enum.valueOf(ServerSideVariable.class, variable);
 
-            return userDataService
-                    .getForCurrentUser()
-                    .flatMap(userData -> {
-                        switch (userDataVariableType) {
-                            case APPSMITH_USER_OAUTH2_ACCESS_TOKEN:
-                                AppsmithOidcAccessToken accessToken = userData.getOidcAccessToken();
-                                if (accessToken != null) {
-                                    return Mono.just(accessToken.getTokenValue());
-                                }
-                            default:
-                                break;
+            return userDataService.getForCurrentUser().flatMap(userData -> {
+                switch (userDataVariableType) {
+                    case APPSMITH_USER_OAUTH2_ACCESS_TOKEN:
+                        AppsmithOidcAccessToken accessToken = userData.getOidcAccessToken();
+                        if (accessToken != null) {
+                            return Mono.just(accessToken.getTokenValue());
                         }
+                    default:
+                        break;
+                }
 
-                        return Mono.empty();
-                    });
+                return Mono.empty();
+            });
 
         } catch (IllegalArgumentException e) {
             return Mono.empty();
         }
     }
-
 }

@@ -28,9 +28,7 @@ class PluginScheduledTaskUtilsTest {
         Mockito.when(instanceConfig.isAirgapEnabled()).thenReturn(true);
         Mono<Void> resultMono = pluginUtils.fetchAndUpdateRemotePlugins(Instant.now());
 
-        StepVerifier
-            .create(resultMono)
-            .verifyComplete();
+        StepVerifier.create(resultMono).verifyComplete();
     }
 
     @Test
@@ -38,9 +36,6 @@ class PluginScheduledTaskUtilsTest {
         Mockito.when(instanceConfig.isAirgapEnabled()).thenReturn(false);
         Mono<Void> resultMono = pluginUtils.fetchAndUpdateRemotePlugins(Instant.now());
 
-        StepVerifier
-            .create(resultMono)
-            .verifyComplete();
+        StepVerifier.create(resultMono).verifyComplete();
     }
-
 }

@@ -10,6 +10,8 @@ export function dbToLogs(serverLogs: any[]): AuditLogType[] {
     page: serverLog.page || {},
     application: serverLog.application || {},
     workspace: serverLog.workspace || {},
+    environment: serverLog.environment || {},
+    datasource: serverLog.datasource || {},
     user: serverLog.user || {},
     userGroup: serverLog.group || {},
     permissionGroup: serverLog.role || {},

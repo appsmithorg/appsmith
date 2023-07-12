@@ -13,5 +13,4 @@ import java.util.Set;
 public class InviteUsersDTO extends InviteUsersCE_DTO {
 
     Set<String> groups;
-
 }

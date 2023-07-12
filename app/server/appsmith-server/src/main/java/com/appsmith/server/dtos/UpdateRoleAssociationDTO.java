@@ -14,5 +14,4 @@ public class UpdateRoleAssociationDTO {
     Set<PermissionGroupCompactDTO> rolesAdded;
 
     Set<PermissionGroupCompactDTO> rolesRemoved;
-
 }

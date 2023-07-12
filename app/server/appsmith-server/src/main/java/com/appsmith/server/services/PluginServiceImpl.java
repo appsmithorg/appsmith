@@ -1,14 +1,13 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.configurations.AirgapInstanceConfig;
-import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.PluginDTO;
-import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.dtos.RemotePluginWorkspaceDTO;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
@@ -28,7 +27,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import java.util.List;
-import jakarta.validation.Validator;
 
 @Slf4j
 @Service
@@ -36,20 +34,31 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
 
     private final AirgapInstanceConfig airgapInstanceConfig;
 
-    public PluginServiceImpl(Scheduler scheduler,
-                             Validator validator,
-                             MongoConverter mongoConverter,
-                             ReactiveMongoTemplate reactiveMongoTemplate,
-                             PluginRepository repository,
-                             AnalyticsService analyticsService,
-                             WorkspaceService workspaceService,
-                             PluginManager pluginManager,
-                             ReactiveRedisTemplate<String, String> reactiveTemplate,
-                             ChannelTopic topic,
-                             ObjectMapper objectMapper,
-                             AirgapInstanceConfig airgapInstanceConfig) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                workspaceService, pluginManager, reactiveTemplate, topic, objectMapper);
+    public PluginServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            PluginRepository repository,
+            AnalyticsService analyticsService,
+            WorkspaceService workspaceService,
+            PluginManager pluginManager,
+            ReactiveRedisTemplate<String, String> reactiveTemplate,
+            ChannelTopic topic,
+            ObjectMapper objectMapper,
+            AirgapInstanceConfig airgapInstanceConfig) {
+        super(
+                scheduler,
+                validator,
+                mongoConverter,
+                reactiveMongoTemplate,
+                repository,
+                analyticsService,
+                workspaceService,
+                pluginManager,
+                reactiveTemplate,
+                topic,
+                objectMapper);
 
         this.airgapInstanceConfig = airgapInstanceConfig;
     }
@@ -78,9 +87,11 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
 
         // Look for the workspace that the plugin needs to be installed in
         final Mono<Workspace> workspaceMono = Mono.justOrEmpty(plugin.getOrganizationId())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID)))
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID)))
                 .flatMap(this.workspaceService::retrieveById)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION_ID, plugin.getOrganizationId())));
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION_ID, plugin.getOrganizationId())));
         return workspacePluginMono
                 .zipWith(workspaceMono)
                 .flatMap(tuple -> {
@@ -93,11 +104,8 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
     }
 
     private Mono<Plugin> findUniqueRemotePlugin(Plugin remotePlugin) {
-        return this.repository
-                .findByPluginNameAndPackageNameAndVersion(
-                        remotePlugin.getPluginName(),
-                        remotePlugin.getPackageName(),
-                        remotePlugin.getVersion());
+        return this.repository.findByPluginNameAndPackageNameAndVersion(
+                remotePlugin.getPluginName(), remotePlugin.getPackageName(), remotePlugin.getVersion());
     }
 
     public Mono<List<PluginDTO>> getAllPluginIconLocation() {
@@ -114,8 +122,7 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
         Flux<Plugin> pluginFlux = super.get(params);
         // Filter out unsupported plugins for air-gap instance
         if (airgapInstanceConfig.isAirgapEnabled()) {
-            return pluginFlux
-                .filter(Plugin::isSupportedForAirGap);
+            return pluginFlux.filter(Plugin::isSupportedForAirGap);
         }
         return pluginFlux;
     }
@@ -127,5 +134,4 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
         pluginDTO.populateTransientFields(plugin);
         return pluginDTO;
     }
-
 }

@@ -64,9 +64,11 @@ public class RoleConfigurationSolutionTest {
         RoleTabDTO mockRoleTabDTO = new RoleTabDTO();
 
         Mockito.when(workspaceResources.getDataFromRepositoryForAllTabs()).thenReturn(new CommonAppsmithObjectData());
-        Mockito.when(workspaceResources.createApplicationResourcesTabView(Mockito.anyString(), Mockito.any(CommonAppsmithObjectData.class)))
+        Mockito.when(workspaceResources.createApplicationResourcesTabView(
+                        Mockito.anyString(), Mockito.any(CommonAppsmithObjectData.class)))
                 .thenReturn(Mono.just(mockRoleTabDTO));
-        Mockito.when(workspaceResources.createDatasourceResourcesTabView(Mockito.anyString(), Mockito.any(CommonAppsmithObjectData.class)))
+        Mockito.when(workspaceResources.createDatasourceResourcesTabView(
+                        Mockito.anyString(), Mockito.any(CommonAppsmithObjectData.class)))
                 .thenReturn(Mono.just(mockRoleTabDTO));
         Mockito.when(tenantResources.createGroupsAndRolesTab(Mockito.anyString()))
                 .thenReturn(Mono.just(mockRoleTabDTO));
@@ -74,7 +76,8 @@ public class RoleConfigurationSolutionTest {
                 .thenReturn(Mono.just(mockRoleTabDTO));
 
         if (superAdminPermissionGroupId == null) {
-            superAdminPermissionGroupId = userUtils.getSuperAdminPermissionGroup().block().getId();
+            superAdminPermissionGroupId =
+                    userUtils.getSuperAdminPermissionGroup().block().getId();
         }
 
         Mono<RoleViewDTO> allTabViewsMono = roleConfigurationSolution.getAllTabViews(superAdminPermissionGroupId);
@@ -90,9 +93,7 @@ public class RoleConfigurationSolutionTest {
                     assertThat(tabNames.get(1)).isEqualTo(RoleTab.DATASOURCES_QUERIES.getName());
                     assertThat(tabNames.get(2)).isEqualTo(RoleTab.GROUPS_ROLES.getName());
                     assertThat(tabNames.get(3)).isEqualTo(RoleTab.OTHERS.getName());
-
                 })
                 .verifyComplete();
     }
-
 }

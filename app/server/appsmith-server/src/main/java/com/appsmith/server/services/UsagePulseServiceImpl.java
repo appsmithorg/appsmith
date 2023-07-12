@@ -1,14 +1,12 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.QUsagePulse;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.UsagePulse;
 import com.appsmith.server.dtos.UsagePulseExportDTO;
 import com.appsmith.server.dtos.UsagePulseReportDTO;
-import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.HmacHashUtils;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.repositories.UsagePulseRepository;
 import com.appsmith.server.services.ce.UsagePulseServiceCEImpl;
 import com.appsmith.server.solutions.UsageReporter;
@@ -32,16 +30,17 @@ public class UsagePulseServiceImpl extends UsagePulseServiceCEImpl implements Us
     private final TenantService tenantService;
     private final UsageReporter usageReporter;
 
-    private final static int MAX_PULSES_TO_SEND = 100;
-    private final static String HMAC_ALGORITHM = "HmacSHA256";
+    private static final int MAX_PULSES_TO_SEND = 100;
+    private static final String HMAC_ALGORITHM = "HmacSHA256";
 
-    public UsagePulseServiceImpl(UsagePulseRepository repository,
-                                 SessionUserService sessionUserService,
-                                 UserService userService,
-                                 TenantService tenantService,
-                                 ConfigService configService,
-                                 UsageReporter usageReporter,
-                                 CommonConfig commonConfig) {
+    public UsagePulseServiceImpl(
+            UsagePulseRepository repository,
+            SessionUserService sessionUserService,
+            UserService userService,
+            TenantService tenantService,
+            ConfigService configService,
+            UsageReporter usageReporter,
+            CommonConfig commonConfig) {
         super(repository, sessionUserService, userService, tenantService, configService, commonConfig);
         this.repository = repository;
         this.tenantService = tenantService;
@@ -55,10 +54,14 @@ public class UsagePulseServiceImpl extends UsagePulseServiceCEImpl implements Us
      */
     public Mono<Boolean> sendAndUpdateUsagePulse() {
         // results will be sorted in ascending order of createdAt
-        Sort sort = Sort.by(Sort.Direction.ASC, QUsagePulse.usagePulse.createdAt.getMetadata().getName());
+        Sort sort = Sort.by(
+                Sort.Direction.ASC,
+                QUsagePulse.usagePulse.createdAt.getMetadata().getName());
         PageRequest pageRequest = PageRequest.of(0, MAX_PULSES_TO_SEND, sort);
         // Currently only queries pulses from last 7 days to avoid looping effect
-        Mono<List<UsagePulse>> usagePulseListMono = repository.findAllByCreatedAtAfter(Instant.now().minus(7, ChronoUnit.DAYS), pageRequest).collectList();
+        Mono<List<UsagePulse>> usagePulseListMono = repository
+                .findAllByCreatedAtAfter(Instant.now().minus(7, ChronoUnit.DAYS), pageRequest)
+                .collectList();
         // TODO: Update this with all tenants once multi-tenancy is introduced
         Mono<Tenant> tenantMono = tenantService.getDefaultTenant();
 
@@ -74,8 +77,7 @@ public class UsagePulseServiceImpl extends UsagePulseServiceCEImpl implements Us
                     if (tenantService.isValidLicenseConfiguration(currentTenant)) {
                         UsagePulseReportDTO usagePulseReportDTO = new UsagePulseReportDTO();
                         usagePulseReportDTO.setInstanceId(instanceId);
-                        usagePulseReportDTO.setUsageData(
-                            usagePulses.stream()
+                        usagePulseReportDTO.setUsageData(usagePulses.stream()
                                 .map(usagePulse -> {
                                     UsagePulseExportDTO usagePulseExportDTO = new UsagePulseExportDTO();
                                     usagePulseExportDTO.setUser(usagePulse.getUser());
@@ -86,23 +88,24 @@ public class UsagePulseServiceImpl extends UsagePulseServiceCEImpl implements Us
 
                                     return usagePulseExportDTO;
                                 })
-                                .collect(Collectors.toList())
-                        );
+                                .collect(Collectors.toList()));
 
                         // Generate random string which will be verified at receiver's end by applying the same hashing
                         // algorithm with same secret key
                         String message = UUID.randomUUID().toString();
                         usagePulseReportDTO.setMessage(message);
                         try {
-                            String licenseKey = currentTenant.getTenantConfiguration().getLicense().getKey();
+                            String licenseKey = currentTenant
+                                    .getTenantConfiguration()
+                                    .getLicense()
+                                    .getKey();
                             String hashedMessage = HmacHashUtils.createHash(HMAC_ALGORITHM, message, licenseKey);
                             usagePulseReportDTO.setHashedMessage(hashedMessage);
                         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
                             return Mono.error(new RuntimeException(e));
                         }
 
-                        return usageReporter.reportUsage(usagePulseReportDTO)
-                            .zipWith(Mono.just(usagePulses));
+                        return usageReporter.reportUsage(usagePulseReportDTO).zipWith(Mono.just(usagePulses));
                     }
                     return Mono.just(false).zipWith(Mono.just(usagePulses));
                 })

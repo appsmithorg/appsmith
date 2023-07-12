@@ -58,7 +58,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -111,6 +110,7 @@ public class UserServiceTest {
 
     @Autowired
     UserUtils userUtils;
+
     @SpyBean
     CommonConfig commonConfig;
 
@@ -119,7 +119,7 @@ public class UserServiceTest {
         userMono = userService.findByEmail("usertest@usertest.com");
     }
 
-    //Test if email params are updating correctly
+    // Test if email params are updating correctly
     @Test
     public void checkEmailParamsForExistingUser() {
         Workspace workspace = new Workspace();
@@ -155,7 +155,7 @@ public class UserServiceTest {
         assertEquals("UserServiceTest Update Org", params.get("inviterWorkspaceName"));
     }
 
-    //Test the update workspace flow.
+    // Test the update workspace flow.
     @Test
     public void updateInvalidUserWithAnything() {
         User updateUser = new User();
@@ -167,8 +167,11 @@ public class UserServiceTest {
         Mono<User> userMono1 = Mono.just(existingUser).flatMap(user -> userService.update(user.getId(), updateUser));
 
         StepVerifier.create(userMono1)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.USER, "Random-UserId-%Not-In_The-System_For_SUre")))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(
+                                        FieldName.USER, "Random-UserId-%Not-In_The-System_For_SUre")))
                 .verify();
     }
 
@@ -181,8 +184,8 @@ public class UserServiceTest {
         Mono<User> userMono = userService.create(newUser);
 
         StepVerifier.create(userMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_CREDENTIALS.getMessage()))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.INVALID_CREDENTIALS.getMessage()))
                 .verify();
     }
 
@@ -195,20 +198,22 @@ public class UserServiceTest {
 
         Mono<User> userCreateMono = userService.create(newUser).cache();
 
-        Mono<PermissionGroup> permissionGroupMono = userCreateMono
-                .flatMap(user -> {
-                    Set<Policy> userPolicies = user.getPolicies();
-                    assertThat(userPolicies.size()).isNotZero();
-                    Optional<Policy> optionalResetPasswordPolicy = userPolicies.stream().filter(policy1 -> policy1.getPermission().equals(RESET_PASSWORD_USERS.getValue())).findFirst();
-                    assertThat(optionalResetPasswordPolicy.isPresent()).isTrue();
-                    assertThat(optionalResetPasswordPolicy.get().getPermissionGroups()).isNotEmpty();
-                    String permissionGroupId = optionalResetPasswordPolicy.get().getPermissionGroups().stream().findFirst().get();
+        Mono<PermissionGroup> permissionGroupMono = userCreateMono.flatMap(user -> {
+            Set<Policy> userPolicies = user.getPolicies();
+            assertThat(userPolicies.size()).isNotZero();
+            Optional<Policy> optionalResetPasswordPolicy = userPolicies.stream()
+                    .filter(policy1 -> policy1.getPermission().equals(RESET_PASSWORD_USERS.getValue()))
+                    .findFirst();
+            assertThat(optionalResetPasswordPolicy.isPresent()).isTrue();
+            assertThat(optionalResetPasswordPolicy.get().getPermissionGroups()).isNotEmpty();
+            String permissionGroupId = optionalResetPasswordPolicy.get().getPermissionGroups().stream()
+                    .findFirst()
+                    .get();
 
-                    return permissionGroupRepository.findById(permissionGroupId);
-                });
+            return permissionGroupRepository.findById(permissionGroupId);
+        });
 
-        Mono<PermissionGroup> defaultUserRoleMono = userCreateMono
-                .then(userUtils.getDefaultUserPermissionGroup());
+        Mono<PermissionGroup> defaultUserRoleMono = userCreateMono.then(userUtils.getDefaultUserPermissionGroup());
 
         StepVerifier.create(Mono.zip(userCreateMono, permissionGroupMono, defaultUserRoleMono))
                 .assertNext(tuple -> {
@@ -230,9 +235,11 @@ public class UserServiceTest {
                             .filter(policy -> MANAGE_USERS.getValue().equals(policy.getPermission()))
                             .findFirst();
                     assertThat(optionalManageUserPolicy.isPresent()).isTrue();
-                    assertThat(optionalManageUserPolicy.get().getPermissionGroups()).contains(permissionGroup.getId());
+                    assertThat(optionalManageUserPolicy.get().getPermissionGroups())
+                            .contains(permissionGroup.getId());
                     assertThat(optionalViewUserPolicy.isPresent()).isTrue();
-                    assertThat(optionalViewUserPolicy.get().getPermissionGroups()).contains(permissionGroup.getId());
+                    assertThat(optionalViewUserPolicy.get().getPermissionGroups())
+                            .contains(permissionGroup.getId());
                     assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(user.getId()));
 
                     // Assert that the default user role has been assigned to the newly created user
@@ -255,17 +262,20 @@ public class UserServiceTest {
 
         Mono<User> userCreateMono = userService.create(newUser).cache();
 
-        Mono<PermissionGroup> permissionGroupMono = userCreateMono
-                .flatMap(user -> {
-                    Set<Policy> userPolicies = user.getPolicies();
-                    assertThat(userPolicies.size()).isNotZero();
-                    Optional<Policy> optionalResetPasswordPolicy = userPolicies.stream().filter(policy1 -> policy1.getPermission().equals(RESET_PASSWORD_USERS.getValue())).findFirst();
-                    assertThat(optionalResetPasswordPolicy.isPresent()).isTrue();
-                    assertThat(optionalResetPasswordPolicy.get().getPermissionGroups()).isNotEmpty();
-                    String permissionGroupId = optionalResetPasswordPolicy.get().getPermissionGroups().stream().findFirst().get();
+        Mono<PermissionGroup> permissionGroupMono = userCreateMono.flatMap(user -> {
+            Set<Policy> userPolicies = user.getPolicies();
+            assertThat(userPolicies.size()).isNotZero();
+            Optional<Policy> optionalResetPasswordPolicy = userPolicies.stream()
+                    .filter(policy1 -> policy1.getPermission().equals(RESET_PASSWORD_USERS.getValue()))
+                    .findFirst();
+            assertThat(optionalResetPasswordPolicy.isPresent()).isTrue();
+            assertThat(optionalResetPasswordPolicy.get().getPermissionGroups()).isNotEmpty();
+            String permissionGroupId = optionalResetPasswordPolicy.get().getPermissionGroups().stream()
+                    .findFirst()
+                    .get();
 
-                    return permissionGroupRepository.findById(permissionGroupId);
-                });
+            return permissionGroupRepository.findById(permissionGroupId);
+        });
 
         StepVerifier.create(Mono.zip(userCreateMono, permissionGroupMono))
                 .assertNext(tuple -> {
@@ -285,9 +295,11 @@ public class UserServiceTest {
                             .filter(policy -> MANAGE_USERS.getValue().equals(policy.getPermission()))
                             .findFirst();
                     assertThat(optionalManageUserPolicy.isPresent()).isTrue();
-                    assertThat(optionalManageUserPolicy.get().getPermissionGroups()).contains(permissionGroup.getId());
+                    assertThat(optionalManageUserPolicy.get().getPermissionGroups())
+                            .contains(permissionGroup.getId());
                     assertThat(optionalViewUserPolicy.isPresent()).isTrue();
-                    assertThat(optionalViewUserPolicy.get().getPermissionGroups()).contains(permissionGroup.getId());
+                    assertThat(optionalViewUserPolicy.get().getPermissionGroups())
+                            .contains(permissionGroup.getId());
                     assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(user.getId()));
                 })
                 .verifyComplete();
@@ -351,9 +363,7 @@ public class UserServiceTest {
         workspace.setDomain("example.com");
         workspace.setWebsite("https://example.com");
 
-        Mono<Workspace> workspaceMono = workspaceService
-                .create(workspace)
-                .cache();
+        Mono<Workspace> workspaceMono = workspaceService.create(workspace).cache();
 
         String newUserEmail = "inviteUserToApplicationWithoutExisting@test.com";
 
@@ -364,19 +374,22 @@ public class UserServiceTest {
                     ArrayList<String> users = new ArrayList<>();
                     users.add(newUserEmail);
                     inviteUsersDTO.setUsernames(users);
-                    inviteUsersDTO.setPermissionGroupId(workspace1.getDefaultPermissionGroups().stream().findFirst().get());
+                    inviteUsersDTO.setPermissionGroupId(workspace1.getDefaultPermissionGroups().stream()
+                            .findFirst()
+                            .get());
 
                     return userAndAccessManagementService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
-                }).block();
+                })
+                .block();
 
         // Now Sign Up as the new user
         User signUpUser = new User();
         signUpUser.setEmail(newUserEmail);
         signUpUser.setPassword("123456");
 
-        Mono<User> invitedUserSignUpMono =
-                userService.createUserAndSendEmail(signUpUser, "http://localhost:8080")
-                        .map(UserSignupDTO::getUser);
+        Mono<User> invitedUserSignUpMono = userService
+                .createUserAndSendEmail(signUpUser, "http://localhost:8080")
+                .map(UserSignupDTO::getUser);
 
         StepVerifier.create(invitedUserSignUpMono)
                 .assertNext(user -> {
@@ -384,7 +397,6 @@ public class UserServiceTest {
                     assertTrue(passwordEncoder.matches("123456", user.getPassword()));
                 })
                 .verifyComplete();
-
     }
 
     @Test
@@ -393,10 +405,9 @@ public class UserServiceTest {
         Flux<User> userFlux = userService.get(CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>()));
 
         StepVerifier.create(userFlux)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.UNSUPPORTED_OPERATION.getMessage()))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.UNSUPPORTED_OPERATION.getMessage()))
                 .verify();
-
     }
 
     @Test
@@ -414,8 +425,7 @@ public class UserServiceTest {
                 "email@example.com (Joe Smith)",
                 "email@-example.com",
                 "email@example..com",
-                "Abc..123@example.com"
-        );
+                "Abc..123@example.com");
         for (String invalidAddress : invalidAddresses) {
             User user = new User();
             user.setEmail(invalidAddress);
@@ -447,11 +457,8 @@ public class UserServiceTest {
         UserUpdateDTO updateUser = new UserUpdateDTO();
         updateUser.setName("invalid name@symbol");
         StepVerifier.create(userService.updateCurrentUser(updateUser, null))
-                .expectErrorMatches(throwable ->
-                        throwable instanceof AppsmithException
-                                &&
-                                throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME))
-                )
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME)))
                 .verify();
     }
 
@@ -473,8 +480,8 @@ public class UserServiceTest {
     public void updateRoleOfUser() {
         UserUpdateDTO updateUser = new UserUpdateDTO();
         updateUser.setRole("New role of user");
-        final Mono<UserData> resultMono = userService.updateCurrentUser(updateUser, null)
-                .then(userDataService.getForUserEmail("api_user"));
+        final Mono<UserData> resultMono =
+                userService.updateCurrentUser(updateUser, null).then(userDataService.getForUserEmail("api_user"));
         StepVerifier.create(resultMono)
                 .assertNext(userData -> {
                     assertNotNull(userData);
@@ -496,8 +503,8 @@ public class UserServiceTest {
 
         UserUpdateDTO updateUser = new UserUpdateDTO();
         updateUser.setIntercomConsentGiven(true);
-        final Mono<UserData> updateToTrueMono = userService.updateCurrentUser(updateUser, null)
-                .then(userDataMono);
+        final Mono<UserData> updateToTrueMono =
+                userService.updateCurrentUser(updateUser, null).then(userDataMono);
         StepVerifier.create(updateToTrueMono)
                 .assertNext(userData -> {
                     assertNotNull(userData);
@@ -506,8 +513,8 @@ public class UserServiceTest {
                 .verifyComplete();
 
         updateUser.setIntercomConsentGiven(false);
-        final Mono<UserData> updateToFalseAfterTrueMono = userService.updateCurrentUser(updateUser, null)
-                .then(userDataMono);
+        final Mono<UserData> updateToFalseAfterTrueMono =
+                userService.updateCurrentUser(updateUser, null).then(userDataMono);
         StepVerifier.create(updateToFalseAfterTrueMono)
                 .assertNext(userData -> {
                     assertNotNull(userData);
@@ -521,8 +528,8 @@ public class UserServiceTest {
     public void getIntercomConsentOfUserOnCloudHosting_AlwaysTrue() {
         Mockito.when(commonConfig.isCloudHosting()).thenReturn(true);
 
-        Mono<UserProfileDTO> userProfileDTOMono = sessionUserService.getCurrentUser()
-                .flatMap(userService::buildUserProfileDTO);
+        Mono<UserProfileDTO> userProfileDTOMono =
+                sessionUserService.getCurrentUser().flatMap(userService::buildUserProfileDTO);
 
         StepVerifier.create(userProfileDTOMono)
                 .assertNext(userProfileDTO -> {
@@ -539,11 +546,9 @@ public class UserServiceTest {
         updateUser.setName("New name of user here");
         updateUser.setRole("New role of user");
         updateUser.setUseCase("New use case");
-        final Mono<Tuple2<User, UserData>> resultMono = userService.updateCurrentUser(updateUser, null)
-                .flatMap(user -> Mono.zip(
-                        Mono.just(user),
-                        userDataService.getForUserEmail("api_user")
-                ));
+        final Mono<Tuple2<User, UserData>> resultMono = userService
+                .updateCurrentUser(updateUser, null)
+                .flatMap(user -> Mono.zip(Mono.just(user), userDataService.getForUserEmail("api_user")));
         StepVerifier.create(resultMono)
                 .assertNext(tuple -> {
                     final User user = tuple.getT1();
@@ -567,8 +572,8 @@ public class UserServiceTest {
         newUser.setEmail("abCd@gmail.com"); // same as above except c in uppercase
         newUser.setSource(LoginSource.FORM);
         newUser.setPassword("abcdefgh");
-        Mono<User> userAndSendEmail = userService.createUserAndSendEmail(newUser, null)
-                .map(UserSignupDTO::getUser);
+        Mono<User> userAndSendEmail =
+                userService.createUserAndSendEmail(newUser, null).map(UserSignupDTO::getUser);
 
         StepVerifier.create(userAndSendEmail)
                 .expectErrorMessage(AppsmithError.USER_ALREADY_EXISTS_SIGNUP.getMessage(existingUser.getEmail()))
@@ -680,12 +685,13 @@ public class UserServiceTest {
         User user = new User();
         user.setIsAnonymous(true);
         user.setEmail("anonymousUser");
-        StepVerifier.create(userService.buildUserProfileDTO(user)).assertNext(userProfileDTO -> {
-            assertThat(userProfileDTO.getUsername()).isEqualTo("anonymousUser");
-            assertThat(userProfileDTO.isAnonymous()).isTrue();
-        }).verifyComplete();
+        StepVerifier.create(userService.buildUserProfileDTO(user))
+                .assertNext(userProfileDTO -> {
+                    assertThat(userProfileDTO.getUsername()).isEqualTo("anonymousUser");
+                    assertThat(userProfileDTO.isAnonymous()).isTrue();
+                })
+                .verifyComplete();
     }
-
 
     /**
      * This test case asserts that on every user creation, User Management role is auto-created and associated with that user.
@@ -700,19 +706,24 @@ public class UserServiceTest {
 
         User createdUser = userService.create(user).block();
         assertThat(createdUser.getPolicies()).isNotEmpty();
-        assertThat(createdUser.getPolicies().stream().anyMatch(policy -> policy.getPermission().equals(MANAGE_USERS.getValue()))).isTrue();
+        assertThat(createdUser.getPolicies().stream()
+                        .anyMatch(policy -> policy.getPermission().equals(MANAGE_USERS.getValue())))
+                .isTrue();
         Policy manageUserPolicy = createdUser.getPolicies().stream()
                 .filter(policy -> policy.getPermission().equals(RESET_PASSWORD_USERS.getValue()))
                 .findFirst()
                 .get();
 
-        PermissionGroup userManagementRole = permissionGroupRepository.findAll()
-                .filter(role -> role.getName().equals(createdUser.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE))
+        PermissionGroup userManagementRole = permissionGroupRepository
+                .findAll()
+                .filter(role ->
+                        role.getName().equals(createdUser.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE))
                 .blockFirst();
 
         assertThat(manageUserPolicy.getPermissionGroups()).hasSize(1);
 
-        String userManagementRoleId = manageUserPolicy.getPermissionGroups().stream().findFirst().get();
+        String userManagementRoleId =
+                manageUserPolicy.getPermissionGroups().stream().findFirst().get();
 
         assertThat(userManagementRole.getId()).isEqualTo(userManagementRoleId);
     }

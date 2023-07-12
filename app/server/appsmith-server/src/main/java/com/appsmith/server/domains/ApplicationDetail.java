@@ -17,5 +17,4 @@ public class ApplicationDetail {
         this.appPositioning = null;
         this.navigationSetting = null;
     }
-
 }

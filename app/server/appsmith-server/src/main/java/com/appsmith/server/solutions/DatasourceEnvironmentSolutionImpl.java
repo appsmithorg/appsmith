@@ -13,9 +13,11 @@ public class DatasourceEnvironmentSolutionImpl implements DatasourceEnvironmentS
     private final EnvironmentService environmentService;
     private final DatasourceService datasourceService;
     private final FeatureFlagService featureFlagService;
-    public DatasourceEnvironmentSolutionImpl(EnvironmentService environmentService,
-                                             @Lazy DatasourceService datasourceService,
-                                             FeatureFlagService featureFlagService) {
+
+    public DatasourceEnvironmentSolutionImpl(
+            EnvironmentService environmentService,
+            @Lazy DatasourceService datasourceService,
+            FeatureFlagService featureFlagService) {
         this.datasourceService = datasourceService;
         this.environmentService = environmentService;
         this.featureFlagService = featureFlagService;

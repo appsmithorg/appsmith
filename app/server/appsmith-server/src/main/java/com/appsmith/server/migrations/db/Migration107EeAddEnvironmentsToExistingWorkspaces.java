@@ -38,8 +38,7 @@ public class Migration107EeAddEnvironmentsToExistingWorkspaces {
     }
 
     @RollbackExecution
-    public void executionRollback() {
-    }
+    public void executionRollback() {}
 
     @Execution
     public void executeMigration() {
@@ -47,70 +46,67 @@ public class Migration107EeAddEnvironmentsToExistingWorkspaces {
                 .cursorBatchSize(1024)
                 .addCriteria(where(migrationFlag).is(false));
 
-        final Query performanceOptimizedQuery = CompatibilityUtils
-                .optimizeQueryForNoCursorTimeout(mongoTemplate, query, Workspace.class);
+        final Query performanceOptimizedQuery =
+                CompatibilityUtils.optimizeQueryForNoCursorTimeout(mongoTemplate, query, Workspace.class);
 
-        mongoTemplate
-                .stream(performanceOptimizedQuery, Workspace.class)
-                .forEach(workspace -> {
-                    // what if we don't have default permission group for some workspace,
-                    // it will not be an addressable workspace
-                    if (CollectionUtils.isNullOrEmpty(workspace.getDefaultPermissionGroups())) {
-                        return;
-                    }
-                    log.debug("creating environments for the workspace with workspace id: {}", workspace.getId());
-                    List<String> defaultPermissionGroupIds = workspace.getDefaultPermissionGroups().stream().toList();
-                    List<PermissionGroup> permissionGroups =
-                            mongoTemplate.find(query(where(fieldName(QPermissionGroup.permissionGroup.id))
-                                            .in(defaultPermissionGroupIds)),
-                                    PermissionGroup.class);
+        mongoTemplate.stream(performanceOptimizedQuery, Workspace.class).forEach(workspace -> {
+            // what if we don't have default permission group for some workspace,
+            // it will not be an addressable workspace
+            if (CollectionUtils.isNullOrEmpty(workspace.getDefaultPermissionGroups())) {
+                return;
+            }
+            log.debug("creating environments for the workspace with workspace id: {}", workspace.getId());
+            List<String> defaultPermissionGroupIds =
+                    workspace.getDefaultPermissionGroups().stream().toList();
+            List<PermissionGroup> permissionGroups = mongoTemplate.find(
+                    query(where(fieldName(QPermissionGroup.permissionGroup.id)).in(defaultPermissionGroupIds)),
+                    PermissionGroup.class);
 
-                    if (CollectionUtils.isNullOrEmpty(permissionGroups)) {
-                        log.debug("workspace with workspaceId: {} has no default permissionGroup associated with it, " +
-                                "skipping environment addition", workspace.getId());
-                        return;
-                    }
+            if (CollectionUtils.isNullOrEmpty(permissionGroups)) {
+                log.debug(
+                        "workspace with workspaceId: {} has no default permissionGroup associated with it, "
+                                + "skipping environment addition",
+                        workspace.getId());
+                return;
+            }
 
-                    Set<String> permissionGroupIds = permissionGroups
-                            .parallelStream()
-                            .map(permissionGroup -> permissionGroup.getId())
-                            .collect(Collectors.toSet());
+            Set<String> permissionGroupIds = permissionGroups.parallelStream()
+                    .map(permissionGroup -> permissionGroup.getId())
+                    .collect(Collectors.toSet());
 
-                    Policy policies = Policy.builder()
-                            .permission(AclPermission.EXECUTE_ENVIRONMENTS.getValue())
-                            .permissionGroups(permissionGroupIds)
-                            .build();
+            Policy policies = Policy.builder()
+                    .permission(AclPermission.EXECUTE_ENVIRONMENTS.getValue())
+                    .permissionGroups(permissionGroupIds)
+                    .build();
 
-                    Environment productionEnvironment = new Environment(
-                            workspace.getId(),
-                            CommonFieldName.PRODUCTION_ENVIRONMENT);
-                    productionEnvironment.setPolicies(Set.of(policies));
+            Environment productionEnvironment =
+                    new Environment(workspace.getId(), CommonFieldName.PRODUCTION_ENVIRONMENT);
+            productionEnvironment.setPolicies(Set.of(policies));
 
-                    Environment stagingEnvironment = new Environment(
-                            workspace.getId(),
-                            CommonFieldName.STAGING_ENVIRONMENT);
-                    stagingEnvironment.setPolicies(Set.of(policies));
+            Environment stagingEnvironment = new Environment(workspace.getId(), CommonFieldName.STAGING_ENVIRONMENT);
+            stagingEnvironment.setPolicies(Set.of(policies));
 
-                    List.of(productionEnvironment, stagingEnvironment)
-                            .parallelStream()
-                            .forEach(environment -> {
-                                try {
-                                    log.debug("saving the environment: {} on thread: {}",
-                                            environment.getName(),
-                                            Thread.currentThread().getName());
-                                    mongoTemplate.save(environment);
-                                } catch (DuplicateKeyException e) {
-                                    log.debug("{} environment already present in workspace: {}",
-                                            environment.getName(),
-                                            workspace.getName());
-                                }
-                            });
+            List.of(productionEnvironment, stagingEnvironment).parallelStream().forEach(environment -> {
+                try {
+                    log.debug(
+                            "saving the environment: {} on thread: {}",
+                            environment.getName(),
+                            Thread.currentThread().getName());
+                    mongoTemplate.save(environment);
+                } catch (DuplicateKeyException e) {
+                    log.debug(
+                            "{} environment already present in workspace: {}",
+                            environment.getName(),
+                            workspace.getName());
+                }
+            });
 
-                    mongoTemplate.updateFirst(new Query()
-                                    .addCriteria(where(fieldName(QWorkspace.workspace.id))
-                                            .is(workspace.getId())),
-                            new Update().set(migrationFlag, true),
-                            Workspace.class);
-                });
+            mongoTemplate.updateFirst(
+                    new Query()
+                            .addCriteria(
+                                    where(fieldName(QWorkspace.workspace.id)).is(workspace.getId())),
+                    new Update().set(migrationFlag, true),
+                    Workspace.class);
+        });
     }
 }

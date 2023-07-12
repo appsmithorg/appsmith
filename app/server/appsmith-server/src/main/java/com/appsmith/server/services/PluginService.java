@@ -3,7 +3,6 @@ package com.appsmith.server.services;
 import com.appsmith.server.dtos.PluginDTO;
 import com.appsmith.server.dtos.RemotePluginWorkspaceDTO;
 import com.appsmith.server.services.ce.PluginServiceCE;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;

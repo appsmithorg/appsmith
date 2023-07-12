@@ -16,5 +16,4 @@ public class ApplicationPermissionImpl extends ApplicationPermissionCEImpl imple
     public AclPermission getDeletePermission() {
         return AclPermission.DELETE_APPLICATIONS;
     }
-
 }

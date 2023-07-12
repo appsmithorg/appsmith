@@ -7,10 +7,11 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
+import com.appsmith.server.dtos.ProvisionResourceDto;
 import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
+import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
-import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -35,7 +36,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -46,9 +46,11 @@ import static com.appsmith.server.acl.AclPermission.ADD_USERS_TO_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.REMOVE_USERS_FROM_USER_GROUPS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -58,6 +60,7 @@ public class UserGroupServiceTest {
 
     @Autowired
     UserGroupService userGroupService;
+
     @Autowired
     PermissionGroupService permissionGroupService;
 
@@ -72,6 +75,7 @@ public class UserGroupServiceTest {
 
     @Autowired
     WorkspaceService workspaceService;
+
     @Autowired
     UserGroupRepository userGroupRepository;
 
@@ -102,7 +106,8 @@ public class UserGroupServiceTest {
         userUtils.makeSuperUser(List.of(api_user)).block();
 
         if (superAdminPermissionGroupId == null) {
-            superAdminPermissionGroupId = userUtils.getSuperAdminPermissionGroup().block().getId();
+            superAdminPermissionGroupId =
+                    userUtils.getSuperAdminPermissionGroup().block().getId();
         }
     }
 
@@ -116,7 +121,8 @@ public class UserGroupServiceTest {
         userGroup.setName(name);
         userGroup.setDescription(description);
 
-        Mono<UserGroup> createUserGroupMono = userGroupService.createGroup(userGroup)
+        Mono<UserGroup> createUserGroupMono = userGroupService
+                .createGroup(userGroup)
                 // Assert that the created role is also editable by the user who created it
                 .flatMap(userGroup1 -> userGroupService.findById(userGroup1.getId(), MANAGE_USER_GROUPS));
 
@@ -145,9 +151,9 @@ public class UserGroupServiceTest {
                             .permissionGroups(Set.of(superAdminPermissionGroupId))
                             .build();
 
-                    assertThat(createdUserGroup.getPolicies()).containsAll(
-                            Set.of(manageGroupPolicy, readGroupPolicy, deleteGroupPolicy, inviteGroupPolicy)
-                    );
+                    assertThat(createdUserGroup.getPolicies())
+                            .containsAll(
+                                    Set.of(manageGroupPolicy, readGroupPolicy, deleteGroupPolicy, inviteGroupPolicy));
                 })
                 .verifyComplete();
     }
@@ -165,9 +171,10 @@ public class UserGroupServiceTest {
         Mono<UserGroupDTO> createUserGroupMono = userGroupService.createGroup(userGroup);
 
         StepVerifier.create(createUserGroupMono)
-                .expectErrorMatches(throwable ->
-                        throwable instanceof AppsmithException &&
-                                throwable.getMessage().contains(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("create user groups")))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .contains(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("create user groups")))
                 .verify();
     }
 
@@ -184,7 +191,8 @@ public class UserGroupServiceTest {
         // Create a new group
         userGroupService.createGroup(userGroup).block();
 
-        Mono<List<UserGroup>> listMono = userGroupService.get(new LinkedMultiValueMap<>()).collectList();
+        Mono<List<UserGroup>> listMono =
+                userGroupService.get(new LinkedMultiValueMap<>()).collectList();
 
         StepVerifier.create(listMono)
                 .assertNext(list -> {
@@ -192,21 +200,20 @@ public class UserGroupServiceTest {
 
                     // Assert that the created group is returned inside the listing.
                     assertThat(list.stream()
-                            .filter(userGroup1 -> userGroup1.getName().equals(name))
-                            .findFirst()
-                            .isPresent()
-                    ).isTrue();
+                                    .filter(userGroup1 -> userGroup1.getName().equals(name))
+                                    .findFirst()
+                                    .isPresent())
+                            .isTrue();
                 })
                 .verifyComplete();
-
     }
-
 
     @Test
     @WithUserDetails(value = "usertest@usertest.com")
     public void listGroupsAsNonSuperAdminTest() {
 
-        Mono<List<UserGroup>> listMono = userGroupService.get(new LinkedMultiValueMap<>()).collectList();
+        Mono<List<UserGroup>> listMono =
+                userGroupService.get(new LinkedMultiValueMap<>()).collectList();
 
         StepVerifier.create(listMono)
                 .assertNext(list -> {
@@ -228,12 +235,11 @@ public class UserGroupServiceTest {
         // Create a new group
         UserGroupDTO createdUserGroup = userGroupService.createGroup(userGroup).block();
 
-        Mono<UserGroup> deleteGroupMono = userGroupService.archiveById(createdUserGroup.getId())
+        Mono<UserGroup> deleteGroupMono = userGroupService
+                .archiveById(createdUserGroup.getId())
                 .then(userGroupService.findById(createdUserGroup.getId(), READ_USER_GROUPS));
 
-        StepVerifier.create(deleteGroupMono)
-                .expectNextCount(0)
-                .verifyComplete();
+        StepVerifier.create(deleteGroupMono).expectNextCount(0).verifyComplete();
     }
 
     @Test
@@ -255,7 +261,8 @@ public class UserGroupServiceTest {
         update.setName(name);
         update.setDescription(description);
 
-        Mono<UserGroup> deleteGroupMono = userGroupService.updateGroup(createdGroup.getId(), update)
+        Mono<UserGroup> deleteGroupMono = userGroupService
+                .updateGroup(createdGroup.getId(), update)
                 .then(userGroupService.findById(createdGroup.getId(), READ_USER_GROUPS));
 
         String finalName = name;
@@ -285,9 +292,9 @@ public class UserGroupServiceTest {
                             .permissionGroups(Set.of(superAdminPermissionGroupId))
                             .build();
 
-                    assertThat(group.getPolicies()).containsAll(
-                            Set.of(manageGroupPolicy, readGroupPolicy, deleteGroupPolicy, inviteGroupPolicy)
-                    );
+                    assertThat(group.getPolicies())
+                            .containsAll(
+                                    Set.of(manageGroupPolicy, readGroupPolicy, deleteGroupPolicy, inviteGroupPolicy));
                 })
                 .verifyComplete();
     }
@@ -308,7 +315,8 @@ public class UserGroupServiceTest {
         UserGroup update = new UserGroup();
         update.setUsers(Set.of("invalid-user-id"));
 
-        Mono<UserGroup> deleteGroupMono = userGroupService.updateGroup(createdGroup.getId(), update)
+        Mono<UserGroup> deleteGroupMono = userGroupService
+                .updateGroup(createdGroup.getId(), update)
                 .then(userGroupService.findById(createdGroup.getId(), READ_USER_GROUPS));
 
         String finalName = name;
@@ -342,9 +350,9 @@ public class UserGroupServiceTest {
                             .permissionGroups(Set.of(superAdminPermissionGroupId))
                             .build();
 
-                    assertThat(group.getPolicies()).containsAll(
-                            Set.of(manageGroupPolicy, readGroupPolicy, deleteGroupPolicy, inviteGroupPolicy)
-                    );
+                    assertThat(group.getPolicies())
+                            .containsAll(
+                                    Set.of(manageGroupPolicy, readGroupPolicy, deleteGroupPolicy, inviteGroupPolicy));
                 })
                 .verifyComplete();
     }
@@ -359,7 +367,8 @@ public class UserGroupServiceTest {
         permissionGroup.setName(name);
         permissionGroup.setDescription(description);
         // create the role
-        PermissionGroup createdRole = permissionGroupService.create(permissionGroup).block();
+        PermissionGroup createdRole =
+                permissionGroupService.create(permissionGroup).block();
 
         // create the group
         UserGroup userGroup = new UserGroup();
@@ -369,7 +378,8 @@ public class UserGroupServiceTest {
         userGroup.setDescription(description);
         // Let the users be the same as that of super admins in the group
         userGroup.setUsers(superAdminIds);
-        UserGroup createdGroup = userGroupService.createGroup(userGroup)
+        UserGroup createdGroup = userGroupService
+                .createGroup(userGroup)
                 .flatMap(userGroup1 -> userGroupService.findById(userGroup1.getId(), READ_USER_GROUPS))
                 .block();
 
@@ -389,30 +399,29 @@ public class UserGroupServiceTest {
                     assertEquals(createdGroup.getUserPermissions(), group.getUserPermissions());
 
                     // Assert that the api_user is returned properly.
-                    group.getUsers().stream().
-                            filter(user -> user.getUsername().equals(api_user.getUsername()))
+                    group.getUsers().stream()
+                            .filter(user -> user.getUsername().equals(api_user.getUsername()))
                             .findFirst()
-                            .ifPresentOrElse(user -> {
+                            .ifPresentOrElse(
+                                    user -> {
                                         assertEquals(api_user.getName(), user.getName());
                                         assertEquals(api_user.getId(), user.getId());
                                     },
-                                    () -> fail("api_user not found")
-                            );
+                                    () -> fail("api_user not found"));
                     // Assert that the non api super admin user is returned properly.
-                    group.getUsers().stream().
-                            filter(user -> user.getUsername().equals(admin_user.getUsername()))
+                    group.getUsers().stream()
+                            .filter(user -> user.getUsername().equals(admin_user.getUsername()))
                             .findFirst()
-                            .ifPresentOrElse(user -> {
+                            .ifPresentOrElse(
+                                    user -> {
                                         assertEquals(admin_user.getName(), user.getName());
                                         assertEquals(admin_user.getId(), user.getId());
                                     },
-                                    () -> fail("admin user not found")
-
-                            );
+                                    () -> fail("admin user not found"));
 
                     // Assert that the role is returned properly.
-                    assertThat(group.getRoles()).containsExactlyInAnyOrder(
-                            List.of(createdRole).stream()
+                    assertThat(group.getRoles())
+                            .containsExactlyInAnyOrder(List.of(createdRole).stream()
                                     .map(role -> {
                                         PermissionGroupInfoDTO permissionGroupInfoDTO = new PermissionGroupInfoDTO();
                                         permissionGroupInfoDTO.setId(role.getId());
@@ -422,9 +431,7 @@ public class UserGroupServiceTest {
                                         return permissionGroupInfoDTO;
                                     })
                                     .collect(Collectors.toList())
-                                    .get(0)
-                    );
-
+                                    .get(0));
                 })
                 .verifyComplete();
     }
@@ -437,8 +444,9 @@ public class UserGroupServiceTest {
 
         StepVerifier.create(userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin"))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.GROUP_ID))
-                )
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.GROUP_ID)))
                 .verify();
     }
 
@@ -484,8 +492,9 @@ public class UserGroupServiceTest {
 
         StepVerifier.create(userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin"))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.USERNAMES))
-                )
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.USERNAMES)))
                 .verify();
     }
 
@@ -520,7 +529,6 @@ public class UserGroupServiceTest {
                     assertEquals(api_user.getUsername(), group.getUsers().get(0).getUsername());
                 })
                 .verifyComplete();
-
     }
 
     @Test
@@ -559,7 +567,8 @@ public class UserGroupServiceTest {
                     // assert that the user was added to the group
                     assertEquals(1, group1.getUsers().size());
                     assertEquals(api_user.getId(), group1.getUsers().get(0).getId());
-                    assertEquals(api_user.getUsername(), group1.getUsers().get(0).getUsername());
+                    assertEquals(
+                            api_user.getUsername(), group1.getUsers().get(0).getUsername());
 
                     UserGroupDTO group2 = groups.get(1);
                     // assert that updated group did not edit the existing settings
@@ -571,7 +580,8 @@ public class UserGroupServiceTest {
                     // assert that the user was added to the group
                     assertEquals(1, group2.getUsers().size());
                     assertEquals(api_user.getId(), group2.getUsers().get(0).getId());
-                    assertEquals(api_user.getUsername(), group2.getUsers().get(0).getUsername());
+                    assertEquals(
+                            api_user.getUsername(), group2.getUsers().get(0).getUsername());
                 })
                 .verifyComplete();
     }
@@ -594,7 +604,10 @@ public class UserGroupServiceTest {
         inviteUsersToGroupDTO.setGroupIds(Set.of(createdGroup.getId()));
         inviteUsersToGroupDTO.setUsernames(Set.of(usernameNonExistentUser));
 
-        UserGroupDTO userGroupDTO = userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin").block().get(0);
+        UserGroupDTO userGroupDTO = userGroupService
+                .inviteUsers(inviteUsersToGroupDTO, "origin")
+                .block()
+                .get(0);
         assertThat(userGroupDTO.getUsers().size()).isEqualTo(1);
         UserCompactDTO userCompactDTO = userGroupDTO.getUsers().get(0);
         assertThat(userCompactDTO.getUsername()).isEqualTo(usernameNonExistentUser);
@@ -619,8 +632,9 @@ public class UserGroupServiceTest {
 
         StepVerifier.create(userGroupService.removeUsers(removeUsersFromGroupDTO))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.GROUP_ID))
-                )
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.GROUP_ID)))
                 .verify();
     }
 
@@ -632,8 +646,9 @@ public class UserGroupServiceTest {
 
         StepVerifier.create(userGroupService.removeUsers(removeUsersFromGroupDTO))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.USERNAMES))
-                )
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.USERNAMES)))
                 .verify();
     }
 
@@ -657,7 +672,6 @@ public class UserGroupServiceTest {
 
         StepVerifier.create(userGroupService.removeUsers(usersForGroupDTO))
                 .assertNext(groups -> {
-
                     assertThat(groups).hasSize(1);
 
                     UserGroupDTO group = groups.get(0);
@@ -672,7 +686,6 @@ public class UserGroupServiceTest {
                     assertEquals(0, group.getUsers().size());
                 })
                 .verifyComplete();
-
     }
 
     @Test
@@ -720,7 +733,8 @@ public class UserGroupServiceTest {
                     assertThat(groups).hasSize(3);
                     UserGroupDTO group1 = groups.stream()
                             .filter(group -> group.getName().equals(createdGroup.getName()))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
                     // assert that updated group did not edit the existing settings
                     assertEquals(createdGroup.getId(), group1.getId());
                     assertEquals(createdGroup.getTenantId(), group1.getTenantId());
@@ -729,11 +743,13 @@ public class UserGroupServiceTest {
                     // assert that the user was added to the group
                     assertEquals(1, group1.getUsers().size());
                     assertEquals(api_user.getId(), group1.getUsers().get(0).getId());
-                    assertEquals(api_user.getUsername(), group1.getUsers().get(0).getUsername());
+                    assertEquals(
+                            api_user.getUsername(), group1.getUsers().get(0).getUsername());
 
                     UserGroupDTO group2 = groups.stream()
                             .filter(group -> group.getName().equals(createdGroup2.getName()))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
                     // assert that updated group did not edit the existing settings
                     assertEquals(createdGroup2.getId(), group2.getId());
                     assertEquals(createdGroup2.getTenantId(), group2.getTenantId());
@@ -742,11 +758,13 @@ public class UserGroupServiceTest {
                     // assert that the user was added to the group
                     assertEquals(1, group2.getUsers().size());
                     assertEquals(api_user.getId(), group2.getUsers().get(0).getId());
-                    assertEquals(api_user.getUsername(), group2.getUsers().get(0).getUsername());
+                    assertEquals(
+                            api_user.getUsername(), group2.getUsers().get(0).getUsername());
 
                     UserGroupDTO removedGroup = groups.stream()
                             .filter(group -> group.getName().equals(toRemoveCreated.getName()))
-                            .findFirst().get();
+                            .findFirst()
+                            .get();
                     // assert that updated group did not edit the existing settings
                     assertEquals(toRemoveCreated.getId(), removedGroup.getId());
                     assertEquals(toRemoveCreated.getTenantId(), removedGroup.getTenantId());
@@ -754,8 +772,6 @@ public class UserGroupServiceTest {
 
                     // assert that the user was removed from the group
                     assertEquals(0, removedGroup.getUsers().size());
-
-
                 })
                 .verifyComplete();
     }
@@ -772,7 +788,8 @@ public class UserGroupServiceTest {
         UserGroup userGroup = new UserGroup();
         userGroup.setName("Test Group : testGetUserGroup_roleHaveUserPermission");
         userGroup.setDescription("Test Group Description : testGetUserGroup_roleHaveUserPermission");
-        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
                 .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
                 .block();
         assertThat(createdUserGroup.getId()).isNotNull();
@@ -780,15 +797,18 @@ public class UserGroupServiceTest {
         PermissionGroup permissionGroup = new PermissionGroup();
         userGroup.setName("Test Role : testGetUserGroup_roleHaveUserPermission");
         userGroup.setDescription("Test Role Description : testGetUserGroup_roleHaveUserPermission");
-        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+        PermissionGroup createdPermissionGroup =
+                permissionGroupService.create(permissionGroup).block();
         assertThat(createdPermissionGroup.getId()).isNotNull();
 
-        permissionGroupService.assignToUserGroup(createdPermissionGroup, createdUserGroup).block();
+        permissionGroupService
+                .assignToUserGroup(createdPermissionGroup, createdUserGroup)
+                .block();
 
-        UserGroupDTO updatedUserGroup = userGroupService.getGroupById(createdUserGroup.getId()).block();
+        UserGroupDTO updatedUserGroup =
+                userGroupService.getGroupById(createdUserGroup.getId()).block();
         assertThat(updatedUserGroup.getRoles()).hasSize(1);
         assertThat(updatedUserGroup.getRoles().get(0).getUserPermissions()).isNotEmpty();
-
     }
 
     @Test
@@ -799,7 +819,8 @@ public class UserGroupServiceTest {
         UserGroup userGroup = new UserGroup();
         userGroup.setName(testName);
         userGroup.setDescription(testName);
-        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+        UserGroup createdUserGroup = userGroupService
+                .createGroup(userGroup)
                 .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
                 .block();
         assertThat(createdUserGroup.getId()).isNotNull();
@@ -810,7 +831,8 @@ public class UserGroupServiceTest {
         User createdUser1 = userService.userCreate(user1, false).block();
         UserData userData1 = userDataService.getForUser(createdUser1).block();
         userData1.setProfilePhotoAssetId(testName);
-        UserData userData1PostUpdate = userDataService.updateForUser(createdUser1, userData1).block();
+        UserData userData1PostUpdate =
+                userDataService.updateForUser(createdUser1, userData1).block();
 
         // First add the user to toRemove user group
         UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
@@ -818,9 +840,12 @@ public class UserGroupServiceTest {
         inviteUsersToGroupDTO.setUsernames(Set.of(createdUser1.getUsername()));
         userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin").block();
 
-        UserGroupDTO userGroupDTO = userGroupService.getGroupById(createdUserGroup.getId()).block();
+        UserGroupDTO userGroupDTO =
+                userGroupService.getGroupById(createdUserGroup.getId()).block();
         List<UserCompactDTO> users = userGroupDTO.getUsers();
-        Optional<UserCompactDTO> user = users.stream().filter(_user -> createdUser1.getId().equals(_user.getId())).findFirst();
+        Optional<UserCompactDTO> user = users.stream()
+                .filter(_user -> createdUser1.getId().equals(_user.getId()))
+                .findFirst();
         assertThat(user.isPresent()).isTrue();
         assertThat(user.get().getPhotoId()).isEqualTo(testName);
     }
@@ -839,12 +864,14 @@ public class UserGroupServiceTest {
         group1.setName(testName + 1);
         group1.setDescription(testName);
         // Policy of this group have been updated to only be read by createdRole.
-        UserGroup createdGroup1 = userGroupService.createGroup(group1)
+        UserGroup createdGroup1 = userGroupService
+                .createGroup(group1)
                 .flatMap(groupDTO -> userGroupRepository.findById(groupDTO.getId()))
                 .flatMap(group -> {
                     Set<Policy> policies = group.getPolicies();
                     Optional<Policy> optionalReadGroupPolicy = policies.stream()
-                            .filter(policy -> policy.getPermission().equals(READ_USER_GROUPS.getValue())).findFirst();
+                            .filter(policy -> policy.getPermission().equals(READ_USER_GROUPS.getValue()))
+                            .findFirst();
                     if (optionalReadGroupPolicy.isPresent()) {
                         Policy readGroupPolicy = optionalReadGroupPolicy.get();
                         readGroupPolicy.setPermissionGroups(Set.of(createdRole.getId()));
@@ -862,25 +889,170 @@ public class UserGroupServiceTest {
         UserGroup group2 = new UserGroup();
         group2.setName(testName + 2);
         group2.setDescription(testName);
-        UserGroup createdGroup2 = userGroupService.createGroup(group2)
+        UserGroup createdGroup2 = userGroupService
+                .createGroup(group2)
                 .flatMap(groupDTO -> userGroupRepository.findById(groupDTO.getId()))
                 .block();
 
-        List<UserGroupCompactDTO> readableGroups = userGroupService.getAllReadableGroups().block();
+        List<UserGroupCompactDTO> readableGroups =
+                userGroupService.getAllReadableGroups().block();
         assertThat(readableGroups).isNotEmpty();
         // Assert that api_user can read createdGroup1. (Read User Group ability provided only to createdRole.)
-        Optional<UserGroupCompactDTO> groupCompactDTOReadable1 = readableGroups.stream().filter(userGroupCompactDTO -> userGroupCompactDTO.getId().equals(group1.getId())).findFirst();
+        Optional<UserGroupCompactDTO> groupCompactDTOReadable1 = readableGroups.stream()
+                .filter(userGroupCompactDTO -> userGroupCompactDTO.getId().equals(group1.getId()))
+                .findFirst();
         assertThat(groupCompactDTOReadable1.isPresent()).isTrue();
         assertThat(groupCompactDTOReadable1.get().getName()).isEqualTo(createdGroup1.getName());
 
         // Assert that api_user can read createdGroup2. (api_user is super admin.)
-        Optional<UserGroupCompactDTO> groupCompactDTOReadable2 = readableGroups.stream().filter(userGroupCompactDTO -> userGroupCompactDTO.getId().equals(group2.getId())).findFirst();
+        Optional<UserGroupCompactDTO> groupCompactDTOReadable2 = readableGroups.stream()
+                .filter(userGroupCompactDTO -> userGroupCompactDTO.getId().equals(group2.getId()))
+                .findFirst();
         assertThat(groupCompactDTOReadable2.isPresent()).isTrue();
         assertThat(groupCompactDTOReadable2.get().getName()).isEqualTo(createdGroup2.getName());
 
         // Test cleanup
         userGroupRepository.delete(createdGroup1).block();
         userGroupRepository.delete(createdGroup2).block();
+    }
 
+    @Test
+    @WithUserDetails(value = "provisioningUser")
+    public void createProvisionedGroup_checkPermissions() {
+        String testName = "createProvisionedGroup_checkPermissions";
+        String instanceAdminRoleId = userUtils
+                .getSuperAdminPermissionGroup()
+                .map(PermissionGroup::getId)
+                .block();
+
+        String provisioningRoleId =
+                userUtils.getProvisioningRole().map(PermissionGroup::getId).block();
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName);
+        ProvisionResourceDto provisionedGroupDto =
+                userGroupService.createProvisionGroup(userGroup).block();
+        UserGroup provisionedGroup = (UserGroup) provisionedGroupDto.getResource();
+        assertThat(provisionedGroup.getIsProvisioned()).isTrue();
+        Set<Policy> policies = provisionedGroup.getPolicies();
+        Optional<Policy> manageUserGroupPolicy = policies.stream()
+                .filter(policy -> policy.getPermission().equals(MANAGE_USER_GROUPS.getValue()))
+                .findAny();
+        Optional<Policy> deleteUserGroupPolicy = policies.stream()
+                .filter(policy -> policy.getPermission().equals(DELETE_USER_GROUPS.getValue()))
+                .findAny();
+        Optional<Policy> readUserGroupPolicy = policies.stream()
+                .filter(policy -> policy.getPermission().equals(READ_USER_GROUPS.getValue()))
+                .findAny();
+        Optional<Policy> addUsersToUserGroupPolicy = policies.stream()
+                .filter(policy -> policy.getPermission().equals(ADD_USERS_TO_USER_GROUPS.getValue()))
+                .findAny();
+        Optional<Policy> removeUsersFromUserGroupPolicy = policies.stream()
+                .filter(policy -> policy.getPermission().equals(REMOVE_USERS_FROM_USER_GROUPS.getValue()))
+                .findAny();
+
+        assertThat(manageUserGroupPolicy.isPresent()).isTrue();
+        assertThat(deleteUserGroupPolicy.isPresent()).isTrue();
+        assertThat(readUserGroupPolicy.isPresent()).isTrue();
+        assertThat(addUsersToUserGroupPolicy.isPresent()).isTrue();
+        assertThat(removeUsersFromUserGroupPolicy.isPresent()).isTrue();
+
+        // Instance Admin has the permission to read user groups.
+        assertThat(readUserGroupPolicy.get().getPermissionGroups()).contains(provisioningRoleId, instanceAdminRoleId);
+        // Instance Admin has no permission to manage, delete, add users to, remove users from user groups.
+        assertThat(manageUserGroupPolicy.get().getPermissionGroups()).containsExactly(provisioningRoleId);
+        assertThat(deleteUserGroupPolicy.get().getPermissionGroups()).containsExactly(provisioningRoleId);
+        assertThat(addUsersToUserGroupPolicy.get().getPermissionGroups()).containsExactly(provisioningRoleId);
+        assertThat(removeUsersFromUserGroupPolicy.get().getPermissionGroups()).containsExactly(provisioningRoleId);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteRegularGroupAsInstanceAdmin_userGroupShouldGetDeleted() {
+        String testName = "deleteRegularGroupAsInstanceAdmin_userGroupShouldGetDeleted";
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName);
+        UserGroupDTO userGroupDto = userGroupService.createGroup(userGroup).block();
+
+        userGroupService.archiveById(userGroupDto.getId()).block();
+        UserGroup userGroupDeleted =
+                userGroupRepository.findById(userGroupDto.getId()).block();
+        assertThat(userGroupDeleted).isNull();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void deleteProvisionedUserGroupAsInstanceAdmin_throwUnauthorisedError() {
+        String testName = "deleteProvisionedUserGroupAsInstanceAdmin_throwUnauthorisedError";
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName);
+        ProvisionResourceDto createdUserGroup =
+                userGroupService.createProvisionGroup(userGroup).block();
+
+        AppsmithException unauthorisedException = assertThrows(AppsmithException.class, () -> {
+            userGroupService.archiveById(createdUserGroup.getResource().getId()).block();
+        });
+        assertThat(unauthorisedException.getMessage()).isEqualTo(AppsmithError.UNAUTHORIZED_ACCESS.getMessage());
+
+        userRepository.deleteById(createdUserGroup.getResource().getId()).block();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void createProvisionedUserGroup_RegularUserGroup_getAllUserGroupsShouldReturnBoth_toApiUser() {
+        String testName = "createProvisionedUserGroup_RegularUserGroup_getAllUserGroupsShouldReturnBoth_toApiUser";
+
+        UserGroup userGroup_provisioning = new UserGroup();
+        userGroup_provisioning.setName(testName + "_provisionedGroup");
+        ProvisionResourceDto provisionedUserGroup =
+                userGroupService.createProvisionGroup(userGroup_provisioning).block();
+
+        UserGroup userGroup_regular = new UserGroup();
+        userGroup_regular.setName(testName + "_regularGroup");
+        UserGroupDTO userGroupDTO =
+                userGroupService.createGroup(userGroup_regular).block();
+
+        List<UserGroupCompactDTO> userGroupCompactDTOList =
+                userGroupService.getAllReadableGroups().block();
+        Optional<UserGroupCompactDTO> provisionGroup = userGroupCompactDTOList.stream()
+                .filter(userGroupCompactDTO -> userGroupCompactDTO.getName().equals(userGroup_provisioning.getName()))
+                .findAny();
+        Optional<UserGroupCompactDTO> regularGroup = userGroupCompactDTOList.stream()
+                .filter(userGroupCompactDTO -> userGroupCompactDTO.getName().equals(userGroup_regular.getName()))
+                .findAny();
+        assertThat(regularGroup.isPresent()).isTrue();
+        assertThat(provisionGroup.isPresent()).isTrue();
+    }
+
+    @Test
+    @WithUserDetails("provisioningUser")
+    public void createProvisionedUserGroup_RegularUserGroup_getAllUserGroupsShouldReturnBoth_toProvisioningUser() {
+        String testName =
+                "createProvisionedUserGroup_RegularUserGroup_getAllUserGroupsShouldReturnProvisioningUserGroup_toProvisioningUser";
+
+        UserGroup userGroup_provisioning = new UserGroup();
+        userGroup_provisioning.setName(testName + "_provisionedGroup");
+        ProvisionResourceDto provisionedUserGroup =
+                userGroupService.createProvisionGroup(userGroup_provisioning).block();
+
+        UserGroup userGroup_regular = new UserGroup();
+        userGroup_regular.setName(testName + "_regularGroup");
+        UserGroupDTO userGroupDTO =
+                userGroupService.createGroup(userGroup_regular).block();
+
+        assertThat(userGroupDTO).isNull();
+
+        List<UserGroupCompactDTO> userGroupCompactDTOList =
+                userGroupService.getAllReadableGroups().block();
+        Optional<UserGroupCompactDTO> provisionGroup = userGroupCompactDTOList.stream()
+                .filter(userGroupCompactDTO -> userGroupCompactDTO.getName().equals(userGroup_provisioning.getName()))
+                .findAny();
+        Optional<UserGroupCompactDTO> regularGroup = userGroupCompactDTOList.stream()
+                .filter(userGroupCompactDTO -> userGroupCompactDTO.getName().equals(userGroup_regular.getName()))
+                .findAny();
+        assertThat(regularGroup.isPresent()).isFalse();
+        assertThat(provisionGroup.isPresent()).isTrue();
     }
 }

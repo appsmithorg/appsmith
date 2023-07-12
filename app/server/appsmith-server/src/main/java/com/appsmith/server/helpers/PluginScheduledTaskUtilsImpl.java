@@ -15,10 +15,11 @@ public class PluginScheduledTaskUtilsImpl extends PluginScheduledTaskUtilsCEImpl
 
     private final AirgapInstanceConfig airgapInstanceConfig;
 
-    public PluginScheduledTaskUtilsImpl(ConfigService configService,
-                                        PluginService pluginService,
-                                        CloudServicesConfig cloudServicesConfig,
-                                        AirgapInstanceConfig airgapInstanceConfig) {
+    public PluginScheduledTaskUtilsImpl(
+            ConfigService configService,
+            PluginService pluginService,
+            CloudServicesConfig cloudServicesConfig,
+            AirgapInstanceConfig airgapInstanceConfig) {
         super(configService, pluginService, cloudServicesConfig);
         this.airgapInstanceConfig = airgapInstanceConfig;
     }
@@ -30,5 +31,4 @@ public class PluginScheduledTaskUtilsImpl extends PluginScheduledTaskUtilsCEImpl
         }
         return super.fetchAndUpdateRemotePlugins(lastUpdatedAt);
     }
-
 }

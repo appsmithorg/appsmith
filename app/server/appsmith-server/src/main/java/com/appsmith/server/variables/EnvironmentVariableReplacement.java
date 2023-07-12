@@ -11,5 +11,4 @@ public class EnvironmentVariableReplacement implements ServerSideVariableReplace
         // To do read the environment variables in constructor
         return Mono.empty();
     }
-
 }

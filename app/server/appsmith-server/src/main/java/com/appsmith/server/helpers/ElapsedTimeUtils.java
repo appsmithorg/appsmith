@@ -13,7 +13,8 @@ public class ElapsedTimeUtils {
     public static String EXECUTION_WIDGET_SUGGESTION = "EXECUTION_WIDGET_SUGGESTION";
 
     public static <T> T addElapsedTimeToContext(Timed<T> timedInput, String contextKey) {
-        String elapsedValue = timedInput.timestamp() + " ___ " + timedInput.elapsed().toMillis();
+        String elapsedValue =
+                timedInput.timestamp() + " ___ " + timedInput.elapsed().toMillis();
         log.debug("Elapsed value: {} {}", contextKey, elapsedValue);
         MDC.put(contextKey, elapsedValue);
         return timedInput.get();

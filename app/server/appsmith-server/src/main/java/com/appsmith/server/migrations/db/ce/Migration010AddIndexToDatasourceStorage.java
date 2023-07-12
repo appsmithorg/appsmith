@@ -26,7 +26,8 @@ public class Migration010AddIndexToDatasourceStorage {
 
     @Execution
     public void addingIndexToDatasourceStorage() {
-        Index datasourceIdAndEnvironmentId = makeIndex("datasourceId", "environmentId", "deletedAt").unique()
+        Index datasourceIdAndEnvironmentId = makeIndex("datasourceId", "environmentId", "deletedAt")
+                .unique()
                 .named("datasource_storage_compound_index");
 
         ensureIndexes(mongoTemplate, DatasourceStorage.class, datasourceIdAndEnvironmentId);

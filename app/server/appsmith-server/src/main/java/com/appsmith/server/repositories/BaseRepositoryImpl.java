@@ -59,30 +59,31 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  *             Ref: https://theappsmith.slack.com/archives/CPQNLFHTN/p1669100205502599?thread_ts=1668753437.497369&cid=CPQNLFHTN
  */
 @Slf4j
-public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> extends SimpleReactiveMongoRepository<T, ID>
-        implements BaseRepository<T, ID> {
+public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
+        extends SimpleReactiveMongoRepository<T, ID> implements BaseRepository<T, ID> {
 
     protected final MongoEntityInformation<T, ID> entityInformation;
     protected final ReactiveMongoOperations mongoOperations;
 
-    public BaseRepositoryImpl(@NonNull MongoEntityInformation<T, ID> entityInformation,
-                              @NonNull ReactiveMongoOperations mongoOperations) {
+    public BaseRepositoryImpl(
+            @NonNull MongoEntityInformation<T, ID> entityInformation,
+            @NonNull ReactiveMongoOperations mongoOperations) {
         super(entityInformation, mongoOperations);
         this.entityInformation = entityInformation;
         this.mongoOperations = mongoOperations;
     }
 
     protected Criteria notDeleted() {
-        return new Criteria().andOperator(
-                new Criteria().orOperator(
-                        where(FieldName.DELETED).exists(false),
-                        where(FieldName.DELETED).is(false)
-                ),
-                new Criteria().orOperator(
-                        where(FieldName.DELETED_AT).exists(false),
-                        where(FieldName.DELETED_AT).is(null)
-                )
-        );
+        return new Criteria()
+                .andOperator(
+                        new Criteria()
+                                .orOperator(
+                                        where(FieldName.DELETED).exists(false),
+                                        where(FieldName.DELETED).is(false)),
+                        new Criteria()
+                                .orOperator(
+                                        where(FieldName.DELETED_AT).exists(false),
+                                        where(FieldName.DELETED_AT).is(null)));
     }
 
     private Criteria getIdCriteria(Object id) {
@@ -111,7 +112,8 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                         });
                     }
 
-                    return mongoOperations.query(entityInformation.getJavaType())
+                    return mongoOperations
+                            .query(entityInformation.getJavaType())
                             .inCollection(entityInformation.getCollectionName())
                             .matching(query)
                             .one();
@@ -123,7 +125,8 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
         Query query = new Query(getIdCriteria(id));
         query.addCriteria(notDeleted());
 
-        return mongoOperations.query(entityInformation.getJavaType())
+        return mongoOperations
+                .query(entityInformation.getJavaType())
                 .inCollection(entityInformation.getCollectionName())
                 .matching(query)
                 .one();
@@ -167,7 +170,8 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                 .map(auth -> auth.getPrincipal())
                 .flatMapMany(principal -> {
                     Query query = new Query(notDeleted());
-                    return mongoOperations.find(query, entityInformation.getJavaType(), entityInformation.getCollectionName());
+                    return mongoOperations.find(
+                            query, entityInformation.getJavaType(), entityInformation.getCollectionName());
                 });
     }
 
@@ -180,21 +184,20 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
                 .flatMapMany(principal -> {
-
-                    Criteria criteria = new Criteria().andOperator(
-                            //Older check for deleted
-                            new Criteria().orOperator(
-                                    where(FieldName.DELETED).exists(false),
-                                    where(FieldName.DELETED).is(false)
-                            ),
-                            //New check for deleted
-                            new Criteria().orOperator(
-                                    where(FieldName.DELETED_AT).exists(false),
-                                    where(FieldName.DELETED_AT).is(null)
-                            ),
-                            // Set the criteria as the example
-                            new Criteria().alike(example)
-                    );
+                    Criteria criteria = new Criteria()
+                            .andOperator(
+                                    // Older check for deleted
+                                    new Criteria()
+                                            .orOperator(
+                                                    where(FieldName.DELETED).exists(false),
+                                                    where(FieldName.DELETED).is(false)),
+                                    // New check for deleted
+                                    new Criteria()
+                                            .orOperator(
+                                                    where(FieldName.DELETED_AT).exists(false),
+                                                    where(FieldName.DELETED_AT).is(null)),
+                                    // Set the criteria as the example
+                                    new Criteria().alike(example));
 
                     Query query = new Query(criteria)
                             .collation(entityInformation.getCollation()) //
@@ -239,7 +242,8 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                     Update update = new Update();
                     update.set(FieldName.DELETED, true);
                     update.set(FieldName.DELETED_AT, Instant.now());
-                    return mongoOperations.updateFirst(query, update, entityInformation.getJavaType())
+                    return mongoOperations
+                            .updateFirst(query, update, entityInformation.getJavaType())
                             .map(result -> result.getModifiedCount() > 0 ? true : false);
                 });
     }
@@ -260,7 +264,8 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                     Update update = new Update();
                     update.set(FieldName.DELETED, true);
                     update.set(FieldName.DELETED_AT, Instant.now());
-                    return mongoOperations.updateMulti(query, update, entityInformation.getJavaType())
+                    return mongoOperations
+                            .updateMulti(query, update, entityInformation.getJavaType())
                             .map(result -> result.getModifiedCount() > 0 ? true : false);
                 });
     }

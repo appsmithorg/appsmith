@@ -11,9 +11,7 @@ describe("JSON Form Widget AutoGenerate Disabled", () => {
   });
 
   it("generates fields with valid source data json", () => {
-    cy.fixture("jsonFormDslWithSchemaAndWithoutSourceData").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("jsonFormDslWithSchemaAndWithoutSourceData");
 
     cy.openPropertyPane("jsonformwidget");
 
@@ -113,9 +111,7 @@ describe("JSON Form Widget AutoGenerate Disabled", () => {
   });
 
   it("modifies field when generate form button is pressed", () => {
-    cy.fixture("jsonFormDslWithSchemaAndWithoutSourceData").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("jsonFormDslWithSchemaAndWithoutSourceData");
 
     cy.openPropertyPane("jsonformwidget");
 

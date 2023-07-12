@@ -13,5 +13,4 @@ public interface CustomApplicationRepository extends CustomApplicationRepository
     Flux<Application> findDefaultApplicationsByWorkspaceIds(Set<String> workspaceIds);
 
     Flux<Application> getAllApplicationsInWorkspace(String workspaceId, Optional<AclPermission> aclPermission);
-
 }

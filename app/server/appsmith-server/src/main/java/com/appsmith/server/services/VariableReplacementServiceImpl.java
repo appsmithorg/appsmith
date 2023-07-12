@@ -2,8 +2,8 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.server.helpers.AngularHelper;
-import com.appsmith.server.variables.ServerSideVariable;
 import com.appsmith.server.variables.EnvironmentVariableReplacement;
+import com.appsmith.server.variables.ServerSideVariable;
 import com.appsmith.server.variables.ServerSideVariableReplacement;
 import com.appsmith.server.variables.VariableReplacementFactory;
 import org.springframework.stereotype.Component;
@@ -57,11 +57,10 @@ public class VariableReplacementServiceImpl implements VariableReplacementServic
                             .flatMap(bool -> {
                                 // We have successfully managed to find a replacement for the variable
                                 if (bool.equals(Boolean.TRUE)) {
-                                    return replacedValueMono
-                                            .map(value -> {
-                                                replacementMap.put(variable, value);
-                                                return Boolean.TRUE;
-                                            });
+                                    return replacedValueMono.map(value -> {
+                                        replacementMap.put(variable, value);
+                                        return Boolean.TRUE;
+                                    });
                                 }
 
                                 return Mono.just(Boolean.FALSE);
@@ -70,5 +69,4 @@ public class VariableReplacementServiceImpl implements VariableReplacementServic
                 .then(Mono.just(replacementMap))
                 .map(finalMap -> AngularHelper.renderFieldValues(domain, finalMap));
     }
-
 }

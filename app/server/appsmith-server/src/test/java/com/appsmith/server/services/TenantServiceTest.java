@@ -2,10 +2,12 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.configurations.LicenseConfig;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicenseOrigin;
+import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.constants.LicenseType;
-import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
@@ -98,46 +100,48 @@ public class TenantServiceTest {
         // Todo change this to tenant admin once we introduce multitenancy
         userUtils.makeSuperUser(List.of(api_user)).block();
     }
-    
+
     @Test
     @WithUserDetails("anonymousUser")
     public void getTenantConfig_Valid_AnonymousUser() {
         StepVerifier.create(tenantService.getTenantConfiguration())
                 .assertNext(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                    assertThat(tenantConfiguration.getWhiteLabelLogo()).isEqualTo(tenant.getTenantConfiguration().getWhiteLabelLogo());
-                    assertThat(tenantConfiguration.getWhiteLabelFavicon()).isEqualTo(tenant.getTenantConfiguration().getWhiteLabelFavicon());
+                    assertThat(tenantConfiguration.getWhiteLabelLogo())
+                            .isEqualTo(tenant.getTenantConfiguration().getWhiteLabelLogo());
+                    assertThat(tenantConfiguration.getWhiteLabelFavicon())
+                            .isEqualTo(tenant.getTenantConfiguration().getWhiteLabelFavicon());
                     assertThat(tenantConfiguration.getWhiteLabelEnable()).isNullOrEmpty();
                 })
                 .verifyComplete();
-
     }
 
     @Test
     @WithUserDetails("api_user")
     public void updateTenantLicenseKey_validLicenseKey_Success() {
         String licenseKey = "sample-license-key";
-        TenantConfiguration.License license = new TenantConfiguration.License();
+        License license = new License();
         license.setActive(true);
         license.setType(LicenseType.PAID);
         license.setKey(licenseKey);
         license.setStatus(LicenseStatus.valueOf("ACTIVE"));
         license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
         license.setOrigin(LicenseOrigin.SELF_SERVE);
+        license.setPlan(LicensePlan.SELF_SERVE);
 
         // Mock CS response to get valid license
-        Mockito.when(licenseValidator.licenseCheck(any()))
-                .thenReturn(Mono.just(license));
+        Mockito.when(licenseValidator.licenseCheck(any())).thenReturn(Mono.just(license));
 
         StepVerifier.create(tenantService.updateTenantLicenseKey(licenseKey))
                 .assertNext(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                    TenantConfiguration.License savedLicense = tenantConfiguration.getLicense();
+                    License savedLicense = tenantConfiguration.getLicense();
                     assertThat(savedLicense.getKey()).isEqualTo(DataTypeStringUtils.maskString(licenseKey, 8, 32, 'x'));
                     assertThat(savedLicense.getActive()).isTrue();
                     assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                     assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
                     assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
+                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.SELF_SERVE);
                     assertThat(savedLicense.getStatus()).isEqualTo(LicenseStatus.ACTIVE);
                     assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
                 })
@@ -147,12 +151,13 @@ public class TenantServiceTest {
         StepVerifier.create(tenantService.getDefaultTenant())
                 .assertNext(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                    TenantConfiguration.License savedLicense = tenantConfiguration.getLicense();
+                    License savedLicense = tenantConfiguration.getLicense();
                     assertThat(savedLicense.getKey()).isEqualTo(licenseKey);
                     assertThat(savedLicense.getActive()).isTrue();
                     assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
                     assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
                     assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
+                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.SELF_SERVE);
                     assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
                 })
                 .verifyComplete();
@@ -162,64 +167,65 @@ public class TenantServiceTest {
     @WithUserDetails("api_user")
     public void updateTenantLicenseKey_licenseInGracePeriod_Success() {
         String licenseKey = UUID.randomUUID().toString();
-        TenantConfiguration.License license = new TenantConfiguration.License();
+        License license = new License();
         license.setActive(true);
         license.setType(LicenseType.PAID);
         license.setKey(licenseKey);
         license.setStatus(LicenseStatus.valueOf("IN_GRACE_PERIOD"));
         license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
         license.setOrigin(LicenseOrigin.SELF_SERVE);
+        license.setPlan(LicensePlan.SELF_SERVE);
 
         // Mock CS response to get valid license
-        Mockito.when(licenseValidator.licenseCheck(any()))
-            .thenReturn(Mono.just(license));
+        Mockito.when(licenseValidator.licenseCheck(any())).thenReturn(Mono.just(license));
 
         StepVerifier.create(tenantService.updateTenantLicenseKey(licenseKey))
-            .assertNext(tenant -> {
-                TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                TenantConfiguration.License savedLicense = tenantConfiguration.getLicense();
-                assertThat(savedLicense.getKey()).isEqualTo(DataTypeStringUtils.maskString(licenseKey, 8, 32, 'x'));
-                assertThat(savedLicense.getActive()).isTrue();
-                assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
-                assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
-                assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
-                assertThat(savedLicense.getStatus()).isEqualTo(LicenseStatus.IN_GRACE_PERIOD);
-                assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
-            })
-            .verifyComplete();
+                .assertNext(tenant -> {
+                    TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+                    License savedLicense = tenantConfiguration.getLicense();
+                    assertThat(savedLicense.getKey()).isEqualTo(DataTypeStringUtils.maskString(licenseKey, 8, 32, 'x'));
+                    assertThat(savedLicense.getActive()).isTrue();
+                    assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
+                    assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
+                    assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
+                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.SELF_SERVE);
+                    assertThat(savedLicense.getStatus()).isEqualTo(LicenseStatus.IN_GRACE_PERIOD);
+                    assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
+                })
+                .verifyComplete();
 
         // Verify getTenantConfiguration() has license details after setting a valid license
         StepVerifier.create(tenantService.getDefaultTenant())
-            .assertNext(tenant -> {
-                TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                TenantConfiguration.License savedLicense = tenantConfiguration.getLicense();
-                assertThat(savedLicense.getKey()).isEqualTo(licenseKey);
-                assertThat(savedLicense.getActive()).isTrue();
-                assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
-                assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
-                assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
-                assertThat(savedLicense.getStatus()).isEqualTo(LicenseStatus.IN_GRACE_PERIOD);
-                assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
-            })
-            .verifyComplete();
+                .assertNext(tenant -> {
+                    TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+                    License savedLicense = tenantConfiguration.getLicense();
+                    assertThat(savedLicense.getKey()).isEqualTo(licenseKey);
+                    assertThat(savedLicense.getActive()).isTrue();
+                    assertThat(savedLicense.getType()).isEqualTo(LicenseType.PAID);
+                    assertThat(savedLicense.getExpiry()).isAfter(Instant.now());
+                    assertThat(savedLicense.getOrigin()).isEqualTo(LicenseOrigin.SELF_SERVE);
+                    assertThat(savedLicense.getPlan()).isEqualTo(LicensePlan.SELF_SERVE);
+                    assertThat(savedLicense.getStatus()).isEqualTo(LicenseStatus.IN_GRACE_PERIOD);
+                    assertThat(tenantConfiguration.getLicense()).isEqualTo(savedLicense);
+                })
+                .verifyComplete();
     }
 
     @Test
     @WithUserDetails("api_user")
     public void updateTenantLicenseKey_Invalid_LicenseKey() {
         String licenseKey = UUID.randomUUID().toString();
-        TenantConfiguration.License license = new TenantConfiguration.License();
+        License license = new License();
         license.setActive(false);
         license.setKey(licenseKey);
 
         // Mock CS response to get invalid license
-        Mockito.when(licenseValidator.licenseCheck(any()))
-            .thenReturn(Mono.just(license));
+        Mockito.when(licenseValidator.licenseCheck(any())).thenReturn(Mono.just(license));
 
         Mono<Tenant> addLicenseKeyMono = tenantService.updateTenantLicenseKey(licenseKey);
         StepVerifier.create(addLicenseKeyMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                    throwable.getMessage().equals(AppsmithError.INVALID_LICENSE_KEY_ENTERED.getMessage()))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.INVALID_LICENSE_KEY_ENTERED.getMessage()))
                 .verify();
     }
 
@@ -227,37 +233,48 @@ public class TenantServiceTest {
     @WithUserDetails("usertest@usertest.com")
     public void updateTenantLicenseKey_missingManageTenantPermission_throwsException() {
         String licenseKey = "SOME-INVALID-LICENSE-KEY";
-        TenantConfiguration.License license = new TenantConfiguration.License();
+        License license = new License();
         license.setActive(false);
         license.setKey(licenseKey);
 
         // Mock CS response to get invalid license
-        Mockito.when(licenseValidator.licenseCheck(any()))
-            .thenReturn(Mono.just(license));
+        Mockito.when(licenseValidator.licenseCheck(any())).thenReturn(Mono.just(license));
 
         Mono<Tenant> addLicenseKeyMono = tenantService.updateTenantLicenseKey(licenseKey);
         StepVerifier.create(addLicenseKeyMono)
-            .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                && throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.TENANT, FieldName.DEFAULT)))
-            .verify();
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(
+                                        FieldName.TENANT, FieldName.DEFAULT)))
+                .verify();
     }
 
     @Test
     @WithUserDetails("api_user")
     public void test_getTenantConfiguration_returnsNullLicense_ifNoLicensePresent() {
-        TenantConfiguration.License license = new TenantConfiguration.License();
+        License license = new License();
 
         // Mock CS response to get valid license
-        Mockito.when(licenseValidator.licenseCheck(any()))
-                .thenReturn(Mono.just(license));
+        Mockito.when(licenseValidator.licenseCheck(any())).thenReturn(Mono.just(license));
         // Performing same process as a scheduled license check
         tenantService.checkAndUpdateDefaultTenantLicense().block();
 
-        // Verify getTenantConfiguration() should have null license after updating with empty License object
+        // Verify getTenantConfiguration() should have a license with plan only after updating with empty License object
         StepVerifier.create(tenantService.getTenantConfiguration())
                 .assertNext(tenant -> {
                     assertThat(tenant.getTenantConfiguration()).isNotNull();
-                    assertThat(tenant.getTenantConfiguration().getLicense()).isNull();
+                    assertThat(tenant.getTenantConfiguration().getLicense()).isNotNull();
+                    License freeLicense = tenant.getTenantConfiguration().getLicense();
+                    assertThat(freeLicense.getPlan()).isEqualTo(LicensePlan.FREE);
+
+                    assertThat(freeLicense.getActive()).isNull();
+                    assertThat(freeLicense.getId()).isNull();
+                    assertThat(freeLicense.getKey()).isNull();
+                    assertThat(freeLicense.getType()).isNull();
+                    assertThat(freeLicense.getExpiry()).isNull();
+                    assertThat(freeLicense.getStatus()).isNull();
+                    assertThat(freeLicense.getOrigin()).isNull();
                 })
                 .verifyComplete();
     }
@@ -271,51 +288,74 @@ public class TenantServiceTest {
         UserGroup userGroup = new UserGroup();
         userGroup.setName(testName);
         userGroup.setUsers(Set.of(apiUser.getId()));
-        UserGroupDTO createdUserGroupDTO = userGroupService.createGroup(userGroup).block();
+        UserGroupDTO createdUserGroupDTO =
+                userGroupService.createGroup(userGroup).block();
 
-        List<String> assignedToRoles = permissionGroupRepository.findByAssignedToUserIdsIn(apiUser.getId())
+        List<String> assignedToRoles = permissionGroupRepository
+                .findByAssignedToUserIdsIn(apiUser.getId())
                 .filter(role -> !PermissionGroupUtils.isUserManagementRole(role))
                 .map(PermissionGroup::getName)
-                .collectList().block();
+                .collectList()
+                .block();
 
-        List<String> memberOfGroups = userGroupRepository.findAllByUsersIn(Set.of(apiUser.getId()))
+        List<String> memberOfGroups = userGroupRepository
+                .findAllByUsersIn(Set.of(apiUser.getId()))
                 .map(UserGroup::getName)
-                .collectList().block();
+                .collectList()
+                .block();
 
         // Set the showRolesAndGroups property in tenant configuration to True.
         TenantConfiguration tenantConfiguration_showRolesAndGroupsTrue = new TenantConfiguration();
         tenantConfiguration_showRolesAndGroupsTrue.setShowRolesAndGroups(true);
-        Tenant updatedTenant_showRolesAndGroupsTrue = tenantService.updateDefaultTenantConfiguration(tenantConfiguration_showRolesAndGroupsTrue).block();
+        Tenant updatedTenant_showRolesAndGroupsTrue = tenantService
+                .updateDefaultTenantConfiguration(tenantConfiguration_showRolesAndGroupsTrue)
+                .block();
 
-        Assertions.assertThat(updatedTenant_showRolesAndGroupsTrue.getTenantConfiguration()).isNotNull();
-        Assertions.assertThat(updatedTenant_showRolesAndGroupsTrue.getTenantConfiguration().getShowRolesAndGroups()).isTrue();
+        Assertions.assertThat(updatedTenant_showRolesAndGroupsTrue.getTenantConfiguration())
+                .isNotNull();
+        Assertions.assertThat(updatedTenant_showRolesAndGroupsTrue
+                        .getTenantConfiguration()
+                        .getShowRolesAndGroups())
+                .isTrue();
 
         // Roles and Groups information should be present in the User Profile.
-        UserProfileDTO userProfileDTO_shouldContainRolesAndGroupInfo = sessionUserService.getCurrentUser()
+        UserProfileDTO userProfileDTO_shouldContainRolesAndGroupInfo = sessionUserService
+                .getCurrentUser()
                 .flatMap(userService::buildUserProfileDTO)
                 .block();
 
-        Assertions.assertThat(userProfileDTO_shouldContainRolesAndGroupInfo.getRoles()).isNotEmpty();
-        Assertions.assertThat(userProfileDTO_shouldContainRolesAndGroupInfo.getRoles()).containsExactlyInAnyOrderElementsOf(assignedToRoles);
-        Assertions.assertThat(userProfileDTO_shouldContainRolesAndGroupInfo.getGroups()).isNotEmpty();
-        Assertions.assertThat(userProfileDTO_shouldContainRolesAndGroupInfo.getGroups()).containsExactlyInAnyOrderElementsOf(memberOfGroups);
-
+        Assertions.assertThat(userProfileDTO_shouldContainRolesAndGroupInfo.getRoles())
+                .isNotEmpty();
+        Assertions.assertThat(userProfileDTO_shouldContainRolesAndGroupInfo.getRoles())
+                .containsExactlyInAnyOrderElementsOf(assignedToRoles);
+        Assertions.assertThat(userProfileDTO_shouldContainRolesAndGroupInfo.getGroups())
+                .isNotEmpty();
+        Assertions.assertThat(userProfileDTO_shouldContainRolesAndGroupInfo.getGroups())
+                .containsExactlyInAnyOrderElementsOf(memberOfGroups);
 
         // Set the showRolesAndGroups property in tenant configuration to False.
         TenantConfiguration tenantConfiguration_showRolesAndGroupsFalse = new TenantConfiguration();
         tenantConfiguration_showRolesAndGroupsFalse.setShowRolesAndGroups(false);
-        Tenant updatedTenant_showRolesAndGroupsFalse = tenantService.updateDefaultTenantConfiguration(tenantConfiguration_showRolesAndGroupsFalse).block();
+        Tenant updatedTenant_showRolesAndGroupsFalse = tenantService
+                .updateDefaultTenantConfiguration(tenantConfiguration_showRolesAndGroupsFalse)
+                .block();
 
-        Assertions.assertThat(updatedTenant_showRolesAndGroupsFalse.getTenantConfiguration()).isNotNull();
-        Assertions.assertThat(updatedTenant_showRolesAndGroupsFalse.getTenantConfiguration().getShowRolesAndGroups()).isFalse();
-
+        Assertions.assertThat(updatedTenant_showRolesAndGroupsFalse.getTenantConfiguration())
+                .isNotNull();
+        Assertions.assertThat(updatedTenant_showRolesAndGroupsFalse
+                        .getTenantConfiguration()
+                        .getShowRolesAndGroups())
+                .isFalse();
 
         // Roles and Groups information should not be present in the User Profile.
-        UserProfileDTO userProfileDTO_shouldNotContainRolesAndGroupInfo = sessionUserService.getCurrentUser()
+        UserProfileDTO userProfileDTO_shouldNotContainRolesAndGroupInfo = sessionUserService
+                .getCurrentUser()
                 .flatMap(userService::buildUserProfileDTO)
                 .block();
 
-        Assertions.assertThat(userProfileDTO_shouldNotContainRolesAndGroupInfo.getRoles()).isNullOrEmpty();
-        Assertions.assertThat(userProfileDTO_shouldNotContainRolesAndGroupInfo.getGroups()).isNullOrEmpty();
+        Assertions.assertThat(userProfileDTO_shouldNotContainRolesAndGroupInfo.getRoles())
+                .isNullOrEmpty();
+        Assertions.assertThat(userProfileDTO_shouldNotContainRolesAndGroupInfo.getGroups())
+                .isNullOrEmpty();
     }
 }

@@ -39,7 +39,7 @@ import type {
   ModifyMetaWidgetPayload,
   UpdateMetaWidgetPropertyPayload,
 } from "reducers/entityReducers/metaWidgetsReducer";
-import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import shallowequal from "shallowequal";
 import type { CSSProperties } from "styled-components";
@@ -508,6 +508,10 @@ abstract class BaseWidget<
     );
   }
 
+  get isAutoLayoutMode() {
+    return this.props.appPositioningType === AppPositioningTypes.AUTO;
+  }
+
   addErrorBoundary(content: ReactNode) {
     return <ErrorBoundary>{content}</ErrorBoundary>;
   }
@@ -863,6 +867,12 @@ export const WIDGET_DISPLAY_PROPS = {
   isDisabled: true,
   backgroundColor: true,
 };
+export interface WidgetError extends Error {
+  type: "property" | "configuration" | "other";
+}
+export interface WidgetErrorProps {
+  errors?: WidgetError[];
+}
 
 export interface WidgetDisplayProps {
   //TODO(abhinav): Some of these props are mandatory
@@ -878,6 +888,7 @@ export interface WidgetDisplayProps {
 
 export interface WidgetDataProps
   extends WidgetBaseProps,
+    WidgetErrorProps,
     WidgetPositionProps,
     WidgetDisplayProps {}
 

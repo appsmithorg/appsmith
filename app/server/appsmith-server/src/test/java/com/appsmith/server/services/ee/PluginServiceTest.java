@@ -59,9 +59,8 @@ public class PluginServiceTest {
     @MockBean
     PluginManager pluginManager;
 
-    final Set<String> unsupportedPluginPackageNameInAirgap = Set.of(
-        SAAS_PLUGIN, RAPID_API_PLUGIN, GOOGLE_SHEETS_PLUGIN
-    );
+    final Set<String> unsupportedPluginPackageNameInAirgap =
+            Set.of(SAAS_PLUGIN, RAPID_API_PLUGIN, GOOGLE_SHEETS_PLUGIN);
 
     @BeforeEach
     public void setup() throws IOException {
@@ -69,7 +68,8 @@ public class PluginServiceTest {
         final ClassPathResource mockExample = new ClassPathResource("test_assets/PluginServiceTest/mock-example.json");
         final ClassLoader classLoader = Mockito.mock(ClassLoader.class);
         Mockito.when(classLoader.getResourceAsStream("editor/root.json")).thenReturn(mockEditor.getInputStream());
-        Mockito.when(classLoader.getResourceAsStream("editor/mock-example.json")).thenReturn(mockExample.getInputStream());
+        Mockito.when(classLoader.getResourceAsStream("editor/mock-example.json"))
+                .thenReturn(mockExample.getInputStream());
         final PluginWrapper pluginWrapper = Mockito.mock(PluginWrapper.class);
         Mockito.when(pluginWrapper.getPluginClassLoader()).thenReturn(classLoader);
         Mockito.when(pluginManager.getPlugin(Mockito.anyString())).thenReturn(pluginWrapper);
@@ -79,8 +79,10 @@ public class PluginServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetAllPluginIconLocation() {
-        Map<String, Plugin> pluginMap = pluginRepository.findAll()
-                .collectMap(BaseDomain::getId, plugin -> plugin).block();
+        Map<String, Plugin> pluginMap = pluginRepository
+                .findAll()
+                .collectMap(BaseDomain::getId, plugin -> plugin)
+                .block();
         List<PluginDTO> pluginDTOList = pluginService.getAllPluginIconLocation().block();
 
         if (pluginMap != null) {
@@ -122,21 +124,21 @@ public class PluginServiceTest {
         workspace.setWebsite("https://example.com");
         workspace.setSlug(workspaceName);
 
-        Mono<List<Plugin>> pluginListMono = workspaceService.create(workspace)
-            .flatMapMany(workspace1 -> {
-                MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-                params.set(FieldName.WORKSPACE_ID, workspace1.getId());
-                return pluginService.get(params);
-            })
-            .collectList();
+        Mono<List<Plugin>> pluginListMono = workspaceService
+                .create(workspace)
+                .flatMapMany(workspace1 -> {
+                    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                    params.set(FieldName.WORKSPACE_ID, workspace1.getId());
+                    return pluginService.get(params);
+                })
+                .collectList();
 
-        StepVerifier
-            .create(pluginListMono)
-            .assertNext(plugins -> {
-                assertThat(plugins).isNotEmpty();
-                List<Plugin> airgappedSupportedPlugins = new ArrayList<>(), nonSupportedPluginForAirgap = new ArrayList<>();
-                plugins
-                    .forEach(plugin -> {
+        StepVerifier.create(pluginListMono)
+                .assertNext(plugins -> {
+                    assertThat(plugins).isNotEmpty();
+                    List<Plugin> airgappedSupportedPlugins = new ArrayList<>(),
+                            nonSupportedPluginForAirgap = new ArrayList<>();
+                    plugins.forEach(plugin -> {
                         assertThat(plugin.isSupportedForAirGap()).isTrue();
                         assertThat(unsupportedPluginPackageNameInAirgap).doesNotContain(plugin.getPackageName());
                         if (plugin.isSupportedForAirGap()) {
@@ -145,10 +147,10 @@ public class PluginServiceTest {
                             nonSupportedPluginForAirgap.add(plugin);
                         }
                     });
-                assertThat(airgappedSupportedPlugins).isNotEmpty();
-                assertThat(nonSupportedPluginForAirgap).isEmpty();
-            })
-            .verifyComplete();
+                    assertThat(airgappedSupportedPlugins).isNotEmpty();
+                    assertThat(nonSupportedPluginForAirgap).isEmpty();
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -164,30 +166,30 @@ public class PluginServiceTest {
         workspace.setWebsite("https://example.com");
         workspace.setSlug(workspaceName);
 
-        Mono<List<Plugin>> pluginListMono = workspaceService.create(workspace)
-            .flatMapMany(workspace1 -> {
-                MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-                params.set(FieldName.WORKSPACE_ID, workspace1.getId());
-                return pluginService.get(params);
-            })
-            .collectList();
+        Mono<List<Plugin>> pluginListMono = workspaceService
+                .create(workspace)
+                .flatMapMany(workspace1 -> {
+                    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                    params.set(FieldName.WORKSPACE_ID, workspace1.getId());
+                    return pluginService.get(params);
+                })
+                .collectList();
 
-        StepVerifier
-            .create(pluginListMono)
-            .assertNext(plugins -> {
-                assertThat(plugins).isNotEmpty();
-                List<Plugin> airgappedSupportedPlugins = new ArrayList<>(), nonSupportedPluginForAirgap = new ArrayList<>();
-                plugins
-                    .forEach(plugin -> {
+        StepVerifier.create(pluginListMono)
+                .assertNext(plugins -> {
+                    assertThat(plugins).isNotEmpty();
+                    List<Plugin> airgappedSupportedPlugins = new ArrayList<>(),
+                            nonSupportedPluginForAirgap = new ArrayList<>();
+                    plugins.forEach(plugin -> {
                         if (plugin.isSupportedForAirGap()) {
                             airgappedSupportedPlugins.add(plugin);
                         } else {
                             nonSupportedPluginForAirgap.add(plugin);
                         }
                     });
-                assertThat(airgappedSupportedPlugins).isNotEmpty();
-                assertThat(nonSupportedPluginForAirgap).isNotEmpty();
-            })
-            .verifyComplete();
+                    assertThat(airgappedSupportedPlugins).isNotEmpty();
+                    assertThat(nonSupportedPluginForAirgap).isNotEmpty();
+                })
+                .verifyComplete();
     }
 }

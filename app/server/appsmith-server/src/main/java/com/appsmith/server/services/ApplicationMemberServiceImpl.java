@@ -6,7 +6,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
-import com.appsmith.server.dtos.ce.MemberInfoCE_DTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -50,18 +49,21 @@ public class ApplicationMemberServiceImpl implements ApplicationMemberService {
      */
     @Override
     public Mono<List<MemberInfoDTO>> getAllMembersForApplication(String applicationId) {
-        Mono<Application> applicationMono = applicationRepository.findById(applicationId, Optional.of(applicationPermission.getReadPermission()))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, APPLICATION, applicationId)))
+        Mono<Application> applicationMono = applicationRepository
+                .findById(applicationId, Optional.of(applicationPermission.getReadPermission()))
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, APPLICATION, applicationId)))
                 .cache();
         Mono<List<PermissionGroup>> defaultAppRolesMono = applicationMono
-                .flatMapMany(application -> permissionGroupService
-                        .getAllDefaultRolesForApplication(application, Optional.of(permissionGroupPermission.getMembersReadPermission())))
+                .flatMapMany(application -> permissionGroupService.getAllDefaultRolesForApplication(
+                        application, Optional.of(permissionGroupPermission.getMembersReadPermission())))
                 .collectList()
                 .cache();
         return getSortedApplicationMemberInfoList(defaultAppRolesMono, applicationMono);
     }
 
-    private Mono<List<MemberInfoDTO>> getSortedApplicationMemberInfoList(Mono<List<PermissionGroup>> rolesMono, Mono<Application> applicationMono) {
+    private Mono<List<MemberInfoDTO>> getSortedApplicationMemberInfoList(
+            Mono<List<PermissionGroup>> rolesMono, Mono<Application> applicationMono) {
         Mono<List<MemberInfoDTO>> incompleteApplicationMembersInfoMono = Mono.zip(rolesMono, applicationMono)
                 .map(tuple -> getApplicationMembersInfoList(tuple.getT1(), tuple.getT2()));
 
@@ -80,36 +82,41 @@ public class ApplicationMemberServiceImpl implements ApplicationMemberService {
      */
     private Mono<List<MemberInfoDTO>> hydrateAppMemberInfoList(List<MemberInfoDTO> appMemberInfoList) {
         // Create a Mono<Map> of userId to user for all userIds present in appMemberInfoList.
-        // These can then be used to hydrate the user entities of appMemberInfoList with required details based on userId.
+        // These can then be used to hydrate the user entities of appMemberInfoList with required details based on
+        // userId.
         List<String> userIds = appMemberInfoList.stream()
                 .filter(member -> StringUtils.isNotEmpty(member.getUserId()))
                 .map(MemberInfoDTO::getUserId)
                 .toList();
-        Mono<Map<String, User>> userMapMono = userRepository.findAllById(userIds).collectMap(User::getId);
+        Mono<Map<String, User>> userMapMono =
+                userRepository.findAllById(userIds).collectMap(User::getId);
 
         // Create a Mono<Map> of userGroupId to user group for all userGroupIds present in appMemberInfoList.
-        // These can then be used to hydrate the user group entities of appMemberInfoList with required details based on userGroupId.
+        // These can then be used to hydrate the user group entities of appMemberInfoList with required details based on
+        // userGroupId.
         List<String> groupIds = appMemberInfoList.stream()
                 .filter(member -> StringUtils.isNotEmpty(member.getUserGroupId()))
                 .map(MemberInfoDTO::getUserGroupId)
                 .toList();
-        Mono<Map<String, UserGroup>> groupMapMono = userGroupRepository.findAllById(groupIds).collectMap(UserGroup::getId);
+        Mono<Map<String, UserGroup>> groupMapMono =
+                userGroupRepository.findAllById(groupIds).collectMap(UserGroup::getId);
 
-        return Mono.zip(userMapMono, groupMapMono)
-                .map(tuple -> {
-                    Map<String, User> userMap = tuple.getT1();
-                    Map<String, UserGroup> groupMap = tuple.getT2();
-                    appMemberInfoList.forEach(member -> {
-                        if (StringUtils.isNotEmpty(member.getUserId()) && userMap.containsKey(member.getUserId())) {
-                            member.setUsername(userMap.get(member.getUserId()).getUsername());
-                            member.setName(Optional.ofNullable(userMap.get(member.getUserId()).getName())
+        return Mono.zip(userMapMono, groupMapMono).map(tuple -> {
+            Map<String, User> userMap = tuple.getT1();
+            Map<String, UserGroup> groupMap = tuple.getT2();
+            appMemberInfoList.forEach(member -> {
+                if (StringUtils.isNotEmpty(member.getUserId()) && userMap.containsKey(member.getUserId())) {
+                    member.setUsername(userMap.get(member.getUserId()).getUsername());
+                    member.setName(
+                            Optional.ofNullable(userMap.get(member.getUserId()).getName())
                                     .orElse(userMap.get(member.getUserId()).computeFirstName()));
-                        } else if (StringUtils.isNotEmpty(member.getUserGroupId()) && groupMap.containsKey(member.getUserGroupId())) {
-                            member.setName(groupMap.get(member.getUserGroupId()).getName());
-                        }
-                    });
-                    return appMemberInfoList;
-                });
+                } else if (StringUtils.isNotEmpty(member.getUserGroupId())
+                        && groupMap.containsKey(member.getUserGroupId())) {
+                    member.setName(groupMap.get(member.getUserGroupId()).getName());
+                }
+            });
+            return appMemberInfoList;
+        });
     }
 
     /**
@@ -121,8 +128,13 @@ public class ApplicationMemberServiceImpl implements ApplicationMemberService {
         Set<String> userIds = new HashSet<>(); // Set of already collected users
         List<MemberInfoDTO> applicationMembersList = new ArrayList<>();
         roles.forEach(role -> {
-            PermissionGroupInfoDTO roleInfoDTO = new PermissionGroupInfoDTO(role.getId(), role.getName(),
-                    role.getDescription(), role.getDefaultDomainId(), role.getDefaultDomainType(), application.getName());
+            PermissionGroupInfoDTO roleInfoDTO = new PermissionGroupInfoDTO(
+                    role.getId(),
+                    role.getName(),
+                    role.getDescription(),
+                    role.getDefaultDomainId(),
+                    role.getDefaultDomainType(),
+                    application.getName());
             Stream.ofNullable(role.getAssignedToUserIds())
                     .flatMap(Collection::stream)
                     .filter(userId -> !userIds.contains(userId))
@@ -130,14 +142,19 @@ public class ApplicationMemberServiceImpl implements ApplicationMemberService {
                         applicationMembersList.add(MemberInfoDTO.builder()
                                 .userId(userId)
                                 .roles(List.of(roleInfoDTO))
-                                .build());  // collect user
+                                .build()); // collect user
                         userIds.add(userId); // update set of already collected users
                     });
         });
         Set<String> groupIds = new HashSet<>(); // Set of already collected user groups
         roles.forEach(role -> {
-            PermissionGroupInfoDTO roleInfoDTO = new PermissionGroupInfoDTO(role.getId(), role.getName(),
-                    role.getDescription(), role.getDefaultDomainId(), role.getDefaultDomainType(), application.getName());
+            PermissionGroupInfoDTO roleInfoDTO = new PermissionGroupInfoDTO(
+                    role.getId(),
+                    role.getName(),
+                    role.getDescription(),
+                    role.getDefaultDomainId(),
+                    role.getDefaultDomainType(),
+                    application.getName());
             Stream.ofNullable(role.getAssignedToGroupIds())
                     .flatMap(Collection::stream)
                     .filter(groupId -> !groupIds.contains(groupId))
@@ -154,8 +171,9 @@ public class ApplicationMemberServiceImpl implements ApplicationMemberService {
 
     @Override
     public Flux<MemberInfoDTO> getAllApplicationsMembersForWorkspace(String workspaceId) {
-        Flux<Application> applicationFlux = applicationRepository.getAllApplicationsInWorkspace(workspaceId,
-                Optional.of(applicationPermission.getReadPermission())).cache();
+        Flux<Application> applicationFlux = applicationRepository
+                .getAllApplicationsInWorkspace(workspaceId, Optional.of(applicationPermission.getReadPermission()))
+                .cache();
         return applicationFlux
                 .flatMap(application -> getAllMembersForApplication(application.getId()))
                 .flatMap(Flux::fromIterable);

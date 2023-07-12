@@ -1,5 +1,5 @@
 import {
-  getDefaultEnvironemntId,
+  getDefaultEnvironmentId,
   getEnvironmentIdByName,
 } from "@appsmith/selectors/environmentSelectors";
 import store from "store";
@@ -14,7 +14,7 @@ export const getEnvironmentIdForHeader = (): string => {
   // If no environment is specified in the URL
   // then get default environment from redux store as per isDefault flag.
   if (activeEnv === undefined || activeEnv === null || activeEnv === "") {
-    activeEnv = getDefaultEnvironemntId(store.getState());
+    activeEnv = getDefaultEnvironmentId(store.getState());
   }
   // else fetch environment id for the environment name.
   else {
@@ -25,4 +25,12 @@ export const getEnvironmentIdForHeader = (): string => {
     activeEnv = DEFAULT_ENV_ID;
   }
   return activeEnv;
+};
+
+// function to get the default environment
+export const getDefaultEnvId = () => {
+  const default_env_id_from_store = getDefaultEnvironmentId(store.getState());
+  if (!!default_env_id_from_store && default_env_id_from_store.length > 0)
+    return default_env_id_from_store;
+  return DEFAULT_ENV_ID;
 };

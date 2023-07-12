@@ -71,7 +71,6 @@ public class UserAndAccessManagementServiceTest {
     @Autowired
     UserDataRepository userDataRepository;
 
-
     User api_user = null;
 
     String superAdminPermissionGroupId = null;
@@ -97,7 +96,10 @@ public class UserAndAccessManagementServiceTest {
                     assertThat(users).isNotNull();
                     assertThat(users.size()).isGreaterThan(0);
 
-                    UserForManagementDTO apiUserDto = users.stream().filter(user -> user.getUsername().equals("api_user")).findFirst().get();
+                    UserForManagementDTO apiUserDto = users.stream()
+                            .filter(user -> user.getUsername().equals("api_user"))
+                            .findFirst()
+                            .get();
                     assertThat(apiUserDto.getId()).isEqualTo(api_user.getId());
                     assertThat(apiUserDto.getGroups().size()).isEqualTo(0);
                     assertThat(apiUserDto.getRoles().size()).isEqualTo(2);
@@ -111,9 +113,10 @@ public class UserAndAccessManagementServiceTest {
                     assertThat(defaultUserRole).isTrue();
 
                     // Also assert that anonymous user is not returned inside the list of users
-                    Optional<UserForManagementDTO> anonymousUserOptional = users.stream().filter(user -> user.getUsername().equals(ANONYMOUS_USER)).findFirst();
+                    Optional<UserForManagementDTO> anonymousUserOptional = users.stream()
+                            .filter(user -> user.getUsername().equals(ANONYMOUS_USER))
+                            .findFirst();
                     assertThat(anonymousUserOptional.isPresent()).isFalse();
-
                 })
                 .verifyComplete();
     }
@@ -124,11 +127,10 @@ public class UserAndAccessManagementServiceTest {
         Mono<List<UserForManagementDTO>> allUsersMono = userAndAccessManagementService.getAllUsers();
 
         StepVerifier.create(allUsersMono)
-                .expectErrorMatches(throwable ->
-                        throwable instanceof AppsmithException &&
-                                throwable.getMessage()
-                                        .equals(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS).getMessage())
-                )
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS).getMessage()))
                 .verify();
     }
 
@@ -147,7 +149,8 @@ public class UserAndAccessManagementServiceTest {
                     assertThat(user.getRoles().size()).isEqualTo(2);
 
                     Optional<PermissionGroupInfoDTO> adminRole = user.getRoles().stream()
-                            .filter(role -> "Instance Administrator Role".equals(role.getName())).findFirst();
+                            .filter(role -> "Instance Administrator Role".equals(role.getName()))
+                            .findFirst();
                     assertThat(adminRole.isPresent()).isTrue();
                     assertThat(adminRole.get().isAutoCreated()).isTrue();
 
@@ -157,7 +160,6 @@ public class UserAndAccessManagementServiceTest {
 
                     // Assert that name is also returned.
                     assertThat(user.getName()).isEqualTo("api_user");
-
                 })
                 .verifyComplete();
     }
@@ -168,11 +170,10 @@ public class UserAndAccessManagementServiceTest {
         Mono<UserForManagementDTO> userByIdMono = userAndAccessManagementService.getUserById(api_user.getId());
 
         StepVerifier.create(userByIdMono)
-                .expectErrorMatches(throwable ->
-                        throwable instanceof AppsmithException &&
-                                throwable.getMessage()
-                                        .equals(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS).getMessage())
-                )
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS).getMessage()))
                 .verify();
     }
 
@@ -189,7 +190,8 @@ public class UserAndAccessManagementServiceTest {
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("deleteUserTest_valid permission group");
         permissionGroup.setAssignedToUserIds(Set.of(createdUser.getId()));
-        PermissionGroup existingPermissionGroup = permissionGroupService.create(permissionGroup).block();
+        PermissionGroup existingPermissionGroup =
+                permissionGroupService.create(permissionGroup).block();
 
         UserGroup ug = new UserGroup();
         ug.setName("deleteUserTest_valid User Group");
@@ -198,8 +200,10 @@ public class UserAndAccessManagementServiceTest {
         // Delete the user
         userAndAccessManagementService.deleteUser(createdUser.getId()).block();
 
-        Mono<PermissionGroup> existingPermissionGroupPostDeleteMono = permissionGroupService.findById(existingPermissionGroup.getId());
-        Mono<UserGroup> existingGroupAfterDeleteMono = userGroupService.findById(createdUserGroup.getId(), AclPermission.READ_USER_GROUPS);
+        Mono<PermissionGroup> existingPermissionGroupPostDeleteMono =
+                permissionGroupService.findById(existingPermissionGroup.getId());
+        Mono<UserGroup> existingGroupAfterDeleteMono =
+                userGroupService.findById(createdUserGroup.getId(), AclPermission.READ_USER_GROUPS);
 
         StepVerifier.create(Mono.zip(existingPermissionGroupPostDeleteMono, existingGroupAfterDeleteMono))
                 .assertNext(tuple -> {
@@ -213,7 +217,8 @@ public class UserAndAccessManagementServiceTest {
 
         User userFetchedAfterDelete = userService.findByEmail(email).block();
         assertThat(userFetchedAfterDelete).isNull();
-        UserData userDataAfterDelete = userDataRepository.findByUserId(createdUser.getId()).block();
+        UserData userDataAfterDelete =
+                userDataRepository.findByUserId(createdUser.getId()).block();
         assertThat(userDataAfterDelete).isNull();
     }
 
@@ -232,7 +237,8 @@ public class UserAndAccessManagementServiceTest {
 
         User userFetchedAfterDelete = userService.findByEmail(email).block();
         assertThat(userFetchedAfterDelete).isNull();
-        UserData userDataAfterDelete = userDataRepository.findByUserId(createdUser.getId()).block();
+        UserData userDataAfterDelete =
+                userDataRepository.findByUserId(createdUser.getId()).block();
         assertThat(userDataAfterDelete).isNull();
 
         // Now invite the user. The invite should happen without any issues.
@@ -265,11 +271,10 @@ public class UserAndAccessManagementServiceTest {
                     assertEquals(email, group.getUsers().get(0).getUsername());
 
                     // assert that this is a different user
-                    assertThat(createdUser.getId()).isNotEqualTo(group.getUsers().get(0).getId());
+                    assertThat(createdUser.getId())
+                            .isNotEqualTo(group.getUsers().get(0).getId());
                 })
                 .verifyComplete();
-
-
     }
 
     @Test
@@ -282,7 +287,9 @@ public class UserAndAccessManagementServiceTest {
         Workspace workspace = new Workspace();
         workspace.setName("inviteUserAndGroupTest_valid Workspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
-        String permissionGroupId = createdWorkspace.getDefaultPermissionGroups().stream().findFirst().get();
+        String permissionGroupId = createdWorkspace.getDefaultPermissionGroups().stream()
+                .findFirst()
+                .get();
 
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
         inviteUsersDTO.setPermissionGroupId(permissionGroupId);
@@ -309,8 +316,9 @@ public class UserAndAccessManagementServiceTest {
         Workspace workspace = new Workspace();
         workspace.setName("inviteUserAndGroupTest_valid Workspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
-        String permissionGroupId = createdWorkspace.getDefaultPermissionGroups().stream().findFirst().get();
-
+        String permissionGroupId = createdWorkspace.getDefaultPermissionGroups().stream()
+                .findFirst()
+                .get();
 
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
         inviteUsersDTO.setPermissionGroupId(permissionGroupId);
@@ -318,11 +326,14 @@ public class UserAndAccessManagementServiceTest {
         inviteUsersDTO.setUsernames(List.of(UUID.randomUUID().toString()));
 
         // Now invite the user group to the permission group
-        List<User> invitedUsers = userAndAccessManagementService.inviteUsers(inviteUsersDTO, "origin").block();
+        List<User> invitedUsers = userAndAccessManagementService
+                .inviteUsers(inviteUsersDTO, "origin")
+                .block();
 
         assertThat(invitedUsers).isNotNull();
         assertThat(invitedUsers.size()).isEqualTo(1);
-        assertThat(invitedUsers.get(0).getEmail()).isEqualTo(inviteUsersDTO.getUsernames().get(0));
+        assertThat(invitedUsers.get(0).getEmail())
+                .isEqualTo(inviteUsersDTO.getUsernames().get(0));
 
         // fetch the permission group after inviting and assert
         StepVerifier.create(permissionGroupService.findById(permissionGroupId))
@@ -342,18 +353,26 @@ public class UserAndAccessManagementServiceTest {
         Workspace workspace = new Workspace();
         workspace.setName("inviteUserTest_multipleUsers Workspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
-        String permissionGroupId = createdWorkspace.getDefaultPermissionGroups().stream().findFirst().get();
-
+        String permissionGroupId = createdWorkspace.getDefaultPermissionGroups().stream()
+                .findFirst()
+                .get();
 
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
         inviteUsersDTO.setPermissionGroupId(permissionGroupId);
         String randomUuid = UUID.randomUUID().toString();
-        List<String> usernames = IntStream.range(0, 20).mapToObj(index -> randomUuid + index).toList();
+        List<String> usernames =
+                IntStream.range(0, 20).mapToObj(index -> randomUuid + index).toList();
         inviteUsersDTO.setUsernames(usernames);
 
         // Now invite the user group to the permission group
-        List<User> invitedUsers = userAndAccessManagementService.inviteUsers(inviteUsersDTO, "origin").block();
-        Set<String> userIds = userRepository.findAllByEmails(new HashSet<>(usernames)).map(User::getId).collect(Collectors.toSet()).block();
+        List<User> invitedUsers = userAndAccessManagementService
+                .inviteUsers(inviteUsersDTO, "origin")
+                .block();
+        Set<String> userIds = userRepository
+                .findAllByEmails(new HashSet<>(usernames))
+                .map(User::getId)
+                .collect(Collectors.toSet())
+                .block();
 
         assertThat(invitedUsers).isNotNull();
         assertThat(invitedUsers.size()).isEqualTo(usernames.size());

@@ -26,13 +26,15 @@ public class Migration110EEAddWorkspaceIdIndexInEnvironmentCollection {
     public void rollBackExecution() {
         // We don't need a rollback strategy because we don't care about this value anymore
     }
+
     @Execution
     public void executeMigration() {
         dropIndexIfExists(mongoTemplate, Environment.class, workspaceIdIndexName);
 
-        ensureIndexes(mongoTemplate, Environment.class,
+        ensureIndexes(
+                mongoTemplate,
+                Environment.class,
                 makeIndex(FieldName.WORKSPACE_ID, FieldName.DELETED, FieldName.DELETED_AT)
-                        .named(workspaceIdIndexName)
-        );
+                        .named(workspaceIdIndexName));
     }
 }

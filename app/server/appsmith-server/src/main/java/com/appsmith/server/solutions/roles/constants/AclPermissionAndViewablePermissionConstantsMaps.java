@@ -151,28 +151,23 @@ public class AclPermissionAndViewablePermissionConstantsMaps {
             Map.entry(READ_PERMISSION_GROUPS, VIEW),
             Map.entry(ASSIGN_PERMISSION_GROUPS, ASSOCIATE_ROLE),
 
-            //Environment level permissions
-            Map.entry(EXECUTE_ENVIRONMENTS, EXECUTE)
-
-    );
+            // Environment level permissions
+            Map.entry(EXECUTE_ENVIRONMENTS, EXECUTE));
 
     private static final Map<PermissionViewableName, List<AclPermission>> viewableToPermissionsMap =
-            permissionViewableMap.entrySet()
-                    .stream()
+            permissionViewableMap.entrySet().stream()
                     .collect(
                             // Switch the keys and values to create a swapped map.
                             Collectors.groupingBy(
-                                    Map.Entry::getValue,
-                                    Collectors.mapping(Map.Entry::getKey, Collectors.toList()))
-                    );
+                                    Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
 
     public static PermissionViewableName getPermissionViewableName(AclPermission permission) {
         return permissionViewableMap.get(permission);
     }
 
-    public static List<AclPermission> getAclPermissionsFromViewableName(PermissionViewableName viewableName, Class<?> aClass) {
-        return viewableToPermissionsMap.get(viewableName)
-                .stream()
+    public static List<AclPermission> getAclPermissionsFromViewableName(
+            PermissionViewableName viewableName, Class<?> aClass) {
+        return viewableToPermissionsMap.get(viewableName).stream()
                 .filter(aclPermission -> {
                     Class entityClass = aClass;
                     if (aClass.equals(NewPage.class)) {

@@ -1,7 +1,7 @@
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import type { EvalContext } from "./evaluate";
 import { setEvalContext } from "./evaluate";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import userLogs from "./fns/overrides/console";
 import ExecutionMetaData from "./fns/utils/ExecutionMetaData";
 import { dataTreeEvaluator } from "./handlers/evalTree";
@@ -9,7 +9,7 @@ import { dataTreeEvaluator } from "./handlers/evalTree";
 class FunctionDeterminer {
   evalContext: EvalContext = {};
 
-  setupEval(dataTree: DataTree) {
+  setupEval(dataTree: DataTree, configTree: ConfigTree) {
     /**** Setting the eval context ****/
     const evalContext: EvalContext = {
       $isDataField: true,
@@ -23,6 +23,7 @@ class FunctionDeterminer {
 
     addDataTreeToContext({
       dataTree,
+      configTree,
       EVAL_CONTEXT: evalContext,
       isTriggerBased: true,
     });
@@ -43,9 +44,11 @@ class FunctionDeterminer {
     });
 
     if (!dataTreeEvaluator) return;
-    const dataTree = dataTreeEvaluator?.getEvalTree();
+    const dataTree = dataTreeEvaluator.getEvalTree();
+    const configTree = dataTreeEvaluator.getConfigTree();
     setEvalContext({
       dataTree,
+      configTree,
       isTriggerBased: true,
       isDataField: false,
     });

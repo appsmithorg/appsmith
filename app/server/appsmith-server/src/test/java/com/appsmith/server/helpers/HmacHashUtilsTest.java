@@ -11,7 +11,7 @@ public class HmacHashUtilsTest {
 
     @Test
     public void givenDataAndKeyAndAlgorithm_whenHmacWithJava_thenSuccess()
-        throws NoSuchAlgorithmException, InvalidKeyException {
+            throws NoSuchAlgorithmException, InvalidKeyException {
 
         String hmacSHA256Value = "953D7D721FE4FDDA63E519696A726A1FE84B32215305A9906FB226367C1D2705";
         String hmacSHA256Algorithm = "HmacSHA256";

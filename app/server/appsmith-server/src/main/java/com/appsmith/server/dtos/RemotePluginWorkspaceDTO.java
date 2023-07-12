@@ -13,5 +13,4 @@ public class RemotePluginWorkspaceDTO {
     Plugin plugin;
 
     String organizationId;
-
 }

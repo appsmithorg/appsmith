@@ -16,5 +16,4 @@ public class KeycloakConfig {
 
     @Value("${appsmith.keycloak.admin.baseUrl}")
     private String baseUrl;
-
 }

@@ -8,7 +8,6 @@ import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.EnvManager;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
@@ -97,8 +96,10 @@ public class InstanceAdminRoleUpdatesEnvTest {
     @Test
     @WithUserDetails(value = "usertest@usertest.com")
     void associateInstanceAdminRoleThenEnvFileAdminEmailsShouldBeUpdated() {
-        String instanceRoleId = configService.getByName(INSTANCE_CONFIG)
-                .map(config -> config.getConfig().getAsString(DEFAULT_PERMISSION_GROUP)).block();
+        String instanceRoleId = configService
+                .getByName(INSTANCE_CONFIG)
+                .map(config -> config.getConfig().getAsString(DEFAULT_PERMISSION_GROUP))
+                .block();
 
         User user = new User();
         user.setEmail("associateInstanceAdminRoleThenEnvFileAdminEmailsShouldBeUpdated@test.com");
@@ -106,19 +107,28 @@ public class InstanceAdminRoleUpdatesEnvTest {
         User createdUser = userService.create(user).block();
 
         UpdateRoleAssociationDTO updateRoleAssociationDTO = new UpdateRoleAssociationDTO();
-        updateRoleAssociationDTO.setRolesAdded(Set.of(new PermissionGroupCompactDTO(instanceRoleId, INSTANCE_ADMIN_ROLE)));
-        updateRoleAssociationDTO.setUsers(Set.of(new UserCompactDTO(createdUser.getId(), createdUser.getUsername(), null)));
+        updateRoleAssociationDTO.setRolesAdded(
+                Set.of(new PermissionGroupCompactDTO(instanceRoleId, INSTANCE_ADMIN_ROLE)));
+        updateRoleAssociationDTO.setUsers(
+                Set.of(new UserCompactDTO(createdUser.getId(), createdUser.getUsername(), null)));
 
-        Boolean roleAssociationChanged = userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
+        Boolean roleAssociationChanged = userAndAccessManagementService
+                .changeRoleAssociations(updateRoleAssociationDTO)
+                .block();
         assertThat(roleAssociationChanged).isTrue();
 
         String adminEmailsString = envManager.getAll().block().get(APPSMITH_ADMIN_EMAILS.name());
-        Set<String> adminEmailsFromEnv = Arrays.stream(adminEmailsString.split(",")).collect(Collectors.toSet());
+        Set<String> adminEmailsFromEnv =
+                Arrays.stream(adminEmailsString.split(",")).collect(Collectors.toSet());
 
-        PermissionGroup instanceAdminRole = permissionGroupRepository.findById(instanceRoleId).block();
+        PermissionGroup instanceAdminRole =
+                permissionGroupRepository.findById(instanceRoleId).block();
 
-        Set<String> adminEmailsFromRole = userService.findAllByIdsIn(instanceAdminRole.getAssignedToUserIds())
-                .map(User::getUsername).collect(Collectors.toSet()).block();
+        Set<String> adminEmailsFromRole = userService
+                .findAllByIdsIn(instanceAdminRole.getAssignedToUserIds())
+                .map(User::getUsername)
+                .collect(Collectors.toSet())
+                .block();
 
         assertThat(adminEmailsFromRole).isEqualTo(adminEmailsFromEnv);
     }

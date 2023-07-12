@@ -23,25 +23,19 @@ public class AngularHelperTest {
 
         configuration.setHeaders(List.of(
                 new Property("Authorization", "Bearer << headerValue1 >>"),
-                new Property("header2", "<< headerValue2 >>")
-        ));
+                new Property("header2", "<< headerValue2 >>")));
 
-        configuration.setBodyFormData(List.of(
-                new Property("param1", "<< bodyParam1 >>"),
-                new Property("param2", "<< bodyParam2 >>")
-        ));
+        configuration.setBodyFormData(
+                List.of(new Property("param1", "<< bodyParam1 >>"), new Property("param2", "<< bodyParam2 >>")));
 
-        configuration.setQueryParameters(List.of(
-                new Property("param1", "<< queryParam1 >>"),
-                new Property("param2", "<< queryParam2 >>")
-        ));
+        configuration.setQueryParameters(
+                List.of(new Property("param1", "<< queryParam1 >>"), new Property("param2", "<< queryParam2 >>")));
 
         configuration.setPluginSpecifiedTemplates(Arrays.asList(
                 null,
                 new Property("prop1", "<< pluginSpecifiedProp1 >>"),
                 null,
-                new Property("prop2", "<< pluginSpecifiedProp2 >>")
-        ));
+                new Property("prop2", "<< pluginSpecifiedProp2 >>")));
 
         final Map<String, String> context = new HashMap<>(Map.of(
                 "body", "rendered body",
@@ -52,13 +46,11 @@ public class AngularHelperTest {
                 "bodyParam1", "rendered bodyParam1",
                 "bodyParam2", "rendered bodyParam2",
                 "queryParam1", "rendered queryParam1",
-                "queryParam2", "rendered queryParam2"
-        ));
+                "queryParam2", "rendered queryParam2"));
 
         context.putAll(Map.of(
                 "pluginSpecifiedProp1", "rendered pluginSpecifiedProp1",
-                "pluginSpecifiedProp2", "rendered pluginSpecifiedProp2"
-        ));
+                "pluginSpecifiedProp2", "rendered pluginSpecifiedProp2"));
 
         AngularHelper.renderFieldValues(configuration, context);
 
@@ -66,27 +58,25 @@ public class AngularHelperTest {
         assertThat(configuration.getPath()).isEqualTo("rendered path");
         assertThat(configuration.getNext()).isEqualTo("rendered next");
 
-        assertThat(configuration.getHeaders()).containsOnly(
-                new Property("Authorization", "Bearer access_token"),
-                new Property("header2", "rendered headerValue2")
-        );
+        assertThat(configuration.getHeaders())
+                .containsOnly(
+                        new Property("Authorization", "Bearer access_token"),
+                        new Property("header2", "rendered headerValue2"));
 
-        assertThat(configuration.getBodyFormData()).containsOnly(
-                new Property("param1", "rendered bodyParam1"),
-                new Property("param2", "rendered bodyParam2")
-        );
+        assertThat(configuration.getBodyFormData())
+                .containsOnly(
+                        new Property("param1", "rendered bodyParam1"), new Property("param2", "rendered bodyParam2"));
 
-        assertThat(configuration.getQueryParameters()).containsOnly(
-                new Property("param1", "rendered queryParam1"),
-                new Property("param2", "rendered queryParam2")
-        );
+        assertThat(configuration.getQueryParameters())
+                .containsOnly(
+                        new Property("param1", "rendered queryParam1"), new Property("param2", "rendered queryParam2"));
 
-        assertThat(configuration.getPluginSpecifiedTemplates()).containsExactly(
-                null,
-                new Property("prop1", "rendered pluginSpecifiedProp1"),
-                null,
-                new Property("prop2", "rendered pluginSpecifiedProp2")
-        );
+        assertThat(configuration.getPluginSpecifiedTemplates())
+                .containsExactly(
+                        null,
+                        new Property("prop1", "rendered pluginSpecifiedProp1"),
+                        null,
+                        new Property("prop2", "rendered pluginSpecifiedProp2"));
     }
 
     @Test
@@ -97,5 +87,4 @@ public class AngularHelperTest {
         AngularHelper.renderFieldValues(configuration, Map.of());
         assertThat(configuration.getBody()).isEqualTo("outside <<ab>> outside");
     }
-
 }

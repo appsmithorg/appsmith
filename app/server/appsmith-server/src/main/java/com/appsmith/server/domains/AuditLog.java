@@ -25,7 +25,11 @@ public class AuditLog extends BaseDomain {
 
     AuditLogApplicationMetadata application;
 
-    AuditLogWorkpsaceMetadata workspace;
+    AuditLogWorkspaceMetadata workspace;
+
+    AuditLogEnvironmentMetadata environment;
+
+    AuditLogDatasourceMetadata datasource;
 
     AuditLogMetadata metadata;
 

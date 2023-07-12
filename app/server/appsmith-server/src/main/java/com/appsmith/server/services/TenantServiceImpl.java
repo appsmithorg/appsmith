@@ -5,6 +5,7 @@ import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicenseStatus;
+import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -28,11 +29,11 @@ import reactor.util.function.Tuple2;
 
 import java.util.Map;
 
-import static com.appsmith.server.constants.CommonConstants.FOR;
-import static com.appsmith.server.constants.CommonConstants.DELIMETER_SPACE;
-import static com.appsmith.server.constants.CommonConstants.IN;
 import static com.appsmith.server.constants.CommonConstants.COLUMN;
 import static com.appsmith.server.constants.CommonConstants.DEFAULT;
+import static com.appsmith.server.constants.CommonConstants.DELIMETER_SPACE;
+import static com.appsmith.server.constants.CommonConstants.FOR;
+import static com.appsmith.server.constants.CommonConstants.IN;
 
 @Service
 public class TenantServiceImpl extends TenantServiceCEImpl implements TenantService {
@@ -44,17 +45,19 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     private final RedirectHelper redirectHelper;
 
     @Autowired
-    public TenantServiceImpl(Scheduler scheduler,
-                             Validator validator,
-                             MongoConverter mongoConverter,
-                             ReactiveMongoTemplate reactiveMongoTemplate,
-                             TenantRepository repository,
-                             WorkspaceRepository workspaceRepository,
-                             ApplicationRepository applicationRepository,
-                             AnalyticsService analyticsService,
-                             ConfigService configService,
-                             SessionUserService sessionUserService,
-                             LicenseValidator licenseValidator,RedirectHelper redirectHelper){
+    public TenantServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            TenantRepository repository,
+            WorkspaceRepository workspaceRepository,
+            ApplicationRepository applicationRepository,
+            AnalyticsService analyticsService,
+            ConfigService configService,
+            SessionUserService sessionUserService,
+            LicenseValidator licenseValidator,
+            RedirectHelper redirectHelper) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, configService);
         this.licenseValidator = licenseValidator;
@@ -81,25 +84,21 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
 
     @Override
     public Mono<Tenant> getTenantConfiguration() {
-        return Mono.zip(
-                        this.getDefaultTenant(),
-                        super.getTenantConfiguration()
-                )
-                .map(tuple -> {
-                    final Tenant dbTenant = tuple.getT1();
-                    final Tenant clientTenant = tuple.getT2();
-                    final TenantConfiguration config = clientTenant.getTenantConfiguration();
+        return Mono.zip(this.getDefaultTenant(), super.getTenantConfiguration()).map(tuple -> {
+            final Tenant dbTenant = tuple.getT1();
+            final Tenant clientTenant = tuple.getT2();
+            final TenantConfiguration config = clientTenant.getTenantConfiguration();
 
-                    if (org.springframework.util.StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_OIDC_CLIENT_ID"))) {
-                        config.addThirdPartyAuth("oidc");
-                    }
+            if (org.springframework.util.StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_OIDC_CLIENT_ID"))) {
+                config.addThirdPartyAuth("oidc");
+            }
 
-                    if ("true".equals(System.getenv("APPSMITH_SSO_SAML_ENABLED"))) {
-                        config.addThirdPartyAuth("saml");
-                    }
+            if ("true".equals(System.getenv("APPSMITH_SSO_SAML_ENABLED"))) {
+                config.addThirdPartyAuth("saml");
+            }
 
-                    return getClientPertinentTenant(dbTenant, clientTenant);
-                });
+            return getClientPertinentTenant(dbTenant, clientTenant);
+        });
     }
 
     /**
@@ -112,13 +111,24 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         if (StringUtils.isNullOrEmpty(licenseKey)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.LICENSE_KEY));
         }
-        return saveTenantLicenseKey(licenseKey)
-                .flatMap(tuple -> sessionUserService.getCurrentUser()
-                        .flatMap(user -> workspaceRepository.findFirstByIsAutoGeneratedWorkspaceAndEmailOrderByCreatedAt(true, user.getEmail())
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, DEFAULT + DELIMETER_SPACE + FieldName.WORKSPACE + FOR,  FieldName.USER + COLUMN + user.getId()))))
-                        .flatMap(workspace -> applicationRepository.findFirstByWorkspaceId(workspace.getId())
-                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, DEFAULT + DELIMETER_SPACE + FieldName.APPLICATION + IN, FieldName.WORKSPACE + COLUMN + workspace.getId()))))
-                        .map(application ->  redirectHelper.buildSignupSuccessUrl(redirectHelper.buildApplicationUrl(application, exchange.getRequest().getHeaders()), true)));
+        return saveTenantLicenseKey(licenseKey).flatMap(tuple -> sessionUserService
+                .getCurrentUser()
+                .flatMap(user -> workspaceRepository
+                        .findFirstByIsAutoGeneratedWorkspaceAndEmailOrderByCreatedAt(true, user.getEmail())
+                        .switchIfEmpty(Mono.error(new AppsmithException(
+                                AppsmithError.NO_RESOURCE_FOUND,
+                                DEFAULT + DELIMETER_SPACE + FieldName.WORKSPACE + FOR,
+                                FieldName.USER + COLUMN + user.getId()))))
+                .flatMap(workspace -> applicationRepository
+                        .findFirstByWorkspaceId(workspace.getId())
+                        .switchIfEmpty(Mono.error(new AppsmithException(
+                                AppsmithError.NO_RESOURCE_FOUND,
+                                DEFAULT + DELIMETER_SPACE + FieldName.APPLICATION + IN,
+                                FieldName.WORKSPACE + COLUMN + workspace.getId()))))
+                .map(application -> redirectHelper.buildSignupSuccessUrl(
+                        redirectHelper.buildApplicationUrl(
+                                application, exchange.getRequest().getHeaders()),
+                        true)));
     }
 
     /**
@@ -128,8 +138,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      * @return Mono of Tenant
      */
     public Mono<Tenant> updateTenantLicenseKey(String licenseKey) {
-        return saveTenantLicenseKey(licenseKey)
-                .map(tuple -> getClientPertinentTenant(tuple.getT1(), null));
+        return saveTenantLicenseKey(licenseKey).map(tuple -> getClientPertinentTenant(tuple.getT1(), null));
     }
 
     /**
@@ -139,14 +148,18 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      * @return Mono of Tuple<Tenant, Boolean>
      */
     private Mono<Tuple2<Tenant, Boolean>> saveTenantLicenseKey(String licenseKey) {
-        TenantConfiguration.License license = new TenantConfiguration.License();
+        License license = new License();
         license.setKey(licenseKey);
         // TODO: Update to getCurrentTenant when multi tenancy is introduced
-        return repository.findBySlug(FieldName.DEFAULT, AclPermission.MANAGE_TENANT)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TENANT, FieldName.DEFAULT)))
+        return repository
+                .findBySlug(FieldName.DEFAULT, AclPermission.MANAGE_TENANT)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TENANT, FieldName.DEFAULT)))
                 .flatMap(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                    boolean isActivateInstance = tenantConfiguration.getLicense() == null || StringUtils.isNullOrEmpty(tenantConfiguration.getLicense().getKey());
+                    boolean isActivateInstance = tenantConfiguration.getLicense() == null
+                            || StringUtils.isNullOrEmpty(
+                                    tenantConfiguration.getLicense().getKey());
                     tenantConfiguration.setLicense(license);
                     tenant.setTenantConfiguration(tenantConfiguration);
 
@@ -155,22 +168,31 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 .flatMap(tuple -> {
                     Tenant tenant = tuple.getT1();
                     boolean isActivateInstance = tuple.getT2();
-                    TenantConfiguration.License license1 = tenant.getTenantConfiguration().getLicense();
-                    AnalyticsEvents analyticsEvent = isActivateInstance ? AnalyticsEvents.ACTIVATE_NEW_INSTANCE : AnalyticsEvents.UPDATE_EXISTING_LICENSE;
+                    License license1 = tenant.getTenantConfiguration().getLicense();
+                    AnalyticsEvents analyticsEvent = isActivateInstance
+                            ? AnalyticsEvents.ACTIVATE_NEW_INSTANCE
+                            : AnalyticsEvents.UPDATE_EXISTING_LICENSE;
                     Map<String, Object> analyticsProperties = Map.of(
-                            FieldName.LICENSE_KEY, StringUtils.isNullOrEmpty(license1.getKey()) ? "" : DataTypeStringUtils.maskString(license1.getKey(), 8, 32, 'x'),
-                            FieldName.LICENSE_VALID, license1.getStatus() != null  && LicenseStatus.ACTIVE.equals(license1.getStatus()),
+                            FieldName.LICENSE_KEY,
+                                    StringUtils.isNullOrEmpty(license1.getKey())
+                                            ? ""
+                                            : DataTypeStringUtils.maskString(license1.getKey(), 8, 32, 'x'),
+                            FieldName.LICENSE_VALID,
+                                    license1.getStatus() != null && LicenseStatus.ACTIVE.equals(license1.getStatus()),
                             FieldName.LICENSE_TYPE, license1.getType() == null ? "" : license1.getType(),
-                            FieldName.LICENSE_STATUS, license1.getStatus() == null ? "" : license1.getStatus()
-                    );
-                    Mono<Tenant> analyticsEventMono = analyticsService.sendObjectEvent(analyticsEvent, tenant, analyticsProperties);
+                            FieldName.LICENSE_STATUS, license1.getStatus() == null ? "" : license1.getStatus());
+                    Mono<Tenant> analyticsEventMono =
+                            analyticsService.sendObjectEvent(analyticsEvent, tenant, analyticsProperties);
                     // Update/save license only in case of a valid license key
-                    if (!Boolean.TRUE.equals(tenant.getTenantConfiguration().getLicense().getActive())) {
-                        return analyticsEventMono.then(Mono.error(new AppsmithException(AppsmithError.INVALID_LICENSE_KEY_ENTERED)));
+                    if (!Boolean.TRUE.equals(
+                            tenant.getTenantConfiguration().getLicense().getActive())) {
+                        return analyticsEventMono.then(
+                                Mono.error(new AppsmithException(AppsmithError.INVALID_LICENSE_KEY_ENTERED)));
                     }
 
                     return this.save(tenant)
-                            .flatMap(analyticsEventMono::thenReturn).zipWith(Mono.just(isActivateInstance));
+                            .flatMap(analyticsEventMono::thenReturn)
+                            .zipWith(Mono.just(isActivateInstance));
                 });
     }
 
@@ -181,8 +203,10 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      */
     public Mono<Tenant> refreshAndGetCurrentLicense() {
         // TODO: Update to getCurrentTenant when multi tenancy is introduced
-        return repository.findBySlug(FieldName.DEFAULT, AclPermission.MANAGE_TENANT)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TENANT, FieldName.DEFAULT)))
+        return repository
+                .findBySlug(FieldName.DEFAULT, AclPermission.MANAGE_TENANT)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TENANT, FieldName.DEFAULT)))
                 .flatMap(this::checkTenantLicense)
                 .flatMap(this::save)
                 .map(tenant -> getClientPertinentTenant(tenant, null));
@@ -194,17 +218,16 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      * @return Mono of Tenant
      */
     private Mono<Tenant> checkTenantLicense(Tenant tenant) {
-        Mono<TenantConfiguration.License> licenseMono = licenseValidator.licenseCheck(tenant);
-        return licenseMono
-            .map(license -> {
-                // To prevent empty License object being saved in DB for license checks with empty license key
-                if (!StringUtils.isNullOrEmpty(license.getKey())) {
-                    TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                    tenantConfiguration.setLicense(license);
-                    tenant.setTenantConfiguration(tenantConfiguration);
-                }
-                return tenant;
-            });
+        Mono<License> licenseMono = licenseValidator.licenseCheck(tenant);
+        return licenseMono.map(license -> {
+            // To prevent empty License object being saved in DB for license checks with empty license key
+            if (!StringUtils.isNullOrEmpty(license.getKey())) {
+                TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+                tenantConfiguration.setLicense(license);
+                tenant.setTenantConfiguration(tenantConfiguration);
+            }
+            return tenant;
+        });
     }
 
     /**
@@ -213,9 +236,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      * @return Mono of Tenant
      */
     public Mono<Tenant> checkAndUpdateDefaultTenantLicense() {
-        return this.getDefaultTenant()
-                .flatMap(this::checkTenantLicense)
-                .flatMap(this::save);
+        return this.getDefaultTenant().flatMap(this::checkTenantLicense).flatMap(this::save);
     }
 
     /**
@@ -224,8 +245,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      * @return Boolean
      */
     public Boolean isValidLicenseConfiguration(Tenant tenant) {
-        return tenant.getTenantConfiguration() != null &&
-                tenant.getTenantConfiguration().getLicense() != null &&
-                tenant.getTenantConfiguration().getLicense().getKey() != null;
+        return tenant.getTenantConfiguration() != null
+                && tenant.getTenantConfiguration().getLicense() != null
+                && tenant.getTenantConfiguration().getLicense().getKey() != null;
     }
 }
