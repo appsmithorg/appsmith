@@ -18,19 +18,23 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 public class CustomNotificationRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Notification>
         implements CustomNotificationRepositoryCE {
 
-    public CustomNotificationRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomNotificationRepositoryCEImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
     @Override
-    public Mono<UpdateResult> updateIsReadByForUsernameAndIdList(String forUsername, List<String> idList, boolean isRead) {
+    public Mono<UpdateResult> updateIsReadByForUsernameAndIdList(
+            String forUsername, List<String> idList, boolean isRead) {
         return mongoOperations.updateMulti(
-                query(where(fieldName(QNotification.notification.forUsername)).is(forUsername)
-                        .and(fieldName(QNotification.notification.id)).in(idList)
-                ),
+                query(where(fieldName(QNotification.notification.forUsername))
+                        .is(forUsername)
+                        .and(fieldName(QNotification.notification.id))
+                        .in(idList)),
                 new Update().set(fieldName(QNotification.notification.isRead), isRead),
-                Notification.class
-        );
+                Notification.class);
     }
 
     @Override
@@ -38,8 +42,6 @@ public class CustomNotificationRepositoryCEImpl extends BaseAppsmithRepositoryIm
         return mongoOperations.updateMulti(
                 query(where(fieldName(QNotification.notification.forUsername)).is(forUsername)),
                 new Update().set(fieldName(QNotification.notification.isRead), isRead),
-                Notification.class
-        );
+                Notification.class);
     }
-
 }

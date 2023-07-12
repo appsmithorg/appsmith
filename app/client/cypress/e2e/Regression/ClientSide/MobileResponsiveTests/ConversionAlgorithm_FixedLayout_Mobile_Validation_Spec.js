@@ -4,9 +4,7 @@ let testHeight;
 
 describe("Auto conversion algorithm usecases for fixed Layout", function () {
   it("1. Validate basic conversion algorithm usecases fixed layout usecase Mobile", function () {
-    cy.fixture("conversionFrAutoLayoutDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("conversionFrAutoLayoutDsl");
     //cy.openPropertyPane("containerwidget");
     cy.get("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;

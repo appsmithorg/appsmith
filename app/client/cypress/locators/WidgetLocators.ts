@@ -35,6 +35,7 @@ export const WIDGET = {
   RANGE_SLIDER: "rangesliderwidget",
   IFRAME: "iframewidget",
   DIVIDER: "dividerwidget",
+  PROGRESS: "progresswidget",
   MODAL: "modalwidget",
   FORM: "formwidget",
   ICONBUTTON: "iconbuttonwidget",

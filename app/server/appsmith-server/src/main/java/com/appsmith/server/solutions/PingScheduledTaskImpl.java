@@ -37,8 +37,7 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             DatasourceRepository datasourceRepository,
             UserRepository userRepository,
             ProjectProperties projectProperties,
-            NetworkUtils networkUtils
-    ) {
+            NetworkUtils networkUtils) {
 
         super(
                 configService,
@@ -51,7 +50,6 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
                 datasourceRepository,
                 userRepository,
                 projectProperties,
-                networkUtils
-        );
+                networkUtils);
     }
 }

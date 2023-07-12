@@ -13,9 +13,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("MultiSelect Widget Functionality", function () {
   before(() => {
-    cy.fixture("multiSelectDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("multiSelectDsl");
   });
 
   it("1. Selects value with invalid default value", () => {

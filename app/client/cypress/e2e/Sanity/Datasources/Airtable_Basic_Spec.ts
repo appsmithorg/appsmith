@@ -235,6 +235,8 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
       inputFieldName: "View",
     });
 
+    dataSources.RunQuery({ toValidateResponse: false }); //For CI failure!
+    agHelper.Sleep();
     dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {

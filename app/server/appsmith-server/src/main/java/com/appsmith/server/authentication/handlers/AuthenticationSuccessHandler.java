@@ -22,23 +22,36 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE {
 
-    public AuthenticationSuccessHandler(ForkExamplesWorkspace examplesWorkspaceCloner,
-                                        RedirectHelper redirectHelper,
-                                        SessionUserService sessionUserService,
-                                        AnalyticsService analyticsService,
-                                        UserDataService userDataService,
-                                        UserRepository userRepository,
-                                        WorkspaceService workspaceService,
-                                        WorkspaceRepository workspaceRepository,
-                                        ApplicationPageService applicationPageService,
-                                        WorkspacePermission workspacePermission,
-                                        ConfigService configService,
-                                        FeatureFlagService featureFlagService,
-                                        CommonConfig commonConfig,
-                                        UserIdentifierService userIdentifierService) {
+    public AuthenticationSuccessHandler(
+            ForkExamplesWorkspace examplesWorkspaceCloner,
+            RedirectHelper redirectHelper,
+            SessionUserService sessionUserService,
+            AnalyticsService analyticsService,
+            UserDataService userDataService,
+            UserRepository userRepository,
+            WorkspaceService workspaceService,
+            WorkspaceRepository workspaceRepository,
+            ApplicationPageService applicationPageService,
+            WorkspacePermission workspacePermission,
+            ConfigService configService,
+            FeatureFlagService featureFlagService,
+            CommonConfig commonConfig,
+            UserIdentifierService userIdentifierService) {
 
-        super(examplesWorkspaceCloner, redirectHelper, sessionUserService, analyticsService, userDataService,
-                userRepository, workspaceRepository, workspaceService, applicationPageService, workspacePermission,
-                configService, featureFlagService, commonConfig, userIdentifierService);
+        super(
+                examplesWorkspaceCloner,
+                redirectHelper,
+                sessionUserService,
+                analyticsService,
+                userDataService,
+                userRepository,
+                workspaceRepository,
+                workspaceService,
+                applicationPageService,
+                workspacePermission,
+                configService,
+                featureFlagService,
+                commonConfig,
+                userIdentifierService);
     }
 }

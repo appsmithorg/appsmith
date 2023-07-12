@@ -11,7 +11,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AlignWidgetTypes } from "widgets/constants";
 
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
@@ -258,6 +258,33 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
     };
   }
 
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
+        setValue: {
+          path: "defaultSwitchState",
+          type: "boolean",
+        },
+        setColor: {
+          path: "accentColor",
+          type: "string",
+        },
+      },
+    };
+  }
+
   getPageView() {
     return (
       <SwitchComponent
@@ -265,6 +292,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         alignWidget={this.props.alignWidget}
         isDisabled={this.props.isDisabled}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
+        isLabelInline={this.isAutoLayoutMode}
         isLoading={this.props.isLoading}
         isSwitchedOn={!!this.props.isSwitchedOn}
         key={this.props.widgetId}
@@ -273,6 +301,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        minHeight={this.props.minHeight}
         onChange={this.onChange}
         widgetId={this.props.widgetId}
       />

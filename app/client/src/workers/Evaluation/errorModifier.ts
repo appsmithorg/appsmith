@@ -1,4 +1,4 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { getAllAsyncFunctions } from "@appsmith/workers/Evaluation/Actions";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorCategory } from "utils/DynamicBindingUtils";
@@ -13,8 +13,8 @@ class ErrorModifier {
 
   private asyncFunctionsNameMap: Record<string, true> = {};
 
-  updateAsyncFunctions(dataTree: DataTree) {
-    this.asyncFunctionsNameMap = getAllAsyncFunctions(dataTree);
+  updateAsyncFunctions(dataTree: DataTree, configTree: ConfigTree) {
+    this.asyncFunctionsNameMap = getAllAsyncFunctions(dataTree, configTree);
   }
 
   run(error: Error): {

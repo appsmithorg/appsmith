@@ -14,7 +14,7 @@ import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionCo
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import React from "react";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -444,6 +444,29 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     }
   };
 
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setLabel: {
+          path: "text",
+          type: "string",
+        },
+        setColor: {
+          path: "buttonColor",
+          type: "string",
+        },
+      },
+    };
+  }
+
   getPageView() {
     const disabled =
       this.props.disabledWhenInvalid &&
@@ -464,9 +487,13 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         isDisabled={isDisabled}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
+        maxWidth={this.props.maxWidth}
+        minHeight={this.props.minHeight}
+        minWidth={this.props.minWidth}
         onClick={this.hasOnClickAction() ? this.onButtonClickBound : undefined}
         placement={this.props.placement}
         recaptchaType={this.props.recaptchaType}
+        shouldFitContent={this.isAutoLayoutMode}
         text={this.props.text}
         tooltip={this.props.tooltip}
         type={this.props.buttonType || ButtonType.BUTTON}
