@@ -65,6 +65,7 @@ import {
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
 import { initCurrentPage } from "../actions/initActions";
+import Walkthrough from "components/featureWalkthrough";
 import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
@@ -187,8 +188,10 @@ function AppRouter(props: {
           </>
         ) : (
           <>
-            <AppHeader />
-            <Routes />
+            <Walkthrough>
+              <AppHeader />
+              <Routes />
+            </Walkthrough>
             <ProductAlertBanner />
           </>
         )}

@@ -95,7 +95,7 @@ export class DarkModeTheme implements ColorModeTheme {
       bdPositive: this.bdPositive.to("sRGB").toString(),
       bdPositiveHover: this.bdPositiveHover.to("sRGB").toString(),
       bdWarning: this.bdWarning.to("sRGB").toString(),
-      bdWarningHover: this.bdWarning.to("sRGB").toString(),
+      bdWarningHover: this.bdWarningHover.to("sRGB").toString(),
     };
   };
 
@@ -433,8 +433,32 @@ export class DarkModeTheme implements ColorModeTheme {
     return color;
   }
 
+  // Low chroma, but not 0, if possible, to produce harmony with accents in the UI
   private get bgNeutral() {
-    return "#f5f7fa";
+    const color = this.bgAccent.clone();
+
+    // For darker accents it helps to increase neutral's lightness a little, so it's visible against bg
+    if (color.oklch.l < 0.3) {
+      color.oklch.l = color.oklch.l + 0.15;
+    }
+
+    if (color.oklch.l < 0.5) {
+      color.oklch.l = color.oklch.l + 0.05;
+    }
+
+    if (this.seedIsAchromatic) {
+      color.oklch.c = 0;
+    }
+
+    if (this.seedIsCold && !this.seedIsAchromatic) {
+      color.oklch.c = 0.03;
+    }
+
+    if (!this.seedIsCold && !this.seedIsAchromatic) {
+      color.oklch.c = 0.01;
+    }
+
+    return color;
   }
 
   private get bgNeutralHover() {
@@ -522,8 +546,28 @@ export class DarkModeTheme implements ColorModeTheme {
     return color;
   }
 
+  // Desatured version of the seed for harmonious combination with backgrounds and accents.
   private get fgNeutral() {
-    return this.bdNeutral.clone();
+    const color = this.fgAccent.clone();
+
+    // Minimal contrast that we set for fgAccent (60) is too low for a gray color
+    if (this.bg.contrastAPCA(this.fgAccent) < 75) {
+      color.oklch.l = color.oklch.l + 0.04;
+    }
+
+    if (this.seedIsAchromatic) {
+      color.oklch.c = 0;
+    }
+
+    if (this.seedIsCold && !this.seedIsAchromatic) {
+      color.oklch.c = 0.03;
+    }
+
+    if (!this.seedIsCold && !this.seedIsAchromatic) {
+      color.oklch.c = 0.01;
+    }
+
+    return color;
   }
 
   // Foreground for content on top of bgAccent
@@ -682,7 +726,7 @@ export class DarkModeTheme implements ColorModeTheme {
     return color;
   }
 
-  // Neutral (gray) border. Desatured version of the seed for harmonious combination with backgrounds and accents.
+  // Desatured version of the seed for harmonious combination with backgrounds and accents.
   private get bdNeutral() {
     const color = this.bdAccent.clone();
 
