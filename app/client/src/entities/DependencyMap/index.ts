@@ -1,9 +1,10 @@
+export type TDependencies = Map<string, Set<string>>;
 export default class DependencyMap {
   #nodes: Map<string, true>;
-  #dependencies: Map<string, Set<string>>;
-  #dependenciesInverse: Map<string, Set<string>>;
-  #invalidDependencies: Map<string, Set<string>>;
-  #invalidDependenciesInverse: Map<string, Set<string>>;
+  #dependencies: TDependencies;
+  #dependenciesInverse: TDependencies;
+  #invalidDependencies: TDependencies;
+  #invalidDependenciesInverse: TDependencies;
 
   constructor() {
     this.#nodes = new Map();
@@ -59,6 +60,16 @@ export default class DependencyMap {
   public addDependency = (node: string, dependencies: string[]) => {
     const validDependencies = new Set<string>();
     const invalidDependencies = new Set<string>();
+
+    const currentNodeDependencies =
+      this.#dependencies.get(node) || new Set<string>();
+
+    for (const currentDependency of currentNodeDependencies) {
+      if (!dependencies.includes(currentDependency)) {
+        this.#dependenciesInverse.get(currentDependency)?.delete(node);
+      }
+    }
+
     for (const dependency of dependencies) {
       if (this.#nodes.has(dependency)) {
         validDependencies.add(dependency);
@@ -139,15 +150,15 @@ export default class DependencyMap {
     }
   };
 
-  isRelated = (source: string, target: string) => {
-    if (source === target) return true;
+  isRelated = (source: string, targets: string[]) => {
+    if (targets.includes(source)) return true;
     const visited = new Set();
     const queue = [source];
     while (queue.length) {
       const node = queue.shift() as string;
       if (visited.has(node)) continue;
       visited.add(node);
-      if (node === target) return true;
+      if (targets.includes(node)) return true;
       const nodes = this.#dependencies.get(node) || [];
       for (const n of nodes) {
         queue.push(n);
@@ -155,4 +166,32 @@ export default class DependencyMap {
     }
     return false;
   };
+
+  getDependents(node: string) {
+    const nodes = this.#dependenciesInverse.get(node);
+    return Array.from(nodes || []);
+  }
+  getDirectDependencies(node: string) {
+    const nodes = this.#dependencies.get(node);
+    return Array.from(nodes || []);
+  }
+
+  getAllReachableNodes(source: string, targets: string[]) {
+    const reachableNodes: string[] = [];
+    if (targets.includes(source)) reachableNodes.push(source);
+    const visited = new Set();
+    const queue = [source];
+    while (queue.length) {
+      const node = queue.shift() as string;
+      if (visited.has(node)) continue;
+      visited.add(node);
+      if (targets.includes(node)) reachableNodes.push(source);
+      const nodes = this.#dependencies.get(node) || [];
+      for (const n of nodes) {
+        queue.push(n);
+      }
+    }
+
+    return reachableNodes;
+  }
 }

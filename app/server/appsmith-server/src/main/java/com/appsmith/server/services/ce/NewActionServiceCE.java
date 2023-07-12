@@ -59,9 +59,11 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission permission);
 
-    Flux<NewAction> findAllByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission permission, Sort sort);
+    Flux<NewAction> findAllByApplicationIdAndViewMode(
+            String applicationId, Boolean viewMode, AclPermission permission, Sort sort);
 
-    Flux<NewAction> findAllByApplicationIdAndViewMode(String applicationId, Boolean viewMode, Optional<AclPermission> permission, Optional<Sort> sort);
+    Flux<NewAction> findAllByApplicationIdAndViewMode(
+            String applicationId, Boolean viewMode, Optional<AclPermission> permission, Optional<Sort> sort);
 
     Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
 
@@ -71,7 +73,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, Boolean includeJsActions);
 
-    Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, String branchName, Boolean includeJsActions);
+    Flux<ActionDTO> getUnpublishedActions(
+            MultiValueMap<String, String> params, String branchName, Boolean includeJsActions);
 
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params);
 
@@ -95,15 +98,18 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings);
 
-    Mono<Boolean> updateActionsExecuteOnLoad(List<ActionDTO> actions, String pageId, List<LayoutActionUpdateDTO> actionUpdates, List<String> messages);
+    Mono<Boolean> updateActionsExecuteOnLoad(
+            List<ActionDTO> actions, String pageId, List<LayoutActionUpdateDTO> actionUpdates, List<String> messages);
 
     Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params);
 
     Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params, String branchName);
 
-    Mono<NewAction> findByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
+    Mono<NewAction> findByBranchNameAndDefaultActionId(
+            String branchName, String defaultActionId, AclPermission permission);
 
-    Mono<String> findBranchedIdByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
+    Mono<String> findBranchedIdByBranchNameAndDefaultActionId(
+            String branchName, String defaultActionId, AclPermission permission);
 
     Mono<NewAction> sanitizeAction(NewAction action);
 
@@ -113,16 +119,16 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     void populateDefaultResources(NewAction newAction, NewAction branchedAction, String branchName);
 
-    Mono<ImportActionResultDTO> importActions(List<NewAction> importedNewActionList,
-                                              Application importedApplication,
-                                              String branchName,
-                                              Map<String, NewPage> pageNameMap,
-                                              Map<String, String> pluginMap,
-                                              Map<String, String> datasourceMap,
-                                              ImportApplicationPermissionProvider permissionProvider);
+    Mono<ImportActionResultDTO> importActions(
+            List<NewAction> importedNewActionList,
+            Application importedApplication,
+            String branchName,
+            Map<String, NewPage> pageNameMap,
+            Map<String, String> pluginMap,
+            Map<String, String> datasourceMap,
+            ImportApplicationPermissionProvider permissionProvider);
 
     Mono<ImportedActionAndCollectionMapsDTO> updateActionsWithImportedCollectionIds(
             ImportActionCollectionResultDTO importActionCollectionResultDTO,
-            ImportActionResultDTO importActionResultDTO
-    );
+            ImportActionResultDTO importActionResultDTO);
 }

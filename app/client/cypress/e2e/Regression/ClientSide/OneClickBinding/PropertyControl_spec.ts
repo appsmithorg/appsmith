@@ -34,7 +34,7 @@ describe("excludeForAirgap", "One click binding control", () => {
     entityExplorer.NavigateToSwitcher("Explorer", 0, true);
 
     dataSources.CreateMockDB("Users").then(($createdMockUsers) => {
-      dataSources.CreateQueryFromActiveTab($createdMockUsers, true);
+      dataSources.CreateQueryAfterDSSaved();
     });
 
     cy.wait(500);

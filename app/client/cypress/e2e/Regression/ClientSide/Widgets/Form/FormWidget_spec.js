@@ -7,9 +7,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Form Widget Functionality", function () {
   before(() => {
-    cy.fixture("formdsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("formdsl");
   });
   it("1. Default Form text,  Reset and Close button Validation", function () {
     cy.get(widgetsPage.textWidget).should("be.visible");

@@ -16,6 +16,7 @@ public class Migration015RemoveNullEnvIdDatasourceStrucutureDocuments {
 
     private final MongoTemplate mongoTemplate;
     private static final String environmentId = FieldName.ENVIRONMENT_ID;
+
     public Migration015RemoveNullEnvIdDatasourceStrucutureDocuments(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
@@ -31,9 +32,9 @@ public class Migration015RemoveNullEnvIdDatasourceStrucutureDocuments {
     }
 
     private Criteria nullEnvironmentIdCriterion() {
-        return new Criteria().orOperator(
-                Criteria.where(environmentId).is(null),
-                Criteria.where(environmentId).exists(false)
-        );
+        return new Criteria()
+                .orOperator(
+                        Criteria.where(environmentId).is(null),
+                        Criteria.where(environmentId).exists(false));
     }
 }

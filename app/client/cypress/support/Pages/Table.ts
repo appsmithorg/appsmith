@@ -141,13 +141,13 @@ export class Table {
   _filtersCount = this._filterBtn + " span.action-title";
   _headerCell = (column: string) =>
     `.t--widget-tablewidgetv2 .thead .th:contains(${column})`;
-  _addNewRow = ".t--add-new-row";
+  private _addNewRow = ".t--add-new-row";
   _saveNewRow = ".t--save-new-row";
   _discardRow = ".t--discard-new-row";
   _searchInput = ".t--search-input input";
   _bodyCell = (cellValue: string) =>
     `.t--table-text-cell:contains(${cellValue})`;
-  _newRow = ".new-row";
+  private _newRow = ".new-row";
   _connectDataHeader = ".t--cypress-table-overlay-header";
   _connectDataButton = ".t--cypress-table-overlay-connectdata";
   _updateMode = (mode: "Single" | "Multi") =>
@@ -522,21 +522,17 @@ export class Table {
     tableVersion: "v1" | "v2" = "v1",
     networkCall = "viewPage",
   ) {
-    this.deployMode.StubbingWindow();
-    cy.url().then(($currentUrl) => {
-      this.agHelper.GetNClick(
-        this._tableRowColumnData(row, col, tableVersion),
-        0,
-        false,
-        4000,
-      ); //timeout new url to settle loading
-      cy.get("@windowStub").should("be.calledOnce");
-      cy.url().should("eql", expectedURL);
-      this.assertHelper.AssertDocumentReady();
-      cy.visit($currentUrl);
-      this.assertHelper.AssertNetworkStatus("@" + networkCall);
-      this.WaitUntilTableLoad(0, 0, tableVersion);
-    });
+    this.deployMode.StubWindowNAssert(
+      this._tableRowColumnData(row, col, tableVersion),
+      expectedURL,
+      networkCall,
+    );
+    this.WaitUntilTableLoad(0, 0, tableVersion);
+  }
+
+  public AddNewRow() {
+    this.agHelper.GetNClick(this._addNewRow);
+    this.agHelper.AssertElementExist(this._newRow);
   }
 
   public AddColumn(colId: string) {
@@ -580,12 +576,7 @@ export class Table {
     this.agHelper.GetNClick(colSettings);
   }
 
-  public EditTableCell(
-    rowIndex: number,
-    colIndex: number,
-    newValue: "" | number | string,
-    toSaveNewValue = true,
-  ) {
+  public ClickOnEditIcon(rowIndex: number, colIndex: number) {
     this.agHelper.HoverElement(this._tableRow(rowIndex, colIndex, "v2"));
     this.agHelper.GetNClick(
       this._tableRow(rowIndex, colIndex, "v2") + " " + this._editCellIconDiv,
@@ -597,6 +588,15 @@ export class Table {
         " " +
         this._editCellEditorInput,
     );
+  }
+
+  public EditTableCell(
+    rowIndex: number,
+    colIndex: number,
+    newValue: "" | number | string,
+    toSaveNewValue = true,
+  ) {
+    this.ClickOnEditIcon(rowIndex, colIndex);
     this.UpdateTableCell(
       rowIndex,
       colIndex,
@@ -611,12 +611,14 @@ export class Table {
     colIndex: number,
     newValue: "" | number | string,
     toSaveNewValue = false,
+    force = false,
   ) {
     this.agHelper.UpdateInputValue(
       this._tableRow(rowIndex, colIndex, "v2") +
         " " +
         this._editCellEditorInput,
       newValue.toString(),
+      force,
     );
     toSaveNewValue &&
       this.agHelper.TypeText(this._editCellEditorInput, "{enter}", 0, true);

@@ -3,7 +3,7 @@
   "mongo-host": "host.docker.internal",
   "mongo-port": 28017,
   "mongo-databaseName": "mongo_samples",
-  "mongo-uri": "mongodb+srv://localhost:localhost@mockdb.net/mock?retryWrites=true&w=majority",
+  "mongo-uri": "mongodb://host.docker.internal:28017/mongo_samples?retryWrites=true&w=majority",
 
   "postgres-host": "host.docker.internal",
   "postgres-port": 5432,
@@ -64,7 +64,6 @@
   "AirtableBase": "appubHrVbovcudwN6",
   "AirtableTable": "tblsFCQSskVFf7xNd",
 
-  "mockApiUrl": "http://host.docker.internal:5001/v1/mock-api?records=10",
   "echoApiUrl": "http://host.docker.internal:5001/v1/mock-api/echo",
   "randomCatfactUrl": "http://host.docker.internal:5001/v1/catfact/random",
   "multipartAPI": "http://host.docker.internal:5001/v1/mock-api/echo-multipart",

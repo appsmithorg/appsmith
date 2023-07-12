@@ -1,24 +1,17 @@
-const simpleListDSL = require("../../../../../fixtures/Listv2/simpleList.json");
-const simpleListWithLargeDataDSL = require("../../../../../fixtures/Listv2/simpleListWithLargeData.json");
-const ListV2WithNullPrimaryKeyDSL = require("../../../../../fixtures/Listv2/ListV2WithNullPrimaryKey.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const propertyControl = ".t--property-control";
-
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
-
 function testJsontextClear(endp) {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
     .focus({ force: true })
     .type(`{${modifierKey}}{a}`, { force: true })
     .type(`{${modifierKey}}{del}`, { force: true });
 }
-
 const data = [
   {
     id: "001",
@@ -50,7 +43,7 @@ describe("List v2 - Data Identifier property", () => {
   });
 
   it("1. is present in the property pane", () => {
-    cy.addDsl(simpleListDSL);
+    _.agHelper.AddDsl("Listv2/simpleList");
 
     cy.openPropertyPane("listwidgetv2");
 
@@ -132,7 +125,7 @@ describe("List v2 - Data Identifier property", () => {
   });
 
   it("6. with large data set and data identifier set, the rows should render", () => {
-    cy.addDsl(simpleListWithLargeDataDSL);
+    _.agHelper.AddDsl("Listv2/simpleListWithLargeData");
 
     cy.openPropertyPane("listwidgetv2");
 
@@ -180,7 +173,8 @@ describe("List v2 - Data Identifier property", () => {
   });
 
   it("9. Widgets get displayed when PrimaryKey doesn't exist - SSP", () => {
-    cy.addDsl(ListV2WithNullPrimaryKeyDSL);
+    _.agHelper.AddDsl("Listv2/ListV2WithNullPrimaryKey");
+    _.agHelper.AddDsl("Listv2/ListV2WithNullPrimaryKey");
     cy.createAndFillApi(
       "https://api.punkapi.com/v2/beers?page={{List1.pageNo}}&per_page={{List1.pageSize}}",
       "",

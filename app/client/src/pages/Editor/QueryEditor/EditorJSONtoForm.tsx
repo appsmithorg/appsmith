@@ -9,8 +9,12 @@ import {
   getPluginNameFromId,
 } from "selectors/entitiesSelector";
 import FormControl from "../FormControl";
-import type { Action, QueryAction, SaaSAction } from "entities/Action";
-import { SlashCommand } from "entities/Action";
+import {
+  PluginName,
+  type Action,
+  type QueryAction,
+  type SaaSAction,
+} from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
@@ -77,7 +81,6 @@ import type {
 import type { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import * as Sentry from "@sentry/react";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
@@ -102,7 +105,6 @@ import {
   hasExecuteActionPermission,
   hasManageActionPermission,
 } from "@appsmith/utils/permissionHelpers";
-import { executeCommandAction } from "actions/apiPaneActions";
 import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
 import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
@@ -127,9 +129,11 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
-import SearchSnippets from "pages/common/SearchSnippets";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
+import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -308,12 +312,12 @@ const DocumentationButton = styled(Button)`
 
 const SidebarWrapper = styled.div<{ show: boolean }>`
   border-left: 1px solid var(--ads-v2-color-border);
-  padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-7);
-  overflow: auto;
+  padding: 0 var(--ads-v2-spaces-4) var(--ads-v2-spaces-4);
+  overflow: hidden;
   border-bottom: 0;
   display: ${(props) => (props.show ? "flex" : "none")};
   width: ${(props) => props.theme.actionSidePane.width}px;
-  margin-top: 38px;
+  margin-top: 10px;
   /* margin-left: var(--ads-v2-spaces-7); */
 `;
 
@@ -358,6 +362,7 @@ type QueryFormProps = {
     id,
     value,
   }: UpdateActionPropertyActionPayload) => void;
+  datasourceId: string;
 };
 
 type ReduxProps = {
@@ -874,6 +879,23 @@ export function EditorJSONtoForm(props: Props) {
   //TODO: move this to a common place
   const onClose = () => dispatch(showDebugger(false));
 
+  // A/B feature flag for datasource structure.
+  const isEnabledForDSSchema = useSelector((state) =>
+    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_schema_enabled),
+  );
+
+  // A/B feature flag for query binding.
+  const isEnabledForQueryBinding = useSelector((state) =>
+    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_binding_enabled),
+  );
+
+  // here we check for normal conditions for opening action pane
+  // or if any of the flags are true, We should open the actionpane by default.
+  const shouldOpenActionPaneByDefault =
+    ((hasDependencies || !!output) && !guidedTourEnabled) ||
+    ((isEnabledForDSSchema || isEnabledForQueryBinding) &&
+      currentActionPluginName !== PluginName.SMTP);
+
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
   if (!props.initialized) {
@@ -897,22 +919,6 @@ export function EditorJSONtoForm(props: Props) {
               isDeletePermitted={isDeletePermitted}
               name={currentActionConfig ? currentActionConfig.name : ""}
               pageId={pageId}
-            />
-            <SearchSnippets
-              className="search-snippets"
-              entityId={currentActionConfig?.id}
-              entityType={ENTITY_TYPE.ACTION}
-              onClick={() => {
-                dispatch(
-                  executeCommandAction({
-                    actionType: SlashCommand.NEW_SNIPPET,
-                    args: {
-                      entityId: currentActionConfig?.id,
-                      entityType: ENTITY_TYPE.ACTION,
-                    },
-                  }),
-                );
-              }}
             />
             <DropdownSelect>
               <DropdownField
@@ -1090,14 +1096,15 @@ export function EditorJSONtoForm(props: Props) {
                 )}
             </SecondaryWrapper>
           </div>
-          <SidebarWrapper
-            show={(hasDependencies || !!output) && !guidedTourEnabled}
-          >
+          <SidebarWrapper show={shouldOpenActionPaneByDefault}>
             <ActionRightPane
               actionName={actionName}
+              context={DatasourceStructureContext.QUERY_EDITOR}
+              datasourceId={props.datasourceId}
               entityDependencies={entityDependencies}
               hasConnections={hasDependencies}
               hasResponse={!!output}
+              pluginId={props.pluginId}
               suggestedWidgets={executedQueryData?.suggestedWidgets}
             />
           </SidebarWrapper>

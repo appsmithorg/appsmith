@@ -384,10 +384,8 @@ export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
   "LocalStorage is not supported on your device. Some features including the Appsmith store won't work.";
 
 export const OMNIBAR_PLACEHOLDER = () =>
-  `Search widgets, queries, documentation`;
-export const OMNIBAR_PLACEHOLDER_SNIPPETS = () => "Search code snippets";
+  `Search widgets, queries or create new`;
 export const OMNIBAR_PLACEHOLDER_NAV = () => "Search widgets and queries";
-export const OMNIBAR_PLACEHOLDER_DOC = () => "Search documentation";
 export const CREATE_NEW_OMNIBAR_PLACEHOLDER = () =>
   "Create a new query, API or JS Object";
 export const HELPBAR_PLACEHOLDER = () => "Search";
@@ -649,6 +647,9 @@ export const BULK_WIDGET_REMOVED = (widgetName: string) =>
 export const BULK_WIDGET_ADDED = (widgetName: string) =>
   `${widgetName} widgets are added back`;
 
+export const ACTION_CONFIGURATION_CHANGED = (name: string) =>
+  `${name}'s configuration has changed`;
+
 // Generate page from DB Messages
 
 export const UNSUPPORTED_PLUGIN_DIALOG_TITLE = () =>
@@ -693,19 +694,37 @@ export const ADD_NEW_WIDGET = () => "Add new widget";
 export const SUGGESTED_WIDGETS = () => "Suggested widgets";
 export const SUGGESTED_WIDGET_TOOLTIP = () => "Add to canvas";
 export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next mission";
+export const BINDING_SECTION_LABEL = () => "Bindings";
+export const ADD_NEW_WIDGET_SUB_HEADING = () =>
+  "Select how you want to display data.";
+export const CONNECT_EXISTING_WIDGET_LABEL = () => "Select a Widget";
+export const CONNECT_EXISTING_WIDGET_SUB_HEADING = () =>
+  "Replace the data of an existing widget";
+export const NO_EXISTING_WIDGETS = () => "Display data in a new widget";
+export const BINDING_WALKTHROUGH_TITLE = () => "Display your data";
+export const BINDING_WALKTHROUGH_DESC = () =>
+  "You can replace data of an existing widget of your page or you can select a new widget.";
+export const BINDINGS_DISABLED_TOOLTIP = () =>
+  "You can display data when you have a successful response to your query";
 
 // Data Sources pane
 export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
+
+// Datasource structure
+
 export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
-
-export const SNIPPET_EXECUTION_SUCCESS = () => `Snippet executed successfully.`;
-
-export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
-
-export const SNIPPET_INSERT = () => `Hit ⏎ to insert`;
-export const SNIPPET_COPY = () => `Hit ⏎ to copy`;
-export const SNIPPET_EXECUTE = () => `Hit ⏎ to run`;
-export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
+export const TABLE_OR_COLUMN_NOT_FOUND = () => "Table or column not found.";
+export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = () =>
+  "Search for table or attribute";
+export const SCHEMA_LABEL = () => "Schema";
+export const STRUCTURE_NOT_FETCHED = () =>
+  "We could not fetch the schema of the database.";
+export const TEST_DATASOURCE_AND_FIX_ERRORS = () =>
+  "Test the datasource and fix the errors.";
+export const LOADING_SCHEMA = () => "Loading schema...";
+export const SCHEMA_WALKTHROUGH_TITLE = () => "Query data fast";
+export const SCHEMA_WALKTHROUGH_DESC = () =>
+  "Select a template from a database table to quickly create your first query. ";
 
 // Git sync
 export const CONNECTED_TO_GIT = () => "Connected to Git";
@@ -741,7 +760,7 @@ export const NAME_YOUR_NEW_BRANCH = () => "Name your new branch";
 export const SWITCH_BRANCHES = () => "Switch branches";
 
 export const DOCUMENTATION = () => "Documentation";
-export const DOCUMENTATION_TOOLTIP = () => "Open docs in omnibar";
+export const DOCUMENTATION_TOOLTIP = () => "Open docs in new tab";
 export const CONNECT = () => "Connect";
 export const LATEST_DP_TITLE = () => "Latest deployed preview";
 export const LATEST_DP_SUBTITLE = () => "last deployed";
@@ -880,6 +899,8 @@ export const DISCARD_CHANGES = () => "Discard & pull";
 // GIT DEPLOY begin
 export const DEPLOY = () => "Deploy";
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
+export const CHANGES_APP_SETTINGS = () => "Application settings modified";
+export const CHANGES_THEME = () => "Theme modified";
 export const CHANGES_SINCE_LAST_DEPLOYMENT = () =>
   "Changes since last deployment";
 export const CHANGES_ONLY_USER = () => "Changes since last commit";
@@ -925,12 +946,6 @@ export const ERROR_GIT_AUTH_FAIL = () =>
 export const ERROR_GIT_INVALID_REMOTE = () =>
   "Either the remote repository doesn't exist or is unreachable.";
 // GIT ERRORS end
-
-// JS Snippets
-export const SNIPPET_DESCRIPTION = () =>
-  `Search and insert code snippets to perform complex actions quickly.`;
-export const DOC_DESCRIPTION = () =>
-  `Find answers through Appsmith documentation.`;
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 export const ACTION_OPERATION_DESCRIPTION = () =>
@@ -1486,7 +1501,7 @@ export const FORK_THIS_TEMPLATE = () => "Use template";
 export const COULDNT_FIND_TEMPLATE = () =>
   "Couldn’t find what you are looking for?";
 export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
-  "A github issue portal will be opened up for you to create an issue regarding what type of template you need.";
+  "Submit suggestions for templates you'd like to see or upvote requests raised by others and our team will work on it.";
 export const REQUEST_TEMPLATE = () => "Request for a template";
 export const SEARCH_TEMPLATES = () => "Search templates";
 export const INTRODUCING_TEMPLATES = () => "Introducing templates";

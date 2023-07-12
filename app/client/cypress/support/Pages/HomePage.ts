@@ -84,10 +84,12 @@ export class HomePage {
   private _importSuccessModal = ".t--import-app-success-modal";
   private _forkModal = ".fork-modal";
   private _importSuccessModalGotit = ".t--import-success-modal-got-it";
-  private _applicationContextMenu = (applicationName: string) =>
+  private _appCard = (applicationName: string) =>
     "//span[text()='" +
     applicationName +
-    "']/ancestor::div[contains(@class, 't--application-card')]//button[@aria-haspopup='menu']";
+    "']/ancestor::div[contains(@class, 't--application-card')]";
+  private _applicationContextMenu = (applicationName: string) =>
+    this._appCard(applicationName) + "//button[@aria-haspopup='menu']";
   private _forkApp = '[data-testid="t--fork-app"]';
   private _deleteApp = '[data-testid="t--delete-confirm"]';
   private _deleteAppConfirm = '[data-testid="t--delete"]';
@@ -108,6 +110,7 @@ export class HomePage {
   // _appRenameTooltip =
   //   '//span[text()="Rename application"]/ancestor::div[contains(@class,"rc-tooltip")]';
   _appRenameTooltip = "span:contains('Rename application')";
+  _importFromGitBtn = "div.t--import-json-card + div";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -290,7 +293,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._profileMenu);
     this.agHelper.GetNClick(this._signout);
     this.assertHelper.AssertNetworkStatus("@postLogout");
-    this.agHelper.Sleep(); //for logout to complete!
+    return this.agHelper.Sleep(); //for logout to complete!
   }
 
   public GotoProfileMenu() {
@@ -337,12 +340,15 @@ export class HomePage {
   //Maps to launchApp in command.js
   public LaunchAppFromAppHover() {
     cy.get(this._appHoverIcon("view")).should("be.visible").first().click();
-    cy.get(this.locator._loading).should("not.exist");
-    cy.wait("@getPagesForViewApp").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    this.agHelper.AssertElementAbsence(this.locator._loading);
+    this.assertHelper.AssertNetworkStatus("getPagesForViewApp");
+  }
+
+  public EditAppFromAppHover() {
+    cy.get(this._applicationCard).first().trigger("mouseover");
+    this.agHelper.GetNClick(this._appHoverIcon("edit"));
+    this.agHelper.AssertElementAbsence(this.locator._loading);
+    this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
   //Maps to deleteUserFromWorkspace in command.js
@@ -434,6 +440,17 @@ export class HomePage {
     this.agHelper.Sleep(3500);
   }
 
+  public ImportGitApp(intoWorkspaceName = "") {
+    this.NavigateToHome();
+    if (intoWorkspaceName)
+      this.agHelper.GetNClick(this._optionsIconInWorkspace(intoWorkspaceName));
+    else this.agHelper.GetNClick(this._optionsIcon);
+    this.agHelper.GetNClick(this._workspaceImport, 0, true);
+    this.agHelper.AssertElementVisible(this._workspaceImportAppModal);
+    this.agHelper.GetNClick(this._importFromGitBtn);
+    this.agHelper.Sleep(1000);
+  }
+
   // Do not use this directly, it will fail on EE. Use `InviteUserToApplication` instead
   private InviteUserToWorkspaceFromApp(
     email: string,
@@ -501,6 +518,9 @@ export class HomePage {
 
   public AssertNCloseImport() {
     this.agHelper.AssertElementVisible(this._importSuccessModal);
+    this.agHelper.AssertElementVisible(
+      this.locator._visibleTextSpan("Your application is ready to use."),
+    );
     this.agHelper.GetNClick(this._importSuccessModalGotit, 0, true);
   }
 

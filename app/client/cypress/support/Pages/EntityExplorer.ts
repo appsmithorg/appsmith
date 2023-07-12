@@ -302,10 +302,11 @@ export class EntityExplorer {
     this.agHelper.Sleep(500);
   }
 
-  public DragDropWidgetNVerify(
+  private DragNDropWidget(
     widgetType: string,
     x = 300,
     y = 100,
+    parentWidgetType = "",
     dropTargetId = "",
   ) {
     this.NavigateToSwitcher("Widgets");
@@ -321,9 +322,11 @@ export class EntityExplorer {
       .trigger("mousemove", x, y, { force: true });
     cy.get(
       dropTargetId
-        ? this.locator._widgetInCanvas(dropTargetId) +
-            " " +
-            this.locator._dropHere
+        ? dropTargetId + this.locator._dropHere
+        : parentWidgetType
+        ? this.locator._widgetInCanvas(parentWidgetType) +
+          " " +
+          this.locator._dropHere
         : this.locator._dropHere,
     )
       .first()
@@ -331,22 +334,32 @@ export class EntityExplorer {
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" });
     this.agHelper.Sleep(200);
     cy.get(
-      dropTargetId
-        ? this.locator._widgetInCanvas(dropTargetId) +
+      parentWidgetType
+        ? this.locator._widgetInCanvas(parentWidgetType) +
             " " +
             this.locator._dropHere
         : this.locator._dropHere,
     )
       .first()
       .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+  }
+
+  public DragDropWidgetNVerify(
+    widgetType: string,
+    x = 300,
+    y = 100,
+    parentWidgetType = "",
+    dropTargetId = "",
+  ) {
+    this.DragNDropWidget(widgetType, x, y, parentWidgetType, dropTargetId);
     this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
     if (widgetType === "modalwidget") {
       cy.get(".t--modal-widget").should("exist");
     } else {
-      if (dropTargetId) {
+      if (parentWidgetType) {
         this.agHelper.AssertElementExist(
           `${this.locator._widgetInCanvas(
-            dropTargetId,
+            parentWidgetType,
           )} ${this.locator._widgetInCanvas(widgetType)}`,
         );
       } else {

@@ -9,7 +9,10 @@ import org.springframework.stereotype.Component;
 public class CustomApiTemplateRepositoryImpl extends CustomApiTemplateRepositoryCEImpl
         implements CustomApiTemplateRepository {
 
-    public CustomApiTemplateRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomApiTemplateRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 }

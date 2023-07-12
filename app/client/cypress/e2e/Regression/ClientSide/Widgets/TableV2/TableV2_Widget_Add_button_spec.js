@@ -11,9 +11,7 @@ import {
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
-    cy.fixture("tableV2NewDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableV2NewDsl");
   });
 
   it("1. Table widget V2 with Add button test and validation", function () {
@@ -34,8 +32,6 @@ describe("Table Widget V2 property pane feature validation", function () {
     agHelper.AssertAutoSave();
     // Validating the button action by clicking
     cy.get(widgetsPage.tableV2Btn).last().click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(3000);
     // Validating the toast message
     agHelper.WaitUntilToastDisappear("Successful tobias.funke@reqres.in");
 
