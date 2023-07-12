@@ -1558,6 +1558,7 @@ class CodeEditor extends Component<Props, State> {
             currentValue={this.props.input.value}
             dataTreePath={dataTreePath}
             enableAIAssistance={this.AIEnabled}
+            entity={entityInformation}
             isOpen={this.state.showAIWindow}
             mode={this.props.mode}
             triggerContext={this.props.expected}
