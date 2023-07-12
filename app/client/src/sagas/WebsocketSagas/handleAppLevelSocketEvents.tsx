@@ -22,6 +22,7 @@ export default function* handleAppLevelSocketEvents(event: any) {
       if (appVersion.id && appVersion.id != event.payload[0]) {
         toast.show(createMessage(INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST), {
           kind: "info",
+          autoClose: false,
           action: {
             text: "refresh",
             effect: () => location.reload(),
