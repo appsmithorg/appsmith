@@ -35,6 +35,12 @@ const eslintConfig = {
             // Allow type imports as they don’t lead to bundling the dependency
             allowTypeImports: true,
           },
+          {
+            name: "sql-formatter",
+            importNames: ["format"],
+            message:
+              "Reason: Instead of `import { format }` (which bundles all formatting dialects), please import only dialects you need (e.g. `import { formatDialect, postgresql }`. See https://github.com/sql-formatter-org/sql-formatter/issues/452",
+          },
         ],
         patterns: [
           ...(baseNoRestrictedImports.patterns ?? []),
