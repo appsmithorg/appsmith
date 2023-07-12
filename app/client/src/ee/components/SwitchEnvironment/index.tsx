@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import type { EnvironmentType } from "@appsmith/reducers/environmentReducer";
 import {
   ENVIRONMENT_QUERY_KEY,
@@ -12,8 +12,8 @@ import {
   getEnvironments,
 } from "@appsmith/selectors/environmentSelectors";
 import { Option, Select, Text } from "design-system";
-import { useFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 
 const Wrapper = styled.div`
   display: flex;
@@ -38,8 +38,12 @@ const SwitchEnvironment = ({ defaultEnvironment, environmentList }: Props) => {
   useEffect(() => {
     !!selectedEnv && updateLocalStorage(selectedEnv.name, selectedEnv.id);
   }, [environmentList.length]);
-  const allowedToRender = useFeatureFlagCheck(
-    FEATURE_FLAG.release_datasource_environments_enabled,
+
+  const allowedToRender = useSelector((state) =>
+    selectFeatureFlagCheck(
+      state,
+      FEATURE_FLAG.release_datasource_environments_enabled,
+    ),
   );
 
   // function to set the selected environment

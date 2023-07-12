@@ -231,6 +231,10 @@ export class DataSources {
   _bodyCodeMirror = "//div[contains(@class, 't--actionConfiguration.body')]";
   private _reconnectModalDSToolTip = ".t--ds-list .t--ds-list-title";
   private _reconnectModalDSToopTipIcon = ".t--ds-list .ads-v2-icon";
+  private _datasourceTableSchemaInQueryEditor =
+    ".datasourceStructure-query-editor";
+  private _datasourceColumnSchemaInQueryEditor = ".t--datasource-column";
+  private _datasourceStructureSearchInput = ".datasourceStructure-search input";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -1196,6 +1200,35 @@ export class DataSources {
     cy.wait("@getDSStructure").then(() => {
       cy.get(".bp3-collapse-body").contains(schema);
     });
+  }
+
+  public VerifyTableSchemaOnQueryEditor(schema: string) {
+    this.agHelper
+      .GetElement(this._datasourceTableSchemaInQueryEditor)
+      .contains(schema);
+  }
+
+  public VerifyColumnSchemaOnQueryEditor(schema: string, index = 0) {
+    this.agHelper
+      .GetElement(this._datasourceColumnSchemaInQueryEditor)
+      .eq(index)
+      .contains(schema);
+  }
+
+  public FilterAndVerifyDatasourceSchemaBySearch(
+    search: string,
+    verifySearch = false,
+    filterBy: "table" | "column" = "column",
+  ) {
+    this.agHelper.TypeText(this._datasourceStructureSearchInput, search);
+
+    if (verifySearch) {
+      if (filterBy === "column") {
+        this.VerifyColumnSchemaOnQueryEditor(search);
+      } else {
+        this.VerifyTableSchemaOnQueryEditor(search);
+      }
+    }
   }
 
   public SaveDSFromDialog(save = true) {

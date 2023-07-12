@@ -78,7 +78,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
         if (Boolean.FALSE.equals(datasourceStorage.getIsValid())) {
             return analyticsService
                     .sendObjectEvent(
-                            AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_FAILED,
+                            AnalyticsEvents.DS_SCHEMA_FETCH_EVENT,
                             datasourceStorage,
                             getAnalyticsPropertiesForTestEventStatus(datasourceStorage, false))
                     .then(Mono.just(new DatasourceStructure()));
@@ -128,7 +128,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                 })
                 .onErrorResume(error -> analyticsService
                         .sendObjectEvent(
-                                AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_FAILED,
+                                AnalyticsEvents.DS_SCHEMA_FETCH_EVENT,
                                 datasourceStorage,
                                 getAnalyticsPropertiesForTestEventStatus(datasourceStorage, false, error))
                         .then(Mono.error(error)))
@@ -138,7 +138,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
 
                     return analyticsService
                             .sendObjectEvent(
-                                    AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_SUCCESS,
+                                    AnalyticsEvents.DS_SCHEMA_FETCH_EVENT,
                                     datasourceStorage,
                                     getAnalyticsPropertiesForTestEventStatus(datasourceStorage, true, null))
                             .then(
