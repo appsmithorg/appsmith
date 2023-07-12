@@ -7,8 +7,8 @@ export const FEATURE_FLAG = {
   APP_NAVIGATION_LOGO_UPLOAD: "APP_NAVIGATION_LOGO_UPLOAD",
   ask_ai_sql: "ask_ai_sql",
   ask_ai_js: "ask_ai_js",
-  APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY:
-    "APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY",
+  release_embed_hide_share_settings_enabled:
+    "release_embed_hide_share_settings_enabled",
   ab_ds_schema_enabled: "ab_ds_schema_enabled",
   ab_ds_binding_enabled: "ab_ds_binding_enabled",
 } as const;
@@ -24,7 +24,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   APP_NAVIGATION_LOGO_UPLOAD: false,
   ask_ai_js: false,
   ask_ai_sql: false,
-  APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY: false,
+  release_embed_hide_share_settings_enabled: false,
   ab_ds_schema_enabled: false,
   ab_ds_binding_enabled: false,
 };
