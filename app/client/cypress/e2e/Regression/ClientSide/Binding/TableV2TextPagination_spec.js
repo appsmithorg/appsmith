@@ -145,6 +145,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     );
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitUntilTableLoad(0, 0, "v2");
+    agHelper.Sleep(3000);
     cy.wait("@postExecute").then((interception) => {
       let valueToTest = JSON.stringify(
         interception.response.body.data.body[0].name,
