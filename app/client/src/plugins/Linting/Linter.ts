@@ -1,11 +1,11 @@
 import type { ILinter } from "./linters";
-import { BaseLinter, WorkerLinter } from "./linters";
+import { WorkerLinter } from "./linters";
 import type { LintTreeRequestPayload, updateJSLibraryProps } from "./types";
 
 export class Linter {
   linter: ILinter;
-  constructor(options: { useWorker: boolean }) {
-    this.linter = options.useWorker ? new WorkerLinter() : new BaseLinter();
+  constructor() {
+    this.linter = new WorkerLinter();
     this.lintTree = this.lintTree.bind(this);
     this.updateJSLibraryGlobals = this.updateJSLibraryGlobals.bind(this);
     this.start = this.start.bind(this);
