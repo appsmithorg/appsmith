@@ -62,7 +62,9 @@ export class DataSources {
     this._section(name) +
     "/following-sibling::div/div[@class ='bp3-collapse-body']";
   private _password =
-    "input[name$='.datasourceConfiguration.authentication.password']";
+    "input[name $= '.datasourceConfiguration.authentication.password']";
+  private defaultDatabaseName =
+    "input[name*='datasourceConfiguration.connection.defaultDatabaseName']";
   private _testDs = ".t--test-datasource";
   _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   _saveDs = ".t--save-datasource";
@@ -229,6 +231,10 @@ export class DataSources {
   _bodyCodeMirror = "//div[contains(@class, 't--actionConfiguration.body')]";
   private _reconnectModalDSToolTip = ".t--ds-list .t--ds-list-title";
   private _reconnectModalDSToopTipIcon = ".t--ds-list .ads-v2-icon";
+  private _datasourceTableSchemaInQueryEditor =
+    ".datasourceStructure-query-editor";
+  private _datasourceColumnSchemaInQueryEditor = ".t--datasource-column";
+  private _datasourceStructureSearchInput = ".datasourceStructure-search input";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -865,19 +871,23 @@ export class DataSources {
     }
   }
 
-  public ReconnectDataSource(dbName: string, dsName: "PostgreSQL" | "MySQL") {
+  public ReconnectSingleDSNAssert(
+    dbName: string,
+    dsName: "PostgreSQL" | "MySQL" | "MongoDB",
+  ) {
     this.ReconnectModalValidation(dbName, dsName);
     this.ValidateNSelectDropdown("Connection mode", "Read / Write");
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
-    this.agHelper.GetNClick(this._saveDs);
+    else if (dsName == "MongoDB") this.FillMongoDSForm();
+    this.SaveDatasource(true);
     this.assertHelper.AssertNetworkStatus("@getPage", 200);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
   public ReconnectModalValidation(
     dbName: string,
-    dsName: "PostgreSQL" | "MySQL",
+    dsName: "PostgreSQL" | "MySQL" | "MongoDB",
   ) {
     this.WaitForReconnectModalToAppear();
     this.agHelper.AssertElementVisible(
@@ -1190,6 +1200,35 @@ export class DataSources {
     cy.wait("@getDSStructure").then(() => {
       cy.get(".bp3-collapse-body").contains(schema);
     });
+  }
+
+  public VerifyTableSchemaOnQueryEditor(schema: string) {
+    this.agHelper
+      .GetElement(this._datasourceTableSchemaInQueryEditor)
+      .contains(schema);
+  }
+
+  public VerifyColumnSchemaOnQueryEditor(schema: string, index = 0) {
+    this.agHelper
+      .GetElement(this._datasourceColumnSchemaInQueryEditor)
+      .eq(index)
+      .contains(schema);
+  }
+
+  public FilterAndVerifyDatasourceSchemaBySearch(
+    search: string,
+    verifySearch = false,
+    filterBy: "table" | "column" = "column",
+  ) {
+    this.agHelper.TypeText(this._datasourceStructureSearchInput, search);
+
+    if (verifySearch) {
+      if (filterBy === "column") {
+        this.VerifyColumnSchemaOnQueryEditor(search);
+      } else {
+        this.VerifyTableSchemaOnQueryEditor(search);
+      }
+    }
   }
 
   public SaveDSFromDialog(save = true) {
