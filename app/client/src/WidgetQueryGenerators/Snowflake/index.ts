@@ -7,7 +7,7 @@ import type {
   ActionConfigurationSQL,
 } from "../types";
 import { removeSpecialChars } from "utils/helpers";
-import { without } from "lodash";
+import { without } from "workers/common/JSLibrary/lodash-wrapper";
 
 export default abstract class Snowflake extends BaseQueryGenerator {
   private static buildSelect(
