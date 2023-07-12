@@ -33,7 +33,7 @@ import {
   AB_TESTING_EVENT_KEYS,
   FEATURE_FLAG,
 } from "@appsmith/entities/FeatureFlag";
-import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import { useParams } from "react-router";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -500,7 +500,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
                 <Text kind="body-s">{createMessage(NO_EXISTING_WIDGETS)}</Text>
               )}
 
-              {/* Table Widget condition is added temporarily as connect to existing 
+              {/* Table Widget condition is added temporarily as connect to existing
               functionality is currently working only for Table Widget,
               in future we want to support it for all widgets */}
               {

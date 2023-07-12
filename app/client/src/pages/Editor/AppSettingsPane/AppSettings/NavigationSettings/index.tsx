@@ -24,7 +24,7 @@ import { Spinner } from "design-system";
 import LogoInput from "@appsmith/pages/Editor/NavigationSettings/LogoInput";
 import SwitchSettingForLogoConfiguration from "./SwitchSettingForLogoConfiguration";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 
 /**
  * TODO - @Dhruvik - ImprovedAppNav

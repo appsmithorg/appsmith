@@ -17,7 +17,7 @@ import {
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
-import { selectFeatureFlags } from "selectors/featureFlagsSelectors";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 const regex = /^[1-9][0-9]{0,3}((px)|(em)|(%)|(vw)|(vh))?$/;
 
