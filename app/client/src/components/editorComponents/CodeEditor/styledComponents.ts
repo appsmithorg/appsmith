@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import type { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
-import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+
 import {
   EditorSize,
   EditorTheme,

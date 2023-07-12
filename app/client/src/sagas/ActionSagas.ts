@@ -948,7 +948,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
         (state) => state.ai.noOfTimesAITriggered,
       );
 
-      if (noOfTimesAIPromptTriggered <= 5) {
+      if (noOfTimesAIPromptTriggered < 5) {
         const currentValue: number = yield setAIPromptTriggered();
         yield put({
           type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
