@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { Callout, Text } from "design-system";
@@ -46,6 +46,10 @@ const AnimationContainer = styled.div`
 
 const ProductAlertBanner = () => {
   const dispatch = useDispatch();
+
+  const [isShown, setIsShown] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
   const isSignpostingOverlayOpen = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
@@ -53,7 +57,6 @@ const ProductAlertBanner = () => {
   const { config, message }: ProductAlertState | undefined = useSelector(
     (state) => state.ui.users.productAlert,
   );
-  const [dismissed, setDismissed] = useState(false);
 
   const updateConfig = useCallback(
     (messageId: string, config: ProductAlertConfig) => {
@@ -62,6 +65,16 @@ const ProductAlertBanner = () => {
     },
     [],
   );
+
+  // Delay showing the message.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsShown(true);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!isShown) return null;
 
   if (!userIsLoggedIn) return null;
   if (isSignpostingOverlayOpen) return null;

@@ -17,4 +17,4 @@ export const getFeatureFlagsFetched = (state: AppState) =>
   state.ui.users.featureFlag.isFetched;
 
 export const getIsUserLoggedIn = (state: AppState): boolean =>
-  state.ui.users.currentUser?.email === ANONYMOUS_USERNAME;
+  state.ui.users.currentUser?.email !== ANONYMOUS_USERNAME;
