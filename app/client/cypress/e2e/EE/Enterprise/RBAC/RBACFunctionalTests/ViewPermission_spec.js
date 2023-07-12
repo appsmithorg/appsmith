@@ -253,8 +253,6 @@ describe("View Permission flow ", function () {
     cy.wait(3000);
     cy.get(".t--entity-name:contains('page2')").click();
     cy.wait(3000);
-    cy.get(pages.entityQuery).click();
-    cy.wait(3000);
     cy.get(".t--entity-name:contains('Api123')").click();
     cy.RunAPI();
   });
