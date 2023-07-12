@@ -30,10 +30,10 @@ export class GitSync {
     "']";
   _checkMergeability = "//span[contains(text(), 'Checking mergeability')]";
   private _branchListItem = "[data-testid=t--branch-list-item]";
-  private _bottomBarMergeButton = ".t--bottom-bar-merge";
-  private _mergeBranchDropdownDestination =
+  public _bottomBarMergeButton = ".t--bottom-bar-merge";
+  public _mergeBranchDropdownDestination =
     ".t--merge-branch-dropdown-destination";
-  private _dropdownmenu = ".rc-select-item-option-content";
+  public _dropdownmenu = ".rc-select-item-option-content";
   private _openRepoButton = "[data-testid=t--git-repo-button]";
   private _commitButton = ".t--commit-button";
   private _commitCommentInput = ".t--commit-comment-input textarea";

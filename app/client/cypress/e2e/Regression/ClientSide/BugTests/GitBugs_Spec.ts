@@ -4,6 +4,9 @@ import datasourceFormData from "../../../../fixtures/datasources.json";
 let repoName: any;
 let tempBranch: any;
 let statusBranch: any;
+let tempBranch1: any;
+let tempBranch2: any;
+let tempBranch3: any;
 
 describe("Git Bugs", function () {
   before(() => {
@@ -141,39 +144,47 @@ describe("Git Bugs", function () {
       _.appSettings.locators._navigationSettings._orientationOptions._side,
     );
     _.agHelper.AssertElementExist(_.appSettings.locators._sideNavbar);
-    // discard
+    // discard changes and verify
     _.gitSync.DiscardChanges();
     _.gitSync.VerifyChangeLog(false);
-
-    // add canvas changes, discard and verify
   });
 
   it("7. Bug 23858 : Branch list in git sync modal is not scrollable", function () {
     // create git branches
-    _.gitSync.CreateGitBranch(`test1`, true);
-    cy.get("@gitbranchName").then((branchName) => {
-      statusBranch = branchName;
+    _.gitSync.CreateGitBranch(tempBranch1, true);
+    _.gitSync.CreateGitBranch(tempBranch2, true);
+    _.gitSync.CreateGitBranch(tempBranch3, true);
+    _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
+    _.agHelper.GetNClick(_.gitSync._bottomBarMergeButton);
+    _.agHelper.AssertElementEnabledDisabled(
+      _.gitSync._mergeBranchDropdownDestination,
+      0,
+      false,
+    );
+    _.agHelper.Sleep(6000); // adding wait for branch list to load
+    _.agHelper.GetNClick(_.gitSync._mergeBranchDropdownDestination);
+    // to verify scroll works and clicks on last branch in list
+    _.agHelper.GetNClick(_.gitSync._dropdownmenu, 5);
+    _.gitSync.CloseGitSyncModal();
+  });
+  it("8. Bug 24206 : Open repository button is not functional in git sync modal", function () {
+    _.gitSync.SwitchGitBranch("master");
+    _.appSettings.OpenPaneAndChangeTheme("Moon");
+    _.gitSync.CommitAndPush();
+    _.gitSync.SwitchGitBranch(tempBranch);
+    _.appSettings.OpenPaneAndChangeTheme("Pampas");
+    _.gitSync.CommitAndPush();
+    _.gitSync.CheckMergeConflicts("master");
+    cy.window().then((win) => {
+      cy.stub(win, "open", (url) => {
+        win.location.href = "http://host.docker.internal/";
+      }).as("repoURL");
     });
+    _.gitSync.OpenRepositoryAndVerify();
+    cy.get("@repoURL").should("be.called");
+  });
 
-    it("8. Bug 24206 : Open repository button is not functional in git sync modal", function () {
-      _.gitSync.SwitchGitBranch("master");
-      _.appSettings.OpenPaneAndChangeTheme("Moon");
-      _.gitSync.CommitAndPush();
-      _.gitSync.SwitchGitBranch(tempBranch);
-      _.appSettings.OpenPaneAndChangeTheme("Pampas");
-      _.gitSync.CommitAndPush();
-      _.gitSync.CheckMergeConflicts("master");
-      cy.window().then((win) => {
-        cy.stub(win, "open", (url) => {
-          win.location.href = "http://host.docker.internal/";
-        }).as("repoURL");
-      });
-      _.gitSync.OpenRepositoryAndVerify();
-      cy.get("@repoURL").should("be.called");
-    });
-
-    //after(() => {
-    //  _.gitSync.DeleteTestGithubRepo(repoName);
-    // });
+  after(() => {
+    _.gitSync.DeleteTestGithubRepo(repoName);
   });
 });
