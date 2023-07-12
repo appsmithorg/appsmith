@@ -30,7 +30,7 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       shouldCreateNewJSObj: true,
     });
 
-    _.apiPage.CreateAndFillGraphqlApi(_.hostPort.GraphqlApiUrl_TED);
+    _.apiPage.CreateAndFillGraphqlApi(_.tedTestConfig.GraphqlApiUrl_TED);
     _.dataSources.UpdateGraphqlQueryAndVariable({
       query: GRAPHQL_LIMIT_QUERY,
     });

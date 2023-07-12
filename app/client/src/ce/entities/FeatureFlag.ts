@@ -1,3 +1,4 @@
+// Please follow naming convention : https://www.notion.so/appsmith/Using-Feature-Flags-in-Appsmith-d362fe7acc7d4ef0aa12e1f5f9b83b5f?pvs=4#f6d4242e56284e84af25cadef71b7aeb to create feature flags.
 export const FEATURE_FLAG = {
   TEST_FLAG: "TEST_FLAG",
   release_datasource_environments_enabled:
@@ -8,6 +9,8 @@ export const FEATURE_FLAG = {
   ask_ai_js: "ask_ai_js",
   release_embed_hide_share_settings_enabled:
     "release_embed_hide_share_settings_enabled",
+  ab_ds_schema_enabled: "ab_ds_schema_enabled",
+  ab_ds_binding_enabled: "ab_ds_binding_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -22,4 +25,11 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ask_ai_js: false,
   ask_ai_sql: false,
   release_embed_hide_share_settings_enabled: false,
+  ab_ds_schema_enabled: false,
+  ab_ds_binding_enabled: false,
+};
+
+export const AB_TESTING_EVENT_KEYS = {
+  abTestingFlagLabel: "abTestingFlagLabel",
+  abTestingFlagValue: "abTestingFlagValue",
 };

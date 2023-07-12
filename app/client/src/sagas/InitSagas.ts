@@ -46,6 +46,10 @@ import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { safeCrashAppRequest } from "../actions/errorActions";
 import { resetSnipingMode } from "actions/propertyPaneActions";
 import {
+  setExplorerActiveAction,
+  setExplorerPinnedAction,
+} from "actions/explorerActions";
+import {
   isEditorPath,
   isViewerPath,
 } from "@appsmith/pages/Editor/Explorer/helpers";
@@ -132,6 +136,8 @@ function* resetEditorSaga() {
   // previously
   yield put(setPreviewModeAction(false));
   yield put(resetSnipingMode());
+  yield put(setExplorerActiveAction(true));
+  yield put(setExplorerPinnedAction(true));
   yield put(resetEditorSuccess());
 }
 
