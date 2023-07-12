@@ -9,6 +9,7 @@ import {
   deployMode,
   propPane,
   draggableWidgets,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
