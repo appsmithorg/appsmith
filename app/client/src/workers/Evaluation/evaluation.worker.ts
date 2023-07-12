@@ -46,6 +46,7 @@ self.addEventListener("message", asyncRequestMessageListener);
 
 self.onerror = (e) => {
   if (e instanceof ErrorEvent) {
+    e.preventDefault();
     console.error(e.message);
   } else {
     console.error(e);
@@ -57,6 +58,7 @@ self.onerror = (e) => {
 self.onunhandledrejection = (e) => {
   // We might want to send this error to the main thread in the future.
   // console error will log the error to the logs tab against trigger field.
+  e.preventDefault();
   console.error(e.reason.message);
   // Prevent further propagation of the error.
   return true;
