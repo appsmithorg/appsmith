@@ -1,11 +1,9 @@
 package com.external.config;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.external.constants.ErrorMessages;
 import com.external.enums.GoogleSheetMethodEnum;
 import com.external.plugins.exceptions.GSheetsPluginError;
-import static com.external.utils.SheetsUtil.getSpreadsheetData;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
@@ -19,6 +17,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import static com.external.utils.SheetsUtil.getSpreadsheetData;
 
 /**
  * API reference: https://developers.google.com/sheets/api/guides/migration#list_spreadsheets_for_the_authenticated_user
@@ -38,26 +38,29 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
 
     @Override
     public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
-        UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_DRIVE_API_URL,
-                "?q=mimeType%3D'application%2Fvnd.google-apps.spreadsheet'%20and%20trashed%3Dfalse", true);
+        UriComponentsBuilder uriBuilder = getBaseUriBuilder(
+                this.BASE_DRIVE_API_URL,
+                "?q=mimeType%3D'application%2Fvnd.google-apps.spreadsheet'%20and%20trashed%3Dfalse",
+                true);
 
-        return webClient.method(HttpMethod.GET)
+        return webClient
+                .method(HttpMethod.GET)
                 .uri(uriBuilder.build(true).toUri())
                 .body(BodyInserters.empty());
     }
 
     @Override
-    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
+    public JsonNode transformExecutionResponse(
+            JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw new AppsmithPluginException(
-                    GSheetsPluginError.QUERY_EXECUTION_FAILED,
-                    ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
+                    GSheetsPluginError.QUERY_EXECUTION_FAILED, ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
         }
         if (response.get("files") == null) {
             return this.objectMapper.createArrayNode();
         }
-        List<Map<String, String>> filesList = StreamSupport
-                .stream(response.get("files").spliterator(), false)
+        List<Map<String, String>> filesList = StreamSupport.stream(
+                        response.get("files").spliterator(), false)
                 .map(file -> getSpreadsheetData((JsonNode) file, userAuthorizedSheetIds, GoogleSheetMethodEnum.EXECUTE))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -70,29 +73,27 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
         return this.validateExecutionMethodRequest(methodConfig);
     }
 
-
     @Override
     public WebClient.RequestHeadersSpec<?> getTriggerClient(WebClient webClient, MethodConfig methodConfig) {
         return this.getExecutionClient(webClient, methodConfig);
     }
 
     @Override
-    public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
+    public JsonNode transformTriggerResponse(
+            JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw new AppsmithPluginException(
-                    GSheetsPluginError.QUERY_EXECUTION_FAILED,
-                    ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
+                    GSheetsPluginError.QUERY_EXECUTION_FAILED, ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
         }
         if (response.get("files") == null) {
             return this.objectMapper.createArrayNode();
         }
-        List<Map<String, String>> filesList = StreamSupport
-                .stream(response.get("files").spliterator(), false)
+        List<Map<String, String>> filesList = StreamSupport.stream(
+                        response.get("files").spliterator(), false)
                 .map(file -> getSpreadsheetData((JsonNode) file, userAuthorizedSheetIds, GoogleSheetMethodEnum.TRIGGER))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         return this.objectMapper.valueToTree(filesList);
     }
-
 }

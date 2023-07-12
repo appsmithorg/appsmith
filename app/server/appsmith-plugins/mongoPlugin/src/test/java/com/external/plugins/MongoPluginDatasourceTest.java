@@ -57,7 +57,6 @@ import static org.mockito.Mockito.when;
 /**
  * Unit tests for MongoPlugin
  */
-
 @Testcontainers
 public class MongoPluginDatasourceTest {
     MongoPlugin.MongoPluginExecutor pluginExecutor = new MongoPlugin.MongoPluginExecutor();
@@ -155,9 +154,9 @@ public class MongoPluginDatasourceTest {
         StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
                 .assertNext(datasourceTestResult -> {
                     assertNotNull(datasourceTestResult);
-                    assertTrue(datasourceTestResult.getInvalids().stream().anyMatch(error ->
-                            error.contains("Authentication database name is invalid, " +
-                                    "no database found with this name.")));
+                    assertTrue(datasourceTestResult.getInvalids().stream()
+                            .anyMatch(error -> error.contains("Authentication database name is invalid, "
+                                    + "no database found with this name.")));
                     assertFalse(datasourceTestResult.isSuccess());
                 })
                 .verifyComplete();
@@ -190,8 +189,9 @@ public class MongoPluginDatasourceTest {
         MongoCommandException mockMongoCommandException = mock(MongoCommandException.class);
         when(mockMongoCommandException.getErrorCodeName()).thenReturn("Unauthorized");
         when(mockMongoCommandException.getMessage()).thenReturn("Mock Unauthorized Exception");
-        when(mockMongoCommandException.getErrorMessage()).thenReturn("Mock error  : Expected 'something' , but got something else.\n" +
-                "Doc = [{find mockAction} {filter mockFilter} {limit 10} {$db mockDB} ...]");
+        when(mockMongoCommandException.getErrorMessage())
+                .thenReturn("Mock error  : Expected 'something' , but got something else.\n"
+                        + "Doc = [{find mockAction} {filter mockFilter} {limit 10} {$db mockDB} ...]");
 
         /*
          * 1. Spy MongoPluginExecutor class.
@@ -203,14 +203,15 @@ public class MongoPluginDatasourceTest {
         /* Please check this out before modifying this line: https://stackoverflow
          * .com/questions/11620103/mockito-trying-to-spy-on-method-is-calling-the-original-method
          */
-        doReturn(Mono.error(mockMongoCommandException)).when(spyMongoPluginExecutor).datasourceCreate(any());
+        doReturn(Mono.error(mockMongoCommandException))
+                .when(spyMongoPluginExecutor)
+                .datasourceCreate(any());
 
         /*
          * 1. Test that MongoCommandException with error code "Unauthorized" is not successful because of invalid credentials.
          */
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        StepVerifier
-                .create(spyMongoPluginExecutor.testDatasource(dsConfig))
+        StepVerifier.create(spyMongoPluginExecutor.testDatasource(dsConfig))
                 .assertNext(datasourceTestResult -> {
                     assertFalse(datasourceTestResult.isSuccess());
                 })
@@ -233,11 +234,7 @@ public class MongoPluginDatasourceTest {
                     assertTrue(datasourceTestResult.getInvalids().isEmpty());
                 })
                 .verifyComplete();
-
     }
-
-
-
 
     @Test
     public void testTestDatasourceTimeoutError() {
@@ -251,13 +248,10 @@ public class MongoPluginDatasourceTest {
                 .assertNext(result -> {
                     assertFalse(result.isSuccess());
                     assertTrue(result.getInvalids().size() == 1);
-                    assertTrue(result
-                            .getInvalids()
-                            .stream()
+                    assertTrue(result.getInvalids().stream()
                             .anyMatch(error -> error.contains(
-                                    "Connection timed out. Please check if the datasource configuration fields have " +
-                                            "been filled correctly."
-                            )));
+                                    "Connection timed out. Please check if the datasource configuration fields have "
+                                            + "been filled correctly.")));
                 })
                 .verifyComplete();
     }
@@ -267,25 +261,17 @@ public class MongoPluginDatasourceTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         datasourceConfiguration.getConnection().getSsl().setAuthType(null);
 
-        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor)
-                .map(executor -> executor.validateDatasource(datasourceConfiguration));
-
+        Mono<Set<String>> invalidsMono =
+                Mono.just(pluginExecutor).map(executor -> executor.validateDatasource(datasourceConfiguration));
 
         StepVerifier.create(invalidsMono)
                 .assertNext(invalids -> {
-                    String expectedError = "Appsmith server has failed to fetch SSL configuration from datasource " +
-                            "configuration form. Please reach out to Appsmith customer support to resolve this.";
-                    assertTrue(invalids
-                            .stream()
-                            .anyMatch(error -> expectedError.equals(error))
-                    );
+                    String expectedError = "Appsmith server has failed to fetch SSL configuration from datasource "
+                            + "configuration form. Please reach out to Appsmith customer support to resolve this.";
+                    assertTrue(invalids.stream().anyMatch(error -> expectedError.equals(error)));
                 })
                 .verifyComplete();
     }
-
-
-
-
 
     @Test
     public void testSslDefault() {
@@ -297,19 +283,19 @@ public class MongoPluginDatasourceTest {
         Map<String, Object> configMap = new HashMap<>();
         setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
-                "      find: \"users\",\n" +
-                "      filter: { age: { $gte: 30 } },\n" +
-                "      sort: { id: 1 },\n" +
-                "      limit: 10,\n" +
-                "    }");
+        setDataValueSafelyInFormData(
+                configMap,
+                BODY,
+                "{\n" + "      find: \"users\",\n"
+                        + "      filter: { age: { $gte: 30 } },\n"
+                        + "      sort: { id: 1 },\n"
+                        + "      limit: 10,\n"
+                        + "    }");
         actionConfiguration.setFormData(configMap);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
-                new ExecuteActionDTO(),
-                datasourceConfiguration,
-                actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(
+                conn, new ExecuteActionDTO(), datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
@@ -319,9 +305,9 @@ public class MongoPluginDatasourceTest {
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
-                    );
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW))
+                                    .toString(),
+                            result.getDataTypes().toString());
                 })
                 .verifyComplete();
     }
@@ -336,19 +322,19 @@ public class MongoPluginDatasourceTest {
         Map<String, Object> configMap = new HashMap<>();
         setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
-                "      find: \"users\",\n" +
-                "      filter: { age: { $gte: 30 } },\n" +
-                "      sort: { id: 1 },\n" +
-                "      limit: 10,\n" +
-                "    }");
+        setDataValueSafelyInFormData(
+                configMap,
+                BODY,
+                "{\n" + "      find: \"users\",\n"
+                        + "      filter: { age: { $gte: 30 } },\n"
+                        + "      sort: { id: 1 },\n"
+                        + "      limit: 10,\n"
+                        + "    }");
         actionConfiguration.setFormData(configMap);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
-                new ExecuteActionDTO(),
-                datasourceConfiguration,
-                actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(
+                conn, new ExecuteActionDTO(), datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
@@ -358,9 +344,9 @@ public class MongoPluginDatasourceTest {
                     assertNotNull(result.getBody());
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
                     assertEquals(
-                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
-                            result.getDataTypes().toString()
-                    );
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW))
+                                    .toString(),
+                            result.getDataTypes().toString());
                 })
                 .verifyComplete();
     }
@@ -375,19 +361,19 @@ public class MongoPluginDatasourceTest {
         Map<String, Object> configMap = new HashMap<>();
         setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
-                "      find: \"users\",\n" +
-                "      filter: { age: { $gte: 30 } },\n" +
-                "      sort: { id: 1 },\n" +
-                "      limit: 10,\n" +
-                "    }");
+        setDataValueSafelyInFormData(
+                configMap,
+                BODY,
+                "{\n" + "      find: \"users\",\n"
+                        + "      filter: { age: { $gte: 30 } },\n"
+                        + "      sort: { id: 1 },\n"
+                        + "      limit: 10,\n"
+                        + "    }");
         actionConfiguration.setFormData(configMap);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
-        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
-                new ExecuteActionDTO(),
-                datasourceConfiguration,
-                actionConfiguration));
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(
+                conn, new ExecuteActionDTO(), datasourceConfiguration, actionConfiguration));
 
         /*
          * - This test case is exactly same as the one's used in DEFAULT and DISABLED tests.
@@ -400,7 +386,6 @@ public class MongoPluginDatasourceTest {
                 })
                 .verifyComplete();
     }
-
 
     @Test
     public void testValidateDatasource_withoutDefaultDBInURIString_returnsInvalid() {
@@ -418,8 +403,8 @@ public class MongoPluginDatasourceTest {
 
     @Test
     public void testURIRegexPassWithValidURIWithUsernamePassword() {
-        String uri = "mongodb://user:pass@localhost:28017/mongo_samples?w=majority&retrywrites=true&authsource=admin" +
-                "&minpoolsize=0";
+        String uri = "mongodb://user:pass@localhost:28017/mongo_samples?w=majority&retrywrites=true&authsource=admin"
+                + "&minpoolsize=0";
         Map extractedInfo = extractInfoFromConnectionStringURI(uri, MONGO_URI_REGEX);
         assertEquals("mongodb://", extractedInfo.get(KEY_URI_HEAD));
         assertEquals("user", extractedInfo.get(KEY_USERNAME));
@@ -431,8 +416,8 @@ public class MongoPluginDatasourceTest {
 
     @Test
     public void testURIRegexPassWithValidURIWithoutUsernamePassword() {
-        String uri = "mongodb://@localhost:28017/mongo_samples?w=majority&retrywrites=true&authsource=admin" +
-                "&minpoolsize=0";
+        String uri = "mongodb://@localhost:28017/mongo_samples?w=majority&retrywrites=true&authsource=admin"
+                + "&minpoolsize=0";
         Map extractedInfo = extractInfoFromConnectionStringURI(uri, MONGO_URI_REGEX);
         assertEquals("mongodb://", extractedInfo.get(KEY_URI_HEAD));
         assertEquals(null, extractedInfo.get(KEY_USERNAME));
@@ -444,8 +429,8 @@ public class MongoPluginDatasourceTest {
 
     @Test
     public void testURIRegexPassWithValidURIWithoutAtUsernamePassword() {
-        String uri = "mongodb://localhost:28017/mongo_samples?w=majority&retrywrites=true&authsource=admin" +
-                "&minpoolsize=0";
+        String uri = "mongodb://localhost:28017/mongo_samples?w=majority&retrywrites=true&authsource=admin"
+                + "&minpoolsize=0";
         Map extractedInfo = extractInfoFromConnectionStringURI(uri, MONGO_URI_REGEX);
         assertEquals("mongodb://", extractedInfo.get(KEY_URI_HEAD));
         assertEquals(null, extractedInfo.get(KEY_USERNAME));

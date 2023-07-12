@@ -12,6 +12,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import type { SetterConfig } from "entities/AppTheming";
 
 class FormWidget extends ContainerWidget {
   checkInvalidChildren = (children: WidgetProps[]): boolean => {
@@ -141,6 +142,17 @@ class FormWidget extends ContainerWidget {
       data: generateTypeDef(widget.data, extraDefsToDefine),
       hasChanges: "bool",
     });
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "string",
+        },
+      },
+    };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {

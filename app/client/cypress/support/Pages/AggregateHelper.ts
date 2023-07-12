@@ -620,6 +620,20 @@ export class AggregateHelper extends ReusableHelper {
       .wait(waitTimeInterval);
   }
 
+  public GetClosestNClick(
+    selector: string,
+    closestSelector: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+    ctrlKey = false,
+  ) {
+    return this.ScrollIntoView(selector, index)
+      .closest(closestSelector)
+      .click({ force: force, ctrlKey: ctrlKey })
+      .wait(waitTimeInterval);
+  }
+
   public GetHoverNClick(
     selector: string,
     index = 0,
@@ -1360,8 +1374,16 @@ export class AggregateHelper extends ReusableHelper {
     });
   }
 
-  GetWidgetCSSHeight(widgetSelector: string) {
-    return this.GetElement(widgetSelector).invoke("css", "height");
+  public GetWidgetCSSHeight(widgetSelector: string, index = 0) {
+    return this.GetElement(widgetSelector).eq(index).invoke("css", "height");
+  }
+
+  public GetWidgetCSSFrAttribute(
+    widgetSelector: string,
+    attribute: string,
+    index = 0,
+  ) {
+    return this.GetElement(widgetSelector).eq(index).invoke("css", attribute);
   }
 
   GetWidgetByName(widgetName: string) {
@@ -1427,6 +1449,14 @@ export class AggregateHelper extends ReusableHelper {
       this.Sleep(2000);
     } else
       apiToValidate && this.assertHelper.AssertNetworkStatus(apiToValidate);
+  }
+
+  public GetDropTargetId(widgetName: string) {
+    return this.GetWidgetByName(widgetName).invoke("attr", "id");
+  }
+
+  public GetModalDropTargetId() {
+    return this.GetElement(this.locator._modal).invoke("attr", "id");
   }
 
   //Not used:

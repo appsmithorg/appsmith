@@ -4,5 +4,4 @@ import com.appsmith.server.solutions.ce.DatasourcePermissionCEImpl;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DatasourcePermissionImpl extends DatasourcePermissionCEImpl implements DatasourcePermission {
-}
+public class DatasourcePermissionImpl extends DatasourcePermissionCEImpl implements DatasourcePermission {}

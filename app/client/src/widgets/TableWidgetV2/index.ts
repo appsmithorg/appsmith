@@ -66,6 +66,7 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
     loadingProperties: Widget.getLoadingProperties(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+    setterConfig: Widget.getSetterConfig(),
   },
   methods: {
     getQueryGenerationConfig: (widgetProps: WidgetProps) => {
