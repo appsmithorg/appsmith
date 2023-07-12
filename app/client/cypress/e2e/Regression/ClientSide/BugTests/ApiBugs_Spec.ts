@@ -13,8 +13,18 @@ import {
   ERROR_ACTION_EXECUTE_FAIL,
   createMessage,
 } from "../../../../support/Objects/CommonErrorMessages";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("API Bugs", function () {
+  before(() => {
+    featureFlagIntercept(
+      {
+        ab_ds_binding_enabled: false,
+      },
+      false,
+    );
+    agHelper.RefreshPage();
+  });
   it("1. Bug 14037: User gets an error even when table widget is added from the API page successfully", function () {
     apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl, "Api1");
     apiPage.RunAPI();

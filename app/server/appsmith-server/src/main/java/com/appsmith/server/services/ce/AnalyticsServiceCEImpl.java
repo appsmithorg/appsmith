@@ -360,9 +360,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                 AnalyticsEvents.DS_TEST_EVENT,
                 AnalyticsEvents.DS_TEST_EVENT_SUCCESS,
                 AnalyticsEvents.DS_TEST_EVENT_FAILED,
-                AnalyticsEvents.DS_SCHEMA_FETCH_EVENT,
-                AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_SUCCESS,
-                AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_FAILED);
+                AnalyticsEvents.DS_SCHEMA_FETCH_EVENT);
     }
 
     public <T extends BaseDomain> Mono<T> sendCreateEvent(T object, Map<String, Object> extraProperties) {
