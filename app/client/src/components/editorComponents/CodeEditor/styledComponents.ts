@@ -83,10 +83,7 @@ export const EditorWrapper = styled.div<{
   border-color: ${getBorderStyle};
   display: flex;
   flex: 1;
-  flex-direction: ${(props) =>
-    props.AIEnabled && props.mode === EditorModes.TEXT_WITH_BINDING
-      ? "column"
-      : "row"};
+  flex-direction: row;
   text-transform: none;
 
   && {

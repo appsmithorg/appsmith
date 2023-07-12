@@ -944,12 +944,16 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
     case SlashCommand.ASK_AI: {
       const context = get(actionPayload, "payload.args", {});
 
-      const noOfTimesAIPromptTriggered: number = yield setAIPromptTriggered();
-      if (noOfTimesAIPromptTriggered < 5) {
+      const noOfTimesAIPromptTriggered: number = yield select(
+        (state) => state.ai.noOfTimesAITriggered,
+      );
+
+      if (noOfTimesAIPromptTriggered <= 5) {
+        const currentValue: number = yield setAIPromptTriggered();
         yield put({
           type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
           payload: {
-            value: noOfTimesAIPromptTriggered,
+            value: currentValue,
           },
         });
       }
