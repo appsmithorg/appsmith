@@ -10,6 +10,7 @@ import { initializeSockets } from "./sockets";
 // routes
 import ast_routes from "./routes/ast_routes";
 import health_check_routes from "./routes/health_check_routes";
+import js_Endpoint_Execute from "./routes/js_Endpoint_Execute";
 
 const RTS_BASE_PATH = "/rts";
 export const RTS_BASE_API_PATH = "/rts-api/v1";
@@ -48,6 +49,7 @@ app.get("/", (_, res) => {
 
 app.use(`${RTS_BASE_API_PATH}/ast`, ast_routes);
 app.use(`${RTS_BASE_API_PATH}`, health_check_routes);
+app.use(`${RTS_BASE_API_PATH}`, js_Endpoint_Execute);
 
 server.headersTimeout = 61000;
 server.keepAliveTimeout = 60000;
