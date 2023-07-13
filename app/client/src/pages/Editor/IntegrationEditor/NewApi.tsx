@@ -144,6 +144,7 @@ const API_ACTION = {
   IMPORT_CURL: "IMPORT_CURL",
   CREATE_NEW_API: "CREATE_NEW_API",
   CREATE_NEW_GRAPHQL_API: "CREATE_NEW_GRAPHQL_API",
+  CREATE_NEW_SOCKET_API: "CREATE_NEW_SOCKET_API",
   CREATE_DATASOURCE_FORM: "CREATE_DATASOURCE_FORM",
   AUTH_API: "AUTH_API",
 };
@@ -186,6 +187,8 @@ function NewApiScreen(props: Props) {
         "API_PANE",
         source === API_ACTION.CREATE_NEW_GRAPHQL_API
           ? PluginPackageName.GRAPHQL
+          : source === API_ACTION.CREATE_NEW_SOCKET_API
+          ? PluginPackageName.SOCKET_API
           : PluginPackageName.REST_API,
       );
     }
@@ -212,6 +215,7 @@ function NewApiScreen(props: Props) {
     switch (actionType) {
       case API_ACTION.CREATE_NEW_API:
       case API_ACTION.CREATE_NEW_GRAPHQL_API:
+      case API_ACTION.CREATE_NEW_SOCKET_API:
         handleCreateNew(actionType);
         break;
       case API_ACTION.IMPORT_CURL: {
@@ -263,6 +267,20 @@ function NewApiScreen(props: Props) {
   return (
     <StyledContainer>
       <ApiCardsContainer data-testid="newapi-datasource-card-container">
+        <ApiCard
+          className="t--createBlankApiCard create-new-api"
+          onClick={() => handleOnClick(API_ACTION.CREATE_NEW_SOCKET_API)}
+        >
+          <CardContentWrapper data-testid="newapi-datasource-content-wrapper">
+            <img
+              alt="New"
+              className="curlImage t--plusImage content-icon"
+              src={PlusLogo}
+            />
+            <p className="textBtn">Socket API</p>
+          </CardContentWrapper>
+          {isCreating && <Spinner className="cta" size={25} />}
+        </ApiCard>
         <ApiCard
           className="t--createBlankApiCard create-new-api"
           onClick={() => handleOnClick(API_ACTION.CREATE_NEW_API)}

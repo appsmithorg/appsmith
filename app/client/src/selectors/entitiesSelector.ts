@@ -846,9 +846,18 @@ export const selectFilesForExplorer = createSelector(
       if (file.config.pluginType === PluginType.JS) {
         group = "JS Objects";
       } else if (file.config.pluginType === PluginType.API) {
-        group = isEmbeddedRestDatasource(file.config.datasource)
-          ? "APIs"
-          : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+        if (
+          file.config.actionConfiguration.pluginSpecifiedTemplates?.[1]?.key ===
+            "socket" &&
+          file.config.actionConfiguration.pluginSpecifiedTemplates?.[1]
+            ?.value === true
+        ) {
+          group = "Sockets";
+        } else {
+          group = isEmbeddedRestDatasource(file.config.datasource)
+            ? "APIs"
+            : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+        }
       } else {
         group = datasourceIdToNameMap[file.config.datasource.id];
       }

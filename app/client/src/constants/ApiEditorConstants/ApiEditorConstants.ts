@@ -26,6 +26,11 @@ export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
       // JSON smart substitution
       value: true,
     },
+    {
+      // Is Socket API
+      key: "socket",
+      value: false,
+    },
   ],
 };
 

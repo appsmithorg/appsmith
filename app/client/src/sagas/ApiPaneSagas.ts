@@ -657,13 +657,28 @@ function* handleCreateNewApiActionSaga(
   }>,
 ) {
   const workspaceId: string = yield select(getCurrentWorkspaceId);
-  const { pageId, apiType = PluginPackageName.REST_API } = action.payload;
-  const pluginId: string = yield select(getPluginIdOfPackageName, apiType);
+  const { pageId } = action.payload;
+  let { apiType = PluginPackageName.REST_API } = action.payload;
+
   // Default Config is Rest Api Plugin Config
-  let defaultConfig = DEFAULT_CREATE_API_CONFIG;
+  let defaultConfig = klona(DEFAULT_CREATE_API_CONFIG);
   if (apiType === PluginPackageName.GRAPHQL) {
     defaultConfig = DEFAULT_CREATE_GRAPHQL_CONFIG;
   }
+
+  if (
+    apiType === PluginPackageName.SOCKET_API &&
+    defaultConfig.config.pluginSpecifiedTemplates?.length
+  ) {
+    defaultConfig.config.pluginSpecifiedTemplates[1].key = "socket";
+    defaultConfig.config.pluginSpecifiedTemplates[1].value = true;
+  }
+
+  apiType =
+    apiType === PluginPackageName.SOCKET_API
+      ? PluginPackageName.REST_API
+      : apiType;
+  const pluginId: string = yield select(getPluginIdOfPackageName, apiType);
 
   if (pageId && pluginId) {
     const actions: ActionDataState = yield select(getActions);

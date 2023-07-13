@@ -20,6 +20,7 @@ export enum PluginPackageName {
   GOOGLE_SHEETS = "google-sheets-plugin",
   FIRESTORE = "firestore-plugin",
   REST_API = "restapi-plugin",
+  SOCKET_API = "socket-plugin",
   GRAPHQL = "graphql-plugin",
   JS = "js-plugin",
   ORACLE = "oracle-plugin",
