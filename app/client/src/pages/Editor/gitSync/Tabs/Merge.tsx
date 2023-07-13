@@ -11,6 +11,7 @@ import {
   MERGED_SUCCESSFULLY,
   SELECT_BRANCH_TO_MERGE,
 } from "@appsmith/constants/messages";
+import WidgetJson from "./Button1.json";
 
 import styled, { useTheme } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
@@ -53,6 +54,7 @@ import {
 } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
+import WidgetPreview from "./WidgetPreview";
 
 const Row = styled.div`
   display: flex;
@@ -287,6 +289,7 @@ export default function Merge() {
             </StatusbarWrapper>
           ) : null}
         </Container>
+        <WidgetPreview widgetDSL={WidgetJson} />
       </ModalBody>
       <ModalFooter>
         {!showMergeSuccessIndicator && showMergeButton ? (
