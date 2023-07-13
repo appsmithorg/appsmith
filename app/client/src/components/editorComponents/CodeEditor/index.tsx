@@ -489,6 +489,7 @@ class CodeEditor extends Component<Props, State> {
 
   handleSlashCommandSelection = (...args: any) => {
     const [command] = args;
+
     if (command === APPSMITH_AI) {
       this.props.executeCommand({
         actionType: SlashCommand.ASK_AI,
@@ -1224,7 +1225,6 @@ class CodeEditor extends Component<Props, State> {
       example: expected?.example,
       mode: this.props.mode,
     };
-
     if (dataTreePath) {
       const { entityName, propertyPath } =
         getEntityNameAndPropertyPath(dataTreePath);
@@ -1440,12 +1440,10 @@ class CodeEditor extends Component<Props, State> {
   };
 
   isBindingPromptOpen = () => {
-    return (
-      showBindingPrompt(
-        this.showFeatures(),
-        this.props.input.value,
-        this.state.hinterOpen,
-      ) && !_.get(this.editor, "state.completionActive")
+    return showBindingPrompt(
+      this.showFeatures(),
+      this.props.input.value,
+      this.state.hinterOpen,
     );
   };
 
@@ -1624,6 +1622,7 @@ class CodeEditor extends Component<Props, State> {
                   showLightningMenu={this.props.showLightningMenu}
                 />
               </div>
+
               {this.props.link && (
                 <a
                   className="linkStyles"
