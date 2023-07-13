@@ -41,6 +41,8 @@ import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstant
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
+import i18n from "i18next";
+import TenantApi from "@appsmith/api/TenantApi";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -98,6 +100,17 @@ function AppViewer(props: Props) {
       dispatch(widgetInitialisationSuccess());
     });
   });
+
+  useEffect(() => {
+    const loadLocale = async () => {
+      const data: any = await TenantApi.fetchLocaleJson();
+
+      const locale = data.record;
+      i18n.addResourceBundle("hi", "translation", locale);
+      i18n.changeLanguage("hi");
+    };
+    loadLocale();
+  }, []);
   /**
    * initialize the app if branch, pageId or application is changed
    */
