@@ -129,6 +129,13 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
     }
 
     @Override
+    public Mono<Long> countAllUserGroupsByIsProvisioned(boolean isProvisioned, Optional<AclPermission> aclPermission) {
+        Criteria criteriaIsProvisioned =
+                Criteria.where(fieldName(QUserGroup.userGroup.isProvisioned)).is(isProvisioned);
+        return count(List.of(criteriaIsProvisioned), aclPermission);
+    }
+
+    @Override
     public Flux<UserGroup> getAllUserGroupsByIsProvisioned(
             boolean isProvisioned, Optional<List<String>> includeFields, Optional<AclPermission> aclPermission) {
         Criteria criteriaIsProvisioned =

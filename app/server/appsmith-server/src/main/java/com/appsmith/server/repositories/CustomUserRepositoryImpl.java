@@ -99,6 +99,13 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
     }
 
     @Override
+    public Mono<Long> countAllUsersByIsProvisioned(boolean isProvisioned, Optional<AclPermission> aclPermission) {
+        Criteria criteriaIsProvisioned =
+                Criteria.where(fieldName(QUser.user.isProvisioned)).is(isProvisioned);
+        return count(List.of(criteriaIsProvisioned), aclPermission);
+    }
+
+    @Override
     public Mono<Boolean> updateUserPoliciesAndIsProvisionedWithoutPermission(
             String id, Boolean isProvisioned, Set<Policy> policies) {
         Update updateUser = new Update();

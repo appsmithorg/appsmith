@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.QUserGroup;
@@ -11,14 +12,17 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.ApiKeyRequestDto;
 import com.appsmith.server.dtos.DisconnectProvisioningDto;
+import com.appsmith.server.dtos.ProvisionStatusDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ProvisionUtils;
 import com.appsmith.server.helpers.TenantUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import lombok.AllArgsConstructor;
+import net.minidev.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -34,6 +38,10 @@ import static com.appsmith.server.acl.AclPermission.DELETE_USERS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
+import static com.appsmith.server.constants.FieldName.PROVISIONING_LAST_UPDATED_AT;
+import static com.appsmith.server.constants.FieldName.PROVISIONING_STATUS;
+import static com.appsmith.server.enums.ProvisionStatus.ACTIVE;
+import static com.appsmith.server.enums.ProvisionStatus.INACTIVE;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Component
@@ -42,11 +50,12 @@ public class ProvisionServiceImpl implements ProvisionService {
     private final ApiKeyService apiKeyService;
     private final TenantUtils tenantUtils;
     private final TenantService tenantService;
-    private final UserAndAccessManagementService userAndAccessManagementService;
     private final UserRepository userRepository;
+    private final UserAndAccessManagementService userAndAccessManagementService;
     private final UserGroupRepository userGroupRepository;
     private final PolicyGenerator policyGenerator;
     private final UserUtils userUtils;
+    private final ProvisionUtils provisionUtils;
 
     @Override
     public Mono<String> generateProvisionToken() {
@@ -56,6 +65,48 @@ public class ProvisionServiceImpl implements ProvisionService {
     }
 
     @Override
+    public Mono<ProvisionStatusDTO> getProvisionStatus() {
+        // Check if the User has manage tenant permissions
+        Mono<Tenant> tenantMono = tenantService
+                .getDefaultTenant(MANAGE_TENANT)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "get provisioning status")))
+                .cache();
+
+        // Get Provision Status config
+        Mono<Config> provisioningStatusConfigMono = provisionUtils.getOrCreateProvisioningStatusConfig();
+
+        return provisioningStatusConfigMono.flatMap(provisioningStatusConfig -> {
+            JSONObject config = provisioningStatusConfig.getConfig();
+            // If inactive, just return ProvisionStatusDTO with status as Inactive
+            if (INACTIVE.getValue().equals(config.get(PROVISIONING_STATUS))) {
+                return Mono.just(ProvisionStatusDTO.builder()
+                        .provisionStatus(INACTIVE.getValue())
+                        .build());
+            }
+            // If active, set the last updated as
+            // Get count of all provisioned users from Repo without permission
+            // Get count of all provisioned groups from Repo without permission
+            String lastUpdatedAt = (String) config.get(PROVISIONING_LAST_UPDATED_AT);
+            Mono<Long> provisionedUsersCountMono =
+                    userRepository.countAllUsersByIsProvisioned(Boolean.TRUE, Optional.empty());
+            Mono<Long> provisionedUserGroupsCountMono =
+                    userGroupRepository.countAllUserGroupsByIsProvisioned(Boolean.TRUE, Optional.empty());
+
+            return tenantMono.flatMap(tenant -> Mono.zip(provisionedUsersCountMono, provisionedUserGroupsCountMono)
+                    .map(pair -> {
+                        Long countProvisionedUsers = pair.getT1();
+                        Long countProvisionedUserGroups = pair.getT2();
+                        return ProvisionStatusDTO.builder()
+                                .provisionStatus(ACTIVE.getValue())
+                                .lastUpdatedAt(lastUpdatedAt)
+                                .provisionedUsers(countProvisionedUsers)
+                                .provisionedGroups(countProvisionedUserGroups)
+                                .build();
+                    }));
+        });
+    }
+
     public Mono<Boolean> archiveProvisionToken() {
         ApiKeyRequestDto apiKeyRequestDto =
                 ApiKeyRequestDto.builder().email(FieldName.PROVISIONING_USER).build();
@@ -85,8 +136,9 @@ public class ProvisionServiceImpl implements ProvisionService {
         // Delete provisioned users & Groups and update Associated roles or
         // update access policies for all provisioned users and groups
         // then archive provision token
-        return tenantMono.flatMap(tenant -> deleteOrUpdateUsersGroupsAndUpdateAssociatedRolesMono.flatMap(
-                usersGroupsRolesUpdated -> archiveProvisionToken()));
+        return tenantMono.flatMap(tenant -> deleteOrUpdateUsersGroupsAndUpdateAssociatedRolesMono
+                .flatMap(usersGroupsRolesUpdated -> archiveProvisionToken())
+                .flatMap(archiveProvisionToken -> provisionUtils.updateProvisioningStatus(INACTIVE)));
     }
 
     @NotNull private Mono<Boolean> transferManagementPoliciesToInstanceAdministratorForAllProvisionedUsersAndGroups(

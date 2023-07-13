@@ -27,6 +27,8 @@ public interface CustomUserRepository extends CustomUserRepositoryCE {
     Flux<String> getUserEmailsByIdsAndTenantId(
             List<String> userIds, String tenantId, Optional<AclPermission> aclPermission);
 
+    Mono<Long> countAllUsersByIsProvisioned(boolean isProvisioned, Optional<AclPermission> aclPermission);
+
     Mono<Boolean> updateUserPoliciesAndIsProvisionedWithoutPermission(
             String id, Boolean isProvisioned, Set<Policy> policies);
 }

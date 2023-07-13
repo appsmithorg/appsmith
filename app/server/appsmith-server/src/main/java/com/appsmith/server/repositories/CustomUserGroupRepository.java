@@ -39,6 +39,8 @@ public interface CustomUserGroupRepository extends AppsmithRepository<UserGroup>
             List<String> filterUserIds,
             Optional<AclPermission> aclPermission);
 
+    Mono<Long> countAllUserGroupsByIsProvisioned(boolean isProvisioned, Optional<AclPermission> aclPermission);
+
     Flux<UserGroup> getAllUserGroupsByIsProvisioned(
             boolean isProvisioned, Optional<List<String>> includeFields, Optional<AclPermission> aclPermission);
 
