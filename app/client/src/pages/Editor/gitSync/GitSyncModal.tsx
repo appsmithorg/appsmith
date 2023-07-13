@@ -43,9 +43,11 @@ function GitSyncModal(props: { isImport?: boolean }) {
   const isGitConnected = useSelector(getIsGitConnected);
   const activeTabKey = useSelector(getActiveGitSyncModalTab);
   const { onGitConnectFailure: resetGitConnectStatus } = useGitConnect();
+  const [expandWidth, setExpandWidth] = React.useState(false);
 
   const handleClose = useCallback(() => {
     resetGitConnectStatus();
+    setExpandWidth(false);
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
     dispatch(setWorkspaceIdForImport(""));
   }, [dispatch, setIsGitSyncModalOpen]);
@@ -70,6 +72,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
     if (!isGitConnected && activeTabKey !== GitSyncModalTab.GIT_CONNECTION) {
       setActiveTabKey(GitSyncModalTab.DEPLOY);
     }
+    setExpandWidth(false);
   }, [activeTabKey]);
 
   useEffect(() => {
@@ -107,6 +110,10 @@ function GitSyncModal(props: { isImport?: boolean }) {
   const BodyComponent =
     ComponentsByTab[activeTabKey || GitSyncModalTab.GIT_CONNECTION];
 
+  const handleWidth = (expandWidth: boolean) => {
+    setExpandWidth(expandWidth);
+  };
+
   return (
     <>
       <Modal
@@ -119,7 +126,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
       >
         <ModalContentContainer
           data-testid="t--git-sync-modal"
-          style={{ width: "640px" }}
+          style={{ width: `${expandWidth ? "100%" : "650px"}` }}
         >
           <ModalHeader>
             {MENU_ITEMS_MAP[activeTabKey]?.modalTitle ?? ""}
@@ -134,7 +141,9 @@ function GitSyncModal(props: { isImport?: boolean }) {
           {activeTabKey === GitSyncModalTab.GIT_CONNECTION && (
             <BodyComponent isImport={props.isImport} />
           )}
-          {activeTabKey !== GitSyncModalTab.GIT_CONNECTION && <BodyComponent />}
+          {activeTabKey !== GitSyncModalTab.GIT_CONNECTION && (
+            <BodyComponent expandWidthCallback={handleWidth} />
+          )}
         </ModalContentContainer>
       </Modal>
       <GitErrorPopup />
