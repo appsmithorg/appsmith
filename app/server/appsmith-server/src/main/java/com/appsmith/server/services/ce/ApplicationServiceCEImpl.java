@@ -953,9 +953,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Mono<Map<String, List<Bookmark>>> updateBookmarkForCurrentUser(String applicationId,
-                                                       Map<String, List<Bookmark>> userBookmarks, String branchName) {
-        Mono<Map<String, Map<String, List<Bookmark>>>> allBookmarksMono = this.findByIdAndBranchName(applicationId,
+    public Mono<Map> updateBookmarkForCurrentUser(String applicationId, Map userBookmarks,
+                                                                String branchName) {
+        Mono<Map<String, Map>> allBookmarksMono = this.findByIdAndBranchName(applicationId,
                         List.of("bookmarks"),
                         branchName)
                 .map(application -> {
@@ -969,7 +969,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .zipWith(allBookmarksMono)
                 .flatMap(tuple -> {
                     String username = tuple.getT1();
-                    Map<String, Map<String, List<Bookmark>>> allBookmarks = tuple.getT2();
+                    Map<String, Map> allBookmarks = tuple.getT2();
                     allBookmarks.put(username, userBookmarks);
                     return this.update(applicationId, Map.of("bookmarks", allBookmarks), branchName)
                             .map(ignore -> allBookmarks.get(username));

@@ -104,7 +104,7 @@ public class Application extends BaseDomain {
     Set<CustomJSLibApplicationDTO> publishedCustomJSLibs;
 
     @JsonView(Views.Public.class)
-    Map<String, Map<String, List<Bookmark>>> bookmarks;
+    Map<String, Map> bookmarks;
 
     @JsonView(Views.Public.class)
     GitApplicationMetadata gitApplicationMetadata;

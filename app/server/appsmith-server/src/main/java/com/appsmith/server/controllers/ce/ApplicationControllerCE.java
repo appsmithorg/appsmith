@@ -6,7 +6,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationSnapshot;
-import com.appsmith.server.domains.Bookmark;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
@@ -356,7 +355,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     @PostMapping("/{applicationId}/bookmark/update")
     @ResponseStatus(HttpStatus.OK)
     public Mono<ResponseDTO<Map>> updateBookmark(@PathVariable String applicationId,
-                                                     @RequestBody Map<String, List<Bookmark>> userBookmarks,
+                                                     @RequestBody Map<String, List> userBookmarks,
                                                      @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to update bookmarks");
         return service.updateBookmarkForCurrentUser(applicationId, userBookmarks, branchName)
