@@ -11,6 +11,7 @@ import {
   MERGED_SUCCESSFULLY,
   SELECT_BRANCH_TO_MERGE,
 } from "@appsmith/constants/messages";
+// import WidgetJson from "./Button1.json";
 
 import styled, { useTheme } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
@@ -54,6 +55,7 @@ import {
 } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
+// import WidgetPreview from "./WidgetPreview";
 import { ConflictList } from "../components/ConflictList";
 import { DiffViewer } from "../components/DiffViewer";
 
@@ -321,6 +323,7 @@ export default function Merge(props: ModalProps) {
             </>
           )}
         </Container>
+        {/* <WidgetPreview widgetDSL={WidgetJson} /> */}
       </ModalBody>
       <ModalFooter>
         {!showMergeSuccessIndicator && showMergeButton ? (
