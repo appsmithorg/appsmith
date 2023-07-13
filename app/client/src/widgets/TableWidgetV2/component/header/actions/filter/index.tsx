@@ -17,6 +17,7 @@ import { generateClassName } from "utils/generators";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import ActionItem from "../ActionItem";
 import { importSvg } from "design-system-old";
+import { useTranslation } from "react-i18next";
 
 const FilterIcon = importSvg(
   () => import("assets/icons/control/filter-icon.svg"),
@@ -40,6 +41,7 @@ function TableFilters(props: TableFilterProps) {
   const [filters, updateFilters] = React.useState(
     new Array<ReactTableFilter>(),
   );
+  const { t } = useTranslation();
 
   const dispatch = useDispatch();
   //TODO(abhinav): This is incorrect, we should useReducer instead of using the global redux state
@@ -101,7 +103,9 @@ function TableFilters(props: TableFilterProps) {
         icon="filter"
         selectMenu={toggleFilterPane}
         selected={isTableFilterPaneVisible}
-        title={`Filters${hasAnyFilters ? ` (${filters.length})` : ""}`}
+        title={`${t("tableV2.filters")}${
+          hasAnyFilters ? ` (${filters.length})` : ""
+        }`}
         titleColor={hasAnyFilters ? Colors.CODE_GRAY : Colors.GRAY}
         width={16}
       />

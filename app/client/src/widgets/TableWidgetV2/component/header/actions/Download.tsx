@@ -14,6 +14,7 @@ import ActionItem from "./ActionItem";
 import { transformTableDataIntoCsv } from "./Utilities";
 import zipcelx from "zipcelx";
 import { importSvg } from "design-system-old";
+import { useTranslation } from "react-i18next";
 
 const DownloadIcon = importSvg(
   () => import("assets/icons/control/download-data-icon.svg"),
@@ -132,6 +133,7 @@ const downloadDataAsCSV = (props: {
 
 function TableDataDownload(props: TableDataDownloadProps) {
   const [selected, selectMenu] = React.useState(false);
+  const { t } = useTranslation();
   const downloadFile = (type: string) => {
     if (type === "CSV") {
       downloadTableDataAsCsv();
@@ -225,7 +227,7 @@ function TableDataDownload(props: TableDataDownloadProps) {
           icon="download"
           selectMenu={selectMenu}
           selected={selected}
-          title="Download"
+          title={t("tableV2.download")}
           width={16}
         />
         <DropDownWrapper>

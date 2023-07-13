@@ -20,6 +20,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { lightenColor } from "widgets/WidgetUtils";
 import { PageNumberInput } from "./PageNumberInput";
 import ActionItem from "./ActionItem";
+import { useTranslation } from "react-i18next";
 
 const SearchComponentWrapper = styled.div<{
   borderRadius: string;
@@ -127,6 +128,7 @@ export interface ActionsPropsType {
 }
 
 function Actions(props: ActionsPropsType) {
+  const { t } = useTranslation();
   return (
     <>
       {props.isVisibleSearch && (
@@ -137,7 +139,7 @@ function Actions(props: ActionsPropsType) {
         >
           <SearchComponent
             onSearch={props.searchTableData}
-            placeholder="Search..."
+            placeholder={`${t("tableV2.search")}...`}
             value={props.searchKey}
           />
         </SearchComponentWrapper>
@@ -173,11 +175,11 @@ function Actions(props: ActionsPropsType) {
                 borderRadius={props.borderRadius}
                 className="t--add-new-row"
                 disabled={props.disableAddNewRow}
-                disabledMessage="Save or discard the unsaved row to add a new row"
+                disabledMessage={t("tableV2.add_row.discard")}
                 icon="add"
                 selectMenu={props.onAddNewRow}
                 selected={false}
-                title="Add new row"
+                title={t("tableV2.add_row.add")}
                 width={12}
               />
             )}

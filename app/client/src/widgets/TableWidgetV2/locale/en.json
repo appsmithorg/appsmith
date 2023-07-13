@@ -1,0 +1,9 @@
+{
+  "search": "Search",
+  "add_row": {
+    "add": "Add new row",
+    "discard": "Save or discard the unsaved row to add a new row"
+  },
+  "filters": "Filters",
+  "download": "Download"
+}
