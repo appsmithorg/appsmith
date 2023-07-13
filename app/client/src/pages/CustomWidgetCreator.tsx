@@ -1,33 +1,38 @@
-import React, { useRef } from "react";
-import { Button } from "design-system";
-import styled from "styled-components";
+import React, { useRef, useState } from "react";
+import { Button, Input } from "design-system";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import {
+  EditorModes,
+  EditorSize,
+  EditorTheme,
+  TabBehaviour,
+} from "components/editorComponents/CodeEditor/EditorConfig";
+// import type { EditorProps } from "components/editorComponents/CodeEditor";
 
-const Container = styled.div`
-  width: 200px;
-  height: 200px;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-`;
-
-const TextArea = styled.textarea`
-  width: 200px;
-  height: 200px;
-  border: 1px solid #000;
-`;
-
-const StyledButton = styled(Button)``;
+const editorProps = {
+  mode: EditorModes.JSON_WITH_BINDING,
+  size: EditorSize.EXTENDED,
+  tabBehaviour: TabBehaviour.INDENT,
+  theme: EditorTheme.LIGHT,
+  showLightningMenu: false,
+  showLineNumbers: true,
+  borderLess: true,
+};
 
 export const binId = "64afd26cb89b1e2299be44ee";
 
 export function CustomWidgetCreator() {
-  const ref = useRef<HTMLTextAreaElement>(null);
   const name = useRef<HTMLInputElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [value, setValue] = useState("");
+
+  const onEditorChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement> | string,
+  ) => {
+    setValue(event as string);
+  };
 
   const onClick = async () => {
-    const value = ref.current?.value;
     if (value) {
       try {
         JSON.parse(value);
@@ -35,10 +40,11 @@ export function CustomWidgetCreator() {
         alert("invalid json");
         return;
       }
+      setIsLoading(true);
       const response = await fetch(
         `https://api.jsonbin.io/v3/b/${binId}/latest`,
       );
-
+      setIsLoading(false);
       const existingValues = await response.json();
 
       await fetch(`https://api.jsonbin.io/v3/b/${binId}/`, {
@@ -57,18 +63,44 @@ export function CustomWidgetCreator() {
   };
 
   return (
-    <Container>
-      <div>
-        <label>Name</label>
-        <input ref={name} />
+    <div className="container mx-auto content-center mt-12">
+      <h1 className="text-[40px] font-bold text-center">
+        Create Custom Widget
+      </h1>
+      <div className="w-80 mt-4">
+        <Input
+          label="Widget Name"
+          labelPosition="top"
+          placeholder="Enter widget name"
+          ref={name}
+          size="md"
+        />
       </div>
-      <div>
-        <label>configuration</label>
-        <TextArea ref={ref} />
+
+      <br />
+
+      <LazyCodeEditor
+        {...editorProps}
+        input={{
+          value: value,
+          onChange: onEditorChange,
+        }}
+      />
+      <div className="w-80 mt-4">
+        <Input
+          label="Component Link"
+          labelPosition="top"
+          placeholder="Enter Component Link"
+          ref={name}
+          size="md"
+        />
       </div>
-      <div>
-        <StyledButton onClick={onClick}>CREATE</StyledButton>
+
+      <div className="mt-4">
+        <Button isLoading={isLoading} onClick={onClick} size="md">
+          Create Widget
+        </Button>
       </div>
-    </Container>
+    </div>
   );
 }
