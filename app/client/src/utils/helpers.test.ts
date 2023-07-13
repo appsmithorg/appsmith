@@ -1,6 +1,7 @@
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import type { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 import { AutocompleteDataType } from "./autocomplete/AutocompleteDataType";
 import {
   flattenObject,
@@ -555,15 +556,25 @@ describe("#extractColorsFromString", () => {
     const borderWithRgba = `2px solid ${Colors.BOX_SHADOW_DEFAULT_VARIANT1}`;
 
     //Check Hex value
-    expect(extractColorsFromString(borderWithHex)[0]).toEqual("#03b365");
+    expect(
+      extractColorsFromString(
+        borderWithHex as unknown as CanvasWidgetsReduxState,
+      )[0],
+    ).toEqual("#03b365");
 
     //Check rgba value
-    expect(extractColorsFromString(borderWithRgba)[0]).toEqual(
-      "rgba(0, 0, 0, 0.25)",
-    );
+    expect(
+      extractColorsFromString(
+        borderWithRgba as unknown as CanvasWidgetsReduxState,
+      )[0],
+    ).toEqual("rgba(0, 0, 0, 0.25)");
 
     //Check rgb
-    expect(extractColorsFromString(borderWithRgb)[0]).toEqual("rgb(0,0,0)");
+    expect(
+      extractColorsFromString(
+        borderWithRgb as unknown as CanvasWidgetsReduxState,
+      )[0],
+    ).toEqual("rgb(0,0,0)");
   });
 });
 

@@ -26,6 +26,7 @@ import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
 import { getBrandColors } from "@appsmith/selectors/tenantSelectors";
+import validateColor from "validate-color";
 
 const FocusTrap = require("focus-trap-react");
 
@@ -73,7 +74,9 @@ const ColorPickerIconContainer = styled.div`
   z-index: 1;
 `;
 
-const StyledInputGroup = styled(InputGroup)`
+const StyledInputGroup = styled(InputGroup)<{
+  isValid?: boolean;
+}>`
   .${Classes.INPUT} {
     box-shadow: none;
     border: 1px solid var(--ads-v2-color-border);
@@ -85,20 +88,26 @@ const StyledInputGroup = styled(InputGroup)`
   &&& input {
     padding-left: 36px;
     height: 36px;
-    border: 1px solid var(--ads-v2-color-border);
+    border: ${({ isValid }) =>
+      isValid
+        ? "1px solid var(--ads-v2-color-border)"
+        : "1px solid var(--ads-v2-color-border-error)"};
     background: ${(props) =>
       props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
     color: ${(props) => props.theme.colors.propertyPane.label};
 
-    &:hover {
-      border-color: var(--ads-v2-color-border-emphasis);
-    }
-
     &:focus {
-      border: 1px solid var(--ads-v2-color-border-emphasis);
       outline: var(--ads-v2-border-width-outline) solid
         var(--ads-v2-color-outline);
       outline-offset: var(--ads-v2-offset-outline);
+    }
+
+    &:hover,
+    &:focus {
+      border-color: ${({ isValid }) =>
+        isValid
+          ? "var(--ads-v2-color-border-emphasis)"
+          : "var(--ads-v2-color-border-error)"};
     }
   }
 `;
@@ -117,7 +126,6 @@ interface ColorPickerPopupProps {
 
 const PopupContainer = styled.div`
   padding: 0.75rem;
-  width: 18rem;
   border-radius: var(--ads-v2-border-radius);
   border: 1px solid var(--ads-v2-color-border);
 `;
@@ -128,7 +136,7 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
   const widgets = useSelector(getWidgets);
   const DSLStringified = JSON.stringify(widgets);
   const applicationColors = useMemo(() => {
-    return extractColorsFromString(DSLStringified);
+    return extractColorsFromString(widgets);
   }, [DSLStringified]);
   const {
     changeColor,
@@ -169,7 +177,7 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
           <h2 className="pb-2 font-semibold border-b">Color Styles</h2>
           <section className="space-y-2">
             <h3 className="text-xs">Theme Colors</h3>
-            <div className="grid grid-cols-10 gap-2">
+            <div className="grid grid-cols-5 gap-2">
               {Object.keys(themeColors).map((colorKey, colorIndex) => (
                 <div
                   className={`${COLOR_BOX_CLASSES} ${
@@ -199,7 +207,7 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
       {brandColors && Object.keys(brandColors).length > 0 && (
         <section className="space-y-2">
           <h3 className="text-xs">Brand Colors</h3>
-          <div className="grid grid-cols-10 gap-2">
+          <div className="grid grid-cols-5 gap-2">
             {Object.keys(brandColors).map(
               (colorKey: string, colorIndex: number) => (
                 <div
@@ -223,7 +231,7 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
       {showApplicationColors && applicationColors.length > 0 && (
         <section className="space-y-2">
           <h3 className="text-xs">Application Colors</h3>
-          <div className="grid grid-cols-10 gap-2">
+          <div className="grid grid-cols-5 gap-2">
             {Object.values(applicationColors).map(
               (colorCode: string, colorIndex) => (
                 <div
@@ -246,8 +254,12 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
       )}
 
       <section className="space-y-2">
-        <h3 className="text-xs">All Colors</h3>
-        <div className="grid grid-cols-10 gap-2 t--tailwind-colors">
+        {(showThemeColors ||
+          (brandColors && Object.keys(brandColors).length > 0) ||
+          (showApplicationColors && applicationColors.length > 0)) && (
+          <h3 className="text-xs">All Colors</h3>
+        )}
+        <div className="grid grid-cols-5 gap-2 t--tailwind-colors">
           {Object.keys(TAILWIND_COLORS).map((colorKey, rowIndex) =>
             Object.keys(get(TAILWIND_COLORS, `${colorKey}`)).map(
               (singleColorKey, colIndex) => (
@@ -275,27 +287,6 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
               ),
             ),
           )}
-
-          <div
-            className={`${COLOR_BOX_CLASSES}  ${
-              color === "#fff" ? "ring-1" : ""
-            }`}
-            onClick={(e) => {
-              setColor("#fff");
-              changeColor("#fff", !e.isTrusted);
-            }}
-            tabIndex={-1}
-          />
-          <div
-            className={`${COLOR_BOX_CLASSES}  diagnol-cross ${
-              color === "transparent" ? "ring-1" : ""
-            }`}
-            onClick={(e) => {
-              setColor("transparent");
-              changeColor("transparent", !e.isTrusted);
-            }}
-            tabIndex={-1}
-          />
         </div>
       </section>
     </PopupContainer>
@@ -329,7 +320,7 @@ interface LeftIconProps {
 }
 
 function LeftIcon(props: LeftIconProps) {
-  return props.color ? (
+  return validateColor(props.color) ? (
     <ColorIcon
       className="rounded-full cursor-pointer"
       color={props.color}
@@ -417,7 +408,6 @@ const ColorPickerComponent = React.forwardRef(
             }
             break;
           case "Enter":
-          case " ":
             emitKeyPressEvent(e.key);
             (document.activeElement as any)?.click();
             setTimeout(() => {
@@ -530,7 +520,9 @@ const ColorPickerComponent = React.forwardRef(
 
     const handleChangeColor = (event: React.ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
-      debouncedOnChange(value, true);
+      if (validateColor(value)) {
+        debouncedOnChange(value, true);
+      }
       setColor(value);
     };
 
@@ -574,6 +566,7 @@ const ColorPickerComponent = React.forwardRef(
           <StyledInputGroup
             autoFocus={props.autoFocus}
             inputRef={inputGroupRef}
+            isValid={validateColor(color)}
             leftIcon={
               <LeftIcon color={color} handleInputClick={handleInputClick} />
             }
