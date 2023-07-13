@@ -213,7 +213,9 @@ jobs:
           command: yarn ts-node --require esm  cypress/cypress-split.ts
 
       - name: Rename reports 
-        run: mv ${{ github.workspace }}/app/client/results ~/results/${{ github.run_id }}/${{ matrix.job }}
+        run: |
+          mkdir -p ~/results/${{ github.run_id }}
+          mv ${{ github.workspace }}/app/client/results ~/results/${{ github.run_id }}/${{ matrix.job }}
 
       - name: Upload cypress report
         if: failure()
