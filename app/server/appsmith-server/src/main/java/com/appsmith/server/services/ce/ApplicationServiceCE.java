@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Bookmark;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
@@ -101,4 +102,8 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
     Mono<Application> findByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission);
 
     Mono<Boolean> isApplicationConnectedToGit(String applicationId);
+
+    Mono<Boolean> updateBookmarkForCurrentUser(String applicationId, Map<String, List<Bookmark>> userBookmarks, String branchName);
+
+    Mono<Map<String, List<Bookmark>>> getBookmarkForCurrentUser(String applicationId, String branchName);
 }

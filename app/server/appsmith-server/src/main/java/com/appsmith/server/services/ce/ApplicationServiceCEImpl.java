@@ -12,12 +12,14 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Asset;
+import com.appsmith.server.domains.Bookmark;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.GitDeployKeyDTO;
@@ -47,6 +49,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -947,6 +950,35 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .map(application -> application.getGitApplicationMetadata() != null
                         && StringUtils.hasLength(
                                 application.getGitApplicationMetadata().getRemoteUrl()));
+    }
+
+    @Override
+    public Mono<Boolean> updateBookmarkForCurrentUser(String applicationId,
+                                                       Map<String, List<Bookmark>> userBookmarks, String branchName) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> (User) auth.getPrincipal())
+                .map(principal -> principal.getUsername())
+                .flatMap(username -> this.update(applicationId, Map.of(username, userBookmarks), branchName))
+                .map(updateResult -> updateResult.getModifiedCount() > 0);
+
+    }
+
+    @Override
+    public Mono<Map<String, List<Bookmark>>> getBookmarkForCurrentUser(String applicationId, String branchName) {
+        Mono<String> usernameMono = ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> (User) auth.getPrincipal())
+                .map(principal -> principal.getUsername());
+
+        return this.findByIdAndBranchName(applicationId, List.of("bookmarks"), branchName)
+                .map(Application::getBookmarks)
+                .zipWith(usernameMono)
+                .map(tuple -> {
+                    Map<String, Map> bookmarks = tuple.getT1();
+                    String username = tuple.getT2();
+                    return bookmarks.get(username);
+                });
     }
 
     @Override

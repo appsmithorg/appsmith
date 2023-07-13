@@ -6,6 +6,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationSnapshot;
+import com.appsmith.server.domains.Bookmark;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
@@ -50,6 +51,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RequestMapping(Url.APPLICATION_URL)
@@ -348,5 +350,26 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return Mono.just(new ResponseDTO<>(
                 HttpStatus.BAD_REQUEST.value(), null, AppsmithError.UNSUPPORTED_OPERATION.getMessage()));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/{applicationId}/bookmark/update")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<ResponseDTO<Boolean>> updateBookmark(@PathVariable String applicationId,
+                                                     @RequestBody Map<String, List<Bookmark>> userBookmarks,
+                                                     @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to update bookmarks");
+        return service.updateBookmarkForCurrentUser(applicationId, userBookmarks, branchName)
+                .map(bool -> new ResponseDTO<>(HttpStatus.OK.value(), bool, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/{applicationId}/bookmark/get")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<ResponseDTO<Map>> getBookmark(@PathVariable String applicationId,
+                                                     @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to update bookmarks");
+        return service.getBookmarkForCurrentUser(applicationId, branchName)
+                .map(bookmarks -> new ResponseDTO<>(HttpStatus.OK.value(), bookmarks, null));
     }
 }
