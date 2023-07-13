@@ -184,4 +184,5 @@ public class FieldNameCE {
     public static final String GIT_HOSTING_PROVIDER = "gitHostingProvider";
 
     public static final String IS_MERGEABLE = "isMergeable";
+    public static final String IS_REVOKE = "revoke";
 }

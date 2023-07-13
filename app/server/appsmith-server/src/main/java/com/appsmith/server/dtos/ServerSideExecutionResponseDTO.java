@@ -5,12 +5,14 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 
 @Data
-public class ServerSideExecutionMetadataDTO {
+public class ServerSideExecutionResponseDTO {
 
     @JsonView(Views.Public.class)
-    String serverExecutionEndpoint;
+    String serverSideExecutionEndpoint;
 
+    @JsonView(Views.Public.class)
     String actionCollectionId;
 
+    @JsonView(Views.Public.class)
     String actionId;
 }

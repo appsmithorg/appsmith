@@ -167,7 +167,7 @@ public class ActionDTO implements Identifiable {
 
     // format: {base_url}/collections/actionCollectionId/actionId?mode=edit
     @JsonView(Views.Public.class)
-    String serverJSExecutionEndpoint;
+    String serverSideExecutionEndpoint;
 
     @JsonView(Views.Public.class)
     Boolean serverSideExecution;
