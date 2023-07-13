@@ -7,5 +7,12 @@
     },
     "filters": "Filters",
     "download": "Download"
+  },
+  "app_settings": {
+    "locale_settings": {
+      "description": "Just replace the values here to what you want your users to see.",
+      "locale_input_placeholder": "Locale name",
+      "apply_button": "Apply"
+    }
   }
 }

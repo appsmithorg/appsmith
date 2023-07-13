@@ -1,7 +1,7 @@
 // This file must be executed as early as possible to ensure the preloads are triggered ASAP
 import "./preload-route-chunks";
 
-import React from "react";
+import React, { useEffect } from "react";
 import "./wdyr";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
@@ -23,6 +23,12 @@ import GlobalStyles from "globalStyles";
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
 import "./i18n";
+import { getLocalStorageItem } from "pages/Editor/AppSettingsPane/AppSettings/LocaleSettings/localStorage/localStorageHelper";
+import {
+  LS_CURRENT_LOCALE_NAME,
+  LS_LOCALE_OBJECT,
+} from "pages/Editor/AppSettingsPane/AppSettings/LocaleSettings/localStorage/constants";
+import i18n from "i18next";
 
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 
@@ -32,6 +38,20 @@ runSagaMiddleware();
 appInitializer();
 
 function App() {
+  useEffect(() => {
+    const currentLocale = getLocalStorageItem(LS_CURRENT_LOCALE_NAME);
+    if (currentLocale) {
+      const localeObj = getLocalStorageItem(LS_LOCALE_OBJECT);
+      if (currentLocale in localeObj) {
+        i18n.addResourceBundle(
+          currentLocale,
+          "translation",
+          localeObj[currentLocale],
+        );
+        i18n.changeLanguage(currentLocale);
+      }
+    }
+  }, []);
   return (
     <Sentry.ErrorBoundary fallback={"An error has occured"}>
       <Provider store={store}>

@@ -31,6 +31,7 @@ import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneA
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Divider } from "design-system";
 import { ImportAppSettings } from "./ImportAppSettings";
+import LocaleSettings from "./LocaleSettings/index";
 
 export enum AppSettingsTabs {
   General,
@@ -39,6 +40,7 @@ export enum AppSettingsTabs {
   Navigation,
   Page,
   Import,
+  Locale,
 }
 
 export interface SelectedTab {
@@ -177,6 +179,19 @@ function AppSettings() {
       },
       subText: createMessage(UPDATE_VIA_IMPORT_SETTING.settingDesc),
     },
+    {
+      id: "t--locale",
+      icon: "rocket",
+      isSelected: selectedTab.type === AppSettingsTabs.Locale,
+      name: "Locale",
+      onClick: () => {
+        setSelectedTab({ type: AppSettingsTabs.Locale });
+        // AnalyticsUtil.logEvent("APP_SETTINGS_SECTION_CLICK", {
+        //   section: "Import",
+        // });
+      },
+      subText: "Update locale of app",
+    },
   ];
 
   return (
@@ -242,6 +257,8 @@ function AppSettings() {
               return <NavigationSettings />;
             case AppSettingsTabs.Import:
               return <ImportAppSettings />;
+            case AppSettingsTabs.Locale:
+              return <LocaleSettings />;
           }
         })()}
       </SectionContent>

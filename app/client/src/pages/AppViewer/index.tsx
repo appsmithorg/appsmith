@@ -1,48 +1,45 @@
-import React, { useEffect } from "react";
-import styled, { ThemeProvider } from "styled-components";
-import { useDispatch } from "react-redux";
-import type { RouteComponentProps } from "react-router";
-import { withRouter } from "react-router";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import * as Sentry from "@sentry/react";
+import { setAppViewHeaderHeight } from "actions/appViewActions";
+import { initAppViewer } from "actions/initActions";
+import { fetchPublishedPage } from "actions/pageActions";
+import EditorContextProvider from "components/editorComponents/EditorContextProvider";
+import { CANVAS_SELECTOR } from "constants/WidgetConstants";
 import type {
   AppViewerRouteParams,
   BuilderRouteParams,
 } from "constants/routes";
 import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
+import { APP_MODE } from "entities/App";
+import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import type { RouteComponentProps } from "react-router";
+import { withRouter } from "react-router";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import {
-  getIsInitialized,
   getAppViewHeaderHeight,
+  getIsInitialized,
 } from "selectors/appViewSelectors";
-import EditorContextProvider from "components/editorComponents/EditorContextProvider";
-import AppViewerPageContainer from "./AppViewerPageContainer";
-import * as Sentry from "@sentry/react";
 import {
   getCurrentPageDescription,
   getViewModePageList,
 } from "selectors/editorSelectors";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import { getSearchQuery } from "utils/helpers";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { useSelector } from "react-redux";
-import BrandingBadge from "./BrandingBadge";
-import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
-import { CANVAS_SELECTOR } from "constants/WidgetConstants";
-import { fetchPublishedPage } from "actions/pageActions";
+import { ThemeMode, getThemeDetails } from "selectors/themeSelectors";
+import styled, { ThemeProvider } from "styled-components";
+import { getSearchQuery } from "utils/helpers";
 import usePrevious from "utils/hooks/usePrevious";
-import { getIsBranchUpdated } from "../utils";
-import { APP_MODE } from "entities/App";
-import { initAppViewer } from "actions/initActions";
-import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
-import HtmlTitle from "./AppViewerHtmlTitle";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
-import i18n from "i18next";
-import TenantApi from "@appsmith/api/TenantApi";
+import { editorInitializer } from "../../utils/editor/EditorUtils";
+import { getIsBranchUpdated } from "../utils";
+import HtmlTitle from "./AppViewerHtmlTitle";
+import AppViewerPageContainer from "./AppViewerPageContainer";
+import BrandingBadge from "./BrandingBadge";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -101,16 +98,16 @@ function AppViewer(props: Props) {
     });
   });
 
-  useEffect(() => {
-    const loadLocale = async () => {
-      const data: any = await TenantApi.fetchLocaleJson();
+  // useEffect(() => {
+  //   const loadLocale = async () => {
+  //     const data: any = await TenantApi.fetchLocaleJson();
 
-      const locale = data.record;
-      i18n.addResourceBundle("hi", "translation", locale);
-      i18n.changeLanguage("hi");
-    };
-    loadLocale();
-  }, []);
+  //     const locale = data.record;
+  //     i18n.addResourceBundle("hi", "translation", locale);
+  //     i18n.changeLanguage("hi");
+  //   };
+  //   // loadLocale();
+  // }, []);
   /**
    * initialize the app if branch, pageId or application is changed
    */
