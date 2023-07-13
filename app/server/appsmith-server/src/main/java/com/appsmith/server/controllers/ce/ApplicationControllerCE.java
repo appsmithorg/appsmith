@@ -355,12 +355,12 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     @JsonView(Views.Public.class)
     @PostMapping("/{applicationId}/bookmark/update")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseDTO<Boolean>> updateBookmark(@PathVariable String applicationId,
+    public Mono<ResponseDTO<Map>> updateBookmark(@PathVariable String applicationId,
                                                      @RequestBody Map<String, List<Bookmark>> userBookmarks,
                                                      @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to update bookmarks");
         return service.updateBookmarkForCurrentUser(applicationId, userBookmarks, branchName)
-                .map(bool -> new ResponseDTO<>(HttpStatus.OK.value(), bool, null));
+                .map(bookmarks -> new ResponseDTO<>(HttpStatus.OK.value(), bookmarks, null));
     }
 
     @JsonView(Views.Public.class)

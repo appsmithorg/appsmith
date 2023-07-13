@@ -953,17 +953,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Mono<Boolean> updateBookmarkForCurrentUser(String applicationId,
+    public Mono<Map<String, List<Bookmark>>> updateBookmarkForCurrentUser(String applicationId,
                                                        Map<String, List<Bookmark>> userBookmarks, String branchName) {
-        Mono<String> usernameMono = ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> (User) auth.getPrincipal())
-                .map(principal -> principal.getUsername());
-
-        Mono<Map<String, Map>> allBookmarksMono = this.findByIdAndBranchName(applicationId, List.of("bookmarks"),
+        Mono<Map<String, Map<String, List<Bookmark>>>> allBookmarksMono = this.findByIdAndBranchName(applicationId,
+                        List.of("bookmarks"),
                         branchName)
                 .map(application -> {
-                    return application.getBookmarks() == null ? new HashMap<String, Map>() : application.getBookmarks();
+                    return application.getBookmarks() == null ? new HashMap<>() : application.getBookmarks();
                 });
 
         return ReactiveSecurityContextHolder.getContext()
@@ -973,12 +969,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .zipWith(allBookmarksMono)
                 .flatMap(tuple -> {
                     String username = tuple.getT1();
-                    Map<String, Map> allBookmarks = tuple.getT2();
+                    Map<String, Map<String, List<Bookmark>>> allBookmarks = tuple.getT2();
                     allBookmarks.put(username, userBookmarks);
-                    return this.update(applicationId, Map.of("bookmarks", allBookmarks), branchName);
-                })
-                .map(updateResult -> updateResult.getModifiedCount() > 0);
-
+                    return this.update(applicationId, Map.of("bookmarks", allBookmarks), branchName)
+                            .map(ignore -> allBookmarks.get(username));
+                });
     }
 
     @Override
@@ -990,11 +985,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
         return this.findByIdAndBranchName(applicationId, List.of("bookmarks"), branchName)
                 .map(application -> {
-                    return application.getBookmarks() == null ? new HashMap<String, Map>() : application.getBookmarks();
+                    return application.getBookmarks() == null ? new HashMap<>() : application.getBookmarks();
                 })
                 .zipWith(usernameMono)
                 .map(tuple -> {
-                    Map<String, Map> bookmarks = tuple.getT1();
+                    Map<String, Map<String, List<Bookmark>>> bookmarks = (Map<String, Map<String, List<Bookmark>>>) tuple.getT1();
                     String username = tuple.getT2();
                     return bookmarks.get(username) == null ? Map.of() : bookmarks.get(username);
                 });
