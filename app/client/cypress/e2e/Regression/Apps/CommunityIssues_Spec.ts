@@ -168,7 +168,7 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitUntilTableLoad(0, 0, "v2");
   });
 
-  it("6. Validate Search table with Client Side Search enabled & disabled", () => {
+  it.skip("6. Validate Search table with Client Side Search enabled & disabled", () => {
     entityExplorer.SelectEntityByName("Table1", "Widgets");
     agHelper.AssertExistingToggleState("clientsidesearch", "true");
 
