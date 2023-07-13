@@ -955,11 +955,28 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     @Override
     public Mono<Boolean> updateBookmarkForCurrentUser(String applicationId,
                                                        Map<String, List<Bookmark>> userBookmarks, String branchName) {
+        Mono<String> usernameMono = ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> (User) auth.getPrincipal())
+                .map(principal -> principal.getUsername());
+
+        Mono<Map<String, Map>> allBookmarksMono = this.findByIdAndBranchName(applicationId, List.of("bookmarks"),
+                        branchName)
+                .map(application -> {
+                    return application.getBookmarks() == null ? new HashMap<String, Map>() : application.getBookmarks();
+                });
+
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> (User) auth.getPrincipal())
                 .map(principal -> principal.getUsername())
-                .flatMap(username -> this.update(applicationId, Map.of(username, userBookmarks), branchName))
+                .zipWith(allBookmarksMono)
+                .flatMap(tuple -> {
+                    String username = tuple.getT1();
+                    Map<String, Map> allBookmarks = tuple.getT2();
+                    allBookmarks.put(username, userBookmarks);
+                    return this.update(applicationId, Map.of("bookmarks", allBookmarks), branchName);
+                })
                 .map(updateResult -> updateResult.getModifiedCount() > 0);
 
     }
@@ -972,12 +989,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .map(principal -> principal.getUsername());
 
         return this.findByIdAndBranchName(applicationId, List.of("bookmarks"), branchName)
-                .map(Application::getBookmarks)
+                .map(application -> {
+                    return application.getBookmarks() == null ? new HashMap<String, Map>() : application.getBookmarks();
+                })
                 .zipWith(usernameMono)
                 .map(tuple -> {
                     Map<String, Map> bookmarks = tuple.getT1();
                     String username = tuple.getT2();
-                    return bookmarks.get(username);
+                    return bookmarks.get(username) == null ? Map.of() : bookmarks.get(username);
                 });
     }
 
