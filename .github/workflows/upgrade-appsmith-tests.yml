@@ -214,8 +214,8 @@ jobs:
 
       - name: Rename reports 
         run: |
-          mkdir -p ~/results/${{ github.run_id }}
-          mv ${{ github.workspace }}/app/client/results ~/results/${{ github.run_id }}/${{ matrix.job }}
+          mkdir -p ~/results
+          mv ${{ github.workspace }}/app/client/results ~/results/${{ matrix.job }}
 
       - name: Upload cypress report
         if: failure()
