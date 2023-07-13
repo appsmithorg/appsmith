@@ -19,6 +19,7 @@ import {
   getConflictFoundDocUrlMerge,
   getFetchingBranches,
   getGitBranches,
+  getGitConflictingFiles,
   getGitStatus,
   getIsFetchingGitStatus,
   getIsFetchingMergeStatus,
@@ -53,6 +54,8 @@ import {
 } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
+import { ConflictList } from "../components/ConflictList";
+import { DiffViewer } from "../components/DiffViewer";
 
 const Row = styled.div`
   display: flex;
@@ -76,7 +79,12 @@ function MergeSuccessIndicator() {
   );
 }
 
-export default function Merge() {
+interface ModalProps {
+  expandWidthCallback?: (expand: boolean) => void;
+}
+
+export default function Merge(props: ModalProps) {
+  const { expandWidthCallback } = props;
   const dispatch = useDispatch();
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const gitBranches = useSelector(getGitBranches);
@@ -217,75 +225,101 @@ export default function Merge() {
   const showMergeButton =
     !isConflicting && !mergeError && !isFetchingGitStatus && !isMerging;
   const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlMerge);
+  const gitConflictingFiles = useSelector(getGitConflictingFiles);
+  const [diffViewer, setDiffViewer] = useState({
+    show: false,
+    file: "",
+  });
+
+  const handleResolveBtn = (file: string) => {
+    setDiffViewer({
+      show: true,
+      file,
+    });
+    expandWidthCallback?.(true);
+  };
+
   return (
     <>
       <ModalBody>
         <Container style={{ overflow: "unset", paddingBottom: "4px" }}>
-          <Text color={"var(--ads-v2-color-fg-emphasis)"} kind="heading-s">
-            {createMessage(SELECT_BRANCH_TO_MERGE)}
-          </Text>
-          <Space size={2} />
-          <Row style={{ overflow: "unset", paddingBottom: "4px" }}>
-            <Select
-              className="t--merge-branch-dropdown-destination"
-              dropdownClassName={Classes.MERGE_DROPDOWN}
-              dropdownMatchSelectWidth
-              getPopupContainer={(triggerNode) => triggerNode.parentNode}
-              isDisabled={
-                isFetchingBranches || isFetchingMergeStatus || isMerging
-              }
-              isValid={status !== MERGE_STATUS_STATE.NOT_MERGEABLE}
-              onSelect={(value?: string) => {
-                if (value)
-                  setSelectedBranchOption({ label: value, value: value });
-              }}
-              showSearch
-              size="md"
-              value={selectedBranchOption}
-            >
-              {branchList.map((branch) => (
-                <Option key={branch.value}>{branch.value}</Option>
-              ))}
-            </Select>
+          {diffViewer.show ? (
+            <DiffViewer file={diffViewer.file} />
+          ) : (
+            <>
+              <Text color={"var(--ads-v2-color-fg-emphasis)"} kind="heading-s">
+                {createMessage(SELECT_BRANCH_TO_MERGE)}
+              </Text>
+              <Space size={2} />
+              <Row style={{ overflow: "unset", paddingBottom: "4px" }}>
+                <Select
+                  className="t--merge-branch-dropdown-destination"
+                  dropdownClassName={Classes.MERGE_DROPDOWN}
+                  dropdownMatchSelectWidth
+                  getPopupContainer={(triggerNode) => triggerNode.parentNode}
+                  isDisabled={
+                    isFetchingBranches || isFetchingMergeStatus || isMerging
+                  }
+                  isValid={status !== MERGE_STATUS_STATE.NOT_MERGEABLE}
+                  onSelect={(value?: string) => {
+                    if (value)
+                      setSelectedBranchOption({ label: value, value: value });
+                  }}
+                  showSearch
+                  size="md"
+                  value={selectedBranchOption}
+                >
+                  {branchList.map((branch) => (
+                    <Option key={branch.value}>{branch.value}</Option>
+                  ))}
+                </Select>
 
-            <Space horizontal size={3} />
-            <Icon
-              color={"var(--ads-v2-color-fg-subtle)"}
-              name="arrow-left-s-line"
-              size="lg"
-            />
-            <Space horizontal size={3} />
-            <Select
-              className="textInput"
-              isDisabled
-              options={[currentBranchDropdownOption]}
-              size="md"
-              value={currentBranchDropdownOption}
-            >
-              <Option>{currentBranchDropdownOption.label}</Option>
-            </Select>
-          </Row>
-          <MergeStatus message={mergeStatusMessage} status={status} />
-          <Space size={10} />
-          {isConflicting ? (
-            <ConflictInfo
-              browserSupportedRemoteUrl={
-                gitMetaData?.browserSupportedRemoteUrl || ""
-              }
-              learnMoreLink={gitConflictDocumentUrl}
-            />
-          ) : null}
+                <Space horizontal size={3} />
+                <Icon
+                  color={"var(--ads-v2-color-fg-subtle)"}
+                  name="arrow-left-s-line"
+                  size="lg"
+                />
+                <Space horizontal size={3} />
+                <Select
+                  className="textInput"
+                  isDisabled
+                  options={[currentBranchDropdownOption]}
+                  size="md"
+                  value={currentBranchDropdownOption}
+                >
+                  <Option>{currentBranchDropdownOption.label}</Option>
+                </Select>
+              </Row>
+              <MergeStatus message={mergeStatusMessage} status={status} />
+              {/* <Space size={10} /> Not sure why we are using this component for space so commented it out for now*/}
+              {isConflicting ? (
+                <>
+                  <ConflictList
+                    files={gitConflictingFiles || []}
+                    handleClick={handleResolveBtn}
+                  />
+                  <ConflictInfo
+                    browserSupportedRemoteUrl={
+                      gitMetaData?.browserSupportedRemoteUrl || ""
+                    }
+                    learnMoreLink={gitConflictDocumentUrl}
+                  />
+                </>
+              ) : null}
 
-          {showMergeSuccessIndicator ? <MergeSuccessIndicator /> : null}
-          {isMerging ? (
-            <StatusbarWrapper>
-              <Statusbar
-                completed={!isMerging}
-                message={createMessage(IS_MERGING)}
-                period={6}
-              />
-            </StatusbarWrapper>
-          ) : null}
+              {showMergeSuccessIndicator ? <MergeSuccessIndicator /> : null}
+              {isMerging ? (
+                <StatusbarWrapper>
+                  <Statusbar
+                    completed={!isMerging}
+                    message={createMessage(IS_MERGING)}
+                    period={6}
+                  />
+                </StatusbarWrapper>
+              ) : null}
+            </>
+          )}
         </Container>
       </ModalBody>
       <ModalFooter>
