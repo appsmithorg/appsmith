@@ -40,6 +40,7 @@ export enum PluginName {
   SNOWFLAKE = "Snowflake",
   ARANGODB = "ArangoDB",
   REDSHIFT = "Redshift",
+  SMTP = "SMTP",
 }
 
 export enum PaginationType {

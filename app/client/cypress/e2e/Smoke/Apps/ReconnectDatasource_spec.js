@@ -31,7 +31,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
           // should check reconnect modal openning
           const { isPartialImport } = interception.response.body.data;
           if (isPartialImport) {
-            dataSources.ReconnectDataSource(
+            dataSources.ReconnectSingleDSNAssert(
               "Untitled Datasource",
               "PostgreSQL",
             );
