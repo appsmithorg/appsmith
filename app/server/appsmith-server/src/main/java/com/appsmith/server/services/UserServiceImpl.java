@@ -307,22 +307,26 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
         Mono<User> updateUserPolicyPostRead =
                 repository.findById(userId, READ_USERS).flatMap(this::updateProvisionUserPoliciesAndProvisionFlag);
         Mono<User> userMono = repository.findById(userId, MANAGE_USERS).switchIfEmpty(updateUserPolicyPostRead);
+        Mono<ProvisionResourceDto> updatedProvisionedUserMono;
         if (StringUtils.isEmpty(userUpdateDTO.getName()) && StringUtils.isEmpty(userUpdateDTO.getEmail())) {
-            return userMono.map(this::getProvisionResourceDto);
+            updatedProvisionedUserMono = userMono.map(this::getProvisionResourceDto);
+        } else {
+            User userUpdate = new User();
+            if (StringUtils.isNotEmpty(userUpdateDTO.getName())) {
+                userUpdate.setName(userUpdateDTO.getName());
+            }
+            if (StringUtils.isNotEmpty(userUpdateDTO.getEmail())) {
+                // Convert email to lower case before saving
+                userUpdate.setEmail(userUpdateDTO.getEmail().toLowerCase());
+            }
+            // Setting below elements to null, so that they are not copied as empty values
+            // and update the user resource incorrectly.
+            userUpdate.setPolicies(null);
+            userUpdate.setIsProvisioned(null);
+            updatedProvisionedUserMono =
+                    userMono.then(this.update(userId, userUpdate)).map(this::getProvisionResourceDto);
         }
-        User userUpdate = new User();
-        if (StringUtils.isNotEmpty(userUpdateDTO.getName())) {
-            userUpdate.setName(userUpdateDTO.getName());
-        }
-        if (StringUtils.isNotEmpty(userUpdateDTO.getEmail())) {
-            // Convert email to lower case before saving
-            userUpdate.setEmail(userUpdateDTO.getEmail().toLowerCase());
-        }
-        // Setting below elements to null, so that they are not copied as empty values
-        // and update the user resource incorrectly.
-        userUpdate.setPolicies(null);
-        userUpdate.setIsProvisioned(null);
-        return userMono.then(this.update(userId, userUpdate)).map(this::getProvisionResourceDto);
+        return updatedProvisionedUserMono;
     }
 
     @Override

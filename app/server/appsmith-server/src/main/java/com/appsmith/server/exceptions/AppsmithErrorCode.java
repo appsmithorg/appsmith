@@ -40,6 +40,7 @@ public enum AppsmithErrorCode {
     REMOVE_LAST_WORKSPACE_ADMIN_ERROR("AE-APP-4038", "Remove last workspace admin error"),
     UNKNOWN_PLUGIN_REFERENCE("AE-APP-4052", "Unknown plugin reference"),
     INVALID_LICENSE_KEY_ENTERED("AE-APP-4053", "Invalid license key"),
+    LICENSE_UPGRADE_REQUIRED("AE-APP-4054", "License upgrade required."),
     HEALTHCHECK_TIMEOUT("AE-APP-4080", "Connection timeout during health check"),
     DUPLICATE_KEY("AE-APP-4091", "Duplicate key"),
     DUPLICATE_KEY_OBJECT_CREATION("AE-APP-4092", "Duplicate key during object creation"),

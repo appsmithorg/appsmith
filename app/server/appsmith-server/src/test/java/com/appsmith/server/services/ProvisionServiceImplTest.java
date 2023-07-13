@@ -2,6 +2,8 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.constants.LicenseOrigin;
+import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
@@ -16,6 +18,7 @@ import com.appsmith.server.repositories.ApiKeyRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,15 +73,60 @@ class ProvisionServiceImplTest {
     @Autowired
     UserUtils userUtils;
 
+    private License defaultLicense;
+
     @BeforeEach
-    public void setup() {
+    public void beforeSetup() {
         User apiUser = userRepository.findByEmail("api_user").block();
         userUtils.makeSuperUser(List.of(apiUser)).block();
+        Tenant tenant = tenantService.getDefaultTenant().block();
+        defaultLicense = tenant.getTenantConfiguration().getLicense();
+    }
+
+    @AfterEach
+    void afterSetup() {
+        Tenant tenant = tenantService.getDefaultTenant().block();
+        tenant.getTenantConfiguration().setLicense(defaultLicense);
+        tenantService.save(tenant).block();
+    }
+
+    private void setTenantLicenseAsSelfServe() {
+        License mockLicense = new License();
+        mockLicense.setActive(Boolean.TRUE);
+        mockLicense.setOrigin(LicenseOrigin.SELF_SERVE);
+        Tenant tenant = tenantService.getDefaultTenant().block();
+        tenant.getTenantConfiguration().setLicense(mockLicense);
+        tenantService.save(tenant).block();
+    }
+
+    private void setTenantLicenseAsEnterprise() {
+        License mockLicense = new License();
+        mockLicense.setActive(Boolean.TRUE);
+        mockLicense.setOrigin(LicenseOrigin.ENTERPRISE);
+        Tenant tenant = tenantService.getDefaultTenant().block();
+        tenant.getTenantConfiguration().setLicense(mockLicense);
+        tenantService.save(tenant).block();
+    }
+
+    private void setTenantLicenseAsAirGapped() {
+        License mockLicense = new License();
+        mockLicense.setActive(Boolean.TRUE);
+        mockLicense.setOrigin(LicenseOrigin.AIR_GAP);
+        Tenant tenant = tenantService.getDefaultTenant().block();
+        tenant.getTenantConfiguration().setLicense(mockLicense);
+        tenantService.save(tenant).block();
+    }
+
+    private void setTenantLicenseAsNull() {
+        Tenant tenant = tenantService.getDefaultTenant().block();
+        tenant.getTenantConfiguration().setLicense(null);
+        tenantService.save(tenant).block();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     void testDisconnectProvisioning_keepProvisionedUsersAndGroups() {
+        setTenantLicenseAsEnterprise();
         String testName = "testDisconnectProvisioning_keepProvisionedUsersAndGroups";
         PermissionGroup instanceAdminRole =
                 userUtils.getSuperAdminPermissionGroup().block();
@@ -249,6 +297,7 @@ class ProvisionServiceImplTest {
     @Test
     @WithUserDetails(value = "api_user")
     void testDisconnectProvisioning_deleteProvisionedUsersAndGroups() {
+        setTenantLicenseAsEnterprise();
         String testName = "testDisconnectProvisioning_keepProvisionedUsersAndGroups";
         String provisionToken = provisionService.generateProvisionToken().block();
         String provisionTokenId = apiKeyRepository
@@ -330,6 +379,7 @@ class ProvisionServiceImplTest {
     @Test
     @WithUserDetails(value = "usertest@usertest.com")
     public void testDisconnectProvisioningWithRegularUser_shouldThrowActionIsNotAuthorised() {
+        setTenantLicenseAsEnterprise();
         // Add usertest as a superuser along with api_user to perform Admin Actions.
         User apiUser = userRepository.findByEmail("api_user").block();
         User userTest = userRepository.findByEmail("usertest@usertest.com").block();
@@ -357,5 +407,43 @@ class ProvisionServiceImplTest {
 
         // Cleanup post test
         apiKeyRepository.archiveById(provisionTokenId).block();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGenerateToken_shouldThrowErrorForNonEnterpriseInstance() {
+        setTenantLicenseAsSelfServe();
+        AppsmithException enterpriseFeatureException = assertThrows(
+                AppsmithException.class,
+                () -> provisionService.generateProvisionToken().block());
+        assertThat(enterpriseFeatureException.getMessage())
+                .isEqualTo(AppsmithError.LICENSE_UPGRADE_REQUIRED.getMessage(LicenseOrigin.ENTERPRISE.name()));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGenerateToken_shouldThrowErrorLicenseNull() {
+        setTenantLicenseAsNull();
+        AppsmithException enterpriseFeatureException = assertThrows(
+                AppsmithException.class,
+                () -> provisionService.generateProvisionToken().block());
+        assertThat(enterpriseFeatureException.getMessage())
+                .isEqualTo(AppsmithError.LICENSE_UPGRADE_REQUIRED.getMessage(LicenseOrigin.ENTERPRISE.name()));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGenerateToken_shouldCreateTokenEnterpriseInstance() {
+        setTenantLicenseAsEnterprise();
+        String provisionToken = provisionService.generateProvisionToken().block();
+        assertThat(provisionToken).isNotBlank();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGenerateToken_shouldCreateTokenAirGapInstance() {
+        setTenantLicenseAsAirGapped();
+        String provisionToken = provisionService.generateProvisionToken().block();
+        assertThat(provisionToken).isNotBlank();
     }
 }

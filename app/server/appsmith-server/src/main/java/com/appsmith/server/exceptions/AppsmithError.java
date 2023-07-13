@@ -866,6 +866,14 @@ public enum AppsmithError {
             "Invalid license key",
             ErrorType.ARGUMENT_ERROR,
             null),
+    LICENSE_UPGRADE_REQUIRED(
+            400,
+            AppsmithErrorCode.LICENSE_UPGRADE_REQUIRED.getCode(),
+            "Current license plan does not support this feature. Please reach out to Appsmith support to know how to upgrade.",
+            AppsmithErrorAction.DEFAULT,
+            "License upgrade required.",
+            ErrorType.ARGUMENT_ERROR,
+            null),
     GIT_FILE_IN_USE(
             500,
             AppsmithErrorCode.GIT_FILE_IN_USE.getCode(),

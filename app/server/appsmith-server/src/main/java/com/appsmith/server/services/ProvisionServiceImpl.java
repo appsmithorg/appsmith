@@ -13,6 +13,7 @@ import com.appsmith.server.dtos.ApiKeyRequestDto;
 import com.appsmith.server.dtos.DisconnectProvisioningDto;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.TenantUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -39,6 +40,7 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 @AllArgsConstructor
 public class ProvisionServiceImpl implements ProvisionService {
     private final ApiKeyService apiKeyService;
+    private final TenantUtils tenantUtils;
     private final TenantService tenantService;
     private final UserAndAccessManagementService userAndAccessManagementService;
     private final UserRepository userRepository;
@@ -50,7 +52,7 @@ public class ProvisionServiceImpl implements ProvisionService {
     public Mono<String> generateProvisionToken() {
         ApiKeyRequestDto apiKeyRequestDto =
                 ApiKeyRequestDto.builder().email(FieldName.PROVISIONING_USER).build();
-        return apiKeyService.generateApiKey(apiKeyRequestDto);
+        return tenantUtils.enterpriseUpgradeRequired().then(apiKeyService.generateApiKey(apiKeyRequestDto));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.services.ce.TenantServiceCE;
 import org.springframework.web.server.ServerWebExchange;
@@ -49,4 +50,8 @@ public interface TenantService extends TenantServiceCE {
      * @return Boolean
      */
     Boolean isValidLicenseConfiguration(Tenant tenant);
+
+    Mono<Boolean> isEnterprisePlan(String tenantId);
+
+    Mono<License> getTenantLicense(String tenantId);
 }
