@@ -213,12 +213,13 @@ jobs:
           command: yarn ts-node --require esm  cypress/cypress-split.ts
 
       - name: Rename reports 
+        if: always()
         run: |
           mkdir -p ~/results
           mv ${{ github.workspace }}/app/client/results ~/results/${{ matrix.job }}
 
       - name: Upload cypress report
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: results
