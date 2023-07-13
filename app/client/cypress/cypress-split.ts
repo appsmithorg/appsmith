@@ -164,7 +164,7 @@ function getArgs() {
     command += browser != "" ? `--browser ${browser} ` : "";
     command += configFile != "" ? `--config-file ${configFile} ` : "";
     command += env != "" ? `--env ${env} ` : "";
-    command += headless != "true" ? `--headed ` : "";
+    command += headless == "false" ? `--headed ` : "";
 
     const specs = await getSpecsToRun(totalRunners, thisRunner, specsPattern);
     console.log("SPECS: ", specs);

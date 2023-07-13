@@ -9,11 +9,14 @@ export default defineConfig({
   videoCompression: false,
   numTestsKeptInMemory: 5,
   experimentalMemoryManagement: true,
+  reporter: "cypress-mochawesome-reporter",
   reporterOptions: {
     reportDir: "results",
-    overwrite: false,
-    html: true,
-    json: false,
+    charts: true,
+    reportPageTitle: "Cypress-report",
+    embeddedScreenshots: true,
+    inlineAssets: true,
+    saveAllAttempts: true,
   },
   chromeWebSecurity: false,
   viewportHeight: 1100,
@@ -26,6 +29,7 @@ export default defineConfig({
   e2e: {
     baseUrl: "http://localhost/",
     setupNodeEvents(on, config) {
+      require("cypress-mochawesome-reporter/plugin")(on);
       return require("./cypress/plugins/index.js")(on, config);
     },
     specPattern: "cypress/e2e/**/*.{js,ts}",
