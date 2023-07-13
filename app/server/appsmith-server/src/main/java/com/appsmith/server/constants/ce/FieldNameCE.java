@@ -16,6 +16,7 @@ public class FieldNameCE {
     public static final String CURL_CODE = "curlCode";
     public static final String PLUGIN_TYPE = "pluginType";
     public static final String COLLECTION_ID = "collectionId";
+    public static final String ACTION_COLLECTION_ID = "actionCollectionId";
     public static final String ACTION_ID = "actionId";
     public static String WORKSPACE = "workspace";
     public static String ID = "id";
