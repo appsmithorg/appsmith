@@ -19,12 +19,13 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   margin-top: ${(props) => `${props.theme.spaces[3]}px`};
-  width: 45%;
+  width: 70%;
   align-items: flex-start;
   gap: 5px;
   .ads-v2-icon {
     margin-top: 3px;
   }
+  margin-bottom: 18px;
 `;
 
 function MergeStatus({

@@ -292,7 +292,7 @@ export default function Merge(props: ModalProps) {
                 </Select>
               </Row>
               <MergeStatus message={mergeStatusMessage} status={status} />
-              <Space size={10} />
+              {/* <Space size={10} /> Not sure why we are using this component for space so commented it out for now*/}
               {isConflicting ? (
                 <>
                   <ConflictList
