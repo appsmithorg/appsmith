@@ -28,6 +28,7 @@ export function DiffViewer(props) {
           setJSONACodeBlocks(codeBlocksForJSON(jsonObject));
         } else if (inputID == "patchb") {
           setJSONB(jsonObject);
+          // console.log(jsonObject, codeBlocksForJSON(jsonObject));
           setJSONBCodeBlocks(codeBlocksForJSON(jsonObject));
         }
 
