@@ -41,9 +41,7 @@ describe("Test Top + Inline navigation style", function () {
     agHelper.AssertElementVisible(appSettings.locators._header);
     agHelper.AssertElementAbsence(appSettings.locators._topStacked);
     agHelper.AssertElementVisible(appSettings.locators._topInline);
-  });
-
-  it("2. More button should exist and when clicked on it, it should open the dropdown with rest of the pages", () => {
+    //More button should exist and when clicked on it, it should open the dropdown with rest of the pages
     // 'More' button should exist
     agHelper.AssertElementVisible(appSettings.locators._topInlineMoreButton);
     // Should open the dropdown
@@ -60,7 +58,7 @@ describe("Test Top + Inline navigation style", function () {
       .then(($len) => expect($len).to.be.at.least(1));
   });
 
-  it("3. Page change from inside this dropdown should work", () => {
+  it("2. Page change from inside this dropdown should work", () => {
     const pageName = "Page6 - with long long name";
     agHelper.GetNClickByContains(
       appSettings.locators._topInlineMoreDropdownItem,
@@ -93,7 +91,7 @@ describe("Test Top + Inline navigation style", function () {
     );
   });
 
-  it("4. Navigation's background should be default to white, and should change when background color is set to theme", () => {
+  it("3. Navigation's background should be default to white, and should change when background color is set to theme", () => {
     // The background should be white since light color style is default
     agHelper.AssertCSS(
       appSettings.locators._header,
@@ -120,7 +118,7 @@ describe("Test Top + Inline navigation style", function () {
     agHelper.AssertElementVisible(homePage._profileMenu);
   });
 
-  it("5. Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu", () => {
+  it("4. Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu", () => {
     // Share
     agHelper.GetNClick(
       `${appSettings.locators._header} ${appSettings.locators._shareButton}`,
