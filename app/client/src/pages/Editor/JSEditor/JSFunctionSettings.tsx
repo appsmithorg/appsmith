@@ -10,7 +10,7 @@ import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { RADIO_OPTIONS, SETTINGS_HEADINGS } from "./constants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Icon, Radio, RadioGroup, Tooltip } from "design-system";
+import { Button, Icon, Radio, RadioGroup, Tooltip } from "design-system";
 
 type SettingsHeadingProps = {
   text: string;
@@ -119,6 +119,10 @@ function SettingsItem({ action, disabled }: SettingsItemProps) {
     String(!!action.confirmBeforeExecute),
   );
 
+  const [serverSideExecution, setServerSideExecution] = useState(
+    String(!!action.serverSideExecution),
+  );
+
   const updateProperty = (value: boolean | number, propertyName: string) => {
     dispatch(
       updateFunctionProperty({
@@ -145,6 +149,11 @@ function SettingsItem({ action, disabled }: SettingsItemProps) {
       toggleSetting: "CONFIRM_BEFORE_RUN",
       toggleValue: value,
     });
+  };
+
+  const onChangeServerSideExecution = (value: string) => {
+    setServerSideExecution(value);
+    updateProperty(value === "true", "serverSideExecution");
   };
 
   return (
@@ -190,6 +199,38 @@ function SettingsItem({ action, disabled }: SettingsItemProps) {
             </Radio>
           ))}
         </RadioGroup>
+      </SettingColumn>
+      <SettingColumn className={`${action.name}-server-side-execution`}>
+        <RadioGroup
+          defaultValue={serverSideExecution}
+          name={`server-side-execution-${action.id}`}
+          onChange={onChangeServerSideExecution}
+          orientation="horizontal"
+        >
+          {RADIO_OPTIONS.map((option) => (
+            <Radio
+              isDisabled={disabled}
+              key={option.label}
+              value={option.value}
+            >
+              {option.label}
+            </Radio>
+          ))}
+        </RadioGroup>
+
+        {action.serverSideExecution && (
+          <Button
+            className="t--generate-execute-url"
+            kind="secondary"
+            // intent=""
+            onClick={() => {
+              //
+            }}
+            size="sm"
+          >
+            Generate Execute URL
+          </Button>
+        )}
       </SettingColumn>
     </SettingRow>
   );

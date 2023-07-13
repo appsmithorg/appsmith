@@ -37,6 +37,12 @@ export const SETTINGS_HEADINGS = [
     info: "Ask for confirmation before executing function",
     key: "run_before_calling",
   },
+  {
+    text: "Server Side Execution",
+    hasInfo: true,
+    info: "Allow function run on server side",
+    key: "run_on_server",
+  },
 ];
 export const RADIO_OPTIONS: OptionProps[] = [
   {
