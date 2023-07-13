@@ -131,8 +131,14 @@ import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
+import { isAIEnabled } from "@appsmith/components/editorComponents/GPT/trigger";
+import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
+import { EditorFormSignPosting } from "@appsmith/components/editorComponents/EditorFormSignPosting";
 import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import {
+  selectFeatureFlagCheck,
+  selectFeatureFlags,
+} from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const QueryFormContainer = styled.form`
@@ -875,6 +881,14 @@ export function EditorJSONtoForm(props: Props) {
     dispatch(setDebuggerSelectedTab(tabKey));
   }, []);
 
+  const featureFlags = useSelector(selectFeatureFlags);
+  const editorMode =
+    currentActionPluginName === PluginName.POSTGRES
+      ? editorSQLModes.POSTGRESQL_WITH_BINDING
+      : editorSQLModes.MYSQL_WITH_BINDING;
+
+  const isAIEnabledForPosting = isAIEnabled(featureFlags, editorMode);
+
   // close the debugger
   //TODO: move this to a common place
   const onClose = () => dispatch(showDebugger(false));
@@ -980,6 +994,11 @@ export function EditorJSONtoForm(props: Props) {
                     className="tab-panel"
                     value={EDITOR_TABS.QUERY}
                   >
+                    <EditorFormSignPosting
+                      isAIEnabled={isAIEnabledForPosting}
+                      mode={editorMode}
+                    />
+
                     <SettingsWrapper>
                       {editorConfig && editorConfig.length > 0 ? (
                         renderConfig(editorConfig)
