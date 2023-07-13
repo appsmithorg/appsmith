@@ -88,7 +88,6 @@ async function getSpecsToRun(
       const specFilePaths = await sortSpecFilesByTestCount(
         await getSpecFilePaths(specPattern),
       );
-      console.log("In Execute function - ", specFilePaths);
 
       if (!specFilePaths.length) {
         throw Error("No spec files found.");
@@ -98,7 +97,6 @@ async function getSpecsToRun(
         totalRunnersCount,
         currentRunner,
       );
-      console.log(specsToRun.join(","));
       return specsToRun.join(",");
     } catch (err) {
       console.error(err);
@@ -167,10 +165,7 @@ function getArgs() {
     command += headless == "false" ? `--headed ` : "";
 
     const specs = await getSpecsToRun(totalRunners, thisRunner, specsPattern);
-    console.log("SPECS: ", specs);
     const final_command = `${command} --spec "${specs}"`;
-    console.log(`Running: ${final_command}`);
-
     const commandProcess = exec(final_command);
 
     // pipe output because we want to see the results of the run
