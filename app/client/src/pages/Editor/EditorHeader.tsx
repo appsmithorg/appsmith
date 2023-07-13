@@ -41,11 +41,12 @@ import {
   Modal,
   ModalHeader,
   ModalContent,
-  ModalBody,
   Tabs,
   TabsList,
   Tab,
   TabPanel,
+  ModalTrigger,
+  ModalBody,
 } from "design-system";
 import { Profile } from "pages/common/ProfileImage";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
@@ -84,13 +85,21 @@ import { modText } from "utils/helpers";
 import Boxed from "./GuidedTour/Boxed";
 import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
-import { viewerURL } from "RouteBuilder";
+import {
+  apiEditorIdURL,
+  jsCollectionIdURL,
+  queryEditorIdURL,
+  viewerURL,
+} from "RouteBuilder";
 import { useHref } from "./utils";
 import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import type { NavigationSetting } from "constants/AppConstants";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import { getBookmarks } from "selectors/entitiesSelector";
+import type { Bookmark } from "api/BookmarksAPI";
+import history from "utils/history";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -228,6 +237,7 @@ export function EditorHeader(props: PropsFromRedux) {
   const isPreviewMode = useSelector(previewModeSelector);
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
   const deployLink = useHref(viewerURL, { pageId });
+  const bookmarks = useSelector(getBookmarks);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -319,6 +329,38 @@ export function EditorHeader(props: PropsFromRedux) {
   const filteredSharedUserList = props.sharedUserList.filter(
     (user) => user.username !== props.currentUser?.username,
   );
+
+  const navigateTo = (pageId: string, bookmark: Bookmark) => {
+    switch (bookmark.entityType) {
+      case "QUERY": {
+        history.push(
+          queryEditorIdURL({
+            pageId,
+            queryId: bookmark.entityId,
+          }),
+        );
+        break;
+      }
+      case "API": {
+        history.push(
+          apiEditorIdURL({
+            pageId,
+            apiId: bookmark.entityId,
+          }),
+        );
+        break;
+      }
+      case "JSOBJECT": {
+        history.push(
+          jsCollectionIdURL({
+            pageId,
+            collectionId: bookmark.entityId,
+          }),
+        );
+        break;
+      }
+    }
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -506,6 +548,31 @@ export function EditorHeader(props: PropsFromRedux) {
                       />
                     </TabPanel>
                   </Tabs>
+                </ModalBody>
+              </ModalContent>
+            </Modal>
+            <Modal>
+              <ModalTrigger>
+                <Button>Bookmarks</Button>
+              </ModalTrigger>
+              <ModalContent>
+                <ModalHeader>Bookmarks</ModalHeader>
+                <ModalBody>
+                  {Object.keys(bookmarks).map((key: string) => {
+                    return (
+                      !!bookmarks[key] &&
+                      bookmarks[key].map((bookmark: Bookmark) => {
+                        return (
+                          <button
+                            key={key}
+                            onClick={() => navigateTo(key, bookmark)}
+                          >
+                            {bookmark.entityId + " " + bookmark.entityType}
+                          </button>
+                        );
+                      })
+                    );
+                  })}
                 </ModalBody>
               </ModalContent>
             </Modal>

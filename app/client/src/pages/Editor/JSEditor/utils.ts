@@ -7,6 +7,8 @@ import {
   RUN_GUTTER_CLASSNAME,
   RUN_GUTTER_ID,
   NO_FUNCTION_DROPDOWN_OPTION,
+  BOOKMARK_GUTTER_ID,
+  BOOKMARK_GUTTER_CLASSNAME,
 } from "./constants";
 import type { DropdownOption } from "design-system-old";
 import { find, memoize } from "lodash";
@@ -116,13 +118,16 @@ export const getJSPropertyLineFromName = (
   return result;
 };
 
-export const createGutterMarker = (gutterOnclick: () => void) => {
+export const createGutterMarker = (
+  gutterOnclick: () => void,
+  className: string,
+) => {
   const marker = document.createElement("button");
   // For most browsers the default type of button is submit, this causes the page to reload when marker is clicked
   // Set type to button, to prevent this behaviour
   marker.type = "button";
   marker.innerHTML = "&#9654;";
-  marker.classList.add(RUN_GUTTER_CLASSNAME);
+  marker.classList.add(className);
   marker.onmousedown = function (e) {
     e.preventDefault();
     gutterOnclick();
@@ -155,8 +160,9 @@ export const getJSFunctionLineGutter = (
       return config && action && isExecutePermitted
         ? {
             line: config.line,
-            element: createGutterMarker(() =>
-              runFunction(action, "JS_OBJECT_GUTTER_RUN_BUTTON"),
+            element: createGutterMarker(
+              () => runFunction(action, "JS_OBJECT_GUTTER_RUN_BUTTON"),
+              RUN_GUTTER_CLASSNAME,
             ),
             isFocusedAction: () => {
               onFocusAction(action);
@@ -165,6 +171,36 @@ export const getJSFunctionLineGutter = (
         : null;
     },
     gutterId: RUN_GUTTER_ID,
+  };
+};
+
+export const getJSLineBookmarkGutter = (
+  jsActions: JSAction[],
+  bookmarkFunction: (jsAction: JSAction, lineNumber: number) => void,
+  showGutters: boolean,
+): CodeEditorGutter => {
+  const gutter: CodeEditorGutter = {
+    getGutterConfig: null,
+    gutterId: BOOKMARK_GUTTER_ID,
+  };
+  if (!showGutters || !jsActions.length) return gutter;
+
+  return {
+    getGutterConfig: (code: string, lineNumber: number) => {
+      const config = getJSFunctionStartLineFromCode(code, lineNumber);
+      const action = find(jsActions, ["name", config?.actionName]);
+      return config && action
+        ? {
+            line: lineNumber,
+            element: createGutterMarker(
+              () => bookmarkFunction(action, lineNumber),
+              BOOKMARK_GUTTER_CLASSNAME,
+            ),
+            isFocusedAction: null,
+          }
+        : null;
+    },
+    gutterId: BOOKMARK_GUTTER_ID,
   };
 };
 

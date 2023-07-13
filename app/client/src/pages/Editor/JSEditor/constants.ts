@@ -53,6 +53,9 @@ export const RUN_GUTTER_CLASSNAME = "run-marker-gutter";
 export const JS_OBJECT_HOTKEYS_CLASSNAME = "js-object-hotkeys";
 export const ANIMATE_RUN_GUTTER = "animate-run-marker";
 
+export const BOOKMARK_GUTTER_ID = "bookmake-gutter";
+export const BOOKMARK_GUTTER_CLASSNAME = "bookmark-marker-gutter";
+
 export const testLocators = {
   runJSAction: "run-js-action",
 };
@@ -73,6 +76,16 @@ export const CodeEditorWithGutterStyles = css`
   .CodeMirror-linenumber {
     text-align: right;
     padding-left: 0;
+  }
+
+  .${BOOKMARK_GUTTER_ID} {
+    width: 0.5em;
+    background: #5781f9;
+    margin-right: 10px;
+  }
+  .${BOOKMARK_GUTTER_CLASSNAME} {
+    cursor: pointer;
+    color: #5781f9;
   }
 
   .cm-s-duotone-light.CodeMirror {

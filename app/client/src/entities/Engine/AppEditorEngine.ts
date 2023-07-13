@@ -58,6 +58,7 @@ import {
 } from "@appsmith/sagas/userSagas";
 import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { fetchBookmarksAction } from "actions/bookmarkActions";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -70,6 +71,7 @@ export default class AppEditorEngine extends AppEngine {
     this.completeChore = this.completeChore.bind(this);
     this.loadPageThemesAndActions = this.loadPageThemesAndActions.bind(this);
     this.loadPluginsAndDatasources = this.loadPluginsAndDatasources.bind(this);
+    this.loadBookmarks = this.loadBookmarks.bind(this);
   }
 
   /**
@@ -192,6 +194,19 @@ export default class AppEditorEngine extends AppEngine {
   public *loadAppEntities(toLoadPageId: string, applicationId: string): any {
     yield call(this.loadPageThemesAndActions, toLoadPageId, applicationId);
     yield call(this.loadPluginsAndDatasources);
+  }
+
+  public *loadBookmarks(applicationId: string) {
+    const apiCalls: boolean = yield failFastApiCalls(
+      [fetchBookmarksAction(applicationId)],
+      [ReduxActionTypes.FETCH_BOOKMARK_SUCCESS],
+      [ReduxActionErrorTypes.FETCH_BOOKMARK_FAILURE],
+    );
+    if (!apiCalls) {
+      throw new PluginFormConfigsNotFoundError(
+        "Unable to fetch plugin form configs",
+      );
+    }
   }
 
   public *completeChore() {
