@@ -2,7 +2,8 @@ import { React, useEffect, useState } from "react";
 import { calcluateDiff, parseJSONString } from "./DiffUtilities";
 import { CodeRenderer } from "./CodeRenderer";
 
-export function DiffViewer() {
+export function DiffViewer(props) {
+  props;
   const [jsono, setJSONO] = useState();
   const [jsona, setJSONA] = useState();
   const [jsonb, setJSONB] = useState();
