@@ -43,6 +43,7 @@ import type { TJSLibrary } from "workers/common/JSLibrary";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import type { BookmarksMap } from "api/BookmarksAPI";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -1163,4 +1164,8 @@ export const getDatasourcesUsedInApplicationByActions = (
       datasourceIdsUsedInCurrentApplication.has(ds.id) &&
       ds.id !== TEMP_DATASOURCE_ID,
   );
+};
+
+export const getBookmarks = (state: AppState): BookmarksMap => {
+  return state.entities.bookmarks.bookmarks;
 };

@@ -134,6 +134,8 @@ import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs
 import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { createBookmarkAction } from "actions/bookmarkActions";
+import type { Bookmark } from "api/BookmarksAPI";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -902,6 +904,17 @@ export function EditorJSONtoForm(props: Props) {
     return null;
   }
 
+  const createBookmark = () => {
+    const entityId = params.queryId || "";
+    const bookmark: Bookmark = {
+      entityType: "QUERY",
+      entityId: entityId,
+      lineNo: 0,
+      fieldName: "",
+    };
+    dispatch(createBookmarkAction(bookmark));
+  };
+
   return (
     <>
       {!guidedTourEnabled && <CloseEditor />}
@@ -949,6 +962,9 @@ export function EditorJSONtoForm(props: Props) {
               size="md"
             >
               Run
+            </Button>
+            <Button onClick={createBookmark}>
+              <Icon name="save" size="md" />
             </Button>
           </ActionsWrapper>
         </StyledFormRow>

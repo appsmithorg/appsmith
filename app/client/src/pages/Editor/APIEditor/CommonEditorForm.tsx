@@ -59,6 +59,8 @@ import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { getApiPaneConfigSelectedTabIndex } from "selectors/apiPaneSelectors";
 import { noop } from "lodash";
 import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
+import { createBookmarkAction } from "actions/bookmarkActions";
+import type { Bookmark } from "api/BookmarksAPI";
 
 const Form = styled.form`
   position: relative;
@@ -565,6 +567,17 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
 
   const theme = EditorTheme.LIGHT;
 
+  const createBookmark = () => {
+    const entityId = params.apiId || "";
+    const bookmark: Bookmark = {
+      entityType: "API",
+      entityId: entityId,
+      lineNo: 0,
+      fieldName: "",
+    };
+    dispatch(createBookmarkAction(bookmark));
+  };
+
   return (
     <MainContainer>
       <CloseEditor />
@@ -593,6 +606,9 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                 size="md"
               >
                 Run
+              </Button>
+              <Button onClick={createBookmark}>
+                <Icon name="save" size="md" />
               </Button>
             </ActionButtons>
           </FormRow>

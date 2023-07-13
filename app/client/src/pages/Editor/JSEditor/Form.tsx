@@ -40,6 +40,7 @@ import {
   getJSActionOption,
   getJSFunctionLineGutter,
   getJSPropertyLineFromName,
+  getJSLineBookmarkGutter,
 } from "./utils";
 import JSFunctionSettingsView from "./JSFunctionSettings";
 import JSObjectHotKeys from "./JSObjectHotKeys";
@@ -69,6 +70,7 @@ import styled from "styled-components";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
+import { createBookmarkAction } from "actions/bookmarkActions";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -185,6 +187,18 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     dispatch(updateJSCollectionBody(value, currentJSCollection.id));
   };
 
+  // Bookmarks JS Object line
+  const bookmarkJSObjectLine = (jsAction: JSAction, lineNumber: number) => {
+    dispatch(
+      createBookmarkAction({
+        entityId: jsAction.id,
+        entityType: "JSOBJECT",
+        lineNo: lineNumber,
+        fieldName: "",
+      }),
+    );
+  };
+
   // Executes JS action
   const executeJSAction = (jsAction: JSAction, from: EventLocation) => {
     setActiveResponse(jsAction);
@@ -228,6 +242,16 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
         isExecutePermitted,
       ),
     [jsActions, parseErrors, handleActiveActionChange, isExecutePermitted],
+  );
+
+  const bookmarkGutters = useMemo(
+    () =>
+      getJSLineBookmarkGutter(
+        jsActions,
+        bookmarkJSObjectLine,
+        !parseErrors.length,
+      ),
+    [jsActions, parseErrors],
   );
 
   const handleJSActionOptionSelection: DropdownOnSelect = (value) => {
@@ -373,7 +397,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                           border={CodeEditorBorder.NONE}
                           borderLess
                           className={"js-editor"}
-                          customGutter={JSGutters}
+                          customGutters={[bookmarkGutters, JSGutters]}
                           dataTreePath={`${currentJSCollection.name}.body`}
                           disabled={!isChangePermitted}
                           folding

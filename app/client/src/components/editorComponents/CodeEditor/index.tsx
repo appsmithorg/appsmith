@@ -236,7 +236,7 @@ export type EditorProps = EditorStyleProps &
     jsObjectName?: string;
     containerHeight?: number;
     // Custom gutter
-    customGutter?: CodeEditorGutter;
+    customGutters?: Array<CodeEditorGutter>;
 
     // On focus and blur event handler
     onEditorBlur?: () => void;
@@ -389,8 +389,10 @@ class CodeEditor extends Component<Props, State> {
         options.extraKeys["Tab"] = false;
       }
 
-      if (this.props.customGutter) {
-        gutters.add(this.props.customGutter.gutterId);
+      if (this.props.customGutters) {
+        this.props.customGutters.forEach((customGutter: CodeEditorGutter) => {
+          gutters.add(customGutter.gutterId);
+        });
       }
 
       if (!this.props.isReadOnly) {
@@ -972,24 +974,27 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleCustomGutter = (lineNumber: number | null, isFocused = false) => {
-    const { customGutter } = this.props;
+    const { customGutters } = this.props;
     const editor = this.editor;
-    if (!customGutter || !editor) return;
-    editor.clearGutter(customGutter.gutterId);
-
-    if (lineNumber && customGutter.getGutterConfig) {
-      const gutterConfig = customGutter.getGutterConfig(
-        editor.getValue(),
-        lineNumber,
-      );
-      if (!gutterConfig) return;
-      editor.setGutterMarker(
-        gutterConfig.line,
-        customGutter.gutterId,
-        gutterConfig.element,
-      );
-      isFocused && gutterConfig.isFocusedAction();
-    }
+    if (!customGutters || !editor) return;
+    customGutters.forEach((customGutter: CodeEditorGutter) => {
+      editor.clearGutter(customGutter.gutterId);
+    });
+    customGutters.forEach((customGutter: CodeEditorGutter) => {
+      if (lineNumber && customGutter.getGutterConfig) {
+        const gutterConfig = customGutter.getGutterConfig(
+          editor.getValue(),
+          lineNumber,
+        );
+        if (!gutterConfig) return;
+        editor.setGutterMarker(
+          gutterConfig.line,
+          customGutter.gutterId,
+          gutterConfig.element,
+        );
+        isFocused && gutterConfig.isFocusedAction();
+      }
+    });
   };
 
   handleCursorMovement = (cm: CodeMirror.Editor) => {
