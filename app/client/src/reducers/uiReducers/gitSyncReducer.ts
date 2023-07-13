@@ -290,10 +290,18 @@ const gitSyncReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.FETCH_MERGE_STATUS_SUCCESS]: (
     state: GitSyncReducerState,
-    action: ReduxAction<unknown>,
+    action: ReduxAction<MergeStatus>,
   ) => ({
     ...state,
-    mergeStatus: action.payload,
+    mergeStatus: {
+      ...action.payload,
+      conflictingFiles: action.payload.conflictingFiles
+        ? action.payload.conflictingFiles.map((filepath) => ({
+            filepath,
+            resolved: false,
+          }))
+        : [],
+    },
     isFetchingMergeStatus: false,
   }),
   [ReduxActionErrorTypes.FETCH_MERGE_STATUS_ERROR]: (

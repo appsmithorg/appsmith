@@ -56,6 +56,7 @@ export default function ConflictInfo({
           data-testid="t--git-repo-button"
           kind="secondary"
           onClick={handleClickOnOpenRepo}
+          size={"md"}
         >
           {createMessage(OPEN_REPO)}
         </StyledButton>
