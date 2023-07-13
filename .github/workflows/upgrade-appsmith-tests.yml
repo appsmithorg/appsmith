@@ -209,6 +209,7 @@ jobs:
           CYPRESS_BROWSER: ${{ env.BROWSER_PATH }}
         with:
           install: false
+          working-directory: app/client
           command: yarn ts-node --require esm  cypress/cypress-split.ts
 
       - name: Rename reports 
