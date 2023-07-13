@@ -63,6 +63,7 @@ import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
 import { initCurrentPage } from "../actions/initActions";
 import Walkthrough from "components/featureWalkthrough";
+import { CustomWidgetCreator } from "pages/CustomWidgetCreator";
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -89,6 +90,10 @@ export function Routes() {
       <SentryRoute component={UserProfile} path={PROFILE} />
       <SentryRoute component={Setup} exact path={SETUP} />
       <SentryRoute component={TemplatesListLoader} path={TEMPLATES_PATH} />
+      <SentryRoute
+        component={CustomWidgetCreator}
+        path="/create-custom-widget"
+      />
       <Redirect
         exact
         from={ADMIN_SETTINGS_PATH}

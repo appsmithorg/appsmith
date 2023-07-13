@@ -59,6 +59,9 @@ import {
   matchBuilderPath,
   matchViewerPath,
 } from "../constants/routes";
+import { binId } from "pages/CustomWidgetCreator";
+import { registerWidget } from "utils/WidgetRegisterHelpers";
+import CustomWidget from "widgets/CustomWidget";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -104,6 +107,17 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
       action.payload.mode,
     );
     engine.startPerformanceTracking();
+
+    const response: any = yield fetch(
+      `https://api.jsonbin.io/v3/b/${binId}/latest`,
+    );
+
+    const widgets = yield response.json();
+
+    widgets.record.forEach((widget: any) => {
+      registerWidget(CustomWidget, widget);
+    });
+
     yield call(engine.setupEngine, action.payload);
     const { applicationId, toLoadPageId } = yield call(
       engine.loadAppData,
