@@ -22,6 +22,7 @@ import GlobalStyles from "globalStyles";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
+import "./i18n";
 
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 
