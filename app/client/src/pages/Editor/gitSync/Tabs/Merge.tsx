@@ -230,10 +230,13 @@ export default function Merge(props: ModalProps) {
   const gitConflictingFiles = useSelector(getGitConflictingFiles);
   const [diffViewer, setDiffViewer] = useState({
     show: false,
-    file: "",
+    file: {
+      filepath: "",
+      resolved: false,
+    },
   });
 
-  const handleResolveBtn = (file: string) => {
+  const handleResolveBtn = (file: { filepath: string; resolved: boolean }) => {
     setDiffViewer({
       show: true,
       file,
@@ -246,14 +249,19 @@ export default function Merge(props: ModalProps) {
       <ModalBody>
         <Container style={{ overflow: "unset", paddingBottom: "4px" }}>
           {diffViewer.show ? (
-            <DiffViewer file={diffViewer.file} />
+            <DiffViewer />
           ) : (
             <>
               <Text color={"var(--ads-v2-color-fg-emphasis)"} kind="heading-s">
                 {createMessage(SELECT_BRANCH_TO_MERGE)}
               </Text>
               <Space size={2} />
-              <Row style={{ overflow: "unset", paddingBottom: "4px" }}>
+              <Row
+                style={{
+                  overflow: "unset",
+                  paddingBottom: "4px",
+                }}
+              >
                 <Select
                   className="t--merge-branch-dropdown-destination"
                   dropdownClassName={Classes.MERGE_DROPDOWN}
