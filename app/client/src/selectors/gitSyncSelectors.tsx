@@ -196,3 +196,7 @@ export const getBranchSwitchingDetails = (state: AppState) => ({
   isSwitchingBranch: state.ui.gitSync.isSwitchingBranch,
   switchingToBranch: state.ui.gitSync.switchingToBranch,
 });
+
+// Get list of conflicting files
+export const getGitConflictingFiles = (state: AppState) =>
+  state.ui.gitSync.mergeStatus?.conflictingFiles;
