@@ -131,7 +131,7 @@ describe("Table widget date column inline editing functionality", () => {
     agHelper.AssertElementAbsence(
       `${propPane._propertyDateFormat} ${table._codeMirrorError}`,
     );
-    propPane.ToggleJSMode("Date format", true);   
+    propPane.ToggleJSMode("Date format", true);
     agHelper
       .GetText(locators._existingFieldTextByName("Date format"))
       .then(($textData) =>
