@@ -81,7 +81,6 @@ public class ServerSideEndpointExecutionCEImpl implements ServerSideEndpointExec
             }
             String body = actionDTO.getActionConfiguration().getBody();
             String remoteExecutionUrl = actionDTO.getServerSideExecutionEndpoint();
-            // TODO call node server to get the response
             return this.getRemoteResponse(body, params, remoteExecutionUrl);
         });
     }
@@ -98,6 +97,7 @@ public class ServerSideEndpointExecutionCEImpl implements ServerSideEndpointExec
     }
 
     private Mono<Object> getRemoteResponse(String body, Map<String, Object> params, String remoteUrl) {
-        return null;
+        // TODO call node server to get the response
+        return Mono.just("This is a sample response");
     }
 }
