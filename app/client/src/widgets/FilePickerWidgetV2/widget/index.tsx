@@ -1,5 +1,4 @@
 import Uppy from "@uppy/core";
-import UppyDrag from "@uppy/drag-drop";
 import Dashboard from "@uppy/dashboard";
 import GoogleDrive from "@uppy/google-drive";
 import OneDrive from "@uppy/onedrive";
@@ -586,14 +585,7 @@ class FilePickerWidget extends BaseWidget<
               },
               exceedsSize: obj.file_uploader.uppy.exceedsSize,
               selectFiles: obj.file_uploader.uppy.selectFiles,
-            },
-          },
-        });
-        // Add drag and drop plugin to Uppy
-        uppy.use(UppyDrag, {
-          locale: {
-            strings: {
-              browse: obj.file_uploader.uppy.browse,
+              browseFiles: obj.file_uploader.uppy.browseFiles,
             },
           },
         });
@@ -616,6 +608,7 @@ class FilePickerWidget extends BaseWidget<
               "1": "%{smart_count} files selected",
             },
             exceedsSize: "%{file} exceeds maximum allowed size of %{size}",
+            browseFiles: "Browse files",
           },
         },
       });

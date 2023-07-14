@@ -41,7 +41,7 @@
         "second": "%{smart_count} files selected"
       },
       "exceedsSize": "%{file} exceeds maximum allowed size of %{size}",
-      "browse": "Browse files",
+      "browseFiles": "Browse files",
       "filesSelected": "files selected",
       "selectFiles": "Select files"
     }
