@@ -261,7 +261,7 @@ function Actions(props: ActionsPropsType) {
         !props.serverSidePaginationEnabled && (
           <PaginationWrapper>
             <TableHeaderContentWrapper className="show-page-items">
-              {props.tableData?.length} Records
+              {props.tableData?.length} {t("tableV2.header.actions.records")}
             </TableHeaderContentWrapper>
             <PaginationItemWrapper
               accentColor={props.accentColor}
