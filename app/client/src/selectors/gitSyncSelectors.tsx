@@ -210,3 +210,6 @@ export const isMarkAsResolvedEnabled = (state: AppState) =>
 
 export const getResolvedConflicts = (state: AppState) =>
   state.ui.gitSync.mergeStatus?.resolvedConflicts;
+
+export const getResolvedDSLs = (state: AppState) =>
+  state.ui.gitSync.mergeStatus?.resolvedDSLs;
