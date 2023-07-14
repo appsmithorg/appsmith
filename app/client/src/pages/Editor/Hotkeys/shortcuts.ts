@@ -88,9 +88,9 @@ export const useHotKeysConfig = () => {
         },
       },
       {
-        id: "CREATE_NEQ_OMNIBAR",
+        id: "CREATE_NEW_OMNIBAR",
         label: "Create new",
-        hotkey: "mod + +",
+        hotkey: "mod + =",
         action: () => {
           toggleOmnibar(SEARCH_CATEGORY_ID.ACTION_OPERATION);
         },
