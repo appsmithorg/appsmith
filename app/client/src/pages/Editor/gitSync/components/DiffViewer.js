@@ -28,10 +28,15 @@ export function DiffViewer({ filePath }) {
         }
       });
       setJSONBCodeBlocks(updatedJsonBCodeBlocks);
+      const jsonArr = updatedJsonBCodeBlocks.map((block) => block.text);
+      const dslJson = JSON.parse(jsonArr.join(""));
       dispatch({
         type: ReduxActionTypes.SET_RESOLVED_DSL_ARRAY,
         payload: {
-          [filePath]: [...updatedJsonBCodeBlocks.map((block) => block.text)],
+          [filePath]: {
+            jsonArr,
+            dslJson,
+          },
         },
       });
     }

@@ -24,4 +24,5 @@ export type MergeStatus = {
   currentFileConflicts: any;
   resolvedConflicts: any;
   isMarkAsResolvedEnabled: boolean;
+  resolvedDSLs: any;
 };
