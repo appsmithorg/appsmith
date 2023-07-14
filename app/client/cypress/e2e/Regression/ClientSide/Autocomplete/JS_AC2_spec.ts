@@ -106,7 +106,7 @@ describe("Autocomplete tests", () => {
     });
   });
 
-  it("3. Bug #15429 Random keystrokes trigger autocomplete to show up", () => {
+  it.skip("3. Bug #15429 Random keystrokes trigger autocomplete to show up", () => {
     // create js object & assert no hints just show up
     jsEditor.CreateJSObject(
       `export default

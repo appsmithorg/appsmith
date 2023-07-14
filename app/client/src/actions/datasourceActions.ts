@@ -14,6 +14,7 @@ import type { PluginType } from "entities/Action";
 import type { executeDatasourceQueryRequest } from "api/DatasourcesApi";
 import type { ResponseMeta } from "api/ApiResponses";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 
 export const createDatasourceFromForm = (
   payload: CreateDatasourceConfig & Datasource,
@@ -106,12 +107,17 @@ export const redirectAuthorizationCode = (
   };
 };
 
-export const fetchDatasourceStructure = (id: string, ignoreCache?: boolean) => {
+export const fetchDatasourceStructure = (
+  id: string,
+  ignoreCache?: boolean,
+  schemaFetchContext?: DatasourceStructureContext,
+) => {
   return {
     type: ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT,
     payload: {
       id,
       ignoreCache,
+      schemaFetchContext,
     },
   };
 };
@@ -160,11 +166,15 @@ export const expandDatasourceEntity = (id: string) => {
   };
 };
 
-export const refreshDatasourceStructure = (id: string) => {
+export const refreshDatasourceStructure = (
+  id: string,
+  schemaRefreshContext?: DatasourceStructureContext,
+) => {
   return {
     type: ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT,
     payload: {
       id,
+      schemaRefreshContext,
     },
   };
 };
