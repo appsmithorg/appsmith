@@ -38,11 +38,11 @@ describe("Test placeholder value for port number for all datasources - tests #24
     );
     dataSources.SaveDSFromDialog(false);
 
-    // MSSQL
+    // MySQL
     dataSources.NavigateToDSCreateNew();
-    dataSources.CreatePlugIn("Microsoft SQL Server");
+    dataSources.CreatePlugIn("MySQL");
 
-    expectedPlaceholderValue = "1433";
+    expectedPlaceholderValue = "3306";
     agHelper.AssertAttribute(
       dataSources._port,
       "placeholder",
