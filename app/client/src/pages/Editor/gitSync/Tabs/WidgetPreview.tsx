@@ -146,8 +146,9 @@ function WidgetPreview(props: WidgetPreviewProps) {
       children: [
         {
           ...props.widgetDSL,
-          skipWidgetPropsHydration: true,
           resizeDisabled: true,
+          previewMode: true,
+          disablePropertyPane: true,
         },
       ],
     };

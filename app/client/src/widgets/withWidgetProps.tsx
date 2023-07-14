@@ -47,16 +47,21 @@ import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import ConfigTreeActions from "utils/configTree";
 import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import { merge, omit } from "lodash";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
 function withWidgetProps(WrappedWidget: typeof BaseWidget) {
   function WrappedPropsComponent(
-    props: WidgetProps & { skipWidgetPropsHydration?: boolean },
+    props: WidgetProps & {
+      skipWidgetPropsHydration?: boolean;
+      previewMode: boolean;
+    },
   ) {
     const {
       children,
       hasMetaWidgets,
+      previewMode,
       referencedWidgetId,
       requiresFlatWidgetChildren,
       skipWidgetPropsHydration,
@@ -79,7 +84,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     const widgetName = canvasWidget?.widgetName || metaWidget?.widgetName;
 
-    const evaluatedWidget = useSelector((state: AppState) =>
+    let evaluatedWidget: any = useSelector((state: AppState) =>
       getWidgetEvalValues(state, widgetName),
     );
     const isLoading = useSelector((state: AppState) =>
@@ -124,7 +129,30 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     let widgetProps: WidgetProps = {} as WidgetProps;
 
-    const widget = metaWidget || canvasWidget;
+    if (previewMode) {
+      if (props.dynamicBindingPathList) {
+        const keys = props.dynamicBindingPathList.map(
+          (bindingPath) => bindingPath.key,
+        );
+        const pickedOmitedProps = omit(props, [...keys]);
+        evaluatedWidget = merge(
+          { ...evaluatedWidget },
+          { ...pickedOmitedProps },
+        );
+      }
+    }
+
+    let widget: any = metaWidget || canvasWidget;
+
+    if (previewMode) {
+      if (props.dynamicBindingPathList) {
+        const keys = props.dynamicBindingPathList.map(
+          (bindingPath) => bindingPath.key,
+        );
+        const defaultProps = metaWidget || canvasWidget;
+        widget = merge(defaultProps, omit(props, [...keys]));
+      }
+    }
 
     if (!skipWidgetPropsHydration) {
       const canvasWidgetProps = (() => {
