@@ -24,9 +24,10 @@ export default class JsEndpointExecuteController extends BaseController {
       const functionParams = body.params;
       // console.log('Executing function ' + functionName + ' with params ' + functionParams);
 
-      const functionDef =
-        functionBody + functionName + "(" + functionParams + ");";
+      // const functionDef =
+      //   functionBody + functionName + "(" + functionParams + ");";
       // console.log('Execution Code is ' + functionDef);
+      const functionDef = '(' + functionBody + ')(' + functionParams + ')';
 
       const result = {};
       const output = eval(functionDef);
