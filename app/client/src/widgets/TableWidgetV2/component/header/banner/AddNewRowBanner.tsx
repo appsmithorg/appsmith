@@ -3,6 +3,7 @@ import styled from "styled-components";
 import React, { useState } from "react";
 import { BaseButton } from "widgets/ButtonWidget/component";
 import { AddNewRowActions } from "../../Constants";
+import { Trans, useTranslation } from "react-i18next";
 
 const Container = styled.div`
   display: flex;
@@ -40,10 +41,13 @@ export interface AddNewRowBannerType {
 function AddNewRowBannerComponent(props: AddNewRowBannerType) {
   const [isDiscardLoading, setIsDiscardLoading] = useState(false);
   const [isSaveLoading, setIsSaveLoading] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <Container>
-      <Title>Add New Row</Title>
+      <Title>
+        <Trans i18nKey="tableV2.header.add_row.banner.add" />
+      </Title>
       <ActionContainer>
         <BaseButton
           borderRadius={props.borderRadius}
@@ -59,7 +63,7 @@ function AddNewRowBannerComponent(props: AddNewRowBannerType) {
               setIsDiscardLoading(false),
             );
           }}
-          text="Discard"
+          text={t("tableV2.header.add_row.banner.discard")}
         />
         <BaseButton
           borderRadius={props.borderRadius}
@@ -75,7 +79,7 @@ function AddNewRowBannerComponent(props: AddNewRowBannerType) {
               setIsSaveLoading(false),
             );
           }}
-          text="Save row"
+          text={t("tableV2.header.add_row.banner.save")}
         />
       </ActionContainer>
     </Container>

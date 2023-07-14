@@ -10,10 +10,6 @@ import type {
 import { OperatorTypes, DEFAULT_FILTER } from "../../../Constants";
 import type { DropdownOption } from ".";
 import CascadeFields from "./CascadeFields";
-import {
-  createMessage,
-  TABLE_FILTER_COLUMN_TYPE_CALLOUT,
-} from "@appsmith/constants/messages";
 import { Icon, IconSize } from "@design-system/widgets-old";
 import Button from "pages/AppViewer/AppViewerButton";
 import { ButtonVariantTypes } from "components/constants";
@@ -25,7 +21,7 @@ import {
 } from "widgets/TableWidgetV2/constants";
 import { generateReactKey } from "utils/generators";
 import { importRemixIcon } from "design-system-old";
-
+import { Trans, useTranslation } from "react-i18next";
 const AddIcon = importRemixIcon(() => import("remixicon-react/AddLineIcon"));
 
 const TableFilterOuterWrapper = styled.div<{
@@ -124,6 +120,7 @@ const getTableFilters = (filters: ReactTableFilter[] | undefined) => {
 };
 
 function TableFilterPaneContent(props: TableFilterProps) {
+  const { t } = useTranslation();
   const [filters, updateFilters] = React.useState(
     getTableFilters(props.filters),
   );
@@ -192,7 +189,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
     >
       <ColumnTypeBindingMessage>
         <div className="message-text">
-          {createMessage(TABLE_FILTER_COLUMN_TYPE_CALLOUT)}
+          <Trans i18nKey="tableV2.header.filters.popup.change_col_instruction" />
         </div>
         <div className="close-button t--close-filter-btn" onClick={hideFilter}>
           <Icon fillColor={Colors.GREY_6} name="close-x" size={IconSize.XXL} />
@@ -268,7 +265,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
               icon={<AddIcon className="w-5 h-5" color={props.accentColor} />}
               onClick={addFilter}
               size="small"
-              text="Add Filter"
+              text={t("tableV2.header.filters.popup.add_filter")}
             />
             <ButtonActionsWrapper>
               <Button
@@ -277,7 +274,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
                 buttonVariant={ButtonVariantTypes.SECONDARY}
                 className="t--clear-all-filter-btn"
                 onClick={clearFilters}
-                text="CLEAR ALL"
+                text={t("tableV2.header.filters.popup.clear_all")}
               />
               <Button
                 borderRadius={props.borderRadius}
@@ -285,7 +282,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
                 buttonVariant={ButtonVariantTypes.PRIMARY}
                 className="t--apply-filter-btn"
                 onClick={applyFilter}
-                text="APPLY"
+                text={t("tableV2.header.filters.popup.apply")}
               />
             </ButtonActionsWrapper>
           </ButtonWrapper>

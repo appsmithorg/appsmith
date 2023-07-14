@@ -18,6 +18,7 @@ import DatePickerComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { ColumnTypes, ReadOnlyColumnTypes } from "../../../../constants";
 import { importRemixIcon } from "design-system-old";
+import { Trans } from "react-i18next";
 
 const CloseIcon = importRemixIcon(
   () => import("remixicon-react/CloseCircleFillIcon"),
@@ -585,7 +586,11 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
         </DropdownWrapper>
       ) : (
         <LabelWrapper>
-          {index === 0 ? "Where" : OperatorTypes[props.operator]}
+          {index === 0 ? (
+            <Trans i18nKey="tableV2.header.filters.popup.where" />
+          ) : (
+            OperatorTypes[props.operator]
+          )}
         </LabelWrapper>
       )}
       <DropdownWrapper width={120}>

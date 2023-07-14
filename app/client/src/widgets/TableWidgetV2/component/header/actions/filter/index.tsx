@@ -103,7 +103,7 @@ function TableFilters(props: TableFilterProps) {
         icon="filter"
         selectMenu={toggleFilterPane}
         selected={isTableFilterPaneVisible}
-        title={`${t("tableV2.filters")}${
+        title={`${t("tableV2.header.filters.title")}${
           hasAnyFilters ? ` (${filters.length})` : ""
         }`}
         titleColor={hasAnyFilters ? Colors.CODE_GRAY : Colors.GRAY}

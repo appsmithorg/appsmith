@@ -227,7 +227,7 @@ function TableDataDownload(props: TableDataDownloadProps) {
           icon="download"
           selectMenu={selectMenu}
           selected={selected}
-          title={t("tableV2.download")}
+          title={t("tableV2.header.download")}
           width={16}
         />
         <DropDownWrapper>

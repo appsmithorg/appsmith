@@ -139,7 +139,7 @@ function Actions(props: ActionsPropsType) {
         >
           <SearchComponent
             onSearch={props.searchTableData}
-            placeholder={`${t("tableV2.search")}...`}
+            placeholder={`${t("tableV2.header.search")}...`}
             value={props.searchKey}
           />
         </SearchComponentWrapper>
@@ -175,11 +175,11 @@ function Actions(props: ActionsPropsType) {
                 borderRadius={props.borderRadius}
                 className="t--add-new-row"
                 disabled={props.disableAddNewRow}
-                disabledMessage={t("tableV2.add_row.discard")}
+                disabledMessage={t("tableV2.header.add_row.discard")}
                 icon="add"
                 selectMenu={props.onAddNewRow}
                 selected={false}
-                title={t("tableV2.add_row.add")}
+                title={t("tableV2.header.add_row.add")}
                 width={12}
               />
             )}
@@ -192,7 +192,7 @@ function Actions(props: ActionsPropsType) {
           <PaginationWrapper>
             {props.totalRecordsCount ? (
               <TableHeaderContentWrapper className="show-page-items">
-                {props.totalRecordsCount} Records
+                {props.totalRecordsCount} {t("tableV2.header.actions.records")}
               </TableHeaderContentWrapper>
             ) : null}
             <PaginationItemWrapper
@@ -208,7 +208,7 @@ function Actions(props: ActionsPropsType) {
             </PaginationItemWrapper>
             {props.totalRecordsCount ? (
               <TableHeaderContentWrapper>
-                Page&nbsp;
+                {t("tableV2.header.actions.page")}&nbsp;
                 <PaginationItemWrapper
                   accentColor={props.accentColor}
                   borderRadius={props.borderRadius}

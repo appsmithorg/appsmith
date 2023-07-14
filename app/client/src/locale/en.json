@@ -1,12 +1,31 @@
 {
   "tableV2": {
-    "search": "Search",
-    "add_row": {
-      "add": "Add new row",
-      "discard": "Save or discard the unsaved row to add a new row"
-    },
-    "filters": "Filters",
-    "download": "Download"
+    "header": {
+      "search": "Search",
+
+      "add_row": {
+        "banner": {
+          "add": "Add new row",
+          "discard": "Discard",
+          "save": "Save Row"
+        },
+        "add": "Add new row",
+        "discard": "Save or discard the unsaved row to add a new row"
+      },
+      "filters": {
+        "title": "Filters",
+        "popup": {
+          "move": "Move",
+          "change_col_instruction": "Change column datatype to see filter operators",
+          "where": "Where",
+          "add_filter": "Add filter",
+          "clear_all": "CLEAR ALL",
+          "apply": "Apply"
+        }
+      },
+      "download": "Download",
+      "actions": { "records": "Records", "page": "Page" }
+    }
   },
   "app_settings": {
     "locale_settings": {

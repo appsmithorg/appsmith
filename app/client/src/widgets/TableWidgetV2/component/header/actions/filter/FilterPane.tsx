@@ -22,6 +22,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { importSvg } from "design-system-old";
+import { Trans } from "react-i18next";
 
 const DragHandleIcon = importSvg(
   () => import("assets/icons/ads/app-icons/draghandler.svg"),
@@ -111,7 +112,9 @@ class TableFilterPane extends Component<Props> {
           renderDragBlock={
             <DragBlock>
               <DragHandleIcon />
-              <span>Move</span>
+              <span>
+                <Trans i18nKey="tableV2.header.filters.popup.move">Move</Trans>
+              </span>
             </DragBlock>
           }
           renderDragBlockPositions={{
