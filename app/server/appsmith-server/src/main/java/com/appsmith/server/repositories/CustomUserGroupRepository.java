@@ -6,6 +6,7 @@ import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PagedDomain;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -15,7 +16,8 @@ import java.util.Set;
 
 public interface CustomUserGroupRepository extends AppsmithRepository<UserGroup> {
 
-    Flux<UserGroup> findAllByTenantId(String tenantId, AclPermission aclPermission);
+    Flux<UserGroup> findAllByTenantId(
+            String tenantId, MultiValueMap<String, String> filters, AclPermission aclPermission);
 
     Flux<UserGroup> findAllByTenantIdWithoutPermission(String tenantId, List<String> includeFields);
 

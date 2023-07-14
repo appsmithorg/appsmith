@@ -24,11 +24,18 @@ public class UserForManagementDTO {
 
     String photoId;
 
+    boolean isProvisioned;
+
     public UserForManagementDTO(
-            String id, String username, List<UserGroupCompactDTO> groups, List<PermissionGroupInfoDTO> roles) {
+            String id,
+            String username,
+            List<UserGroupCompactDTO> groups,
+            List<PermissionGroupInfoDTO> roles,
+            boolean isProvisioned) {
         this.id = id;
         this.username = username;
         this.groups = groups;
         this.roles = roles;
+        this.isProvisioned = isProvisioned;
     }
 }

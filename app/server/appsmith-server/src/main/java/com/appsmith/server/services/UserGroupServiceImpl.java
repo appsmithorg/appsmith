@@ -38,6 +38,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -133,25 +134,26 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
 
     @Override
     public Flux<UserGroup> get(MultiValueMap<String, String> params) {
-        return this.getAll(READ_USER_GROUPS).sort(AppsmithComparators.userGroupComparator());
+        return this.getAll(READ_USER_GROUPS, params).sort(AppsmithComparators.userGroupComparator());
     }
 
-    private Flux<UserGroup> getAll(AclPermission aclPermission) {
+    private Flux<UserGroup> getAll(AclPermission aclPermission, MultiValueMap<String, String> queryParams) {
         return tenantService
                 .getDefaultTenant()
-                .flatMapMany(defaultTenantId -> repository.findAllByTenantId(defaultTenantId.getId(), aclPermission));
+                .flatMapMany(defaultTenantId ->
+                        repository.findAllByTenantId(defaultTenantId.getId(), queryParams, aclPermission));
     }
 
     @Override
     public Mono<List<UserGroupCompactDTO>> getAllWithAddUserPermission() {
-        return this.getAll(ADD_USERS_TO_USER_GROUPS)
+        return this.getAll(ADD_USERS_TO_USER_GROUPS, new LinkedMultiValueMap<>())
                 .map(this::generateUserGroupCompactDTO)
                 .collectList();
     }
 
     @Override
     public Mono<List<UserGroupCompactDTO>> getAllReadableGroups() {
-        return this.getAll(READ_USER_GROUPS)
+        return this.getAll(READ_USER_GROUPS, new LinkedMultiValueMap<>())
                 .map(this::generateUserGroupCompactDTO)
                 .collectList();
     }

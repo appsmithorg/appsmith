@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -40,6 +41,7 @@ import java.util.stream.IntStream;
 
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static com.appsmith.server.constants.FieldName.DEFAULT_USER_PERMISSION_GROUP;
+import static com.appsmith.server.constants.QueryParams.PROVISIONED_FILTER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -89,7 +91,8 @@ public class UserAndAccessManagementServiceTest {
     @WithUserDetails(value = "api_user")
     public void getAllUsersForManagementTest_valid() {
 
-        Mono<List<UserForManagementDTO>> allUsersMono = userAndAccessManagementService.getAllUsers();
+        Mono<List<UserForManagementDTO>> allUsersMono =
+                userAndAccessManagementService.getAllUsers(new LinkedMultiValueMap<>());
 
         StepVerifier.create(allUsersMono)
                 .assertNext(users -> {
@@ -124,7 +127,8 @@ public class UserAndAccessManagementServiceTest {
     @Test
     @WithUserDetails(value = "usertest@usertest.com")
     public void getAllUsersForManagementTest_invalid() {
-        Mono<List<UserForManagementDTO>> allUsersMono = userAndAccessManagementService.getAllUsers();
+        Mono<List<UserForManagementDTO>> allUsersMono =
+                userAndAccessManagementService.getAllUsers(new LinkedMultiValueMap<>());
 
         StepVerifier.create(allUsersMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -390,5 +394,77 @@ public class UserAndAccessManagementServiceTest {
                     assertThat(defaultRoleForAllUsers.getAssignedToUserIds()).containsAll(userIds);
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetAllUsersWithParams_shouldReturnCorrectResults() {
+        String testName = "testGetAllUsersWithParams_shouldReturnCorrectResults";
+        User userProvisionedFalse = new User();
+        userProvisionedFalse.setEmail(testName + "_provisionedFalse@appsmith.com");
+        User createdUserProvisionedFalse =
+                userService.userCreate(userProvisionedFalse, false).block();
+
+        User userProvisionedTrue = new User();
+        userProvisionedTrue.setEmail(testName + "_provisionedTrue@appsmith.com");
+        userProvisionedTrue.setIsProvisioned(Boolean.TRUE);
+        User createdUserProvisionedTrue =
+                userService.userCreate(userProvisionedTrue, false).block();
+
+        LinkedMultiValueMap<String, String> queryParamProvisionedFalse = new LinkedMultiValueMap<>();
+        queryParamProvisionedFalse.add(PROVISIONED_FILTER, "false");
+
+        LinkedMultiValueMap<String, String> queryParamProvisionedTrue = new LinkedMultiValueMap<>();
+        queryParamProvisionedTrue.add(PROVISIONED_FILTER, "true");
+
+        LinkedMultiValueMap<String, String> queryParamProvisionedNotBoolean = new LinkedMultiValueMap<>();
+        queryParamProvisionedNotBoolean.add(PROVISIONED_FILTER, "1");
+
+        List<UserForManagementDTO> usersForManagementDTOProvisionedFalse = userAndAccessManagementService
+                .getAllUsers(queryParamProvisionedFalse)
+                .block();
+        List<UserForManagementDTO> provisionedFalseUserInProvisionedFalseCallList =
+                usersForManagementDTOProvisionedFalse.stream()
+                        .filter(user -> user.getUsername().equals(createdUserProvisionedFalse.getUsername()))
+                        .toList();
+        assertThat(provisionedFalseUserInProvisionedFalseCallList).hasSize(1);
+        List<UserForManagementDTO> provisionedTrueUserInProvisionedFalseCallList =
+                usersForManagementDTOProvisionedFalse.stream()
+                        .filter(user -> user.getUsername().equals(createdUserProvisionedTrue.getUsername()))
+                        .toList();
+        assertThat(provisionedTrueUserInProvisionedFalseCallList).hasSize(0);
+
+        List<UserForManagementDTO> usersForManagementDTOProvisionedTrue = userAndAccessManagementService
+                .getAllUsers(queryParamProvisionedTrue)
+                .block();
+        List<UserForManagementDTO> provisionedFalseUserInProvisionedTrueCallList =
+                usersForManagementDTOProvisionedTrue.stream()
+                        .filter(user -> user.getUsername().equals(createdUserProvisionedFalse.getUsername()))
+                        .toList();
+        assertThat(provisionedFalseUserInProvisionedTrueCallList).hasSize(0);
+        List<UserForManagementDTO> provisionedTrueUserInProvisionedTrueCallList =
+                usersForManagementDTOProvisionedTrue.stream()
+                        .filter(user -> user.getUsername().equals(createdUserProvisionedTrue.getUsername()))
+                        .toList();
+        assertThat(provisionedTrueUserInProvisionedTrueCallList).hasSize(1);
+
+        List<UserForManagementDTO> usersForManagementDTOProvisionedNotBoolean = userAndAccessManagementService
+                .getAllUsers(queryParamProvisionedNotBoolean)
+                .block();
+        List<UserForManagementDTO> provisionedFalseUserInProvisionedNotBooleanCallList =
+                usersForManagementDTOProvisionedNotBoolean.stream()
+                        .filter(user -> user.getUsername().equals(createdUserProvisionedFalse.getUsername()))
+                        .toList();
+        assertThat(provisionedFalseUserInProvisionedNotBooleanCallList).hasSize(1);
+        List<UserForManagementDTO> provisionedTrueUserInProvisionedNotBooleanCallList =
+                usersForManagementDTOProvisionedNotBoolean.stream()
+                        .filter(user -> user.getUsername().equals(createdUserProvisionedTrue.getUsername()))
+                        .toList();
+        assertThat(provisionedTrueUserInProvisionedNotBooleanCallList).hasSize(1);
+
+        // user cleanup
+        userRepository
+                .deleteAllById(List.of(createdUserProvisionedFalse.getId(), createdUserProvisionedTrue.getId()))
+                .block();
     }
 }

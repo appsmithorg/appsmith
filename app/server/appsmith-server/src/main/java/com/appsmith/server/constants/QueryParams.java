@@ -7,4 +7,5 @@ public class QueryParams {
     public static String GROUP_NAME_FILTER = "displayName";
     public static String GROUP_USERID_FILTER = "userId";
     public static String FILTER_DELIMITER = ",";
+    public static String PROVISIONED_FILTER = "provisioned";
 }
