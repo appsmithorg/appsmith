@@ -598,6 +598,32 @@ function* setFunctionPropertySaga(
   yield put(updateJSFunction({ ...data.payload }));
 }
 
+function* setServersideExecutionURL(
+  data: ReduxAction<{
+    baseUrl: string;
+    collectionId: string;
+    actionId: string;
+  }>,
+) {
+  const { actionId, baseUrl, collectionId } = data.payload;
+  if (!actionId || !collectionId) return;
+
+  const response: unknown = yield JSActionAPI.generateServersideURL({
+    baseUrl,
+    collectionId,
+    actionId,
+  });
+
+  const isValidResponse: boolean = yield validateResponse(response);
+
+  if (isValidResponse) {
+    yield put({
+      type: ReduxActionTypes.SET_JS_SERVER_EXECUTION_URL_SUCCESS,
+      payload: "",
+    });
+  }
+}
+
 function* handleUpdateJSFunctionPropertySaga(
   data: ReduxAction<SetFunctionPropertyPayload>,
 ) {
@@ -736,6 +762,10 @@ export default function* root() {
       handleUpdateJSCollectionBody,
     ),
     takeEvery(ReduxActionTypes.SET_FUNCTION_PROPERTY, setFunctionPropertySaga),
+    takeEvery(
+      ReduxActionTypes.SET_JS_SERVER_EXECUTION_URL,
+      setServersideExecutionURL,
+    ),
     takeLatest(
       ReduxActionTypes.UPDATE_JS_FUNCTION_PROPERTY_INIT,
       handleUpdateJSFunctionPropertySaga,

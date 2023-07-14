@@ -10,7 +10,18 @@ import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { RADIO_OPTIONS, SETTINGS_HEADINGS } from "./constants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Icon, Radio, RadioGroup, Tooltip } from "design-system";
+import { Button, Icon, Radio, RadioGroup, toast, Tooltip } from "design-system";
+import JSActionAPI from "api/JSActionAPI";
+import { importRemixIcon } from "design-system-old";
+import copy from "copy-to-clipboard";
+import { isString } from "lodash";
+
+const LoadingIcon = importRemixIcon(
+  () => import("remixicon-react/Loader2FillIcon"),
+);
+const CopyIcon = importRemixIcon(
+  () => import("remixicon-react/FileCopyLineIcon"),
+);
 
 type SettingsHeadingProps = {
   text: string;
@@ -28,6 +39,20 @@ type JSFunctionSettingsProps = {
   actions: JSAction[];
   disabled?: boolean;
 };
+
+function copyContent(
+  content: any,
+  onCopyContentText = `Server side execution URL copied to clipboard`,
+) {
+  const stringifiedContent = isString(content)
+    ? content
+    : JSON.stringify(content, null, 2);
+
+  copy(stringifiedContent);
+  toast.show(onCopyContentText, {
+    kind: "success",
+  });
+}
 
 const SettingRow = styled.div<{ isHeading?: boolean; noBorder?: boolean }>`
   display: flex;
@@ -97,6 +122,23 @@ const SettingsRowWrapper = styled.div`
   overflow: hidden;
 `;
 
+const GenerateURLButton = styled(Button)``;
+
+const ServerSideExecContainer = styled.div`
+  margin-left: 10px;
+  display: flex;
+  justify-content: center;
+  width: 70px;
+`;
+
+const URLCopyIcon = styled(CopyIcon)`
+  cursor: pointer;
+`;
+
+const LoaderIcon = styled(LoadingIcon)`
+  cursor: wait;
+`;
+
 function SettingsHeading({ grow, hasInfo, info, text }: SettingsHeadingProps) {
   return (
     <SettingColumn grow={grow} isHeading>
@@ -117,6 +159,17 @@ function SettingsItem({ action, disabled }: SettingsItemProps) {
   );
   const [confirmBeforeExecute, setConfirmBeforeExecute] = useState(
     String(!!action.confirmBeforeExecute),
+  );
+
+  const [serverSideExecution, setServerSideExecution] = useState(
+    String(!!action.serverSideExecution),
+  );
+
+  const [isGeneratingServersideUrl, setGeneratingServersideURL] =
+    useState(false);
+
+  const [serverURL, setServerURL] = useState<string | null>(
+    action.serverSideExecutionEndpoint || null,
   );
 
   const updateProperty = (value: boolean | number, propertyName: string) => {
@@ -147,6 +200,30 @@ function SettingsItem({ action, disabled }: SettingsItemProps) {
     });
   };
 
+  const onChangeServerSideExecution = (value: string) => {
+    setServerSideExecution(value);
+    updateProperty(value === "true", "serverSideExecution");
+  };
+
+  const handleServersideURLGeneration = async () => {
+    setGeneratingServersideURL(true);
+    const response = await JSActionAPI.generateServersideURL({
+      baseUrl: "https://ce-25369.dp.appsmith.com",
+      collectionId: action.collectionId || "",
+      actionId: action.id,
+    });
+
+    setGeneratingServersideURL(false);
+    // @ts-expect-error: response meta available
+    if (response.responseMeta.status === 200) {
+      setServerURL(response.data.serverSideExecutionEndpoint);
+    } else {
+      toast.show("An error occured while generating serverside execution URL", {
+        kind: "error",
+      });
+    }
+  };
+
   return (
     <SettingRow
       className="t--async-js-function-settings"
@@ -164,7 +241,7 @@ function SettingsItem({ action, disabled }: SettingsItemProps) {
         >
           {RADIO_OPTIONS.map((option) => (
             <Radio
-              isDisabled={disabled}
+              isDisabled={!action.actionConfiguration.isAsync || disabled}
               key={option.label}
               value={option.value}
             >
@@ -182,6 +259,24 @@ function SettingsItem({ action, disabled }: SettingsItemProps) {
         >
           {RADIO_OPTIONS.map((option) => (
             <Radio
+              isDisabled={!action.actionConfiguration.isAsync || disabled}
+              key={option.label}
+              value={option.value}
+            >
+              {option.label}
+            </Radio>
+          ))}
+        </RadioGroup>
+      </SettingColumn>
+      <SettingColumn className={`${action.name}-server-side-execution`}>
+        <RadioGroup
+          defaultValue={serverSideExecution}
+          name={`server-side-execution-${action.id}`}
+          onChange={onChangeServerSideExecution}
+          orientation="horizontal"
+        >
+          {RADIO_OPTIONS.map((option) => (
+            <Radio
               isDisabled={disabled}
               key={option.label}
               value={option.value}
@@ -190,6 +285,34 @@ function SettingsItem({ action, disabled }: SettingsItemProps) {
             </Radio>
           ))}
         </RadioGroup>
+        {action.serverSideExecution && (
+          <ServerSideExecContainer>
+            {isGeneratingServersideUrl ? (
+              <LoaderIcon className="w-5 h-5" />
+            ) : (
+              <>
+                {" "}
+                {serverURL ? (
+                  <Tooltip content="Copy URL">
+                    <URLCopyIcon
+                      className="w-5 h-5"
+                      onClick={() => copyContent(serverURL)}
+                    />
+                  </Tooltip>
+                ) : (
+                  <GenerateURLButton
+                    className="t--generate-execute-url"
+                    kind="secondary"
+                    onClick={handleServersideURLGeneration}
+                    size="sm"
+                  >
+                    Get URL
+                  </GenerateURLButton>
+                )}
+              </>
+            )}
+          </ServerSideExecContainer>
+        )}
       </SettingColumn>
     </SettingRow>
   );
@@ -199,9 +322,9 @@ function JSFunctionSettingsView({
   actions,
   disabled = false,
 }: JSFunctionSettingsProps) {
-  const asyncActions = actions.filter(
-    (action) => action.actionConfiguration.isAsync,
-  );
+  // const asyncActions = actions.filter(
+  //   (action) => action.actionConfiguration.isAsync,
+  // );
   return (
     <JSFunctionSettingsWrapper>
       <SettingsContainer>
@@ -218,8 +341,8 @@ function JSFunctionSettingsView({
               />
             ))}
           </SettingRow>
-          {asyncActions && asyncActions.length ? (
-            asyncActions.map((action) => (
+          {actions && actions.length ? (
+            actions.map((action) => (
               <SettingsItem
                 action={action}
                 disabled={disabled}

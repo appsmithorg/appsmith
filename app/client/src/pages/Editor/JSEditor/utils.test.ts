@@ -53,6 +53,7 @@ const BASE_JS_ACTION = (useLiterals = false) => {
     confirmBeforeExecute: false,
     messages: [],
     clientSideExecution: false,
+    serverSideExecution: false,
     actionConfiguration: {
       body: useLiterals
         ? BASE_JS_OBJECT_BODY_WITH_LITERALS

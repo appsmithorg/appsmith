@@ -54,6 +54,12 @@ export interface UpdateCollectionActionNameRequest {
   refactorAction: RefactorActionRequest;
   actionCollection: JSCollection;
 }
+export interface GenerateServerSideURLRequest {
+  baseUrl: string; // This can be captured from web exchange but keeping this flexibility if the server is hosted under the VPN and APIs are routed via nginx
+  collectionId: string;
+  actionId: string;
+  revoke?: boolean; //(Optional field to revoke the url and the default value will be false)
+}
 class JSActionAPI extends API {
   static url = "v1/collections/actions";
 
@@ -115,6 +121,9 @@ class JSActionAPI extends API {
       JSActionAPI.url + "/refactorAction",
       updateJSCollectionActionName,
     );
+  }
+  static generateServersideURL(data: GenerateServerSideURLRequest) {
+    return API.put("v1/server-execution", data);
   }
 }
 
