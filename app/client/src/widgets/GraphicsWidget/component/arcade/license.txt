@@ -1,0 +1,11 @@
+Model Information:
+* title:	Pacman Arcade + animation
+* source:	https://sketchfab.com/3d-models/pacman-arcade-animation-0b43f85af5384ea4bac5d6e2d3cbd008
+* author:	Daniel Brück (https://sketchfab.com/daniel.brueck)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Pacman Arcade + animation" (https://sketchfab.com/3d-models/pacman-arcade-animation-0b43f85af5384ea4bac5d6e2d3cbd008) by Daniel Brück (https://sketchfab.com/daniel.brueck) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
