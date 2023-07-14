@@ -6,7 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import styled from "styled-components";
-import { Icon } from "design-system";
+import { Icon, Switch } from "design-system";
 import {
   Popover,
   InputGroup,
@@ -76,6 +76,7 @@ const ColorPickerIconContainer = styled.div`
 
 const StyledInputGroup = styled(InputGroup)<{
   isValid?: boolean;
+  isCustomColor?: boolean;
 }>`
   .${Classes.INPUT} {
     box-shadow: none;
@@ -86,7 +87,8 @@ const StyledInputGroup = styled(InputGroup)<{
     }
   }
   &&& input {
-    padding-left: 36px;
+    padding: ${({ isCustomColor }) =>
+      isCustomColor ? "0px 2px" : "0 10px 0 36px"};
     height: 36px;
     border: ${({ isValid }) =>
       isValid
@@ -355,6 +357,7 @@ const ColorPickerComponent = React.forwardRef(
     const [color, setColor] = React.useState(
       props.evaluatedColorValue || props.color,
     );
+    const [isCustomColor, setCustomColor] = React.useState(false);
 
     const debouncedOnChange = React.useCallback(
       debounce((color: string, isUpdatedViaKeyboard: boolean) => {
@@ -539,6 +542,8 @@ const ColorPickerComponent = React.forwardRef(
     };
 
     const handleOnInteraction = (nextOpenState: boolean) => {
+      if (isCustomColor) return;
+
       if (isOpen !== nextOpenState) {
         if (isClick.current) setIsOpen(true);
         else setIsOpen(nextOpenState);
@@ -566,13 +571,17 @@ const ColorPickerComponent = React.forwardRef(
           <StyledInputGroup
             autoFocus={props.autoFocus}
             inputRef={inputGroupRef}
+            isCustomColor={isCustomColor}
             isValid={validateColor(color)}
             leftIcon={
-              <LeftIcon color={color} handleInputClick={handleInputClick} />
+              !isCustomColor ? (
+                <LeftIcon color={color} handleInputClick={handleInputClick} />
+              ) : null
             }
             onChange={handleChangeColor}
             onClick={handleInputClick}
             placeholder={placeholderText || "enter color name or hex"}
+            type={isCustomColor ? "color" : "text"}
             value={color}
           />
 
@@ -586,6 +595,14 @@ const ColorPickerComponent = React.forwardRef(
             showThemeColors={props.showThemeColors}
           />
         </Popover>
+        <div className="mt-2">
+          <Switch
+            isSelected={isCustomColor}
+            onChange={(value) => setCustomColor(value)}
+          >
+            Full color picker
+          </Switch>
+        </div>
       </div>
     );
   },
