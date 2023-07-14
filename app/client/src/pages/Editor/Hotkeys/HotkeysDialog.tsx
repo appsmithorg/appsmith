@@ -1,3 +1,4 @@
+import type { HotkeyItem } from "@mantine/hooks";
 import { useHotkeys } from "@mantine/hooks";
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
@@ -12,9 +13,11 @@ import { getKeyComboString } from "@blueprintjs/core";
 type Hotkey = {
   label: string;
   hotkey: string;
-  action: () => void;
+  action: (e: KeyboardEvent) => void;
   id: string;
 };
+
+export type KeyboardEvent = Parameters<HotkeyItem[1]>[0];
 
 const getHotKeys = (hotkeys: Array<Hotkey>) => {
   const hotKeysFromLocalStorage = localStorage.getItem("hotkeys");
@@ -96,10 +99,10 @@ export function HotkeysDialog() {
     hotkeys.map((hotkey) => {
       return [
         hotkey.hotkey,
-        () => {
+        (e: KeyboardEvent) => {
           if (isDialogOpen) return;
 
-          hotkey.action();
+          hotkey.action(e);
         },
       ];
     }),
@@ -183,7 +186,7 @@ export function HotkeysDialog() {
   return (
     <Modal onOpenChange={onOpenChange} open={isDialogOpen}>
       <ModalContent>
-        <div className="h-[60vh]">
+        <div className="h-[60vh] overflow-auto pr-4 -mr-4">
           <div className="flex items-center">
             <div className="flex-grow">
               <Text kind="heading-m" renderAs="h1">
@@ -197,11 +200,11 @@ export function HotkeysDialog() {
               <Input onChange={onChangeInput} size="md" startIcon="search" />
             </div>
           </div>
-          <ul className="flex flex-col gap-2 mt-8">
+          <ul className="flex flex-col mt-8">
             {filteredHotKeys.map((hotkey) => {
               return (
                 <li
-                  className="flex items-center justify-between py-2 border-b last:border-b-0"
+                  className="flex items-center justify-between py-4 border-b last:border-b-0"
                   key={hotkey.id}
                 >
                   <div className="flex-grow">

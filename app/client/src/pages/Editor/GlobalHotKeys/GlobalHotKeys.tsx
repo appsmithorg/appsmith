@@ -13,7 +13,7 @@ import {
 } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
-import { getSelectedText, isMacOrIOS } from "utils/helpers";
+import { getSelectedText } from "utils/helpers";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -134,22 +134,7 @@ class GlobalHotKeys extends React.Component<Props> {
             }
           }}
         />
-        <Hotkey
-          allowInInput
-          combo="mod + p"
-          global
-          label="Navigate"
-          onKeyDown={(e) => this.onOnmnibarHotKeyDown(e)}
-        />
-        <Hotkey
-          allowInInput
-          combo="mod + plus"
-          global
-          label="Create new"
-          onKeyDown={(e) =>
-            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.ACTION_OPERATION)
-          }
-        />
+
         <Hotkey
           allowInInput
           combo="mod + d"
@@ -166,17 +151,7 @@ class GlobalHotKeys extends React.Component<Props> {
           }}
           preventDefault
         />
-        <Hotkey
-          combo="mod + c"
-          global
-          group="Canvas"
-          label="Copy widget"
-          onKeyDown={(e: any) => {
-            if (this.stopPropagationIfWidgetSelected(e)) {
-              this.props.copySelectedWidget();
-            }
-          }}
-        />
+
         <Hotkey
           combo="mod + v"
           global
@@ -187,52 +162,6 @@ class GlobalHotKeys extends React.Component<Props> {
               this.props.pasteCopiedWidget(
                 this.props.getMousePosition() || { x: 0, y: 0 },
               );
-            }
-          }}
-        />
-        <Hotkey
-          combo="backspace"
-          global
-          group="Canvas"
-          label="Delete widget"
-          onKeyDown={(e: any) => {
-            if (this.stopPropagationIfWidgetSelected(e) && isMacOrIOS()) {
-              this.props.deleteSelectedWidget();
-            }
-          }}
-        />
-        <Hotkey
-          combo="del"
-          global
-          group="Canvas"
-          label="Delete widget"
-          onKeyDown={(e: any) => {
-            if (this.stopPropagationIfWidgetSelected(e)) {
-              this.props.deleteSelectedWidget();
-            }
-          }}
-        />
-        <Hotkey
-          combo="mod + x"
-          global
-          group="Canvas"
-          label="Cut Widget"
-          onKeyDown={(e: any) => {
-            if (this.stopPropagationIfWidgetSelected(e)) {
-              this.props.cutSelectedWidget();
-            }
-          }}
-        />
-
-        <Hotkey
-          combo="mod + a"
-          global
-          group="Canvas"
-          label="Select all Widget"
-          onKeyDown={(e: any) => {
-            if (matchBuilderPath(window.location.pathname)) {
-              this.props.selectAllWidgetsInit();
-              e.preventDefault();
             }
           }}
         />
@@ -315,24 +244,7 @@ class GlobalHotKeys extends React.Component<Props> {
           preventDefault
           stopPropagation
         />
-        <Hotkey
-          combo="p"
-          global
-          label="Preview Mode"
-          onKeyDown={() => {
-            this.props.setPreviewModeAction(!this.props.isPreviewMode);
-          }}
-        />
-        <Hotkey
-          combo="mod + /"
-          disabled={this.props.isSignpostingEnabled}
-          global
-          label="Pin/Unpin Entity Explorer"
-          onKeyDown={() => {
-            this.props.setExplorerPinnedAction(!this.props.isExplorerPinned);
-            this.props.hideInstaller();
-          }}
-        />
+
         <Hotkey
           combo="ctrl + shift + g"
           global

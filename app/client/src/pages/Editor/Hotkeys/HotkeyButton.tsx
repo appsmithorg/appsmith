@@ -2,13 +2,14 @@ import React from "react";
 import classNames from "classnames";
 import { Button } from "design-system";
 import { displayHotkey } from "./utils";
+import type { KeyboardEvent } from "./HotkeysDialog";
 import { useClickOutside } from "@mantine/hooks";
 
 type HotkeyButtonProps = {
   hotkey: {
     label: string;
     hotkey: string;
-    action: () => void;
+    action: (e: KeyboardEvent) => void;
     id: string;
   };
   editing: any;
