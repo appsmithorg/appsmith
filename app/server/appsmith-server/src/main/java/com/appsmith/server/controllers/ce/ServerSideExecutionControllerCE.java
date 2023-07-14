@@ -44,7 +44,9 @@ public class ServerSideExecutionControllerCE {
     @JsonView(Views.Public.class)
     @PostMapping("/{actionId}")
     public Mono<ResponseDTO<Object>> generateServerExecutionUrl(
-            @PathVariable String actionId, @RequestParam String mode, @RequestBody Map<String, Object> params) {
+            @PathVariable String actionId,
+            @RequestParam(required = false, defaultValue = "VIEW") String mode,
+            @RequestBody Map<String, Object> params) {
 
         log.debug("Going to execute action  {}", actionId);
         return serverSideEndpointExecution
