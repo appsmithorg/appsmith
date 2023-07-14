@@ -1,17 +1,41 @@
 import { React, useEffect, useState } from "react";
 import { calcluateDiff, parseJSONString } from "./DiffUtilities";
 import { CodeRenderer } from "./CodeRenderer";
+import { useDispatch, useSelector } from "react-redux";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { getResolvedConflicts } from "selectors/gitSyncSelectors";
 
-export function DiffViewer(props) {
-  props;
+export function DiffViewer({ filePath }) {
+  const filename = filePath.split("/").pop();
+  const dispatch = useDispatch();
   const [jsono, setJSONO] = useState();
   const [jsona, setJSONA] = useState();
   const [jsonb, setJSONB] = useState();
 
   const [jsonACodeBlocks, setJSONACodeBlocks] = useState();
   const [jsonBCodeBlocks, setJSONBCodeBlocks] = useState();
-
+  const resolvedConflicts = useSelector(getResolvedConflicts);
   const [conflictEvaluated, setConflictEvaluated] = useState();
+
+  let currFileConflicts = { a: [], b: [] };
+  useEffect(() => {
+    if (resolvedConflicts?.[filename].length > 0 && jsonBCodeBlocks) {
+      const updatedJsonBCodeBlocks = [...jsonBCodeBlocks];
+      resolvedConflicts[filename].forEach((patch) => {
+        const index = patch.lineNumber - 1;
+        if (index >= 0 && index < updatedJsonBCodeBlocks.length) {
+          updatedJsonBCodeBlocks[index] = patch;
+        }
+      });
+      setJSONBCodeBlocks(updatedJsonBCodeBlocks);
+      dispatch({
+        type: ReduxActionTypes.SET_RESOLVED_DSL_ARRAY,
+        payload: {
+          [filePath]: [...updatedJsonBCodeBlocks.map((block) => block.text)],
+        },
+      });
+    }
+  }, [resolvedConflicts]);
 
   const handleFileUpload = (e) => {
     // console.log("upload event is ", e.target.id, e.target.files)
@@ -28,10 +52,8 @@ export function DiffViewer(props) {
           setJSONACodeBlocks(codeBlocksForJSON(jsonObject));
         } else if (inputID == "patchb") {
           setJSONB(jsonObject);
-          // console.log(jsonObject, codeBlocksForJSON(jsonObject));
           setJSONBCodeBlocks(codeBlocksForJSON(jsonObject));
         }
-
         setConflictEvaluated(false);
       };
     }
@@ -54,53 +76,108 @@ export function DiffViewer(props) {
     let jsonACodeBlocksWithConflicts = [];
     let jsonBCodeBlocksWithConflicts = [];
 
-    for (const result of results) {
+    let lineNumberA = 1;
+    let lineNumberB = 1;
+    let counterA = 0;
+    let counterB = 0;
+    results.forEach((result, index) => {
+      let conflictId = `${index}-conflict`;
       if (result.ok) {
         for (const codeblock of result.ok) {
           jsonACodeBlocksWithConflicts.push({
             text: codeblock,
             conflict: false,
+            lineNumber: lineNumberA + counterA,
+            id: "patcha-" + lineNumberA,
           });
           jsonBCodeBlocksWithConflicts.push({
             text: codeblock,
             conflict: false,
+            lineNumber: lineNumberB + counterB,
+            id: "patchb-" + lineNumberB,
           });
+          lineNumberA += 1;
+          lineNumberB += 1;
         }
       }
 
       if (result.conflict) {
-        const patchAConflictCodeBlock = codeBlockForPatch(result.conflict, "a");
-        const patchBConflictCodeBlock = codeBlockForPatch(result.conflict, "b");
+        const patchAConflictCodeBlock = codeBlockForPatch(
+          result.conflict,
+          "a",
+          lineNumberA,
+          conflictId + "-a",
+        );
 
+        const patchBConflictCodeBlock = codeBlockForPatch(
+          result.conflict,
+          "b",
+          lineNumberB,
+          conflictId + "-b",
+        );
+
+        lineNumberA += 1;
+        lineNumberB += 1;
         jsonACodeBlocksWithConflicts.push(patchAConflictCodeBlock);
         jsonBCodeBlocksWithConflicts.push(patchBConflictCodeBlock);
+
+        currFileConflicts.a.push({
+          lineId: patchAConflictCodeBlock.id,
+          conflictId: patchAConflictCodeBlock.conflictId,
+        });
+        currFileConflicts.b.push({
+          lineId: patchBConflictCodeBlock.id,
+          conflictId: patchBConflictCodeBlock.conflictId,
+        });
+
+        // if (patchAConflictCodeBlock.text.split("\n").length > 1) {
+        //   counterA += patchAConflictCodeBlock.text.split("\n").length - 1;
+        // } else {
+        //   counterA = 0;
+        // }
+
+        // if (patchBConflictCodeBlock.text.split("\n").length > 1) {
+        //   counterB += patchBConflictCodeBlock.text.split("\n").length - 1;
+        // } else {
+        //   counterB = 0;
+        // }
       }
-    }
+    });
 
     // console.log("result from merge conflict is ", results)
-    // console.log("new json a is ", newJSONA)
     // console.log("new json b is ", newJSONB)
     setJSONACodeBlocks(jsonACodeBlocksWithConflicts);
     setJSONBCodeBlocks(jsonBCodeBlocksWithConflicts);
+    if (currFileConflicts) {
+      dispatch({
+        type: ReduxActionTypes.SET_CURRENT_FILE_CONFLICTS,
+        payload: currFileConflicts,
+      });
+    }
   };
 
   const codeBlocksForJSON = (json) => {
     const codeblocks = [];
-    for (const jsonBlob of json) {
-      codeblocks.push({ text: jsonBlob, conflict: false });
+    for (const [index, jsonBlob] of json.entries()) {
+      codeblocks.push({
+        text: jsonBlob,
+        conflict: false,
+        lineNumber: index + 1,
+      });
     }
     return codeblocks;
   };
 
-  const codeBlockForPatch = (conflict, patchType) => {
+  const codeBlockForPatch = (conflict, patchType, lineNumber, conflictId) => {
     const isAddition = true;
     const isDeletion = false;
-    // let text = conflict[patchType].join("\n")
+    let text = conflict[patchType].join("\n");
 
     if (conflict.o.length > 0 && conflict[patchType].length == 0) {
       isDeletion = true;
       isAddition = false;
-      // text = conflict.o.join("\n")
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      text = conflict.o.join("\n");
     }
 
     const output = {
@@ -109,7 +186,12 @@ export function DiffViewer(props) {
       conflict: true,
       addition: isAddition,
       deletion: isDeletion,
+      lineNumber: lineNumber,
+      patch: patchType,
+      id: `patch${patchType}-` + lineNumber,
+      conflictId,
     };
+
     return output;
   };
 
@@ -135,15 +217,15 @@ export function DiffViewer(props) {
 
       <div style={{ display: "flex", width: "100%" }}>
         <div style={{ width: "50%" }}>
-          <label htmlFor="patcha">Select Patch B</label>
+          <label htmlFor="patcha">Select Patch A</label>
           <input id="patcha" onChange={handleFileUpload} type="file" />
-          <CodeRenderer blocks={jsonACodeBlocks} name={"Patch 1"} />
+          <CodeRenderer blocks={jsonACodeBlocks} name={filename} />
         </div>
 
         <div style={{ width: "50%" }}>
           <label htmlFor="patchb">Select Patch B</label>
           <input id="patchb" onChange={handleFileUpload} type="file" />
-          <CodeRenderer blocks={jsonBCodeBlocks} name={"Patch B"} />
+          <CodeRenderer blocks={jsonBCodeBlocks} name={filename} />
         </div>
       </div>
     </div>

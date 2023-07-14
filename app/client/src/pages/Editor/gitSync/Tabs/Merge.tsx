@@ -11,6 +11,11 @@ import {
   MERGED_SUCCESSFULLY,
   SELECT_BRANCH_TO_MERGE,
 } from "@appsmith/constants/messages";
+
+import {
+  getCurrentFileConflicts,
+  getResolvedConflicts,
+} from "selectors/gitSyncSelectors";
 // import WidgetJson from "./Button1.json";
 
 import styled, { useTheme } from "styled-components";
@@ -27,6 +32,7 @@ import {
   getIsMergeInProgress,
   getMergeError,
   getMergeStatus,
+  isMarkAsResolvedEnabled,
 } from "selectors/gitSyncSelectors";
 import type { DropdownOptions } from "../../GeneratePage/components/constants";
 import {
@@ -35,6 +41,7 @@ import {
   fetchMergeStatusInit,
   mergeBranchInit,
   resetMergeStatus,
+  resolveFileConflict,
 } from "actions/gitSyncActions";
 import MergeStatus, { MERGE_STATUS_STATE } from "../components/MergeStatus";
 import ConflictInfo from "../components/ConflictInfo";
@@ -58,6 +65,8 @@ import type { Theme } from "constants/DefaultTheme";
 // import WidgetPreview from "./WidgetPreview";
 import { ConflictList } from "../components/ConflictList";
 import { DiffViewer } from "../components/DiffViewer";
+import { checkIfArrayHasAllIds } from "../components/DiffUtilities";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 const Row = styled.div`
   display: flex;
@@ -110,6 +119,45 @@ export default function Merge(props: ModalProps) {
     label: string;
     value: string;
   }>();
+
+  const enableMarkAsResolved = useSelector(isMarkAsResolvedEnabled);
+
+  const currFileConflicts = useSelector(getCurrentFileConflicts);
+  const resolvedConflicts = useSelector(getResolvedConflicts);
+
+  const [diffViewer, setDiffViewer] = useState({
+    show: false,
+    file: {
+      filepath: "",
+      resolved: false,
+    },
+  });
+
+  const filename = diffViewer.file.filepath.split("/").pop();
+
+  useEffect(() => {
+    if (
+      filename &&
+      currFileConflicts &&
+      resolvedConflicts &&
+      currFileConflicts["b"] &&
+      resolvedConflicts[filename]
+    ) {
+      const shouldEnable = checkIfArrayHasAllIds(
+        resolvedConflicts[filename],
+        currFileConflicts["b"],
+      );
+
+      if (shouldEnable) {
+        dispatch({
+          type: ReduxActionTypes.SET_MARK_AS_RESOLVED_BUTTON,
+          payload: {
+            value: true,
+          },
+        });
+      }
+    }
+  }, [resolvedConflicts]);
 
   /**
    * Removes the current branch from the list
@@ -228,13 +276,6 @@ export default function Merge(props: ModalProps) {
     !isConflicting && !mergeError && !isFetchingGitStatus && !isMerging;
   const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlMerge);
   const gitConflictingFiles = useSelector(getGitConflictingFiles);
-  const [diffViewer, setDiffViewer] = useState({
-    show: false,
-    file: {
-      filepath: "",
-      resolved: false,
-    },
-  });
 
   const handleResolveBtn = (file: { filepath: string; resolved: boolean }) => {
     setDiffViewer({
@@ -244,12 +285,29 @@ export default function Merge(props: ModalProps) {
     expandWidthCallback?.(true);
   };
 
+  const resolveFile = () => {
+    if (diffViewer.file.filepath) {
+      dispatch(
+        resolveFileConflict({
+          filepath: diffViewer.file.filepath,
+        }),
+      );
+      setDiffViewer({
+        show: false,
+        file: {
+          filepath: "",
+          resolved: false,
+        },
+      });
+    }
+  };
+
   return (
     <>
       <ModalBody>
         <Container style={{ overflow: "unset", paddingBottom: "4px" }}>
           {diffViewer.show ? (
-            <DiffViewer />
+            <DiffViewer filePath={diffViewer.file.filepath} />
           ) : (
             <>
               <Text color={"var(--ads-v2-color-fg-emphasis)"} kind="heading-s">
@@ -334,7 +392,7 @@ export default function Merge(props: ModalProps) {
         {/* <WidgetPreview widgetDSL={WidgetJson} /> */}
       </ModalBody>
       <ModalFooter>
-        {!showMergeSuccessIndicator && showMergeButton ? (
+        {!showMergeSuccessIndicator && showMergeButton && !diffViewer.show ? (
           <Button
             className="t--git-merge-button"
             data-testid="t--git-merge-button"
@@ -344,6 +402,16 @@ export default function Merge(props: ModalProps) {
             size="md"
           >
             {createMessage(MERGE_CHANGES)}
+          </Button>
+        ) : null}
+        {diffViewer.show ? (
+          <Button
+            className="t--git-merge-button"
+            isDisabled={!enableMarkAsResolved}
+            onClick={() => resolveFile()}
+            size="md"
+          >
+            Mark as resolved
           </Button>
         ) : null}
       </ModalFooter>
