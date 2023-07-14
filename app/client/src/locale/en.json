@@ -27,6 +27,22 @@
       "actions": { "records": "Records", "page": "Page" }
     }
   },
+  "file_uploader": {
+    "uppy": {
+      "dropPasteBoth": "Drop files here, %{browseFiles} or %{browseFolders}",
+      "dropPasteFiles": "Drop files here or %{browseFiles}",
+      "cancel": "Cancel",
+      "uploadXFiles": {
+        "first": "Upload %{smart_count} file",
+        "second": "Upload %{smart_count} files"
+      },
+      "xFilesSelected": {
+        "first": "%{smart_count} file selected",
+        "second": "%{smart_count} files selected"
+      },
+      "exceedsSize": "%{file} exceeds maximum allowed size of %{size}"
+    }
+  },
   "app_settings": {
     "locale_settings": {
       "description": "Just replace the values here to what you want your users to see.",

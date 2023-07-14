@@ -30,7 +30,11 @@ import FileDataTypes from "../constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import parseFileData from "./FileParser";
-
+import {
+  LS_CURRENT_LOCALE_NAME,
+  LS_LOCALE_OBJECT,
+} from "pages/Editor/AppSettingsPane/AppSettings/LocaleSettings/localStorage/constants";
+import { getLocalStorageItem } from "pages/Editor/AppSettingsPane/AppSettings/LocaleSettings/localStorage/localStorageHelper";
 const CSV_ARRAY_LABEL = "Array of Objects (CSV, XLS(X), JSON, TSV)";
 
 const ARRAY_CSV_HELPER_TEXT = `All non CSV, XLS(X), JSON or TSV filetypes will have an empty value. \n Large files used in widgets directly might slow down the app.`;
@@ -556,7 +560,57 @@ class FilePickerWidget extends BaseWidget<
       },
     };
 
-    return Uppy(uppyState);
+    const uppy = Uppy(uppyState);
+
+    let updatedFromLocal = false;
+    const currentLocale = getLocalStorageItem(LS_CURRENT_LOCALE_NAME);
+    if (currentLocale) {
+      const localeObj = getLocalStorageItem(LS_LOCALE_OBJECT);
+      if (currentLocale in localeObj) {
+        updatedFromLocal = true;
+        const obj = localeObj[currentLocale];
+        uppy.setOptions({
+          locale: {
+            strings: {
+              dropPasteBoth: obj.file_uploader.uppy.dropPasteBoth,
+              dropPasteFiles: obj.file_uploader.uppy.dropPasteFiles,
+              cancel: obj.file_uploader.uppy.cancel,
+              uploadXFiles: {
+                "0": obj.file_uploader.uppy.uploadXFiles.first,
+                "1": obj.file_uploader.uppy.uploadXFiles.second,
+              },
+              xFilesSelected: {
+                "0": obj.file_uploader.uppy.xFilesSelected.first,
+                "1": obj.file_uploader.uppy.xFilesSelected.second,
+              },
+              exceedsSize: obj.file_uploader.uppy.exceedsSize,
+            },
+          },
+        });
+      }
+    }
+    if (!updatedFromLocal) {
+      uppy.setOptions({
+        locale: {
+          strings: {
+            dropPasteBoth:
+              "Drop files here, %{browseFiles} or %{browseFolders}",
+            dropPasteFiles: "Drop files here or %{browseFiles}",
+            cancel: "Cancel",
+            uploadXFiles: {
+              "0": "Upload %{smart_count} file",
+              "1": "Upload %{smart_count} files",
+            },
+            xFilesSelected: {
+              "0": "%{smart_count} file selected",
+              "1": "%{smart_count} files selected",
+            },
+            exceedsSize: "%{file} exceeds maximum allowed size of %{size}",
+          },
+        },
+      });
+    }
+    return uppy;
   };
 
   /**
