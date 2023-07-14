@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [0, 1, 2]
+        job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -198,7 +198,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           CYPRESS_VERIFY_TIMEOUT: 100000
-          TOTAL_RUNNERS: 3
+          TOTAL_RUNNERS: 60
           THIS_RUNNER: ${{ matrix.job }}
           CYPRESS_SPEC_PATTERN: "cypress/e2e/Regression/Apps/**/**/*"
           CYPRESS_ENV: "NODE_ENV=development"
@@ -208,7 +208,7 @@ jobs:
         with:
           install: false
           working-directory: app/client
-          command: yarn ts-node --require esm  cypress/cypress-split.ts
+          command: yarn ts-node --require esm cypress/cypress-split.ts
 
       - name: Rename reports 
         if: always()

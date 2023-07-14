@@ -6,7 +6,7 @@ export default defineConfig({
   responseTimeout: 60000,
   pageLoadTimeout: 60000,
   videoUploadOnPasses: false,
-  videoCompression: false,
+  videoCompression: 5,
   numTestsKeptInMemory: 5,
   experimentalMemoryManagement: true,
   reporter: "cypress-mochawesome-reporter",
@@ -28,6 +28,10 @@ export default defineConfig({
   },
   e2e: {
     baseUrl: "http://localhost/",
+    env: {
+      USERNAME: "saroj@local.com",
+      PASSWORD: "abcd12345",
+    },
     setupNodeEvents(on, config) {
       require("cypress-mochawesome-reporter/plugin")(on);
       return require("./cypress/plugins/index.js")(on, config);
