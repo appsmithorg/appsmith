@@ -43,6 +43,7 @@ import {
 import history from "utils/history";
 import { saasEditorApiIdURL } from "RouteBuilder";
 import GraphQLEditorForm from "./GraphQL/GraphQLEditorForm";
+import SocketEditorForm from "./Socket/SocketEditorForm";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -195,6 +196,23 @@ class ApiEditor extends React.Component<Props> {
     if (apiId) {
       if (pluginId) {
         formUiComponent = this.getPluginUiComponentOfId(pluginId, plugins);
+
+        if (this.props.apiAction) {
+          const specifiedTemplates =
+            _.get(
+              this.props.apiAction,
+              "actionConfiguration.pluginSpecifiedTemplates",
+            ) || [];
+
+          const isApiActionSocket = specifiedTemplates.some(
+            (template: any) =>
+              template?.key === "socket" && template?.value === true,
+          );
+
+          if (isApiActionSocket) {
+            formUiComponent = "SocketApiForm";
+          }
+        }
       } else {
         formUiComponent = this.getPluginUiComponentOfName(plugins);
       }
@@ -230,6 +248,23 @@ class ApiEditor extends React.Component<Props> {
             isDeleting={isDeleting}
             isRunning={isRunning}
             match={this.props.match}
+            onDeleteClick={this.handleDeleteClick}
+            onRunClick={this.handleRunClick}
+            paginationType={paginationType}
+            pluginId={pluginId}
+            settingsConfig={this.props.settingsConfig}
+          />
+        )}
+        {formUiComponent === "SocketApiForm" && (
+          <SocketEditorForm
+            apiName={this.props.apiName}
+            appName={
+              this.props.currentApplication
+                ? this.props.currentApplication.name
+                : ""
+            }
+            isDeleting={isDeleting}
+            isRunning={isRunning}
             onDeleteClick={this.handleDeleteClick}
             onRunClick={this.handleRunClick}
             paginationType={paginationType}

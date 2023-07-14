@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  SOCKET_API_EDITOR_TABS,
   API_EDITOR_TABS,
   HTTP_METHOD_OPTIONS,
 } from "constants/ApiEditorConstants/CommonApiConstants";
@@ -34,6 +35,7 @@ import {
   Text,
 } from "design-system";
 import {
+  SOCKET_API_EDITOR_TAB_TITLES,
   API_EDITOR_TAB_TITLES,
   API_PANE_AUTO_GENERATED_HEADER,
   API_PANE_DUPLICATE_HEADER,
@@ -196,10 +198,11 @@ type CommonFormPropsWithExtraParams = CommonFormProps & {
   // Body Tab Component which is passed on from the Parent Component
   bodyUIComponent: JSX.Element;
   // Pagination Tab Component which is passed on from the Parent Component
-  paginationUIComponent: JSX.Element;
+  paginationUIComponent?: JSX.Element;
   handleSubmit: any;
   // defaultSelectedTabIndex
   defaultTabSelected?: number;
+  isSocketAPIForm?: boolean;
 };
 
 export const NameWrapper = styled.div`
@@ -504,6 +507,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     headersCount,
     hintMessages,
     isRunning,
+    isSocketAPIForm = false,
     onRunClick,
     paramsCount,
     pluginId,
@@ -597,21 +601,25 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             </ActionButtons>
           </FormRow>
           <FormRow className="api-info-row">
-            <div>
-              {/* eslint-disable-next-line */}
-              {/* @ts-ignore*/}
-              <RequestDropdownField
-                className={`t--apiFormHttpMethod ${replayHighlightClass}`}
-                data-replay-id={btoa("actionConfiguration.httpMethod")}
-                disabled={!isChangePermitted}
-                name="actionConfiguration.httpMethod"
-                options={
-                  isGraphql ? GRAPHQL_HTTP_METHOD_OPTIONS : HTTP_METHOD_OPTIONS
-                }
-                placeholder="Method"
-                width={"110px"}
-              />
-            </div>
+            {!isSocketAPIForm && (
+              <div>
+                {/* eslint-disable-next-line */}
+                {/* @ts-ignore*/}
+                <RequestDropdownField
+                  className={`t--apiFormHttpMethod ${replayHighlightClass}`}
+                  data-replay-id={btoa("actionConfiguration.httpMethod")}
+                  disabled={!isChangePermitted}
+                  name="actionConfiguration.httpMethod"
+                  options={
+                    isGraphql
+                      ? GRAPHQL_HTTP_METHOD_OPTIONS
+                      : HTTP_METHOD_OPTIONS
+                  }
+                  placeholder="Method"
+                  width={"110px"}
+                />
+              </div>
+            )}
             <DatasourceWrapper className="t--dataSourceField">
               <EmbeddedDatasourcePathField
                 actionName={actionName}
@@ -649,7 +657,11 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               >
                 <TabsListWrapper>
                   <TabsList>
-                    {Object.values(API_EDITOR_TABS).map((tab) => (
+                    {Object.values(
+                      isSocketAPIForm
+                        ? SOCKET_API_EDITOR_TABS
+                        : API_EDITOR_TABS,
+                    ).map((tab) => (
                       <Tab
                         data-testid={`t--api-editor-${tab}`}
                         key={tab}
@@ -662,7 +674,11 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                         }
                         value={tab}
                       >
-                        {createMessage(API_EDITOR_TAB_TITLES[tab])}
+                        {createMessage(
+                          isSocketAPIForm
+                            ? SOCKET_API_EDITOR_TAB_TITLES[tab]
+                            : API_EDITOR_TAB_TITLES[tab],
+                        )}
                       </Tab>
                     ))}
                   </TabsList>
@@ -702,21 +718,25 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                 <StyledTabPanel className="h-full" value={API_EDITOR_TABS.BODY}>
                   {props.bodyUIComponent}
                 </StyledTabPanel>
-                <StyledTabPanel value={API_EDITOR_TABS.PAGINATION}>
-                  {props.paginationUIComponent}
-                </StyledTabPanel>
-                <StyledTabPanel value={API_EDITOR_TABS.AUTHENTICATION}>
-                  <ApiAuthentication formName={formName} />
-                </StyledTabPanel>
-                <StyledTabPanel value={API_EDITOR_TABS.SETTINGS}>
-                  <SettingsWrapper>
-                    <ActionSettings
-                      actionSettingsConfig={settingsConfig}
-                      formName={formName}
-                      theme={theme}
-                    />
-                  </SettingsWrapper>
-                </StyledTabPanel>
+                {!isSocketAPIForm && (
+                  <>
+                    <StyledTabPanel value={API_EDITOR_TABS.PAGINATION}>
+                      {props.paginationUIComponent}
+                    </StyledTabPanel>
+                    <StyledTabPanel value={API_EDITOR_TABS.AUTHENTICATION}>
+                      <ApiAuthentication formName={formName} />
+                    </StyledTabPanel>
+                    <StyledTabPanel value={API_EDITOR_TABS.SETTINGS}>
+                      <SettingsWrapper>
+                        <ActionSettings
+                          actionSettingsConfig={settingsConfig}
+                          formName={formName}
+                          theme={theme}
+                        />
+                      </SettingsWrapper>
+                    </StyledTabPanel>
+                  </>
+                )}
               </Tabs>
             </TabbedViewContainer>
             {showDebugger && (

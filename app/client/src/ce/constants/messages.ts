@@ -1145,6 +1145,12 @@ export const API_EDITOR_TAB_TITLES = {
   AUTHENTICATION: () => "Authentication",
   SETTINGS: () => "Settings",
 };
+
+export const SOCKET_API_EDITOR_TAB_TITLES = {
+  HEADERS: () => "Headers",
+  PARAMS: () => "Params",
+  BODY: () => "Body",
+};
 export const ACTION_EXECUTION_MESSAGE = (actionType: string) =>
   `Sending the ${actionType} request`;
 export const ACTION_EXECUTION_CANCEL = () => "Cancel request";

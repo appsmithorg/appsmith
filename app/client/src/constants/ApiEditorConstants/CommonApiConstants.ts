@@ -24,6 +24,12 @@ export enum API_EDITOR_TABS {
   SETTINGS = "SETTINGS",
 }
 
+export enum SOCKET_API_EDITOR_TABS {
+  HEADERS = "HEADERS",
+  PARAMS = "PARAMS",
+  BODY = "BODY",
+}
+
 export const HTTP_METHOD_OPTIONS = Object.values(HTTP_METHOD).map((method) => ({
   value: method,
 }));
