@@ -4,7 +4,7 @@ import { toggleInstaller } from "actions/JSLibraryActions";
 import { setPreviewModeAction } from "actions/editorActions";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { previewModeSelector } from "selectors/editorSelectors";
-import { setExplorerActiveAction } from "actions/explorerActions";
+import { setExplorerPinnedAction } from "actions/explorerActions";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { filterCategories } from "components/editorComponents/GlobalSearch/utils";
@@ -20,6 +20,7 @@ import {
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getSelectedText, isMacOrIOS } from "utils/helpers";
+import { useMemo } from "react";
 
 export const useHotKeysConfig = () => {
   const dispatch = useDispatch();
@@ -68,103 +69,107 @@ export const useHotKeysConfig = () => {
     return false;
   };
 
-  return [
-    {
-      id: "TOGGLE_OMNIBAR",
-      label: "Toggle omnibar",
-      hotkey: "mod + K",
-      action: () => {
-        toggleOmnibar(SEARCH_CATEGORY_ID.INIT);
+  const shortcuts = useMemo(() => {
+    return [
+      {
+        id: "TOGGLE_OMNIBAR",
+        label: "Toggle omnibar",
+        hotkey: "mod + K",
+        action: () => {
+          toggleOmnibar(SEARCH_CATEGORY_ID.INIT);
+        },
       },
-    },
-    {
-      id: "NAVIGATE_OMNIBAR",
-      label: "Navigate",
-      hotkey: "mod + P",
-      action: () => {
-        toggleOmnibar();
+      {
+        id: "NAVIGATE_OMNIBAR",
+        label: "Navigate",
+        hotkey: "mod + P",
+        action: () => {
+          toggleOmnibar();
+        },
       },
-    },
-    {
-      id: "CREATE_NEQ_OMNIBAR",
-      label: "Create new",
-      hotkey: "mod + +",
-      action: () => {
-        toggleOmnibar(SEARCH_CATEGORY_ID.ACTION_OPERATION);
+      {
+        id: "CREATE_NEQ_OMNIBAR",
+        label: "Create new",
+        hotkey: "mod + +",
+        action: () => {
+          toggleOmnibar(SEARCH_CATEGORY_ID.ACTION_OPERATION);
+        },
       },
-    },
-    {
-      id: "TOGGLE_OMNIBAR_PAGE",
-      label: "Toggle app settings",
-      hotkey: "mod + ,",
-      action: () => {
-        dispatch(openAppSettingsPaneAction());
+      {
+        id: "TOGGLE_OMNIBAR_PAGE",
+        label: "Toggle app settings",
+        hotkey: "mod + ,",
+        action: () => {
+          dispatch(openAppSettingsPaneAction());
+        },
       },
-    },
-    {
-      id: "TOGGLE_PREVIEW_MODE",
-      label: "Toggle Preview Mode",
-      hotkey: "P",
-      action: () => {
-        dispatch(setPreviewModeAction(!isPreviewMode));
+      {
+        id: "TOGGLE_PREVIEW_MODE",
+        label: "Toggle Preview Mode",
+        hotkey: "P",
+        action: () => {
+          dispatch(setPreviewModeAction(!isPreviewMode));
+        },
       },
-    },
-    {
-      id: "TOGGLE_ENTITY_EXPLORER",
-      label: "Pin/Unpin Entity Explorer",
-      hotkey: "mod + /",
-      action: () => {
-        dispatch(setExplorerActiveAction(!isExplorerPinned));
-        dispatch(toggleInstaller(false));
+      {
+        id: "TOGGLE_ENTITY_EXPLORER",
+        label: "Pin/Unpin Entity Explorer",
+        hotkey: "mod + /",
+        action: () => {
+          dispatch(setExplorerPinnedAction(!isExplorerPinned));
+          dispatch(toggleInstaller(false));
+        },
       },
-    },
-    {
-      id: "SELECT_ALL_WIDGETS",
-      label: "Select all widgets",
-      hotkey: "mod + A",
-      action: () => {
-        if (matchBuilderPath(window.location.pathname)) {
-          dispatch(selectWidgetInitAction(SelectionRequestType.All));
-        }
+      {
+        id: "SELECT_ALL_WIDGETS",
+        label: "Select all widgets",
+        hotkey: "mod + A",
+        action: () => {
+          if (matchBuilderPath(window.location.pathname)) {
+            dispatch(selectWidgetInitAction(SelectionRequestType.All));
+          }
+        },
       },
-    },
-    {
-      id: "DELETE_SELECTED_WIDGET_BY_BACKSPACE",
-      label: "Delete selected widgets",
-      hotkey: "backspace",
-      action: (e: KeyboardEvent) => {
-        if (stopPropagationIfWidgetSelected(e) && isMacOrIOS()) {
+      {
+        id: "DELETE_SELECTED_WIDGET_BY_BACKSPACE",
+        label: "Delete selected widgets",
+        hotkey: "backspace",
+        action: (e: KeyboardEvent) => {
+          if (stopPropagationIfWidgetSelected(e) && isMacOrIOS()) {
+            dispatch(deleteSelectedWidget(true));
+          }
+        },
+      },
+      {
+        id: "DELETE_SELECTED_WIDGETS_BY_DEL",
+        label: "Delete selected widgets",
+        hotkey: "del",
+        action: () => {
           dispatch(deleteSelectedWidget(true));
-        }
+        },
       },
-    },
-    {
-      id: "DELETE_SELECTED_WIDGETS_BY_DEL",
-      label: "Delete selected widgets",
-      hotkey: "del",
-      action: () => {
-        dispatch(deleteSelectedWidget(true));
+      {
+        id: "CUT_SELECTED_WIDGETS",
+        label: "Cut selected widgets",
+        hotkey: "mod + x",
+        action: (e: KeyboardEvent) => {
+          if (stopPropagationIfWidgetSelected(e)) {
+            dispatch(cutWidget());
+          }
+        },
       },
-    },
-    {
-      id: "CUT_SELECTED_WIDGETS",
-      label: "Cut selected widgets",
-      hotkey: "mod + x",
-      action: (e: KeyboardEvent) => {
-        if (stopPropagationIfWidgetSelected(e)) {
-          dispatch(cutWidget());
-        }
+      {
+        id: "COPY_SELECTED_WIDGETS",
+        label: "Copy selected widgets",
+        hotkey: "mod + c",
+        action: (e: KeyboardEvent) => {
+          if (stopPropagationIfWidgetSelected(e)) {
+            dispatch(copyWidget(true));
+          }
+        },
       },
-    },
-    {
-      id: "COPY_SELECTED_WIDGETS",
-      label: "Copy selected widgets",
-      hotkey: "mod + c",
-      action: (e: KeyboardEvent) => {
-        if (stopPropagationIfWidgetSelected(e)) {
-          dispatch(copyWidget(true));
-        }
-      },
-    },
-  ];
+    ];
+  }, [isExplorerPinned, isPreviewMode, selectedWidget, selectedWidgets]);
+
+  return shortcuts;
 };

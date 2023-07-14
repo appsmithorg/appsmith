@@ -41,6 +41,10 @@ export function HotkeysDialog() {
   const [filteredHotKeys, setFilteredHotKeys] = useState(hotkeys);
 
   useEffect(() => {
+    setHotkeys(getHotKeys(hotkeysConfig));
+  }, [hotkeysConfig]);
+
+  useEffect(() => {
     const hotkeysMap = {
       ...hotkeys.reduce((acc, hotkey) => {
         acc[hotkey.id] = hotkey.hotkey;
