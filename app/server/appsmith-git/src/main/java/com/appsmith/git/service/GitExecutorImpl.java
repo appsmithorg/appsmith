@@ -31,11 +31,15 @@ import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.filter.RevFilter;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.stereotype.Component;
@@ -731,7 +735,6 @@ public class GitExecutorImpl implements GitExecutor {
                                 .setFastForward(MergeCommand.FastForwardMode.NO_FF)
                                 .setCommit(false)
                                 .call();
-
                         MergeStatusDTO mergeStatus = new MergeStatusDTO();
                         if (mergeResult.getMergeStatus().isSuccessful()) {
                             mergeStatus.setMergeAble(true);
@@ -893,6 +896,55 @@ public class GitExecutorImpl implements GitExecutor {
                         log.error("Error while rebasing the branch, {}", e.getMessage());
                         return Mono.error(e);
                     }
+                })
+                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .subscribeOn(scheduler);
+    }
+
+    private RevCommit getMergeBase(Repository repository, String sourceBranchName, String destinationBranchName)
+            throws IOException {
+        ObjectId sourceBranch = repository.resolve("refs/heads/" + sourceBranchName);
+        ObjectId targetBranch = repository.resolve("refs/heads/" + destinationBranchName);
+
+        RevWalk walk = new RevWalk(repository);
+        RevCommit srcCommit = walk.lookupCommit(sourceBranch);
+        RevCommit targetCommit = walk.lookupCommit(targetBranch);
+        walk.setRevFilter(RevFilter.MERGE_BASE);
+
+        walk.markStart(srcCommit);
+        walk.markStart(targetCommit);
+        RevCommit mergeBase = walk.next();
+        walk.dispose();
+        return mergeBase;
+    }
+
+    public Mono<Boolean> checkoutToMergeBase(Path repoSuffix, String sourceBranchName, String targetBranchName) {
+        return Mono.fromCallable(() -> {
+                    try (Git git = Git.open(createRepoPath(repoSuffix).toFile())) {
+                        Repository repository = git.getRepository();
+                        RevCommit mergeBaseRevCommit = getMergeBase(repository, sourceBranchName, targetBranchName);
+                        git.checkout()
+                                .setName(mergeBaseRevCommit.getName())
+                                .setCreateBranch(false)
+                                .call();
+                        return true;
+                    } catch (Exception e) {
+                        log.debug("failed to checkout ", e);
+                        return false;
+                    }
+                })
+                .map(aBoolean -> {
+                    if (aBoolean) {
+                        System.out.println("checked out to merge base commit");
+                        return true;
+                    } else {
+                        System.out.println("checked out to merge base commit");
+                        return false;
+                    }
+                })
+                .onErrorResume(throwable -> {
+                    log.error("Error while checking out to merge base commit {}", throwable.getMessage());
+                    return Mono.error(throwable);
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                 .subscribeOn(scheduler);

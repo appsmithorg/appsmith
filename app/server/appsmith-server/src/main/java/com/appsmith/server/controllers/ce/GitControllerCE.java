@@ -12,6 +12,7 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ConflictedFileVersionsDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDeployKeyDTO;
@@ -198,6 +199,23 @@ public class GitControllerCE {
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get status for default application {}, branch {}", defaultApplicationId, branchName);
         return service.getStatus(defaultApplicationId, branchName)
+                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/conflicts/app/{defaultApplicationId}/file")
+    public Mono<ResponseDTO<ConflictedFileVersionsDTO>> getFileVersionsForMerge(
+            @PathVariable String defaultApplicationId,
+            @RequestParam String sourceBranch,
+            @RequestParam String filePath,
+            @RequestParam String targetBranch) {
+
+        log.debug(
+                "Going to get conflicted file versions for application {}, branch {} file {}",
+                defaultApplicationId,
+                sourceBranch,
+                filePath);
+        return service.getConflictedFileVersions(defaultApplicationId, sourceBranch, targetBranch, filePath)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 

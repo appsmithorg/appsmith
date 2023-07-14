@@ -28,6 +28,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ConflictedFileVersionsDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDocsDTO;
@@ -3014,5 +3015,37 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return Boolean.TRUE;
                     });
                 });
+    }
+
+    public Mono<ConflictedFileVersionsDTO> getConflictedFileVersions(
+            String defaultApplicationId, String sourceBranchName, String targetBranchName, String filePath) {
+
+        return getApplicationById(defaultApplicationId).flatMap(application -> {
+            GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+            Path repoSuffix =
+                    Paths.get(application.getWorkspaceId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
+
+            Mono<Object> fileContentInMergeBaseMono = gitExecutor
+                    .checkoutToMergeBase(repoSuffix, sourceBranchName, targetBranchName)
+                    .map(ref -> fileUtils.readFileFromGitRepo(repoSuffix, filePath));
+
+            Mono<Object> fileContentInLocalBranchMono = gitExecutor
+                    .checkoutToBranch(repoSuffix, sourceBranchName)
+                    .map(ref -> fileUtils.readFileFromGitRepo(repoSuffix, filePath));
+
+            Mono<Object> fileContentInTargetBranchMono = gitExecutor
+                    .checkoutToBranch(repoSuffix, targetBranchName)
+                    .map(ref -> fileUtils.readFileFromGitRepo(repoSuffix, filePath));
+
+            return Flux.concat(fileContentInMergeBaseMono, fileContentInLocalBranchMono, fileContentInTargetBranchMono)
+                    .collectList()
+                    .map(fileContents -> {
+                        ConflictedFileVersionsDTO conflictedFileVersionsDTO = new ConflictedFileVersionsDTO();
+                        conflictedFileVersionsDTO.setBaseVersion(fileContents.get(0));
+                        conflictedFileVersionsDTO.setLocalBranchVersion(fileContents.get(1));
+                        conflictedFileVersionsDTO.setTargetBranchVersion(fileContents.get(2));
+                        return conflictedFileVersionsDTO;
+                    });
+        });
     }
 }

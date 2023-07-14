@@ -6,7 +6,9 @@ import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.helpers.FileUtilsImpl;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -24,6 +26,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -41,6 +44,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -70,6 +74,7 @@ public class GitFileUtils {
     private final FileInterface fileUtils;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
+    private final GitServiceConfig gitServiceConfig;
 
     private final Gson gson;
 
@@ -570,5 +575,17 @@ public class GitFileUtils {
                 getApplicationResource(applicationReference.getDatasources(), DatasourceStorage.class));
 
         return applicationJson;
+    }
+
+    public Object readFileFromGitRepo(Path baseRepoSuffix, String filePath) {
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator())
+                .create();
+
+        Path absoluteFilePath = Paths.get(gitServiceConfig.getGitRootPath())
+                .resolve(baseRepoSuffix)
+                .resolve(filePath);
+
+        return fileUtils.readFile(absoluteFilePath, gson);
     }
 }

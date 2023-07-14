@@ -188,4 +188,6 @@ public interface GitExecutor {
     Mono<Boolean> resetHard(Path repoSuffix, String branchName);
 
     Mono<Boolean> rebaseBranch(Path repoSuffix, String branchName);
+
+    Mono<Boolean> checkoutToMergeBase(Path repoSuffix, String sourceBranchName, String targetBranchName);
 }
