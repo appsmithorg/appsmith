@@ -100,7 +100,7 @@ export function* waitForWidgetConfigBuild() {
   }
 }
 
-export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
+export function* startAppEngine(action: ReduxAction<AppEnginePayload>): any {
   try {
     const engine: AppEngine = AppEngineFactory.create(
       action.payload.mode,
@@ -108,9 +108,7 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     );
     engine.startPerformanceTracking();
 
-    const response: any = yield fetch(
-      `https://api.jsonbin.io/v3/b/${binId}/latest`,
-    );
+    const response = yield fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`);
 
     const widgets = yield response.json();
 
