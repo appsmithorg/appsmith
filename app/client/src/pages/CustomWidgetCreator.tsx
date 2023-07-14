@@ -105,7 +105,6 @@ export function CustomWidgetCreator() {
               ...parsedValue.defaults,
               componentLink: componentLink,
             },
-            type: Math.random().toString(16).slice(2),
             iconSVG: iconRef && iconRef.current?.value,
             name: widgetName,
           },

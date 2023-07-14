@@ -229,7 +229,6 @@ function ConnectGitPlaceholder() {
     </>
   );
   const isGitConnectionEnabled = !isInGuidedTour;
-
   return (
     <Container>
       <Tooltip content={tooltipContent} isDisabled={!isTooltipEnabled}>
