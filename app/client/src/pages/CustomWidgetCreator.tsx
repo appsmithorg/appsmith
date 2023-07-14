@@ -19,6 +19,9 @@ const DEFAULT_OPTION = {
   value: "new_widget",
 };
 
+const getWidgetConfigByType = (widgetConfigs: any, type: string) =>
+  widgetConfigs.find((config: any) => config.type === type);
+
 const getWidgetConfigByName = (widgetConfigs: any, name: string) =>
   widgetConfigs.filter((config: any) => config.name === name)[0];
 
@@ -38,7 +41,7 @@ const editorProps = {
 
 const xMasterKey =
   "$2b$10$oguFCPjUirR.Z7PBYdyNI.P6FpYKEDQQ8YRiu4gDTN/3cT2t1WG5S";
-export const binId = "64afd26cb89b1e2299be44ee";
+export const binId = "64b1202b9d312622a37f538a";
 
 export function CustomWidgetCreator() {
   const componentLinkRef = useRef<HTMLInputElement>(null);
@@ -125,9 +128,18 @@ export function CustomWidgetCreator() {
   };
 
   const onDelete = async () => {
+    const item = getWidgetConfigByType(
+      (widgetConfigs as any).record,
+      (value as any).type,
+    );
     setIsDeleting(true);
     await fetch(`https://api.jsonbin.io/v3/b/${binId}/`, {
-      method: "DELETE",
+      method: "PUT",
+      body: JSON.stringify([
+        ...widgetConfigs.record.filter((d: any) => {
+          return d.type !== item.type;
+        }),
+      ]),
       headers: new Headers({
         "content-type": "application/json",
         "X-Master-Key": xMasterKey,
