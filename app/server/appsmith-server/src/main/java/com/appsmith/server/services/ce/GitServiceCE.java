@@ -9,6 +9,7 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ConflictedFileVersionsDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDocsDTO;
@@ -79,4 +80,7 @@ public interface GitServiceCE {
     Mono<Long> getApplicationCountWithPrivateRepo(String workspaceId);
 
     Mono<Boolean> isRepoLimitReached(String workspaceId, Boolean isClearCache);
+
+    Mono<ConflictedFileVersionsDTO> getConflictedFileVersions(
+            String defaultApplicationId, String sourceBranchName, String targetBranchName, String filePath);
 }

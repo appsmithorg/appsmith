@@ -1,6 +1,7 @@
 package com.appsmith.external.git;
 
 import com.appsmith.external.models.ApplicationGitReference;
+import com.google.gson.Gson;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import reactor.core.publisher.Mono;
 
@@ -73,4 +74,6 @@ public interface FileInterface {
      * @return success if the clone repo doesnt contain any files
      */
     Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException;
+
+    Object readFile(Path filePath, Gson gson);
 }
