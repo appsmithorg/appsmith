@@ -153,18 +153,6 @@ module.exports = (on, config) => {
     },
   });
 
-  on("after:spec", (spec, results) => {
-    // delete the video if the spec passed and no tests retried
-    if (results && results.video) {
-      const failed = results.tests.some((test) => test.state === "failed");
-      if (!failed) {
-        unlink(results.video, () => {
-          console.log(`${results.video} deleted`);
-        });
-      }
-    }
-  });
-
   return config;
 };
 
