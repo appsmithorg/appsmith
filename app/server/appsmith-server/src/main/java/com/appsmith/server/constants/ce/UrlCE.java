@@ -36,6 +36,7 @@ public class UrlCE {
     public static final String USAGE_PULSE_URL = BASE_URL + VERSION + "/usage-pulse";
     public static final String TENANT_URL = BASE_URL + VERSION + "/tenants";
     public static final String CUSTOM_JS_LIB_URL = BASE_URL + VERSION + "/libraries";
+    public static final String SERVER_JS_EXECUTE_URL = BASE_URL + VERSION + "/server-execution";
 
     // Sub-paths
     public static final String MOCKS = "/mocks";
