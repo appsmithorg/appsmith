@@ -52,6 +52,7 @@ type VariableProps = {
   actionName: string;
   // Theme to be used in CodeEditor
   theme: EditorTheme;
+  actionId: string;
 };
 
 /**
@@ -85,7 +86,16 @@ function EventRequestEditor(props: VariableProps) {
       />
 
       <ButtonContainer>
-        <Button kind="primary" size={"md"}>
+        <Button
+          kind="primary"
+          onClick={() => {
+            const element = document.getElementById(
+              `send-event-${props.actionId}`,
+            );
+            if (element) element.click();
+          }}
+          size={"md"}
+        >
           {" "}
           Post event
         </Button>

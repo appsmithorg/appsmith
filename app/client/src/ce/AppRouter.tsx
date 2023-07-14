@@ -63,6 +63,7 @@ import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
 import { initCurrentPage } from "../actions/initActions";
 import Walkthrough from "components/featureWalkthrough";
+import SocketWrapper from "components/socket";
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -176,10 +177,12 @@ function AppRouter(props: {
             <ErrorPage code={props.safeCrashCode} />
           </>
         ) : (
-          <Walkthrough>
-            <AppHeader />
-            <Routes />
-          </Walkthrough>
+          <SocketWrapper>
+            <Walkthrough>
+              <AppHeader />
+              <Routes />
+            </Walkthrough>
+          </SocketWrapper>
         )}
       </Suspense>
     </Router>

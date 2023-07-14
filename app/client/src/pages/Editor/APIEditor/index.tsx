@@ -257,6 +257,7 @@ class ApiEditor extends React.Component<Props> {
         )}
         {formUiComponent === "SocketApiForm" && (
           <SocketEditorForm
+            actionId={apiId}
             apiName={this.props.apiName}
             appName={
               this.props.currentApplication

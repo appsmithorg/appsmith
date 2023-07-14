@@ -64,6 +64,7 @@ const ResizerHandler = styled.div<{ resizing: boolean }>`
 type APIFormProps = {
   httpMethodFromForm: string;
   actionConfigurationBody: string;
+  actionId: string;
 } & CommonFormProps;
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -129,7 +130,11 @@ function GraphQLEditorForm(props: Props) {
               paddingRight: "2px",
             }}
           >
-            <EventRequestEditor actionName={actionName} theme={theme} />
+            <EventRequestEditor
+              actionId={props.actionId}
+              actionName={actionName}
+              theme={theme}
+            />
           </ResizeableDiv>
         </BodyWrapper>
       }

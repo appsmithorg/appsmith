@@ -1173,3 +1173,14 @@ export const getDatasourcesUsedInApplicationByActions = (
       ds.id !== TEMP_DATASOURCE_ID,
   );
 };
+
+export const getSocketActions = (state: AppState): ActionDataState => {
+  return state.entities.actions.filter(
+    (action) =>
+      action.config.pluginType === PluginType.API &&
+      action.config.actionConfiguration.pluginSpecifiedTemplates?.[1]?.key ===
+        "socket" &&
+      action.config.actionConfiguration.pluginSpecifiedTemplates?.[1]?.value ===
+        true,
+  );
+};

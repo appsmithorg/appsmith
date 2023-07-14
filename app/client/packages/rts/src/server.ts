@@ -5,13 +5,14 @@ import { Server } from "socket.io";
 import type { LogLevelDesc } from "loglevel";
 import log from "loglevel";
 import { VERSION as buildVersion } from "./version"; // release version of the api
-import { initializeSockets } from "./sockets";
+import { initializeActionSockets, initializeSockets } from "./sockets";
 
 // routes
 import ast_routes from "./routes/ast_routes";
 import health_check_routes from "./routes/health_check_routes";
 
 const RTS_BASE_PATH = "/rts";
+const ACTION_RTS_BASE_PATH = "/action-rts";
 export const RTS_BASE_API_PATH = "/rts-api/v1";
 
 // Setting the logLevel for all log messages
@@ -35,8 +36,13 @@ const io = new Server(server, {
   path: RTS_BASE_PATH,
 });
 
+const actionIO = new Server(server, {
+  path: ACTION_RTS_BASE_PATH,
+});
+
 // Initializing Sockets
 initializeSockets(io);
+initializeActionSockets(actionIO);
 
 // parse incoming json requests
 app.use(express.json({ limit: "5mb" }));
