@@ -1,5 +1,4 @@
 import { defineConfig } from "cypress";
-import fs from "fs";
 
 export default defineConfig({
   defaultCommandTimeout: 30000,
@@ -7,6 +6,7 @@ export default defineConfig({
   responseTimeout: 60000,
   pageLoadTimeout: 60000,
   videoUploadOnPasses: false,
+  screenshotsFolder: "screenshots",
   videoCompression: 5,
   numTestsKeptInMemory: 5,
   experimentalMemoryManagement: true,
@@ -15,6 +15,7 @@ export default defineConfig({
     reportDir: "results",
     charts: true,
     reportPageTitle: "Cypress-report",
+    videoOnFailOnly: true,
     embeddedScreenshots: true,
     inlineAssets: true,
     saveAllAttempts: true,
@@ -29,26 +30,8 @@ export default defineConfig({
   },
   e2e: {
     baseUrl: "http://localhost/",
-    env: {
-      USERNAME: "saroj@local.com",
-      PASSWORD: "abcd12345",
-    },
     setupNodeEvents(on, config) {
       require("cypress-mochawesome-reporter/plugin")(on);
-      on(
-        "after:spec",
-        (spec: Cypress.Spec, results: CypressCommandLine.RunResult) => {
-          if (results && results.video) {
-            const failures = results.tests.some((test) =>
-              test.attempts.some((attempt) => attempt.state === "failed"),
-            );
-            if (!failures) {
-              // delete the video if the spec passed and no tests retried
-              fs.unlinkSync(results.video);
-            }
-          }
-        },
-      );
       return require("./cypress/plugins/index.js")(on, config);
     },
     specPattern: "cypress/e2e/**/*.{js,ts}",
