@@ -197,7 +197,12 @@ export function HotkeysDialog() {
               </Text>
             </div>
             <div className="max-w-48">
-              <Input onChange={onChangeInput} size="md" startIcon="search" />
+              <Input
+                onChange={onChangeInput}
+                placeholder="Toggle Omnibar, Toggle Preview, ... etc"
+                size="md"
+                startIcon="search"
+              />
             </div>
           </div>
           <ul className="flex flex-col mt-8">
