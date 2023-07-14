@@ -1,5 +1,4 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import datasourceFormData from "../../../../fixtures/datasources.json";
 
 let repoName: any;
 let tempBranch: any;
@@ -16,9 +15,8 @@ describe("Git Bugs", function () {
   });
 
   it("1. Bug 16248, When GitSync modal is open, block shortcut action execution", function () {
-    const largeResponseApiUrl = datasourceFormData.mockApiUrl;
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-    _.apiPage.CreateAndFillApi(largeResponseApiUrl, "GitSyncTest");
+    _.apiPage.CreateAndFillApi(_.tedTestConfig.mockApiUrl, "GitSyncTest");
     _.gitSync.OpenGitSyncModal();
     cy.get("body").type(`{${modifierKey}}{enter}`);
     cy.get("@postExecute").should("not.exist");
@@ -83,11 +81,11 @@ describe("Git Bugs", function () {
       _.agHelper.GetNClick(_.locators._appChangeThemeBtn, 0, true);
       _.agHelper.GetNClick(_.locators._appThemeCard, 2);
       _.agHelper.GetNClick(_.locators._publishButton);
-      _.agHelper.WaitUntilEleAppear(_.locators._gitStatusChanges);
+      _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
       _.agHelper.AssertContains(
         Cypress.env("MESSAGES").CHANGES_THEME(),
         "exist",
-        _.locators._gitStatusChanges,
+        _.gitSync._gitStatusChanges,
       );
       _.agHelper.GetNClick(_.locators._dialogCloseButton);
       _.agHelper.GetNClick(_.locators._appEditMenuBtn);
@@ -96,11 +94,11 @@ describe("Git Bugs", function () {
       _.agHelper.GetNClick(_.locators._appNavigationSettings);
       _.agHelper.GetNClick(_.locators._appNavigationSettingsShowTitle);
       _.agHelper.GetNClick(_.locators._publishButton);
-      _.agHelper.WaitUntilEleAppear(_.locators._gitStatusChanges);
+      _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
       _.agHelper.AssertContains(
         Cypress.env("MESSAGES").CHANGES_APP_SETTINGS(),
         "exist",
-        _.locators._gitStatusChanges,
+        _.gitSync._gitStatusChanges,
       );
       _.agHelper.GetNClick(_.locators._dialogCloseButton);
     });
@@ -116,7 +114,7 @@ describe("Git Bugs", function () {
       _.agHelper.GetNClick(_.locators._appNavigationSettings);
       _.agHelper.GetNClick(_.locators._appNavigationSettingsShowTitle);
       _.agHelper.GetNClick(_.locators._publishButton);
-      _.agHelper.WaitUntilEleAppear(_.locators._gitStatusChanges);
+      _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
       _.agHelper.GetNClick(_.gitSync._discardChanges);
       _.agHelper.WaitUntilEleAppear(_.gitSync._discardCallout);
       _.agHelper.AssertContains(
