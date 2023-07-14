@@ -36,7 +36,9 @@ const editorProps = {
   height: 350,
 };
 
-export const binId = "64afff888e4aa6225ebda8c0";
+export const binId = "64b0eba8b89b1e2299beb04a";
+const xMasterKey =
+  "$2b$10$ut89lMno/ZUHIPi4WGUxs.K0Phzvw4heUpIgfVdxCVyuDWP/Wtg.O";
 
 export function CustomWidgetCreator() {
   const componentLinkRef = useRef<HTMLInputElement>(null);
@@ -79,8 +81,12 @@ export function CustomWidgetCreator() {
           ...widgetConfigs.record,
           {
             ...parsedValue,
+            defaults: {
+              ...parsedValue.defaults,
+              componentLink:
+                componentLinkRef && componentLinkRef.current?.value,
+            },
             type: Math.random().toString(16).slice(2),
-            componentLink: componentLinkRef && componentLinkRef.current?.value,
             iconSVG: iconRef && iconRef.current?.value,
             name: widgetName,
           },
@@ -95,8 +101,12 @@ export function CustomWidgetCreator() {
           ...remainingConfigs,
           {
             ...parsedValue,
+            defaults: {
+              ...parsedValue.defaults,
+              componentLink:
+                componentLinkRef && componentLinkRef.current?.value,
+            },
             type: Math.random().toString(16).slice(2),
-            componentLink: componentLinkRef && componentLinkRef.current?.value,
             iconSVG: iconRef && iconRef.current?.value,
             name: widgetName,
           },
@@ -107,7 +117,10 @@ export function CustomWidgetCreator() {
       await fetch(`https://api.jsonbin.io/v3/b/${binId}/`, {
         method: "PUT",
         body: JSON.stringify(payload),
-        headers: new Headers({ "content-type": "application/json" }),
+        headers: new Headers({
+          "content-type": "application/json",
+          "X-Master-Key": xMasterKey,
+        }),
       });
       setIsUpdating(false);
     }
@@ -117,7 +130,10 @@ export function CustomWidgetCreator() {
     setIsDeleting(true);
     await fetch(`https://api.jsonbin.io/v3/b/${binId}/`, {
       method: "DELETE",
-      headers: new Headers({ "content-type": "application/json" }),
+      headers: new Headers({
+        "content-type": "application/json",
+        "X-Master-Key": xMasterKey,
+      }),
     });
     setIsDeleting(false);
   };
@@ -128,6 +144,13 @@ export function CustomWidgetCreator() {
       setIsLoading(true);
       const response = await fetch(
         `https://api.jsonbin.io/v3/b/${binId}/latest`,
+        {
+          method: "GET",
+          headers: new Headers({
+            "content-type": "application/json",
+            "X-Master-Key": xMasterKey,
+          }),
+        },
       );
       const configs = await response.json();
       setWidgetConfigs(configs);
@@ -233,7 +256,7 @@ export function CustomWidgetCreator() {
         {selectedOption === "new_widget" || selectedOption === "" ? (
           <div className="mt-4">
             <Button
-              isLoading={isLoading}
+              isLoading={isUpdating}
               onClick={onUpdate}
               size="md"
               startIcon="plus"
