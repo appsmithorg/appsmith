@@ -200,3 +200,13 @@ export const getBranchSwitchingDetails = (state: AppState) => ({
 // Get list of conflicting files
 export const getGitConflictingFiles = (state: AppState) =>
   state.ui.gitSync.mergeStatus?.conflictingFiles;
+
+// Get current file conflicts
+export const getCurrentFileConflicts = (state: AppState) =>
+  state.ui.gitSync.mergeStatus?.currentFileConflicts;
+
+export const isMarkAsResolvedEnabled = (state: AppState) =>
+  state.ui.gitSync.mergeStatus?.isMarkAsResolvedEnabled;
+
+export const getResolvedConflicts = (state: AppState) =>
+  state.ui.gitSync.mergeStatus?.resolvedConflicts;
