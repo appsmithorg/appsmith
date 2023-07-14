@@ -50,13 +50,13 @@ describe("AForce - Community Issues page validations", function () {
     );
     //Validating hidden columns:
     table.AssertHiddenColumns([
-      "States_",
+      "States",
       "upvote_id",
-      "id_",
+      "id",
       "github_issue_id",
       "author",
       "created_at",
-      "description_",
+      "description",
       "labels",
       "state",
       "link",
