@@ -1,14 +1,7 @@
-import React, { Suspense, useEffect, useRef } from "react";
-import {
-  OrbitControls,
-  useAnimations,
-  useGLTF,
-  useTexture,
-} from "@react-three/drei";
+import React, { Suspense, useEffect } from "react";
+import { OrbitControls, useGLTF, useTexture } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Html, useProgress } from "@react-three/drei";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { MeshStandardMaterial } from "three";
 function Loader() {
   const { progress } = useProgress();
   return <Html center>{progress} % loaded</Html>;

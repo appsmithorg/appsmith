@@ -8334,7 +8334,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/three@npm:^0.128.0":
+"@types/three@npm:0.128.0":
   version: 0.128.0
   resolution: "@types/three@npm:0.128.0"
   checksum: cf9c55062ee4cc072a3bf1bec0c2bbf3e28d70771c5a38f0a8dd3ff8860294c0318940626ef6f5d9bb7dddb4de2a13491a47c85b9bff918925be339cafbabf46
@@ -9788,7 +9788,7 @@ __metadata:
     "@types/showdown": ^1.9.4
     "@types/styled-components": ^5.1.26
     "@types/tern": 0.22.0
-    "@types/three": ^0.128.0
+    "@types/three": 0.128.0
     "@types/tinycolor2": ^1.4.2
     "@types/to-json-schema": ^0.2.1
     "@types/toposort": ^2.0.3
@@ -9976,7 +9976,7 @@ __metadata:
     sql-formatter: 12.2.0
     styled-components: ^5.3.6
     tern: ^0.21.0
-    three: ">=0.128.0"
+    three: 0.128.0
     tinycolor2: ^1.4.2
     to-json-schema: ^0.2.5
     toposort: ^2.0.2
@@ -29371,10 +29371,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"three@npm:>=0.128.0":
-  version: 0.154.0
-  resolution: "three@npm:0.154.0"
-  checksum: 90ad3cafef8b866641366977ab7189d56f7352c6cdc014cbab946544e42782ec4ea7e56b959b43590433a0fcdc4bd8f8029b18a75074ba10005182c5a73bcc88
+"three@npm:0.128.0":
+  version: 0.128.0
+  resolution: "three@npm:0.128.0"
+  checksum: 94d2b0e0ab1093acbc97e7de2ba38073f0479d2285f5ec333d1f900f1bf8c6a435f5815f24678f38a9898fc1ca39595a0c865cf83b3ce9c4164bba3393108dd3
   languageName: node
   linkType: hard
 
