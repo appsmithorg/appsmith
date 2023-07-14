@@ -295,12 +295,14 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     mergeStatus: {
       ...action.payload,
+      isMarkAsResolvedEnabled: false,
       conflictingFiles: action.payload.conflictingFiles
         ? action.payload.conflictingFiles.map((filepath) => ({
             filepath,
             resolved: false,
           }))
         : [],
+      currentFileConflicts: [],
     },
     isFetchingMergeStatus: false,
   }),
@@ -544,6 +546,73 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     switchingToBranch: null,
     isSwitchingBranch: false,
+  }),
+  [ReduxActionTypes.SET_CURRENT_FILE_CONFLICTS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<any>,
+  ) => ({
+    ...state,
+    mergeStatus: {
+      ...state.mergeStatus,
+      currentFileConflicts: action.payload,
+    },
+  }),
+  [ReduxActionTypes.ADD_TO_RESOLVED_CONFLICTS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<any>,
+  ) => ({
+    ...state,
+    mergeStatus: {
+      ...state.mergeStatus,
+      resolvedConflicts: {
+        ...state.mergeStatus?.resolvedConflicts,
+        [action.payload.file]: [
+          ...(state.mergeStatus?.resolvedConflicts?.[action.payload.file] ||
+            []),
+          ...action.payload.value,
+        ],
+      },
+    },
+  }),
+  [ReduxActionTypes.SET_MARK_AS_RESOLVED_BUTTON]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<any>,
+  ) => ({
+    ...state,
+    mergeStatus: {
+      ...state.mergeStatus,
+      isMarkAsResolvedEnabled: action.payload.value,
+    },
+  }),
+  [ReduxActionTypes.RESOLVE_FILE]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<any>,
+  ) => ({
+    ...state,
+    mergeStatus: {
+      ...state.mergeStatus,
+      conflictingFiles: state.mergeStatus?.conflictingFiles?.map(
+        (file: any) => {
+          if (file.filepath === action.payload.filepath) {
+            return {
+              ...file,
+              resolved: true,
+            };
+          }
+          return file;
+        },
+      ),
+    },
+  }),
+  [ReduxActionTypes.SET_RESOLVED_DSL_ARRAY]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<any>,
+  ) => ({
+    ...state,
+    mergeStatus: {
+      ...state.mergeStatus,
+      resolvedDSLs: action.payload,
+    },
   }),
 });
 

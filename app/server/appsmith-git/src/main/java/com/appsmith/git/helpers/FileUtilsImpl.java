@@ -699,8 +699,7 @@ public class FileUtilsImpl implements FileInterface {
      * @param gson
      * @return resource stored in the JSON file
      */
-    private Object readFile(Path filePath, Gson gson) {
-
+    public Object readFile(Path filePath, Gson gson) {
         Object file;
         try (JsonReader reader = new JsonReader(new FileReader(filePath.toFile()))) {
             file = gson.fromJson(reader, Object.class);

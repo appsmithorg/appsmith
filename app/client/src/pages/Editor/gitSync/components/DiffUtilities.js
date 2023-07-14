@@ -70,3 +70,9 @@ export function parseJSON(json) {
 //     // let file2result = await fetchFile(file2)
 //     console.log("file 1 result is ", file1result)
 // }
+
+export function checkIfArrayHasAllIds(resolved, current) {
+  return current.every((curr) =>
+    resolved.some((item) => item.id === curr.lineId),
+  );
+}

@@ -431,3 +431,8 @@ export const deletingBranch = (payload: any) => ({
   type: ReduxActionTypes.DELETING_BRANCH,
   payload,
 });
+
+export const resolveFileConflict = (payload: any) => ({
+  type: ReduxActionTypes.RESOLVE_FILE,
+  payload,
+});
