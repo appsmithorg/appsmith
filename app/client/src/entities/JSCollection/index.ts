@@ -31,4 +31,5 @@ export interface JSAction extends BaseAction {
   actionConfiguration: JSActionConfig;
   clientSideExecution: boolean;
   serverSideExecution?: boolean;
+  serverSideExecutionEndpoint?: string;
 }

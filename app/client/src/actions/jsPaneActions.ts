@@ -89,6 +89,17 @@ export const updateFunctionProperty = (payload: SetFunctionPropertyPayload) => {
   };
 };
 
+export const getServerSideExecURL = (payload: {
+  baseUrl: string;
+  actionCollectionId: string;
+  actionId: string;
+}) => {
+  return {
+    type: ReduxActionTypes.SET_JS_SERVER_EXECUTION_URL,
+    payload,
+  };
+};
+
 export const updateJSFunction = (payload: SetFunctionPropertyPayload) => {
   return {
     type: ReduxActionTypes.UPDATE_JS_FUNCTION_PROPERTY_INIT,
