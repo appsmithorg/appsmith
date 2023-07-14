@@ -103,7 +103,7 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<Boolean> isApplicationConnectedToGit(String applicationId);
 
-    Mono<Boolean> updateBookmarkForCurrentUser(String applicationId, Map<String, List<Bookmark>> userBookmarks, String branchName);
+    Mono<Map> updateBookmarkForCurrentUser(String applicationId, Map<String, List> userBookmarks, String branchName);
 
     Mono<Map<String, List<Bookmark>>> getBookmarkForCurrentUser(String applicationId, String branchName);
 }
