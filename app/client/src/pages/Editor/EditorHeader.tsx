@@ -246,6 +246,7 @@ export function EditorHeader(props: PropsFromRedux) {
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
+  const [showBookmarks, setShowBookmarks] = useState(false);
 
   const handlePublish = () => {
     if (applicationId) {
@@ -331,6 +332,7 @@ export function EditorHeader(props: PropsFromRedux) {
   );
 
   const navigateTo = (pageId: string, bookmark: Bookmark) => {
+    setShowBookmarks(false);
     switch (bookmark.entityType) {
       case "QUERY": {
         history.push(
@@ -551,28 +553,36 @@ export function EditorHeader(props: PropsFromRedux) {
                 </ModalBody>
               </ModalContent>
             </Modal>
-            <Modal>
+            <Modal
+              onOpenChange={(isOpen) => setShowBookmarks(isOpen)}
+              open={showBookmarks}
+            >
               <ModalTrigger>
                 <Button>Bookmarks</Button>
               </ModalTrigger>
               <ModalContent>
                 <ModalHeader>Bookmarks</ModalHeader>
                 <ModalBody>
-                  {Object.keys(bookmarks).map((key: string) => {
-                    return (
-                      !!bookmarks[key] &&
-                      bookmarks[key].map((bookmark: Bookmark) => {
-                        return (
-                          <button
-                            key={key}
-                            onClick={() => navigateTo(key, bookmark)}
-                          >
-                            {bookmark.entityId + " " + bookmark.entityType}
-                          </button>
-                        );
-                      })
-                    );
-                  })}
+                  {!!bookmarks &&
+                    Object.keys(bookmarks).map((key: string) => {
+                      return (
+                        !!bookmarks[key] &&
+                        bookmarks[key].map((bookmark: Bookmark) => {
+                          return (
+                            <button
+                              key={bookmark.entityId}
+                              onClick={() => navigateTo(key, bookmark)}
+                            >
+                              {bookmark.entityId +
+                                " " +
+                                bookmark.entityType +
+                                " " +
+                                bookmark.lineNo}
+                            </button>
+                          );
+                        })
+                      );
+                    })}
                 </ModalBody>
               </ModalContent>
             </Modal>

@@ -48,6 +48,9 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import type { Bookmark } from "api/BookmarksAPI";
+import { createBookmarkAction } from "actions/bookmarkActions";
+import type { RouteComponentProps } from "react-router";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -78,10 +81,18 @@ type Props = {
   showCommitModal: () => void;
   getMousePosition: () => { x: number; y: number };
   hideInstaller: () => void;
+  createBookmarkAction: (bookmark: Bookmark) => void;
 };
 
+type RouteProps = {
+  apiId: string;
+  queryId: string;
+};
+
+type AllProps = Props & RouteComponentProps<RouteProps>;
+
 @HotkeysTarget
-class GlobalHotKeys extends React.Component<Props> {
+class GlobalHotKeys extends React.Component<AllProps> {
   public stopPropagationIfWidgetSelected(e: KeyboardEvent): boolean {
     const multipleWidgetsSelected =
       this.props.selectedWidgets && this.props.selectedWidgets.length;
@@ -114,6 +125,30 @@ class GlobalHotKeys extends React.Component<Props> {
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
       source: "HOTKEY_COMBO",
       category: category.title,
+    });
+  }
+
+  public onBookmarkKeyDown(e: KeyboardEvent) {
+    e.preventDefault();
+
+    // don't open omnibar if preview mode is on
+    if (this.props.isPreviewMode) return;
+
+    let entityId = "";
+    let type = "";
+    if (!!this.props.match.params.apiId) {
+      entityId = this.props.match.params.apiId;
+      type = "API";
+    } else if (!!this.props.match.params.queryId) {
+      entityId = this.props.match.params.queryId;
+      type = "QUERY";
+    }
+
+    this.props.createBookmarkAction({
+      entityType: type,
+      entityId: entityId,
+      lineNo: 0,
+      fieldName: "",
     });
   }
 
@@ -158,6 +193,13 @@ class GlobalHotKeys extends React.Component<Props> {
           onKeyDown={(e) =>
             this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.INIT)
           }
+        />
+        <Hotkey
+          allowInInput
+          combo="mod + b"
+          global
+          label="Add a Bookmark"
+          onKeyDown={(e) => this.onBookmarkKeyDown(e)}
         />
         <Hotkey
           allowInInput
@@ -399,6 +441,8 @@ const mapDispatchToProps = (dispatch: any) => {
         setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
       ),
     hideInstaller: () => dispatch(toggleInstaller(false)),
+    createBookmarkAction: (bookmark: Bookmark) =>
+      dispatch(createBookmarkAction(bookmark)),
   };
 };
 

@@ -21,13 +21,10 @@ function* fetchBookmarksSaga(action: ReduxAction<{ applicationId: string }>) {
 
     const response: ApiResponse<BookmarksMap> =
       yield BookmarksApi.fetchBookmarks(action.payload.applicationId);
-    const isValidResponse: boolean = yield validateResponse(response);
-    if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.FETCH_BOOKMARK_SUCCESS,
-        payload: response.data,
-      });
-    }
+    yield put({
+      type: ReduxActionTypes.FETCH_BOOKMARK_SUCCESS,
+      payload: response.data,
+    });
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_BOOKMARK_FAILURE,

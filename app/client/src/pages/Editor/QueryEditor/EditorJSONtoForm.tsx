@@ -925,6 +925,9 @@ export function EditorJSONtoForm(props: Props) {
             <ActionNameEditor disabled={!isChangePermitted} />
           </NameWrapper>
           <ActionsWrapper>
+            <Button onClick={createBookmark}>
+              <Icon name="save" size="md" />
+            </Button>
             <MoreActionsMenu
               className="t--more-action-menu"
               id={currentActionConfig ? currentActionConfig.id : ""}
@@ -962,9 +965,6 @@ export function EditorJSONtoForm(props: Props) {
               size="md"
             >
               Run
-            </Button>
-            <Button onClick={createBookmark}>
-              <Icon name="save" size="md" />
             </Button>
           </ActionsWrapper>
         </StyledFormRow>

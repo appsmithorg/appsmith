@@ -18,7 +18,7 @@ const bookmarkReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      bookmarks: action.payload.bookmarks,
+      bookmarks: action.payload,
     };
   },
   [ReduxActionTypes.CREATE_BOOKMARK_SUCCESS]: (
@@ -27,7 +27,7 @@ const bookmarkReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      bookmarks: action.payload.bookmarks,
+      bookmarks: action.payload,
     };
   },
 });

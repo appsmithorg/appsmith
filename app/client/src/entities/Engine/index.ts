@@ -17,6 +17,7 @@ import type URLRedirect from "entities/URLRedirect/index";
 import URLGeneratorFactory from "entities/URLRedirect/factory";
 import { updateBranchLocally } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import { fetchBookmarksAction } from "actions/bookmarkActions";
 
 export type AppEnginePayload = {
   applicationId?: string;
@@ -32,6 +33,7 @@ export interface IAppEngine {
   loadAppEntities(toLoadPageId: string, applicationId: string): any;
   loadGit(applicationId: string): any;
   completeChore(): any;
+  loadBookmarks(applicationId: string): any;
 }
 
 export class AppEngineApiError extends Error {}
@@ -104,6 +106,19 @@ export default abstract class AppEngine {
       history.replace(newURL);
     } catch (e) {
       log.error(e);
+    }
+  }
+
+  *loadBookmarks(applicationId: string) {
+    const apiCalls: boolean = yield failFastApiCalls(
+      [fetchBookmarksAction(applicationId)],
+      [ReduxActionTypes.FETCH_BOOKMARK_SUCCESS],
+      [ReduxActionErrorTypes.FETCH_BOOKMARK_FAILURE],
+    );
+    if (!apiCalls) {
+      throw new PluginFormConfigsNotFoundError(
+        "Unable to fetch plugin form configs",
+      );
     }
   }
 }

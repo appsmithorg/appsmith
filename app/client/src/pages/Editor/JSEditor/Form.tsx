@@ -71,6 +71,8 @@ import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 import { createBookmarkAction } from "actions/bookmarkActions";
+import type { Bookmark, BookmarksMap } from "api/BookmarksAPI";
+import { getBookmarks } from "selectors/entitiesSelector";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -142,6 +144,30 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     ),
   );
 
+  const bookmarks: BookmarksMap = useSelector(getBookmarks);
+
+  const lineNo: number = !!bookmarks[pageId]
+    ? bookmarks[pageId]?.find(
+        (bookmark: Bookmark) => bookmark.entityId === currentJSCollection.id,
+      )?.lineNo
+    : null;
+
+  useEffect(() => {
+    if (!!lineNo) {
+      dispatch(setFocusableInputField(`${currentJSCollection.name}.body`));
+      dispatch(
+        setCodeEditorCursorAction(
+          `${currentJSCollection.name}.body`,
+          {
+            line: lineNo,
+            ch: lineNo,
+          },
+          CursorPositionOrigin.Navigation,
+        ),
+      );
+    }
+  }, [lineNo]);
+
   useEffect(() => {
     if (hash) {
       // Hash here could mean to navigate (set cursor/focus) to a particular function
@@ -191,7 +217,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   const bookmarkJSObjectLine = (jsAction: JSAction, lineNumber: number) => {
     dispatch(
       createBookmarkAction({
-        entityId: jsAction.id,
+        entityId: jsAction.collectionId,
         entityType: "JSOBJECT",
         lineNo: lineNumber,
         fieldName: "",

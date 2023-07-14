@@ -113,6 +113,7 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     yield call(engine.loadAppEntities, toLoadPageId, applicationId);
     yield call(engine.loadGit, applicationId);
     yield call(engine.completeChore);
+    yield call(engine.loadBookmarks, applicationId);
     yield put(generateAutoHeightLayoutTreeAction(true, false));
     engine.stopPerformanceTracking();
   } catch (e) {
