@@ -1451,16 +1451,6 @@ export class AggregateHelper extends ReusableHelper {
       apiToValidate && this.assertHelper.AssertNetworkStatus(apiToValidate);
   }
 
-  public AssertValue(
-    selector: string,
-    value: string,
-    haveValue = true,
-    index = 0,
-  ) {
-    if (haveValue)
-      return this.GetElement(selector).eq(index).should("have.value", value);
-    return this.GetElement(selector).eq(index).should("not.have.value", value);
-  }
   public GetDropTargetId(widgetName: string) {
     return this.GetWidgetByName(widgetName).invoke("attr", "id");
   }

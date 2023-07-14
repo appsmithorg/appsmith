@@ -162,8 +162,8 @@ export class Table {
   _tableV2Row = ".t--draggable-tablewidgetv2 .tbody";
   _weekdayRowDayPicker =
     ".bp3-datepicker .DayPicker .DayPicker-Months .DayPicker-WeekdaysRow";
-  _popoverContent =
-    ".bp3-transition-container .bp3-popover .bp3-popover-content";
+  _popoverErrorMsg = (msg: string) =>
+    "//div[@class='bp3-popover-content' and contains(text(),'" + msg + "')]";
   _datePicker = ".bp3-datepicker";
   _dayPickerWeek = ".bp3-datepicker .DayPicker .DayPicker-Body .DayPicker-Week";
   _timePickerHour = ".bp3-timepicker-input-row .bp3-timepicker-hour";
@@ -173,16 +173,16 @@ export class Table {
   _tableV2Head = ".t--draggable-tablewidgetv2 .thead";
   _timeprecisionPopover =
     ".t--property-control-timeprecision .bp3-popover-target";
-  _tableNthChild =
+  _tableRow1Child3 =
     ".t--draggable-tablewidgetv2 .tbody .tr:nth-child(1) div:nth-child(3)";
-  _hiddenHeader = ".hidden-header";
   _draggableHeader = " .draggable-header";
   _lastChildDatePicker = "div:last-child .react-datepicker-wrapper";
   _codeMirrorError = ".t--codemirror-has-error";
   _canvasWidgetType = "[type='CANVAS_WIDGET']";
   _showArrow = ".rc-select-show-arrow";
   _codeEditorWrapper = ".t--code-editor-wrapper";
-  _dateRangePicker = ".bp3-dateinput-popover .bp3-daterangepicker-shortcuts";
+  _dateRangePickerShortcuts =
+    ".bp3-dateinput-popover .bp3-daterangepicker-shortcuts";
   _dayPickerFirstChild = ".DayPicker-Day:first-child";
   _divFirstChild = "div:first-child abbr";
 
@@ -716,5 +716,15 @@ export class Table {
       `Sort column ${direction}`,
     );
     this.agHelper.Sleep(500);
+  }
+
+  public AssertVisibleColumns(columnNames: string[]) {
+    columnNames.forEach(($header) => {
+      cy.xpath(this._columnHeader($header))
+        .invoke("attr", "class")
+        .then((classes) => {
+          expect(classes).includes("draggable-header");
+        });
+    });
   }
 }
