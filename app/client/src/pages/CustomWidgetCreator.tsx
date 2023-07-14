@@ -36,9 +36,9 @@ const editorProps = {
   height: 350,
 };
 
-export const binId = "64b0eba8b89b1e2299beb04a";
 const xMasterKey =
-  "$2b$10$ut89lMno/ZUHIPi4WGUxs.K0Phzvw4heUpIgfVdxCVyuDWP/Wtg.O";
+  "$2b$10$oguFCPjUirR.Z7PBYdyNI.P6FpYKEDQQ8YRiu4gDTN/3cT2t1WG5S";
+export const binId = "64afd26cb89b1e2299be44ee";
 
 export function CustomWidgetCreator() {
   const componentLinkRef = useRef<HTMLInputElement>(null);
@@ -52,6 +52,7 @@ export function CustomWidgetCreator() {
   const [widgetConfigs, setWidgetConfigs] = useState<any>();
   const [selectOptions, setSelectOptions] = useState<SelectOptionType[]>([]);
   const [selectedOption, setSelectedOption] = useState("");
+  const [componentLink, setComponentLink] = useState("");
   const [widgetName, setWidgetName] = useState("");
 
   const onEditorChange = (
@@ -83,8 +84,7 @@ export function CustomWidgetCreator() {
             ...parsedValue,
             defaults: {
               ...parsedValue.defaults,
-              componentLink:
-                componentLinkRef && componentLinkRef.current?.value,
+              componentLink: componentLink,
             },
             type: Math.random().toString(16).slice(2),
             iconSVG: iconRef && iconRef.current?.value,
@@ -103,8 +103,7 @@ export function CustomWidgetCreator() {
             ...parsedValue,
             defaults: {
               ...parsedValue.defaults,
-              componentLink:
-                componentLinkRef && componentLinkRef.current?.value,
+              componentLink: componentLink,
             },
             type: Math.random().toString(16).slice(2),
             iconSVG: iconRef && iconRef.current?.value,
@@ -181,11 +180,14 @@ export function CustomWidgetCreator() {
           }}
           isLoading={isLoading}
           onSelect={(value: string) => {
+            const item = getWidgetConfigByName(
+              (widgetConfigs as any).record,
+              value,
+            );
             setSelectedOption(value);
             setWidgetName(value);
-            setValue(
-              getWidgetConfigByName((widgetConfigs as any).record, value),
-            );
+            setComponentLink(item.defaults.componentLink);
+            setValue(item);
           }}
           placeholder="Select a widget config"
           virtual={false}
@@ -235,9 +237,13 @@ export function CustomWidgetCreator() {
         <Input
           label="Component Link"
           labelPosition="top"
+          onChange={(e: string) => {
+            setComponentLink(e);
+          }}
           placeholder="Enter link to the custom component gist"
           ref={componentLinkRef}
           size="md"
+          value={componentLink}
         />
       </div>
 

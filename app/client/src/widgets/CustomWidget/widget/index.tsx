@@ -1,4 +1,4 @@
-import { ValidationTypes } from "constants/WidgetValidation";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import React from "react";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -10,33 +10,37 @@ interface CustomWidgetProp extends WidgetProps {
 
 class CustomWidget extends BaseWidget<CustomWidgetProp, WidgetState> {
   static getPropertyPaneContentConfig() {
-    return [
-      {
-        sectionName: "Data",
-        children: [
-          {
-            propertyName: "componentLink",
-            helpText: "The URL of the components",
-            label: "URL",
-            controlType: "INPUT_TEXT",
-            placeholderText: "https://docs.appsmith.com",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.SAFE_URL,
-            },
-          },
-        ],
-      },
-    ];
+    return [];
   }
 
   static getPropertyPaneStyleConfig() {
     return [];
   }
 
+  execute = (data: any) => {
+    super.executeAction({
+      triggerPropertyName: data.eventName,
+      dynamicString: data.eventString,
+      event: {
+        type: EventType.ON_SUBMIT,
+      },
+    });
+  };
+
+  update = (data: any) => {
+    Object.entries(data).forEach(([path, value]) => {
+      this.props.updateWidgetMetaProperty(path, value);
+    });
+  };
+
   getPageView() {
-    return <CustomComponent widgetId={"test"} />;
+    return (
+      <CustomComponent
+        execute={this.execute}
+        update={this.update}
+        {...this.props}
+      />
+    );
   }
 
   static getWidgetType(): string {

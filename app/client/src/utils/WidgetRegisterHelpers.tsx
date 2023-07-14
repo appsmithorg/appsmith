@@ -92,7 +92,7 @@ export const configureWidget = (config: WidgetConfiguration) => {
     ...features,
     searchTags: config.searchTags,
     type: config.type,
-    hideCard: !!config.hideCard || !config.iconSVG,
+    hideCard: !!config.hideCard,
     isDeprecated: !!config.isDeprecated,
     replacement: config.replacement,
     displayName: config.name,
