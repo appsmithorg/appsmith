@@ -278,7 +278,7 @@ function Actions(props: ActionsPropsType) {
               <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
             </PaginationItemWrapper>
             <TableHeaderContentWrapper>
-              Page{" "}
+              {t("tableV2.header.actions.page")}
               <PageNumberInput
                 accentColor={props.accentColor}
                 borderRadius={props.borderRadius}

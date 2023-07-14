@@ -5,12 +5,16 @@ import "@uppy/dashboard/dist/style.css";
 import "@uppy/webcam/dist/style.css";
 import { BaseButton } from "widgets/ButtonWidget/component";
 import { Colors } from "constants/Colors";
+import { useTranslation } from "react-i18next";
 
 function FilePickerComponent(props: FilePickerComponentProps) {
   let computedLabel = props.label;
+  const { t } = useTranslation();
 
   if (props.files && props.files.length) {
-    computedLabel = `${props.files.length} files selected`;
+    computedLabel = `${props.files.length} ${t(
+      "file_uploader.uppy.filesSelected",
+    )}`;
   }
 
   /**

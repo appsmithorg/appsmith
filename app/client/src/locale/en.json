@@ -40,7 +40,10 @@
         "first": "%{smart_count} file selected",
         "second": "%{smart_count} files selected"
       },
-      "exceedsSize": "%{file} exceeds maximum allowed size of %{size}"
+      "exceedsSize": "%{file} exceeds maximum allowed size of %{size}",
+      "browse": "Browse files",
+      "filesSelected": "files selected",
+      "selectFiles": "Select files"
     }
   },
   "app_settings": {
