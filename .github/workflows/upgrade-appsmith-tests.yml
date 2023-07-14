@@ -200,7 +200,7 @@ jobs:
           CYPRESS_VERIFY_TIMEOUT: 100000
           TOTAL_RUNNERS: 60
           THIS_RUNNER: ${{ matrix.job }}
-          CYPRESS_SPEC_PATTERN: "cypress/e2e/Regression/Apps/**/**/*"
+          CYPRESS_SPEC_PATTERN: "cypress/e2e/**/**/*"
           CYPRESS_ENV: "NODE_ENV=development"
           CYPRESS_CONFIG_FILE: cypress_ci.config.ts
           CYPRESS_HEADLESS: "true"
