@@ -40,6 +40,8 @@ import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import TooltipContent from "./FirstTimeUserOnboarding/TooltipContent";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
+import { toggleHotKeysDialog } from "actions/hotkeysActions";
+import store from "store";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -73,6 +75,7 @@ type HelpItem = {
   link?: string;
   id?: string;
   icon: string;
+  onClick?: () => void;
 };
 
 const HELP_MENU_ITEMS: HelpItem[] = [
@@ -80,6 +83,13 @@ const HELP_MENU_ITEMS: HelpItem[] = [
     icon: "book-line",
     label: "Documentation",
     link: "https://docs.appsmith.com/",
+  },
+  {
+    icon: "lightning",
+    label: "Keyboard shortcuts",
+    onClick: () => {
+      store.dispatch(toggleHotKeysDialog(true));
+    },
   },
   {
     icon: "bug-line",
@@ -269,6 +279,8 @@ function HelpButton() {
                   onSelect={(e) => {
                     if (item.link) {
                       window.open(item.link, "_blank");
+
+                      return;
                     }
                     if (item.id === "intercom-trigger") {
                       e?.preventDefault();
@@ -279,7 +291,11 @@ function HelpButton() {
                           setShowIntercomConsent(true);
                         }
                       }
+
+                      return;
                     }
+
+                    if (typeof item.onClick === "function") item.onClick();
                   }}
                   startIcon={item.icon}
                 >

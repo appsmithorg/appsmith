@@ -42,6 +42,7 @@ import { Spinner } from "design-system";
 import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
+import { HotkeysDialog } from "./Hotkeys/HotkeysDialog";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -168,6 +169,7 @@ class Editor extends Component<Props> {
             <ReconnectDatasourceModal />
             <SignpostingOverlay />
           </GlobalHotKeys>
+          <HotkeysDialog />
         </div>
         <RequestConfirmationModal />
       </ThemeProvider>

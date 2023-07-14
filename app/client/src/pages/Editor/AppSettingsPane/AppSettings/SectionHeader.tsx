@@ -7,11 +7,11 @@ export interface SectionHeaderProps {
   name: string;
   icon: string;
   subText: string;
-  isSelected: boolean;
+  isSelected?: boolean;
   onClick: () => void;
 }
 
-const StyledWrapper = styled.div<{ isSelected: boolean }>`
+const StyledWrapper = styled.div<{ isSelected?: boolean }>`
   height: 50px;
   background-color: ${({ isSelected }) =>
     isSelected ? "var(--ads-v2-color-bg-muted)" : "transparent"};

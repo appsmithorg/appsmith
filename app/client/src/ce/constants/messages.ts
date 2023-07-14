@@ -1687,6 +1687,11 @@ export const IN_APP_EMBED_SETTING = {
     "Embedding in public mode is supported in the community edition. To make your app public, please contact your administrator.",
 };
 
+export const HOTKEYS_SETTINGS = {
+  sectionHeader: () => "Hotkeys",
+  sectionHeaderDesc: () => "Customize your hotkeys",
+};
+
 export const APP_NAVIGATION_SETTING = {
   sectionHeader: () => "Navigation",
   sectionHeaderDesc: () => "Customize the navigation bar",

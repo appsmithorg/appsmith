@@ -199,4 +199,4 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
 
 export const HelpBaseURL = "https://docs.appsmith.com";
 
-export const HELP_MODAL_WIDTH = 170;
+export const HELP_MODAL_WIDTH = 200;

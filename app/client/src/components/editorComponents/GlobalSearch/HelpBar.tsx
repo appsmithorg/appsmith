@@ -1,12 +1,14 @@
 import React from "react";
 import styled from "styled-components";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { getTypographyByKey, Text, TextType } from "design-system-old";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { HELPBAR_PLACEHOLDER } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { modText } from "utils/helpers";
 import { filterCategories, SEARCH_CATEGORY_ID } from "./utils";
+import type { AppState } from "@appsmith/reducers";
+import { getHotkeyFromAction } from "selectors/hotkeysSelectors";
+import { displayHotkey } from "pages/Editor/Hotkeys/utils";
 
 const StyledHelpBar = styled.div`
   padding: 0 var(--ads-v2-spaces-3);
@@ -36,6 +38,10 @@ type Props = {
 };
 
 function HelpBar({ toggleShowModal }: Props) {
+  const hotkey = useSelector((state: AppState) =>
+    getHotkeyFromAction(state, "TOGGLE_OMNIBAR"),
+  );
+
   return (
     <StyledHelpBar
       className="t--global-search-modal-trigger"
@@ -44,7 +50,7 @@ function HelpBar({ toggleShowModal }: Props) {
     >
       <Text type={TextType.P2}>{HELPBAR_PLACEHOLDER()}</Text>
       <Text italic type={TextType.P3}>
-        {modText()} K
+        {displayHotkey(hotkey)}
       </Text>
     </StyledHelpBar>
   );
