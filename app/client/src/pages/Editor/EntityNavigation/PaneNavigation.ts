@@ -1,7 +1,7 @@
 import type { EntityInfo } from "./types";
 
 export default abstract class PaneNavigation {
-  protected entityInfo?: EntityInfo;
+  protected entityInfo: EntityInfo;
 
   constructor(entityInfo: EntityInfo) {
     this.entityInfo = entityInfo;

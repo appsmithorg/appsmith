@@ -7,9 +7,14 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getPropertyControlFocusElement } from "utils/editorContextUtils";
 import type { EntityInfo, PropertyPaneNavigationConfig } from "../types";
 import WidgetFactory from "utils/WidgetFactory";
-import { getSectionId } from "./utils";
-import log from "loglevel";
-import { setPropertySectionState } from "actions/propertyPaneActions";
+import { getPropertyPanePanelNavigationConfig, getSectionId } from "./utils";
+import {
+  setPropertySectionState,
+  setSelectedPropertyPanel,
+  unsetSelectedPropertyPanel,
+} from "actions/propertyPaneActions";
+import { getSelectedPropertyPanel } from "selectors/propertyPaneSelectors";
+import type { SelectedPropertyPanel } from "reducers/uiReducers/propertyPaneReducer";
 
 export default class PropertyPaneNavigation extends PaneNavigation {
   widget?: WidgetProps;
@@ -36,8 +41,7 @@ export default class PropertyPaneNavigation extends PaneNavigation {
     const config: PropertyPaneNavigationConfig = {};
     if (!this.widget || !this.entityInfo)
       throw Error(`Unable to generate navigation config`);
-    if (!this.entityInfo.propertyPath)
-      log.debug("Field level navigation not required");
+    if (!this.entityInfo.propertyPath) return config;
 
     const propertyPaneConfig = WidgetFactory.getWidgetPropertyPaneConfig(
       this.widget?.type,
@@ -45,6 +49,13 @@ export default class PropertyPaneNavigation extends PaneNavigation {
 
     // Get section id
     if (this.entityInfo.propertyPath) {
+      config["panelStack"] = yield call(
+        getPropertyPanePanelNavigationConfig,
+        propertyPaneConfig,
+        this.widget,
+        this.entityInfo.propertyPath,
+      );
+
       config["sectionId"] = yield call(
         getSectionId,
         propertyPaneConfig,
@@ -66,19 +77,43 @@ export default class PropertyPaneNavigation extends PaneNavigation {
     yield put(
       selectWidgetInitAction(SelectionRequestType.One, [this.widget.widgetId]),
     );
-    yield delay(500);
+    yield delay(300);
+
+    // Nothing more to do if we don't have the property path
+    if (!this.entityInfo.propertyPath) return;
+
+    // Switch to the correct panel
+    const currentSelectedPanel: SelectedPropertyPanel = yield select(
+      getSelectedPropertyPanel,
+    );
+    const propertyPathsToPop = Object.keys(currentSelectedPanel).filter(
+      (path) => {
+        return path.split(".")[0] === this.widget?.widgetName;
+      },
+    );
+    if (propertyPathsToPop.length) {
+      // Go back to starting panel
+      for (const path of propertyPathsToPop.reverse()) {
+        yield put(unsetSelectedPropertyPanel(path));
+        yield delay(300);
+      }
+    }
+    if (navigationConfig.panelStack) {
+      for (const panel of navigationConfig.panelStack) {
+        yield put(setSelectedPropertyPanel(panel.path, panel.index));
+        yield delay(300);
+      }
+    }
 
     // Expand section
     if (navigationConfig.sectionId) {
-      // TODO: We need to make propertyPath work as well
-      // TODO: Section of a panel
       yield put(
         setPropertySectionState(
           `${this.widget.widgetId}.${navigationConfig.sectionId}`,
           true,
         ),
       );
-      yield delay(500);
+      yield delay(300);
     }
 
     // Find and scroll to element
