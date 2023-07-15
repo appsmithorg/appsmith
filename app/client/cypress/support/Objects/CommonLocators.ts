@@ -258,4 +258,11 @@ export class CommonLocators {
   _pagination = ".rc-pagination";
   _controlOption = ".t--property-control-options";
   _canvasBody = "[data-testid='div-selection-0']";
+  _nextPage = ".rc-pagination-next";
+  _containerWidget = "[type='CONTAINER_WIDGET']";
+  _listActivePage = ".t--widget-listwidgetv2 .rc-pagination-item-active";
+  _bodyTextStyle = ".bp3-ui-text span";
+  _paginationItem = (value: number) => `.rc-pagination-item-${value}`;
+  _evaluatedValue = ".t-property-evaluated-value";
+  _selectSearch = ".rc-select-selection-search";
 }
