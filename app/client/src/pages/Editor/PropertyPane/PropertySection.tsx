@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { Classes } from "@blueprintjs/core";
 import type { ReactNode, Context } from "react";
 import React, {
@@ -101,7 +100,6 @@ export const PropertySection = memo((props: PropertySectionProps) => {
       panelPropertyPath: props.panelPropertyPath,
     }),
   );
-  console.log(isContextOpen, "isContextOpen - DEBUGGER");
   const isSearchResult = props.tag !== undefined;
   const [isOpen, setIsOpen] = useState(!!isContextOpen);
 
