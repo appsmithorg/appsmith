@@ -1,3 +1,4 @@
+import log from "loglevel";
 import type {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
@@ -68,10 +69,15 @@ export const getPropertyPanePanelNavigationConfig = (
                 .join("."),
             )?.index,
           });
+          // Tab widget does not have contentChildren
+          const panelConfig =
+            controlConfig.panelConfig?.contentChildren ||
+            controlConfig.panelConfig?.children ||
+            [];
+          log.debug(panelConfig, "panelConfig");
           stack = stack.concat(
             getPropertyPanePanelNavigationConfig(
-              controlConfig.panelConfig
-                ?.contentChildren as readonly PropertyPaneConfig[],
+              panelConfig as readonly PropertyPaneConfig[],
               widgetProps,
               propertyPath,
               panelDepth + 1,

@@ -15,6 +15,7 @@ import {
 } from "actions/propertyPaneActions";
 import { getSelectedPropertyPanel } from "selectors/propertyPaneSelectors";
 import type { SelectedPropertyPanel } from "reducers/uiReducers/propertyPaneReducer";
+import log from "loglevel";
 
 export default class PropertyPaneNavigation extends PaneNavigation {
   widget?: WidgetProps;
@@ -47,7 +48,9 @@ export default class PropertyPaneNavigation extends PaneNavigation {
       this.widget?.type,
     );
 
+    log.debug(this.entityInfo, "this.entityInfo");
     // Get section id
+    log.debug(propertyPaneConfig, "propertyPaneConfig");
     if (this.entityInfo.propertyPath) {
       config["panelStack"] = yield call(
         getPropertyPanePanelNavigationConfig,
@@ -55,6 +58,7 @@ export default class PropertyPaneNavigation extends PaneNavigation {
         this.widget,
         this.entityInfo.propertyPath,
       );
+      log.debug(config, "config");
 
       config["sectionId"] = yield call(
         getSectionId,
@@ -95,7 +99,7 @@ export default class PropertyPaneNavigation extends PaneNavigation {
       // Go back to starting panel
       for (const path of propertyPathsToPop.reverse()) {
         yield put(unsetSelectedPropertyPanel(path));
-        yield delay(300);
+        yield delay(400);
       }
     }
     if (navigationConfig.panelStack) {

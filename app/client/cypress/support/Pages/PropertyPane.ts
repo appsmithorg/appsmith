@@ -121,6 +121,7 @@ export class PropertyPane {
   _addOptionProperty = ".t--property-control-options-add";
   _optionContent = ".rc-select-item-option-content";
   _dropdownOptionSpan = ".t--dropdown-option span";
+  _paneTitle = ".t--property-pane-title";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
