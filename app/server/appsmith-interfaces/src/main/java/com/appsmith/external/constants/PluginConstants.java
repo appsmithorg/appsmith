@@ -12,6 +12,8 @@ public interface PluginConstants {
         String GOOGLE_SHEETS_PLUGIN = "google-sheets-plugin";
     }
 
+    public static final String DEFAULT_REST_DATASOURCE = "DEFAULT_REST_DATASOURCE";
+
     interface PluginName {
         public static final String S3_PLUGIN_NAME = "S3";
         public static final String ARANGO_PLUGIN_NAME = "Arango";

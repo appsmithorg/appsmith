@@ -1,5 +1,8 @@
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import type { TEditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import type {
+  FieldEntityInformation,
+  TEditorModes,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import React from "react";
 
 export type TAIWrapperProps = {
@@ -12,6 +15,7 @@ export type TAIWrapperProps = {
   enableAIAssistance: boolean;
   dataTreePath?: string;
   mode: TEditorModes;
+  entity: FieldEntityInformation;
 };
 
 export function AIWindow(props: TAIWrapperProps) {

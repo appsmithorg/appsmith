@@ -7,10 +7,14 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CustomCollectionRepositoryImpl extends CustomCollectionRepositoryCEImpl implements CustomCollectionRepository {
+public class CustomCollectionRepositoryImpl extends CustomCollectionRepositoryCEImpl
+        implements CustomCollectionRepository {
 
     @Autowired
-    public CustomCollectionRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomCollectionRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 }

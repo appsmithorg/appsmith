@@ -4,9 +4,7 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 
 describe("Tree Select Widget", function () {
   before(() => {
-    cy.fixture("emptyDSL").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("emptyDSL");
   });
 
   it("1. Add new widget", () => {

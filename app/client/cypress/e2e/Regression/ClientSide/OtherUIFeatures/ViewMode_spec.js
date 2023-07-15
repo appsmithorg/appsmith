@@ -13,9 +13,7 @@ Cypress.Commands.add("getSharedUrl", () => {
 
 describe("Preview mode functionality", function () {
   before(() => {
-    cy.fixture("previewMode").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("previewMode");
     deployMode.DeployApp();
     cy.url().then((url) => cy.setSharedUrl(url));
   });

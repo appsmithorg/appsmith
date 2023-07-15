@@ -252,6 +252,7 @@ class QueryEditor extends React.Component<Props> {
     return (
       <QueryEditorForm
         dataSources={dataSources}
+        datasourceId={this.props.datasourceId}
         editorConfig={editorConfig}
         executedQueryData={responses[actionId]}
         formData={this.props.formData}
@@ -261,6 +262,7 @@ class QueryEditor extends React.Component<Props> {
         onCreateDatasourceClick={this.onCreateDatasourceClick}
         onDeleteClick={this.handleDeleteClick}
         onRunClick={this.handleRunClick}
+        pluginId={this.props.pluginId}
         runErrorMessage={runErrorMessage[actionId]}
         settingConfig={settingConfig}
         uiComponent={uiComponent}

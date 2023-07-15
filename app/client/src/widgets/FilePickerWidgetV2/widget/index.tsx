@@ -12,7 +12,7 @@ import { Colors } from "constants/Colors";
 import type { WidgetType } from "constants/WidgetConstants";
 import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { klona } from "klona";
 import _, { findIndex } from "lodash";
@@ -822,6 +822,21 @@ class FilePickerWidget extends BaseWidget<
     this.state.uppy.close();
   }
 
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+      },
+    };
+  }
+
   getPageView() {
     return (
       <>
@@ -834,6 +849,10 @@ class FilePickerWidget extends BaseWidget<
           isLoading={this.props.isLoading || this.state.isLoading}
           key={this.props.widgetId}
           label={this.props.label}
+          maxWidth={this.props.maxWidth}
+          minHeight={this.props.minHeight}
+          minWidth={this.props.minWidth}
+          shouldFitContent={this.isAutoLayoutMode}
           uppy={this.state.uppy}
           widgetId={this.props.widgetId}
         />

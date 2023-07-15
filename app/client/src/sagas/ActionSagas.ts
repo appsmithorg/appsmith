@@ -111,7 +111,11 @@ import {
   queryEditorIdURL,
   saasEditorApiIdURL,
 } from "RouteBuilder";
-import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import {
+  RequestPayloadAnalyticsPath,
+  checkAndLogErrorsIfCyclicDependency,
+  enhanceRequestPayloadWithEventData,
+} from "./helper";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { toast } from "design-system";
 import { getFormValues } from "redux-form";
@@ -123,6 +127,7 @@ import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/Grap
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
+import { setAIPromptTriggered } from "utils/storage";
 
 export function* createDefaultActionPayload(
   pageId: string,
@@ -598,9 +603,15 @@ function* moveActionSaga(
 function* copyActionSaga(
   action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
 ) {
-  const actionObject: Action = yield select(getAction, action.payload.id);
+  let actionObject: Action = yield select(getAction, action.payload.id);
   try {
     if (!actionObject) throw new Error("Could not find action to copy");
+    // At this point the actionObject.id will be the id of the action to be copied
+    // We enhance the payload with eventData to track the action being copied
+    actionObject = enhanceRequestPayloadWithEventData(
+      actionObject,
+      action.type,
+    ) as Action;
 
     const copyAction = Object.assign({}, actionObject, {
       name: action.payload.name,
@@ -624,14 +635,24 @@ function* copyActionSaga(
           kind: "success",
         },
       );
-    }
 
-    AnalyticsUtil.logEvent("DUPLICATE_API", {
-      // @ts-expect-error: name not present on ActionCreateUpdateResponse
-      apiName: response.data.name,
-      pageName: pageName,
-      apiID: response.data.id,
-    });
+      // At this point the `actionObject.id` will not exist
+      // So we need to get the originalActionId from the payload
+      // if the eventData in the actionObject doesn't exist
+      const originalActionId = get(
+        actionObject,
+        `${RequestPayloadAnalyticsPath}.originalActionId`,
+        action.payload.id,
+      );
+      AnalyticsUtil.logEvent("DUPLICATE_ACTION", {
+        // @ts-expect-error: name not present on ActionCreateUpdateResponse
+        actionName: response.data.name,
+        pageName: pageName,
+        acitonId: response.data.id,
+        originalActionId,
+        actionType: actionObject.pluginType,
+      });
+    }
 
     // checking if there is existing datasource to be added to the action payload
     const existingDatasource = datasources.find(
@@ -922,6 +943,21 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       break;
     case SlashCommand.ASK_AI: {
       const context = get(actionPayload, "payload.args", {});
+
+      const noOfTimesAIPromptTriggered: number = yield select(
+        (state) => state.ai.noOfTimesAITriggered,
+      );
+
+      if (noOfTimesAIPromptTriggered < 5) {
+        const currentValue: number = yield setAIPromptTriggered();
+        yield put({
+          type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
+          payload: {
+            value: currentValue,
+          },
+        });
+      }
+
       yield put({
         type: ReduxActionTypes.TOGGLE_AI_WINDOW,
         payload: {

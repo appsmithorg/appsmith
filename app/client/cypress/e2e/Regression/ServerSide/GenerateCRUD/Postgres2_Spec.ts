@@ -76,12 +76,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   it("3. Validate Select record from Postgress datasource & verify query response", () => {
     entityExplorer.ActionTemplateMenuByEntityName("public.vessels", "SELECT");
     dataSources.RunQueryNVerifyResponseViews(10);
-    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("371681");
-    });
-    dataSources.ReadQueryTableResponse(6).then(($cellData) => {
-      expect($cellData).to.eq("Passenger");
-    });
+    dataSources.AssertQueryTableResponse(0, "371681");
+    dataSources.AssertQueryTableResponse(6, "Passenger");
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -99,7 +95,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
@@ -655,45 +651,6 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
   });
-
-  function GenerateCRUDNValidateDeployPage(
-    col1Text: string,
-    col2Text: string,
-    col3Text: string,
-    jsonFromHeader: string,
-  ) {
-    agHelper.GetNClick(dataSources._generatePageBtn);
-    assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    agHelper.AssertContains("Successfully generated a page");
-    //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
-    assertHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
-    assertHelper.AssertNetworkStatus("@updateLayout", 200);
-    deployMode.DeployApp();
-
-    //Validating loaded table
-    agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 1, "v1", 4000).then(($cellData) => {
-      expect($cellData).to.eq(col1Text);
-    });
-    table.ReadTableRowColumnData(0, 3, "v1", 200).then(($cellData) => {
-      expect($cellData).to.eq(col2Text);
-    });
-    table.ReadTableRowColumnData(0, 4, "v1", 200).then(($cellData) => {
-      expect($cellData).to.eq(col3Text);
-    });
-
-    //Validating loaded JSON form
-    cy.xpath(locators._spanButton("Update")).then((selector) => {
-      cy.wrap(selector)
-        .invoke("attr", "class")
-        .then((classes) => {
-          //cy.log("classes are:" + classes);
-          expect(classes).not.contain("bp3-disabled");
-        });
-    });
-    dataSources.AssertJSONFormHeader(0, 0, jsonFromHeader);
-  }
 
   function generateCallsignInfo(rowIndex: number) {
     //let callSign: string = "";
