@@ -7,7 +7,11 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getPropertyControlFocusElement } from "utils/editorContextUtils";
 import type { EntityInfo, PropertyPaneNavigationConfig } from "../types";
 import WidgetFactory from "utils/WidgetFactory";
-import { getPropertyPanePanelNavigationConfig, getSectionId } from "./utils";
+import {
+  getPropertyPanePanelNavigationConfig,
+  getSectionId,
+  getSelectedTabIndex,
+} from "./utils";
 import {
   setPropertySectionState,
   setSelectedPropertyPanel,
@@ -15,7 +19,9 @@ import {
 } from "actions/propertyPaneActions";
 import { getSelectedPropertyPanel } from "selectors/propertyPaneSelectors";
 import type { SelectedPropertyPanel } from "reducers/uiReducers/propertyPaneReducer";
-import log from "loglevel";
+import { setSelectedPropertyTabIndex } from "actions/editorContextActions";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { get } from "lodash";
 
 export default class PropertyPaneNavigation extends PaneNavigation {
   widget?: WidgetProps;
@@ -39,7 +45,10 @@ export default class PropertyPaneNavigation extends PaneNavigation {
   }
 
   *getConfig() {
-    const config: PropertyPaneNavigationConfig = {};
+    const config: PropertyPaneNavigationConfig = {
+      tabIndex: 0,
+      panelStack: [],
+    };
     if (!this.widget || !this.entityInfo)
       throw Error(`Unable to generate navigation config`);
     if (!this.entityInfo.propertyPath) return config;
@@ -47,19 +56,33 @@ export default class PropertyPaneNavigation extends PaneNavigation {
     const propertyPaneConfig = WidgetFactory.getWidgetPropertyPaneConfig(
       this.widget?.type,
     );
+    const propertyPaneContentConfig =
+      WidgetFactory.getWidgetPropertyPaneContentConfig(this.widget?.type);
+    const propertyPaneStyleConfig =
+      WidgetFactory.getWidgetPropertyPaneStyleConfig(this.widget?.type);
 
-    log.debug(this.entityInfo, "this.entityInfo");
-    // Get section id
-    log.debug(propertyPaneConfig, "propertyPaneConfig");
+    // Get the panel config
     if (this.entityInfo.propertyPath) {
       config["panelStack"] = yield call(
         getPropertyPanePanelNavigationConfig,
-        propertyPaneConfig,
+        [...propertyPaneContentConfig, ...propertyPaneStyleConfig],
         this.widget,
         this.entityInfo.propertyPath,
       );
-      log.debug(config, "config");
 
+      // If the field is in a sub-panel we search the style config of that panel
+      const panelStack = config["panelStack"];
+      let panelStyleConfig: PropertyPaneConfig[] | undefined;
+      if (panelStack?.length) {
+        panelStyleConfig = panelStack[panelStack.length - 1]?.styleChildren;
+      }
+      config["tabIndex"] = yield call(
+        getSelectedTabIndex,
+        panelStyleConfig || propertyPaneStyleConfig,
+        this.entityInfo.propertyPath,
+      );
+
+      // Get section id
       config["sectionId"] = yield call(
         getSectionId,
         propertyPaneConfig,
@@ -102,12 +125,30 @@ export default class PropertyPaneNavigation extends PaneNavigation {
         yield delay(400);
       }
     }
-    if (navigationConfig.panelStack) {
+    if (navigationConfig.panelStack.length) {
       for (const panel of navigationConfig.panelStack) {
         yield put(setSelectedPropertyPanel(panel.path, panel.index));
         yield delay(300);
       }
     }
+
+    // Switch to the appropriate tab
+    let panelPath: undefined | string;
+    if (navigationConfig.panelStack.length) {
+      const panelTabPath = this.entityInfo.propertyPath
+        .split(".")
+        .slice(0, -1)
+        .join(".");
+      const panelTabLabel = get(this.widget, panelTabPath).label;
+      panelPath = `${this.widget.widgetName}.${panelTabPath
+        .split(".")
+        .slice(0, -1)
+        .join(".")}.${panelTabLabel}`;
+    }
+    yield put(
+      setSelectedPropertyTabIndex(navigationConfig.tabIndex, panelPath),
+    );
+    yield delay(300);
 
     // Expand section
     if (navigationConfig.sectionId) {

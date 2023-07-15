@@ -1,3 +1,4 @@
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import type { EntityPane } from "./factory";
 
 export interface EntityInfo {
@@ -9,5 +10,12 @@ export interface EntityInfo {
 
 export interface PropertyPaneNavigationConfig {
   sectionId?: string;
-  panelStack?: { index: number; path: string }[];
+  panelStack: IPanelStack[];
+  tabIndex: number;
+}
+
+export interface IPanelStack {
+  index: number;
+  path: string;
+  styleChildren?: PropertyPaneConfig[];
 }
