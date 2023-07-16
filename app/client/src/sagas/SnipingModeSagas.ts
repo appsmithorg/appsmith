@@ -25,7 +25,7 @@ import {
   AB_TESTING_EVENT_KEYS,
   FEATURE_FLAG,
 } from "@appsmith/entities/FeatureFlag";
-import { selectFeatureFlagCheck } from "selectors/featureFlagsSelectors";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 

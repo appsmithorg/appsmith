@@ -25,7 +25,7 @@ import { getFixedTimeDifference } from "workers/common/DataTreeEvaluator/utils";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
-export const lintWorker = new Linter({ useWorker: true });
+export const lintWorker = new Linter();
 
 function* updateLintGlobals(
   action: ReduxAction<{ add?: boolean; libs: TJSLibrary[] }>,
