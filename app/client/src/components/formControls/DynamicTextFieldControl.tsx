@@ -24,11 +24,6 @@ import { getSqlEditorModeFromPluginName } from "components/editorComponents/Code
 const Wrapper = styled.div`
   min-width: 380px;
   max-width: 872px;
-  .dynamic-text-field {
-    border-radius: 4px;
-    font-size: 14px;
-    min-height: calc(100vh / 4);
-  }
 `;
 
 interface DynamicTextControlState {
@@ -69,11 +64,11 @@ class DynamicTextControl extends BaseControl<
     return (
       <Wrapper className={`t--${configProperty}`}>
         <DynamicTextField
-          className="dynamic-text-field"
           dataTreePath={dataTreePath}
           disabled={this.props.disabled}
           evaluatedPopUpLabel={this?.props?.label}
           evaluationSubstitutionType={evaluationSubstitutionType}
+          height="calc(100vh / 4)"
           mode={mode}
           name={this.props.configProperty}
           placeholder={placeholderText}
