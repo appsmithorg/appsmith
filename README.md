@@ -225,7 +225,6 @@ Lets build great software together.
 [![ramsaptami](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/79509062?v=4&w=50&h=50&mask=circle)](https://github.com/ramsaptami)
 [![Pranay105](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/48308728?v=4&w=50&h=50&mask=circle)](https://github.com/Pranay105)
 [![rohan-arthur](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/94514895?v=4&w=50&h=50&mask=circle)](https://github.com/rohan-arthur)
-[![AS-Laguna](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/101155659?v=4&w=50&h=50&mask=circle)](https://github.com/AS-Laguna)
 [![vivonk](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/25587962?v=4&w=50&h=50&mask=circle)](https://github.com/vivonk)
 [![kocharrahul7](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/20532920?v=4&w=50&h=50&mask=circle)](https://github.com/kocharrahul7)
 [![abm17](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/13333024?v=4&w=50&h=50&mask=circle)](https://github.com/abm17)
