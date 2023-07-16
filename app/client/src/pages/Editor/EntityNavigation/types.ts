@@ -17,5 +17,7 @@ export interface PropertyPaneNavigationConfig {
 export interface IPanelStack {
   index: number;
   path: string;
+  panelLabel?: string;
   styleChildren?: PropertyPaneConfig[];
+  contentChildren?: PropertyPaneConfig[];
 }

@@ -53,4 +53,25 @@ describe("Widget property navigation", () => {
     _.entityExplorer.SelectEntityByName("ButtonGroup1");
     _.entityExplorer.DeleteWidgetFromEntityExplorer("ButtonGroup1");
   });
+  it("Collapsed field navigation for a nested panel", () => {
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.MENUBUTTON,
+      100,
+      200,
+    );
+    _.propPane.OpenTableColumnSettings("menuItem2");
+    _.propPane.EnterJSContext("disabled", "{{test}}", true, false);
+    _.propPane.ToggleSection("general");
+    _.propPane.MoveToTab("Style");
+    _.debuggerHelper.AssertErrorCount(1);
+    _.propPane.NavigateBackToPropertyPane();
+    _.debuggerHelper.ClickDebuggerIcon();
+    _.debuggerHelper.ClicklogEntityLink();
+    _.agHelper.GetElement(_.propPane._paneTitle).contains("Second Menu Item");
+    _.propPane.AssertIfPropertyIsVisible("disabled");
+
+    _.debuggerHelper.CloseBottomBar();
+    _.entityExplorer.SelectEntityByName("MenuButton1");
+    _.entityExplorer.DeleteWidgetFromEntityExplorer("MenuButton1");
+  });
 });

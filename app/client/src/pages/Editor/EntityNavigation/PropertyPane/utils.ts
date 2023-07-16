@@ -10,6 +10,7 @@ export const getSectionId = (
   config: readonly PropertyPaneConfig[],
   propertyPath: string,
 ): string | undefined => {
+  const propertyName = propertyPath.split(".").slice(-1)[0];
   for (let index = 0; index < config.length; index++) {
     const sectionChildren = config[index].children;
     if (sectionChildren) {
@@ -21,7 +22,7 @@ export const getSectionId = (
         const controlConfig = sectionChildren[
           childIndex
         ] as PropertyPaneControlConfig;
-        if (controlConfig.propertyName === propertyPath) {
+        if (controlConfig.propertyName === propertyName) {
           return config[index].id;
         }
       }
@@ -85,23 +86,27 @@ export const getPropertyPanePanelNavigationConfig = (
               .join(".") &&
           controlConfig.hasOwnProperty("panelConfig")
         ) {
+          const panelTabPath = propertyPath
+            .split(".")
+            .slice(0, 2 + panelDepth * 2)
+            .join(".");
+          const panelPath = propertyPath
+            .split(".")
+            .slice(0, 1 + panelDepth * 2)
+            .join(".");
+          const panelIndex = get(widgetProps, panelTabPath)?.index;
+          const panelLabel = get(widgetProps, panelTabPath)?.label;
+
           stack.push({
-            path: `${widgetProps.widgetName}.${propertyPath
-              .split(".")
-              .slice(0, 1 + panelDepth * 2)
-              .join(".")}`,
-            index: get(
-              widgetProps,
-              propertyPath
-                .split(".")
-                .slice(0, 2 + panelDepth * 2)
-                .join("."),
-            )?.index,
+            path: panelPath,
+            index: panelIndex,
+            panelLabel,
             // style config of the panel
             // This is used later on to only parse only that panel's properties to
             // find the correct tab to switch to.
-            styleChildren:
-              controlConfig.panelConfig?.styleChildren ||
+            styleChildren: controlConfig.panelConfig?.styleChildren || [],
+            contentChildren:
+              controlConfig.panelConfig?.contentChildren ||
               controlConfig.panelConfig?.children ||
               [],
           });
