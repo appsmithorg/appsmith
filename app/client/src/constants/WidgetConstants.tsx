@@ -227,10 +227,10 @@ export const MAX_MODAL_WIDTH_FROM_MAIN_WIDTH = 0.95;
 export const FILE_SIZE_LIMIT_FOR_BLOBS = 5000 * 1024; // 5MB
 
 export const WIDGET_TAGS = {
-  ESSENTIAL_WIDGETS: "Essential Widgets",
+  ESSENTIAL_WIDGETS: "Essential widgets",
   BUTTONS: "Buttons",
-  INPUT: "Input",
-  SELECT: "Select",
+  INPUT: "Inputs",
+  SELECT: "Selects",
   TOGGLES: "Toggles",
   FORMS: "Forms",
   MULTIMEDIA: "Multimedia",
@@ -246,10 +246,10 @@ export type WidgetTags = (typeof WIDGET_TAGS)[keyof typeof WIDGET_TAGS];
 export type WidgetCardsGroupedByTags = Record<WidgetTags, WidgetCardProps[]>;
 
 export const ESSENTIAL_WIDGETS_ORDER: Record<WidgetType, number> = {
-  TABLE_WIDGET_V2: 1,
-  JSON_FORM_WIDGET: 2,
-  INPUT_WIDGET_V2: 3,
-  TEXT_WIDGET: 4,
-  SELECT_WIDGET: 5,
-  LIST_WIDGET_V2: 6,
+  TEXT_WIDGET: 1,
+  INPUT_WIDGET_V2: 2,
+  TABLE_WIDGET_V2: 3,
+  BUTTON_WIDGET: 4,
+  LIST_WIDGET_V2: 5,
+  JSON_FORM_WIDGET: 6,
 };
