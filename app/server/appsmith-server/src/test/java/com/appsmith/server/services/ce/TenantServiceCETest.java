@@ -122,7 +122,7 @@ class TenantServiceCETest {
 
     @Test
     @WithUserDetails("anonymousUser")
-    public void getTenantConfig_Valid_AnonymousUser() {
+    void getTenantConfig_Valid_AnonymousUser() {
         StepVerifier.create(tenantService.getTenantConfiguration())
                 .assertNext(tenant -> {
                     assertThat(tenant.getTenantConfiguration()).isNotNull();

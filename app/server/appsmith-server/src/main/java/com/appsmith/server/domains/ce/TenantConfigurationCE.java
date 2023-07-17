@@ -34,12 +34,17 @@ public class TenantConfigurationCE {
     }
 
     public void copyNonSensitiveValues(TenantConfiguration tenantConfiguration) {
-        this.googleMapsKey = tenantConfiguration.getGoogleMapsKey();
-        this.isFormLoginEnabled = tenantConfiguration.getIsFormLoginEnabled();
-        this.instanceName = tenantConfiguration.getInstanceName();
         License license = new License();
         license.setPlan(LicensePlan.FREE);
         this.license = license;
+
+        if (tenantConfiguration == null) {
+            return;
+        }
+
+        this.googleMapsKey = tenantConfiguration.getGoogleMapsKey();
+        this.isFormLoginEnabled = tenantConfiguration.getIsFormLoginEnabled();
+        this.instanceName = tenantConfiguration.getInstanceName();
     }
 
     public License license;
