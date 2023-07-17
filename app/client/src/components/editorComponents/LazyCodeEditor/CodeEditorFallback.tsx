@@ -7,11 +7,15 @@ import {
   SpinnerContainer,
 } from "./styles";
 import { ContentKind } from "./types";
-import type { EditorProps } from "components/editorComponents/CodeEditor";
+import type {
+  EditorProps,
+  EditorStyleProps,
+} from "components/editorComponents/CodeEditor";
 import { Spinner } from "design-system";
 import { JS_OBJECT_START_STATEMENT } from "plugins/Linting/constants";
 
 export default function CodeEditorFallback({
+  height,
   input,
   isReadOnly,
   onInteracted,
@@ -24,7 +28,7 @@ export default function CodeEditorFallback({
 > & {
   onInteracted: () => void;
   showLoadingProgress: boolean;
-}) {
+} & Pick<EditorStyleProps, "height">) {
   const parsedValue = parseInputValue();
 
   let contentKind: ContentKind;
@@ -58,7 +62,11 @@ export default function CodeEditorFallback({
   }
 
   return (
-    <ContentWrapper contentKind={contentKind} showLineNumbers={showLineNumbers}>
+    <ContentWrapper
+      contentKind={contentKind}
+      height={height}
+      showLineNumbers={showLineNumbers}
+    >
       {showLoadingProgress && (
         <ProgressContainer>
           <SpinnerContainer>

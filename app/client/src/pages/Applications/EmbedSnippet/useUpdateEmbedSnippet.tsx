@@ -112,7 +112,7 @@ function useUpdateEmbedSnippet() {
       pageId: defaultPageId,
     });
     const allowHidingShareSettingsInEmbedView =
-      featureFlags.APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY;
+      featureFlags.release_embed_hide_share_settings_enabled;
     const fullUrl = new URL(window.location.origin.toString() + url);
     if (embedSetting?.showNavigationBar) {
       if (allowHidingShareSettingsInEmbedView) {

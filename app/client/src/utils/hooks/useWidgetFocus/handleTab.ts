@@ -17,7 +17,7 @@ export function handleTab(event: KeyboardEvent) {
   const currentWidget = currentNode.closest(WIDGET_SELECTOR) as HTMLElement;
 
   switch (true) {
-    // when the current node is a widget, we want to do tabbing in regular way
+    // when the current node is one of these widget, we want to do tabbing in regular way
     // the elements will be in proper order in dom for thes widgets
     case currentWidget && currentWidget.matches(JSONFORM_WIDGET):
     case currentWidget && currentWidget.matches(CHECKBOXGROUP_WIDGET):
