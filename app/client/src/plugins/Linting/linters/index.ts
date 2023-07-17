@@ -4,28 +4,12 @@ import type {
   updateJSLibraryProps,
 } from "plugins/Linting/types";
 import { LINT_WORKER_ACTIONS as LINT_ACTIONS } from "plugins/Linting/types";
-import { handlerMap } from "plugins/Linting/handlers";
 
 export interface ILinter {
   lintTree(args: LintTreeRequestPayload): any;
   updateJSLibraryGlobals(args: updateJSLibraryProps): any;
   start(): void;
   shutdown(): void;
-}
-
-export class BaseLinter implements ILinter {
-  lintTree(args: LintTreeRequestPayload) {
-    return handlerMap[LINT_ACTIONS.LINT_TREE](args);
-  }
-  updateJSLibraryGlobals(args: updateJSLibraryProps) {
-    return handlerMap[LINT_ACTIONS.UPDATE_LINT_GLOBALS](args);
-  }
-  start() {
-    return;
-  }
-  shutdown() {
-    return;
-  }
 }
 
 export class WorkerLinter implements ILinter {

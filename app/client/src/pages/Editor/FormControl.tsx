@@ -34,6 +34,7 @@ import TemplateMenu from "./QueryEditor/TemplateMenu";
 import { SQL_DATASOURCES } from "../../constants/QueryEditorConstants";
 import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 import type { Datasource } from "entities/Datasource";
+import { getSQLPluginsMockTableName } from "utils/editorContextUtils";
 
 export interface FormControlProps {
   config: ControlProps;
@@ -75,6 +76,9 @@ function FormControl(props: FormControlProps) {
   const datasourceTableName: string = useSelector((state: AppState) =>
     getDatasourceFirstTableName(state, dsId),
   );
+  const isMockDS =
+    ((formValues as Action)?.datasource as any)?.isMock ||
+    (formValues as Datasource)?.isMock;
   const pluginTemplates: Record<string, any> = useSelector((state: AppState) =>
     getPluginTemplates(state),
   );
@@ -143,17 +147,20 @@ function FormControl(props: FormControlProps) {
       !convertFormToRaw &&
       SQL_DATASOURCES.includes(pluginName)
     ) {
+      const tableNameToBeReplaced = isMockDS
+        ? getSQLPluginsMockTableName(pluginId)
+        : datasourceTableName;
       const defaultTemplate = !!pluginTemplate
         ? pluginTemplate[DB_QUERY_DEFAULT_TEMPLATE_TYPE]
         : "";
       const smartTemplate = defaultTemplate
-        .replace(DB_QUERY_DEFAULT_TABLE_NAME, datasourceTableName)
+        .replace(DB_QUERY_DEFAULT_TABLE_NAME, tableNameToBeReplaced)
         .split("--")[0];
       dispatch(
         change(
           props?.formName || QUERY_EDITOR_FORM_NAME,
           props.config.configProperty,
-          !!datasourceTableName ? smartTemplate : defaultTemplate,
+          !!tableNameToBeReplaced ? smartTemplate : defaultTemplate,
         ),
       );
       updateQueryParams();
