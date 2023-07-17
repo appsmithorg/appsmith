@@ -54,7 +54,7 @@ export class GitSync {
   _connectSubmitBtn = ".t--connect-submit-btn";
   _headerKey = ".t--actionConfiguration\\.headers\\[0\\]\\.key\\.0";
   _headerValue = ".t--actionConfiguration\\.headers\\[0\\]\\.value\\.0";
-  _codeEditTargetCodeMirror = ".CodeEditorTarget .CodeMirror"
+  _codeEditTargetCodeMirror = ".CodeEditorTarget .CodeMirror";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -390,8 +390,7 @@ export class GitSync {
     });
   }
 
-
-  public latestDeployPreview() {
+  public LatestDeployPreview() {
     cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
     // Wait before publish
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -412,7 +411,11 @@ export class GitSync {
     this.agHelper.Sleep(2000); //wait time for page to load!
   }
 
-  public importAppFromGit(repo: string, assertConnectFailure: boolean, failureMessage: string) {
+  public importAppFromGit(
+    repo: string,
+    assertConnectFailure: boolean,
+    failureMessage: string,
+  ) {
     const testEmail = "test@test.com";
     const testUsername = "testusername";
     const owner = Cypress.env("TEST_GITHUB_USER_NAME");
@@ -421,50 +424,58 @@ export class GitSync {
     cy.intercept("GET", "api/v1/git/import/keys?keyType=ECDSA").as(
       `generateKey-${repo}`,
     );
-    this.agHelper.TypeText(this._gitRepoInput,
+    this.agHelper.TypeText(
+      this._gitRepoInput,
       `${this.tedTestConfig.GITEA_API_URL_TED}/${repo}.git`,
     );
     this.agHelper.GetNClick(this._generateDeployKeyBtn);
-    this.assertHelper.WaitForNetworkCall(`@generateKey-${repo}`).then((result) => {
-      generatedKey = result.response?.body.data.publicKey;
-      generatedKey = generatedKey.slice(0, generatedKey.length - 1);
+    this.assertHelper
+      .WaitForNetworkCall(`@generateKey-${repo}`)
+      .then((result) => {
+        generatedKey = result.response?.body.data.publicKey;
+        generatedKey = generatedKey.slice(0, generatedKey.length - 1);
 
-      cy.request({
-        method: "POST",
-        url: `${this.tedTestConfig.GITEA_API_BASE_TED}:${this.tedTestConfig.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys`,
-        headers: {
-          Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
-        },
-        body: {
-          title: "key1",
-          key: generatedKey,
-          read_only: false,
-        },
-      });
-
-      this.agHelper.GetNClick(this._useGlobalGitConfig, 0, true);
-
-      this.agHelper.TypeText(this._gitConfigNameInput,
-        `{selectall}${testUsername}`,
-      );
-      this.agHelper.TypeText(this._gitConfigEmailInput,
-        `{selectall}${testEmail}`,
-      );
-
-      this.agHelper.GetNClick(this._connectSubmitBtn);
-
-      if (!assertConnectFailure) {
-        // check for connect success
-        this.assertHelper.AssertNetworkStatus("@importFromGit", 201);
-      } else {
-        this.assertHelper.WaitForNetworkCall("@importFromGit").then((interception) => {
-          const status = interception.response?.body.responseMeta.status;
-          const message = interception.response?.body.responseMeta.error.message;
-          expect(status).to.be.gte(400);
-          expect(message).to.contain(failureMessage);
+        cy.request({
+          method: "POST",
+          url: `${this.tedTestConfig.GITEA_API_BASE_TED}:${this.tedTestConfig.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys`,
+          headers: {
+            Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
+          },
+          body: {
+            title: "key1",
+            key: generatedKey,
+            read_only: false,
+          },
         });
-      }
-    });
+
+        this.agHelper.GetNClick(this._useGlobalGitConfig, 0, true);
+
+        this.agHelper.TypeText(
+          this._gitConfigNameInput,
+          `{selectall}${testUsername}`,
+        );
+        this.agHelper.TypeText(
+          this._gitConfigEmailInput,
+          `{selectall}${testEmail}`,
+        );
+
+        this.agHelper.GetNClick(this._connectSubmitBtn);
+
+        if (!assertConnectFailure) {
+          // check for connect success
+          this.assertHelper.AssertNetworkStatus("@importFromGit", 201);
+        } else {
+          this.assertHelper
+            .WaitForNetworkCall("@importFromGit")
+            .then((interception) => {
+              const status = interception.response?.body.responseMeta.status;
+              const message =
+                interception.response?.body.responseMeta.error.message;
+              expect(status).to.be.gte(400);
+              expect(message).to.contain(failureMessage);
+            });
+        }
+      });
   }
   //#endregion
 }
