@@ -1,6 +1,5 @@
 import type {
   DataTreeEvaluationProps,
-  DependencyMap,
   EvalError,
   EvaluationError,
 } from "utils/DynamicBindingUtils";
@@ -121,6 +120,7 @@ import { errorModifier } from "workers/Evaluation/errorModifier";
 import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
 import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
+import type DependencyMap from "entities/DependencyMap";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -128,12 +128,9 @@ export type EvalProps = {
 };
 
 export default class DataTreeEvaluator {
-  /**
-   * dependencyMap: Maintains map of <PATH, list of paths that re-evaluates on the evaluation of the PATH>
-   */
-  dependencyMap: DependencyMap = {};
+  dependencyMap: DependencyMap | null = null;
   sortedDependencies: SortedDependencies = [];
-  inverseDependencyMap: DependencyMap = {};
+  inverseDependencyMap: Record<string, string[]> = {};
   widgetConfigMap: WidgetTypeConfigMap = {};
   evalTree: DataTree = {};
   configTree: ConfigTree = {};
@@ -153,20 +150,12 @@ export default class DataTreeEvaluator {
   allActionValidationConfig?: {
     [actionId: string]: ActionValidationConfigMap;
   };
-  /**  Keeps track of all invalid references in bindings throughout the Application
-   * Eg. For binding {{unknownEntity.name + Api1.name}} in Button1.text, where Api1 is present in dataTree but unknownEntity is not,
-   * the map has a key-value pair of
-   * {
-   *  "Button1.text": [unknownEntity.name]
-   * }
-   */
-  invalidReferencesMap: DependencyMap = {};
-  /**
+  /*
    * Maintains dependency of paths to re-validate on evaluation of particular property path.
    */
-  validationDependencyMap: DependencyMap = {};
+  validationDependencyMap: DependencyMap | null = null;
   sortedValidationDependencies: SortedDependencies = [];
-  inverseValidationDependencyMap: DependencyMap = {};
+  inverseValidationDependencyMap: Record<string, string[]> = {};
 
   /**
    * Sanitized eval values and errors
@@ -253,29 +242,33 @@ export default class DataTreeEvaluator {
     const createDependencyMapStartTime = performance.now();
 
     // Create dependency map
-    const { dependencyMap, invalidReferencesMap, validationDependencyMap } =
-      createDependencyMap(this, localUnEvalTree, configTree);
+    const { dependencyMap, validationDependencyMap } = createDependencyMap(
+      this,
+      localUnEvalTree,
+      configTree,
+    );
     const createDependencyMapEndTime = performance.now();
 
     this.dependencyMap = dependencyMap;
-    this.invalidReferencesMap = invalidReferencesMap;
     this.validationDependencyMap = validationDependencyMap;
     const sortDependenciesStartTime = performance.now();
     // Sort
-    this.sortedDependencies = this.sortDependencies(this.dependencyMap);
+    this.sortedDependencies = this.sortDependencies(
+      this.dependencyMap.dependencies,
+    );
     this.sortedValidationDependencies = this.sortDependencies(
-      validationDependencyMap,
+      validationDependencyMap.dependencies,
     );
     const sortDependenciesEndTime = performance.now();
 
     const inverseDependencyGenerationStartTime = performance.now();
     // Inverse
     this.inverseDependencyMap = this.getInverseDependencyTree({
-      dependencyMap,
+      dependencyMap: dependencyMap.dependencies,
       sortedDependencies: this.sortedDependencies,
     });
     this.inverseValidationDependencyMap = this.getInverseDependencyTree({
-      dependencyMap: validationDependencyMap,
+      dependencyMap: validationDependencyMap.dependencies,
       sortedDependencies: this.sortedValidationDependencies,
     });
     const inverseDependencyGenerationEndTime = performance.now();
@@ -798,7 +791,7 @@ export default class DataTreeEvaluator {
 
   getCompleteSortOrder(
     changes: Array<string>,
-    inverseMap: DependencyMap,
+    inverseMap: Record<string, string[]>,
   ): Array<string> {
     let finalSortOrder: Array<string> = [];
     let computeSortOrder = true;
@@ -853,7 +846,7 @@ export default class DataTreeEvaluator {
 
   getEvaluationSortOrder(
     changes: Array<string>,
-    inverseMap: DependencyMap,
+    inverseMap: Record<string, string[]>,
   ): Array<string> {
     const sortOrder: Array<string> = [...changes];
     let iterator = 0;
@@ -1156,7 +1149,7 @@ export default class DataTreeEvaluator {
   }
 
   sortDependencies(
-    dependencyMap: DependencyMap,
+    dependencyMap: Record<string, string[]>,
     diffs?: (DataTreeDiff | DataTreeDiff[])[],
   ): Array<string> {
     /**
@@ -1630,7 +1623,7 @@ export default class DataTreeEvaluator {
 
     const trimmedChangedPaths = trimDependantChangePaths(
       changePathsWithNestedDependants,
-      this.dependencyMap,
+      this.dependencyMap?.dependencies || {},
     );
 
     // Now that we have all the root nodes which have to be evaluated, recursively find all the other paths which
@@ -1646,12 +1639,12 @@ export default class DataTreeEvaluator {
 
   getInverseDependencyTree(
     params = {
-      dependencyMap: this.dependencyMap,
+      dependencyMap: this.dependencyMap?.dependencies || {},
       sortedDependencies: this.sortedDependencies,
     },
-  ): DependencyMap {
+  ): Record<string, string[]> {
     const { dependencyMap, sortedDependencies } = params;
-    const inverseDependencyMap: DependencyMap = {};
+    const inverseDependencyMap: Record<string, string[]> = {};
     sortedDependencies.forEach((propertyPath) => {
       const incomingEdges: Array<string> = dependencyMap[propertyPath];
       if (incomingEdges) {

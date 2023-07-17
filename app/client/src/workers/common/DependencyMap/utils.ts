@@ -1,5 +1,4 @@
 import { find, get, isEmpty, union } from "lodash";
-import toPath from "lodash/toPath";
 import type { EvalError, DependencyMap } from "utils/DynamicBindingUtils";
 import {
   EvalErrorTypes,
@@ -9,7 +8,6 @@ import {
 import { extractIdentifierInfoFromCode } from "@shared/ast";
 import {
   addWidgetPropertyDependencies,
-  convertPathToString,
   getEntityNameAndPropertyPath,
   isAction,
   isJSAction,
@@ -49,88 +47,26 @@ import type {
  * invalidReferences: [unknownEntity.name]
  * }
  */
-export const extractInfoFromBinding = (
-  script: string,
-  allPaths: Record<string, true>,
-): { validReferences: string[]; invalidReferences: string[] } => {
-  const { references } = extractIdentifierInfoFromCode(
+export const extractInfoFromBinding = (script: string) => {
+  return extractIdentifierInfoFromCode(
     script,
     self.evaluationVersion,
     invalidEntityIdentifiers,
-  );
-  return extractInfoFromReferences(references, allPaths);
-};
-
-/** This function extracts validReferences and invalidReferences from an Array of Identifiers
- * @param references
- * @param allPaths
- * @returns validReferences - Valid references from bindings
- * invalidReferences- References which are currently invalid
- *  @example - For identifiers [unknownEntity.name , Api1.name], it returns
- * {
- * validReferences:[Api1.name],
- * invalidReferences: [unknownEntity.name]
- * }
- */
-export const extractInfoFromReferences = (
-  references: string[],
-  allPaths: Record<string, true>,
-): {
-  validReferences: string[];
-  invalidReferences: string[];
-} => {
-  const validReferences: Set<string> = new Set<string>();
-  const invalidReferences: string[] = [];
-  references.forEach((reference: string) => {
-    // If the identifier exists directly, add it and return
-    if (allPaths.hasOwnProperty(reference)) {
-      validReferences.add(reference);
-      return;
-    }
-    const subpaths = toPath(reference);
-    let current = "";
-    // We want to keep going till we reach top level, but not add top level
-    // Eg: Input1.text should not depend on entire Table1 unless it explicitly asked for that.
-    // This is mainly to avoid a lot of unnecessary evals, if we feel this is wrong
-    // we can remove the length requirement, and it will still work
-    while (subpaths.length > 1) {
-      current = convertPathToString(subpaths);
-      // We've found the dep, add it and return
-      if (allPaths.hasOwnProperty(current)) {
-        validReferences.add(current);
-        return;
-      }
-      subpaths.pop();
-    }
-    // If no valid reference is derived, add it to the list of invalidReferences
-    invalidReferences.push(reference);
-  });
-  return { validReferences: Array.from(validReferences), invalidReferences };
+  ).references;
 };
 
 interface BindingsInfo {
-  validReferences: string[];
-  invalidReferences: string[];
+  references: string[];
   errors: EvalError[];
 }
-export const extractInfoFromBindings = (
-  bindings: string[],
-  allPaths: Record<string, true>,
-) => {
+export const extractInfoFromBindings = (bindings: string[]) => {
   return bindings.reduce(
     (bindingsInfo: BindingsInfo, binding) => {
       try {
-        const { invalidReferences, validReferences } = extractInfoFromBinding(
-          binding,
-          allPaths,
-        );
+        const references = extractInfoFromBinding(binding);
         return {
           ...bindingsInfo,
-          validReferences: union(bindingsInfo.validReferences, validReferences),
-          invalidReferences: union(
-            bindingsInfo.invalidReferences,
-            invalidReferences,
-          ),
+          references: union(bindingsInfo.references, references),
         };
       } catch (error) {
         const newEvalError: EvalError = {
@@ -146,7 +82,7 @@ export const extractInfoFromBindings = (
         };
       }
     },
-    { validReferences: [], invalidReferences: [], errors: [] },
+    { references: [], errors: [] },
   );
 };
 
