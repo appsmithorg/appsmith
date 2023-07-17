@@ -22,4 +22,16 @@ module.exports = (plop) => {
   plop.addHelper("widgetTypeFormat", (name) => {
     return `${name.toUpperCase()}_WIDGET`;
   });
+
+  // Sort the helpers alphabetically
+  plop.setHelperPriority([
+    "directory",
+    "suffixed",
+    "widgetTypeFormat"
+  ]);
+
+  // Sort the generators alphabetically
+  plop.setGeneratorPriority([
+    "widget"
+  ]);
 };
