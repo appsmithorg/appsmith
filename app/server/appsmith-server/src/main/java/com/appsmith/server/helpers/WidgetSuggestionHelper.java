@@ -43,8 +43,6 @@ public class WidgetSuggestionHelper {
             widgetTypeList = handleJsonNode((JsonNode) data);
         } else if (data instanceof List && !((List) data).isEmpty()) {
             widgetTypeList = handleList((List) data);
-        } else if (data != null) {
-            widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         }
         return widgetTypeList;
     }
@@ -93,13 +91,9 @@ public class WidgetSuggestionHelper {
                  * Get fields from nested object
                  * use the for table, list, chart and Select
                  */
-                if (dataFields.objectFields.isEmpty()) {
-                    widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
-                } else {
+                if (!dataFields.objectFields.isEmpty()) {
                     String nestedFieldName = dataFields.getObjectFields().get(0);
-                    if (node.get(nestedFieldName).size() == 0) {
-                        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
-                    } else {
+                    if (node.get(nestedFieldName).size() != 0) {
                         dataFields = collectFieldsFromData(
                                 node.get(nestedFieldName).get(0).fields());
                         widgetTypeList = getWidgetsForTypeNestedObject(
@@ -134,7 +128,7 @@ public class WidgetSuggestionHelper {
             }
             return getWidgetsForTypeArray(fields, numericFields);
         }
-        return List.of(getWidget(WidgetType.TABLE_WIDGET_V2), getWidget(WidgetType.TEXT_WIDGET));
+        return List.of(getWidget(WidgetType.TABLE_WIDGET_V2));
     }
 
     /*
@@ -170,7 +164,6 @@ public class WidgetSuggestionHelper {
         if (length > 1 && !fields.isEmpty()) {
             widgetTypeList.add(getWidget(WidgetType.SELECT_WIDGET, fields.get(0), fields.get(0)));
         } else {
-            widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
             widgetTypeList.add(getWidget(WidgetType.INPUT_WIDGET));
         }
         return widgetTypeList;
@@ -178,6 +171,7 @@ public class WidgetSuggestionHelper {
 
     private static List<WidgetSuggestionDTO> getWidgetsForTypeArray(List<String> fields, List<String> numericFields) {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET_V2));
         if (!fields.isEmpty()) {
             if (fields.size() < 2) {
                 widgetTypeList.add(getWidget(WidgetType.SELECT_WIDGET, fields.get(0), fields.get(0)));
@@ -188,14 +182,11 @@ public class WidgetSuggestionHelper {
                 widgetTypeList.add(getWidget(WidgetType.CHART_WIDGET, fields.get(0), numericFields.get(0)));
             }
         }
-        widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET_V2));
-        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         return widgetTypeList;
     }
 
     private static List<WidgetSuggestionDTO> getWidgetsForTypeNumber() {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
-        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         widgetTypeList.add(getWidget(WidgetType.INPUT_WIDGET));
         return widgetTypeList;
     }
@@ -213,6 +204,7 @@ public class WidgetSuggestionHelper {
          * For the CHART widget we need at least one field of type int and one string type field
          * For the DROP_DOWN at least one String type field
          * */
+        widgetTypeList.add(getWidgetNestedData(WidgetType.TABLE_WIDGET_V2, nestedFieldName));
         if (!fields.isEmpty()) {
             if (fields.size() < 2) {
                 widgetTypeList.add(
@@ -226,8 +218,6 @@ public class WidgetSuggestionHelper {
                         WidgetType.CHART_WIDGET, nestedFieldName, fields.get(0), numericFields.get(0)));
             }
         }
-        widgetTypeList.add(getWidgetNestedData(WidgetType.TABLE_WIDGET_V2, nestedFieldName));
-        widgetTypeList.add(getWidgetNestedData(WidgetType.TEXT_WIDGET, nestedFieldName));
         return widgetTypeList;
     }
 

@@ -1,6 +1,12 @@
 import { Classes } from "@blueprintjs/core";
 import type { ReactNode, Context } from "react";
-import React, { memo, useState, createContext, useCallback } from "react";
+import React, {
+  memo,
+  useState,
+  useEffect,
+  createContext,
+  useCallback,
+} from "react";
 import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
@@ -10,6 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getPropertySectionState } from "selectors/editorContextSelectors";
 import { getCurrentWidgetId } from "selectors/propertyPaneSelectors";
 import { setPropertySectionState } from "actions/propertyPaneActions";
+import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 
 const TagContainer = styled.div``;
 
@@ -105,7 +112,17 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   } else {
     initialIsOpenState = !!isDefaultOpen;
   }
+
+  const className = props.name.split(" ").join("").toLowerCase();
+
   const [isOpen, setIsOpen] = useState(initialIsOpenState);
+  const connectDataClicked = useSelector(getIsOneClickBindingOptionsVisibility);
+
+  useEffect(() => {
+    if (connectDataClicked && className === "data" && !isOpen) {
+      handleSectionTitleClick();
+    }
+  }, [connectDataClicked]);
 
   const handleSectionTitleClick = useCallback(() => {
     if (props.collapsible)
@@ -123,7 +140,6 @@ export const PropertySection = memo((props: PropertySectionProps) => {
 
   if (!currentWidgetId) return null;
 
-  const className = props.name.split(" ").join("").toLowerCase();
   return (
     <SectionWrapper
       className={`t--property-pane-section-wrapper ${props.className}`}
