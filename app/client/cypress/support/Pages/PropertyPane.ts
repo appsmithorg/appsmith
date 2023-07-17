@@ -121,6 +121,8 @@ export class PropertyPane {
   _addOptionProperty = ".t--property-control-options-add";
   _optionContent = ".rc-select-item-option-content";
   _dropdownOptionSpan = ".t--dropdown-option span";
+  private _propertyControlColorPicker = (property: string) =>
+    `.t--property-control-${property} .bp3-input-group input`;
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
@@ -523,5 +525,10 @@ export class PropertyPane {
 
   public GetSelectedItemText(property: string) {
     return this.agHelper.GetText(this._propPaneSelectedItem(property));
+  }
+
+  public SelectColorFromColorPicker(property: string, colorOffset = -15) {
+    this.agHelper.GetNClick(this._propertyControlColorPicker(property));
+    this.agHelper.GetNClick(this._colorPickerV2Color, colorOffset, true);
   }
 }
