@@ -55,6 +55,7 @@ import clsx from "clsx";
 import styled from "styled-components";
 import { importSvg } from "design-system-old";
 import classNames from "classnames";
+import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 
 const ResetIcon = importSvg(() => import("assets/icons/control/undo_2.svg"));
 
@@ -180,6 +181,8 @@ const PropertyControl = memo((props: Props) => {
     shouldHidePropertyFn: childWidgetShouldHidePropertyFn,
     updateDataTreePathFn: childWidgetDataTreePathEnhancementFn,
   } = enhancementFns || {};
+
+  const connectDataClicked = useSelector(getIsOneClickBindingOptionsVisibility);
 
   const toggleDynamicProperty = useCallback(
     (
@@ -744,6 +747,15 @@ const PropertyControl = memo((props: Props) => {
         showEmptyBlock,
         setShowEmptyBlock,
       };
+    }
+
+    if (
+      connectDataClicked &&
+      propertyName === "tableData" &&
+      isDynamic &&
+      !isToggleDisabled
+    ) {
+      toggleDynamicProperty("tableData", true);
     }
 
     try {
