@@ -268,7 +268,7 @@ export class HomePage {
         this.agHelper.GetNClickByContains(this._appMenu, "Edit name");
       }
     });
-    cy.get(this._applicationName).type(appName).blur();
+    cy.get(this._applicationName).type(appName);
     this.agHelper.PressEnter();
     this.agHelper.RemoveTooltip("Rename application");
   }

@@ -58,6 +58,7 @@ import {
 } from "@appsmith/sagas/userSagas";
 import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { getAIPromptTriggered } from "utils/storage";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -214,6 +215,16 @@ export default class AppEditorEngine extends AppEngine {
         payload: [],
       });
     }
+
+    const noOfTimesAIPromptTriggered: number = yield getAIPromptTriggered();
+
+    yield put({
+      type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
+      payload: {
+        value: noOfTimesAIPromptTriggered,
+      },
+    });
+
     yield call(waitForWidgetConfigBuild);
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,

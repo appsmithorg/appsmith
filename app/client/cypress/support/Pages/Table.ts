@@ -90,6 +90,7 @@ export class Table {
   _liPreviousPage = "li[title='Previous Page']";
   _liCurrentSelectedPage =
     "//div[@type='LIST_WIDGET']//ul[contains(@class, 'rc-pagination')]/li[contains(@class, 'rc-pagination-item-active')]/a";
+  private _tr = ".tbody .tr";
   private _searchText = "input[type='search']";
   _searchBoxCross =
     "//div[contains(@class, 't--search-input')]/following-sibling::div";
@@ -157,6 +158,10 @@ export class Table {
     `${this._columnHeaderDiv(columnName)} .header-menu .bp3-popover2-target`;
   _columnHeaderMenu = ".bp3-menu";
   _selectMenuItem = ".menu-item-text";
+
+  public GetNumberOfRows() {
+    return this.agHelper.GetElement(this._tr).its("length");
+  }
 
   public WaitUntilTableLoad(
     rowIndex = 0,
