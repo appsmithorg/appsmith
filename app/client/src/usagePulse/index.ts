@@ -98,6 +98,7 @@ class UsagePulse {
         setTimeout(callback, 0);
       }
     };
+    UsagePulse.deregisterActivityListener();
     window.addEventListener("popstate", UsagePulse.unlistenRouteChange);
   }
 
