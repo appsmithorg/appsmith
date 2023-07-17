@@ -588,8 +588,8 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               <ActionNameEditor disabled={!isChangePermitted} page="API_PANE" />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
-              <Button onClick={createBookmark}>
-                <Icon name="save" size="md" />
+              <Button kind="secondary" onClick={createBookmark}>
+                <Icon name="book" size="md" />
               </Button>
               <MoreActionsMenu
                 className="t--more-action-menu"

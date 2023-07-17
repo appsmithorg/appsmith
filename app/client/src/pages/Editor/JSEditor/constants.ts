@@ -80,8 +80,9 @@ export const CodeEditorWithGutterStyles = css`
 
   .${BOOKMARK_GUTTER_ID} {
     width: 0.5em;
-    background: #5781f9;
-    margin-right: 10px;
+    background: var(--ads-v2-color-bg-subtle);
+    margin-left: 5px;
+    margin-right: 5px;
   }
   .${BOOKMARK_GUTTER_CLASSNAME} {
     cursor: pointer;

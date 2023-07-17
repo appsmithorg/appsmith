@@ -11,7 +11,7 @@ import {
   BOOKMARK_GUTTER_CLASSNAME,
 } from "./constants";
 import type { DropdownOption } from "design-system-old";
-import { find, memoize } from "lodash";
+import { find, memoize, noop } from "lodash";
 import type { PropertyNode } from "@shared/ast";
 import {
   isLiteralNode,
@@ -121,12 +121,13 @@ export const getJSPropertyLineFromName = (
 export const createGutterMarker = (
   gutterOnclick: () => void,
   className: string,
+  htmlCode: string,
 ) => {
   const marker = document.createElement("button");
   // For most browsers the default type of button is submit, this causes the page to reload when marker is clicked
   // Set type to button, to prevent this behaviour
   marker.type = "button";
-  marker.innerHTML = "&#9654;";
+  marker.innerHTML = htmlCode;
   marker.classList.add(className);
   marker.onmousedown = function (e) {
     e.preventDefault();
@@ -163,6 +164,7 @@ export const getJSFunctionLineGutter = (
             element: createGutterMarker(
               () => runFunction(action, "JS_OBJECT_GUTTER_RUN_BUTTON"),
               RUN_GUTTER_CLASSNAME,
+              "&#9654;",
             ),
             isFocusedAction: () => {
               onFocusAction(action);
@@ -195,8 +197,9 @@ export const getJSLineBookmarkGutter = (
             element: createGutterMarker(
               () => bookmarkFunction(action, lineNumber),
               BOOKMARK_GUTTER_CLASSNAME,
+              "&#9707;",
             ),
-            isFocusedAction: null,
+            isFocusedAction: () => noop(),
           }
         : null;
     },

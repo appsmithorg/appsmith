@@ -39,7 +39,7 @@ function* createBookmartSaga(action: ReduxAction<{ bookmark: Bookmark }>) {
     const pageId: string = yield select(getCurrentPageId);
     const bookmarks: BookmarksMap = yield select(getBookmarks);
 
-    const newBookmarks = { ...bookmarks };
+    const newBookmarks: any = { ...bookmarks };
 
     if (!newBookmarks[pageId]) {
       newBookmarks[pageId] = [];

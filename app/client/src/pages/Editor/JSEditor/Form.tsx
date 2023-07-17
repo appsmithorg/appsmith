@@ -71,7 +71,7 @@ import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 import { createBookmarkAction } from "actions/bookmarkActions";
-import type { Bookmark, BookmarksMap } from "api/BookmarksAPI";
+import type { Bookmark } from "api/BookmarksAPI";
 import { getBookmarks } from "selectors/entitiesSelector";
 
 interface JSFormProps {
@@ -144,7 +144,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     ),
   );
 
-  const bookmarks: BookmarksMap = useSelector(getBookmarks);
+  const bookmarks: any = useSelector(getBookmarks);
 
   const lineNo: number = !!bookmarks[pageId]
     ? bookmarks[pageId]?.find(
@@ -159,7 +159,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
         setCodeEditorCursorAction(
           `${currentJSCollection.name}.body`,
           {
-            line: lineNo,
+            line: lineNo - 1,
             ch: lineNo,
           },
           CursorPositionOrigin.Navigation,
@@ -217,9 +217,9 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   const bookmarkJSObjectLine = (jsAction: JSAction, lineNumber: number) => {
     dispatch(
       createBookmarkAction({
-        entityId: jsAction.collectionId,
+        entityId: jsAction.collectionId || "",
         entityType: "JSOBJECT",
-        lineNo: lineNumber,
+        lineNo: lineNumber + 1,
         fieldName: "",
       }),
     );

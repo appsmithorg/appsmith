@@ -18,7 +18,7 @@ import { FocusElementsConfig } from "navigation/FocusElements";
 import { setFocusHistory } from "actions/focusHistoryActions";
 import { builderURL } from "RouteBuilder";
 import type { AppsmithLocationState } from "utils/history";
-import history, { NavigationMethod } from "utils/history";
+import { NavigationMethod } from "utils/history";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
 import { getAction, getPlugin } from "selectors/entitiesSelector";
@@ -115,12 +115,12 @@ function* setStateOfPath(key: string, entityInfo: FocusEntityInfo) {
     for (const selectorInfo of selectors) {
       yield put(selectorInfo.setter(focusHistory.state[selectorInfo.name]));
     }
-    if (entityInfo.entity === FocusEntity.PAGE) {
-      if (focusHistory.state._routingURL) {
-        const params = history.location.search;
-        history.push(`${focusHistory.state._routingURL}${params ?? ""}`);
-      }
-    }
+    // if (entityInfo.entity === FocusEntity.PAGE) {
+    //   if (focusHistory.state._routingURL) {
+    //     // const params = history.location.search;
+    //     // history.push(`${focusHistory.state._routingURL}${params ?? ""}`);
+    //   }
+    // }
   } else {
     const subType: string | undefined = yield call(
       getEntitySubType,

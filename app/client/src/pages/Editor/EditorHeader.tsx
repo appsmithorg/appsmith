@@ -12,6 +12,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
   getIsPublishingApplication,
+  getPageList,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import {
@@ -97,7 +98,11 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import type { NavigationSetting } from "constants/AppConstants";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import { getBookmarks } from "selectors/entitiesSelector";
+import {
+  getActions,
+  getBookmarks,
+  getJSCollections,
+} from "selectors/entitiesSelector";
 import type { Bookmark } from "api/BookmarksAPI";
 import history from "utils/history";
 
@@ -203,6 +208,24 @@ const SidebarNavButton = styled(Button)`
   }
 `;
 
+const StyledBookmark = styled.div`
+  display: flex;
+  margin: 8px 0;
+
+  &:hover {
+    background-color: #ece6e6;
+  }
+
+  span {
+    padding-left: 12px;
+  }
+
+  .bookmark {
+    padding: 4px;
+    margin: 4px;
+  }
+`;
+
 const GlobalSearch = lazy(() => {
   return retryPromise(
     () =>
@@ -237,7 +260,10 @@ export function EditorHeader(props: PropsFromRedux) {
   const isPreviewMode = useSelector(previewModeSelector);
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
   const deployLink = useHref(viewerURL, { pageId });
-  const bookmarks = useSelector(getBookmarks);
+  const bookmarks: any = useSelector(getBookmarks);
+  const actions = useSelector(getActions);
+  const jsCollections = useSelector(getJSCollections);
+  const pages = useSelector(getPageList);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -360,6 +386,25 @@ export function EditorHeader(props: PropsFromRedux) {
           }),
         );
         break;
+      }
+    }
+  };
+
+  const getEntityName = (pageId: string, bookmark: Bookmark) => {
+    const pageName = pages?.find((page) => page.pageId === pageId)?.pageName;
+    switch (bookmark.entityType) {
+      case "QUERY":
+      case "API": {
+        const entity = actions.find(
+          (action) => action.config.id === bookmark.entityId,
+        );
+        return pageName + " -> " + entity?.config?.name;
+      }
+      case "JSOBJECT": {
+        const entity = jsCollections.find(
+          (action) => action.config.id === bookmark.entityId,
+        );
+        return pageName + " -> " + entity?.config?.name + " " + bookmark.lineNo;
       }
     }
   };
@@ -558,7 +603,7 @@ export function EditorHeader(props: PropsFromRedux) {
               open={showBookmarks}
             >
               <ModalTrigger>
-                <Button>Bookmarks</Button>
+                <Button kind="secondary">Bookmarks</Button>
               </ModalTrigger>
               <ModalContent>
                 <ModalHeader>Bookmarks</ModalHeader>
@@ -569,16 +614,16 @@ export function EditorHeader(props: PropsFromRedux) {
                         !!bookmarks[key] &&
                         bookmarks[key].map((bookmark: Bookmark) => {
                           return (
-                            <button
-                              key={bookmark.entityId}
-                              onClick={() => navigateTo(key, bookmark)}
-                            >
-                              {bookmark.entityId +
-                                " " +
-                                bookmark.entityType +
-                                " " +
-                                bookmark.lineNo}
-                            </button>
+                            <StyledBookmark key={key}>
+                              <Icon name="book" size="md" />
+                              <button
+                                className="bookmark"
+                                key={bookmark.entityId}
+                                onClick={() => navigateTo(key, bookmark)}
+                              >
+                                {getEntityName(key, bookmark)}
+                              </button>
+                            </StyledBookmark>
                           );
                         })
                       );

@@ -51,6 +51,7 @@ import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelecto
 import type { Bookmark } from "api/BookmarksAPI";
 import { createBookmarkAction } from "actions/bookmarkActions";
 import type { RouteComponentProps } from "react-router";
+import { withRouter } from "react-router";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -446,4 +447,6 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(GlobalHotKeys);
+export default withRouter(
+  connect(mapStateToProps, mapDispatchToProps)(GlobalHotKeys),
+);

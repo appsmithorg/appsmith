@@ -32,7 +32,6 @@ import {
   TabPanel,
   Tabs,
   TabsList,
-  Tooltip,
 } from "design-system";
 import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
@@ -58,8 +57,6 @@ import {
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
-  DOCUMENTATION,
-  DOCUMENTATION_TOOLTIP,
   INSPECT_ENTITY,
   INVALID_FORM_CONFIGURATION,
   NO_DATASOURCE_FOR_QUERY,
@@ -128,7 +125,7 @@ import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLo
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
-import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
+// import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
 import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
@@ -305,12 +302,12 @@ const Wrapper = styled.div`
   width: 100%;
 `;
 
-const DocumentationButton = styled(Button)`
-  position: absolute !important;
-  right: 24px;
-  margin: 7px 0px 0px;
-  z-index: 6;
-`;
+// const DocumentationButton = styled(Button)`
+//   position: absolute !important;
+//   right: 24px;
+//   margin: 7px 0px 0px;
+//   z-index: 6;
+// `;
 
 const SidebarWrapper = styled.div<{ show: boolean }>`
   border-left: 1px solid var(--ads-v2-color-border);
@@ -321,6 +318,12 @@ const SidebarWrapper = styled.div<{ show: boolean }>`
   width: ${(props) => props.theme.actionSidePane.width}px;
   margin-top: 10px;
   /* margin-left: var(--ads-v2-spaces-7); */
+`;
+
+const StyledButton = styled(Button)`
+  &:active {
+    --button-color-bg: #8fa3be;
+  }
 `;
 
 export const SegmentedControlContainer = styled.div`
@@ -384,7 +387,7 @@ export function EditorJSONtoForm(props: Props) {
   const {
     actionName,
     dataSources,
-    documentationLink,
+    // documentationLink,
     editorConfig,
     executedQueryData,
     formName,
@@ -493,10 +496,10 @@ export function EditorJSONtoForm(props: Props) {
 
   const dispatch = useDispatch();
 
-  const handleDocumentationClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    openDoc(DocsLink.QUERY, plugin?.documentationLink, plugin?.name);
-  };
+  // const handleDocumentationClick = (e: React.MouseEvent) => {
+  //   e.stopPropagation();
+  //   openDoc(DocsLink.QUERY, plugin?.documentationLink, plugin?.name);
+  // };
 
   // Added function to handle the render of the configs
   const renderConfig = (editorConfig: any) => {
@@ -925,9 +928,13 @@ export function EditorJSONtoForm(props: Props) {
             <ActionNameEditor disabled={!isChangePermitted} />
           </NameWrapper>
           <ActionsWrapper>
-            <Button onClick={createBookmark}>
-              <Icon name="save" size="md" />
-            </Button>
+            <StyledButton
+              kind="secondary"
+              onClick={createBookmark}
+              renderAs="a"
+            >
+              <Icon name="book" size="md" />
+            </StyledButton>
             <MoreActionsMenu
               className="t--more-action-menu"
               id={currentActionConfig ? currentActionConfig.id : ""}
@@ -1042,7 +1049,7 @@ export function EditorJSONtoForm(props: Props) {
                     </SettingsWrapper>
                   </TabPanelWrapper>
                 </Tabs>
-                {documentationLink && (
+                {/* {documentationLink && (
                   <Tooltip
                     content={createMessage(DOCUMENTATION_TOOLTIP)}
                     placement="top"
@@ -1059,7 +1066,7 @@ export function EditorJSONtoForm(props: Props) {
                       {createMessage(DOCUMENTATION)}
                     </DocumentationButton>
                   </Tooltip>
-                )}
+                )} */}
               </TabContainerView>
               {renderDebugger &&
                 selectedResponseTab !== DEBUGGER_TAB_KEYS.HEADER_TAB && (
