@@ -335,7 +335,8 @@ export type EventName =
   | "JS_VARIABLE_MUTATED"
   | "EXPLORER_WIDGET_CLICK"
   | "WIDGET_SEARCH"
-  | "MAKE_APPLICATION_PUBLIC";
+  | "MAKE_APPLICATION_PUBLIC"
+  | VERSION_UPDATE_EVENTS;
 
 export type AI_EVENTS =
   | "AI_QUERY_SENT"
@@ -391,6 +392,12 @@ export type ONE_CLICK_BINDING_EVENT_NAMES =
   | "1_CLICK_BINDING_SUCCESS"
   | "WIDGET_CONNECT_DATA_CLICK"
   | "GENERATE_QUERY_SELECT_SHEET_GSHEET";
+
+export type VERSION_UPDATE_EVENTS =
+  | "VERSION_UPDATE_SHOWN"
+  | "VERSION_UPDATE_REQUESTED"
+  | "VERSION_UPDATE_SUCCESS"
+  | "VERSION_UPDATED_FAILED";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
