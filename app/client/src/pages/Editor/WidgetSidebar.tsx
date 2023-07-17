@@ -81,7 +81,9 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
 
   return (
     <div
-      className={`flex flex-col  overflow-hidden ${isActive ? "" : "hidden"}`}
+      className={`flex flex-col t--widget-sidebar overflow-hidden ${
+        isActive ? "" : "hidden"
+      }`}
     >
       <div className="sticky top-0 px-3 mt-0.5">
         <SearchInput
