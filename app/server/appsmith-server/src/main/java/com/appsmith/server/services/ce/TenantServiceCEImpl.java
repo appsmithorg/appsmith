@@ -55,8 +55,10 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> updateTenantConfiguration(String tenantId, TenantConfiguration tenantConfiguration) {
-        return repository.findById(tenantId, MANAGE_TENANT)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.TENANT, tenantId)))
+        return repository
+                .findById(tenantId, MANAGE_TENANT)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.TENANT, tenantId)))
                 .flatMap(tenant -> {
                     TenantConfiguration oldtenantConfiguration = tenant.getTenantConfiguration();
                     if (oldtenantConfiguration == null) {

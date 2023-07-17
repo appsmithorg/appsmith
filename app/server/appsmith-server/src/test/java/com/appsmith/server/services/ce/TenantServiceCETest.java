@@ -1,14 +1,12 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.constants.LicensePlan;
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.services.TenantService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,9 +17,6 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.mockito.Mockito;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
@@ -56,12 +51,12 @@ class TenantServiceCETest {
         mongoOperations.updateFirst(
                 Query.query(Criteria.where(FieldName.ID).is(tenant.getId())),
                 Update.update(fieldName(QTenant.tenant.tenantConfiguration), null),
-                Tenant.class
-        );
+                Tenant.class);
 
         // Make api_user super-user to test tenant admin functionality
         // Todo change this to tenant admin once we introduce multitenancy
-        userRepository.findByEmail("api_user")
+        userRepository
+                .findByEmail("api_user")
                 .flatMap(user -> userUtils.makeSuperUser(List.of(user)))
                 .block();
     }
@@ -70,7 +65,8 @@ class TenantServiceCETest {
     void ensureMapsKey() {
         StepVerifier.create(tenantService.getTenantConfiguration())
                 .assertNext(tenant -> {
-                    assertThat(tenant.getTenantConfiguration().getGoogleMapsKey()).isNull();
+                    assertThat(tenant.getTenantConfiguration().getGoogleMapsKey())
+                            .isNull();
                 })
                 .verifyComplete();
     }
@@ -81,7 +77,8 @@ class TenantServiceCETest {
         final TenantConfiguration changes = new TenantConfiguration();
         changes.setGoogleMapsKey("test-key");
 
-        final Mono<TenantConfiguration> resultMono = tenantService.updateDefaultTenantConfiguration(changes)
+        final Mono<TenantConfiguration> resultMono = tenantService
+                .updateDefaultTenantConfiguration(changes)
                 .then(tenantService.getTenantConfiguration())
                 .map(Tenant::getTenantConfiguration);
 
@@ -127,13 +124,12 @@ class TenantServiceCETest {
     @WithUserDetails("anonymousUser")
     public void getTenantConfig_Valid_AnonymousUser() {
         StepVerifier.create(tenantService.getTenantConfiguration())
-            .assertNext(tenant -> {
-                assertThat(tenant.getTenantConfiguration()).isNotNull();
-                assertThat(tenant.getTenantConfiguration().getLicense()).isNotNull();
-                assertThat(tenant.getTenantConfiguration().getLicense().getPlan())
-                    .isEqualTo(LicensePlan.FREE);
-            })
-            .verifyComplete();
+                .assertNext(tenant -> {
+                    assertThat(tenant.getTenantConfiguration()).isNotNull();
+                    assertThat(tenant.getTenantConfiguration().getLicense()).isNotNull();
+                    assertThat(tenant.getTenantConfiguration().getLicense().getPlan())
+                            .isEqualTo(LicensePlan.FREE);
+                })
+                .verifyComplete();
     }
-
 }

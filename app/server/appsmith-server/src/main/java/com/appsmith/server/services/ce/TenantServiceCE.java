@@ -19,5 +19,4 @@ public interface TenantServiceCE extends CrudService<Tenant, String> {
     Mono<Tenant> getDefaultTenant();
 
     Mono<Tenant> updateDefaultTenantConfiguration(TenantConfiguration tenantConfiguration);
-
 }

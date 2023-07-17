@@ -27,8 +27,7 @@ public class Migration016MoveGoogleMapsKeyToTenantConfiguration {
     private final CommonConfig commonConfig;
 
     @RollbackExecution
-    public void rollbackExecution() {
-    }
+    public void rollbackExecution() {}
 
     @Execution
     public void executeMigration() throws IOException {
@@ -36,10 +35,9 @@ public class Migration016MoveGoogleMapsKeyToTenantConfiguration {
         final String mapsEnvValue = System.getenv(envName);
         if (StringUtils.isNotEmpty(mapsEnvValue)) {
             mongoTemplate.updateFirst(
-                new Query(where("slug").is("default")),
-                new Update().set("tenantConfiguration.googleMapsKey", mapsEnvValue),
-                TenantConfiguration.class
-            );
+                    new Query(where("slug").is("default")),
+                    new Update().set("tenantConfiguration.googleMapsKey", mapsEnvValue),
+                    TenantConfiguration.class);
             commentEnvInFile(envName, commonConfig.getEnvFilePath());
         }
     }
@@ -51,14 +49,14 @@ public class Migration016MoveGoogleMapsKeyToTenantConfiguration {
 
         final Path envPath = Path.of(envPathString);
 
-        final String updatedLines = Files.readAllLines(envPath)
-            .stream().map(line -> {
-                if (line.startsWith(envName + "=")) {
-                    return "#" + envName + "=  (use Admin Settings UI to configure this)";
-                }
-                return line;
-            })
-            .collect(Collectors.joining("\n"));
+        final String updatedLines = Files.readAllLines(envPath).stream()
+                .map(line -> {
+                    if (line.startsWith(envName + "=")) {
+                        return "#" + envName + "=  (use Admin Settings UI to configure this)";
+                    }
+                    return line;
+                })
+                .collect(Collectors.joining("\n"));
         Files.writeString(envPath, updatedLines);
     }
 }
