@@ -29,5 +29,6 @@ public class CommonConstants {
 
     public static final String TABS_WIDGET = "TABS_WIDGET";
 
-    public static final String TAB_NAME = "tabName";
+    public static final String WIDGET_ID = "widgetId";
+    public static final String PARENT_ID = "parentId";
 }

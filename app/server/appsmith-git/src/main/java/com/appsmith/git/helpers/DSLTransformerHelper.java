@@ -196,20 +196,17 @@ public class DSLTransformerHelper {
                 // Loop through every single child of Individual Tabs
                 // ParentId Mapping to find the parent child in the tabs
                 JSONArray existingChildren = parent.optJSONArray(CommonConstants.CHILDREN);
-                for (int i =0; i < childWidgets.length(); i++) {
+                Map<String, JSONObject> widgetIdWidgetNameMapping = getWidgetIdWidgetNameMapping(existingChildren);
+                for (int i = 0; i < childWidgets.length(); i++) {
                     JSONObject childWidget = childWidgets.getJSONObject(i);
-                    String parentId = childWidget.optString("parentId");
-                    for (int j = 0; j < existingChildren.length(); j++) {
-                        JSONObject existingChild = existingChildren.getJSONObject(j);
-                        if (parentId.equals(existingChild.optString("widgetId"))) {
-                            JSONArray existingChildChildren = existingChild.optJSONArray(CommonConstants.CHILDREN);
-                            if (existingChildChildren == null) {
-                                existingChildChildren = new JSONArray();
-                            }
-                            existingChildChildren.put(childWidget);
-                            existingChild.put(CommonConstants.CHILDREN, existingChildChildren);
-                        }
+                    String parentId = childWidget.optString(CommonConstants.PARENT_ID);
+                    JSONObject parentObject = widgetIdWidgetNameMapping.get(parentId);
+                    JSONArray existingChildChildren = parentObject.optJSONArray(CommonConstants.CHILDREN);
+                    if (existingChildChildren == null) {
+                        existingChildChildren = new JSONArray();
                     }
+                    existingChildChildren.put(childWidget);
+                    parentObject.put(CommonConstants.CHILDREN, existingChildChildren);
                 }
 
             } else {
@@ -217,5 +214,14 @@ public class DSLTransformerHelper {
             }
         }
         return parent;
+    }
+
+    private static Map<String, JSONObject> getWidgetIdWidgetNameMapping(JSONArray existingChildren) {
+        Map<String, JSONObject> widgetIdWidgetNameMapping = new HashMap<>();
+        for (int i = 0; i < existingChildren.length(); i++) {
+            JSONObject existingChild = existingChildren.getJSONObject(i);
+            widgetIdWidgetNameMapping.put(existingChild.optString(CommonConstants.WIDGET_ID), existingChild);
+        }
+        return widgetIdWidgetNameMapping;
     }
 }
