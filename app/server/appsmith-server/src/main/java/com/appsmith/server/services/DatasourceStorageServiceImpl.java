@@ -10,12 +10,12 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class DatasourceStorageServiceImpl extends DatasourceStorageServiceCEImpl implements DatasourceStorageService {
-    public DatasourceStorageServiceImpl(DatasourceStorageRepository repository,
-                                        DatasourcePermission datasourcePermission,
-                                        PluginService pluginService,
-                                        PluginExecutorHelper pluginExecutorHelper,
-                                        AnalyticsService analyticsService) {
-        super(repository, datasourcePermission, pluginService, pluginExecutorHelper,
-                analyticsService);
+    public DatasourceStorageServiceImpl(
+            DatasourceStorageRepository repository,
+            DatasourcePermission datasourcePermission,
+            PluginService pluginService,
+            PluginExecutorHelper pluginExecutorHelper,
+            AnalyticsService analyticsService) {
+        super(repository, datasourcePermission, pluginService, pluginExecutorHelper, analyticsService);
     }
 }

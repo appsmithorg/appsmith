@@ -61,8 +61,17 @@ public class UserSignupTest {
 
     @BeforeEach
     public void setup() {
-        userSignup = new UserSignupImpl(userService, userDataService, captchaService, authenticationSuccessHandler,
-                configService, analyticsService, envManager, commonConfig, userUtils, networkUtils);
+        userSignup = new UserSignupImpl(
+                userService,
+                userDataService,
+                captchaService,
+                authenticationSuccessHandler,
+                configService,
+                analyticsService,
+                envManager,
+                commonConfig,
+                userUtils,
+                networkUtils);
     }
 
     private String createRandomString(int length) {
@@ -80,12 +89,11 @@ public class UserSignupTest {
                 .expectErrorSatisfies(error -> {
                     assertTrue(error instanceof AppsmithException);
 
-                    String expectedErrorMessage = AppsmithError.INVALID_PASSWORD_LENGTH
-                            .getMessage(LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH);
+                    String expectedErrorMessage = AppsmithError.INVALID_PASSWORD_LENGTH.getMessage(
+                            LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH);
                     assertEquals(expectedErrorMessage, error.getMessage());
                 })
                 .verify();
-
     }
 
     @Test
@@ -99,8 +107,8 @@ public class UserSignupTest {
                 .expectErrorSatisfies(error -> {
                     assertTrue(error instanceof AppsmithException);
 
-                    String expectedErrorMessage = AppsmithError.INVALID_PASSWORD_LENGTH
-                            .getMessage(LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH);
+                    String expectedErrorMessage = AppsmithError.INVALID_PASSWORD_LENGTH.getMessage(
+                            LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH);
                     assertEquals(expectedErrorMessage, error.getMessage());
                 })
                 .verify();

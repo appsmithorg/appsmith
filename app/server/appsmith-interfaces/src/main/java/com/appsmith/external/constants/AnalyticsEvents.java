@@ -79,13 +79,10 @@ public enum AnalyticsEvents {
     UPDATE_EXISTING_LICENSE("Update_Existing_License"),
 
     DS_SCHEMA_FETCH_EVENT("Datasource_Schema_Fetch"),
-    DS_SCHEMA_FETCH_EVENT_SUCCESS("Datasource_Schema_Fetch_Success"),
-    DS_SCHEMA_FETCH_EVENT_FAILED("Datasource_Schema_Fetch_Failed"),
 
     DS_TEST_EVENT("Test_Datasource_Clicked"),
     DS_TEST_EVENT_SUCCESS("Test_Datasource_Success"),
-    DS_TEST_EVENT_FAILED("Test_Datasource_Failed")
-    ;
+    DS_TEST_EVENT_FAILED("Test_Datasource_Failed");
 
     private final String eventName;
 
@@ -100,5 +97,4 @@ public enum AnalyticsEvents {
     public String getEventName() {
         return eventName;
     }
-
 }

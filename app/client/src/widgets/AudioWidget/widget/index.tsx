@@ -11,6 +11,7 @@ import BaseWidget from "../../BaseWidget";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import type { SetterConfig } from "entities/AppTheming";
 
 const AudioComponent = lazy(() => retryPromise(() => import("../component")));
 
@@ -29,6 +30,25 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
       "!url": "https://docs.appsmith.com/widget-reference/audio",
       playState: "number",
       autoPlay: "bool",
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setURL: {
+          path: "url",
+          type: "string",
+        },
+        setPlaying: {
+          path: "autoPlay",
+          type: "boolean",
+        },
+      },
     };
   }
 

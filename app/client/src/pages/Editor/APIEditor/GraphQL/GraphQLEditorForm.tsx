@@ -6,7 +6,7 @@ import classNames from "classnames";
 import styled from "styled-components";
 import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import type { Action } from "entities/Action";
-import { EMPTY_RESPONSE } from "components/editorComponents/ApiResponseView";
+import { EMPTY_RESPONSE } from "components/editorComponents/emptyResponse";
 import type { AppState } from "@appsmith/reducers";
 import { getApiName } from "selectors/formSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";

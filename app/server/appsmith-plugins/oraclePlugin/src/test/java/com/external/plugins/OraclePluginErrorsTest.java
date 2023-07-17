@@ -21,11 +21,18 @@ import static org.mockito.Mockito.when;
 public class OraclePluginErrorsTest {
     @Test
     public void verifyUniquenessOfOraclePluginErrorCode() {
-        assert (Arrays.stream(OraclePluginError.values()).map(OraclePluginError::getAppErrorCode).distinct().count() == OraclePluginError.values().length);
+        assert (Arrays.stream(OraclePluginError.values())
+                        .map(OraclePluginError::getAppErrorCode)
+                        .distinct()
+                        .count()
+                == OraclePluginError.values().length);
 
-        assert (Arrays.stream(OraclePluginError.values()).map(OraclePluginError::getAppErrorCode)
-                .filter(appErrorCode -> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-ORC"))
-                .collect(Collectors.toList()).size() == 0);
+        assert (Arrays.stream(OraclePluginError.values())
+                        .map(OraclePluginError::getAppErrorCode)
+                        .filter(appErrorCode -> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-ORC"))
+                        .collect(Collectors.toList())
+                        .size()
+                == 0);
     }
 
     /**
@@ -35,9 +42,9 @@ public class OraclePluginErrorsTest {
      */
     @Test
     public void testStaleConnectionErrorHasUpstreamErrorWhenConnectionPoolIsNull() {
-        Exception exception = assertThrows(StaleConnectionException.class,
-                () -> oracleDatasourceUtils.checkHikariCPConnectionPoolValidity(null
-                        , "pluginName"));
+        Exception exception = assertThrows(
+                StaleConnectionException.class,
+                () -> oracleDatasourceUtils.checkHikariCPConnectionPoolValidity(null, "pluginName"));
         String expectedErrorMessage = CONNECTION_POOL_NULL_ERROR_MSG;
         assertEquals(expectedErrorMessage, exception.getMessage());
     }
@@ -51,7 +58,8 @@ public class OraclePluginErrorsTest {
     public void testStaleConnectionErrorHasUpstreamErrorWhenConnectionPoolIsClosed() {
         HikariDataSource mockConnectionPool = mock(HikariDataSource.class);
         when(mockConnectionPool.isClosed()).thenReturn(true).thenReturn(true);
-        Exception exception = assertThrows(StaleConnectionException.class,
+        Exception exception = assertThrows(
+                StaleConnectionException.class,
                 () -> oracleDatasourceUtils.checkHikariCPConnectionPoolValidity(mockConnectionPool, "pluginName"));
         String expectedErrorMessage = CONNECTION_POOL_CLOSED_ERROR_MSG;
         assertEquals(expectedErrorMessage, exception.getMessage());
@@ -66,7 +74,8 @@ public class OraclePluginErrorsTest {
     public void testStaleConnectionErrorHasUpstreamErrorWhenConnectionPoolIsRunning() {
         HikariDataSource mockConnectionPool = mock(HikariDataSource.class);
         when(mockConnectionPool.isRunning()).thenReturn(false).thenReturn(false);
-        Exception exception = assertThrows(StaleConnectionException.class,
+        Exception exception = assertThrows(
+                StaleConnectionException.class,
                 () -> oracleDatasourceUtils.checkHikariCPConnectionPoolValidity(mockConnectionPool, "pluginName"));
         String expectedErrorMessage = CONNECTION_POOL_NOT_RUNNING_ERROR_MSG;
         assertEquals(expectedErrorMessage, exception.getMessage());
@@ -81,7 +90,8 @@ public class OraclePluginErrorsTest {
     public void testStaleConnectionErrorHasDefaultUpstreamError() {
         HikariDataSource mockConnectionPool = mock(HikariDataSource.class);
         when(mockConnectionPool.isRunning()).thenReturn(false).thenReturn(true);
-        Exception exception = assertThrows(StaleConnectionException.class,
+        Exception exception = assertThrows(
+                StaleConnectionException.class,
                 () -> oracleDatasourceUtils.checkHikariCPConnectionPoolValidity(mockConnectionPool, "pluginName"));
         String expectedErrorMessage = UNKNOWN_CONNECTION_ERROR_MSG;
         assertEquals(expectedErrorMessage, exception.getMessage());

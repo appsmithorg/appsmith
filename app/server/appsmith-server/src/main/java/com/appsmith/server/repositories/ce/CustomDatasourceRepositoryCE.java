@@ -22,5 +22,4 @@ public interface CustomDatasourceRepositoryCE extends AppsmithRepository<Datasou
     Mono<Datasource> findById(String id, AclPermission aclPermission);
 
     Flux<Datasource> findAllByIds(Set<String> ids, AclPermission permission);
-
 }

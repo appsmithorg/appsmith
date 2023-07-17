@@ -21,6 +21,7 @@ import {
 import { getDatasource } from "selectors/entitiesSelector";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
+import { DatasourceStructureContext } from "./DatasourceStructureContainer";
 
 export function DataSourceContextMenu(props: {
   datasourceId: string;
@@ -36,7 +37,12 @@ export function DataSourceContextMenu(props: {
     [dispatch, props.entityId],
   );
   const dispatchRefresh = useCallback(() => {
-    dispatch(refreshDatasourceStructure(props.datasourceId));
+    dispatch(
+      refreshDatasourceStructure(
+        props.datasourceId,
+        DatasourceStructureContext.EXPLORER,
+      ),
+    );
   }, [dispatch, props.datasourceId]);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
