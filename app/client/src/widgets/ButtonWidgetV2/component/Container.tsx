@@ -21,11 +21,6 @@ const StyledContainer = styled.div<ContainerProps>`
   .grecaptcha-badge {
     visibility: hidden;
   }
-  // Note: adding important here as ADS is overriding the color of blueprint icon globally
-  // TODO(pawan): Ask Albin if we can remove the important in ADS Code
-  & [data-button] .bp3-icon {
-    color: currentColor !important;
-  }
 `;
 
 type ContainerProps = {

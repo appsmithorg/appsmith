@@ -96,6 +96,12 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     width: calc(var(--sizing-root-unit) * 5);
   }
 
+  // Note: adding important here as ADS is overriding the color of blueprint icon globally
+  // TODO(pawan): Remove this once ADS team removes the global override
+  & [data-button] .bp3-icon {
+    color: currentColor !important;
+  }
+
   /**
   * ----------------------------------------------------------------------------
   * FOCUSSED
