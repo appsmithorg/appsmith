@@ -117,8 +117,11 @@ export const getDatasourceFirstTableName = (
   return "";
 };
 
-export const getIsFetchingDatasourceStructure = (state: AppState): boolean => {
-  return state.entities.datasources.fetchingDatasourceStructure;
+export const getIsFetchingDatasourceStructure = (
+  state: AppState,
+  datasourceId: string,
+): boolean => {
+  return state.entities.datasources.fetchingDatasourceStructure[datasourceId];
 };
 
 export const getMockDatasources = (state: AppState): MockDatasource[] => {
@@ -220,6 +223,30 @@ export const getPluginNameFromId = (
 
   if (!plugin) return "";
   return plugin.name;
+};
+
+export const getPluginPackageNameFromId = (
+  state: AppState,
+  pluginId: string,
+): string => {
+  const plugin = state.entities.plugins.list.find(
+    (plugin) => plugin.id === pluginId,
+  );
+
+  if (!plugin) return "";
+  return plugin.packageName;
+};
+
+export const getPluginDatasourceComponentFromId = (
+  state: AppState,
+  pluginId: string,
+): string => {
+  const plugin = state.entities.plugins.list.find(
+    (plugin) => plugin.id === pluginId,
+  );
+
+  if (!plugin) return "";
+  return plugin.datasourceComponent;
 };
 
 export const getPluginTypeFromDatasourceId = (

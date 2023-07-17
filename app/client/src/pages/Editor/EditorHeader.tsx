@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState, lazy, Suspense } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import classNames from "classnames";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
@@ -19,6 +18,7 @@ import {
   getAllUsers,
   getCurrentWorkspaceId,
 } from "@appsmith/selectors/workspaceSelectors";
+import type { ConnectedProps } from "react-redux";
 import { connect, useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
 import { updateApplication } from "@appsmith/actions/applicationActions";
@@ -29,7 +29,6 @@ import {
 } from "@appsmith/selectors/applicationSelectors";
 import EditorAppName from "./EditorAppName";
 import { getCurrentUser } from "selectors/usersSelectors";
-import type { User } from "constants/userConstants";
 import {
   EditInteractionKind,
   SavingState,
@@ -59,7 +58,6 @@ import { EditorSaveIndicator } from "./EditorSaveIndicator";
 
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
-import type { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import {
@@ -92,6 +90,7 @@ import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import type { NavigationSetting } from "constants/AppConstants";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -195,23 +194,6 @@ const SidebarNavButton = styled(Button)`
   }
 `;
 
-type EditorHeaderProps = {
-  pageSaveError?: boolean;
-  pageName?: string;
-  pageId: string;
-  isPublishing: boolean;
-  publishedTime?: string;
-  workspaceId: string;
-  applicationId?: string;
-  currentApplication?: ApplicationPayload;
-  isSaving: boolean;
-  publishApplication: (appId: string) => void;
-  lastUpdatedTime?: number;
-  inOnboarding: boolean;
-  sharedUserList: WorkspaceUser[];
-  currentUser?: User;
-};
-
 const GlobalSearch = lazy(() => {
   return retryPromise(
     () =>
@@ -223,7 +205,10 @@ const GlobalSearch = lazy(() => {
 
 const theme = getTheme(ThemeMode.LIGHT);
 
-export function EditorHeader(props: EditorHeaderProps) {
+// Seperating redux props types from props being passed to the component from a parent
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+export function EditorHeader(props: PropsFromRedux) {
   const {
     applicationId,
     currentApplication,
@@ -241,6 +226,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const isPreviewMode = useSelector(previewModeSelector);
+  const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
   const deployLink = useHref(viewerURL, { pageId });
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
@@ -341,59 +327,68 @@ export function EditorHeader(props: EditorHeaderProps) {
         data-testid="t--appsmith-editor-header"
       >
         <HeaderSection className="space-x-2">
-          <Tooltip
-            content={
-              <div className="flex items-center justify-between">
-                <span>
-                  {!pinned
-                    ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
-                    : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
-                </span>
-                <span className="ml-4">{modText()} /</span>
-              </div>
-            }
-            placement="bottomLeft"
-          >
-            <SidebarNavButton
-              className={classNames({
-                "transition-all transform duration-400": true,
-                "-translate-x-full opacity-0": isPreviewingApp,
-                "translate-x-0 opacity-100": !isPreviewingApp,
-              })}
-              kind="tertiary"
-              onClick={onPin}
-              size="md"
+          {!signpostingEnabled && (
+            <Tooltip
+              content={
+                <div className="flex items-center justify-between">
+                  <span>
+                    {!pinned
+                      ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
+                      : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
+                  </span>
+                  <span className="ml-4">{modText()} /</span>
+                </div>
+              }
+              placement="bottomLeft"
             >
-              <div
-                className="t--pin-entity-explorer group relative"
-                onMouseEnter={onMenuHover}
+              <SidebarNavButton
+                className={classNames({
+                  "transition-all transform duration-400": true,
+                  "-translate-x-full opacity-0": isPreviewingApp,
+                  "translate-x-0 opacity-100": !isPreviewingApp,
+                })}
+                data-testid="sidebar-nav-button"
+                kind="tertiary"
+                onClick={onPin}
+                size="md"
               >
-                <Icon
-                  className="absolute transition-opacity group-hover:opacity-0"
-                  name="hamburger"
-                  size="md"
-                />
-                {pinned && (
+                <div
+                  className="t--pin-entity-explorer group relative"
+                  onMouseEnter={onMenuHover}
+                >
                   <Icon
-                    className="absolute transition-opacity opacity-0 group-hover:opacity-100"
-                    name="menu-fold"
-                    onClick={onPin}
+                    className="absolute transition-opacity group-hover:opacity-0"
+                    name="hamburger"
                     size="md"
                   />
-                )}
-                {!pinned && (
-                  <Icon
-                    className="absolute transition-opacity opacity-0 group-hover:opacity-100"
-                    name="menu-unfold"
-                    onClick={onPin}
-                    size="md"
-                  />
-                )}
-              </div>
-            </SidebarNavButton>
-          </Tooltip>
+                  {pinned && (
+                    <Icon
+                      className="absolute transition-opacity opacity-0 group-hover:opacity-100"
+                      name="menu-fold"
+                      onClick={onPin}
+                      size="md"
+                    />
+                  )}
+                  {!pinned && (
+                    <Icon
+                      className="absolute transition-opacity opacity-0 group-hover:opacity-100"
+                      name="menu-unfold"
+                      onClick={onPin}
+                      size="md"
+                    />
+                  )}
+                </div>
+              </SidebarNavButton>
+            </Tooltip>
+          )}
+
           <Tooltip content={createMessage(LOGO_TOOLTIP)} placement="bottomLeft">
-            <AppsmithLink to={APPLICATIONS_URL}>
+            <AppsmithLink
+              className={classNames({
+                "ml-2": signpostingEnabled,
+              })}
+              to={APPLICATIONS_URL}
+            >
               <img
                 alt="Appsmith logo"
                 className="t--appsmith-logo"
@@ -575,4 +570,5 @@ EditorHeader.whyDidYouRender = {
   logOnDifferentValues: false,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditorHeader);
+const connector = connect(mapStateToProps, mapDispatchToProps);
+export default connector(EditorHeader);
