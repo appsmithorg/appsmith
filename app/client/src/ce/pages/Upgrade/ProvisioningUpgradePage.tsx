@@ -1,8 +1,8 @@
 import React from "react";
 import type { Carousel, Header } from "./types";
 import UpgradePage from "./UpgradePage";
-import SecureAppsLeastPrivilegeImage from "assets/images/upgrade/access-control/secure-apps-least-privilege.png";
-import PreventAccidentalDamageImage from "assets/images/upgrade/access-control/prevent-accidental-damage.png";
+import ProvisionDeprovisionUsersImage from "assets/images/upgrade/provisioning/provision-deprovision-users.svg";
+import AutoGroupSyncImage from "assets/images/upgrade/provisioning/auto-group-sync.svg";
 import {
   ACCESS_CONTROL_UPGRADE_PAGE_FOOTER,
   AUTO_GROUP_SYNC,
@@ -46,12 +46,12 @@ export function ProvisioningUpgradePage() {
       <img
         alt={createMessage(PROVISION_DEPROVISION_USERS)}
         key="provision-deprovision-users"
-        src={SecureAppsLeastPrivilegeImage}
+        src={ProvisionDeprovisionUsersImage}
       />,
       <img
         alt={createMessage(AUTO_GROUP_SYNC)}
         key="auto-group-sync"
-        src={PreventAccidentalDamageImage}
+        src={AutoGroupSyncImage}
       />,
     ],
     design: "split-left-trigger",
