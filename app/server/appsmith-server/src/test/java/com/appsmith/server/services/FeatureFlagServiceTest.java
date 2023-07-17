@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
@@ -92,7 +91,7 @@ public class FeatureFlagServiceTest {
     }
 
     @Test
-    public void getFeatureFlags_withUserIdentifier_redisKeyExists(){
+    public void getFeatureFlags_withUserIdentifier_redisKeyExists() {
         String userIdentifier = "testIdentifier";
         User dummyUser = new User();
         Mono<CachedFlags> cachedFlagsMono = cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier, dummyUser);
@@ -127,5 +126,4 @@ public class FeatureFlagServiceTest {
             return ff4j;
         }
     }
-
 }

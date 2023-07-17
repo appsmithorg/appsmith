@@ -8,6 +8,7 @@ import {
   take,
   takeEvery,
   takeLatest,
+  takeLeading,
 } from "redux-saga/effects";
 import type {
   ApplicationPayload,
@@ -21,10 +22,15 @@ import { resetCurrentApplication } from "@appsmith/actions/applicationActions";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { resetRecentEntities } from "actions/globalSearchActions";
-import { resetEditorSuccess } from "actions/initActions";
+import {
+  initAppViewer,
+  initEditor,
+  resetEditorSuccess,
+} from "actions/initActions";
 import {
   getCurrentPageId,
   getIsEditorInitialized,
+  getIsWidgetConfigBuilt,
   selectCurrentApplicationSlug,
 } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
@@ -35,10 +41,24 @@ import type AppEngine from "entities/Engine";
 import { AppEngineApiError } from "entities/Engine";
 import AppEngineFactory from "entities/Engine/factory";
 import type { ApplicationPagePayload } from "@appsmith/api/ApplicationApi";
-import { updateSlugNamesInURL } from "utils/helpers";
+import { getSearchQuery, updateSlugNamesInURL } from "utils/helpers";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { safeCrashAppRequest } from "../actions/errorActions";
 import { resetSnipingMode } from "actions/propertyPaneActions";
+import {
+  setExplorerActiveAction,
+  setExplorerPinnedAction,
+} from "actions/explorerActions";
+import {
+  isEditorPath,
+  isViewerPath,
+} from "@appsmith/pages/Editor/Explorer/helpers";
+import { APP_MODE } from "../entities/App";
+import {
+  GIT_BRANCH_QUERY_KEY,
+  matchBuilderPath,
+  matchViewerPath,
+} from "../constants/routes";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -68,6 +88,13 @@ export function* failFastApiCalls(
     return false;
   }
   return true;
+}
+
+export function* waitForWidgetConfigBuild() {
+  const isBuilt: boolean = yield select(getIsWidgetConfigBuilt);
+  if (!isBuilt) {
+    yield take(ReduxActionTypes.WIDGET_INIT_SUCCESS);
+  }
 }
 
 export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
@@ -109,6 +136,8 @@ function* resetEditorSaga() {
   // previously
   yield put(setPreviewModeAction(false));
   yield put(resetSnipingMode());
+  yield put(setExplorerActiveAction(true));
+  yield put(setExplorerPinnedAction(true));
   yield put(resetEditorSuccess());
 }
 
@@ -157,9 +186,45 @@ function* appEngineSaga(action: ReduxAction<AppEnginePayload>) {
   });
 }
 
+function* eagerPageInitSaga() {
+  const url = window.location.pathname;
+  const search = window.location.search;
+  if (isEditorPath(url)) {
+    const {
+      params: { applicationId, pageId },
+    } = matchBuilderPath(url);
+    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+    if (pageId) {
+      yield put(
+        initEditor({
+          pageId,
+          applicationId,
+          branch,
+          mode: APP_MODE.EDIT,
+        }),
+      );
+    }
+  } else if (isViewerPath(url)) {
+    const {
+      params: { applicationId, pageId },
+    } = matchViewerPath(url);
+    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+    if (applicationId || pageId) {
+      yield put(
+        initAppViewer({
+          applicationId,
+          branch,
+          pageId,
+          mode: APP_MODE.PUBLISHED,
+        }),
+      );
+    }
+  }
+}
+
 export default function* watchInitSagas() {
   yield all([
-    takeLatest(
+    takeLeading(
       [
         ReduxActionTypes.INITIALIZE_EDITOR,
         ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
@@ -168,5 +233,6 @@ export default function* watchInitSagas() {
     ),
     takeLatest(ReduxActionTypes.RESET_EDITOR_REQUEST, resetEditorSaga),
     takeEvery(URL_CHANGE_ACTIONS, updateURLSaga),
+    takeEvery(ReduxActionTypes.INITIALIZE_CURRENT_PAGE, eagerPageInitSaga),
   ]);
 }
