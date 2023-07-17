@@ -32,7 +32,6 @@ import type { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import DatasourceSaasForm from "../SaaSEditor/DatasourceForm";
-
 import {
   getCurrentApplicationId,
   getPagePermissions,
@@ -493,51 +492,49 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     } = this.props;
 
     const shouldViewMode = viewMode && !isInsideReconnectModal;
-    // Check for specific form types first
-    if (
-      pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm &&
-      !shouldViewMode
-    ) {
-      return (
-        <>
-          <RestAPIDatasourceForm
-            applicationId={this.props.applicationId}
-            datasource={datasource}
-            datasourceId={datasourceId}
-            formData={formData}
-            formName={formName}
-            hiddenHeader={isInsideReconnectModal}
-            isFormDirty={isFormDirty}
-            isSaving={isSaving}
-            location={location}
-            pageId={pageId}
-            pluginName={pluginName}
-            pluginPackageName={pluginPackageName}
-            showFilterComponent={this.state.filterParams.showFilterPane}
-          />
-          {this.renderSaveDisacardModal()}
-        </>
-      );
-    }
 
-    // Default to DB Editor Form
     return (
       <>
-        <DataSourceEditorForm
-          applicationId={this.props.applicationId}
-          currentEnvironment={this.getEnvironmentId()}
-          datasourceId={datasourceId}
-          formConfig={formConfig}
-          formData={formData}
-          formName={DATASOURCE_DB_FORM}
-          hiddenHeader={isInsideReconnectModal}
-          isSaving={isSaving}
-          pageId={pageId}
-          pluginType={pluginType}
-          setupConfig={this.setupConfig}
-          showFilterComponent={this.state.filterParams.showFilterPane}
-          viewMode={viewMode && !isInsideReconnectModal}
-        />
+        {
+          // Check for specific form types first
+          pluginDatasourceForm ===
+            DatasourceComponentTypes.RestAPIDatasourceForm &&
+          !shouldViewMode ? (
+            <RestAPIDatasourceForm
+              applicationId={this.props.applicationId}
+              datasource={datasource}
+              datasourceId={datasourceId}
+              formData={formData}
+              formName={formName}
+              hiddenHeader={isInsideReconnectModal}
+              isFormDirty={isFormDirty}
+              isSaving={isSaving}
+              location={location}
+              pageId={pageId}
+              pluginName={pluginName}
+              pluginPackageName={pluginPackageName}
+              showFilterComponent={this.state.filterParams.showFilterPane}
+              viewMode={shouldViewMode}
+            />
+          ) : (
+            // Default to DB Editor Form
+            <DataSourceEditorForm
+              applicationId={this.props.applicationId}
+              currentEnvironment={this.getEnvironmentId()}
+              datasourceId={datasourceId}
+              formConfig={formConfig}
+              formData={formData}
+              formName={DATASOURCE_DB_FORM}
+              hiddenHeader={isInsideReconnectModal}
+              isSaving={isSaving}
+              pageId={pageId}
+              pluginType={pluginType}
+              setupConfig={this.setupConfig}
+              showFilterComponent={this.state.filterParams.showFilterPane}
+              viewMode={viewMode && !isInsideReconnectModal}
+            />
+          )
+        }
         {this.renderSaveDisacardModal()}
       </>
     );

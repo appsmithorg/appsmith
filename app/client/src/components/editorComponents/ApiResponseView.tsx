@@ -62,6 +62,7 @@ import type { Action } from "entities/Action";
 import { SegmentedControlContainer } from "../../pages/Editor/QueryEditor/EditorJSONtoForm";
 import ActionExecutionInProgressView from "./ActionExecutionInProgressView";
 import { CloseDebugger } from "./Debugger/DebuggerTabs";
+import { EMPTY_RESPONSE } from "./emptyResponse";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -201,22 +202,6 @@ type Props = ReduxStateProps &
     responseDataTypes: { key: string; title: string }[];
     responseDisplayFormat: { title: string; value: string };
   };
-
-export const EMPTY_RESPONSE: ActionResponse = {
-  statusCode: "",
-  duration: "",
-  body: "",
-  headers: {},
-  request: {
-    headers: {},
-    body: {},
-    httpMethod: "",
-    url: "",
-  },
-  size: "",
-  responseDisplayFormat: "",
-  dataTypes: [],
-};
 
 const StatusCodeText = styled(BaseText)<PropsWithChildren<{ code: string }>>`
   color: ${(props) =>

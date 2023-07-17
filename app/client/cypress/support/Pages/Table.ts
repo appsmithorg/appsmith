@@ -89,6 +89,7 @@ export class Table {
   _liPreviousPage = "li[title='Previous Page']";
   _liCurrentSelectedPage =
     "//div[@type='LIST_WIDGET']//ul[contains(@class, 'rc-pagination')]/li[contains(@class, 'rc-pagination-item-active')]/a";
+  private _tr = ".tbody .tr";
   private _searchText = "input[type='search']";
   _searchBoxCross =
     "//div[contains(@class, 't--search-input')]/following-sibling::div";
@@ -185,6 +186,10 @@ export class Table {
     ".bp3-dateinput-popover .bp3-daterangepicker-shortcuts";
   _dayPickerFirstChild = ".DayPicker-Day:first-child";
   _divFirstChild = "div:first-child abbr";
+
+  public GetNumberOfRows() {
+    return this.agHelper.GetElement(this._tr).its("length");
+  }
 
   public WaitUntilTableLoad(
     rowIndex = 0,

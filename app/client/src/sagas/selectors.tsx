@@ -48,6 +48,9 @@ export const getCanvasAndMetaWidgets = createSelector(
 
 export const getWidgetsMeta = (state: AppState) => state.entities.meta;
 
+export const getIsMobileBreakPoint = (state: AppState) =>
+  state.ui.mainCanvas.isMobile;
+
 export const getWidgetMetaProps = createSelector(
   [getWidgetsMeta, (_state: AppState, widget: WidgetProps) => widget],
   (metaState, widget: WidgetProps) => {
