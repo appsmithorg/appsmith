@@ -8,6 +8,7 @@ import {
 export const config: AdminConfigType = {
   icon: "settings-line",
   type: SettingCategories.ADVANCED,
+  categoryType: "general",
   controlType: SettingTypes.GROUP,
   title: "Advanced",
   canSave: true,

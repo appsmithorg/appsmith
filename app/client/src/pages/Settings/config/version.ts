@@ -16,6 +16,7 @@ const isAirgappedInstance = isAirgapped();
 export const config: AdminConfigType = {
   icon: "timer-2-line",
   type: SettingCategories.VERSION,
+  categoryType: "general",
   controlType: SettingTypes.GROUP,
   title: "Version",
   canSave: false,

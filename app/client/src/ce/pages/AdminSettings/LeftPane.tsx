@@ -5,9 +5,8 @@ import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import type { Category } from "@appsmith/pages/AdminSettings/config/types";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { useParams } from "react-router";
-import { createMessage, UPGRADE } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Icon, Text } from "design-system";
+import { Icon, Tag, Text } from "design-system";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
@@ -47,13 +46,13 @@ export const CategoryItem = styled.li`
 `;
 
 export const StyledLink = styled(Link)<{ $active: boolean }>`
-  height: 38px;
   padding: 8px 16px;
   border-radius: var(--ads-v2-border-radius);
   background-color: ${(props) =>
     props.$active ? `var(--ads-v2-color-bg-muted)` : ""};
   display: flex;
   gap: 12px;
+  align-items: center;
 
   && {
     color: var(--ads-v2-color-fg);
@@ -76,8 +75,10 @@ export const SettingName = styled(Text)<{ active?: boolean }>`
   font-weight: 400;
 `;
 
-export function getSettingsCategory() {
-  return Array.from(AdminConfig.categories);
+export function getSettingsCategory(type: string) {
+  return Array.from(
+    AdminConfig.categories.filter((cat: any) => cat.categoryType === type),
+  );
 }
 
 export function Categories({
@@ -146,7 +147,7 @@ export function Categories({
 }
 
 export default function LeftPane() {
-  const categories = getSettingsCategory();
+  const categories = getSettingsCategory("general");
   const { category, selected: subCategory } = useParams() as any;
 
   function triggerAnalytics(source: string) {
@@ -169,7 +170,7 @@ export default function LeftPane() {
       </HeaderContainer>
       <HeaderContainer>
         <StyledHeader kind="heading-s" renderAs="p">
-          Business
+          Access Control
         </StyledHeader>
         <CategoryList data-testid="t--enterprise-settings-category-list">
           <CategoryItem>
@@ -183,8 +184,16 @@ export default function LeftPane() {
               <SettingName active={category === "access-control"}>
                 Access control
               </SettingName>
+              <Tag isClosable={false}>Business</Tag>
             </StyledLink>
           </CategoryItem>
+        </CategoryList>
+      </HeaderContainer>
+      <HeaderContainer>
+        <StyledHeader kind="heading-s" renderAs="p">
+          Other
+        </StyledHeader>
+        <CategoryList data-testid="t--enterprise-settings-category-list">
           <CategoryItem>
             <StyledLink
               $active={category === "audit-logs"}
@@ -197,20 +206,7 @@ export default function LeftPane() {
               <SettingName active={category === "audit-logs"}>
                 Audit logs
               </SettingName>
-            </StyledLink>
-          </CategoryItem>
-          <CategoryItem>
-            <StyledLink
-              $active={category === "business-edition"}
-              className={`${category === "business-edition" ? "active" : ""}`}
-              data-testid="t--enterprise-settings-category-item-be"
-              onClick={() => triggerAnalytics("BusinessEdition")}
-              to="/settings/business-edition"
-            >
-              <Icon name="arrow-up-line" size="md" />
-              <SettingName active={category === "business-edition"}>
-                {createMessage(UPGRADE)}
-              </SettingName>
+              <Tag isClosable={false}>Business</Tag>
             </StyledLink>
           </CategoryItem>
         </CategoryList>

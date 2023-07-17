@@ -169,6 +169,7 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
 export const config: AdminConfigType = {
   icon: "settings-2-line",
   type: SettingCategories.GENERAL,
+  categoryType: "general",
   controlType: SettingTypes.GROUP,
   title: "General",
   canSave: true,

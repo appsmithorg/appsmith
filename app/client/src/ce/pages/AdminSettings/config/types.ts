@@ -56,7 +56,7 @@ export type Setting = ControlType & {
   format?: (value: string) => any;
   parse?: (value: any) => any;
   helpText?: string;
-  label?: string;
+  label?: React.ReactNode;
   name?: string;
   placeholder?: string;
   validate?: (value: string, setting?: Setting) => string | void;
@@ -93,6 +93,7 @@ export interface Category {
   isConnected?: boolean;
   children?: Category[];
   icon?: string;
+  categoryType: string;
 }
 
 export const SettingCategories = {
@@ -110,12 +111,6 @@ export const SettingCategories = {
   BRANDING: "branding",
 };
 
-export const SettingSubCategories = {
-  GOOGLE: "google signup",
-  GITHUB: "github signup",
-  FORMLOGIN: "form login",
-};
-
 export type AdminConfigType = {
   type: string;
   controlType: SettingTypes;
@@ -128,4 +123,5 @@ export type AdminConfigType = {
   isConnected?: boolean;
   icon?: string;
   needsUpgrade?: boolean;
+  categoryType: "general" | "acl" | "other";
 };

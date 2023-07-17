@@ -7,6 +7,7 @@ import BrandingPage from "pages/Settings/config/branding/BrandingPage";
 
 export const config: AdminConfigType = {
   type: SettingCategories.BRANDING,
+  categoryType: "general",
   controlType: SettingTypes.PAGE,
   canSave: false,
   title: "Branding",

@@ -324,6 +324,7 @@ export const OAUTH_2_0 = () => "OAuth 2.0";
 export const ENABLE = () => "Enable";
 export const UPGRADE = () => "Upgrade";
 export const EDIT = () => "Edit";
+export const CONFIGURE = () => "Configure";
 export const UNEXPECTED_ERROR = () => "An unexpected error occurred";
 export const EXPECTED_ERROR = () => "An error occurred";
 export const NO_DATASOURCE_FOR_QUERY = () =>
