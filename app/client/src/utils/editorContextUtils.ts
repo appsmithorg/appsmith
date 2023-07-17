@@ -7,7 +7,12 @@ import {
 import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 import { diff } from "deep-diff";
 import { PluginName, PluginPackageName, PluginType } from "entities/Action";
-import type { Datasource } from "entities/Datasource";
+import type {
+  Datasource,
+  DatasourceStructure,
+  DatasourceTable,
+  QueryTemplate,
+} from "entities/Datasource";
 import { AuthenticationStatus, AuthType } from "entities/Datasource";
 import { get, isArray } from "lodash";
 import store from "store";
@@ -190,6 +195,33 @@ export function getSQLPluginsMockTableName(pluginId: string) {
     }
     default: {
       return "";
+    }
+  }
+}
+
+export function getDefaultActionConfig(
+  plugin: Plugin,
+  dsStructure?: DatasourceStructure,
+  isMock?: boolean,
+) {
+  if (dsStructure) {
+    if (isMock) {
+      let defaultTableName = "";
+      let templateTitle = "";
+      switch (plugin?.name) {
+        case PluginName.MONGO: {
+          defaultTableName = "movies";
+          templateTitle = "Find";
+          break;
+        }
+      }
+
+      const table: DatasourceTable | undefined = dsStructure.tables?.find(
+        (table: DatasourceTable) => table.name === defaultTableName,
+      );
+      return table?.templates?.find(
+        (template: QueryTemplate) => template.title === templateTitle,
+      )?.configuration;
     }
   }
 }

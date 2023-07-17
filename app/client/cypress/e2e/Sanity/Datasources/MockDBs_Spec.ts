@@ -15,11 +15,16 @@ describe(
     it("1. Create Query from Mock Mongo DB & verify active queries count", () => {
       dataSources.CreateMockDB("Movies").then((mockDBName) => {
         dsName = mockDBName;
+
+        // delay is introduced so that structure fetch is complete before moving to query creation
+        // feat: #25320, new query created for mock db movies, will be populated with default values
+        agHelper.Sleep(500);
+
         dataSources.CreateQueryAfterDSSaved();
+        cy.intercept("GET", dataSources._getStructureReq).as("getDSStructure");
+
         assertHelper.AssertNetworkStatus("@trigger");
-        dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
-        dataSources.ValidateNSelectDropdown("Collection", "", "movies");
-        dataSources.RunQueryNVerifyResponseViews(10, false);
+        dataSources.RunQueryNVerifyResponseViews(1, false);
         dataSources.NavigateToActiveTab();
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))
@@ -28,9 +33,7 @@ describe(
           );
 
         entityExplorer.CreateNewDsQuery(mockDBName);
-        dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
-        dataSources.ValidateNSelectDropdown("Collection", "", "movies");
-        dataSources.RunQueryNVerifyResponseViews(10, false);
+        dataSources.RunQueryNVerifyResponseViews(1, false);
         dataSources.NavigateToActiveTab();
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))
