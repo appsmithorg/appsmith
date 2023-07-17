@@ -58,6 +58,7 @@ interface Props {
   isFormDirty?: boolean;
   scopeValue?: string;
   showFilterComponent: boolean;
+  onCancel: () => void;
 }
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
@@ -138,12 +139,12 @@ function DatasourceAuth({
   isTesting,
   viewMode,
   shouldDisplayAuthMessage = true,
-  setDatasourceViewMode,
   triggerSave,
   isFormDirty,
   scopeValue,
   isInsideReconnectModal,
   showFilterComponent,
+  onCancel,
 }: Props) {
   const shouldRender = !viewMode || isInsideReconnectModal;
   const authType =
@@ -330,7 +331,9 @@ function DatasourceAuth({
                 params: getQueryParams(),
               });
               history.push(URL);
-            } else setDatasourceViewMode(true);
+            } else {
+              !!onCancel && onCancel();
+            }
           }}
           size="md"
         >

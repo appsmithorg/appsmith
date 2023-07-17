@@ -78,6 +78,7 @@ import type { PluginType } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
+import { undoAction } from "actions/pageActions";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -178,6 +179,7 @@ export interface DatasourcePaneFunctions {
   resetDefaultKeyValPairFlag: () => void;
   initializeFormWithDefaults: (pluginType: string) => void;
   datasourceDiscardAction: (pluginId: string) => void;
+  undoDatasourceChanges: () => void;
 }
 
 class DatasourceEditorRouter extends React.Component<Props, State> {
@@ -402,6 +404,15 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     });
   }
 
+  onCancel() {
+    // if form has changed, show modal popup, or else simply set to view mode.
+    if (this.props.isFormDirty) {
+      this.setState({ showDialog: true });
+    } else {
+      this.props.setDatasourceViewMode(true);
+    }
+  }
+
   closeDialog() {
     this.setState({ showDialog: false });
   }
@@ -416,6 +427,14 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     this.props.deleteTempDSFromDraft();
     this.state.navigation();
     this.props.datasourceDiscardAction(this.props?.pluginId);
+
+    if (!this.props.viewMode) {
+      this.props.setDatasourceViewMode(true);
+    }
+
+    if (this.props.isFormDirty) {
+      this.props.undoDatasourceChanges();
+    }
   }
 
   closeDialogAndUnblockRoutes(isNavigateBack?: boolean) {
@@ -667,6 +686,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                     isInvalid={this.validateForm()}
                     isSaving={isSaving}
                     isTesting={isTesting}
+                    onCancel={() => this.onCancel()}
                     pluginName={pluginName}
                     pluginPackageName={pluginPackageName}
                     pluginType={pluginType as PluginType}
@@ -819,6 +839,7 @@ const mapDispatchToProps = (
     dispatch(initializeDatasourceFormDefaults(pluginType)),
   datasourceDiscardAction: (pluginId) =>
     dispatch(datasourceDiscardAction(pluginId)),
+  undoDatasourceChanges: () => dispatch(undoAction()),
 });
 
 export default connect(

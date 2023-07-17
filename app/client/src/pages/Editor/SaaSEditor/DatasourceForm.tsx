@@ -363,6 +363,15 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     };
   };
 
+  onCancel() {
+    // if form has changed, show modal popup, or else simply set to view mode.
+    if (this.props.isFormDirty) {
+      this.setState({ showDialog: true });
+    } else {
+      this.props.setDatasourceViewMode(true);
+    }
+  }
+
   renderDataSourceConfigForm = (sections: any) => {
     const {
       canCreateDatasourceActions,
@@ -505,6 +514,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 isInvalid={validate(this.props.requiredFields, formData)}
                 isSaving={isSaving}
                 isTesting={isTesting}
+                onCancel={() => this.onCancel()}
                 pageId={pageId}
                 pluginName={plugin?.name || ""}
                 pluginPackageName={pluginPackageName}
