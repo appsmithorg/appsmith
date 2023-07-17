@@ -97,7 +97,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
         />
       </div>
       <div
-        className="flex-grow px-3 mt-3 overflow-y-scroll"
+        className="flex-grow px-3 mt-2 overflow-y-scroll"
         data-testid="widget-sidebar-scrollable-wrapper"
       >
         <div>
@@ -115,7 +115,13 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
             }
 
             return (
-              <Collapsible className="pb-1" isOpen key={tag}>
+              <Collapsible
+                className={`pb-2 widget-tag-collapisble widget-tag-collapisble-${tag
+                  .toLowerCase()
+                  .replace(/ /g, "-")}`}
+                isOpen
+                key={tag}
+              >
                 <CollapsibleHeader arrowPosition="start">
                   <Text
                     className="select-none"

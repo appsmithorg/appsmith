@@ -32,5 +32,10 @@
   "activeTab": "span:contains('Active')",
   "createNew": ".t--entity-add-btn.group.files button",
   "blankAPI": "span:contains('New blank API')",
-  "addQuery": ".files .t--entity-add-btn"
+  "addQuery": ".files .t--entity-add-btn",
+  "explorerExplorerTab": "[data-testid='explorer-tab-options'] [data-value='explorer']",
+  "explorerWidgetTab": "[data-testid='explorer-tab-options'] [data-value='widgets']",
+  "widgetTagsList": "[data-testid='widget-sidebar-scrollable-wrapper'] .widget-tag-collapisble",
+  "widgetCards": ".t--widget-card-draggable",
+  "widgetSearchInput": "#entity-explorer-search"
 }
