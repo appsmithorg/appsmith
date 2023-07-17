@@ -34,8 +34,9 @@ import {
 import Canvas from "../Canvas";
 import type { AppState } from "@appsmith/reducers";
 import { CanvasResizer } from "widgets/CanvasResizer";
-import { useFeatureFlagCheck } from "selectors/featureFlagsSelectors";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 type CanvasContainerProps = {
   isPreviewMode: boolean;
@@ -122,7 +123,9 @@ function CanvasContainer(props: CanvasContainerProps) {
   const showAnonymousDataPopup = useSelector(getIsAnonymousDataPopupVisible);
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
-  const isWDSV2Enabled = useFeatureFlagCheck("ab_wds_enabled");
+  const isWDSV2Enabled = useSelector((state) =>
+    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_wds_enabled),
+  );
 
   useEffect(() => {
     return () => {

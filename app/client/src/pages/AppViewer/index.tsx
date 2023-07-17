@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { useDispatch } from "react-redux";
 import type { RouteComponentProps } from "react-router";
@@ -15,7 +15,6 @@ import {
 } from "selectors/appViewSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
-import { editorInitializer } from "utils/editor/EditorUtils";
 import * as Sentry from "@sentry/react";
 import {
   getCurrentPageDescription,
@@ -40,11 +39,14 @@ import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
 import HtmlTitle from "./AppViewerHtmlTitle";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { editorInitializer } from "../../utils/editor/EditorUtils";
+import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
 } from "@design-system/theming";
-import { useFeatureFlagCheck } from "selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -79,7 +81,6 @@ function AppViewer(props: Props) {
   const dispatch = useDispatch();
   const { pathname, search } = props.location;
   const { applicationId, pageId } = props.match.params;
-  const [registered, setRegistered] = useState(false);
   const isInitialized = useSelector(getIsInitialized);
   const pages = useSelector(getViewModePageList);
   const selectedTheme = useSelector(getSelectedAppTheme);
@@ -101,27 +102,11 @@ function AppViewer(props: Props) {
   });
   const focusRef = useWidgetFocus();
 
-  /**
-   * initializes the widgets factory and registers all widgets
-   */
   useEffect(() => {
     editorInitializer().then(() => {
-      setRegistered(true);
+      dispatch(widgetInitialisationSuccess());
     });
-
-    // onMount initPage
-    if (applicationId || pageId) {
-      dispatch(
-        initAppViewer({
-          applicationId,
-          branch,
-          pageId,
-          mode: APP_MODE.PUBLISHED,
-        }),
-      );
-    }
-  }, []);
-
+  });
   /**
    * initialize the app if branch, pageId or application is changed
    */
@@ -182,7 +167,9 @@ function AppViewer(props: Props) {
     };
   }, [selectedTheme.properties.fontFamily.appFont]);
 
-  const isWDSV2Enabled = useFeatureFlagCheck("ab_wds_enabled");
+  const isWDSV2Enabled = useSelector((state) =>
+    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_wds_enabled),
+  );
   const backgroundForBody = isWDSV2Enabled
     ? "var(--color-bg)"
     : selectedTheme.properties.colors.backgroundColor;
@@ -207,7 +194,7 @@ function AppViewer(props: Props) {
               ref={focusRef}
               showGuidedTourMessage={showGuidedTourMessage}
             >
-              {isInitialized && registered && <AppViewerPageContainer />}
+              {isInitialized && <AppViewerPageContainer />}
             </AppViewerBody>
             {!hideWatermark && (
               <a

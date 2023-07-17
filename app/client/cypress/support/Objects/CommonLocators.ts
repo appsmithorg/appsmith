@@ -44,6 +44,7 @@ export class CommonLocators {
       uiName,
     )}`;
   _textWidget = ".t--draggable-textwidget .t--text-widget-container span";
+  _tableWidget = ".t--widget-tablewidgetv2";
   _inputWidget = ".t--draggable-inputwidgetv2 input";
   _publishButton = ".t--application-publish-btn";
   _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`;
@@ -121,7 +122,7 @@ export class CommonLocators {
     `.t--widget-card-draggable-${widgetType}`;
   _propertyToggleValue = (controlToToggle: string) =>
     "//div[contains(@class, 't--property-control-" +
-    controlToToggle +
+    controlToToggle.replace(/ +/g, "").toLowerCase() +
     "')]//input[@type='checkbox']/parent::label";
   _openNavigationTab = (tabToOpen: string) =>
     `//span[text()='${tabToOpen}']/ancestor::div`;
@@ -153,6 +154,8 @@ export class CommonLocators {
   _evaluatedErrorMessage =
     ".t--CodeEditor-evaluatedValue .t--evaluatedPopup-error";
   _evalPopup = ".evaluated-value-popup";
+  _checkboxGroupOptions = (option: string) =>
+    "//div[contains(text(),'" + option + "')]/parent::label/input";
   _multiSelectOptions = (option: string) =>
     "div[title='" + option + "'] input[type='checkbox']";
   _divWithClass = (className: string) =>
@@ -247,7 +250,13 @@ export class CommonLocators {
   _appThemeSettings = "#t--theme-settings-header";
   _appChangeThemeBtn = ".t--change-theme-btn";
   _appThemeCard = ".t--theme-card";
-  _gitStatusChanges = "[data-testid='t--git-change-statuses']";
   _appNavigationSettings = "#t--navigation-settings-header";
   _appNavigationSettingsShowTitle = "#t--navigation-settings-application-title";
+  _switchGroupControl =
+    ".t--draggable-switchgroupwidget .bp3-control-indicator";
+  _fontSelect = "fontsize .rc-select";
+  _fontInput = "fontsize input";
+  _pagination = ".rc-pagination";
+  _controlOption = ".t--property-control-options";
+  _canvasBody = "[data-testid='div-selection-0']";
 }

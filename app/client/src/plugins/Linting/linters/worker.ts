@@ -1,12 +1,8 @@
 import type { TMessage } from "utils/MessageUtil";
 import { MessageType } from "utils/MessageUtil";
 import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
-import DependencyMap from "entities/DependencyMap";
 import type { LintRequest } from "../types";
 import { handlerMap } from "../handlers";
-
-export const triggerFieldDependency = new DependencyMap();
-export const actionInDataFieldDependency = new DependencyMap();
 
 export function messageListener(e: MessageEvent<TMessage<LintRequest>>) {
   const { messageType } = e.data;

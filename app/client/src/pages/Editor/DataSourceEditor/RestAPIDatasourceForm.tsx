@@ -72,6 +72,7 @@ interface DatasourceRestApiEditorProps {
   toggleSaveActionFlag: (flag: boolean) => void;
   triggerSave?: boolean;
   datasourceDeleteTrigger: () => void;
+  viewMode: boolean;
 }
 
 type Props = DatasourceRestApiEditorProps &
@@ -247,6 +248,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           e.preventDefault();
         }}
         showFilterComponent={this.props.showFilterComponent}
+        viewMode={this.props.viewMode}
       >
         {this.renderEditor()}
       </Form>

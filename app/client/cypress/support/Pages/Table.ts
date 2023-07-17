@@ -90,6 +90,7 @@ export class Table {
   _liPreviousPage = "li[title='Previous Page']";
   _liCurrentSelectedPage =
     "//div[@type='LIST_WIDGET']//ul[contains(@class, 'rc-pagination')]/li[contains(@class, 'rc-pagination-item-active')]/a";
+  private _tr = ".tbody .tr";
   private _searchText = "input[type='search']";
   _searchBoxCross =
     "//div[contains(@class, 't--search-input')]/following-sibling::div";
@@ -141,13 +142,13 @@ export class Table {
   _filtersCount = this._filterBtn + " span.action-title";
   _headerCell = (column: string) =>
     `.t--widget-tablewidgetv2 .thead .th:contains(${column})`;
-  _addNewRow = ".t--add-new-row";
+  private _addNewRow = ".t--add-new-row";
   _saveNewRow = ".t--save-new-row";
   _discardRow = ".t--discard-new-row";
   _searchInput = ".t--search-input input";
   _bodyCell = (cellValue: string) =>
     `.t--table-text-cell:contains(${cellValue})`;
-  _newRow = ".new-row";
+  private _newRow = ".new-row";
   _connectDataHeader = ".t--cypress-table-overlay-header";
   _connectDataButton = ".t--cypress-table-overlay-connectdata";
   _updateMode = (mode: "Single" | "Multi") =>
@@ -157,6 +158,10 @@ export class Table {
     `${this._columnHeaderDiv(columnName)} .header-menu .bp3-popover2-target`;
   _columnHeaderMenu = ".bp3-menu";
   _selectMenuItem = ".menu-item-text";
+
+  public GetNumberOfRows() {
+    return this.agHelper.GetElement(this._tr).its("length");
+  }
 
   public WaitUntilTableLoad(
     rowIndex = 0,
@@ -528,6 +533,11 @@ export class Table {
       networkCall,
     );
     this.WaitUntilTableLoad(0, 0, tableVersion);
+  }
+
+  public AddNewRow() {
+    this.agHelper.GetNClick(this._addNewRow);
+    this.agHelper.AssertElementExist(this._newRow);
   }
 
   public AddColumn(colId: string) {
