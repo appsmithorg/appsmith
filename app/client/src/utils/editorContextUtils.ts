@@ -6,10 +6,13 @@ import {
 } from "@appsmith/constants/forms";
 import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 import { diff } from "deep-diff";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginName, PluginPackageName, PluginType } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 import { AuthenticationStatus, AuthType } from "entities/Datasource";
 import { get, isArray } from "lodash";
+import store from "store";
+import { getPlugin } from "selectors/entitiesSelector";
+import type { AppState } from "@appsmith/reducers";
 export function isCurrentFocusOnInput() {
   return (
     ["input", "textarea"].indexOf(
@@ -170,4 +173,23 @@ export function getFormDiffPaths(initialValues: any, currentValues: any) {
     });
   }
   return diffPaths;
+}
+
+/**
+ * Returns mock datasource default table name to be populated in query editor, based on plugin name
+ * @param pluginId string
+ * @returns string
+ */
+export function getSQLPluginsMockTableName(pluginId: string) {
+  const state: AppState = store.getState();
+  const plugin: Plugin | undefined = getPlugin(state, pluginId);
+
+  switch (plugin?.name) {
+    case PluginName.POSTGRES: {
+      return "public.users";
+    }
+    default: {
+      return "";
+    }
+  }
 }
