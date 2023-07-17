@@ -15,6 +15,7 @@ export const Wrapper = styled.div`
   overflow-y: auto;
   border-right: 1px solid var(--ads-v2-color-border);
   flex-shrink: 0;
+  padding: 12px 0;
 
   &::-webkit-scrollbar {
     display: none;
@@ -26,13 +27,12 @@ export const Wrapper = styled.div`
 `;
 
 export const HeaderContainer = styled.div`
-  padding: 20px 0;
-  margin: 0 16px;
+  margin: 12px;
 `;
 
 export const StyledHeader = styled(Text)`
   height: 20px;
-  margin: 8px 16px 8px;
+  margin: 16px;
   color: var(--ads-v2-color-fg-emphasis);
 `;
 

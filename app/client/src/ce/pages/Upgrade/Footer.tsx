@@ -31,6 +31,7 @@ const FooterContainer = styled.div`
 
   & .right {
     flex-grow: 1;
+    text-align: end;
   }
 `;
 
