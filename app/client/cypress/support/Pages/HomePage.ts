@@ -15,7 +15,7 @@ export class HomePage {
   private _workspaceCompleteSection = ".t--workspace-section";
   private _workspaceName = ".t--workspace-name";
   private _workspaceNameText = ".t--workspace-name-text";
-  private _optionsIcon = ".t--options-icon";
+  _optionsIcon = ".t--options-icon";
   private _optionsIconInWorkspace = (workspaceName: string) =>
     "//span[text()='" +
     workspaceName +
@@ -79,7 +79,7 @@ export class HomePage {
   private _leaveWorkspaceConfirm = "//span[text()='Are you sure?']";
   _editPageLanding = "//h2[text()='Drag and drop a widget here']";
   _usersEmailList = "[data-colindex='0']";
-  private _workspaceImport = "[data-testid=t--workspace-import-app]";
+  _workspaceImport = "[data-testid=t--workspace-import-app]";
   private _uploadFile = "//div/form/input";
   private _importSuccessModal = ".t--import-app-success-modal";
   private _forkModal = ".fork-modal";
@@ -111,6 +111,7 @@ export class HomePage {
   //   '//span[text()="Rename application"]/ancestor::div[contains(@class,"rc-tooltip")]';
   _appRenameTooltip = "span:contains('Rename application')";
   _importFromGitBtn = "div.t--import-json-card + div";
+  public _optionsIcon = ".t--options-icon";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);

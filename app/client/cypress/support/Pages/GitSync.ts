@@ -38,11 +38,23 @@ export class GitSync {
   private _dropdownmenu = ".rc-select-item-option-content";
   private _openRepoButton = "[data-testid=t--git-repo-button]";
   public _commitButton = ".t--commit-button";
-  private _commitCommentInput = ".t--commit-comment-input textarea";
+  _commitCommentInput = ".t--commit-comment-input textarea";
 
   public _discardChanges = ".t--discard-button";
   public _discardCallout = "[data-testid='t--discard-callout']";
   public _gitStatusChanges = "[data-testid='t--git-change-statuses']";
+
+  _contextMenu = ".t--context-menu";
+  _menuItemChildren = ".ads-v2-menu__menu-item-children";
+  _input = ".bp3-input";
+  _mergeButton = "[data-testid=t--git-merge-button]";
+  _importJsonCard = ".t--import-json-card";
+  _generateDeployKeyBtn = "[data-testid=t--generate-deploy-ssh-key-button]";
+  _useGlobalGitConfig = "[data-testid=t--use-global-config-checkbox]";
+  _connectSubmitBtn = ".t--connect-submit-btn";
+  _headerKey = ".t--actionConfiguration\\.headers\\[0\\]\\.key\\.0";
+  _headerValue = ".t--actionConfiguration\\.headers\\[0\\]\\.value\\.0";
+  _codeEditTargetCodeMirror = ".CodeEditorTarget .CodeMirror"
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -378,5 +390,81 @@ export class GitSync {
     });
   }
 
+
+  public latestDeployPreview() {
+    cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
+    // Wait before publish
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    this.agHelper.Sleep(2000);
+    this.agHelper.AssertAutoSave();
+
+    // Stubbing window.open to open in the same tab
+    cy.window().then((window) => {
+      cy.stub(window, "open").callsFake((url) => {
+        window.location.href = Cypress.config().baseUrl + url.substring(1);
+        (window.location as any).target = "_self";
+      });
+    });
+    this.agHelper.GetNClick(this._bottomBarCommit);
+    this.agHelper.Sleep(2000); // wait for modal to load
+    this.agHelper.GetNClick("//span[text()='Latest deployed preview']");
+    cy.log("pagename: " + localStorage.getItem("PageName"));
+    this.agHelper.Sleep(2000); //wait time for page to load!
+  }
+
+  public importAppFromGit(repo: string, assertConnectFailure: boolean, failureMessage: string) {
+    const testEmail = "test@test.com";
+    const testUsername = "testusername";
+    const owner = Cypress.env("TEST_GITHUB_USER_NAME");
+
+    let generatedKey;
+    cy.intercept("GET", "api/v1/git/import/keys?keyType=ECDSA").as(
+      `generateKey-${repo}`,
+    );
+    this.agHelper.TypeText(this._gitRepoInput,
+      `${this.tedTestConfig.GITEA_API_URL_TED}/${repo}.git`,
+    );
+    this.agHelper.GetNClick(this._generateDeployKeyBtn);
+    this.assertHelper.WaitForNetworkCall(`@generateKey-${repo}`).then((result) => {
+      generatedKey = result.response?.body.data.publicKey;
+      generatedKey = generatedKey.slice(0, generatedKey.length - 1);
+
+      cy.request({
+        method: "POST",
+        url: `${this.tedTestConfig.GITEA_API_BASE_TED}:${this.tedTestConfig.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys`,
+        headers: {
+          Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
+        },
+        body: {
+          title: "key1",
+          key: generatedKey,
+          read_only: false,
+        },
+      });
+
+      this.agHelper.GetNClick(this._useGlobalGitConfig, 0, true);
+
+      this.agHelper.TypeText(this._gitConfigNameInput,
+        `{selectall}${testUsername}`,
+      );
+      this.agHelper.TypeText(this._gitConfigEmailInput,
+        `{selectall}${testEmail}`,
+      );
+
+      this.agHelper.GetNClick(this._connectSubmitBtn);
+
+      if (!assertConnectFailure) {
+        // check for connect success
+        this.assertHelper.AssertNetworkStatus("@importFromGit", 201);
+      } else {
+        this.assertHelper.WaitForNetworkCall("@importFromGit").then((interception) => {
+          const status = interception.response?.body.responseMeta.status;
+          const message = interception.response?.body.responseMeta.error.message;
+          expect(status).to.be.gte(400);
+          expect(message).to.contain(failureMessage);
+        });
+      }
+    });
+  }
   //#endregion
 }

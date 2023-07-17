@@ -86,7 +86,11 @@ export class EntityExplorer {
     "//span[text()='" +
     dbName +
     "']/following-sibling::div[contains(@class, 't--entity') and contains(@class, 'action')]//div[contains(@class, 't--entity-name')]";
-
+  _entityNameContains = (name: string) => `.t--entity-name:contains('${name}')`;
+  _entityItemContains = (item: string) => `.t--entity-item:contains('${item}')`;
+  _entityItem = ".t--entity-item";
+  _entityNameEdit = ".t--entity-name.editing";
+  _datasourceAddButton = ".datasources .t--entity-add-btn";
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
     section:
