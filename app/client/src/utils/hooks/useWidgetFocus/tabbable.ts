@@ -115,6 +115,8 @@ export function getNextTabbableDescendant(
 ) {
   const nextTabbableDescendant = descendants[0];
 
+  if (!nextTabbableDescendant) return;
+
   // if nextTabbableDescendant is a container,
   if (nextTabbableDescendant.matches(CONTAINER_SELECTOR)) {
     const tabbableDescendants = getChildrenWidgetsOfNode(
