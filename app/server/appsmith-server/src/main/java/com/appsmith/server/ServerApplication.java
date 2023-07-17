@@ -14,5 +14,4 @@ public class ServerApplication {
                 .bannerMode(Banner.Mode.OFF)
                 .run(args);
     }
-
 }

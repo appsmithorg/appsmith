@@ -9,7 +9,10 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 public class CustomApiTemplateRepositoryCEImpl extends BaseAppsmithRepositoryImpl<ApiTemplate>
         implements CustomApiTemplateRepositoryCE {
 
-    public CustomApiTemplateRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomApiTemplateRepositoryCEImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 }

@@ -7,8 +7,8 @@ import {
   apiPage,
   draggableWidgets,
   locators,
+  tedTestConfig,
 } from "../../../../support/Objects/ObjectsCore";
-import datasourceFormData from "../../../../fixtures/datasources.json";
 
 describe("Linting of entity properties", () => {
   before(() => {
@@ -19,7 +19,7 @@ describe("Linting of entity properties", () => {
   it("1. Shows correct lint error when wrong Api property is binded", () => {
     const invalidProperty = "unknownProperty";
     // create Api1
-    apiPage.CreateAndFillApi(datasourceFormData.mockApiUrl);
+    apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl);
     // Edit Button onclick property
     entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
