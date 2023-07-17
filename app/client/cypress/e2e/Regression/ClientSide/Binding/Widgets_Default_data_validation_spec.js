@@ -22,7 +22,10 @@ describe("Binding the multiple widgets and validating default data", function ()
     );
     //Dropdown widget test with default value from table widget
     entityExplorer.SelectEntityByName("Dropdown1");
-    cy.testJsontext("options", JSON.stringify(testdata.deafultDropDownWidget));
+    cy.testJsontext(
+      "sourcedata",
+      JSON.stringify(testdata.deafultDropDownWidget),
+    );
 
     cy.wait("@updateLayout").should(
       "have.nested.property",
