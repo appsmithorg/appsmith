@@ -5,6 +5,7 @@ import {
   agHelper,
   appSettings,
 } from "../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("In-app embed settings", () => {
   function ValidateSyncWithInviteModal(showNavigationBar: "true" | "false") {
@@ -71,10 +72,13 @@ describe("In-app embed settings", () => {
     ValidateSyncWithInviteModal("false");
   });
 
-  it("5. [Feature flag APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY=false] Changing the show navigation bar setting in the App settings pane should update the embed URL with embed parameter", () => {
-    cy.intercept("GET", "/api/v1/users/features", {
-      fixture: "featureFlags.json",
-    }).as("featureFlags");
+  it("5. [Feature flag release_embed_hide_share_settings_enabled=false] Changing the show navigation bar setting in the App settings pane should update the embed URL with embed parameter", () => {
+    featureFlagIntercept(
+      {
+        release_embed_hide_share_settings_enabled: false,
+      },
+      false,
+    );
     agHelper.RefreshPage();
     embedSettings.OpenEmbedSettings();
     embedSettings.TogglePublicAccess(true);
@@ -92,10 +96,11 @@ describe("In-app embed settings", () => {
     );
   });
 
-  it("6. [Feature flag APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY=true] Changing the show navigation bar setting in the App settings pane should update the embed URL with navbar parameter", () => {
-    cy.intercept("GET", "/api/v1/users/features", {
-      fixture: "featureFlagsComplement.json",
-    }).as("featureFlags");
+  it("6. [Feature flag release_embed_hide_share_settings_enabled=true] Changing the show navigation bar setting in the App settings pane should update the embed URL with navbar parameter", () => {
+    featureFlagIntercept(
+      { release_embed_hide_share_settings_enabled: true },
+      false,
+    );
     agHelper.RefreshPage();
 
     embedSettings.OpenEmbedSettings();

@@ -6,6 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import type {
   Datasource,
+  DatasourceStorage,
   DatasourceStructure,
   MockDatasource,
 } from "entities/Datasource";
@@ -19,8 +20,7 @@ export interface DatasourceDataState {
   loading: boolean;
   isTesting: boolean;
   isListing: boolean; // fetching unconfigured datasource list
-  fetchingDatasourceStructure: boolean;
-  isRefreshingStructure: boolean;
+  fetchingDatasourceStructure: Record<string, boolean>;
   structure: Record<string, DatasourceStructure>;
   isFetchingMockDataSource: false;
   mockDatasourceList: any[];
@@ -47,8 +47,7 @@ const initialState: DatasourceDataState = {
   loading: false,
   isTesting: false,
   isListing: false,
-  fetchingDatasourceStructure: false,
-  isRefreshingStructure: false,
+  fetchingDatasourceStructure: {},
   structure: {},
   isFetchingMockDataSource: false,
   mockDatasourceList: [],
@@ -142,8 +141,15 @@ const datasourceReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT]: (
     state: DatasourceDataState,
+    action: ReduxAction<{ id: string }>,
   ) => {
-    return { ...state, isRefreshingStructure: true };
+    return {
+      ...state,
+      fetchingDatasourceStructure: {
+        ...state.fetchingDatasourceStructure,
+        [action.payload.id]: true,
+      },
+    };
   },
   [ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_INIT]: (
     state: DatasourceDataState,
@@ -157,8 +163,15 @@ const datasourceReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT]: (
     state: DatasourceDataState,
+    action: ReduxAction<{ id: string }>,
   ) => {
-    return { ...state, fetchingDatasourceStructure: true };
+    return {
+      ...state,
+      fetchingDatasourceStructure: {
+        ...state.fetchingDatasourceStructure,
+        [action.payload.id]: true,
+      },
+    };
   },
   [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_SUCCESS]: (
     state: DatasourceDataState,
@@ -166,7 +179,10 @@ const datasourceReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      fetchingDatasourceStructure: false,
+      fetchingDatasourceStructure: {
+        ...state.fetchingDatasourceStructure,
+        [action.payload.datasourceId]: false,
+      },
       structure: {
         ...state.structure,
         [action.payload.datasourceId]: action.payload.data,
@@ -179,7 +195,10 @@ const datasourceReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      isRefreshingStructure: false,
+      fetchingDatasourceStructure: {
+        ...state.fetchingDatasourceStructure,
+        [action.payload.datasourceId]: false,
+      },
       structure: {
         ...state.structure,
         [action.payload.datasourceId]: action.payload.data,
@@ -188,10 +207,14 @@ const datasourceReducer = createReducer(initialState, {
   },
   [ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR]: (
     state: DatasourceDataState,
+    action: ReduxAction<{ datasourceId: string }>,
   ) => {
     return {
       ...state,
-      fetchingDatasourceStructure: false,
+      fetchingDatasourceStructure: {
+        ...state.fetchingDatasourceStructure,
+        [action.payload.datasourceId]: false,
+      },
     };
   },
   [ReduxActionTypes.FETCH_DATASOURCES_SUCCESS]: (
@@ -297,6 +320,43 @@ const datasourceReducer = createReducer(initialState, {
       recentDatasources: [
         action.payload.id,
         ...state.recentDatasources.filter((ds) => ds !== action.payload.id),
+      ],
+    };
+  },
+  [ReduxActionTypes.UPDATE_DATASOURCE_STORAGE_SUCCESS]: (
+    state: DatasourceDataState,
+    action: ReduxAction<DatasourceStorage>,
+  ): DatasourceDataState => {
+    return {
+      ...state,
+      loading: false,
+      list: state.list.map((datasource) => {
+        if (datasource.id === action.payload.datasourceId)
+          return {
+            ...datasource,
+            datasourceStorages: {
+              [`${action.payload.environmentId}`]: action.payload,
+            },
+          };
+
+        return datasource;
+      }),
+      unconfiguredList: state.unconfiguredList.map((datasource) => {
+        if (datasource.id === action.payload.datasourceId)
+          return {
+            ...datasource,
+            datasourceStorages: {
+              [`${action.payload.environmentId}`]: action.payload,
+            },
+          };
+
+        return datasource;
+      }),
+      recentDatasources: [
+        action.payload.datasourceId,
+        ...state.recentDatasources.filter(
+          (ds) => ds !== action.payload.datasourceId,
+        ),
       ],
     };
   },
@@ -426,10 +486,14 @@ const datasourceReducer = createReducer(initialState, {
   },
   [ReduxActionErrorTypes.REFRESH_DATASOURCE_STRUCTURE_ERROR]: (
     state: DatasourceDataState,
+    action: ReduxAction<{ datasourceId: string }>,
   ) => {
     return {
       ...state,
-      isRefreshingStructure: false,
+      fetchingDatasourceStructure: {
+        ...state.fetchingDatasourceStructure,
+        [action.payload.datasourceId]: false,
+      },
     };
   },
   [ReduxActionErrorTypes.EXECUTE_DATASOURCE_QUERY_ERROR]: (

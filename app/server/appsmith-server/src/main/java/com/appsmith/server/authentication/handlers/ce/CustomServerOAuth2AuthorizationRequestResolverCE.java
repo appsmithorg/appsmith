@@ -56,7 +56,8 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
     /**
      * The default pattern used to resolve the {@link ClientRegistration#getRegistrationId()}
      */
-    public static final String DEFAULT_AUTHORIZATION_REQUEST_PATTERN = "/oauth2/authorization/{" + DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME + "}";
+    public static final String DEFAULT_AUTHORIZATION_REQUEST_PATTERN =
+            "/oauth2/authorization/{" + DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME + "}";
 
     private static final char PATH_DELIMITER = '/';
 
@@ -64,9 +65,11 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
 
     private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 
-    private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding());
+    private final StringKeyGenerator stateGenerator =
+            new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding());
 
-    private final StringKeyGenerator secureKeyGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
+    private final StringKeyGenerator secureKeyGenerator =
+            new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
 
     private static final String MISSING_VALUE_SENTINEL = "missing_value_sentinel";
 
@@ -81,11 +84,15 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
      * @param commonConfig
      * @param redirectHelper
      */
-    public CustomServerOAuth2AuthorizationRequestResolverCE(ReactiveClientRegistrationRepository clientRegistrationRepository,
-                                                            CommonConfig commonConfig,
-                                                            RedirectHelper redirectHelper) {
-        this(clientRegistrationRepository, new PathPatternParserServerWebExchangeMatcher(
-                DEFAULT_AUTHORIZATION_REQUEST_PATTERN), commonConfig, redirectHelper);
+    public CustomServerOAuth2AuthorizationRequestResolverCE(
+            ReactiveClientRegistrationRepository clientRegistrationRepository,
+            CommonConfig commonConfig,
+            RedirectHelper redirectHelper) {
+        this(
+                clientRegistrationRepository,
+                new PathPatternParserServerWebExchangeMatcher(DEFAULT_AUTHORIZATION_REQUEST_PATTERN),
+                commonConfig,
+                redirectHelper);
     }
 
     /**
@@ -96,10 +103,11 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
      *                                     {@link #DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME} from the path variables.
      * @param redirectHelper
      */
-    public CustomServerOAuth2AuthorizationRequestResolverCE(ReactiveClientRegistrationRepository clientRegistrationRepository,
-                                                            ServerWebExchangeMatcher authorizationRequestMatcher,
-                                                            CommonConfig commonConfig,
-                                                            RedirectHelper redirectHelper) {
+    public CustomServerOAuth2AuthorizationRequestResolverCE(
+            ReactiveClientRegistrationRepository clientRegistrationRepository,
+            ServerWebExchangeMatcher authorizationRequestMatcher,
+            CommonConfig commonConfig,
+            RedirectHelper redirectHelper) {
         this.redirectHelper = redirectHelper;
         Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
         Assert.notNull(authorizationRequestMatcher, "authorizationRequestMatcher cannot be null");
@@ -110,7 +118,8 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
 
     @Override
     public Mono<OAuth2AuthorizationRequest> resolve(ServerWebExchange exchange) {
-        return this.authorizationRequestMatcher.matches(exchange)
+        return this.authorizationRequestMatcher
+                .matches(exchange)
                 .filter(ServerWebExchangeMatcher.MatchResult::isMatch)
                 .map(ServerWebExchangeMatcher.MatchResult::getVariables)
                 .map(variables -> variables.get(DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME))
@@ -119,25 +128,25 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
     }
 
     @Override
-    public Mono<OAuth2AuthorizationRequest> resolve(ServerWebExchange exchange,
-                                                    String clientRegistrationId) {
-        return this.findByRegistrationId(clientRegistrationId)
-                .flatMap(clientRegistration -> {
-                    if (MISSING_VALUE_SENTINEL.equals(clientRegistration.getClientId())) {
-                        return Mono.error(new AppsmithException(AppsmithError.OAUTH_NOT_AVAILABLE, clientRegistrationId));
-                    } else {
-                        return authorizationRequest(exchange, clientRegistration);
-                    }
-                });
+    public Mono<OAuth2AuthorizationRequest> resolve(ServerWebExchange exchange, String clientRegistrationId) {
+        return this.findByRegistrationId(clientRegistrationId).flatMap(clientRegistration -> {
+            if (MISSING_VALUE_SENTINEL.equals(clientRegistration.getClientId())) {
+                return Mono.error(new AppsmithException(AppsmithError.OAUTH_NOT_AVAILABLE, clientRegistrationId));
+            } else {
+                return authorizationRequest(exchange, clientRegistration);
+            }
+        });
     }
 
     private Mono<ClientRegistration> findByRegistrationId(String clientRegistration) {
-        return this.clientRegistrationRepository.findByRegistrationId(clientRegistration)
-                .switchIfEmpty(Mono.error(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid client registration id")));
+        return this.clientRegistrationRepository
+                .findByRegistrationId(clientRegistration)
+                .switchIfEmpty(Mono.error(
+                        () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid client registration id")));
     }
 
-    private Mono<OAuth2AuthorizationRequest> authorizationRequest(ServerWebExchange exchange,
-                                                                  ClientRegistration clientRegistration) {
+    private Mono<OAuth2AuthorizationRequest> authorizationRequest(
+            ServerWebExchange exchange, ClientRegistration clientRegistration) {
         String redirectUriStr = expandRedirectUri(exchange.getRequest(), clientRegistration);
 
         Map<String, Object> attributes = new HashMap<>();
@@ -147,44 +156,55 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
         if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
             builder = OAuth2AuthorizationRequest.authorizationCode();
             Map<String, Object> additionalParameters = new HashMap<>();
-            if (!CollectionUtils.isEmpty(clientRegistration.getScopes()) &&
-                    clientRegistration.getScopes().contains(OidcScopes.OPENID)) {
-                // Section 3.1.2.1 Authentication Request - https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
-                // scope
-                // 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
-                addNonceParameters(attributes, additionalParameters);
-            }
-            if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())) {
-                addPkceParameters(attributes, additionalParameters);
-            }
-            if (!commonConfig.getOauthAllowedDomains().isEmpty()) {
-                if (commonConfig.getOauthAllowedDomains().size() == 1) {
-                    // Incase there's only 1 domain, we can do a further optimization to let the user select a specific one
-                    // from the list
-                    additionalParameters.put("hd", commonConfig.getOauthAllowedDomains().get(0));
-                } else {
-                    // Add multiple domains to the list of allowed domains
-                    additionalParameters.put("hd", commonConfig.getOauthAllowedDomains());
-                }
-            }
+
+            addAttributesAndAdditionalParameters(clientRegistration, attributes, additionalParameters);
 
             builder.additionalParameters(additionalParameters);
-//        } else if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
-//            builder = OAuth2AuthorizationRequest.implicit();
+            //        } else if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType()))
+            // {
+            //            builder = OAuth2AuthorizationRequest.implicit();
         } else {
-            throw new IllegalArgumentException(
-                    "Invalid Authorization Grant type (" + clientRegistration.getAuthorizationGrantType().getValue()
-                            + ") for Client Registration with Id: " + clientRegistration.getRegistrationId());
+            throw new IllegalArgumentException("Invalid Authorization Grant type ("
+                    + clientRegistration.getAuthorizationGrantType().getValue() + ") for Client Registration with Id: "
+                    + clientRegistration.getRegistrationId());
         }
 
-        return generateKey(exchange.getRequest())
-                .map(key -> builder
-                        .clientId(clientRegistration.getClientId())
-                        .authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
-                        .redirectUri(redirectUriStr).scopes(clientRegistration.getScopes())
-                        .state(key)
-                        .attributes(attributes)
-                        .build());
+        return generateKey(exchange.getRequest()).map(key -> builder.clientId(clientRegistration.getClientId())
+                .authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
+                .redirectUri(redirectUriStr)
+                .scopes(clientRegistration.getScopes())
+                .state(key)
+                .attributes(attributes)
+                .build());
+    }
+
+    protected void addAttributesAndAdditionalParameters(
+            ClientRegistration clientRegistration,
+            Map<String, Object> attributes,
+            Map<String, Object> additionalParameters) {
+
+        if (!CollectionUtils.isEmpty(clientRegistration.getScopes())
+                && clientRegistration.getScopes().contains(OidcScopes.OPENID)) {
+            // Section 3.1.2.1 Authentication Request -
+            // https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+            // scope
+            // 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
+            addNonceParameters(attributes, additionalParameters);
+        }
+        if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())) {
+            addPkceParameters(attributes, additionalParameters);
+        }
+        if (!commonConfig.getOauthAllowedDomains().isEmpty()) {
+            if (commonConfig.getOauthAllowedDomains().size() == 1) {
+                // Incase there's only 1 domain, we can do a further optimization to let the user select a specific one
+                // from the list
+                additionalParameters.put(
+                        "hd", commonConfig.getOauthAllowedDomains().get(0));
+            } else {
+                // Add multiple domains to the list of allowed domains
+                additionalParameters.put("hd", commonConfig.getOauthAllowedDomains());
+            }
+        }
     }
 
     /**
@@ -197,12 +217,11 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
      * @return Publishes a single String, that is the generated key.
      */
     private Mono<String> generateKey(ServerHttpRequest request) {
-        return redirectHelper.getRedirectUrl(request)
-                .map(redirectUrl -> {
-                    String stateKey = this.stateGenerator.generateKey();
-                    stateKey = stateKey + "@" + Security.STATE_PARAMETER_ORIGIN + redirectUrl;
-                    return stateKey;
-                });
+        return redirectHelper.getRedirectUrl(request).map(redirectUrl -> {
+            String stateKey = this.stateGenerator.generateKey();
+            stateKey = stateKey + "@" + Security.STATE_PARAMETER_ORIGIN + redirectUrl;
+            return stateKey;
+        });
     }
 
     /**

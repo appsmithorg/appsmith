@@ -1,5 +1,7 @@
 package com.appsmith.server.domains.ce;
 
+import com.appsmith.server.constants.LicensePlan;
+import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
@@ -31,14 +33,14 @@ public class TenantConfigurationCE {
         thirdPartyAuths.add(auth);
     }
 
-    public void copyNonSensitiveValues(TenantConfiguration source) {
-        if (source == null) {
-            return;
-        }
-
-        googleMapsKey = source.getGoogleMapsKey();
-        isFormLoginEnabled = source.getIsFormLoginEnabled();
-        instanceName = source.getInstanceName();
+    public void copyNonSensitiveValues(TenantConfiguration tenantConfiguration) {
+        this.googleMapsKey = tenantConfiguration.getGoogleMapsKey();
+        this.isFormLoginEnabled = tenantConfiguration.getIsFormLoginEnabled();
+        this.instanceName = tenantConfiguration.getInstanceName();
+        License license = new License();
+        license.setPlan(LicensePlan.FREE);
+        this.license = license;
     }
 
+    public License license;
 }

@@ -6,9 +6,7 @@ describe("Range Slider spec", () => {
      * On the canvas we have a Range Slider
      * and a Text widget with binding {{RangeSlider1.value}}
      */
-    cy.fixture("rangeSliderWidgetDsl").then((dsl: string) => {
-      _.agHelper.AddDsl(dsl);
-    });
+    _.agHelper.AddDsl("rangeSliderWidgetDsl");
   });
 
   it("1. Validates Min. value", () => {
@@ -147,8 +145,8 @@ describe("Range Slider spec", () => {
       });
 
     // Change the Step size to 10
-    _.propPane.UpdatePropertyFieldValue("Min. range", "10");
-    _.propPane.UpdatePropertyFieldValue("Step size", "10");
+    _.propPane.UpdatePropertyFieldValue("Min. range", "10", true, false);
+    _.propPane.UpdatePropertyFieldValue("Step size", "10", true, false);
 
     _.agHelper
       .GetElement(_.locators._sliderThumb)

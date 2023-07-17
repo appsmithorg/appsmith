@@ -1,10 +1,10 @@
 import { BaseQueryGenerator } from "../BaseQueryGenerator";
-import { format } from "sql-formatter";
+import { formatDialect, postgresql } from "sql-formatter";
 import { QUERY_TYPE } from "../types";
 import type {
   WidgetQueryGenerationConfig,
   WidgetQueryGenerationFormConfig,
-  ActionConfigurationPostgreSQL,
+  ActionConfigurationSQL,
 } from "../types";
 import { removeSpecialChars } from "utils/helpers";
 export default abstract class PostgreSQL extends BaseQueryGenerator {
@@ -82,9 +82,9 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
         { template: "", params: {} },
       );
     //formats sql string
-    const res = format(template, {
+    const res = formatDialect(template, {
       params,
-      language: "postgresql",
+      dialect: postgresql,
     });
 
     return {
@@ -190,7 +190,7 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
   public static build(
     widgetConfig: WidgetQueryGenerationConfig,
     formConfig: WidgetQueryGenerationFormConfig,
-    pluginInitalValues: { actionConfiguration: ActionConfigurationPostgreSQL },
+    pluginInitalValues: { actionConfiguration: ActionConfigurationSQL },
   ) {
     const allBuildConfigs = [];
     if (widgetConfig.select) {

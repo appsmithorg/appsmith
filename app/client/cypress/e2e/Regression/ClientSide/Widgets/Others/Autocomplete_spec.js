@@ -3,9 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Autocomplete using slash command and mustache tests", function () {
   before(() => {
-    cy.fixture("slashcommandDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("slashcommandDsl");
   });
 
   it("Slash command and mustache autocomplete validation for button widget", function () {
@@ -63,13 +61,13 @@ describe("Autocomplete using slash command and mustache tests", function () {
         cy.get(dynamicInputLocators.hints).should("exist");
         // validates all autocomplete functions on entering {{}} in onClick field
         cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(1)
+          .eq(7)
           .should("have.text", "storeValue()");
         cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(2)
+          .eq(8)
           .should("have.text", "showAlert()");
         cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(3)
+          .eq(9)
           .should("have.text", "navigateTo()");
       });
   });

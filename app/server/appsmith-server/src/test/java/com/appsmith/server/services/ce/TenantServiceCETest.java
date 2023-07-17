@@ -6,6 +6,9 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.constants.LicensePlan;
+import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.services.TenantService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +19,9 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.mockito.Mockito;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
@@ -115,6 +121,19 @@ class TenantServiceCETest {
                     return true;
                 })
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails("anonymousUser")
+    public void getTenantConfig_Valid_AnonymousUser() {
+        StepVerifier.create(tenantService.getTenantConfiguration())
+            .assertNext(tenant -> {
+                assertThat(tenant.getTenantConfiguration()).isNotNull();
+                assertThat(tenant.getTenantConfiguration().getLicense()).isNotNull();
+                assertThat(tenant.getTenantConfiguration().getLicense().getPlan())
+                    .isEqualTo(LicensePlan.FREE);
+            })
+            .verifyComplete();
     }
 
 }

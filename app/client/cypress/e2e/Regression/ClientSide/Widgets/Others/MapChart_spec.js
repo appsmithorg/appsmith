@@ -5,9 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Map Chart Widget Functionality", function () {
   before(() => {
-    cy.fixture("MapChartDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("MapChartDsl");
   });
 
   beforeEach(() => {

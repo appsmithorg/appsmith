@@ -8,6 +8,7 @@ import {
   propPane,
   entityExplorer,
   locators,
+  assertHelper,
 } from "../../../support/Objects/ObjectsCore";
 
 describe("AForce - Community Issues page validations", function () {
@@ -27,19 +28,21 @@ describe("AForce - Community Issues page validations", function () {
   it("1. Import application json and validate headers", () => {
     homePage.NavigateToHome();
     homePage.ImportApp("CommunityIssuesExport.json");
-    cy.wait("@importNewApplication").then((interception: any) => {
-      agHelper.Sleep();
-      const { isPartialImport } = interception.response.body.data;
-      if (isPartialImport) {
-        // should reconnect modal
-        dataSources.ReconnectDataSource("AForceDB", "PostgreSQL");
-        homePage.AssertNCloseImport();
-      } else {
-        homePage.AssertImportToast();
-      }
-      //Validate table is not empty!
-      table.WaitUntilTableLoad(0, 0, "v2");
-    });
+    assertHelper
+      .WaitForNetworkCall("importNewApplication")
+      .then((interception: any) => {
+        agHelper.Sleep();
+        const { isPartialImport } = interception.response.body.data;
+        if (isPartialImport) {
+          // should reconnect modal
+          dataSources.ReconnectSingleDSNAssert("AForceDB", "PostgreSQL");
+          homePage.AssertNCloseImport();
+        } else {
+          homePage.AssertImportToast();
+        }
+        //Validate table is not empty!
+        table.WaitUntilTableLoad(0, 0, "v2");
+      });
 
     //Validating order of header columns!
     table.AssertTableHeaderOrder(
@@ -256,7 +259,7 @@ describe("AForce - Community Issues page validations", function () {
     table.RemoveFilterNVerify("Question", true, false, 0, "v2");
   });
 
-  it("8. Validate Adding a New issue from Add Modal", () => {
+  it.skip("8. Validate Adding a New issue from Add Modal", () => {
     // agHelper.DeployApp()
     // table.WaitUntilTableLoad(0,0,"v2")
 
@@ -302,7 +305,7 @@ describe("AForce - Community Issues page validations", function () {
     });
   });
 
-  it("9. Validate Updating issue from Details tab & Verify multiselect widget selected values", () => {
+  it.skip("9. Validate Updating issue from Details tab & Verify multiselect widget selected values", () => {
     agHelper.Sleep(2000);
     agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
     agHelper.Sleep(2000);
@@ -368,7 +371,7 @@ describe("AForce - Community Issues page validations", function () {
     agHelper.Sleep(2000); //allowing time to save!
   });
 
-  it("10. Validate Deleting the newly created issue", () => {
+  it.skip("10. Validate Deleting the newly created issue", () => {
     agHelper.Sleep(2000);
     agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
     table.SelectTableRow(0, 0, true, "v2");

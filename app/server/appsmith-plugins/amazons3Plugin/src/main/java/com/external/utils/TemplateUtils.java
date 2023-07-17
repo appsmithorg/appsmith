@@ -9,9 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
-import static com.external.plugins.AmazonS3Plugin.DEFAULT_URL_EXPIRY_IN_MINUTES;
-import static com.external.plugins.AmazonS3Plugin.NO;
-import static com.external.plugins.AmazonS3Plugin.YES;
 import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
@@ -23,6 +20,9 @@ import static com.external.plugins.constants.FieldName.LIST_WHERE;
 import static com.external.plugins.constants.FieldName.PATH;
 import static com.external.plugins.constants.FieldName.READ_DATATYPE;
 import static com.external.plugins.constants.FieldName.READ_EXPIRY;
+import static com.external.plugins.constants.S3PluginConstants.DEFAULT_URL_EXPIRY_IN_MINUTES;
+import static com.external.plugins.constants.S3PluginConstants.NO;
+import static com.external.plugins.constants.S3PluginConstants.YES;
 
 public class TemplateUtils {
 
@@ -131,9 +131,11 @@ public class TemplateUtils {
         setDataValueSafelyInFormData(configMap, BUCKET, bucketName);
         setDataValueSafelyInFormData(configMap, LIST_SIGNED_URL, NO);
         setDataValueSafelyInFormData(configMap, LIST_UNSIGNED_URL, YES);
-        setDataValueSafelyInFormData(configMap, LIST_WHERE, new HashMap<String, Object>() {{
-            put("condition", "AND");
-        }});
+        setDataValueSafelyInFormData(configMap, LIST_WHERE, new HashMap<String, Object>() {
+            {
+                put("condition", "AND");
+            }
+        });
 
         return new Template(LIST_FILES_TEMPLATE_NAME, configMap);
     }

@@ -2,16 +2,14 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
+  apiPage,
   entityExplorer,
   propPane,
-  apiPage,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
-    cy.fixture("tableTextPaginationDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableTextPaginationDsl");
   });
 
   it("1. Create an API and Execute the API and bind with Table", function () {
@@ -22,7 +20,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     agHelper.VerifyEvaluatedValue(
       this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=10",
     );
-    cy.RunAPI();
+    apiPage.RunAPI();
     //Test: Validate Table with API data and then add a column
     // Open property pane
     entityExplorer.SelectEntityByName("Table1");

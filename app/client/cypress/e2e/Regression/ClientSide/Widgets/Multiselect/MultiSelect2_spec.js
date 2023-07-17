@@ -13,9 +13,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("MultiSelect Widget Functionality", function () {
   before(() => {
-    cy.fixture("multiSelectDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("multiSelectDsl");
   });
 
   it("1. Selects value with invalid default value", () => {
@@ -233,7 +231,7 @@ describe("MultiSelect Widget Functionality", function () {
     },
   ];
 
-  it("8. Verify MultiSelect resets to default value", function () {
+  it("6. Verify MultiSelect resets to default value", function () {
     resetTestCases.forEach((testCase) => {
       const { defaultValue, options, optionsToDeselect, optionsToSelect } =
         testCase;
@@ -246,6 +244,8 @@ describe("MultiSelect Widget Functionality", function () {
       _.propPane.UpdatePropertyFieldValue(
         "Default selected values",
         JSON.stringify(defaultValue, null, 2),
+        true,
+        false,
       );
       // select other options
       _.agHelper.SelectFromMultiSelect(optionsToSelect);
@@ -266,7 +266,7 @@ describe("MultiSelect Widget Functionality", function () {
     });
   });
 
-  it("9. Verify MultiSelect deselection behavior", function () {
+  it("7. Verify MultiSelect deselection behavior", function () {
     cy.openPropertyPane("multiselectwidgetv2");
     // set options
     _.propPane.UpdatePropertyFieldValue(
@@ -280,16 +280,14 @@ describe("MultiSelect Widget Functionality", function () {
     cy.get(getWidgetSelector("textwidget")).eq(1).should("have.text", "");
   });
 
-  it("10. Dropdown Functionality To Unchecked Visible Widget", function () {
+  it("8. Dropdown Functionality To Unchecked Visible Widget", function () {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     _.deployMode.DeployApp();
     cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
       "not.exist",
     );
     _.deployMode.NavigateBacktoEditor();
-  });
-
-  it("11. Dropdown Functionality To Check Visible Widget", function () {
+    // Dropdown Functionality To Check Visible Widget", function () {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.togglebar(commonlocators.visibleCheckbox);
     _.deployMode.DeployApp();

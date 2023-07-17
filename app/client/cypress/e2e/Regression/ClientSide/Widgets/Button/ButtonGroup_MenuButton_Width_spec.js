@@ -3,9 +3,7 @@ import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 
 describe("In a button group widget, menu button width", function () {
   before(() => {
-    cy.fixture("ButtonGroup_MenuButton_Width_dsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("ButtonGroup_MenuButton_Width_dsl");
   });
 
   it("1. If target width is smaller than min-width, The menu button popover width should be set to minimum width", () => {

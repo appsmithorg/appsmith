@@ -4,6 +4,4 @@ import com.appsmith.server.repositories.ce.NotificationRepositoryCE;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface NotificationRepository extends NotificationRepositoryCE, CustomNotificationRepository {
-
-}
+public interface NotificationRepository extends NotificationRepositoryCE, CustomNotificationRepository {}
