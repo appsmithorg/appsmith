@@ -3,7 +3,6 @@ import {
   isEditorPath,
   isViewerPath,
 } from "@appsmith/pages/Editor/Explorer/helpers";
-import history from "utils/history";
 import { fetchWithRetry, getUsagePulsePayload } from "./utils";
 import {
   PULSE_API_ENDPOINT,
@@ -93,14 +92,13 @@ class UsagePulse {
    * a callback and unlisten when the user goes to a trackable URL
    */
   static async watchForTrackableUrl(callback: () => void) {
-    UsagePulse.unlistenRouteChange = history.listen(async () => {
+    UsagePulse.unlistenRouteChange = async () => {
       if (await UsagePulse.isTrackableUrl(window.location.pathname)) {
-        UsagePulse.unlistenRouteChange();
+        window.removeEventListener("popstate", UsagePulse.unlistenRouteChange);
         setTimeout(callback, 0);
       }
-    });
-
-    UsagePulse.deregisterActivityListener();
+    };
+    window.addEventListener("popstate", UsagePulse.unlistenRouteChange);
   }
 
   /*
