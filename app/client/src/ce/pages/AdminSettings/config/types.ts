@@ -94,6 +94,8 @@ export interface Category {
   children?: Category[];
   icon?: string;
   categoryType: string;
+  needsUpgrade?: boolean;
+  isEnterprise?: boolean;
 }
 
 export const SettingCategories = {
@@ -108,6 +110,7 @@ export const SettingCategories = {
   GITHUB_AUTH: "github-auth",
   AUDIT_LOGS: "audit-logs",
   ACCESS_CONTROL: "access-control",
+  PROVISIONING: "provisioning",
   BRANDING: "branding",
 };
 
@@ -124,4 +127,5 @@ export type AdminConfigType = {
   icon?: string;
   needsUpgrade?: boolean;
   categoryType: "general" | "acl" | "other";
+  isEnterprise?: boolean;
 };

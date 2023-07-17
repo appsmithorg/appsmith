@@ -7,8 +7,10 @@ import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { useParams } from "react-router";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Icon, Tag, Text } from "design-system";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) => props.theme.sidebarWidth};
@@ -96,11 +98,20 @@ export function Categories({
 }) {
   const dispatch = useDispatch();
 
-  const onClickHandler = (category: string) => {
+  const triggerAnalytics = (source: string) => {
+    AnalyticsUtil.logEvent("ADMIN_SETTINGS_CLICK", {
+      source,
+    });
+  };
+
+  const onClickHandler = (category: string, needsUpgrade: boolean) => {
     if (category === "general") {
       dispatch({
         type: ReduxActionTypes.FETCH_ADMIN_SETTINGS,
       });
+    }
+    if (needsUpgrade) {
+      triggerAnalytics(category);
     }
   };
 
@@ -118,7 +129,9 @@ export function Categories({
               className={`t--settings-category-${config.slug} ${
                 active ? "active" : ""
               }`}
-              onClick={() => onClickHandler(config.slug)}
+              onClick={() =>
+                onClickHandler(config.slug, config?.needsUpgrade || false)
+              }
               to={
                 !parentCategory
                   ? adminSettingsCategoryUrl({ category: config.slug })
@@ -128,8 +141,17 @@ export function Categories({
                     })
               }
             >
-              {config?.icon && <Icon name={config?.icon} size="md" />}
+              {config?.needsUpgrade ? (
+                <Icon name="lock-2-line" />
+              ) : (
+                config?.icon && <Icon name={config?.icon} size="md" />
+              )}
               <SettingName active={active}>{config.title}</SettingName>
+              {config?.needsUpgrade && (
+                <Tag isClosable={false}>
+                  {config?.isEnterprise ? "Enterprise" : "Business"}
+                </Tag>
+              )}
             </StyledLink>
             {showSubCategory && (
               <Categories
@@ -148,68 +170,58 @@ export function Categories({
 
 export default function LeftPane() {
   const categories = getSettingsCategory("general");
+  const aclCategories = getSettingsCategory("acl");
+  const othersCategories = getSettingsCategory("other");
   const { category, selected: subCategory } = useParams() as any;
+  const user = useSelector(getCurrentUser);
+  const isSuperUser = user?.isSuperUser;
+  const featureFlags = useSelector(selectFeatureFlags);
 
-  function triggerAnalytics(source: string) {
-    AnalyticsUtil.logEvent("ADMIN_SETTINGS_CLICK", {
-      source,
-    });
-  }
+  const filteredAclCategories = aclCategories
+    ?.map((category) => {
+      if (
+        category.slug === "provisioning" &&
+        !featureFlags.release_scim_provisioning_enabled
+      ) {
+        return null;
+      }
+      return category;
+    })
+    .filter(Boolean) as Category[];
 
   return (
     <Wrapper>
+      {isSuperUser && (
+        <HeaderContainer>
+          <StyledHeader kind="heading-s" renderAs="p">
+            Admin settings
+          </StyledHeader>
+          <Categories
+            categories={categories}
+            currentCategory={category}
+            currentSubCategory={subCategory}
+          />
+        </HeaderContainer>
+      )}
       <HeaderContainer>
         <StyledHeader kind="heading-s" renderAs="p">
-          Admin settings
+          Access control
         </StyledHeader>
         <Categories
-          categories={categories}
+          categories={filteredAclCategories}
           currentCategory={category}
           currentSubCategory={subCategory}
         />
       </HeaderContainer>
       <HeaderContainer>
         <StyledHeader kind="heading-s" renderAs="p">
-          Access Control
+          Others
         </StyledHeader>
-        <CategoryList data-testid="t--enterprise-settings-category-list">
-          <CategoryItem>
-            <StyledLink
-              $active={category === "access-control"}
-              className={`${category === "access-control" ? "active" : ""}`}
-              data-testid="t--enterprise-settings-category-item-access-control"
-              to="/settings/access-control"
-            >
-              <Icon name="lock-2-line" size="md" />
-              <SettingName active={category === "access-control"}>
-                Access control
-              </SettingName>
-              <Tag isClosable={false}>Business</Tag>
-            </StyledLink>
-          </CategoryItem>
-        </CategoryList>
-      </HeaderContainer>
-      <HeaderContainer>
-        <StyledHeader kind="heading-s" renderAs="p">
-          Other
-        </StyledHeader>
-        <CategoryList data-testid="t--enterprise-settings-category-list">
-          <CategoryItem>
-            <StyledLink
-              $active={category === "audit-logs"}
-              className={`${category === "audit-logs" ? "active" : ""}`}
-              data-testid="t--enterprise-settings-category-item-audit-logs"
-              onClick={() => triggerAnalytics("AuditLogs")}
-              to="/settings/audit-logs"
-            >
-              <Icon name="lock-2-line" size="md" />
-              <SettingName active={category === "audit-logs"}>
-                Audit logs
-              </SettingName>
-              <Tag isClosable={false}>Business</Tag>
-            </StyledLink>
-          </CategoryItem>
-        </CategoryList>
+        <Categories
+          categories={othersCategories}
+          currentCategory={category}
+          currentSubCategory={subCategory}
+        />
       </HeaderContainer>
     </Wrapper>
   );
