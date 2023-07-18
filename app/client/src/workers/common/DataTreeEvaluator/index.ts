@@ -113,7 +113,7 @@ import {
 } from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
-  reValidateEvalOrderDependentPaths,
+  getValidatedTree,
   validateActionProperty,
   validateAndParseWidgetProperty,
 } from "./validationUtils";
@@ -339,18 +339,17 @@ export default class DataTreeEvaluator {
     const validationStartTime = performance.now();
     // Validate Widgets
 
-    reValidateEvalOrderDependentPaths(
-      evaluationOrder,
-      evaluatedTree,
-      {
-        evalProps: this.evalProps,
-        dataTreeEvaluator: this,
-      },
-      this.oldConfigTree,
+    this.setEvalTree(
+      getValidatedTree(
+        evaluatedTree,
+        {
+          evalProps: this.evalProps,
+        },
+        this.oldConfigTree,
+      ),
     );
 
     const validationEndTime = performance.now();
-    this.setEvalTree(evaluatedTree);
 
     const timeTakenForEvalAndValidateFirstTree = {
       evaluation: getFixedTimeDifference(
