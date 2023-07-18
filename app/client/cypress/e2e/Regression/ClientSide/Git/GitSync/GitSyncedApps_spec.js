@@ -206,6 +206,7 @@ describe("Git sync apps", function () {
 
   it("3. Commit and push changes, validate data binding on all pages in edit and deploy mode on master", () => {
     // verfiy data binding on all pages in edit mode
+    agHelper.RefreshPage();
     cy.wait(2000);
     cy.get(".t--draggable-inputwidgetv2").should("be.visible");
     cy.get(".t--draggable-inputwidgetv2")
