@@ -85,7 +85,7 @@ describe("Create new workspace and share with a user", function () {
   });
 
   it("4. Open the app without login and validate public access of Application", function () {
-    agHelper.VisitNAssert(currentUrl);
+    agHelper.VisitNAssert(currentUrl, "@getPagesForViewApp");
     agHelper.Sleep(3000);
     agHelper.GetText(locators._emptyPageTxt).then((text) => {
       const someText = text;
@@ -100,8 +100,7 @@ describe("Create new workspace and share with a user", function () {
       Cypress.env("TESTUSERNAME2"),
       Cypress.env("TESTPASSWORD2"),
     );
-    agHelper.VisitNAssert(currentUrl);
-    assertHelper.AssertNetworkStatus("@getPagesForViewApp");
+    agHelper.VisitNAssert(currentUrl, "@getPagesForViewApp");
     agHelper.GetText(locators._emptyPageTxt).then((text) => {
       const someText = text;
       expect(someText).to.equal("This page seems to be blank");
