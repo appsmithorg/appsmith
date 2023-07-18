@@ -2,7 +2,10 @@ import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
-import type { Category } from "@appsmith/pages/AdminSettings/config/types";
+import {
+  CategoryType,
+  type Category,
+} from "@appsmith/pages/AdminSettings/config/types";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { useParams } from "react-router";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -176,9 +179,9 @@ export function Categories({
 }
 
 export default function LeftPane() {
-  const categories = getSettingsCategory("general");
-  const aclCategories = getSettingsCategory("acl");
-  const othersCategories = getSettingsCategory("other");
+  const categories = getSettingsCategory(CategoryType.GENERAL);
+  const aclCategories = getSettingsCategory(CategoryType.ACL);
+  const othersCategories = getSettingsCategory(CategoryType.OTHER);
   const { category, selected: subCategory } = useParams() as any;
   const user = useSelector(getCurrentUser);
   const isSuperUser = user?.isSuperUser;
