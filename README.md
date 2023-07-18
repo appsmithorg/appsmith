@@ -235,6 +235,7 @@ Lets build great software together.
 [![tejasahluwalia](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/39881648?v=4&w=50&h=50&mask=circle)](https://github.com/tejasahluwalia)
 [![dilippitchika](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/19730984?v=4&w=50&h=50&mask=circle)](https://github.com/dilippitchika)
 [![sharanya-appsmith](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/135708039?v=4&w=50&h=50&mask=circle)](https://github.com/sharanya-appsmith)
+[![nerbos](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/121891?v=4&w=50&h=50&mask=circle)](https://github.com/nerbos)
 [![hiteshjoshi](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/217911?v=4&w=50&h=50&mask=circle)](https://github.com/hiteshjoshi)
 [![rlnorthcutt](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/673633?v=4&w=50&h=50&mask=circle)](https://github.com/rlnorthcutt)
 [![kevinblanco](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/1458238?v=4&w=50&h=50&mask=circle)](https://github.com/kevinblanco)
