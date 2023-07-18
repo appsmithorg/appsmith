@@ -91,17 +91,7 @@ describe("datasource unsaved changes popup shows even without changes", function
     });
   });
 
-  it("4. Bug 19801: Create new Auth DS, refresh the page without saving, we should not see discard popup", () => {
-    _.dataSources.NavigateToDSCreateNew();
-    _.agHelper.GenerateUUID();
-    // using CreatePlugIn function instead of CreateDatasource,
-    // because I do not need to fill the datasource form and use the same default data
-    _.dataSources.CreatePlugIn("Authenticated API");
-    _.agHelper.RefreshPage();
-    _.agHelper.AssertElementAbsence(_.dataSources._datasourceModalSave);
-  });
-
-  it("5. Validate that the DS modal shows up when cancel button is pressed after change", () => {
+  it("4. Validate that the DS modal shows up when cancel button is pressed after change", () => {
     _.dataSources.NavigateToDSCreateNew();
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
@@ -125,7 +115,7 @@ describe("datasource unsaved changes popup shows even without changes", function
     });
   });
 
-  it("6. Validate that the DS modal does not show up when cancel button is pressed without any changes being made", () => {
+  it("5. Validate that the DS modal does not show up when cancel button is pressed without any changes being made", () => {
     _.dataSources.NavigateToDSCreateNew();
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
@@ -148,7 +138,7 @@ describe("datasource unsaved changes popup shows even without changes", function
     });
   });
 
-  it("7. Validate that changes made to the form are not persisted after cancellation", () => {
+  it("6. Validate that changes made to the form are not persisted after cancellation", () => {
     _.dataSources.NavigateToDSCreateNew();
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
@@ -180,5 +170,15 @@ describe("datasource unsaved changes popup shows even without changes", function
 
       _.dataSources.DeleteDatasouceFromActiveTab(dsName);
     });
+  });
+
+  it("7. Bug 19801: Create new Auth DS, refresh the page without saving, we should not see discard popup", () => {
+    _.dataSources.NavigateToDSCreateNew();
+    _.agHelper.GenerateUUID();
+    // using CreatePlugIn function instead of CreateDatasource,
+    // because I do not need to fill the datasource form and use the same default data
+    _.dataSources.CreatePlugIn("Authenticated API");
+    _.agHelper.RefreshPage();
+    _.agHelper.AssertElementAbsence(_.dataSources._datasourceModalSave);
   });
 });
