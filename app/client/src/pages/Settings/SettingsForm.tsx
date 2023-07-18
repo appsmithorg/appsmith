@@ -96,7 +96,7 @@ export function SettingsForm(
   // Is there a non-tenant (env) config in this category of settings?
   const isOnlyTenantConfig = !settingsDetails.find(
     (s) =>
-      s.category == category &&
+      s.category === (subCategory || category) &&
       s.controlType != SettingTypes.LINK &&
       !isTenantConfig(s.id),
   );
