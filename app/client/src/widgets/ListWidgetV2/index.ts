@@ -46,7 +46,6 @@ const LIST_WIDGET_NESTING_ERROR =
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  snipePath: Widget.getSnipePath(),
   name: "List",
   iconSVG: IconSVG,
   needsMeta: true,

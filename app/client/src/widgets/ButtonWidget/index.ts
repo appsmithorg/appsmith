@@ -11,7 +11,6 @@ import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  snipePath: Widget.getSnipePath(),
   name: "Button",
   iconSVG: IconSVG,
   needsMeta: true,

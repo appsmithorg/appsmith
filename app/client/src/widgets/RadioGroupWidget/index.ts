@@ -6,7 +6,6 @@ import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  snipePath: Widget.getSnipePath(),
   name: "Radio Group",
   iconSVG: IconSVG,
   needsMeta: true,

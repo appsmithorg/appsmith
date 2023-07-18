@@ -11,7 +11,6 @@ export const CONFIG = {
     },
   },
   type: Widget.getWidgetType(),
-  snipePath: Widget.getSnipePath(),
   name: "Rating",
   iconSVG: IconSVG,
   needsMeta: true,

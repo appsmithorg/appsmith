@@ -26,7 +26,6 @@ export const CONFIG = {
     },
   },
   type: Widget.getWidgetType(),
-  snipePath: Widget.getSnipePath(),
   name: "JSON Form",
   iconSVG: IconSVG,
   needsMeta: true,

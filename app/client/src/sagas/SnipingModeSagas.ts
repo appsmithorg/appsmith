@@ -62,10 +62,8 @@ export function* bindDataToWidgetSaga(
 
   //TODO (Balaji): Abstraction leak. propertyPath should come from the widget
 
-  if (selectedWidget) {
-    propertyPath = selectedWidget.snipePath;
-    // console.log("propertyPath", propertyPath);
-  }
+  // if (selectedWidget) propertyPath = selectedWidget.snipePath;
+  // console.log("propertyPath", propertyPath);
 
   switch (selectedWidget.type) {
     case WidgetTypes.BUTTON_WIDGET:

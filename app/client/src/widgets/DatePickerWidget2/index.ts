@@ -18,7 +18,6 @@ export const CONFIG = {
     },
   },
   type: Widget.getWidgetType(),
-  snipePath: Widget.getSnipePath(),
   name: "DatePicker",
   iconSVG: IconSVG,
   needsMeta: true,

@@ -6,7 +6,6 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  snipePath: Widget.getSnipePath(),
   name: "Video",
   iconSVG: IconSVG,
   needsMeta: true,

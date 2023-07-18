@@ -14,7 +14,6 @@ export const CONFIG = {
     },
   },
   type: Widget.getWidgetType(),
-  snipePath: Widget.getSnipePath(),
   name: "Checkbox",
   iconSVG: IconSVG,
   needsMeta: true,

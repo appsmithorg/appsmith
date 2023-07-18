@@ -6,7 +6,6 @@ import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  snipePath: Widget.getSnipePath(),
   name: "Map",
   iconSVG: IconSVG,
   needsMeta: true,
