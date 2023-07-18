@@ -24,7 +24,7 @@ const HeaderWrapper = styled.div`
 
 function CopyUrlForm(props: {
   value: string;
-  title: string;
+  title: React.ReactNode;
   helpText?: string;
   tooltip?: string;
   fieldName?: string;
