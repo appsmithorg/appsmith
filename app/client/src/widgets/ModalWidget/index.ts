@@ -259,18 +259,25 @@ export const CONFIG = {
             const layout: LayoutComponentProps[] = [
               {
                 layoutId: "1",
+                layoutStyle: {
+                  rowGap: 12,
+                },
                 layoutType: "COLUMN",
                 layout: [
                   {
                     layoutId: "2",
                     layoutStyle: {
                       alignSelf: "stretch",
-                      sizes: [1, 0],
+                      columnGap: 4,
                     },
                     layoutType: "ROW",
                     layout: [
                       {
                         layoutId: "3",
+                        layoutStyle: {
+                          columnGap: 4,
+                          flexGrow: 1,
+                        },
                         layoutType: "ROW",
                         isDropTarget: true,
                         widgetsAllowed: ["1D"],
@@ -280,6 +287,7 @@ export const CONFIG = {
                       {
                         layoutId: "4",
                         layoutStyle: {
+                          columnGap: 4,
                           minWidth: "30px",
                         },
                         layoutType: "ROW",
@@ -293,6 +301,7 @@ export const CONFIG = {
                   {
                     layoutId: "5",
                     layoutStyle: {
+                      columnGap: 4,
                       flexWrap: "wrap",
                       height: "auto",
                       maxHeight: "300px",
@@ -302,6 +311,9 @@ export const CONFIG = {
                     layout: [
                       {
                         layoutId: "6",
+                        layoutStyle: {
+                          rowGap: 12,
+                        },
                         layoutType: "COLUMN",
                         isDropTarget: true,
                         layout: [

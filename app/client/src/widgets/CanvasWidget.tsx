@@ -28,6 +28,7 @@ import type { AutocompletionDefinitions } from "widgets/constants";
 import type { LayoutComponentProps } from "utils/autoLayout/autoLayoutTypes";
 import { getLayoutComponent } from "utils/autoLayout/layoutComponentUtils";
 import { isArray } from "lodash";
+import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -149,27 +150,29 @@ class CanvasWidget extends ContainerWidget {
     );
   }
 
-  // renderFlexCanvas() {
-  //   const stretchFlexBox = !this.props.children || !this.props.children?.length;
-  //   return (
-  //     <FlexBoxComponent
-  //       flexLayers={this.props.flexLayers || []}
-  //       stretchHeight={stretchFlexBox}
-  //       useAutoLayout={this.props.useAutoLayout || false}
-  //       widgetId={this.props.widgetId}
-  //     >
-  //       {this.renderChildren()}
-  //     </FlexBoxComponent>
-  //   );
-  // }
+  renderFlexBoxCanvas() {
+    const stretchFlexBox = !this.props.children || !this.props.children?.length;
+    return (
+      <FlexBoxComponent
+        flexLayers={this.props.flexLayers || []}
+        stretchHeight={stretchFlexBox}
+        useAutoLayout={this.props.useAutoLayout || false}
+        widgetId={this.props.widgetId}
+      >
+        {this.renderChildren()}
+      </FlexBoxComponent>
+    );
+  }
 
   renderFlexCanvas() {
     const layout: LayoutComponentProps[] = this.props
       .layout as LayoutComponentProps[];
     console.log("####", { layout });
+    if (!layout) return this.renderFlexBoxCanvas();
     const map: { [key: string]: any } = {};
-    if (isArray(this.props.children)) {
-      for (const child of this.props.children) {
+    const arr = this.renderChildren();
+    if (isArray(arr)) {
+      for (const child of arr) {
         map[(child as JSX.Element).props?.widgetId] = child;
       }
     }

@@ -11,27 +11,35 @@ const AlignedRow = (props: LayoutComponentProps) => {
       <FlexLayout flexDirection="row" {...(layoutStyle || {})}>
         <FlexLayout
           columnGap={4}
+          flexBasis={0}
           flexDirection="row"
-          flexWrap="wrap"
-          overflow="visible"
+          flexGrow={1}
+          flexShrink={1}
+          flexWrap="nowrap"
           rowGap={12}
         >
           {(layout[0] as string[]).map((id: string) => childrenMap[id])}
         </FlexLayout>
         <FlexLayout
           columnGap={4}
+          flexBasis={0}
           flexDirection="row"
-          flexWrap="wrap"
-          overflow="visible"
+          flexGrow={1}
+          flexShrink={1}
+          flexWrap="nowrap"
+          justifyContent="center"
           rowGap={12}
         >
           {(layout[1] as string[]).map((id: string) => childrenMap[id])}
         </FlexLayout>
         <FlexLayout
           columnGap={4}
+          flexBasis={0}
           flexDirection="row"
-          flexWrap="wrap"
-          overflow="visible"
+          flexGrow={1}
+          flexShrink={1}
+          flexWrap="nowrap"
+          justifyContent="flex-end"
           rowGap={12}
         >
           {(layout[2] as string[]).map((id: string) => childrenMap[id])}

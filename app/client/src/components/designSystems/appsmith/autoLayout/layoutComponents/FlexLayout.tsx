@@ -27,11 +27,15 @@ const FlexLayout = (props: FlexLayoutProps) => {
       columnGap: props.columnGap || 0,
       display: "flex",
       flexDirection: props.flexDirection,
+      flex: `${props.flexGrow || 0} ${props.flexShrink || 0} ${
+        props.flexBasis || "auto"
+      }`,
       flexGrow: props.flexGrow || 0,
       flexShrink: props.flexShrink || 0,
       flexBasis: props.flexBasis || "auto",
       flexWrap: props.flexWrap || "nowrap",
       justifyContent: props.justifyContent || "flex-start",
+      overflowX: "hidden",
       overflowY: props.overflow || "hidden",
       height: props.height || "auto",
       maxHeight: props.maxHeight,

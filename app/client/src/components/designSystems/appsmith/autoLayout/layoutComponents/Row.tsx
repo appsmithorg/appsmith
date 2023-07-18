@@ -19,7 +19,7 @@ const Row = (props: LayoutComponentProps) => {
   }
   const layout: LayoutComponentProps[] = props.layout as LayoutComponentProps[];
   return (
-    <FlexLayout flexDirection="column" {...(layoutStyle || {})}>
+    <FlexLayout flexDirection="row" {...(layoutStyle || {})}>
       {layout.map((item: LayoutComponentProps, index: number) => {
         const Comp = getLayoutComponent(item.layoutType);
         return <Comp childrenMap={childrenMap} key={index} {...item} />;
