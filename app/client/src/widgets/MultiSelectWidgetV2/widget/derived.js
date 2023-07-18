@@ -18,8 +18,8 @@ export default {
     }
 
     return sourceData.map((d, i) => ({
-      label: labels[i] || "",
-      value: values[i] || "",
+      label: labels[i],
+      value: values[i],
     }));
   },
   //

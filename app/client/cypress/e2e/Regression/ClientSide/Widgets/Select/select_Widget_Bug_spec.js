@@ -21,7 +21,7 @@ describe("Select Widget Functionality", function () {
   it("should check that virtualization works well", () => {
     cy.openPropertyPane("selectwidget");
     cy.updateCodeInput(
-      ".t--property-control-options",
+      ".t--property-control-sourcedata",
       `[
         {
           "label": "RANDOM",

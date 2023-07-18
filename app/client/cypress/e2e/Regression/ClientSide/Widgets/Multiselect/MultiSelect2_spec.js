@@ -18,7 +18,20 @@ describe("MultiSelect Widget Functionality", function () {
 
   it("1. Selects value with invalid default value", () => {
     cy.openPropertyPane("multiselectwidgetv2");
-    _.propPane.UpdatePropertyFieldValue("Options", JSON.stringify(data.input));
+    _.propPane.UpdatePropertyFieldValue(
+      "Source Data",
+      JSON.stringify(data.input),
+    );
+
+    _.propPane.ToggleJSMode("label");
+    cy.updateCodeInput(
+      ".t--property-control-wrapper.t--property-control-label",
+      `label`,
+    );
+
+    _.propPane.ToggleJSMode("value");
+    cy.updateCodeInput(".t--property-control-value", `value`);
+
     _.propPane.UpdatePropertyFieldValue(
       "Default selected values",
       "{{ undefined }}",
@@ -238,7 +251,10 @@ describe("MultiSelect Widget Functionality", function () {
 
       cy.openPropertyPane("multiselectwidgetv2");
       // set options
-      _.propPane.UpdatePropertyFieldValue("Options", JSON.stringify(options));
+      _.propPane.UpdatePropertyFieldValue(
+        "Source Data",
+        JSON.stringify(options),
+      );
       _.agHelper.PressEscape();
       // set default value
       _.propPane.UpdatePropertyFieldValue(
@@ -268,7 +284,7 @@ describe("MultiSelect Widget Functionality", function () {
     cy.openPropertyPane("multiselectwidgetv2");
     // set options
     _.propPane.UpdatePropertyFieldValue(
-      "Options",
+      "Source Data",
       JSON.stringify([{ label: "RED", value: "RED" }]),
     );
     _.agHelper.PressEscape();
