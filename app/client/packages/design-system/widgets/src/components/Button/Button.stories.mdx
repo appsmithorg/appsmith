@@ -105,6 +105,12 @@ There are 4 variants of the button component.
     args={{
       children: "Hover",
     }}
+    parameters={{
+      docs: { disable: true },
+      previewTabs: {
+        "storybook/docs/panel": { hidden: true },
+      },
+    }}
     play={async ({ canvasElement }) => {
       const button = await within(canvasElement).getByRole("button");
       await userEvent.hover(button);
@@ -116,6 +122,12 @@ There are 4 variants of the button component.
     name="Focus State"
     args={{
       children: "Focus",
+    }}
+    parameters={{
+      docs: { disable: true },
+      previewTabs: {
+        "storybook/docs/panel": { hidden: true },
+      },
     }}
     play={async ({ canvasElement }) => {
       const canvas = within(canvasElement);
