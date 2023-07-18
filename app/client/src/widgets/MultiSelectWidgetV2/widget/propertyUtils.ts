@@ -291,6 +291,7 @@ export function valueKeyValidation(
    * Validation rules
    *  1. Can be a string.
    *  2. Can be an Array of string, number, boolean (only for option Value).
+   *  3. should be unique.
    */
 
   if (value === "" || _.isNil(value)) {
@@ -306,31 +307,32 @@ export function valueKeyValidation(
     };
   }
 
+  let options: unknown[] = [];
+
   if (_.isString(value)) {
-    return {
-      parsed: value,
-      isValid: true,
-      messages: [],
-    };
+    const sourceData = _.isArray(props.sourceData) ? props.sourceData : [];
+
+    options = sourceData.map((d: Record<string, unknown>) => d[value]);
   } else if (_.isArray(value)) {
     const errorIndex = value.findIndex(
       (d) =>
         !(_.isString(d) || (_.isNumber(d) && !_.isNaN(d)) || _.isBoolean(d)),
     );
 
-    return {
-      parsed: errorIndex === -1 ? value : [],
-      isValid: errorIndex === -1,
-      messages:
-        errorIndex !== -1
-          ? [
-              {
-                name: "ValidationError",
-                message: `Invalid entry at index: ${errorIndex}. This value does not evaluate to type: string | number | boolean`,
-              },
-            ]
-          : [],
-    };
+    if (errorIndex !== -1) {
+      return {
+        parsed: [],
+        isValid: false,
+        messages: [
+          {
+            name: "ValidationError",
+            message: `Invalid entry at index: ${errorIndex}. This value does not evaluate to type: string | number | boolean`,
+          },
+        ],
+      };
+    } else {
+      options = value;
+    }
   } else {
     return {
       parsed: "",
@@ -344,4 +346,21 @@ export function valueKeyValidation(
       ],
     };
   }
+
+  const isValid = !options.find(
+    (d: unknown, i: number, arr: unknown[]) => arr.indexOf(d) !== i,
+  );
+
+  return {
+    parsed: value,
+    isValid: isValid,
+    messages: isValid
+      ? []
+      : [
+          {
+            name: "ValidationError",
+            message: "Duplicate values found, value must be unique",
+          },
+        ],
+  };
 }
