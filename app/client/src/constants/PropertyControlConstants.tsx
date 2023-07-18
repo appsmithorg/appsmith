@@ -98,6 +98,12 @@ export type PropertyPaneControlConfig = {
   isPanelProperty?: boolean;
   // Numeric Input Control
   min?: number;
+  // Switch mode ( JS -> Text )
+  switchToNormalMode?: (
+    propertyName: string,
+    isDynamic: boolean,
+    isToggleDisabled: boolean,
+  ) => boolean;
 };
 
 type ValidationConfigParams = {

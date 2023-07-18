@@ -254,6 +254,7 @@ const PropertyControl = memo((props: Props) => {
   const {
     isTriggerProperty,
     postUpdateAction,
+    switchToNormalMode,
     updateHook,
     updateRelatedWidgetProperties,
   } = props;
@@ -749,13 +750,15 @@ const PropertyControl = memo((props: Props) => {
       };
     }
 
-    if (
-      connectDataClicked &&
-      propertyName === "tableData" &&
-      isDynamic &&
-      !isToggleDisabled
-    ) {
-      toggleDynamicProperty("tableData", true);
+    if (switchToNormalMode) {
+      const switchMode = switchToNormalMode(
+        propertyName,
+        isDynamic,
+        isToggleDisabled,
+      );
+      if (connectDataClicked && switchMode) {
+        toggleDynamicProperty(propertyName, true);
+      }
     }
 
     try {

@@ -47,6 +47,11 @@ export default [
           },
         },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        switchToNormalMode: (
+          propertyName: string,
+          isDynamic: boolean,
+          isToggleDisabled: boolean,
+        ) => propertyName === "tableData" && isDynamic && !isToggleDisabled,
       },
       {
         helpText: "Columns",
