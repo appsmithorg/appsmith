@@ -906,6 +906,14 @@ public enum AppsmithError {
             "Duplicate Configuration",
             ErrorType.BAD_REQUEST,
             null),
+    INVALID_PROPERTIES_CONFIGURATION(
+            500,
+            AppsmithErrorCode.INVALID_PROPERTIES_CONFIGURATION.getCode(),
+            "Property configuration is wrong or malformed.",
+            AppsmithErrorAction.DEFAULT,
+            "Invalid application property configuration",
+            ErrorType.INTERNAL_ERROR,
+            null),
 
     // EE-only errors below this line:
     APPLICATION_NOT_CLONED_MISSING_PERMISSIONS(
