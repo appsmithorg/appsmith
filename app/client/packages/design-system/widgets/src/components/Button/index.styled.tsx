@@ -11,11 +11,13 @@ export const buttonStyles = css<ButtonProps>`
         color: var(--color-fg-on-${color});
         border-color: transparent;
 
-        &[data-hovered]:not([aria-disabled]) {
+        &[data-hovered]:not([aria-disabled]),
+        &:hover:not([aria-disabled]) {
           background-color: var(--color-bg-${color}-hover);
         }
 
-        &[data-active]:not([aria-disabled]) {
+        &[data-active]:not([aria-disabled]),
+        &:active:not([aria-disabled]) {
           background-color: var(--color-bg-${color}-active);
         }
       `;
@@ -28,11 +30,13 @@ export const buttonStyles = css<ButtonProps>`
         border-color: var(--color-bd-${color});
         border-width: var(--border-width-1);
 
-        &[data-hovered]:not([aria-disabled]) {
+        &[data-hovered]:not([aria-disabled]),
+        &:hover:not([aria-disabled]) {
           background-color: var(--color-bg-${color}-subtle-hover);
         }
 
-        &[data-active]:not([aria-disabled]) {
+        &[data-active]:not([aria-disabled]),
+        &:active:not([aria-disabled]) {
           background-color: var(--color-bg-${color}-subtle-active);
         }
       `;
@@ -45,11 +49,13 @@ export const buttonStyles = css<ButtonProps>`
         border-color: transparent;
         border-width: 0;
 
-        &[data-hovered]:not([aria-disabled]) {
+        &[data-hovered]:not([aria-disabled]),
+        &:hover:not([aria-disabled]) {
           background: var(--color-bg-${color}-subtle-hover);
         }
 
-        &[data-active]:not([aria-disabled]) {
+        &[data-active]:not([aria-disabled]),
+        &:active:not([aria-disabled]) {
           background: var(--color-bg-${color}-subtle-active);
         }
       `;
