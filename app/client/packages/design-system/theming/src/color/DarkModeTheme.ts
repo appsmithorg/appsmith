@@ -217,8 +217,8 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bgAccentSubtle() {
     const color = this.seedColor.clone();
 
-    if (this.seedLightness > 0.3) {
-      color.oklch.l = 0.3;
+    if (this.seedLightness > 0.25) {
+      color.oklch.l = 0.25;
     }
 
     // If the color is too dark it won't be visible against bg.
@@ -226,8 +226,8 @@ export class DarkModeTheme implements ColorModeTheme {
       color.oklch.l = 0.2;
     }
 
-    if (this.seedChroma > 0.112) {
-      color.oklch.c = 0.112;
+    if (this.seedChroma > 0.1) {
+      color.oklch.c = 0.1;
     }
 
     if (this.seedIsAchromatic) {
@@ -292,7 +292,7 @@ export class DarkModeTheme implements ColorModeTheme {
     const color = this.bgPositive.clone();
 
     color.oklch.l = 0.25;
-    color.oklch.c = 0.08;
+    color.oklch.c = 0.06;
 
     return color;
   }
@@ -352,7 +352,7 @@ export class DarkModeTheme implements ColorModeTheme {
     const color = this.bgWarning.clone();
 
     color.oklch.l = 0.25;
-    color.oklch.c = 0.05;
+    color.oklch.c = 0.04;
 
     return color;
   }
@@ -411,8 +411,8 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bgNegativeSubtle() {
     const color = this.bgNegative.clone();
 
-    color.oklch.l = 0.2;
-    color.oklch.c = 0.08;
+    color.oklch.l = 0.25;
+    color.oklch.c = 0.09;
 
     return color;
   }
@@ -509,8 +509,8 @@ export class DarkModeTheme implements ColorModeTheme {
 
     // Adjusted version of bgAccentSubtle (less or no chroma)
 
-    if (this.seedLightness > 0.3) {
-      color.oklch.l = 0.3;
+    if (this.seedLightness > 0.25) {
+      color.oklch.l = 0.25;
     }
 
     // If the color is too dark it won't be visible against bg.
