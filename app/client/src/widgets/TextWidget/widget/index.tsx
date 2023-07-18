@@ -455,6 +455,10 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static getWidgetType() {
     return "TEXT_WIDGET";
   }
+
+  static getSnipePath(): string {
+    return "text";
+  }
 }
 
 export interface TextStyles {

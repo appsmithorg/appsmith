@@ -129,6 +129,10 @@ abstract class BaseWidget<
     return {};
   }
 
+  static getSnipePath(): string {
+    return "";
+  }
+
   /**
    * getLoadingProperties returns a list of regexp's used to specify bindingPaths,
    * which can set the isLoading prop of the widget.

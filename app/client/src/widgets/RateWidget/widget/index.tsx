@@ -373,6 +373,10 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
   static getWidgetType(): WidgetType {
     return "RATE_WIDGET";
   }
+
+  static getSnipePath(): string {
+    return "onRateChanged";
+  }
 }
 
 export interface RateWidgetProps extends WidgetProps {

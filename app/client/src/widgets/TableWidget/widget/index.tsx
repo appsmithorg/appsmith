@@ -1192,6 +1192,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getWidgetType(): WidgetType {
     return "TABLE_WIDGET";
   }
+
+  static getSnipePath(): string {
+    return "tableData";
+  }
 }
 
 export default TableWidget;

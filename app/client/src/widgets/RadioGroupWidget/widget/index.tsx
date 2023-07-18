@@ -664,6 +664,10 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getWidgetType(): WidgetType {
     return "RADIO_GROUP_WIDGET";
   }
+
+  static getSnipePath(): string {
+    return "options";
+  }
 }
 
 export interface RadioGroupWidgetProps extends WidgetProps {

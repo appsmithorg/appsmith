@@ -331,6 +331,10 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
     };
   }
 
+  static getSnipePath(): string {
+    return "defaultSwitchState";
+  }
+
   componentDidUpdate(prevProps: SwitchWidgetProps): void {
     if (
       this.props.defaultSwitchState !== prevProps.defaultSwitchState &&

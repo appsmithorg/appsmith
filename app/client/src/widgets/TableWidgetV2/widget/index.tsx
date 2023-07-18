@@ -1616,6 +1616,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     return "TABLE_WIDGET_V2";
   }
 
+  static getSnipePath(): string {
+    return "tableData";
+  }
+
   getColumnIdByAlias(alias: string) {
     const { primaryColumns } = this.props;
 

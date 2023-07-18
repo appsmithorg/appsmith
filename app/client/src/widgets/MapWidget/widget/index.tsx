@@ -500,6 +500,10 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   static getWidgetType(): WidgetType {
     return "MAP_WIDGET";
   }
+
+  static getSnipePath(): string {
+    return "defaultMarkers";
+  }
 }
 
 export interface MapWidgetProps extends WidgetProps {

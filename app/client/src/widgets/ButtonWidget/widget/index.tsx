@@ -506,6 +506,10 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   static getWidgetType(): WidgetType {
     return "BUTTON_WIDGET";
   }
+
+  static getSnipePath(): string {
+    return "onClick";
+  }
 }
 
 export interface ButtonWidgetProps extends WidgetProps {

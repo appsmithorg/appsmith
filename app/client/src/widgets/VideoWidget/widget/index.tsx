@@ -318,6 +318,10 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
   static getWidgetType(): WidgetType {
     return "VIDEO_WIDGET";
   }
+
+  static getSnipePath(): string {
+    return "url";
+  }
 }
 
 export interface VideoWidgetProps extends WidgetProps {
