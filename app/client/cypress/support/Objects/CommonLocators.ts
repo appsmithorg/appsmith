@@ -10,6 +10,7 @@ export class CommonLocators {
   _sidebar = ".t--sidebar";
   _queryName = ".t--action-name-edit-field span";
   _queryNameTxt = ".t--action-name-edit-field input";
+  _editIcon = ".t--action-name-edit-icon";
   _emptyCanvasCta = "[data-testid='canvas-ctas']";
   _dsName = ".t--edit-datasource-name span";
   _dsNameTxt = ".t--edit-datasource-name input";
@@ -44,6 +45,7 @@ export class CommonLocators {
       uiName,
     )}`;
   _textWidget = ".t--draggable-textwidget .t--text-widget-container span";
+  _tableWidget = ".t--widget-tablewidgetv2";
   _inputWidget = ".t--draggable-inputwidgetv2 input";
   _publishButton = ".t--application-publish-btn";
   _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`;
@@ -153,6 +155,8 @@ export class CommonLocators {
   _evaluatedErrorMessage =
     ".t--CodeEditor-evaluatedValue .t--evaluatedPopup-error";
   _evalPopup = ".evaluated-value-popup";
+  _checkboxGroupOptions = (option: string) =>
+    "//div[contains(text(),'" + option + "')]/parent::label/input";
   _multiSelectOptions = (option: string) =>
     "div[title='" + option + "'] input[type='checkbox']";
   _divWithClass = (className: string) =>
@@ -247,7 +251,6 @@ export class CommonLocators {
   _appThemeSettings = "#t--theme-settings-header";
   _appChangeThemeBtn = ".t--change-theme-btn";
   _appThemeCard = ".t--theme-card";
-  _gitStatusChanges = "[data-testid='t--git-change-statuses']";
   _appNavigationSettings = "#t--navigation-settings-header";
   _appNavigationSettingsShowTitle = "#t--navigation-settings-application-title";
   _switchGroupControl =

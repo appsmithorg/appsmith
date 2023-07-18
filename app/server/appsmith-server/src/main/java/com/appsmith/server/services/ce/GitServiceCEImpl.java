@@ -1478,6 +1478,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                     srcApplication.setPages(null);
                     srcApplication.setPublishedPages(null);
                     srcApplication.setGitApplicationMetadata(srcBranchGitData);
+                    srcApplication.setEditModeThemeId(null);
+                    srcApplication.setPublishedModeThemeId(null);
 
                     return applicationService
                             .save(srcApplication)
@@ -2056,7 +2058,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         .map(destBranchStatus -> {
                                             if (!Integer.valueOf(0).equals(destBranchStatus.getBehindCount())) {
                                                 return addAnalyticsForGitOperation(
-                                                                AnalyticsEvents.GIT_MERGE.getEventName(),
+                                                                AnalyticsEvents.GIT_MERGE_CHECK.getEventName(),
                                                                 application,
                                                                 AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES.name(),
                                                                 AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES
@@ -2065,21 +2067,25 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                                                 destinationBranch),
                                                                 application
                                                                         .getGitApplicationMetadata()
-                                                                        .getIsRepoPrivate())
+                                                                        .getIsRepoPrivate(),
+                                                                false,
+                                                                false)
                                                         .then(Mono.error(Exceptions.propagate(new AppsmithException(
                                                                 AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES,
                                                                 destBranchStatus.getBehindCount(),
                                                                 destinationBranch))));
                                             } else if (!CollectionUtils.isNullOrEmpty(destBranchStatus.getModified())) {
                                                 return addAnalyticsForGitOperation(
-                                                                AnalyticsEvents.GIT_MERGE.getEventName(),
+                                                                AnalyticsEvents.GIT_MERGE_CHECK.getEventName(),
                                                                 application,
                                                                 AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES.name(),
                                                                 AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES.getMessage(
                                                                         destinationBranch),
                                                                 application
                                                                         .getGitApplicationMetadata()
-                                                                        .getIsRepoPrivate())
+                                                                        .getIsRepoPrivate(),
+                                                                false,
+                                                                false)
                                                         .then(Mono.error(Exceptions.propagate(new AppsmithException(
                                                                 AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES,
                                                                 destinationBranch))));
@@ -2101,9 +2107,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             .flatMap(mergeStatus -> addAnalyticsForGitOperation(
                                                     AnalyticsEvents.GIT_MERGE_CHECK.getEventName(),
                                                     application,
+                                                    null,
+                                                    null,
                                                     application
                                                             .getGitApplicationMetadata()
-                                                            .getIsRepoPrivate()))
+                                                            .getIsRepoPrivate(),
+                                                    false,
+                                                    true))
                                             .then(Mono.just(mergeStatusDTO))))
                             .onErrorResume(error -> {
                                 try {
@@ -2124,13 +2134,15 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             })
                                             .flatMap(mergeStatusDTO -> {
                                                 addAnalyticsForGitOperation(
-                                                        AnalyticsEvents.GIT_MERGE.getEventName(),
+                                                        AnalyticsEvents.GIT_MERGE_CHECK.getEventName(),
                                                         application,
                                                         error.getClass().getName(),
                                                         error.getMessage(),
                                                         application
                                                                 .getGitApplicationMetadata()
-                                                                .getIsRepoPrivate());
+                                                                .getIsRepoPrivate(),
+                                                        false,
+                                                        false);
                                                 return Mono.just(mergeStatusDTO);
                                             });
                                 } catch (GitAPIException | IOException e) {
@@ -2917,18 +2929,35 @@ public class GitServiceCEImpl implements GitServiceCE {
             String errorMessage,
             Boolean isRepoPrivate,
             Boolean isSystemGenerated) {
+        return addAnalyticsForGitOperation(
+                eventName, application, errorType, errorMessage, isRepoPrivate, isSystemGenerated, null);
+    }
+
+    private Mono<Application> addAnalyticsForGitOperation(
+            String eventName,
+            Application application,
+            String errorType,
+            String errorMessage,
+            Boolean isRepoPrivate,
+            Boolean isSystemGenerated,
+            Boolean isMergeable) {
         GitApplicationMetadata gitData = application.getGitApplicationMetadata();
         Map<String, Object> analyticsProps = new HashMap<>();
         if (gitData != null) {
             analyticsProps.put(FieldName.APPLICATION_ID, gitData.getDefaultApplicationId());
             analyticsProps.put("appId", gitData.getDefaultApplicationId());
             analyticsProps.put(FieldName.BRANCH_NAME, gitData.getBranchName());
-            analyticsProps.put("gitHostingProvider", GitUtils.getGitProviderName(gitData.getRemoteUrl()));
+            analyticsProps.put(FieldName.GIT_HOSTING_PROVIDER, GitUtils.getGitProviderName(gitData.getRemoteUrl()));
+            analyticsProps.put(FieldName.REPO_URL, gitData.getRemoteUrl());
         }
         // Do not include the error data points in the map for success states
         if (!StringUtils.isEmptyOrNull(errorMessage) || !StringUtils.isEmptyOrNull(errorType)) {
             analyticsProps.put("errorMessage", errorMessage);
             analyticsProps.put("errorType", errorType);
+        }
+        // Do not include the isMergeable for all the events
+        if (isMergeable != null) {
+            analyticsProps.put(FieldName.IS_MERGEABLE, isMergeable);
         }
         analyticsProps.putAll(Map.of(
                 FieldName.ORGANIZATION_ID,

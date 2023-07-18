@@ -7,6 +7,7 @@ import {
   jsEditor,
   locators,
   propPane,
+  tedTestConfig,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Validate JS Object Refactoring does not affect the comments & variables", () => {
@@ -40,10 +41,8 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
     dataSources.CreateDataSource("MySql", true, false);
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-    });
 
-    //Selecting paintings table from MySQL DS
-    cy.fixture("datasources").then((datasourceFormData: any) => {
+      //Selecting paintings table from MySQL DS
       //Initialize new JSObject with custom code
       jsEditor.CreateJSObject(jsCode);
       //Initialize new Query entity with custom query
@@ -54,7 +53,7 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
       ); //Creating query from EE overlay
       //Initialize new API entity with custom header
       apiPage.CreateAndFillApi(
-        datasourceFormData["mockApiUrl"],
+        tedTestConfig.mockApiUrl,
         refactorInput.api.oldName,
       );
       apiPage.EnterHeader("key1", `{{\tJSObject1.myVar1}}`);
