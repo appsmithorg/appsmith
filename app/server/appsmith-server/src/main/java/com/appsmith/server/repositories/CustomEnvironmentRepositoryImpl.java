@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.QEnvironment;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.repositories.ce.CustomEnvironmentRepositoryCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -60,5 +62,13 @@ public class CustomEnvironmentRepositoryImpl extends CustomEnvironmentRepository
     @Override
     public Mono<Environment> findByNameAndWorkspaceId(String name, String workspaceId) {
         return queryOne(List.of(notDeleted(), workspaceIdCriteria(workspaceId), nameCriteria(name)));
+    }
+
+    @Override
+    public Flux<Environment> findAllByWorkspaceIdsWithoutPermission(
+            Set<String> workspaceIds, List<String> includeFields) {
+        Criteria workspaceCriteria = Criteria.where(FieldName.WORKSPACE_ID).in(workspaceIds);
+
+        return queryAll(List.of(workspaceCriteria), includeFields, null, null, NO_RECORD_LIMIT);
     }
 }
