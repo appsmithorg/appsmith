@@ -439,15 +439,17 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                             dbDatasource.getWorkspaceId(),
                             datasourceStorage.getEnvironmentId(),
                             dbDatasource.getPluginId()))
-                    .map(tuple2 -> {
+                    .flatMap(tuple2 -> {
                         Datasource datasource = tuple2.getT1();
                         String trueEnvironmentId = tuple2.getT2();
 
                         datasourceStorage.setEnvironmentId(trueEnvironmentId);
                         datasourceStorage.prepareTransientFields(datasource);
-                        return datasourceStorage;
+                        return Mono.zip(Mono.just(datasource), Mono.just(datasourceStorage));
                     })
-                    .flatMap(datasourceStorage1 -> {
+                    .flatMap(tuple2 -> {
+                        Datasource datasource = tuple2.getT1();
+                        DatasourceStorage datasourceStorage1 = tuple2.getT2();
                         DatasourceConfiguration datasourceConfiguration =
                                 datasourceStorage1.getDatasourceConfiguration();
                         if (datasourceConfiguration == null || datasourceConfiguration.getAuthentication() == null) {
@@ -468,7 +470,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         }
 
                         return datasourceStorageService
-                                .findStrictlyByDatasourceIdAndEnvironmentId(datasourceId, trueEnvironmentId)
+                                .findByDatasourceAndEnvironmentIdForExecution(datasource, trueEnvironmentId)
                                 .map(dbDatasourceStorage -> {
                                     copyNestedNonNullProperties(datasourceStorage, dbDatasourceStorage);
                                     return dbDatasourceStorage;
