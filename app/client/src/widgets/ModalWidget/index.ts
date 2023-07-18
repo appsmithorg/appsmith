@@ -13,7 +13,10 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { get } from "lodash";
-import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
+import type {
+  FlexLayer,
+  LayoutComponentProps,
+} from "utils/autoLayout/autoLayoutTypes";
 import {
   FlexLayerAlignment,
   Positioning,
@@ -253,6 +256,83 @@ export const CONFIG = {
               },
             ];
 
+            const layout: LayoutComponentProps[] = [
+              {
+                layoutId: "1",
+                layoutType: "COLUMN",
+                layout: [
+                  {
+                    layoutId: "2",
+                    layoutStyle: {
+                      alignSelf: "stretch",
+                      sizes: [1, 0],
+                    },
+                    layoutType: "ROW",
+                    layout: [
+                      {
+                        layoutId: "3",
+                        layoutType: "ROW",
+                        isDropTarget: true,
+                        widgetsAllowed: ["1D"],
+                        layout: [textWidget.widgetId],
+                        rendersWidgets: true,
+                      },
+                      {
+                        layoutId: "4",
+                        layoutStyle: {
+                          minWidth: "30px",
+                        },
+                        layoutType: "ROW",
+                        isDropTarget: true,
+                        widgetsAllowed: ["ICON_BUTTON_WIDGET"],
+                        layout: [iconWidget.widgetId],
+                        rendersWidgets: true,
+                      },
+                    ],
+                  },
+                  {
+                    layoutId: "5",
+                    layoutStyle: {
+                      flexWrap: "wrap",
+                      height: "auto",
+                      maxHeight: "300px",
+                      overflow: "auto",
+                    },
+                    layoutType: "ROW",
+                    layout: [
+                      {
+                        layoutId: "6",
+                        layoutType: "COLUMN",
+                        isDropTarget: true,
+                        layout: [
+                          {
+                            layoutId: "7",
+                            layoutType: "ALIGNED_ROW",
+                            layout: [[], [], []],
+                            rendersWidgets: true,
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    isDropTarget: true,
+                    layoutId: "8",
+                    layoutStyle: {
+                      alignSelf: "stretch",
+                    },
+                    layoutType: "ALIGNED_ROW",
+                    layout: [
+                      [],
+                      [],
+                      [buttonWidget1.widgetId, buttonWidget2.widgetId],
+                    ],
+                    rendersWidgets: true,
+                  },
+                ],
+              },
+            ];
+
             //Add widget specific property Defaults, for autoLayout widget
             const { disabledPropsDefaults } =
               WidgetFactory.getWidgetAutoLayoutConfig("MODAL_WIDGET") || {};
@@ -266,6 +346,7 @@ export const CONFIG = {
               },
               [canvasWidget.widgetId]: {
                 flexLayers,
+                layout,
                 useAutoLayout: true,
                 positioning: Positioning.Vertical,
                 bottomRow: 100,

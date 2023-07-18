@@ -88,3 +88,15 @@ export interface Row extends PositionsAlignmentInfo {
 /**
  * End: Position utils types
  */
+
+export interface LayoutComponentProps {
+  layoutId: string;
+  layoutStyle?: { [key: string]: string | number | number[] | string[] };
+  layoutType: string;
+  layout: LayoutComponentProps[] | string[] | string[][];
+  isDropTarget?: boolean;
+  rendersWidgets?: boolean;
+  widgetsAllowed?: string[];
+
+  childrenMap?: { [id: string]: JSX.Element | ReactNode };
+}

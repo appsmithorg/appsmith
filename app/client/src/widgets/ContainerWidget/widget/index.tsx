@@ -23,6 +23,7 @@ import {
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import type { LayoutComponentProps } from "utils/autoLayout/autoLayoutTypes";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -252,6 +253,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   shouldScrollContents?: boolean;
   noPad?: boolean;
   positioning?: Positioning;
+  layout?: LayoutComponentProps[];
 }
 
 export default ContainerWidget;
