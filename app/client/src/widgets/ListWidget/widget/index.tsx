@@ -993,10 +993,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   static getWidgetType(): WidgetType {
     return "LIST_WIDGET";
   }
-
-  static getSnipePath(): string {
-    return "listData";
-  }
 }
 
 export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {

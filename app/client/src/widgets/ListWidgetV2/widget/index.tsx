@@ -1376,10 +1376,6 @@ class ListWidget extends BaseWidget<
   static getWidgetType(): WidgetType {
     return "LIST_WIDGET_V2";
   }
-
-  static getSnipePath(): string {
-    return "listData";
-  }
 }
 
 export interface ListWidgetProps<T extends WidgetProps = WidgetProps>

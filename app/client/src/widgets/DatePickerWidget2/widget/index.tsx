@@ -625,10 +625,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   static getWidgetType(): WidgetType {
     return "DATE_PICKER_WIDGET2";
   }
-
-  static getSnipePath(): string {
-    return "defaultDate";
-  }
 }
 
 export interface DatePickerWidget2Props extends WidgetProps {

@@ -585,10 +585,6 @@ class JSONFormWidget extends BaseWidget<
   static getWidgetType(): string {
     return "JSON_FORM_WIDGET";
   }
-
-  static getSnipePath(): string {
-    return "sourceData";
-  }
 }
 
 export default JSONFormWidget;

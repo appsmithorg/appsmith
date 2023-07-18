@@ -759,10 +759,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   static getWidgetType(): WidgetType {
     return "SELECT_WIDGET";
   }
-
-  static getSnipePath(): string {
-    return "options";
-  }
 }
 
 export interface SelectWidgetProps extends WidgetProps {

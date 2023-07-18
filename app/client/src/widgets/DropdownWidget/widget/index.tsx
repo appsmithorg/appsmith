@@ -513,10 +513,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getWidgetType(): WidgetType {
     return "DROP_DOWN_WIDGET";
   }
-
-  static getSnipePath(): string {
-    return "options";
-  }
 }
 
 export interface DropdownWidgetProps extends WidgetProps {

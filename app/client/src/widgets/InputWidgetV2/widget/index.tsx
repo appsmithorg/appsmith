@@ -760,10 +760,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   static getWidgetType(): WidgetType {
     return "INPUT_WIDGET_V2";
   }
-
-  static getSnipePath(): string {
-    return "defaultText";
-  }
 }
 
 export interface InputWidgetProps extends BaseInputWidgetProps {

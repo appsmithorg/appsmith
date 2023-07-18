@@ -379,10 +379,6 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getWidgetType(): WidgetType {
     return "CHECKBOX_WIDGET";
   }
-
-  static getSnipePath(): string {
-    return "defaultCheckedState";
-  }
 }
 
 export interface CheckboxWidgetProps extends WidgetProps {

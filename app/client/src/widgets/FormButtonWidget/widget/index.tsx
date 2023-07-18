@@ -397,10 +397,6 @@ class FormButtonWidget extends ButtonWidget {
   static getWidgetType(): WidgetType {
     return "FORM_BUTTON_WIDGET";
   }
-
-  static getSnipePath(): string {
-    return "onClick";
-  }
 }
 
 export interface FormButtonWidgetProps extends WidgetProps {

@@ -300,10 +300,6 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   static getWidgetType(): string {
     return "IFRAME_WIDGET";
   }
-
-  static getSnipePath(): string {
-    return "source";
-  }
 }
 
 export default IframeWidget;

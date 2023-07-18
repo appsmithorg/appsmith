@@ -538,10 +538,6 @@ class FilePickerWidget extends BaseWidget<
   static getWidgetType(): WidgetType {
     return "FILE_PICKER_WIDGET";
   }
-
-  static getSnipePath(): string {
-    return "onFilesSelected";
-  }
 }
 
 export interface FilePickerWidgetState extends WidgetState {

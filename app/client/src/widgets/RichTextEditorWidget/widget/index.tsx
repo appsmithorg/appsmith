@@ -464,10 +464,6 @@ class RichTextEditorWidget extends BaseWidget<
   static getWidgetType(): WidgetType {
     return "RICH_TEXT_EDITOR_WIDGET";
   }
-
-  static getSnipePath(): string {
-    return "defaultText";
-  }
 }
 
 export interface RichTextEditorWidgetProps extends WidgetProps {

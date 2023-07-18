@@ -985,10 +985,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   static getWidgetType(): WidgetType {
     return "INPUT_WIDGET";
   }
-
-  static getSnipePath(): string {
-    return "defaultText";
-  }
 }
 
 export interface InputValidator {

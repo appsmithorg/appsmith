@@ -46,6 +46,7 @@ export function* bindDataToWidgetSaga(
     FEATURE_FLAG.ab_ds_binding_enabled,
   );
   const selectedWidget = widgetState[action.payload.widgetId];
+
   if (!selectedWidget || !selectedWidget.type) {
     toast.show(SNIPING_SELECT_WIDGET_AGAIN(), {
       kind: "warning",
@@ -61,10 +62,6 @@ export function* bindDataToWidgetSaga(
   if (!currentAction) return;
 
   //TODO (Balaji): Abstraction leak. propertyPath should come from the widget
-
-  // if (selectedWidget) propertyPath = selectedWidget.snipePath;
-  // console.log("propertyPath", propertyPath);
-
   switch (selectedWidget.type) {
     case WidgetTypes.BUTTON_WIDGET:
     case WidgetTypes.FORM_BUTTON_WIDGET:
