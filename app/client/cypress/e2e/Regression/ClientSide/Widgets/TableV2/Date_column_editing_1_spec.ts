@@ -137,10 +137,12 @@ describe("Table widget date column inline editing functionality", () => {
     table.EditColumn("release_date", "v2");
     propPane.TogglePropertyState("Required", "On");
     agHelper.Sleep(2000);
+    //Edits the date by selecting from the popup
     table.ClickOnEditIcon(0, 2);
     agHelper.GetNClick(
       `${table._dateInputPopover} [aria-label='Wed May 26 2021']`,
     );
+    //Clears the date selected in previous step
     table.ClickOnEditIcon(0, 2);
     agHelper.GetNClick(
       `${table._dateInputPopover} [aria-label='Wed May 26 2021']`,
