@@ -131,21 +131,14 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
     /**
      * To get the Tenant with values that are pertinent to the client
      * @param dbTenant Original tenant from the database
-     * @param clientTenant Tenant object that is sent to the client, can be null
+     * @param clientTenant Tenant object that is sent to the client
      * @return Tenant
      */
     protected Tenant getClientPertinentTenant(Tenant dbTenant, Tenant clientTenant) {
-        TenantConfiguration tenantConfiguration;
-        if (clientTenant == null) {
-            clientTenant = new Tenant();
-            tenantConfiguration = new TenantConfiguration();
-        } else {
-            tenantConfiguration = clientTenant.getTenantConfiguration();
-        }
+        TenantConfiguration tenantConfiguration = clientTenant.getTenantConfiguration();
 
         // Only copy the values that are pertinent to the client
         tenantConfiguration.copyNonSensitiveValues(dbTenant.getTenantConfiguration());
-        clientTenant.setTenantConfiguration(tenantConfiguration);
         clientTenant.setUserPermissions(dbTenant.getUserPermissions());
 
         return clientTenant;

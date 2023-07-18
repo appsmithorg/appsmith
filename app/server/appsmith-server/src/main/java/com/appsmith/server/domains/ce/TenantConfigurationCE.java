@@ -5,6 +5,7 @@ import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,8 @@ public class TenantConfigurationCE {
     private Boolean isFormLoginEnabled;
 
     private String instanceName;
+
+    private License license;
 
     // We add `JsonInclude` here, so that this field is included in the JSON response, even if it is `null`. Reason is,
     // if this field is not present, then the existing value in client's state doesn't get updated. It's just the way
@@ -34,18 +37,15 @@ public class TenantConfigurationCE {
     }
 
     public void copyNonSensitiveValues(TenantConfiguration tenantConfiguration) {
-        License license = new License();
+        license = new License();
         license.setPlan(LicensePlan.FREE);
-        this.license = license;
 
         if (tenantConfiguration == null) {
             return;
         }
 
-        this.googleMapsKey = tenantConfiguration.getGoogleMapsKey();
-        this.isFormLoginEnabled = tenantConfiguration.getIsFormLoginEnabled();
-        this.instanceName = tenantConfiguration.getInstanceName();
+        googleMapsKey = ObjectUtils.defaultIfNull(tenantConfiguration.getGoogleMapsKey(), googleMapsKey);
+        isFormLoginEnabled = ObjectUtils.defaultIfNull(tenantConfiguration.getIsFormLoginEnabled(), isFormLoginEnabled);
+        instanceName = ObjectUtils.defaultIfNull(tenantConfiguration.getInstanceName(), instanceName);
     }
-
-    public License license;
 }
