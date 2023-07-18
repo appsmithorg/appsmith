@@ -1,25 +1,25 @@
 import type { fontMetrics } from "./typography";
 
-export type TypographyVariant = "body" | "footnote" | "heading";
+// we use "as const" here because we need to iterate by variants of typography
+export const TypographyVariant = {
+  footnote: "footnote",
+  body: "body",
+  caption: "caption",
+  subtitle: "subtitle",
+  title: "title",
+  heading: "heading",
+} as const;
 
-export type TypographyType =
-  | "default"
-  | "neutral"
-  | "positive"
-  | "negative"
-  | "warn";
+// we use "as const" here because we need to iterate by types of typography
+export const TypographyColor = {
+  default: "default",
+  neutral: "neutral",
+  positive: "positive",
+  negative: "negative",
+  warn: "warn",
+} as const;
 
 export type FontFamily = keyof typeof fontMetrics;
-
-export type TypographyVariantSourceMetric = {
-  capHeightRatio: number;
-  lineGapRatio: number;
-  fontFamily?: FontFamily;
-};
-
-export type TypographySource = {
-  [key in TypographyVariant]: TypographyVariantSourceMetric;
-};
 
 export type TypographyVariantMetric = {
   capHeight: number;
@@ -28,5 +28,5 @@ export type TypographyVariantMetric = {
 };
 
 export type Typography = {
-  [key in TypographyVariant]: TypographyVariantMetric;
+  [key in keyof typeof TypographyVariant]: TypographyVariantMetric;
 };

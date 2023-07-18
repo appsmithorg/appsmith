@@ -1,24 +1,28 @@
 import styled, { css } from "styled-components";
+import type { PickRename } from "../../utils/PickRename";
 
-import type { TypographyVariant } from "@design-system/theming";
-import type { FlattenSimpleInterpolation } from "styled-components";
 import type { TextProps } from "./Text";
 
-type StyledTextProp = TextProps & {
-  typography?: {
-    [key in TypographyVariant]?: FlattenSimpleInterpolation;
-  };
-};
+type StyledTextProp = PickRename<
+  TextProps,
+  {
+    isBold: "$isBold";
+    isItalic: "$isItalic";
+    lineClamp: "$lineClamp";
+    textAlign: "$textAlign";
+    variant: "$variant";
+  }
+>;
 
-const truncateStyles = css`
-  ${(props: TextProps) => {
-    const { lineClamp } = props;
+const truncateStyles = css<StyledTextProp>`
+  ${(props) => {
+    const { $lineClamp } = props;
 
-    if (typeof lineClamp === "number") {
+    if (typeof $lineClamp === "number") {
       return css`
         span {
           display: -webkit-box;
-          -webkit-line-clamp: ${lineClamp};
+          -webkit-line-clamp: ${$lineClamp};
           -webkit-box-orient: vertical;
           overflow: hidden;
           overflow-wrap: break-word;
@@ -35,35 +39,27 @@ const truncateStyles = css`
 `;
 
 export const StyledText = styled.div<StyledTextProp>`
-  font-weight: ${({ isBold }) => (isBold ? "bold" : "normal")};
-  font-style: ${({ isItalic }) => (isItalic ? "italic" : "normal")};
-  text-align: ${({ textAlign }) => textAlign};
-  width: 100%;
+  font-weight: ${({ $isBold }) => ($isBold ? "bold" : "normal")};
+  font-style: ${({ $isItalic }) => ($isItalic ? "italic" : "normal")};
+  text-align: ${({ $textAlign }) => $textAlign};
+  max-width: 100%;
 
-  ${truncateStyles}
-
-  ${({ typography, variant }) => {
-    if (variant && typography) {
-      return typography?.[variant];
-    }
-
-    return typography?.body;
-  }}
-
-  color: ${({ type }) => {
+  color: ${({ color }) => {
     switch (true) {
-      case type === "default":
+      case color === "default":
         return "inherit";
-      case type === "neutral":
+      case color === "neutral":
         return "var(--color-fg-neutral)";
-      case type === "positive":
+      case color === "positive":
         return "var(--color-fg-positive)";
-      case type === "warn":
+      case color === "warn":
         return "var(--color-fg-warn)";
-      case type === "negative":
+      case color === "negative":
         return "var(--color-fg-negative)";
       default:
         return "inherit";
     }
-  }}
+  }};
+
+  ${truncateStyles};
 `;
