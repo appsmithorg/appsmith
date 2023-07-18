@@ -6,6 +6,7 @@ import {
 } from "constants/ThirdPartyConstants";
 import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import {
+  CategoryType,
   SettingCategories,
   SettingSubtype,
   SettingTypes,
@@ -33,7 +34,7 @@ import {
 
 const FormAuth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
-  categoryType: "general",
+  categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.GROUP,
   title: "Form login",
   subText: createMessage(FORM_LOGIN_DESC),
@@ -69,7 +70,7 @@ const FormAuth: AdminConfigType = {
 
 export const GoogleAuth: AdminConfigType = {
   type: SettingCategories.GOOGLE_AUTH,
-  categoryType: "general",
+  categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.GROUP,
   title: "Google authentication",
   subText: createMessage(GOOGLE_AUTH_DESC),
@@ -133,7 +134,7 @@ export const GoogleAuth: AdminConfigType = {
 
 export const GithubAuth: AdminConfigType = {
   type: SettingCategories.GITHUB_AUTH,
-  categoryType: "general",
+  categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.GROUP,
   title: "GitHub authentication",
   subText: createMessage(GITHUB_AUTH_DESC),
@@ -251,7 +252,7 @@ function AuthMain() {
 export const config: AdminConfigType = {
   icon: "lock-password-line",
   type: SettingCategories.AUTHENTICATION,
-  categoryType: "general",
+  categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.PAGE,
   title: "Authentication",
   canSave: false,

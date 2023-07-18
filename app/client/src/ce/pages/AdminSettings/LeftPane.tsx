@@ -11,6 +11,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import {
+  BUSINESS_TAG,
+  ENTERPRISE_TAG,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) => props.theme.sidebarWidth};
@@ -149,7 +154,9 @@ export function Categories({
               <SettingName active={active}>{config.title}</SettingName>
               {config?.needsUpgrade && (
                 <Tag isClosable={false}>
-                  {config?.isEnterprise ? "Enterprise" : "Business"}
+                  {createMessage(
+                    config?.isEnterprise ? ENTERPRISE_TAG : BUSINESS_TAG,
+                  )}
                 </Tag>
               )}
             </StyledLink>

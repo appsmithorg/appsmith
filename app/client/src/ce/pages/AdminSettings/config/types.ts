@@ -114,6 +114,12 @@ export const SettingCategories = {
   BRANDING: "branding",
 };
 
+export enum CategoryType {
+  GENERAL = "general",
+  ACL = "acl",
+  OTHER = "other",
+}
+
 export type AdminConfigType = {
   type: string;
   controlType: SettingTypes;
@@ -126,6 +132,6 @@ export type AdminConfigType = {
   isConnected?: boolean;
   icon?: string;
   needsUpgrade?: boolean;
-  categoryType: "general" | "acl" | "other";
+  categoryType: CategoryType;
   isEnterprise?: boolean;
 };
