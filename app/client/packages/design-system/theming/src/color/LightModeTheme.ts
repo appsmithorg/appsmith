@@ -237,8 +237,12 @@ export class LightModeTheme implements ColorModeTheme {
   private get bgAccentSubtle() {
     const color = this.seedColor.clone();
 
-    if (this.seedLightness < 0.94) {
-      color.oklch.l = 0.94;
+    if (this.seedIsVeryLight) {
+      color.oklch.l = 0.955;
+    }
+
+    if (!this.seedIsVeryLight) {
+      color.oklch.l = 0.93;
     }
 
     // Colder seeds require a bit more chroma to not seem completely washed out
@@ -311,8 +315,8 @@ export class LightModeTheme implements ColorModeTheme {
   private get bgPositiveSubtle() {
     const color = this.bgPositive.clone();
 
-    color.oklch.l = 0.94;
-    color.oklch.c = 0.09;
+    color.oklch.l = 0.955;
+    color.oklch.c = 0.08;
 
     return color;
   }
@@ -371,8 +375,8 @@ export class LightModeTheme implements ColorModeTheme {
   private get bgWarningSubtle() {
     const color = this.bgWarning.clone();
 
-    color.oklch.l = 0.94;
-    color.oklch.c = 0.06;
+    color.oklch.l = 0.96;
+    color.oklch.c = 0.05;
 
     return color;
   }
@@ -431,8 +435,8 @@ export class LightModeTheme implements ColorModeTheme {
   private get bgNegativeSubtle() {
     const color = this.bgNegative.clone();
 
-    color.oklch.l = 0.94;
-    color.oklch.c = 0.06;
+    color.oklch.l = 0.95;
+    color.oklch.c = 0.05;
 
     return color;
   }
@@ -538,8 +542,12 @@ export class LightModeTheme implements ColorModeTheme {
 
     // Adjusted version of bgAccentSubtle (less or no chroma)
 
-    if (this.seedLightness < 0.94) {
-      color.oklch.l = 0.94;
+    if (this.seedIsVeryLight) {
+      color.oklch.l = 0.955;
+    }
+
+    if (!this.seedIsVeryLight) {
+      color.oklch.l = 0.93;
     }
 
     if (this.seedChroma > 0.01) {
