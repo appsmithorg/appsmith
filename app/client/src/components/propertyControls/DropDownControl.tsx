@@ -8,6 +8,7 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import { DSEventTypes, DS_EVENT } from "utils/AppsmithUtils";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
+import { getValidationErrorForProperty } from "./utils";
 
 const FlagWrapper = styled.span`
   font-family: "Twemoji Country Flags";
@@ -18,6 +19,14 @@ const FlagWrapper = styled.span`
   position: relative;
   top: 1px;
   overflow: initial !important;
+`;
+
+const ErrorMessage = styled.div`
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 14px;
+  color: var(--ads-v2-color-fg-error);
+  margin-top: 5px;
 `;
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
@@ -96,11 +105,17 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       )?.value;
     }
 
+    const errors = getValidationErrorForProperty(
+      this.props.widgetProperties,
+      this.props.propertyName,
+    );
+
     return (
       <div className="w-full h-full" ref={this.containerRef}>
         <Select
           defaultValue={defaultSelected}
           isMultiSelect={this.props.isMultiSelect}
+          isValid={!errors.length}
           onDeselect={this.onDeselect}
           onSelect={this.onSelect}
           optionFilterProp="label"
@@ -150,6 +165,9 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
             </Option>
           ))}
         </Select>
+        {errors?.[0] && (
+          <ErrorMessage>{errors[0].errorMessage?.message}</ErrorMessage>
+        )}
       </div>
     );
   }

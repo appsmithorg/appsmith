@@ -156,6 +156,7 @@ class MultiSelectWidget extends BaseWidget<
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
+              dependentPaths: ["sourceData"],
             },
             additionalAutoComplete: labelValueAdditionalAutocompleteData,
           },
