@@ -7,6 +7,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
+import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -40,6 +41,7 @@ import com.appsmith.server.services.ApplicationMemberService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.EnvironmentService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -85,6 +87,7 @@ import static com.appsmith.server.acl.AclPermission.DELETE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.INVITE_USERS_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
@@ -166,6 +169,9 @@ public class ApplicationShareTest {
 
     @Autowired
     WorkspaceService workspaceService;
+
+    @Autowired
+    EnvironmentService environmentService;
 
     @Autowired
     ApplicationRepository applicationRepository;
@@ -3860,6 +3866,110 @@ public class ApplicationShareTest {
             }
             if (policy.getPermission().equals(CREATE_DATASOURCE_ACTIONS.getValue())) {
                 assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+            }
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testEnvironmentPolicies_createApplicationViewRole_grantsPermissionsToAllEnvs() {
+        String testName = "testEnvironmentPolicies_createApplicationViewRole_grantsPermissionsToAllEnvs";
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+        String pluginId =
+                pluginService.findByPackageName("restapi-plugin").block().getId();
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace =
+                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication =
+                applicationPageService.createApplication(application).block();
+
+        List<Environment> environmentListBeforeRoleCreated = environmentService
+                .findByWorkspaceId(workspace.getId())
+                .collectList()
+                .block();
+
+        PermissionGroup viewApplicationRole = applicationService
+                .createDefaultRole(createdApplication, APPLICATION_VIEWER)
+                .block();
+
+        List<Environment> environmentListAfterRoleCreated = environmentService
+                .findByWorkspaceId(workspace.getId())
+                .collectList()
+                .block();
+
+        assertThat(environmentListBeforeRoleCreated).hasSize(2);
+        environmentListBeforeRoleCreated.forEach(environment -> {
+            for (Policy policy : environment.getPolicies()) {
+                if (policy.getPermission().equals(EXECUTE_ENVIRONMENTS.getValue())) {
+                    assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+                }
+            }
+        });
+
+        assertThat(environmentListAfterRoleCreated).hasSize(2);
+        environmentListAfterRoleCreated.forEach(environment -> {
+            for (Policy policy : environment.getPolicies()) {
+                if (policy.getPermission().equals(EXECUTE_ENVIRONMENTS.getValue())) {
+                    assertThat(policy.getPermissionGroups()).contains(viewApplicationRole.getId());
+                }
+            }
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void testEnvironmentPolicies_createApplicationDevRole_grantsPermissionsToAllEnvs() {
+        String testName = "testEnvironmentPolicies_createApplicationDevRole_grantsPermissionsToAllEnvs";
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+        String pluginId =
+                pluginService.findByPackageName("restapi-plugin").block().getId();
+        Workspace workspace = new Workspace();
+        workspace.setName(testName);
+        Workspace createdWorkspace =
+                workspaceService.create(workspace, testUser, Boolean.TRUE).block();
+
+        Application application = new Application();
+        application.setName(testName);
+        application.setWorkspaceId(createdWorkspace.getId());
+        Application createdApplication =
+                applicationPageService.createApplication(application).block();
+
+        List<Environment> environmentListBeforeRoleCreated = environmentService
+                .findByWorkspaceId(workspace.getId())
+                .collectList()
+                .block();
+
+        PermissionGroup devApplicationRole = applicationService
+                .createDefaultRole(createdApplication, APPLICATION_DEVELOPER)
+                .block();
+
+        List<Environment> environmentListAfterRoleCreated = environmentService
+                .findByWorkspaceId(workspace.getId())
+                .collectList()
+                .block();
+
+        assertThat(environmentListBeforeRoleCreated).hasSize(2);
+        environmentListBeforeRoleCreated.forEach(environment -> {
+            for (Policy policy : environment.getPolicies()) {
+                if (policy.getPermission().equals(EXECUTE_ENVIRONMENTS.getValue())) {
+                    assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
+                }
+            }
+        });
+
+        assertThat(environmentListAfterRoleCreated).hasSize(2);
+        environmentListAfterRoleCreated.forEach(environment -> {
+            for (Policy policy : environment.getPolicies()) {
+                if (policy.getPermission().equals(EXECUTE_ENVIRONMENTS.getValue())) {
+                    assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+                }
             }
         });
     }

@@ -34,7 +34,7 @@ import static com.appsmith.server.migrations.solutions.DatasourceStorageMigratio
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Slf4j
-@ChangeUnit(order = "112-ee", id = "adding-custom-permission-groups-to-envs", author = " ")
+@ChangeUnit(order = "112-ee", id = "adding-all-custom-permission-groups-to-envs", author = " ")
 public class Migration112EEAddCustomPermissionGroupsToExistingEnvironments {
     private final MongoTemplate mongoTemplate;
 
