@@ -76,7 +76,6 @@ import {
 
 import type { Diff } from "deep-diff";
 import { applyChange, diff } from "deep-diff";
-import toposort from "toposort";
 import {
   EXECUTION_PARAM_KEY,
   EXECUTION_PARAM_REFERENCE_REGEX,
@@ -120,7 +119,8 @@ import { errorModifier } from "workers/Evaluation/errorModifier";
 import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
 import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
-import type DependencyMap from "entities/DependencyMap";
+import DependencyMap from "entities/DependencyMap";
+import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -128,7 +128,7 @@ export type EvalProps = {
 };
 
 export default class DataTreeEvaluator {
-  dependencyMap: DependencyMap | null = null;
+  dependencyMap: DependencyMap = new DependencyMap();
   sortedDependencies: SortedDependencies = [];
   inverseDependencyMap: Record<string, string[]> = {};
   widgetConfigMap: WidgetTypeConfigMap = {};
@@ -153,7 +153,7 @@ export default class DataTreeEvaluator {
   /*
    * Maintains dependency of paths to re-validate on evaluation of particular property path.
    */
-  validationDependencyMap: DependencyMap | null = null;
+  validationDependencyMap: DependencyMap = new DependencyMap();
   sortedValidationDependencies: SortedDependencies = [];
   inverseValidationDependencyMap: Record<string, string[]> = {};
 
@@ -253,11 +253,9 @@ export default class DataTreeEvaluator {
     this.validationDependencyMap = validationDependencyMap;
     const sortDependenciesStartTime = performance.now();
     // Sort
-    this.sortedDependencies = this.sortDependencies(
-      this.dependencyMap.dependencies,
-    );
+    this.sortedDependencies = this.sortDependencies(this.dependencyMap);
     this.sortedValidationDependencies = this.sortDependencies(
-      validationDependencyMap.dependencies,
+      validationDependencyMap,
     );
     const sortDependenciesEndTime = performance.now();
 
@@ -504,6 +502,8 @@ export default class DataTreeEvaluator {
       translatedDiffs,
     });
     const updateDependencyStartTime = performance.now();
+    // TODO => Optimize using dataTree diff
+    this.allKeys = getAllPaths(localUnEvalTree);
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
     const { dependenciesOfRemovedPaths, pathsToClearErrorsFor, removedPaths } =
@@ -1149,34 +1149,14 @@ export default class DataTreeEvaluator {
   }
 
   sortDependencies(
-    dependencyMap: Record<string, string[]>,
+    dependencyMap: DependencyMap,
     diffs?: (DataTreeDiff | DataTreeDiff[])[],
   ): Array<string> {
-    /**
-     * dependencyTree : Array<[Node, dependentNode]>
-     */
-    const dependencyTree: Array<[string, string]> = [];
-    Object.keys(dependencyMap).forEach((key: string) => {
-      if (dependencyMap[key].length) {
-        dependencyMap[key].forEach((dep) => dependencyTree.push([key, dep]));
-      } else {
-        // Set no dependency
-        dependencyTree.push([key, ""]);
-      }
-    });
-
-    try {
-      return toposort(dependencyTree)
-        .reverse()
-        .filter((d) => !!d);
-    } catch (error) {
-      // Cyclic dependency found. Extract all node and entity type
-      const cyclicNodes = (error as Error).message.match(
-        new RegExp('Cyclic dependency, node was:"(.*)"'),
-      );
-
-      const node = cyclicNodes?.length ? cyclicNodes[1] : "";
-
+    const result = DependencyMapUtils.sortDependencies(dependencyMap);
+    if (result.success) {
+      return result.sortedDependencies;
+    } else {
+      const node = result.cyclicNode;
       let entityType = "UNKNOWN";
       const entityName = node.split(".")[0];
       const entity = get(this.oldUnEvalTree, entityName);
@@ -1200,7 +1180,7 @@ export default class DataTreeEvaluator {
       });
       logError("CYCLICAL DEPENDENCY MAP", dependencyMap);
       this.hasCyclicalDependency = true;
-      throw new CrashingError((error as Error).message);
+      throw new CrashingError((result.error as Error).message);
     }
   }
 
@@ -1623,7 +1603,7 @@ export default class DataTreeEvaluator {
 
     const trimmedChangedPaths = trimDependantChangePaths(
       changePathsWithNestedDependants,
-      this.dependencyMap?.dependencies || {},
+      this.dependencyMap.dependencies || {},
     );
 
     // Now that we have all the root nodes which have to be evaluated, recursively find all the other paths which
@@ -1639,7 +1619,7 @@ export default class DataTreeEvaluator {
 
   getInverseDependencyTree(
     params = {
-      dependencyMap: this.dependencyMap?.dependencies || {},
+      dependencyMap: this.dependencyMap.dependencies || {},
       sortedDependencies: this.sortedDependencies,
     },
   ): Record<string, string[]> {
