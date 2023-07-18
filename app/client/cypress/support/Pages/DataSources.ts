@@ -1,6 +1,7 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
 import { EntityItems } from "./AssertHelper";
+import formControl from "../../locators/FormControl.json";
 
 const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -229,6 +230,10 @@ export class DataSources {
   _bodyCodeMirror = "//div[contains(@class, 't--actionConfiguration.body')]";
   private _reconnectModalDSToolTip = ".t--ds-list .t--ds-list-title";
   private _reconnectModalDSToopTipIcon = ".t--ds-list .ads-v2-icon";
+  _multiSelectDropdown = (ddName: string) =>
+    "//p[contains(text(),'" +
+    ddName +
+    "')]/ancestor::div[@class='form-config-top']/following-sibling::div//div[contains(@class, 'rc-select-multiple')]";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -1446,5 +1451,41 @@ export class DataSources {
           ); // Container did not start properly within the timeout
       });
     });
+  }
+
+  public enterSortByValues(sortBy: string, option: string, index = 0) {
+    this.agHelper
+      .GetElement(formControl.JSModeSortingControl)
+      .eq(0)
+      .children()
+      .eq(index)
+      .then((ele) => {
+        cy.wrap(ele)
+          .children()
+          .eq(0)
+          .find("textarea")
+          .type(sortBy, { force: true });
+        cy.wrap(ele).children().eq(1).find("input").click();
+      });
+    this.agHelper.GetNClickByContains(this._dropdownOption, option);
+  }
+
+  public clearSortByOption(index = 0) {
+    this.agHelper.Sleep(500);
+    this.agHelper
+      .GetElement(formControl.JSModeSortingControl)
+      .eq(0)
+      .children()
+      .eq(index)
+      .find(`button[data-testid='t--sorting-delete-[${index}]']`)
+      .click({ force: true });
+    this.agHelper.Sleep(500);
+  }
+
+  public addNewSortByParameter() {
+    this.agHelper
+      .GetElement(formControl.JSModeSortingControl)
+      .find("button[data-testid='t--sorting-add-field']")
+      .click({ force: true });
   }
 }

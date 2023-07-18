@@ -70,6 +70,38 @@ export class GsheetHelper {
     sheetName = "Sheet1",
     headRowIndex = "1",
   ) {
+    this.EnterBasicQueryValues(
+      operation,
+      dataSourceName,
+      spreadSheet,
+      sheetName,
+      headRowIndex,
+    );
+    let inputField = "";
+    if (operation.includes("Insert")) {
+      inputField = operation == "Insert One" ? "Row object" : "Row object(s)";
+    } else if (operation.includes("Update")) {
+      inputField =
+        operation == "Update One"
+          ? "Update row object"
+          : "Update row object(s)";
+    }
+
+    this.agHelper.EnterValue(rowData, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: inputField,
+    });
+    this.dataSources.RunQuery();
+  }
+
+  public EnterBasicQueryValues(
+    operation: operation,
+    dataSourceName: string,
+    spreadSheet: string,
+    sheetName = "Sheet1",
+    headRowIndex = "1",
+  ) {
     this.entityExplorer.CreateNewDsQuery(dataSourceName);
     this.dataSources.ValidateNSelectDropdown(
       "Operation",
@@ -88,22 +120,10 @@ export class GsheetHelper {
     this.agHelper.RenameWithInPane(
       operation.toLowerCase().replace(" ", "_") + "_query",
     );
+  }
 
-    let inputField = "";
-    if (operation.includes("Insert")) {
-      inputField = operation == "Insert One" ? "Row object" : "Row object(s)";
-    } else if (operation.includes("Update")) {
-      inputField =
-        operation == "Update One"
-          ? "Update row object"
-          : "Update row object(s)";
-    }
-
-    this.agHelper.EnterValue(rowData, {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: inputField,
-    });
-    this.dataSources.RunQuery();
+  public selectMultiDropDownValue(ddName: string, option: string) {
+    this.agHelper.GetNClick(this.dataSources._multiSelectDropdown(ddName));
+    this.agHelper.GetNClickByContains(this.dataSources._dropdownOption, option);
   }
 }
