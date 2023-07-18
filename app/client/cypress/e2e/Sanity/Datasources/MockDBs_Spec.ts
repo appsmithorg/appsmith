@@ -24,8 +24,9 @@ describe(
         cy.intercept("GET", dataSources._getStructureReq).as("getDSStructure");
 
         assertHelper.AssertNetworkStatus("@trigger");
-        dataSources.RunQueryNVerifyResponseViews(1, false);
+        dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
         dataSources.ValidateNSelectDropdown("Collection", "movies");
+        dataSources.RunQueryNVerifyResponseViews(1, false);
         dataSources.NavigateToActiveTab();
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))
@@ -34,8 +35,9 @@ describe(
           );
 
         entityExplorer.CreateNewDsQuery(mockDBName);
-        dataSources.RunQueryNVerifyResponseViews(1, false);
+        dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
         dataSources.ValidateNSelectDropdown("Collection", "movies");
+        dataSources.RunQueryNVerifyResponseViews(1, false);
         dataSources.NavigateToActiveTab();
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))

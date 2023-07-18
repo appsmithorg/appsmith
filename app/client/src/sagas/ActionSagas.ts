@@ -128,7 +128,7 @@ import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEdito
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { setAIPromptTriggered } from "utils/storage";
-import { getDefaultActionConfig } from "utils/editorContextUtils";
+import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
 
 export function* createDefaultActionPayload(
   pageId: string,
@@ -167,16 +167,11 @@ export function* createDefaultActionPayload(
     datasource?.id,
   );
 
-  const actionConfig =
-    plugin?.type === PluginType.API
-      ? defaultApiActionConfig
-      : {
-          formData: getDefaultActionConfig(
-            plugin,
-            dsStructure,
-            datasource?.isMock,
-          ),
-        };
+  const defaultActionConfig: any = getDefaultTemplateActionConfig(
+    plugin,
+    dsStructure,
+    datasource?.isMock,
+  );
 
   return {
     name: newActionName,
@@ -193,7 +188,12 @@ export function* createDefaultActionPayload(
       pluginName: plugin?.name,
       isMock: !!datasource?.isMock,
     },
-    actionConfiguration: actionConfig,
+    actionConfiguration:
+      plugin?.type === PluginType.API
+        ? defaultApiActionConfig
+        : !!defaultActionConfig
+        ? defaultActionConfig
+        : {},
   };
 }
 
