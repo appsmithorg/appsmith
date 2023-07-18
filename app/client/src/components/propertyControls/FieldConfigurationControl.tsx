@@ -108,7 +108,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
     const existingKeys = getKeysFromSchema(schema, ["identifier", "accessor"]);
     const schemaItems = Object.values(schema);
     const lastSchemaItem = maxBy(schemaItems, ({ position }) => position);
-    const lastSchemaItemPosition = lastSchemaItem?.position || -1;
+    const lastSchemaItemPosition = lastSchemaItem?.position ?? -1;
     const nextFieldKey = getNextEntityName(DEFAULT_FIELD_NAME, existingKeys);
     const schemaItem = SchemaParser.getSchemaItemFor(nextFieldKey, {
       currSourceData: "",
