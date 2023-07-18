@@ -48,16 +48,6 @@ describe("Test Sidebar navigation style", function () {
     agHelper.AssertElementVisible(
       appSettings.locators._getActivePage(pageName),
     );
-
-    //   agHelper
-    // .GetElement(appSettings.locators._navigationMenuItem)
-    // .contains(pageName)
-    // .parent()
-    // .parent()
-    // .parent()
-    // .parent()
-    // .parent()
-    // .should("have.class", "is-active");
   });
 
   it("2. Sidebar background should be default to white, and should change when background color is set to theme", () => {
@@ -100,7 +90,5 @@ describe("Test Sidebar navigation style", function () {
     agHelper.AssertElementVisible(
       appSettings.locators._userProfileDropdownMenu,
     );
-    // Back to editor
-    deployMode.NavigateBacktoEditor();
   });
 });

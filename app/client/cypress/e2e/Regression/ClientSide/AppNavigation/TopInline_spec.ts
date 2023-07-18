@@ -131,6 +131,5 @@ describe("Test Top + Inline navigation style", function () {
     agHelper.AssertElementVisible(
       appSettings.locators._userProfileDropdownMenu,
     );
-    deployMode.NavigateBacktoEditor();
   });
 });

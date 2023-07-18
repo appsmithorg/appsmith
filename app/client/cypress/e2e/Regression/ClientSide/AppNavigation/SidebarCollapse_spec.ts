@@ -28,7 +28,5 @@ describe("Test Sidebar Collapse", function () {
     agHelper
       .GetElement(appSettings.locators._sideNavbar)
       .should("have.class", "is-open");
-    // Back to editor
-    deployMode.NavigateBacktoEditor();
   });
 });

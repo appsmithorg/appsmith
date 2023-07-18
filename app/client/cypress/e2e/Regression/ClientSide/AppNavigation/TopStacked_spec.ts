@@ -150,7 +150,5 @@ describe("Test Top + Stacked navigation style", function () {
     agHelper.AssertElementVisible(
       appSettings.locators._userProfileDropdownMenu,
     );
-    // Edit
-    deployMode.NavigateBacktoEditor();
   });
 });

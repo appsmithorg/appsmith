@@ -1,4 +1,3 @@
-const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 import {
   agHelper,
   entityExplorer,
@@ -76,7 +75,6 @@ describe("General checks for app navigation", function () {
         agHelper.AssertElementVisible(
           appSettings.locators._getActivePage("Page5"),
         );
-        deployMode.NavigateBacktoEditor();
       });
   });
 });

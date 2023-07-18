@@ -70,6 +70,5 @@ describe("Test app's navigation settings", function () {
     agHelper.AssertElementVisible(appSettings.locators._header);
     agHelper.AssertElementAbsence(appSettings.locators._topStacked);
     agHelper.AssertElementVisible(appSettings.locators._topInline);
-    deployMode.NavigateBacktoEditor();
   });
 });
