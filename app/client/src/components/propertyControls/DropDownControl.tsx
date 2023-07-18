@@ -166,7 +166,9 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           ))}
         </Select>
         {errors?.[0] && (
-          <ErrorMessage>{errors[0].errorMessage?.message}</ErrorMessage>
+          <ErrorMessage data-testid="t---dropdown-control-error">
+            {errors[0].errorMessage?.message}
+          </ErrorMessage>
         )}
       </div>
     );

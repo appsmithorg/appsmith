@@ -347,8 +347,8 @@ export function valueKeyValidation(
     };
   }
 
-  const isValid = !options.find(
-    (d: unknown, i: number, arr: unknown[]) => arr.indexOf(d) !== i,
+  const isValid = options.every(
+    (d: unknown, i: number, arr: unknown[]) => arr.indexOf(d) === i,
   );
 
   return {
