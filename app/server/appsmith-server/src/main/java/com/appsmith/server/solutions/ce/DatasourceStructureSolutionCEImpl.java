@@ -50,8 +50,8 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                 .findById(datasourceId, datasourcePermission.getExecutePermission())
                 .zipWhen(datasource -> datasourceService.getTrueEnvironmentId(
                         datasource.getWorkspaceId(), environmentId, datasource.getPluginId()))
-                .flatMap(tuple2 ->
-                        datasourceStorageService.findByDatasourceAndEnvironmentId(tuple2.getT1(), tuple2.getT2()))
+                .flatMap(tuple2 -> datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(
+                        tuple2.getT1(), tuple2.getT2()))
                 .flatMap(datasourceStorage -> getStructure(datasourceStorage, ignoreCache))
                 .onErrorMap(
                         IllegalArgumentException.class,
