@@ -38,6 +38,8 @@ export type FeatureParams = {
   offset?: OffsetType;
   // Event params
   eventParams?: Record<string, any>;
+  // Multiple Highlights -> multiple ids for highlighter, if not present considers targetId as the only highlighting div.
+  multipleHighlights?: string[];
 };
 
 type WalkthroughContextType = {
