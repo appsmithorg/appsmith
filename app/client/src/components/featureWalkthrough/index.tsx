@@ -1,5 +1,6 @@
 import React, { lazy, useEffect, useState, Suspense } from "react";
 import type { FeatureParams } from "./walkthroughContext";
+import { DEFAULT_DELAY } from "./walkthroughContext";
 import WalkthroughContext from "./walkthroughContext";
 import { createPortal } from "react-dom";
 import { hideIndicator } from "pages/Editor/GuidedTour/utils";
@@ -47,7 +48,9 @@ export default function Walkthrough({ children }: any) {
     if (feature.length > 0) {
       const highlightArea = document.querySelector(`#${feature[0].targetId}`);
       if (highlightArea) {
-        setActiveWalkthrough(feature[0]);
+        setTimeout(() => {
+          setActiveWalkthrough(feature[0]);
+        }, feature[0].delay || DEFAULT_DELAY);
       } else {
         setActiveWalkthrough(null);
       }
