@@ -125,12 +125,22 @@ describe("Container Widget Functionality", function () {
       locators._widgetInDeployed(draggableWidgets.BUTTON),
       2,
     );
-    agHelper.GetClosestNClick(
+    agHelper.GetNClick(
       locators._widgetInDeployed(draggableWidgets.BUTTON),
-      "div",
       0,
       true,
     );
+    agHelper
+      .GetElement(locators._widgetInDeployed(draggableWidgets.BUTTON))
+      .closest("div")
+      .first()
+      .click({ force: true });
+    // agHelper.GetClosestNClick(
+    //   locators._widgetInDeployed(draggableWidgets.BUTTON),
+    //   "div",
+    //   0,
+    //   true,
+    // );
     // Verify the click on first button
     agHelper.ValidateToastMessage(items[0].last_name);
   });
