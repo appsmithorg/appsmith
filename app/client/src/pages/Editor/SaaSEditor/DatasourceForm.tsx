@@ -77,6 +77,7 @@ import Debugger, {
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { Form, ViewModeWrapper } from "../DataSourceEditor/DBForm";
 import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { undoAction } from "actions/pageActions";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -119,6 +120,7 @@ interface DatasourceFormFunctions {
   loadFilePickerAction: () => void;
   datasourceDiscardAction: (pluginId: string) => void;
   initializeDatasource: (values: any) => void;
+  undoDatasourceChanges: () => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -330,6 +332,14 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     this.closeDialogAndUnblockRoutes();
     this.state.navigation();
     this.props.datasourceDiscardAction(this.props?.pluginId);
+
+    if (!this.props.viewMode) {
+      this.props.setDatasourceViewMode(true);
+    }
+
+    if (this.props.isFormDirty) {
+      this.props.undoDatasourceChanges();
+    }
   }
 
   closeDialogAndUnblockRoutes(isNavigateBack?: boolean) {
@@ -676,6 +686,7 @@ const mapDispatchToProps = (dispatch: any): DatasourceFormFunctions => ({
     dispatch(datasourceDiscardAction(pluginId)),
   initializeDatasource: (values: any) =>
     dispatch(initialize(DATASOURCE_SAAS_FORM, values)),
+  undoDatasourceChanges: () => dispatch(undoAction()),
 });
 
 const SaaSEditor = connect(
