@@ -1,0 +1,22 @@
+productalertmessages: [\
+  {\
+    "messageId": "1",\
+    "title": "alert1",\
+    "learnMoreLink": "learnmorelink1",\
+    "canDismiss": true,\
+    "remindLaterDays": 5,\
+    "context": "COMMON_CONFIG",\
+    "applicabilityExpression": "!isCloudHosting",\
+    "precedenceIndex": 1\
+  }, \
+  {\
+    "messageId": "2",\
+    "title": "alert2",\
+    "learnMoreLink": "learnmorelink2",\
+    "canDismiss": true,\
+    "remindLaterDays": 5,\
+    "context": "STATIC",\
+    "applicabilityExpression": "true",\
+    "precedenceIndex": 1\
+  }\
+]
