@@ -2,8 +2,7 @@ import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 
 const Access = {
   AdminSettingsEntryLink: ".admin-settings-menu-option",
-  LeftPaneAuditLogsLink:
-    "[data-testid='t--enterprise-settings-category-item-audit-logs']",
+  LeftPaneAuditLogsLink: ".t--settings-category-audit-logs",
 };
 
 const Header = {
