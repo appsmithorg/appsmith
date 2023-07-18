@@ -5,6 +5,7 @@ import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
+  snipePath: Widget.getSnipePath(),
   name: "Select",
   iconSVG: IconSVG,
   needsMeta: true,

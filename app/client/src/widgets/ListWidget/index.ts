@@ -15,6 +15,7 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
+  snipePath: Widget.getSnipePath(),
   name: "List",
   iconSVG: IconSVG,
   needsMeta: true,

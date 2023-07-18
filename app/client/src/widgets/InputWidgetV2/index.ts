@@ -17,6 +17,7 @@ export const CONFIG = {
     },
   },
   type: Widget.getWidgetType(),
+  snipePath: Widget.getSnipePath(),
   name: "Input",
   iconSVG: IconSVG,
   needsMeta: true,

@@ -13,6 +13,7 @@ export const CONFIG = {
     },
   },
   type: Widget.getWidgetType(),
+  snipePath: Widget.getSnipePath(),
   name: "Switch",
   iconSVG: IconSVG,
   needsMeta: true,

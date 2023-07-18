@@ -4,6 +4,7 @@ import FileDataTypes from "./widget/FileDataTypes";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
+  snipePath: Widget.getSnipePath(),
   name: "FilePicker",
   iconSVG: IconSVG,
   needsMeta: true,

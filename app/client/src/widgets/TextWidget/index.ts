@@ -19,6 +19,7 @@ export const CONFIG = {
     },
   },
   type: Widget.getWidgetType(),
+  snipePath: Widget.getSnipePath(),
   name: "Text",
   iconSVG: IconSVG,
   searchTags: ["typography", "paragraph", "label"],

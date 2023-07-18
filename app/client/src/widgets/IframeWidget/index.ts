@@ -11,6 +11,7 @@ const DEFAULT_IFRAME_SOURCE = !isAirgappedInstance
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
+  snipePath: Widget.getSnipePath(),
   name: "Iframe",
   iconSVG: IconSVG,
   needsMeta: true,

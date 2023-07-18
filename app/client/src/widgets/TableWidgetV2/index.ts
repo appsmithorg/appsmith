@@ -13,6 +13,7 @@ import type {
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
+  snipePath: Widget.getSnipePath(),
   name: "Table",
   iconSVG: IconSVG,
   needsMeta: true,
