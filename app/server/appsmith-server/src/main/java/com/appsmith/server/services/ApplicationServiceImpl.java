@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
@@ -413,6 +414,9 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
         Mono<Long> updateWorkspaceAndDatasourcesInWorkspaceWithPermissionsForRoleMono =
                 roleConfigurationSolution.updateWorkspaceAndDatasourcesInWorkspaceWithPermissionsForRole(
                         application.getWorkspaceId(), applicationRole.getId(), permissionListMap, Map.of());
+        Mono<Long> updateEnvironmentsInWorkspaceWithPermissionsForRoleMono =
+                roleConfigurationSolution.updateEnvironmentsInWorkspaceWithPermissionsForRole(
+                        application.getWorkspaceId(), applicationRole.getId(), permissionListMap, Map.of());
         if (APPLICATION_DEVELOPER.equals(applicationRoleType)) {
             /*
              * Updating the resources in sequence, because some common datasources are being updated in both the Monos.
@@ -420,11 +424,13 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
              * is using. In second one, we are updating all the datasources present in the workspace.
              */
             updateAllResourcesWithPermissionForRoleMono = updateApplicationAndRelatedResourcesWithPermissionsForRoleMono
+                    .then(updateEnvironmentsInWorkspaceWithPermissionsForRoleMono)
                     .then(updateWorkspaceAndDatasourcesInWorkspaceWithPermissionsForRoleMono)
                     .thenReturn(1L);
         } else if (APPLICATION_VIEWER.equals(applicationRoleType)) {
             updateAllResourcesWithPermissionForRoleMono =
-                    updateApplicationAndRelatedResourcesWithPermissionsForRoleMono;
+                    updateApplicationAndRelatedResourcesWithPermissionsForRoleMono.then(
+                            updateEnvironmentsInWorkspaceWithPermissionsForRoleMono);
         }
         return updateAllResourcesWithPermissionForRoleMono.thenReturn(applicationRole);
     }
@@ -464,6 +470,16 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
         List<AclPermission> datasourcePermissions = new ArrayList<>();
         datasourcePermissions.addAll(directDatasourcePermissions);
         datasourcePermissions.addAll(indirectDatasourcePermissions);
+
+        List<AclPermission> directEnvironmentPermissions = appsmithRole.getPermissions().stream()
+                .filter(aclPermission -> aclPermission.getEntity().equals(Environment.class))
+                .toList();
+        Set<AclPermission> indirectEnvironmentPermissions =
+                policyGenerator.getAllChildPermissions(workspacePermissions, Environment.class);
+        List<AclPermission> environmentPermissions = new ArrayList<>();
+        environmentPermissions.addAll(directEnvironmentPermissions);
+        environmentPermissions.addAll(indirectEnvironmentPermissions);
+
         List<AclPermission> pagePermissions =
                 policyGenerator.getAllChildPermissions(applicationPermissions, Page.class).stream()
                         .toList();
@@ -478,6 +494,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                 applicationPermissions,
                 Datasource.class.getSimpleName(),
                 datasourcePermissions,
+                Environment.class.getSimpleName(),
+                environmentPermissions,
                 NewPage.class.getSimpleName(),
                 pagePermissions,
                 NewAction.class.getSimpleName(),
