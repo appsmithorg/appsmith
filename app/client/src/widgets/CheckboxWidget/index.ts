@@ -44,6 +44,16 @@ export const CONFIG = {
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
     setterConfig: Widget.getSetterConfig(),
   },
+  methods: {
+    getSnipingModeConfig: (propValueMap: Record<"data" | "run", string>) => {
+      return [
+        {
+          propertyPath: "defaultCheckedState",
+          propertyValue: propValueMap.data,
+        },
+      ];
+    },
+  },
   autoLayout: {
     disabledPropsDefaults: {
       labelTextSize: "0.875rem",

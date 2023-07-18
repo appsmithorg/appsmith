@@ -78,9 +78,16 @@ export interface WidgetConfiguration {
   methods?: Record<string, WidgetMethods>;
 }
 
+export type SnipingModeConfig = Array<{
+  propertyPath: string;
+  propertyValue: string;
+  isDynamic?: boolean;
+}>;
+
 export type WidgetMethods =
   | GetQueryGenerationConfig
-  | GetPropertyUpdatesForQueryBinding;
+  | GetPropertyUpdatesForQueryBinding
+  | GetSnipingModeConfig;
 
 type GetQueryGenerationConfig = (
   widgetProps: WidgetProps,
@@ -91,6 +98,10 @@ type GetPropertyUpdatesForQueryBinding = (
   widget: WidgetProps,
   formConfig: WidgetQueryGenerationFormConfig,
 ) => Record<string, unknown>;
+
+type GetSnipingModeConfig = (
+  propValueMap: Record<"data" | "run", string>,
+) => SnipingModeConfig;
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;
 

@@ -42,6 +42,16 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
+  methods: {
+    getSnipingModeConfig: (propValueMap: Record<"data" | "run", string>) => {
+      return [
+        {
+          propertyPath: "options",
+          propertyValue: propValueMap.data,
+        },
+      ];
+    },
+  },
 };
 
 export default Widget;

@@ -35,6 +35,16 @@ export const CONFIG = {
     setterConfig: Widget.getSetterConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
+  methods: {
+    getSnipingModeConfig: (propValueMap: Record<"data" | "run", string>) => {
+      return [
+        {
+          propertyPath: "onFilesSelected",
+          propertyValue: propValueMap.run,
+        },
+      ];
+    },
+  },
 };
 
 export default Widget;

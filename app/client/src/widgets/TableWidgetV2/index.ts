@@ -79,6 +79,15 @@ export const CONFIG = {
         formConfig,
       );
     },
+    getSnipingModeConfig: (propValueMap: Record<"data" | "run", string>) => {
+      return [
+        {
+          propertyPath: "tableData",
+          propertyValue: propValueMap.data,
+          isDynamic: true,
+        },
+      ];
+    },
   },
   autoLayout: {
     widgetSize: [

@@ -232,6 +232,16 @@ export const CONFIG = {
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
     setterConfig: Widget.getSetterConfig(),
   },
+  methods: {
+    getSnipingModeConfig: (propValueMap: Record<"data" | "run", string>) => {
+      return [
+        {
+          propertyPath: "tableData",
+          propertyValue: propValueMap.data,
+        },
+      ];
+    },
+  },
 };
 
 export default Widget;

@@ -32,6 +32,16 @@ export const CONFIG = {
     setterConfig: Widget.getSetterConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
+  methods: {
+    getSnipingModeConfig: (propValueMap: Record<"data" | "run", string>) => {
+      return [
+        {
+          propertyPath: "url",
+          propertyValue: propValueMap.data,
+        },
+      ];
+    },
+  },
   autoLayout: {
     widgetSize: [
       {

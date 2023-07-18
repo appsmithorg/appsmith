@@ -38,6 +38,16 @@ export const CONFIG = {
     setterConfig: Widget.getSetterConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
+  methods: {
+    getSnipingModeConfig: (propValueMap: Record<"data" | "run", string>) => {
+      return [
+        {
+          propertyPath: "defaultMarkers",
+          propertyValue: propValueMap.data,
+        },
+      ];
+    },
+  },
   autoLayout: {
     widgetSize: [
       {
