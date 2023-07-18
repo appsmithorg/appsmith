@@ -259,5 +259,7 @@ export class CommonLocators {
   _pagination = ".rc-pagination";
   _controlOption = ".t--property-control-options";
   _canvasBody = "[data-testid='div-selection-0']";
-  _itemContainerWidget: ".t--widget-containerwidget div.style-container";
+  _itemContainerWidget = ".t--widget-containerwidget div.style-container";
+  _paginationButton = ".rc-pagination-item";
+  _firstChild = ":first-child";
 }

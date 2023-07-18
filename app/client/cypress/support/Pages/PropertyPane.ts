@@ -123,6 +123,7 @@ export class PropertyPane {
   _dropdownOptionSpan = ".t--dropdown-option span";
   private _propertyControlColorPicker = (property: string) =>
     `.t--property-control-${property} .bp3-input-group input`;
+  _propertyText = ".bp3-ui-text span";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));

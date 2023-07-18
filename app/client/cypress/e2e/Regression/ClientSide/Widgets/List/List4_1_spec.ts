@@ -5,8 +5,9 @@ import {
   propPane,
   deployMode,
   appSettings,
-  draggableWidgets
+  draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
+const dsl = require("../../../../../fixtures/listdsl.json");
 
 describe("Container Widget Functionality", function () {
   const items = JSON.parse(dsl.dsl.children[0].listData);
@@ -76,13 +77,13 @@ describe("Container Widget Functionality", function () {
     agHelper.GetNClick(appSettings.locators._canvas);
     // Verify Current Item Bindings
     agHelper.GetNAssertElementText(
-      ".bp3-ui-text span",
+      propPane._propertyText,
       items[0].first_name,
       "contain.text",
       0,
     );
     agHelper.GetNAssertElementText(
-      ".bp3-ui-text span",
+      propPane._propertyText,
       items[1].first_name,
       "contain.text",
       1,
@@ -92,7 +93,7 @@ describe("Container Widget Functionality", function () {
   it("4. doesn't alter the no of items present when invalid item spacing is entered", () => {
     // Open Property pane
     entityExplorer.SelectEntityByName("List1", "Widgets");
-    cy.moveToStyleTab();
+    propPane.MoveToTab("Style");
     // Update an invalid value to item spacing
     propPane.UpdatePropertyFieldValue("Item Spacing (px)", "-");
     // Verify the length of list
@@ -120,8 +121,16 @@ describe("Container Widget Functionality", function () {
     cy.wait(3000);
     deployMode.DeployApp();
     // Verify Widget Button by clicking on it
-    agHelper.AssertElementLength(widgetsPage.widgetBtn, 2);
-    agHelper.GetClosestNClick(widgetsPage.widgetBtn, "div", 0, true);
+    agHelper.AssertElementLength(
+      locators._widgetInDeployed(draggableWidgets.BUTTON),
+      2,
+    );
+    agHelper.GetClosestNClick(
+      locators._widgetInDeployed(draggableWidgets.BUTTON),
+      "div",
+      0,
+      true,
+    );
     // Verify the click on first button
     agHelper.ValidateToastMessage(items[0].last_name);
   });
@@ -139,12 +148,16 @@ describe("Container Widget Functionality", function () {
     deployMode.DeployApp();
     // Click on list first item
     cy.get(
-      "div[type='LIST_WIDGET'] .t--widget-containerwidget:first-child",
+      `${locators._listWidget} ${locators._widgetInDeployed(
+        draggableWidgets.CONTAINER,
+      )}${locators._firstChild}`,
     ).click();
-    cy.get("body").then(($ele) => {
-      if ($ele.find(commonlocators.toastmsg).length <= 0) {
+    cy.get(locators._body).then(($ele) => {
+      if ($ele.find(locators._toastMsg).length <= 0) {
         cy.get(
-          "div[type='LIST_WIDGET'] .t--widget-containerwidget:first-child",
+          `${locators._listWidget} ${locators._widgetInDeployed(
+            draggableWidgets.CONTAINER,
+          )}${locators._firstChild}`,
         ).click();
       }
     });
@@ -154,17 +167,17 @@ describe("Container Widget Functionality", function () {
 
   it("7. it checks pagination", function () {
     // clicking on second pagination button
-    agHelper.GetNClick(`${commonlocators.paginationButton}-2`);
+    agHelper.GetNClick(`${locators._paginationButton}-2`);
 
     // now we are on the second page which shows first the 3rd item in the list
     agHelper.GetNAssertElementText(
-      ".bp3-ui-text span",
+      propPane._propertyText,
       items[2].first_name,
       "contain.text",
       0,
     );
     agHelper.GetNAssertElementText(
-      ".bp3-ui-text span",
+      propPane._propertyText,
       items[3].first_name,
       "contain.text",
       1,
@@ -207,7 +220,7 @@ describe("Container Widget Functionality", function () {
     );
     // Verify List Item Background Color
     agHelper.AssertCSS(
-      widgetsPage.itemContainerWidget,
+      locators._itemContainerWidget,
       "background-color",
       "rgb(126, 34, 206)",
     );
@@ -233,7 +246,7 @@ describe("Container Widget Functionality", function () {
     );
     // Verify List Item Background Color
     agHelper.AssertCSS(
-      widgetsPage.itemContainerWidget,
+      locators._itemContainerWidget,
       "background-color",
       "rgb(56, 175, 244)",
       0,
