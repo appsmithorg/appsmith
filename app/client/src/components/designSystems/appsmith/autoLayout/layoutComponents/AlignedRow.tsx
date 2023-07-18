@@ -2,6 +2,7 @@
 import React from "react";
 import type { LayoutComponentProps } from "utils/autoLayout/autoLayoutTypes";
 import FlexLayout from "./FlexLayout";
+import "../styles.css";
 
 const AlignedRow = (props: LayoutComponentProps) => {
   console.log("####", { props });
@@ -9,41 +10,15 @@ const AlignedRow = (props: LayoutComponentProps) => {
   if (rendersWidgets && childrenMap) {
     return (
       <FlexLayout flexDirection="row" {...(layoutStyle || {})}>
-        <FlexLayout
-          columnGap={4}
-          flexBasis={0}
-          flexDirection="row"
-          flexGrow={1}
-          flexShrink={1}
-          flexWrap="nowrap"
-          rowGap={12}
-        >
+        <div className="alignment start-alignment">
           {(layout[0] as string[]).map((id: string) => childrenMap[id])}
-        </FlexLayout>
-        <FlexLayout
-          columnGap={4}
-          flexBasis={0}
-          flexDirection="row"
-          flexGrow={1}
-          flexShrink={1}
-          flexWrap="nowrap"
-          justifyContent="center"
-          rowGap={12}
-        >
+        </div>
+        <div className="alignment center-alignment">
           {(layout[1] as string[]).map((id: string) => childrenMap[id])}
-        </FlexLayout>
-        <FlexLayout
-          columnGap={4}
-          flexBasis={0}
-          flexDirection="row"
-          flexGrow={1}
-          flexShrink={1}
-          flexWrap="nowrap"
-          justifyContent="flex-end"
-          rowGap={12}
-        >
+        </div>
+        <div className="alignment end-alignment">
           {(layout[2] as string[]).map((id: string) => childrenMap[id])}
-        </FlexLayout>
+        </div>
       </FlexLayout>
     );
   }

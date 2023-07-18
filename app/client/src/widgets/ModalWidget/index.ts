@@ -132,6 +132,38 @@ export const CONFIG = {
                     version: 1,
                   },
                 },
+                {
+                  type: "BUTTON_WIDGET",
+                  position: {
+                    left: 47,
+                    top: 18,
+                  },
+                  size: {
+                    rows: 4,
+                    cols: 16,
+                  },
+                  props: {
+                    text: "Confirm",
+                    buttonStyle: "PRIMARY_BUTTON",
+                    version: 1,
+                  },
+                },
+                {
+                  type: "BUTTON_WIDGET",
+                  position: {
+                    left: 47,
+                    top: 18,
+                  },
+                  size: {
+                    rows: 4,
+                    cols: 16,
+                  },
+                  props: {
+                    text: "Confirm",
+                    buttonStyle: "PRIMARY_BUTTON",
+                    version: 1,
+                  },
+                },
               ],
               operations: [
                 {
@@ -224,9 +256,8 @@ export const CONFIG = {
               (child) => child.type === "ICON_BUTTON_WIDGET",
             )?.[0];
 
-            const [buttonWidget1, buttonWidget2] = children.filter(
-              (child) => child.type === "BUTTON_WIDGET",
-            );
+            const [buttonWidget1, buttonWidget2, buttonWidget3, buttonWidget4] =
+              children.filter((child) => child.type === "BUTTON_WIDGET");
 
             //Create flex layer object based on the children
             const flexLayers: FlexLayer[] = [
@@ -238,6 +269,18 @@ export const CONFIG = {
                   },
                   {
                     id: iconWidget.widgetId,
+                    align: FlexLayerAlignment.End,
+                  },
+                ],
+              },
+              {
+                children: [
+                  {
+                    id: buttonWidget3.widgetId,
+                    align: FlexLayerAlignment.Start,
+                  },
+                  {
+                    id: buttonWidget4.widgetId,
                     align: FlexLayerAlignment.End,
                   },
                 ],
@@ -301,6 +344,7 @@ export const CONFIG = {
                   {
                     layoutId: "5",
                     layoutStyle: {
+                      alignSelf: "stretch",
                       columnGap: 4,
                       flexWrap: "wrap",
                       height: "auto",
@@ -312,6 +356,8 @@ export const CONFIG = {
                       {
                         layoutId: "6",
                         layoutStyle: {
+                          flexGrow: 1,
+                          minWidth: "220px",
                           rowGap: 12,
                         },
                         layoutType: "COLUMN",
@@ -319,8 +365,36 @@ export const CONFIG = {
                         layout: [
                           {
                             layoutId: "7",
+                            layoutStyle: {
+                              alignSelf: "stretch",
+                              columnGap: 4,
+                              rowGap: 12,
+                            },
                             layoutType: "ALIGNED_ROW",
-                            layout: [[], [], []],
+                            layout: [[], [buttonWidget3.widgetId], []],
+                            rendersWidgets: true,
+                          },
+                        ],
+                      },
+                      {
+                        layoutId: "9",
+                        layoutStyle: {
+                          flexGrow: 1,
+                          minWidth: "220px",
+                          rowGap: 12,
+                        },
+                        layoutType: "COLUMN",
+                        isDropTarget: true,
+                        layout: [
+                          {
+                            layoutId: "10",
+                            layoutStyle: {
+                              alignSelf: "stretch",
+                              columnGap: 4,
+                              rowGap: 12,
+                            },
+                            layoutType: "ALIGNED_ROW",
+                            layout: [[], [], [buttonWidget4.widgetId]],
                             rendersWidgets: true,
                           },
                         ],

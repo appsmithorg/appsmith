@@ -15,6 +15,7 @@ interface FlexLayoutProps {
   maxHeight?: string;
   minWidth?: string;
   minHeight?: string;
+  overflowX?: "visible" | "hidden" | "scroll" | "auto";
   overflow?: "visible" | "hidden" | "scroll" | "auto";
   rowGap?: number;
   width?: string;
@@ -35,7 +36,7 @@ const FlexLayout = (props: FlexLayoutProps) => {
       flexBasis: props.flexBasis || "auto",
       flexWrap: props.flexWrap || "nowrap",
       justifyContent: props.justifyContent || "flex-start",
-      overflowX: "hidden",
+      overflowX: props.overflowX || "hidden",
       overflowY: props.overflow || "hidden",
       height: props.height || "auto",
       maxHeight: props.maxHeight,
