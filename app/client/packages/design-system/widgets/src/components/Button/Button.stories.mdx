@@ -1,4 +1,5 @@
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+import { userEvent, within, waitFor } from "@storybook/testing-library";
 
 import { Button } from "./";
 import { Icon } from "@design-system/headless";
@@ -95,6 +96,30 @@ There are 4 variants of the button component.
       isLoading: true,
       children: "Loading",
       onPress: () => alert("on pressed"),
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Hover State"
+    args={{
+      children: "Hover",
+    }}
+    play={async ({ canvasElement }) => {
+      const button = await within(canvasElement).getByRole("button");
+      await userEvent.hover(button);
+    }}
+  >
+    {Template.bind({})}
+  </Story>
+  <Story
+    name="Focus State"
+    args={{
+      children: "Focus",
+    }}
+    play={async ({ canvasElement }) => {
+      const canvas = within(canvasElement);
+      await userEvent.tab();
     }}
   >
     {Template.bind({})}
