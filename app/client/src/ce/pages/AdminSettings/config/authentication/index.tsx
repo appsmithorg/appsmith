@@ -6,8 +6,8 @@ import {
 } from "constants/ThirdPartyConstants";
 import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import {
+  CategoryType,
   SettingCategories,
-  SettingSubCategories,
   SettingSubtype,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
@@ -18,7 +18,6 @@ import SamlSso from "assets/images/saml.svg";
 import OIDC from "assets/images/oidc.svg";
 import Github from "assets/images/Github.png";
 import Lock from "assets/images/lock-password-line.svg";
-import { ORIGIN_URI_FORM, REDIRECT_URL_FORM } from "@appsmith/constants/forms";
 import { useSelector } from "react-redux";
 import {
   getThirdPartyAuths,
@@ -35,6 +34,7 @@ import {
 
 const FormAuth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
+  categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.GROUP,
   title: "Form login",
   subText: createMessage(FORM_LOGIN_DESC),
@@ -43,14 +43,12 @@ const FormAuth: AdminConfigType = {
     {
       id: "APPSMITH_FORM_LOGIN_DISABLED",
       category: SettingCategories.FORM_AUTH,
-      subCategory: SettingSubCategories.FORMLOGIN,
       controlType: SettingTypes.TOGGLE,
       label: "form login",
     },
     {
       id: "APPSMITH_SIGNUP_DISABLED",
       category: SettingCategories.FORM_AUTH,
-      subCategory: SettingSubCategories.FORMLOGIN,
       controlType: SettingTypes.TOGGLE,
       label: "Form signup",
       toggleText: (value: boolean) =>
@@ -61,7 +59,6 @@ const FormAuth: AdminConfigType = {
     {
       id: "APPSMITH_FORM_CALLOUT_BANNER",
       category: SettingCategories.FORM_AUTH,
-      subCategory: SettingSubCategories.FORMLOGIN,
       controlType: SettingTypes.LINK,
       label:
         "The form login method does not verify the emails of users that create accounts.",
@@ -73,6 +70,7 @@ const FormAuth: AdminConfigType = {
 
 export const GoogleAuth: AdminConfigType = {
   type: SettingCategories.GOOGLE_AUTH,
+  categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.GROUP,
   title: "Google authentication",
   subText: createMessage(GOOGLE_AUTH_DESC),
@@ -81,7 +79,6 @@ export const GoogleAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_GOOGLE_READ_MORE",
       category: SettingCategories.GOOGLE_AUTH,
-      subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.LINK,
       label: "How to configure?",
       url: GOOGLE_SIGNUP_SETUP_DOC,
@@ -89,10 +86,8 @@ export const GoogleAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_GOOGLE_JS_ORIGIN_URL",
       category: SettingCategories.GOOGLE_AUTH,
-      subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.UNEDITABLEFIELD,
       label: "JavaScript origin URL",
-      formName: ORIGIN_URI_FORM,
       fieldName: "js-origin-url-form",
       value: "",
       tooltip:
@@ -102,10 +97,8 @@ export const GoogleAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_GOOGLE_REDIRECT_URL",
       category: SettingCategories.GOOGLE_AUTH,
-      subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.UNEDITABLEFIELD,
       label: "Redirect URL",
-      formName: REDIRECT_URL_FORM,
       fieldName: "redirect-url-form",
       value: "/login/oauth2/code/google",
       tooltip:
@@ -115,7 +108,6 @@ export const GoogleAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_GOOGLE_CLIENT_ID",
       category: SettingCategories.GOOGLE_AUTH,
-      subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client ID",
@@ -124,7 +116,6 @@ export const GoogleAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET",
       category: SettingCategories.GOOGLE_AUTH,
-      subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client secret",
@@ -133,7 +124,6 @@ export const GoogleAuth: AdminConfigType = {
     {
       id: "APPSMITH_SIGNUP_ALLOWED_DOMAINS",
       category: SettingCategories.GOOGLE_AUTH,
-      subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Allowed domains",
@@ -144,6 +134,7 @@ export const GoogleAuth: AdminConfigType = {
 
 export const GithubAuth: AdminConfigType = {
   type: SettingCategories.GITHUB_AUTH,
+  categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.GROUP,
   title: "GitHub authentication",
   subText: createMessage(GITHUB_AUTH_DESC),
@@ -152,7 +143,6 @@ export const GithubAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_GITHUB_READ_MORE",
       category: SettingCategories.GITHUB_AUTH,
-      subCategory: SettingSubCategories.GITHUB,
       controlType: SettingTypes.LINK,
       label: "How to configure?",
       url: GITHUB_SIGNUP_SETUP_DOC,
@@ -160,10 +150,8 @@ export const GithubAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_GITHUB_HOMEPAGE_URL",
       category: SettingCategories.GITHUB_AUTH,
-      subCategory: SettingSubCategories.GITHUB,
       controlType: SettingTypes.UNEDITABLEFIELD,
       label: "Homepage URL",
-      formName: ORIGIN_URI_FORM,
       fieldName: "homepage-url-form",
       value: "",
       tooltip:
@@ -173,10 +161,8 @@ export const GithubAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_GITHUB_REDIRECT_URL",
       category: SettingCategories.GITHUB_AUTH,
-      subCategory: SettingSubCategories.GITHUB,
       controlType: SettingTypes.UNEDITABLEFIELD,
       label: "Redirect URL",
-      formName: REDIRECT_URL_FORM,
       fieldName: "callback-url-form",
       value: "/login/oauth2/code/github",
       tooltip:
@@ -186,7 +172,6 @@ export const GithubAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_GITHUB_CLIENT_ID",
       category: SettingCategories.GITHUB_AUTH,
-      subCategory: SettingSubCategories.GITHUB,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client ID",
@@ -195,7 +180,6 @@ export const GithubAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET",
       category: SettingCategories.GITHUB_AUTH,
-      subCategory: SettingSubCategories.GITHUB,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client secret",
@@ -268,6 +252,7 @@ function AuthMain() {
 export const config: AdminConfigType = {
   icon: "lock-password-line",
   type: SettingCategories.AUTHENTICATION,
+  categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.PAGE,
   title: "Authentication",
   canSave: false,

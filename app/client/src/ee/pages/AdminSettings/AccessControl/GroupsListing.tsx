@@ -6,7 +6,7 @@ import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
 import { HighlightText } from "design-system-old";
-import { Spinner } from "design-system";
+import { Icon, Spinner } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { GroupAddEdit } from "./GroupAddEdit";
@@ -46,6 +46,7 @@ const CellContainer = styled.div`
   align-items: center;
   cursor: pointer;
   color: var(--ads-v2-color-fg);
+  gap: var(--ads-v2-spaces-3);
 `;
 
 export function GroupListing() {
@@ -117,6 +118,9 @@ export function GroupListing() {
                 highlight={searchValue}
                 text={cellProps.cell.row.original.name}
               />
+              {cellProps.cell.row.original.provisioned && (
+                <Icon name="link-unlink" />
+              )}
             </CellContainer>
           </Link>
         );

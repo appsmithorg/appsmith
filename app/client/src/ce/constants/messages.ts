@@ -324,6 +324,7 @@ export const OAUTH_2_0 = () => "OAuth 2.0";
 export const ENABLE = () => "Enable";
 export const UPGRADE = () => "Upgrade";
 export const EDIT = () => "Edit";
+export const CONFIGURE = () => "Configure";
 export const UNEXPECTED_ERROR = () => "An unexpected error occurred";
 export const EXPECTED_ERROR = () => "An error occurred";
 export const NO_DATASOURCE_FOR_QUERY = () =>
@@ -1246,6 +1247,14 @@ export const SAVE_BUTTON = () => "Save";
 export const SAVE_AND_RESTART_BUTTON = () => "Save & Restart";
 export const RESET_BUTTON = () => "Reset";
 export const BUSINESS_TAG = () => "Business";
+export const ENTERPRISE_TAG = () => "Enterprise";
+
+// Upgrade pages begin
+export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
+export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
+  `The ${featureName} feature is exclusive to workspaces on the Business Edition`;
+export const AVAILABLE_ON_ENTERPRISE = () => "Available on Appsmith Enterprise";
+// Upgrade pages end
 
 // Audit logs begin
 export const AUDIT_LOGS = () => "Audit logs";
@@ -1267,9 +1276,6 @@ export const DEBUGGING_DETAIL1 = () =>
 export const INCIDENT_MANAGEMENT = () => "Incident management";
 export const INCIDENT_MANAGEMENT_DETAIL1 = () =>
   "Go back in time from an incident to see who did what, correlate events with breaking changes, and run RCAs to remediate incidents for now and the future.";
-export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
-export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
-  `The ${featureName} feature is exclusive to workspaces on the Business Edition`;
 // Audit logs Upgrade page end
 // Audit logs end
 
@@ -1293,6 +1299,20 @@ export const RESTRICT_PUBLIC_EXPOSURE_DETAIL1 = () =>
 export const ACCESS_CONTROL_UPGRADE_PAGE_FOOTER = () =>
   "Unlock granular access controls along with audit logs and SSO for enhanced security and reliability with an upgrade to our Business edition.";
 // Access control upgrade page end
+
+// Provisioning upgrade page begin
+export const USER_PROVISIONING_FOR_ENTERPRISES = () =>
+  "user provisioning for enterprises";
+export const PROVISIONING_UPGRADE_PAGE_SUB_HEADING = () =>
+  "Provision and de-provision users on Appsmith. Automatic group sync from your IdP.";
+export const PROVISION_DEPROVISION_USERS = () =>
+  "Provision and de-provision users on Appsmith";
+export const PROVISION_DEPROVISION_USERS_DETAIL1 = () =>
+  `Automatically assign accounts to new employees and revoke access when they leave. Error-free, right from your Identity Provider (IdP).`;
+export const AUTO_GROUP_SYNC = () => "Automatic group sync from your IdP";
+export const AUTO_GROUP_SYNC_DETAIL1 = () =>
+  `Sync user groups from your IdP into Appsmith to manage access across your teams easily.`;
+// Provisioning upgrade page end
 
 //
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>

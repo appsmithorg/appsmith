@@ -6,7 +6,7 @@ import {
   SettingsHeader,
   SettingsSubHeader,
 } from "pages/Settings/components";
-import { AclFactory } from "../config";
+import AdminConfig from "@appsmith/pages/AdminSettings/config";
 
 import EditableText, {
   EditInteractionKind,
@@ -90,7 +90,7 @@ function getSettingLabel(name = "") {
 }
 
 function getSettingDetail(category: string, selected: string) {
-  return AclFactory.getCategoryDetails(category, selected);
+  return AdminConfig.getCategoryDetails(category, selected);
 }
 
 export function PageHeader(props: PageHeaderProps) {

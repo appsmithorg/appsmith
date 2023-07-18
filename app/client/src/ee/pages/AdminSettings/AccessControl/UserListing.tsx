@@ -60,21 +60,22 @@ import {
   Text,
   Link as AdsLink,
   Spinner,
+  Icon,
 } from "design-system";
 import { AvatarComponent } from "pages/common/AvatarComponent";
 
 export const CellContainer = styled.div`
   display: flex;
   align-items: center;
+  gap: var(--ads-v2-spaces-3);
 
   &.user-email-column > span:nth-child(2) {
     text-decoration: underline;
     text-underline-offset: 2px;
-    color: var(--ads-v2-color-fg)
+    color: var(--ads-v2-color-fg);
   }
 
   .user-icons {
-    margin-right 8px;
     cursor: initial;
   }
 `;
@@ -212,7 +213,7 @@ export function UserListing() {
       accessor: "username",
       Cell: function UserCell(cellProps: any) {
         const { username } = cellProps.cell.row.values;
-        const { id, photoId } = cellProps.cell.row.original;
+        const { id, photoId, provisioned } = cellProps.cell.row.original;
         return (
           <Link
             className="user-email-link"
@@ -244,6 +245,7 @@ export function UserListing() {
                 userName={username}
               />
               <HighlightText highlight={searchValue} text={username} />
+              {provisioned && <Icon name="link-unlink" />}
             </CellContainer>
           </Link>
         );

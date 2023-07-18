@@ -4,14 +4,15 @@ import {
   SettingCategories,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
-import { GroupListing } from "../AccessControl/GroupsListing";
+import { AccessControlUpgradePage } from "../../Upgrade/AccessControlUpgradePage";
 
 export const config: AdminConfigType = {
-  icon: "user-2-line",
-  type: SettingCategories.GROUPS_LISTING,
+  icon: "user-3-line",
+  type: SettingCategories.ACCESS_CONTROL,
   categoryType: CategoryType.ACL,
   controlType: SettingTypes.PAGE,
-  component: GroupListing,
-  title: "Groups",
+  component: AccessControlUpgradePage,
+  title: "Access Control",
   canSave: false,
+  needsUpgrade: true,
 } as AdminConfigType;
