@@ -212,6 +212,11 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
             }
         }
 
+        // Remove extra event data property if it's present
+        if (analyticsProperties.containsKey(FieldName.EVENT_DATA)) {
+            analyticsProperties.remove(FieldName.EVENT_DATA);
+        }
+
         final String finalUserId = userId;
 
         return Mono.zip(
@@ -355,9 +360,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                 AnalyticsEvents.DS_TEST_EVENT,
                 AnalyticsEvents.DS_TEST_EVENT_SUCCESS,
                 AnalyticsEvents.DS_TEST_EVENT_FAILED,
-                AnalyticsEvents.DS_SCHEMA_FETCH_EVENT,
-                AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_SUCCESS,
-                AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_FAILED);
+                AnalyticsEvents.DS_SCHEMA_FETCH_EVENT);
     }
 
     public <T extends BaseDomain> Mono<T> sendCreateEvent(T object, Map<String, Object> extraProperties) {

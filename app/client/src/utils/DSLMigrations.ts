@@ -757,6 +757,7 @@ export const migrateInitialValues = (currentDSL: DSLWidget) => {
 
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
+// This needs the widget config to be already built to migrate correctly
 export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
   if (currentDSL.version === undefined) {
     // Since this top level widget is a CANVAS_WIDGET,

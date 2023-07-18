@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
@@ -96,24 +97,22 @@ import static com.external.plugins.constants.FieldName.LIST_WHERE;
 import static com.external.plugins.constants.FieldName.PATH;
 import static com.external.plugins.constants.FieldName.READ_DATATYPE;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static com.external.plugins.constants.S3PluginConstants.ACCESS_DENIED_ERROR_CODE;
+import static com.external.plugins.constants.S3PluginConstants.AWS_S3_SERVICE_PROVIDER;
+import static com.external.plugins.constants.S3PluginConstants.BASE64_DELIMITER;
+import static com.external.plugins.constants.S3PluginConstants.CUSTOM_ENDPOINT_INDEX;
+import static com.external.plugins.constants.S3PluginConstants.DEFAULT_FILE_NAME;
+import static com.external.plugins.constants.S3PluginConstants.DEFAULT_URL_EXPIRY_IN_MINUTES;
+import static com.external.plugins.constants.S3PluginConstants.NO;
+import static com.external.plugins.constants.S3PluginConstants.S3_DRIVER;
+import static com.external.plugins.constants.S3PluginConstants.S3_SERVICE_PROVIDER_PROPERTY_INDEX;
+import static com.external.plugins.constants.S3PluginConstants.YES;
 import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
 import static com.external.utils.TemplateUtils.getTemplates;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
 public class AmazonS3Plugin extends BasePlugin {
-
-    private static final String S3_DRIVER = "com.amazonaws.services.s3.AmazonS3";
-    public static final int S3_SERVICE_PROVIDER_PROPERTY_INDEX = 1;
-    public static final int CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX = 2;
-    public static final int CUSTOM_ENDPOINT_INDEX = 0;
-    public static final String DEFAULT_URL_EXPIRY_IN_MINUTES = "5"; // max 7 days is possible
-    public static final String YES = "YES";
-    public static final String NO = "NO";
-    private static final String BASE64_DELIMITER = ";base64,";
-    private static final String OTHER_S3_SERVICE_PROVIDER = "other";
-    private static final String AWS_S3_SERVICE_PROVIDER = "amazon-s3";
-    public static String DEFAULT_FILE_NAME = "MyFile.txt";
 
     public AmazonS3Plugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -924,8 +923,22 @@ public class AmazonS3Plugin extends BasePlugin {
                         connection.listBuckets();
                         return new DatasourceTestResult();
                     })
-                    .onErrorResume(
-                            error -> Mono.just(new DatasourceTestResult(amazonS3ErrorUtils.getReadableError(error))));
+                    .onErrorResume(error -> {
+                        if (error instanceof AmazonS3Exception
+                                && ACCESS_DENIED_ERROR_CODE.equals(((AmazonS3Exception) error).getErrorCode())) {
+                            /**
+                             * Sometimes a valid account credential may not have permission to run listBuckets action
+                             * . In this case `AccessDenied` error is returned.
+                             * That fact that the credentials caused `AccessDenied` error instead of invalid access key
+                             * id or signature mismatch error means that the credentials are valid, we are able to
+                             * establish a connection as well, but the account does not have permission to run
+                             * listBuckets.
+                             */
+                            return Mono.just(new DatasourceTestResult());
+                        }
+
+                        return Mono.just(new DatasourceTestResult(amazonS3ErrorUtils.getReadableError(error)));
+                    });
         }
 
         /**

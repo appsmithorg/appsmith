@@ -24,7 +24,7 @@ import { Spinner } from "design-system";
 import LogoInput from "@appsmith/pages/Editor/NavigationSettings/LogoInput";
 import SwitchSettingForLogoConfiguration from "./SwitchSettingForLogoConfiguration";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { useFeatureFlagCheck } from "selectors/featureFlagsSelectors";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 
 /**
  * TODO - @Dhruvik - ImprovedAppNav
@@ -48,8 +48,8 @@ export type LogoConfigurationSwitches = {
 function NavigationSettings() {
   const application = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId);
-  const isAppLogoEnabled = useFeatureFlagCheck(
-    FEATURE_FLAG.APP_NAVIGATION_LOGO_UPLOAD,
+  const isAppLogoEnabled = useSelector((state) =>
+    selectFeatureFlagCheck(state, FEATURE_FLAG.APP_NAVIGATION_LOGO_UPLOAD),
   );
   const dispatch = useDispatch();
   const [navigationSetting, setNavigationSetting] = useState(

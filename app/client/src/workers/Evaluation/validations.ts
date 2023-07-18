@@ -16,7 +16,6 @@ import _, {
 
 import moment from "moment";
 import type { ValidationConfig } from "constants/PropertyControlConstants";
-import evaluate from "./evaluate";
 
 import getIsSafeURL from "utils/validation/getIsSafeURL";
 import * as log from "loglevel";
@@ -728,10 +727,12 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     }
     const isABoolean = value === true || value === false;
     const isStringTrueFalse = value === "true" || value === "false";
-    const isValid = isABoolean || isStringTrueFalse;
+    // if strictCheck is true then stringTrueFalse are considered invalid value.
+    const strictCheck = config.params && config.params.strict;
+    const isValid = strictCheck ? isABoolean : isABoolean || isStringTrueFalse;
 
     let parsed = value;
-    if (isStringTrueFalse) parsed = value !== "false";
+    if (isStringTrueFalse && !strictCheck) parsed = value !== "false";
 
     if (!isValid) {
       return {
@@ -1090,13 +1091,19 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     };
     if (config.params?.fnString && isString(config.params?.fnString)) {
       try {
-        const { result } = evaluate(
-          config.params.fnString,
-          {},
-          false,
-          undefined,
-          [value, props, globalThis._, globalThis.moment, propertyPath, config],
-        );
+        const fnBody = `const fn = ${config.params?.fnString};
+        return fn(value, props, _, moment, propertyPath, config);`;
+
+        const result = new Function(
+          "value",
+          "props",
+          "_",
+          "moment",
+          "propertyPath",
+          "config",
+          fnBody,
+        )(value, props, globalThis._, globalThis.moment, propertyPath, config);
+
         return result;
       } catch (e) {
         log.error("Validation function error: ", { e });

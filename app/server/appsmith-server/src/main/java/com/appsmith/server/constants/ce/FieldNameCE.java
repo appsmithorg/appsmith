@@ -178,4 +178,9 @@ public class FieldNameCE {
     public static final String UNUSED_ENVIRONMENT_ID = "unused_env";
 
     public static final String SUFFIX_USER_MANAGEMENT_ROLE = " User Management";
+
+    public static final String REPO_URL = "repoUrl";
+    public static final String GIT_HOSTING_PROVIDER = "gitHostingProvider";
+
+    public static final String IS_MERGEABLE = "isMergeable";
 }

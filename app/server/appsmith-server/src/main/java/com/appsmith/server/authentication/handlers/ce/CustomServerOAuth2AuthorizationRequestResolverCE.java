@@ -156,29 +156,8 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
         if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
             builder = OAuth2AuthorizationRequest.authorizationCode();
             Map<String, Object> additionalParameters = new HashMap<>();
-            if (!CollectionUtils.isEmpty(clientRegistration.getScopes())
-                    && clientRegistration.getScopes().contains(OidcScopes.OPENID)) {
-                // Section 3.1.2.1 Authentication Request -
-                // https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
-                // scope
-                // 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
-                addNonceParameters(attributes, additionalParameters);
-            }
-            if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())) {
-                addPkceParameters(attributes, additionalParameters);
-            }
-            if (!commonConfig.getOauthAllowedDomains().isEmpty()) {
-                if (commonConfig.getOauthAllowedDomains().size() == 1) {
-                    // Incase there's only 1 domain, we can do a further optimization to let the user select a specific
-                    // one
-                    // from the list
-                    additionalParameters.put(
-                            "hd", commonConfig.getOauthAllowedDomains().get(0));
-                } else {
-                    // Add multiple domains to the list of allowed domains
-                    additionalParameters.put("hd", commonConfig.getOauthAllowedDomains());
-                }
-            }
+
+            addAttributesAndAdditionalParameters(clientRegistration, attributes, additionalParameters);
 
             builder.additionalParameters(additionalParameters);
             //        } else if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType()))
@@ -197,6 +176,35 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
                 .state(key)
                 .attributes(attributes)
                 .build());
+    }
+
+    protected void addAttributesAndAdditionalParameters(
+            ClientRegistration clientRegistration,
+            Map<String, Object> attributes,
+            Map<String, Object> additionalParameters) {
+
+        if (!CollectionUtils.isEmpty(clientRegistration.getScopes())
+                && clientRegistration.getScopes().contains(OidcScopes.OPENID)) {
+            // Section 3.1.2.1 Authentication Request -
+            // https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+            // scope
+            // 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
+            addNonceParameters(attributes, additionalParameters);
+        }
+        if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())) {
+            addPkceParameters(attributes, additionalParameters);
+        }
+        if (!commonConfig.getOauthAllowedDomains().isEmpty()) {
+            if (commonConfig.getOauthAllowedDomains().size() == 1) {
+                // Incase there's only 1 domain, we can do a further optimization to let the user select a specific one
+                // from the list
+                additionalParameters.put(
+                        "hd", commonConfig.getOauthAllowedDomains().get(0));
+            } else {
+                // Add multiple domains to the list of allowed domains
+                additionalParameters.put("hd", commonConfig.getOauthAllowedDomains());
+            }
+        }
     }
 
     /**
