@@ -25,6 +25,7 @@ describe(
 
         assertHelper.AssertNetworkStatus("@trigger");
         dataSources.RunQueryNVerifyResponseViews(1, false);
+        dataSources.ValidateNSelectDropdown("Collection", "movies");
         dataSources.NavigateToActiveTab();
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))
@@ -34,6 +35,7 @@ describe(
 
         entityExplorer.CreateNewDsQuery(mockDBName);
         dataSources.RunQueryNVerifyResponseViews(1, false);
+        dataSources.ValidateNSelectDropdown("Collection", "movies");
         dataSources.NavigateToActiveTab();
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))

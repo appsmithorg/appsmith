@@ -214,6 +214,9 @@ export function getDefaultActionConfig(
           templateTitle = "Find";
           break;
         }
+        default: {
+          return {};
+        }
       }
 
       const table: DatasourceTable | undefined = dsStructure.tables?.find(
