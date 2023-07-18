@@ -752,11 +752,12 @@ const PropertyControl = memo((props: Props) => {
 
     if (switchToNormalMode) {
       const switchMode = switchToNormalMode(
+        connectDataClicked,
         propertyName,
         isDynamic,
         isToggleDisabled,
       );
-      if (connectDataClicked && switchMode) {
+      if (switchMode) {
         toggleDynamicProperty(propertyName, true);
       }
     }
