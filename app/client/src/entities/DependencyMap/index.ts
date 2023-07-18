@@ -92,8 +92,9 @@ export default class DependencyMap {
   };
 
   private removeDependency = (node: string) => {
-    this.#dependencies.delete(node);
+    const nodeExistedInDependencies = this.#dependencies.delete(node);
     this.#invalidDependencies.delete(node);
+    return nodeExistedInDependencies;
   };
 
   /**
@@ -104,6 +105,7 @@ export default class DependencyMap {
    */
   addNodes = (nodes: Record<string, true>) => {
     const keys = Object.keys(nodes);
+    let didUpdateGraph = false;
     for (const node of keys) {
       if (this.#nodes.has(node)) continue;
       // New node introduced to the graph.
@@ -115,6 +117,7 @@ export default class DependencyMap {
         // since the invalid node is now valid, add it to the valid dependencies.
         this.#dependencies.get(iNode)?.add(node);
         this.#invalidDependencies.get(iNode)?.delete(node);
+        didUpdateGraph = true;
         if (this.#dependenciesInverse.has(node)) {
           this.#dependenciesInverse.get(node)?.add(iNode);
         } else {
@@ -123,9 +126,11 @@ export default class DependencyMap {
       }
       this.#invalidDependenciesInverse.delete(node);
     }
+    return didUpdateGraph;
   };
 
   removeNodes = (nodes: Record<string, true>) => {
+    let didUpdateDependencies = false;
     const keys = Object.keys(nodes);
     for (const node of keys) {
       if (!this.#nodes.has(node)) continue;
@@ -138,6 +143,7 @@ export default class DependencyMap {
         // since the valid node is now invalid, add it to the invalid dependencies.
         this.#invalidDependencies.get(iNode)?.add(node);
         this.#dependencies.get(iNode)?.delete(node);
+        didUpdateDependencies = true;
         if (!this.#nodes.has(iNode)) continue;
         if (this.#invalidDependenciesInverse.has(node)) {
           this.#invalidDependenciesInverse.get(node)?.add(iNode);
@@ -146,7 +152,9 @@ export default class DependencyMap {
         }
       }
       this.#dependenciesInverse.delete(node);
-      this.removeDependency(node);
+      const nodeExistedInDependencies = this.removeDependency(node);
+      if (nodeExistedInDependencies) didUpdateDependencies = true;
+      return didUpdateDependencies;
     }
   };
 

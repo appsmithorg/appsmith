@@ -18,13 +18,17 @@ import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { extractInfoFromBindings } from "./utils";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { get, isEmpty, set } from "lodash";
-import { isWidgetActionOrJsObject } from "../DataTreeEvaluator/utils";
-import DependencyMap from "entities/DependencyMap";
+import {
+  getFixedTimeDifference,
+  isWidgetActionOrJsObject,
+} from "../DataTreeEvaluator/utils";
+import type DependencyMap from "entities/DependencyMap";
 import {
   getEntityDependencies,
   getEntityPathDependencies,
 } from "./utils/getEntityDependencies";
 import { getValidationDependencies } from "./utils/getValidationDependencies";
+import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
 
 interface CreateDependencyMap {
   dependencyMap: DependencyMap;
@@ -36,10 +40,9 @@ export function createDependencyMap(
   unEvalTree: DataTree,
   configTree: ConfigTree,
 ): CreateDependencyMap {
-  const dependencyMap = new DependencyMap();
-  const validationDependencyMap = new DependencyMap();
-  dependencyMap.addNodes(dataTreeEvalRef.allKeys);
-  validationDependencyMap.addNodes(dataTreeEvalRef.allKeys);
+  const { allKeys, dependencyMap, validationDependencyMap } = dataTreeEvalRef;
+  dependencyMap.addNodes(allKeys);
+  validationDependencyMap.addNodes(allKeys);
 
   Object.keys(configTree).forEach((entityName) => {
     const entity = unEvalTree[entityName];
@@ -69,7 +72,7 @@ export function createDependencyMap(
     }
   });
 
-  // TODO => Make parents depend on children
+  DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
 
   return {
     dependencyMap,
@@ -97,13 +100,15 @@ export const updateDependencyMap = ({
   const dependenciesOfRemovedPaths: Array<string> = [];
   const removedPaths: Array<string> = [];
   const pathsToClearErrorsFor: any[] = [];
+  let didUpdateDependencyMap = false;
+  let didUpdateValidationDependencyMap = false;
   const {
     dependencyMap,
     oldConfigTree,
     oldUnEvalTree,
     validationDependencyMap,
   } = dataTreeEvalRef;
-
+  // TODO => UPDATE ALL KEYS WITH DIFF
   let { errors: dataTreeEvalErrors } = dataTreeEvalRef;
 
   translatedDiffs.forEach((dataTreeDiff) => {
@@ -129,7 +134,8 @@ export const updateDependencyMap = ({
           const allAddedPaths = getAllPaths({
             [fullPropertyPath]: get(unEvalDataTree, fullPropertyPath),
           });
-          dependencyMap?.addNodes(allAddedPaths);
+          const didUpdateDep = dependencyMap.addNodes(allAddedPaths);
+          if (didUpdateDep) didUpdateDependencyMap = true;
 
           if (isWidgetActionOrJsObject(entity)) {
             if (!isDynamicLeaf(unEvalDataTree, fullPropertyPath, configTree)) {
@@ -144,7 +150,8 @@ export const updateDependencyMap = ({
                   ([path, pathDependencies]) => {
                     const { errors: extractDependencyErrors, references } =
                       extractInfoFromBindings(pathDependencies);
-                    dependencyMap?.addDependency(path, references);
+                    dependencyMap.addDependency(path, references);
+                    didUpdateDependencyMap = true;
                     dataTreeEvalErrors = dataTreeEvalErrors.concat(
                       extractDependencyErrors,
                     );
@@ -160,10 +167,11 @@ export const updateDependencyMap = ({
                   entityConfig as WidgetEntityConfig,
                 );
                 for (const path of Object.keys(validationDependencies)) {
-                  validationDependencyMap?.addDependency(
+                  validationDependencyMap.addDependency(
                     path,
                     validationDependencies[path],
                   );
+                  didUpdateValidationDependencyMap = true;
                 }
               }
             } else {
@@ -174,7 +182,8 @@ export const updateDependencyMap = ({
               );
               const { errors: extractDependencyErrors, references } =
                 extractInfoFromBindings(entityPathDependencies);
-              dependencyMap?.addDependency(fullPropertyPath, references);
+              dependencyMap.addDependency(fullPropertyPath, references);
+              didUpdateDependencyMap = true;
               dataTreeEvalErrors = dataTreeEvalErrors.concat(
                 extractDependencyErrors,
               );
@@ -187,10 +196,11 @@ export const updateDependencyMap = ({
                   entityConfig as WidgetEntityConfig,
                 );
                 for (const path of Object.keys(validationDependencies)) {
-                  validationDependencyMap?.addDependency(
+                  validationDependencyMap.addDependency(
                     path,
                     validationDependencies[path],
                   );
+                  didUpdateValidationDependencyMap = true;
                 }
               }
             }
@@ -201,8 +211,11 @@ export const updateDependencyMap = ({
           const allDeletedPaths = getAllPaths({
             [fullPropertyPath]: get(oldUnEvalTree, fullPropertyPath),
           });
-          dependencyMap?.removeNodes(allDeletedPaths);
-          validationDependencyMap?.removeNodes(allDeletedPaths);
+          const didUpdateDeps = dependencyMap.removeNodes(allDeletedPaths);
+          const didUpdateValidationDeps =
+            validationDependencyMap.removeNodes(allDeletedPaths);
+          if (didUpdateDeps) didUpdateDependencyMap = true;
+          if (didUpdateValidationDeps) didUpdateValidationDependencyMap = true;
           // Add to removedPaths as they have been deleted from the evalTree
           removedPaths.push(fullPropertyPath);
           // If an existing entity was deleted, remove all the bindings from the global dependency map
@@ -215,7 +228,7 @@ export const updateDependencyMap = ({
               widgetId: entity?.widgetId,
               paths: [
                 fullPropertyPath,
-                dependencyMap?.getDirectDependencies(fullPropertyPath),
+                dependencyMap.getDirectDependencies(fullPropertyPath),
               ],
             });
           }
@@ -239,7 +252,8 @@ export const updateDependencyMap = ({
 
             const { errors: extractDependencyErrors, references } =
               extractInfoFromBindings(entityPathDependencies);
-            dependencyMap?.addDependency(fullPropertyPath, references);
+            dependencyMap.addDependency(fullPropertyPath, references);
+            didUpdateDependencyMap = true;
 
             dataTreeEvalErrors = dataTreeEvalErrors.concat(
               extractDependencyErrors,
@@ -255,14 +269,15 @@ export const updateDependencyMap = ({
   });
 
   const diffCalcEnd = performance.now();
-  const subDepCalcStart = performance.now();
-  // TODO => Optimize for only when dependencyMap updates
-  // TODO => makeParentsDependOnChildren
-  // TODO => Sort dependencies to prevent cyclic dependencies
-  // TODO => Sort dependencies (validation deps) to prevent cyclic dependencies only when dep changes
-
-  const subDepCalcEnd = performance.now();
   const updateChangedDependenciesStart = performance.now();
+
+  if (didUpdateDependencyMap) {
+    DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
+    dataTreeEvalRef.sortDependencies(dependencyMap);
+  }
+  if (didUpdateValidationDependencyMap) {
+    dataTreeEvalRef.sortDependencies(validationDependencyMap);
+  }
 
   /** We need this in order clear out the paths that could have errors when a property is deleted */
   if (pathsToClearErrorsFor.length) {
@@ -276,10 +291,10 @@ export const updateDependencyMap = ({
   const updateChangedDependenciesStop = performance.now();
   dataTreeEvalRef.logs.push({
     diffCalcDeps: (diffCalcEnd - diffCalcStart).toFixed(2),
-    subDepCalc: (subDepCalcEnd - subDepCalcStart).toFixed(2),
-    updateChangedDependencies: (
-      updateChangedDependenciesStop - updateChangedDependenciesStart
-    ).toFixed(2),
+    updateChangedDependencies: getFixedTimeDifference(
+      updateChangedDependenciesStop,
+      updateChangedDependenciesStart,
+    ),
   });
 
   return {
