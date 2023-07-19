@@ -8,6 +8,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import type { SetterConfig } from "entities/AppTheming";
 
 class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -21,6 +22,17 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
       strokeStyle: "string",
       dividerColor: "string",
       thickness: "number",
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+      },
     };
   }
 

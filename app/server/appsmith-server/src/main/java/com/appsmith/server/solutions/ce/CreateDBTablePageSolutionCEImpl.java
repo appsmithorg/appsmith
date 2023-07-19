@@ -6,7 +6,6 @@ import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
@@ -165,8 +164,10 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         if (Boolean.TRUE.equals(isTrueEnvironmentIdRequired)) {
             return datasourceService
                     .findById(pageResourceDTO.getDatasourceId())
-                    .map(Datasource::getWorkspaceId)
-                    .flatMap(workspaceId -> datasourceService.getTrueEnvironmentId(workspaceId, environmentId))
+                    .flatMap(datasource -> {
+                        return datasourceService.getTrueEnvironmentId(
+                                datasource.getWorkspaceId(), environmentId, datasource.getPluginId());
+                    })
                     .flatMap(trueEnvironmentId ->
                             createPageFromDBTable(defaultPageId, pageResourceDTO, trueEnvironmentId, branchName));
         }
@@ -223,8 +224,8 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                 .findById(datasourceId, datasourcePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
-                .flatMap(datasource ->
-                        datasourceStorageService.findByDatasourceAndEnvironmentId(datasource, environmentId))
+                .flatMap(datasource -> datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(
+                        datasource, environmentId))
                 .filter(DatasourceStorage::getIsValid)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.INVALID_DATASOURCE, FieldName.DATASOURCE, datasourceId)));

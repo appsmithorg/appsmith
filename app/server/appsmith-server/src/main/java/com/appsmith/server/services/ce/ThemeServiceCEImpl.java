@@ -507,22 +507,25 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
         Mono<Theme> publishedModeTheme = updateExistingAppThemeFromJSON(
                 destinationApp, destinationApp.getPublishedModeThemeId(), sourceJson.getPublishedTheme());
 
-        return Mono.zip(editModeTheme, publishedModeTheme).flatMap(importedThemesTuple -> {
-            String editModeThemeId = importedThemesTuple.getT1().getId();
-            String publishedModeThemeId = importedThemesTuple.getT2().getId();
+        return Mono.zip(editModeTheme, publishedModeTheme)
+                .flatMap(importedThemesTuple -> {
+                    String editModeThemeId = importedThemesTuple.getT1().getId();
+                    String publishedModeThemeId = importedThemesTuple.getT2().getId();
 
-            destinationApp.setEditModeThemeId(editModeThemeId);
-            destinationApp.setPublishedModeThemeId(publishedModeThemeId);
-            // this will update the theme id in DB
-            // also returning the updated application object so that theme id are available to the next pipeline
-            return applicationService
-                    .setAppTheme(
-                            destinationApp.getId(),
-                            editModeThemeId,
-                            publishedModeThemeId,
-                            applicationPermission.getEditPermission())
-                    .thenReturn(destinationApp);
-        });
+                    destinationApp.setEditModeThemeId(editModeThemeId);
+                    destinationApp.setPublishedModeThemeId(publishedModeThemeId);
+                    // this will update the theme id in DB
+                    // also returning the updated application object so that theme id are available to the next pipeline
+                    return applicationService
+                            .setAppTheme(
+                                    destinationApp.getId(),
+                                    editModeThemeId,
+                                    publishedModeThemeId,
+                                    applicationPermission.getEditPermission())
+                            .thenReturn(destinationApp);
+                })
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Failed to import theme")));
     }
 
     private Mono<Theme> updateExistingAppThemeFromJSON(
@@ -530,19 +533,23 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
         if (!StringUtils.hasLength(existingThemeId)) {
             return getOrSaveTheme(themeFromJson, destinationApp);
         }
-        return repository.findById(existingThemeId, READ_THEMES).flatMap(existingTheme -> {
-            if (existingTheme.isSystemTheme()) {
-                return getOrSaveTheme(themeFromJson, destinationApp);
-            } else {
-                if (themeFromJson.isSystemTheme()) {
-                    return getOrSaveTheme(themeFromJson, destinationApp).flatMap(importedTheme -> {
-                        // need to delete the old existingTheme
-                        return repository.archiveById(existingThemeId).thenReturn(importedTheme);
-                    });
-                } else {
-                    return repository.updateById(existingThemeId, themeFromJson, MANAGE_THEMES);
-                }
-            }
-        });
+
+        return repository
+                .findById(existingThemeId)
+                .defaultIfEmpty(new Theme()) // fallback when application theme is deleted
+                .flatMap(existingTheme -> {
+                    if (!StringUtils.hasLength(existingTheme.getId()) || existingTheme.isSystemTheme()) {
+                        return getOrSaveTheme(themeFromJson, destinationApp);
+                    } else {
+                        if (themeFromJson.isSystemTheme()) {
+                            return getOrSaveTheme(themeFromJson, destinationApp).flatMap(importedTheme -> {
+                                // need to delete the old existingTheme
+                                return repository.archiveById(existingThemeId).thenReturn(importedTheme);
+                            });
+                        } else {
+                            return repository.updateById(existingThemeId, themeFromJson, MANAGE_THEMES);
+                        }
+                    }
+                });
     }
 }

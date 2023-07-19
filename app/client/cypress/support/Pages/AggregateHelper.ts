@@ -160,7 +160,7 @@ export class AggregateHelper extends ReusableHelper {
       .should("have.value", renameVal)
       .blur();
     this.PressEnter();
-    this.AssertElementAbsence(this.locator._btnSpinner, 10000);
+    this.AssertElementVisible(this.locator._editIcon);
     this.Sleep(300); //allow lil more time for new name to settle
   }
 
@@ -1449,6 +1449,14 @@ export class AggregateHelper extends ReusableHelper {
       this.Sleep(2000);
     } else
       apiToValidate && this.assertHelper.AssertNetworkStatus(apiToValidate);
+  }
+
+  public GetDropTargetId(widgetName: string) {
+    return this.GetWidgetByName(widgetName).invoke("attr", "id");
+  }
+
+  public GetModalDropTargetId() {
+    return this.GetElement(this.locator._modal).invoke("attr", "id");
   }
 
   //Not used:

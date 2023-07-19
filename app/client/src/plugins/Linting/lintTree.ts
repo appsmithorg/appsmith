@@ -8,6 +8,7 @@ import lintTriggerPath from "./utils/lintTriggerPath";
 import lintJSObjectBody from "./utils/lintJSObjectBody";
 import sortLintingPathsByType from "./utils/sortLintingPathsByType";
 import lintJSObjectProperty from "./utils/lintJSObjectProperty";
+import setters from "workers/Evaluation/setters";
 import type {
   getLintErrorsFromTreeProps,
   getLintErrorsFromTreeResponse,
@@ -23,7 +24,10 @@ export function getLintErrorsFromTree({
 }: getLintErrorsFromTreeProps): getLintErrorsFromTreeResponse {
   const lintTreeErrors: LintErrorsStore = {};
   const lintedJSPaths = new Set<string>();
-  globalData.initialize(unEvalTree, cloudHosting);
+
+  setters.init(configTree, unEvalTree);
+  globalData.initialize(unEvalTree, configTree, cloudHosting);
+
   const { bindingPaths, jsObjectPaths, triggerPaths } = sortLintingPathsByType(
     pathsToLint,
     unEvalTree,
