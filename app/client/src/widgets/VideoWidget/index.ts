@@ -3,6 +3,7 @@ import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import type { PropertyValueMap } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -33,7 +34,7 @@ export const CONFIG = {
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
   methods: {
-    getSnipingModeConfig: (propValueMap: Record<"data" | "run", string>) => {
+    getSnipingModeConfig: (propValueMap: PropertyValueMap) => {
       return [
         {
           propertyPath: "url",

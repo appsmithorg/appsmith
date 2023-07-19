@@ -1,3 +1,4 @@
+import type { PropertyValueMap } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import FileDataTypes from "./widget/FileDataTypes";
@@ -36,7 +37,7 @@ export const CONFIG = {
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
   methods: {
-    getSnipingModeConfig: (propValueMap: Record<"data" | "run", string>) => {
+    getSnipingModeConfig: (propValueMap: PropertyValueMap) => {
       return [
         {
           propertyPath: "onFilesSelected",

@@ -3,6 +3,7 @@ import { LabelPosition } from "components/constants";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import type { PropertyValueMap } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -49,7 +50,7 @@ export const CONFIG = {
     setterConfig: Widget.getSetterConfig(),
   },
   methods: {
-    getSnipingModeConfig: (propValueMap: Record<"data" | "run", string>) => {
+    getSnipingModeConfig: (propValueMap: PropertyValueMap) => {
       return [
         {
           propertyPath: "options",

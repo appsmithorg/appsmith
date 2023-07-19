@@ -2,6 +2,7 @@ import { Colors } from "constants/Colors";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { RateWidgetProps } from "./widget";
+import type { PropertyValueMap } from "widgets/constants";
 
 export const CONFIG = {
   features: {
@@ -74,7 +75,7 @@ export const CONFIG = {
     setterConfig: Widget.getSetterConfig(),
   },
   methods: {
-    getSnipingModeConfig: (propValueMap: Record<"data" | "run", string>) => {
+    getSnipingModeConfig: (propValueMap: PropertyValueMap) => {
       return [
         {
           propertyPath: "onRateChanged",

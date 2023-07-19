@@ -13,7 +13,7 @@ import {
 } from "components/constants";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Theme } from "constants/DefaultTheme";
-import type { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import type { PropertyHookUpdates } from "widgets/constants";
 import {
   CANVAS_SELECTOR,
   CONTAINER_GRID_PADDING,

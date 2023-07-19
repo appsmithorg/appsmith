@@ -5,8 +5,8 @@ import { snipingModeBindToSelector } from "selectors/editorSelectors";
 import type { ActionData } from "reducers/entityReducers/actionsReducer";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import {
+  batchUpdateWidgetDynamicProperty,
   batchUpdateWidgetProperty,
-  setWidgetDynamicProperty,
 } from "actions/controlActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -26,7 +26,7 @@ import {
   FEATURE_FLAG,
 } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import type { SnipingModeConfig } from "widgets/constants";
+import type { PropertyHookUpdates } from "widgets/constants";
 
 export function* bindDataToWidgetSaga(
   action: ReduxAction<{
@@ -63,12 +63,9 @@ export function* bindDataToWidgetSaga(
     selectedWidget.type,
   );
 
-  let updatesMap = {};
-  let updates: SnipingModeConfig = [];
+  let updates: Array<PropertyHookUpdates> = [];
 
-  if (!getSnipingModeConfig) {
-    isValidProperty = false;
-  } else {
+  if (getSnipingModeConfig) {
     updates = getSnipingModeConfig?.({
       data: `{{${currentAction.config.name}.data}}`,
       run: `{{${currentAction.config.name}.run()}}`,
@@ -78,31 +75,34 @@ export function* bindDataToWidgetSaga(
       widgetType: selectedWidget.type,
       actionName: currentAction.config.name,
       apiId: queryId,
-      propertyPath: updates.map((update) => update.propertyPath),
-      propertyValue: updates.map((update) => update.propertyValue),
+      propertyPath: updates?.map((update) => update.propertyPath).toString(),
+      propertyValue: updates?.map((update) => update.propertyPath).toString(),
       [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
         FEATURE_FLAG.ab_ds_binding_enabled,
       [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isDSBindingEnabled,
     });
-
-    updatesMap = updates?.reduce((acc: Record<string, string>, update) => {
-      acc[update.propertyPath] = update.propertyValue;
-      return acc;
-    }, {});
+  } else {
+    isValidProperty = false;
   }
 
   if (queryId && isValidProperty && updates.length > 0) {
-    // set the property path to dynamic, i.e. enable JS mode
-    yield all(
-      updates.map((update) => {
-        const isDynamic = update.isDynamic ?? true;
-        if (isDynamic) {
-          return put(
-            setWidgetDynamicProperty(widgetId, update.propertyPath, true),
-          );
-        }
-      }),
+    const updatesMap: Record<string, string> = updates?.reduce(
+      (acc: Record<string, string>, update) => {
+        acc[update.propertyPath] = update.propertyValue as string;
+        return acc;
+      },
+      {},
     );
+
+    const batchUpdateArray = updates.map((update) => {
+      return {
+        propertyPath: update.propertyPath,
+        isDynamic: update.isDynamicPropertyPath ?? true,
+      };
+    });
+
+    // set the property path to dynamic, i.e. enable JS mode
+    yield put(batchUpdateWidgetDynamicProperty(widgetId, batchUpdateArray));
     yield put(batchUpdateWidgetProperty(widgetId, { modify: updatesMap }));
     yield call(resetSnipingModeSaga);
     yield put(selectWidgetInitAction(SelectionRequestType.One, [widgetId]));

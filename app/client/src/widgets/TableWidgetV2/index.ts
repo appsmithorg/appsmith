@@ -10,6 +10,7 @@ import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
+import type { PropertyHookUpdates, PropertyValueMap } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -79,12 +80,14 @@ export const CONFIG = {
         formConfig,
       );
     },
-    getSnipingModeConfig: (propValueMap: Record<"data" | "run", string>) => {
+    getSnipingModeConfig: (
+      propValueMap: PropertyValueMap,
+    ): PropertyHookUpdates[] => {
       return [
         {
           propertyPath: "tableData",
           propertyValue: propValueMap.data,
-          isDynamic: true,
+          isDynamicPropertyPath: false,
         },
       ];
     },

@@ -6,7 +6,7 @@ import {
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { FlattenedWidgetProps } from "widgets/constants";
+import type { FlattenedWidgetProps, PropertyValueMap } from "widgets/constants";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -422,7 +422,7 @@ export const CONFIG = {
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
   methods: {
-    getSnipingModeConfig: (propValueMap: Record<"data" | "run", string>) => {
+    getSnipingModeConfig: (propValueMap: PropertyValueMap) => {
       return [
         {
           propertyPath: "listData",

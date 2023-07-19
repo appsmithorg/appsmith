@@ -3,7 +3,10 @@ import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import { BlueprintOperationTypes } from "widgets/constants";
+import {
+  BlueprintOperationTypes,
+  type PropertyValueMap,
+} from "widgets/constants";
 
 import IconSVG from "./icon.svg";
 import type { JSONFormWidgetProps } from "./widget";
@@ -100,7 +103,7 @@ export const CONFIG = {
     setterConfig: Widget.getSetterConfig(),
   },
   methods: {
-    getSnipingModeConfig: (propValueMap: Record<"data" | "run", string>) => {
+    getSnipingModeConfig: (propValueMap: PropertyValueMap) => {
       return [
         {
           propertyPath: "sourceData",

@@ -5,7 +5,10 @@ import { OverflowTypes } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import { BlueprintOperationTypes } from "widgets/constants";
+import {
+  BlueprintOperationTypes,
+  type PropertyValueMap,
+} from "widgets/constants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { get } from "lodash";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
@@ -80,7 +83,7 @@ export const CONFIG = {
     setterConfig: Widget.getSetterConfig(),
   },
   methods: {
-    getSnipingModeConfig: (propValueMap: Record<"data" | "run", string>) => {
+    getSnipingModeConfig: (propValueMap: PropertyValueMap) => {
       return [
         {
           propertyPath: "text",

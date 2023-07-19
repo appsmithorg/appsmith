@@ -6,7 +6,10 @@ import {
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { BlueprintOperationTypes } from "widgets/constants";
+import {
+  BlueprintOperationTypes,
+  type PropertyValueMap,
+} from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -233,7 +236,7 @@ export const CONFIG = {
     setterConfig: Widget.getSetterConfig(),
   },
   methods: {
-    getSnipingModeConfig: (propValueMap: Record<"data" | "run", string>) => {
+    getSnipingModeConfig: (propValueMap: PropertyValueMap) => {
       return [
         {
           propertyPath: "tableData",

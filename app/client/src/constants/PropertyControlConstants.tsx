@@ -9,6 +9,7 @@ import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import type { Stylesheet } from "entities/AppTheming";
 import type { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
+import type { PropertyHookUpdates } from "widgets/constants";
 
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = (typeof ControlTypes)[keyof typeof ControlTypes];
@@ -23,13 +24,6 @@ export type PropertyPaneSectionConfig = {
   isDefaultOpen?: boolean;
   propertySectionPath?: string;
   tag?: string; // Used to show a tag right after the section name (only in the search results)
-};
-
-export type PropertyHookUpdates = {
-  propertyPath: string;
-  propertyValue?: unknown;
-  isDynamicPropertyPath?: boolean; // Toggles the property mode to JS
-  shouldDeleteProperty?: boolean; // Deletes the property, propertyValue is ignored
 };
 
 export type PanelConfig = {

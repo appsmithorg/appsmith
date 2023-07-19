@@ -78,11 +78,12 @@ export interface WidgetConfiguration {
   methods?: Record<string, WidgetMethods>;
 }
 
-export type SnipingModeConfig = Array<{
+export type PropertyHookUpdates = {
   propertyPath: string;
-  propertyValue: string;
-  isDynamic?: boolean;
-}>;
+  propertyValue?: unknown;
+  isDynamicPropertyPath?: boolean; // Toggles the property mode to JS
+  shouldDeleteProperty?: boolean; // Deletes the property, propertyValue is ignored
+};
 
 export type WidgetMethods =
   | GetQueryGenerationConfig
@@ -101,7 +102,7 @@ type GetPropertyUpdatesForQueryBinding = (
 
 type GetSnipingModeConfig = (
   propValueMap: Record<"data" | "run", string>,
-) => SnipingModeConfig;
+) => Array<PropertyHookUpdates>;
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;
 
@@ -372,3 +373,5 @@ export const dateFormatOptions = [
 export type ThemeProp = {
   theme: Theme;
 };
+
+export type PropertyValueMap = Record<"data" | "run", string>;
