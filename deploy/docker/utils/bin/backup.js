@@ -80,7 +80,7 @@ async function run() {
     }
   } finally {
     await fsPromises.rm(backupRootPath, { recursive: true, force: true });
-    if (encryptArchive) {    
+    if (encryptArchive) {
        await fsPromises.rm(archivePath, { recursive: true, force: true });
     }
     await postBackupCleanup();
