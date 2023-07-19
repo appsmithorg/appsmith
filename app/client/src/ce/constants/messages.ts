@@ -1316,6 +1316,9 @@ export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
 export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
   "Search for controls, labels etc";
 export const EXPLORER_BETA_ENTITY = () => "BETA";
+export const BINDING_WIDGET_WALKTHROUGH_TITLE = () => "Widget properties";
+export const BINDING_WIDGET_WALKTHROUGH_DESC = () =>
+  `We’ve set the table data property for you. You can change it at anytime. The properties pane is a central hub for configuring widgets, allowing you to easily modify settings.`;
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";

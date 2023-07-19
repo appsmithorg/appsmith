@@ -138,11 +138,11 @@ const WalkthroughRenderer = ({
   if (multipleHighlightsIds.indexOf(targetId) === -1)
     multipleHighlightsIds.push(targetId);
   const updateBoundingRect = () => {
-    const mainTarget = document.querySelector(`#${targetId}`);
+    const mainTarget = document.getElementById(targetId);
     if (mainTarget) {
       const data: BoundingRectTargets = {};
       multipleHighlightsIds.forEach((id) => {
-        const highlightArea = document.querySelector(`#${id}`);
+        const highlightArea = document.getElementById(id);
         if (highlightArea) {
           const boundingRect = highlightArea.getBoundingClientRect();
           const bodyRect = document.body.getBoundingClientRect();
@@ -174,7 +174,7 @@ const WalkthroughRenderer = ({
 
   useEffect(() => {
     updateBoundingRect();
-    const highlightArea = document.querySelector(`#${targetId}`);
+    const highlightArea = document.getElementById(targetId);
     AnalyticsUtil.logEvent("WALKTHROUGH_SHOWN", eventParams);
     window.addEventListener("resize", updateBoundingRect);
     const resizeObserver = new ResizeObserver(updateBoundingRect);
@@ -185,7 +185,7 @@ const WalkthroughRenderer = ({
       window.removeEventListener("resize", updateBoundingRect);
       if (highlightArea) resizeObserver.unobserve(highlightArea);
     };
-  }, [targetId, multipleHighlightsIds]);
+  }, [targetId]);
 
   const onDismissWalkthrough = () => {
     onDismiss && onDismiss();
@@ -193,8 +193,9 @@ const WalkthroughRenderer = ({
   };
 
   if (!boundingRects || Object.keys(boundingRects).length === 0) return null;
-
   const targetBounds = boundingRects[targetId];
+
+  if (!targetBounds) return null;
 
   return (
     <WalkthroughWrapper className="t--walkthrough-overlay">

@@ -223,3 +223,6 @@ export const FLEXBOX_PADDING = 4;
 export const MAX_MODAL_WIDTH_FROM_MAIN_WIDTH = 0.95;
 
 export const FILE_SIZE_LIMIT_FOR_BLOBS = 5000 * 1024; // 5MB
+
+// Constant key to show walkthrough for a widget -> stores widget id
+export const WIDGET_ID_SHOW_WALKTHROUGH = "WIDGET_ID_SHOW_WALKTHROUGH";

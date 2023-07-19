@@ -37,6 +37,9 @@ export default function Walkthrough({ children }: any) {
 
   const popFeature = () => {
     hideIndicator();
+    if (activeWalkthrough && activeWalkthrough.onDismiss) {
+      activeWalkthrough.onDismiss();
+    }
     setFeature((e) => {
       e.shift();
       return [...e];
@@ -45,7 +48,7 @@ export default function Walkthrough({ children }: any) {
 
   const updateActiveWalkthrough = () => {
     if (feature.length > 0) {
-      const highlightArea = document.querySelector(`#${feature[0].targetId}`);
+      const highlightArea = document.getElementById(feature[0].targetId);
       if (highlightArea) {
         setActiveWalkthrough(feature[0]);
       } else {

@@ -18,8 +18,8 @@ import { DatasourceStructureContext } from "./DatasourceStructureContainer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Plugin } from "api/PluginApi";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { setFeatureFlagShownStatus } from "utils/storage";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { setFeatureWalkthroughShown } from "utils/storage";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 
 type DatasourceStructureProps = {
   dbStructure: DatasourceTable;
@@ -80,7 +80,10 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
 
   const closeWalkthrough = () => {
     popFeature && popFeature();
-    setFeatureFlagShownStatus(FEATURE_FLAG.ab_ds_schema_enabled, true);
+    setFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
+      true,
+    );
   };
 
   const lightningMenu =
