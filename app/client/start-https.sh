@@ -245,8 +245,7 @@ $(if [[ $use_https == 1 ]]; then echo "
 
     server {
 $(if [[ $use_https == 1 ]]; then echo "
-        listen $https_listen_port ssl default_server;
-        http2 on;
+        listen $https_listen_port ssl http2 default_server;
         server_name $domain;
         ssl_certificate '$cert_file';
         ssl_certificate_key '$key_file';
