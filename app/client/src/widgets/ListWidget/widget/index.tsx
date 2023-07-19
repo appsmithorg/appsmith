@@ -3,7 +3,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { PrivateWidgets } from "entities/DataTree/types";
 import equal from "fast-deep-equal/es6";
 import { klona } from "klona/lite";
@@ -79,6 +79,18 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       pageSize: generateTypeDef(widget.pageSize),
     });
   }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+      },
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return PropertyPaneContentConfig;
   }

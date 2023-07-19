@@ -339,8 +339,8 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       color: var(--ads-v2-color-fg);
 
       display: flex;
-      align-items: center;
-      gap: var(--ads-v2-spaces-3);
+      flex-direction: column;
+      align-items: flex-start;
 
       &.${LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS} {
         transform: translate(-100%);

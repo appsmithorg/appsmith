@@ -5,9 +5,9 @@ import {
   apiPage,
   dataSources,
   debuggerHelper,
+  tedTestConfig,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
-import datasourceFormData from "../../../../fixtures/datasources.json";
 
 import {
   ERROR_ACTION_EXECUTE_FAIL,
@@ -16,7 +16,7 @@ import {
 
 describe("API Bugs", function () {
   it("1. Bug 14037: User gets an error even when table widget is added from the API page successfully", function () {
-    apiPage.CreateAndFillApi(datasourceFormData.mockApiUrl, "Api1");
+    apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl, "Api1");
     apiPage.RunAPI();
 
     dataSources.AddSuggesstedWidget(Widgets.Table);
@@ -44,7 +44,7 @@ describe("API Bugs", function () {
 
   it("3. Bug 18876 Ensures application does not crash when saving datasource", () => {
     apiPage.CreateAndFillApi(
-      datasourceFormData.mockApiUrl,
+      tedTestConfig.mockApiUrl,
       "FirstAPI",
       10000,
       "POST",

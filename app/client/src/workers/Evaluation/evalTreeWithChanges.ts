@@ -15,7 +15,10 @@ import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import { setEvalContext } from "./evaluate";
 
-export function evalTreeWithChanges(updatedValuePaths: string[][]) {
+export function evalTreeWithChanges(
+  updatedValuePaths: string[][],
+  metaUpdates: EvalMetaUpdates = [],
+) {
   let evalOrder: string[] = [];
   let jsUpdates: Record<string, JSUpdate> = {};
   let unEvalUpdates: DataTreeDiff[] = [];
@@ -25,7 +28,7 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
   const errors: EvalError[] = [];
   const logs: any[] = [];
   const dependencies: DependencyMap = {};
-  let evalMetaUpdates: EvalMetaUpdates = [];
+  let evalMetaUpdates: EvalMetaUpdates = [...metaUpdates];
   let staleMetaIds: string[] = [];
   const pathsToClearErrorsFor: any[] = [];
   let unevalTree: UnEvalTree = {};
@@ -49,7 +52,8 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
     );
 
     setEvalContext({
-      dataTree: dataTreeEvaluator.evalTree,
+      dataTree: dataTreeEvaluator.getEvalTree(),
+      configTree: dataTreeEvaluator.getConfigTree(),
       isDataField: false,
       isTriggerBased: true,
     });
@@ -57,9 +61,9 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
     dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
       evalProps: dataTreeEvaluator.evalProps,
     });
-    evalMetaUpdates = JSON.parse(
-      JSON.stringify(updateResponse.evalMetaUpdates),
-    );
+
+    evalMetaUpdates = [...evalMetaUpdates, ...updateResponse.evalMetaUpdates];
+
     staleMetaIds = updateResponse.staleMetaIds;
     unevalTree = dataTreeEvaluator.getOldUnevalTree();
     configTree = dataTreeEvaluator.oldConfigTree;

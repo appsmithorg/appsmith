@@ -1,4 +1,4 @@
-export class DefaultHostPort {
+export class TEDTestConfigs {
   mongo_authenticationAuthtype = "SCRAM-SHA-1";
   mongo_host = "host.docker.internal";
   mongo_port = 28017;
@@ -83,6 +83,7 @@ export class DefaultHostPort {
   mockApiUrl = "http://host.docker.internal:5001/v1/mock-api?records=10";
   echoApiUrl = "http://host.docker.internal:5001/v1/mock-api/echo";
   randomCatfactUrl = "http://host.docker.internal:5001/v1/catfact/random";
+  mockHttpCodeUrl = "http://host.docker.internal:5001/v1/mock-http-codes/";
 
   firestore_database_url = "https://appsmith-22e8b.firebaseio.com";
   firestore_projectID = "appsmith-22e8b";
