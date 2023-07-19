@@ -282,7 +282,7 @@ jobs:
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           CYPRESS_VERIFY_TIMEOUT: 100000
           TOTAL_RUNNERS: ${{ strategy.job-total }}
-          THIS_RUNNER: ${{ matrix.job }}
+          THIS_RUNNER: ${{ strategy.job-index }}
           CYPRESS_SPEC_PATTERN: "cypress/e2e/Regression/Apps/**/**/*"
           CYPRESS_ENV: "NODE_ENV=development"
           CYPRESS_CONFIG_FILE: cypress_ci_custom.config.ts

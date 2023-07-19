@@ -8,7 +8,6 @@ export default defineConfig({
   pageLoadTimeout: 60000,
   videoUploadOnPasses: false,
   screenshotsFolder: "screenshots",
-  videoCompression: 5,
   numTestsKeptInMemory: 5,
   experimentalMemoryManagement: true,
   reporter: "cypress-mochawesome-reporter",
