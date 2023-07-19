@@ -35,7 +35,7 @@ describe("Import, Export and Fork application and validate data binding", functi
       } else {
         cy.get(homePageLocatores.toastMessage).should(
           "contain",
-          "Application imported successfully   ",
+          "Application imported successfully",
         );
       }
       agHelper.GenerateUUID();
@@ -63,7 +63,6 @@ describe("Import, Export and Fork application and validate data binding", functi
       cy.xpath("//span[text()='id']").should("be.visible");
       cy.xpath("//span[text()='title']").should("be.visible");
       cy.xpath("//span[text()='due']").should("be.visible");
-      expect.fail();
     });
   });
 

@@ -130,6 +130,5 @@ describe("JSEditor tests", function () {
           "Step 4: Value is Green and will default to undefined",
         );
       });
-    expect.fail();
   });
 });

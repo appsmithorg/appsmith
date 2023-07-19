@@ -136,7 +136,6 @@ describe("Content Management System App", function () {
     cy.get(appPage.confirmButton).closest("div").click({ force: true });
     cy.get(appPage.closeButton).closest("div").click({ force: true });
     deployMode.NavigateBacktoEditor();
-    expect.fail();
   });
 
   after(() => {

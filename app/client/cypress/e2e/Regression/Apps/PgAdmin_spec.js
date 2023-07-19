@@ -58,7 +58,6 @@ describe("PgAdmin Clone App", function () {
       `DROP TABLE {{schema_select.selectedOptionValue}}.{{nt_name.text.replaceAll(" ","_")}}({{appsmith.store.nt_col.map((c)=>c.name.replaceAll(" ","_") + " " + c.dtype + (c.nnull ? " NOT NULL " :  "") + (c.pkey ? " PRIMARY KEY " : "")).join(" , ")}});`,
       "drop_table",
     );
-    expect.fail();
   });
 
   it("2. Add new table from app page, View and Delete table", function () {

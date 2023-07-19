@@ -25,8 +25,7 @@ describe("Currency Input Issue", function () {
     });
     cy.get(widgetInput).type("123456789");
     cy.focused().then(() => {
-      cy.get(themelocators.popover).should("exist");
+      cy.get(themelocators.popover).should("not.exist");
     });
-    expect.fail();
   });
 });
