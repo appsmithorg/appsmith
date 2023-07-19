@@ -249,10 +249,11 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
         const canVerticalMove = true,
           canHorizontalMove = true;
         const hasReachedMaxWidthLimit =
+          false &&
           // adjusting for interger values lost when calulating percentage
-          layerWidthInPixels >= parentWidth - 1
+          (layerWidthInPixels >= parentWidth - 1
             ? false
-            : !(layerWidthInPixels + rect.width <= parentWidth);
+            : !(layerWidthInPixels + rect.width <= parentWidth));
         const isIncreasingWidth = newRect.width > 0;
         const setMaxLimitAsWidth =
           !props.isMobile && hasReachedMaxWidthLimit && isIncreasingWidth;
