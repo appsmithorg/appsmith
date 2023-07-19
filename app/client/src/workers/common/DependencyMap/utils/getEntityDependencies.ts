@@ -35,18 +35,20 @@ export function getEntityDependencies(
     case ENTITY_TYPE.JSACTION:
       return getJSDependencies(entity, entityConfig as JSActionEntityConfig);
     case ENTITY_TYPE.WIDGET:
-      return getWidgetDependencies(entity as WidgetEntity);
+      return getWidgetDependencies(
+        entity as WidgetEntity,
+        entityConfig as WidgetEntityConfig,
+      );
     default:
       return {};
   }
 }
 export function getWidgetDependencies(
   widgetEntity: WidgetEntity,
+  widgetConfig: WidgetEntityConfig,
 ): Record<string, string[]> {
   let dependencies: Record<string, string[]> = {};
-  const widgetConfig = widgetEntity.getConfig();
-  const widgetName = widgetEntity.getName();
-
+  const widgetName = widgetEntity.widgetName;
   const widgetInternalDependencies = addWidgetPropertyDependencies({
     widgetConfig,
     widgetName,
@@ -64,7 +66,7 @@ export function getWidgetDependencies(
       propertyPath,
       widgetEntity,
     );
-    dependencies = { ...dependencies, propertyPath: dynamicPathDependency };
+    dependencies = { ...dependencies, [propertyPath]: dynamicPathDependency };
   }
 
   return dependencies;
@@ -81,7 +83,7 @@ export function getJSDependencies(
       reactivePath,
       jsEntity,
     );
-    dependencies = { reactivePath: reactivePathDependency };
+    dependencies = { [reactivePath]: reactivePathDependency };
   }
   const jsEntityInternalDependencyMap = getEntityInternalDependencyMap(
     jsActionConfig.name,
@@ -110,7 +112,7 @@ export function getActionDependencies(
       propertyPath,
       actionEntity,
     );
-    dependencies = { ...dependencies, propertyPath: dynamicPathDependency };
+    dependencies = { ...dependencies, [propertyPath]: dynamicPathDependency };
   }
 
   return dependencies;
@@ -214,10 +216,12 @@ function getActionPropertyPathDependencies(
   return dynamicPathDependency;
 }
 
-function getDependencyFromEntityPath(fullPath: string, entity: DataTreeEntity) {
-  const propertyPath = getEntityNameAndPropertyPath(fullPath).propertyPath;
+function getDependencyFromEntityPath(
+  propertyPath: string,
+  entity: DataTreeEntity,
+) {
   const unevalPropValue = get(entity, propertyPath, "").toString();
-  const { jsSnippets } = getDynamicBindings(unevalPropValue);
+  const { jsSnippets } = getDynamicBindings(unevalPropValue, entity);
   const validJSSnippets = jsSnippets.filter((jsSnippet) => !!jsSnippet);
 
   return validJSSnippets;
