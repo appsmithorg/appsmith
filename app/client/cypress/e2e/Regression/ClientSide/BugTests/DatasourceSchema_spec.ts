@@ -61,4 +61,26 @@ describe("Datasource form related tests", function () {
       "column",
     );
   });
+
+  it(
+    "excludeForAirgap",
+    "5. Verify if collapsible opens when refresh button is opened.",
+    () => {
+      featureFlagIntercept(
+        {
+          ab_ds_schema_enabled: true,
+        },
+        false,
+      );
+      agHelper.RefreshPage();
+      dataSources.CreateMockDB("Users");
+      dataSources.CreateQueryAfterDSSaved();
+      // close the schema
+      agHelper.GetNClick(dataSources._queryEditorCollapsibleIcon);
+      // then refresh
+      dataSources.RefreshDatasourceSchema();
+      // assert the schema is open.
+      dataSources.VerifySchemaCollapsibleOpenState(true);
+    },
+  );
 });

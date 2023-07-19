@@ -8,6 +8,7 @@ import { DatasourceStructureContext } from "./DatasourceStructureContainer";
 
 type Props = {
   datasourceId: string;
+  onRefreshCallback?: () => void;
 };
 
 const HeaderWrapper = styled.div`
@@ -29,6 +30,8 @@ export default function DatasourceStructureHeader(props: Props) {
           DatasourceStructureContext.QUERY_EDITOR,
         ),
       );
+
+      !!props.onRefreshCallback && props.onRefreshCallback();
     },
     [dispatch, props.datasourceId],
   );
@@ -38,7 +41,10 @@ export default function DatasourceStructureHeader(props: Props) {
       <Text kind="heading-xs" renderAs="h3">
         {createMessage(SCHEMA_LABEL)}
       </Text>
-      <div onClick={(event) => dispatchRefresh(event)}>
+      <div
+        className="datasourceStructure-refresh"
+        onClick={(event) => dispatchRefresh(event)}
+      >
         <Icon name="refresh" size={"md"} />
       </div>
     </HeaderWrapper>

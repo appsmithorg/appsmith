@@ -202,8 +202,9 @@ type CollapsibleProps = {
   expand?: boolean;
   children: ReactNode;
   label: string;
-  customLabelComponent?: JSX.Element;
+  CustomLabelComponent?: (props: any) => JSX.Element;
   isDisabled?: boolean;
+  datasourceId?: string;
 };
 
 type DisabledCollapsibleProps = {
@@ -213,7 +214,8 @@ type DisabledCollapsibleProps = {
 
 export function Collapsible({
   children,
-  customLabelComponent,
+  CustomLabelComponent,
+  datasourceId,
   expand = true,
   label,
 }: CollapsibleProps) {
@@ -226,9 +228,16 @@ export function Collapsible({
   return (
     <CollapsibleWrapper isOpen={isOpen}>
       <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
-        <Icon name={isOpen ? "down-arrow" : "arrow-right-s-line"} size="lg" />
-        {!!customLabelComponent ? (
-          customLabelComponent
+        <Icon
+          className="collapsible-icon"
+          name={isOpen ? "down-arrow" : "arrow-right-s-line"}
+          size="lg"
+        />
+        {!!CustomLabelComponent ? (
+          <CustomLabelComponent
+            datasourceId={datasourceId}
+            onRefreshCallback={() => setIsOpen(true)}
+          />
         ) : (
           <Text className="label" kind="heading-xs">
             {label}
@@ -456,9 +465,8 @@ function ActionSidebar({
       {showSchema && (
         <SchemaSideBarSection height={50} id={SCHEMA_SECTION_ID}>
           <Collapsible
-            customLabelComponent={
-              <DatasourceStructureHeader datasourceId={datasourceId || ""} />
-            }
+            CustomLabelComponent={DatasourceStructureHeader}
+            datasourceId={datasourceId}
             expand={!showSuggestedWidgets}
             label="Schema"
           >
