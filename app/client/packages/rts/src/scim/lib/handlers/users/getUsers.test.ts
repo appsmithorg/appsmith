@@ -21,7 +21,7 @@ jest.mock("scimgateway/lib/scimgateway");
         {
           resource: {
             id: "2",
-            username: "user2@example.com",
+            username: "user+2@example.com",
           },
           metadata: {},
         },
@@ -54,7 +54,7 @@ describe("getUsers", () => {
         },
         {
           id: "2",
-          userName: "user2@example.com",
+          userName: "user+2@example.com",
           active: true,
           meta: {},
         },
@@ -134,7 +134,7 @@ describe("getUsers", () => {
     const getObj = {
       attribute: "userName",
       operator: "eq",
-      value: "user2@example.com",
+      value: "user+2@example.com",
     };
     const attributes = ["id", "userName"];
     const ctx = {};
@@ -149,7 +149,7 @@ describe("getUsers", () => {
             {
               resource: {
                 id: "2",
-                username: "user2@example.com",
+                username: "user+2@example.com",
               },
               metadata: {},
             },
@@ -166,7 +166,7 @@ describe("getUsers", () => {
       Resources: [
         {
           id: "2",
-          userName: "user2@example.com",
+          userName: "user+2@example.com",
           active: true,
           meta: {},
         },
@@ -178,7 +178,7 @@ describe("getUsers", () => {
     expect(doRequest).toHaveBeenCalledWith(
       baseEntity,
       "GET",
-      "/users?email=user2@example.com",
+      "/users?email=user%2B2%40example.com",
       null,
       ctx,
     );

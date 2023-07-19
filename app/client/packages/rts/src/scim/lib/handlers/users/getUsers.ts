@@ -60,7 +60,7 @@ export async function getUsers(
   if (
     getObj.operator &&
     getObj.operator === "eq" &&
-    ["id", "userName", "externalId"].includes(getObj.attribute)
+    ["id", "userName"].includes(getObj.attribute)
   ) {
     // mandatory - unique filtering - single unique user to be returned - correspond to getUser() in versions < 4.x.x
     if (getObj.attribute === "id")
@@ -68,7 +68,9 @@ export async function getUsers(
       path = `${USER_PROVISION_ENDPOINT}/${getObj.value}`;
     else if (getObj.attribute === "userName") {
       // GET /Users?email=bjensen@appsmith.com
-      path = `${USER_PROVISION_ENDPOINT}?email=${getObj.value}`;
+      path = `${USER_PROVISION_ENDPOINT}?email=${encodeURIComponent(
+        getObj.value,
+      )}`;
     }
   } else if (getObj.rawFilter) {
     // optional - advanced filtering having and/or/not - use getObj.rawFilter
