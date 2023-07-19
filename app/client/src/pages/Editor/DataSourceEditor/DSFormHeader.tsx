@@ -77,7 +77,10 @@ type DSFormHeaderProps = {
   pluginImage: string;
   pluginType: string;
   pluginName: string;
-  setDatasourceViewMode: (viewMode: boolean) => void;
+  setDatasourceViewMode: (payload: {
+    datasourceId: string;
+    viewMode: boolean;
+  }) => void;
   viewMode: boolean;
 };
 
@@ -173,7 +176,10 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
             className="t--edit-datasource"
             kind="secondary"
             onClick={() => {
-              setDatasourceViewMode(false);
+              setDatasourceViewMode({
+                datasourceId: datasourceId,
+                viewMode: false,
+              });
               AnalyticsUtil.logEvent("EDIT_DATASOURCE_CLICK", {
                 datasourceId: datasourceId,
                 pluginName,

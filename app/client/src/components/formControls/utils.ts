@@ -81,10 +81,19 @@ export const normalizeValues = (
 export const validate = (
   requiredFields: Record<string, FormConfigType>,
   values: any,
+  currentEnvId?: string,
 ) => {
   const errors = {} as any;
 
   Object.keys(requiredFields).forEach((fieldConfigProperty) => {
+    // Do not check for required fields if the field is not part of the current environment
+    if (
+      !!currentEnvId &&
+      currentEnvId.length > 0 &&
+      !fieldConfigProperty.includes(currentEnvId)
+    ) {
+      return;
+    }
     const fieldConfig = requiredFields[fieldConfigProperty];
     if (fieldConfig.controlType === "KEYVALUE_ARRAY") {
       const configProperty = (fieldConfig.configProperty as string).split(

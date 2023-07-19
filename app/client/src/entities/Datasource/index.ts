@@ -28,6 +28,18 @@ export enum ActionType {
   DOCUMENTATION = "documentation",
 }
 
+/* 
+  Types of messages that can be shown in the toast of the datasource configuration page
+  EMPTY_TOAST_MESSAGE: No message to be shown
+  TEST_DATASOURCE_SUCCESS: Test datasource success message
+  TEST_DATASOURCE_ERROR: Test datasource error message
+*/
+export enum ToastMessageType {
+  EMPTY_TOAST_MESSAGE = "EMPTY_TOAST_MESSAGE",
+  TEST_DATASOURCE_SUCCESS = "TEST_DATASOURCE_SUCCESS",
+  TEST_DATASOURCE_ERROR = "TEST_DATASOURCE_ERROR",
+}
+
 export interface DatasourceAuthentication {
   authType?: string;
   username?: string;
@@ -131,6 +143,7 @@ export interface DatasourceStorage {
   isValid: boolean;
   structure?: DatasourceStructure;
   isConfigured?: boolean;
+  toastMessage?: string;
 }
 
 export interface TokenResponse {

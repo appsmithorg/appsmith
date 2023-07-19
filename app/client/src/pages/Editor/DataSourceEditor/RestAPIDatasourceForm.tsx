@@ -47,8 +47,10 @@ interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
   updateDatasource: (
     formValues: Datasource,
+    currEditingEnvId: string,
     onSuccess?: ReduxAction<unknown>,
   ) => void;
+  currentEnvironment: string;
   isSaving: boolean;
   applicationId: string;
   datasourceId: string;
@@ -213,7 +215,11 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     });
 
     if (this.props.datasource.id !== TEMP_DATASOURCE_ID) {
-      return this.props.updateDatasource(normalizedValues, onSuccess);
+      return this.props.updateDatasource(
+        normalizedValues,
+        this.props.currentEnvironment,
+        onSuccess,
+      );
     }
 
     this.props.createDatasource(
@@ -1036,8 +1042,11 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     initializeReplayEntity: (id: string, data: any) =>
       dispatch(updateReplayEntity(id, data, ENTITY_TYPE.DATASOURCE)),
-    updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
-      dispatch(updateDatasource(formData, onSuccess)),
+    updateDatasource: (
+      formData: any,
+      currEditingEnvId: string,
+      onSuccess?: ReduxAction<unknown>,
+    ) => dispatch(updateDatasource(formData, currEditingEnvId, onSuccess)),
     createDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
       dispatch(createDatasourceFromForm(formData, onSuccess)),
     toggleSaveActionFlag: (flag: boolean) =>
