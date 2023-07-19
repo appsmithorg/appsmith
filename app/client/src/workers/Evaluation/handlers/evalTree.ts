@@ -59,6 +59,7 @@ export default function (request: EvalWorkerSyncRequest) {
 
   const unevalTree = __unevalTree__.unEvalTree;
   configTree = __unevalTree__.configTree as ConfigTree;
+
   try {
     if (!dataTreeEvaluator) {
       isCreateFirstTree = true;
@@ -113,6 +114,7 @@ export default function (request: EvalWorkerSyncRequest) {
 
       setEvalContext({
         dataTree: dataTreeEvaluator.evalTree,
+        configTree,
         isDataField: false,
         isTriggerBased: true,
       });
@@ -155,6 +157,7 @@ export default function (request: EvalWorkerSyncRequest) {
 
       setEvalContext({
         dataTree: dataTreeEvaluator.evalTree,
+        configTree,
         isDataField: false,
         isTriggerBased: true,
       });
@@ -168,7 +171,6 @@ export default function (request: EvalWorkerSyncRequest) {
       );
       staleMetaIds = updateResponse.staleMetaIds;
     }
-    dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
     dependencies = dataTreeEvaluator.inverseDependencyMap;
     errors = dataTreeEvaluator.errors;
     dataTreeEvaluator.clearErrors();

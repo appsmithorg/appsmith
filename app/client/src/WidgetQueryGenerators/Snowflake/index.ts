@@ -1,5 +1,5 @@
 import { BaseQueryGenerator } from "../BaseQueryGenerator";
-import { format } from "sql-formatter";
+import { formatDialect, snowflake } from "sql-formatter";
 import { QUERY_TYPE } from "../types";
 import type {
   WidgetQueryGenerationConfig,
@@ -7,7 +7,7 @@ import type {
   ActionConfigurationSQL,
 } from "../types";
 import { removeSpecialChars } from "utils/helpers";
-import { without } from "workers/common/JSLibrary/lodash-wrapper";
+import { without } from "lodash";
 
 export default abstract class Snowflake extends BaseQueryGenerator {
   private static buildSelect(
@@ -75,9 +75,9 @@ export default abstract class Snowflake extends BaseQueryGenerator {
       );
 
     //formats sql string
-    const res = format(template, {
+    const res = formatDialect(template, {
       params,
-      language: "snowflake",
+      dialect: snowflake,
       paramTypes: {
         positional: true,
       },

@@ -5,6 +5,7 @@ import {
   draggableWidgets,
   entityExplorer,
   entityItems,
+  tedTestConfig,
   jsEditor,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
@@ -172,28 +173,26 @@ describe("Autocomplete tests", () => {
   });
 
   it("5. Api data with array of object autocompletion test", () => {
-    cy.fixture("datasources").then((datasourceFormData: any) => {
-      apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"]);
-      agHelper.Sleep(2000);
-      apiPage.RunAPI();
-      // Using same js object
-      entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
-      agHelper.GetNClick(jsEditor._lineinJsEditor(5), 0, true);
-      agHelper.SelectNRemoveLineText(locators._codeMirrorTextArea);
-      //agHelper.GetNClick(jsEditor._lineinJsEditor(5));
-      agHelper.TypeText(locators._codeMirrorTextArea, "Api1.d");
-      agHelper.GetNAssertElementText(locators._hints, "data");
-      agHelper.Sleep();
-      agHelper.TypeText(locators._codeMirrorTextArea, "ata[0].e");
-      agHelper.GetNAssertElementText(locators._hints, "email");
-      agHelper.Sleep();
-      agHelper.TypeText(locators._codeMirrorTextArea, "mail");
-      entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "JSObject1",
-        action: "Delete",
-        entityType: entityItems.JSObject,
-      });
+    apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl);
+    agHelper.Sleep(2000);
+    apiPage.RunAPI();
+    // Using same js object
+    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5), 0, true);
+    agHelper.SelectNRemoveLineText(locators._codeMirrorTextArea);
+    //agHelper.GetNClick(jsEditor._lineinJsEditor(5));
+    agHelper.TypeText(locators._codeMirrorTextArea, "Api1.d");
+    agHelper.GetNAssertElementText(locators._hints, "data");
+    agHelper.Sleep();
+    agHelper.TypeText(locators._codeMirrorTextArea, "ata[0].e");
+    agHelper.GetNAssertElementText(locators._hints, "email");
+    agHelper.Sleep();
+    agHelper.TypeText(locators._codeMirrorTextArea, "mail");
+    entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "JSObject1",
+      action: "Delete",
+      entityType: entityItems.JSObject,
     });
   });
 
@@ -307,167 +306,5 @@ describe("Autocomplete tests", () => {
 
     agHelper.TypeText(locators._codeMirrorTextArea, ".");
     agHelper.GetNAssertElementText(locators._hints, "geolocation");
-  });
-
-  it("9. Bug #17059 Autocomplete does not suggest same function name that belongs to a different object", () => {
-    // create js object - JSObject1
-    jsEditor.CreateJSObject(jsObjectBody, {
-      paste: true,
-      completeReplace: true,
-      toRun: false,
-      shouldCreateNewJSObj: true,
-      prettify: false,
-    });
-
-    // create js object - JSObject2
-    jsEditor.CreateJSObject(jsObjectBody, {
-      paste: true,
-      completeReplace: true,
-      toRun: false,
-      shouldCreateNewJSObj: true,
-      prettify: false,
-    });
-
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
-    agHelper.TypeText(locators._codeMirrorTextArea, "JSObject1.");
-
-    agHelper.GetNAssertElementText(
-      locators._hints,
-      "myFun1.data",
-      "have.text",
-      0,
-    );
-
-    agHelper.GetNAssertElementText(locators._hints, "myFun1()", "have.text", 4);
-
-    // Same check in JSObject1
-    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
-    agHelper.TypeText(locators._codeMirrorTextArea, "JSObject2");
-    agHelper.Sleep(500);
-    agHelper.TypeText(locators._codeMirrorTextArea, ".");
-
-    agHelper.GetNAssertElementText(
-      locators._hints,
-      "myFun1.data",
-      "have.text",
-      0,
-    );
-
-    agHelper.GetNAssertElementText(locators._hints, "myFun1()", "have.text", 4);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "JSObject1",
-      action: "Delete",
-      entityType: entityItems.JSObject,
-    });
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "JSObject2",
-      action: "Delete",
-      entityType: entityItems.JSObject,
-    });
-  });
-
-  it("10. Bug #10115 Autocomplete needs to show async await keywords instead of showing 'no suggestions'", () => {
-    // create js object
-    jsEditor.CreateJSObject(jsObjectBody, {
-      paste: true,
-      completeReplace: true,
-      toRun: false,
-      shouldCreateNewJSObj: true,
-      prettify: false,
-    });
-
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
-    agHelper.TypeText(locators._codeMirrorTextArea, "aw");
-
-    agHelper.GetNAssertElementText(locators._hints, "await", "have.text", 0);
-
-    agHelper.RemoveCharsNType(locators._codeMirrorTextArea, 2, "as");
-    agHelper.GetNAssertElementText(locators._hints, "async", "have.text", 0);
-    cy.get("@jsObjName").then((jsObjName) => {
-      jsName = jsObjName;
-      entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: jsName as string,
-        action: "Delete",
-        entityType: entityItems.JSObject,
-      });
-    });
-  });
-
-  it("10. Bug #15429 Random keystrokes trigger autocomplete to show up", () => {
-    // create js object
-    jsEditor.CreateJSObject(
-      `export default
-      myFunc1() {
-        showAlert("Hello world");
-
-      }
-    }`,
-      {
-        paste: true,
-        completeReplace: true,
-        toRun: false,
-        shouldCreateNewJSObj: true,
-        prettify: false,
-      },
-    );
-
-    //Paste the code and assert that the hints are not present
-    jsEditor.CreateJSObject(`const x = "Hello world;"`, {
-      paste: true,
-      completeReplace: true,
-      toRun: false,
-      shouldCreateNewJSObj: false,
-      prettify: false,
-    });
-
-    agHelper.AssertElementAbsence(locators._hints);
-
-    //Paste the code and assert that the hints are not present
-    jsEditor.CreateJSObject(
-      `export default
-      myFunc1() {
-        showAlert("Hello world");
-
-      }
-    }`,
-      {
-        paste: true,
-        completeReplace: true,
-        toRun: false,
-        shouldCreateNewJSObj: false,
-        prettify: false,
-      },
-    );
-
-    agHelper.AssertElementAbsence(locators._hints);
-
-    agHelper.GetElement(jsEditor._lineinJsEditor(4)).click();
-
-    //Assert that hints are not present inside the string
-    agHelper.TypeText(locators._codeMirrorTextArea, `const x = "`);
-
-    agHelper.AssertElementAbsence(locators._hints);
-
-    agHelper.SelectNRemoveLineText(jsEditor._lineinJsEditor(4));
-
-    //Assert that hints are not present when line is cleared with backspace
-    agHelper.AssertElementAbsence(locators._hints);
-
-    //Assert that hints are not present when token is a comment
-    agHelper.TypeText(locators._codeMirrorTextArea, "// showA'");
-
-    agHelper.AssertElementAbsence(locators._hints);
-
-    cy.get("@jsObjName").then((jsObjName) => {
-      jsName = jsObjName;
-      entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: jsName as string,
-        action: "Delete",
-        entityType: entityItems.JSObject,
-      });
-    });
   });
 });

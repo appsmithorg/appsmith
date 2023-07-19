@@ -77,7 +77,7 @@ export default {
           .replace(new RegExp(`[${getLocaleDecimalSeperator()}]`), "."),
       );
 
-      if (_.isNaN(parsed)) {
+      if (Number.isNaN(parsed)) {
         parsed = undefined;
       }
 

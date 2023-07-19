@@ -7,7 +7,7 @@ import BaseWidget from "widgets/BaseWidget";
 
 import { Colors } from "constants/Colors";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import ProgressComponent from "../component";
 import { ProgressType, ProgressVariant } from "../constants";
 import type { AutocompletionDefinitions } from "widgets/constants";
@@ -186,6 +186,21 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setProgress: {
+          path: "progress",
+          type: "number",
+        },
+      },
+    };
   }
 
   getPageView() {
