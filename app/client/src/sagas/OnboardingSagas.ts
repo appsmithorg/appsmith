@@ -24,7 +24,6 @@ import {
 
 import { getCurrentUser } from "selectors/usersSelectors";
 import history from "utils/history";
-import TourApp from "pages/Editor/GuidedTour/app.json";
 
 import {
   getHadReachedStep,
@@ -119,6 +118,9 @@ function* createApplication() {
   }
 
   if (workspace) {
+    const TourAppPromise = import("pages/Editor/GuidedTour/app.json");
+    const TourApp: Awaited<typeof TourAppPromise> = yield TourAppPromise;
+
     const appFileObject = new File([JSON.stringify(TourApp)], "app.json", {
       type: "application/json",
     });

@@ -1,18 +1,24 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { isEmpty } from "lodash";
 import type { EvalContext } from "workers/Evaluation/evaluate";
-import getEvaluationContext from "./utils/getEvaluationContext";
+import { getEvaluationContext } from "./utils/getEvaluationContext";
 
 class GlobalData {
   globalDataWithFunctions: EvalContext = {};
   globalDataWithoutFunctions: EvalContext = {};
   unevalTree: DataTree = {};
+  configTree: ConfigTree = {};
   cloudHosting = false;
 
-  initialize(unevalTree: DataTree, cloudHosting: boolean) {
+  initialize(
+    unevalTree: DataTree,
+    configTree: ConfigTree,
+    cloudHosting: boolean,
+  ) {
     this.globalDataWithFunctions = {};
     this.globalDataWithoutFunctions = {};
     this.unevalTree = unevalTree;
+    this.configTree = configTree;
     this.cloudHosting = cloudHosting;
   }
 
@@ -22,6 +28,7 @@ class GlobalData {
       if (isEmpty(this.globalDataWithFunctions)) {
         this.globalDataWithFunctions = getEvaluationContext(
           this.unevalTree,
+          this.configTree,
           this.cloudHosting,
           {
             withFunctions: true,
@@ -33,6 +40,7 @@ class GlobalData {
       if (isEmpty(this.globalDataWithoutFunctions)) {
         this.globalDataWithoutFunctions = getEvaluationContext(
           this.unevalTree,
+          this.configTree,
           this.cloudHosting,
           {
             withFunctions: false,

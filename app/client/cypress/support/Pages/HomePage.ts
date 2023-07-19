@@ -40,7 +40,7 @@ export class HomePage {
     "//div[contains(@class, 'rc-select-item-option-content')]//span[1][text()='" +
     role +
     "']";
-  private _profileMenu = ".t--profile-menu-icon";
+  _profileMenu = ".t--profile-menu-icon";
   private _editProfileMenu = ".t--edit-profile";
   private _signout = ".t--sign-out";
   _searchUsersInput = ".search-input";
@@ -110,6 +110,7 @@ export class HomePage {
   // _appRenameTooltip =
   //   '//span[text()="Rename application"]/ancestor::div[contains(@class,"rc-tooltip")]';
   _appRenameTooltip = "span:contains('Rename application')";
+  _importFromGitBtn = "div.t--import-json-card + div";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -261,13 +262,14 @@ export class HomePage {
     this.onboarding.closeIntroModal();
     cy.get(this._applicationName).then(($appName) => {
       if (!$appName.hasClass(this._editAppName)) {
-        cy.get(this._applicationName).click();
-        cy.get(this._appMenu)
-          .contains("Edit name", { matchCase: false })
-          .click();
+        this.agHelper.GetNClick(this._applicationName);
+        // cy.get(this._appMenu)
+        //   .contains("Edit name", { matchCase: false })
+        this.agHelper.GetNClickByContains(this._appMenu, "Edit name");
       }
     });
-    cy.get(this._applicationName).type(appName + "{enter}");
+    cy.get(this._applicationName).type(appName);
+    this.agHelper.PressEnter();
     this.agHelper.RemoveTooltip("Rename application");
   }
 
@@ -437,6 +439,17 @@ export class HomePage {
       force: true,
     });
     this.agHelper.Sleep(3500);
+  }
+
+  public ImportGitApp(intoWorkspaceName = "") {
+    this.NavigateToHome();
+    if (intoWorkspaceName)
+      this.agHelper.GetNClick(this._optionsIconInWorkspace(intoWorkspaceName));
+    else this.agHelper.GetNClick(this._optionsIcon);
+    this.agHelper.GetNClick(this._workspaceImport, 0, true);
+    this.agHelper.AssertElementVisible(this._workspaceImportAppModal);
+    this.agHelper.GetNClick(this._importFromGitBtn);
+    this.agHelper.Sleep(1000);
   }
 
   // Do not use this directly, it will fail on EE. Use `InviteUserToApplication` instead

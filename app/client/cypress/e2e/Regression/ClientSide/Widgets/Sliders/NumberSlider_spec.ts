@@ -107,7 +107,7 @@ describe("Number Slider spec", () => {
     _.entityExplorer.SelectEntityByName("NumberSlider1", "Widgets");
 
     // Change the Step size to 10
-    _.propPane.UpdatePropertyFieldValue("Step size", "10");
+    _.propPane.UpdatePropertyFieldValue("Step size", "10", true, false);
 
     // Change the slider value
     _.agHelper

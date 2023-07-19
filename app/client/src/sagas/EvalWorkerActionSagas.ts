@@ -172,6 +172,7 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
       });
       break;
     }
+
     case MAIN_THREAD_ACTION.PROCESS_JS_VAR_MUTATION_EVENTS: {
       const jsVarMutatedEvents: JSVarMutatedEvents = data;
       yield call(logJSVarMutationEvent, jsVarMutatedEvents);

@@ -160,7 +160,7 @@ export class AggregateHelper extends ReusableHelper {
       .should("have.value", renameVal)
       .blur();
     this.PressEnter();
-    this.AssertElementAbsence(this.locator._btnSpinner, 10000);
+    this.AssertElementVisible(this.locator._editIcon);
     this.Sleep(300); //allow lil more time for new name to settle
   }
 
@@ -616,6 +616,20 @@ export class AggregateHelper extends ReusableHelper {
     ctrlKey = false,
   ) {
     return this.ScrollIntoView(selector, index)
+      .click({ force: force, ctrlKey: ctrlKey })
+      .wait(waitTimeInterval);
+  }
+
+  public GetClosestNClick(
+    selector: string,
+    closestSelector: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+    ctrlKey = false,
+  ) {
+    return this.ScrollIntoView(selector, index)
+      .closest(closestSelector)
       .click({ force: force, ctrlKey: ctrlKey })
       .wait(waitTimeInterval);
   }
@@ -1360,8 +1374,16 @@ export class AggregateHelper extends ReusableHelper {
     });
   }
 
-  GetWidgetCSSHeight(widgetSelector: string) {
-    return this.GetElement(widgetSelector).invoke("css", "height");
+  public GetWidgetCSSHeight(widgetSelector: string, index = 0) {
+    return this.GetElement(widgetSelector).eq(index).invoke("css", "height");
+  }
+
+  public GetWidgetCSSFrAttribute(
+    widgetSelector: string,
+    attribute: string,
+    index = 0,
+  ) {
+    return this.GetElement(widgetSelector).eq(index).invoke("css", attribute);
   }
 
   GetWidgetByName(widgetName: string) {
@@ -1427,6 +1449,20 @@ export class AggregateHelper extends ReusableHelper {
       this.Sleep(2000);
     } else
       apiToValidate && this.assertHelper.AssertNetworkStatus(apiToValidate);
+  }
+
+  public GetDropTargetId(widgetName: string) {
+    return this.GetWidgetByName(widgetName).invoke("attr", "id");
+  }
+
+  public GetModalDropTargetId() {
+    return this.GetElement(this.locator._modal).invoke("attr", "id");
+  }
+
+  public BrowserNavigation(direction: number) {
+    //passing 1 works as browser back
+    //passing -1 works as browser forward
+    cy.go(direction);
   }
 
   //Not used:
