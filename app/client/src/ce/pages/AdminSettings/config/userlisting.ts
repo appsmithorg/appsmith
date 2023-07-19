@@ -4,14 +4,15 @@ import {
   SettingCategories,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
-import BrandingPage from "pages/Settings/config/branding/BrandingPage";
+import { AccessControlUpgradePage } from "../../Upgrade/AccessControlUpgradePage";
 
 export const config: AdminConfigType = {
-  type: SettingCategories.BRANDING,
-  categoryType: CategoryType.GENERAL,
+  icon: "user-3-line",
+  type: SettingCategories.ACCESS_CONTROL,
+  categoryType: CategoryType.ACL,
   controlType: SettingTypes.PAGE,
+  component: AccessControlUpgradePage,
+  title: "Access Control",
   canSave: false,
-  title: "Branding",
-  icon: "pantone",
-  component: BrandingPage,
-};
+  needsUpgrade: true,
+} as AdminConfigType;

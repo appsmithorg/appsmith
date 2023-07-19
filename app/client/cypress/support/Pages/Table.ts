@@ -407,8 +407,8 @@ export class Table {
     this.agHelper.Sleep(); //for select to reflect
   }
 
-  public AssertSearchText(searchTxt: string) {
-    cy.get(this._searchText).should("have.value", searchTxt);
+  public AssertSearchText(searchTxt: string, index = 0) {
+    cy.get(this._searchText).eq(index).should("have.value", searchTxt);
   }
 
   public SearchTable(searchTxt: string, index = 0) {

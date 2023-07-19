@@ -4,14 +4,15 @@ import {
   SettingCategories,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
-import BrandingPage from "pages/Settings/config/branding/BrandingPage";
+import { AuditLogsUpgradePage } from "../../Upgrade/AuditLogsUpgradePage";
 
 export const config: AdminConfigType = {
-  type: SettingCategories.BRANDING,
-  categoryType: CategoryType.GENERAL,
+  icon: "file-list-2-line",
+  type: SettingCategories.AUDIT_LOGS,
+  categoryType: CategoryType.OTHER,
   controlType: SettingTypes.PAGE,
+  component: AuditLogsUpgradePage,
+  title: "Audit logs",
   canSave: false,
-  title: "Branding",
-  icon: "pantone",
-  component: BrandingPage,
-};
+  needsUpgrade: true,
+} as AdminConfigType;
