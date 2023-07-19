@@ -45,10 +45,7 @@ import {
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
-import {
-  getCurrentEnvironment,
-  isEnvironmentConfigured,
-} from "@appsmith/utils/Environments";
+import { isEnvironmentConfigured } from "@appsmith/utils/Environments";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -385,8 +382,8 @@ function DatasourceCard(props: DatasourceCardProps) {
             <DatasourceInfo>
               <RenderDatasourceInformation
                 config={currentFormConfig[0]}
-                currentEnvironment={getCurrentEnvironment()}
                 datasource={datasource}
+                showOnlyCurrentEnv
               />
             </DatasourceInfo>
           </CollapseComponent>

@@ -292,7 +292,7 @@ function ReconnectDatasourceModal() {
   const orgId = queryDS?.workspaceId;
 
   const checkIfDatasourceIsConfigured = (ds: Datasource | null) => {
-    if (!ds) return false;
+    if (!ds || pluginsArray.length === 0) return false;
     const plugin = plugins[ds.pluginId];
     const output = isGoogleSheetPluginDS(plugin?.packageName)
       ? isDatasourceAuthorizedForQueryCreation(ds, plugin as Plugin)
