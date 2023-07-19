@@ -47,7 +47,7 @@ export default [
           },
         },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        switchToNormalMode: (
+        shouldSwitchToNormalMode: (
           isDynamic: boolean,
           isToggleDisabled: boolean,
           triggerFlag?: boolean,
