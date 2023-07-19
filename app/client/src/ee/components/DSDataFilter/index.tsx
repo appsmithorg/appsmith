@@ -4,10 +4,12 @@ type DSDataFilterProps = {
     name: string,
     userPermissions: string[],
     showFilterPane: boolean,
-  ) => void;
+  ) => boolean;
   pluginType: string;
+  pluginName: string;
   isInsideReconnectModal: boolean;
   viewMode: boolean;
+  filterId: string; // id of the selected environment, used to keep the parent and child in sync
 };
 
 function DSDataFilter({}: DSDataFilterProps) {
