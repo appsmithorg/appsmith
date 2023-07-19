@@ -27,6 +27,7 @@ import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 import store from "store";
 import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
 import { FIELD_CONFIG } from "./Field/FieldConfig";
+import { setGenericArgAtPostition } from "@shared/ast/src/actionCreator";
 
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
@@ -212,6 +213,20 @@ export const callBackFieldGetter = (value: string, argNumber = 0) => {
     argNumber,
     getEvaluationVersion(),
   );
+  return `{{${funcExpr}}}`;
+};
+
+export const genericSetter = (
+  value: string,
+  changeValue: string,
+  argNum = 0,
+) => {
+  changeValue = getCodeFromMoustache(changeValue);
+  if (changeValue === "") {
+    changeValue = "''";
+  }
+  value = stringToJS(value);
+  const funcExpr = setGenericArgAtPostition(value, changeValue, argNum);
   return `{{${funcExpr}}}`;
 };
 

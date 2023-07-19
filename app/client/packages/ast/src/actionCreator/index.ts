@@ -17,6 +17,7 @@ import {
   isIdentifierNode,
   isExpressionStatementNode,
   isTypeOfFunction,
+  isBlockStatementNode,
 } from "../index";
 import { sanitizeScript } from "../utils";
 import { findNodeAt, simple } from "acorn-walk";
@@ -1483,5 +1484,53 @@ export function checkIfArgumentExistAtPosition(
     return true;
   } catch (e) {
     return false;
+  }
+}
+
+export function setGenericArgAtPostition(
+  arg: string,
+  code: string,
+  position: number,
+) {
+  try {
+    const commentArray: Array<Comment> = [];
+    const argCommentArray: Array<Comment> = [];
+    const sanitizedScript = sanitizeScript(code, 2);
+    const ast = getAST(sanitizedScript, {
+      locations: true,
+      ranges: true,
+      onComment: commentArray,
+    });
+    arg = arg.trim();
+    const astWithComments = attachCommentsToAst(ast, commentArray);
+
+    const argAst = getAST(arg, {
+      locations: true,
+      ranges: true,
+      onComment: argCommentArray,
+    });
+
+    const argASTWithComments = attachCommentsToAst(argAst, argCommentArray);
+
+    const rootCallExpression = findRootCallExpression(astWithComments);
+    if (!rootCallExpression) return code;
+    const args = rootCallExpression.arguments || [];
+
+    // For when arg is an object, the generate ast would be recognized as a block statement
+    // In such cases, we need to create a temp variable and use that variable as the argument
+    if (isBlockStatementNode(argASTWithComments.body[0])) {
+      const __tempAST = getAST(`var temp = ${arg}`);
+      const __tempASTWithComments = attachCommentsToAst(
+        __tempAST,
+        argCommentArray,
+      );
+      args[position] = __tempASTWithComments.body[0].declarations[0].init;
+    } else {
+      args[position] = argASTWithComments.body[0].expression;
+    }
+    rootCallExpression.arguments = args;
+    return generate(ast).trim();
+  } catch (e) {
+    return code;
   }
 }
