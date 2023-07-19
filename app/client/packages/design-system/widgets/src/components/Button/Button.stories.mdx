@@ -86,34 +86,32 @@ There are 4 variants of the button component.
   <Story
     name="Semantic - Hover"
     parameters={{
-      pseudo: {
-        hover: true,
+      docs: { disable: true },
+      previewTabs: {
+        "storybook/docs/panel": { hidden: true },
       },
+    }}
+    play={async ({ canvasElement }) => {
+      for (const variant of variants) {
+        for (const color of semantics) {
+          const button = within(canvasElement).getByTestId(
+            `button-${variant}-${color}`,
+          );
+          await userEvent.hover(button);
+        }
+      }
     }}
   >
     <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
       {variants.map((variant) =>
         semantics.map((color) => (
           <div key={`${variant}-${color}`} style={{ marginBottom: 10 }}>
-            <Button variant={variant} color={color} children={color} />
-          </div>
-        )),
-      )}
-    </div>
-  </Story>
-  <Story
-    name="Semantic - Active"
-    parameters={{
-      pseudo: {
-        active: true,
-      },
-    }}
-  >
-    <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-      {variants.map((variant) =>
-        semantics.map((color) => (
-          <div key={`${variant}-${color}`} style={{ marginBottom: 10 }}>
-            <Button variant={variant} color={color} children={color} />
+            <Button
+              variant={variant}
+              color={color}
+              children={color}
+              data-testid={`button-${variant}-${color}`}
+            />
           </div>
         )),
       )}
