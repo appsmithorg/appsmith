@@ -56,7 +56,8 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
 
         Mono<DatasourceStorage> datasourceStorageMonoCached = datasourceMonoCached
                 .flatMap(datasource1 -> datasourceService
-                        .getTrueEnvironmentId(datasource1.getWorkspaceId(), environmentId, datasource1.getPluginId())
+                        .getTrueEnvironmentIdForExecution(
+                                datasource1.getWorkspaceId(), environmentId, datasource1.getPluginId())
                         .zipWhen(trueEnvironmentId ->
                                 datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(
                                         datasource1, trueEnvironmentId))

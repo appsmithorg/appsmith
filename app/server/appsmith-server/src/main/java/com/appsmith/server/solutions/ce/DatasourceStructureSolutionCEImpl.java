@@ -48,7 +48,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
     public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache, String environmentId) {
         return datasourceService
                 .findById(datasourceId, datasourcePermission.getExecutePermission())
-                .zipWhen(datasource -> datasourceService.getTrueEnvironmentId(
+                .zipWhen(datasource -> datasourceService.getTrueEnvironmentIdForExecution(
                         datasource.getWorkspaceId(), environmentId, datasource.getPluginId()))
                 .flatMap(tuple2 -> datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(
                         tuple2.getT1(), tuple2.getT2()))

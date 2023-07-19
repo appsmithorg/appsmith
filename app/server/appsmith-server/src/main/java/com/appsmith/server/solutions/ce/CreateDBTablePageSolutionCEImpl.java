@@ -165,7 +165,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
             return datasourceService
                     .findById(pageResourceDTO.getDatasourceId())
                     .flatMap(datasource -> {
-                        return datasourceService.getTrueEnvironmentId(
+                        return datasourceService.getTrueEnvironmentIdForExecution(
                                 datasource.getWorkspaceId(), environmentId, datasource.getPluginId());
                     })
                     .flatMap(trueEnvironmentId ->

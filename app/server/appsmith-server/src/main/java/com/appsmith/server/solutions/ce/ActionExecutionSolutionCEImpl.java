@@ -181,7 +181,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         .flatMap(branchedAction -> {
                             executeActionDTO.setActionId(branchedAction.getId());
                             return Mono.just(executeActionDTO)
-                                    .zipWith(datasourceService.getTrueEnvironmentId(
+                                    .zipWith(datasourceService.getTrueEnvironmentIdForExecution(
                                             branchedAction.getWorkspaceId(),
                                             environmentId,
                                             branchedAction.getPluginId()));

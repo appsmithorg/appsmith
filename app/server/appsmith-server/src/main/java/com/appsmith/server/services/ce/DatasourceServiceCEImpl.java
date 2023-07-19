@@ -4,7 +4,6 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -725,99 +724,13 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         }
     }
 
-    // TODO: Remove the following snippet after client side API changes
     @Override
-    public Mono<DatasourceDTO> convertToDatasourceDTO(Datasource datasource) {
-        DatasourceDTO datasourceDTO = new DatasourceDTO();
-        datasourceDTO.setId(datasource.getId());
-        datasourceDTO.setUserPermissions(datasource.getUserPermissions());
-        datasourceDTO.setName(datasource.getName());
-        datasourceDTO.setPluginId(datasource.getPluginId());
-        datasourceDTO.setPluginName(datasource.getPluginName());
-        datasourceDTO.setWorkspaceId(datasource.getWorkspaceId());
-
-        datasourceDTO.setIsTemplate(datasource.getIsTemplate());
-        datasourceDTO.setTemplateName(datasource.getTemplateName());
-        datasourceDTO.setIsConfigured(datasource.getIsConfigured());
-        datasourceDTO.setIsRecentlyCreated(datasource.getIsRecentlyCreated());
-        datasourceDTO.setIsMock(datasource.getIsMock());
-        datasourceDTO.setPolicies(datasource.getPolicies());
-
-        return workspaceService
-                .getDefaultEnvironmentId(datasource.getWorkspaceId())
-                .flatMap(environmentId -> {
-                    Map<String, DatasourceStorageDTO> storages = datasource.getDatasourceStorages();
-                    if (storages == null) {
-                        return Mono.empty();
-                    }
-                    return Mono.justOrEmpty(storages.get(environmentId));
-                })
-                .map(datasourceStorageDTO1 -> {
-                    datasourceDTO.setDatasourceConfiguration(datasourceStorageDTO1.getDatasourceConfiguration());
-                    datasourceDTO.setInvalids(datasourceStorageDTO1.getInvalids());
-                    datasourceDTO.setMessages(datasourceStorageDTO1.getMessages());
-                    datasourceDTO.setIsConfigured(datasourceStorageDTO1.getIsConfigured());
-                    return datasourceDTO;
-                })
-                .thenReturn(datasourceDTO);
-    }
-
-    // TODO: Remove the following snippet after client side API changes
-    @Override
-    public Mono<Datasource> convertToDatasource(DatasourceDTO datasourceDTO, String environmentId) {
-        Datasource datasource = new Datasource();
-        datasource.setId(datasourceDTO.getId());
-        datasource.setUserPermissions(datasourceDTO.getUserPermissions());
-        datasource.setName(datasourceDTO.getName());
-        datasource.setPluginId(datasourceDTO.getPluginId());
-        datasource.setPluginName(datasourceDTO.getPluginName());
-        datasource.setWorkspaceId(datasourceDTO.getWorkspaceId());
-
-        datasource.setIsTemplate(datasourceDTO.getIsTemplate());
-        datasource.setTemplateName(datasourceDTO.getTemplateName());
-        datasource.setIsConfigured(datasourceDTO.getIsConfigured());
-        datasource.setIsRecentlyCreated(datasourceDTO.getIsRecentlyCreated());
-        datasource.setIsMock(datasourceDTO.getIsMock());
-
-        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        datasource.setDatasourceStorages(storages);
-
-        Mono<String> trueEnvironmentIdMono;
-
-        if (StringUtils.hasText(datasource.getWorkspaceId())) {
-            trueEnvironmentIdMono =
-                    getTrueEnvironmentId(datasource.getWorkspaceId(), environmentId, datasource.getPluginId());
-        } else if (StringUtils.hasText(datasource.getId())) {
-            trueEnvironmentIdMono = findById(datasource.getId(), datasourcePermission.getReadPermission())
-                    .flatMap(datasource1 -> getTrueEnvironmentId(
-                            datasource1.getWorkspaceId(), environmentId, datasource1.getPluginId()));
-        } else {
-            if (!StringUtils.hasText(environmentId)) {
-                return Mono.error(new AppsmithException(
-                        AppsmithError.INVALID_DATASOURCE,
-                        FieldName.DATASOURCE,
-                        "Please provide valid metadata for datasource object"));
-            }
-
-            trueEnvironmentIdMono = Mono.just(environmentId);
-        }
-
-        return trueEnvironmentIdMono.map(trueEnvironmentId -> {
-            if (datasourceDTO.getDatasourceConfiguration() != null) {
-                storages.put(trueEnvironmentId, new DatasourceStorageDTO(datasourceDTO, trueEnvironmentId));
-            }
-
-            return datasource;
-        });
-    }
-
-    @Override
-    public Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId) {
+    public Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId, String pluginId) {
         return Mono.just(FieldName.UNUSED_ENVIRONMENT_ID);
     }
 
     @Override
-    public Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId, String pluginId) {
+    public Mono<String> getTrueEnvironmentIdForExecution(String workspaceId, String environmentId, String pluginId) {
         return Mono.just(FieldName.UNUSED_ENVIRONMENT_ID);
     }
 
