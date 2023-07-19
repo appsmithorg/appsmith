@@ -100,7 +100,6 @@ export type PropertyPaneControlConfig = {
   min?: number;
   // Switch mode ( JS -> Text )
   shouldSwitchToNormalMode?: (
-    propertyName: string,
     isDynamic: boolean,
     isToggleDisabled: boolean,
     triggerFlag?: boolean,
