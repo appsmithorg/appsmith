@@ -63,6 +63,7 @@ describe("Import, Export and Fork application and validate data binding", functi
       cy.xpath("//span[text()='id']").should("be.visible");
       cy.xpath("//span[text()='title']").should("be.visible");
       cy.xpath("//span[text()='due']").should("be.visible");
+      expect.fail();
     });
   });
 

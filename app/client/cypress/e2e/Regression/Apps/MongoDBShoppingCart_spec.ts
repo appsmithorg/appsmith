@@ -23,6 +23,7 @@ describe("Shopping cart App", function () {
     cy.get("@saveDatasource").then((httpResponse: any) => {
       datasourceName = httpResponse.response.body.data.name;
     });
+    expect.fail();
   });
 
   it("1. Create MongoDB datasource and add Insert, Find, Update and Delete queries", function () {

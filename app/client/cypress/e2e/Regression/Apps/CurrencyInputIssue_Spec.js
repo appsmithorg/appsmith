@@ -27,5 +27,6 @@ describe("Currency Input Issue", function () {
     cy.focused().then(() => {
       cy.get(themelocators.popover).should("exist");
     });
+    expect.fail();
   });
 });

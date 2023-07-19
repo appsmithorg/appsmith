@@ -42,6 +42,7 @@ describe("AForce - Community Issues page validations", function () {
         }
         //Validate table is not empty!
         table.WaitUntilTableLoad(0, 0, "v2");
+        expect.fail();
       });
 
     //Validating order of header columns!
