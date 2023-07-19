@@ -37,7 +37,6 @@ function BrandingPage(props: BrandingPageProps) {
     APPSMITH_BRAND_LOGO: tentantConfig.brandLogoUrl,
     APPSMITH_BRAND_FAVICON: tentantConfig.brandFaviconUrl,
   };
-  alert(needsUpgrade);
   const {
     control,
     formState,
