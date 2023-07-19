@@ -125,16 +125,15 @@ describe("Container Widget Functionality", function () {
       locators._widgetInDeployed(draggableWidgets.BUTTON),
       2,
     );
-    agHelper.GetNClick(
-      locators._widgetInDeployed(draggableWidgets.BUTTON),
-      0,
-      true,
-    );
-    agHelper
-      .GetElement(locators._widgetInDeployed(draggableWidgets.BUTTON))
+    cy.get(locators._widgetInDeployed(draggableWidgets.BUTTON))
       .closest("div")
       .first()
       .click({ force: true });
+    // agHelper
+    //   .GetElement(locators._widgetInDeployed(draggableWidgets.BUTTON))
+    //   .closest("div")
+    //   .first()
+    //   .click({ force: true });
     // agHelper.GetClosestNClick(
     //   locators._widgetInDeployed(draggableWidgets.BUTTON),
     //   "div",
