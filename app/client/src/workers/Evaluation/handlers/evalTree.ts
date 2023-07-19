@@ -21,7 +21,6 @@ import type {
 import { clearAllIntervals } from "../fns/overrides/interval";
 import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
 import { setEvalContext } from "../evaluate";
-import { asyncJsFunctionInDataFields } from "../JSObject/asyncJSFunctionBoundToDataField";
 import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
 
 export let replayMap: Record<string, ReplayEntity<any>> | undefined;
@@ -48,7 +47,6 @@ export default function (request: EvalWorkerSyncRequest) {
 
   const {
     allActionValidationConfig,
-    appMode,
     forceEvaluation,
     metaWidgets,
     shouldReplay,
@@ -64,7 +62,6 @@ export default function (request: EvalWorkerSyncRequest) {
   try {
     if (!dataTreeEvaluator) {
       isCreateFirstTree = true;
-      asyncJsFunctionInDataFields.initialize(appMode);
       replayMap = replayMap || {};
       replayMap[CANVAS] = new ReplayCanvas({ widgets, theme });
       dataTreeEvaluator = new DataTreeEvaluator(

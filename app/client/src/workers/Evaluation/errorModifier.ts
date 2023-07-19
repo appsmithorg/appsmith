@@ -2,6 +2,13 @@ import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { getAllAsyncFunctions } from "@appsmith/workers/Evaluation/Actions";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorCategory } from "utils/DynamicBindingUtils";
+import type DependencyMap from "entities/DependencyMap";
+import {
+  getAllAsyncJSFunctions,
+  isDataField,
+} from "workers/common/DataTreeEvaluator/utils";
+import { jsPropertiesState } from "./JSObject/jsPropertiesState";
+import { isEmpty } from "lodash";
 
 const FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE =
   "Found an action invocation during evaluation. Data fields cannot execute actions.";
@@ -9,12 +16,22 @@ const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
   "Found a reference to {{actionName}} during evaluation. Data fields cannot execute framework actions. Please remove any direct/indirect references to {{actionName}} and try again.";
 class ErrorModifier {
   private errorNamesToScan = ["ReferenceError", "TypeError"];
-  // Note all regex below groups the async function name
-
   private asyncFunctionsNameMap: Record<string, true> = {};
-
-  updateAsyncFunctions(dataTree: DataTree, configTree: ConfigTree) {
-    this.asyncFunctionsNameMap = getAllAsyncFunctions(dataTree, configTree);
+  private asyncJSFunctionsNames: string[] = [];
+  updateAsyncFunctions(
+    dataTree: DataTree,
+    configTree: ConfigTree,
+    dependencyMap: DependencyMap,
+  ) {
+    const allAsyncEntityFunctions = getAllAsyncFunctions(dataTree, configTree);
+    const allAsyncJSFunctions = getAllAsyncJSFunctions(
+      dataTree,
+      jsPropertiesState.getMap(),
+      dependencyMap,
+      Object.keys(allAsyncEntityFunctions),
+    );
+    this.asyncFunctionsNameMap = allAsyncEntityFunctions;
+    this.asyncJSFunctionsNames = allAsyncJSFunctions;
   }
 
   run(error: Error): {
@@ -71,6 +88,28 @@ class ErrorModifier {
       }
       return error;
     });
+  }
+  addRootcauseToAsyncInvocationErrors(
+    fullPropertyPath: string,
+    configTree: ConfigTree,
+    errors: EvaluationError[],
+    dependencyMap: DependencyMap,
+  ) {
+    let updatedErrors = errors;
+
+    if (isDataField(fullPropertyPath, configTree)) {
+      const reachableAsyncJSFunctions = dependencyMap.getAllReachableNodes(
+        fullPropertyPath,
+        this.asyncJSFunctionsNames,
+      );
+
+      if (!isEmpty(reachableAsyncJSFunctions))
+        updatedErrors = errorModifier.setAsyncInvocationErrorsRootcause(
+          errors,
+          reachableAsyncJSFunctions[0],
+        );
+    }
+    return updatedErrors;
   }
 }
 

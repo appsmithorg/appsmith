@@ -316,17 +316,6 @@ export function updateMap(
   }
 }
 
-export function isAsyncJSFunction(configTree: ConfigTree, fullPath: string) {
-  const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
-  const configEntity = configTree[entityName];
-  return (
-    isJSActionConfig(configEntity) &&
-    propertyPath &&
-    propertyPath in configEntity.meta &&
-    configEntity.meta[propertyPath].isAsync
-  );
-}
-
 export function isJSFunction(configTree: ConfigTree, fullPath: string) {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
   const entityConfig = configTree[entityName];
