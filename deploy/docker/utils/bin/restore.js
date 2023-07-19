@@ -192,10 +192,7 @@ async function run() {
 }
 
 function isArchiveEncrypted(backupFilePath){
-  if (backupFilePath.endsWith('.enc')){
-    return true
-  }
-  return false
+  return backupFilePath.endsWith('.enc');
 }
 
 module.exports = {
