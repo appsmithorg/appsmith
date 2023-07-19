@@ -160,7 +160,7 @@ export class AggregateHelper extends ReusableHelper {
       .should("have.value", renameVal)
       .blur();
     this.PressEnter();
-    this.AssertElementAbsence(this.locator._btnSpinner, 10000);
+    this.AssertElementVisible(this.locator._editIcon);
     this.Sleep(300); //allow lil more time for new name to settle
   }
 
@@ -1457,6 +1457,12 @@ export class AggregateHelper extends ReusableHelper {
 
   public GetModalDropTargetId() {
     return this.GetElement(this.locator._modal).invoke("attr", "id");
+  }
+
+  public BrowserNavigation(direction: number) {
+    //passing 1 works as browser back
+    //passing -1 works as browser forward
+    cy.go(direction);
   }
 
   //Not used:

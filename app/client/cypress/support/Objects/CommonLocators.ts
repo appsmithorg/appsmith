@@ -10,6 +10,7 @@ export class CommonLocators {
   _sidebar = ".t--sidebar";
   _queryName = ".t--action-name-edit-field span";
   _queryNameTxt = ".t--action-name-edit-field input";
+  _editIcon = ".t--action-name-edit-icon";
   _emptyCanvasCta = "[data-testid='canvas-ctas']";
   _dsName = ".t--edit-datasource-name span";
   _dsNameTxt = ".t--edit-datasource-name input";
@@ -252,11 +253,10 @@ export class CommonLocators {
   _appThemeCard = ".t--theme-card";
   _appNavigationSettings = "#t--navigation-settings-header";
   _appNavigationSettingsShowTitle = "#t--navigation-settings-application-title";
-  _switchGroupControl =
-    ".t--draggable-switchgroupwidget .bp3-control-indicator";
   _fontSelect = "fontsize .rc-select";
   _fontInput = "fontsize input";
   _pagination = ".rc-pagination";
   _controlOption = ".t--property-control-options";
   _canvasBody = "[data-testid='div-selection-0']";
+  _svg = "svg";
 }
