@@ -41,17 +41,24 @@ import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstant
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
+import BottomBar from "components/BottomBar";
+import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
   headerHeight: number;
   showGuidedTourMessage: boolean;
+  showBottomBar: boolean;
 }>`
   display: flex;
   flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
-  height: calc(100vh - ${({ headerHeight }) => headerHeight}px);
+  height: calc(
+    100vh -
+      ${(props) => (props.showBottomBar ? props.theme.bottomBarHeight : "0px")} -
+      ${({ headerHeight }) => headerHeight}px
+  );
   --view-mode-header-height: ${({ headerHeight }) => headerHeight}px;
 `;
 
@@ -93,6 +100,14 @@ function AppViewer(props: Props) {
 
   const focusRef = useWidgetFocus();
 
+  const workspaceId = currentApplicationDetails?.workspaceId || "";
+  const showBottomBar = useSelector((state: AppState) =>
+    areEnvironmentsFetched(state, workspaceId),
+  );
+
+  /**
+   * initializes the widgets factory and registers all widgets
+   */
   useEffect(() => {
     editorInitializer().then(() => {
       dispatch(widgetInitialisationSuccess());
@@ -177,13 +192,17 @@ function AppViewer(props: Props) {
             hasPages={pages.length > 1}
             headerHeight={headerHeight}
             ref={focusRef}
+            showBottomBar={showBottomBar}
             showGuidedTourMessage={showGuidedTourMessage}
           >
             {isInitialized && <AppViewerPageContainer />}
           </AppViewerBody>
+          {showBottomBar && <BottomBar viewMode />}
           {!hideWatermark && (
             <a
-              className="fixed hidden right-8 bottom-4 z-3 hover:no-underline md:flex"
+              className={`fixed hidden right-8 ${
+                showBottomBar ? "bottom-12" : "bottom-4"
+              } z-3 hover:no-underline md:flex`}
               href="https://appsmith.com"
               rel="noreferrer"
               target="_blank"
