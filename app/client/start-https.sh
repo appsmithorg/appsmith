@@ -245,7 +245,8 @@ $(if [[ $use_https == 1 ]]; then echo "
 
     server {
 $(if [[ $use_https == 1 ]]; then echo "
-        listen $https_listen_port ssl http2 default_server;
+        listen $https_listen_port ssl default_server;
+        http2 on;
         server_name $domain;
         ssl_certificate '$cert_file';
         ssl_certificate_key '$key_file';
@@ -338,6 +339,27 @@ if [[ -f $nginx_pid ]]; then
     # The above stop command will delete the pid file, but we still do this to ensure it really is gone.
     rm -f "$nginx_pid" "$temp_nginx_conf"
     unset temp_nginx_conf
+fi
+
+remaining_listeners="$(
+    lsof -nP "-iTCP:$http_listen_port" -sTCP:LISTEN || true
+    lsof -nP "-iTCP:$https_listen_port" -sTCP:LISTEN || true
+)"
+if [[ -n $remaining_listeners ]]; then
+    echo $'\nThe following processes are listening on the ports we want to use:\n'"$remaining_listeners"$'\n' >&2
+    answer=
+    for attempt in 1 2 3; do
+        echo -n 'Kill and proceed? [y/n] ' >&2
+        read -rn1 answer
+        if [[ $answer == y ]]; then
+            (lsof -t "-iTCP:$http_listen_port" -sTCP:LISTEN | xargs kill) || true
+            (lsof -t "-iTCP:$https_listen_port" -sTCP:LISTEN | xargs kill) || true
+            break
+        elif [[ $answer == n || $attempt == 3 ]]; then
+            echo $'\nAborting.' >&2
+            exit 1
+        fi
+    done
 fi
 
 if [[ $run_as == nginx ]]; then
