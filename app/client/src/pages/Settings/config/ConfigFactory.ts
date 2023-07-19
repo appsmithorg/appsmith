@@ -43,6 +43,9 @@ export class ConfigFactory {
       title: config.title,
       slug: config.type,
       subText: config.subText,
+      categoryType: config.categoryType,
+      needsUpgrade: config.needsUpgrade,
+      isEnterprise: config.isEnterprise,
       children: config?.children?.map((child) =>
         ConfigFactory.getCategory(child),
       ),
