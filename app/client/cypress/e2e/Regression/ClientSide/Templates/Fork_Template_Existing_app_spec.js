@@ -28,7 +28,7 @@ describe(
       entityExplorer.AddNewPage("Add page from template");
       agHelper.Sleep(5000);
       agHelper.AssertElementExist(template.templateDialogBox);
-      agHelper.AssertElementExist(templates.locators._templateCard);
+      agHelper.AssertElementVisible(templates.locators._templateCard);
       agHelper.Sleep(4000);
       cy.xpath("//h1[text()='Meeting Scheduler']/parent::div")
         .scrollIntoView()
@@ -87,7 +87,7 @@ describe(
       agHelper.RefreshPage();
       entityExplorer.AddNewPage("Add page from template");
       agHelper.GetNClick(templates.locators._templateCard);
-      agHelper.AssertElementExist(template.templateViewForkButton);
+      agHelper.AssertElementVisible(template.templateViewForkButton);
 
       //Similar templates add icon should take user to 'select pages from template'
       agHelper.RefreshPage();
@@ -96,7 +96,7 @@ describe(
       agHelper.GetNClick(templates.locators._templateCard);
       // Here we are on template detail page, with similar templates at the bottom
       agHelper.GetNClick(templates.locators._templateCard);
-      agHelper.AssertElementExist(template.templateViewForkButton);
+      agHelper.AssertElementVisible(template.templateViewForkButton);
       agHelper.GetNClick(templates.locators._closeTemplateDialogBoxBtn);
     });
 
