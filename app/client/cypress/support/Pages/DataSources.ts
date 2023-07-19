@@ -1540,7 +1540,7 @@ export class DataSources {
     });
   }
 
-  public enterSortByValues(sortBy: string, option: string, index = 0) {
+  public EnterSortByValues(sortBy: string, option: string, index = 0) {
     this.agHelper
       .GetElement(formControl.JSModeSortingControl)
       .eq(0)
@@ -1557,7 +1557,7 @@ export class DataSources {
     this.agHelper.GetNClickByContains(this._dropdownOption, option);
   }
 
-  public clearSortByOption(index = 0) {
+  public ClearSortByOption(index = 0) {
     this.agHelper.Sleep(500);
     this.agHelper
       .GetElement(formControl.JSModeSortingControl)
@@ -1569,7 +1569,7 @@ export class DataSources {
     this.agHelper.Sleep(500);
   }
 
-  public addNewSortByParameter() {
+  public AddNewSortByParameter() {
     this.agHelper
       .GetElement(formControl.JSModeSortingControl)
       .find("button[data-testid='t--sorting-add-field']")
