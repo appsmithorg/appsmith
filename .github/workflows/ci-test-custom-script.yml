@@ -98,7 +98,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: failed_spec_ci
-          path: ~/
+          path: ~/failed_spec_ci
+      - run: |
+          cd ~/failed_spec_ci
+          ls
 
       # failed_spec_env will contain list of all failed specs
       # We are using environment variable instead of regular to support multiline
