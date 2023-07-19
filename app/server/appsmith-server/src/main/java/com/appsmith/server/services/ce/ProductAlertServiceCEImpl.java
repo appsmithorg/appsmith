@@ -5,9 +5,6 @@ import com.appsmith.server.dtos.ce.ProductAlertResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -21,6 +18,9 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -36,7 +36,10 @@ public class ProductAlertServiceCEImpl implements ProductAlertServiceCE {
 
     private final Scheduler scheduler = Schedulers.boundedElastic();
 
-    public ProductAlertServiceCEImpl(@Value("${productalertmessages}") String messageListJSONString, ObjectMapper objectMapper, CommonConfig commonConfig) {
+    public ProductAlertServiceCEImpl(
+            @Value("${productalertmessages}") String messageListJSONString,
+            ObjectMapper objectMapper,
+            CommonConfig commonConfig) {
         this.messageListJSONString = messageListJSONString;
         this.commonConfig = commonConfig;
         this.mapper = objectMapper;
@@ -50,14 +53,17 @@ public class ProductAlertServiceCEImpl implements ProductAlertServiceCE {
 
     public Mono<List<ProductAlertResponseDTO>> getSingleApplicableMessage() {
         return Mono.fromCallable(() -> {
-            List<ProductAlertResponseDTO> applicableMessages =
-                    Arrays.stream(messages).sorted().filter(this::evaluateAlertApplicability).toList();
-            return applicableMessages;
-        }).onErrorResume(error -> {
-            log.error("exception while getting and filtering product alert messages", error);
-            throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR, error.getMessage());
-        })
-        .subscribeOn(scheduler);
+                    List<ProductAlertResponseDTO> applicableMessages = Arrays.stream(messages)
+                            .sorted()
+                            .filter(this::evaluateAlertApplicability)
+                            .toList();
+                    return applicableMessages;
+                })
+                .onErrorResume(error -> {
+                    log.error("exception while getting and filtering product alert messages", error);
+                    throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR, error.getMessage());
+                })
+                .subscribeOn(scheduler);
     }
 
     public Boolean evaluateAlertApplicability(ProductAlertResponseDTO productAlertResponseDTO) {
