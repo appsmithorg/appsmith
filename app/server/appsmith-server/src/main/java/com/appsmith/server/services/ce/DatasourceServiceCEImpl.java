@@ -439,15 +439,17 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                             dbDatasource.getWorkspaceId(),
                             datasourceStorage.getEnvironmentId(),
                             dbDatasource.getPluginId()))
-                    .map(tuple2 -> {
+                    .flatMap(tuple2 -> {
                         Datasource datasource = tuple2.getT1();
                         String trueEnvironmentId = tuple2.getT2();
 
                         datasourceStorage.setEnvironmentId(trueEnvironmentId);
                         datasourceStorage.prepareTransientFields(datasource);
-                        return datasourceStorage;
+                        return Mono.zip(Mono.just(datasource), Mono.just(datasourceStorage));
                     })
-                    .flatMap(datasourceStorage1 -> {
+                    .flatMap(tuple2 -> {
+                        Datasource datasource = tuple2.getT1();
+                        DatasourceStorage datasourceStorage1 = tuple2.getT2();
                         DatasourceConfiguration datasourceConfiguration =
                                 datasourceStorage1.getDatasourceConfiguration();
                         if (datasourceConfiguration == null || datasourceConfiguration.getAuthentication() == null) {
@@ -468,7 +470,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         }
 
                         return datasourceStorageService
-                                .findStrictlyByDatasourceIdAndEnvironmentId(datasourceId, trueEnvironmentId)
+                                .findByDatasourceAndEnvironmentIdForExecution(datasource, trueEnvironmentId)
                                 .map(dbDatasourceStorage -> {
                                     copyNestedNonNullProperties(datasourceStorage, dbDatasourceStorage);
                                     return dbDatasourceStorage;
@@ -485,7 +487,11 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     protected Mono<DatasourceTestResult> verifyDatasourceAndTest(DatasourceStorage datasourceStorage) {
         return Mono.justOrEmpty(datasourceStorage)
                 .flatMap(datasourceStorageService::validateDatasourceConfiguration)
-                .flatMap(storage -> {
+                .zipWith(datasourceStorageService.getEnvironmentNameFromEnvironmentIdForAnalytics(
+                        datasourceStorage.getEnvironmentId()))
+                .flatMap(tuple2 -> {
+                    DatasourceStorage storage = tuple2.getT1();
+                    String environmentName = tuple2.getT2();
                     Mono<DatasourceTestResult> datasourceTestResultMono;
                     if (CollectionUtils.isEmpty(storage.getInvalids())) {
                         datasourceTestResultMono = testDatasourceViaPlugin(storage);
@@ -501,7 +507,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                                     AnalyticsEvents.DS_TEST_EVENT_FAILED,
                                                     datasourceStorage,
                                                     getAnalyticsPropertiesForTestEventStatus(
-                                                            datasourceStorage, datasourceTestResult))
+                                                            datasourceStorage, datasourceTestResult, environmentName))
                                             .thenReturn(datasourceTestResult);
 
                                 } else {
@@ -510,7 +516,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                                     AnalyticsEvents.DS_TEST_EVENT_SUCCESS,
                                                     datasourceStorage,
                                                     getAnalyticsPropertiesForTestEventStatus(
-                                                            datasourceStorage, datasourceTestResult))
+                                                            datasourceStorage, datasourceTestResult, environmentName))
                                             .thenReturn(datasourceTestResult);
                                 }
                             })

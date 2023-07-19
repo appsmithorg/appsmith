@@ -106,9 +106,14 @@ export function Categories({
 }) {
   const dispatch = useDispatch();
 
-  const triggerAnalytics = (source: string) => {
+  const triggerAnalytics = (page: string) => {
+    const source: any = {
+      "audit-logs": "AuditLogs",
+      "access-control": "AccessControl",
+      provisioning: "Provisioning",
+    };
     AnalyticsUtil.logEvent("ADMIN_SETTINGS_CLICK", {
-      source,
+      source: source[page],
     });
   };
 
