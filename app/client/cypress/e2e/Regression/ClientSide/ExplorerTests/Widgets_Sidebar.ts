@@ -1,12 +1,10 @@
-import apiwidget from "../../../../locators/apiWidgetslocator.json";
-import explorer from "../../../../locators/explorerlocators.json";
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+  locators,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Entity explorer tests related to widgets and validation", function () {
-  before(() => {
-    _.agHelper.AddDsl("displayWidgetDsl");
-  });
-
   // Taken from here appsmith/app/client/src/constants/WidgetConstants.tsx
   const WIDGET_TAGS: Record<string, string> = {
     ESSENTIAL_WIDGETS: "Essential widgets",
@@ -84,30 +82,30 @@ describe("Entity explorer tests related to widgets and validation", function () 
   };
 
   it("1. All widget tags should be visible and open by default.", () => {
-    cy.get(explorer.explorerWidgetTab).click({ force: true });
+    agHelper.GetNClick(entityExplorer._widgetTab);
 
-    _.agHelper.AssertElementLength(
-      explorer.widgetTagsList,
+    agHelper.AssertElementLength(
+      entityExplorer._widgetTagsList,
       Object.keys(WIDGET_TAGS).length,
     );
 
-    cy.get(explorer.widgetTagsList).each(($widgetTag) => {
+    cy.get(entityExplorer._widgetTagsList).each(($widgetTag) => {
       cy.wrap($widgetTag)
-        .find(".ads-v2__content")
+        .find(locators._adsV2Content)
         .should("have.css", "display", "flex");
     });
   });
 
   it("2. All widgets should be present within their tags and these tags should be collapsible", () => {
-    cy.get(explorer.widgetTagsList).each(($widgetTag) => {
+    cy.get(entityExplorer._widgetTagsList).each(($widgetTag) => {
       // check that tags are collapsible
-      cy.wrap($widgetTag).find(".ads-v2-collapsible__header").click({
+      cy.wrap($widgetTag).find(locators._adsV2CollapsibleHeader).click({
         force: true,
       });
       cy.wrap($widgetTag)
-        .find(".ads-v2__content")
+        .find(locators._adsV2Content)
         .should("have.css", "display", "none");
-      cy.wrap($widgetTag).find(".ads-v2-collapsible__header").click({
+      cy.wrap($widgetTag).find(locators._adsV2CollapsibleHeader).click({
         force: true,
       });
 
@@ -115,7 +113,7 @@ describe("Entity explorer tests related to widgets and validation", function () 
       const widgetsInThisTag: string[] = [];
 
       cy.wrap($widgetTag)
-        .find(explorer.widgetCards + " span.ads-v2-text")
+        .find(entityExplorer._widgetCardTitle)
         .each(($widgetName) => {
           const value = $widgetName.text();
 
@@ -123,7 +121,9 @@ describe("Entity explorer tests related to widgets and validation", function () 
         })
         .then(() => {
           cy.wrap($widgetTag)
-            .find(".ads-v2-collapsible__header span.ads-v2-text")
+            .find(
+              `${locators._adsV2CollapsibleHeader} span${locators._adsV2Text}`,
+            )
             .then(($widgetTagTitle) => {
               const expectedWidgetsInThisTag =
                 WIDGETS_CATALOG[$widgetTagTitle.text()].sort();
@@ -137,12 +137,12 @@ describe("Entity explorer tests related to widgets and validation", function () 
 
   it("3. All widgets should be ordered alphabetically within their tags, except Essential widgets, which should be sorted by their static rank.", () => {
     cy.get(
-      `${explorer.widgetTagsList}:not(.widget-tag-collapisble-essential-widgets)`,
+      `${entityExplorer._widgetTagsList}:not(${entityExplorer._widgetTagEssentialWidgets})`,
     ).each(($widgetTag) => {
       const widgetsInThisTag: string[] = [];
 
       cy.wrap($widgetTag)
-        .find(explorer.widgetCards + " span.ads-v2-text")
+        .find(entityExplorer._widgetCardTitle)
         .each(($widgetName) => {
           const value = $widgetName.text();
 
@@ -157,9 +157,9 @@ describe("Entity explorer tests related to widgets and validation", function () 
 
     const widgetsInEssentialWidgetsTag: string[] = [];
     cy.get(
-      `${explorer.widgetTagsList}.widget-tag-collapisble-essential-widgets`,
+      `${entityExplorer._widgetTagsList}${entityExplorer._widgetTagEssentialWidgets}`,
     )
-      .find(explorer.widgetCards + " span.ads-v2-text")
+      .find(entityExplorer._widgetCardTitle)
       .each(($widgetName) => {
         const value = $widgetName.text();
 
@@ -179,16 +179,21 @@ describe("Entity explorer tests related to widgets and validation", function () 
   });
 
   it("4. Widget search should work", () => {
-    cy.get(explorer.widgetSearchInput).type("text");
-    cy.get(explorer.widgetCards).should("have.length", 3);
-    cy.get(explorer.widgetSearchInput).type("p");
-    cy.get(explorer.widgetCards).should("have.length", 2);
-    cy.get(explorer.widgetSearchInput).clear();
-    cy.get(explorer.widgetSearchInput).type("cypress");
-    cy.get(explorer.widgetCards).should("have.length", 0);
-    cy.get(explorer.widgetSearchInput).clear();
-    cy.get(explorer.widgetCards).should(
-      "have.length",
+    agHelper.TypeText(entityExplorer._widgetSearchInput, "text");
+    agHelper.AssertElementLength(entityExplorer._widgetCards, 3);
+
+    agHelper.TypeText(entityExplorer._widgetSearchInput, "p");
+    agHelper.AssertElementLength(entityExplorer._widgetCards, 2);
+
+    agHelper.ClearTextField(entityExplorer._widgetSearchInput);
+
+    agHelper.TypeText(entityExplorer._widgetSearchInput, "cypress");
+    agHelper.AssertElementLength(entityExplorer._widgetCards, 0);
+
+    agHelper.ClearTextField(entityExplorer._widgetSearchInput);
+
+    agHelper.AssertElementLength(
+      entityExplorer._widgetCards,
       getTotalNumberOfWidgets(),
     );
   });

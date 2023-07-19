@@ -259,4 +259,7 @@ export class CommonLocators {
   _pagination = ".rc-pagination";
   _controlOption = ".t--property-control-options";
   _canvasBody = "[data-testid='div-selection-0']";
+  _adsV2Content = ".ads-v2__content";
+  _adsV2CollapsibleHeader = ".ads-v2-collapsible__header";
+  _adsV2Text = ".ads-v2-text";
 }
