@@ -1,4 +1,4 @@
-name: Appsmith CI Gsheet Test Workflow
+name: Appsmith CI Test Workflow For Hosted Instance
 
 on:
   # Schedule to run the workflow everyday at 7 AM or UTC (1.30 AM) only on weekday
