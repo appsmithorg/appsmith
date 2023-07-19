@@ -99,7 +99,8 @@ jobs:
         with:
           name: failed_spec_ci
           path: ~/failed_spec_ci
-      - run: |
+      - if: steps.run_result.outputs.run_result == 'failedtest'
+        run: |
           cd ~/failed_spec_ci
           ls
 
