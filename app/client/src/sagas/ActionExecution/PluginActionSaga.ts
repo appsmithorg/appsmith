@@ -78,6 +78,7 @@ import {
   ERROR_PLUGIN_ACTION_EXECUTE,
   ACTION_EXECUTION_CANCELLED,
   ACTION_EXECUTION_FAILED,
+  SWITCH_ENVIRONMENT_SUCCESS,
 } from "@appsmith/constants/messages";
 import type {
   LayoutOnLoadActionErrors,
@@ -112,6 +113,7 @@ import {
   QUERIES_EDITOR_BASE_PATH,
   QUERIES_EDITOR_ID_PATH,
   CURL_IMPORT_PAGE_PATH,
+  matchQueryBuilderPath,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import { APP_MODE } from "entities/App";
@@ -150,6 +152,9 @@ import type { ActionData } from "reducers/entityReducers/actionsReducer";
 import { handleStoreOperations } from "./StoreActionSaga";
 import { fetchPage } from "actions/pageActions";
 import type { Datasource } from "entities/Datasource";
+import { softRefreshDatasourceStructure } from "actions/datasourceActions";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { changeQuery } from "actions/queryPaneActions";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -556,6 +561,7 @@ export default function* executePluginActionTriggerSaga(
           iconId: action.pluginId,
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
           text: `Execution failed with status ${payload.statusCode}`,
+          environmentName: getCurrentEnvironment() || "",
           source: {
             type: ENTITY_TYPE.ACTION,
             name: action.name,
@@ -879,6 +885,7 @@ function* runActionSaga(
           id: actionId,
           iconId: actionObject.pluginId,
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+          environmentName: getCurrentEnvironment() || "",
           text: `Execution failed${
             payload.statusCode ? ` with status ${payload.statusCode}` : ""
           }`,
@@ -1103,6 +1110,7 @@ function* executePageLoadAction(pageAction: PageAction) {
             id: pageAction.id,
             iconId: action.pluginId,
             logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+            environmentName: getCurrentEnvironment() || "",
             text: `Execution failed with status ${payload.statusCode}`,
             source: {
               type: ENTITY_TYPE.ACTION,
@@ -1483,6 +1491,22 @@ function* softRefreshActionsSaga() {
   yield call(clearTriggerActionResponse);
   //Rerun all the page load actions on the page
   yield call(executePageLoadActionsSaga);
+  try {
+    // we fork to prevent the call from blocking
+    yield put(softRefreshDatasourceStructure());
+  } catch (error) {}
+  //This will refresh the query editor with the latest datasource structure.
+  const isQueryPane = matchQueryBuilderPath(window.location.pathname);
+  //This is reuired only when the query editor is open.
+  if (isQueryPane) {
+    yield put(changeQuery(isQueryPane.params.queryId));
+  }
+  toast.show(
+    createMessage(SWITCH_ENVIRONMENT_SUCCESS, getCurrentEnvironment()),
+    {
+      kind: "success",
+    },
+  );
 }
 
 export function* watchPluginActionExecutionSagas() {
