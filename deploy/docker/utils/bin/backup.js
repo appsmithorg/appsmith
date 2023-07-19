@@ -13,7 +13,7 @@ const command_args = process.argv.slice(3);
 async function run() {
   const timestamp = getTimeStampInISO();
   let errorCode = 0;
-  let backupRootPath, ArchivePath, encryptionPassword;
+  let backupRootPath, archivePath, encryptionPassword;
   let encryptArchive = false;
   try {
     const check_supervisord_status_cmd = '/usr/bin/supervisorctl >/dev/null 2>&1';
@@ -30,14 +30,14 @@ async function run() {
 
     checkAvailableBackupSpace(availSpaceInBytes);
 
-    let keys_to_remove = 'all'
+    let keysToRemove = 'all'
     if (!command_args.includes('--non-interactive')){
       encryptionPassword = getEncryptionPasswordFromUser();
       if (encryptionPassword == -1){
         throw new Error('Backup process aborted because a valid enctyption password could not be obtained from the user');
       }
       encryptArchive = true;
-      keys_to_remove = 'mongodb'
+      keysToRemove = 'mongodb'
     }
 
     backupRootPath = await generateBackupRootPath();
@@ -50,7 +50,7 @@ async function run() {
     await createGitStorageArchive(backupContentsPath);
 
     await createManifestFile(backupContentsPath);
-    await exportDockerEnvFile(backupContentsPath, keys_to_remove);
+    await exportDockerEnvFile(backupContentsPath, keysToRemove);
 
     archivePath = await createFinalArchive(backupRootPath, timestamp);
     // shell.exec("openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -in " + archivePath + " -out " + archivePath + ".enc");
@@ -92,28 +92,21 @@ async function encryptBackupArchive(archivePath, encryptionPassword){
   await utils.execCommand(['openssl', 'enc', '-aes-256-cbc', '-pbkdf2', '-iter', 100000, '-in', archivePath, '-out', encryptedArchivePath, '-k', encryptionPassword ])
   return encryptedArchivePath;
 }
-function getEncryptionPasswordFromUser(){
-  let encryptionPwd1,encryptionPwd2;
-  let valid_count=0;
-  const retries = 3;
-  do {
-    if(valid_count>0){
-      console.log("The passwords do not match, please try again.")
-    }
-    encryptionPwd1 = readlineSync.question('Enter a password to encrypt the backup archive: ', {
-      hideEchoBack: true
-    });
-    encryptionPwd2 = readlineSync.question('Enter the above password again: ', {
-      hideEchoBack: true
-    });
-    valid_count+=1;
-  } while(encryptionPwd1!=encryptionPwd2 && valid_count<retries)
-    if (encryptionPwd1==encryptionPwd2) {
-      return encryptionPwd1;
+
+function getEncryptionPasswordFromUser(){ 
+  for (const _ of [1, 2, 3]) 
+  { 
+    const encryptionPwd1 = readlineSync.question('Enter a password to encrypt the backup archive: ', { hideEchoBack: true });
+    const encryptionPwd2 = readlineSync.question('Enter the above password again: ', { hideEchoBack: true });
+    if (encryptionPwd1 === encryptionPwd2){
+       return encryptionPwd1; 
     }
     else {
-      return -1;
+      console.error("The passwords do not match, please try again.");
     }
+  } 
+  console.error("Aborting backup process, failed to obtain valid encryption password.");
+  return -1 
 }
 
 async function exportDatabase(destFolder) {
@@ -138,10 +131,10 @@ async function createManifestFile(path) {
   await fsPromises.writeFile(path + '/manifest.json', JSON.stringify(manifest_data));
 }
 
-async function exportDockerEnvFile(destFolder, keys_to_remove) {
+async function exportDockerEnvFile(destFolder, keysToRemove) {
   console.log('Exporting docker environment file');
   const content = await fsPromises.readFile('/appsmith-stacks/configuration/docker.env', { encoding: 'utf8' });
-  const cleaned_content = removeSensitiveEnvData(content, keys_to_remove);
+  const cleaned_content = removeSensitiveEnvData(content, keysToRemove);
   await fsPromises.writeFile(destFolder + '/docker.env', cleaned_content);
   console.log('Exporting docker environment file done.');
 }
@@ -192,16 +185,16 @@ function getBackupContentsPath(backupRootPath, timestamp) {
   return backupRootPath + '/appsmith-backup-' + timestamp;
 }
 
-function removeSensitiveEnvData(content, keys_to_remove) {
+function removeSensitiveEnvData(content, keysToRemove) {
   // Remove encryption and Mongodb data from docker.env
   const output_lines = []
-  if (keys_to_remove === 'mongodb'){
+  if (keysToRemove === 'mongodb'){
     content.split(/\r?\n/).forEach(line => {
       if (!line.startsWith("APPSMITH_MONGODB")) {
         output_lines.push(line)
       }
     });
-  } else if (keys_to_remove === 'all') {
+  } else if (keysToRemove === 'all') {
     content.split(/\r?\n/).forEach(line => {
       if (!line.startsWith("APPSMITH_ENCRYPTION") && !line.startsWith("APPSMITH_MONGODB")) {
         output_lines.push(line);
@@ -255,5 +248,5 @@ module.exports = {
   getBackupArchiveLimit,
   removeOldBackups,
   getEncryptionPasswordFromUser,
-  encryptBackupArchive
+  encryptBackupArchive,
 };
