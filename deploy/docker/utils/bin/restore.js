@@ -36,7 +36,7 @@ async function getBackupFileName() {
   }
 
 }
-async function unencryptArchive(encryptedFilePath, backupFilePath){
+async function decryptArchive(encryptedFilePath, backupFilePath){
   try{
     await utils.execCommand(['openssl', 'enc', '-d', '-aes-256-cbc', '-pbkdf2', '-iter', 100000, '-in', encryptedFilePath, '-out', backupFilePath])
   } catch (error) {
@@ -149,17 +149,17 @@ async function run() {
       }
     });
     let backupFileName = await getBackupFileName();
-    backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
     if (backupFileName == null) {
       process.exit(errorCode);
     } else {
+      let backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
       if (isArchiveEncrypted(backupFileName)){
         const encryptedBackupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);;
         backupFileName = backupFileName.replace('.enc', '');
         backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
         cleanupArchive = true;
         overwriteEncryptionKeys = false;
-        await unencryptArchive(encryptedBackupFilePath, backupFilePath);
+        await decryptArchive(encryptedBackupFilePath, backupFilePath);
       }
       const backupName = backupFileName.replace(/\.tar\.gz$/, "");
       const restoreRootPath = await fsPromises.mkdtemp(os.tmpdir());
