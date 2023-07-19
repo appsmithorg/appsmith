@@ -35,7 +35,8 @@ public class CreateDBTablePageSolutionImpl extends CreateDBTablePageSolutionCEIm
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
-            DatasourceStructureSolution datasourceStructureSolution) {
+            DatasourceStructureSolution datasourceStructureSolution,
+            EnvironmentPermission environmentPermission) {
         super(
                 datasourceService,
                 datasourceStorageService,
@@ -51,6 +52,7 @@ public class CreateDBTablePageSolutionImpl extends CreateDBTablePageSolutionCEIm
                 datasourcePermission,
                 applicationPermission,
                 pagePermission,
-                datasourceStructureSolution);
+                datasourceStructureSolution,
+                environmentPermission);
     }
 }

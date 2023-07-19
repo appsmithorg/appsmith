@@ -42,6 +42,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -90,6 +91,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
     private final DatasourceStructureSolution datasourceStructureSolution;
+    private final EnvironmentPermission environmentPermission;
 
     private static final String FILE_PATH = "CRUD-DB-Table-Template-Application.json";
 
@@ -165,8 +167,11 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
             return datasourceService
                     .findById(pageResourceDTO.getDatasourceId())
                     .flatMap(datasource -> {
-                        return datasourceService.getTrueEnvironmentIdForExecution(
-                                datasource.getWorkspaceId(), environmentId, datasource.getPluginId());
+                        return datasourceService.getTrueEnvironmentId(
+                                datasource.getWorkspaceId(),
+                                environmentId,
+                                datasource.getPluginId(),
+                                environmentPermission.getExecutePermission());
                     })
                     .flatMap(trueEnvironmentId ->
                             createPageFromDBTable(defaultPageId, pageResourceDTO, trueEnvironmentId, branchName));

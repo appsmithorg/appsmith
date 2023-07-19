@@ -41,6 +41,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -116,6 +117,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private final DatasourcePermission datasourcePermission;
     private final AnalyticsService analyticsService;
     private final DatasourceStorageService datasourceStorageService;
+    private final EnvironmentPermission environmentPermission;
 
     static final String PARAM_KEY_REGEX = "^k\\d+$";
     static final String BLOB_KEY_REGEX =
@@ -140,7 +142,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             AuthenticationValidator authenticationValidator,
             DatasourcePermission datasourcePermission,
             AnalyticsService analyticsService,
-            DatasourceStorageService datasourceStorageService) {
+            DatasourceStorageService datasourceStorageService,
+            EnvironmentPermission environmentPermission) {
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.observationRegistry = observationRegistry;
@@ -157,6 +160,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.datasourcePermission = datasourcePermission;
         this.analyticsService = analyticsService;
         this.datasourceStorageService = datasourceStorageService;
+        this.environmentPermission = environmentPermission;
 
         this.patternList.add(Pattern.compile(PARAM_KEY_REGEX));
         this.patternList.add(Pattern.compile(BLOB_KEY_REGEX));
@@ -181,10 +185,11 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         .flatMap(branchedAction -> {
                             executeActionDTO.setActionId(branchedAction.getId());
                             return Mono.just(executeActionDTO)
-                                    .zipWith(datasourceService.getTrueEnvironmentIdForExecution(
+                                    .zipWith(datasourceService.getTrueEnvironmentId(
                                             branchedAction.getWorkspaceId(),
                                             environmentId,
-                                            branchedAction.getPluginId()));
+                                            branchedAction.getPluginId(),
+                                            environmentPermission.getExecutePermission()));
                         }))
                 .flatMap(tuple2 -> this.executeAction(tuple2.getT1(), tuple2.getT2())) // getTrue is temporary call
                 .name(ACTION_EXECUTION_SERVER_EXECUTION)

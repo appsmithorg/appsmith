@@ -19,6 +19,7 @@ import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.DatasourceStructureService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -43,13 +44,17 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
     private final DatasourcePermission datasourcePermission;
     private final DatasourceStructureService datasourceStructureService;
     private final AnalyticsService analyticsService;
+    private final EnvironmentPermission environmentPermission;
 
     @Override
     public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache, String environmentId) {
         return datasourceService
                 .findById(datasourceId, datasourcePermission.getExecutePermission())
-                .zipWhen(datasource -> datasourceService.getTrueEnvironmentIdForExecution(
-                        datasource.getWorkspaceId(), environmentId, datasource.getPluginId()))
+                .zipWhen(datasource -> datasourceService.getTrueEnvironmentId(
+                        datasource.getWorkspaceId(),
+                        environmentId,
+                        datasource.getPluginId(),
+                        environmentPermission.getExecutePermission()))
                 .flatMap(tuple2 -> datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(
                         tuple2.getT1(), tuple2.getT2()))
                 .flatMap(datasourceStorage -> getStructure(datasourceStorage, ignoreCache))

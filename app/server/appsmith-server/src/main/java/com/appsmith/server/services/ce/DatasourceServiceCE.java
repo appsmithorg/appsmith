@@ -86,20 +86,11 @@ public interface DatasourceServiceCE {
      * @param workspaceId
      * @param environmentId
      * @param pluginId
+     * @param aclPermission
      * @return
      */
-    Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId, String pluginId);
-
-    /**
-     * If we are trying to get environment id with respect to a particular plugin,
-     * we use this method to check out of scope plugins first and check the permission for execution of the flow
-     *
-     * @param workspaceId
-     * @param environmentId
-     * @param pluginId
-     * @return
-     */
-    Mono<String> getTrueEnvironmentIdForExecution(String workspaceId, String environmentId, String pluginId);
+    Mono<String> getTrueEnvironmentId(
+            String workspaceId, String environmentId, String pluginId, AclPermission aclPermission);
 
     Datasource createDatasourceFromDatasourceStorage(DatasourceStorage datasourceStorage);
 }

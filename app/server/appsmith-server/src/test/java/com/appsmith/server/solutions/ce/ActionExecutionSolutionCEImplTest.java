@@ -23,6 +23,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.BeforeEach;
@@ -122,6 +123,8 @@ class ActionExecutionSolutionCEImplTest {
     @MockBean
     DatasourceStorageService datasourceStorageService;
 
+    EnvironmentPermission environmentPermission;
+
     private BodyExtractor.Context context;
 
     private Map<String, Object> hints;
@@ -144,7 +147,8 @@ class ActionExecutionSolutionCEImplTest {
                 authenticationValidator,
                 datasourcePermission,
                 analyticsService,
-                datasourceStorageService);
+                datasourceStorageService,
+                environmentPermission);
 
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);
@@ -280,7 +284,7 @@ class ActionExecutionSolutionCEImplTest {
         newAction.setId("63285a3388e48972c7519b18");
         doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID))
                 .when(datasourceService)
-                .getTrueEnvironmentIdForExecution(any(), any(), any());
+                .getTrueEnvironmentId(any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()));
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
@@ -333,7 +337,7 @@ class ActionExecutionSolutionCEImplTest {
         newAction.setId("63285a3388e48972c7519b18");
         doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID))
                 .when(datasourceService)
-                .getTrueEnvironmentIdForExecution(any(), any(), any());
+                .getTrueEnvironmentId(any(), any(), any(), environmentPermission.getExecutePermission());
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
