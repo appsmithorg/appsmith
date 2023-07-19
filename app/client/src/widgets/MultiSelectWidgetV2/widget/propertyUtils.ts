@@ -312,6 +312,25 @@ export function valueKeyValidation(
   if (_.isString(value)) {
     const sourceData = _.isArray(props.sourceData) ? props.sourceData : [];
 
+    const keys = sourceData.reduce((keys, curr) => {
+      Object.keys(curr).forEach((d) => keys.add(d));
+
+      return keys;
+    }, new Set());
+
+    if (!keys.has(value)) {
+      return {
+        parsed: value,
+        isValid: false,
+        messages: [
+          {
+            name: "ValidationError",
+            message: `value key should be present in the source data`,
+          },
+        ],
+      };
+    }
+
     options = sourceData.map((d: Record<string, unknown>) => d[value]);
   } else if (_.isArray(value)) {
     const errorIndex = value.findIndex(

@@ -529,6 +529,25 @@ describe("valueKeyValidation", () => {
       ],
     });
 
+    expect(
+      valueKeyValidation(
+        "yellow",
+        {
+          sourceData: [{ test: 1 }, { test: 2 }],
+        } as any as SelectWidgetProps,
+        _ as LoDashStatic,
+      ),
+    ).toEqual({
+      parsed: "yellow",
+      isValid: false,
+      messages: [
+        {
+          name: "ValidationError",
+          message: `value key should be present in the source data`,
+        },
+      ],
+    });
+
     // boolean
     expect(
       valueKeyValidation(
