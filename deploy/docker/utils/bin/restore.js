@@ -152,7 +152,7 @@ async function run() {
     if (backupFileName == null) {
       process.exit(errorCode);
     } else {
-      let backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
+      backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
       if (isArchiveEncrypted(backupFileName)){
         const encryptedBackupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);;
         backupFileName = backupFileName.replace('.enc', '');
