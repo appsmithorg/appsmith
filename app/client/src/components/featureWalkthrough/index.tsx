@@ -47,12 +47,11 @@ export default function Walkthrough({ children }: any) {
   const updateActiveWalkthrough = () => {
     if (feature.length > 0) {
       const highlightArea = document.querySelector(`#${feature[0].targetId}`);
+      setActiveWalkthrough(null);
       if (highlightArea) {
         setTimeout(() => {
           setActiveWalkthrough(feature[0]);
         }, feature[0].delay || DEFAULT_DELAY);
-      } else {
-        setActiveWalkthrough(null);
       }
     } else {
       setActiveWalkthrough(null);
