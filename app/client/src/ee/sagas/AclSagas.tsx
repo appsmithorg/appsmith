@@ -233,6 +233,16 @@ export function* updateRolesInUserSaga(
       action.payload,
     );
 
+    if (
+      !response?.responseMeta?.success &&
+      response?.responseMeta?.status === 403 &&
+      response?.responseMeta?.error?.message === "Unauthorized access"
+    ) {
+      history.push(`/applications`);
+      yield put(getCurrentUser());
+      return;
+    }
+
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {

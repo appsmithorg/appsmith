@@ -1213,4 +1213,37 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                     entityIdEntityClassMap, roleId, toBeAddedPermissionsForEntities, toBeRemovedPermissionsForEntities);
         });
     }
+
+    @Override
+    public Mono<Long> updateEnvironmentsInWorkspaceWithPermissionsForRole(
+            String workspaceId,
+            String roleId,
+            Map<String, List<AclPermission>> toBeAddedPermissions,
+            Map<String, List<AclPermission>> toBeRemovedPermissions) {
+        List<String> includedEnvironmentFields = List.of(fieldName(QEnvironment.environment.id));
+        Mono<List<Environment>> allEnvironmentsInWorkspaceMono = environmentRepository
+                .findAllByWorkspaceIdsWithoutPermission(Set.of(workspaceId), includedEnvironmentFields)
+                .collectList();
+        return allEnvironmentsInWorkspaceMono.flatMap(environments -> {
+            Map<String, Class> entityIdEntityClassMap = new HashMap<>();
+            Map<String, List<AclPermission>> toBeAddedPermissionsForEntities = new HashMap<>();
+            Map<String, List<AclPermission>> toBeRemovedPermissionsForEntities = new HashMap<>();
+            entityIdEntityClassMap.put(workspaceId, Workspace.class);
+            toBeAddedPermissionsForEntities.put(
+                    workspaceId, toBeAddedPermissions.getOrDefault(Workspace.class.getSimpleName(), List.of()));
+            toBeRemovedPermissionsForEntities.put(
+                    workspaceId, toBeRemovedPermissions.getOrDefault(Workspace.class.getSimpleName(), List.of()));
+            environments.forEach(environment -> {
+                entityIdEntityClassMap.put(environment.getId(), Environment.class);
+                toBeAddedPermissionsForEntities.put(
+                        environment.getId(),
+                        toBeAddedPermissions.getOrDefault(Environment.class.getSimpleName(), List.of()));
+                toBeRemovedPermissionsForEntities.put(
+                        environment.getId(),
+                        toBeRemovedPermissions.getOrDefault(Environment.class.getSimpleName(), List.of()));
+            });
+            return bulkUpdateEntityPoliciesForApplicationRole(
+                    entityIdEntityClassMap, roleId, toBeAddedPermissionsForEntities, toBeRemovedPermissionsForEntities);
+        });
+    }
 }
