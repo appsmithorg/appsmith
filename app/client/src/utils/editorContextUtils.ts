@@ -237,10 +237,12 @@ export function getDefaultTemplateActionConfig(
         }
       }
     } else {
-      defaultTableName =
-        !!dsStructure.tables && dsStructure.tables.length > 0
-          ? dsStructure.tables[0].name
-          : "";
+      if (SQL_DATASOURCES.includes(plugin?.name)) {
+        defaultTableName =
+          !!dsStructure.tables && dsStructure.tables.length > 0
+            ? dsStructure.tables[0].name
+            : "";
+      }
     }
 
     const table: DatasourceTable | undefined = dsStructure.tables?.find(
