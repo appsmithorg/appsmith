@@ -1470,6 +1470,12 @@ export class AggregateHelper extends ReusableHelper {
     return this.GetElement(this.locator._modal).invoke("attr", "id");
   }
 
+  public BrowserNavigation(direction: number) {
+    //passing 1 works as browser back
+    //passing -1 works as browser forward
+    cy.go(direction);
+  }
+
   //Not used:
   // private xPathToCss(xpath: string) {
   //     return xpath
