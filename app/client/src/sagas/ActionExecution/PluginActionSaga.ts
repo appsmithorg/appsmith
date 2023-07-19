@@ -153,7 +153,7 @@ import { handleStoreOperations } from "./StoreActionSaga";
 import { fetchPage } from "actions/pageActions";
 import type { Datasource } from "entities/Datasource";
 import { softRefreshDatasourceStructure } from "actions/datasourceActions";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { getCurrentEnvName } from "@appsmith/utils/Environments";
 import { changeQuery } from "actions/queryPaneActions";
 
 enum ActionResponseDataTypes {
@@ -561,7 +561,7 @@ export default function* executePluginActionTriggerSaga(
           iconId: action.pluginId,
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
           text: `Execution failed with status ${payload.statusCode}`,
-          environmentName: getCurrentEnvironment() || "",
+          environmentName: getCurrentEnvName() || "",
           source: {
             type: ENTITY_TYPE.ACTION,
             name: action.name,
@@ -885,7 +885,7 @@ function* runActionSaga(
           id: actionId,
           iconId: actionObject.pluginId,
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-          environmentName: getCurrentEnvironment() || "",
+          environmentName: getCurrentEnvName() || "",
           text: `Execution failed${
             payload.statusCode ? ` with status ${payload.statusCode}` : ""
           }`,
@@ -1110,7 +1110,7 @@ function* executePageLoadAction(pageAction: PageAction) {
             id: pageAction.id,
             iconId: action.pluginId,
             logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-            environmentName: getCurrentEnvironment() || "",
+            environmentName: getCurrentEnvName() || "",
             text: `Execution failed with status ${payload.statusCode}`,
             source: {
               type: ENTITY_TYPE.ACTION,
@@ -1501,12 +1501,9 @@ function* softRefreshActionsSaga() {
   if (isQueryPane) {
     yield put(changeQuery(isQueryPane.params.queryId));
   }
-  toast.show(
-    createMessage(SWITCH_ENVIRONMENT_SUCCESS, getCurrentEnvironment()),
-    {
-      kind: "success",
-    },
-  );
+  toast.show(createMessage(SWITCH_ENVIRONMENT_SUCCESS, getCurrentEnvName()), {
+    kind: "success",
+  });
 }
 
 export function* watchPluginActionExecutionSagas() {

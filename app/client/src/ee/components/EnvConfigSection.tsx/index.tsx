@@ -1,11 +1,18 @@
-import type { ReactElement } from "react";
-import type { DatasourceStorage } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
+import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
 
 type Props = {
-  datasourceStorages: Record<string, DatasourceStorage>;
-  children: ReactElement;
+  currentEnv: string;
+  config: any;
+  datasource: Datasource;
+  viewMode: boolean | undefined;
 };
 
-export function EnvConfigSection({ children }: Props) {
-  return children;
+export function EnvConfigSection({
+  config,
+  currentEnv,
+  datasource,
+  viewMode,
+}: Props) {
+  return renderDatasourceSection(config, currentEnv, datasource, viewMode);
 }

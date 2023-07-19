@@ -52,162 +52,184 @@ type RenderDatasourceSectionProps = {
   currentEnv: string;
   isEnvEnabled: boolean;
 };
+const renderKVArray = (
+  children: Array<any>,
+  currentEnvironment: string,
+  datasource: Datasource,
+) => {
+  try {
+    // setup config for each child
+    const firstConfigProperty =
+      `datasourceStorages.${currentEnvironment}.` +
+        children[0].configProperty || children[0].configProperty;
+    const configPropertyInfo = firstConfigProperty.split("[*].");
+    const values = get(datasource, configPropertyInfo[0], null);
+    const renderValues: Array<
+      Array<{
+        key: string;
+        value: any;
+        label: string;
+      }>
+    > = children.reduce(
+      (
+        acc,
+        { configProperty, label }: { configProperty: string; label: string },
+      ) => {
+        const configPropertyKey = configProperty.split("[*].")[1];
+        values.forEach((value: any, index: number) => {
+          if (!acc[index]) {
+            acc[index] = [];
+          }
 
-class RenderDatasourceInformation extends React.Component<RenderDatasourceSectionProps> {
-  renderKVArray = (children: Array<any>, currentEnvironment: string) => {
-    try {
-      // setup config for each child
-      const firstConfigProperty =
-        `datasourceStorages.${currentEnvironment}.` +
-          children[0].configProperty || children[0].configProperty;
-      const configPropertyInfo = firstConfigProperty.split("[*].");
-      const values = get(this.props.datasource, configPropertyInfo[0], null);
-      const renderValues: Array<
-        Array<{
-          key: string;
-          value: any;
-          label: string;
-        }>
-      > = children.reduce(
-        (
-          acc,
-          { configProperty, label }: { configProperty: string; label: string },
-        ) => {
-          const configPropertyKey = configProperty.split("[*].")[1];
-          values.forEach((value: any, index: number) => {
-            if (!acc[index]) {
-              acc[index] = [];
-            }
-
-            acc[index].push({
-              key: configPropertyKey,
-              label,
-              value: value[configPropertyKey],
-            });
+          acc[index].push({
+            key: configPropertyKey,
+            label,
+            value: value[configPropertyKey],
           });
-          return acc;
-        },
-        [],
-      );
-      return renderValues.map((renderValue, index: number) => (
-        <FieldWrapper key={`${firstConfigProperty}.${index}`}>
-          {renderValue.map(({ key, label, value }) => (
-            <ValueWrapper key={`${firstConfigProperty}.${key}.${index}`}>
-              <Key>{label}: </Key>
-              <Value>{value}</Value>
-            </ValueWrapper>
-          ))}
-        </FieldWrapper>
-      ));
-    } catch (e) {
-      return;
-    }
-  };
+        });
+        return acc;
+      },
+      [],
+    );
+    return renderValues.map((renderValue, index: number) => (
+      <FieldWrapper key={`${firstConfigProperty}.${index}`}>
+        {renderValue.map(({ key, label, value }) => (
+          <ValueWrapper key={`${firstConfigProperty}.${key}.${index}`}>
+            <Key>{label}: </Key>
+            <Value>{value}</Value>
+          </ValueWrapper>
+        ))}
+      </FieldWrapper>
+    ));
+  } catch (e) {
+    return;
+  }
+};
 
-  renderDatasourceSection(section: any, currentEnvironment: string) {
-    const { datasource, viewMode } = this.props;
-    return (
-      <React.Fragment key={datasource.id}>
-        {map(section.children, (section) => {
-          if (
-            isHidden(
-              datasource.datasourceStorages[currentEnvironment],
-              section.hidden,
-              undefined,
-              viewMode,
-            )
+export function renderDatasourceSection(
+  section: any,
+  currentEnvironment: string,
+  datasource: Datasource,
+  viewMode: boolean | undefined,
+) {
+  return (
+    <React.Fragment key={datasource.id}>
+      {map(section.children, (section) => {
+        if (
+          isHidden(
+            datasource.datasourceStorages[currentEnvironment],
+            section.hidden,
+            undefined,
+            viewMode,
           )
-            return null;
-          if ("children" in section) {
-            if (isKVArray(section.children)) {
-              return this.renderKVArray(section.children, currentEnvironment);
-            }
+        )
+          return null;
+        if ("children" in section) {
+          if (isKVArray(section.children)) {
+            return renderKVArray(
+              section.children,
+              currentEnvironment,
+              datasource,
+            );
+          }
 
-            return this.renderDatasourceSection(section, currentEnvironment);
-          } else {
-            try {
-              const { configProperty, controlType, label } = section;
-              const customConfigProperty =
-                `datasourceStorages.${currentEnvironment}.` + configProperty;
-              const reactKey = datasource.id + "_" + label;
-              if (controlType === "FIXED_KEY_INPUT") {
-                return (
-                  <FieldWrapper key={reactKey}>
-                    <Key>{configProperty.key}: </Key>{" "}
-                    <Value>{configProperty.value}</Value>
-                  </FieldWrapper>
-                );
-              }
-
-              let value = get(datasource, customConfigProperty);
-
-              if (controlType === "DROP_DOWN") {
-                if (Array.isArray(section.options)) {
-                  const option = section.options.find(
-                    (el: any) => el.value === value,
-                  );
-                  if (option && option.label) {
-                    value = option.label;
-                  }
-                }
-              }
-
-              if (
-                !value &&
-                !!viewMode &&
-                !!section.hidden &&
-                "comparison" in section.hidden &&
-                section.hidden.comparison === ComparisonOperationsEnum.VIEW_MODE
-              ) {
-                value = section.initialValue;
-              }
-
-              if (!value || (isArray(value) && value.length < 1)) {
-                return;
-              }
-
-              if (isArray(value)) {
-                return (
-                  <FieldWrapper>
-                    <Key>{label}: </Key>
-                    {value.map(
-                      (
-                        { key, value }: { key: string; value: any },
-                        index: number,
-                      ) => (
-                        <div key={`${reactKey}.${index}`}>
-                          <div style={{ display: "inline-block" }}>
-                            <Key>Key: </Key>
-                            <Value>{key}</Value>
-                          </div>
-                          <ValueWrapper>
-                            <Key>Value: </Key>
-                            <Value>{value}</Value>
-                          </ValueWrapper>
-                        </div>
-                      ),
-                    )}
-                  </FieldWrapper>
-                );
-              }
-
+          return renderDatasourceSection(
+            section,
+            currentEnvironment,
+            datasource,
+            viewMode,
+          );
+        } else {
+          try {
+            const { configProperty, controlType, label } = section;
+            const customConfigProperty =
+              `datasourceStorages.${currentEnvironment}.` + configProperty;
+            const reactKey = datasource.id + "_" + label;
+            if (controlType === "FIXED_KEY_INPUT") {
               return (
                 <FieldWrapper key={reactKey}>
-                  <Key>{label}: </Key> <Value>{value}</Value>
+                  <Key>{configProperty.key}: </Key>{" "}
+                  <Value>{configProperty.value}</Value>
                 </FieldWrapper>
               );
-            } catch (e) {
-              log.error(e);
             }
-          }
-        })}
-      </React.Fragment>
-    );
-  }
 
+            let value = get(datasource, customConfigProperty);
+
+            if (controlType === "DROP_DOWN") {
+              if (Array.isArray(section.options)) {
+                const option = section.options.find(
+                  (el: any) => el.value === value,
+                );
+                if (option && option.label) {
+                  value = option.label;
+                }
+              }
+            }
+
+            if (
+              !value &&
+              !!viewMode &&
+              !!section.hidden &&
+              "comparison" in section.hidden &&
+              section.hidden.comparison === ComparisonOperationsEnum.VIEW_MODE
+            ) {
+              value = section.initialValue;
+            }
+
+            if (!value || (isArray(value) && value.length < 1)) {
+              return;
+            }
+
+            if (isArray(value)) {
+              return (
+                <FieldWrapper>
+                  <Key>{label}: </Key>
+                  {value.map(
+                    (
+                      { key, value }: { key: string; value: any },
+                      index: number,
+                    ) => (
+                      <div key={`${reactKey}.${index}`}>
+                        <div style={{ display: "inline-block" }}>
+                          <Key>Key: </Key>
+                          <Value>{key}</Value>
+                        </div>
+                        <ValueWrapper>
+                          <Key>Value: </Key>
+                          <Value>{value}</Value>
+                        </ValueWrapper>
+                      </div>
+                    ),
+                  )}
+                </FieldWrapper>
+              );
+            }
+
+            return (
+              <FieldWrapper key={reactKey}>
+                <Key>{label}: </Key> <Value>{value}</Value>
+              </FieldWrapper>
+            );
+          } catch (e) {
+            log.error(e);
+          }
+        }
+      })}
+    </React.Fragment>
+  );
+}
+
+class RenderDatasourceInformation extends React.Component<RenderDatasourceSectionProps> {
   render() {
-    const { config, currentEnv, datasource, isEnvEnabled, showOnlyCurrentEnv } =
-      this.props;
+    const {
+      config,
+      currentEnv,
+      datasource,
+      isEnvEnabled,
+      showOnlyCurrentEnv,
+      viewMode,
+    } = this.props;
     const { datasourceStorages } = datasource;
 
     if (showOnlyCurrentEnv || !isEnvEnabled) {
@@ -216,13 +238,16 @@ class RenderDatasourceInformation extends React.Component<RenderDatasourceSectio
       if (!datasourceStorages) {
         return null;
       }
-      return this.renderDatasourceSection(config, currentEnv);
+      return renderDatasourceSection(config, currentEnv, datasource, viewMode);
     }
 
     return (
-      <EnvConfigSection datasourceStorages={datasourceStorages}>
-        {this.renderDatasourceSection(config, currentEnv)}
-      </EnvConfigSection>
+      <EnvConfigSection
+        config={config}
+        currentEnv={currentEnv}
+        datasource={datasource}
+        viewMode={viewMode}
+      />
     );
   }
 }

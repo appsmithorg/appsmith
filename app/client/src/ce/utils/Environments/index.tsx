@@ -4,7 +4,7 @@ import type { Datasource } from "entities/Datasource";
 export const DB_NOT_SUPPORTED = [PluginType.REMOTE, PluginType.SAAS];
 
 export const getUserPreferenceFromStorage = () => {
-  return "true";
+  return true;
 };
 
 export const getCurrentEditingEnvID = () => {
@@ -15,6 +15,11 @@ export const getCurrentEditingEnvID = () => {
 // function to get the current environment from the URL
 export const getCurrentEnvironment = () => {
   return "unused_env";
+};
+
+// function to get the current environment from the URL
+export const getCurrentEnvName = () => {
+  return "";
 };
 
 // function to check if the datasource is configured for the current environment
