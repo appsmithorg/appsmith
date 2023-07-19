@@ -6,6 +6,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Environment;
+import com.appsmith.server.constants.AnalyticsConstants;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -71,5 +72,12 @@ public class DatasourceStorageServiceImpl extends DatasourceStorageServiceCEImpl
             return null;
         }
         return datasource.getDatasourceStorages().get(environmentId);
+    }
+
+    @Override
+    public Mono<String> getEnvironmentNameFromEnvironmentIdForAnalytics(String environmentId) {
+        return environmentService.findById(environmentId)
+                .map(Environment::getName)
+                .switchIfEmpty(Mono.just(AnalyticsConstants.ENVIRONMENT_NAME_DEFAULT));
     }
 }
