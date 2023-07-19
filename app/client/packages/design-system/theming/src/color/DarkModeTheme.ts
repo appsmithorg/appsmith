@@ -217,8 +217,8 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bgAccentSubtle() {
     const color = this.seedColor.clone();
 
-    if (this.seedLightness > 0.3) {
-      color.oklch.l = 0.3;
+    if (this.seedLightness > 0.25) {
+      color.oklch.l = 0.25;
     }
 
     // If the color is too dark it won't be visible against bg.
@@ -226,8 +226,8 @@ export class DarkModeTheme implements ColorModeTheme {
       color.oklch.l = 0.2;
     }
 
-    if (this.seedChroma > 0.112) {
-      color.oklch.c = 0.112;
+    if (this.seedChroma > 0.1) {
+      color.oklch.c = 0.1;
     }
 
     if (this.seedIsAchromatic) {
@@ -292,7 +292,7 @@ export class DarkModeTheme implements ColorModeTheme {
     const color = this.bgPositive.clone();
 
     color.oklch.l = 0.25;
-    color.oklch.c = 0.08;
+    color.oklch.c = 0.06;
 
     return color;
   }
@@ -352,7 +352,7 @@ export class DarkModeTheme implements ColorModeTheme {
     const color = this.bgWarning.clone();
 
     color.oklch.l = 0.25;
-    color.oklch.c = 0.05;
+    color.oklch.c = 0.04;
 
     return color;
   }
@@ -411,8 +411,8 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bgNegativeSubtle() {
     const color = this.bgNegative.clone();
 
-    color.oklch.l = 0.2;
-    color.oklch.c = 0.08;
+    color.oklch.l = 0.25;
+    color.oklch.c = 0.09;
 
     return color;
   }
@@ -509,8 +509,8 @@ export class DarkModeTheme implements ColorModeTheme {
 
     // Adjusted version of bgAccentSubtle (less or no chroma)
 
-    if (this.seedLightness > 0.3) {
-      color.oklch.l = 0.3;
+    if (this.seedLightness > 0.25) {
+      color.oklch.l = 0.25;
     }
 
     // If the color is too dark it won't be visible against bg.
@@ -546,7 +546,17 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bgAssistive() {
-    return this.fg.clone();
+    const color = this.seedColor.clone();
+
+    // Background color for assistive UI elements (e.g. tooltip); light to stand out against bg
+    color.oklch.l = 0.94;
+    color.oklch.c = 0.03;
+
+    if (this.seedIsAchromatic) {
+      color.oklch.c = 0;
+    }
+
+    return color;
   }
 
   /*
@@ -574,7 +584,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get fgAccent() {
     const color = this.seedColor.clone();
 
-    // For light content on dark background APCA contrast is negative. −60 is “The minimum level recommended for content text that is not body, column, or block text. In other words, text you want people to read.” Failure to reach this contrast level is most likely due to low lightness. Lightness and chroma are set to ones that reach the threshold universally irregardless of hue.
+    // For light content on dark background APCA contrast is negative. −60 is “The minimum level recommended for content text that is not body, column, or block text. In other words, text you want people to read.” Failure to reach this contrast level is most likely due to low lightness. Lightness and chroma are set to ones that reach the threshold universally regardless of hue.
     if (this.bg.contrastAPCA(this.seedColor) >= -60) {
       if (this.seedIsAchromatic) {
         color.oklch.l = 0.79;
@@ -712,7 +722,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bdAccent() {
     const color = this.seedColor.clone();
 
-    // For light content on dark background APCA contrast is negative. −15 is “The absolute minimum for any non-text that needs to be discernible and differentiable, but does not apply to semantic non-text such as icons”. In practice, thin borders are perceptually too subtle when using this as a threshould. −25 is used as the required minimum instead. Failure to reach this contrast level is most likely due to high lightness. Lightness and chroma are set to ones that reach the threshold universally irregardless of hue.
+    // For light content on dark background APCA contrast is negative. −15 is “The absolute minimum for any non-text that needs to be discernible and differentiable, but does not apply to semantic non-text such as icons”. In practice, thin borders are perceptually too subtle when using this as a threshould. −25 is used as the required minimum instead. Failure to reach this contrast level is most likely due to high lightness. Lightness and chroma are set to ones that reach the threshold universally regardless of hue.
     if (this.bg.contrastAPCA(this.seedColor) >= -25) {
       if (this.seedIsAchromatic) {
         color.oklch.l = 0.82;

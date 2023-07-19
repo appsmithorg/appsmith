@@ -263,7 +263,8 @@ public class FileUtilsImpl implements FileInterface {
                                         .replace(CommonConstants.DELIMITER_POINT, CommonConstants.DELIMITER_PATH);
                                 // Replace the canvas Widget as a child and add it to the same level as parent
                                 childPath = childPath.replaceAll(CANVAS_WIDGET, CommonConstants.EMPTY_STRING);
-                                if (!DSLTransformerHelper.hasChildren(jsonObject)) {
+                                if (!DSLTransformerHelper.hasChildren(jsonObject)
+                                        && !DSLTransformerHelper.isTabsWidget(jsonObject)) {
                                     // Save the widget as a directory or Save the widget as a file
                                     childPath = childPath.replace(widgetName, CommonConstants.EMPTY_STRING);
                                 }
