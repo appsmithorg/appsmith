@@ -6,6 +6,7 @@ import type {
   Setting,
 } from "@appsmith/pages/AdminSettings/config/types";
 import {
+  CategoryType,
   SettingCategories,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
@@ -16,6 +17,7 @@ const isAirgappedInstance = isAirgapped();
 export const config: AdminConfigType = {
   icon: "timer-2-line",
   type: SettingCategories.VERSION,
+  categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.GROUP,
   title: "Version",
   canSave: false,
