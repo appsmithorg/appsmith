@@ -14,14 +14,30 @@ import { useBaseWidgetTheming } from "./theming/useBaseWidgetTheming";
 
 interface BaseWidgetProps extends WidgetProps, WidgetState {}
 
-export const useBaseWidget = (props: BaseWidgetProps, content: ReactNode) => {
-  const { widgetId, widgetName, appPositioningType } = props;
+export const useBaseWidget = (props: BaseWidgetProps) => {
+  const {
+    widgetId,
+    widgetName,
+    appPositioningType,
+    type,
+    deferRender = false,
+    isFlexChild = false,
+    detachFromLayout = false,
+    resizeDisabled,
+  } = props;
   return {
     ...useBaseWidgetActions({ widgetId, widgetName }),
     ...useBaseWidgetAutoComplete(),
     ...useBaseWidgetDSLOperations({ widgetId }),
     ...useBaseWidgetPropertyPane(),
     ...useBaseWidgetTheming(),
-    ...useBaseWidgetRender({ appPositioningType }),
+    ...useBaseWidgetRender({
+      appPositioningType,
+      type,
+      deferRender,
+      isFlexChild,
+      detachFromLayout,
+      resizeDisabled,
+    }),
   };
 };

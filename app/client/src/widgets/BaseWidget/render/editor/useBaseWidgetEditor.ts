@@ -7,12 +7,17 @@ import { useBaseWidgetAutoLayoutEditor } from "./autoLayout/useBaseWidgetAutoLay
 import { useBaseWidgetFixedLayoutEditor } from "./fixed/useBaseWidgetFixedLayoutEditor";
 
 export const useBaseWidgetEditor = (props: {
-  appPositioningType: AppPositioningTypes;
+  appPositioningType?: AppPositioningTypes;
+  type: string;
+  deferRender: boolean;
+  isFlexChild: boolean;
+  detachFromLayout: boolean;
+  resizeDisabled: boolean;
 }) => {
   let editor = {};
   switch (props.appPositioningType) {
     case AppPositioningTypes.AUTO:
-      editor = useBaseWidgetAutoLayoutEditor();
+      editor = useBaseWidgetAutoLayoutEditor(props);
       break;
     default:
       editor = useBaseWidgetFixedLayoutEditor();

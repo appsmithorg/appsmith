@@ -2,7 +2,7 @@ import Skeleton from "components/utils/Skeleton";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import React, { lazy, Suspense } from "react";
+import React, { lazy, Suspense, useRef } from "react";
 import type ReactPlayer from "react-player";
 import { retryPromise } from "utils/AppsmithUtils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -11,6 +11,7 @@ import BaseWidget from "../../BaseWidget";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { useBaseWidget } from "widgets/BaseWidget/useBaseWidget";
 
 const AudioComponent = lazy(() => retryPromise(() => import("../component")));
 
@@ -247,6 +248,67 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
   static getWidgetType(): WidgetType {
     return "AUDIO_WIDGET";
   }
+}
+
+export function AutoFnWidget(props: AudioWidgetProps) {
+  const _player = useRef<ReactPlayer>();
+  const { onEnd, onPause, onPlay, playing, url } = props;
+  const baseWidget = useBaseWidget(props);
+  return (
+    <Suspense fallback={<Skeleton />}>
+      <AudioComponent
+        controls
+        onEnded={() => {
+          // Stopping the audio from playing when the media is finished playing
+          baseWidget.updateWidgetMetaProperty("playing", false);
+          baseWidget.updateWidgetMetaProperty("playState", PlayState.ENDED, {
+            triggerPropertyName: "onEnd",
+            dynamicString: onEnd,
+            event: {
+              type: EventType.ON_AUDIO_END,
+            },
+          });
+        }}
+        onPause={() => {
+          // TODO: We do not want the pause event for onSeek or onEnd.
+          // Don't set playState to paused on onEnded
+          if (
+            _player.current &&
+            _player.current.getDuration() === _player.current.getCurrentTime()
+          ) {
+            return;
+          }
+          // Stopping the media when it is playing and pause is hit
+          if (props.playing) {
+            props.updateWidgetMetaProperty("playing", false);
+            props.updateWidgetMetaProperty("playState", PlayState.PAUSED, {
+              triggerPropertyName: "onPause",
+              dynamicString: onPause,
+              event: {
+                type: EventType.ON_AUDIO_PAUSE,
+              },
+            });
+          }
+        }}
+        onPlay={() => {
+          // Playing the media when it is stopped / paused and play is hit
+          if (!props.playing) {
+            props.updateWidgetMetaProperty("playing", true);
+            props.updateWidgetMetaProperty("playState", PlayState.PLAYING, {
+              triggerPropertyName: "onPlay",
+              dynamicString: onPlay,
+              event: {
+                type: EventType.ON_AUDIO_PLAY,
+              },
+            });
+          }
+        }}
+        player={_player}
+        playing={playing}
+        url={url}
+      />
+    </Suspense>
+  );
 }
 
 export interface AudioWidgetProps extends WidgetProps {

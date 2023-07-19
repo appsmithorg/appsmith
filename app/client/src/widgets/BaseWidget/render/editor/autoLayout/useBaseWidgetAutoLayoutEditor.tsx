@@ -22,14 +22,14 @@ export const useBaseWidgetAutoLayoutEditor = (props: {
       content = getWidgetComponent(props, getCanvasView());
       content = addErrorBoundary(content);
       if (!props.detachFromLayout) {
-        if (!props.resizeDisabled && props.type !== "SKELETON_WIDGET") {
-          content = this.makeResizable(content);
-        }
-        content = this.showWidgetName(content);
-        content = this.makeDraggable(content);
-        content = this.makeSnipeable(content);
-        // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
-        content = this.makeFlex(content);
+        // if (!props.resizeDisabled && props.type !== "SKELETON_WIDGET") {
+        //   content = this.makeResizable(content);
+        // }
+        // content = this.showWidgetName(content);
+        // content = this.makeDraggable(content);
+        // content = this.makeSnipeable(content);
+        // // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
+        // content = this.makeFlex(content);
       }
 
       return content;

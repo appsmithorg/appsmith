@@ -6,7 +6,12 @@ import { useBaseWidgetEditor } from "./editor/useBaseWidgetEditor";
 import { useBaseWidgetViewer } from "./viewer/useBaseWidgetViewer";
 
 export const useBaseWidgetRender = (props: {
-  appPositioningType: AppPositioningTypes;
+  appPositioningType?: AppPositioningTypes;
+  type: string;
+  deferRender: boolean;
+  isFlexChild: boolean;
+  detachFromLayout: boolean;
+  resizeDisabled: boolean;
 }) => {
   let renderer = {};
   const renderMode = useSelector(getRenderMode);
