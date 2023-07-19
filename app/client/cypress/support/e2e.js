@@ -29,6 +29,7 @@ import "./dataSourceCommands";
 import "./gitSync";
 import { initLocalstorageRegistry } from "./Objects/Registry";
 import RapidMode from "./RapidMode.ts";
+import "cypress-mochawesome-reporter/register";
 
 import "./WorkspaceCommands";
 import "./queryCommands";
