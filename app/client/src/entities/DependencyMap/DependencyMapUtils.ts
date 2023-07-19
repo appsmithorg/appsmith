@@ -25,7 +25,9 @@ export class DependencyMapUtils {
     });
 
     try {
-      const sortedDependencies = toposort(dependencyTree).reverse();
+      const sortedDependencies = toposort(dependencyTree)
+        .reverse()
+        .filter((edge) => !!edge);
       return { success: true, sortedDependencies };
     } catch (error) {
       // Cyclic dependency found. Extract node
