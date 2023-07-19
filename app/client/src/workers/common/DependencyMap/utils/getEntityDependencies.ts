@@ -1,6 +1,7 @@
 import {
   addWidgetPropertyDependencies,
   getEntityNameAndPropertyPath,
+  isATriggerPath,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type {
   DataTreeEntityConfig,
@@ -17,7 +18,7 @@ import type {
   JSActionEntity,
   JSActionEntityConfig,
 } from "entities/DataTree/types";
-import { get, union } from "lodash";
+import { find, get, union } from "lodash";
 import {
   getDynamicBindings,
   getEntityDynamicBindingPathList,
@@ -58,15 +59,21 @@ export function getWidgetDependencies(
 
   const dynamicBindingPathList = getEntityDynamicBindingPathList(widgetConfig);
   const dynamicTriggerPathList = widgetConfig.dynamicTriggerPathList || [];
-  const allDynamicPaths = union(dynamicTriggerPathList, dynamicBindingPathList);
 
-  for (const dynamicPath of allDynamicPaths) {
-    const propertyPath = dynamicPath.key;
-    const dynamicPathDependency = getDependencyFromEntityPath(
+  for (const { key } of dynamicTriggerPathList) {
+    dependencies[`${widgetName}.${key}`] = [];
+  }
+
+  for (const bindingPath of dynamicBindingPathList) {
+    const propertyPath = bindingPath.key;
+    const fullPropertyPath = `${widgetName}.${propertyPath}`;
+    const dynamicPathDependencies = getDependencyFromEntityPath(
       propertyPath,
       widgetEntity,
     );
-    dependencies = { ...dependencies, [propertyPath]: dynamicPathDependency };
+    const existingDeps = dependencies[fullPropertyPath] || [];
+    const newDeps = union(existingDeps, dynamicPathDependencies);
+    dependencies = { ...dependencies, [fullPropertyPath]: newDeps };
   }
 
   return dependencies;
@@ -77,19 +84,30 @@ export function getJSDependencies(
 ): Record<string, string[]> {
   let dependencies: Record<string, string[]> = {};
   const jsActionReactivePaths = jsActionConfig.reactivePaths || {};
+  const jsActionDependencyMap = jsActionConfig.dependencyMap || {};
+  const jsObjectName = jsActionConfig.name || "";
+
+  for (const [propertyPath, pathDeps] of Object.entries(
+    jsActionDependencyMap,
+  )) {
+    const fullPropertyPath = `${jsObjectName}.${propertyPath}`;
+    const propertyPathDependencies: string[] = pathDeps.map(
+      (dependentPath) => `${jsObjectName}.${dependentPath}`,
+    );
+    dependencies[fullPropertyPath] = propertyPathDependencies;
+  }
 
   for (const reactivePath of Object.keys(jsActionReactivePaths)) {
-    const reactivePathDependency = getDependencyFromEntityPath(
+    const fullPropertyPath = `${jsObjectName}.${reactivePath}`;
+    const reactivePathDependencies = getDependencyFromEntityPath(
       reactivePath,
       jsEntity,
     );
-    dependencies = { [reactivePath]: reactivePathDependency };
+    const existingDeps = dependencies[fullPropertyPath] || [];
+    const newDeps = union(existingDeps, reactivePathDependencies);
+    dependencies = { ...dependencies, [fullPropertyPath]: newDeps };
   }
-  const jsEntityInternalDependencyMap = getEntityInternalDependencyMap(
-    jsActionConfig.name,
-    jsActionConfig,
-  );
-  dependencies = { ...dependencies, ...jsEntityInternalDependencyMap };
+
   return dependencies;
 }
 export function getActionDependencies(
@@ -97,22 +115,28 @@ export function getActionDependencies(
   actionConfig: ActionEntityConfig,
 ): Record<string, string[]> {
   let dependencies: Record<string, string[]> = {};
-
-  const actionInternalDependencyMap = getEntityInternalDependencyMap(
-    actionConfig.name,
-    actionConfig,
-  );
-  dependencies = { ...actionInternalDependencyMap };
-
+  const actionName = actionConfig.name;
+  const actionDependencyMap = actionConfig.dependencyMap || {};
   const dynamicBindingPathList = getEntityDynamicBindingPathList(actionConfig);
+
+  for (const [propertyPath, pathDeps] of Object.entries(actionDependencyMap)) {
+    const fullPropertyPath = `${actionName}.${propertyPath}`;
+    const propertyPathDependencies: string[] = pathDeps.map(
+      (dependentPath) => `${actionName}.${dependentPath}`,
+    );
+    dependencies[fullPropertyPath] = propertyPathDependencies;
+  }
 
   for (const dynamicPath of dynamicBindingPathList) {
     const propertyPath = dynamicPath.key;
-    const dynamicPathDependency = getDependencyFromEntityPath(
+    const fullPropertyPath = `${actionName}.${propertyPath}`;
+    const dynamicPathDependencies = getDependencyFromEntityPath(
       propertyPath,
       actionEntity,
     );
-    dependencies = { ...dependencies, [propertyPath]: dynamicPathDependency };
+    const existingDeps = dependencies[fullPropertyPath] || [];
+    const newDependencies = union(existingDeps, dynamicPathDependencies);
+    dependencies = { ...dependencies, [fullPropertyPath]: newDependencies };
   }
 
   return dependencies;
@@ -153,67 +177,63 @@ function getWidgetPropertyPathDependencies(
   widgetConfig: WidgetEntityConfig,
   fullPropertyPath: string,
 ) {
-  const { propertyPath: entityPropertyPath } =
-    getEntityNameAndPropertyPath(fullPropertyPath);
-
+  const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
   const dynamicBindingPathList = getEntityDynamicBindingPathList(widgetConfig);
-  const dynamicTriggerPathList = widgetConfig.dynamicTriggerPathList || [];
-  const allDynamicPaths = union(dynamicTriggerPathList, dynamicBindingPathList);
+  const bindingPaths = widgetConfig.bindingPaths;
+
+  if (isATriggerPath(widgetConfig, propertyPath)) return [];
   const isPathADynamicPath =
-    allDynamicPaths.find(
-      (dynamicPath) => dynamicPath.key === entityPropertyPath,
-    ) !== undefined;
+    bindingPaths.hasOwnProperty(propertyPath) ||
+    find(dynamicBindingPathList, { key: propertyPath });
 
   if (!isPathADynamicPath) return [];
 
-  const dynamicPathDependency = getDependencyFromEntityPath(
-    entityPropertyPath,
+  const dynamicPathDependencies = getDependencyFromEntityPath(
+    propertyPath,
     widgetEntity,
   );
 
-  return dynamicPathDependency;
+  return dynamicPathDependencies;
 }
 function getJSPropertyPathDependencies(
   jsEntity: JSActionEntity,
   jsActionConfig: JSActionEntityConfig,
   fullPropertyPath: string,
 ) {
-  const { propertyPath: entityPropertyPath } =
-    getEntityNameAndPropertyPath(fullPropertyPath);
-  const jsActionReactivePaths = jsActionConfig.reactivePaths || {};
-  const isPathAReactivePath =
-    Object.keys(jsActionReactivePaths).find(
-      (path) => path === entityPropertyPath,
-    ) !== undefined;
-  if (!isPathAReactivePath) return [];
+  const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
+  const jsActionBindingPaths = jsActionConfig.bindingPaths || {};
+  const dependencies: string[] = [];
 
-  const reactivePathDependency = getDependencyFromEntityPath(
-    entityPropertyPath,
-    jsEntity,
-  );
-  return reactivePathDependency;
+  if (jsActionBindingPaths.hasOwnProperty(propertyPath)) {
+    const propertyPathDependencies = getDependencyFromEntityPath(
+      propertyPath,
+      jsEntity,
+    );
+    return propertyPathDependencies;
+  }
+  return dependencies;
 }
 function getActionPropertyPathDependencies(
   actionEntity: ActionEntity,
   actionConfig: ActionEntityConfig,
   fullPropertyPath: string,
 ) {
-  const { propertyPath: entityPropertyPath } =
-    getEntityNameAndPropertyPath(fullPropertyPath);
+  const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
 
   const dynamicBindingPathList = getEntityDynamicBindingPathList(actionConfig);
-  const isADynamicPath = dynamicBindingPathList.find(
-    (path) => path.key === entityPropertyPath,
-  );
+  const bindingPaths = actionConfig.bindingPaths;
+  const isADynamicPath =
+    bindingPaths.hasOwnProperty(propertyPath) ||
+    find(dynamicBindingPathList, { key: propertyPath });
 
   if (!isADynamicPath) return [];
 
-  const dynamicPathDependency = getDependencyFromEntityPath(
-    entityPropertyPath,
+  const dynamicPathDependencies = getDependencyFromEntityPath(
+    propertyPath,
     actionEntity,
   );
 
-  return dynamicPathDependency;
+  return dynamicPathDependencies;
 }
 
 function getDependencyFromEntityPath(
@@ -225,25 +245,4 @@ function getDependencyFromEntityPath(
   const validJSSnippets = jsSnippets.filter((jsSnippet) => !!jsSnippet);
 
   return validJSSnippets;
-}
-
-function getEntityInternalDependencyMap(
-  entityName: string,
-  entityConfig: DataTreeEntityConfig,
-) {
-  const dependencies: Record<string, string[]> = {};
-  const internalDependencyMap: Record<string, string[]> = entityConfig
-    ? entityConfig.dependencyMap
-    : {};
-
-  for (const [path, pathDependencies] of Object.entries(
-    internalDependencyMap,
-  )) {
-    const fullPropertyPath = `${entityName}.${path}`;
-    const fullPathDependencies = pathDependencies.map(
-      (dependentPath) => `${entityName}.${dependentPath}`,
-    );
-    dependencies[fullPropertyPath] = fullPathDependencies;
-  }
-  return dependencies;
 }
