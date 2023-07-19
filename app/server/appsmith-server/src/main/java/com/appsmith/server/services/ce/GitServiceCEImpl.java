@@ -2538,7 +2538,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         AppsmithError.GIT_ACTION_FAILED, "delete branch", throwable.getMessage()));
                             })
                             .flatMap(isBranchDeleted ->
-                                    releaseFileLock(defaultApplicationId).map(status -> application))
+                                    releaseFileLock(defaultApplicationId).map(status -> isBranchDeleted))
                             .flatMap(isBranchDeleted -> {
                                 if (Boolean.FALSE.equals(isBranchDeleted)) {
                                     return Mono.error(new AppsmithException(
