@@ -8,8 +8,8 @@ import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 import { Wrapper } from "@appsmith/pages/AdminSettings/config/authentication/AuthPage";
 
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { getUpgradeBanner } from "./helpers/brandingPageHelpers";
 import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
+import { getUpgradeBanner } from "utils/BusinessFeatures/brandingPageHelpers";
 
 export type brandColorsKeys =
   | "primary"
