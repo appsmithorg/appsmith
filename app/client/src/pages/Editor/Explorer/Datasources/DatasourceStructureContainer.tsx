@@ -48,6 +48,7 @@ export const SCHEMALESS_PLUGINS: Array<string> = [
   PluginName.GRAPHQL,
   PluginName.REST_API,
   PluginName.REDIS,
+  PluginName.GOOGLE_SHEETS,
 ];
 
 const DatasourceStructureSearchContainer = styled.div`
