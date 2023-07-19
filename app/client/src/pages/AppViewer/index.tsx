@@ -43,6 +43,7 @@ import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import BottomBar from "components/BottomBar";
 import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
+import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -101,9 +102,11 @@ function AppViewer(props: Props) {
   const focusRef = useWidgetFocus();
 
   const workspaceId = currentApplicationDetails?.workspaceId || "";
-  const showBottomBar = useSelector((state: AppState) =>
-    areEnvironmentsFetched(state, workspaceId),
-  );
+  const showBottomBar = useSelector((state: AppState) => {
+    return (
+      areEnvironmentsFetched(state, workspaceId) && datasourceEnvEnabled(state)
+    );
+  });
 
   /**
    * initializes the widgets factory and registers all widgets
