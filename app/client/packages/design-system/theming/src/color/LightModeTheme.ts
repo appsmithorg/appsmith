@@ -237,8 +237,12 @@ export class LightModeTheme implements ColorModeTheme {
   private get bgAccentSubtle() {
     const color = this.seedColor.clone();
 
-    if (this.seedLightness < 0.94) {
-      color.oklch.l = 0.94;
+    if (this.seedIsVeryLight) {
+      color.oklch.l = 0.955;
+    }
+
+    if (!this.seedIsVeryLight) {
+      color.oklch.l = 0.93;
     }
 
     // Colder seeds require a bit more chroma to not seem completely washed out
@@ -311,8 +315,8 @@ export class LightModeTheme implements ColorModeTheme {
   private get bgPositiveSubtle() {
     const color = this.bgPositive.clone();
 
-    color.oklch.l = 0.94;
-    color.oklch.c = 0.09;
+    color.oklch.l = 0.955;
+    color.oklch.c = 0.08;
 
     return color;
   }
@@ -371,8 +375,8 @@ export class LightModeTheme implements ColorModeTheme {
   private get bgWarningSubtle() {
     const color = this.bgWarning.clone();
 
-    color.oklch.l = 0.94;
-    color.oklch.c = 0.06;
+    color.oklch.l = 0.96;
+    color.oklch.c = 0.05;
 
     return color;
   }
@@ -431,8 +435,8 @@ export class LightModeTheme implements ColorModeTheme {
   private get bgNegativeSubtle() {
     const color = this.bgNegative.clone();
 
-    color.oklch.l = 0.94;
-    color.oklch.c = 0.06;
+    color.oklch.l = 0.95;
+    color.oklch.c = 0.05;
 
     return color;
   }
@@ -458,11 +462,11 @@ export class LightModeTheme implements ColorModeTheme {
     const color = this.bgAccent.clone();
 
     // For bright accents it helps to make neutral a bit darker to differentiate with bgAccent
-    if (color.oklch.l >= 0.85 && !this.seedIsVeryLight) {
+    if (this.bgAccent.oklch.l >= 0.85) {
       color.oklch.l = color.oklch.l - 0.02;
     }
 
-    if (color.oklch.l > 0.25 && color.oklch.l < 0.85) {
+    if (this.bgAccent.oklch.l > 0.25 && this.bgAccent.oklch.l < 0.85) {
       color.oklch.l = color.oklch.l - 0.1;
     }
 
@@ -471,7 +475,7 @@ export class LightModeTheme implements ColorModeTheme {
     }
 
     if (this.seedIsCold && !this.seedIsAchromatic) {
-      color.oklch.c = 0.05;
+      color.oklch.c = 0.03;
     }
 
     if (!this.seedIsCold && !this.seedIsAchromatic) {
@@ -482,27 +486,109 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bgNeutralHover() {
-    return "#ebeff5";
+    const color = this.bgNeutral.clone();
+
+    // Simplified and adjusted version of bgAccentHover algorithm (bgNeutral has very low or no chroma)
+
+    if (this.bgNeutral.oklch.l < 0.06) {
+      color.oklch.l = color.oklch.l + 0.24;
+    }
+
+    if (this.bgNeutral.oklch.l > 0.06 && this.bgNeutral.oklch.l < 0.14) {
+      color.oklch.l = color.oklch.l + 0.14;
+    }
+
+    if (this.bgNeutral.oklch.l >= 0.14 && this.bgNeutral.oklch.l < 0.21) {
+      color.oklch.l = color.oklch.l + 0.07;
+    }
+
+    if (this.bgNeutral.oklch.l >= 0.21 && this.bgNeutral.oklch.l < 0.7) {
+      color.oklch.l = color.oklch.l + 0.05;
+    }
+
+    if (this.bgNeutral.oklch.l >= 0.7 && this.bgNeutral.oklch.l < 0.955) {
+      color.oklch.l = color.oklch.l + 0.03;
+    }
+
+    if (this.bgNeutral.oklch.l >= 0.955) {
+      color.oklch.l = 0.94;
+    }
+
+    return color;
   }
 
   private get bgNeutralActive() {
-    return "#e3e9f0";
+    const color = this.bgNeutral.clone();
+
+    // Simplified and adjusted version of bgAccentActive algorithm (bgNeutral has very low or no chroma)
+
+    if (this.bgNeutral.oklch.l < 0.4) {
+      color.oklch.l = color.oklch.l - 0.03;
+    }
+
+    if (this.bgNeutral.oklch.l >= 0.4 && this.bgNeutral.oklch.l < 0.955) {
+      color.oklch.l = color.oklch.l - 0.01;
+    }
+
+    if (this.bgNeutral.oklch.l >= 0.955) {
+      color.oklch.l = 0.925;
+    }
+
+    return color;
   }
 
   private get bgNeutralSubtle() {
-    return "#ffffff";
+    const color = this.seedColor.clone();
+
+    // Adjusted version of bgAccentSubtle (less or no chroma)
+
+    if (this.seedIsVeryLight) {
+      color.oklch.l = 0.955;
+    }
+
+    if (!this.seedIsVeryLight) {
+      color.oklch.l = 0.93;
+    }
+
+    if (this.seedChroma > 0.01) {
+      color.oklch.c = 0.01;
+    }
+
+    if (this.seedIsAchromatic) {
+      color.oklch.c = 0;
+    }
+
+    return color;
   }
 
   private get bgNeutralSubtleHover() {
-    return "#f2f4f8";
+    const color = this.bgNeutralSubtle.clone();
+
+    color.oklch.l = color.oklch.l + 0.02;
+
+    return color;
   }
 
   private get bgNeutralSubtleActive() {
-    return "#ebeff5";
+    const color = this.bgNeutralSubtle.clone();
+
+    color.oklch.l = color.oklch.l - 0.01;
+
+    return color;
   }
 
   private get bgAssistive() {
-    return this.fg.clone();
+    const color = this.seedColor.clone();
+
+    // Background color for assistive UI elements (e.g. tooltip); dark to stand out against bg
+    color.oklch.l = 0.16;
+    color.oklch.c = 0.07;
+
+    if (this.seedIsAchromatic) {
+      color.oklch.c = 0;
+    }
+
+    return color;
   }
 
   /*
@@ -530,7 +616,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get fgAccent() {
     const color = this.seedColor.clone();
 
-    // For dark content on light background APCA contrast is positive. 60 is “The minimum level recommended for content text that is not body, column, or block text. In other words, text you want people to read.” Failure to reach this contrast level is most likely due to high lightness. Lightness and chroma are set to ones that reach the threshold universally irregardless of hue.
+    // For dark content on light background APCA contrast is positive. 60 is “The minimum level recommended for content text that is not body, column, or block text. In other words, text you want people to read.” Failure to reach this contrast level is most likely due to high lightness. Lightness and chroma are set to ones that reach the threshold universally regardless of hue.
     if (this.bg.contrastAPCA(this.seedColor) <= 60) {
       if (this.seedIsAchromatic) {
         color.oklch.l = 0.45;
@@ -672,7 +758,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get bdAccent() {
     const color = this.seedColor.clone();
 
-    // For dark content on light background APCA contrast is positive. 15 is “The absolute minimum for any non-text that needs to be discernible and differentiable, but does not apply to semantic non-text such as icons”. In practice, thin borders are perceptually too subtle when using this as a threshould. 25 is used as the required minimum instead. Failure to reach this contrast level is most likely due to high lightness. Lightness and chroma are set to ones that reach the threshold universally irregardless of hue.
+    // For dark content on light background APCA contrast is positive. 15 is “The absolute minimum for any non-text that needs to be discernible and differentiable, but does not apply to semantic non-text such as icons”. In practice, thin borders are perceptually too subtle when using this as a threshould. 25 is used as the required minimum instead. Failure to reach this contrast level is most likely due to high lightness. Lightness and chroma are set to ones that reach the threshold universally regardless of hue.
     if (this.bg.contrastAPCA(this.seedColor) <= 25) {
       if (this.seedIsAchromatic) {
         color.oklch.l = 0.3;

@@ -94,7 +94,7 @@ jobs:
     # Only run if the build step is successful
     if: success()
     name: ci-test
-    uses: ./.github/workflows/ci-test.yml
+    uses: ./.github/workflows/ci-test-custom-script.yml
     secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
@@ -132,6 +132,7 @@ jobs:
       
       # Force store previous cypress dashboard url from cache
       - name: Store the previous cypress dashboard url
+        continue-on-error: true
         if: success()
         uses: actions/cache@v3
         with:
@@ -142,6 +143,7 @@ jobs:
             ${{ github.run_id }}-dashboard-url
 
       - name: Print cypress dashboard url
+        continue-on-error: true
         id: dashboard_url
         run: |
           cypress_url=$(cat ~/cypress_url)

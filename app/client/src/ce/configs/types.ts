@@ -5,6 +5,12 @@ export type SentryConfig = {
   environment: string;
 };
 
+export type AppVersionData = {
+  id: string;
+  releaseDate: string;
+  edition: string;
+};
+
 export interface AppsmithUIConfigs {
   sentry: {
     enabled: boolean;
@@ -43,11 +49,7 @@ export interface AppsmithUIConfigs {
   cloudHosting: boolean;
 
   logLevel: LogLevelDesc;
-  appVersion: {
-    id: string;
-    releaseDate: string;
-    edition: string;
-  };
+  appVersion: AppVersionData;
   intercomAppID: string;
   mailEnabled: boolean;
 
