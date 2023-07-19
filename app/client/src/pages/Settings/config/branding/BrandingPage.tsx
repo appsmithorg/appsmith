@@ -5,11 +5,11 @@ import { useForm } from "react-hook-form";
 import Previews from "./previews";
 import SettingsForm from "./SettingsForm";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
-import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import { Wrapper } from "@appsmith/pages/AdminSettings/config/authentication/AuthPage";
 
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { getUpgradeBanner } from "./helpers/brandingPageHelpers";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 export type brandColorsKeys =
   | "primary"
@@ -24,13 +24,9 @@ export type Inputs = {
   APPSMITH_BRAND_FAVICON: string;
 };
 
-type BrandingPageProps = {
-  category: AdminConfigType;
-};
-
-function BrandingPage(props: BrandingPageProps) {
-  const { category } = props;
-  const { needsUpgrade = true } = category;
+function BrandingPage() {
+  const featureFlags = useSelector(selectFeatureFlags);
+  const needsUpgrade = !featureFlags?.license_branding_enabled;
   const tentantConfig = useSelector(getTenantConfig);
   const defaultValues = {
     brandColors: tentantConfig.brandColors,

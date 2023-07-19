@@ -4,7 +4,6 @@ import {
   SettingCategories,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
-import { isUpgradeNeededforBranding } from "@appsmith/utils/planHelpers";
 import BrandingPage from "pages/Settings/config/branding/BrandingPage";
 
 export const config: AdminConfigType = {
@@ -15,5 +14,4 @@ export const config: AdminConfigType = {
   title: "Branding",
   icon: "pantone",
   component: BrandingPage,
-  needsUpgrade: isUpgradeNeededforBranding(),
 };
