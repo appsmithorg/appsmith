@@ -9,7 +9,7 @@ import { Wrapper } from "@appsmith/pages/AdminSettings/config/authentication/Aut
 
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { getUpgradeBanner } from "./helpers/brandingPageHelpers";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 
 export type brandColorsKeys =
   | "primary"
@@ -24,15 +24,20 @@ export type Inputs = {
   APPSMITH_BRAND_FAVICON: string;
 };
 
-function BrandingPage() {
-  const featureFlags = useSelector(selectFeatureFlags);
-  const needsUpgrade = !featureFlags?.license_branding_enabled;
+type BrandingPageProps = {
+  category: AdminConfigType;
+};
+
+function BrandingPage(props: BrandingPageProps) {
+  const { category } = props;
+  const { needsUpgrade = true } = category;
   const tentantConfig = useSelector(getTenantConfig);
   const defaultValues = {
     brandColors: tentantConfig.brandColors,
     APPSMITH_BRAND_LOGO: tentantConfig.brandLogoUrl,
     APPSMITH_BRAND_FAVICON: tentantConfig.brandFaviconUrl,
   };
+  alert(needsUpgrade);
   const {
     control,
     formState,
