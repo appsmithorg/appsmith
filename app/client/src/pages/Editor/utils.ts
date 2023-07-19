@@ -1,5 +1,5 @@
 import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
-import _, { debounce } from "lodash";
+import _, { debounce, random } from "lodash";
 import { useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom";
 import { useLocation } from "react-router";
@@ -296,3 +296,12 @@ export function useHref<T extends URLBuilderParams>(
 
   return href;
 }
+
+// Ended up not using it, but leaving it here, incase anyone needs a helper function to generate random numbers.
+export const generateRandomNumbers = (
+  lowerBound = 1000,
+  upperBound = 9000,
+  allowFloating = false,
+) => {
+  return random(lowerBound, upperBound, allowFloating);
+};

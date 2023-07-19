@@ -29,7 +29,7 @@ type TagListFieldProps = {
   name: string;
   placeholder: string;
   type: string;
-  label?: string;
+  label?: React.ReactNode;
   intent: Intent;
   setting: Setting;
   customError?: (err: string) => void;
