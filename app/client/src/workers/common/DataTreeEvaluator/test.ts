@@ -1,5 +1,5 @@
 import DataTreeEvaluator from ".";
-import { asyncTagUnevalTree, unEvalTree } from "./mockData/mockUnEvalTree";
+import { unEvalTree } from "./mockData/mockUnEvalTree";
 import { configTree } from "./mockData/mockConfigTree";
 import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeFactory";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
@@ -13,7 +13,6 @@ import {
   nestedArrayAccessorCyclicDependencyConfig,
 } from "./mockData/NestedArrayAccessorTree";
 import { updateDependencyMap } from "workers/common/DependencyMap";
-import { parseJSActions } from "workers/Evaluation/JSObject";
 import type { WidgetConfiguration } from "widgets/constants";
 import { setEvalContext } from "workers/Evaluation/evaluate";
 import { replaceThisDotParams } from "./utils";
@@ -234,15 +233,6 @@ describe("DataTreeEvaluator", () => {
         isTriggerBased: true,
       });
       self.postMessage = postMessageMock;
-    });
-    it("set's isAsync tag for cross JsObject references", () => {
-      const result = parseJSActions(dataTreeEvaluator, asyncTagUnevalTree);
-      expect(
-        result.jsUpdates["JSObject1"]?.parsedBody?.actions[0].isAsync,
-      ).toBe(true);
-      expect(
-        result.jsUpdates["JSObject2"]?.parsedBody?.actions[0].isAsync,
-      ).toBe(true);
     });
   });
 
@@ -625,12 +615,10 @@ describe("isDataField", () => {
       meta: {
         myFun2: {
           arguments: [],
-          isAsync: true,
           confirmBeforeExecute: false,
         },
         myFun1: {
           arguments: [],
-          isAsync: true,
           confirmBeforeExecute: false,
         },
       },
@@ -678,12 +666,12 @@ describe("isDataField", () => {
       meta: {
         myFun2: {
           arguments: [],
-          isAsync: true,
+
           confirmBeforeExecute: false,
         },
         myFun1: {
           arguments: [],
-          isAsync: true,
+
           confirmBeforeExecute: false,
         },
       },

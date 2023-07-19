@@ -199,9 +199,6 @@ function JSFunctionSettingsView({
   actions,
   disabled = false,
 }: JSFunctionSettingsProps) {
-  const asyncActions = actions.filter(
-    (action) => action.actionConfiguration.isAsync,
-  );
   return (
     <JSFunctionSettingsWrapper>
       <SettingsContainer>
@@ -218,8 +215,8 @@ function JSFunctionSettingsView({
               />
             ))}
           </SettingRow>
-          {asyncActions && asyncActions.length ? (
-            asyncActions.map((action) => (
+          {actions && actions.length ? (
+            actions.map((action) => (
               <SettingsItem
                 action={action}
                 disabled={disabled}
