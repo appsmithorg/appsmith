@@ -48,15 +48,11 @@ export default [
         },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
         switchToNormalMode: (
-          triggerFlag: boolean,
-          propertyName: string,
+          _propertyName: string,
           isDynamic: boolean,
           isToggleDisabled: boolean,
-        ) =>
-          triggerFlag &&
-          propertyName === "tableData" &&
-          isDynamic &&
-          !isToggleDisabled,
+          triggerFlag?: boolean,
+        ) => triggerFlag && isDynamic && !isToggleDisabled,
       },
       {
         helpText: "Columns",

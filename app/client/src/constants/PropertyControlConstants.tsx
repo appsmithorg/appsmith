@@ -99,11 +99,11 @@ export type PropertyPaneControlConfig = {
   // Numeric Input Control
   min?: number;
   // Switch mode ( JS -> Text )
-  switchToNormalMode?: (
-    triggerFlag: boolean,
+  shouldSwitchToNormalMode?: (
     propertyName: string,
     isDynamic: boolean,
     isToggleDisabled: boolean,
+    triggerFlag?: boolean,
   ) => boolean;
 };
 
