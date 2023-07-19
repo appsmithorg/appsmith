@@ -331,4 +331,9 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 .flatMap(dbDatasourceStorage -> Mono.error(new AppsmithException(
                         AppsmithError.DUPLICATE_DATASOURCE_CONFIGURATION, datasourceId, environmentId)));
     }
+
+    @Override
+    public Mono<String> getEnvironmentNameFromEnvironmentIdForAnalytics(String environmentId) {
+        return Mono.just(FieldName.UNUSED_ENVIRONMENT_ID);
+    }
 }

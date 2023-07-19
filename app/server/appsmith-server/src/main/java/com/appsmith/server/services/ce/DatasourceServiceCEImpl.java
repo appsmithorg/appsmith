@@ -487,7 +487,11 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     protected Mono<DatasourceTestResult> verifyDatasourceAndTest(DatasourceStorage datasourceStorage) {
         return Mono.justOrEmpty(datasourceStorage)
                 .flatMap(datasourceStorageService::validateDatasourceConfiguration)
-                .flatMap(storage -> {
+                .zipWith(datasourceStorageService.getEnvironmentNameFromEnvironmentIdForAnalytics(
+                        datasourceStorage.getEnvironmentId()))
+                .flatMap(tuple2 -> {
+                    DatasourceStorage storage = tuple2.getT1();
+                    String environmentName = tuple2.getT2();
                     Mono<DatasourceTestResult> datasourceTestResultMono;
                     if (CollectionUtils.isEmpty(storage.getInvalids())) {
                         datasourceTestResultMono = testDatasourceViaPlugin(storage);
@@ -503,7 +507,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                                     AnalyticsEvents.DS_TEST_EVENT_FAILED,
                                                     datasourceStorage,
                                                     getAnalyticsPropertiesForTestEventStatus(
-                                                            datasourceStorage, datasourceTestResult))
+                                                            datasourceStorage, datasourceTestResult, environmentName))
                                             .thenReturn(datasourceTestResult);
 
                                 } else {
@@ -512,7 +516,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                                     AnalyticsEvents.DS_TEST_EVENT_SUCCESS,
                                                     datasourceStorage,
                                                     getAnalyticsPropertiesForTestEventStatus(
-                                                            datasourceStorage, datasourceTestResult))
+                                                            datasourceStorage, datasourceTestResult, environmentName))
                                             .thenReturn(datasourceTestResult);
                                 }
                             })
