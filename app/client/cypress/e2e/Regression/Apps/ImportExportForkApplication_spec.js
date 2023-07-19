@@ -35,7 +35,7 @@ describe("Import, Export and Fork application and validate data binding", functi
       } else {
         cy.get(homePageLocatores.toastMessage).should(
           "contain",
-          "Application imported successfully",
+          "Application imported successfully   ",
         );
       }
       agHelper.GenerateUUID();

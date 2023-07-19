@@ -215,7 +215,7 @@ describe("AForce - Community Issues page validations", function () {
     table.OpenNFilterTable("Type", "is exactly", "Bug");
     for (let i = 0; i < 3; i++) {
       table.ReadTableRowColumnData(i, 0, "v2").then(($cellData) => {
-        expect($cellData).to.eq("Bug");
+        expect($cellData).to.eq("Bug  ");
       });
     }
     table.RemoveFilterNVerify("Question", true, false, 0, "v2");
