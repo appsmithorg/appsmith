@@ -42,3 +42,7 @@ export const isEnvironmentValid = (
     datasource.datasourceStorages[environment]?.isValid;
   return isValid ? isValid : false;
 };
+
+export const onUpdateFilterSuccess = (id: string) => {
+  return id;
+};
