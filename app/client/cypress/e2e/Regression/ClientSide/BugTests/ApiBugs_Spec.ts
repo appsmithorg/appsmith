@@ -26,7 +26,10 @@ describe("API Bugs", function () {
     agHelper.RefreshPage();
   });
   it("1. Bug 14037: User gets an error even when table widget is added from the API page successfully", function () {
-    apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl, "Api1");
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      "Api1",
+    );
     apiPage.RunAPI();
 
     dataSources.AddSuggesstedWidget(Widgets.Table);
@@ -54,7 +57,7 @@ describe("API Bugs", function () {
 
   it("3. Bug 18876 Ensures application does not crash when saving datasource", () => {
     apiPage.CreateAndFillApi(
-      tedTestConfig.mockApiUrl,
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
       "FirstAPI",
       10000,
       "POST",

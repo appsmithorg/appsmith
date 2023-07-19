@@ -12,7 +12,7 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    dataSources.SaveDSFromDialog(false);
+    agHelper.GoBack();
 
     // Oracle
     dataSources.NavigateToDSCreateNew();
@@ -24,7 +24,7 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    dataSources.SaveDSFromDialog(false);
+    agHelper.GoBack();
 
     // SMTP
     dataSources.NavigateToDSCreateNew();
@@ -36,7 +36,7 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    dataSources.SaveDSFromDialog(false);
+    agHelper.GoBack();
 
     // MySQL
     dataSources.NavigateToDSCreateNew();
@@ -48,7 +48,7 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    dataSources.SaveDSFromDialog(false);
+    agHelper.GoBack();
 
     // Postgres
     dataSources.NavigateToDSCreateNew();
@@ -60,7 +60,7 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    dataSources.SaveDSFromDialog(false);
+    agHelper.GoBack();
 
     // MongoDB
     dataSources.NavigateToDSCreateNew();
@@ -72,7 +72,7 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    dataSources.SaveDSFromDialog(false);
+    agHelper.GoBack();
 
     // Elasticsearch
     dataSources.NavigateToDSCreateNew();
@@ -84,7 +84,7 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    dataSources.SaveDSFromDialog(false);
+    agHelper.GoBack();
 
     // Redis
     dataSources.NavigateToDSCreateNew();
@@ -96,7 +96,7 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    dataSources.SaveDSFromDialog(false);
+    agHelper.GoBack();
 
     // Redshift
     dataSources.NavigateToDSCreateNew();
@@ -108,7 +108,7 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    dataSources.SaveDSFromDialog(false);
+    agHelper.GoBack();
 
     // ArangoDB
     dataSources.NavigateToDSCreateNew();
@@ -120,6 +120,6 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    dataSources.SaveDSFromDialog(false);
+    agHelper.GoBack();
   });
 });

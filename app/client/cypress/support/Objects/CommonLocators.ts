@@ -14,6 +14,7 @@ export class CommonLocators {
   _emptyCanvasCta = "[data-testid='canvas-ctas']";
   _dsName = ".t--edit-datasource-name span";
   _dsNameTxt = ".t--edit-datasource-name input";
+  _tableRecordsContainer = ".show-page-items";
   _widgetName = (widgetName: string) =>
     ".editable-text-container:contains('" +
     widgetName +

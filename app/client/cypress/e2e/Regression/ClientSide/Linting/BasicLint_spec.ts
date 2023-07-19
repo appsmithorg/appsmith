@@ -80,7 +80,9 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(true);
 
     // create Api1
-    apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl);
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+    );
 
     clickButtonAndAssertLintError(false);
 
@@ -94,7 +96,9 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(true);
 
     // Re-create Api1
-    apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl);
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+    );
 
     clickButtonAndAssertLintError(false);
   });
@@ -295,7 +299,9 @@ describe("Linting", () => {
         shouldCreateNewJSObj: true,
       },
     );
-    apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl);
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+    );
 
     createMySQLDatasourceQuery();
     agHelper.RefreshPage(); //Since this seems failing a bit

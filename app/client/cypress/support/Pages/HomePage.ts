@@ -40,7 +40,7 @@ export class HomePage {
     "//div[contains(@class, 'rc-select-item-option-content')]//span[1][text()='" +
     role +
     "']";
-  private _profileMenu = ".t--profile-menu-icon";
+  public _profileMenu = ".t--profile-menu-icon";
   private _editProfileMenu = ".t--edit-profile";
   private _signout = ".t--sign-out";
   _searchUsersInput = ".search-input";
