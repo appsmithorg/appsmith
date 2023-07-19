@@ -277,7 +277,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ env.COMMIT_INFO_MESSAGE }}
           CYPRESS_VERIFY_TIMEOUT: 100000
-          TOTAL_RUNNERS: 60
+          TOTAL_RUNNERS: ${{ strategy.job-total }}
           THIS_RUNNER: ${{ matrix.job }}
           CYPRESS_SPEC_PATTERN: "cypress/e2e/Regression/Apps/**/**/*"
           CYPRESS_ENV: "NODE_ENV=development"
