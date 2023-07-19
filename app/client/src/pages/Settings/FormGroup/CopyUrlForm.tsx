@@ -28,6 +28,7 @@ function CopyUrlForm(props: {
   helpText?: string;
   tooltip?: string;
   fieldName?: string;
+  startIcon?: string;
 }) {
   const fieldValue = useMemo(
     () => `${window.location.origin}${props.value}`,
@@ -45,7 +46,7 @@ function CopyUrlForm(props: {
   return (
     <BodyContainer>
       <Input
-        description={`* ${props.helpText}`}
+        {...(props.helpText ? { description: `* ${props.helpText}` } : {})}
         endIcon="duplicate"
         endIconProps={{
           className: "copy-icon",
@@ -80,6 +81,7 @@ function CopyUrlForm(props: {
         }
         name={props.fieldName}
         size="md"
+        {...(props.startIcon ? { startIcon: props.startIcon } : {})}
         value={fieldValue}
       />
     </BodyContainer>
