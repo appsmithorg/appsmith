@@ -67,7 +67,7 @@ describe("Slug URLs", () => {
       const application = response.body.data;
       expect(application.applicationVersion).to.equal(1);
       homePage.NavigateToHome();
-      //agHelper.RefreshPage(true, "getReleaseItems");
+      //agHelper.RefreshPage("getReleaseItems");
 
       cy.SearchApp(applicationName);
 
