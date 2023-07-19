@@ -23,13 +23,12 @@ public class ProductFeatureAlertControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping("/alert")
     public Mono<ResponseDTO<ProductAlertResponseDTO>> generateCode() {
-        return productAlertService.getSingleApplicableMessage()
-                .map(messages -> {
-                    if(messages.size() > 0) {
-                        return new ResponseDTO<>(HttpStatus.OK.value(), messages.get(0), null);
-                    } else {
-                        return new ResponseDTO<>(HttpStatus.OK.value(), new ProductAlertResponseDTO(), null);
-                    }
-                });
+        return productAlertService.getSingleApplicableMessage().map(messages -> {
+            if (messages.size() > 0) {
+                return new ResponseDTO<>(HttpStatus.OK.value(), messages.get(0), null);
+            } else {
+                return new ResponseDTO<>(HttpStatus.OK.value(), new ProductAlertResponseDTO(), null);
+            }
+        });
     }
 }
