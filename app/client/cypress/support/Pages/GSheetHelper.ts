@@ -122,7 +122,7 @@ export class GsheetHelper {
     );
   }
 
-  public selectMultiDropDownValue(ddName: string, option: string) {
+  public SelectMultiDropDownValue(ddName: string, option: string) {
     this.agHelper.GetNClick(this.dataSources._multiSelectDropdown(ddName));
     this.agHelper.GetNClickByContains(this.dataSources._dropdownOption, option);
   }
