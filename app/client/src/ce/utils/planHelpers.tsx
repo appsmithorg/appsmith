@@ -1,3 +1,3 @@
-export const hasBrandingEnabled = () => {
-  return false;
+export const isUpgradeNeededforBranding = () => {
+  return true;
 };
