@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {
   FlexLayerAlignment,
   MOBILE_ROW_GAP,
@@ -86,6 +87,7 @@ export function deriveHighlightsFromLayers(
   const rowGap = isMobile ? MOBILE_ROW_GAP : ROW_GAP;
 
   let offsetTop = FLEXBOX_PADDING; // used to calculate distance of a highlight from parents's top.
+  console.log("!!!!", { layers });
   for (const layer of layers) {
     /**
      * Discard widgets that are detached from layout (Modals).

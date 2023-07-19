@@ -356,9 +356,9 @@ export const CONFIG = {
                       {
                         layoutId: "6",
                         layoutStyle: {
-                          flexGrow: 1,
                           minWidth: "220px",
                           rowGap: 12,
+                          flexGrow: 3,
                         },
                         layoutType: "COLUMN",
                         isDropTarget: true,

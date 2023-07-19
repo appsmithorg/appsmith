@@ -124,8 +124,8 @@ export function FlexComponent(props: AutoLayoutProps) {
   );
 
   useEffect(() => {
-    if (ref.current?.style) {
-      ref.current.style.zIndex = zIndex.toString();
+    if (ref.current?.style && false) {
+      // ref.current.style.zIndex = zIndex.toString();
     }
   }, [zIndex]);
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { RefObject } from "react";
 import React, { forwardRef, useEffect, useRef } from "react";
 import styled from "styled-components";
@@ -34,6 +35,7 @@ const StyledCanvasSlider = styled.div<{ paddingBottom: number }>`
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   overflow-y: auto;
+  z-index: -2;
 `;
 
 export const StickyCanvasArena = forwardRef(
@@ -51,7 +53,7 @@ export const StickyCanvasArena = forwardRef(
       snapRowSpace,
     } = props;
     const { slidingArenaRef, stickyCanvasRef } = ref.current;
-
+    console.log("####", { canvasId });
     const interSectionObserver = useRef(
       new IntersectionObserver((entries) => {
         entries.forEach(updateCanvasStylesIntersection);
@@ -155,6 +157,9 @@ export const StickyCanvasArena = forwardRef(
           ref={stickyCanvasRef}
           style={{
             position: "absolute",
+            zIndex: -2,
+            width: "100%",
+            height: "100%",
           }}
         />
         <StyledCanvasSlider

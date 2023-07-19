@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { AppState } from "@appsmith/reducers";
 import { theme } from "constants/DefaultTheme";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -31,6 +32,7 @@ export interface CanvasDraggingArenaProps {
   useAutoLayout?: boolean;
   widgetId: string;
   widgetName?: string;
+  layoutId?: string;
 }
 
 export function CanvasDraggingArena({
@@ -38,6 +40,7 @@ export function CanvasDraggingArena({
   canExtend,
   direction,
   dropDisabled = false,
+  layoutId,
   noPad,
   parentId = "",
   snapColumnSpace,
@@ -76,13 +79,14 @@ export function CanvasDraggingArena({
   const isDragging = useSelector((state: AppState) =>
     isCurrentCanvasDragging(state, widgetId),
   );
-  return showCanvas ? (
+  console.log("####", { isDragging, showCanvas });
+  return showCanvas || true ? (
     <StickyCanvasArena
       canExtend={canExtend}
-      canvasId={`canvas-dragging-${widgetId}`}
+      canvasId={`canvas-dragging-${widgetId}-${layoutId}`}
       canvasPadding={needsPadding ? theme.canvasBottomPadding : 0}
       getRelativeScrollingParent={getNearestParentCanvas}
-      id={`div-dragarena-${widgetId}`}
+      id={`div-dragarena-${widgetId}-${layoutId}`}
       ref={canvasRef}
       shouldObserveIntersection={isDragging}
       showCanvas={showCanvas}

@@ -1,6 +1,8 @@
 import type { FlattenedWidgetProps } from "widgets/constants";
 import type { FlexLayerAlignment } from "./constants";
 import type { ReactNode } from "react";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export type AlignmentColumnInfo = {
   [key in FlexLayerAlignment]: number;
@@ -99,4 +101,8 @@ export interface LayoutComponentProps {
   widgetsAllowed?: string[];
 
   childrenMap?: { [id: string]: JSX.Element | ReactNode };
+  containerProps?: ContainerWidgetProps<WidgetProps> & {
+    snapRows: number;
+    snapSpaces: any;
+  };
 }

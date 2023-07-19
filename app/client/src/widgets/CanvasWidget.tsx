@@ -23,12 +23,12 @@ import ContainerWidget from "widgets/ContainerWidget/widget";
 import type { CanvasWidgetStructure, DSLWidget } from "./constants";
 import ContainerComponent from "./ContainerWidget/component";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { AutoLayoutDropTarget } from "components/editorComponents/AutoLayoutDropTarget";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import type { LayoutComponentProps } from "utils/autoLayout/autoLayoutTypes";
 import { getLayoutComponent } from "utils/autoLayout/layoutComponentUtils";
 import { isArray } from "lodash";
 import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import { AutoLayoutDropTarget } from "components/editorComponents/AutoLayoutDropTarget";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -180,7 +180,24 @@ class CanvasWidget extends ContainerWidget {
       <>
         {layout.map((item: LayoutComponentProps, index: number) => {
           const Comp = getLayoutComponent(item.layoutType);
-          return <Comp childrenMap={map} key={index} {...item} />;
+          const snapRows = getCanvasSnapRows(
+            this.props.bottomRow,
+            this.props.mobileBottomRow,
+            this.props.isMobile,
+            this.props.appPositioningType === AppPositioningTypes.AUTO,
+          );
+          return (
+            <Comp
+              childrenMap={map}
+              containerProps={{
+                ...this.getCanvasProps(),
+                snapRows,
+                snapSpaces: this.getSnapSpaces(),
+              }}
+              key={index}
+              {...item}
+            />
+          );
         })}
       </>
     );
@@ -233,6 +250,7 @@ class CanvasWidget extends ContainerWidget {
 
   getCanvasView() {
     if (this.props.appPositioningType === AppPositioningTypes.AUTO) {
+      if (this.props.layout) return this.renderFlexCanvas();
       return (
         <AutoLayoutDropTarget widgetId={this.props.widgetId}>
           {this.renderAsContainerComponent(this.getCanvasProps())}
