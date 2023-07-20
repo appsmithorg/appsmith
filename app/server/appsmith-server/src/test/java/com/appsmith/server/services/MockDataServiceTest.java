@@ -17,6 +17,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -90,6 +91,9 @@ public class MockDataServiceTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     String workspaceId = "";
 
     Application testApp = null;
@@ -161,7 +165,7 @@ public class MockDataServiceTest {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
         String defaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(workspaceId).block();
+                workspaceService.getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission()).block();
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -242,7 +246,7 @@ public class MockDataServiceTest {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
         String defaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(workspaceId).block();
+                workspaceService.getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission()).block();
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -317,7 +321,7 @@ public class MockDataServiceTest {
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
         String defaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(workspaceId).block();
+                workspaceService.getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission()).block();
 
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
 

@@ -84,6 +84,9 @@ public class DatasourceStructureSolutionTest {
     @SpyBean
     DatasourceStructureSolution datasourceStructureSolution;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     String workspaceId;
 
     String defaultEnvironmentId;
@@ -102,7 +105,7 @@ public class DatasourceStructureSolutionTest {
                     workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
             defaultEnvironmentId =
-                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
+                    workspaceService.getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission()).block();
         }
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
