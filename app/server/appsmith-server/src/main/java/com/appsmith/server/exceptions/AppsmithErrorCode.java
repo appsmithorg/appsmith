@@ -40,6 +40,7 @@ public enum AppsmithErrorCode {
     REMOVE_LAST_WORKSPACE_ADMIN_ERROR("AE-APP-4038", "Remove last workspace admin error"),
     UNKNOWN_PLUGIN_REFERENCE("AE-APP-4052", "Unknown plugin reference"),
     INVALID_LICENSE_KEY_ENTERED("AE-APP-4053", "Invalid license key"),
+    LICENSE_UPGRADE_REQUIRED("AE-APP-4054", "License upgrade required."),
     HEALTHCHECK_TIMEOUT("AE-APP-4080", "Connection timeout during health check"),
     DUPLICATE_KEY("AE-APP-4091", "Duplicate key"),
     DUPLICATE_KEY_OBJECT_CREATION("AE-APP-4092", "Duplicate key during object creation"),
@@ -120,6 +121,7 @@ public enum AppsmithErrorCode {
     USER_NOT_FOUND("AE-USR-4004", "User not found"),
     CSRF_TOKEN_INVALID("AE-APP-4039", "CSRF token missing/invalid"),
     UNSUPPORTED_IMPORT_OPERATION("AE-APP-4040", "Unsupported operation for import application via file"),
+    DUPLICATE_DATASOURCE_CONFIGURATION("AE-APP-4093", "Duplicate datasource configuration"),
 
     // New EE-only errors below this line:
     SAML_CONFIGURATION_FAILURE("AE-SML-4000", "SAML configuration failed"),

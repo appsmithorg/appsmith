@@ -12,10 +12,12 @@ import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
@@ -47,9 +49,10 @@ public class UserController extends UserControllerCE {
     }
 
     @GetMapping("/manage/all")
-    public Mono<ResponseDTO<List<UserForManagementDTO>>> getAllUsersForManagement() {
+    public Mono<ResponseDTO<List<UserForManagementDTO>>> getAllUsersForManagement(
+            @RequestParam MultiValueMap<String, String> queryParams) {
         return userAndAccessManagementService
-                .getAllUsers()
+                .getAllUsers(queryParams)
                 .map(map -> new ResponseDTO<>(HttpStatus.OK.value(), map, null));
     }
 

@@ -6,7 +6,6 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
-
 const { cloudHosting } = getAppsmithConfigs();
 export const APPSMITH_AI = "Appsmith AI";
 

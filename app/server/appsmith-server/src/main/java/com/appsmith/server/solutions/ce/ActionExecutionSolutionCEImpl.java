@@ -41,7 +41,6 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
-import com.appsmith.server.solutions.DatasourceStorageTransferSolution;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -122,7 +121,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     static final String EXECUTE_ACTION_DTO = "executeActionDTO";
     static final String PARAMETER_MAP = "parameterMap";
     List<Pattern> patternList = new ArrayList<>();
-    private DatasourceStorageTransferSolution datasourceStorageTransferSolution;
 
     public ActionExecutionSolutionCEImpl(
             NewActionService newActionService,
@@ -140,8 +138,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             AuthenticationValidator authenticationValidator,
             DatasourcePermission datasourcePermission,
             AnalyticsService analyticsService,
-            DatasourceStorageService datasourceStorageService,
-            DatasourceStorageTransferSolution datasourceStorageTransferSolution) {
+            DatasourceStorageService datasourceStorageService) {
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.observationRegistry = observationRegistry;
@@ -158,7 +155,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.datasourcePermission = datasourcePermission;
         this.analyticsService = analyticsService;
         this.datasourceStorageService = datasourceStorageService;
-        this.datasourceStorageTransferSolution = datasourceStorageTransferSolution;
 
         this.patternList.add(Pattern.compile(PARAM_KEY_REGEX));
         this.patternList.add(Pattern.compile(BLOB_KEY_REGEX));
@@ -184,7 +180,9 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             executeActionDTO.setActionId(branchedAction.getId());
                             return Mono.just(executeActionDTO)
                                     .zipWith(datasourceService.getTrueEnvironmentId(
-                                            branchedAction.getWorkspaceId(), environmentId));
+                                            branchedAction.getWorkspaceId(),
+                                            environmentId,
+                                            branchedAction.getPluginId()));
                         }))
                 .flatMap(tuple2 -> this.executeAction(tuple2.getT1(), tuple2.getT2())) // getTrue is temporary call
                 .name(ACTION_EXECUTION_SERVER_EXECUTION)
@@ -506,12 +504,13 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     } else if (datasource == null) {
                         datasourceStorageMono = Mono.empty();
                     } else {
-                        // For embedded datasources, we are simply relying on datasource configuration property
-                        datasourceStorageMono = Mono.just(datasourceStorageTransferSolution.initializeDatasourceStorage(
-                                datasource, environmentId));
+                        // For embedded datasource, we are simply relying on datasource configuration property
+                        datasourceStorageMono = Mono.just(new DatasourceStorage(datasource, environmentId));
                     }
 
                     return datasourceStorageMono
+                            .switchIfEmpty(Mono.error(
+                                    new AppsmithException(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE)))
                             .flatMap(datasourceStorage -> {
                                 // For embedded datasourceStorage, validate the datasourceStorage for each execution
                                 if (datasourceStorage.getDatasourceId() == null) {
@@ -936,19 +935,27 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             paramsList.stream().map(param -> param.getValue()).collect(Collectors.toList());
 
                     data.putAll(Map.of(
-                            "request", request,
-                            "pageId", ObjectUtils.defaultIfNull(actionDTO.getPageId(), ""),
-                            "pageName", pageName,
+                            "request",
+                            request,
+                            "pageId",
+                            ObjectUtils.defaultIfNull(actionDTO.getPageId(), ""),
+                            "pageName",
+                            pageName,
                             "isSuccessfulExecution",
-                                    ObjectUtils.defaultIfNull(actionExecutionResult.getIsExecutionSuccess(), false),
-                            "statusCode", ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""),
-                            "timeElapsed", timeElapsed,
-                            "actionCreated", DateUtils.ISO_FORMATTER.format(actionDTO.getCreatedAt()),
-                            "actionId", ObjectUtils.defaultIfNull(actionDTO.getId(), "")));
+                            ObjectUtils.defaultIfNull(actionExecutionResult.getIsExecutionSuccess(), false),
+                            "statusCode",
+                            ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""),
+                            "timeElapsed",
+                            timeElapsed,
+                            "actionCreated",
+                            DateUtils.ISO_FORMATTER.format(actionDTO.getCreatedAt()),
+                            "actionId",
+                            ObjectUtils.defaultIfNull(actionDTO.getId(), "")));
                     data.putAll(Map.of(
                             FieldName.ACTION_EXECUTION_REQUEST_PARAMS_SIZE,
-                                    executeActionDto.getTotalReadableByteCount(),
-                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS_COUNT, executionParams.size()));
+                            executeActionDto.getTotalReadableByteCount(),
+                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS_COUNT,
+                            executionParams.size()));
 
                     ActionExecutionResult.PluginErrorDetails pluginErrorDetails =
                             actionExecutionResult.getPluginErrorDetails();
@@ -963,14 +970,18 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     }
 
                     data.putAll(Map.of(
-                            DATASOURCE_ID_SHORTNAME, ObjectUtils.defaultIfNull(datasourceStorage.getDatasourceId(), ""),
+                            DATASOURCE_ID_SHORTNAME,
+                            ObjectUtils.defaultIfNull(datasourceStorage.getDatasourceId(), ""),
                             ENVIRONMENT_ID_SHORTNAME,
-                                    ObjectUtils.defaultIfNull(datasourceStorage.getEnvironmentId(), ""),
-                            DATASOURCE_NAME_SHORTNAME, datasourceStorage.getName(),
+                            ObjectUtils.defaultIfNull(datasourceStorage.getEnvironmentId(), ""),
+                            DATASOURCE_NAME_SHORTNAME,
+                            datasourceStorage.getName(),
                             DATASOURCE_IS_TEMPLATE_SHORTNAME,
-                                    ObjectUtils.defaultIfNull(datasourceStorage.getIsTemplate(), ""),
-                            DATASOURCE_IS_MOCK_SHORTNAME, ObjectUtils.defaultIfNull(datasourceStorage.getIsMock(), ""),
-                            DATASOURCE_CREATED_AT_SHORTNAME, dsCreatedAt));
+                            ObjectUtils.defaultIfNull(datasourceStorage.getIsTemplate(), ""),
+                            DATASOURCE_IS_MOCK_SHORTNAME,
+                            ObjectUtils.defaultIfNull(datasourceStorage.getIsMock(), ""),
+                            DATASOURCE_CREATED_AT_SHORTNAME,
+                            dsCreatedAt));
 
                     // Add the error message in case of erroneous execution
                     if (FALSE.equals(actionExecutionResult.getIsExecutionSuccess())) {

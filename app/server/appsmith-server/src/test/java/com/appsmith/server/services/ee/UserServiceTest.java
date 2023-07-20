@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -569,8 +570,9 @@ public class UserServiceTest {
         ProvisionResourceDto provisionUser =
                 userService.createProvisionUser(user2).block();
 
-        List<UserForManagementDTO> allUsers =
-                userAndAccessManagementService.getAllUsers().block();
+        List<UserForManagementDTO> allUsers = userAndAccessManagementService
+                .getAllUsers(new LinkedMultiValueMap<>())
+                .block();
         Optional<UserForManagementDTO> regularUserFetched = allUsers.stream()
                 .filter(user -> user.getUsername().equalsIgnoreCase(testName + "_Regular@appsmith.com"))
                 .findAny();
@@ -594,8 +596,9 @@ public class UserServiceTest {
         ProvisionResourceDto provisionUser =
                 userService.createProvisionUser(user2).block();
 
-        List<UserForManagementDTO> allUsers =
-                userAndAccessManagementService.getAllUsers().block();
+        List<UserForManagementDTO> allUsers = userAndAccessManagementService
+                .getAllUsers(new LinkedMultiValueMap<>())
+                .block();
         Optional<UserForManagementDTO> regularUserFetched = allUsers.stream()
                 .filter(user -> user.getUsername().equalsIgnoreCase(testName + "_Regular@appsmith.com"))
                 .findAny();

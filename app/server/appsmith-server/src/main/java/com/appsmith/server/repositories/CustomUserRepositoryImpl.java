@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.QUser;
@@ -8,12 +9,15 @@ import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.repositories.ce.CustomUserRepositoryCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -22,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.server.constants.QueryParams.PROVISIONED_FILTER;
 import static com.appsmith.server.helpers.RegexHelper.getStringsToRegex;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -52,15 +57,15 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
     }
 
     @Override
-    public Flux<User> getAllUserObjectsWithEmail(String defaultTenantId, Optional<AclPermission> aclPermission) {
+    public Flux<User> getAllUserObjectsWithEmail(
+            String defaultTenantId, MultiValueMap<String, String> filters, Optional<AclPermission> aclPermission) {
+        List<Criteria> criteriaList = new ArrayList<>();
         Criteria tenantIdCriteria = where(fieldName(QUser.user.tenantId)).is(defaultTenantId);
-        List<String> includedFields = List.of(fieldName(QUser.user.email));
-        return queryAll(
-                List.of(tenantIdCriteria),
-                Optional.of(includedFields),
-                aclPermission,
-                Optional.empty(),
-                NO_RECORD_LIMIT);
+        criteriaList.add(tenantIdCriteria);
+        List<String> includedFields = List.of(fieldName(QUser.user.email), fieldName(QUser.user.isProvisioned));
+        List<Criteria> criteriaListFromFilters = getCriteriaListFromFilters(filters);
+        criteriaList.addAll(criteriaListFromFilters);
+        return queryAll(criteriaList, Optional.of(includedFields), aclPermission, Optional.empty(), NO_RECORD_LIMIT);
     }
 
     @Override
@@ -94,5 +99,42 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
                         aclPermission,
                         Optional.empty())
                 .map(User::getEmail);
+    }
+
+    @Override
+    public Mono<Long> countAllUsersByIsProvisioned(boolean isProvisioned, Optional<AclPermission> aclPermission) {
+        Criteria criteriaIsProvisioned =
+                Criteria.where(fieldName(QUser.user.isProvisioned)).is(isProvisioned);
+        return count(List.of(criteriaIsProvisioned), aclPermission);
+    }
+
+    @Override
+    public Mono<Boolean> updateUserPoliciesAndIsProvisionedWithoutPermission(
+            String id, Boolean isProvisioned, Set<Policy> policies) {
+        Update updateUser = new Update();
+        updateUser.set(fieldName(QUser.user.isProvisioned), isProvisioned);
+        updateUser.set(fieldName(QUser.user.policies), policies);
+        return updateById(id, updateUser, Optional.empty()).thenReturn(Boolean.TRUE);
+    }
+
+    @Override
+    public Flux<User> getAllUsersByIsProvisioned(
+            boolean isProvisioned, Optional<List<String>> includeFields, Optional<AclPermission> aclPermission) {
+        Criteria criteriaIsProvisioned =
+                Criteria.where(fieldName(QUser.user.isProvisioned)).is(isProvisioned);
+        return queryAll(List.of(criteriaIsProvisioned), includeFields, aclPermission, Optional.empty());
+    }
+
+    private List<Criteria> getCriteriaListFromFilters(MultiValueMap<String, String> filters) {
+        List<Criteria> criteriaList = new ArrayList<>();
+        if (StringUtils.isNotEmpty(filters.getFirst(PROVISIONED_FILTER))) {
+            String provisionValue = filters.getFirst(PROVISIONED_FILTER).toLowerCase();
+            if (provisionValue.equals(Boolean.TRUE.toString())) {
+                criteriaList.add(where(fieldName(QUser.user.isProvisioned)).is(Boolean.TRUE));
+            } else if (provisionValue.equals(Boolean.FALSE.toString())) {
+                criteriaList.add(where(fieldName(QUser.user.isProvisioned)).is(Boolean.FALSE));
+            }
+        }
+        return criteriaList;
     }
 }

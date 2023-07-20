@@ -50,7 +50,7 @@ public class UserProvisionController {
     public Mono<ResponseDTO<ProvisionResourceDto>> createUser(@RequestBody User user) {
         return userService
                 .createProvisionUser(user)
-                .map(createdUser -> new ResponseDTO<>(HttpStatus.OK.value(), createdUser, null));
+                .map(createdUser -> new ResponseDTO<>(HttpStatus.CREATED.value(), createdUser, null));
     }
 
     @PutMapping("/{userId}")

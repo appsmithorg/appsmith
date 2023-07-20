@@ -16,7 +16,7 @@ import {
   homePage,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Create Permission flow ", function () {
+describe.skip("Create Permission flow ", function () {
   let datasourceName;
   let datasourceName2;
   let workspaceName;

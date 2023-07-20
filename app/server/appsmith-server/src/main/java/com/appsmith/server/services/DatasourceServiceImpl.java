@@ -14,17 +14,13 @@ import com.appsmith.server.services.ce.DatasourceServiceCEImpl;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import io.micrometer.observation.ObservationRegistry;
-import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,10 +37,6 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
     private final ObservationRegistry observationRegistry;
 
     public DatasourceServiceImpl(
-            Scheduler scheduler,
-            Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             DatasourceRepository repository,
             WorkspaceService workspaceService,
             AnalyticsService analyticsService,
@@ -62,10 +54,6 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
             ObservationRegistry observationRegistry) {
 
         super(
-                scheduler,
-                validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repository,
                 workspaceService,
                 analyticsService,
@@ -146,5 +134,10 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                             return datasourceStorage;
                         }))
                 .thenMany(Flux.fromIterable(storagesToBeSaved.values()));
+    }
+
+    @Override
+    public Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId, String pluginId) {
+        return getTrueEnvironmentId(workspaceId, environmentId);
     }
 }

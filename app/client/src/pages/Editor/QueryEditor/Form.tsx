@@ -22,6 +22,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   const actionData = getActionData(state, actionId);
   let responseDisplayFormat: { title: string; value: string };
   let responseDataTypes: { key: string; title: string }[];
+
   if (actionData && actionData.responseDisplayFormat) {
     responseDataTypes = actionData.dataTypes.map((data) => {
       return {

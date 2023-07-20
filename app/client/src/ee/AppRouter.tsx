@@ -25,6 +25,7 @@ import {
 import LicenseCheckPage from "./pages/setup/LicenseCheckPage";
 import { LICENSE_CHECK_PATH } from "constants/routes";
 import { requiresLicenseCheck } from "./requiresLicenseCheck";
+import { initCurrentPage } from "actions/initActions";
 
 const loadingIndicator = <PageLoadingBar />;
 
@@ -37,10 +38,12 @@ function AppRouter(props: {
   getCurrentUser: () => void;
   getFeatureFlags: () => void;
   getCurrentTenant: () => void;
+  initCurrentPage: () => void;
   isLicenseValid: boolean;
   safeCrashCode?: ERROR_CODES;
 }) {
-  const { getCurrentTenant, getCurrentUser, getFeatureFlags } = props;
+  const { getCurrentTenant, getCurrentUser, getFeatureFlags, initCurrentPage } =
+    props;
   const tenantIsLoading = useSelector(isTenantLoading);
   const currentUserIsLoading = useSelector(getCurrentUserLoading);
 
@@ -48,6 +51,7 @@ function AppRouter(props: {
     getCurrentUser();
     getFeatureFlags();
     getCurrentTenant();
+    initCurrentPage();
   }, []);
 
   useBrandingTheme();
@@ -107,6 +111,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   getCurrentUser: () => dispatch(getCurrentUser()),
   getFeatureFlags: () => dispatch(fetchFeatureFlagsInit()),
   getCurrentTenant: () => dispatch(getCurrentTenant(false)),
+  initCurrentPage: () => dispatch(initCurrentPage()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppRouter);

@@ -96,4 +96,7 @@ public class FieldName extends FieldNameCE {
     public static final String PROVISIONING_USER = "provisioningUser";
     public static final String PROVISIONING_ROLE = "provisioningRole";
     public static final String PROVISIONING_CONFIG = "provisioningConfig";
+    public static final String PROVISIONING_STATUS_CONFIG = "provisioningStatusConfig";
+    public static final String PROVISIONING_STATUS = "provisioningStatus";
+    public static final String PROVISIONING_LAST_UPDATED_AT = "provisioningLastUpdatedAt";
 }

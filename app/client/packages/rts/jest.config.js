@@ -14,6 +14,7 @@ module.exports = {
     "@controllers/(.*)": ["<rootDir>/src/controllers/$1"],
     "@rules/(.*)": ["<rootDir>/src/middlewares/rules/$1"],
     "@utils/(.*)": ["<rootDir>/src/utils/$1"],
+    "@scim/(.*)": ["<rootDir>/src/scim/$1"],
   },
   globals: {
     "ts-jest": {

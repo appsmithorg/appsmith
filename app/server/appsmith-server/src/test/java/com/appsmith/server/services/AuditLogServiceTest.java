@@ -2742,11 +2742,11 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getAuthentication()).isNull();
                     assertThat(auditLog.getInvitedUsers()).isNull();
 
-                    //Datasource related fields
+                    // Datasource related fields
                     assertThat(auditLog.getDatasource().getName()).isNotNull();
                     assertThat(auditLog.getDatasource().getName()).isEqualTo("Default Database 1");
 
-                    //Environment related fields
+                    // Environment related fields
                     assertThat(auditLog.getEnvironment().getId()).isNotNull();
                     assertThat(auditLog.getEnvironment().getId()).isEqualTo(environmentId);
                     assertThat(auditLog.getEnvironment().getName()).isNotNull();
@@ -2885,11 +2885,11 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getAuthentication()).isNull();
                     assertThat(auditLog.getInvitedUsers()).isNull();
 
-                    //Datasource related fields
+                    // Datasource related fields
                     assertThat(auditLog.getDatasource().getName()).isNotNull();
                     assertThat(auditLog.getDatasource().getName()).isEqualTo("Default Database");
 
-                    //Environment related fields
+                    // Environment related fields
                     assertThat(auditLog.getEnvironment().getId()).isNotNull();
                     assertThat(auditLog.getEnvironment().getId()).isEqualTo(environmentId);
                     assertThat(auditLog.getEnvironment().getName()).isNotNull();

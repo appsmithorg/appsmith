@@ -4,7 +4,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 describe("In-app embed settings", () => {
   before(() => {
     featureFlagIntercept({
-      APP_EMBED_VIEW_HIDE_SHARE_SETTINGS_VISIBILITY: true,
+      release_embed_hide_share_settings_enabled: true,
     });
   });
 

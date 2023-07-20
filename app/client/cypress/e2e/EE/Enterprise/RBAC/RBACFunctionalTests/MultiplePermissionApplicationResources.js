@@ -5,10 +5,10 @@ const datasources = require("../../../../../locators/DatasourcesEditor.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const jsEditorLocators = require("../../../../../locators/JSEditor.json");
-import datasourceFormData from "../../../../../fixtures/datasources.json";
 import {
-  onboarding,
   homePage,
+  onboarding,
+  tedTestConfig,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Multiple Permission flow ", function () {
@@ -88,7 +88,7 @@ describe("Multiple Permission flow ", function () {
           cy.CreateAppForWorkspace(workspaceName2, appName2);
           cy.NavigateToAPI_Panel();
           cy.CreateAPI(APIName);
-          cy.enterDatasource(datasourceFormData.mockApiUrl);
+          cy.enterDatasource(tedTestConfig.mockApiUrl);
           cy.SaveAndRunAPI();
           cy.ResponseStatusCheck("200");
           cy.createJSObject('return "Success";');

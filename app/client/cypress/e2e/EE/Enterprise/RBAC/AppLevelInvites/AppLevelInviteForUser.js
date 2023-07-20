@@ -92,7 +92,6 @@ describe("Create new workspace and invite user & validate all roles", () => {
       "contain",
       "Connect new datasource",
     );
-    _.agHelper.GetNClick(Explorer.entityQuery);
     _.agHelper.GetNClick(".t--entity-name:contains('Postgres')");
     cy.get(_.dataSources._createQuery).should("not.have.attr", "disabled");
     _.agHelper.ClickButton("Share");
@@ -145,7 +144,6 @@ describe("Create new workspace and invite user & validate all roles", () => {
       "not.contain",
       "Connect new datasource",
     );
-    _.agHelper.GetNClick(Explorer.entityQuery);
     _.agHelper.GetNClick(".t--entity-name:contains('Postgres')");
     cy.get(_.dataSources._createQuery).should("not.have.attr", "disabled");
     _.agHelper.ClickButton("Share");
@@ -241,7 +239,6 @@ describe("Create new workspace and invite user & validate all roles", () => {
       "not.contain",
       "Connect new datasource",
     );
-    _.agHelper.GetNClick(Explorer.entityQuery);
     _.agHelper.GetNClick(".t--entity-name:contains('Postgres')");
     cy.get(_.dataSources._createQuery).should("not.have.attr", "disabled");
     _.agHelper.Sleep(2000);

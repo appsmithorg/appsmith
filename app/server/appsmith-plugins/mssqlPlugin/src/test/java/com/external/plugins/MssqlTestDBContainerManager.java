@@ -28,7 +28,7 @@ public class MssqlTestDBContainerManager {
                         .asCompatibleSubstituteFor("mcr.microsoft.com/mssql/server:2017-latest"))
                 .acceptLicense()
                 .withExposedPorts(1433)
-                .withPassword("Mssql123");
+                .withPassword("Mssql12;3");
     }
 
     static DatasourceConfiguration createDatasourceConfiguration(MSSQLServerContainer container) {

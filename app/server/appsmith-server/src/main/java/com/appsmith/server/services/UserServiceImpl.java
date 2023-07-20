@@ -18,8 +18,10 @@ import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.dtos.ProvisionResourceDto;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
+import com.appsmith.server.enums.ProvisionStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ProvisionUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -81,6 +83,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     private final UserGroupRepository userGroupRepository;
     private final PolicySolution policySolution;
     private final PolicyGenerator policyGenerator;
+    private final ProvisionUtils provisionUtils;
 
     public UserServiceImpl(
             Scheduler scheduler,
@@ -106,7 +109,8 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
             UserUtils userUtils,
             PermissionGroupRepository permissionGroupRepository,
             UserGroupRepository userGroupRepository,
-            PolicyGenerator policyGenerator) {
+            PolicyGenerator policyGenerator,
+            ProvisionUtils provisionUtils) {
 
         super(
                 scheduler,
@@ -140,6 +144,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
         this.userGroupRepository = userGroupRepository;
         this.policySolution = policySolution;
         this.policyGenerator = policyGenerator;
+        this.provisionUtils = provisionUtils;
     }
 
     @Override
@@ -261,6 +266,10 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
         return ProvisionResourceDto.builder().resource(user).metadata(metadata).build();
     }
 
+    private Mono<User> updateProvisioningStatus(User user) {
+        return provisionUtils.updateProvisioningStatus(ProvisionStatus.ACTIVE).thenReturn(user);
+    }
+
     /**
      * The method edits the existing permissions on the User resource for Manage and Delete user permissions.
      * It removes the existing Manage and Delete permissions for the user, so that Instance Admin is not able to delete the user and
@@ -299,6 +308,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     public Mono<ProvisionResourceDto> createProvisionUser(User user) {
         return userCreate(user, Boolean.FALSE)
                 .flatMap(this::updateProvisionUserPoliciesAndProvisionFlag)
+                .flatMap(this::updateProvisioningStatus)
                 .map(this::getProvisionResourceDto);
     }
 
@@ -307,22 +317,27 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
         Mono<User> updateUserPolicyPostRead =
                 repository.findById(userId, READ_USERS).flatMap(this::updateProvisionUserPoliciesAndProvisionFlag);
         Mono<User> userMono = repository.findById(userId, MANAGE_USERS).switchIfEmpty(updateUserPolicyPostRead);
+        Mono<ProvisionResourceDto> updatedProvisionedUserMono;
         if (StringUtils.isEmpty(userUpdateDTO.getName()) && StringUtils.isEmpty(userUpdateDTO.getEmail())) {
-            return userMono.map(this::getProvisionResourceDto);
+            updatedProvisionedUserMono = userMono.map(this::getProvisionResourceDto);
+        } else {
+            User userUpdate = new User();
+            if (StringUtils.isNotEmpty(userUpdateDTO.getName())) {
+                userUpdate.setName(userUpdateDTO.getName());
+            }
+            if (StringUtils.isNotEmpty(userUpdateDTO.getEmail())) {
+                // Convert email to lower case before saving
+                userUpdate.setEmail(userUpdateDTO.getEmail().toLowerCase());
+            }
+            // Setting below elements to null, so that they are not copied as empty values
+            // and update the user resource incorrectly.
+            userUpdate.setPolicies(null);
+            userUpdate.setIsProvisioned(null);
+            updatedProvisionedUserMono = userMono.then(this.update(userId, userUpdate))
+                    .flatMap(this::updateProvisioningStatus)
+                    .map(this::getProvisionResourceDto);
         }
-        User userUpdate = new User();
-        if (StringUtils.isNotEmpty(userUpdateDTO.getName())) {
-            userUpdate.setName(userUpdateDTO.getName());
-        }
-        if (StringUtils.isNotEmpty(userUpdateDTO.getEmail())) {
-            // Convert email to lower case before saving
-            userUpdate.setEmail(userUpdateDTO.getEmail().toLowerCase());
-        }
-        // Setting below elements to null, so that they are not copied as empty values
-        // and update the user resource incorrectly.
-        userUpdate.setPolicies(null);
-        userUpdate.setIsProvisioned(null);
-        return userMono.then(this.update(userId, userUpdate)).map(this::getProvisionResourceDto);
+        return updatedProvisionedUserMono;
     }
 
     @Override
@@ -330,6 +345,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
         return repository
                 .findById(userId, READ_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "User", userId)))
+                .flatMap(this::updateProvisioningStatus)
                 .map(this::getProvisionResourceDto);
     }
 
@@ -362,6 +378,12 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                             .startIndex(pagedUsers.getStartIndex())
                             .content(provisionedUsersDto)
                             .build();
+                })
+                .zipWith(provisionUtils.updateProvisioningStatus(ProvisionStatus.ACTIVE))
+                .map(pair -> {
+                    PagedDomain<ProvisionResourceDto> pagedUsers = pair.getT1();
+                    Boolean updateProvisioningStatus = pair.getT2();
+                    return pagedUsers;
                 });
     }
 

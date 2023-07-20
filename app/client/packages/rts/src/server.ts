@@ -7,6 +7,8 @@ import log from "loglevel";
 import { VERSION as buildVersion } from "./version"; // release version of the api
 import { initializeSockets } from "./sockets";
 
+import "@scim/lib/plugin-scim";
+
 // routes
 import ast_routes from "./routes/ast_routes";
 import health_check_routes from "./routes/health_check_routes";

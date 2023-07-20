@@ -653,4 +653,35 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                 .filter(role -> !PermissionGroupUtils.isUserManagementRole(role))
                 .map(PermissionGroup::getName);
     }
+
+    @Override
+    public Mono<Boolean> bulkUnAssignUsersAndUserGroupsFromPermissionGroupsWithoutPermission(
+            List<User> users, List<UserGroup> groups, List<PermissionGroup> roles) {
+        Set<String> userIds = users.stream().map(User::getId).collect(Collectors.toSet());
+        Set<String> groupIds = groups.stream().map(UserGroup::getId).collect(Collectors.toSet());
+        roles.forEach(role -> {
+            role.getAssignedToUserIds().removeAll(userIds);
+            role.getAssignedToGroupIds().removeAll(groupIds);
+        });
+        Mono<List<UpdateResult>> updateRolesMono = Flux.fromIterable(roles)
+                .flatMap(role -> {
+                    Update update = new Update();
+                    update.set(
+                            fieldName(QPermissionGroup.permissionGroup.assignedToUserIds), role.getAssignedToUserIds());
+                    update.set(
+                            fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds),
+                            role.getAssignedToGroupIds());
+                    return repository.updateById(role.getId(), update);
+                })
+                .collectList();
+
+        List<String> userIdsForClearingCache = new ArrayList<>(groups.stream()
+                .map(UserGroup::getUsers)
+                .flatMap(Collection::stream)
+                .toList());
+        userIdsForClearingCache.addAll(userIds);
+        Mono<Boolean> clearCacheForUsers =
+                cleanPermissionGroupCacheForUsers(userIdsForClearingCache).thenReturn(TRUE);
+        return Mono.zip(updateRolesMono, clearCacheForUsers).map(pair -> TRUE);
+    }
 }
