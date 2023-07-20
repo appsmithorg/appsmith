@@ -1302,16 +1302,18 @@ export const ACCESS_CONTROL_UPGRADE_PAGE_FOOTER = () =>
 
 // Provisioning upgrade page begin
 export const USER_PROVISIONING_FOR_ENTERPRISES = () =>
-  "user provisioning for enterprises";
+  "Manage Appsmith users via your identity provider";
 export const PROVISIONING_UPGRADE_PAGE_SUB_HEADING = () =>
-  "Provision and de-provision users on Appsmith. Automatic group sync from your IdP.";
+  `Add and remove Appsmith users centrally. Sync existing groups to Appsmith.`;
 export const PROVISION_DEPROVISION_USERS = () =>
-  "Provision and de-provision users on Appsmith";
+  "Provision and deprovision users from your IdP";
 export const PROVISION_DEPROVISION_USERS_DETAIL1 = () =>
-  `Automatically assign accounts to new employees and revoke access when they leave. Error-free, right from your Identity Provider (IdP).`;
-export const AUTO_GROUP_SYNC = () => "Automatic group sync from your IdP";
+  `Control user authorization and access to Appsmith workspaces and apps via your IdP using the SCIM protocol.<div>&nbsp;</div><div><span style="font-style: italic;font-weight: normal;">More protocols coming soon</span></div>`;
+export const AUTO_GROUP_SYNC = () => "Automatic group sync";
 export const AUTO_GROUP_SYNC_DETAIL1 = () =>
-  `Sync user groups from your IdP into Appsmith to manage access across your teams easily.`;
+  `Easily manage access for groups when you sync them to Appsmith from your IdP.`;
+export const PROVISIONING_UPGRADE_PAGE_FOOTER = () =>
+  "Secure your Appsmith apps with Granular Access Controls, Audit Logs, Custom SSO, and more on Appsmith Enterprise.";
 // Provisioning upgrade page end
 
 //
