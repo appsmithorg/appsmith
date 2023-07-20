@@ -498,14 +498,10 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
         // Extract query params.
         final ActionConfiguration actionConfiguration = action.getActionConfiguration();
-        List<Property> queryParameters = actionConfiguration.getQueryParameters();
-
-        if (queryParameters == null) {
-            queryParameters = new ArrayList<>();
-            actionConfiguration.setQueryParameters(queryParameters);
-        }
-
+        List<Property> queryParameters = actionConfiguration.getQueryParameters() == null ? new ArrayList<>() :
+                actionConfiguration.getQueryParameters();
         queryParameters.addAll(getQueryParams(url));
+        actionConfiguration.setQueryParameters(queryParameters);
 
         // Set the URL without the query params & the path.
         action.getDatasource().getDatasourceConfiguration().setUrl(base);
@@ -514,14 +510,20 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         actionConfiguration.setPath(path);
     }
 
-    private List<Property> getQueryParams(URL url) throws IndexOutOfBoundsException{
-        List<Property> queryParamList = new ArrayList<>();
-        String[] paramsArray = url.getQuery().split("&");
-        for(String queryParam : Arrays.asList(paramsArray)){
-            String[] paramMap = queryParam.split("=");
-            queryParamList.add(new Property(paramMap[0],paramMap[1]));
+    private List<Property> getQueryParams(URL url) {
+        List<Property> queryParamsList = new ArrayList<>();
+        String queryParamsString = url.getQuery();
+        if (!isBlank(queryParamsString) && queryParamsString.contains("=")) {
+            Arrays.stream(queryParamsString.split("&"))
+                    .forEach(queryParam -> {
+                        String[] paramMap = queryParam.split("=", 2);
+                        if (paramMap.length > 1) {
+                            queryParamsList.add(new Property(paramMap[0], paramMap[1]));
+                        }
+                    });
         }
-        return queryParamList;
+
+        return queryParamsList;
     }
 
     private String getPort(URL url) {
