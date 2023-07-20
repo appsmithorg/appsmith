@@ -53,13 +53,13 @@ export function PanelPropertiesEditor(
     PanelPropertiesEditorPanelProps &
     IPanelProps,
 ) {
-  const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
+  const widgetProperties = useSelector(getWidgetPropsForPropertyPane);
   const currentSelectedPanel = useSelector(getSelectedPropertyPanel);
   const keepPaneOpen = useMemo(() => {
     return Object.keys(currentSelectedPanel).some((path) => {
-      return path.split(".")[0] === widgetProperties.widgetName;
+      return path.split(".")[0] === widgetProperties?.widgetName;
     });
-  }, [currentSelectedPanel, widgetProperties.widgetName]);
+  }, [currentSelectedPanel, widgetProperties?.widgetName]);
 
   const {
     closePanel,
@@ -154,9 +154,9 @@ export function PanelPropertiesEditor(
       panelProps[panelConfig.panelIdPropertyName]
     }`;
     sendPropertyPaneSearchAnalytics({
-      widgetType: widgetProperties?.type,
+      widgetType: widgetProperties?.type ?? "",
       searchText,
-      widgetName: widgetProperties?.widgetName,
+      widgetName: widgetProperties?.widgetName ?? "",
       searchPath,
     });
   }, [searchText]);
