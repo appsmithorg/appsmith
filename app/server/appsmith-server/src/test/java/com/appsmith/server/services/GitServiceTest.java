@@ -199,8 +199,9 @@ public class GitServiceTest {
                         .create(toCreate, apiUser, Boolean.FALSE)
                         .block();
                 workspaceId = workspace.getId();
-                defaultEnvironmentId =
-                        workspaceService.getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission()).block();
+                defaultEnvironmentId = workspaceService
+                        .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                        .block();
             }
         }
 
@@ -3559,8 +3560,9 @@ public class GitServiceTest {
         workspace.setName("gitImportOrg");
         final String testWorkspaceId =
                 workspaceService.create(workspace).map(Workspace::getId).block();
-        String environmentId =
-                workspaceService.getDefaultEnvironmentId(testWorkspaceId, environmentPermission.getExecutePermission()).block();
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(testWorkspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepo.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey(null).block();
@@ -3621,8 +3623,9 @@ public class GitServiceTest {
         workspace.setName("gitImportOrgCancelledMidway");
         final String testWorkspaceId =
                 workspaceService.create(workspace).map(Workspace::getId).block();
-        String environmentId =
-                workspaceService.getDefaultEnvironmentId(testWorkspaceId, environmentPermission.getExecutePermission()).block();
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(testWorkspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         GitConnectDTO gitConnectDTO =
                 getConnectRequest("git@github.com:test/testGitImportRepoCancelledMidway.git", testUserProfile);

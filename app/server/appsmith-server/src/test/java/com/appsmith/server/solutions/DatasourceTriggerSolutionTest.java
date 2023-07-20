@@ -89,8 +89,9 @@ public class DatasourceTriggerSolutionTest {
         workspace.setName("Datasource Trigger Test Workspace");
         Workspace savedWorkspace = workspaceService.create(workspace).block();
         workspaceId = savedWorkspace.getId();
-        defaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission()).block();
+        defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         Datasource datasource = new Datasource();
         datasource.setName("Datasource Trigger Database");
