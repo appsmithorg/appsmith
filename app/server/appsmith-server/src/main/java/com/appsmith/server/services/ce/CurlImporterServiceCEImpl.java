@@ -513,6 +513,11 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
     private List<Property> getQueryParams(URL url) {
         List<Property> queryParamsList = new ArrayList<>();
         String queryParamsString = url.getQuery();
+
+        /**
+         * Attempt to extract query params only if the query params string is non-empty, and it has at least one key
+         * value pair.
+         */
         if (!isBlank(queryParamsString) && queryParamsString.contains("=")) {
             Arrays.stream(queryParamsString.split("&"))
                     .forEach(queryParam -> {
