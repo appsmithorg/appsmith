@@ -91,6 +91,8 @@ import static com.appsmith.server.constants.AnalyticsConstants.DATASOURCE_IS_MOC
 import static com.appsmith.server.constants.AnalyticsConstants.DATASOURCE_IS_TEMPLATE_SHORTNAME;
 import static com.appsmith.server.constants.AnalyticsConstants.DATASOURCE_NAME_SHORTNAME;
 import static com.appsmith.server.constants.AnalyticsConstants.ENVIRONMENT_ID_SHORTNAME;
+import static com.appsmith.server.constants.ce.AnalyticsConstantsCE.ENVIRONMENT_NAME_DEFAULT;
+import static com.appsmith.server.constants.ce.AnalyticsConstantsCE.ENVIRONMENT_NAME_SHORTNAME;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -889,12 +891,15 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         Mono.just(application),
                         sessionUserService.getCurrentUser(),
                         newPageService.getNameByPageId(actionDTO.getPageId(), executeActionDto.getViewMode()),
-                        pluginService.getById(actionDTO.getPluginId())))
+                        pluginService.getById(actionDTO.getPluginId()),
+                        datasourceStorageService.getEnvironmentNameFromEnvironmentIdForAnalytics(
+                                datasourceStorage.getEnvironmentId())))
                 .flatMap(tuple -> {
                     final Application application = tuple.getT1();
                     final User user = tuple.getT2();
                     final String pageName = tuple.getT3();
                     final Plugin plugin = tuple.getT4();
+                    final String environmentName = tuple.getT5();
 
                     final PluginType pluginType = actionDTO.getPluginType();
                     final String appMode = TRUE.equals(executeActionDto.getViewMode())
@@ -981,7 +986,9 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             DATASOURCE_IS_MOCK_SHORTNAME,
                             ObjectUtils.defaultIfNull(datasourceStorage.getIsMock(), ""),
                             DATASOURCE_CREATED_AT_SHORTNAME,
-                            dsCreatedAt));
+                            dsCreatedAt,
+                            ENVIRONMENT_NAME_SHORTNAME,
+                            ObjectUtils.defaultIfNull(datasourceStorage.getIsMock(), ENVIRONMENT_NAME_DEFAULT)));
 
                     // Add the error message in case of erroneous execution
                     if (FALSE.equals(actionExecutionResult.getIsExecutionSuccess())) {

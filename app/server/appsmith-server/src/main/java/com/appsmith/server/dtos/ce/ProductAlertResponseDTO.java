@@ -1,6 +1,5 @@
 package com.appsmith.server.dtos.ce;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,9 +26,9 @@ public class ProductAlertResponseDTO implements Comparable<ProductAlertResponseD
 
     @Override
     public int compareTo(ProductAlertResponseDTO productAlertResponseDTO) {
-        if(this.precedenceIndex < productAlertResponseDTO.getPrecedenceIndex()) {
+        if (this.precedenceIndex < productAlertResponseDTO.getPrecedenceIndex()) {
             return -1;
-        } else if(this.precedenceIndex > productAlertResponseDTO.getPrecedenceIndex()) {
+        } else if (this.precedenceIndex > productAlertResponseDTO.getPrecedenceIndex()) {
             return 1;
         } else {
             return 0;
