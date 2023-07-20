@@ -149,6 +149,7 @@ import { addClassToDocumentRoot } from "pages/utils";
 import { AuthorizationStatus } from "pages/common/datasourceAuth";
 import {
   getCurrentEditingEnvID,
+  getCurrentEnvName,
   getCurrentEnvironment,
 } from "@appsmith/utils/Environments";
 import {
@@ -514,6 +515,8 @@ function* updateDatasourceSaga(
       AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
         datasourceId: responseData?.id,
         datasourceName: responseData.name,
+        environmentId: currentEnvironment,
+        environmentName: getCurrentEnvName(),
         pluginName: plugin?.name || "",
         pluginPackageName: plugin?.packageName || "",
         isFormValid: isFormValid,
@@ -672,6 +675,8 @@ function* getOAuthAccessTokenSaga(
         AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
           applicationId: applicationId,
           datasourceId: datasourceId,
+          environmentId: getCurrentEnvironment(),
+          environmentName: getCurrentEnvName(),
           pageId: pageId,
           oAuthPassOrFailVerdict: "success",
           workspaceId: response.data.datasource?.workspaceId,
@@ -785,6 +790,8 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
       ) {
         AnalyticsUtil.logEvent("TEST_DATA_SOURCE_FAILED", {
           datasoureId: datasource?.id,
+          environmentId: currentEnvironment,
+          environmentName: getCurrentEnvName(),
           pluginName: plugin?.name,
           errorMessages: responseData.invalids,
           messages: responseData.messages,
@@ -831,6 +838,8 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         AnalyticsUtil.logEvent("TEST_DATA_SOURCE_SUCCESS", {
           datasourceName: payload.name,
           datasoureId: datasource?.id,
+          environmentId: currentEnvironment,
+          environmentName: getCurrentEnvName(),
           pluginName: plugin?.name,
         });
         toast.show(createMessage(DATASOURCE_VALID, payload.name), {
@@ -862,6 +871,8 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     });
     AnalyticsUtil.logEvent("TEST_DATA_SOURCE_FAILED", {
       datasoureId: datasource?.id,
+      environmentId: currentEnvironment,
+      environmentName: getCurrentEnvName(),
       pluginName: plugin?.name,
       errorMessages: (error as any)?.message,
     });
@@ -1013,6 +1024,8 @@ function* createDatasourceFromFormSaga(
       AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
         datasourceId: response?.data?.id,
         datasourceName: response?.data?.name,
+        environmentId: currentEnvironment,
+        environmentName: getCurrentEnvName(),
         pluginName: plugin?.name || "",
         pluginPackageName: plugin?.packageName || "",
         isFormValid: isFormValid,
@@ -1349,6 +1362,8 @@ function* fetchDatasourceStructureSaga(
   AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH", {
     datasourceId: datasource?.id,
     pluginName: plugin?.name,
+    environmentId: getCurrentEnvironment(),
+    environmentName: getCurrentEnvName(),
     errorMessage: errorMessage,
     isSuccess: isSuccess,
     source: action.payload.schemaFetchContext,
@@ -1462,6 +1477,8 @@ function* refreshDatasourceStructure(
   AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH", {
     datasourceId: datasource?.id,
     pluginName: plugin?.name,
+    environmentId: getCurrentEnvironment(),
+    environmentName: getCurrentEnvName(),
     errorMessage: errorMessage,
     isSuccess: isSuccess,
     source: action.payload.schemaRefreshContext,
@@ -1583,6 +1600,8 @@ function* filePickerActionCallbackSaga(
       applicationId: applicationId,
       pageId: pageId,
       datasourceId: datasource?.id,
+      environmentId: currentEnvironment,
+      environmentName: getCurrentEnvName(),
       oAuthPassOrFailVerdict:
         authStatus === AuthenticationStatus.FAILURE_FILE_NOT_SELECTED
           ? createMessage(FILES_NOT_SELECTED_EVENT)

@@ -36,6 +36,7 @@ import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
 import type { PluginType } from "entities/Action";
 import { reset } from "redux-form";
+import { getCurrentEnvName } from "@appsmith/utils/Environments";
 
 interface Props {
   datasource: Datasource;
@@ -246,6 +247,8 @@ function DatasourceAuth({
       pageId: pageId,
       appId: applicationId,
       datasourceId: datasourceId,
+      environmentId: currentEnvironment,
+      environmentName: getCurrentEnvName(),
       pluginName: pluginName,
     });
     dispatch(testDatasource(getSanitizedFormData()));
@@ -257,6 +260,8 @@ function DatasourceAuth({
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: pageId,
       appId: applicationId,
+      environmentId: currentEnvironment,
+      environmentName: getCurrentEnvName(),
       pluginName: pluginName || "",
       pluginPackageName: pluginPackageName || "",
     });

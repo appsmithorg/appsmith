@@ -66,6 +66,7 @@ import {
 import {
   isEnvironmentConfigured,
   getCurrentEnvironment,
+  getCurrentEnvName,
 } from "@appsmith/utils/Environments";
 import { keyBy } from "lodash";
 import type { Plugin } from "api/PluginApi";
@@ -319,6 +320,8 @@ function ReconnectDatasourceModal() {
       AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
         applicationId: queryAppId,
         datasourceId: queryDatasourceId,
+        environmentId: getCurrentEnvironment(),
+        environmentName: getCurrentEnvName(),
         pageId: queryPageId,
         oAuthPassOrFailVerdict: status,
         workspaceId: orgId,
