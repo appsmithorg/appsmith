@@ -8,6 +8,7 @@ import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers"
 import { INTEGRATION_TABS } from "constants/routes";
 import { PluginPackageName } from "entities/Action";
 import type { Datasource, MockDatasource } from "entities/Datasource";
+import { DatasourceConnectionMode } from "entities/Datasource";
 import { useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
@@ -37,6 +38,7 @@ import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import {
   getCurrentEnvironment,
+  getEnvironmentConfiguration,
   isEnvironmentValid,
 } from "@appsmith/utils/Environments";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
@@ -147,6 +149,8 @@ export function useDatasource(searchText: string) {
             isValid: isEnvironmentValid(datasource, getCurrentEnvironment()),
             pluginPackageName: pluginsPackageNamesMap[datasource.pluginId],
             isSample: false,
+            connectionMode:
+              getEnvironmentConfiguration(datasource)?.connection?.mode,
           },
           icon: (
             <ImageWrapper>
@@ -170,6 +174,9 @@ export function useDatasource(searchText: string) {
                 datasource: valueOption?.id,
                 datasourcePluginType: plugin?.type,
                 datasourcePluginName: plugin?.name,
+                datasourceConnectionMode:
+                  valueOption?.data.connectionMode ||
+                  DatasourceConnectionMode.READ_ONLY,
               });
 
               if (valueOption?.id) {
@@ -195,6 +202,7 @@ export function useDatasource(searchText: string) {
                 propertyName: propertyName,
                 pluginType: plugin?.type,
                 pluginName: plugin?.name,
+                connectionMode: valueOption?.data.connectionMode,
                 isSampleDb: datasource.isMock,
               });
             }
@@ -208,7 +216,6 @@ export function useDatasource(searchText: string) {
     if (mockDatasources.length) {
       mockDatasourceOptions = mockDatasourceOptions.concat(
         mockDatasources
-
           .filter(({ packageName }) => {
             if (!WidgetQueryGeneratorRegistry.has(packageName)) {
               return false;
@@ -268,6 +275,7 @@ export function useDatasource(searchText: string) {
                 datasource: valueOption?.id,
                 datasourcePluginType: plugin?.type,
                 datasourcePluginName: plugin?.name,
+                datasourceConnectionMode: DatasourceConnectionMode.READ_WRITE,
               });
 
               setIsMockDatasourceSelected(true);
@@ -365,6 +373,7 @@ export function useDatasource(searchText: string) {
           datasource: "",
           datasourcePluginType: "",
           datasourcePluginName: "",
+          datasourceConnectionMode: "",
         });
 
         AnalyticsUtil.logEvent("BIND_EXISTING_QUERY_TO_WIDGET", {
@@ -392,11 +401,19 @@ export function useDatasource(searchText: string) {
       !isDatasourceLoading &&
       actualDatasourceOptions.length
     ) {
+      const datasource =
+        actualDatasourceOptions[actualDatasourceOptions.length - 1];
+
+      const plugin = plugins.find((d) => d.id === datasource.data.pluginId);
+
       setIsMockDatasourceSelected(false);
-      updateConfig(
-        "datasource",
-        actualDatasourceOptions[actualDatasourceOptions.length - 1].id,
-      );
+
+      updateConfig({
+        datasource: datasource.id,
+        datasourceConnectionMode: datasource.data.connectionMode,
+        datasourcePluginType: plugin?.type,
+        datasourcePluginName: plugin?.name,
+      });
     }
   }, [isMockDatasourceSelected, isDatasourceLoading, datasourceOptions]);
 

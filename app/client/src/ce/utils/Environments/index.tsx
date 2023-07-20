@@ -51,3 +51,13 @@ export const isEnvironmentValid = (
 export const onUpdateFilterSuccess = (id: string) => {
   return id;
 };
+
+/*
+ * Functiont to check get the datasource configuration for current ENV
+ */
+export const getEnvironmentConfiguration = (
+  datasource: Datasource | null,
+  environment = getCurrentEnvironment(),
+) => {
+  return datasource?.datasourceStorages?.[environment]?.datasourceConfiguration;
+};
