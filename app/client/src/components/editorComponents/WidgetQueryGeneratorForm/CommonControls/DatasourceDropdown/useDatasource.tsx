@@ -149,8 +149,10 @@ export function useDatasource(searchText: string) {
             isValid: isEnvironmentValid(datasource, getCurrentEnvironment()),
             pluginPackageName: pluginsPackageNamesMap[datasource.pluginId],
             isSample: false,
-            connectionMode:
-              getEnvironmentConfiguration(datasource)?.connection?.mode,
+            connectionMode: getEnvironmentConfiguration(
+              datasource,
+              getCurrentEnvironment(),
+            )?.connection?.mode,
           },
           icon: (
             <ImageWrapper>
