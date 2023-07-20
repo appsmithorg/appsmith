@@ -78,7 +78,7 @@ const ExplorerDatasourceEntity = React.memo(
         name: props.datasource.name,
       });
       history.push(url, { invokedBy: NavigationMethod.EntityExplorer });
-    }, [props.datasource.id, props.datasource.name, location.pathname]);
+    }, [props.datasource.id, props.datasource.name, location.pathname, pageId]);
 
     const queryId = getQueryIdFromURL();
     const queryAction = useSelector((state: AppState) =>
