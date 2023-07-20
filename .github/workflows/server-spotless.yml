@@ -10,11 +10,6 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
-      skip-tests:
-        description: "This is a boolean value in case the workflow is being called in build deploy-preview"
-        required: false
-        type: string
-        default: "false"
 
   pull_request:
     branches: [release, master]
@@ -44,7 +39,7 @@ jobs:
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Check out merged commit from PR and base branch
         uses: actions/checkout@v3
-        if: inputs.pr != 0
+        if: ${{ inputs.pr != "" && inputs.pr != 0 }}
         with:
           fetch-depth: 0
           ref: refs/pull/${{ inputs.pr }}/merge
@@ -52,9 +47,15 @@ jobs:
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Check out the head commit of the branch
         uses: actions/checkout@v3
-        if: inputs.pr == 0
+        if: ${{ inputs.pr != "" && inputs.pr == 0 }}
         with:
           fetch-depth: 0
+
+      - name: Checkout the merged commit from PR and base branch
+        if: ${{ inputs.pr == "" && github.event_name == 'pull_request' }}
+        uses: actions/checkout@v3
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Figure out the PR number
         run: echo ${{ inputs.pr }}
