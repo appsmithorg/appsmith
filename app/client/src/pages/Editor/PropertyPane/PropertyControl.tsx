@@ -55,6 +55,7 @@ import clsx from "clsx";
 import styled from "styled-components";
 import { importSvg } from "design-system-old";
 import classNames from "classnames";
+import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 
 const ResetIcon = importSvg(() => import("assets/icons/control/undo_2.svg"));
 
@@ -181,6 +182,8 @@ const PropertyControl = memo((props: Props) => {
     updateDataTreePathFn: childWidgetDataTreePathEnhancementFn,
   } = enhancementFns || {};
 
+  const connectDataClicked = useSelector(getIsOneClickBindingOptionsVisibility);
+
   const toggleDynamicProperty = useCallback(
     (
       propertyName: string,
@@ -252,6 +255,7 @@ const PropertyControl = memo((props: Props) => {
   const {
     isTriggerProperty,
     postUpdateAction,
+    shouldSwitchToNormalMode,
     updateHook,
     updateRelatedWidgetProperties,
   } = props;
@@ -745,6 +749,17 @@ const PropertyControl = memo((props: Props) => {
         showEmptyBlock,
         setShowEmptyBlock,
       };
+    }
+
+    if (shouldSwitchToNormalMode) {
+      const switchMode = shouldSwitchToNormalMode(
+        isDynamic,
+        isToggleDisabled,
+        connectDataClicked,
+      );
+      if (switchMode) {
+        toggleDynamicProperty(propertyName, true);
+      }
     }
 
     try {
