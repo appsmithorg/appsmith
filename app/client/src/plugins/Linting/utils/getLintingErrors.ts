@@ -211,6 +211,7 @@ function getAssignmentExpressionErrors({
   script: string;
 }) {
   const assignmentExpressionErrors: LintError[] = [];
+  const setterAccessorMap = setters.getSetterAccessorMap();
 
   for (const { end, object, property, start } of assignmentExpressions) {
     const objectName = object.name;
@@ -223,8 +224,6 @@ function getAssignmentExpressionErrors({
 
     const isValidProperty = propertyName in entity;
 
-    const setterAccessorMap = setters.getSetterAccessorMap();
-
     const methodName = get(setterAccessorMap, `${objectName}.${propertyName}`);
 
     const suggestionSentence = methodName
@@ -235,8 +234,10 @@ function getAssignmentExpressionErrors({
       ? `${objectName} doesn't have a property named ${propertyName}`
       : `Direct mutation of widget properties aren't supported. ${suggestionSentence}`;
 
+    // line position received after AST parsing is 1 more than the actual line of code, hence we subtract 1 to get the actual line number
     const objectStartLine = object.loc.start.line - 1;
 
+    // AST parsing start column position from index 0 whereas codemirror start ch position from index 1, hence we add 1 to get the actual ch position
     const objectStartCol = object.loc.start.column + 1;
 
     let variable = isLiteralNode(property)
@@ -313,6 +314,7 @@ function getCustomErrorsFromScript(
       const propertyName = isLiteralNode(property)
         ? (property.value as string)
         : property.name;
+      // line position received after AST parsing is 1 more than the actual line of code, hence we subtract 1 to get the actual line number
       const objectStartLine = object.loc.start.line - 1;
       // For computed member expressions (entity["property"]), add an extra 1 to the start column to account for "[".
       const propertyStartColumn = !isLiteralNode(property)
