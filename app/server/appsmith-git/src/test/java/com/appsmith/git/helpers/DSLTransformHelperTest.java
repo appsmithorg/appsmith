@@ -238,12 +238,20 @@ public class DSLTransformHelperTest {
     public void testAppendChildren_WithExistingMultipleChildren() {
         JSONObject parent = new JSONObject();
         JSONArray existingChildren = new JSONArray()
-                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "ExistingChild1"))
-                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "ExistingChild2"));
+                .put(new JSONObject()
+                        .put(CommonConstants.WIDGET_NAME, "ExistingChild1")
+                        .put(CommonConstants.WIDGET_ID, "ExistingChild1"))
+                .put(new JSONObject()
+                        .put(CommonConstants.WIDGET_NAME, "ExistingChild2")
+                        .put(CommonConstants.WIDGET_ID, "ExistingChild2"));
         parent.put(CommonConstants.CHILDREN, existingChildren);
         JSONArray childWidgets = new JSONArray()
-                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child1"))
-                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child2"));
+                .put(new JSONObject()
+                        .put(CommonConstants.WIDGET_NAME, "Child1")
+                        .put(CommonConstants.PARENT_ID, "ExistingChild1"))
+                .put(new JSONObject()
+                        .put(CommonConstants.WIDGET_NAME, "Child2")
+                        .put(CommonConstants.PARENT_ID, "ExistingChild2"));
 
         JSONObject result = DSLTransformerHelper.appendChildren(parent, childWidgets);
 
@@ -251,8 +259,18 @@ public class DSLTransformHelperTest {
                 .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child1"))
                 .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child2"));
 
+        JSONArray actualChildren = result.optJSONArray(CommonConstants.CHILDREN);
+
+        Assertions.assertEquals(actualChildren.length(), 2);
         Assertions.assertEquals(
-                expectedChildren.toString(),
-                result.optJSONArray(CommonConstants.CHILDREN).toString());
+                actualChildren
+                        .getJSONObject(0)
+                        .optJSONArray(CommonConstants.CHILDREN)
+                        .getJSONObject(0)
+                        .toString(),
+                new JSONObject()
+                        .put(CommonConstants.WIDGET_NAME, "Child1")
+                        .put(CommonConstants.PARENT_ID, "ExistingChild1")
+                        .toString());
     }
 }

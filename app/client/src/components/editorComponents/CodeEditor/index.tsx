@@ -71,7 +71,7 @@ import {
   bindingHint,
   sqlHint,
 } from "components/editorComponents/CodeEditor/hintHelpers";
-import BindingPrompt from "./BindingPrompt";
+
 import { showBindingPrompt } from "./BindingPromptHelper";
 import { Button } from "design-system";
 import "codemirror/addon/fold/brace-fold";
@@ -103,6 +103,7 @@ import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { startingEntityUpdate } from "actions/editorActions";
 import type { SlashCommandPayload } from "entities/Action";
+import { SlashCommand } from "entities/Action";
 import type { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
 import {
@@ -158,6 +159,7 @@ import { PeekOverlayExpressionIdentifier, SourceType } from "@shared/ast";
 import type { MultiplexingModeConfig } from "components/editorComponents/CodeEditor/modes";
 import { MULTIPLEXING_MODE_CONFIGS } from "components/editorComponents/CodeEditor/modes";
 import { getDeleteLineShortcut } from "./utils/deleteLine";
+import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/CodeEditorSignPosting";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -489,6 +491,10 @@ class CodeEditor extends Component<Props, State> {
   handleSlashCommandSelection = (...args: any) => {
     const [command] = args;
     if (command === APPSMITH_AI) {
+      this.props.executeCommand({
+        actionType: SlashCommand.ASK_AI,
+        args: {},
+      });
       this.setState({ showAIWindow: true });
     }
     this.handleAutocompleteVisibility(this.editor);
@@ -1244,6 +1250,8 @@ class CodeEditor extends Component<Props, State> {
           entityInformation.entityId = entity.widgetId;
           if (isTriggerPath)
             entityInformation.expectedType = AutocompleteDataType.FUNCTION;
+
+          entityInformation.widgetType = entity.type;
         }
       }
       entityInformation.propertyPath = propertyPath;
@@ -1552,12 +1560,14 @@ class CodeEditor extends Component<Props, State> {
             currentValue={this.props.input.value}
             dataTreePath={dataTreePath}
             enableAIAssistance={this.AIEnabled}
+            entity={entityInformation}
             isOpen={this.state.showAIWindow}
             mode={this.props.mode}
             triggerContext={this.props.expected}
             update={this.updateValueWithAIResponse}
           >
             <EditorWrapper
+              AIEnabled
               border={border}
               borderLess={borderLess}
               className={`${className} ${replayHighlightClass} ${
@@ -1575,6 +1585,7 @@ class CodeEditor extends Component<Props, State> {
               isNotHover={this.state.isFocused || this.state.isOpened}
               isRawView={this.props.isRawView}
               isReadOnly={this.props.isReadOnly}
+              mode={this.props.mode}
               onMouseMove={this.handleLintTooltip}
               onMouseOver={this.handleMouseMove}
               ref={this.editorWrapperRef}
@@ -1604,10 +1615,12 @@ class CodeEditor extends Component<Props, State> {
                 ref={this.codeEditorTarget}
                 tabIndex={0}
               >
-                <BindingPrompt
+                <CodeEditorSignPosting
                   editorTheme={this.props.theme}
+                  forComp="editor"
                   isAIEnabled={this.AIEnabled}
                   isOpen={this.isBindingPromptOpen()}
+                  mode={this.props.mode}
                   promptMessage={this.props.promptMessage}
                   showLightningMenu={this.props.showLightningMenu}
                 />

@@ -1,6 +1,7 @@
 import log from "loglevel";
 import moment from "moment";
 import localforage from "localforage";
+import type { VersionUpdateState } from "../sagas/WebsocketSagas/versionUpdatePrompt";
 
 export const STORAGE_KEYS: {
   [id: string]: string;
@@ -23,8 +24,10 @@ export const STORAGE_KEYS: {
   FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY:
     "FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY",
   SIGNPOSTING_APP_STATE: "SIGNPOSTING_APP_STATE",
+  AI_TRIGGERED: "AI_TRIGGERED",
   FEATURE_WALKTHROUGH: "FEATURE_WALKTHROUGH",
   USER_SIGN_UP: "USER_SIGN_UP",
+  VERSION_UPDATE_STATE: "VERSION_UPDATE_STATE",
 };
 
 const store = localforage.createInstance({
@@ -421,6 +424,39 @@ export const setFirstTimeUserOnboardingTelemetryCalloutVisibility = async (
   }
 };
 
+export const setAIPromptTriggered = async () => {
+  try {
+    let noOfTimesAITriggered: number = await getAIPromptTriggered();
+
+    if (noOfTimesAITriggered >= 5) {
+      return noOfTimesAITriggered;
+    }
+
+    noOfTimesAITriggered += 1;
+    await store.setItem(STORAGE_KEYS.AI_TRIGGERED, noOfTimesAITriggered);
+
+    return noOfTimesAITriggered;
+  } catch (error) {
+    log.error("An error occurred while setting AI_TRIGGERED");
+    log.error(error);
+
+    return 0;
+  }
+};
+
+export const getAIPromptTriggered = async () => {
+  try {
+    const flag: number | null = await store.getItem(STORAGE_KEYS.AI_TRIGGERED);
+
+    if (flag === null) return 0;
+
+    return flag;
+  } catch (error) {
+    log.error("An error occurred while fetching AI_TRIGGERED");
+    log.error(error);
+    return 0;
+  }
+};
 export const setFeatureFlagShownStatus = async (key: string, value: any) => {
   try {
     let flagsJSON: Record<string, any> | null = await store.getItem(
@@ -493,4 +529,23 @@ export const isUserSignedUpFlagSet = async (email: string) => {
     log.error("An error occurred while reading USER_SIGN_UP");
     log.error(error);
   }
+};
+
+export const setVersionUpdateState = async (state: VersionUpdateState) => {
+  try {
+    await store.setItem(STORAGE_KEYS.VERSION_UPDATE_STATE, state);
+  } catch (e) {
+    log.error("An error occurred while storing version update state", e);
+  }
+};
+
+export const getVersionUpdateState =
+  async (): Promise<VersionUpdateState | null> => {
+    return await store.getItem<VersionUpdateState | null>(
+      STORAGE_KEYS.VERSION_UPDATE_STATE,
+    );
+  };
+
+export const removeVersionUpdateState = async () => {
+  return store.removeItem(STORAGE_KEYS.VERSION_UPDATE_STATE);
 };

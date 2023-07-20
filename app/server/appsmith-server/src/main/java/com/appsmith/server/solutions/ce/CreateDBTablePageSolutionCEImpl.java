@@ -224,8 +224,8 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                 .findById(datasourceId, datasourcePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
-                .flatMap(datasource ->
-                        datasourceStorageService.findByDatasourceAndEnvironmentId(datasource, environmentId))
+                .flatMap(datasource -> datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(
+                        datasource, environmentId))
                 .filter(DatasourceStorage::getIsValid)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.INVALID_DATASOURCE, FieldName.DATASOURCE, datasourceId)));
