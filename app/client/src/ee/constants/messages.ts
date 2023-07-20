@@ -206,3 +206,55 @@ export const PAGE_SERVER_UNAVAILABLE_TITLE = (cloudHosting: boolean) => {
     return "Server unavailable";
   }
 };
+
+// Provisioning begin
+export const PROVISIONING_TITLE = () => "User provisioning & Group sync";
+export const PROVISIONING_DESC = () =>
+  "Supports your IdP via SCIM for now. Other provisioning specifications coming soon.";
+export const SCIM_CARD_TITLE = () =>
+  "System for Cross-domain Identity Management";
+export const SCIM_CARD_SUB_TEXT = () =>
+  "Configure your identity providers like Okta, Azure Active Directory and others to manage authorization and access in Appsmith.";
+export const SCIM_CALLOUT_HEADING = () => "How to setup SCIM";
+export const SCIM_CALLOUT_LIST = [
+  "Enable SAML on Appsmith before you input SCIM config details.",
+  "See our SCIM config documentation below to get set-up instructions for supported providers.",
+  "Copy the endpoint URL and the API key right away into your IdP's console.",
+];
+export const CONNECTION_ACTIVE = () => "Connection Active";
+export const CONNECTION_INACTIVE = () => "Connection Inactive";
+export const OPEN_DOCUMENTATION = () => "Open documentation";
+export const SCIM_API_ENDPOINT = () => "SCIM API endpoint";
+export const SCIM_API_ENDPOINT_HELP_TEXT = () =>
+  "Paste this URL in your IdP service providers console.";
+export const API_KEY_TO_SETUP_SCIM = () => "API key to setup SCIM";
+export const COPY_PASTE_API_KEY_CALLOUT = () =>
+  "Copy and paste your API key into your IdP's console right away. You can't do this later.";
+export const GENERATE_API_KEY = () => "Generate API key";
+export const RECONFIGURE_API_KEY = () => "Re-configure API key";
+export const DISABLE_SCIM = () => "Disable SCIM";
+export const LAST_SYNC_MESSAGE = (lastUpdated: string) =>
+  `Last sync happened ${`${lastUpdated} ago` || "never happened"}`;
+export const DISABLE_SCIM_MODAL_TITLE = () => "Disable SCIM config";
+export const DISABLE_SCIM_MODAL_BUTTON = () => "Disable this SCIM config";
+export const RADIO_GROUP_HEADING = () =>
+  "Before disabling this config, choose one of the below options*";
+export const DISABLE_SCIM_MODAL_CONFIRMATION = () => "I understand and confirm";
+export const CONNECTION_INACTIVE_CALLOUT_ON_MODAL = () =>
+  "This connection will be disabled. Any updates in your IdP will not sync with Appsmith.";
+export const KEEP_RESOURCES_CALLOUT_ON_MODAL = () =>
+  "This connection will be disabled but users and groups will be retained.";
+export const REMOVE_RESOURCES_CALLOUT_ON_MODAL = (
+  userCount: number,
+  groupCount: number,
+) =>
+  `You have chosen to remove ${groupCount} groups and ${userCount} users in Appsmith via this connection.`;
+export const KEEP_PROVISIONED_RESOURCES = () =>
+  "Keep users and groups from this connection";
+export const REMOVE_PROVISIONED_RESOURCES = () =>
+  "Remove users and groups from this connection";
+export const KEEP_RESOURCES_SUB_TEXT_ON_MODAL = () =>
+  "This will keep all users and groups linked to Appsmith via this SCIM connection, but any updates in your IdP provider will not sync with Appsmith";
+export const REMOVE_RESOURCES_SUB_TEXT_ON_MODAL = () =>
+  "This will permanently remove all users and groups linked to Appsmith from this SCIM connection.";
+// Provisioning end

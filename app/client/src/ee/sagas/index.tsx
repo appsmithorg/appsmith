@@ -8,6 +8,7 @@ import AclSagas from "./AclSagas";
 import AuditLogsSagas from "@appsmith/sagas/AuditLogsSagas";
 import EnvironmentSagas from "./EnvironmentSagas";
 import AISagas from "./aiSagas";
+import ProvisioningSagas from "./ProvisioningSagas";
 
 const sagasArr = [
   ...CE_Sagas,
@@ -15,6 +16,7 @@ const sagasArr = [
   AuditLogsSagas,
   EnvironmentSagas,
   AISagas,
+  ProvisioningSagas,
 ];
 
 export function* rootSaga(sagasToRun = sagasArr): any {

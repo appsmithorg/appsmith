@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useHistory } from "react-router";
+import { useParams, useHistory, useLocation } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -53,6 +53,9 @@ export function GroupListing() {
   const history = useHistory();
   const params = useParams() as any;
   const dispatch = useDispatch();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const provisionedQueryParam = queryParams.get("provisioned");
 
   const userGroups = useSelector(getGroups);
   const selectedGroup = useSelector(getSelectedGroup);
@@ -90,7 +93,16 @@ export function GroupListing() {
       setSelectedUserGroup(null);
       dispatch(getGroupById({ id: selectedUserGroupId }));
     } else if (!selectedUserGroupId) {
-      dispatch({ type: ReduxActionTypes.FETCH_ACL_GROUPS });
+      dispatch({
+        type: ReduxActionTypes.FETCH_ACL_GROUPS,
+        ...(provisionedQueryParam
+          ? {
+              payload: {
+                provisioned: provisionedQueryParam,
+              },
+            }
+          : {}),
+      });
     }
   }, [selectedUserGroupId]);
 

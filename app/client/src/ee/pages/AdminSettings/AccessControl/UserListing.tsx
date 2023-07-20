@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useHistory, useParams } from "react-router-dom";
+import { Link, useHistory, useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
@@ -123,6 +123,9 @@ export function UserListing() {
   const history = useHistory();
   const params = useParams() as any;
   const dispatch = useDispatch();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const provisionedQueryParam = queryParams.get("provisioned");
 
   const aclUsers = useSelector(getAllAclUsers);
   const selUser = useSelector(getSelectedUser);
@@ -161,7 +164,16 @@ export function UserListing() {
       setSelectedUser(null);
       dispatch(getUserById({ id: selectedUserId }));
     } else if (!selectedUserId) {
-      dispatch({ type: ReduxActionTypes.FETCH_ACL_USERS });
+      dispatch({
+        type: ReduxActionTypes.FETCH_ACL_USERS,
+        ...(provisionedQueryParam
+          ? {
+              payload: {
+                provisioned: provisionedQueryParam,
+              },
+            }
+          : {}),
+      });
     }
   }, [selectedUserId]);
 

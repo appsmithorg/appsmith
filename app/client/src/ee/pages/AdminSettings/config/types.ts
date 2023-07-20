@@ -19,6 +19,8 @@ const EE_SettingCategories = {
   AUDIT_LOGS: "audit-logs",
   AUDIT_LOGS_SETTINGS: "audit-logs-settings",
   BILLING: "billing",
+  PROVISIONING: "provisioning",
+  SCIM_PROVISIONING: "scim",
 };
 
 export const SettingCategories = {
