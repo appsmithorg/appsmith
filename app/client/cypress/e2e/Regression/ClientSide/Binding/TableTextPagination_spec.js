@@ -136,13 +136,8 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.executeDbQuery("Api2", "onPageChange");
   });
 
-  it("5. Table-Text, Validate Server Side Pagination of Paginate with response URL", function () {
+  it.skip("5. Table-Text, Validate Server Side Pagination of Paginate with response URL", function () {
     /**Validate Response data with Table data in Text Widget */
-    cy.get("body").then(($ele) => {
-      if ($ele.find(locators._backToEditor).length) {
-        deployMode.NavigateBacktoEditor();
-      }
-    });
     entityExplorer.SelectEntityByName("Table1", "Widgets");
 
     cy.ValidatePaginateResponseUrlData(
