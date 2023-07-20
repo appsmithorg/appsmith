@@ -14,7 +14,7 @@ defaults:
     working-directory: app/client
 
 jobs:
-  build:
+  prettier-check:
     runs-on: ubuntu-latest
     defaults:
       run:
