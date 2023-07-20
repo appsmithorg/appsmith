@@ -86,6 +86,7 @@ import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { toast } from "design-system";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
 
 function* handleCreateNewJsActionSaga(
   action: ReduxAction<{ pageId: string; from: EventLocation }>,
@@ -385,7 +386,12 @@ export function* handleExecuteJSFunctionSaga(data: {
     // open response tab in debugger on runnning or page load js action.
     if (window.location.pathname.includes(collectionId)) {
       yield put(showDebugger(true));
-      yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+
+      const debuggerSelectedTab = yield select(getDebuggerSelectedTab);
+
+      if (debuggerSelectedTab === "") {
+        yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+      }
     }
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
@@ -475,6 +481,7 @@ export function* handleStartExecuteJSFunctionSaga(
     num_params: action.actionConfiguration?.jsArguments?.length,
     from: from,
   });
+
   yield call(handleExecuteJSFunctionSaga, {
     collectionName: collectionName,
     action: action,
