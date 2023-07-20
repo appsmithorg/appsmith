@@ -96,7 +96,8 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 applicationPermission,
                 pagePermission,
                 actionPermission,
-                transactionalOperator);
+                transactionalOperator,
+                permissionGroupService);
         this.applicationService = applicationService;
         this.applicationPermission = applicationPermission;
         this.permissionGroupService = permissionGroupService;
