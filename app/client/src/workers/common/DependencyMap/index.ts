@@ -52,7 +52,10 @@ export function createDependencyMap(
 
     for (const path of Object.keys(entityDependencies)) {
       const pathDependencies = entityDependencies[path];
-      const { errors, references } = extractInfoFromBindings(pathDependencies);
+      const { errors, references } = extractInfoFromBindings(
+        pathDependencies,
+        allKeys,
+      );
       dependencyMap.addDependency(path, references);
       dataTreeEvalRef.errors.push(...errors);
     }
@@ -110,12 +113,12 @@ export const updateDependencyMap = ({
   let didUpdateDependencyMap = false;
   let didUpdateValidationDependencyMap = false;
   const {
+    allKeys,
     dependencyMap,
     oldConfigTree,
     oldUnEvalTree,
     validationDependencyMap,
   } = dataTreeEvalRef;
-  // TODO => UPDATE ALL KEYS WITH DIFF
   let { errors: dataTreeEvalErrors } = dataTreeEvalRef;
 
   translatedDiffs.forEach((dataTreeDiff) => {
@@ -143,7 +146,6 @@ export const updateDependencyMap = ({
           });
           const didUpdateDep = dependencyMap.addNodes(allAddedPaths);
           if (didUpdateDep) didUpdateDependencyMap = true;
-
           if (isWidgetActionOrJsObject(entity)) {
             if (!isDynamicLeaf(unEvalDataTree, fullPropertyPath, configTree)) {
               const entityDependencyMap = getEntityDependencies(
@@ -156,7 +158,7 @@ export const updateDependencyMap = ({
                 Object.entries(entityDependencyMap).forEach(
                   ([path, pathDependencies]) => {
                     const { errors: extractDependencyErrors, references } =
-                      extractInfoFromBindings(pathDependencies);
+                      extractInfoFromBindings(pathDependencies, allKeys);
                     dependencyMap.addDependency(path, references);
                     didUpdateDependencyMap = true;
                     dataTreeEvalErrors = dataTreeEvalErrors.concat(
@@ -188,7 +190,7 @@ export const updateDependencyMap = ({
                 fullPropertyPath,
               );
               const { errors: extractDependencyErrors, references } =
-                extractInfoFromBindings(entityPathDependencies);
+                extractInfoFromBindings(entityPathDependencies, allKeys);
               dependencyMap.addDependency(fullPropertyPath, references);
               didUpdateDependencyMap = true;
               dataTreeEvalErrors = dataTreeEvalErrors.concat(
@@ -196,7 +198,6 @@ export const updateDependencyMap = ({
               );
 
               if (isWidget(entity)) {
-                // update validation dependencies
                 const validationDependencies = getValidationDependencies(
                   entity,
                   entityName,
@@ -258,7 +259,7 @@ export const updateDependencyMap = ({
             );
 
             const { errors: extractDependencyErrors, references } =
-              extractInfoFromBindings(entityPathDependencies);
+              extractInfoFromBindings(entityPathDependencies, allKeys);
             dependencyMap.addDependency(fullPropertyPath, references);
             didUpdateDependencyMap = true;
 

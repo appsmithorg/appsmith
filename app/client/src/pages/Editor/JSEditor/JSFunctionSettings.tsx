@@ -1,8 +1,8 @@
 import { updateFunctionProperty } from "actions/jsPaneActions";
 import {
-  ASYNC_FUNCTION_SETTINGS_HEADING,
+  FUNCTION_SETTINGS_HEADING,
+  NO_JS_FUNCTIONS,
   createMessage,
-  NO_ASYNC_FUNCTIONS,
 } from "@appsmith/constants/messages";
 import type { JSAction } from "entities/JSCollection";
 import React, { useState } from "react";
@@ -202,7 +202,7 @@ function JSFunctionSettingsView({
   return (
     <JSFunctionSettingsWrapper>
       <SettingsContainer>
-        <h3>{createMessage(ASYNC_FUNCTION_SETTINGS_HEADING)}</h3>
+        <h3>{createMessage(FUNCTION_SETTINGS_HEADING)}</h3>
         <SettingsRowWrapper>
           <SettingRow isHeading>
             {SETTINGS_HEADINGS.map((setting, index) => (
@@ -225,7 +225,7 @@ function JSFunctionSettingsView({
             ))
           ) : (
             <SettingRow noBorder>
-              <SettingColumn>{createMessage(NO_ASYNC_FUNCTIONS)}</SettingColumn>
+              <SettingColumn>{createMessage(NO_JS_FUNCTIONS)}</SettingColumn>
             </SettingRow>
           )}
         </SettingsRowWrapper>
