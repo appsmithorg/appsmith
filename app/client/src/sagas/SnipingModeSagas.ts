@@ -97,7 +97,8 @@ export function* bindDataToWidgetSaga(
     const batchUpdateArray = updates.map((update) => {
       return {
         propertyPath: update.propertyPath,
-        isDynamic: update.isDynamicPropertyPath ?? false,
+        isDynamic: !!update.isDynamicPropertyPath,
+        skipValidation: true, // Since we are coming up with the dynamic string, we can skip validation
       };
     });
 

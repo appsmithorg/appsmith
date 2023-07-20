@@ -45,7 +45,7 @@ export const batchUpdateWidgetDynamicProperty = (
   widgetId: string,
   updates: BatchUpdateDynamicPropertyUpdates[],
 ): ReduxAction<BatchUpdateWidgetDynamicPropertyPayload> => ({
-  type: ReduxActionTypes.BATCH_UPDATE_WIDGET_PROPERTY,
+  type: ReduxActionTypes.BATCH_SET_WIDGET_DYNAMIC_PROPERTY,
   payload: {
     widgetId,
     updates,

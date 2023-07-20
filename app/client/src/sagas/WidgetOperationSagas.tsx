@@ -482,7 +482,7 @@ export function removeDynamicBindingProperties(
   }
 }
 
-function* handleUpdateWidgetDynamicProperty(
+export function* handleUpdateWidgetDynamicProperty(
   widget: WidgetProps,
   update: BatchUpdateDynamicPropertyUpdates,
 ) {
@@ -541,7 +541,6 @@ function* handleUpdateWidgetDynamicProperty(
       widget = set(widget, propertyPath, parsed);
     }
   }
-
   widget.dynamicPropertyPathList = dynamicPropertyPathList;
   widget.dynamicBindingPathList = dynamicBindingPathList;
 
