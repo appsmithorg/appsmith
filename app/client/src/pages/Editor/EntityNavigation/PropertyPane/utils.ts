@@ -81,7 +81,7 @@ export const getSectionId = (
 
   if (!matchedSections.length) return;
 
-  // If the propertyPath matches with the property names
+  // If the propertyPath `resetButtonStyles.boxShadow` matches with the property names
   // "boxShadow" and "resetButtonStyles.boxShadow"
   // The intendened match is "resetButtonStyles.boxShadow".
   // So we aggregrate matches and find the best match which is the longest string
@@ -188,8 +188,12 @@ export const getPropertyPanePanelNavigationConfig = (
               "",
             );
             pathList = [rootProperty, ...pathWithoutRootProperty.split(".")];
+            // primaryColumns.title.menuItems.menuItemneyc7dqksw.textColor
             // Every alternate path is a dynamic property not part of the property
             // pane config, these dynamic properties represent the panel id's
+            // static - S exists in the property pane config, dynamic - D
+            // primaryColumns.title.menuItems.menuItemneyc7dqksw.textColor
+            //       S          D        S            D             S
             isMatchingPropertyName =
               pathList.slice(panelDepth * 2, 1 + panelDepth * 2).join(".") ===
               currentProperty;
@@ -218,6 +222,8 @@ export const getPropertyPanePanelNavigationConfig = (
               .join(".");
             const panelPath = pathList.slice(0, 1 + panelDepth * 2).join(".");
             const panelIndex = getPanelIndex(widgetProps, panelTabPath);
+            // We will also need the label to be sent as payload for actions to
+            // set the panel, tab and section collapse state
             const panelLabel = get(widgetProps, panelTabPath)?.label;
 
             stack.push({
