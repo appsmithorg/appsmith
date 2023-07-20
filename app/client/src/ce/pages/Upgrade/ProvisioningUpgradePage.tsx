@@ -4,13 +4,12 @@ import UpgradePage from "./UpgradePage";
 import ProvisionDeprovisionUsersImage from "assets/images/upgrade/provisioning/provision-deprovision-users.svg";
 import AutoGroupSyncImage from "assets/images/upgrade/provisioning/auto-group-sync.svg";
 import {
-  ACCESS_CONTROL_UPGRADE_PAGE_FOOTER,
   AUTO_GROUP_SYNC,
   AUTO_GROUP_SYNC_DETAIL1,
   createMessage,
-  INTRODUCING,
   PROVISION_DEPROVISION_USERS,
   PROVISION_DEPROVISION_USERS_DETAIL1,
+  PROVISIONING_UPGRADE_PAGE_FOOTER,
   PROVISIONING_UPGRADE_PAGE_SUB_HEADING,
   USER_PROVISIONING_FOR_ENTERPRISES,
 } from "@appsmith/constants/messages";
@@ -23,10 +22,7 @@ export function ProvisioningUpgradePage() {
   });
 
   const header: Header = {
-    heading: createMessage(
-      INTRODUCING,
-      createMessage(USER_PROVISIONING_FOR_ENTERPRISES),
-    ),
+    heading: createMessage(USER_PROVISIONING_FOR_ENTERPRISES),
     subHeadings: [createMessage(PROVISIONING_UPGRADE_PAGE_SUB_HEADING)],
   };
   const carousel: Carousel = {
@@ -60,7 +56,7 @@ export function ProvisioningUpgradePage() {
     onClick: () => {
       onUpgrade();
     },
-    message: createMessage(ACCESS_CONTROL_UPGRADE_PAGE_FOOTER),
+    message: createMessage(PROVISIONING_UPGRADE_PAGE_FOOTER),
     isEnterprise: true,
   };
   const props = { header, carousel, footer };
