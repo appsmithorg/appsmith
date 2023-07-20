@@ -10,6 +10,7 @@ export class CommonLocators {
   _sidebar = ".t--sidebar";
   _queryName = ".t--action-name-edit-field span";
   _queryNameTxt = ".t--action-name-edit-field input";
+  _editIcon = ".t--action-name-edit-icon";
   _emptyCanvasCta = "[data-testid='canvas-ctas']";
   _dsName = ".t--edit-datasource-name span";
   _dsNameTxt = ".t--edit-datasource-name input";
@@ -252,8 +253,6 @@ export class CommonLocators {
   _appThemeCard = ".t--theme-card";
   _appNavigationSettings = "#t--navigation-settings-header";
   _appNavigationSettingsShowTitle = "#t--navigation-settings-application-title";
-  _switchGroupControl =
-    ".t--draggable-switchgroupwidget .bp3-control-indicator";
   _fontSelect = "fontsize .rc-select";
   _fontInput = "fontsize input";
   _pagination = ".rc-pagination";
@@ -262,4 +261,12 @@ export class CommonLocators {
   _itemContainerWidget = ".t--widget-containerwidget div.style-container";
   _paginationButton = ".rc-pagination-item";
   _firstChild = ":first-child";
+  _svg = "svg";
+  _nextPage = ".rc-pagination-next";
+  _containerWidget = "[type='CONTAINER_WIDGET']";
+  _listActivePage = ".t--widget-listwidgetv2 .rc-pagination-item-active";
+  _bodyTextStyle = ".bp3-ui-text span";
+  _paginationItem = (value: number) => `.rc-pagination-item-${value}`;
+  _evaluatedValue = ".t-property-evaluated-value";
+  _selectSearch = ".rc-select-selection-search";
 }

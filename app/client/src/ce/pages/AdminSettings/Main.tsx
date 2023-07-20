@@ -3,13 +3,11 @@ import AdminConfig from "./config";
 import { Redirect, useParams } from "react-router";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import SettingsForm from "pages/Settings/SettingsForm";
-import { AuditLogsUpgradePage } from "../Upgrade/AuditLogsUpgradePage";
-import { AccessControlUpgradePage } from "../Upgrade/AccessControlUpgradePage";
 import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
-import { UpgradeToBEPage } from "../Upgrade/businessEdition/UpgradeToBEPage";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 const Main = () => {
   const params = useParams() as any;
@@ -19,22 +17,19 @@ const Main = () => {
   const isSuperUser = user?.isSuperUser || false;
   const wrapperCategory =
     AdminConfig.wrapperCategories[subCategory ?? category];
+  const featureFlags = useSelector(selectFeatureFlags);
 
-  /* New flow, where data is hand written and processed differently than old flow
-   * In old flow, config and a factory was used to generate the Main content.
-   */
-  if (category === "access-control") {
-    return <AccessControlUpgradePage />;
-  }
-  if (category === "audit-logs") {
-    return <AuditLogsUpgradePage />;
-  }
-
-  if (category === "business-edition") {
-    return <UpgradeToBEPage />;
+  if (
+    category === "provisioning" &&
+    !featureFlags.release_scim_provisioning_enabled
+  ) {
+    return (
+      <Redirect
+        to={getDefaultAdminSettingsPath({ isSuperUser, tenantPermissions })}
+      />
+    );
   }
 
-  /* Old, still working flow; config, factory based */
   if (!!wrapperCategory?.component) {
     const { component: WrapperCategoryComponent } = wrapperCategory;
     return <WrapperCategoryComponent category={wrapperCategory} />;

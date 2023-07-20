@@ -424,6 +424,7 @@ public class DatasourceStructureSolutionTest {
         DatasourceStorage datasourceStorage = new DatasourceStorage();
         datasourceStorage.setDatasourceId(datasourceId);
         datasourceStorage.setEnvironmentId(defaultEnvironmentId);
+        datasourceStorage.setDatasourceConfiguration(new DatasourceConfiguration());
         datasourceStorage.setInvalids(new HashSet<>());
         datasourceStorage.getInvalids().add("random invalid");
 

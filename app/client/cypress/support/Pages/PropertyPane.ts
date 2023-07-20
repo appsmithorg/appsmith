@@ -46,8 +46,7 @@ export class PropertyPane {
     `.t--property-pane-section-collapse-${section}`;
   private _sectionCollapseWithTag = (section: string, tab: string) =>
     `.t--property-pane-section-collapse-${section} .t--property-section-tag-${tab}`;
-  private _propertyControl = (property: string) =>
-    `.t--property-control-${property}`;
+  _propertyControl = (property: string) => `.t--property-control-${property}`;
   private _addAction = (property: string) => `.t--add-action-${property}`;
   _propertyPaneSearchInputWrapper = ".t--property-pane-search-input-wrapper";
   _propertyPaneSearchInput = `${this._propertyPaneSearchInputWrapper} input`;
@@ -107,6 +106,9 @@ export class PropertyPane {
   }`;
   private _propPaneSelectedItem = (option: string) =>
     `.t--property-control-${option} span.rc-select-selection-item span`;
+  _propertyDateFormat = ".t--property-control-dateformat";
+  _propertyPanePropertyControl = (propPane: string, propControl: string) =>
+    `.t--property-pane-section-${propPane} .t--property-control-${propControl}`;
   _autoHeightLimitMin = "[data-testid='t--auto-height-overlay-handles-min']";
   _autoHeightLimitMin_div =
     "[data-testid='t--auto-height-overlay-handles-min'] div";

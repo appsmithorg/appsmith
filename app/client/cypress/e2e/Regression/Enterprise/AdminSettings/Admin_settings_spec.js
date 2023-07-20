@@ -76,13 +76,6 @@ describe("Admin settings page", function () {
       cy.get("@pricingPage").should("be.called");
       cy.wait(2000);
       cy.go(-1);
-      cy.get(adminsSettings.upgrageLeftPane).click();
-      cy.url().should("contain", "/settings/business-edition");
-      stubPricingPage();
-      cy.xpath(adminsSettings.upgrade).click();
-      cy.get("@pricingPage").should("be.called");
-      cy.wait(2000);
-      cy.go(-1);
     }
   });
 });
