@@ -29,7 +29,7 @@ export default function BottomBar({ viewMode }: { viewMode: boolean }) {
   return (
     <Container>
       <Wrapper>
-        <SwitchEnvironment />
+        <SwitchEnvironment viewMode={viewMode} />
         {!viewMode && <QuickGitActions />}
       </Wrapper>
       {!viewMode && (

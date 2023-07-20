@@ -1,4 +1,5 @@
 type DSDataFilterProps = {
+  datasourceId: string;
   updateFilter: (
     id: string,
     name: string,

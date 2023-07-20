@@ -501,6 +501,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           <ResizerContentContainer className="db-form-resizer-content">
             <DSEditorWrapper>
               <DSDataFilter
+                datasourceId={datasourceId}
                 filterId={this.state.filterParams.id}
                 isInsideReconnectModal={!!isInsideReconnectModal}
                 pluginName={plugin?.name || ""}
