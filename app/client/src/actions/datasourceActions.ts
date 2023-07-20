@@ -488,7 +488,6 @@ export const datasourceDiscardAction = (pluginId: string) => {
 
 export const softRefreshDatasourceStructure = () => ({
   type: ReduxActionTypes.SOFT_REFRESH_DATASOURCE_STRUCTURE,
-  payload: {},
 });
 
 export default {
