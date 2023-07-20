@@ -122,13 +122,13 @@ describe("GSheet-Functional Tests", function () {
     dataSources.AssertQueryTableResponse(0, GSHEET_DATA[0].uniq_id);
 
     // Update query to fetch only 1 column and verify
-    gsheetHelper.selectMultiDropDownValue("Columns", "product_name");
+    gsheetHelper.SelectMultiDropDownValue("Columns", "product_name");
     dataSources.RunQuery();
     dataSources.RunQueryNVerifyResponseViews(GSHEET_DATA.length);
     dataSources.AssertQueryTableResponse(0, GSHEET_DATA[0].product_name);
 
     //Remove column filter and add Sort By Ascending and verify
-    gsheetHelper.selectMultiDropDownValue("Columns", "product_name"); //unselect the Columns dd value
+    gsheetHelper.SelectMultiDropDownValue("Columns", "product_name"); //unselect the Columns dd value
     agHelper.EnterValue("price", {
       propFieldName: "",
       directInput: false,
@@ -141,8 +141,8 @@ describe("GSheet-Functional Tests", function () {
     );
 
     // Sort by descending and verify
-    dataSources.clearSortByOption(); //clearing previous sort option
-    dataSources.enterSortByValues("price", "Descending");
+    dataSources.ClearSortByOption(); //clearing previous sort option
+    dataSources.EnterSortByValues("price", "Descending");
     dataSources.RunQuery();
     dataSources.RunQueryNVerifyResponseViews(GSHEET_DATA.length);
     dataSources.AssertQueryTableResponse(
