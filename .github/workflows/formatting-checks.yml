@@ -1,4 +1,4 @@
-name: Perform formatting checks
+name: Formatting checks
 
 on:
  pull_request:
