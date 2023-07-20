@@ -739,10 +739,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   if (!workspaceId) {
     workspaceId = yield select(getWorkspaceIdForImport);
   }
-  const { initialValues, values } = yield select(
-    getFormData,
-    DATASOURCE_DB_FORM,
-  );
+  const { initialValues } = yield select(getFormData, DATASOURCE_DB_FORM);
   const datasource = shouldBeDefined<Datasource>(
     yield select(getDatasource, actionPayload.payload.id),
     `Datasource not found for id - ${actionPayload.payload.id}`,
@@ -756,10 +753,12 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   let payloadWithoutDatasourceId: DatasourceStorage =
     payload.datasourceStorages[currentEnvironment];
 
+  const initialDSStorage = initialValues.datasourceStorages[currentEnvironment];
+
   // when datasource is not yet saved by user, datasource id is temporary
   // for temporary datasource, we do not need to pass datasource id in test api call
   if (
-    !equal(initialValues, values) ||
+    !equal(initialDSStorage, payloadWithoutDatasourceId) ||
     payloadWithoutDatasourceId?.datasourceId === TEMP_DATASOURCE_ID
   ) {
     // we have to do this so that the original object is not mutated

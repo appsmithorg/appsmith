@@ -1,6 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
-import ME_LOCATORS from "../../locators/MultipleEnvLocators";
 import { EntityItems } from "./AssertHelper";
 
 const DataSourceKVP = {
@@ -377,20 +376,8 @@ export class DataSources {
     // else this.agHelper.AssertContains("datasource created");
   }
 
-  public EditDatasource(
-    switchEnvironment = false,
-    target_environment = this.tedTestConfig.defaultEnviorment,
-  ) {
+  public EditDatasource() {
     this.agHelper.GetNClick(this._editButton);
-    if (switchEnvironment) {
-      this.agHelper.GetNClick(
-        ME_LOCATORS.ds_editor_env_filter(target_environment),
-      );
-      this.agHelper.AssertSelectedTab(
-        ME_LOCATORS.ds_editor_env_filter(target_environment),
-        "true",
-      );
-    }
   }
 
   public NavigateToDSCreateNew() {
@@ -622,34 +609,6 @@ export class DataSources {
       JSON.stringify(Cypress.env("FIRESTORE_PRIVATE_KEY")),
     );
     //});
-  }
-
-  public SwitchEnv(targetEnv: string) {
-    this.agHelper
-      .GetElement(ME_LOCATORS.env_switcher)
-      .eq(0)
-      .invoke("text")
-      .then((text) => {
-        if (text.toLowerCase() === targetEnv.toLowerCase()) {
-          cy.log("Already in target env");
-        } else {
-          cy.log(
-            `Currently in ${text
-              .toString()
-              .toLowerCase()} Switching to target env: ${targetEnv.toLowerCase()}`,
-          );
-          this.agHelper.GetNClick(ME_LOCATORS.env_switcher);
-          this.agHelper.GetNClick(
-            ME_LOCATORS.env_switcher_dropdown_opt(targetEnv),
-          );
-          this.agHelper.Sleep();
-          this.agHelper.AssertElementExist(
-            this.locator._specificToast(
-              `...Environment switched to ${targetEnv} successfully`,
-            ),
-          );
-        }
-      });
   }
 
   public FillElasticSearchDSForm(
@@ -1152,7 +1111,7 @@ export class DataSources {
         this.agHelper.RenameWithInPane(dataSourceName, false);
         if (assetEnvironmentSelected) {
           this.agHelper.AssertSelectedTab(
-            ME_LOCATORS.ds_editor_env_filter(environment),
+            this.locator.ds_editor_env_filter(environment),
             "true",
           );
         }

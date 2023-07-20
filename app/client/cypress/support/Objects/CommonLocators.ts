@@ -260,4 +260,7 @@ export class CommonLocators {
   _controlOption = ".t--property-control-options";
   _canvasBody = "[data-testid='div-selection-0']";
   _svg = "svg";
+
+  public ds_editor_env_filter = (envName: string) =>
+    `[data-cy="t--ds-data-filter-${envName}"]`;
 }

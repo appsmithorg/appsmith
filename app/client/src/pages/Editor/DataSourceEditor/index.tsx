@@ -489,6 +489,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           },
         });
         return false;
+      } else {
+        this.props.resetForm(this.props.formName);
       }
       return this.updateFilterSuccess(
         id,
