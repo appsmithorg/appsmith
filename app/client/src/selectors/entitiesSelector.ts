@@ -1188,6 +1188,7 @@ const getOtherDatasourcesInWorkspace = (state: AppState): Datasource[] => {
   );
 };
 
+//This function returns the datasources which are not used by actions but visible in the workspace
 export const getEntityExplorerDatasources = (state: AppState): Datasource[] => {
   const datasourcesUsedInApplication =
     getDatasourcesUsedInApplicationByActions(state);

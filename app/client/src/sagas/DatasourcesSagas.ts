@@ -197,6 +197,8 @@ function* fetchDatasourceStructureOnLoad() {
     let datasourcesUsedInApplication: Datasource[] = yield select(
       getDatasourcesUsedInApplicationByActions,
     );
+
+    // get datasources present in entity explorer and not part of any action.
     if (datasourcesUsedInApplication.length < MAX_DATASOURCE_SUGGESTIONS) {
       const datasourceInEntityExplorer: Datasource[] = yield select(
         getEntityExplorerDatasources,
@@ -207,8 +209,8 @@ function* fetchDatasourceStructureOnLoad() {
       ];
     }
 
+    //fetch datasource structure for each datasource
     for (const datasource of datasourcesUsedInApplication) {
-      //fetch datasource structure for each datasource
       yield put(fetchDatasourceStructure(datasource.id, true));
     }
   } catch (error) {}
