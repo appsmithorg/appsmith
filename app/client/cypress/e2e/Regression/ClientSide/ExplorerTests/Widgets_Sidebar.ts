@@ -1,3 +1,4 @@
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   entityExplorer,
   agHelper,
@@ -73,6 +74,16 @@ describe("Entity explorer tests related to widgets and validation", function () 
     Content: ["Map", "Progress", "Rating", "Text"],
     "External input": ["Audio Recorder", "Camera", "Code Scanner"],
   };
+
+  before(() => {
+    featureFlagIntercept(
+      {
+        release_widgetdiscovery_enabled: true,
+      },
+      false,
+    );
+    agHelper.RefreshPage();
+  });
 
   const getTotalNumberOfWidgets = () => {
     return Object.values(WIDGETS_CATALOG).reduce(
