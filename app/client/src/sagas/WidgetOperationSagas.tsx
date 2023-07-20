@@ -559,7 +559,6 @@ export function* batchUpdateWidgetDynamicPropertySaga(
 
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
-
   // Save the layout
   yield put(updateAndSaveLayout(widgets));
 }
