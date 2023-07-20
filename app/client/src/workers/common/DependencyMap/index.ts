@@ -278,18 +278,15 @@ export const updateDependencyMap = ({
   const diffCalcEnd = performance.now();
   const updateChangedDependenciesStart = performance.now();
 
-  const updatedDependencies = dependencyMap.dependencies;
-  const updatedValidationDependencies = validationDependencyMap.dependencies;
-  const updatedInverseDependencies = dependencyMap.inverseDependencies;
-  const updatedInverseValidationDependencies =
-    validationDependencyMap.inverseDependencies;
-
   if (didUpdateDependencyMap) {
     DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
-    dataTreeEvalRef.sortDependencies(updatedDependencies);
+    dataTreeEvalRef.sortedDependencies = dataTreeEvalRef.sortDependencies(
+      dependencyMap.dependencies,
+    );
   }
   if (didUpdateValidationDependencyMap) {
-    dataTreeEvalRef.sortDependencies(updatedValidationDependencies);
+    dataTreeEvalRef.sortedValidationDependencies =
+      dataTreeEvalRef.sortDependencies(validationDependencyMap.dependencies);
   }
 
   /** We need this in order clear out the paths that could have errors when a property is deleted */
@@ -314,9 +311,9 @@ export const updateDependencyMap = ({
     pathsToClearErrorsFor,
     dependenciesOfRemovedPaths,
     removedPaths,
-    dependencies: updatedDependencies,
-    validationDependencies: updatedValidationDependencies,
-    inverseDependencies: updatedInverseDependencies,
-    inverseValidationDependencies: updatedInverseValidationDependencies,
+    dependencies: dependencyMap.dependencies,
+    validationDependencies: validationDependencyMap.dependencies,
+    inverseDependencies: dependencyMap.inverseDependencies,
+    inverseValidationDependencies: validationDependencyMap.inverseDependencies,
   };
 };
