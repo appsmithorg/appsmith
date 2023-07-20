@@ -197,6 +197,9 @@ public class ApplicationShareTest {
     @Autowired
     WorkspaceRepository workspaceRepository;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     User apiUser = null;
     User testUser = null;
 
@@ -260,8 +263,9 @@ public class ApplicationShareTest {
         datasource.setWorkspaceId(workspace.getId());
         datasource.setPluginId(pluginId);
 
-        String environmentId =
-                workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
+                .block();
         DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
         storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
@@ -522,8 +526,9 @@ public class ApplicationShareTest {
         datasource.setWorkspaceId(workspace.getId());
         datasource.setPluginId(pluginId);
 
-        String environmentId =
-                workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
+                .block();
         DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
         storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
@@ -833,8 +838,9 @@ public class ApplicationShareTest {
         datasource.setWorkspaceId(workspace.getId());
         datasource.setPluginId(pluginId);
 
-        String environmentId =
-                workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
+                .block();
         DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
         storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
@@ -1080,8 +1086,9 @@ public class ApplicationShareTest {
         datasource.setWorkspaceId(workspace.getId());
         datasource.setPluginId(pluginId);
 
-        String environmentId =
-                workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
+                .block();
         DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
         storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
@@ -3666,8 +3673,9 @@ public class ApplicationShareTest {
         datasource.setWorkspaceId(workspace.getId());
         datasource.setPluginId(pluginId);
 
-        String environmentId =
-                workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
+                .block();
         DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
         storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));
@@ -3794,8 +3802,9 @@ public class ApplicationShareTest {
         datasource.setWorkspaceId(workspace.getId());
         datasource.setPluginId(pluginId);
 
-        String environmentId =
-                workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
+                .block();
         DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
         storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));

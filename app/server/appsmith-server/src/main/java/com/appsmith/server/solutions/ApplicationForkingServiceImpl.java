@@ -92,7 +92,7 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
         Mono<String> fromEnvironmentIdMono = applicationService
                 .findById(srcApplicationId)
                 .map(Application::getWorkspaceId)
-                .flatMap(workspaceService::getDefaultEnvironmentId);
+                .flatMap(workspaceId -> workspaceService.getDefaultEnvironmentId(workspaceId, null));
 
         return fromEnvironmentIdMono.flatMap(fromEnvironmentId -> super.forkApplicationToWorkspaceWithEnvironment(
                 srcApplicationId, targetWorkspaceId, fromEnvironmentId));

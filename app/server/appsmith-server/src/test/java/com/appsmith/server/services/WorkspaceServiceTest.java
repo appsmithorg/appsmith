@@ -31,6 +31,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
@@ -151,6 +152,9 @@ public class WorkspaceServiceTest {
 
     @Autowired
     EnvironmentService environmentService;
+
+    @Autowired
+    EnvironmentPermission environmentPermission;
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
@@ -1123,7 +1127,7 @@ public class WorkspaceServiceTest {
 
         // Create datasource for this workspace
         Mono<Datasource> datasourceMono = workspaceService
-                .getDefaultEnvironmentId(workspace1.getId())
+                .getDefaultEnvironmentId(workspace1.getId(), environmentPermission.getExecutePermission())
                 .zipWith(pluginService.findByPackageName("postgres-plugin"))
                 .flatMap(tuple2 -> {
                     String defaultEnvironmentId = tuple2.getT1();

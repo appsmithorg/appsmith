@@ -44,6 +44,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
@@ -149,6 +150,9 @@ public class ApplicationServiceTest {
     @Autowired
     ImportExportApplicationService importExportApplicationService;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     String workspaceId;
 
     Workspace workspace;
@@ -185,8 +189,9 @@ public class ApplicationServiceTest {
             datasourceConfiguration.setUrl("http://test.com");
             datasource.setDatasourceConfiguration(datasourceConfiguration);
             datasource.setWorkspaceId(workspaceId);
-            String environmentId =
-                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            String environmentId = workspaceService
+                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                    .block();
             DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
             HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
             storages.put(environmentId, new DatasourceStorageDTO(datasourceStorage));

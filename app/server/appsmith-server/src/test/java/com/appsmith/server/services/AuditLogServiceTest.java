@@ -82,6 +82,7 @@ import com.appsmith.server.solutions.ActionExecutionSolution;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.CreateDBTablePageSolution;
 import com.appsmith.server.solutions.EnvManager;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
@@ -272,6 +273,9 @@ public class AuditLogServiceTest {
     @Autowired
     UserWorkspaceService userWorkspaceService;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     private static String workspaceId;
     private static String defaultEnvironmentId;
     private static Application app;
@@ -300,8 +304,9 @@ public class AuditLogServiceTest {
                         .block();
                 workspaceId = workspace.getId();
 
-                defaultEnvironmentId =
-                        workspaceService.getDefaultEnvironmentId(workspaceId).block();
+                defaultEnvironmentId = workspaceService
+                        .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                        .block();
             }
 
             // Make api_user super user as AuditLogs are accessible for super users only
@@ -1352,7 +1357,7 @@ public class AuditLogServiceTest {
         Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         String environmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application application = new Application();
@@ -2287,7 +2292,7 @@ public class AuditLogServiceTest {
         workspace.setName("AuditLogWorkspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
         String environmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application application = new Application();
@@ -2375,7 +2380,7 @@ public class AuditLogServiceTest {
         workspace.setName("AuditLogWorkspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
         String environmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application application = new Application();
@@ -2469,7 +2474,7 @@ public class AuditLogServiceTest {
         workspace.setName("AuditLogWorkspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
         String environmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application application = new Application();
@@ -2535,7 +2540,7 @@ public class AuditLogServiceTest {
         workspace.setName("AuditLogWorkspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
         String environmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application application = new Application();
@@ -2625,7 +2630,7 @@ public class AuditLogServiceTest {
         Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         String environmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application application = new Application();
@@ -2763,7 +2768,7 @@ public class AuditLogServiceTest {
         workspace.setName("AuditLogWorkspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
         String environmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application application = new Application();
@@ -3529,7 +3534,7 @@ public class AuditLogServiceTest {
         Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         String environmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application application = new Application();
