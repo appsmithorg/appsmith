@@ -457,7 +457,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       cy.ClickGotIt();
 
       //Verifying Searching File from UI
-      agHelper.TypeText(queryLocators.searchFilefield, "S3Crud_{enter}");
+      agHelper.TypeText(queryLocators.searchFilefield, datasourceName.substring(0,10));
       agHelper.Sleep(10000); //for search to finish
 
       cy.get(".t--widget-textwidget span:contains('" + fileName + "')")
