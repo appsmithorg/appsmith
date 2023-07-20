@@ -171,7 +171,7 @@ export default function (request: EvalWorkerSyncRequest) {
       );
       staleMetaIds = updateResponse.staleMetaIds;
     }
-    dependencies = dataTreeEvaluator.inverseDependencyMap;
+    dependencies = dataTreeEvaluator.inverseDependencies;
     errors = dataTreeEvaluator.errors;
     dataTreeEvaluator.clearErrors();
     logs = dataTreeEvaluator.logs;

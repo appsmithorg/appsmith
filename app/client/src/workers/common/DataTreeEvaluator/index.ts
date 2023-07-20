@@ -126,7 +126,8 @@ export type EvalProps = {
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = new DependencyMap();
   sortedDependencies: SortedDependencies = [];
-  inverseDependencyMap: Record<string, string[]> = {};
+  dependencies: Record<string, string[]> = {};
+  inverseDependencies: Record<string, string[]> = {};
   widgetConfigMap: WidgetTypeConfigMap = {};
   evalTree: DataTree = {};
   configTree: ConfigTree = {};
@@ -150,8 +151,9 @@ export default class DataTreeEvaluator {
    * Maintains dependency of paths to re-validate on evaluation of particular property path.
    */
   validationDependencyMap: DependencyMap = new DependencyMap();
+  validationDependencies: Record<string, string[]> = {};
   sortedValidationDependencies: SortedDependencies = [];
-  inverseValidationDependencyMap: Record<string, string[]> = {};
+  inverseValidationDependencies: Record<string, string[]> = {};
 
   /**
    * Sanitized eval values and errors
@@ -222,8 +224,10 @@ export default class DataTreeEvaluator {
     //save current state of js collection action and variables to be added to uneval tree
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
     //and functions are saved in dataTree as strings
-
+    const parseJSActionsStartTime = performance.now();
     const parsedCollections = parseJSActions(this, localUnEvalTree);
+    const parseJSActionsEndTime = performance.now();
+
     jsUpdates = parsedCollections.jsUpdates;
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
@@ -231,41 +235,29 @@ export default class DataTreeEvaluator {
       configTree,
     );
     const allKeysGenerationStartTime = performance.now();
-    // set All keys
     this.allKeys = getAllPaths(localUnEvalTree);
     const allKeysGenerationEndTime = performance.now();
 
     const createDependencyMapStartTime = performance.now();
-
-    // Create dependency map
-    const { dependencyMap, validationDependencyMap } = createDependencyMap(
-      this,
-      localUnEvalTree,
-      configTree,
-    );
+    const {
+      dependencies,
+      inverseDependencies,
+      inverseValidationDependencies,
+      validationDependencies,
+    } = createDependencyMap(this, localUnEvalTree, configTree);
     const createDependencyMapEndTime = performance.now();
 
-    this.dependencyMap = dependencyMap;
-    this.validationDependencyMap = validationDependencyMap;
+    this.dependencies = dependencies;
+    this.inverseDependencies = inverseDependencies;
+    this.validationDependencies = validationDependencies;
+    this.inverseValidationDependencies = inverseValidationDependencies;
+
     const sortDependenciesStartTime = performance.now();
-    // Sort
-    this.sortedDependencies = this.sortDependencies(this.dependencyMap);
+    this.sortedDependencies = this.sortDependencies(this.dependencies);
     this.sortedValidationDependencies = this.sortDependencies(
-      validationDependencyMap,
+      this.validationDependencies,
     );
     const sortDependenciesEndTime = performance.now();
-
-    const inverseDependencyGenerationStartTime = performance.now();
-    // Inverse
-    this.inverseDependencyMap = this.getInverseDependencyTree({
-      dependencyMap: dependencyMap.dependencies,
-      sortedDependencies: this.sortedDependencies,
-    });
-    this.inverseValidationDependencyMap = this.getInverseDependencyTree({
-      dependencyMap: validationDependencyMap.dependencies,
-      sortedDependencies: this.sortedValidationDependencies,
-    });
-    const inverseDependencyGenerationEndTime = performance.now();
 
     const secondCloneStartTime = performance.now();
     this.oldUnEvalTree = klona(localUnEvalTree);
@@ -295,9 +287,9 @@ export default class DataTreeEvaluator {
         sortDependenciesEndTime,
         sortDependenciesStartTime,
       ),
-      inverseDependency: getFixedTimeDifference(
-        inverseDependencyGenerationEndTime,
-        inverseDependencyGenerationStartTime,
+      parseJSActions: getFixedTimeDifference(
+        parseJSActionsEndTime,
+        parseJSActionsStartTime,
       ),
     };
     this.logs.push({ timeTakenForSetupFirstTree });
@@ -502,14 +494,26 @@ export default class DataTreeEvaluator {
     this.allKeys = getAllPaths(localUnEvalTree);
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
-    const { dependenciesOfRemovedPaths, pathsToClearErrorsFor, removedPaths } =
-      updateDependencyMap({
-        configTree,
-        dataTreeEvalRef: this,
-        translatedDiffs,
-        unEvalDataTree: localUnEvalTree,
-      });
+    const {
+      dependencies,
+      dependenciesOfRemovedPaths,
+      inverseDependencies,
+      inverseValidationDependencies,
+      pathsToClearErrorsFor,
+      removedPaths,
+      validationDependencies,
+    } = updateDependencyMap({
+      configTree,
+      dataTreeEvalRef: this,
+      translatedDiffs,
+      unEvalDataTree: localUnEvalTree,
+    });
     const updateDependencyEndTime = performance.now();
+
+    this.dependencies = dependencies;
+    this.validationDependencies = validationDependencies;
+    this.inverseDependencies = inverseDependencies;
+    this.inverseValidationDependencies = inverseValidationDependencies;
 
     this.updateEvalTreeWithChanges({ differences });
 
@@ -571,7 +575,7 @@ export default class DataTreeEvaluator {
          * Store fullPath in nonDynamicFieldValidationOrderSet,
          * if the non dynamic value changes to trigger revalidation.
          */
-        if (this.inverseValidationDependencyMap[fullPath]) {
+        if (this.inverseValidationDependencies[fullPath]) {
           nonDynamicFieldValidationOrderSet = new Set([
             ...nonDynamicFieldValidationOrderSet,
             fullPath,
@@ -642,8 +646,8 @@ export default class DataTreeEvaluator {
 
     this.logs.push({
       sortedDependencies: this.sortedDependencies,
-      inverse: this.inverseDependencyMap,
-      updatedDependencyMap: this.dependencyMap,
+      inverse: this.inverseDependencies,
+      updatedDependencies: this.dependencies,
       evaluationOrder: evaluationOrder,
     });
 
@@ -1150,10 +1154,10 @@ export default class DataTreeEvaluator {
   }
 
   sortDependencies(
-    dependencyMap: DependencyMap,
+    dependencies: Record<string, string[]>,
     diffs?: (DataTreeDiff | DataTreeDiff[])[],
   ): Array<string> {
-    const result = DependencyMapUtils.sortDependencies(dependencyMap);
+    const result = DependencyMapUtils.sortDependencies(dependencies);
     if (result.success) {
       return result.sortedDependencies;
     } else {
@@ -1175,11 +1179,11 @@ export default class DataTreeEvaluator {
         context: {
           node,
           entityType,
-          dependencyMap,
+          dependencyMap: dependencies,
           diffs,
         },
       });
-      logError("CYCLICAL DEPENDENCY MAP", dependencyMap);
+      logError("CYCLICAL DEPENDENCY MAP", dependencies);
       this.hasCyclicalDependency = true;
       throw new CrashingError((result.error as Error).message);
     }
@@ -1415,9 +1419,9 @@ export default class DataTreeEvaluator {
     configTree: ConfigTree;
   }): string[] {
     const reValidatedPaths: string[] = [];
-    if (this.inverseValidationDependencyMap[fullPropertyPath]) {
+    if (this.inverseValidationDependencies[fullPropertyPath]) {
       const pathsToRevalidate =
-        this.inverseValidationDependencyMap[fullPropertyPath];
+        this.inverseValidationDependencies[fullPropertyPath];
 
       reValidatedPaths.push(...pathsToRevalidate);
 
@@ -1600,47 +1604,23 @@ export default class DataTreeEvaluator {
     // is a nested property of Table1.selectedRow
     const changePathsWithNestedDependants = addDependantsOfNestedPropertyPaths(
       Array.from(changePaths),
-      this.inverseDependencyMap,
+      this.inverseDependencies,
     );
 
     const trimmedChangedPaths = trimDependantChangePaths(
       changePathsWithNestedDependants,
-      this.dependencyMap.dependencies || {},
+      this.dependencies,
     );
 
     // Now that we have all the root nodes which have to be evaluated, recursively find all the other paths which
     // would get impacted because they are dependent on the said root nodes and add them in order
     const completeSortOrder = this.getCompleteSortOrder(
       trimmedChangedPaths,
-      this.inverseDependencyMap,
+      this.inverseDependencies,
     );
 
     // Remove any paths that do not exist in the data tree anymore
     return difference(completeSortOrder, removedPaths);
-  }
-
-  getInverseDependencyTree(
-    params = {
-      dependencyMap: this.dependencyMap.dependencies || {},
-      sortedDependencies: this.sortedDependencies,
-    },
-  ): Record<string, string[]> {
-    const { dependencyMap, sortedDependencies } = params;
-    const inverseDependencyMap: Record<string, string[]> = {};
-    sortedDependencies.forEach((propertyPath) => {
-      const incomingEdges: Array<string> = dependencyMap[propertyPath];
-      if (incomingEdges) {
-        incomingEdges.forEach((edge) => {
-          const node = inverseDependencyMap[edge];
-          if (node) {
-            node.push(propertyPath);
-          } else {
-            inverseDependencyMap[edge] = [propertyPath];
-          }
-        });
-      }
-    });
-    return inverseDependencyMap;
   }
 
   evaluateActionBindings(

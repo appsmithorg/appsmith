@@ -12,9 +12,10 @@ type SortDependencies =
 
 export class DependencyMapUtils {
   // inspired by https://www.npmjs.com/package/toposort#sorting-dependencies
-  static sortDependencies(dependencyMap: DependencyMap): SortDependencies {
+  static sortDependencies(
+    dependencies: Record<string, string[]>,
+  ): SortDependencies {
     const dependencyTree: Array<[string, string | undefined]> = [];
-    const dependencies = dependencyMap.dependencies;
     Object.entries(dependencies).forEach(([node, deps]) => {
       if (deps.length) {
         deps.forEach((dep) => dependencyTree.push([node, dep]));
