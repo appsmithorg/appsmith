@@ -111,8 +111,9 @@ public class DatasourceContextServiceTest {
             Workspace workspace =
                     workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId =
-                    workspaceService.getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission()).block();
+            defaultEnvironmentId = workspaceService
+                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                    .block();
         }
     }
 
@@ -197,8 +198,9 @@ public class DatasourceContextServiceTest {
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
-        String defaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission()).block();
+        String defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
         Datasource datasource = new Datasource();
@@ -265,8 +267,9 @@ public class DatasourceContextServiceTest {
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
-        String defaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission()).block();
+        String defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
         Datasource datasource = new Datasource();
@@ -375,8 +378,9 @@ public class DatasourceContextServiceTest {
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
-        String defaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission()).block();
+        String defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
         Datasource datasource = new Datasource();

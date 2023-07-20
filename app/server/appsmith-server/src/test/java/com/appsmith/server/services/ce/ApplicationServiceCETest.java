@@ -261,8 +261,9 @@ public class ApplicationServiceCETest {
                     workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
 
-            defaultEnvironmentId =
-                    workspaceService.getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission()).block();
+            defaultEnvironmentId = workspaceService
+                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                    .block();
 
             if (StringUtils.hasLength(gitConnectedApp.getId())) {
                 applicationPageService

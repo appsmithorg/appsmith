@@ -193,8 +193,9 @@ public class ApplicationForkingServiceTests {
         sourceWorkspace = workspaceService.create(sourceWorkspace).block();
         sourceWorkspaceId = sourceWorkspace.getId();
 
-        sourceEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(sourceWorkspaceId, environmentPermission.getExecutePermission()).block();
+        sourceEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(sourceWorkspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         Application app1 = new Application();
         app1.setName("1 - public app");
@@ -859,8 +860,9 @@ public class ApplicationForkingServiceTests {
         srcWorkspace.setName("delete-edit-mode-page-src-org");
         srcWorkspace = workspaceService.create(srcWorkspace).block();
 
-        String srcDefaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(srcWorkspace.getId(), environmentPermission.getExecutePermission()).block();
+        String srcDefaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(srcWorkspace.getId(), environmentPermission.getExecutePermission())
+                .block();
 
         Application application = new Application();
         application.setName("delete-edit-mode-page-app");
@@ -1016,8 +1018,9 @@ public class ApplicationForkingServiceTests {
         srcWorkspace.setName("fork-internal-fields-src-org");
         srcWorkspace = workspaceService.create(srcWorkspace).block();
 
-        String createdSrcDefaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(srcWorkspace.getId(), environmentPermission.getExecutePermission()).block();
+        String createdSrcDefaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(srcWorkspace.getId(), environmentPermission.getExecutePermission())
+                .block();
 
         Application application = new Application();
         application.setName("fork-internal-fields-app");
@@ -1056,8 +1059,9 @@ public class ApplicationForkingServiceTests {
         srcWorkspace.setName("src-org");
         srcWorkspace = workspaceService.create(srcWorkspace).block();
 
-        String srcDefaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(srcWorkspace.getId(), environmentPermission.getExecutePermission()).block();
+        String srcDefaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(srcWorkspace.getId(), environmentPermission.getExecutePermission())
+                .block();
 
         Application application = new Application();
         application.setName("app1");

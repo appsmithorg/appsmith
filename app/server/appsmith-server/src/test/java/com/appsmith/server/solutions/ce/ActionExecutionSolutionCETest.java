@@ -183,8 +183,9 @@ public class ActionExecutionSolutionCETest {
                     workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
 
-            defaultEnvironmentId =
-                    workspaceService.getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission()).block();
+            defaultEnvironmentId = workspaceService
+                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                    .block();
         }
 
         if (testApp == null && testPage == null) {

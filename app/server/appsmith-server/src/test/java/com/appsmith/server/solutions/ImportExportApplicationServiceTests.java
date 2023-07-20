@@ -212,8 +212,9 @@ public class ImportExportApplicationServiceTests {
         workspace.setName("Import-Export-Test-Workspace");
         Workspace savedWorkspace = workspaceService.create(workspace).block();
         workspaceId = savedWorkspace.getId();
-        defaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission()).block();
+        defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         Application testApplication = new Application();
         testApplication.setName("Export-Application-Test-Application");
@@ -872,7 +873,8 @@ public class ImportExportApplicationServiceTests {
         Mono<Workspace> workspaceMono = workspaceService.create(newWorkspace).cache();
 
         String environmentId = workspaceMono
-                .flatMap(workspace -> workspaceService.getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission()))
+                .flatMap(workspace -> workspaceService.getDefaultEnvironmentId(
+                        workspace.getId(), environmentPermission.getExecutePermission()))
                 .block();
 
         final Mono<ApplicationImportDTO> resultMono = workspaceMono.flatMap(
@@ -1169,8 +1171,8 @@ public class ImportExportApplicationServiceTests {
                                 .findAllByApplicationIdAndViewMode(
                                         applicationImportDTO.getApplication().getId(), false, MANAGE_ACTIONS, null)
                                 .collectList(),
-                        workspaceMono.flatMap(
-                                workspace -> workspaceService.getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())))))
+                        workspaceMono.flatMap(workspace -> workspaceService.getDefaultEnvironmentId(
+                                workspace.getId(), environmentPermission.getExecutePermission())))))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1().getApplication();
                     final List<Datasource> datasourceList = tuple.getT2();
@@ -2811,8 +2813,9 @@ public class ImportExportApplicationServiceTests {
         Workspace testWorkspace = new Workspace();
         testWorkspace.setName("Duplicate datasource with different plugin org");
         testWorkspace = workspaceService.create(testWorkspace).block();
-        String defaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(testWorkspace.getId(), environmentPermission.getExecutePermission()).block();
+        String defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(testWorkspace.getId(), environmentPermission.getExecutePermission())
+                .block();
 
         Datasource testDatasource = new Datasource();
         // Chose any plugin except for mongo, as json static file has mongo plugin for datasource
@@ -2876,8 +2879,9 @@ public class ImportExportApplicationServiceTests {
         Workspace testWorkspace = new Workspace();
         testWorkspace.setName("Duplicate datasource with same plugin org");
         testWorkspace = workspaceService.create(testWorkspace).block();
-        String defaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(testWorkspace.getId(), environmentPermission.getExecutePermission()).block();
+        String defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(testWorkspace.getId(), environmentPermission.getExecutePermission())
+                .block();
         Datasource testDatasource = new Datasource();
         // Chose plugin same as mongo, as json static file has mongo plugin for datasource
         Plugin postgreSQLPlugin = pluginRepository.findByName("MongoDB").block();
