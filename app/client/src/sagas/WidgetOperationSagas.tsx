@@ -543,7 +543,6 @@ export function* handleUpdateWidgetDynamicProperty(
   }
   widget.dynamicPropertyPathList = dynamicPropertyPathList;
   widget.dynamicBindingPathList = dynamicBindingPathList;
-
   return widget;
 }
 

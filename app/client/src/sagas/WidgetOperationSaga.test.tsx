@@ -62,6 +62,14 @@ describe("WidgetOperationSaga - ", () => {
       value.next(); // start
       value.next(widget as any); // yield select
       value.next({
+        ...widget,
+        dynamicPropertyPathList: [
+          {
+            key: "isVisible",
+          },
+        ],
+      } as any);
+      value.next({
         test: widget,
       } as any); // yield select
       value.next(); //yield put
@@ -88,7 +96,12 @@ describe("WidgetOperationSaga - ", () => {
       });
       value.next(); // start
       value.next(widget1 as any); // yield select
-      value.next({ parsed: 1 } as any); // yield call
+      value.next({
+        ...widget1,
+        dynamicPropertyPathList: [],
+        dynamicBindingPathList: [],
+        isVisible: 1,
+      } as any);
       value.next({
         test: widget1,
       } as any); // yield select
