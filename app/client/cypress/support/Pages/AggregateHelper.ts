@@ -92,8 +92,7 @@ export class AggregateHelper extends ReusableHelper {
 
   public AddDsl(
     dslFile: string,
-    elementToCheckPresenceaftDslLoad: string | "" = "",
-    reloadWithoutCache = true,
+    elementToCheckPresenceaftDslLoad: string | "" = "", //    reloadWithoutCache = true,
   ) {
     let pageid: string, layoutId;
     let appId: string | null;
@@ -125,7 +124,7 @@ export class AggregateHelper extends ReusableHelper {
             //cy.log("Pages resposne is : " + dslDumpResp.body);
             expect(dslDumpResp.status).equal(200);
             this.Sleep(3000); //for dsl to settle in layouts api & then refresh
-            this.RefreshPage(reloadWithoutCache);
+            this.RefreshPage();
             if (elementToCheckPresenceaftDslLoad)
               this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
             this.Sleep(2000); //settling time for dsl
@@ -160,7 +159,7 @@ export class AggregateHelper extends ReusableHelper {
       .should("have.value", renameVal)
       .blur();
     this.PressEnter();
-    this.AssertElementAbsence(this.locator._btnSpinner, 10000);
+    this.AssertElementVisible(this.locator._editIcon);
     this.Sleep(300); //allow lil more time for new name to settle
   }
 
@@ -866,8 +865,7 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public RefreshPage(
-    reloadWithoutCache = true,
-    networkCallAlias = "getWorkspace",
+    networkCallAlias = "getWorkspace", //    reloadWithoutCache = true,
   ) {
     this.Sleep(2000);
     this.assertHelper.AssertDocumentReady();
@@ -1457,6 +1455,12 @@ export class AggregateHelper extends ReusableHelper {
 
   public GetModalDropTargetId() {
     return this.GetElement(this.locator._modal).invoke("attr", "id");
+  }
+
+  public BrowserNavigation(direction: number) {
+    //passing 1 works as browser back
+    //passing -1 works as browser forward
+    cy.go(direction);
   }
 
   //Not used:

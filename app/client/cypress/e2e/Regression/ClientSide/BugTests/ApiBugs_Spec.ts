@@ -70,11 +70,11 @@ describe("API Bugs", function () {
   });
 
   it("4. Bug 16683, When Api url has dynamic binding expressions, ensures the query params is not truncated", function () {
-    const apiUrl = `https://echo.hoppscotch.io/v6/deployments?limit=4{{Math.random() > 0.5 ? '&param1=5' : '&param2=6'}}`;
+    const apiUrl = `http://host.docker.internal:5001/v1/mock-api?records=4{{Math.random() > 0.5 ? '&param1=5' : '&param2=6'}}`;
 
     apiPage.CreateAndFillApi(apiUrl, "BindingExpressions");
     apiPage.ValidateQueryParams({
-      key: "limit",
+      key: "records",
       value: "4{{Math.random() > 0.5 ? '&param1=5' : '&param2=6'}}",
     });
   });

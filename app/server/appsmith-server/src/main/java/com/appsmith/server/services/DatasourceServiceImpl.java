@@ -6,6 +6,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.ce.DatasourceServiceCEImpl;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,8 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
             DatasourceContextService datasourceContextService,
             DatasourcePermission datasourcePermission,
             WorkspacePermission workspacePermission,
-            DatasourceStorageService datasourceStorageService) {
+            DatasourceStorageService datasourceStorageService,
+            EnvironmentPermission environmentPermission) {
 
         super(
                 repository,
@@ -42,6 +44,7 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                 datasourceContextService,
                 datasourcePermission,
                 workspacePermission,
-                datasourceStorageService);
+                datasourceStorageService,
+                environmentPermission);
     }
 }

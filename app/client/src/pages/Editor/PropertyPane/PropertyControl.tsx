@@ -53,6 +53,7 @@ import styled from "styled-components";
 import { importSvg } from "design-system-old";
 import classNames from "classnames";
 import type { PropertyUpdates } from "widgets/constants";
+import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 
 const ResetIcon = importSvg(() => import("assets/icons/control/undo_2.svg"));
 
@@ -179,6 +180,8 @@ const PropertyControl = memo((props: Props) => {
     updateDataTreePathFn: childWidgetDataTreePathEnhancementFn,
   } = enhancementFns || {};
 
+  const connectDataClicked = useSelector(getIsOneClickBindingOptionsVisibility);
+
   const toggleDynamicProperty = useCallback(
     (
       propertyName: string,
@@ -197,10 +200,11 @@ const PropertyControl = memo((props: Props) => {
       // we don't want to remove the path from dynamic binding list
       // on toggling of js in case of few widgets
       if (
-        SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR.includes(
+        (SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR.includes(
           props.controlType,
         ) &&
-        isDynamicValue(propertyValue)
+          isDynamicValue(propertyValue)) ||
+        !shouldValidateValueOnDynamicPropertyOff
       ) {
         shouldRejectDynamicBindingPathList = false;
       }
@@ -249,6 +253,7 @@ const PropertyControl = memo((props: Props) => {
   const {
     isTriggerProperty,
     postUpdateAction,
+    shouldSwitchToNormalMode,
     updateHook,
     updateRelatedWidgetProperties,
   } = props;
@@ -742,6 +747,17 @@ const PropertyControl = memo((props: Props) => {
         showEmptyBlock,
         setShowEmptyBlock,
       };
+    }
+
+    if (shouldSwitchToNormalMode) {
+      const switchMode = shouldSwitchToNormalMode(
+        isDynamic,
+        isToggleDisabled,
+        connectDataClicked,
+      );
+      if (switchMode) {
+        toggleDynamicProperty(propertyName, true);
+      }
     }
 
     try {
