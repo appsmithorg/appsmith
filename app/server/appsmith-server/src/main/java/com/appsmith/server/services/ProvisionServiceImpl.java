@@ -38,6 +38,7 @@ import static com.appsmith.server.acl.AclPermission.DELETE_USERS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
+import static com.appsmith.server.constants.FieldName.CONFIGURED_STATUS;
 import static com.appsmith.server.constants.FieldName.PROVISIONING_LAST_UPDATED_AT;
 import static com.appsmith.server.constants.FieldName.PROVISIONING_STATUS;
 import static com.appsmith.server.enums.ProvisionStatus.ACTIVE;
@@ -61,7 +62,11 @@ public class ProvisionServiceImpl implements ProvisionService {
     public Mono<String> generateProvisionToken() {
         ApiKeyRequestDto apiKeyRequestDto =
                 ApiKeyRequestDto.builder().email(FieldName.PROVISIONING_USER).build();
-        return tenantUtils.enterpriseUpgradeRequired().then(apiKeyService.generateApiKey(apiKeyRequestDto));
+
+        return tenantUtils
+                .enterpriseUpgradeRequired()
+                .then(apiKeyService.generateApiKey(apiKeyRequestDto))
+                .flatMap(apiKey -> provisionUtils.updateConfiguredStatus(true).thenReturn(apiKey));
     }
 
     @Override
@@ -82,6 +87,7 @@ public class ProvisionServiceImpl implements ProvisionService {
             if (INACTIVE.getValue().equals(config.get(PROVISIONING_STATUS))) {
                 return Mono.just(ProvisionStatusDTO.builder()
                         .provisionStatus(INACTIVE.getValue())
+                        .configuredStatus((Boolean) config.get(CONFIGURED_STATUS))
                         .build());
             }
             // If active, set the last updated as
@@ -102,6 +108,7 @@ public class ProvisionServiceImpl implements ProvisionService {
                                 .lastUpdatedAt(lastUpdatedAt)
                                 .provisionedUsers(countProvisionedUsers)
                                 .provisionedGroups(countProvisionedUserGroups)
+                                .configuredStatus((Boolean) config.get(CONFIGURED_STATUS))
                                 .build();
                     }));
         });
@@ -138,7 +145,7 @@ public class ProvisionServiceImpl implements ProvisionService {
         // then archive provision token
         return tenantMono.flatMap(tenant -> deleteOrUpdateUsersGroupsAndUpdateAssociatedRolesMono
                 .flatMap(usersGroupsRolesUpdated -> archiveProvisionToken())
-                .flatMap(archiveProvisionToken -> provisionUtils.updateProvisioningStatus(INACTIVE)));
+                .flatMap(archiveProvisionToken -> provisionUtils.updateStatus(INACTIVE, false)));
     }
 
     @NotNull private Mono<Boolean> transferManagementPoliciesToInstanceAdministratorForAllProvisionedUsersAndGroups(

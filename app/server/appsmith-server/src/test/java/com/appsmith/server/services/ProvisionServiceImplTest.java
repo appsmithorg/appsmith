@@ -141,6 +141,7 @@ class ProvisionServiceImplTest {
     @WithUserDetails(value = "api_user")
     void testDisconnectProvisioning_keepProvisionedUsersAndGroups_checkProvisioningStatusAtEveryStep() {
         String testName = "testDisconnectProvisioning_keepProvisionedUsersAndGroups_checkProvisioningStatusAtEveryStep";
+        setTenantLicenseAsEnterprise();
         PermissionGroup instanceAdminRole =
                 userUtils.getSuperAdminPermissionGroup().block();
         PermissionGroup provisioningRole = userUtils.getProvisioningRole().block();
@@ -156,6 +157,8 @@ class ProvisionServiceImplTest {
         assertThat(provisionStatusAfterGeneratingProvisionToken).isNotNull();
         assertThat(provisionStatusAfterGeneratingProvisionToken.getProvisionStatus())
                 .isEqualTo(ProvisionStatus.INACTIVE.getValue());
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getConfiguredStatus())
+                .isTrue();
         assertThat(provisionStatusAfterGeneratingProvisionToken.getLastUpdatedAt())
                 .isNull();
         assertThat(provisionStatusAfterGeneratingProvisionToken.getProvisionedUsers())
@@ -300,6 +303,8 @@ class ProvisionServiceImplTest {
         assertThat(provisionStatusAfterDisconnectingProvisioning).isNotNull();
         assertThat(provisionStatusAfterDisconnectingProvisioning.getProvisionStatus())
                 .isEqualTo(ProvisionStatus.INACTIVE.getValue());
+        assertThat(provisionStatusAfterDisconnectingProvisioning.getConfiguredStatus())
+                .isFalse();
         assertThat(provisionStatusAfterDisconnectingProvisioning.getLastUpdatedAt())
                 .isNull();
         assertThat(provisionStatusAfterDisconnectingProvisioning.getProvisionedUsers())
@@ -402,6 +407,7 @@ class ProvisionServiceImplTest {
     @WithUserDetails(value = "api_user")
     void testDisconnectProvisioning_deleteProvisionedUsersAndGroups_checkProvisioningStatusAtEveryStep() {
         String testName = "testDisconnectProvisioning_keepProvisionedUsersAndGroups_checkProvisioningStatusAtEveryStep";
+        setTenantLicenseAsEnterprise();
         String provisionToken = provisionService.generateProvisionToken().block();
         String provisionTokenId = apiKeyRepository
                 .findByApiKey(provisionToken)
@@ -414,6 +420,8 @@ class ProvisionServiceImplTest {
         assertThat(provisionStatusAfterGeneratingProvisionToken).isNotNull();
         assertThat(provisionStatusAfterGeneratingProvisionToken.getProvisionStatus())
                 .isEqualTo(ProvisionStatus.INACTIVE.getValue());
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getConfiguredStatus())
+                .isTrue();
         assertThat(provisionStatusAfterGeneratingProvisionToken.getLastUpdatedAt())
                 .isNull();
         assertThat(provisionStatusAfterGeneratingProvisionToken.getProvisionedUsers())
@@ -535,6 +543,8 @@ class ProvisionServiceImplTest {
         assertThat(provisionStatusAfterDisconnectingProvisioning).isNotNull();
         assertThat(provisionStatusAfterDisconnectingProvisioning.getProvisionStatus())
                 .isEqualTo(ProvisionStatus.INACTIVE.getValue());
+        assertThat(provisionStatusAfterDisconnectingProvisioning.getConfiguredStatus())
+                .isFalse();
         assertThat(provisionStatusAfterDisconnectingProvisioning.getLastUpdatedAt())
                 .isNull();
         assertThat(provisionStatusAfterDisconnectingProvisioning.getProvisionedUsers())
@@ -609,6 +619,7 @@ class ProvisionServiceImplTest {
 
         assertThat(provisionStatusDTO).isNotNull();
         assertThat(provisionStatusDTO.getProvisionStatus()).isEqualTo(ProvisionStatus.INACTIVE.getValue());
+        assertThat(provisionStatusDTO.getConfiguredStatus()).isFalse();
         assertThat(provisionStatusDTO.getLastUpdatedAt()).isNull();
         assertThat(provisionStatusDTO.getProvisionedUsers()).isZero();
         assertThat(provisionStatusDTO.getProvisionedGroups()).isZero();
@@ -628,6 +639,7 @@ class ProvisionServiceImplTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getProvisionStatus_provisionTokenGenerated_inactiveStatus() {
+        setTenantLicenseAsEnterprise();
         String provisionToken = provisionService.generateProvisionToken().block();
         assertThat(provisionToken).isNotNull();
 
@@ -650,6 +662,7 @@ class ProvisionServiceImplTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getProvisionStatus_makeGetProvisionedUsersCall_activeStatus() {
+        setTenantLicenseAsEnterprise();
         String provisionToken = provisionService.generateProvisionToken().block();
         assertThat(provisionToken).isNotNull();
 
@@ -701,6 +714,7 @@ class ProvisionServiceImplTest {
     @WithUserDetails(value = "api_user")
     public void getProvisionStatus_makeCreateProvisionedUserCall_activeStatus_countUsers1() {
         String testName = "getProvisionStatus_makeCreateProvisionedUserCall_activeStatus_countUsers1";
+        setTenantLicenseAsEnterprise();
         String provisionToken = provisionService.generateProvisionToken().block();
         assertThat(provisionToken).isNotNull();
 
@@ -737,6 +751,7 @@ class ProvisionServiceImplTest {
     @WithUserDetails(value = "api_user")
     public void getProvisionStatus_makeCreateProvisionedGroupCall_activeStatus_countGroup1() {
         String testName = "getProvisionStatus_makeCreateProvisionedGroupCall_activeStatus_countGroup1";
+        setTenantLicenseAsEnterprise();
         String provisionToken = provisionService.generateProvisionToken().block();
         assertThat(provisionToken).isNotNull();
 
@@ -772,6 +787,7 @@ class ProvisionServiceImplTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testProvisioningStatus_disconnectProvisioning_statusShouldBecomeInactive() {
+        setTenantLicenseAsEnterprise();
         String provisionToken = provisionService.generateProvisionToken().block();
         assertThat(provisionToken).isNotNull();
 

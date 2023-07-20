@@ -99,4 +99,5 @@ public class FieldName extends FieldNameCE {
     public static final String PROVISIONING_STATUS_CONFIG = "provisioningStatusConfig";
     public static final String PROVISIONING_STATUS = "provisioningStatus";
     public static final String PROVISIONING_LAST_UPDATED_AT = "provisioningLastUpdatedAt";
+    public static final String CONFIGURED_STATUS = "configuredStatus";
 }
