@@ -19,7 +19,7 @@ export const getCurrentEnvironment = () => {
 
 // function to get the current environment from the URL
 export const getCurrentEnvName = () => {
-  return "";
+  return "unused_env";
 };
 
 // function to check if the datasource is configured for the current environment
