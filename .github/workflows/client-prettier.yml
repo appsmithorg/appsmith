@@ -1,4 +1,4 @@
-name: Appsmith Client Prettier Check Workflow
+name: Client Prettier Check
 
 on:
   workflow_call:
