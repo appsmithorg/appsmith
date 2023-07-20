@@ -54,7 +54,7 @@ export class DataSources {
   public _port = "input[name$='.datasourceConfiguration.endpoints[0].port']";
   public _databaseName =
     "input[name$='.datasourceConfiguration.authentication.databaseName']";
-  private _username =
+  public _username =
     "input[name$='.datasourceConfiguration.authentication.username']";
   private _section = (name: string) =>
     "//div[text()='" + name + "']/parent::div";
@@ -420,20 +420,16 @@ export class DataSources {
     );
     this.agHelper.UpdateInputValue(this._host, hostAddress);
     cy.get(this._databaseName).clear().type(databaseName);
-    cy.get(this._username)
-      .clear()
-      .type(
-        username == ""
-          ? this.tedTestConfig.dsValues[environment].postgres_username
-          : username,
-      );
-    cy.get(this._password)
-      .clear()
-      .type(
-        password == ""
-          ? this.tedTestConfig.dsValues[environment].postgres_password
-          : password,
-      );
+    cy.get(this._username).type(
+      username == ""
+        ? this.tedTestConfig.dsValues[environment].postgres_username
+        : username,
+    );
+    cy.get(this._password).type(
+      password == ""
+        ? this.tedTestConfig.dsValues[environment].postgres_password
+        : password,
+    );
     this.ValidateNSelectDropdown("SSL mode", "Default");
   }
 
