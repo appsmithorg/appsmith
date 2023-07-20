@@ -1,5 +1,5 @@
 # This workflow is responsible for running Spotless check on server code base
-name: Appsmith Server Spotless Check Workflow
+name: Server Spotless Check
 
 on:
   workflow_call:
