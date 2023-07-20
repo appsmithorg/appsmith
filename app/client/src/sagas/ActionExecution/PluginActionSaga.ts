@@ -153,7 +153,10 @@ import { handleStoreOperations } from "./StoreActionSaga";
 import { fetchPage } from "actions/pageActions";
 import type { Datasource } from "entities/Datasource";
 import { softRefreshDatasourceStructure } from "actions/datasourceActions";
-import { getCurrentEnvName } from "@appsmith/utils/Environments";
+import {
+  getCurrentEnvName,
+  getCurrentEnvironment,
+} from "@appsmith/utils/Environments";
 import { changeQuery } from "actions/queryPaneActions";
 
 enum ActionResponseDataTypes {
@@ -524,6 +527,8 @@ export default function* executePluginActionTriggerSaga(
     appId: currentApp.id,
     appMode: appMode,
     appName: currentApp.name,
+    environmentId: getCurrentEnvironment(),
+    environmentName: getCurrentEnvName(),
     isExampleApp: currentApp.appIsExample,
     pluginName: plugin?.name,
     datasourceId: datasourceId,
@@ -595,6 +600,8 @@ export default function* executePluginActionTriggerSaga(
       appId: currentApp.id,
       appMode: appMode,
       appName: currentApp.name,
+      environmentId: getCurrentEnvironment(),
+      environmentName: getCurrentEnvName(),
       isExampleApp: currentApp.appIsExample,
       pluginName: plugin?.name,
       datasourceId: datasourceId,
@@ -621,6 +628,8 @@ export default function* executePluginActionTriggerSaga(
       appId: currentApp.id,
       appMode: appMode,
       appName: currentApp.name,
+      environmentId: getCurrentEnvironment(),
+      environmentName: getCurrentEnvName(),
       isExampleApp: currentApp.appIsExample,
       pluginName: plugin?.name,
       datasourceId: datasourceId,
@@ -921,6 +930,8 @@ function* runActionSaga(
     AnalyticsUtil.logEvent(failureEventName, {
       actionId,
       actionName: actionObject.name,
+      environmentId: getCurrentEnvironment(),
+      environmentName: getCurrentEnvName(),
       pageName: pageName,
       apiType: "INTERNAL",
       datasourceId: datasource?.id,
@@ -942,6 +953,8 @@ function* runActionSaga(
   AnalyticsUtil.logEvent(eventName, {
     actionId,
     actionName: actionObject.name,
+    environmentId: getCurrentEnvironment(),
+    environmentName: getCurrentEnvName(),
     pageName: pageName,
     responseTime: payload.duration,
     apiType: "INTERNAL",
@@ -1069,6 +1082,8 @@ function* executePageLoadAction(pageAction: PageAction) {
       appId: currentApp.id,
       onPageLoad: true,
       appName: currentApp.name,
+      environmentId: getCurrentEnvironment(),
+      environmentName: getCurrentEnvName(),
       isExampleApp: currentApp.appIsExample,
       pluginName: plugin?.name,
       datasourceId: datasourceId,
@@ -1155,6 +1170,8 @@ function* executePageLoadAction(pageAction: PageAction) {
         appId: currentApp.id,
         onPageLoad: true,
         appName: currentApp.name,
+        environmentId: getCurrentEnvironment(),
+        environmentName: getCurrentEnvName(),
         isExampleApp: currentApp.appIsExample,
         pluginName: plugin?.name,
         datasourceId: datasourceId,
@@ -1171,6 +1188,8 @@ function* executePageLoadAction(pageAction: PageAction) {
         appId: currentApp.id,
         onPageLoad: true,
         appName: currentApp.name,
+        environmentId: getCurrentEnvironment(),
+        environmentName: getCurrentEnvName(),
         isExampleApp: currentApp.appIsExample,
         pluginName: plugin?.name,
         datasourceId: datasourceId,
