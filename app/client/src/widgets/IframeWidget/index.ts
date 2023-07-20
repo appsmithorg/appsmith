@@ -2,7 +2,7 @@ import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import type { PropertyValueMap } from "widgets/constants";
+import type { SnipingModeProperty, PropertyUpdates } from "widgets/constants";
 
 const isAirgappedInstance = isAirgapped();
 
@@ -39,11 +39,14 @@ export const CONFIG = {
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
   methods: {
-    getSnipingModeConfig: (propValueMap: PropertyValueMap) => {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
       return [
         {
           propertyPath: "source",
           propertyValue: propValueMap.data,
+          isDynamicPropertyPath: true,
         },
       ];
     },

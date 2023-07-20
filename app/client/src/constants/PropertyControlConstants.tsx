@@ -9,7 +9,7 @@ import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import type { Stylesheet } from "entities/AppTheming";
 import type { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
-import type { PropertyHookUpdates } from "widgets/constants";
+import type { PropertyUpdates } from "widgets/constants";
 
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = (typeof ControlTypes)[keyof typeof ControlTypes];
@@ -38,7 +38,7 @@ export type PanelConfig = {
     props: any,
     propertyPath: string,
     propertyValue: any,
-  ) => Array<PropertyHookUpdates> | undefined;
+  ) => Array<PropertyUpdates> | undefined;
 };
 
 export type PropertyPaneControlConfig = {
@@ -65,7 +65,7 @@ export type PropertyPaneControlConfig = {
     props: any,
     propertyName: string,
     propertyValue: any,
-  ) => Array<PropertyHookUpdates> | undefined;
+  ) => Array<PropertyUpdates> | undefined;
   hidden?: (props: any, propertyPath: string) => boolean;
   invisible?: boolean;
   isBindProperty: boolean;

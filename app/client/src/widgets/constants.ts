@@ -78,7 +78,7 @@ export interface WidgetConfiguration {
   methods?: Record<string, WidgetMethods>;
 }
 
-export type PropertyHookUpdates = {
+export type PropertyUpdates = {
   propertyPath: string;
   propertyValue?: unknown;
   isDynamicPropertyPath?: boolean; // Toggles the property mode to JS
@@ -88,7 +88,7 @@ export type PropertyHookUpdates = {
 export type WidgetMethods =
   | GetQueryGenerationConfig
   | GetPropertyUpdatesForQueryBinding
-  | GetSnipingModeConfig;
+  | getSnipingModeUpdates;
 
 type GetQueryGenerationConfig = (
   widgetProps: WidgetProps,
@@ -100,9 +100,9 @@ type GetPropertyUpdatesForQueryBinding = (
   formConfig: WidgetQueryGenerationFormConfig,
 ) => Record<string, unknown>;
 
-type GetSnipingModeConfig = (
+type getSnipingModeUpdates = (
   propValueMap: Record<"data" | "run", string>,
-) => Array<PropertyHookUpdates>;
+) => Array<PropertyUpdates>;
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;
 
@@ -374,4 +374,4 @@ export type ThemeProp = {
   theme: Theme;
 };
 
-export type PropertyValueMap = Record<"data" | "run", string>;
+export type SnipingModeProperty = Record<"data" | "run", string>;

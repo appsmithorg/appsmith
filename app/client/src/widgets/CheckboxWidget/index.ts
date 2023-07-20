@@ -1,7 +1,11 @@
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
-import { AlignWidgetTypes, type PropertyValueMap } from "widgets/constants";
+import {
+  AlignWidgetTypes,
+  type SnipingModeProperty,
+  type PropertyUpdates,
+} from "widgets/constants";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -45,11 +49,14 @@ export const CONFIG = {
     setterConfig: Widget.getSetterConfig(),
   },
   methods: {
-    getSnipingModeConfig: (propValueMap: PropertyValueMap) => {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
       return [
         {
           propertyPath: "defaultCheckedState",
           propertyValue: propValueMap.data,
+          isDynamicPropertyPath: true,
         },
       ];
     },

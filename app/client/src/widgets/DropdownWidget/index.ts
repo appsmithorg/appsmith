@@ -2,7 +2,7 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import type { PropertyValueMap } from "widgets/constants";
+import type { SnipingModeProperty, PropertyUpdates } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -44,11 +44,14 @@ export const CONFIG = {
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
   methods: {
-    getSnipingModeConfig: (propValueMap: PropertyValueMap) => {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
       return [
         {
           propertyPath: "options",
           propertyValue: propValueMap.data,
+          isDynamicPropertyPath: true,
         },
       ];
     },

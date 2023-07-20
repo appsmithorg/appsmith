@@ -10,7 +10,7 @@ import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
-import type { PropertyHookUpdates, PropertyValueMap } from "widgets/constants";
+import type { PropertyUpdates, SnipingModeProperty } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -80,9 +80,9 @@ export const CONFIG = {
         formConfig,
       );
     },
-    getSnipingModeConfig: (
-      propValueMap: PropertyValueMap,
-    ): PropertyHookUpdates[] => {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
       return [
         {
           propertyPath: "tableData",

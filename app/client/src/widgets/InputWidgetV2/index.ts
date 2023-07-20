@@ -7,7 +7,7 @@ import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import type { PropertyValueMap } from "widgets/constants";
+import type { SnipingModeProperty, PropertyUpdates } from "widgets/constants";
 
 export const CONFIG = {
   features: {
@@ -45,11 +45,14 @@ export const CONFIG = {
     setterConfig: Widget.getSetterConfig(),
   },
   methods: {
-    getSnipingModeConfig: (propValueMap: PropertyValueMap) => {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
       return [
         {
           propertyPath: "defaultText",
           propertyValue: propValueMap.data,
+          isDynamicPropertyPath: true,
         },
       ];
     },

@@ -5,7 +5,8 @@ import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import {
   BlueprintOperationTypes,
-  type PropertyValueMap,
+  type SnipingModeProperty,
+  type PropertyUpdates,
 } from "widgets/constants";
 
 import IconSVG from "./icon.svg";
@@ -103,11 +104,14 @@ export const CONFIG = {
     setterConfig: Widget.getSetterConfig(),
   },
   methods: {
-    getSnipingModeConfig: (propValueMap: PropertyValueMap) => {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
       return [
         {
           propertyPath: "sourceData",
           propertyValue: propValueMap.data,
+          isDynamicPropertyPath: true,
         },
       ];
     },

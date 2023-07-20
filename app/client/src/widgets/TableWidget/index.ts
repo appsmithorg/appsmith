@@ -8,7 +8,8 @@ import {
 import type { WidgetProps } from "widgets/BaseWidget";
 import {
   BlueprintOperationTypes,
-  type PropertyValueMap,
+  type SnipingModeProperty,
+  type PropertyUpdates,
 } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -236,11 +237,14 @@ export const CONFIG = {
     setterConfig: Widget.getSetterConfig(),
   },
   methods: {
-    getSnipingModeConfig: (propValueMap: PropertyValueMap) => {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
       return [
         {
           propertyPath: "tableData",
           propertyValue: propValueMap.data,
+          isDynamicPropertyPath: true,
         },
       ];
     },

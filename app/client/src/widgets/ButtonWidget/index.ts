@@ -8,7 +8,7 @@ import { ResponsiveBehavior } from "utils/autoLayout/constants";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import type { PropertyValueMap } from "widgets/constants";
+import type { PropertyUpdates, SnipingModeProperty } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -46,11 +46,14 @@ export const CONFIG = {
     setterConfig: Widget.getSetterConfig(),
   },
   methods: {
-    getSnipingModeConfig: (propValueMap: PropertyValueMap) => {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
       return [
         {
           propertyPath: "onClick",
           propertyValue: propValueMap.run,
+          isDynamicPropertyPath: true,
         },
       ];
     },

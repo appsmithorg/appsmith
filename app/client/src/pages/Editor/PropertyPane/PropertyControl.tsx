@@ -52,7 +52,7 @@ import clsx from "clsx";
 import styled from "styled-components";
 import { importSvg } from "design-system-old";
 import classNames from "classnames";
-import type { PropertyHookUpdates } from "widgets/constants";
+import type { PropertyUpdates } from "widgets/constants";
 
 const ResetIcon = importSvg(() => import("assets/icons/control/undo_2.svg"));
 
@@ -258,7 +258,7 @@ const PropertyControl = memo((props: Props) => {
       propertyName: string,
       propertyValue: any,
     ): UpdateWidgetPropertyPayload | undefined => {
-      let propertiesToUpdate: Array<PropertyHookUpdates> | undefined;
+      let propertiesToUpdate: Array<PropertyUpdates> | undefined;
       // To support updating multiple properties of same widget.
       if (updateHook) {
         propertiesToUpdate = updateHook(

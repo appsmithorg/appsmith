@@ -3,7 +3,7 @@ import { ResponsiveBehavior } from "utils/autoLayout/constants";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import type { PropertyValueMap } from "widgets/constants";
+import type { SnipingModeProperty, PropertyUpdates } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -40,11 +40,14 @@ export const CONFIG = {
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
   methods: {
-    getSnipingModeConfig: (propValueMap: PropertyValueMap) => {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
       return [
         {
           propertyPath: "defaultMarkers",
           propertyValue: propValueMap.data,
+          isDynamicPropertyPath: true,
         },
       ];
     },

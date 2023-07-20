@@ -26,7 +26,7 @@ import {
   FEATURE_FLAG,
 } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import type { PropertyHookUpdates } from "widgets/constants";
+import type { PropertyUpdates } from "widgets/constants";
 
 export function* bindDataToWidgetSaga(
   action: ReduxAction<{
@@ -59,14 +59,14 @@ export function* bindDataToWidgetSaga(
   // Pranav has an Open PR for this file so just returning for now
   if (!currentAction) return;
 
-  const { getSnipingModeConfig } = WidgetFactory.getWidgetMethods(
+  const { getSnipingModeUpdates } = WidgetFactory.getWidgetMethods(
     selectedWidget.type,
   );
 
-  let updates: Array<PropertyHookUpdates> = [];
+  let updates: Array<PropertyUpdates> = [];
 
-  if (getSnipingModeConfig) {
-    updates = getSnipingModeConfig?.({
+  if (getSnipingModeUpdates) {
+    updates = getSnipingModeUpdates?.({
       data: `{{${currentAction.config.name}.data}}`,
       run: `{{${currentAction.config.name}.run()}}`,
     });
@@ -97,7 +97,7 @@ export function* bindDataToWidgetSaga(
     const batchUpdateArray = updates.map((update) => {
       return {
         propertyPath: update.propertyPath,
-        isDynamic: update.isDynamicPropertyPath ?? true,
+        isDynamic: update.isDynamicPropertyPath ?? false,
       };
     });
 
