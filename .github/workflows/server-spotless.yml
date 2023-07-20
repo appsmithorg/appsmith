@@ -64,7 +64,6 @@ jobs:
 
       # Setup Java
       - name: Set up JDK 17
-        if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
@@ -72,5 +71,4 @@ jobs:
 
       # Run maven step for spotless check
       - name: Run spotless check
-        if: steps.run_result.outputs.run_result != 'success'
         run: mvn spotless:check
