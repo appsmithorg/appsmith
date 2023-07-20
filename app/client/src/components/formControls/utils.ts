@@ -24,19 +24,17 @@ import { getCurrentEditingEnvID } from "@appsmith/utils/Environments";
 // This function checks if the form is dirty
 // We needed this in the cases where datasources are created from APIs and the initial value
 // already has url set. If user presses back button, we need to show the confirmation dialog
-export const getIsFormDity = (
+export const getIsFormDirty = (
   isFormDirty: boolean,
   formData: any,
   isNewDatasource: boolean,
   isRestPlugin: boolean,
 ) => {
-  const url = isRestPlugin
-    ? get(
-        formData,
-        `datastoreStorages.${getCurrentEditingEnvID}.datasourceConfiguration.url`,
-        "",
-      )
-    : "";
+  const url = get(
+    formData,
+    `datastoreStorages.${getCurrentEditingEnvID}.datasourceConfiguration.url`,
+    "",
+  );
 
   if (!isFormDirty && isNewDatasource && isRestPlugin && url.length === 0) {
     return true;

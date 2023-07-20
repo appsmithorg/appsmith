@@ -77,6 +77,7 @@ import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import DatasourceAuth from "pages/common/datasourceAuth";
 import {
   getConfigInitialValues,
+  getIsFormDirty,
   getTrimmedData,
   normalizeValues,
   validate,
@@ -910,7 +911,15 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const formData = getFormValues(formName)(state) as
     | Datasource
     | ApiDatasourceForm;
-  const isFormDirty = isDirty(formName)(state);
+  const isNewDatasource = datasourcePane.newDatasource === TEMP_DATASOURCE_ID;
+  const pluginDatasourceForm =
+    plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm;
+  const isFormDirty = getIsFormDirty(
+    isDirty(formName)(state),
+    formData,
+    isNewDatasource,
+    pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm,
+  );
   const initialValue = getFormInitialValues(formName)(state) as
     | Datasource
     | ApiDatasourceForm;
@@ -963,13 +972,12 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isPluginAuthorized: !!isPluginAuthorized,
     isTesting: datasources.isTesting,
     formConfig: formConfigs[pluginId] || [],
-    isNewDatasource: datasourcePane.newDatasource === TEMP_DATASOURCE_ID,
+    isNewDatasource,
     pageId: props.pageId ?? props.match?.params?.pageId,
     viewMode,
     pluginType: plugin?.type ?? "",
     pluginName: plugin?.name ?? "",
-    pluginDatasourceForm:
-      plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm,
+    pluginDatasourceForm,
     pluginPackageName,
     applicationId: props.applicationId ?? getCurrentApplicationId(state),
     applicationSlug,
