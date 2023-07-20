@@ -11,6 +11,7 @@ export const FEATURE_FLAG = {
     "release_embed_hide_share_settings_enabled",
   ab_ds_schema_enabled: "ab_ds_schema_enabled",
   ab_ds_binding_enabled: "ab_ds_binding_enabled",
+  release_scim_provisioning_enabled: "release_scim_provisioning_enabled",
   ab_wds_enabled: "ab_wds_enabled",
 } as const;
 
@@ -28,6 +29,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_embed_hide_share_settings_enabled: false,
   ab_ds_schema_enabled: false,
   ab_ds_binding_enabled: false,
+  release_scim_provisioning_enabled: false,
   ab_wds_enabled: false,
 };
 
