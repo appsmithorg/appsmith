@@ -146,6 +146,7 @@ export const getSelectedTabIndex = (
   return finalIndex ?? 0;
 };
 
+// Return the panel paths we need to navigate to from the start
 export const getPropertyPanePanelNavigationConfig = (
   config: readonly PropertyPaneConfig[],
   widgetProps: WidgetProps,
@@ -187,6 +188,8 @@ export const getPropertyPanePanelNavigationConfig = (
               "",
             );
             pathList = [rootProperty, ...pathWithoutRootProperty.split(".")];
+            // Every alternate path is a dynamic property not part of the property
+            // pane config, these dynamic properties represent the panel id's
             isMatchingPropertyName =
               pathList.slice(panelDepth * 2, 1 + panelDepth * 2).join(".") ===
               currentProperty;
