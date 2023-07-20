@@ -63,7 +63,10 @@ import {
   Button,
   Text,
 } from "design-system";
-import { isEnvironmentConfigured } from "@appsmith/utils/Environments";
+import {
+  isEnvironmentConfigured,
+  getCurrentEnvironment,
+} from "@appsmith/utils/Environments";
 import { keyBy } from "lodash";
 import type { Plugin } from "api/PluginApi";
 import {
@@ -297,7 +300,7 @@ function ReconnectDatasourceModal() {
     const output = isGoogleSheetPluginDS(plugin?.packageName)
       ? isDatasourceAuthorizedForQueryCreation(ds, plugin as Plugin)
       : ds.datasourceStorages
-      ? isEnvironmentConfigured(ds)
+      ? isEnvironmentConfigured(ds, getCurrentEnvironment())
       : false;
     return output;
   };
