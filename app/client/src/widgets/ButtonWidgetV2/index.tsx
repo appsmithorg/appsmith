@@ -1,4 +1,4 @@
-import Widget from "./widget";
+import { ButtonWidget } from "./widget";
 import IconSVG from "./icon.svg";
 import { ButtonPlacementTypes, RecaptchaTypes } from "components/constants";
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
@@ -6,7 +6,7 @@ import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { BUTTON_COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
 
 export const CONFIG = {
-  type: Widget.getWidgetType(),
+  type: ButtonWidget.getWidgetType(),
   name: "Button",
   iconSVG: IconSVG,
   needsMeta: false,
@@ -38,11 +38,11 @@ export const CONFIG = {
     minWidth: BUTTON_MIN_WIDTH,
   },
   properties: {
-    derived: Widget.getDerivedPropertiesMap(),
-    default: Widget.getDefaultPropertiesMap(),
-    meta: Widget.getMetaPropertiesMap(),
-    contentConfig: Widget.getPropertyPaneContentConfig(),
-    styleConfig: Widget.getPropertyPaneStyleConfig(),
+    derived: ButtonWidget.getDerivedPropertiesMap(),
+    default: ButtonWidget.getDefaultPropertiesMap(),
+    meta: ButtonWidget.getMetaPropertiesMap(),
+    contentConfig: ButtonWidget.getPropertyPaneContentConfig(),
+    styleConfig: ButtonWidget.getPropertyPaneStyleConfig(),
   },
   autoLayout: {
     defaults: {
@@ -71,4 +71,4 @@ export const CONFIG = {
   },
 };
 
-export default Widget;
+export { ButtonWidget };

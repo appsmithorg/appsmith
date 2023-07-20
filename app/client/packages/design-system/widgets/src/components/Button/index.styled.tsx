@@ -64,15 +64,19 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
   cursor: pointer;
   outline: 0;
   padding: var(--spacing-2) var(--spacing-4);
-  height: calc(var(--root-unit) * 8);
+  block-size: calc(var(--root-unit) * 8);
   border-radius: var(--border-radius-1);
   user-select: none;
-  min-width: calc(var(--root-unit) * 7.5);
+  min-inline-size: calc(var(--root-unit) * 7.5);
   position: relative;
   font-weight: 600;
 
-  & *:not([data-hidden]) + *:not([data-hidden]) {
-    margin-left: var(--spacing-1);
+  &[data-icon-position="start"] *:not([data-hidden]) + *:not([data-hidden]) {
+    margin-inline-start: var(--spacing-1);
+  }
+
+  &[data-icon-position="end"] *:not([data-hidden]) + *:not([data-hidden]) {
+    margin-inline-end: var(--spacing-1);
   }
 
   ${buttonStyles}
@@ -98,7 +102,7 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
 
   // Note: adding important here as ADS is overriding the color of blueprint icon globally
   // TODO(pawan): Remove this once ADS team removes the global override
-  & [data-button] .bp3-icon {
+  &[data-button] .bp3-icon {
     color: currentColor !important;
   }
 

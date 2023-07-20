@@ -81,7 +81,7 @@ export const Button = forwardRef(
         color={color}
         data-button=""
         data-fit-container={isFitContainer ? "" : undefined}
-        data-icon-position={iconPosition === "start" ? undefined : "end"}
+        data-icon-position={iconPosition === "start" ? "start" : "end"}
         data-loading={isLoading ? "" : undefined}
         data-variant={variant}
         draggable

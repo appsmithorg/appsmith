@@ -179,4 +179,4 @@ interface ButtonWidgetState extends WidgetState {
   isLoading: boolean;
 }
 
-export default ButtonWidget;
+export { ButtonWidget };

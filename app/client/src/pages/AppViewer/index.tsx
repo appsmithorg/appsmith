@@ -178,10 +178,12 @@ function AppViewer(props: Props) {
     <WDSThemeProvider theme={theme}>
       <ThemeProvider theme={lightTheme}>
         <EditorContextProvider renderMode="PAGE">
-          <WidgetGlobaStyles
-            fontFamily={selectedTheme.properties.fontFamily.appFont}
-            primaryColor={selectedTheme.properties.colors.primaryColor}
-          />
+          {!isWDSV2Enabled && (
+            <WidgetGlobaStyles
+              fontFamily={selectedTheme.properties.fontFamily.appFont}
+              primaryColor={selectedTheme.properties.colors.primaryColor}
+            />
+          )}
           <HtmlTitle
             description={pageDescription}
             name={currentApplicationDetails?.name}
