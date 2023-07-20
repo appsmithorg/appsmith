@@ -925,8 +925,8 @@ describe("DataTreeEvaluator", () => {
     );
     const dataTree = evaluator.evalTree;
     expect(evaluator.dependencies["Api2.config.body"]).toStrictEqual([
-      "Text1.text",
       "Api2.config.pluginSpecifiedTemplates[0].value",
+      "Text1.text",
     ]);
     // @ts-expect-error: Types are not available
     expect(dataTree.Api2.config.body).toBe("{ 'name': Test }");
@@ -968,8 +968,8 @@ describe("DataTreeEvaluator", () => {
     );
     const dataTree3 = evaluator.evalTree;
     expect(evaluator.dependencies["Api2.config.body"]).toStrictEqual([
-      "Text1.text",
       "Api2.config.pluginSpecifiedTemplates[0].value",
+      "Text1.text",
     ]);
     // @ts-expect-error: Types are not available
     expect(dataTree3.Api2.config.body).toBe("{ 'name': \"Test\" }");
