@@ -2,15 +2,6 @@
 name: Appsmith Server Spotless Check Workflow
 
 on:
-  # This line enables manual triggering of this workflow.
-  workflow_dispatch:
-  workflow_call:
-    inputs:
-      pr:
-        description: "This is the PR number in case the workflow is being called in a pull request"
-        required: false
-        type: number
-
   pull_request:
     branches: [release, master]
     paths:
@@ -24,44 +15,13 @@ defaults:
 jobs:
   spotless-check:
     runs-on: ubuntu-latest-8-cores
-    # Only run this workflow for internally triggered events
-    if: |
-      github.event.pull_request.head.repo.full_name == github.repository ||
-      github.event_name == 'push' ||
-      github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'repository_dispatch'
 
     steps:
-      # The checkout steps MUST happen first because the default directory is set according to the code base.
-      # GitHub Action expects all future commands to be executed in the code directory. Hence, we need to check out
-      # the code before doing anything else.
-
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
-      - name: Check out merged commit from PR and base branch
-        uses: actions/checkout@v3
-        if: ${{ inputs.pr != "" && inputs.pr != 0 }}
-        with:
-          fetch-depth: 0
-          ref: refs/pull/${{ inputs.pr }}/merge
-
-      # Checkout the code in the current branch in case the workflow is called because of a branch push event
-      - name: Check out the head commit of the branch
-        uses: actions/checkout@v3
-        if: ${{ inputs.pr != "" && inputs.pr == 0 }}
-        with:
-          fetch-depth: 0
-
       - name: Checkout the merged commit from PR and base branch
-        if: ${{ inputs.pr == "" && github.event_name == 'pull_request' }}
         uses: actions/checkout@v3
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
-
-      - name: Figure out the PR number
-        run: echo ${{ inputs.pr }}
-
-      - name: Print the Github event
-        run: echo ${{ github.event_name }}
 
       # Setup Java
       - name: Set up JDK 17
