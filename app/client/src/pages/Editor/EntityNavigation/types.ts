@@ -21,3 +21,8 @@ export interface IPanelStack {
   styleChildren?: PropertyPaneConfig[];
   contentChildren?: PropertyPaneConfig[];
 }
+
+export interface IMatchedSection {
+  id?: string;
+  propertyName: string;
+}

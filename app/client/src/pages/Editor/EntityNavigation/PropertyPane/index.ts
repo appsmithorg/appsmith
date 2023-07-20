@@ -94,6 +94,7 @@ export default class PropertyPaneNavigation extends PaneNavigation {
           ? [...panelContentConfig, ...panelStyleConfig]
           : [...propertyPaneContentConfig, ...propertyPaneStyleConfig],
         this.entityInfo.propertyPath,
+        this.widget,
       );
     }
 
@@ -154,15 +155,14 @@ export default class PropertyPaneNavigation extends PaneNavigation {
 
     // Switch to the appropriate tab
     let panelConfig: IPanelStack | undefined;
+    let panelIndexPath: string | undefined;
     if (navigationConfig.panelStack.length) {
       panelConfig =
         navigationConfig.panelStack[navigationConfig.panelStack.length - 1];
+      panelIndexPath = `${this.widget.widgetName}.${panelConfig?.path}.${panelConfig?.panelLabel}`;
     }
     yield put(
-      setSelectedPropertyTabIndex(
-        navigationConfig.tabIndex,
-        `${this.widget.widgetName}.${panelConfig?.path}.${panelConfig?.panelLabel}`,
-      ),
+      setSelectedPropertyTabIndex(navigationConfig.tabIndex, panelIndexPath),
     );
     yield delay(NAVIGATION_DELAY);
 

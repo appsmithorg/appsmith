@@ -125,6 +125,7 @@ export class PropertyPane {
   _segmentedControl = (value: string) =>
     `.ads-v2-segmented-control-value-${value}`;
   _addMenuItem = ".t--add-menu-item-btn";
+  _addColumnItem = ".t--add-column-btn";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));

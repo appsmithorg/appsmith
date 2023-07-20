@@ -109,7 +109,7 @@ function WidgetLink(props: EntityLinkProps) {
       appsmithErrorCode: props.appsmithErrorCode,
       entityType: "WIDGET",
     });
-  }, []);
+  }, [props.id, props.propertyPath]);
 
   return (
     <DebuggerEntityLink

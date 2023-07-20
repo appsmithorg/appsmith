@@ -74,4 +74,43 @@ describe("Widget property navigation", () => {
     _.entityExplorer.SelectEntityByName("MenuButton1");
     _.entityExplorer.DeleteWidgetFromEntityExplorer("MenuButton1");
   });
+
+  it("JSONForm widget error navigation", () => {
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.JSONFORM,
+      100,
+      200,
+    );
+    _.propPane.OpenTableColumnSettings("date_of_birth");
+
+    _.agHelper.SelectDropdownList("Field Type", "Object");
+    _.agHelper.GetNClick(_.propPane._addColumnItem);
+    _.agHelper.GetNClick(_.propPane._addColumnItem);
+    _.propPane.OpenTableColumnSettings("customField1");
+
+    _.agHelper.SelectDropdownList("Field Type", "Object");
+    _.agHelper.GetNClick(_.propPane._addColumnItem);
+    _.agHelper.GetNClick(_.propPane._addColumnItem);
+    _.propPane.OpenTableColumnSettings("customField2");
+
+    _.propPane.MoveToTab("Style");
+
+    _.propPane.EnterJSContext("borderradius", "{{test}}", true, false);
+    _.debuggerHelper.AssertErrorCount(1);
+    _.propPane.ToggleSection("borderandshadow");
+    _.propPane.MoveToTab("Content");
+
+    _.propPane.NavigateBackToPropertyPane(false);
+    _.propPane.NavigateBackToPropertyPane(false);
+    _.propPane.NavigateBackToPropertyPane();
+
+    _.debuggerHelper.ClickDebuggerIcon();
+    _.debuggerHelper.ClicklogEntityLink();
+    _.agHelper.GetElement(_.propPane._paneTitle).contains("Custom Field 2");
+    _.propPane.AssertIfPropertyIsVisible("borderradius");
+
+    _.debuggerHelper.CloseBottomBar();
+    _.entityExplorer.SelectEntityByName("JSONForm1");
+    _.entityExplorer.DeleteWidgetFromEntityExplorer("JSONForm1");
+  });
 });
