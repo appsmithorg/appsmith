@@ -48,6 +48,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionExecutionSolution;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -149,6 +150,9 @@ public class ActionExecutionSolutionCETest {
     @SpyBean
     DatasourceStorageService datasourceStorageService;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     Application testApp = null;
 
     PageDTO testPage = null;
@@ -180,7 +184,7 @@ public class ActionExecutionSolutionCETest {
             workspaceId = workspace.getId();
 
             defaultEnvironmentId =
-                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
+                    workspaceService.getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission()).block();
         }
 
         if (testApp == null && testPage == null) {
