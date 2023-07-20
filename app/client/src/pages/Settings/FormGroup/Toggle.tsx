@@ -17,7 +17,7 @@ function FieldToggleWithToggleText(
   toggleText?: (value: boolean) => string,
   id?: string,
   isPropertyDisabled?: boolean,
-  label?: string,
+  label?: React.ReactNode,
 ) {
   return function FieldToggle(
     componentProps: FormTextFieldProps & {
