@@ -14,7 +14,7 @@ defaults:
 
 jobs:
   spotless-check:
-    runs-on: ubuntu-latest-8-cores
+    runs-on: ubuntu-latest
 
     steps:
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
