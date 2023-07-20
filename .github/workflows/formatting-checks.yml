@@ -43,3 +43,22 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ github.event.pull_request.number }}
+
+  formatting-result:
+    name: formatting-result
+    needs: [server-formatting, client-formatting]
+    if: always()
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Return status for formatting checks
+        run: |
+          if [[ "${{ needs.server-formatting.result }}" == "failure" ||  "${{ needs.client-formatting.result }}" == "failure" ]]; then
+            echo "Formatting checks failed";
+            exit 1;
+          else
+            echo "Formatting checks successful";
+            exit 0;
+          fi
