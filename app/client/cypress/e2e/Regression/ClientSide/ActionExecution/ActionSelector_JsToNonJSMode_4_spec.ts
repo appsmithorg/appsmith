@@ -10,7 +10,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     agHelper.AddDsl("promisesBtnDsl", locators._spanButton("Submit"));
   });
 
-  it("10. Bug 23345 - Message field in PostMessage should accept all type of values", () => {
+  it("10. Bug 23167 - Message field in PostMessage should accept all type of values", () => {
     entityExplorer.SelectEntityByName("Page1", "Pages");
     entityExplorer.SelectEntityByName("Button1", "Widgets");
 
