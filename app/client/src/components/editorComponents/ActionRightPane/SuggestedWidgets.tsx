@@ -363,7 +363,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
   }>();
 
   const closeWalkthrough = () => {
-    popFeature && popFeature();
+    popFeature && popFeature("BINDING_WIDGET");
     setFeatureWalkthroughShown(
       FEATURE_WALKTHROUGH_KEYS.ab_ds_binding_enabled,
       true,
@@ -477,12 +477,6 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
       pushFeature({
         targetId: BINDING_SECTION_ID,
         onDismiss: async () => {
-          AnalyticsUtil.logEvent("WALKTHROUGH_DISMISSED", {
-            [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
-              FEATURE_WALKTHROUGH_KEYS.ab_ds_binding_enabled,
-            [AB_TESTING_EVENT_KEYS.abTestingFlagValue]:
-              isEnabledForQueryBinding,
-          });
           await setFeatureWalkthroughShown(
             FEATURE_WALKTHROUGH_KEYS.ab_ds_binding_enabled,
             true,

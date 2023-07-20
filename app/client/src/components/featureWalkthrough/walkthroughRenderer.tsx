@@ -123,7 +123,6 @@ type BoundingRectTargets = Record<string, RefRectParams>;
 const WalkthroughRenderer = ({
   details,
   offset,
-  onDismiss,
   targetId,
   eventParams = {},
   multipleHighlights,
@@ -188,8 +187,7 @@ const WalkthroughRenderer = ({
   }, [targetId]);
 
   const onDismissWalkthrough = () => {
-    onDismiss && onDismiss();
-    popFeature && popFeature();
+    popFeature && popFeature("WALKTHROUGH_CROSS_ICON");
   };
 
   if (!boundingRects || Object.keys(boundingRects).length === 0) return null;

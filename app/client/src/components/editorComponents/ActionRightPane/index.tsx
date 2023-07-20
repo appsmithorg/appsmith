@@ -56,15 +56,13 @@ import {
   isUserSignedUpFlagSet,
   setFeatureWalkthroughShown,
 } from "utils/storage";
-import { PluginName } from "entities/Action";
+import { PluginName, SCHEMA_SECTION_ID } from "entities/Action";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Tooltip } from "design-system";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 
 const SCHEMA_GUIDE_GIF = `${ASSETS_CDN_URL}/schema.gif`;
-
-const SCHEMA_SECTION_ID = "t--api-right-pane-schema";
 
 const SideBar = styled.div`
   height: 100%;
@@ -380,11 +378,6 @@ function ActionSidebar({
       pushFeature({
         targetId: SCHEMA_SECTION_ID,
         onDismiss: async () => {
-          AnalyticsUtil.logEvent("WALKTHROUGH_DISMISSED", {
-            [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
-              FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
-            [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForDSSchema,
-          });
           await setFeatureWalkthroughShown(
             FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
             true,

@@ -116,7 +116,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
 
   const closeWalkthrough = () => {
     if (popFeature) {
-      popFeature();
+      popFeature("PROPERTY_PANE");
       sidebarRef.current?.removeEventListener("click", closeWalkthrough);
     }
   };

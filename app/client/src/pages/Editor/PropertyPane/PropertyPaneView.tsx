@@ -88,11 +88,6 @@ function PropertyPaneView(
       pushFeature({
         targetId: PROPERTY_PANE_ID,
         onDismiss: async () => {
-          AnalyticsUtil.logEvent("WALKTHROUGH_DISMISSED", {
-            [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
-              FEATURE_WALKTHROUGH_KEYS.binding_widget,
-            [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: true,
-          });
           await localStorage.removeItem(WIDGET_ID_SHOW_WALKTHROUGH);
           await setFeatureWalkthroughShown(
             FEATURE_WALKTHROUGH_KEYS.binding_widget,

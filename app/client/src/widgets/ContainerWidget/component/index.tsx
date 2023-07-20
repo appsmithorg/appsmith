@@ -123,7 +123,7 @@ function ContainerComponentWrapper(
 
   const closeWalkthrough = () => {
     if (isWalkthroughOpened && popFeature) {
-      popFeature();
+      popFeature("WIDGET_CONTAINER");
     }
   };
 

@@ -44,7 +44,7 @@ export type FeatureParams = {
 
 type WalkthroughContextType = {
   pushFeature: (feature: FeatureParams) => void;
-  popFeature: () => void;
+  popFeature: (triggeredFrom?: string) => void;
   feature: FeatureParams[];
   isOpened: boolean;
 };

@@ -110,7 +110,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
       );
 
       if (isWalkthroughOpened) {
-        popFeature && popFeature();
+        popFeature && popFeature("SCHEMA_QUERY_CREATE");
         setFeatureWalkthroughShown(
           FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
           true,
@@ -173,7 +173,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
       });
 
       if (isWalkthroughOpened) {
-        popFeature && popFeature();
+        popFeature && popFeature("SCHEMA_QUERY_UPDATE");
         setFeatureWalkthroughShown(
           FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
           true,
