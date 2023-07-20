@@ -696,7 +696,7 @@ const datasourceReducer = createReducer(initialState, {
       draftState.gsheetStructure.isFetchingColumns = false;
     });
   },
-  [ReduxActionTypes.RESET_DATASOURCE_TOAST_MESSAGE]: (
+  [ReduxActionTypes.RESET_DATASOURCE_BANNER_MESSAGE]: (
     state: DatasourceDataState,
     action: ReduxAction<string>,
   ) => {

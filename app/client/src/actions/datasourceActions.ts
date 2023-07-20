@@ -239,6 +239,7 @@ export const deleteDatasource = (
   };
 };
 
+// sets viewMode flag along with clearing the datasource banner message
 export const setDatasourceViewMode = (payload: {
   datasourceId: string;
   viewMode: boolean;
@@ -249,6 +250,7 @@ export const setDatasourceViewMode = (payload: {
   };
 };
 
+// sets viewMode flag
 export const setDatasourceViewModeFlag = (payload: boolean) => {
   return {
     type: ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE_FLAG,

@@ -1906,9 +1906,11 @@ function* datasourceDiscardActionSaga(
 function* setDatasourceViewModeSaga(
   action: ReduxAction<{ datasourceId: string; viewMode: boolean }>,
 ) {
+  //Set the view mode flag in store
   yield put(setDatasourceViewModeFlag(action.payload.viewMode));
+  //Reset the banner message for the datasource
   yield put({
-    type: ReduxActionTypes.RESET_DATASOURCE_TOAST_MESSAGE,
+    type: ReduxActionTypes.RESET_DATASOURCE_BANNER_MESSAGE,
     payload: action.payload.datasourceId,
   });
 }
