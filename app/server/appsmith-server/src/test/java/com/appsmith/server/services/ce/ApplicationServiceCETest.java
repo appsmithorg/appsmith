@@ -64,6 +64,7 @@ import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationFetcher;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -229,6 +230,9 @@ public class ApplicationServiceCETest {
     @Autowired
     SessionUserService sessionUserService;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     String workspaceId;
     String defaultEnvironmentId;
 
@@ -258,7 +262,7 @@ public class ApplicationServiceCETest {
             workspaceId = workspace.getId();
 
             defaultEnvironmentId =
-                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
+                    workspaceService.getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission()).block();
 
             if (StringUtils.hasLength(gitConnectedApp.getId())) {
                 applicationPageService
