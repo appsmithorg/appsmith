@@ -164,7 +164,6 @@ describe("Tests functionality of platform function", () => {
       },
     );
     agHelper.Sleep();
-    jsEditor.SelectFunctionDropdown("showTwoSameToastMessageAlerts");
     jsEditor.RunJSObj();
     agHelper.AssertElementLength(locators._toastMsg, 2);
     agHelper.ValidateToastMessage("Hello World", 0);
