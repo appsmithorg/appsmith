@@ -22,7 +22,6 @@ import {
   getFixedTimeDifference,
   isWidgetActionOrJsObject,
 } from "../DataTreeEvaluator/utils";
-import type DependencyMap from "entities/DependencyMap";
 import {
   getEntityDependencies,
   getEntityPathDependencies,
@@ -31,8 +30,10 @@ import { getValidationDependencies } from "./utils/getValidationDependencies";
 import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
 
 interface CreateDependencyMap {
-  dependencyMap: DependencyMap;
-  validationDependencyMap: DependencyMap;
+  dependencies: Record<string, string[]>;
+  validationDependencies: Record<string, string[]>;
+  inverseDependencies: Record<string, string[]>;
+  inverseValidationDependencies: Record<string, string[]>;
 }
 
 export function createDependencyMap(
@@ -75,8 +76,10 @@ export function createDependencyMap(
   DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
 
   return {
-    dependencyMap,
-    validationDependencyMap,
+    dependencies: dependencyMap.dependencies,
+    validationDependencies: validationDependencyMap.dependencies,
+    inverseDependencies: dependencyMap.inverseDependencies,
+    inverseValidationDependencies: validationDependencyMap.inverseDependencies,
   };
 }
 
@@ -84,6 +87,10 @@ interface UpdateDependencyMap {
   dependenciesOfRemovedPaths: string[];
   pathsToClearErrorsFor: string[];
   removedPaths: string[];
+  dependencies: Record<string, string[]>;
+  validationDependencies: Record<string, string[]>;
+  inverseDependencies: Record<string, string[]>;
+  inverseValidationDependencies: Record<string, string[]>;
 }
 export const updateDependencyMap = ({
   configTree,
@@ -271,12 +278,18 @@ export const updateDependencyMap = ({
   const diffCalcEnd = performance.now();
   const updateChangedDependenciesStart = performance.now();
 
+  const updatedDependencies = dependencyMap.dependencies;
+  const updatedValidationDependencies = validationDependencyMap.dependencies;
+  const updatedInverseDependencies = dependencyMap.inverseDependencies;
+  const updatedInverseValidationDependencies =
+    validationDependencyMap.inverseDependencies;
+
   if (didUpdateDependencyMap) {
     DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
-    dataTreeEvalRef.sortDependencies(dependencyMap);
+    dataTreeEvalRef.sortDependencies(updatedDependencies);
   }
   if (didUpdateValidationDependencyMap) {
-    dataTreeEvalRef.sortDependencies(validationDependencyMap);
+    dataTreeEvalRef.sortDependencies(updatedValidationDependencies);
   }
 
   /** We need this in order clear out the paths that could have errors when a property is deleted */
@@ -301,5 +314,9 @@ export const updateDependencyMap = ({
     pathsToClearErrorsFor,
     dependenciesOfRemovedPaths,
     removedPaths,
+    dependencies: updatedDependencies,
+    validationDependencies: updatedValidationDependencies,
+    inverseDependencies: updatedInverseDependencies,
+    inverseValidationDependencies: updatedInverseValidationDependencies,
   };
 };
