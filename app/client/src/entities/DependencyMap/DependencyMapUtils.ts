@@ -61,8 +61,9 @@ export class DependencyMapUtils {
     while ((matches = curKey.match(IMMEDIATE_PARENT_REGEX)) !== null) {
       const immediateParent = matches[1];
       const existingImmediateParentDeps =
-        dependencyMap.getDirectDependencies(immediateParent);
-      const newDeps = union(existingImmediateParentDeps, curKey);
+        dependencyMap.getDirectDependencies(immediateParent) || [];
+      const newDeps = union(existingImmediateParentDeps, [curKey]);
+
       dependencyMap.addDependency(immediateParent, newDeps);
       curKey = immediateParent;
     }
