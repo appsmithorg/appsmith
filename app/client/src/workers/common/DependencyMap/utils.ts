@@ -65,6 +65,7 @@ export const getPrunedReferences = (
   allKeys: Record<string, true>,
 ) => {
   const prunedReferences: Set<string> = new Set<string>();
+
   references.forEach((reference: string) => {
     // If the identifier exists directly, add it and return
     if (allKeys.hasOwnProperty(reference)) {

@@ -177,23 +177,32 @@ function getWidgetPropertyPathDependencies(
   widgetConfig: WidgetEntityConfig,
   fullPropertyPath: string,
 ) {
+  let dependencies: string[] = [];
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
   const dynamicBindingPathList = getEntityDynamicBindingPathList(widgetConfig);
   const bindingPaths = widgetConfig.bindingPaths;
+  const widgetInternalDependencies = addWidgetPropertyDependencies({
+    widgetConfig,
+    widgetName: widgetEntity.widgetName,
+  });
+  const widgetPathInternalDependencies =
+    widgetInternalDependencies[fullPropertyPath];
 
-  if (isATriggerPath(widgetConfig, propertyPath)) return [];
+  dependencies = union(dependencies, widgetPathInternalDependencies);
+  if (isATriggerPath(widgetConfig, propertyPath)) return dependencies;
   const isPathADynamicPath =
     bindingPaths.hasOwnProperty(propertyPath) ||
     find(dynamicBindingPathList, { key: propertyPath });
 
-  if (!isPathADynamicPath) return [];
+  if (!isPathADynamicPath) return dependencies;
 
   const dynamicPathDependencies = getDependencyFromEntityPath(
     propertyPath,
     widgetEntity,
   );
+  dependencies = union(dependencies, dynamicPathDependencies);
 
-  return dynamicPathDependencies;
+  return dependencies;
 }
 function getJSPropertyPathDependencies(
   jsEntity: JSActionEntity,
@@ -202,14 +211,21 @@ function getJSPropertyPathDependencies(
 ) {
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
   const jsActionBindingPaths = jsActionConfig.bindingPaths || {};
-  const dependencies: string[] = [];
+  let dependencies: string[] = [];
+  const jsInternalDependencyMap = jsActionConfig.dependencyMap || {};
+  const jsPathInternalDependencies =
+    jsInternalDependencyMap[propertyPath].map(
+      (dep) => `${jsActionConfig.name}.${dep}`,
+    ) || [];
+
+  dependencies = union(dependencies, jsPathInternalDependencies);
 
   if (jsActionBindingPaths.hasOwnProperty(propertyPath)) {
     const propertyPathDependencies = getDependencyFromEntityPath(
       propertyPath,
       jsEntity,
     );
-    return propertyPathDependencies;
+    dependencies = union(dependencies, propertyPathDependencies);
   }
   return dependencies;
 }
@@ -218,22 +234,37 @@ function getActionPropertyPathDependencies(
   actionConfig: ActionEntityConfig,
   fullPropertyPath: string,
 ) {
+  let actionPathDependencies: string[] = [];
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
+  const actionInternalDependencyMap = actionConfig.dependencyMap || {};
+  const actionPathInternalDependencies =
+    actionInternalDependencyMap[propertyPath].map(
+      (dep) => `${actionConfig.name}.${dep}`,
+    ) || [];
+  actionPathDependencies = union(
+    actionPathDependencies,
+    actionPathInternalDependencies,
+  );
 
   const dynamicBindingPathList = getEntityDynamicBindingPathList(actionConfig);
   const bindingPaths = actionConfig.bindingPaths;
+
   const isADynamicPath =
     bindingPaths.hasOwnProperty(propertyPath) ||
     find(dynamicBindingPathList, { key: propertyPath });
 
-  if (!isADynamicPath) return [];
+  if (!isADynamicPath) return actionPathDependencies;
 
   const dynamicPathDependencies = getDependencyFromEntityPath(
     propertyPath,
     actionEntity,
   );
+  actionPathDependencies = union(
+    actionPathDependencies,
+    dynamicPathDependencies,
+  );
 
-  return dynamicPathDependencies;
+  return actionPathDependencies;
 }
 
 function getDependencyFromEntityPath(
