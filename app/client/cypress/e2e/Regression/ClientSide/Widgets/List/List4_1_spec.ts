@@ -125,10 +125,11 @@ describe("Container Widget Functionality", function () {
       locators._widgetInDeployed(draggableWidgets.BUTTON),
       2,
     );
-    cy.get(locators._widgetInDeployed(draggableWidgets.BUTTON))
-      .closest("div")
-      .first()
-      .click({ force: true });
+    // cy.get(locators._widgetInDeployed(draggableWidgets.BUTTON))
+    //   .closest("div")
+    //   .first()
+    //   .click({ force: true });
+    agHelper.ClickButton("Lawson");
     // agHelper
     //   .GetElement(locators._widgetInDeployed(draggableWidgets.BUTTON))
     //   .closest("div")
