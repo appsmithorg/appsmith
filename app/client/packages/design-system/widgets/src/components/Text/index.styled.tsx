@@ -33,7 +33,7 @@ export const StyledText = styled.div<StyledTextProp>`
   font-weight: ${({ isBold }) => (isBold ? "bold" : "normal")};
   font-style: ${({ isItalic }) => (isItalic ? "italic" : "normal")};
   text-align: ${({ textAlign }) => textAlign};
-  width: auto;
+  width: 100%;
 
   color: ${({ color }) => {
     switch (true) {

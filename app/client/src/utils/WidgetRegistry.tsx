@@ -164,7 +164,8 @@ import CodeScannerWidget, {
 import ListWidgetV2, {
   CONFIG as LIST_WIDGET_CONFIG_V2,
 } from "widgets/ListWidgetV2";
-import ButtonWidgetV2, {
+import {
+  ButtonWidget as ButtonWidgetV2,
   CONFIG as BUTTON_WIDGET_CONFIG_V2,
 } from "widgets/ButtonWidgetV2";
 

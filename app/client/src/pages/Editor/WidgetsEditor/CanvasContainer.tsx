@@ -217,10 +217,12 @@ function CanvasContainer(props: CanvasContainerProps) {
           pointerEvents: isAutoCanvasResizing ? "none" : "auto",
         }}
       >
-        <WidgetGlobaStyles
-          fontFamily={selectedTheme.properties.fontFamily.appFont}
-          primaryColor={selectedTheme.properties.colors.primaryColor}
-        />
+        {!isWDSV2Enabled && (
+          <WidgetGlobaStyles
+            fontFamily={selectedTheme.properties.fontFamily.appFont}
+            primaryColor={selectedTheme.properties.colors.primaryColor}
+          />
+        )}
         {isAppThemeChanging && (
           <div className="fixed top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-white/70 z-[2]">
             <Spinner size="md" />
