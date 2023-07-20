@@ -2,10 +2,12 @@
 name: Appsmith Server Spotless Check Workflow
 
 on:
-  pull_request:
-    branches: [release, master]
-    paths:
-      - "app/server/**"
+  workflow_call:
+    inputs:
+      pr:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
 
 # Change the working directory for all the jobs in this workflow
 defaults:
@@ -15,13 +17,12 @@ defaults:
 jobs:
   spotless-check:
     runs-on: ubuntu-latest
-
     steps:
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Checkout the merged commit from PR and base branch
         uses: actions/checkout@v3
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+          ref: refs/pull/${{ inputs.pr }}/merge
 
       # Setup Java
       - name: Set up JDK 17
