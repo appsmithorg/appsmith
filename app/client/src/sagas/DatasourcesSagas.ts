@@ -44,7 +44,7 @@ import {
   getEditorConfig,
   getPluginByPackageName,
   getDatasourcesUsedInApplicationByActions,
-  getDatasourceStructureById,
+  getEntityExplorerDatasources,
 } from "selectors/entitiesSelector";
 import {
   addMockDatasourceToWorkspace,
@@ -71,7 +71,6 @@ import DatasourcesApi from "api/DatasourcesApi";
 import type {
   Datasource,
   DatasourceStorage,
-  DatasourceStructure,
   MockDatasource,
   TokenResponse,
 } from "entities/Datasource";
@@ -159,6 +158,7 @@ import {
 } from "utils/editorContextUtils";
 import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
 import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
+import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -194,28 +194,19 @@ function* handleFetchDatasourceStructureOnLoad() {
 function* fetchDatasourceStructureOnLoad() {
   try {
     // get datasources of all actions used in the the application
-    const datasourcesUsedInApplication: Datasource[] = yield select(
+    let datasourcesUsedInApplication: Datasource[] = yield select(
       getDatasourcesUsedInApplicationByActions,
     );
-
-    for (const datasource of datasourcesUsedInApplication) {
-      // it is very unlikely for this to happen, but it does not hurt to check.
-      const doesDatasourceStructureAlreadyExist: DatasourceStructure =
-        yield select(getDatasourceStructureById, datasource.id);
-      if (doesDatasourceStructureAlreadyExist) {
-        continue;
-      }
-      yield put(fetchDatasourceStructure(datasource.id, true));
+    if (datasourcesUsedInApplication.length < MAX_DATASOURCE_SUGGESTIONS) {
+      const datasourceInEntityExplorer: Datasource[] = yield select(
+        getEntityExplorerDatasources,
+      );
+      datasourcesUsedInApplication = [
+        ...datasourcesUsedInApplication,
+        ...datasourceInEntityExplorer,
+      ];
     }
-  } catch (error) {}
-}
 
-export function* fetchDatasourceStructureOnSoftRefresh() {
-  try {
-    // get datasources of all actions used in the the application
-    const datasourcesUsedInApplication: Datasource[] = yield select(
-      getDatasources,
-    );
     for (const datasource of datasourcesUsedInApplication) {
       //fetch datasource structure for each datasource
       yield put(fetchDatasourceStructure(datasource.id, true));
@@ -2011,7 +2002,7 @@ export function* watchDatasourcesSagas() {
     ),
     takeEvery(
       ReduxActionTypes.SOFT_REFRESH_DATASOURCE_STRUCTURE,
-      fetchDatasourceStructureOnSoftRefresh,
+      handleFetchDatasourceStructureOnLoad,
     ),
     takeEvery(
       ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE,
