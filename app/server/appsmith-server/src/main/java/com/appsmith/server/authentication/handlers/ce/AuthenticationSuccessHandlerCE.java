@@ -99,9 +99,8 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             // verification this can be eliminated safely
             if (user.getPassword() != null) {
                 user.setPassword(null);
-                user.setSource(
-                        LoginSource.fromString(((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId())
-                );
+                user.setSource(LoginSource.fromString(
+                        ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId()));
                 // Update the user in separate thread
                 userRepository
                         .save(user)

@@ -226,6 +226,17 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
       case ErrorEffectTypes.SHOW_ALERT: {
         // This is the toast that is rendered when any page load API fails.
         yield call(showToast, message, { kind: "error" });
+
+        if ((window as any).Cypress) {
+          if (message === "" || message === null) {
+            yield put(
+              safeCrashApp({
+                ...error,
+                code: ERROR_CODES.CYPRESS_DEBUG,
+              }),
+            );
+          }
+        }
         break;
       }
       case ErrorEffectTypes.SAFE_CRASH: {
@@ -244,6 +255,7 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
     payload: {
       source: errorAction.type,
       message,
+      stackTrace: (error as any)?.stack,
     },
   });
 }
