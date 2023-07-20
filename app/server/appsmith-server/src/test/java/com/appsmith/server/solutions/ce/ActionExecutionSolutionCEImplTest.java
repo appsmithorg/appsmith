@@ -30,6 +30,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -123,6 +124,7 @@ class ActionExecutionSolutionCEImplTest {
     @MockBean
     DatasourceStorageService datasourceStorageService;
 
+    @Autowired
     EnvironmentPermission environmentPermission;
 
     private BodyExtractor.Context context;
@@ -337,7 +339,7 @@ class ActionExecutionSolutionCEImplTest {
         newAction.setId("63285a3388e48972c7519b18");
         doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID))
                 .when(datasourceService)
-                .getTrueEnvironmentId(any(), any(), any(), environmentPermission.getExecutePermission());
+                .getTrueEnvironmentId(any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()));
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
