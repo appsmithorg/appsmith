@@ -80,7 +80,7 @@ export const datasourceToFormValues = (
     authType: authType,
     authentication: authentication,
     connection: connection,
-  };
+  } as ApiDatasourceForm;
 };
 
 export const formValuesToDatasource = (

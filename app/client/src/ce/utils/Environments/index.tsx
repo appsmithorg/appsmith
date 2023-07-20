@@ -50,3 +50,13 @@ export const isEnvironmentValid = (
     datasource.datasourceStorages[environment]?.isValid;
   return isValid ? isValid : false;
 };
+
+/*
+ * Functiont to check get the datasource configuration for current ENV
+ */
+export const getEnvironmentConfiguration = (
+  datasource: Datasource | null,
+  environment = getCurrentEnvironment(),
+) => {
+  return datasource?.datasourceStorages?.[environment]?.datasourceConfiguration;
+};
