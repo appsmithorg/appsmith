@@ -16,6 +16,8 @@ import WidgetSidebar from "../WidgetSidebar";
 import EntityExplorer from "./EntityExplorer";
 import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
 import { setExplorerSwitchIndex } from "actions/editorContextActions";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import WidgetSidebarWithTags from "../WidgetSidebarWithTags";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
   state.ui.onBoarding.forceOpenWidgetPanel;
@@ -39,6 +41,7 @@ function ExplorerContent() {
   const pageId = useSelector(getCurrentPageId);
   const location = useLocation();
   const activeSwitchIndex = useSelector(getExplorerSwitchIndex);
+  const featureFlags = useSelector(selectFeatureFlags);
 
   const setActiveSwitchIndex = (index: number) => {
     dispatch(setExplorerSwitchIndex(index));
@@ -89,7 +92,13 @@ function ExplorerContent() {
           value={activeOption}
         />
       </div>
-      <WidgetSidebar isActive={activeOption === "widgets"} />
+
+      {featureFlags.release_widgetdiscovery_enabled ? (
+        <WidgetSidebarWithTags isActive={activeOption === "widgets"} />
+      ) : (
+        <WidgetSidebar isActive={activeOption === "widgets"} />
+      )}
+
       <EntityExplorer isActive={activeOption === "explorer"} />
     </div>
   );

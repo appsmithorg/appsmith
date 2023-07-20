@@ -2,46 +2,31 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import { getWidgetCards } from "selectors/editorSelectors";
+import { SearchInput } from "design-system";
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
-import { debounce, sortBy } from "lodash";
+import { debounce } from "lodash";
+import {
+  createMessage,
+  WIDGET_SIDEBAR_CAPTION,
+} from "@appsmith/constants/messages";
 import Fuse from "fuse.js";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  ESSENTIAL_WIDGETS_ORDER,
-  WIDGET_TAGS,
-  type WidgetCardsGroupedByTags,
-  type WidgetTags,
-} from "constants/WidgetConstants";
-import { groupWidgetCardsByTags } from "./utils";
-import {
-  Collapsible,
-  CollapsibleHeader,
-  CollapsibleContent,
-} from "design-system-alpha";
-import { SearchInput, Text } from "design-system";
 
 function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
-  const groupedCards = useMemo(() => groupWidgetCardsByTags(cards), [cards]);
-  const [filteredCards, setFilteredCards] =
-    useState<WidgetCardsGroupedByTags>(groupedCards);
+  const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
 
   const fuse = useMemo(() => {
     const options = {
       keys: [
         {
           name: "displayName",
-          weight: 0.8,
+          weight: 0.9,
         },
         {
           name: "searchTags",
-          weight: 0.1,
-        },
-        {
-          name: "tags",
           weight: 0.1,
         },
       ],
@@ -59,15 +44,13 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
   }, 1000);
 
   const filterCards = (keyword: string) => {
-    setIsSearching(true);
     sendWidgetSearchAnalytics(keyword);
 
     if (keyword.trim().length > 0) {
       const searchResult = fuse.search(keyword);
-      setFilteredCards(groupWidgetCardsByTags(searchResult));
+      setFilteredCards(searchResult as WidgetCardProps[]);
     } else {
-      setFilteredCards(groupedCards);
-      setIsSearching(false);
+      setFilteredCards(cards);
     }
   };
 
@@ -81,9 +64,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
 
   return (
     <div
-      className={`flex flex-col t--widget-sidebar overflow-hidden ${
-        isActive ? "" : "hidden"
-      }`}
+      className={`flex flex-col  overflow-hidden ${isActive ? "" : "hidden"}`}
     >
       <div className="sticky top-0 px-3 mt-0.5">
         <SearchInput
@@ -97,57 +78,16 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
         />
       </div>
       <div
-        className="flex-grow px-3 mt-2 overflow-y-scroll"
+        className="flex-grow px-3 mt-3 overflow-y-scroll"
         data-testid="widget-sidebar-scrollable-wrapper"
       >
-        <div>
-          {Object.keys(filteredCards).map((tag) => {
-            const cardsForThisTag: WidgetCardProps[] =
-              filteredCards[tag as WidgetTags];
-
-            if (!cardsForThisTag?.length) {
-              return null;
-            }
-
-            // We don't need to show essential widgets when the user is searching
-            if (isSearching && tag === WIDGET_TAGS.ESSENTIAL_WIDGETS) {
-              return null;
-            }
-
-            return (
-              <Collapsible
-                className={`pb-2 widget-tag-collapisble widget-tag-collapisble-${tag
-                  .toLowerCase()
-                  .replace(/ /g, "-")}`}
-                isOpen
-                key={tag}
-              >
-                <CollapsibleHeader arrowPosition="start">
-                  <Text
-                    className="select-none"
-                    color="var(--ads-v2-color-gray-600)"
-                    kind="heading-xs"
-                  >
-                    {tag}
-                  </Text>
-                </CollapsibleHeader>
-
-                <CollapsibleContent>
-                  <div className="grid items-stretch grid-cols-3 gap-x-2 gap-y-1 justify-items-stretch">
-                    {tag === WIDGET_TAGS.ESSENTIAL_WIDGETS
-                      ? sortBy(cardsForThisTag, (widget) => {
-                          return ESSENTIAL_WIDGETS_ORDER[widget.type];
-                        }).map((card) => (
-                          <WidgetCard details={card} key={card.key} />
-                        ))
-                      : cardsForThisTag.map((card) => (
-                          <WidgetCard details={card} key={card.key} />
-                        ))}
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            );
-          })}
+        <p className="px-3 py-3 text-sm leading-relaxed t--widget-sidebar">
+          {createMessage(WIDGET_SIDEBAR_CAPTION)}
+        </p>
+        <div className="grid items-stretch grid-cols-3 gap-3 justify-items-stretch">
+          {filteredCards.map((card) => (
+            <WidgetCard details={card} key={card.key} />
+          ))}
         </div>
       </div>
     </div>
