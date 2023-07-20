@@ -30,11 +30,13 @@ export const getIsFormDirty = (
   isNewDatasource: boolean,
   isRestPlugin: boolean,
 ) => {
-  const url = get(
-    formData,
-    `datastoreStorages.${getCurrentEditingEnvID}.datasourceConfiguration.url`,
-    "",
-  );
+  const url = isRestPlugin
+    ? get(
+        formData,
+        `datastoreStorages.${getCurrentEditingEnvID}.datasourceConfiguration.url`,
+        "",
+      )
+    : "";
 
   if (!isFormDirty && isNewDatasource && isRestPlugin && url.length === 0) {
     return true;
