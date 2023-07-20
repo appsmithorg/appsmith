@@ -89,7 +89,7 @@ describe("Entity explorer tests related to widgets and validation", function () 
       Object.keys(WIDGET_TAGS).length,
     );
 
-    cy.get(entityExplorer._widgetTagsList).each(($widgetTag) => {
+    agHelper.GetElement(entityExplorer._widgetTagsList).each(($widgetTag) => {
       cy.wrap($widgetTag)
         .find(locators._adsV2Content)
         .should("have.css", "display", "flex");
@@ -97,7 +97,7 @@ describe("Entity explorer tests related to widgets and validation", function () 
   });
 
   it("2. All widgets should be present within their tags and these tags should be collapsible", () => {
-    cy.get(entityExplorer._widgetTagsList).each(($widgetTag) => {
+    agHelper.GetElement(entityExplorer._widgetTagsList).each(($widgetTag) => {
       // check that tags are collapsible
       cy.wrap($widgetTag).find(locators._adsV2CollapsibleHeader).click({
         force: true,
@@ -136,29 +136,32 @@ describe("Entity explorer tests related to widgets and validation", function () 
   });
 
   it("3. All widgets should be ordered alphabetically within their tags, except Essential widgets, which should be sorted by their static rank.", () => {
-    cy.get(
-      `${entityExplorer._widgetTagsList}:not(${entityExplorer._widgetTagEssentialWidgets})`,
-    ).each(($widgetTag) => {
-      const widgetsInThisTag: string[] = [];
+    agHelper
+      .GetElement(
+        `${entityExplorer._widgetTagsList}:not(${entityExplorer._widgetTagEssentialWidgets})`,
+      )
+      .each(($widgetTag) => {
+        const widgetsInThisTag: string[] = [];
 
-      cy.wrap($widgetTag)
-        .find(entityExplorer._widgetCardTitle)
-        .each(($widgetName) => {
-          const value = $widgetName.text();
+        cy.wrap($widgetTag)
+          .find(entityExplorer._widgetCardTitle)
+          .each(($widgetName) => {
+            const value = $widgetName.text();
 
-          widgetsInThisTag.push(value);
-        })
-        .then(() => {
-          const sortedWidgetsInThisTag = [...widgetsInThisTag].sort();
+            widgetsInThisTag.push(value);
+          })
+          .then(() => {
+            const sortedWidgetsInThisTag = [...widgetsInThisTag].sort();
 
-          expect(widgetsInThisTag).to.deep.eq(sortedWidgetsInThisTag);
-        });
-    });
+            expect(widgetsInThisTag).to.deep.eq(sortedWidgetsInThisTag);
+          });
+      });
 
     const widgetsInEssentialWidgetsTag: string[] = [];
-    cy.get(
-      `${entityExplorer._widgetTagsList}${entityExplorer._widgetTagEssentialWidgets}`,
-    )
+    agHelper
+      .GetElement(
+        `${entityExplorer._widgetTagsList}${entityExplorer._widgetTagEssentialWidgets}`,
+      )
       .find(entityExplorer._widgetCardTitle)
       .each(($widgetName) => {
         const value = $widgetName.text();
