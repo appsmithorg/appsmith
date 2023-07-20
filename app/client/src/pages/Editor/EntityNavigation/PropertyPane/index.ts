@@ -28,13 +28,15 @@ import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { NAVIGATION_DELAY } from "../costants";
 
 export default class PropertyPaneNavigation extends PaneNavigation {
-  widget?: WidgetProps;
+  widget!: WidgetProps;
 
   constructor(entityInfo: EntityInfo) {
     super(entityInfo);
     this.init = this.init.bind(this);
     this.getConfig = this.getConfig.bind(this);
     this.navigate = this.navigate.bind(this);
+
+    this.navigateToPanel = this.navigateToPanel.bind(this);
   }
 
   *init() {
@@ -118,40 +120,7 @@ export default class PropertyPaneNavigation extends PaneNavigation {
     if (!this.entityInfo.propertyPath) return;
 
     // Switch to the correct panel
-    const currentSelectedPanel: SelectedPropertyPanel = yield select(
-      getSelectedPropertyPanel,
-    );
-    const propertyPathsToPop = Object.keys(currentSelectedPanel).filter(
-      (path) => {
-        return path.split(".")[0] === this.widget?.widgetName;
-      },
-    );
-    if (propertyPathsToPop.length) {
-      // Go back to starting panel
-      for (const path of propertyPathsToPop.reverse()) {
-        yield put(unsetSelectedPropertyPanel(path));
-        yield delay(NAVIGATION_DELAY);
-      }
-    }
-    if (navigationConfig.panelStack.length) {
-      yield put(setSelectedPropertyTabIndex(0));
-      for (const panel of navigationConfig.panelStack) {
-        yield put(
-          setSelectedPropertyPanel(
-            `${this.widget.widgetName}.${panel.path}`,
-            panel.index,
-          ),
-        );
-        // Set all tabs to default
-        yield put(
-          setSelectedPropertyTabIndex(
-            0,
-            `${this.widget.widgetName}.${panel.path}.${panel.panelLabel}`,
-          ),
-        );
-        yield delay(NAVIGATION_DELAY);
-      }
-    }
+    yield call(this.navigateToPanel, navigationConfig);
 
     // Switch to the appropriate tab
     let panelConfig: IPanelStack | undefined;
@@ -190,5 +159,55 @@ export default class PropertyPaneNavigation extends PaneNavigation {
       block: "center",
       behavior: "smooth",
     });
+  }
+
+  *navigateToPanel(navigationConfig: PropertyPaneNavigationConfig) {
+    const currentSelectedPanel: SelectedPropertyPanel = yield select(
+      getSelectedPropertyPanel,
+    );
+    const propertyPathsToPop = Object.keys(currentSelectedPanel).filter(
+      (path) => {
+        return path.split(".")[0] === this.widget?.widgetName;
+      },
+    );
+
+    // If we are at the destination panel already ignore
+    if (propertyPathsToPop.length && navigationConfig.panelStack.length) {
+      const destinationPath =
+        navigationConfig.panelStack[navigationConfig.panelStack.length - 1]
+          .path;
+      const currentPath = propertyPathsToPop[propertyPathsToPop.length - 1];
+
+      if (`${this.widget.widgetName}.${destinationPath}` === currentPath) {
+        return;
+      }
+    }
+
+    if (propertyPathsToPop.length) {
+      // Go back to starting panel
+      for (const path of propertyPathsToPop.reverse()) {
+        yield put(unsetSelectedPropertyPanel(path));
+        yield delay(NAVIGATION_DELAY);
+      }
+    }
+    if (navigationConfig.panelStack.length) {
+      yield put(setSelectedPropertyTabIndex(0));
+      for (const panel of navigationConfig.panelStack) {
+        yield put(
+          setSelectedPropertyPanel(
+            `${this.widget.widgetName}.${panel.path}`,
+            panel.index,
+          ),
+        );
+        // Set all tabs to default
+        yield put(
+          setSelectedPropertyTabIndex(
+            0,
+            `${this.widget.widgetName}.${panel.path}.${panel.panelLabel}`,
+          ),
+        );
+        yield delay(NAVIGATION_DELAY);
+      }
+    }
   }
 }
