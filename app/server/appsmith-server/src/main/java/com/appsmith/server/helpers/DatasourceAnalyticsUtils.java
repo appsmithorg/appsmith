@@ -6,6 +6,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.server.constants.AnalyticsConstants;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.HashMap;
@@ -40,8 +41,8 @@ public class DatasourceAnalyticsUtils {
     }
 
     public static Map<String, Object> getAnalyticsPropertiesForTestEventStatus(
-            DatasourceStorage datasourceStorage, boolean status, Throwable e) {
-        Map<String, Object> analyticsProperties = getAnalyticsPropertiesWithStorage(datasourceStorage);
+            DatasourceStorage datasourceStorage, boolean status, Throwable e, String environmentName) {
+        Map<String, Object> analyticsProperties = getAnalyticsPropertiesWithStorage(datasourceStorage, environmentName);
         analyticsProperties.put("isSuccess", status);
 
         if (e == null) {
@@ -56,27 +57,29 @@ public class DatasourceAnalyticsUtils {
     }
 
     public static Map<String, Object> getAnalyticsPropertiesForTestEventStatus(
-            DatasourceStorage datasourceStorage, boolean status) {
-        Map<String, Object> analyticsProperties = getAnalyticsPropertiesWithStorage(datasourceStorage);
+            DatasourceStorage datasourceStorage, boolean status, String environmentName) {
+        Map<String, Object> analyticsProperties = getAnalyticsPropertiesWithStorage(datasourceStorage, environmentName);
         analyticsProperties.put("isSuccess", status);
         analyticsProperties.put("errors", datasourceStorage.getInvalids());
         return analyticsProperties;
     }
 
     public static Map<String, Object> getAnalyticsPropertiesForTestEventStatus(
-            DatasourceStorage datasourceStorage, DatasourceTestResult datasourceTestResult) {
-        Map<String, Object> analyticsProperties = getAnalyticsPropertiesWithStorage(datasourceStorage);
+            DatasourceStorage datasourceStorage, DatasourceTestResult datasourceTestResult, String environmentName) {
+        Map<String, Object> analyticsProperties = getAnalyticsPropertiesWithStorage(datasourceStorage, environmentName);
         analyticsProperties.put("isSuccess", datasourceTestResult.isSuccess());
         analyticsProperties.put("errors", datasourceTestResult.getInvalids());
         return analyticsProperties;
     }
 
-    public static Map<String, Object> getAnalyticsPropertiesWithStorage(DatasourceStorage datasourceStorage) {
+    public static Map<String, Object> getAnalyticsPropertiesWithStorage(
+            DatasourceStorage datasourceStorage, String environmentName) {
         Map<String, Object> analyticsProperties = new HashMap<>();
         analyticsProperties.putAll(getAnalyticsProperties(datasourceStorage));
         analyticsProperties.put("pluginName", datasourceStorage.getPluginName());
         analyticsProperties.put("dsName", datasourceStorage.getName());
         analyticsProperties.put("envId", datasourceStorage.getEnvironmentId());
+        analyticsProperties.put(AnalyticsConstants.ENVIRONMENT_NAME_SHORTNAME, environmentName);
         DatasourceConfiguration dsConfig = datasourceStorage.getDatasourceConfiguration();
         if (dsConfig != null
                 && dsConfig.getAuthentication() != null

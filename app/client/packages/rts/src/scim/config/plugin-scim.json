@@ -1,0 +1,35 @@
+{
+  "scimgateway": {
+    "port": 8886,
+    "localhostonly": false,
+    "payloadSize": null,
+    "scim": {
+      "version": "2.0",
+      "customSchema": "custom-schema.json",
+      "skipTypeConvert": false,
+      "usePutSoftSync": false,
+      "groupMemberOfUser": true
+    },
+    "log": {
+      "loglevel": {
+        "file": "debug",
+        "console": "error"
+      },
+      "customMasking": null
+    },
+    "auth": {
+      "passThrough": {
+        "enabled": true,
+        "readOnly": false,
+        "baseEntities": []
+      }
+    }
+  },
+  "endpoint": {
+    "entity": {
+      "undefined": {
+        "baseUrls": ["http://localhost:8080/api/v1/provision"]
+      }
+    }
+  }
+}

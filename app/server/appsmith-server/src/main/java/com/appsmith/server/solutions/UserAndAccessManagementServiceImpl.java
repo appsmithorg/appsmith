@@ -38,6 +38,7 @@ import com.appsmith.server.solutions.ce.UserAndAccessManagementServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -135,13 +136,13 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     }
 
     @Override
-    public Mono<List<UserForManagementDTO>> getAllUsers() {
+    public Mono<List<UserForManagementDTO>> getAllUsers(MultiValueMap<String, String> queryParams) {
         return tenantService
                 .getDefaultTenantId()
                 .flatMap(tenantId -> tenantService.findById(tenantId, TENANT_READ_ALL_USERS))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
-                .flatMapMany(
-                        tenant -> userRepository.getAllUserObjectsWithEmail(tenant.getId(), Optional.of(READ_USERS)))
+                .flatMapMany(tenant ->
+                        userRepository.getAllUserObjectsWithEmail(tenant.getId(), queryParams, Optional.of(READ_USERS)))
                 .flatMap(this::addGroupsAndRolesForUser)
                 .sort(AppsmithComparators.managementUserComparator())
                 .collectList()
@@ -209,7 +210,8 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .map(tuple -> {
                     List<PermissionGroupInfoDTO> rolesInfo = tuple.getT1();
                     List<UserGroupCompactDTO> groupsInfo = tuple.getT2();
-                    return new UserForManagementDTO(user.getId(), user.getUsername(), groupsInfo, rolesInfo);
+                    return new UserForManagementDTO(
+                            user.getId(), user.getUsername(), groupsInfo, rolesInfo, user.getIsProvisioned());
                 });
     }
 

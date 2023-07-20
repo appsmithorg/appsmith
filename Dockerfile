@@ -36,7 +36,7 @@ RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/ser
 
 # Untar & install keycloak - Service Layer
 RUN mkdir -p /opt/keycloak/data \
-  && curl --location --output /tmp/keycloak.tar.gz https://github.com/keycloak/keycloak/releases/download/21.0.2/keycloak-21.0.2.tar.gz \
+  && curl --location --output /tmp/keycloak.tar.gz https://github.com/keycloak/keycloak/releases/download/21.1.2/keycloak-21.1.2.tar.gz \
   && tar -C /opt/keycloak -zxvf /tmp/keycloak.tar.gz --strip-components 1
 
 # Clean up cache file - Service layer

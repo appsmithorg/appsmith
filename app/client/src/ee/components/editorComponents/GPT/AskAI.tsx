@@ -18,6 +18,7 @@ import { examplePrompts } from "./GetStarted";
 import BetaCard from "components/editorComponents/BetaCard";
 import { Button } from "design-system";
 import { usePrevious } from "@mantine/hooks";
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 
 const QueryForm = styled.form`
   > div {
@@ -70,6 +71,7 @@ type TAskAIProps = {
   dataTreePath?: string;
   isOpen?: boolean;
   currentValue: string;
+  entity: FieldEntityInformation;
 };
 
 export function AskAI(props: TAskAIProps) {
@@ -140,7 +142,9 @@ export function AskAI(props: TAskAIProps) {
           generatedCode: response.content,
           userQuery: query,
           implicit,
-          property: dataTreePath,
+          property: props.entity.propertyPath,
+          widgetName: props.entity.entityName,
+          widgetType: props.entity.widgetType,
         });
       }
       defaultValue.current = currentValue;
@@ -179,7 +183,9 @@ export function AskAI(props: TAskAIProps) {
       liked: false,
       generatedCode: response.content,
       userQuery: query,
-      property: props.dataTreePath,
+      property: props.entity.propertyPath,
+      widgetName: props.entity.entityName,
+      widgetType: props.entity.widgetType,
     });
     setResponse(null);
     props.update?.(defaultValue.current || "");
@@ -228,7 +234,9 @@ export function AskAI(props: TAskAIProps) {
       userQuery: query,
       enhancedQuery,
       context,
-      property: props.dataTreePath,
+      property: props.entity.propertyPath,
+      widgetName: props.entity.entityName,
+      widgetType: props.entity.widgetType,
     });
     const start = performance.now();
     try {
@@ -274,7 +282,9 @@ export function AskAI(props: TAskAIProps) {
         userQuery: query,
         context,
         timeTaken: performance.now() - start,
-        property: props.dataTreePath,
+        property: props.entity.propertyPath,
+        widgetName: props.entity.entityName,
+        widgetType: props.entity.widgetType,
       });
       updateResponse(message, wrapWithBinding);
     } catch (e) {
@@ -285,7 +295,9 @@ export function AskAI(props: TAskAIProps) {
         timeTaken: performance.now() - start,
         userQuery: query,
         context,
-        property: props.dataTreePath,
+        property: props.entity.propertyPath,
+        widgetName: props.entity.entityName,
+        widgetType: props.entity.widgetType,
       });
     }
     setIsLoading(false);

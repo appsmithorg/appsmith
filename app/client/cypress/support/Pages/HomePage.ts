@@ -40,7 +40,7 @@ export class HomePage {
     "//div[contains(@class, 'rc-select-item-option-content')]//span[1][text()='" +
     role +
     "']";
-  public _profileMenu = ".t--profile-menu-icon";
+  _profileMenu = ".t--profile-menu-icon";
   private _editProfileMenu = ".t--edit-profile";
   private _signout = ".t--sign-out";
   _searchUsersInput = ".search-input";
@@ -262,13 +262,14 @@ export class HomePage {
     this.onboarding.closeIntroModal();
     cy.get(this._applicationName).then(($appName) => {
       if (!$appName.hasClass(this._editAppName)) {
-        cy.get(this._applicationName).click();
-        cy.get(this._appMenu)
-          .contains("Edit name", { matchCase: false })
-          .click();
+        this.agHelper.GetNClick(this._applicationName);
+        // cy.get(this._appMenu)
+        //   .contains("Edit name", { matchCase: false })
+        this.agHelper.GetNClickByContains(this._appMenu, "Edit name");
       }
     });
-    cy.get(this._applicationName).type(appName + "{enter}");
+    cy.get(this._applicationName).type(appName);
+    this.agHelper.PressEnter();
     this.agHelper.RemoveTooltip("Rename application");
   }
 

@@ -324,6 +324,7 @@ export const OAUTH_2_0 = () => "OAuth 2.0";
 export const ENABLE = () => "Enable";
 export const UPGRADE = () => "Upgrade";
 export const EDIT = () => "Edit";
+export const CONFIGURE = () => "Configure";
 export const UNEXPECTED_ERROR = () => "An unexpected error occurred";
 export const EXPECTED_ERROR = () => "An error occurred";
 export const NO_DATASOURCE_FOR_QUERY = () =>
@@ -647,6 +648,9 @@ export const BULK_WIDGET_REMOVED = (widgetName: string) =>
 export const BULK_WIDGET_ADDED = (widgetName: string) =>
   `${widgetName} widgets are added back`;
 
+export const ACTION_CONFIGURATION_CHANGED = (name: string) =>
+  `${name}'s configuration has changed`;
+
 // Generate page from DB Messages
 
 export const UNSUPPORTED_PLUGIN_DIALOG_TITLE = () =>
@@ -691,10 +695,37 @@ export const ADD_NEW_WIDGET = () => "Add new widget";
 export const SUGGESTED_WIDGETS = () => "Suggested widgets";
 export const SUGGESTED_WIDGET_TOOLTIP = () => "Add to canvas";
 export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next mission";
+export const BINDING_SECTION_LABEL = () => "Bindings";
+export const ADD_NEW_WIDGET_SUB_HEADING = () =>
+  "Select how you want to display data.";
+export const CONNECT_EXISTING_WIDGET_LABEL = () => "Select a Widget";
+export const CONNECT_EXISTING_WIDGET_SUB_HEADING = () =>
+  "Replace the data of an existing widget";
+export const NO_EXISTING_WIDGETS = () => "Display data in a new widget";
+export const BINDING_WALKTHROUGH_TITLE = () => "Display your data";
+export const BINDING_WALKTHROUGH_DESC = () =>
+  "You can replace data of an existing widget of your page or you can select a new widget.";
+export const BINDINGS_DISABLED_TOOLTIP = () =>
+  "You can display data when you have a successful response to your query";
 
 // Data Sources pane
 export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
+
+// Datasource structure
+
 export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
+export const TABLE_OR_COLUMN_NOT_FOUND = () => "Table or column not found.";
+export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = () =>
+  "Search for table or attribute";
+export const SCHEMA_LABEL = () => "Schema";
+export const STRUCTURE_NOT_FETCHED = () =>
+  "We could not fetch the schema of the database.";
+export const TEST_DATASOURCE_AND_FIX_ERRORS = () =>
+  "Test the datasource and fix the errors.";
+export const LOADING_SCHEMA = () => "Loading schema...";
+export const SCHEMA_WALKTHROUGH_TITLE = () => "Query data fast";
+export const SCHEMA_WALKTHROUGH_DESC = () =>
+  "Select a template from a database table to quickly create your first query. ";
 
 // Git sync
 export const CONNECTED_TO_GIT = () => "Connected to Git";
@@ -844,6 +875,8 @@ export const CONFIRM_SSH_KEY = () =>
   "Please make sure your SSH key has write access.";
 export const READ_DOCUMENTATION = () => "Read documentation";
 export const LEARN_MORE = () => "Learn more";
+
+export const I_UNDERSTAND = () => "I understand";
 export const GIT_NO_UPDATED_TOOLTIP = () => "No new updates to push";
 
 export const FIND_OR_CREATE_A_BRANCH = () => "Find or create a branch";
@@ -1216,6 +1249,14 @@ export const SAVE_BUTTON = () => "Save";
 export const SAVE_AND_RESTART_BUTTON = () => "Save & Restart";
 export const RESET_BUTTON = () => "Reset";
 export const BUSINESS_TAG = () => "Business";
+export const ENTERPRISE_TAG = () => "Enterprise";
+
+// Upgrade pages begin
+export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
+export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
+  `The ${featureName} feature is exclusive to workspaces on the Business Edition`;
+export const AVAILABLE_ON_ENTERPRISE = () => "Available on Appsmith Enterprise";
+// Upgrade pages end
 
 // Audit logs begin
 export const AUDIT_LOGS = () => "Audit logs";
@@ -1237,9 +1278,6 @@ export const DEBUGGING_DETAIL1 = () =>
 export const INCIDENT_MANAGEMENT = () => "Incident management";
 export const INCIDENT_MANAGEMENT_DETAIL1 = () =>
   "Go back in time from an incident to see who did what, correlate events with breaking changes, and run RCAs to remediate incidents for now and the future.";
-export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
-export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
-  `The ${featureName} feature is exclusive to workspaces on the Business Edition`;
 // Audit logs Upgrade page end
 // Audit logs end
 
@@ -1263,6 +1301,22 @@ export const RESTRICT_PUBLIC_EXPOSURE_DETAIL1 = () =>
 export const ACCESS_CONTROL_UPGRADE_PAGE_FOOTER = () =>
   "Unlock granular access controls along with audit logs and SSO for enhanced security and reliability with an upgrade to our Business edition.";
 // Access control upgrade page end
+
+// Provisioning upgrade page begin
+export const USER_PROVISIONING_FOR_ENTERPRISES = () =>
+  "Manage Appsmith users via your identity provider";
+export const PROVISIONING_UPGRADE_PAGE_SUB_HEADING = () =>
+  `Add and remove Appsmith users centrally. Sync existing groups to Appsmith.`;
+export const PROVISION_DEPROVISION_USERS = () =>
+  "Provision and deprovision users from your IdP";
+export const PROVISION_DEPROVISION_USERS_DETAIL1 = () =>
+  `Control user authorization and access to Appsmith workspaces and apps via your IdP using the SCIM protocol.<div>&nbsp;</div><div><span style="font-style: italic;font-weight: normal;">More protocols coming soon</span></div>`;
+export const AUTO_GROUP_SYNC = () => "Automatic group sync";
+export const AUTO_GROUP_SYNC_DETAIL1 = () =>
+  `Easily manage access for groups when you sync them to Appsmith from your IdP.`;
+export const PROVISIONING_UPGRADE_PAGE_FOOTER = () =>
+  "Secure your Appsmith apps with Granular Access Controls, Audit Logs, Custom SSO, and more on Appsmith Enterprise.";
+// Provisioning upgrade page end
 
 //
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>

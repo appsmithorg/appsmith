@@ -1,6 +1,8 @@
 import app, { RTS_BASE_API_PATH } from "../server";
 import supertest from "supertest";
 
+jest.mock("scimgateway/lib/scimgateway");
+
 const singleScript = {
   script:
     "(function abc() { let Api2 = { }; return Api2.data ? str.data + Api1.data : [] })()",

@@ -10,6 +10,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.mongodb.client.result.UpdateResult;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -17,6 +18,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -25,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.server.constants.QueryParams.PROVISIONED_FILTER;
 import static com.appsmith.server.helpers.RegexHelper.getStringsToRegex;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -43,9 +46,14 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
     }
 
     @Override
-    public Flux<UserGroup> findAllByTenantId(String tenantId, AclPermission aclPermission) {
+    public Flux<UserGroup> findAllByTenantId(
+            String tenantId, MultiValueMap<String, String> filters, AclPermission aclPermission) {
         Criteria criteria = where(fieldName(QUserGroup.userGroup.tenantId)).is(tenantId);
-        return queryAll(List.of(criteria), aclPermission);
+        List<Criteria> criteriaListFromFilters = getCriteriaListFromFilters(filters);
+        List<Criteria> allCriteria = new ArrayList<>();
+        allCriteria.add(criteria);
+        allCriteria.addAll(criteriaListFromFilters);
+        return queryAll(allCriteria, aclPermission);
     }
 
     @Override
@@ -129,6 +137,13 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
     }
 
     @Override
+    public Mono<Long> countAllUserGroupsByIsProvisioned(boolean isProvisioned, Optional<AclPermission> aclPermission) {
+        Criteria criteriaIsProvisioned =
+                Criteria.where(fieldName(QUserGroup.userGroup.isProvisioned)).is(isProvisioned);
+        return count(List.of(criteriaIsProvisioned), aclPermission);
+    }
+
+    @Override
     public Flux<UserGroup> getAllUserGroupsByIsProvisioned(
             boolean isProvisioned, Optional<List<String>> includeFields, Optional<AclPermission> aclPermission) {
         Criteria criteriaIsProvisioned =
@@ -145,5 +160,20 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
         updateGroup.set(fieldName(QUserGroup.userGroup.isProvisioned), isProvisioned);
         updateGroup.set(fieldName(QUserGroup.userGroup.policies), policies);
         return updateByCriteria(List.of(criteriaIsProvisioned), updateGroup).thenReturn(Boolean.TRUE);
+    }
+
+    private List<Criteria> getCriteriaListFromFilters(MultiValueMap<String, String> filters) {
+        List<Criteria> criteriaList = new ArrayList<>();
+        if (StringUtils.isNotEmpty(filters.getFirst(PROVISIONED_FILTER))) {
+            String provisionValue = filters.getFirst(PROVISIONED_FILTER).toLowerCase();
+            if (provisionValue.equals(Boolean.TRUE.toString())) {
+                criteriaList.add(
+                        where(fieldName(QUserGroup.userGroup.isProvisioned)).is(Boolean.TRUE));
+            } else if (provisionValue.equals(Boolean.FALSE.toString())) {
+                criteriaList.add(
+                        where(fieldName(QUserGroup.userGroup.isProvisioned)).is(Boolean.FALSE));
+            }
+        }
+        return criteriaList;
     }
 }

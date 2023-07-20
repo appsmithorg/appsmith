@@ -83,6 +83,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.FieldName.PUBLIC_PERMISSION_GROUP;
+import static com.appsmith.server.constants.ce.AnalyticsConstantsCE.ENVIRONMENT_NAME_SHORTNAME;
 import static org.apache.commons.lang.WordUtils.capitalize;
 import static org.springframework.util.StringUtils.hasText;
 
@@ -477,15 +478,22 @@ public class AuditLogServiceImpl implements AuditLogService {
         Mono<DatasourceStorage> resourceMono = Mono.just(resource);
 
         if (resource.getEnvironmentId() != null) {
-            resourceMono = resourceMono
-                    .zipWith(environmentRepository.findById(resource.getEnvironmentId()))
-                    .map(tuple2 -> {
-                        Environment environment = tuple2.getT2();
-                        AuditLogEnvironmentMetadata environmentMetadata =
-                                new AuditLogEnvironmentMetadata(environment.getId(), environment.getName());
-                        auditLog.setEnvironment(environmentMetadata);
-                        return resource;
-                    });
+
+            if (properties.containsKey(ENVIRONMENT_NAME_SHORTNAME)
+                    && hasText((String) properties.get(ENVIRONMENT_NAME_SHORTNAME))) {
+                auditLog.setEnvironment(new AuditLogEnvironmentMetadata(
+                        resource.getEnvironmentId(), (String) properties.get(ENVIRONMENT_NAME_SHORTNAME)));
+            } else {
+                resourceMono = resourceMono
+                        .zipWith(environmentRepository.findById(resource.getEnvironmentId()))
+                        .map(tuple2 -> {
+                            Environment environment = tuple2.getT2();
+                            AuditLogEnvironmentMetadata environmentMetadata =
+                                    new AuditLogEnvironmentMetadata(environment.getId(), environment.getName());
+                            auditLog.setEnvironment(environmentMetadata);
+                            return resource;
+                        });
+            }
         }
 
         // Plugin name is required as DatasourceType in Audit Logs
@@ -754,13 +762,21 @@ public class AuditLogServiceImpl implements AuditLogService {
             String environmentId =
                     hasText(envId) ? envId : (String) properties.get(AnalyticsConstants.ENVIRONMENT_ID_SHORTNAME);
             if (hasText(environmentId)) {
-                environmentMetadataMono = environmentRepository
-                        .findById(environmentId)
-                        .map(environment -> new AuditLogEnvironmentMetadata(environment.getId(), environment.getName()))
-                        .map(auditLogEnvironmentMetadata -> {
-                            auditLog.setEnvironment(auditLogEnvironmentMetadata);
-                            return auditLogEnvironmentMetadata;
-                        });
+
+                if (properties.containsKey(ENVIRONMENT_NAME_SHORTNAME)
+                        && hasText((String) properties.get(ENVIRONMENT_NAME_SHORTNAME))) {
+                    auditLog.setEnvironment(new AuditLogEnvironmentMetadata(
+                            environmentId, (String) properties.get(ENVIRONMENT_NAME_SHORTNAME)));
+                } else {
+                    environmentMetadataMono = environmentRepository
+                            .findById(environmentId)
+                            .map(environment ->
+                                    new AuditLogEnvironmentMetadata(environment.getId(), environment.getName()))
+                            .map(auditLogEnvironmentMetadata -> {
+                                auditLog.setEnvironment(auditLogEnvironmentMetadata);
+                                return auditLogEnvironmentMetadata;
+                            });
+                }
             }
         }
 

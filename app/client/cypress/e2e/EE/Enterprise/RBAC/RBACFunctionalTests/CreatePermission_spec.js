@@ -4,19 +4,19 @@ const RBAC = require("../../../../../locators/RBAClocators.json");
 const datasources = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
-import datasourceFormData from "../../../../../fixtures/datasources.json";
 const omnibar = require("../../../../../locators/Omnibar.json");
-import reconnectDatasourceModal from "../../../../../locators/ReconnectLocators";
 
 import {
   adminSettings,
   agHelper,
+  apiPage,
   dataSources,
   entityExplorer,
   homePage,
+  tedTestConfig,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe.skip("Create Permission flow ", function () {
+describe("Create Permission flow ", function () {
   let datasourceName;
   let datasourceName2;
   let workspaceName;
@@ -224,7 +224,6 @@ describe.skip("Create Permission flow ", function () {
         .last()
         .contains("Create new datasource");
       dataSources.EnterQuery("select * from users limit 10");
-      agHelper.AssertAutoSave();
       dataSources.RunQuery({
         toValidateResponse: false,
       });
@@ -269,7 +268,7 @@ describe.skip("Create Permission flow ", function () {
       // should check reconnect modal opening
       const { isPartialImport } = interception.response.body.data;
       if (isPartialImport) {
-        dataSources.ReconnectDataSource("mockdata", "PostgreSQL");
+        dataSources.ReconnectDSbyType("PostgreSQL");
         homePage.AssertNCloseImport();
         cy.wait(2000);
       } else {
@@ -346,9 +345,8 @@ describe.skip("Create Permission flow ", function () {
     cy.get("[data-testid='t--file-operation']").first().click({ force: true });
     cy.generateUUID().then((uid) => {
       APIName = uid;
-      cy.CreateAPI(APIName);
+      apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl, APIName);
     });
-    cy.enterDatasource(datasourceFormData.mockApiUrl);
     cy.SaveAndRunAPI();
     cy.ResponseStatusCheck("200");
   });

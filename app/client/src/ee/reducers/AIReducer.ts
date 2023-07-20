@@ -15,6 +15,7 @@ export type GPTTriggerContext = Partial<{
   propertyPath: string;
   entityId: string;
   example: ExpectedValueExample;
+  noOfTimesAITriggered: number;
 }>;
 
 export interface AIReduxState {
@@ -24,6 +25,7 @@ export interface AIReduxState {
   showExamplePrompt: boolean;
   isLoading: boolean;
   context: GPTTriggerContext;
+  noOfTimesAITriggered: number;
 }
 
 const initialGPTState: AIReduxState = {
@@ -33,6 +35,7 @@ const initialGPTState: AIReduxState = {
   showExamplePrompt: false,
   isLoading: false,
   context: {},
+  noOfTimesAITriggered: 0,
 };
 
 const handlers = {
@@ -81,6 +84,15 @@ const handlers = {
     action: ReduxAction<boolean>,
   ) => {
     state.isLoading = action.payload;
+  },
+  [ReduxActionTypes.UPDATE_AI_TRIGGERED]: (
+    state: AIReduxState,
+    action: {
+      payload: { value: number };
+    },
+  ) => {
+    const { value } = action.payload;
+    state.noOfTimesAITriggered = value;
   },
 };
 

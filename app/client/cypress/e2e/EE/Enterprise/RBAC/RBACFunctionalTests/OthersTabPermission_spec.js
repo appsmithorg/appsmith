@@ -59,7 +59,7 @@ describe("Others tab permission Tests", function () {
         "response.body.responseMeta.status",
         200,
       );
-      cy.get(RBAC.backButton).click();
+      cy.get(RBAC.rolesTab).click();
       cy.AssignRoleToUser(ViewAuditlogsRole, Cypress.env("TESTUSERNAME1"));
       cy.AssignRoleToUser(CreateWorkspaceRole, Cypress.env("TESTUSERNAME1"));
       cy.AssignRoleToUser(EditWorkspaceRole, Cypress.env("TESTUSERNAME2"));

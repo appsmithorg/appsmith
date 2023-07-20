@@ -866,6 +866,14 @@ public enum AppsmithError {
             "Invalid license key",
             ErrorType.ARGUMENT_ERROR,
             null),
+    LICENSE_UPGRADE_REQUIRED(
+            400,
+            AppsmithErrorCode.LICENSE_UPGRADE_REQUIRED.getCode(),
+            "Current license plan does not support this feature. Please reach out to Appsmith support to know how to upgrade.",
+            AppsmithErrorAction.DEFAULT,
+            "License upgrade required.",
+            ErrorType.ARGUMENT_ERROR,
+            null),
     GIT_FILE_IN_USE(
             500,
             AppsmithErrorCode.GIT_FILE_IN_USE.getCode(),
@@ -897,6 +905,14 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT,
             "Duplicate Configuration",
             ErrorType.BAD_REQUEST,
+            null),
+    INVALID_PROPERTIES_CONFIGURATION(
+            500,
+            AppsmithErrorCode.INVALID_PROPERTIES_CONFIGURATION.getCode(),
+            "Property configuration is wrong or malformed.",
+            AppsmithErrorAction.DEFAULT,
+            "Invalid application property configuration",
+            ErrorType.INTERNAL_ERROR,
             null),
 
     // EE-only errors below this line:

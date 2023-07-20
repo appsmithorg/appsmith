@@ -4,8 +4,10 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.domains.License;
+import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -27,13 +29,17 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import static com.appsmith.server.constants.CommonConstants.COLUMN;
 import static com.appsmith.server.constants.CommonConstants.DEFAULT;
 import static com.appsmith.server.constants.CommonConstants.DELIMETER_SPACE;
 import static com.appsmith.server.constants.CommonConstants.FOR;
 import static com.appsmith.server.constants.CommonConstants.IN;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
 public class TenantServiceImpl extends TenantServiceCEImpl implements TenantService {
@@ -248,5 +254,38 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         return tenant.getTenantConfiguration() != null
                 && tenant.getTenantConfiguration().getLicense() != null
                 && tenant.getTenantConfiguration().getLicense().getKey() != null;
+    }
+
+    @Override
+    public Mono<Boolean> isEnterprisePlan(String tenantId) {
+        Mono<License> licenseMono = getTenantLicense(tenantId);
+        return licenseMono
+                .map(license ->
+                        license.getActive() && getEnterpriseLicenseOrigins().contains(license.getOrigin()))
+                .switchIfEmpty(Mono.just(Boolean.FALSE));
+    }
+
+    @Override
+    public Mono<License> getTenantLicense(String tenantId) {
+        List<String> includeFields = List.of(
+                fieldName(QTenant.tenant.id),
+                fieldName(QTenant.tenant.tenantConfiguration) + "."
+                        + fieldName(QTenant.tenant.tenantConfiguration.license));
+        Mono<Tenant> tenantMono = repository.findById(tenantId, includeFields, null);
+        return tenantMono.flatMap(tenant -> {
+            if (Objects.isNull(tenant.getTenantConfiguration())
+                    || Objects.isNull(tenant.getTenantConfiguration().getLicense())) {
+                return Mono.empty();
+            }
+            return Mono.just(tenant.getTenantConfiguration().getLicense());
+        });
+    }
+
+    /**
+     * Currently {@link License}.{@link LicenseOrigin} is set to ENTERPRISE & AIR_GAP for Enterprise and AirGapped respectively.
+     * Hence we use a set of ENTERPRISE & AIR_GAP as EnterPrise License Origins
+     */
+    private Set<LicenseOrigin> getEnterpriseLicenseOrigins() {
+        return Set.of(LicenseOrigin.ENTERPRISE, LicenseOrigin.AIR_GAP);
     }
 }

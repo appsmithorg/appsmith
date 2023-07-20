@@ -14,6 +14,7 @@ import {
   leaveWorkspaceSaga,
   fetchFeatureFlags,
   updateFirstTimeUserOnboardingSage,
+  fetchProductAlertSaga,
 } from "ce/sagas/userSagas";
 import type {
   ReduxAction,
@@ -136,6 +137,10 @@ export default function* userSagas() {
     takeLatest(ReduxActionTypes.UPLOAD_PROFILE_PHOTO, updatePhoto),
     takeLatest(ReduxActionTypes.LEAVE_WORKSPACE_INIT, leaveWorkspaceSaga),
     takeLatest(ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT, fetchFeatureFlags),
+    takeLatest(
+      ReduxActionTypes.FETCH_PRODUCT_ALERT_INIT,
+      fetchProductAlertSaga,
+    ),
     takeLatest(
       ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
       updateFirstTimeUserOnboardingSage,

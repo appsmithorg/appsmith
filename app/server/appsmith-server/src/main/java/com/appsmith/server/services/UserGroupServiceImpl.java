@@ -20,10 +20,12 @@ import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
+import com.appsmith.server.enums.ProvisionStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PermissionGroupUtils;
+import com.appsmith.server.helpers.ProvisionUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
@@ -36,6 +38,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -93,6 +96,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     private final UserUtils userUtils;
     private final PolicySolution policySolution;
     private final UserRepository userRepository;
+    private final ProvisionUtils provisionUtils;
 
     public UserGroupServiceImpl(
             Scheduler scheduler,
@@ -111,7 +115,8 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
             UserDataRepository userDataRepository,
             UserUtils userUtils,
             PolicySolution policySolution,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            ProvisionUtils provisionUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
@@ -124,29 +129,31 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
         this.userUtils = userUtils;
         this.policySolution = policySolution;
         this.userRepository = userRepository;
+        this.provisionUtils = provisionUtils;
     }
 
     @Override
     public Flux<UserGroup> get(MultiValueMap<String, String> params) {
-        return this.getAll(READ_USER_GROUPS).sort(AppsmithComparators.userGroupComparator());
+        return this.getAll(READ_USER_GROUPS, params).sort(AppsmithComparators.userGroupComparator());
     }
 
-    private Flux<UserGroup> getAll(AclPermission aclPermission) {
+    private Flux<UserGroup> getAll(AclPermission aclPermission, MultiValueMap<String, String> queryParams) {
         return tenantService
                 .getDefaultTenant()
-                .flatMapMany(defaultTenantId -> repository.findAllByTenantId(defaultTenantId.getId(), aclPermission));
+                .flatMapMany(defaultTenantId ->
+                        repository.findAllByTenantId(defaultTenantId.getId(), queryParams, aclPermission));
     }
 
     @Override
     public Mono<List<UserGroupCompactDTO>> getAllWithAddUserPermission() {
-        return this.getAll(ADD_USERS_TO_USER_GROUPS)
+        return this.getAll(ADD_USERS_TO_USER_GROUPS, new LinkedMultiValueMap<>())
                 .map(this::generateUserGroupCompactDTO)
                 .collectList();
     }
 
     @Override
     public Mono<List<UserGroupCompactDTO>> getAllReadableGroups() {
-        return this.getAll(READ_USER_GROUPS)
+        return this.getAll(READ_USER_GROUPS, new LinkedMultiValueMap<>())
                 .map(this::generateUserGroupCompactDTO)
                 .collectList();
     }
@@ -564,6 +571,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                     return Mono.zip(updateUserGroupMono, updateCacheForUserIdsMono)
                             .then(updateUserGroupMono);
                 })
+                .flatMap(this::updateProvisioningStatus)
                 .map(this::getProvisionResourceDto);
     }
 
@@ -572,6 +580,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
         return repository
                 .findById(groupId, READ_USER_GROUPS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Group", groupId)))
+                .flatMap(this::updateProvisioningStatus)
                 .map(this::getProvisionResourceDto);
     }
 
@@ -612,6 +621,12 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                             .startIndex(pagedUserGroups.getStartIndex())
                             .content(provisionedUsersDto)
                             .build();
+                })
+                .zipWith(provisionUtils.updateProvisioningStatus(ProvisionStatus.ACTIVE))
+                .map(pair -> {
+                    PagedDomain<ProvisionResourceDto> pagedGroups = pair.getT1();
+                    Boolean updateProvisioningStatus = pair.getT2();
+                    return pagedGroups;
                 });
     }
 
@@ -619,41 +634,58 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     public Mono<ProvisionResourceDto> createProvisionGroup(UserGroup userGroup) {
         return createUserGroup(userGroup)
                 .flatMap(this::updateProvisionUserGroupPoliciesAndProvisionFlag)
+                .flatMap(this::updateProvisioningStatus)
                 .map(this::getProvisionResourceDto);
     }
 
     @Override
     public Mono<List<UserGroupDTO>> removeUsersFromProvisionGroup(UsersForGroupDTO removeUsersFromGroupDTO) {
         List<String> userIds = removeUsersFromGroupDTO.getUserIds();
-        return tenantService.getDefaultTenantId().flatMap(tenantId -> userRepository
-                .getUserEmailsByIdsAndTenantId(userIds, tenantId, Optional.empty())
-                .collect(Collectors.toSet())
-                .flatMap(userEmails -> {
-                    if (CollectionUtils.isEmpty(userEmails)) {
-                        return Mono.just(List.of());
-                    }
-                    UsersForGroupDTO userEmailsFromGroupDTO = new UsersForGroupDTO();
-                    userEmailsFromGroupDTO.setUsernames(userEmails);
-                    userEmailsFromGroupDTO.setGroupIds(removeUsersFromGroupDTO.getGroupIds());
-                    return this.removeUsers(userEmailsFromGroupDTO);
-                }));
+        return tenantService
+                .getDefaultTenantId()
+                .flatMap(tenantId -> userRepository
+                        .getUserEmailsByIdsAndTenantId(userIds, tenantId, Optional.empty())
+                        .collect(Collectors.toSet())
+                        .flatMap(userEmails -> {
+                            if (CollectionUtils.isEmpty(userEmails)) {
+                                return Mono.just(new ArrayList<UserGroupDTO>());
+                            }
+                            UsersForGroupDTO userEmailsFromGroupDTO = new UsersForGroupDTO();
+                            userEmailsFromGroupDTO.setUsernames(userEmails);
+                            userEmailsFromGroupDTO.setGroupIds(removeUsersFromGroupDTO.getGroupIds());
+                            return this.removeUsers(userEmailsFromGroupDTO);
+                        }))
+                .zipWith(provisionUtils.updateProvisioningStatus(ProvisionStatus.ACTIVE))
+                .map(pair -> {
+                    List<UserGroupDTO> userGroupDTOs = pair.getT1();
+                    Boolean provisioningStatusUpdate = pair.getT2();
+                    return userGroupDTOs;
+                });
     }
 
     @Override
     public Mono<List<UserGroupDTO>> addUsersToProvisionGroup(UsersForGroupDTO addUsersFromGroupDTO) {
         List<String> userIds = addUsersFromGroupDTO.getUserIds();
-        return tenantService.getDefaultTenantId().flatMap(tenantId -> userRepository
-                .getUserEmailsByIdsAndTenantId(userIds, tenantId, Optional.empty())
-                .collect(Collectors.toSet())
-                .flatMap(userEmails -> {
-                    if (CollectionUtils.isEmpty(userEmails)) {
-                        return Mono.just(List.of());
-                    }
-                    UsersForGroupDTO userEmailsFromGroupDTO = new UsersForGroupDTO();
-                    userEmailsFromGroupDTO.setUsernames(userEmails);
-                    userEmailsFromGroupDTO.setGroupIds(addUsersFromGroupDTO.getGroupIds());
-                    return this.inviteUsers(userEmailsFromGroupDTO, null);
-                }));
+        return tenantService
+                .getDefaultTenantId()
+                .flatMap(tenantId -> userRepository
+                        .getUserEmailsByIdsAndTenantId(userIds, tenantId, Optional.empty())
+                        .collect(Collectors.toSet())
+                        .flatMap(userEmails -> {
+                            if (CollectionUtils.isEmpty(userEmails)) {
+                                return Mono.just(new ArrayList<UserGroupDTO>());
+                            }
+                            UsersForGroupDTO userEmailsFromGroupDTO = new UsersForGroupDTO();
+                            userEmailsFromGroupDTO.setUsernames(userEmails);
+                            userEmailsFromGroupDTO.setGroupIds(addUsersFromGroupDTO.getGroupIds());
+                            return this.inviteUsers(userEmailsFromGroupDTO, null);
+                        }))
+                .zipWith(provisionUtils.updateProvisioningStatus(ProvisionStatus.ACTIVE))
+                .map(pair -> {
+                    List<UserGroupDTO> userGroupDTOs = pair.getT1();
+                    Boolean provisioningStatusUpdate = pair.getT2();
+                    return userGroupDTOs;
+                });
     }
 
     private ProvisionResourceDto getProvisionResourceDto(UserGroup userGroup) {
@@ -666,6 +698,10 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                 .resource(userGroup)
                 .metadata(metadata)
                 .build();
+    }
+
+    private Mono<UserGroup> updateProvisioningStatus(UserGroup userGroup) {
+        return provisionUtils.updateProvisioningStatus(ProvisionStatus.ACTIVE).thenReturn(userGroup);
     }
 
     /**

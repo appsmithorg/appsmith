@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.LinkedMultiValueMap;
 import reactor.test.StepVerifier;
 
 import java.util.List;
@@ -519,8 +520,9 @@ public class UserAndAccessManagementServiceTest {
         UserData userData2PostUpdate =
                 userDataService.updateForUser(createdUser2, userData2).block();
 
-        List<UserForManagementDTO> usersList =
-                userAndAccessManagementService.getAllUsers().block();
+        List<UserForManagementDTO> usersList = userAndAccessManagementService
+                .getAllUsers(new LinkedMultiValueMap<>())
+                .block();
         Optional<UserForManagementDTO> userForManagementDTO1 = usersList.stream()
                 .filter(_user -> createdUser1.getId().equals(_user.getId()))
                 .findFirst();

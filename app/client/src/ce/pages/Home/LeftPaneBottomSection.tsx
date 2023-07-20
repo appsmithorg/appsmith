@@ -28,7 +28,6 @@ import {
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 
 export const Wrapper = styled.div`
-  padding-bottom: 26px;
   background-color: var(--ads-v2-color-bg);
   width: 100%;
   margin-top: auto;
@@ -37,7 +36,6 @@ export const Wrapper = styled.div`
 
 export const MenuWrapper = styled.div`
   margin-top: 4px;
-  margin-bottom: 8px;
 `;
 
 export const LeftPaneVersionData = styled.div`
@@ -49,9 +47,8 @@ export const LeftPaneVersionData = styled.div`
   margin-top: ${(props) => props.theme.spaces[3]}px;
   // reduce border width from 1px from width
   width: calc(${(props) => props.theme.homePage.sidebar}px - 1px);
-  position: fixed;
-  bottom: 0;
-  left: 0;
+  position: relative;
+  left: -16px;
   padding: 8px 30px;
   background: var(--ads-v2-color-bg-subtle);
 `;

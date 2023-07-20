@@ -10,6 +10,7 @@ import type { EnvironmentsReduxState } from "./environmentReducer";
 import environmentReducer from "./environmentReducer";
 import type { AIReduxState } from "./AIReducer";
 import AIReducer from "./AIReducer";
+import ProvisioningReducer from "./ProvisioningReducer";
 
 const appReducer = combineReducers({
   ...CE_AppReducer,
@@ -17,6 +18,7 @@ const appReducer = combineReducers({
   auditLogs: auditLogsReducer,
   environments: environmentReducer,
   ai: AIReducer,
+  provisioning: ProvisioningReducer,
 });
 
 export interface AppState extends CE_AppState {
@@ -24,6 +26,7 @@ export interface AppState extends CE_AppState {
   auditLogs: AuditLogsReduxState;
   environments: EnvironmentsReduxState;
   ai: AIReduxState;
+  provisioning: any;
 }
 
 export default appReducer;

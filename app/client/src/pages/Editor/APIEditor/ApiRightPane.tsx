@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getApiRightPaneSelectedTab } from "selectors/apiPaneSelectors";
 import isUndefined from "lodash/isUndefined";
 import { Button, Tab, TabPanel, Tabs, TabsList, Tag } from "design-system";
+import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
 import type { Datasource } from "entities/Datasource";
 import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
@@ -125,7 +126,7 @@ const DataSourceNameContainer = styled.div`
 
 const SomeWrapper = styled.div`
   height: 100%;
-  padding: 0 var(--ads-v2-spaces-6);
+  padding: 0 var(--ads-v2-spaces-4);
 `;
 
 const NoEntityFoundWrapper = styled.div`
@@ -311,9 +312,12 @@ function ApiRightPane(props: any) {
             <SomeWrapper>
               <ActionRightPane
                 actionName={props.actionName}
+                context={DatasourceStructureContext.API_EDITOR}
+                datasourceId={props.datasourceId}
                 entityDependencies={entityDependencies}
                 hasConnections={hasDependencies}
                 hasResponse={props.hasResponse}
+                pluginId={props.pluginId}
                 suggestedWidgets={props.suggestedWidgets}
               />
             </SomeWrapper>

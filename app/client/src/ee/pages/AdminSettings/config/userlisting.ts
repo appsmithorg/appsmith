@@ -1,15 +1,13 @@
+export * from "ce/pages/AdminSettings/config/userlisting";
+import { config as CE_config } from "ce/pages/AdminSettings/config/userlisting";
+import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
-import {
-  SettingCategories,
-  SettingTypes,
-} from "@appsmith/pages/AdminSettings/config/types";
 import { UserListing } from "../AccessControl/UserListing";
 
 export const config: AdminConfigType = {
-  icon: "user-3-line",
+  ...CE_config,
   type: SettingCategories.USER_LISTING,
-  controlType: SettingTypes.PAGE,
   component: UserListing,
   title: "Users",
-  canSave: false,
+  needsUpgrade: false,
 } as AdminConfigType;

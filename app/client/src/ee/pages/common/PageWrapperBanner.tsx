@@ -48,6 +48,7 @@ const FlexWrapper = styled.span<{ color?: string; justify?: string }>`
   }
   .main-text {
     margin-left: 8px;
+    white-space: nowrap;
   }
   p {
     color: ${(props) => props.color ?? "var(--ads-v2-color-fg)"};
