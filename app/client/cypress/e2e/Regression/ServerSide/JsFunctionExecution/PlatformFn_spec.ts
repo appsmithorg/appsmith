@@ -5,6 +5,7 @@ import {
   jsEditor,
   debuggerHelper,
   tedTestConfig,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Tests functionality of platform function", () => {
@@ -143,5 +144,29 @@ describe("Tests functionality of platform function", () => {
       debuggerHelper.DebuggerLogsFilter("JSObject1.metaDataApiTest");
       debuggerHelper.DoesConsoleLogExist("Hello from setTimeout inside API");
     });
+  });
+
+  it("2.Bug 16135 ShowAlert with same texts, when invoked from different triggers are combined", () => {
+    jsEditor.CreateJSObject(
+      `export default {
+        showTwoSameToastMessageAlerts: () => {
+            showAlert( "Hello World" );
+            showAlert( "Hello World" );
+        },
+
+        }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+        prettify: false,
+      },
+    );
+    agHelper.Sleep();
+    jsEditor.RunJSObj();
+    agHelper.AssertElementLength(locators._toastMsg, 2);
+    agHelper.ValidateToastMessage("Hello World", 0);
+    agHelper.ValidateToastMessage("Hello World", 1);
   });
 });
