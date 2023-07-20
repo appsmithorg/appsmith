@@ -154,8 +154,8 @@ export default class DependencyMap {
       this.#dependenciesInverse.delete(node);
       const nodeExistedInDependencies = this.removeDependency(node);
       if (nodeExistedInDependencies) didUpdateDependencies = true;
-      return didUpdateDependencies;
     }
+    return didUpdateDependencies;
   };
 
   isRelated = (source: string, targets: string[]) => {

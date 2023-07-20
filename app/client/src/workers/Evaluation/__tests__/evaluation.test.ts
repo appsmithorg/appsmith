@@ -282,7 +282,7 @@ const mockDefault = jest.spyOn(WidgetFactory, "getWidgetDefaultPropertiesMap");
 
 const mockDerived = jest.spyOn(WidgetFactory, "getWidgetDerivedPropertiesMap");
 
-const dependencyMap = {
+const initialdependencies = {
   Dropdown1: [
     "Dropdown1.defaultOptionValue",
     "Dropdown1.filterText",
@@ -315,7 +315,7 @@ const dependencyMap = {
     "Table1.tableData",
   ],
   "Table1.searchText": ["Table1.defaultSearchText"],
-  "Table1.selectedRow": [],
+  "Table1.selectedRow": ["Table1.selectedRowIndex"],
   "Table1.selectedRowIndex": ["Table1.defaultSelectedRow"],
   "Table1.selectedRowIndices": ["Table1.defaultSelectedRow"],
   "Table1.selectedRows": [],
@@ -425,6 +425,9 @@ describe("DataTreeEvaluator", () => {
           "{{Api1.data.map(datum => ({ ...datum, raw: Text1.text }) )}}",
         dynamicBindingPathList: [{ key: "tableData" }],
         type: "TABLE_WIDGET",
+        searchText: undefined,
+        selectedRowIndex: undefined,
+        selectedRowIndices: undefined,
       },
       {},
     ).unEvalEntity,
@@ -537,9 +540,12 @@ describe("DataTreeEvaluator", () => {
   it("Evaluates a binding in first run", () => {
     const evaluation = evaluator.evalTree;
     const dependencies = evaluator.dependencies;
+    expect(evaluation).toHaveProperty("Text1.text", "Label");
     expect(evaluation).toHaveProperty("Text2.text", "Label");
     expect(evaluation).toHaveProperty("Text3.text", "Label");
-    expect(sortObjectWithArray(dependencies)).toStrictEqual(dependencies);
+    expect(sortObjectWithArray(dependencies)).toStrictEqual(
+      initialdependencies,
+    );
   });
 
   it("Evaluates a value change in update run", () => {
@@ -565,6 +571,8 @@ describe("DataTreeEvaluator", () => {
       unEvalUpdates,
     );
     const dataTree = evaluator.evalTree;
+
+    expect(dataTree).toHaveProperty("Text1.text", "Hey there");
     expect(dataTree).toHaveProperty("Text2.text", "Hey there");
     expect(dataTree).toHaveProperty("Text3.text", "Hey there");
   });
@@ -584,6 +592,11 @@ describe("DataTreeEvaluator", () => {
         dynamicBindingPathList: [],
       },
     };
+    const expectedDependencies = {
+      ...initialdependencies,
+      // Binding has been removed
+      ["Text3.text"]: [],
+    };
 
     const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
       evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
@@ -596,11 +609,13 @@ describe("DataTreeEvaluator", () => {
 
     const dataTree = evaluator.evalTree;
     const updatedDependencies = evaluator.dependencies;
+
+    expect(dataTree).toHaveProperty("Text1.text", "Label");
     expect(dataTree).toHaveProperty("Text2.text", "Label");
     expect(dataTree).toHaveProperty("Text3.text", "Label 3");
 
     expect(sortObjectWithArray(updatedDependencies)).toStrictEqual(
-      dependencyMap,
+      expectedDependencies,
     );
   });
 
@@ -614,6 +629,18 @@ describe("DataTreeEvaluator", () => {
       ...configTree,
       Input1: input1ConfigEntity,
     };
+    const expectedDependencies = {
+      ...initialdependencies,
+      Input1: [
+        "Input1.defaultText",
+        "Input1.isValid",
+        "Input1.text",
+        "Input1.value",
+      ],
+      "Input1.isValid": ["Input1.text"],
+      "Input1.text": ["Input1.defaultText"],
+      "Input1.value": ["Input1.text"],
+    };
 
     const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
       evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
@@ -625,6 +652,9 @@ describe("DataTreeEvaluator", () => {
     );
     const dataTree = evaluator.evalTree;
     expect(dataTree).toHaveProperty("Input1.text", "Default value");
+    expect(sortObjectWithArray(evaluator.dependencies)).toStrictEqual(
+      expectedDependencies,
+    );
   });
 
   it("Evaluates for value changes in nested diff paths", () => {
@@ -671,7 +701,7 @@ describe("DataTreeEvaluator", () => {
         validationPaths: {},
       },
     } as unknown as ConfigTree;
-
+    const expectedDependencies = { ...initialdependencies };
     const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
       evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
 
@@ -682,7 +712,11 @@ describe("DataTreeEvaluator", () => {
       unEvalUpdates,
     );
     const dataTree = evaluator.evalTree;
+    const updatedDependencies = evaluator.dependencies;
     expect(dataTree).toHaveProperty("Dropdown2.options.0.label", "newValue");
+    expect(sortObjectWithArray(updatedDependencies)).toStrictEqual(
+      expectedDependencies,
+    );
   });
 
   it("Adds an entity with a complicated binding", () => {
@@ -700,6 +734,7 @@ describe("DataTreeEvaluator", () => {
         ],
       },
     } as unknown as UnEvalTree;
+
     const updatedConfigTree = {
       ...configTree,
       Api1: {
@@ -710,7 +745,6 @@ describe("DataTreeEvaluator", () => {
 
     const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
       evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
-
     evaluator.evalAndValidateSubTree(
       evalOrder,
       nonDynamicFieldValidationOrder,
@@ -729,10 +763,9 @@ describe("DataTreeEvaluator", () => {
         raw: "Label",
       },
     ]);
-
     expect(sortObjectWithArray(updatedDependencies)).toStrictEqual({
       Api1: ["Api1.data"],
-      ...dependencyMap,
+      ...initialdependencies,
       "Table1.tableData": ["Api1.data", "Text1.text"],
       "Text3.text": ["Text1.text"],
     });
@@ -794,9 +827,11 @@ describe("DataTreeEvaluator", () => {
       },
     ]);
     expect(dataTree).toHaveProperty("Text4.text", "Hey");
+
     expect(sortObjectWithArray(updatedDependencies)).toStrictEqual({
       Api1: ["Api1.data"],
-      ...dependencyMap,
+      ...initialdependencies,
+      "Table1.selectedRow": [],
       "Table1.tableData": ["Api1.data", "Text1.text"],
       "Text3.text": ["Text1.text"],
     });

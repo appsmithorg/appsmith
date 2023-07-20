@@ -1,4 +1,4 @@
-import { find, get, isEmpty, union } from "lodash";
+import { find, get, isEmpty, toPath, union } from "lodash";
 import type { EvalError, DependencyMap } from "utils/DynamicBindingUtils";
 import {
   EvalErrorTypes,
@@ -8,6 +8,7 @@ import {
 import { extractIdentifierInfoFromCode } from "@shared/ast";
 import {
   addWidgetPropertyDependencies,
+  convertPathToString,
   getEntityNameAndPropertyPath,
   isAction,
   isJSAction,
@@ -47,23 +48,62 @@ import type {
  * invalidReferences: [unknownEntity.name]
  * }
  */
-export const extractInfoFromBinding = (script: string) => {
-  return extractIdentifierInfoFromCode(
+export const extractInfoFromBinding = (
+  script: string,
+  allKeys: Record<string, true>,
+) => {
+  const { references } = extractIdentifierInfoFromCode(
     script,
     self.evaluationVersion,
     invalidEntityIdentifiers,
-  ).references;
+  );
+  return getPrunedReferences(references, allKeys);
+};
+
+export const getPrunedReferences = (
+  references: string[],
+  allKeys: Record<string, true>,
+) => {
+  const prunedReferences: Set<string> = new Set<string>();
+  references.forEach((reference: string) => {
+    // If the identifier exists directly, add it and return
+    if (allKeys.hasOwnProperty(reference)) {
+      prunedReferences.add(reference);
+      return;
+    }
+    const subpaths = toPath(reference);
+    let current = "";
+    // We want to keep going till we reach top level, but not add top level
+    // Eg: Input1.text should not depend on entire Table1 unless it explicitly asked for that.
+    // This is mainly to avoid a lot of unnecessary evals, if we feel this is wrong
+    // we can remove the length requirement, and it will still work
+    while (subpaths.length > 1) {
+      current = convertPathToString(subpaths);
+      // We've found the dep, add it and return
+      if (allKeys.hasOwnProperty(current)) {
+        prunedReferences.add(current);
+        return;
+      }
+      subpaths.pop();
+    }
+    // If no valid reference is derived, add paths two level deep
+    prunedReferences.add(convertPathToString(toPath(reference).slice(0, 2)));
+  });
+  return Array.from(prunedReferences);
 };
 
 interface BindingsInfo {
   references: string[];
   errors: EvalError[];
 }
-export const extractInfoFromBindings = (bindings: string[]) => {
+export const extractInfoFromBindings = (
+  bindings: string[],
+  allKeys: Record<string, true>,
+) => {
   return bindings.reduce(
     (bindingsInfo: BindingsInfo, binding) => {
       try {
-        const references = extractInfoFromBinding(binding);
+        const references = extractInfoFromBinding(binding, allKeys);
         return {
           ...bindingsInfo,
           references: union(bindingsInfo.references, references),
