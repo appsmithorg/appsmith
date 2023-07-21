@@ -32,7 +32,7 @@ import {
 } from "constants/Datasource";
 import TemplateMenu from "./QueryEditor/TemplateMenu";
 import { SQL_DATASOURCES } from "../../constants/QueryEditorConstants";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { getCurrentEditingEnvID } from "@appsmith/utils/Environments";
 import type { Datasource } from "entities/Datasource";
 import { getSQLPluginsMockTableName } from "utils/editorContextUtils";
 
@@ -59,7 +59,7 @@ function FormControl(props: FormControlProps) {
   let formValueForEvaluatingHiddenObj = formValues;
   if (!!formValues && formValues.hasOwnProperty("datasourceStorages")) {
     formValueForEvaluatingHiddenObj = (formValues as Datasource)
-      .datasourceStorages[getCurrentEnvironment()];
+      .datasourceStorages[getCurrentEditingEnvID()];
   }
   const hidden = isHidden(formValueForEvaluatingHiddenObj, props.config.hidden);
   const configErrors: EvaluationError[] = useSelector(
