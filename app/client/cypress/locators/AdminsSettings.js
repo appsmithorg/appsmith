@@ -30,5 +30,5 @@ export default {
   accessControl: ".t--settings-category-access-control",
   auditLogs: ".t--settings-category-audit-logs",
   upgrageLeftPane: "[data-testid='t--enterprise-settings-category-item-be']",
-  brandingSubmitButton: "t--settings-branding-submit-button",
+  brandingSubmitButton: ".t--settings-branding-submit-button",
 };
