@@ -16,7 +16,7 @@ export const TypographyColor = {
   neutral: "neutral",
   positive: "positive",
   negative: "negative",
-  warn: "warn",
+  warning: "warning",
 } as const;
 
 export type FontFamily = keyof typeof fontMetrics;
