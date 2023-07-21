@@ -233,21 +233,28 @@ export default class AppEditorEngine extends AppEngine {
     // Check if service worker is registered and active
     // Temporary change to monitor service worker failures
     if (navigator.hasOwnProperty("serviceWorker")) {
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        if (registrations.length === 0) {
+      navigator.serviceWorker
+        .getRegistrations()
+        .then((registrations) => {
+          if (registrations.length === 0) {
+            AnalyticsUtil.logEvent("MISSING_SW", {
+              message: "Service worker not found",
+            });
+          }
+          const activeRegistrations = registrations.filter(
+            (registration) => registration.active,
+          );
+          if (activeRegistrations.length === 0) {
+            AnalyticsUtil.logEvent("MISSING_SW", {
+              message: "Service worker not active",
+            });
+          }
+        })
+        .catch(() => {
           AnalyticsUtil.logEvent("MISSING_SW", {
-            message: "Service worker not found",
+            message: "Failed to retrieve SW registrations",
           });
-        }
-        const activeRegistrations = registrations.filter(
-          (registration) => registration.active,
-        );
-        if (activeRegistrations.length === 0) {
-          AnalyticsUtil.logEvent("MISSING_SW", {
-            message: "Service worker not active",
-          });
-        }
-      });
+        });
     }
   }
 
