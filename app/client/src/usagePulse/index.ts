@@ -20,7 +20,7 @@ import { getFirstTimeUserOnboardingIntroModalVisibility } from "utils/storage";
 class UsagePulse {
   static userAnonymousId: string | undefined;
   static Timer: ReturnType<typeof setTimeout>;
-  static unlistenRouteChange: () => void;
+  static routeChangeListener: () => void;
   static isTelemetryEnabled: boolean;
   static isAnonymousUser: boolean;
 
@@ -92,14 +92,14 @@ class UsagePulse {
    * a callback and unlisten when the user goes to a trackable URL
    */
   static async watchForTrackableUrl(callback: () => void) {
-    UsagePulse.unlistenRouteChange = async () => {
+    UsagePulse.routeChangeListener = async () => {
       if (await UsagePulse.isTrackableUrl(window.location.pathname)) {
-        window.removeEventListener("popstate", UsagePulse.unlistenRouteChange);
+        window.removeEventListener("popstate", UsagePulse.routeChangeListener);
         setTimeout(callback, 0);
       }
     };
     UsagePulse.deregisterActivityListener();
-    window.addEventListener("popstate", UsagePulse.unlistenRouteChange);
+    window.addEventListener("popstate", UsagePulse.routeChangeListener);
   }
 
   /*
@@ -146,7 +146,7 @@ class UsagePulse {
   static stopTrackingActivity() {
     UsagePulse.userAnonymousId = undefined;
     clearTimeout(UsagePulse.Timer);
-    UsagePulse.unlistenRouteChange && UsagePulse.unlistenRouteChange();
+    UsagePulse.routeChangeListener && UsagePulse.routeChangeListener();
     UsagePulse.deregisterActivityListener();
   }
 }
