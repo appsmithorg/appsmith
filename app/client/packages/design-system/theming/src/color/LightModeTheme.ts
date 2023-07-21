@@ -77,14 +77,14 @@ export class LightModeTheme implements ColorModeTheme {
       fgAccent: this.fgAccent.toString(),
       fgOnAccent: this.fgOnAccent.toString(),
       fgPositive: this.fgPositive.to("sRGB").toString(),
-      fgOnPositive: this.fgOnPositive.toString(),
+      fgOnPositive: this.fgOnPositive.to("sRGB").toString(),
       fgNegative: this.fgNegative.to("sRGB").toString(),
-      fgOnNegative: this.fgOnNegative.toString(),
+      fgOnNegative: this.fgOnNegative.to("sRGB").toString(),
       fgNeutral: this.fgNeutral.toString(),
-      fgOnNeutral: this.fgOnNeutral.toString(),
+      fgOnNeutral: this.fgOnNeutral.to("sRGB").toString(),
       fgWarning: this.fgWarning.to("sRGB").toString(),
-      fgOnWarning: this.fgOnWarning.toString(),
-      fgOnAssistive: this.fgOnAssistive.toString(),
+      fgOnWarning: this.fgOnWarning.to("sRGB").toString(),
+      fgOnAssistive: this.fgOnAssistive.to("sRGB").toString(),
       // bd
       bdAccent: this.bdAccent.toString(),
       bdFocus: this.bdFocus.toString(),
@@ -732,23 +732,88 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get fgOnNeutral() {
-    return "#1c1e21";
+    // Simplified and adjusted version of fgOnAccent
+    const tint = this.bgNeutral.clone();
+    const shade = this.bgNeutral.clone();
+
+    // Light and dark derivatives of the bgNeutral
+    tint.oklch.l = 0.96;
+    shade.oklch.l = 0.22;
+
+    // Check which of them has better contrast with bgNeutral
+    if (
+      -this.bgNeutral.contrastAPCA(tint) >= this.bgNeutral.contrastAPCA(shade)
+    ) {
+      return tint;
+    }
+
+    return shade;
   }
 
   private get fgOnPositive() {
-    return "#fff";
+    // Simplified and adjusted version of fgOnAccent
+    const tint = this.bgPositive.clone();
+    const shade = this.bgPositive.clone();
+
+    // Light and dark derivatives of the bgPositive
+    tint.oklch.l = 0.97;
+    shade.oklch.l = 0.25;
+
+    // Check which of them has better contrast with bgPositive
+    if (
+      -this.bgPositive.contrastAPCA(tint) >= this.bgPositive.contrastAPCA(shade)
+    ) {
+      return tint;
+    }
+
+    return shade;
   }
 
   private get fgOnWarning() {
-    return "#fff";
+    // Simplified and adjusted version of fgOnAccent
+    const tint = this.bgWarning.clone();
+    const shade = this.bgWarning.clone();
+
+    // Light and dark derivatives of the bgWarning
+    tint.oklch.l = 0.95;
+    shade.oklch.l = 0.25;
+
+    // Check which of them has better contrast with bgWarning
+    if (
+      -this.bgWarning.contrastAPCA(tint) >= this.bgWarning.contrastAPCA(shade)
+    ) {
+      return tint;
+    }
+
+    return shade;
   }
 
   private get fgOnNegative() {
-    return "#fff";
+    // Simplified and adjusted version of fgOnAccent
+    const tint = this.bgNegative.clone();
+    const shade = this.bgNegative.clone();
+
+    // Light and dark derivatives of the bgNegative
+    tint.oklch.l = 0.95;
+    shade.oklch.l = 0.25;
+
+    // Check which of them has better contrast with bgNegative
+    if (
+      -this.bgNegative.contrastAPCA(tint) >= this.bgNegative.contrastAPCA(shade)
+    ) {
+      return tint;
+    }
+
+    return shade;
   }
 
   private get fgOnAssistive() {
-    return this.bg.clone();
+    // Unlike fgOnAccent we know that bgAssistive is dark in light mode
+    const tint = this.bgAssistive.clone();
+
+    tint.oklch.l = 0.97;
+
+    return tint;
   }
 
   /*

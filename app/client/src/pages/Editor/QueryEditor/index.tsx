@@ -50,6 +50,10 @@ import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import {
+  getCurrentEnvName,
+  getCurrentEnvironment,
+} from "@appsmith/utils/Environments";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -163,6 +167,8 @@ class QueryEditor extends React.Component<Props> {
     AnalyticsUtil.logEvent("RUN_QUERY_CLICK", {
       actionId: this.props.actionId,
       dataSourceSize: dataSources.length,
+      environmentId: getCurrentEnvironment(),
+      environmentName: getCurrentEnvName(),
       pluginName: pluginName,
       datasourceId: datasource?.id,
       isMock: !!datasource?.isMock,
