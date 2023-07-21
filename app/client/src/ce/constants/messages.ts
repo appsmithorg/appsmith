@@ -1868,3 +1868,18 @@ export const customJSLibraryMessages = {
 // Business Edition upgrade page
 export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
   `Move to Business edition${trailingChar ? trailingChar : ""}`;
+
+//Datasource environment
+export const START_SWITCH_ENVIRONMENT = (environment: string) =>
+  `...Switching your environment to ${environment}, and running all associated pageload actions`;
+export const SWITCH_ENVIRONMENT_SUCCESS = (environment: string) =>
+  `...Environment switched to ${environment} successfully`;
+
+export const TEST_DATASOURCE_SUCCESS = (
+  datasourceName: string,
+  environmentName: string,
+) =>
+  `Test was successful, ${datasourceName} ${environmentName} environment is correctly configured.`;
+
+export const TEST_DATASOURCE_ERROR = () =>
+  "Test failed, couldn't establish a connection";
