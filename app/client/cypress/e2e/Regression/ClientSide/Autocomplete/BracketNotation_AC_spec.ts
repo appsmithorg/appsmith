@@ -10,6 +10,7 @@ describe("Test cases around bracket notation", function () {
         myVar2: {},
         myFun1(){
 
+
         },
         myFun2: async () => {
             // use async-await or promises
@@ -36,8 +37,7 @@ describe("Test cases around bracket notation", function () {
       "contain.text",
     );
     agHelper.Sleep(2000);
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5), 0, true);
-    agHelper.SelectNRemoveLineText(locators._codeMirrorTextArea);
+    agHelper.GetNClick(jsEditor._lineinJsEditor(6));
     agHelper.TypeText(locators._codeMirrorTextArea, 'this["');
     agHelper.GetElementsNAssertTextPresence(locators._hints, "my variable 1");
     agHelper.Sleep();
