@@ -31,8 +31,8 @@ import {
 import {
   defaultOptionValueValidation,
   labelKeyValidation,
-  labelValueAdditionalAutocompleteData,
-  labelValueKeyOptions,
+  getLabelValueAdditionalAutocompleteData,
+  getLabelValueKeyOptions,
   valueKeyValidation,
 } from "./propertyUtils";
 
@@ -75,7 +75,7 @@ class MultiSelectWidget extends BaseWidget<
         children: [
           {
             helpText:
-              "Allows users to select multiple options. Values must be unique",
+              "Takes in an array of objects to display options. Bind data from an API using {{}}",
             propertyName: "sourceData",
             label: "Source Data",
             controlType: "INPUT_TEXT",
@@ -98,7 +98,7 @@ class MultiSelectWidget extends BaseWidget<
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
-            helpText: "",
+            helpText: "Sets the label of the option",
             propertyName: "optionLabel",
             label: "Label",
             controlType: "DROP_DOWN",
@@ -114,7 +114,7 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: false,
             isJSConvertible: true,
             evaluatedDependencies: ["sourceData"],
-            options: labelValueKeyOptions,
+            options: getLabelValueKeyOptions,
             validation: {
               type: ValidationTypes.FUNCTION,
               params: {
@@ -126,10 +126,10 @@ class MultiSelectWidget extends BaseWidget<
                 },
               },
             },
-            additionalAutoComplete: labelValueAdditionalAutocompleteData,
+            additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
           },
           {
-            helpText: "",
+            helpText: "Sets the value of the option",
             propertyName: "optionValue",
             label: "Value",
             controlType: "DROP_DOWN",
@@ -145,7 +145,7 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: false,
             isJSConvertible: true,
             evaluatedDependencies: ["sourceData"],
-            options: labelValueKeyOptions,
+            options: getLabelValueKeyOptions,
             validation: {
               type: ValidationTypes.FUNCTION,
               params: {
@@ -158,7 +158,7 @@ class MultiSelectWidget extends BaseWidget<
               },
               dependentPaths: ["sourceData"],
             },
-            additionalAutoComplete: labelValueAdditionalAutocompleteData,
+            additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
           },
           {
             helpText: "Selects the option(s) with value by default",

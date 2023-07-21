@@ -179,7 +179,7 @@ export function defaultOptionValueValidation(
   };
 }
 
-export function labelValueKeyOptions(widget: WidgetProps) {
+export function getLabelValueKeyOptions(widget: WidgetProps) {
   const sourceData = get(widget, `${EVAL_VALUE_PATH}.sourceData`);
 
   let parsedValue: Record<string, unknown> | undefined = sourceData;
@@ -208,8 +208,8 @@ export function labelValueKeyOptions(widget: WidgetProps) {
   }
 }
 
-export function labelValueAdditionalAutocompleteData(props: WidgetProps) {
-  const keys = labelValueKeyOptions(props);
+export function getLabelValueAdditionalAutocompleteData(props: WidgetProps) {
+  const keys = getLabelValueKeyOptions(props);
 
   return {
     item: keys

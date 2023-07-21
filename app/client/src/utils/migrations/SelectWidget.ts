@@ -36,7 +36,7 @@ export function MigrateSelectTypeWidgetDefaultValue(currentDSL: DSLWidget) {
   return currentDSL;
 }
 
-export function MigrateSelectWidgetOptionToSourceData(currentDSL: DSLWidget) {
+export function migrateSelectWidgetOptionToSourceData(currentDSL: DSLWidget) {
   return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
     if (
       ["SELECT_WIDGET", "MULTI_SELECT_WIDGET_V2"].includes(widget.type) &&

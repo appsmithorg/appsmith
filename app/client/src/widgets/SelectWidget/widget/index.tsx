@@ -32,8 +32,8 @@ import type { AutocompletionDefinitions } from "widgets/constants";
 import {
   defaultOptionValueValidation,
   labelKeyValidation,
-  labelValueAdditionalAutocompleteData,
-  labelValueKeyOptions,
+  getLabelValueAdditionalAutocompleteData,
+  getLabelValueKeyOptions,
   valueKeyValidation,
 } from "./propertyUtils";
 
@@ -76,7 +76,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         children: [
           {
             helpText:
-              "Allows users to select a single option. Values must be unique",
+              "Takes in an array of objects to display options. Bind data from an API using {{}}",
             propertyName: "sourceData",
             label: "Source Data",
             controlType: "INPUT_TEXT",
@@ -98,7 +98,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
-            helpText: "",
+            helpText: "Sets the label of the option",
             propertyName: "optionLabel",
             label: "Label",
             controlType: "DROP_DOWN",
@@ -114,7 +114,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isTriggerProperty: false,
             isJSConvertible: true,
             evaluatedDependencies: ["sourceData"],
-            options: labelValueKeyOptions,
+            options: getLabelValueKeyOptions,
             validation: {
               type: ValidationTypes.FUNCTION,
               params: {
@@ -127,10 +127,10 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               },
               dependentPaths: ["sourceData"],
             },
-            additionalAutoComplete: labelValueAdditionalAutocompleteData,
+            additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
           },
           {
-            helpText: "",
+            helpText: "Sets the value of the option",
             propertyName: "optionValue",
             label: "Value",
             controlType: "DROP_DOWN",
@@ -146,7 +146,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isTriggerProperty: false,
             isJSConvertible: true,
             evaluatedDependencies: ["sourceData"],
-            options: labelValueKeyOptions,
+            options: getLabelValueKeyOptions,
             validation: {
               type: ValidationTypes.FUNCTION,
               params: {
@@ -159,7 +159,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               },
               dependentPaths: ["sourceData"],
             },
-            additionalAutoComplete: labelValueAdditionalAutocompleteData,
+            additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
           },
           {
             helpText: "Selects the option with value by default",

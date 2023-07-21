@@ -7,8 +7,8 @@ import type { SelectWidgetProps } from ".";
 import {
   defaultOptionValueValidation,
   labelKeyValidation,
-  labelValueAdditionalAutocompleteData,
-  labelValueKeyOptions,
+  getLabelValueAdditionalAutocompleteData,
+  getLabelValueKeyOptions,
   valueKeyValidation,
 } from "./propertyUtils";
 
@@ -607,7 +607,7 @@ describe("valueKeyValidation", () => {
   });
 });
 
-describe("labelValueKeyOptions", () => {
+describe("getLabelValueKeyOptions", () => {
   test("should test that keys are properly generated for valid values", () => {
     [
       {
@@ -701,7 +701,7 @@ describe("labelValueKeyOptions", () => {
 
       set(widget, `${EVAL_VALUE_PATH}.sourceData`, d.input);
 
-      expect(labelValueKeyOptions(widget as WidgetProps)).toEqual(d.output);
+      expect(getLabelValueKeyOptions(widget as WidgetProps)).toEqual(d.output);
     });
   });
 
@@ -711,12 +711,12 @@ describe("labelValueKeyOptions", () => {
 
       set(widget, `${EVAL_VALUE_PATH}.sourceData`, d);
 
-      expect(labelValueKeyOptions(widget as WidgetProps)).toEqual([]);
+      expect(getLabelValueKeyOptions(widget as WidgetProps)).toEqual([]);
     });
   });
 });
 
-describe("labelValueAdditionalAutocompleteData", () => {
+describe("getLabelValueAdditionalAutocompleteData", () => {
   test("should test autocompletObject is generated for valid value", () => {
     [
       {
@@ -795,7 +795,7 @@ describe("labelValueAdditionalAutocompleteData", () => {
       set(widget, `${EVAL_VALUE_PATH}.sourceData`, d.input);
 
       expect(
-        labelValueAdditionalAutocompleteData(widget as WidgetProps),
+        getLabelValueAdditionalAutocompleteData(widget as WidgetProps),
       ).toEqual(d.output);
     });
   });
@@ -807,7 +807,7 @@ describe("labelValueAdditionalAutocompleteData", () => {
       set(widget, `${EVAL_VALUE_PATH}.sourceData`, d);
 
       expect(
-        labelValueAdditionalAutocompleteData(widget as WidgetProps),
+        getLabelValueAdditionalAutocompleteData(widget as WidgetProps),
       ).toEqual({
         item: {},
       });

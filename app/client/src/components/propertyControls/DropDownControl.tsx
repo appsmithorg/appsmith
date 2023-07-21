@@ -110,6 +110,8 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       this.props.propertyName,
     );
 
+    const errorMessage = errors?.[errors.length - 1]?.errorMessage?.message;
+
     return (
       <div className="w-full h-full" ref={this.containerRef}>
         <Select
@@ -165,9 +167,9 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
             </Option>
           ))}
         </Select>
-        {errors?.[0] && (
+        {errorMessage && (
           <ErrorMessage data-testid="t---dropdown-control-error">
-            {errors[0].errorMessage?.message}
+            {errorMessage}
           </ErrorMessage>
         )}
       </div>

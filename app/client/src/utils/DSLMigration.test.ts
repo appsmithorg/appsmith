@@ -777,7 +777,7 @@ const migrations: Migration[] = [
     functionLookup: [
       {
         moduleObj: selectWidgetMigration,
-        functionName: "MigrateSelectWidgetOptionToSourceData",
+        functionName: "migrateSelectWidgetOptionToSourceData",
       },
     ],
     version: 80,

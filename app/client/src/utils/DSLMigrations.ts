@@ -75,7 +75,7 @@ import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigratio
 import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskinningMigrations";
 import {
   MigrateSelectTypeWidgetDefaultValue,
-  MigrateSelectWidgetOptionToSourceData,
+  migrateSelectWidgetOptionToSourceData,
 } from "./migrations/SelectWidget";
 import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskinningMigrations";
 
@@ -1193,7 +1193,7 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
   }
 
   if (currentDSL.version === 80) {
-    currentDSL = MigrateSelectWidgetOptionToSourceData(currentDSL);
+    currentDSL = migrateSelectWidgetOptionToSourceData(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
