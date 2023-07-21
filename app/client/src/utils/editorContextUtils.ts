@@ -99,12 +99,24 @@ export function getPropertyControlFocusElement(
 export function isDatasourceAuthorizedForQueryCreation(
   datasource: Datasource,
   plugin: Plugin,
+  currentEnvironment = getCurrentEnvironment(),
 ): boolean {
-  const currentEnvironment = getCurrentEnvironment();
-  if (!datasource) return false;
+  if (
+    !datasource ||
+    !datasource.hasOwnProperty("datasourceStorages") ||
+    !datasource.datasourceStorages.hasOwnProperty(currentEnvironment)
+  )
+    return false;
+  const datasourceStorage = datasource.datasourceStorages[currentEnvironment];
+  if (
+    !datasourceStorage ||
+    !datasourceStorage.hasOwnProperty("id") ||
+    !datasourceStorage.hasOwnProperty("datasourceConfiguration")
+  )
+    return false;
   const authType = get(
-    datasource,
-    `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationType`,
+    datasourceStorage,
+    "datasourceConfiguration.authentication.authenticationType",
   );
 
   const isGoogleSheetPlugin = isGoogleSheetPluginDS(plugin?.packageName);
@@ -112,8 +124,8 @@ export function isDatasourceAuthorizedForQueryCreation(
     const isAuthorized =
       authType === AuthType.OAUTH2 &&
       get(
-        datasource,
-        `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationStatus`,
+        datasourceStorage,
+        "datasourceConfiguration.authentication.authenticationStatus",
       ) === AuthenticationStatus.SUCCESS;
     return isAuthorized;
   }

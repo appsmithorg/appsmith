@@ -17,7 +17,12 @@ describe("Datasource form related tests", function () {
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("PostgreSQL");
       agHelper.RenameWithInPane(dataSourceName, false);
-      dataSources.FillPostgresDSForm(false, "docker", "wrongPassword");
+      dataSources.FillPostgresDSForm(
+        "production",
+        false,
+        "docker",
+        "wrongPassword",
+      );
       dataSources.VerifySchema(
         dataSourceName,
         "An exception occurred while creating connection pool.",
@@ -42,23 +47,27 @@ describe("Datasource form related tests", function () {
     dataSources.DeleteDatasouceFromWinthinDS(dataSourceName);
   });
 
-  it("3. Verify if schema (table and column) exist in query editor and searching works", () => {
-    featureFlagIntercept(
-      {
-        ab_ds_schema_enabled: true,
-      },
-      false,
-    );
-    agHelper.RefreshPage();
-    dataSources.CreateMockDB("Users");
-    dataSources.CreateQueryAfterDSSaved();
-    dataSources.VerifyTableSchemaOnQueryEditor("public.users");
-    ee.ExpandCollapseEntity("public.users");
-    dataSources.VerifyColumnSchemaOnQueryEditor("id");
-    dataSources.FilterAndVerifyDatasourceSchemaBySearch(
-      "gender",
-      true,
-      "column",
-    );
-  });
+  it(
+    "excludeForAirgap",
+    "3. Verify if schema (table and column) exist in query editor and searching works",
+    () => {
+      featureFlagIntercept(
+        {
+          ab_ds_schema_enabled: true,
+        },
+        false,
+      );
+      agHelper.RefreshPage();
+      dataSources.CreateMockDB("Users");
+      dataSources.CreateQueryAfterDSSaved();
+      dataSources.VerifyTableSchemaOnQueryEditor("public.users");
+      ee.ExpandCollapseEntity("public.users");
+      dataSources.VerifyColumnSchemaOnQueryEditor("id");
+      dataSources.FilterAndVerifyDatasourceSchemaBySearch(
+        "gender",
+        true,
+        "column",
+      );
+    },
+  );
 });
