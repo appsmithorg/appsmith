@@ -287,22 +287,6 @@ export class AggregateHelper extends ReusableHelper {
     });
   }
 
-  public ValiadateToolTipText(textToValidate: string) {
-    cy.get("body").then(($body) => {
-      if (
-        $body.find(this.locator._appLeveltooltip(textToValidate)).length > 0
-      ) {
-        this.GetElement(this.locator._appLeveltooltip(textToValidate))
-          .parents("div.rc-tooltip")
-          .find("div.rc-tooltip-inner span")
-          .invoke("text")
-          .then(($tooltipText) => {
-            expect($tooltipText).to.eq(textToValidate);
-          });
-      }
-    });
-  }
-
   public RemoveEvaluatedPopUp() {
     cy.get("body").then(($body) => {
       if ($body.find(this.locator._evalPopup).length > 0) {

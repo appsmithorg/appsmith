@@ -1,6 +1,7 @@
 import "cypress-wait-until";
 import { ObjectsRegistry } from "../Objects/Registry";
 import { ReusableHelper } from "../Objects/ReusableHelper";
+import { agHelper } from "../../support/Objects/ObjectsCore";
 
 export const EntityItems = {
   Page: 0,
@@ -99,5 +100,18 @@ export class AssertHelper extends ReusableHelper {
       return cy.contains(selector, text).should(exists);
     }
     return cy.contains(text).should(exists);
+  }
+
+  public ValiadateToolTipText(textToValidate: string) {
+    cy.get("body").then(($body) => {
+      agHelper
+        .GetElement(this.locator._appLeveltooltip(textToValidate))
+        .parents("div.rc-tooltip")
+        .find("div.rc-tooltip-inner span")
+        .invoke("text")
+        .then(($tooltipText) => {
+          expect($tooltipText).to.eq(textToValidate);
+        });
+    });
   }
 }
