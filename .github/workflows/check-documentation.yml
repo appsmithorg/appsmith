@@ -59,7 +59,7 @@ jobs:
         if: steps.check_skip_documentation.outputs.label_check == 'success'
         run: |
           documentation_file_name="documentation.md"
-          documentation_contents=()
+          documentation_contents=""
 
           for file in ${{ steps.changed_files.outputs.files_updated }} ${{ steps.changed_files.outputs.files_deleted }} ${{steps.changed_files.outputs.files_created}}; do
             last_directory=$(dirname "$file")
@@ -73,13 +73,11 @@ jobs:
             SEARCHED_DIRECTORIES="$SEARCHED_DIRECTORIES:$last_directory"
             if [[ -f "$last_directory/$documentation_file_name" ]]; then
               file_name="$last_directory/$documentation_file_name"
-              documentation_contents+=("$(cat "$file_name")\n\n\n")
+              documentation_contents="${documentation_contents}\n\n\n$(cat "$file_name")\n\n\n"
             fi
           done
 
-          echo ${documentation_contents}
-
-          echo "::set-output name=documentation_contents::${documentation_contents[@]}"
+          echo "::set-output name=documentation_contents::${documentation_contents}"
 
       # This step creates a comment on the PR for the documentation reminder.
       - name: Comment on PR if documentation files found
