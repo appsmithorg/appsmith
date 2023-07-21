@@ -70,7 +70,7 @@ export const CONFIG = [
       },
     },
   }),
-  [WidgetRegistrationDependency.FEATURE_FLAGS],
+  [WidgetRegistrationDependency.PLATFORM_CONFIGS],
 ];
 
 export default Widget;
