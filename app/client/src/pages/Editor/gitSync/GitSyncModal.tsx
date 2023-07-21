@@ -24,6 +24,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useGitConnect } from "./hooks";
 import { Modal, ModalContent, ModalHeader } from "design-system";
+import { EnvInfoHeader } from "@appsmith/components/EnvInfoHeader";
 
 const ModalContentContainer = styled(ModalContent)`
   min-height: 650px;
@@ -124,6 +125,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
           <ModalHeader>
             {MENU_ITEMS_MAP[activeTabKey]?.modalTitle ?? ""}
           </ModalHeader>
+          <EnvInfoHeader />
           <Menu
             activeTabKey={activeTabKey}
             onSelect={(tabKey: string) =>
