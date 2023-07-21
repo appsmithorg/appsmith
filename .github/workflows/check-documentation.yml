@@ -19,12 +19,12 @@ jobs:
         uses: docker://agilepathway/pull-request-label-checker:latest
         with:
           # Needs to have a skip documentation label to avoid commenting for the documentation reminder
-          any_of: skip-documentation
+          none_of: skip-documentation
           repo_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check PR for documentation files
         id: check_documentation_files
-        if: steps.check_skip_documentation.outputs.skip_documentation != 'true'
+        if: steps.check_skip_documentation.outputs.label_check == 'success'
         run: |
           documentation_file_name="documentation.md"
           changed_files=$(git diff --name-only)
@@ -49,7 +49,7 @@ jobs:
 
 
       - name: Comment on PR if documentation files found
-        if: steps.check_skip_documentation.outputs.skip_documentation != 'true' &&
+        if: steps.check_skip_documentation.outputs.label_check == 'success' &&
             steps.check_documentation_files.outputs.documentation_files
         run: |
           documentation_files=(${{ steps.check_documentation_files.outputs.documentation_files }})
