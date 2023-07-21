@@ -62,10 +62,7 @@ describe("Create new workspace and share with a user", function () {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     homePage.FilterApplication(appid);
     agHelper.Sleep(2000);
-    agHelper
-      .GetElement(homePage._applicationCard)
-      .first()
-      .realHover({ pointer: "mouse" });
+    agHelper.HoverElement(homePage._applicationCard);
     agHelper.GetNClick(homePage._appEditIcon, 0, true);
     agHelper.AssertElementAbsence(locators._loading);
     assertHelper.AssertNetworkStatus("@getPagesForCreateApp");
