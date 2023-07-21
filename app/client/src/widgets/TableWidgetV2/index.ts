@@ -16,10 +16,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Table",
   iconSVG: IconSVG,
-  tags: [
-    WIDGET_TAGS.ESSENTIAL_WIDGETS,
-    WIDGET_TAGS.COLLECTIONS_AND_ORGANIZATIONS,
-  ],
+  tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.DISPLAY],
   needsMeta: true,
   needsHeightForContent: true,
   defaults: {

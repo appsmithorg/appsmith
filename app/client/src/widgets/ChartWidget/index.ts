@@ -11,7 +11,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Chart",
   iconSVG: IconSVG,
-  tags: [WIDGET_TAGS.COLLECTIONS_AND_ORGANIZATIONS],
+  tags: [WIDGET_TAGS.DISPLAY],
   needsMeta: true,
   searchTags: ["graph", "visuals", "visualisations"],
   defaults: {

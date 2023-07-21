@@ -20,7 +20,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Input",
   iconSVG: IconSVG,
-  tags: [WIDGET_TAGS.ESSENTIAL_WIDGETS, WIDGET_TAGS.INPUT],
+  tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.INPUTS],
   needsMeta: true,
   searchTags: ["form", "text input", "number", "textarea"],
   defaults: {

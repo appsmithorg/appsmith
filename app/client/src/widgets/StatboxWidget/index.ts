@@ -27,7 +27,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Stats Box",
   iconSVG: IconSVG,
-  tags: [WIDGET_TAGS.COLLECTIONS_AND_ORGANIZATIONS],
+  tags: [WIDGET_TAGS.DISPLAY],
   needsMeta: true,
   searchTags: ["statbox"],
   isCanvas: true,

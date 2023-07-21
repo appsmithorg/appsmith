@@ -86,15 +86,12 @@ export class EntityExplorer {
     "//span[text()='" +
     dbName +
     "']/following-sibling::div[contains(@class, 't--entity') and contains(@class, 'action')]//div[contains(@class, 't--entity-name')]";
-  _explorerExplorerTab =
-    "[data-testid='explorer-tab-options'] [data-value='explorer']";
-  _widgetTab = "[data-testid='explorer-tab-options'] [data-value='widgets']";
   _widgetTagsList =
     "[data-testid='widget-sidebar-scrollable-wrapper'] .widget-tag-collapisble";
   _widgetCards = ".t--widget-card-draggable";
   _widgetSearchInput = "#entity-explorer-search";
   _widgetCardTitle = ".t--widget-card-draggable span.ads-v2-text";
-  _widgetTagEssentialWidgets = ".widget-tag-collapisble-essential-widgets";
+  _widgetTagSuggestedWidgets = ".widget-tag-collapisble-suggested";
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,

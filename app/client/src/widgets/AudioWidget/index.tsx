@@ -10,7 +10,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Audio",
   iconSVG: IconSVG,
-  tags: [WIDGET_TAGS.MULTIMEDIA],
+  tags: [WIDGET_TAGS.MEDIA],
   needsMeta: true,
   searchTags: ["mp3", "sound", "wave", "player"],
   defaults: {

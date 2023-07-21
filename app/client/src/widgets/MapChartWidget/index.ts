@@ -9,7 +9,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Map Chart", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
   iconSVG: IconSVG,
-  tags: [WIDGET_TAGS.COLLECTIONS_AND_ORGANIZATIONS],
+  tags: [WIDGET_TAGS.DISPLAY],
   needsMeta: true, // Defines if this widget adds any meta properties
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   searchTags: ["graph", "visuals", "visualisations"],

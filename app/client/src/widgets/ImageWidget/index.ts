@@ -8,7 +8,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Image",
   iconSVG: IconSVG,
-  tags: [WIDGET_TAGS.MULTIMEDIA],
+  tags: [WIDGET_TAGS.MEDIA],
   defaults: {
     defaultImage: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
     imageShape: "RECTANGLE",

@@ -29,7 +29,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "JSON Form",
   iconSVG: IconSVG,
-  tags: [WIDGET_TAGS.ESSENTIAL_WIDGETS, WIDGET_TAGS.FORMS],
+  tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.LAYOUT],
   needsMeta: true,
   defaults: {
     responsiveBehavior: ResponsiveBehavior.Fill,

@@ -8,7 +8,7 @@ import Fuse from "fuse.js";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
-  ESSENTIAL_WIDGETS_ORDER,
+  SUGGESTED_WIDGETS_ORDER,
   WIDGET_TAGS,
   type WidgetCardsGroupedByTags,
   type WidgetTags,
@@ -109,8 +109,8 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
               return null;
             }
 
-            // We don't need to show essential widgets when the user is searching
-            if (isSearching && tag === WIDGET_TAGS.ESSENTIAL_WIDGETS) {
+            // We don't need to show suggested widgets when the user is searching
+            if (isSearching && tag === WIDGET_TAGS.SUGGESTED_WIDGETS) {
               return null;
             }
 
@@ -134,9 +134,9 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
 
                 <CollapsibleContent>
                   <div className="grid items-stretch grid-cols-3 gap-x-2 gap-y-1 justify-items-stretch">
-                    {tag === WIDGET_TAGS.ESSENTIAL_WIDGETS
+                    {tag === WIDGET_TAGS.SUGGESTED_WIDGETS
                       ? sortBy(cardsForThisTag, (widget) => {
-                          return ESSENTIAL_WIDGETS_ORDER[widget.type];
+                          return SUGGESTED_WIDGETS_ORDER[widget.type];
                         }).map((card) => (
                           <WidgetCard details={card} key={card.key} />
                         ))

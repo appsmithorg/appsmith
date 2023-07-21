@@ -8,41 +8,32 @@ import {
 describe("Entity explorer tests related to widgets and validation", function () {
   // Taken from here appsmith/app/client/src/constants/WidgetConstants.tsx
   const WIDGET_TAGS: Record<string, string> = {
-    ESSENTIAL_WIDGETS: "Essential widgets",
+    SUGGESTED_WIDGETS: "Suggested",
+    INPUTS: "Inputs",
     BUTTONS: "Buttons",
-    INPUT: "Inputs",
-    SELECT: "Selects",
-    TOGGLES: "Toggles",
-    FORMS: "Forms",
-    MULTIMEDIA: "Multimedia",
-    COLLECTIONS_AND_ORGANIZATIONS: "Collections & organizations",
+    SELECT: "Select",
+    DISPLAY: "Display",
     LAYOUT: "Layout",
+    MEDIA: "Media",
+    TOGGLES: "Toggles",
     SLIDERS: "Sliders",
     CONTENT: "Content",
-    EXTERNAL_INPUT: "External input",
+    EXTERNAL: "External",
   };
 
   // Taken from here appsmith/app/client/src/constants/WidgetConstants.tsx
-  const ESSENTIAL_WIDGETS_ORDER: Record<string, number> = {
-    TEXT_WIDGET: 1,
-    INPUT_WIDGET_V2: 2,
-    TABLE_WIDGET_V2: 3,
-    BUTTON_WIDGET: 4,
-    LIST_WIDGET_V2: 5,
-    JSON_FORM_WIDGET: 6,
+  const SUGGESTED_WIDGETS_ORDER: Record<string, number> = {
+    TABLE_WIDGET_V2: 1,
+    JSON_FORM_WIDGET: 2,
+    INPUT_WIDGET_V2: 3,
+    TEXT_WIDGET: 4,
+    SELECT_WIDGET: 5,
+    LIST_WIDGET_V2: 6,
   };
 
   // When adding a new widget or tag, we need to manually add it to this list.
   const WIDGETS_CATALOG: Record<string, string[]> = {
-    "Essential widgets": [
-      "Input",
-      "JSON Form",
-      "List",
-      "Select",
-      "Table",
-      "Text",
-    ],
-    Buttons: ["Button", "Button Group", "Icon button", "Menu button"],
+    Suggested: ["Input", "JSON Form", "List", "Select", "Table", "Text"],
     Inputs: [
       "Currency Input",
       "DatePicker",
@@ -51,7 +42,11 @@ describe("Entity explorer tests related to widgets and validation", function () 
       "Phone Input",
       "Rich Text Editor",
     ],
-    Selects: ["Multi TreeSelect", "MultiSelect", "Select", "TreeSelect"],
+    Buttons: ["Button", "Button Group", "Icon button", "Menu button"],
+    Select: ["Multi TreeSelect", "MultiSelect", "Select", "TreeSelect"],
+    Display: ["Chart", "Iframe", "List", "Map Chart", "Stats Box", "Table"],
+    Layout: ["Container", "Divider", "Form", "JSON Form", "Modal", "Tabs"],
+    Media: ["Audio", "Document Viewer", "Image", "Video"],
     Toggles: [
       "Checkbox",
       "Checkbox Group",
@@ -59,20 +54,9 @@ describe("Entity explorer tests related to widgets and validation", function () 
       "Switch",
       "Switch Group",
     ],
-    Forms: ["Form", "JSON Form"],
-    Multimedia: ["Audio", "Document Viewer", "Image", "Video"],
-    "Collections & organizations": [
-      "Chart",
-      "Iframe",
-      "List",
-      "Map Chart",
-      "Stats Box",
-      "Table",
-    ],
-    Layout: ["Container", "Divider", "Modal", "Tabs"],
     Sliders: ["Category Slider", "Number Slider", "Range Slider"],
     Content: ["Map", "Progress", "Rating", "Text"],
-    "External input": ["Audio Recorder", "Camera", "Code Scanner"],
+    External: ["Audio Recorder", "Camera", "Code Scanner"],
   };
 
   before(() => {
@@ -93,7 +77,7 @@ describe("Entity explorer tests related to widgets and validation", function () 
   };
 
   it("1. All widget tags should be visible and open by default.", () => {
-    agHelper.GetNClick(entityExplorer._widgetTab);
+    entityExplorer.NavigateToSwitcher("Widgets");
 
     agHelper.AssertElementLength(
       entityExplorer._widgetTagsList,
@@ -149,7 +133,7 @@ describe("Entity explorer tests related to widgets and validation", function () 
   it("3. All widgets should be ordered alphabetically within their tags, except Essential widgets, which should be sorted by their static rank.", () => {
     agHelper
       .GetElement(
-        `${entityExplorer._widgetTagsList}:not(${entityExplorer._widgetTagEssentialWidgets})`,
+        `${entityExplorer._widgetTagsList}:not(${entityExplorer._widgetTagSuggestedWidgets})`,
       )
       .each(($widgetTag) => {
         const widgetsInThisTag: string[] = [];
@@ -171,7 +155,7 @@ describe("Entity explorer tests related to widgets and validation", function () 
     const widgetsInEssentialWidgetsTag: string[] = [];
     agHelper
       .GetElement(
-        `${entityExplorer._widgetTagsList}${entityExplorer._widgetTagEssentialWidgets}`,
+        `${entityExplorer._widgetTagsList}${entityExplorer._widgetTagSuggestedWidgets}`,
       )
       .find(entityExplorer._widgetCardTitle)
       .each(($widgetName) => {
@@ -183,7 +167,7 @@ describe("Entity explorer tests related to widgets and validation", function () 
         const sortedWidgetsInEssentialWidgetsTag = [
           ...widgetsInEssentialWidgetsTag,
         ].sort(
-          (a, b) => ESSENTIAL_WIDGETS_ORDER[a] - ESSENTIAL_WIDGETS_ORDER[b],
+          (a, b) => SUGGESTED_WIDGETS_ORDER[a] - SUGGESTED_WIDGETS_ORDER[b],
         );
 
         expect(widgetsInEssentialWidgetsTag).to.deep.eq(

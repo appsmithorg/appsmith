@@ -22,7 +22,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Form",
   iconSVG: IconSVG,
-  tags: [WIDGET_TAGS.FORMS],
+  tags: [WIDGET_TAGS.LAYOUT],
   needsMeta: true,
   isCanvas: true,
   features: {

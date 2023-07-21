@@ -19,7 +19,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Select",
   iconSVG: IconSVG,
-  tags: [WIDGET_TAGS.ESSENTIAL_WIDGETS, WIDGET_TAGS.SELECT],
+  tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.SELECT],
   needsMeta: true,
   searchTags: ["dropdown"],
   defaults: {

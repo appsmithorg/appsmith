@@ -8,7 +8,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Camera", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
   iconSVG: IconSVG,
-  tags: [WIDGET_TAGS.EXTERNAL_INPUT],
+  tags: [WIDGET_TAGS.EXTERNAL],
   needsMeta: true, // Defines if this widget adds any meta properties
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   searchTags: ["photo", "video recorder"],

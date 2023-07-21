@@ -11,7 +11,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Rich Text Editor",
   iconSVG: IconSVG,
-  tags: [WIDGET_TAGS.INPUT],
+  tags: [WIDGET_TAGS.INPUTS],
   needsMeta: true,
   searchTags: ["input", "rte"],
   features: {

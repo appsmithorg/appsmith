@@ -21,7 +21,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Text",
   iconSVG: IconSVG,
-  tags: [WIDGET_TAGS.ESSENTIAL_WIDGETS, WIDGET_TAGS.CONTENT],
+  tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.CONTENT],
   searchTags: ["typography", "paragraph", "label"],
   defaults: {
     text: "Hello {{appsmith.user.name || appsmith.user.email}}",

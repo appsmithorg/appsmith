@@ -20,7 +20,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "DatePicker",
   iconSVG: IconSVG,
-  tags: [WIDGET_TAGS.INPUT],
+  tags: [WIDGET_TAGS.INPUTS],
   needsMeta: true,
   searchTags: ["calendar"],
   defaults: {
