@@ -123,6 +123,7 @@ export function SettingsForm(
         updateTenantConfig({
           tenantConfiguration: config,
           isOnlyTenantSettings: !isEnvAndTenantSettings,
+          needsRefresh: details?.needsRefresh,
         }),
       );
       // both env and tenant settings
@@ -282,6 +283,7 @@ export function SettingsForm(
           <SaveAdminSettings
             isOnlyTenantConfig={isOnlyTenantConfig}
             isSaving={props.isSaving}
+            needsRefresh={details?.needsRefresh}
             onClear={onClear}
             onSave={onSave}
             settings={props.settings}

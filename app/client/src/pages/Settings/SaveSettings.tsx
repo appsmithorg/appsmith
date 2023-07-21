@@ -1,6 +1,7 @@
 import React from "react";
 import {
   RESET_BUTTON,
+  SAVE_AND_REFRESH_BUTTON,
   SAVE_AND_RESTART_BUTTON,
   SAVE_BUTTON,
   createMessage,
@@ -32,6 +33,7 @@ const SettingsButtonWrapper = styled.div`
 type SaveAdminSettingsProps = {
   isOnlyTenantConfig?: boolean;
   isSaving?: boolean;
+  needsRefresh?: boolean;
   onSave?: () => void;
   onClear?: () => void;
   settings: Record<string, string>;
@@ -43,12 +45,25 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
   const {
     isOnlyTenantConfig = false,
     isSaving,
+    needsRefresh = false,
     onClear,
     onSave,
     settings,
     updatedTenantSettings,
     valid,
   } = props;
+
+  let saveButtonText = SAVE_AND_RESTART_BUTTON;
+
+  if (needsRefresh) {
+    saveButtonText = SAVE_AND_REFRESH_BUTTON;
+  } else if (
+    isOnlyTenantConfig ||
+    (updatedTenantSettings?.length === Object.keys(settings).length &&
+      updatedTenantSettings?.length !== 0)
+  ) {
+    saveButtonText = SAVE_BUTTON;
+  }
 
   return (
     <SettingsButtonWrapper>
@@ -59,13 +74,7 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
         onClick={onSave}
         size="md"
       >
-        {createMessage(
-          isOnlyTenantConfig ||
-            (updatedTenantSettings?.length === Object.keys(settings).length &&
-              updatedTenantSettings?.length !== 0)
-            ? SAVE_BUTTON
-            : SAVE_AND_RESTART_BUTTON,
-        )}
+        {createMessage(saveButtonText)}
       </Button>
       <Button
         className="t--admin-settings-reset-button"
