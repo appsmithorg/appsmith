@@ -41,23 +41,20 @@ export const StyledSwitch = styled(HeadlessCheckbox)<SwitchProps>`
 
   /**
  * ----------------------------------------------------------------------------
- * CHECKED  AND INDETERMINATE - BUT NOT DISABLED
+ * CHECKED  - BUT NOT DISABLED
  *-----------------------------------------------------------------------------
  */
-  &[data-state="checked"] [data-icon],
-  &[data-state="indeterminate"] [data-icon] {
+  &[data-state="checked"] [data-icon] {
     background-color: var(--color-bg-accent);
     color: var(--color-bg);
   }
 
-  &[data-hovered][data-state="checked"]:not([data-disabled]) [data-icon],
-  &[data-hovered][data-state="indeterminate"]:not([data-disabled]) [data-icon] {
+  &[data-hovered][data-state="checked"]:not([data-disabled]) [data-icon] {
     background-color: var(--color-bg-accent-hover);
     color: var(--color-bg);
   }
 
-  &[data-state="checked"] [data-icon]::after,
-  &[data-state="indeterminate"] [data-icon]::after {
+  &[data-state="checked"] [data-icon]::after {
     left: calc(100% - var(--knob-size) - var(--gutter));
   }
 
