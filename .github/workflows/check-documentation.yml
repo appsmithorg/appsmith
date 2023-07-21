@@ -46,7 +46,8 @@ jobs:
           done
 
           echo "::set-output name=documentation_files::${documentation_files[@]}"
-          
+
+
       - name: Comment on PR if documentation files found
         if: steps.check_skip_documentation.outputs.skip_documentation != 'true' &&
             steps.check_documentation_files.outputs.documentation_files
