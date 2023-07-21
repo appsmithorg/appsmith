@@ -180,7 +180,7 @@ function getWidgetPropertyPathDependencies(
   let dependencies: string[] = [];
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
   const dynamicBindingPathList = getEntityDynamicBindingPathList(widgetConfig);
-  const bindingPaths = widgetConfig.bindingPaths;
+  const bindingPaths = widgetConfig.bindingPaths || {};
   const widgetInternalDependencies = addWidgetPropertyDependencies({
     widgetConfig,
     widgetName: widgetEntity.widgetName,
@@ -214,7 +214,7 @@ function getJSPropertyPathDependencies(
   let dependencies: string[] = [];
   const jsInternalDependencyMap = jsActionConfig.dependencyMap || {};
   const jsPathInternalDependencies =
-    jsInternalDependencyMap[propertyPath].map(
+    jsInternalDependencyMap[propertyPath]?.map(
       (dep) => `${jsActionConfig.name}.${dep}`,
     ) || [];
 
@@ -238,7 +238,7 @@ function getActionPropertyPathDependencies(
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
   const actionInternalDependencyMap = actionConfig.dependencyMap || {};
   const actionPathInternalDependencies =
-    actionInternalDependencyMap[propertyPath].map(
+    actionInternalDependencyMap[propertyPath]?.map(
       (dep) => `${actionConfig.name}.${dep}`,
     ) || [];
   actionPathDependencies = union(

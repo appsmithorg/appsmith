@@ -257,7 +257,6 @@ export const updateDependencyMap = ({
               entityConfig,
               fullPropertyPath,
             );
-
             const { errors: extractDependencyErrors, references } =
               extractInfoFromBindings(entityPathDependencies, allKeys);
             dependencyMap.addDependency(fullPropertyPath, references);
