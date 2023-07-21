@@ -45,8 +45,7 @@ export class Table {
     "//div[contains(@class,'thead')]//div[contains(@class,'tr')][1]//div[@role='columnheader']//div[contains(text(),'" +
     columnName +
     "')]/parent::div/parent::div";
-  private _columnHeaderDiv = (columnName: string) =>
-    `[data-header=${columnName}]`;
+  _columnHeaderDiv = (columnName: string) => `[data-header=${columnName}]`;
   private _tableWidgetVersion = (version: "v1" | "v2") =>
     `.t--widget-tablewidget${version == "v1" ? "" : version}`;
   private _nextPage = (version: "v1" | "v2") =>
@@ -158,6 +157,35 @@ export class Table {
     `${this._columnHeaderDiv(columnName)} .header-menu .bp3-popover2-target`;
   _columnHeaderMenu = ".bp3-menu";
   _selectMenuItem = ".menu-item-text";
+  _columnCheckbox = (columnName: string) =>
+    "[data-rbd-draggable-id='" + columnName + "']" + " .t--card-checkbox input";
+  _dateInputPopover = ".bp3-dateinput-popover";
+  _tableV2Row = ".t--draggable-tablewidgetv2 .tbody";
+  _weekdayRowDayPicker =
+    ".bp3-datepicker .DayPicker .DayPicker-Months .DayPicker-WeekdaysRow";
+  _popoverErrorMsg = (msg: string) =>
+    "//div[@class='bp3-popover-content' and contains(text(),'" + msg + "')]";
+  _datePicker = ".bp3-datepicker";
+  _dayPickerWeek = ".bp3-datepicker .DayPicker .DayPicker-Body .DayPicker-Week";
+  _timePickerHour = ".bp3-timepicker-input-row .bp3-timepicker-hour";
+  _timePickerMinute = ".bp3-timepicker-input-row .bp3-timepicker-minute";
+  _timePickerSecond = ".bp3-timepicker-input-row .bp3-timepicker-second";
+  _timePickerRow = ".bp3-timepicker-input-row";
+  _tableV2Head = ".t--draggable-tablewidgetv2 .thead";
+  _timeprecisionPopover =
+    ".t--property-control-timeprecision .bp3-popover-target";
+  _tableRow1Child3 =
+    ".t--draggable-tablewidgetv2 .tbody .tr:nth-child(1) div:nth-child(3)";
+  _draggableHeader = " .draggable-header";
+  _lastChildDatePicker = "div:last-child .react-datepicker-wrapper";
+  _codeMirrorError = ".t--codemirror-has-error";
+  _canvasWidgetType = "[type='CANVAS_WIDGET']";
+  _showArrow = ".rc-select-show-arrow";
+  _codeEditorWrapper = ".t--code-editor-wrapper";
+  _dateRangePickerShortcuts =
+    ".bp3-dateinput-popover .bp3-daterangepicker-shortcuts";
+  _dayPickerFirstChild = ".DayPicker-Day:first-child";
+  _divFirstChild = "div:first-child abbr";
 
   public GetNumberOfRows() {
     return this.agHelper.GetElement(this._tr).its("length");
@@ -693,5 +721,15 @@ export class Table {
       `Sort column ${direction}`,
     );
     this.agHelper.Sleep(500);
+  }
+
+  public AssertVisibleColumns(columnNames: string[]) {
+    columnNames.forEach(($header) => {
+      cy.xpath(this._columnHeader($header))
+        .invoke("attr", "class")
+        .then((classes) => {
+          expect(classes).includes("draggable-header");
+        });
+    });
   }
 }

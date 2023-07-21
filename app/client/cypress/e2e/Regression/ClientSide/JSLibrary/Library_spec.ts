@@ -45,8 +45,16 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
     _.debuggerHelper.ClickResponseTab();
     _.agHelper.AssertContains("data:application/pdf;filename=generated.pdf");
   });
+  it("4. Shows list of recommended libraries", () => {
+    const recommendedLibraryNames = ["jsonwebtoken", "jspdf", "bcryptjs"];
+    _.entityExplorer.ExpandCollapseEntity("Libraries");
+    _.installer.OpenInstaller();
+    for (const recommendedLib of recommendedLibraryNames) {
+      cy.contains(recommendedLib);
+    }
+  });
 
-  it("4. Checks installation in exported/forked app", () => {
+  it("5. Checks installation in exported/forked app", () => {
     _.homePage.NavigateToHome();
     _.homePage.ImportApp("library_export.json");
     _.agHelper.AssertContains("true");
@@ -65,7 +73,7 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
     _.agHelper.AssertContains("true");
   });
 
-  it("5. Tests library access and installation in public apps", () => {
+  it("6. Tests library access and installation in public apps", () => {
     let appURL = "";
     cy.get(HomePage.shareApp).click();
     //@ts-expect-error no type access
