@@ -336,6 +336,16 @@ export class HomePage {
     cy.xpath(this.locator._spanButton("Share")).first().should("be.visible");
   }
 
+  /**
+   * Searches for given app name and clicks edit icon
+   * @param appName
+   */
+  public searchAndOpenApplication(appName: string) {
+    this.agHelper.TypeText(this._searchInput, appName);
+    this.agHelper.Sleep(2000);
+    this.EditAppFromAppHover();
+  }
+
   //Maps to launchApp in command.js
   public LaunchAppFromAppHover() {
     cy.get(this._appHoverIcon("view")).should("be.visible").first().click();

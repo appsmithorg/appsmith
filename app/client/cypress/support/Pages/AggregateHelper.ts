@@ -287,6 +287,22 @@ export class AggregateHelper extends ReusableHelper {
     });
   }
 
+  public ValiadateToolTipText(textToValidate: string) {
+    cy.get("body").then(($body) => {
+      if (
+        $body.find(this.locator._appLeveltooltip(textToValidate)).length > 0
+      ) {
+        this.GetElement(this.locator._appLeveltooltip(textToValidate))
+          .parents("div.rc-tooltip")
+          .find("div.rc-tooltip-inner span")
+          .invoke("text")
+          .then(($tooltipText) => {
+            expect($tooltipText).to.eq(textToValidate);
+          });
+      }
+    });
+  }
+
   public RemoveEvaluatedPopUp() {
     cy.get("body").then(($body) => {
       if ($body.find(this.locator._evalPopup).length > 0) {
@@ -1417,6 +1433,15 @@ export class AggregateHelper extends ReusableHelper {
     } else {
       return this.GetElement(selector).eq(index).should("not.be.disabled");
     }
+  }
+
+  public AssertElementClassContainsDisabled(selector: ElementType, index = 0) {
+    return this.GetElement(selector)
+      .eq(index)
+      .should(($element) => {
+        const elementClass = $element.attr("class");
+        expect(elementClass).to.include("disabled");
+      });
   }
 
   // Waits until all LazyCodeEditor wrappers finished loading the actual code editor.
