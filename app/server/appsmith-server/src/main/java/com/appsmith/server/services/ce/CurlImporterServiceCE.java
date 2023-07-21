@@ -16,5 +16,4 @@ public interface CurlImporterServiceCE extends ApiImporterCE {
     List<String> normalize(List<String> tokens);
 
     ActionDTO parse(List<String> tokens) throws AppsmithException;
-
 }

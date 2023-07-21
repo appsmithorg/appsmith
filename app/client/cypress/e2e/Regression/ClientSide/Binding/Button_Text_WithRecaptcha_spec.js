@@ -6,9 +6,7 @@ describe(
   "Binding the Button widget with Text widget using Recpatcha v3",
   function () {
     before(() => {
-      cy.fixture("buttonRecaptchaDsl").then((val) => {
-        _.agHelper.AddDsl(val);
-      });
+      _.agHelper.AddDsl("buttonRecaptchaDsl");
     });
 
     it("1. Validate the Button binding with Text Widget with Recaptcha token with empty key", function () {

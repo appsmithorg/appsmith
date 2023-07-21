@@ -6,10 +6,9 @@ import {
 
 describe("Dynamic input autocomplete", () => {
   before(() => {
-    cy.fixture("autocomp").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("autocomp");
   });
+
   it("1. Opens autocomplete for bindings", () => {
     entityExplorer.SelectEntityByName("Aditya");
     entityExplorer.SelectEntityByName("Button2", "TestModal");

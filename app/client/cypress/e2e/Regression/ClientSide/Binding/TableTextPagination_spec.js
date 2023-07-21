@@ -8,14 +8,16 @@ import {
   agHelper,
   deployMode,
   propPane,
+  draggableWidgets,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
-    cy.fixture("tableTextPaginationDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableTextPaginationDsl");
   });
+
   it("1. Test_Add Paginate with Table Page No and Execute the Api", function () {
     /**Create an Api1 of Paginate with Table Page No */ apiPage.CreateAndFillApi(
       this.dataSet.paginationUrl + this.dataSet.paginationParam,
@@ -142,7 +144,10 @@ describe("Test Create Api and Bind to Table widget", function () {
       apiLocators.apiPaginationPrevTest,
       false,
     );
-    deployMode.DeployApp();
+    cy.get("@postExecute.all");
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE_V1));
+    table.WaitUntilTableLoad(0, 0);
+    agHelper.Sleep(3000);
     cy.wait("@postExecute").then((interception) => {
       let valueToTest = JSON.stringify(
         interception.response.body.data.body[0].name,

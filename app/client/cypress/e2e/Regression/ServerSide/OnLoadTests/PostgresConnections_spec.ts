@@ -41,9 +41,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
       "create_user",
     ); //Creating query from EE overlay
     dataSources.RunQuery();
-    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("0");
-    });
+    dataSources.AssertQueryTableResponse(0, "0");
   });
 
   it("2. Create new datasource for user test_conn_user", () => {
@@ -136,10 +134,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
       `;`;
     dataSources.CreateQueryFromOverlay(dsName_1, dropUser, "drop_user"); //Creating query from EE overlay
     dataSources.RunQuery();
-    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("0");
-    });
-
+    dataSources.AssertQueryTableResponse(0, "0");
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,

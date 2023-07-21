@@ -29,5 +29,6 @@ export const onboarding = ObjectsRegistry.Onboarding;
 export const autoLayout = ObjectsRegistry.AutoLayout;
 export const draggableWidgets = WIDGET;
 export const fakerHelper = ObjectsRegistry.FakerHelper;
-export const hostPort = ObjectsRegistry.DefaultHostPort;
+export const tedTestConfig = ObjectsRegistry.TEDTestConfigs;
 export const entityItems = EntityItems;
+export const tabs = ObjectsRegistry.Tabs;

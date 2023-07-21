@@ -4,9 +4,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Tabs widget resetting", function () {
   before(() => {
-    cy.fixture("tabsWidgetReset").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tabsWidgetReset");
   });
 
   it("1.Reset the Tabs widget With the default value.", function () {

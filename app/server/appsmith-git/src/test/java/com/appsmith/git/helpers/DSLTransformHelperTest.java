@@ -10,8 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,7 +126,8 @@ public class DSLTransformHelperTest {
         Assertions.assertEquals(expected4, result4);
     }*/
 
-    // Test case for nested JSON object construction --------------------------------------------------------------------
+    // Test case for nested JSON object construction
+    // --------------------------------------------------------------------
     @Test
     public void testGetNestedDSL_EmptyPageWithNoWidgets() {
         JSONObject mainContainer = new JSONObject();
@@ -230,19 +229,21 @@ public class DSLTransformHelperTest {
                 .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child1"))
                 .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child2"));
 
-        Assertions.assertEquals(expectedChildren.toString(), result.optJSONArray(CommonConstants.CHILDREN).toString());
+        Assertions.assertEquals(
+                expectedChildren.toString(),
+                result.optJSONArray(CommonConstants.CHILDREN).toString());
     }
 
     @Test
     public void testAppendChildren_WithExistingMultipleChildren() {
         JSONObject parent = new JSONObject();
         JSONArray existingChildren = new JSONArray()
-                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "ExistingChild1"))
-                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "ExistingChild2"));
+                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "ExistingChild1").put(CommonConstants.WIDGET_ID, "ExistingChild1"))
+                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "ExistingChild2").put(CommonConstants.WIDGET_ID, "ExistingChild2"));
         parent.put(CommonConstants.CHILDREN, existingChildren);
         JSONArray childWidgets = new JSONArray()
-                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child1"))
-                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child2"));
+                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child1").put(CommonConstants.PARENT_ID, "ExistingChild1"))
+                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child2").put(CommonConstants.PARENT_ID, "ExistingChild2"));
 
         JSONObject result = DSLTransformerHelper.appendChildren(parent, childWidgets);
 
@@ -250,6 +251,9 @@ public class DSLTransformHelperTest {
                 .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child1"))
                 .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child2"));
 
-        Assertions.assertEquals(expectedChildren.toString(), result.optJSONArray(CommonConstants.CHILDREN).toString());
+        JSONArray actualChildren = result.optJSONArray(CommonConstants.CHILDREN);
+
+        Assertions.assertEquals(actualChildren.length(), 2);
+        Assertions.assertEquals(actualChildren.getJSONObject(0).optJSONArray(CommonConstants.CHILDREN).getJSONObject(0).toString(), new JSONObject().put(CommonConstants.WIDGET_NAME, "Child1").put(CommonConstants.PARENT_ID, "ExistingChild1").toString());
     }
 }

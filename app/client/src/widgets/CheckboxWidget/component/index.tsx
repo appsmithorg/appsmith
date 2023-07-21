@@ -12,6 +12,7 @@ type StyledCheckboxContainerProps = {
   isValid: boolean;
   noContainerPadding?: boolean;
   labelPosition?: LabelPosition;
+  minHeight?: number;
 };
 
 const DEFAULT_BORDER_RADIUS = "0";
@@ -25,9 +26,8 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
     justify-content: start;
     width: 100%;
 
-    .auto-layout & {
-      min-height: 32px;
-    }
+    ${({ minHeight }) => `
+    ${minHeight ? `min-height: ${minHeight}px;` : ""}`};
 
     .${Classes.CHECKBOX} {
       width: 100%;
@@ -42,6 +42,7 @@ export const CheckboxLabel = styled.div<{
   labelTextSize?: string;
   labelStyle?: string;
   isDynamicHeightEnabled?: boolean;
+  isLabelInline?: boolean;
 }>`
   width: 100%;
   display: inline-block;
@@ -61,12 +62,14 @@ export const CheckboxLabel = styled.div<{
   ${({ isDynamicHeightEnabled }) =>
     isDynamicHeightEnabled ? "&& { word-break: break-all; }" : ""};
 
-  .auto-layout & {
+  ${({ isLabelInline }) =>
+    isLabelInline &&
+    `
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     word-wrap: normal;
-  }
+  `}
 `;
 
 export const StyledCheckbox = styled(Checkbox)`
@@ -97,6 +100,7 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
     return (
       <CheckboxContainer
         isValid={isValid}
+        minHeight={this.props.minHeight}
         noContainerPadding={this.props.noContainerPadding}
       >
         <StyledCheckbox
@@ -116,6 +120,7 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
               className="t--checkbox-widget-label"
               disabled={this.props.isDisabled}
               isDynamicHeightEnabled={this.props.isDynamicHeightEnabled}
+              isLabelInline={this.props.isLabelInline}
               labelStyle={this.props.labelStyle}
               labelTextColor={this.props.labelTextColor}
               labelTextSize={this.props.labelTextSize}
@@ -151,6 +156,8 @@ export interface CheckboxComponentProps extends ComponentProps {
   labelTextColor?: string;
   labelTextSize?: string;
   labelStyle?: string;
+  isLabelInline?: boolean;
+  minHeight?: number;
 }
 
 export default CheckboxComponent;

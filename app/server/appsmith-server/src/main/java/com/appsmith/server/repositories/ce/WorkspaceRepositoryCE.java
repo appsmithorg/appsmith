@@ -16,5 +16,4 @@ public interface WorkspaceRepositoryCE extends BaseRepository<Workspace, String>
     Mono<Void> updateUserRoleNames(String userId, String userName);
 
     Mono<Long> countByDeletedAtNull();
-
 }
