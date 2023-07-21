@@ -83,7 +83,7 @@ describe("List widget v2 defaultSelectedItem", () => {
     //Change Default Selected Item
     entityExplorer.SelectEntityByName("List1");
 
-    propPane.TypeTextIntoField("defaultselecteditem", "001");
+    propPane.UpdatePropertyFieldValue("Default selected item", "001");
 
     cy.waitUntil(() =>
       agHelper.AssertElementLength(
@@ -121,9 +121,9 @@ describe("List widget v2 defaultSelectedItem", () => {
     //Change Default Selected Item
     entityExplorer.SelectEntityByName("List1");
 
-    propPane.TypeTextIntoField("items", "{{Api1.data}}");
+    propPane.UpdatePropertyFieldValue("Items", "{{Api1.data}}");
 
-    propPane.TypeTextIntoField("defaultselecteditem", "4");
+    propPane.UpdatePropertyFieldValue("Default selected item", "4");
 
     agHelper.AssertText(locators._listActivePage, "text", "2");
 
@@ -165,7 +165,7 @@ describe("List widget v2 defaultSelectedItem", () => {
 describe("List widget v2 Reset List widget and Refresh Data", () => {
   it("1. Setup List Widget", () => {
     entityExplorer.SelectEntityByName("List1");
-    propPane.TypeTextIntoField("defaultselecteditem", "4");
+    propPane.UpdatePropertyFieldValue("Default selected item", "4");
     agHelper.AssertText(locators._listActivePage, "text", "2");
 
     verifyDefaultItem();
