@@ -90,7 +90,6 @@ import type { PluginType } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
-import { undoAction } from "actions/pageActions";
 import { onUpdateFilterSuccess } from "@appsmith/utils/Environments";
 import type { CalloutKind } from "design-system";
 
@@ -200,7 +199,6 @@ export interface DatasourcePaneFunctions {
   resetForm: (formName: string) => void;
   initializeFormWithDefaults: (pluginType: string) => void;
   datasourceDiscardAction: (pluginId: string) => void;
-  undoDatasourceChanges: () => void;
 }
 
 class DatasourceEditorRouter extends React.Component<Props, State> {
@@ -468,7 +466,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     }
 
     if (this.props.isFormDirty) {
-      // this.props.undoDatasourceChanges();
       this.props.resetForm(this.props.formName);
     }
   }
@@ -1049,7 +1046,6 @@ const mapDispatchToProps = (
     dispatch(initializeDatasourceFormDefaults(pluginType)),
   datasourceDiscardAction: (pluginId) =>
     dispatch(datasourceDiscardAction(pluginId)),
-  undoDatasourceChanges: () => dispatch(undoAction()),
 });
 
 export default connect(

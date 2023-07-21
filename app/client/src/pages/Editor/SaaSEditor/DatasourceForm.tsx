@@ -77,7 +77,6 @@ import Debugger, {
 } from "../DataSourceEditor/Debugger";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { Form, ViewModeWrapper } from "../DataSourceEditor/DBForm";
-import { undoAction } from "actions/pageActions";
 import { getCurrentEditingEnvID } from "@appsmith/utils/Environments";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DSEditorWrapper } from "../DataSourceEditor";
@@ -128,7 +127,6 @@ interface DatasourceFormFunctions {
   loadFilePickerAction: () => void;
   datasourceDiscardAction: (pluginId: string) => void;
   initializeDatasource: (values: any) => void;
-  undoDatasourceChanges: () => void;
   resetForm: (formName: string) => void;
 }
 
@@ -410,7 +408,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     }
 
     if (this.props.isFormDirty) {
-      // this.props.undoDatasourceChanges();
       this.props.resetForm(this.props.formName);
     }
   }
@@ -786,7 +783,6 @@ const mapDispatchToProps = (dispatch: any): DatasourceFormFunctions => ({
     dispatch(datasourceDiscardAction(pluginId)),
   initializeDatasource: (values: any) =>
     dispatch(initialize(DATASOURCE_SAAS_FORM, values)),
-  undoDatasourceChanges: () => dispatch(undoAction()),
   resetForm: (formName: string) => dispatch(reset(formName)),
 });
 
