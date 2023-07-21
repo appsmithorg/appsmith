@@ -18,8 +18,9 @@ import {
   Collapsible,
   CollapsibleHeader,
   CollapsibleContent,
-} from "design-system-alpha";
-import { SearchInput, Text } from "design-system";
+  SearchInput,
+  Text,
+} from "design-system";
 
 function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
