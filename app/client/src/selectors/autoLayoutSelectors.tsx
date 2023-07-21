@@ -16,18 +16,11 @@ import {
   getAlignmentColumnInfo,
   getLayerIndexOfWidget,
 } from "utils/autoLayout/AutoLayoutUtils";
-import {
-  getIsAutoLayoutMobileBreakPoint,
-  getMainCanvasProps,
-} from "./editorSelectors";
+import { getIsAutoLayoutMobileBreakPoint } from "./editorSelectors";
 import WidgetFactory from "utils/WidgetFactory";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { getCanvasWidgets, getWidgetPositions } from "./entitiesSelector";
-import {
-  getLeftColumn,
-  getWidgetMinMaxDimensionsInPixel,
-  MinMaxSize,
-} from "utils/autoLayout/flexWidgetUtils";
+import { getLeftColumn } from "utils/autoLayout/flexWidgetUtils";
 import type { AlignWidgetTypes } from "widgets/constants";
 
 export const getIsCurrentlyConvertingLayout = (state: AppState) =>
@@ -173,10 +166,8 @@ export const getAutoLayoutParentCanvasMetaWidth = (widgetId: string) =>
 export const getLayerInformation = (widgetId: string) =>
   createSelector(
     getCanvasWidgets,
-    getMainCanvasProps,
     getWidgetPositions,
-    (state: AppState) => state.ui.autoLayoutCanvasMetaWidth,
-    (widgets, mainCanvasProps, widgetPositions, autoLayoutCanvasMetaWidth) => {
+    (widgets, widgetPositions) => {
       const widget = widgets[widgetId];
       if (!widget || !widget?.parentId) return {};
       const layer = (() => {
@@ -206,7 +197,7 @@ export const getLayerInformation = (widgetId: string) =>
           const widget = widgets[eachWidget.id];
           const widgetPosition = widgetPositions[eachWidget.id];
           if (widget && widgetPosition) {
-            let widgetWithInPixels = widgetPosition.width;
+            const widgetWithInPixels = widgetPosition.width;
             // const {
             //   minWidth,
             // }: { [key in keyof MinMaxSize]: number | undefined } =
