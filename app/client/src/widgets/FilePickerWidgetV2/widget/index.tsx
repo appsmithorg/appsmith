@@ -58,7 +58,7 @@ class FilePickerWidget extends BaseWidget<
     };
   }
 
-  static getPropertyPaneContentConfig() {
+  static getPropertyPaneContentConfig(platformConfig: Record<string, string>) {
     return [
       {
         sectionName: "Basic",
@@ -221,7 +221,7 @@ class FilePickerWidget extends BaseWidget<
               type: ValidationTypes.NUMBER,
               params: {
                 min: 1,
-                max: 100,
+                max: platformConfig.maxFileSize,
                 default: 5,
                 passThroughOnZero: false,
               },

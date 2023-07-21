@@ -21,6 +21,7 @@ import type {
   WidgetQueryGenerationConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
+import type { WidgetRegistrationDependency } from "utils/WidgetRegisterHelpers";
 
 export type WidgetSizeConfig = {
   viewportMinWidth: number;
@@ -47,6 +48,10 @@ export type AutoLayoutConfig = {
   disabledPropsDefaults?: Partial<WidgetProps>;
 };
 
+export type WidgetConfigurationGetter = [
+  (...args: Record<string, unknown>[]) => WidgetConfiguration,
+  WidgetRegistrationDependency[],
+];
 export interface WidgetConfiguration {
   autoLayout?: AutoLayoutConfig;
   type: string;

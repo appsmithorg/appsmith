@@ -7,8 +7,11 @@ import type BaseWidget from "widgets/BaseWidget";
 import WidgetFactory, { NonSerialisableWidgetConfigs } from "./WidgetFactory";
 
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { memoize } from "lodash";
-import type { WidgetConfiguration } from "widgets/constants";
+import { isArray, isFunction, memoize } from "lodash";
+import type {
+  WidgetConfiguration,
+  WidgetConfigurationGetter,
+} from "widgets/constants";
 import withMeta from "widgets/MetaHOC";
 import withWidgetProps from "widgets/withWidgetProps";
 import { generateReactKey } from "./generators";
@@ -40,8 +43,26 @@ const generateWidget = memoize(function getWidgetComponent(
 
 export const registerWidget = (
   Widget: typeof BaseWidget,
-  config: WidgetConfiguration,
+  config: WidgetConfiguration | WidgetConfigurationGetter,
 ) => {
+  if (isArray(config)) {
+    const [configGetter, dependencies] = config;
+
+    config = configGetter.apply(
+      null,
+      dependencies.map((dependency) => {
+        switch (dependency) {
+          case WidgetRegistrationDependency.PLATFORM_CONFIGS:
+            return { platform: true };
+          case WidgetRegistrationDependency.FEATURE_FLAGS:
+            return { features: true };
+          default:
+            return {};
+        }
+      }),
+    );
+  }
+
   const ProfiledWidget = generateWidget(
     Widget,
     !!config.needsMeta,
@@ -128,3 +149,8 @@ export const configureWidget = (config: WidgetConfiguration) => {
     payload: _config,
   });
 };
+
+export enum WidgetRegistrationDependency {
+  PLATFORM_CONFIGS = "PLATFORM_CONFIGS",
+  FEATURE_FLAGS = "FEATURE_FLAGS",
+}

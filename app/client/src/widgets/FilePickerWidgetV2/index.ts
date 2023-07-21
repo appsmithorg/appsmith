@@ -1,72 +1,76 @@
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { WidgetRegistrationDependency } from "utils/WidgetRegisterHelpers";
 
 import FileDataTypes from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
-export const CONFIG = {
-  type: Widget.getWidgetType(),
-  name: "FilePicker",
-  iconSVG: IconSVG,
-  needsMeta: true,
-  searchTags: ["upload"],
-  defaults: {
-    rows: 4,
-    files: [],
-    selectedFiles: [],
-    allowedFileTypes: [],
-    label: "Select Files",
-    columns: 16,
-    maxNumFiles: 1,
-    maxFileSize: 5,
-    fileDataType: FileDataTypes.Base64,
-    dynamicTyping: true,
-    widgetName: "FilePicker",
-    isDefaultClickDisabled: true,
-    version: 1,
-    isRequired: false,
-    isDisabled: false,
-    animateLoading: true,
-    responsiveBehavior: ResponsiveBehavior.Hug,
-    minWidth: BUTTON_MIN_WIDTH,
-  },
-  properties: {
-    derived: Widget.getDerivedPropertiesMap(),
-    default: Widget.getDefaultPropertiesMap(),
-    meta: Widget.getMetaPropertiesMap(),
-    config: Widget.getPropertyPaneConfig(),
-    styleConfig: Widget.getPropertyPaneStyleConfig(),
-    contentConfig: Widget.getPropertyPaneContentConfig(),
-    stylesheetConfig: Widget.getStylesheetConfig(),
-    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
-    setterConfig: Widget.getSetterConfig(),
-  },
-  autoLayout: {
+export const CONFIG = [
+  (platformConfig: Record<string, string>) => ({
+    type: Widget.getWidgetType(),
+    name: "FilePicker",
+    iconSVG: IconSVG,
+    needsMeta: true,
+    searchTags: ["upload"],
     defaults: {
       rows: 4,
-      columns: 6.632,
+      files: [],
+      selectedFiles: [],
+      allowedFileTypes: [],
+      label: "Select Files",
+      columns: 16,
+      maxNumFiles: 1,
+      maxFileSize: 5,
+      fileDataType: FileDataTypes.Base64,
+      dynamicTyping: true,
+      widgetName: "FilePicker",
+      isDefaultClickDisabled: true,
+      version: 1,
+      isRequired: false,
+      isDisabled: false,
+      animateLoading: true,
+      responsiveBehavior: ResponsiveBehavior.Hug,
+      minWidth: BUTTON_MIN_WIDTH,
     },
-    autoDimension: {
-      width: true,
+    properties: {
+      derived: Widget.getDerivedPropertiesMap(),
+      default: Widget.getDefaultPropertiesMap(),
+      meta: Widget.getMetaPropertiesMap(),
+      config: Widget.getPropertyPaneConfig(),
+      styleConfig: Widget.getPropertyPaneStyleConfig(),
+      contentConfig: Widget.getPropertyPaneContentConfig(platformConfig),
+      stylesheetConfig: Widget.getStylesheetConfig(),
+      autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+      setterConfig: Widget.getSetterConfig(),
     },
-    widgetSize: [
-      {
-        viewportMinWidth: 0,
-        configuration: () => {
-          return {
-            minWidth: "120px",
-            maxWidth: "360px",
-            minHeight: "40px",
-          };
-        },
+    autoLayout: {
+      defaults: {
+        rows: 4,
+        columns: 6.632,
       },
-    ],
-    disableResizeHandles: {
-      horizontal: true,
-      vertical: true,
+      autoDimension: {
+        width: true,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "120px",
+              maxWidth: "360px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        horizontal: true,
+        vertical: true,
+      },
     },
-  },
-};
+  }),
+  [WidgetRegistrationDependency.FEATURE_FLAGS],
+];
 
 export default Widget;

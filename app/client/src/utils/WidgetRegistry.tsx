@@ -145,7 +145,10 @@ import ProgressWidget, {
   CONFIG as PROGRESS_WIDGET_CONFIG,
 } from "widgets/ProgressWidget";
 import { registerWidget } from "./WidgetRegisterHelpers";
-import type { WidgetConfiguration } from "widgets/constants";
+import type {
+  WidgetConfiguration,
+  WidgetConfigurationGetter,
+} from "widgets/constants";
 import TableWidgetV2, {
   CONFIG as TABLE_WIDGET_CONFIG_V2,
 } from "widgets/TableWidgetV2";
@@ -165,7 +168,10 @@ import ListWidgetV2, {
   CONFIG as LIST_WIDGET_CONFIG_V2,
 } from "widgets/ListWidgetV2";
 
-export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
+export const ALL_WIDGETS_AND_CONFIG: [
+  any,
+  WidgetConfiguration | WidgetConfigurationGetter,
+][] = [
   [CanvasWidget, CANVAS_WIDGET_CONFIG],
   [SkeletonWidget, SKELETON_WIDGET_CONFIG],
   [ContainerWidget, CONTAINER_WIDGET_CONFIG],
@@ -238,7 +244,7 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
 export const registerWidgets = () => {
   const start = performance.now();
   for (const widget of ALL_WIDGETS_AND_CONFIG) {
-    registerWidget(widget[0], widget[1] as WidgetConfiguration);
+    registerWidget(widget[0], widget[1]);
   }
 
   log.debug("Widget registration took: ", performance.now() - start, "ms");
