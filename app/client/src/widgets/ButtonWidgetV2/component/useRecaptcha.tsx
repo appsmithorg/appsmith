@@ -19,7 +19,7 @@ type UseRecaptchaReturn = {
 };
 
 export const useRecaptcha = (props: RecaptchaProps): UseRecaptchaReturn => {
-  const { onClick: onClickProp, recaptchaKey } = props;
+  const { onPress: onClickProp, recaptchaKey } = props;
 
   if (!recaptchaKey) {
     return { onClick: onClickProp };

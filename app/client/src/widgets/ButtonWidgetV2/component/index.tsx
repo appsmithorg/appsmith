@@ -21,7 +21,7 @@ export type ButtonComponentProps = {
   variant?: ButtonProps["variant"];
   color?: ButtonProps["color"];
   type: ButtonProps["type"];
-  onClick?: ButtonProps["onPress"];
+  onPress?: ButtonProps["onPress"];
   iconPosition?: ButtonProps["iconPosition"];
 };
 
@@ -41,7 +41,7 @@ function ButtonComponent(props: ButtonComponentProps & UseRecaptchaProps) {
   return (
     <Container {...containerProps}>
       <Tooltip tooltip={tooltip}>
-        <Button icon={icon} onPress={onClick} {...rest}>
+        <Button icon={icon} {...rest} onPress={onClick}>
           {text}
         </Button>
       </Tooltip>

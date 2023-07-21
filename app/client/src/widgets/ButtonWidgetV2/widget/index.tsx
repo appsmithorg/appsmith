@@ -142,7 +142,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         maxWidth={this.props.maxWidth}
         minHeight={this.props.minHeight}
         minWidth={this.props.minWidth}
-        onClick={this.hasOnClickAction() ? this.onButtonClickBound : undefined}
+        onPress={this.hasOnClickAction() ? this.onButtonClickBound : undefined}
         onRecaptchaSubmitError={this.onRecaptchaSubmitError}
         onRecaptchaSubmitSuccess={this.onRecaptchaSubmitSuccess}
         recaptchaKey={this.props.googleRecaptchaKey}

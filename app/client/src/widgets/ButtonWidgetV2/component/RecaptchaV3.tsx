@@ -18,12 +18,12 @@ export function RecaptchaV3(props: RecaptchaV3Props) {
 
   const {
     recaptchaKey,
-    onClick: onClickProp,
+    onPress: onClickProp,
     onRecaptchaSubmitSuccess,
     onRecaptchaSubmitError = noop,
   } = props;
 
-  const onClick: ButtonComponentProps["onClick"] = () => {
+  const onClick: ButtonComponentProps["onPress"] = () => {
     if (props.isDisabled) return onClickProp;
     if (props.isLoading) return onClickProp;
 
