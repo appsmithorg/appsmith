@@ -264,9 +264,7 @@ export class EntityExplorer {
   }
 
   public ValidateDuplicateMessageToolTip(tooltipText: string) {
-    cy.get(".rc-tooltip-inner").should(($x) => {
-      expect($x).contain(tooltipText.concat(" is already being used."));
-    });
+    this.agHelper.AssertTooltip(tooltipText.concat(" is already being used."));
   }
 
   public DeleteAllQueriesForDB(dsName: string) {

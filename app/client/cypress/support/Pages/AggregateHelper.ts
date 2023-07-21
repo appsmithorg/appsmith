@@ -1486,4 +1486,10 @@ export class AggregateHelper extends ReusableHelper {
   //     }
   //     return items;
   //   }, { timeout: 5000 });
+
+  public AssertTooltip(tooltipText: string){
+    cy.get(".rc-tooltip-inner").should(($x) => {
+      expect($x).contain(tooltipText);
+    });
+  }
 }

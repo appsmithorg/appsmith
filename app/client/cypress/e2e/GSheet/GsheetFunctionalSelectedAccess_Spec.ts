@@ -9,31 +9,19 @@ import {
 } from "../../support/Objects/ObjectsCore";
 
 const workspaceName = "gsheet apps";
-const dataSourceName = "gsheet";
+const dataSourceName = "gsheet-selected";
 let appName = "gsheet-app";
-let spreadSheetName = "test-sheet";
-describe("GSheet-Functional Tests With All Access", function () {
+let spreadSheetName = "test-sheet-automation-selected";
+describe("GSheet-Functional Tests With Selected Access", function () {
   before("Setup app and spreadsheet", function () {
-    //Add a new app and an add new spreadsheet query
     //Setting up the spreadsheet name
     const uuid = Cypress._.random(0, 10000);
-    spreadSheetName = spreadSheetName + "_" + uuid;
     appName = appName + "-" + uuid;
 
-    //Adding query to insert a new spreadsheet
+    //Adding app
     homePage.NavigateToHome();
     homePage.CreateAppInWorkspace(workspaceName);
     homePage.RenameApplication(appName);
-    gsheetHelper.AddNewSpreadsheetQuery(
-      dataSourceName,
-      spreadSheetName,
-      JSON.stringify([GSHEET_DATA[0]]),
-    );
-    cy.get("@postExecute").then((interception: any) => {
-      expect(
-        interception.response.body.data.body.properties.title,
-      ).to.deep.equal(spreadSheetName);
-    });
   });
 
   it("1. Add and verify fetch details query", () => {
@@ -55,13 +43,13 @@ describe("GSheet-Functional Tests With All Access", function () {
     });
   });
 
-  it("2. Verify Insert one and Insert many queries", () => {
+  it("2. Verify Insert One and Insert Many queries", () => {
     // add insert one query and verify
     gsheetHelper.AddInsertOrUpdateQuery(
       "Insert One",
       dataSourceName,
       spreadSheetName,
-      JSON.stringify(GSHEET_DATA[1]),
+      JSON.stringify(GSHEET_DATA[0]),
     );
     cy.get("@postExecute").then((interception: any) => {
       expect(interception.response.body.data.body.message).to.deep.equal(
@@ -74,7 +62,7 @@ describe("GSheet-Functional Tests With All Access", function () {
       "Insert Many",
       dataSourceName,
       spreadSheetName,
-      JSON.stringify(GSHEET_DATA.slice(2, 10)),
+      JSON.stringify(GSHEET_DATA.slice(1, 10)),
     );
     cy.get("@postExecute").then((interception: any) => {
       expect(interception.response.body.data.body.message).to.deep.equal(
@@ -192,7 +180,7 @@ describe("GSheet-Functional Tests With All Access", function () {
 
   it("5. Update a record which is not present and verify the error", () => {
     //preparing data
-    let data = GSHEET_DATA[1];
+    const data = GSHEET_DATA[1];
     data.rowIndex = "15";
 
     // add update one query and verify
@@ -215,6 +203,9 @@ describe("GSheet-Functional Tests With All Access", function () {
         "No data found at this row index.",
       );
     });
+
+    //reset the row index
+    data.rowIndex = "1";
   });
 
   it("6. Convert field to JS and verify", () => {
@@ -266,14 +257,42 @@ describe("GSheet-Functional Tests With All Access", function () {
     dataSources.AssertQueryTableResponse(0, "eac7efa5dbd3d667f26eb3d3ab504464");
   });
 
-  after("Delete spreadsheet and app", function () {
+  it("7. Verify Delete query", function () {
     // Delete spreadsheet and app
-    gsheetHelper.DeleteSpreadsheetQuery(dataSourceName, spreadSheetName);
-    cy.get("@postExecute").then((interception: any) => {
-      expect(interception.response.body.data.body.message).to.deep.equal(
-        "Deleted spreadsheet successfully!",
-      );
+    gsheetHelper.EnterBasicQueryValues(
+      "Delete One",
+      dataSourceName,
+      spreadSheetName,
+    );
+    GSHEET_DATA.reverse().forEach((d) => {
+      agHelper.EnterValue(d.rowIndex, {
+        propFieldName: "",
+        directInput: false,
+        inputFieldName: "Row Index",
+      });
+      dataSources.RunQuery();
+      cy.get("@postExecute").then((interception: any) => {
+        expect(interception.response.body.data.body.message).to.deep.equal(
+          "Deleted row successfully!",
+        );
+      });
+      agHelper.Sleep(500);
     });
+    // Fetch many to verify all the data is deleted
+    gsheetHelper.EnterBasicQueryValues(
+      "Fetch Many",
+      dataSourceName,
+      spreadSheetName,
+      false,
+    );
+    dataSources.RunQuery();
+    cy.get("@postExecute").then((interception: any) => {
+      expect(interception.response.body.data.body).to.deep.equal([]);
+    });
+  });
+
+  after("Delete app", function () {
+    // Delete spreadsheet and app
     homePage.NavigateToHome();
     homePage.DeleteApplication(appName);
   });

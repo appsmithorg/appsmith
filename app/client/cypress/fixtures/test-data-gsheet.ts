@@ -2,6 +2,9 @@ export const GSHEET_DATA = [
   {
     rowIndex: "0",
     uniq_id: "eac7efa5dbd3d667f26eb3d3ab504464",
+    japanese_name: "ホーンビィ 2014 カタログ",
+    currencies: "₹, $, €, ¥, £",
+    specialChars: "!@#$%^&*",
     product_name: "Hornby 2014 Catalogue",
     manufacturer: "Hornby",
     price: "3.42",
@@ -17,6 +20,10 @@ export const GSHEET_DATA = [
   {
     rowIndex: "1",
     uniq_id: "b17540ef7e86e461d37f3ae58b7b72ac",
+    japanese_name:
+      "FunkyBuys® ラージ クリスマス ホリデー エクスプレス フェスティバル トレイン セット (SI-TY1017) おもちゃ ライト / サウンド / 電池式 & 煙",
+    currencies: "₹, $, €, ¥, £",
+    specialChars: "!@#$%^&*",
     product_name:
       "FunkyBuys® Large Christmas Holiday Express Festive Train Set (SI-TY1017) Toy Light / Sounds / Battery Operated & Smoke",
     manufacturer: "FunkyBuys",
@@ -33,6 +40,10 @@ export const GSHEET_DATA = [
   {
     rowIndex: "2",
     uniq_id: "348f344247b0c1a935b1223072ef9d8a",
+    japanese_name:
+      "クラシックなおもちゃの電車セット トラック車両 ライトエンジン 箱入り男の子 子供用バッテリー",
+    currencies: "₹, $, €, ¥, £",
+    specialChars: "!@#$%^&*",
     product_name:
       "CLASSIC TOY TRAIN SET TRACK CARRIAGES LIGHT ENGINE BOXED BOYS KIDS BATTERY",
     manufacturer: "ccf",
@@ -49,6 +60,9 @@ export const GSHEET_DATA = [
   {
     rowIndex: "3",
     uniq_id: "e12b92dbb8eaee78b22965d2a9bbbd9f",
+    japanese_name: "ホーンビー コーチ R4410A BR ホークスワース コリドー 3",
+    currencies: "₹, $, €, ¥, £",
+    specialChars: "!@#$%^&*",
     product_name: "HORNBY Coach R4410A BR Hawksworth Corridor 3rd",
     manufacturer: "Hornby",
     price: "39.99",
@@ -63,6 +77,10 @@ export const GSHEET_DATA = [
   {
     rowIndex: "4",
     uniq_id: "e33a9adeed5f36840ccc227db4682a36",
+    japanese_name:
+      "ホーンビー 00 ゲージ 0-4-0 ギルデンロー塩社 蒸気機関車モデル",
+    currencies: "₹, $, €, ¥, £",
+    specialChars: "!@#$%^&*",
     product_name:
       "Hornby 00 Gauge 0-4-0 Gildenlow Salt Co. Steam Locomotive Model",
     manufacturer: "Hornby",
@@ -79,6 +97,9 @@ export const GSHEET_DATA = [
   {
     rowIndex: "5",
     uniq_id: "cb34f0a84102c1ebc3ef6892d7444d36",
+    japanese_name: "20 個モデルガーデンライトダブルヘッド街灯スケール 1:100",
+    currencies: "₹, $, €, ¥, £",
+    specialChars: "!@#$%^&*",
     product_name: "20pcs Model Garden Light Double Heads Lamppost Scale 1:100",
     manufacturer: "Generic",
     price: "6.99",
@@ -94,6 +115,10 @@ export const GSHEET_DATA = [
   {
     rowIndex: "6",
     uniq_id: "f74b562470571dfb689324adf236f82c",
+    japanese_name:
+      "Hornby 00 ゲージ 230mm BR ボギー 旅客ブレーキ コーチ モデル (レッド)",
+    currencies: "₹, $, €, ¥, £",
+    specialChars: "!@#$%^&*",
     product_name:
       "Hornby 00 Gauge 230mm BR Bogie Passenger Brake Coach Model (Red)",
     manufacturer: "Hornby",
@@ -110,6 +135,9 @@ export const GSHEET_DATA = [
   {
     rowIndex: "7",
     uniq_id: "87bbb472ef9d90dcef140a551665c929",
+    japanese_name: "ホーンビー サンタの特急列車セット",
+    currencies: "₹, $, €, ¥, £",
+    specialChars: "!@#$%^&*",
     product_name: "Hornby Santa's Express Train Set",
     manufacturer: "Hornby",
     price: "69.93",
@@ -125,6 +153,10 @@ export const GSHEET_DATA = [
   {
     rowIndex: "8",
     uniq_id: "7e2aa2b4596a39ba852449718413d7cc",
+    japanese_name:
+      "ホーンビー ゲージ ウェスタン エクスプレス デジタル トレイン セット (eLink および TTS ロコ トレイン セット付き)",
+    currencies: "₹, $, €, ¥, £",
+    specialChars: "!@#$%^&*",
     product_name:
       "Hornby Gauge Western Express Digital Train Set with eLink and TTS Loco Train Set",
     manufacturer: "Hornby",
@@ -141,6 +173,10 @@ export const GSHEET_DATA = [
   {
     rowIndex: "9",
     uniq_id: "5afbaf65680c9f378af5b3a3ae22427e",
+    japanese_name:
+      "ラーニング カーブ チャギントン インタラクティブ チャッツワース",
+    currencies: "₹, $, €, ¥, £",
+    specialChars: "!@#$%^&*",
     product_name: "Learning Curve Chuggington Interactive Chatsworth",
     manufacturer: "Chuggington",
     price: "null",

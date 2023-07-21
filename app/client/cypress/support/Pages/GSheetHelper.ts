@@ -74,6 +74,7 @@ export class GsheetHelper {
       operation,
       dataSourceName,
       spreadSheet,
+      true,
       sheetName,
       headRowIndex,
     );
@@ -99,6 +100,7 @@ export class GsheetHelper {
     operation: operation,
     dataSourceName: string,
     spreadSheet: string,
+    renameQuery = true,
     sheetName = "Sheet1",
     headRowIndex = "1",
   ) {
@@ -117,9 +119,11 @@ export class GsheetHelper {
       directInput: false,
       inputFieldName: "Table heading row index",
     });
-    this.agHelper.RenameWithInPane(
-      operation.toLowerCase().replace(" ", "_") + "_query",
-    );
+    if (renameQuery) {
+      this.agHelper.RenameWithInPane(
+        operation.toLowerCase().replace(" ", "_") + "_query",
+      );
+    }
   }
 
   public SelectMultiDropDownValue(ddName: string, option: string) {
