@@ -322,7 +322,8 @@ export class HomePage {
     role: "App Viewer" | "Developer" | "Administrator" = "Administrator",
   ) {
     this.agHelper.Sleep(); //waiting for window to load
-    this.Signout();
+    cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+    cy.wait("@postLogout");
     this.agHelper.VisitNAssert("/user/login", "signUpLogin");
     this.agHelper.AssertElementVisible(this._username);
     this.agHelper.TypeText(this._username, uname);
@@ -342,7 +343,8 @@ export class HomePage {
 
   public SignUp(uname: string, pswd: string) {
     this.agHelper.Sleep(); //waiting for window to load
-    this.Signout();
+    cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+    cy.wait("@postLogout");
     this.agHelper.VisitNAssert("/user/signup", "signUpLogin");
     this.agHelper.AssertElementVisible(this.signupUsername);
     this.agHelper.TypeText(this.signupUsername, uname);
