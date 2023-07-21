@@ -1,7 +1,6 @@
 import "cypress-wait-until";
 import { ObjectsRegistry } from "../Objects/Registry";
 import { ReusableHelper } from "../Objects/ReusableHelper";
-import { agHelper } from "../../support/Objects/ObjectsCore";
 
 export const EntityItems = {
   Page: 0,
@@ -113,22 +112,5 @@ export class AssertHelper extends ReusableHelper {
           expect($tooltipText).to.eq(textToValidate);
         });
     });
-  }
-
-  /**
-   *
-   * @param selector
-   * @param index
-   * Checks if the given selector has class with disabled in the class name
-   * @returns
-   */
-  public AssertElementClassContainsDisabled(selector: string, index = 0) {
-    return agHelper
-      .GetElement(selector)
-      .eq(index)
-      .should(($element) => {
-        const elementClass = $element.attr("class");
-        expect(elementClass).to.include("disabled");
-      });
   }
 }
