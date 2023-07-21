@@ -17,7 +17,12 @@ describe("Datasource form related tests", function () {
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("PostgreSQL");
       agHelper.RenameWithInPane(dataSourceName, false);
-      dataSources.FillPostgresDSForm(false, "docker", "wrongPassword");
+      dataSources.FillPostgresDSForm(
+        "production",
+        false,
+        "docker",
+        "wrongPassword",
+      );
       dataSources.VerifySchema(
         dataSourceName,
         "An exception occurred while creating connection pool.",

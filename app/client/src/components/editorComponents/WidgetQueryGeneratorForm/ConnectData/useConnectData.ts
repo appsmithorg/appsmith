@@ -36,6 +36,7 @@ export function useConnectData() {
       searchableColumn: config.searchableColumn,
       columns: columns.map((column) => column.name),
       primaryColumn,
+      connectionMode: config.datasourceConnectionMode,
     };
 
     dispatch({
@@ -49,6 +50,7 @@ export function useConnectData() {
       propertyName: propertyName,
       pluginType: config.datasourcePluginType,
       pluginName: config.datasourcePluginName,
+      connectionMode: config.datasourceConnectionMode,
       additionalData: {
         dataTableName: config.table,
         searchableColumn: config.searchableColumn,
