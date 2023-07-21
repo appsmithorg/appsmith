@@ -1022,13 +1022,6 @@ export default class DataTreeEvaluator {
                 isNewWidget,
               });
 
-              this.reValidateWidgetDependentProperty({
-                fullPropertyPath,
-                widget: entity,
-                currentTree,
-                configTree: oldConfigTree,
-              });
-
               staleMetaIds = staleMetaIds.concat(
                 getStaleMetaStateIds({
                   entity: widgetEntity,
