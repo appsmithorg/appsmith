@@ -52,7 +52,7 @@ export class HomePage {
   _appEditIcon = ".t--application-edit-link";
   _homeIcon = ".t--appsmith-logo";
   private _homeAppsmithImage = "a.t--appsmith-logo";
-  private _appContainer = ".t--applications-container";
+  _appContainer = ".t--applications-container";
   _homePageAppCreateBtn = this._appContainer + " .createnew";
   private _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
     `//span[text()='${existingWorkspaceName}']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--new-button')]`;
@@ -113,7 +113,6 @@ export class HomePage {
   _sharePublicToggle =
     "//div[contains(@class, 't--share-public-toggle')]//input[@role='switch']";
   _modeSwitchToggle = ".t--comment-mode-switch-toggle";
-  _appsContainer = ".t--applications-container";
   _importFromGitBtn = "div.t--import-json-card + div";
 
   public SwitchToAppsTab() {

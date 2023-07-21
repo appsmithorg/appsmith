@@ -42,7 +42,7 @@ describe("Create new workspace and share with a user", function () {
     homePage.FilterApplication(appid);
     // // eslint-disable-next-line cypress/no-unnecessary-waiting
     agHelper.Sleep(2000);
-    agHelper.GetNAssertContains(homePage._appsContainer, workspaceId);
+    agHelper.GetNAssertContains(homePage._appContainer, workspaceId);
     if (CURRENT_REPO === REPO.CE) {
       agHelper.AssertElementVisible(locators._spanButton("Share"), 0);
     }
@@ -51,8 +51,7 @@ describe("Create new workspace and share with a user", function () {
     homePage.LaunchAppFromAppHover();
     agHelper.Sleep(2000); //for CI
     agHelper.GetText(locators._emptyPageTxt).then((text) => {
-      const someText = text;
-      expect(someText).to.equal("This page seems to be blank");
+      expect(text).to.equal("This page seems to be blank");
     });
     homePage.LogOutviaAPI();
     agHelper.Sleep(2000); //for CI
@@ -85,8 +84,7 @@ describe("Create new workspace and share with a user", function () {
     agHelper.VisitNAssert(currentUrl, "@getPagesForViewApp");
     agHelper.Sleep(3000);
     agHelper.GetText(locators._emptyPageTxt).then((text) => {
-      const someText = text;
-      expect(someText).to.equal("This page seems to be blank");
+      expect(text).to.equal("This page seems to be blank");
     });
     // comment toggle should not exist for anonymous users
     agHelper.AssertElementAbsence(homePage._modeSwitchToggle);
@@ -99,8 +97,7 @@ describe("Create new workspace and share with a user", function () {
     );
     agHelper.VisitNAssert(currentUrl, "@getPagesForViewApp");
     agHelper.GetText(locators._emptyPageTxt).then((text) => {
-      const someText = text;
-      expect(someText).to.equal("This page seems to be blank");
+      expect(text).to.equal("This page seems to be blank");
     });
     homePage.LogOutviaAPI();
   });
