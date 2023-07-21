@@ -1,5 +1,5 @@
 import type { ReactNode, CSSProperties } from "react";
-import type { PickRename } from "../../utils";
+import type { OmitRename } from "../../utils";
 import type { SizingDimension, SpacingDimension } from "./dimensions";
 
 type Responsive<T> =
@@ -181,40 +181,4 @@ export interface FlexProps {
   style?: CSSProperties;
 }
 
-export type StyledFlexProps = PickRename<
-  FlexProps,
-  {
-    direction: "$direction";
-    wrap: "$wrap";
-    justifyContent: "$justifyContent";
-    alignContent: "$alignContent";
-    alignItems: "$alignItems";
-    gap: "$gap";
-    columnGap: "$columnGap";
-    rowGap: "$rowGap";
-    flex: "$flex";
-    flexGrow: "$flexGrow";
-    flexShrink: "$flexShrink";
-    flexBasis: "$flexBasis";
-    justifySelf: "$justifySelf";
-    alignSelf: "$alignSelf";
-    order: "$order";
-    isHidden: "$isHidden";
-    margin: "$margin";
-    marginLeft: "$marginLeft";
-    marginRight: "$marginRight";
-    marginTop: "$marginTop";
-    marginBottom: "$marginBottom";
-    width: "$width";
-    height: "$height";
-    minWidth: "$minWidth";
-    minHeight: "$minHeight";
-    maxWidth: "$maxWidth";
-    maxHeight: "$maxHeight";
-    padding: "$padding";
-    paddingLeft: "$paddingLeft";
-    paddingRight: "$paddingRight";
-    paddingTop: "$paddingTop";
-    paddingBottom: "$paddingBottom";
-  }
->;
+export type StyledFlexProps = OmitRename<FlexProps, "style" | "className">;
