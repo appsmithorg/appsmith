@@ -293,7 +293,8 @@ class ActionExecutionSolutionCEImplTest {
         newAction.setUnpublishedAction(actionDTO);
         doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID))
                 .when(datasourceService)
-                .getTrueEnvironmentId(any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
+                .getTrueEnvironmentId(
+                        any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
@@ -350,7 +351,8 @@ class ActionExecutionSolutionCEImplTest {
         newAction.setUnpublishedAction(actionDTO);
         doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID))
                 .when(datasourceService)
-                .getTrueEnvironmentId(any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
+                .getTrueEnvironmentId(
+                        any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
