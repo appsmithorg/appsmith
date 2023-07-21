@@ -9,12 +9,10 @@ import AutoHeightContainerWrapper from "components/autoHeight/AutoHeightContaine
 import AutoHeightOverlayContainer from "components/autoHeightOverlay";
 import FlexComponent from "components/designSystems/appsmith/autoLayout/FlexComponent";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
-import DraggableComponent from "components/editorComponents/DraggableComponent";
 import type { EditorContextType } from "components/editorComponents/EditorContextProvider";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import ResizableComponent from "components/editorComponents/WidgetResizer/ResizableComponent";
-import SnipeableComponent from "components/editorComponents/SnipeableComponent";
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
@@ -70,6 +68,8 @@ import WidgetComponentBoundary from "components/editorComponents/WidgetComponent
 import type { AutocompletionDefinitions } from "./constants";
 import WidgetFactory from "utils/WidgetFactory";
 import AutoLayoutResizableComponent from "components/editorComponents/WidgetResizer/AutoLayoutResizableComponent";
+import DraggableComponent from "./BaseWidget/render/common/DraggableComponent";
+import SnipeableComponent from "./BaseWidget/render/common/SnipeableComponent";
 
 /***
  * BaseWidget

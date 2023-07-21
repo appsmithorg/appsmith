@@ -250,18 +250,19 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
   }
 }
 
-export function AutoFnWidget(props: AudioWidgetProps) {
+export function AudioFnWidget(props: AudioWidgetProps) {
   const _player = useRef<ReactPlayer>();
   const { onEnd, onPause, onPlay, playing, url } = props;
-  const baseWidget = useBaseWidget(props);
-  return (
+  const { appsmithWidgetRender, context } = useBaseWidget(props);
+  const useCutomHook;
+  return appsmithWidgetRender(
     <Suspense fallback={<Skeleton />}>
       <AudioComponent
         controls
         onEnded={() => {
           // Stopping the audio from playing when the media is finished playing
-          baseWidget.updateWidgetMetaProperty("playing", false);
-          baseWidget.updateWidgetMetaProperty("playState", PlayState.ENDED, {
+          props.updateWidgetMetaProperty("playing", false);
+          props.updateWidgetMetaProperty("playState", PlayState.ENDED, {
             triggerPropertyName: "onEnd",
             dynamicString: onEnd,
             event: {
@@ -307,7 +308,7 @@ export function AutoFnWidget(props: AudioWidgetProps) {
         playing={playing}
         url={url}
       />
-    </Suspense>
+    </Suspense>,
   );
 }
 

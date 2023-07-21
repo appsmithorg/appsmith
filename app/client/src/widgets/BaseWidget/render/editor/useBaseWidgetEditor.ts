@@ -13,15 +13,12 @@ export const useBaseWidgetEditor = (props: {
   isFlexChild: boolean;
   detachFromLayout: boolean;
   resizeDisabled: boolean;
-}) => {
-  let editor = {};
-  switch (props.appPositioningType) {
-    case AppPositioningTypes.AUTO:
-      editor = useBaseWidgetAutoLayoutEditor(props);
-      break;
-    default:
-      editor = useBaseWidgetFixedLayoutEditor();
-      break;
+}): {
+  appsmithWidgetRender: (content: any) => any;
+} => {
+  if (props.appPositioningType === AppPositioningTypes.AUTO) {
+    return useBaseWidgetAutoLayoutEditor(props);
+  } else {
+    return useBaseWidgetFixedLayoutEditor();
   }
-  return editor;
 };

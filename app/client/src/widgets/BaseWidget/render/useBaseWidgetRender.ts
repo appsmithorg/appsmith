@@ -12,18 +12,13 @@ export const useBaseWidgetRender = (props: {
   isFlexChild: boolean;
   detachFromLayout: boolean;
   resizeDisabled: boolean;
-}) => {
-  let renderer = {};
+}): {
+  appsmithWidgetRender: (content: any) => any;
+} => {
   const renderMode = useSelector(getRenderMode);
-
-  switch (renderMode) {
-    case RenderModes.CANVAS:
-      renderer = useBaseWidgetEditor(props);
-      break;
-    case RenderModes.PAGE:
-      renderer = useBaseWidgetViewer();
-      break;
+  if (renderMode === RenderModes.CANVAS) {
+    return useBaseWidgetEditor(props);
+  } else {
+    return useBaseWidgetViewer();
   }
-
-  return renderer;
 };

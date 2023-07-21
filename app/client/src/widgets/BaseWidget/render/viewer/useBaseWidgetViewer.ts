@@ -1,3 +1,7 @@
 export const useBaseWidgetViewer = () => {
-  return {};
+  return {
+    appsmithWidgetRender: (content: any) => {
+      return content;
+    },
+  };
 };

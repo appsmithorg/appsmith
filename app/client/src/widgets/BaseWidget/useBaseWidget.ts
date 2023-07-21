@@ -11,8 +11,7 @@ import { useBaseWidgetDSLOperations } from "./dslOpertions/useBaseWidgetDSLOpera
 import { useBaseWidgetPropertyPane } from "./propertyPane/useBaseWidgetPropertyPane";
 import { useBaseWidgetRender } from "./render/useBaseWidgetRender";
 import { useBaseWidgetTheming } from "./theming/useBaseWidgetTheming";
-
-interface BaseWidgetProps extends WidgetProps, WidgetState {}
+import type { BaseWidgetProps } from "./withBaseWidget";
 
 export const useBaseWidget = (props: BaseWidgetProps) => {
   const {
