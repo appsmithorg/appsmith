@@ -340,7 +340,7 @@ export class HomePage {
    * Searches for given app name and clicks edit icon
    * @param appName
    */
-  public searchAndOpenApplication(appName: string) {
+  public SearchAndOpenApp(appName: string) {
     this.agHelper.TypeText(this._searchInput, appName);
     this.agHelper.Sleep(2000);
     this.EditAppFromAppHover();
