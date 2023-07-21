@@ -27,21 +27,21 @@ describe("Test cases around bracket notation", function () {
 
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(locators._codeMirrorTextArea, "this.");
-    agHelper.GetNAssertElementText(locators._hints, "my variable 1");
+    agHelper.GetNAssertElementText(locators._activeHint, "my variable 1");
     agHelper.Sleep();
-    agHelper.GetNClickByContains(locators._hints, "my variable 1");
+    agHelper.GetNClickByContains(locators._activeHint, "my variable 1");
     agHelper.GetNAssertElementText(
       jsEditor._lineinJsEditor(5),
       'this["my variable 1"]',
       "contain.text",
     );
     agHelper.Sleep();
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5), 0, true);
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.SelectNRemoveLineText(locators._codeMirrorTextArea);
     agHelper.TypeText(locators._codeMirrorTextArea, 'this["');
-    agHelper.GetNAssertElementText(locators._hints, "my variable 1");
+    agHelper.GetNAssertElementText(locators._activeHint, "my variable 1");
     agHelper.Sleep();
-    agHelper.GetNClickByContains(locators._hints, "my variable 1");
+    agHelper.GetNClickByContains(locators._activeHint, "my variable 1");
     agHelper.GetNAssertElementText(
       jsEditor._lineinJsEditor(5),
       'this["my variable 1"]',
