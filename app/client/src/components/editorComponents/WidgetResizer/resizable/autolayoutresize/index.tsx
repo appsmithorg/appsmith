@@ -44,6 +44,7 @@ import {
 } from "utils/autoLayout/flexWidgetUtils";
 import type { MinMaxSize } from "utils/autoLayout/flexWidgetUtils";
 import type { AlignWidgetTypes } from "widgets/constants";
+import log from "loglevel";
 
 export type AutoLayoutResizableProps = {
   mainCanvasWidth: number;
@@ -297,6 +298,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
             };
           }
         }
+        log.debug("old", newRect);
         return newRect;
       });
     }
