@@ -24,7 +24,7 @@ export function RecaptchaV2(props: RecaptchaV2Props) {
     recaptchaKey,
     onRecaptchaSubmitSuccess,
     onRecaptchaSubmitError = noop,
-    onClick: onClickProp,
+    onPress: onClickProp,
   } = props;
   const onClick = () => {
     if (isDisabled) return onClickProp;
