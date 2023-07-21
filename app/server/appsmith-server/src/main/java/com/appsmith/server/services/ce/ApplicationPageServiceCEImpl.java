@@ -1249,11 +1249,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
                     return analyticsService.sendObjectEvent(
                             AnalyticsEvents.PUBLISH_APPLICATION, application, extraProperties);
-                })
-                .elapsed()
-                .map(objects -> {
-                    log.info("Sent analytics event in {} ms", objects.getT1());
-                    return objects.getT2();
                 });
     }
 
