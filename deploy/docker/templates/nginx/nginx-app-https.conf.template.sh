@@ -47,7 +47,7 @@ server {
 
   # enable HSTS
   # https://www.nginx.com/blog/http-strict-transport-security-hsts-and-nginx/
-  add_header Strict-Transport-Security "max-age=31536000;
+  add_header Strict-Transport-Security "max-age=31536000" always;
 
   # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
   add_header Content-Security-Policy "frame-ancestors ${APPSMITH_ALLOWED_FRAME_ANCESTORS-'self' *}";
