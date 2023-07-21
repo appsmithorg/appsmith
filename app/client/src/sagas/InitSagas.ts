@@ -59,6 +59,7 @@ import {
   matchBuilderPath,
   matchViewerPath,
 } from "../constants/routes";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -94,6 +95,33 @@ export function* waitForWidgetConfigBuild() {
   const isBuilt: boolean = yield select(getIsWidgetConfigBuilt);
   if (!isBuilt) {
     yield take(ReduxActionTypes.WIDGET_INIT_SUCCESS);
+  }
+}
+
+export function* reportSWStatus() {
+  if (navigator.hasOwnProperty("serviceWorker")) {
+    navigator.serviceWorker
+      .getRegistrations()
+      .then((registrations) => {
+        if (registrations.length === 0) {
+          AnalyticsUtil.logEvent("MISSING_SW", {
+            message: "Service worker not found",
+          });
+        }
+        const activeRegistrations = registrations.filter(
+          (registration) => registration.active,
+        );
+        if (activeRegistrations.length === 0) {
+          AnalyticsUtil.logEvent("MISSING_SW", {
+            message: "Service worker not active",
+          });
+        }
+      })
+      .catch(() => {
+        AnalyticsUtil.logEvent("MISSING_SW", {
+          message: "Failed to retrieve SW registrations",
+        });
+      });
   }
 }
 

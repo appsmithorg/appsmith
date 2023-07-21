@@ -18,7 +18,11 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import type { APP_MODE } from "entities/App";
 import { call, put } from "redux-saga/effects";
-import { failFastApiCalls, waitForWidgetConfigBuild } from "sagas/InitSagas";
+import {
+  failFastApiCalls,
+  reportSWStatus,
+  waitForWidgetConfigBuild,
+} from "sagas/InitSagas";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -55,6 +59,7 @@ export default class AppViewerEngine extends AppEngine {
         type: ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
       });
     }
+    yield call(reportSWStatus);
   }
 
   *setupEngine(payload: AppEnginePayload) {
