@@ -23,13 +23,14 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
-import com.appsmith.server.solutions.DatasourceStorageTransferSolution;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -123,8 +124,8 @@ class ActionExecutionSolutionCEImplTest {
     @MockBean
     DatasourceStorageService datasourceStorageService;
 
-    @MockBean
-    DatasourceStorageTransferSolution datasourceStorageTransferSolution;
+    @Autowired
+    EnvironmentPermission environmentPermission;
 
     private BodyExtractor.Context context;
 
@@ -149,7 +150,7 @@ class ActionExecutionSolutionCEImplTest {
                 datasourcePermission,
                 analyticsService,
                 datasourceStorageService,
-                datasourceStorageTransferSolution);
+                environmentPermission);
 
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);
@@ -285,7 +286,7 @@ class ActionExecutionSolutionCEImplTest {
         newAction.setId("63285a3388e48972c7519b18");
         doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID))
                 .when(datasourceService)
-                .getTrueEnvironmentId(any(), any());
+                .getTrueEnvironmentId(any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()));
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
@@ -338,7 +339,7 @@ class ActionExecutionSolutionCEImplTest {
         newAction.setId("63285a3388e48972c7519b18");
         doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID))
                 .when(datasourceService)
-                .getTrueEnvironmentId(any(), any());
+                .getTrueEnvironmentId(any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()));
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 

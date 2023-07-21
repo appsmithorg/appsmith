@@ -6,10 +6,13 @@ import {
 } from "@appsmith/constants/forms";
 import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 import { diff } from "deep-diff";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginName, PluginPackageName, PluginType } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 import { AuthenticationStatus, AuthType } from "entities/Datasource";
 import { get, isArray } from "lodash";
+import store from "store";
+import { getPlugin } from "selectors/entitiesSelector";
+import type { AppState } from "@appsmith/reducers";
 export function isCurrentFocusOnInput() {
   return (
     ["input", "textarea"].indexOf(
@@ -83,12 +86,24 @@ export function getPropertyControlFocusElement(
 export function isDatasourceAuthorizedForQueryCreation(
   datasource: Datasource,
   plugin: Plugin,
+  currentEnvironment = getCurrentEnvironment(),
 ): boolean {
-  const currentEnvironment = getCurrentEnvironment();
-  if (!datasource) return false;
+  if (
+    !datasource ||
+    !datasource.hasOwnProperty("datasourceStorages") ||
+    !datasource.datasourceStorages.hasOwnProperty(currentEnvironment)
+  )
+    return false;
+  const datasourceStorage = datasource.datasourceStorages[currentEnvironment];
+  if (
+    !datasourceStorage ||
+    !datasourceStorage.hasOwnProperty("id") ||
+    !datasourceStorage.hasOwnProperty("datasourceConfiguration")
+  )
+    return false;
   const authType = get(
-    datasource,
-    `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationType`,
+    datasourceStorage,
+    "datasourceConfiguration.authentication.authenticationType",
   );
 
   const isGoogleSheetPlugin = isGoogleSheetPluginDS(plugin?.packageName);
@@ -96,8 +111,8 @@ export function isDatasourceAuthorizedForQueryCreation(
     const isAuthorized =
       authType === AuthType.OAUTH2 &&
       get(
-        datasource,
-        `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationStatus`,
+        datasourceStorage,
+        "datasourceConfiguration.authentication.authenticationStatus",
       ) === AuthenticationStatus.SUCCESS;
     return isAuthorized;
   }
@@ -170,4 +185,23 @@ export function getFormDiffPaths(initialValues: any, currentValues: any) {
     });
   }
   return diffPaths;
+}
+
+/**
+ * Returns mock datasource default table name to be populated in query editor, based on plugin name
+ * @param pluginId string
+ * @returns string
+ */
+export function getSQLPluginsMockTableName(pluginId: string) {
+  const state: AppState = store.getState();
+  const plugin: Plugin | undefined = getPlugin(state, pluginId);
+
+  switch (plugin?.name) {
+    case PluginName.POSTGRES: {
+      return "public.users";
+    }
+    default: {
+      return "";
+    }
+  }
 }

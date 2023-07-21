@@ -4,12 +4,15 @@ import {
   apiPage,
   entityExplorer,
   entityItems,
-  hostPort,
+  tedTestConfig,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Bug #15372 Catch block was not triggering in Safari/firefox", () => {
   it("1. Triggers the catch block when the API hits a 404", () => {
-    apiPage.CreateAndFillApi(hostPort.mockHttpCodeUrl + "404");
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockHttpCodeUrl +
+        "404",
+    );
     jsEditor.CreateJSObject(
       `export default {
       fun: async () => {

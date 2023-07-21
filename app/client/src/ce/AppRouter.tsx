@@ -47,11 +47,14 @@ import UserProfile from "pages/UserProfile";
 import { getCurrentUser } from "actions/authActions";
 import { getCurrentUserLoading } from "selectors/usersSelectors";
 import Setup from "pages/setup";
-import Settings from "@appsmith/pages/AdminSettings";
+import SettingsLoader from "pages/Settings/loader";
 import SignupSuccess from "pages/setup/SignupSuccess";
 import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
-import { fetchFeatureFlagsInit } from "actions/userActions";
+import {
+  fetchFeatureFlagsInit,
+  fetchProductAlertInit,
+} from "actions/userActions";
 import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
@@ -62,6 +65,8 @@ import {
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
 import { initCurrentPage } from "../actions/initActions";
+import Walkthrough from "components/featureWalkthrough";
+import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -101,7 +106,7 @@ export function Routes() {
         }
       />
       <SentryRoute
-        component={Settings}
+        component={SettingsLoader}
         exact
         path={ADMIN_SETTINGS_CATEGORY_PATH}
       />
@@ -132,10 +137,16 @@ function AppRouter(props: {
   getFeatureFlags: () => void;
   getCurrentTenant: () => void;
   initCurrentPage: () => void;
+  fetchProductAlert: () => void;
   safeCrashCode?: ERROR_CODES;
 }) {
-  const { getCurrentTenant, getCurrentUser, getFeatureFlags, initCurrentPage } =
-    props;
+  const {
+    fetchProductAlert,
+    getCurrentTenant,
+    getCurrentUser,
+    getFeatureFlags,
+    initCurrentPage,
+  } = props;
   const tenantIsLoading = useSelector(isTenantLoading);
   const currentUserIsLoading = useSelector(getCurrentUserLoading);
 
@@ -144,6 +155,7 @@ function AppRouter(props: {
     getFeatureFlags();
     getCurrentTenant();
     initCurrentPage();
+    fetchProductAlert();
   }, []);
 
   useBrandingTheme();
@@ -176,8 +188,11 @@ function AppRouter(props: {
           </>
         ) : (
           <>
-            <AppHeader />
-            <Routes />
+            <Walkthrough>
+              <AppHeader />
+              <Routes />
+            </Walkthrough>
+            <ProductAlertBanner />
           </>
         )}
       </Suspense>
@@ -195,6 +210,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   getFeatureFlags: () => dispatch(fetchFeatureFlagsInit()),
   getCurrentTenant: () => dispatch(getCurrentTenant(false)),
   initCurrentPage: () => dispatch(initCurrentPage()),
+  fetchProductAlert: () => dispatch(fetchProductAlertInit()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppRouter);

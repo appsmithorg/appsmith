@@ -9,8 +9,8 @@ import {
   locators,
   propPane,
   entityItems,
+  tedTestConfig,
 } from "../../../../support/Objects/ObjectsCore";
-import datasourceFormData from "../../../../fixtures/datasources.json";
 
 const successMessage = "Successful Trigger";
 const errorMessage = "Unsuccessful Trigger";
@@ -80,7 +80,9 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(true);
 
     // create Api1
-    apiPage.CreateAndFillApi(datasourceFormData.mockApiUrl);
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+    );
 
     clickButtonAndAssertLintError(false);
 
@@ -94,7 +96,9 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(true);
 
     // Re-create Api1
-    apiPage.CreateAndFillApi(datasourceFormData.mockApiUrl);
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+    );
 
     clickButtonAndAssertLintError(false);
   });
@@ -295,7 +299,9 @@ describe("Linting", () => {
         shouldCreateNewJSObj: true,
       },
     );
-    apiPage.CreateAndFillApi(datasourceFormData.mockApiUrl);
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+    );
 
     createMySQLDatasourceQuery();
     agHelper.RefreshPage(); //Since this seems failing a bit
@@ -404,11 +410,11 @@ describe("Linting", () => {
         myFun1 () {
             //	write code here
             //	this.myVar1 = [1,2,3]
-        
+
         },
         async myFun1 () {
             //	use async-await or promises
-            //	await storeValue('varName', 'hello world') 
+            //	await storeValue('varName', 'hello world')
         }
     }`;
 
