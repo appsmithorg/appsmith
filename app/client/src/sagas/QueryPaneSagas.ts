@@ -270,10 +270,10 @@ function* formValueChangeSaga(
     const pluginType = plugin?.type;
     if (
       (!!pluginType && DB_NOT_SUPPORTED.includes(pluginType)) ||
-      (!datasourceStorages.hasOwnProperty(currentEnvironment) &&
-        datasourceStorages[currentEnvironment].hasOwnProperty(
-          "datasourceConfiguration",
-        ))
+      !datasourceStorages.hasOwnProperty(currentEnvironment) ||
+      !datasourceStorages[currentEnvironment].hasOwnProperty(
+        "datasourceConfiguration",
+      )
     ) {
       currentEnvironment = Object.keys(datasourceStorages)[0];
     }
