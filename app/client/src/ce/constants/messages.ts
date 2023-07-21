@@ -1054,7 +1054,7 @@ export const SIGNPOSTING_TOOLTIP = {
   },
   DEPLOY_APPLICATION: {
     content: () =>
-      "Almost there! Deploy your app to see it live and share it with your users.",
+      "Deploy your app to see it live and share it with your users.",
   },
   DOCUMENTATION: {
     content: () => "Open documentation",
