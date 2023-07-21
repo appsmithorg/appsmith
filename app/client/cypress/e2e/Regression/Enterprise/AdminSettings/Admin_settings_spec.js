@@ -53,6 +53,7 @@ describe("Admin settings page", function () {
       stubPricingPage();
       cy.get(".t--settings-category-branding").click();
       cy.url().should("contain", "/settings/branding");
+      cy.get(adminsSettings.brandingSubmitButton).should("be.disabled");
       cy.xpath(adminsSettings.upgrade).click();
       cy.get("@pricingPage").should("be.called");
       cy.wait(2000);

@@ -177,7 +177,12 @@ function SettingsForm(props: SettingsFormProps) {
         />
       </div>
 
-      <Button isDisabled={disabled || !hasDirtyFields} size="md" type="submit">
+      <Button
+        className="t--settings-branding-submit-button"
+        isDisabled={disabled || !hasDirtyFields}
+        size="md"
+        type="submit"
+      >
         Submit
       </Button>
     </Wrapper>
