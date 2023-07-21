@@ -42,13 +42,19 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { Form } from "./DBForm";
+import {
+  getCurrentEnvName,
+  getCurrentEnvironment,
+} from "@appsmith/utils/Environments";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
   updateDatasource: (
     formValues: Datasource,
+    currEditingEnvId: string,
     onSuccess?: ReduxAction<unknown>,
   ) => void;
+  currentEnvironment: string;
   isSaving: boolean;
   applicationId: string;
   datasourceId: string;
@@ -208,12 +214,18 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: this.props.pageId,
       appId: this.props.applicationId,
+      environmentId: getCurrentEnvironment(),
+      environmentName: getCurrentEnvName(),
       pluginName: this.props.pluginName || "",
       pluginPackageName: this.props.pluginPackageName || "",
     });
 
     if (this.props.datasource.id !== TEMP_DATASOURCE_ID) {
-      return this.props.updateDatasource(normalizedValues, onSuccess);
+      return this.props.updateDatasource(
+        normalizedValues,
+        this.props.currentEnvironment,
+        onSuccess,
+      );
     }
 
     this.props.createDatasource(
@@ -1036,8 +1048,11 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     initializeReplayEntity: (id: string, data: any) =>
       dispatch(updateReplayEntity(id, data, ENTITY_TYPE.DATASOURCE)),
-    updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
-      dispatch(updateDatasource(formData, onSuccess)),
+    updateDatasource: (
+      formData: any,
+      currEditingEnvId: string,
+      onSuccess?: ReduxAction<unknown>,
+    ) => dispatch(updateDatasource(formData, currEditingEnvId, onSuccess)),
     createDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
       dispatch(createDatasourceFromForm(formData, onSuccess)),
     toggleSaveActionFlag: (flag: boolean) =>

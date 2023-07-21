@@ -55,7 +55,7 @@ import { snipingModeSelector } from "selectors/editorSelectors";
 import { showConnectGitModal } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
-
+import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
 
@@ -90,6 +90,8 @@ import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import type { NavigationSetting } from "constants/AppConstants";
+import { getUserPreferenceFromStorage } from "@appsmith/utils/Environments";
+import { showEnvironmentDeployInfoModal } from "@appsmith/actions/environmentAction";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 
 const { cloudHosting } = getAppsmithConfigs();
@@ -236,6 +238,7 @@ export function EditorHeader(props: PropsFromRedux) {
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
+  const dsEnvEnabled = useSelector(datasourceEnvEnabled);
 
   const handlePublish = () => {
     if (applicationId) {
@@ -290,7 +293,11 @@ export function EditorHeader(props: PropsFromRedux) {
             : "Application name menu (top left)",
         });
       } else {
-        handlePublish();
+        if (!dsEnvEnabled || getUserPreferenceFromStorage() === "true") {
+          handlePublish();
+        } else {
+          dispatch(showEnvironmentDeployInfoModal());
+        }
       }
     },
     [dispatch, handlePublish],

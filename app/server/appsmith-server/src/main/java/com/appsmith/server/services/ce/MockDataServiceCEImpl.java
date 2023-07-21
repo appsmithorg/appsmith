@@ -125,7 +125,8 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
             HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
 
             return datasourceService
-                    .getTrueEnvironmentId(mockDataSource.getWorkspaceId(), environmentId, mockDataSource.getPluginId())
+                    .getTrueEnvironmentId(
+                            mockDataSource.getWorkspaceId(), environmentId, mockDataSource.getPluginId(), null)
                     .flatMap(trueEnvironmentId -> {
                         storages.put(
                                 trueEnvironmentId,

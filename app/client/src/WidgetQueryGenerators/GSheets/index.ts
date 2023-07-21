@@ -8,6 +8,7 @@ import type {
   ActionConfigurationGSheets,
 } from "WidgetQueryGenerators/types";
 import { removeSpecialChars } from "utils/helpers";
+import { DatasourceConnectionMode } from "entities/Datasource";
 
 enum COMMAND_TYPES {
   "FIND" = "FETCH_MANY",
@@ -254,7 +255,10 @@ export default abstract class GSheets extends BaseQueryGenerator {
         ),
       );
     }
-    if (widgetConfig.update) {
+    if (
+      widgetConfig.update &&
+      formConfig.connectionMode === DatasourceConnectionMode.READ_WRITE
+    ) {
       configs.push(
         this.createPayload(
           initialValues,
@@ -263,7 +267,10 @@ export default abstract class GSheets extends BaseQueryGenerator {
         ),
       );
     }
-    if (widgetConfig.create) {
+    if (
+      widgetConfig.create &&
+      formConfig.connectionMode === DatasourceConnectionMode.READ_WRITE
+    ) {
       configs.push(
         this.createPayload(
           initialValues,
