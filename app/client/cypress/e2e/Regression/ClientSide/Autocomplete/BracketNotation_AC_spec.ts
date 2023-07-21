@@ -35,8 +35,8 @@ describe("Test cases around bracket notation", function () {
       'this["my variable 1"]',
       "contain.text",
     );
-    agHelper.Sleep();
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
+    agHelper.Sleep(2000);
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5), 0, true);
     agHelper.SelectNRemoveLineText(locators._codeMirrorTextArea);
     agHelper.TypeText(locators._codeMirrorTextArea, 'this["');
     agHelper.GetElementsNAssertTextPresence(locators._hints, "my variable 1");
