@@ -87,11 +87,13 @@ jobs:
         run: echo "$STEPS_CONTEXT"
 
       # In case this is second attempt try restoring failed tests
+      - if : steps.run_result.outputs.run_result == 'failedtest'
+        run: echo "failed_spec_artifact=failed-spec-ci-$((${{github.run_attempt}}-1))" >> $GITHUB_ENV
       - name: Restore the previous failed combine result
         if: steps.run_result.outputs.run_result == 'failedtest'
         uses: actions/download-artifact@v3
         with:
-          name: failed-spec-ci-$((${{github.run_attempt}}-1))
+          name: ${{ env.failed_spec_artifact }}
           path: ~/failed_spec_ci
 
       # failed_spec_env will contain list of all failed specs
