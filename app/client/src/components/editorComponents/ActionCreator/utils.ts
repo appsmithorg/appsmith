@@ -217,16 +217,13 @@ export const callBackFieldGetter = (value: string, argNumber = 0) => {
 };
 
 export const genericSetter = (
-  value: string,
-  changeValue: string,
+  codeFragment: string,
+  code: string,
   argNum = 0,
 ) => {
-  changeValue = getCodeFromMoustache(changeValue);
-  if (changeValue === "") {
-    changeValue = "''";
-  }
-  value = stringToJS(value);
-  const funcExpr = setGenericArgAtPostition(value, changeValue, argNum);
+  codeFragment = codeFragment ? stringToJS(codeFragment) : "''";
+  code = getCodeFromMoustache(code);
+  const funcExpr = setGenericArgAtPostition(codeFragment, code, argNum);
   return `{{${funcExpr}}}`;
 };
 
