@@ -15,23 +15,13 @@ jobs:
 
     steps:
       - name: Check for Skip Documentation label
-        id: check_skip_documentation_label
+        id: check_skip_documentation
         uses: docker://agilepathway/pull-request-label-checker:latest
         with:
           # Needs to have a skip documentation label to avoid commenting for the documentation reminder
           any_of: skip-documentation
           repo_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check for "skip-documentation" label
-        id: check_skip_documentation_label
-        run: |
-          pr_number=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")
-          labels=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${pr_number}/labels" | jq -r '.[].name')
-          if [[ "$labels" == *"skip-documentation"* ]]; then
-            echo "::set-output name=skip_documentation::true"
-          fi
-      
       - name: Check PR for documentation files
         id: check_documentation_files
         if: steps.check_skip_documentation.outputs.skip_documentation != 'true'
