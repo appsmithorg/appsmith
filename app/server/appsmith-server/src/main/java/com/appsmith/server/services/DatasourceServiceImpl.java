@@ -122,7 +122,11 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
 
     @Override
     public Mono<String> getTrueEnvironmentId(
-            String workspaceId, String environmentId, String pluginId, AclPermission aclPermission) {
+            String workspaceId,
+            String environmentId,
+            String pluginId,
+            AclPermission aclPermission,
+            boolean isEmbedded) {
         // These two constants should Ideally be moved to constants, but that needs to be added from CE,
         // this is here until we add these in CE repo
         String observationTag = "isDefaultCall";
@@ -130,6 +134,12 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
 
         if (!StringUtils.hasText(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+        }
+
+        if (Boolean.TRUE.equals(isEmbedded)) {
+            // We don't care about any of the other params in this case,
+            // since environments do not apply to an embedded datasource
+            return workspaceService.verifyEnvironmentIdByWorkspaceId(workspaceId, environmentId);
         }
 
         if (!StringUtils.hasText(environmentId)) {
