@@ -21,7 +21,11 @@ describe(
         agHelper.Sleep(500);
 
         dataSources.CreateQueryAfterDSSaved();
-        cy.intercept("GET", dataSources._getStructureReq).as("getDSStructure");
+        cy.wait("@getDatasourceStructure").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
 
         assertHelper.AssertNetworkStatus("@trigger");
         dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
@@ -50,12 +54,18 @@ describe(
     it("2. Create Query from Mock Postgres DB & verify active queries count", () => {
       dataSources.CreateMockDB("Users").then((mockDBName) => {
         dsName = mockDBName;
+
+        cy.wait("@getDatasourceStructure").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
         dataSources.CreateQueryAfterDSSaved();
 
         // This will validate that query populated in editor uses existing table name
         agHelper.VerifyCodeInputValue(
           formControls.postgreSqlBody,
-          "SELECT * FROM public.users LIMIT 10;\n\n",
+          'SELECT * FROM public."users" LIMIT 10;',
         );
 
         dataSources.RunQueryNVerifyResponseViews(10);
