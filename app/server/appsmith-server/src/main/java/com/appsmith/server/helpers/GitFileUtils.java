@@ -571,4 +571,8 @@ public class GitFileUtils {
 
         return applicationJson;
     }
+
+    public Mono<Boolean> deleteIndexLockFile(Path path, int staleTime) {
+        return fileUtils.deleteIndexLockFile(path, staleTime);
+    }
 }

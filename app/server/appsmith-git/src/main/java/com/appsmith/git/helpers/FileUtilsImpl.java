@@ -44,6 +44,8 @@ import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -1066,5 +1068,28 @@ public class FileUtilsImpl implements FileInterface {
         JSONObject pageJSON = new JSONObject(gson.toJson(pageJson));
         JSONArray layouts = pageJSON.getJSONObject("unpublishedPage").getJSONArray("layouts");
         return layouts.getJSONObject(0).getJSONObject("dsl");
+    }
+
+    @Override
+    public Mono<Boolean> deleteIndexLockFile(Path path, int validTime) {
+        // Check the time created of the index.lock file
+        // If the File is stale for more than validTime, then delete the file
+        try {
+            BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
+            FileTime fileTime = attr.creationTime();
+            Instant now = Instant.now();
+            Instant validCreateTime = now.minusSeconds(validTime);
+            if (fileTime.toInstant().isBefore(validCreateTime)) {
+                // Add base repo path
+                path = path.resolve(".git/index.lock");
+                deleteFile(path);
+                return Mono.just(true);
+            } else {
+                return Mono.just(false);
+            }
+        } catch (IOException ex) {
+            log.error("Error reading index.lock file: {}", ex.getMessage());
+            return Mono.just(false);
+        }
     }
 }
