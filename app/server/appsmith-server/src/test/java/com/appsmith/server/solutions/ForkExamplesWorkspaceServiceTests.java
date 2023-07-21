@@ -147,6 +147,9 @@ public class ForkExamplesWorkspaceServiceTests {
     @Autowired
     private PluginService pluginService;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     public Mono<WorkspaceData> loadWorkspaceData(Workspace workspace) {
         final WorkspaceData data = new WorkspaceData();
         data.workspace = workspace;
@@ -161,7 +164,8 @@ public class ForkExamplesWorkspaceServiceTests {
                         getActionsInWorkspace(workspace).map(data.actions::add),
                         getActionCollectionsInWorkspace(workspace).map(data.actionCollections::add),
                         workspaceService
-                                .getDefaultEnvironmentId(workspace.getId())
+                                .getDefaultEnvironmentId(
+                                        workspace.getId(), environmentPermission.getExecutePermission())
                                 .doOnSuccess(signal -> data.defaultEnvironmentId = signal))
                 .thenReturn(data);
     }
@@ -371,7 +375,7 @@ public class ForkExamplesWorkspaceServiceTests {
         newWorkspace.setName("Target Org 1");
         Workspace targetWorkspace = workspaceService.create(newWorkspace).block();
         String sourceEnvironmentId = workspaceService
-                .getDefaultEnvironmentId(sourceWorkspace.getId())
+                .getDefaultEnvironmentId(sourceWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Mono<Void> cloneMono = Mono.just(sourceApplication)
@@ -410,7 +414,8 @@ public class ForkExamplesWorkspaceServiceTests {
                 .thenReturn(Mono.just(new MockPluginExecutor()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
         final Mono<WorkspaceData> resultMono = Mono.zip(
-                        workspaceService.getDefaultEnvironmentId(workspace.getId()),
+                        workspaceService.getDefaultEnvironmentId(
+                                workspace.getId(), environmentPermission.getExecutePermission()),
                         sessionUserService.getCurrentUser(),
                         pluginService.findByPackageName("restapi-plugin").map(Plugin::getId))
                 .flatMap(tuple -> {
@@ -472,7 +477,8 @@ public class ForkExamplesWorkspaceServiceTests {
 
         Workspace workspace = workspaceService.create(newWorkspace).block();
         final Mono<WorkspaceData> resultMono = Mono.zip(
-                        workspaceService.getDefaultEnvironmentId(workspace.getId()),
+                        workspaceService.getDefaultEnvironmentId(
+                                workspace.getId(), environmentPermission.getExecutePermission()),
                         sessionUserService.getCurrentUser())
                 .flatMap(tuple -> {
                     String environmentId = tuple.getT1();
@@ -534,7 +540,8 @@ public class ForkExamplesWorkspaceServiceTests {
 
         Workspace workspace = workspaceService.create(newWorkspace).block();
         final Mono<WorkspaceData> resultMono = Mono.zip(
-                        workspaceService.getDefaultEnvironmentId(workspace.getId()),
+                        workspaceService.getDefaultEnvironmentId(
+                                workspace.getId(), environmentPermission.getExecutePermission()),
                         sessionUserService.getCurrentUser(),
                         pluginService.findByPackageName("restapi-plugin").map(Plugin::getId))
                 .flatMap(tuple -> {
@@ -610,8 +617,9 @@ public class ForkExamplesWorkspaceServiceTests {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
         final Workspace workspace = workspaceService.create(newWorkspace).block();
-        String environmentId =
-                workspaceService.getDefaultEnvironmentId(workspace.getId()).block();
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())
+                .block();
         final User user = sessionUserService.getCurrentUser().block();
 
         final Application app1 = new Application();
@@ -813,7 +821,8 @@ public class ForkExamplesWorkspaceServiceTests {
         targetOrg.setName("Target Org 2");
 
         final Mono<WorkspaceData> resultMono = Mono.zip(
-                        workspaceService.getDefaultEnvironmentId(workspace.getId()),
+                        workspaceService.getDefaultEnvironmentId(
+                                workspace.getId(), environmentPermission.getExecutePermission()),
                         sessionUserService.getCurrentUser())
                 .flatMap(tuple -> {
                     String environmentId = tuple.getT1();
@@ -1047,7 +1056,8 @@ public class ForkExamplesWorkspaceServiceTests {
         targetOrg.setName("Target Org 2");
 
         final Mono<WorkspaceData> resultMono = Mono.zip(
-                        workspaceService.getDefaultEnvironmentId(workspace.getId()),
+                        workspaceService.getDefaultEnvironmentId(
+                                workspace.getId(), environmentPermission.getExecutePermission()),
                         sessionUserService.getCurrentUser())
                 .flatMap(tuple -> {
                     String environmentId = tuple.getT1();

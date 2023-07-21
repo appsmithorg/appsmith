@@ -28,6 +28,7 @@ type WidgetQueryGeneratorFormContextType = {
     tableHeaderIndex: number;
     datasourcePluginType: string;
     datasourcePluginName: string;
+    datasourceConnectionMode: string;
   };
   updateConfig: (
     property: string | Record<string, unknown>,
@@ -49,6 +50,7 @@ const DEFAULT_CONFIG_VALUE = {
   tableHeaderIndex: 1,
   datasourcePluginType: "",
   datasourcePluginName: "",
+  datasourceConnectionMode: "",
 };
 
 const DEFAULT_CONTEXT_VALUE = {
@@ -141,6 +143,7 @@ function WidgetQueryGeneratorForm(props: Props) {
           set(draftConfig, "alias", {});
           set(draftConfig, "datasourcePluginType", "");
           set(draftConfig, "datasourcePluginName", "");
+          set(draftConfig, "datasourceConnectionMode", "");
         }
 
         if (
