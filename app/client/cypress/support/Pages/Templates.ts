@@ -71,7 +71,7 @@ export class Templates {
       });
     }
     cy.intercept("GET", "/api/v1/app-templates/filters").as("fetchFilters");
-    this.agHelper.RefreshPage(false, "fetchFilters");
+    this.agHelper.RefreshPage("fetchFilters");
     this.agHelper.AssertElementVisible(this.locators._templateCard);
   }
 }
