@@ -35,6 +35,7 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
 import type { PluginType } from "entities/Action";
+import { getCurrentEnvName } from "@appsmith/utils/Environments";
 
 interface Props {
   datasource: Datasource;
@@ -43,6 +44,7 @@ interface Props {
   currentEnvironment: string;
   isInvalid: boolean;
   pageId?: string;
+  formName: string;
   viewMode?: boolean;
   shouldRender?: boolean;
   isInsideReconnectModal?: boolean;
@@ -50,7 +52,10 @@ interface Props {
   pluginType: PluginType;
   pluginName: string;
   pluginPackageName: string;
-  setDatasourceViewMode: (viewMode: boolean) => void;
+  setDatasourceViewMode: (payload: {
+    datasourceId: string;
+    viewMode: boolean;
+  }) => void;
   isSaving: boolean;
   isTesting: boolean;
   shouldDisplayAuthMessage?: boolean;
@@ -241,6 +246,8 @@ function DatasourceAuth({
       pageId: pageId,
       appId: applicationId,
       datasourceId: datasourceId,
+      environmentId: currentEnvironment,
+      environmentName: getCurrentEnvName(),
       pluginName: pluginName,
     });
     dispatch(testDatasource(getSanitizedFormData()));
@@ -252,6 +259,8 @@ function DatasourceAuth({
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: pageId,
       appId: applicationId,
+      environmentId: currentEnvironment,
+      environmentName: getCurrentEnvName(),
       pluginName: pluginName || "",
       pluginPackageName: pluginPackageName || "",
     });
@@ -263,6 +272,7 @@ function DatasourceAuth({
       dispatch(
         updateDatasource(
           getSanitizedFormData(),
+          currentEnvironment,
           undefined,
           undefined,
           isInsideReconnectModal,
@@ -287,6 +297,7 @@ function DatasourceAuth({
       dispatch(
         updateDatasource(
           getSanitizedFormData(),
+          currentEnvironment,
           pluginType
             ? redirectAuthorizationCode(pageId, datasourceId, pluginType)
             : undefined,
@@ -344,7 +355,9 @@ function DatasourceAuth({
         <Button
           className="t--save-datasource"
           isDisabled={
-            isInvalid || !isFormDirty || (!createMode && !canManageDatasource)
+            isInvalid ||
+            (!createMode && !isFormDirty) ||
+            (!createMode && !canManageDatasource)
           }
           isLoading={isSaving}
           key={buttonType}

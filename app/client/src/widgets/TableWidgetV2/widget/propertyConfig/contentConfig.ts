@@ -47,6 +47,11 @@ export default [
           },
         },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        shouldSwitchToNormalMode: (
+          isDynamic: boolean,
+          isToggleDisabled: boolean,
+          triggerFlag?: boolean,
+        ) => triggerFlag && isDynamic && !isToggleDisabled,
       },
       {
         helpText: "Columns",
