@@ -91,7 +91,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     table.WaitForTableEmpty();
     agHelper.WaitUntilAllToastsDisappear();
 
-    agHelper.RefreshPage(true, "viewPage");
+    agHelper.RefreshPage("viewPage");
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation dialog"));
     agHelper.AssertElementVisible(
       jsEditor._dialogBody((jsName as string) + ".getEmployee"),

@@ -111,6 +111,11 @@ export class HomePage {
   //   '//span[text()="Rename application"]/ancestor::div[contains(@class,"rc-tooltip")]';
   _appRenameTooltip = "span:contains('Rename application')";
   _importFromGitBtn = "div.t--import-json-card + div";
+  private signupUsername = "input[name='email']";
+  private roleDropdown = ".setup-dropdown:first";
+  private useCaseDropdown = ".setup-dropdown:last";
+  private dropdownOption = ".rc-select-item-option:first";
+  private roleUsecaseSubmit = ".t--get-started-button";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -329,6 +334,28 @@ export class HomePage {
       cy.get(this._homePageAppCreateBtn)
         .should("be.visible")
         .should("be.enabled");
+  }
+
+  public SignUp(uname: string, pswd: string) {
+    this.agHelper.Sleep(); //waiting for window to load
+    cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+    cy.wait("@postLogout");
+    this.agHelper.VisitNAssert("/user/signup", "signUpLogin");
+    cy.get(this.signupUsername).should("be.visible").type(uname);
+    cy.get(this._password).type(pswd, { log: false });
+    cy.get(this._submitBtn).click();
+    cy.wait(1000);
+    cy.get("body").then(($body) => {
+      if ($body.find(this.roleDropdown).length > 0) {
+        cy.get(this.roleDropdown).click();
+        cy.get(this.dropdownOption).click();
+        cy.get(this.useCaseDropdown).click();
+        cy.get(this.dropdownOption).click();
+        cy.get(this.roleUsecaseSubmit).click({ force: true });
+      }
+    });
+    cy.wait("@getMe");
+    this.agHelper.Sleep(3000);
   }
 
   public FilterApplication(appName: string, workspaceId?: string) {

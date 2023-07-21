@@ -1,3 +1,4 @@
+import { DatasourceConnectionMode } from "entities/Datasource";
 import PostgreSQL from ".";
 
 describe("PostgreSQL WidgetQueryGenerator", () => {
@@ -26,6 +27,7 @@ describe("PostgreSQL WidgetQueryGenerator", () => {
         searchableColumn: "title",
         columns: [],
         primaryColumn: "genres",
+        connectionMode: DatasourceConnectionMode.READ_WRITE,
       },
       initialValues,
     );
@@ -80,6 +82,7 @@ OFFSET
         searchableColumn: "title",
         columns: [],
         primaryColumn: "",
+        connectionMode: DatasourceConnectionMode.READ_WRITE,
       },
       initialValues,
     );
@@ -90,6 +93,61 @@ FROM
   someTable
 WHERE
   \"title\" ilike '%{{data_table.searchText || \"\"}}%' {{data_table.sortOrder.column ? "ORDER BY " + data_table.sortOrder.column + "  " + (data_table.sortOrder.order !== "desc" ? "" : "DESC") : ""}}
+LIMIT
+  {{data_table.pageSize}}
+OFFSET
+  {{(data_table.pageNo - 1) * data_table.pageSize}}`;
+
+    expect(expr).toEqual([
+      {
+        name: "Select_someTable",
+        type: "select",
+        dynamicBindingPathList: [
+          {
+            key: "body",
+          },
+        ],
+        payload: {
+          pluginSpecifiedTemplates: [{ value: false }],
+          body: res,
+        },
+      },
+    ]);
+  });
+
+  test("should build select form data correctly without write permissions", () => {
+    const expr = PostgreSQL.build(
+      {
+        select: {
+          limit: "data_table.pageSize",
+          where: 'data_table.searchText || ""',
+          offset: "(data_table.pageNo - 1) * data_table.pageSize",
+          orderBy: "data_table.sortOrder.column",
+          sortOrder: "data_table.sortOrder.order || 'ASC'",
+        },
+        totalRecord: false,
+      },
+      {
+        tableName: "someTable",
+        datasourceId: "someId",
+        aliases: [{ name: "someColumn1", alias: "someColumn1" }],
+        widgetId: "someWidgetId",
+        searchableColumn: "title",
+        columns: [],
+        primaryColumn: "genres",
+        connectionMode: DatasourceConnectionMode.READ_ONLY,
+      },
+      initialValues,
+    );
+
+    const res = `SELECT
+  *
+FROM
+  someTable
+WHERE
+  \"title\" ilike '%{{data_table.searchText || \"\"}}%'
+ORDER BY
+  \"{{data_table.sortOrder.column || 'genres'}}\" {{data_table.sortOrder.order || 'ASC' ? \"\" : \"DESC\"}}
 LIMIT
   {{data_table.pageSize}}
 OFFSET
@@ -129,6 +187,32 @@ OFFSET
         searchableColumn: "title",
         columns: ["id", "name"],
         primaryColumn: "",
+        connectionMode: DatasourceConnectionMode.READ_WRITE,
+      },
+      initialValues,
+    );
+
+    expect(expr).toEqual([]);
+  });
+
+  test("should not build update form data without write permissions ", () => {
+    const expr = PostgreSQL.build(
+      {
+        update: {
+          value: `update_form.fieldState'`,
+          where: `"id" = {{data_table.selectedRow.id}}`,
+        },
+        totalRecord: false,
+      },
+      {
+        tableName: "someTable",
+        datasourceId: "someId",
+        aliases: [{ name: "someColumn1", alias: "someColumn1" }],
+        widgetId: "someWidgetId",
+        searchableColumn: "title",
+        columns: ["id", "name"],
+        primaryColumn: "id",
+        connectionMode: DatasourceConnectionMode.READ_ONLY,
       },
       initialValues,
     );
@@ -153,6 +237,7 @@ OFFSET
         searchableColumn: "title",
         columns: ["id", "name"],
         primaryColumn: "id",
+        connectionMode: DatasourceConnectionMode.READ_WRITE,
       },
       initialValues,
     );
@@ -167,7 +252,7 @@ OFFSET
           },
         ],
         payload: {
-          body: "UPDATE someTable SET \"id\"= '{{update_form.fieldState'.id}}', \"name\"= '{{update_form.fieldState'.name}}' WHERE \"id\"= {{data_table.selectedRow.id}};",
+          body: 'UPDATE someTable SET "name"= \'{{update_form.fieldState\'.name}}\' WHERE "id"= {{data_table.selectedRow.id}};',
           pluginSpecifiedTemplates: [{ value: false }],
         },
       },
@@ -191,9 +276,35 @@ OFFSET
         searchableColumn: "title",
         columns: ["id", "name"],
         primaryColumn: "",
+        connectionMode: DatasourceConnectionMode.READ_WRITE,
       },
       initialValues,
     );
+    expect(expr).toEqual([]);
+  });
+
+  test("should not build insert form data without write permissions ", () => {
+    const expr = PostgreSQL.build(
+      {
+        create: {
+          value: `update_form.fieldState`,
+        },
+        totalRecord: false,
+      },
+      {
+        tableName: "someTable",
+        datasourceId: "someId",
+        // ignore columns
+        aliases: [{ name: "someColumn1", alias: "someColumn1" }],
+        widgetId: "someWidgetId",
+        searchableColumn: "title",
+        columns: ["id", "name"],
+        primaryColumn: "id",
+        connectionMode: DatasourceConnectionMode.READ_ONLY,
+      },
+      initialValues,
+    );
+
     expect(expr).toEqual([]);
   });
 
@@ -214,6 +325,7 @@ OFFSET
         searchableColumn: "title",
         columns: ["id", "name"],
         primaryColumn: "id",
+        connectionMode: DatasourceConnectionMode.READ_WRITE,
       },
       initialValues,
     );
@@ -227,7 +339,7 @@ OFFSET
           },
         ],
         payload: {
-          body: "INSERT INTO someTable (\"id\",\"name\") VALUES ('{{update_form.fieldState.id}}','{{update_form.fieldState.name}}')",
+          body: "INSERT INTO someTable (\"name\") VALUES ('{{update_form.fieldState.name}}')",
           pluginSpecifiedTemplates: [{ value: false }],
         },
       },
