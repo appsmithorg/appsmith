@@ -1,0 +1,73 @@
+name: Documentation Reminder
+on:
+  pull_request:
+    branches: [release]
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+      - unlabeled
+
+jobs:
+  documentation_reminder:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: docker://agilepathway/pull-request-label-checker:latest
+      with:
+          # Needs to have a Test Plan Approved label if not part of any of the pods below
+          any_of: Test Plan Approved,User Education Pod,DevOps Pod,Performance,CI,Release Promotion,skip-testPlan
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for "skip-documentation" label
+        id: check_skip_documentation_label
+        run: |
+          pr_number=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")
+          labels=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${pr_number}/labels" | jq -r '.[].name')
+          if [[ "$labels" == *"skip-documentation"* ]]; then
+            echo "::set-output name=skip_documentation::true"
+          fi
+      
+      - name: Check PR for documentation files
+        id: check_documentation_files
+        if: steps.check_skip_documentation.outputs.skip_documentation != 'true'
+        run: |
+          documentation_file_name="documentation.md"
+          changed_files=$(git diff --name-only)
+          documentation_files=()
+
+          for file in $changed_files; do
+            last_directory=$(dirname "$file")
+            
+            # Check if the directory has been searched already
+            if [[ -n "$SEARCHED_DIRECTORIES" && "$SEARCHED_DIRECTORIES" == *"$last_directory"* ]]; then
+              continue
+            fi
+
+            # Add the last_directory to the search directories variable
+            SEARCHED_DIRECTORIES="$SEARCHED_DIRECTORIES:$last_directory"
+            if [[ -f "$last_directory/$documentation_file_name" ]]; then
+              documentation_files+=("$last_directory/$documentation_file_name")
+            fi
+          done
+
+          echo "::set-output name=documentation_files::${documentation_files[@]}"
+          
+      - name: Comment on PR if documentation files found
+        if: steps.check_skip_documentation.outputs.skip_documentation != 'true' &&
+            steps.check_documentation_files.outputs.documentation_files
+        run: |
+          documentation_files=(${{ steps.check_documentation_files.outputs.documentation_files }})
+
+          for i in "${!documentation_files[@]}"; do
+            documentation_content="$(cat $documentation_files[$i])"
+            comment_body=":warning: **Documentation Reminder**\n\nIt seems that changes have been made in the implementation.:\n\n${documentation_content}\n\nPlease ensure that the corresponding documentation is updated."
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment_body
+            });
+          done
