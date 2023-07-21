@@ -77,8 +77,7 @@ jobs:
             fi
           done
 
-          echo "documentation_contents=${documentation_contents}" >> $GITHUB_OUTPUT
-          echo $documentation_contents
+          echo "documentation_contents=$documentation_contents" >> $GITHUB_OUTPUT
 
       # This step creates a comment on the PR for the documentation reminder.
       - name: Comment on PR if documentation files found
