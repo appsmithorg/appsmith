@@ -1,4 +1,3 @@
-import { matchDatasourcePath } from "constants/routes";
 import type { Log } from "entities/AppsmithConsole";
 import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { isEmpty } from "lodash";
@@ -125,9 +124,6 @@ export const getMessageCount = createSelector(getFilteredErrors, (errors) => {
   errorsCount = errorsCount - warningsCount;
   return { errors: errorsCount, warnings: warningsCount };
 });
-
-export const hideDebuggerIconSelector = () =>
-  matchDatasourcePath(window.location.pathname);
 
 // get selected tab in debugger.
 export const getDebuggerSelectedTab = (state: AppState) =>
