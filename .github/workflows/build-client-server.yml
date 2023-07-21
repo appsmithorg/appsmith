@@ -190,7 +190,7 @@ jobs:
       - name: Delete existing directories
         if: needs.ci-test-limited.result != 'success'
         run: |
-          rm -f ~/failed_spec_ci
+          rm -f ~/failed_spec_ci-${{github.run_attempt}}
           rm -f ~/combined_failed_spec_ci
 
       # Force store previous cypress dashboard url from cache
@@ -289,7 +289,7 @@ jobs:
       - name: Delete existing directories
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
         run: |
-          rm -f ~/failed_spec_ci
+          rm -f ~/failed_spec_ci-${{github.run_attempt}}
           rm -f ~/combined_failed_spec_ci
 
       # Force store previous cypress dashboard url from cache
