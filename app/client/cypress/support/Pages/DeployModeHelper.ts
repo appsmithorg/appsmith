@@ -24,8 +24,8 @@ export class DeployMode {
   private _backtoHome =
     ".t--app-viewer-navigation-header .t--app-viewer-back-to-apps-button";
   private _homeAppsmithImage = "a.t--appsmith-logo";
-  public envInfoModal = `[data-cy="t--env-info-modal"]`;
-  public envInfoModalDeployButton = `[data-cy="t--env-info-modal-deploy-button"]`;
+  public envInfoModal = `[data-testid="t--env-info-modal"]`;
+  public envInfoModalDeployButton = `[data-testid="t--env-info-modal-deploy-button"]`;
 
   //refering PublishtheApp from command.js
   public DeployApp(

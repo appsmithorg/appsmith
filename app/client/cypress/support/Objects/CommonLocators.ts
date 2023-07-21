@@ -262,5 +262,5 @@ export class CommonLocators {
   _svg = "svg";
 
   public ds_editor_env_filter = (envName: string) =>
-    `[data-cy="t--ds-data-filter-${envName}"]`;
+    `[data-testid="t--ds-data-filter-${envName}"]`;
 }
