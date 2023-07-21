@@ -1,5 +1,14 @@
 name: Documentation Reminder
 on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      pr:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
+
   pull_request:
     branches: [release]
     types:
@@ -22,15 +31,37 @@ jobs:
           none_of: skip-documentation
           repo_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check PR for documentation files
-        id: check_documentation_files
+      - name: Checkout the merged commit from PR and base branch
+        if: inputs.pr != 0 && steps.check_skip_documentation.outputs.label_check == 'success'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: refs/pull/${{ inputs.pr }}/merge
+
+      # Checkout the code in the current branch in case the workflow is called because of a branch push event
+      - name: Checkout the head commit of the branch
+        if: inputs.pr == 0 && steps.check_skip_documentation.outputs.label_check == 'success'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # get all the files changes in the app folder
+      - name: Get changed files in the app folder
+        id: changed_files
+        if: steps.check_skip_documentation.outputs.label_check == 'success'
+        uses: umani/changed-files@v4.0.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          pattern: "app/.*"
+
+      - name: Check PR for documentation files and get contents for all
+        id: get_documentation_files_content
         if: steps.check_skip_documentation.outputs.label_check == 'success'
         run: |
           documentation_file_name="documentation.md"
-          changed_files=$(git diff --name-only)
-          documentation_files=()
+          documentation_contents=()
 
-          for file in $changed_files; do
+          for file in ${{ steps.changed_files.outputs.files_updated }} ${{ steps.changed_files.outputs.files_deleted }} ${{steps.changed_files.outputs.files_created}}; do
             last_directory=$(dirname "$file")
             
             # Check if the directory has been searched already
@@ -41,26 +72,24 @@ jobs:
             # Add the last_directory to the search directories variable
             SEARCHED_DIRECTORIES="$SEARCHED_DIRECTORIES:$last_directory"
             if [[ -f "$last_directory/$documentation_file_name" ]]; then
-              documentation_files+=("$last_directory/$documentation_file_name")
+              file_name="$last_directory/$documentation_file_name"
+              documentation_contents+=("$(cat "$file_name")\n\n\n")
             fi
           done
 
-          echo "::set-output name=documentation_files::${documentation_files[@]}"
+          echo ${documentation_contents}
 
+          echo "::set-output name=documentation_contents::${documentation_contents[@]}"
 
+      # This step creates a comment on the PR for the documentation reminder.
       - name: Comment on PR if documentation files found
-        if: steps.check_skip_documentation.outputs.label_check == 'success' &&
-            steps.check_documentation_files.outputs.documentation_files
-        run: |
-          documentation_files=(${{ steps.check_documentation_files.outputs.documentation_files }})
-
-          for i in "${!documentation_files[@]}"; do
-            documentation_content="$(cat $documentation_files[$i])"
-            comment_body=":warning: **Documentation Reminder**\n\nIt seems that changes have been made in the implementation.:\n\n${documentation_content}\n\nPlease ensure that the corresponding documentation is updated."
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment_body
-            });
-          done
+        if: steps.check_skip_documentation.outputs.label_check == 'success' && steps.get_documentation_files_content.outputs.documentation_contents
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            :warning: **Documentation Reminder**\n\nIt seems that changes have been made in the implementation.:\n\n
+            ------
+            ${steps.get_documentation_files_content.outputs.documentation_contents}
+            ------
+            \n\nPlease ensure that the corresponding documentation is updated.
