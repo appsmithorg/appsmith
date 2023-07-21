@@ -1071,7 +1071,7 @@ public class FileUtilsImpl implements FileInterface {
     }
 
     @Override
-    public Mono<Boolean> deleteIndexLockFile(Path path, int validTime) {
+    public Mono<Long> deleteIndexLockFile(Path path, int validTime) {
         // Check the time created of the index.lock file
         // If the File is stale for more than validTime, then delete the file
         try {
@@ -1083,13 +1083,13 @@ public class FileUtilsImpl implements FileInterface {
                 // Add base repo path
                 path = path.resolve(".git/index.lock");
                 deleteFile(path);
-                return Mono.just(true);
+                return Mono.just(now.minusMillis(fileTime.toMillis()).toEpochMilli());
             } else {
-                return Mono.just(false);
+                return Mono.just(0L);
             }
         } catch (IOException ex) {
             log.error("Error reading index.lock file: {}", ex.getMessage());
-            return Mono.just(false);
+            return Mono.just(0L);
         }
     }
 }

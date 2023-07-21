@@ -74,5 +74,5 @@ public interface FileInterface {
      */
     Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException;
 
-    Mono<Boolean> deleteIndexLockFile(Path path, int validTime);
+    Mono<Long> deleteIndexLockFile(Path path, int validTime);
 }
