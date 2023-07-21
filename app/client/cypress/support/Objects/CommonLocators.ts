@@ -14,6 +14,7 @@ export class CommonLocators {
   _emptyCanvasCta = "[data-testid='canvas-ctas']";
   _dsName = ".t--edit-datasource-name span";
   _dsNameTxt = ".t--edit-datasource-name input";
+  _tableRecordsContainer = ".show-page-items";
   _widgetName = (widgetName: string) =>
     ".editable-text-container:contains('" +
     widgetName +
@@ -262,4 +263,7 @@ export class CommonLocators {
   _adsV2CollapsibleHeader = ".ads-v2-collapsible__header";
   _adsV2Text = ".ads-v2-text";
   _svg = "svg";
+
+  public ds_editor_env_filter = (envName: string) =>
+    `[data-cy="t--ds-data-filter-${envName}"]`;
 }
