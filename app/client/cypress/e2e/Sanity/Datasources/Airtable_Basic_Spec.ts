@@ -27,16 +27,22 @@ describe.skip("excludeForAirgap", "Validate Airtable Ds", () => {
       "List records",
     );
 
-    agHelper.EnterValue(tedTestConfig.AirtableBase, {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Base ID ",
-    });
-    agHelper.EnterValue(tedTestConfig.AirtableTable, {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Table name",
-    });
+    agHelper.EnterValue(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].AirtableBase,
+      {
+        propFieldName: "",
+        directInput: false,
+        inputFieldName: "Base ID ",
+      },
+    );
+    agHelper.EnterValue(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].AirtableTable,
+      {
+        propFieldName: "",
+        directInput: false,
+        inputFieldName: "Table name",
+      },
+    );
 
     dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
