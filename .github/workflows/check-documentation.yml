@@ -14,10 +14,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: docker://agilepathway/pull-request-label-checker:latest
-      with:
-          # Needs to have a Test Plan Approved label if not part of any of the pods below
-          any_of: Test Plan Approved,User Education Pod,DevOps Pod,Performance,CI,Release Promotion,skip-testPlan
+      - name: Check for Skip Documentation label
+        id: check_skip_documentation_label
+        uses: docker://agilepathway/pull-request-label-checker:latest
+        with:
+          # Needs to have a skip documentation label to avoid commenting for the documentation reminder
+          any_of: skip-documentation
           repo_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check for "skip-documentation" label
