@@ -110,6 +110,7 @@ jobs:
           done < ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
           failed_spec_env=${failed_spec_env#,}
           echo "failed_spec_env=$failed_spec_env" >> $GITHUB_ENV
+          rm -r ~/failed_spec_ci
 
       - if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         run: echo "Starting full run" && exit 0
@@ -390,7 +391,7 @@ jobs:
       - name: Create directory for failed tests
         if: always()
         run: |
-          mkdir -p  ~/failed_spec_ci
+          mkdir -p ~/failed_spec_ci
 
       # add list failed tests to a file
       - name: In case of test failures copy them to a file
