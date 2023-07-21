@@ -14,6 +14,7 @@ import {
 import { Option, Select, Text } from "design-system";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
   display: flex;
@@ -30,9 +31,14 @@ const Wrapper = styled.div`
 type Props = {
   defaultEnvironment?: EnvironmentType;
   environmentList: Array<EnvironmentType>;
+  viewMode?: boolean;
 };
 
-const SwitchEnvironment = ({ defaultEnvironment, environmentList }: Props) => {
+const SwitchEnvironment = ({
+  defaultEnvironment,
+  environmentList,
+  viewMode,
+}: Props) => {
   // state to store the selected environment
   const [selectedEnv, setSelectedEnv] = useState(defaultEnvironment);
   useEffect(() => {
@@ -49,6 +55,13 @@ const SwitchEnvironment = ({ defaultEnvironment, environmentList }: Props) => {
   // function to set the selected environment
   const setSelectedEnvironment = (env: EnvironmentType) => {
     if (env.id !== selectedEnv?.id) {
+      AnalyticsUtil.logEvent("SWITCH_ENVIRONMENT", {
+        fromEnvId: selectedEnv?.id,
+        toEnvId: env.id,
+        fromEnvName: selectedEnv?.name,
+        toEnvName: env.name,
+        mode: viewMode ? "VIEW" : "EDIT",
+      });
       const queryParams = new URLSearchParams(window.location.search);
       // Set new or modify existing parameter value.
       queryParams.set(ENVIRONMENT_QUERY_KEY, env.name.toLowerCase());

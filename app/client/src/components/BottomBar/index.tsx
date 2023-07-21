@@ -25,26 +25,28 @@ const Wrapper = styled.div`
   justify-content: space-between;
 `;
 
-export default function BottomBar(props: { className?: string }) {
+export default function BottomBar({ viewMode }: { viewMode: boolean }) {
   return (
-    <Container className={props.className ?? ""}>
+    <Container>
       <Wrapper>
-        <SwitchEnvironment />
-        <QuickGitActions />
+        <SwitchEnvironment viewMode={viewMode} />
+        {!viewMode && <QuickGitActions />}
       </Wrapper>
-      <Wrapper>
-        <ManualUpgrades showTooltip>
-          <Button
-            className="t--upgrade"
-            isIconButton
-            kind="tertiary"
-            size="md"
-            startIcon="upgrade"
-          />
-        </ManualUpgrades>
-        <DebuggerTrigger />
-        <HelpButton />
-      </Wrapper>
+      {!viewMode && (
+        <Wrapper>
+          <ManualUpgrades showTooltip>
+            <Button
+              className="t--upgrade"
+              isIconButton
+              kind="tertiary"
+              size="md"
+              startIcon="upgrade"
+            />
+          </ManualUpgrades>
+          <DebuggerTrigger />
+          <HelpButton />
+        </Wrapper>
+      )}
     </Container>
   );
 }

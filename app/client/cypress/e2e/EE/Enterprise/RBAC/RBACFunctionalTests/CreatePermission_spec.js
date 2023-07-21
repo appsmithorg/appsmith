@@ -344,8 +344,11 @@ describe("Create Permission flow ", function () {
     // verify user is able to create new api
     cy.get("[data-testid='t--file-operation']").first().click({ force: true });
     cy.generateUUID().then((uid) => {
-      APIName = uid;
-      apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl, APIName);
+      APIName = `q${uid}`;
+      apiPage.CreateAndFillApi(
+        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+        APIName,
+      );
     });
     cy.SaveAndRunAPI();
     cy.ResponseStatusCheck("200");

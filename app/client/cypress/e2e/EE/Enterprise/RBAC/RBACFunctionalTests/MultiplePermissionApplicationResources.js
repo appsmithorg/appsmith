@@ -88,7 +88,9 @@ describe("Multiple Permission flow ", function () {
           cy.CreateAppForWorkspace(workspaceName2, appName2);
           cy.NavigateToAPI_Panel();
           cy.CreateAPI(APIName);
-          cy.enterDatasource(tedTestConfig.mockApiUrl);
+          cy.enterDatasource(
+            tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+          );
           cy.SaveAndRunAPI();
           cy.ResponseStatusCheck("200");
           cy.createJSObject('return "Success";');

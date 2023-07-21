@@ -11,7 +11,6 @@ import { stopEventPropagation } from "utils/AppsmithUtils";
 import {
   getDebuggerSelectedTab,
   getMessageCount,
-  hideDebuggerIconSelector,
   showDebuggerFlag,
 } from "selectors/debuggerSelectors";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
@@ -29,7 +28,6 @@ export function DebuggerTrigger() {
   const showDebugger = useSelector(showDebuggerFlag);
   const selectedTab = useSelector(getDebuggerSelectedTab);
   const messageCounters = useSelector(getMessageCount);
-  const hideDebuggerIcon = useSelector(hideDebuggerIconSelector);
 
   useEffect(() => {
     dispatch(setErrorCount(messageCounters.errors));
@@ -62,8 +60,6 @@ export function DebuggerTrigger() {
           messageCounters.errors > 1 ? "errors" : "error"
         }`
       : `No errors`;
-
-  if (hideDebuggerIcon) return null;
 
   return (
     <Tooltip content={tooltipContent}>
