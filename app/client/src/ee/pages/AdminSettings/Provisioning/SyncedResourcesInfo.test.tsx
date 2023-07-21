@@ -46,12 +46,10 @@ describe("SyncedResourcesInfo", () => {
     expect(links).toHaveLength(2);
 
     // Verify the link properties
-    expect(links[0]).toHaveAttribute("target", "_self");
     expect(links[0]).toHaveAttribute(
       "href",
       "/settings/users?provisioned=true",
     );
-    expect(links[1]).toHaveAttribute("target", "_self");
     expect(links[1]).toHaveAttribute(
       "href",
       "/settings/groups?provisioned=true",

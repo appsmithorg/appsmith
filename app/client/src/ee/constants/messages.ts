@@ -234,11 +234,11 @@ export const GENERATE_API_KEY = () => "Generate API key";
 export const RECONFIGURE_API_KEY = () => "Re-configure API key";
 export const DISABLE_SCIM = () => "Disable SCIM";
 export const LAST_SYNC_MESSAGE = (lastUpdated: string) =>
-  `Last sync happened ${`${lastUpdated} ago` || "never happened"}`;
+  `Last sync ${lastUpdated ? `happened ${lastUpdated} ago` : "never happened"}`;
 export const DISABLE_SCIM_MODAL_TITLE = () => "Disable SCIM config";
 export const DISABLE_SCIM_MODAL_BUTTON = () => "Disable this SCIM config";
 export const RADIO_GROUP_HEADING = () =>
-  "Before disabling this config, choose one of the below options*";
+  "Before disabling this config, choose one of the below options";
 export const DISABLE_SCIM_MODAL_CONFIRMATION = () => "I understand and confirm";
 export const CONNECTION_INACTIVE_CALLOUT_ON_MODAL = () =>
   "This connection will be disabled. Any updates in your IdP will not sync with Appsmith.";
@@ -248,7 +248,7 @@ export const REMOVE_RESOURCES_CALLOUT_ON_MODAL = (
   userCount: number,
   groupCount: number,
 ) =>
-  `You have chosen to remove ${groupCount} groups and ${userCount} users in Appsmith via this connection.`;
+  `You have chosen to remove ${userCount} users and ${groupCount} groups in Appsmith via this connection.`;
 export const KEEP_PROVISIONED_RESOURCES = () =>
   "Keep users and groups from this connection";
 export const REMOVE_PROVISIONED_RESOURCES = () =>

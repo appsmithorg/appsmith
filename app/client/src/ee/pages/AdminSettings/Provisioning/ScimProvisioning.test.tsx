@@ -94,9 +94,7 @@ describe("ScimProvisioning", () => {
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
       "dummy title",
     );
-    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
-      "dummy subtext",
-    );
+    expect(screen.queryByRole("heading", { level: 2 })).not.toBeInTheDocument();
   });
 
   it("should render the connected status when configured", async () => {
@@ -127,6 +125,14 @@ describe("ScimProvisioning", () => {
         configuredStatus: false,
       },
     });
+
+    // Assert the title and subText are correctly displayed
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
+      "dummy title",
+    );
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
+      "dummy subtext",
+    );
 
     // Assert that the callout is displayed
     expect(screen.getByTestId("scim-callout")).toBeInTheDocument();

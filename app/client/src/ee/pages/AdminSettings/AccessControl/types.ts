@@ -47,6 +47,7 @@ export type RoleTreeProps = {
 export type BaseGroupRoleProps = BaseAclProps & {
   autoCreated?: boolean;
   userPermissions?: string[];
+  isProvisioned?: boolean;
 };
 
 export type ActiveAllGroupsProps = {
@@ -65,6 +66,7 @@ export type ActiveAllGroupsProps = {
 export type UsersInGroup = {
   id: string;
   username: string;
+  isProvisioned?: boolean;
 };
 
 export type GroupProps = BaseAclProps & {
@@ -74,6 +76,7 @@ export type GroupProps = BaseAclProps & {
   userPermissions?: string[];
   isNew?: boolean;
   description?: string;
+  isProvisioned?: boolean;
 };
 
 export type GroupEditProps = {
@@ -132,6 +135,7 @@ export type UserProps = BaseAclProps & {
   username: string;
   userPermissions?: string[];
   photoId?: string;
+  isProvisioned?: boolean;
 };
 
 export type UserEditProps = {

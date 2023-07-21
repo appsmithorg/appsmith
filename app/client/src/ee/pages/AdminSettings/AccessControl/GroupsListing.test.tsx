@@ -6,6 +6,7 @@ import { userGroupTableData } from "./mocks/UserGroupListingMock";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
 import userEvent from "@testing-library/user-event";
+import type { GroupProps } from "./types";
 
 let container: any = null;
 
@@ -108,6 +109,25 @@ describe("<GroupListing />", () => {
     await waitFor(() => {
       const filtered = screen.queryAllByText("Eng_New");
       return expect(filtered).toHaveLength(0);
+    });
+  });
+  it("should render link-unlink icon for provisioned groups", () => {
+    renderComponent();
+    const group = screen.getAllByTestId("t--usergroup-cell");
+    userGroupTableData.forEach((r: GroupProps, index: number) => {
+      if (r?.isProvisioned) {
+        expect(
+          group[index].querySelectorAll(
+            "[data-testid='t--provisioned-resource']",
+          ),
+        ).not.toHaveLength(1);
+      } else {
+        expect(
+          group[index].querySelectorAll(
+            "[data-testid='t--provisioned-resource']",
+          ),
+        ).toHaveLength(0);
+      }
     });
   });
   it("should delete the group when Delete list menu item is clicked", async () => {

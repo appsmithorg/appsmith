@@ -117,21 +117,19 @@ export function GroupListing() {
       Header: `Groups (${data.length})`,
       accessor: "name",
       Cell: function GroupCell(cellProps: any) {
+        const { id, isProvisioned, name } = cellProps.cell.row.original;
         return (
           <Link
             data-testid="t--usergroup-cell"
             to={adminSettingsCategoryUrl({
               category: SettingCategories.GROUPS_LISTING,
-              selected: cellProps.cell.row.original.id,
+              selected: id,
             })}
           >
             <CellContainer>
-              <HighlightText
-                highlight={searchValue}
-                text={cellProps.cell.row.original.name}
-              />
-              {cellProps.cell.row.original.provisioned && (
-                <Icon name="link-unlink" />
+              <HighlightText highlight={searchValue} text={name} />
+              {isProvisioned && (
+                <Icon data-tesid="t--provisioned-resource" name="link-unlink" />
               )}
             </CellContainer>
           </Link>

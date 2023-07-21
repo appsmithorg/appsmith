@@ -19,7 +19,6 @@ import {
   REMOVE_RESOURCES_CALLOUT_ON_MODAL,
   CONNECTION_INACTIVE_CALLOUT_ON_MODAL,
   createMessage,
-  DISABLE_SCIM,
   DISABLE_SCIM_MODAL_BUTTON,
   DISABLE_SCIM_MODAL_CONFIRMATION,
   KEEP_PROVISIONED_RESOURCES,
@@ -27,10 +26,13 @@ import {
   REMOVE_PROVISIONED_RESOURCES,
   KEEP_RESOURCES_SUB_TEXT_ON_MODAL,
   REMOVE_RESOURCES_SUB_TEXT_ON_MODAL,
+  DISABLE_SCIM_MODAL_TITLE,
 } from "@appsmith/constants/messages";
 import type { DisableScimModalProps } from "./types";
 import { disconnectProvisioning } from "@appsmith/actions/provisioningActions";
 import { useDispatch } from "react-redux";
+import { StyledAsterisk } from "pages/Settings/FormGroup/Common";
+import { useHistory } from "react-router";
 
 const StyledRadioGroup = styled(RadioGroup)`
   gap: var(--ads-v2-spaces-3);
@@ -48,12 +50,16 @@ const Container = styled.div`
 `;
 
 const Connected = styled.div`
-  padding-bottom: 24px;
+  padding-bottom: 16px;
   border-bottom: 1px solid var(--ads-v2-color-border);
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+`;
+
+const Heading = styled.div`
+  display: flex;
 `;
 
 const DisableScimModal = (props: DisableScimModalProps) => {
@@ -61,10 +67,12 @@ const DisableScimModal = (props: DisableScimModalProps) => {
   const [selectedOption, setSelectedOption] = useState("");
   const [confirmationCheck, setConfirmationCheck] = useState(false);
   const dispatch = useDispatch();
+  const history = useHistory();
   const { isModalOpen, provisioningDetails, setIsModalOpen } = props;
   const { provisionedGroups, provisionedUsers, provisionStatus } =
     provisioningDetails;
-  const showFinalScreen = nextScreen || provisionStatus === "inactive";
+  const showFinalScreen =
+    nextScreen || (provisionedUsers === 0 && provisionedGroups === 0);
 
   useEffect(() => {
     setSelectedOption("");
@@ -77,6 +85,7 @@ const DisableScimModal = (props: DisableScimModalProps) => {
         disconnectProvisioning(selectedOption === "keep" ? true : false),
       );
       setIsModalOpen(false);
+      history.push("/settings/provisioning");
     }
   };
 
@@ -86,9 +95,9 @@ const DisableScimModal = (props: DisableScimModalProps) => {
       open={isModalOpen}
     >
       <ModalContent style={{ width: "640px" }}>
-        <ModalHeader>{createMessage(DISABLE_SCIM)}</ModalHeader>
+        <ModalHeader>{createMessage(DISABLE_SCIM_MODAL_TITLE)}</ModalHeader>
         <ModalBody>
-          {provisionStatus === "inactive" && (
+          {provisionedUsers === 0 && provisionedGroups === 0 && (
             <Container>
               <Callout kind={"warning"}>
                 {createMessage(CONNECTION_INACTIVE_CALLOUT_ON_MODAL)}
@@ -104,7 +113,10 @@ const DisableScimModal = (props: DisableScimModalProps) => {
               </Connected>
               {!nextScreen ? (
                 <>
-                  <Text>{createMessage(RADIO_GROUP_HEADING)}</Text>
+                  <Heading>
+                    <Text>{createMessage(RADIO_GROUP_HEADING)}</Text>&nbsp;
+                    <StyledAsterisk renderAs="span">*</StyledAsterisk>
+                  </Heading>
                   <StyledRadioGroup
                     onChange={(val: string) => setSelectedOption(val)}
                     value={selectedOption}
@@ -154,7 +166,7 @@ const DisableScimModal = (props: DisableScimModalProps) => {
         <ModalFooter>
           <Button
             className="t--role-modal-save"
-            endIcon="arrow-right-line"
+            {...(showFinalScreen ? {} : { endIcon: "arrow-right-line" })}
             isDisabled={
               showFinalScreen
                 ? !confirmationCheck

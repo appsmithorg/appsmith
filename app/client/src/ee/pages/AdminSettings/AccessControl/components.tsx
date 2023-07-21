@@ -75,9 +75,7 @@ export const StyledTabs = styled(Tabs)`
   }
 `;
 
-export const MoreInfoPill = styled(Tag)`
-  margin: 0px 0px 0px 8px;
-`;
+export const MoreInfoPill = styled(Tag)``;
 
 export const StyledSearchInput = styled(SearchInput)`
   display: flex;

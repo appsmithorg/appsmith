@@ -3,7 +3,7 @@ import "@testing-library/jest-dom";
 import { fireEvent, render, screen, waitFor } from "test/testUtils";
 import { GroupAddEdit } from "./GroupAddEdit";
 import { userGroupTableData } from "./mocks/UserGroupListingMock";
-import type { BaseGroupRoleProps, GroupEditProps } from "./types";
+import type { BaseGroupRoleProps, GroupEditProps, UsersInGroup } from "./types";
 import * as selectors from "@appsmith/selectors/aclSelectors";
 import { mockGroupPermissions } from "./mocks/mockSelectors";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
@@ -125,6 +125,37 @@ describe("<GroupAddEdit />", () => {
       expect(tabCount.map((tab) => tab.textContent)).toEqual(
         mockedSearchResults,
       );
+    });
+  });
+  it("should display provisioned resource with link-unlink icons", () => {
+    const selectedGroup = userGroupTableData[1];
+    const props = {
+      selected: selectedGroup,
+      onDelete: jest.fn(),
+      isLoading: false,
+      isEditing: false,
+    };
+    render(<GroupAddEdit {...props} />);
+    const tabs = screen.getAllByRole("tab");
+    expect(tabs.length).toEqual(2);
+    const usersData = userGroupTableData[1].users;
+    const usersRow = screen.queryAllByTestId("t--user-row");
+    expect(usersData.length).toEqual(usersRow.length);
+
+    usersData.map((user: UsersInGroup, index: number) => {
+      if (user?.isProvisioned) {
+        expect(
+          usersRow[index].querySelectorAll(
+            "[data-testid='t--provisioned-resource']",
+          ),
+        ).toHaveLength(1);
+      } else {
+        expect(
+          usersRow[index].querySelectorAll(
+            "[data-testid='t--provisioned-resource']",
+          ),
+        ).toHaveLength(0);
+      }
     });
   });
   it("should display active and all roles properly with icons for default roles", () => {

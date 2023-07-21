@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import styled from "styled-components";
-import { Button, Callout, Icon, Text, Tooltip } from "design-system";
+import { Button, Callout, Icon, Link, Text, Tooltip } from "design-system";
 import { BackButton } from "components/utils/helperComponents";
 import {
   BottomSpace,
@@ -44,6 +44,7 @@ import { howMuchTimeBeforeText } from "utils/helpers";
 const StyledSettingsHeader = styled(SettingsHeader)`
   display: flex;
   gap: var(--ads-v2-spaces-3);
+  align-items: center;
 `;
 
 const CalloutList = styled.ol`
@@ -93,6 +94,11 @@ const ConnectionInfo = styled.div`
 const ConnectionStatus = styled.div`
   display: flex;
   gap: var(--ads-v2-spaces-3);
+`;
+
+const StyledCallout = styled(Callout)`
+  position: relative;
+  top: -8px;
 `;
 
 const CalloutContent = () => {
@@ -180,14 +186,15 @@ export const ScimProvisioning = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (configuredStatus) {
-      dispatch(fetchProvisioningStatus());
-    }
+    dispatch(fetchProvisioningStatus());
   }, [configuredStatus]);
 
   const generateApiKey = () => {
     setIsButtonClicked(true);
     dispatch(generateProvisioningApiKey());
+    if (configuredStatus) {
+      dispatch(fetchProvisioningStatus());
+    }
   };
 
   return (
@@ -206,10 +213,18 @@ export const ScimProvisioning = () => {
               placement="bottom"
               trigger="hover"
             >
-              <Icon name="book-line" size="md" />
+              <span>
+                <Link
+                  endIcon="book-line"
+                  target="_blank"
+                  to={GOOGLE_SIGNUP_SETUP_DOC}
+                >
+                  {""}
+                </Link>
+              </span>
             </Tooltip>
           </StyledSettingsHeader>
-          {details?.subText && (
+          {details?.subText && !configuredStatus && (
             <SettingsSubHeader
               color="var(--ads-v2-color-fg-emphasis)"
               kind="body-m"
@@ -259,9 +274,9 @@ export const ScimProvisioning = () => {
                   title={createMessage(API_KEY_TO_SETUP_SCIM)}
                   value={apiKey}
                 />
-                <Callout kind={"warning"}>
+                <StyledCallout kind={"warning"}>
                   {createMessage(COPY_PASTE_API_KEY_CALLOUT)}
-                </Callout>
+                </StyledCallout>
               </div>
             ) : (
               <>

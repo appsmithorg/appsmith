@@ -225,7 +225,7 @@ export function UserListing() {
       accessor: "username",
       Cell: function UserCell(cellProps: any) {
         const { username } = cellProps.cell.row.values;
-        const { id, photoId, provisioned } = cellProps.cell.row.original;
+        const { id, isProvisioned, photoId } = cellProps.cell.row.original;
         return (
           <Link
             className="user-email-link"
@@ -257,7 +257,9 @@ export function UserListing() {
                 userName={username}
               />
               <HighlightText highlight={searchValue} text={username} />
-              {provisioned && <Icon name="link-unlink" />}
+              {isProvisioned && (
+                <Icon data-tesid="t--provisioned-resource" name="link-unlink" />
+              )}
             </CellContainer>
           </Link>
         );

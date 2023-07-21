@@ -52,6 +52,7 @@ const EachGroup = styled.div`
   align-items: center;
   width: 100%;
   cursor: pointer;
+  gap: var(--ads-v2-spaces-4);
 
   &:hover {
     .remixicon-icon {
@@ -59,15 +60,15 @@ const EachGroup = styled.div`
     }
   }
 
-  .remixicon-icon {
+  .remixicon-icon-add,
+  .remixicon-icon-subtract {
     visibility: hidden;
-    margin-right: 12px;
   }
 
   &.added {
     background: var(--ads-v2-color-bg-success);
 
-    .remixicon-icon {
+    .remixicon-icon-add {
       visibility: visible;
     }
   }
@@ -75,7 +76,7 @@ const EachGroup = styled.div`
   &.removed {
     background: var(--ads-v2-color-bg-error);
 
-    .remixicon-icon {
+    .remixicon-icon-subtract {
       visibility: visible;
     }
   }
@@ -183,6 +184,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
               >
                 {hasPermission ? (
                   <Icon
+                    className="remixicon-icon-subtract"
                     color="var(--ads-v2-color-fg-error)"
                     name="subtract-line"
                   />
@@ -207,6 +209,12 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
                   >
                     {createMessage(DEFAULT_ROLES_PILL)}
                   </MoreInfoPill>
+                )}
+                {group?.isProvisioned && (
+                  <Icon
+                    data-testid="t--provisioned-resource"
+                    name="link-unlink"
+                  />
                 )}
               </EachGroup>
             );
@@ -246,6 +254,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
                   onClick={() => handleOnAddRoles(group)}
                 >
                   <Icon
+                    className="remixicon-icon-add"
                     color="var(--ads-v2-color-fg-success)"
                     name="add-line"
                   />

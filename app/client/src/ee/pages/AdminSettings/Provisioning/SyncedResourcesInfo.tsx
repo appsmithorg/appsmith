@@ -11,20 +11,12 @@ const SyncedResourcesInfo = (props: ScimProps) => {
   const { provisioningDetails } = props;
   return (
     <Container data-testid="synced-resources-info">
-      <Link
-        startIcon="user-3-line"
-        target="_self"
-        to="/settings/users?provisioned=true"
-      >
+      <Link startIcon="user-3-line" to="/settings/users?provisioned=true">
         {`${provisioningDetails.provisionedUsers} users`}
       </Link>
       &nbsp;
       <Text>and</Text>&nbsp;
-      <Link
-        startIcon="group-line"
-        target="_self"
-        to="/settings/groups?provisioned=true"
-      >
+      <Link startIcon="group-line" to="/settings/groups?provisioned=true">
         {`${provisioningDetails.provisionedGroups} groups`}
       </Link>
       &nbsp;
