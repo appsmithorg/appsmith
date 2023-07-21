@@ -52,8 +52,8 @@ export const StyledText = styled.div<StyledTextProp>`
         return "var(--color-fg-neutral)";
       case color === "positive":
         return "var(--color-fg-positive)";
-      case color === "warn":
-        return "var(--color-fg-warn)";
+      case color === "warning":
+        return "var(--color-fg-warning)";
       case color === "negative":
         return "var(--color-fg-negative)";
       default:
