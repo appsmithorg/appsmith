@@ -40,6 +40,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
@@ -100,6 +101,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
     private final TransactionalOperator transactionalOperator;
+
+    private final PermissionGroupService permissionGroupService;
 
     public static final Integer EVALUATION_VERSION = 2;
 
@@ -1215,15 +1218,24 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
             Mono<Set<CustomJSLibApplicationDTO>> publishedJSLibDTOsMono,
             String applicationId,
             boolean isPublishedManually) {
+
+        Mono<String> publicPermissionGroupIdMono =
+                permissionGroupService.getPublicPermissionGroupId().cache();
         return Mono.zip(
                         publishApplicationAndPages,
                         publishedActionsFlux,
                         publishedActionsCollectionFlux,
                         // not using existing applicationMono because we need the latest Application after published
                         applicationService.findById(applicationId, applicationPermission.getEditPermission()),
-                        publishedJSLibDTOsMono)
+                        publishedJSLibDTOsMono,
+                        publicPermissionGroupIdMono)
                 .flatMap(objects -> {
                     Application application = objects.getT4();
+                    String publicPermissionGroupId = objects.getT6();
+                    boolean isApplicationPublic = permissionGroupService.isEntityAccessible(
+                            application,
+                            applicationPermission.getReadPermission().getValue(),
+                            publicPermissionGroupId);
                     Map<String, Object> extraProperties = new HashMap<>();
                     extraProperties.put("pageCount", objects.getT1().size());
                     Map<PluginType, Collection<NewAction>> pluginTypeCollectionMap = objects.getT2();
@@ -1247,6 +1259,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     extraProperties.put("orgId", defaultIfNull(application.getWorkspaceId(), ""));
                     extraProperties.put("isManual", defaultIfNull(isPublishedManually, ""));
                     extraProperties.put("publishedAt", defaultIfNull(application.getLastDeployedAt(), ""));
+                    extraProperties.put("isPublic", isApplicationPublic);
 
                     final Map<String, Object> eventData = Map.of(
                             FieldName.APPLICATION, application, FieldName.APP_MODE, ApplicationMode.EDIT.toString());
