@@ -114,4 +114,21 @@ export class AssertHelper extends ReusableHelper {
         });
     });
   }
+
+  /**
+   *
+   * @param selector
+   * @param index
+   * Checks if the given selector has class with disabled in the class name
+   * @returns
+   */
+  public AssertElementClassContainsDisabled(selector: string, index = 0) {
+    return agHelper
+      .GetElement(selector)
+      .eq(index)
+      .should(($element) => {
+        const elementClass = $element.attr("class");
+        expect(elementClass).to.include("disabled");
+      });
+  }
 }

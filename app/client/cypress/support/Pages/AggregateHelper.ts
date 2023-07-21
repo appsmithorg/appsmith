@@ -1419,15 +1419,6 @@ export class AggregateHelper extends ReusableHelper {
     }
   }
 
-  public AssertElementClassContainsDisabled(selector: ElementType, index = 0) {
-    return this.GetElement(selector)
-      .eq(index)
-      .should(($element) => {
-        const elementClass = $element.attr("class");
-        expect(elementClass).to.include("disabled");
-      });
-  }
-
   // Waits until all LazyCodeEditor wrappers finished loading the actual code editor.
   // Called “EnableAllCodeEditors” to match the command in the JS part of the Cypress codebase
   // with the same name.
