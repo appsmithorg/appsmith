@@ -1504,30 +1504,36 @@ export function setGenericArgAtPostition(
     arg = arg.trim();
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
-    const argAst = getAST(arg, {
-      locations: true,
-      ranges: true,
-      onComment: argCommentArray,
-    });
-
-    const argASTWithComments = attachCommentsToAst(argAst, argCommentArray);
+    let argAst;
+    let argASTWithComments;
+    let argNode;
+    try {
+      argAst = getAST(arg, {
+        locations: true,
+        ranges: true,
+        onComment: argCommentArray,
+      });
+      argASTWithComments = attachCommentsToAst(argAst, argCommentArray);
+      if (isBlockStatementNode(argASTWithComments.body[0])) {
+        throw "Object interpretted as Block statement";
+      }
+      argNode = argASTWithComments.body[0].expression;
+    } catch (e) {
+      // If the arg is { a: 2 }, ast will BlockStatement and would end up here.
+      // If the arg is { a: 2, b: 3 }, ast will throw error and would end up here.
+      argAst = getAST(`var temp = ${arg}`, {
+        locations: true,
+        ranges: true,
+        onComment: argCommentArray,
+      });
+      argASTWithComments = attachCommentsToAst(argAst, argCommentArray);
+      argNode = argASTWithComments.body[0].declarations[0].init;
+    }
 
     const rootCallExpression = findRootCallExpression(astWithComments);
     if (!rootCallExpression) return code;
     const args = rootCallExpression.arguments || [];
-
-    // For when arg is an object, the generate ast would be recognized as a block statement
-    // In such cases, we need to create a temp variable and use that variable as the argument
-    if (isBlockStatementNode(argASTWithComments.body[0])) {
-      const __tempAST = getAST(`var temp = ${arg}`);
-      const __tempASTWithComments = attachCommentsToAst(
-        __tempAST,
-        argCommentArray,
-      );
-      args[position] = __tempASTWithComments.body[0].declarations[0].init;
-    } else {
-      args[position] = argASTWithComments.body[0].expression;
-    }
+    args[position] = argNode;
     rootCallExpression.arguments = args;
     return generate(ast).trim();
   } catch (e) {
