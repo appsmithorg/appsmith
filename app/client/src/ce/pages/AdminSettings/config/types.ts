@@ -134,4 +134,5 @@ export type AdminConfigType = {
   needsUpgrade?: boolean;
   categoryType: CategoryType;
   isEnterprise?: boolean;
+  isEnabled?: boolean;
 };

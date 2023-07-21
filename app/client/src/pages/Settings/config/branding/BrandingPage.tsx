@@ -30,7 +30,7 @@ type BrandingPageProps = {
 
 function BrandingPage(props: BrandingPageProps) {
   const { category } = props;
-  const { needsUpgrade = true } = category;
+  const isBrandingEnabled = category?.isEnabled ?? false;
   const tentantConfig = useSelector(getTenantConfig);
   const defaultValues = {
     brandColors: tentantConfig.brandColors,
@@ -67,12 +67,12 @@ function BrandingPage(props: BrandingPageProps) {
 
   return (
     <Wrapper>
-      {getUpgradeBanner(needsUpgrade)}
+      {getUpgradeBanner(isBrandingEnabled)}
       <div className="grid md:grid-cols-[1fr] lg:grid-cols-[max(300px,30%)_1fr] gap-8 mt-4 pr-7">
         <SettingsForm
           control={control}
           defaultValues={defaultValues}
-          disabled={needsUpgrade}
+          disabled={!isBrandingEnabled}
           formState={formState}
           handleSubmit={handleSubmit}
           reset={reset}

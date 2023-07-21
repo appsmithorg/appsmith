@@ -1,12 +1,6 @@
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import store from "store";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 
-//if feature flag is false then needs upgrade is true
-export const isUpgradeNeededForBranding = () => {
-  const brandingFeatureEnabled = selectFeatureFlagCheck(
-    store.getState(),
-    FEATURE_FLAG.license_branding_enabled,
-  );
-  return !brandingFeatureEnabled;
+//if feature flag is true then return feature is enbaled
+export const isBrandingEnabled = (featureFlags: FeatureFlags) => {
+  return featureFlags?.license_branding_enabled;
 };

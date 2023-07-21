@@ -4,8 +4,12 @@ import {
   SettingCategories,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
-import { isUpgradeNeededForBranding } from "@appsmith/utils/planHelpers";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { isBrandingEnabled } from "@appsmith/utils/planHelpers";
 import BrandingPage from "pages/Settings/config/branding/BrandingPage";
+import store from "store";
+
+const featureFlags = selectFeatureFlags(store.getState());
 
 export const config: AdminConfigType = {
   type: SettingCategories.BRANDING,
@@ -15,5 +19,5 @@ export const config: AdminConfigType = {
   title: "Branding",
   icon: "pantone",
   component: BrandingPage,
-  needsUpgrade: isUpgradeNeededForBranding(),
+  isEnabled: isBrandingEnabled(featureFlags),
 };
