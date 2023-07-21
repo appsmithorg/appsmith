@@ -32,6 +32,7 @@ describe("Undo/Redo functionality", function () {
       cy.get(datasourceEditor.username).type(
         datasourceFormData["postgres-username"],
       );
+      cy.wait(500);
       cy.get(datasourceEditor.password).type(
         datasourceFormData["postgres-password"],
       );

@@ -367,7 +367,10 @@ class EmbeddedDatasourcePathComponent extends React.Component<
                     text: datasource.datasourceStorages[currentEnvironment]
                       ?.datasourceConfiguration?.url,
                     data: datasource,
-                    className: !isEnvironmentValid(datasource)
+                    className: !isEnvironmentValid(
+                      datasource,
+                      currentEnvironment,
+                    )
                       ? "datasource-hint custom invalid"
                       : "datasource-hint custom",
                     render: (element: HTMLElement, self: any, data: any) => {

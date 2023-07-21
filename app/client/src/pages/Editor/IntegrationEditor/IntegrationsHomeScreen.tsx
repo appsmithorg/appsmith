@@ -93,41 +93,6 @@ const NewIntegrationsContainer = styled.div`
   }
 `;
 
-// This replaces a previous instance of tab. It's a menu, but it's styled to look like a tab from ads.
-// This is because this is the only such instance of vertical menu on our platform. When we refactor the view
-// on this screen to have a smaller grid size, we should consider removing this entirely.
-const VerticalMenu = styled.nav`
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  gap: 8px;
-
-  color: var(--ads-v2-color-fg-muted);
-  // &&&& to override blueprint styles
-  &&&&&& :hover {
-    color: var(--ads-v2-color-fg) !important;
-    text-decoration: none !important;
-  }
-`;
-
-const VerticalMenuItem = styled.a`
-  display: flex;
-  align-items: center;
-
-  height: 30px;
-  font-size: 14px;
-  padding-left: 8px;
-  border-left: solid 2px transparent;
-
-  :hover {
-    border-left: solid 2px var(--ads-v2-color-border-emphasis);
-  }
-
-  &[aria-selected="true"] {
-    border-left: solid 2px var(--ads-v2-color-border-brand);
-  }
-`;
-
 type IntegrationsHomeScreenProps = {
   pageId: string;
   selectedTab: string;
@@ -160,35 +125,6 @@ type Props = IntegrationsHomeScreenProps &
 const PRIMARY_MENU_IDS = {
   ACTIVE: "ACTIVE",
   CREATE_NEW: "CREATE_NEW",
-};
-
-const SECONDARY_MENU_IDS = {
-  API: "API",
-  DATABASE: "DATABASE",
-  MOCK_DATABASE: "MOCK_DATABASE",
-};
-
-const SECONDARY_MENU: TabProp[] = [
-  {
-    key: "API",
-    title: "API",
-    panelComponent: <div />,
-  },
-  {
-    key: "DATABASE",
-    title: "Database",
-    panelComponent: <div />,
-  },
-];
-const getSecondaryMenu = (hasActiveSources: boolean) => {
-  const mockDbMenu = {
-    key: "MOCK_DATABASE",
-    title: "Sample databases",
-    panelComponent: <div />,
-  };
-  return hasActiveSources
-    ? [...SECONDARY_MENU, mockDbMenu]
-    : [mockDbMenu, ...SECONDARY_MENU];
 };
 
 const getSecondaryMenuIds = (hasActiveSources = false) => {
@@ -227,7 +163,7 @@ function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
   }, [active]);
   return (
     <div id="mock-database" ref={useMockRef}>
-      <Text type={TextType.H2}>Sample databases</Text>
+      <Text type={TextType.H2}>Get started with our sample datasources</Text>
       <MockDataSources mockDatasources={mockDatasources} />
     </div>
   );
@@ -264,6 +200,45 @@ function CreateNewAPI({
         isCreating={isCreating}
         location={location}
         pageId={pageId}
+        showSaasAPIs={false}
+        showUnsupportedPluginDialog={showUnsupportedPluginDialog}
+      />
+    </div>
+  );
+}
+
+function CreateNewSaasIntegration({
+  active,
+  history,
+  isCreating,
+  pageId,
+  showUnsupportedPluginDialog,
+}: any) {
+  const newSaasAPIRef = useRef<HTMLDivElement>(null);
+  const isMounted = useRef(false);
+
+  useEffect(() => {
+    if (active && newSaasAPIRef.current) {
+      isMounted.current &&
+        scrollIntoView(newSaasAPIRef.current, {
+          behavior: "smooth",
+          scrollMode: "always",
+          block: "start",
+          boundary: document.getElementById("new-integrations-wrapper"),
+        });
+    } else {
+      isMounted.current = true;
+    }
+  }, [active]);
+  return (
+    <div id="new-saas-api" ref={newSaasAPIRef}>
+      <Text type={TextType.H2}>Saas Integrations</Text>
+      <NewApiScreen
+        history={history}
+        isCreating={isCreating}
+        location={location}
+        pageId={pageId}
+        showSaasAPIs
         showUnsupportedPluginDialog={showUnsupportedPluginDialog}
       />
     </div>
@@ -509,6 +484,17 @@ class IntegrationsHomeScreen extends React.Component<
             pageId={pageId}
             showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
           />
+          <CreateNewSaasIntegration
+            active={
+              activeSecondaryMenuId ===
+              getSecondaryMenuIds(dataSources.length > 0).API
+            }
+            history={history}
+            isCreating={isCreating}
+            location={location}
+            pageId={pageId}
+            showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
+          />
           {dataSources.length > 0 &&
             this.props.mockDatasources.length > 0 &&
             mockDataSection}
@@ -583,36 +569,6 @@ class IntegrationsHomeScreen extends React.Component<
             <ResizerMainContainer>
               <ResizerContentContainer className="integrations-content-container">
                 {currentScreen}
-                {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (
-                  <VerticalMenu>
-                    {getSecondaryMenu(dataSources.length > 0).map((item) => {
-                      return (
-                        <VerticalMenuItem
-                          aria-selected={
-                            this.state.activeSecondaryMenuId ===
-                            getSecondaryMenuIds(dataSources.length > 0)[
-                              item.key as keyof typeof SECONDARY_MENU_IDS
-                            ]
-                          }
-                          key={
-                            getSecondaryMenuIds(dataSources.length > 0)[
-                              item.key as keyof typeof SECONDARY_MENU_IDS
-                            ]
-                          }
-                          onClick={() =>
-                            this.onSelectSecondaryMenu(
-                              getSecondaryMenuIds(dataSources.length > 0)[
-                                item.key as keyof typeof SECONDARY_MENU_IDS
-                              ],
-                            )
-                          }
-                        >
-                          {item.title}
-                        </VerticalMenuItem>
-                      );
-                    })}
-                  </VerticalMenu>
-                )}
               </ResizerContentContainer>
               {showDebugger && <Debugger />}
             </ResizerMainContainer>
