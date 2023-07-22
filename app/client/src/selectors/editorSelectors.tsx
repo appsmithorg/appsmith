@@ -352,6 +352,7 @@ export const getWidgetCards = createSelector(
         iconSVG,
         key,
         searchTags,
+        tags,
         type,
       } = config;
       let { columns, rows } = config;
@@ -371,6 +372,7 @@ export const getWidgetCards = createSelector(
         displayName,
         icon: iconSVG,
         searchTags,
+        tags,
         isDynamicHeight: isAutoHeightEnabledForWidget(config as WidgetProps),
       };
     });
