@@ -164,6 +164,9 @@ import CodeScannerWidget, {
 import ListWidgetV2, {
   CONFIG as LIST_WIDGET_CONFIG_V2,
 } from "widgets/ListWidgetV2";
+import RJSFBuilderWidget, {
+  CONFIG as RJSF_BUILDER_CONFIG,
+} from "widgets/RJSFBuilderWidget";
 
 export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [CanvasWidget, CANVAS_WIDGET_CONFIG],
@@ -227,6 +230,9 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [ProgressWidget, PROGRESS_WIDGET_CONFIG],
   [CircularProgressWidget, CIRCULAR_PROGRESS_WIDGET_CONFIG],
   [ListWidget, LIST_WIDGET_CONFIG],
+
+  //Custom Widgets
+  [RJSFBuilderWidget, RJSF_BUILDER_CONFIG],
 
   /*
    * If a newly added widget works well inside the list widget,
