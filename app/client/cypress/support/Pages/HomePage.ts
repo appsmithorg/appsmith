@@ -111,6 +111,11 @@ export class HomePage {
   //   '//span[text()="Rename application"]/ancestor::div[contains(@class,"rc-tooltip")]';
   _appRenameTooltip = "span:contains('Rename application')";
   _importFromGitBtn = "div.t--import-json-card + div";
+  private signupUsername = "input[name='email']";
+  private roleDropdown = ".setup-dropdown:first";
+  private useCaseDropdown = ".setup-dropdown:last";
+  private dropdownOption = ".rc-select-item-option:first";
+  private roleUsecaseSubmit = ".t--get-started-button";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -320,15 +325,43 @@ export class HomePage {
     cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
     cy.wait("@postLogout");
     this.agHelper.VisitNAssert("/user/login", "signUpLogin");
-    cy.get(this._username).should("be.visible").type(uname);
-    cy.get(this._password).type(pswd, { log: false });
-    cy.get(this._submitBtn).click();
-    cy.wait("@getMe");
+    this.agHelper.AssertElementVisible(this._username);
+    this.agHelper.TypeText(this._username, uname);
+    this.agHelper.TypeText(this._password, pswd);
+    this.agHelper.GetNClick(this._submitBtn);
+    this.assertHelper.AssertNetworkStatus("@getMe");
     this.agHelper.Sleep(3000);
-    if (role != "App Viewer")
-      cy.get(this._homePageAppCreateBtn)
-        .should("be.visible")
-        .should("be.enabled");
+    if (role != "App Viewer") {
+      this.agHelper.AssertElementVisible(this._homePageAppCreateBtn);
+      this.agHelper.AssertElementEnabledDisabled(
+        this._homePageAppCreateBtn,
+        undefined,
+        false,
+      );
+    }
+  }
+
+  public SignUp(uname: string, pswd: string) {
+    this.agHelper.Sleep(); //waiting for window to load
+    cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+    cy.wait("@postLogout");
+    this.agHelper.VisitNAssert("/user/signup", "signUpLogin");
+    this.agHelper.AssertElementVisible(this.signupUsername);
+    this.agHelper.TypeText(this.signupUsername, uname);
+    this.agHelper.TypeText(this._password, pswd);
+    this.agHelper.GetNClick(this._submitBtn);
+    this.agHelper.Sleep(1000);
+    cy.get("body").then(($body) => {
+      if ($body.find(this.roleDropdown).length > 0) {
+        this.agHelper.GetNClick(this.roleDropdown);
+        this.agHelper.GetNClick(this.dropdownOption);
+        this.agHelper.GetNClick(this.useCaseDropdown);
+        this.agHelper.GetNClick(this.dropdownOption);
+        this.agHelper.GetNClick(this.roleUsecaseSubmit, undefined, true);
+      }
+    });
+    this.assertHelper.AssertNetworkStatus("@getMe");
+    this.agHelper.Sleep(3000);
   }
 
   public FilterApplication(appName: string, workspaceId?: string) {
