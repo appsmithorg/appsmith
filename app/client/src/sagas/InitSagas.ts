@@ -60,6 +60,7 @@ import {
   matchViewerPath,
 } from "../constants/routes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -99,27 +100,35 @@ export function* waitForWidgetConfigBuild() {
 }
 
 export function* reportSWStatus() {
+  const mode: APP_MODE = yield select(getAppMode);
   if (navigator.hasOwnProperty("serviceWorker")) {
     navigator.serviceWorker
       .getRegistrations()
       .then((registrations) => {
         if (registrations.length === 0) {
-          AnalyticsUtil.logEvent("MISSING_SW", {
+          AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
             message: "Service worker not found",
+            mode,
           });
         }
         const activeRegistrations = registrations.filter(
           (registration) => registration.active,
         );
         if (activeRegistrations.length === 0) {
-          AnalyticsUtil.logEvent("MISSING_SW", {
+          AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
             message: "Service worker not active",
+            mode,
           });
         }
+        AnalyticsUtil.logEvent("SW_REGISTRATION_SUCCESS", {
+          message: "Service worker not active",
+          mode,
+        });
       })
       .catch(() => {
-        AnalyticsUtil.logEvent("MISSING_SW", {
+        AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
           message: "Failed to retrieve SW registrations",
+          mode,
         });
       });
   }

@@ -35,7 +35,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { addBranchParam } from "constants/routes";
 import type { APP_MODE } from "entities/App";
-import { call, put, select } from "redux-saga/effects";
+import { call, put, select, spawn } from "redux-saga/effects";
 import {
   failFastApiCalls,
   reportSWStatus,
@@ -230,7 +230,7 @@ export default class AppEditorEngine extends AppEngine {
     });
 
     yield call(waitForWidgetConfigBuild);
-    yield call(reportSWStatus);
+    yield spawn(reportSWStatus);
 
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
