@@ -54,7 +54,9 @@ describe("test validationDependencyMap", () => {
   });
 
   it("initial validation dependencyMap computation", () => {
-    expect(dataTreeEvaluator.validationDependencyMap).toStrictEqual({
+    expect(
+      dataTreeEvaluator.validationDependencyMap.dependencies,
+    ).toStrictEqual({
       "Select2.defaultOptionValue": [
         "Select2.serverSideFiltering",
         "Select2.options",
@@ -76,7 +78,9 @@ describe("test validationDependencyMap", () => {
       unEvalUpdates,
     );
 
-    expect(dataTreeEvaluator.validationDependencyMap).toStrictEqual({});
+    expect(
+      dataTreeEvaluator.validationDependencyMap.dependencies,
+    ).toStrictEqual({});
   });
 });
 
