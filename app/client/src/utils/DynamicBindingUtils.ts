@@ -273,9 +273,10 @@ export const unsafeFunctionForEval = [
 export const isChildPropertyPath = (
   parentPropertyPath: string,
   childPropertyPath: string,
+  strict = false,
 ): boolean => {
   return (
-    parentPropertyPath === childPropertyPath ||
+    (!strict && parentPropertyPath === childPropertyPath) ||
     childPropertyPath.startsWith(`${parentPropertyPath}.`) ||
     childPropertyPath.startsWith(`${parentPropertyPath}[`)
   );

@@ -1,3 +1,6 @@
+import { some } from "lodash";
+import { isChildPropertyPath } from "utils/DynamicBindingUtils";
+
 export type TDependencies = Map<string, Set<string>>;
 export default class DependencyMap {
   #nodes: Map<string, true>;
@@ -64,6 +67,10 @@ export default class DependencyMap {
     const currentNodeDependencies =
       this.#dependencies.get(node) || new Set<string>();
 
+    this.#invalidDependencies.get(node)?.forEach((invalidDep) => {
+      this.#invalidDependenciesInverse.get(invalidDep)?.delete(node);
+    });
+
     for (const currentDependency of currentNodeDependencies) {
       if (!dependencies.includes(currentDependency)) {
         this.#dependenciesInverse.get(currentDependency)?.delete(node);
@@ -103,28 +110,50 @@ export default class DependencyMap {
    * If it was used earlier, it is added to the valid dependencies and removed from the invalid dependencies.
    * @param nodes
    */
-  addNodes = (nodes: Record<string, true>) => {
-    const keys = Object.keys(nodes);
+
+  addNodes = (nodes: Record<string, true>, strict = true) => {
+    const nodesToAdd = Object.keys(nodes);
     let didUpdateGraph = false;
-    for (const node of keys) {
-      if (this.#nodes.has(node)) continue;
+    for (const newNode of nodesToAdd) {
+      if (this.#nodes.has(newNode)) continue;
       // New node introduced to the graph.
-      this.#nodes.set(node, true);
+      this.#nodes.set(newNode, true);
       // Check the paths that consumed this node before it was introduced.
       const nodesThatAlreadyDependedOnThis =
-        this.#invalidDependenciesInverse.get(node) || [];
-      for (const iNode of nodesThatAlreadyDependedOnThis) {
-        // since the invalid node is now valid, add it to the valid dependencies.
-        this.#dependencies.get(iNode)?.add(node);
-        this.#invalidDependencies.get(iNode)?.delete(node);
-        didUpdateGraph = true;
-        if (this.#dependenciesInverse.has(node)) {
-          this.#dependenciesInverse.get(node)?.add(iNode);
-        } else {
-          this.#dependenciesInverse.set(node, new Set([iNode]));
+        this.#invalidDependenciesInverse.get(newNode) || new Set<string>();
+      if (!strict) {
+        for (const [invalidNode, dependants] of this
+          .#invalidDependenciesInverse) {
+          if (
+            !nodesToAdd.includes(invalidNode) &&
+            isChildPropertyPath(newNode, invalidNode, true) &&
+            !some(
+              nodesToAdd,
+              (node) =>
+                isChildPropertyPath(newNode, node, true) &&
+                isChildPropertyPath(node, invalidNode, true),
+            )
+          ) {
+            dependants.forEach((dependant) => {
+              nodesThatAlreadyDependedOnThis.add(dependant);
+              this.#invalidDependencies.get(dependant)?.delete(invalidNode);
+            });
+            this.#invalidDependenciesInverse.delete(invalidNode);
+          }
         }
       }
-      this.#invalidDependenciesInverse.delete(node);
+      for (const iNode of nodesThatAlreadyDependedOnThis) {
+        // since the invalid node is now valid, add it to the valid dependencies.
+        this.#dependencies.get(iNode)?.add(newNode);
+        this.#invalidDependencies.get(iNode)?.delete(newNode);
+        didUpdateGraph = true;
+        if (this.#dependenciesInverse.has(newNode)) {
+          this.#dependenciesInverse.get(newNode)?.add(iNode);
+        } else {
+          this.#dependenciesInverse.set(newNode, new Set([iNode]));
+        }
+      }
+      this.#invalidDependenciesInverse.delete(newNode);
     }
     return didUpdateGraph;
   };
