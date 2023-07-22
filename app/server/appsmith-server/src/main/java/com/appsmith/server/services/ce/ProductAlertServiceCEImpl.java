@@ -75,8 +75,10 @@ public class ProductAlertServiceCEImpl implements ProductAlertServiceCE {
                 try {
                     return (Boolean) expression.getValue(context);
                 } catch (EvaluationException ee) {
-                    log.error("error while evaluating applicability expression");
-                    throw ee;
+                    log.error(
+                            "error while evaluating applicability expression. message not added applicable messages.",
+                            ee);
+                    return false;
                 }
             case STATIC:
                 return (Boolean) expression.getValue();

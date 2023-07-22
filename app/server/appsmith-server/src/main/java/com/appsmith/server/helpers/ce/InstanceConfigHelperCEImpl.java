@@ -9,8 +9,18 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.util.WebClientUtils;
+import com.mongodb.MongoClientURI;
+import com.mongodb.reactivestreams.client.MongoClient;
+import com.mongodb.reactivestreams.client.MongoClients;
+import com.mongodb.reactivestreams.client.MongoDatabase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.BsonDocument;
+import org.bson.BsonInt64;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
@@ -36,6 +46,8 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
 
     private final ApplicationContext applicationContext;
 
+    private final String mongoDBUrl;
+
     private boolean isRtsAccessible = false;
 
     @Override
@@ -48,6 +60,8 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
             return Mono.error(new AppsmithException(
                     AppsmithError.INSTANCE_REGISTRATION_FAILURE, "Unable to find cloud services base URL"));
         }
+
+        checkMongoDBVersion();
 
         return configService
                 .getInstanceId()
@@ -169,5 +183,49 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
     public Mono<Boolean> isLicenseValid() {
         // As CE edition doesn't require license, default state should be valid
         return Mono.just(true);
+    }
+
+    @Override
+    public void checkMongoDBVersion() {
+        MongoClient mongoClient = MongoClients.create(mongoDBUrl);
+        MongoClientURI mongoClientURI = new MongoClientURI(mongoDBUrl);
+        MongoDatabase mongoDatabase = mongoClient.getDatabase(mongoClientURI.getDatabase());
+        Bson mongoVersionCheckCommandBson = new BsonDocument("buildInfo", new BsonInt64(1));
+        mongoDatabase
+                .runCommand(mongoVersionCheckCommandBson)
+                .subscribe(new MongoVersionValueConsumption(commonConfig));
+    }
+
+    static class MongoVersionValueConsumption implements Subscriber<Document> {
+
+        private Subscription subscription;
+
+        private CommonConfig commonConfig;
+
+        public MongoVersionValueConsumption(CommonConfig commonConfig) {
+            this.commonConfig = commonConfig;
+        }
+
+        @Override
+        public void onSubscribe(Subscription subscription) {
+            this.subscription = subscription;
+            subscription.request(1);
+        }
+
+        @Override
+        public void onNext(org.bson.Document document) {
+            commonConfig.setMongoDBVersion(document.getString("version"));
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+            log.error(
+                    "Error while getting mongo db version. Hence current mongo db version will remain unavailable in context");
+        }
+
+        @Override
+        public void onComplete() {
+            log.info("Fetched and set conenncted mongo db version as: {}", commonConfig.getMongoDBVersion());
+        }
     }
 }
