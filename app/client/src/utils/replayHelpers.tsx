@@ -148,7 +148,7 @@ export function highlightReplayElement(configProperties: Array<string> = []) {
     .map((configProperty: string) => {
       const replayId = btoa(configProperty);
       return document.querySelector(
-        `[data-replay-id="${replayId}"]`,
+        `[data-location-id="${replayId}"]`,
       ) as HTMLElement;
     })
     .filter((el) => Boolean(el));
@@ -174,7 +174,7 @@ export function switchTab(replayId: string): boolean {
 export function expandAccordion(replayId: string): boolean {
   if (!replayId) return false;
   const element = document.querySelector(
-    `[data-replay-id="section-${replayId}"]`,
+    `[data-location-id="section-${replayId}"]`,
   );
   if (!element) return false;
   const accordion = element.querySelector(

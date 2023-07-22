@@ -310,10 +310,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     return (
       <section
         className="t--section-general"
-        data-replay-id="section-General"
+        data-location-id="section-General"
         data-testid="section-General"
       >
-        <FormInputContainer data-replay-id={btoa("url")}>
+        <FormInputContainer data-location-id={btoa("url")}>
           {this.renderInputTextControlViaFormControl({
             configProperty: "url",
             label: "URL",
@@ -324,7 +324,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             fieldValidator: this.urlValidator,
           })}
         </FormInputContainer>
-        <FormInputContainer data-replay-id={btoa("isSendSessionEnabled")}>
+        <FormInputContainer data-location-id={btoa("isSendSessionEnabled")}>
           {this.renderCheckboxViaFormControl(
             "isSendSessionEnabled",
             "Send Appsmith signature header",
@@ -333,7 +333,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           )}
         </FormInputContainer>
         {formData.isSendSessionEnabled && (
-          <FormInputContainer data-replay-id={btoa("sessionSignatureKey")}>
+          <FormInputContainer data-location-id={btoa("sessionSignatureKey")}>
             {this.renderInputTextControlViaFormControl({
               configProperty: "sessionSignatureKey",
               label: "Session details signature key",
@@ -344,7 +344,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             })}
           </FormInputContainer>
         )}
-        <FormInputContainer data-replay-id={btoa("ssl")}>
+        <FormInputContainer data-location-id={btoa("ssl")}>
           {this.renderCheckboxViaFormControl(
             "connection.ssl.authTypeControl",
             "Use Self-Signed Certificate",
@@ -356,13 +356,13 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <Collapsible title="Headers">
           <FormInputContainer
             className="t--headers-array"
-            data-replay-id={btoa("headers")}
+            data-location-id={btoa("headers")}
           >
             {this.renderKeyValueControlViaFormControl("headers", "", "", false)}
           </FormInputContainer>
         </Collapsible>
         <Collapsible title="Query parameters">
-          <FormInputContainer data-replay-id={btoa("queryParameters")}>
+          <FormInputContainer data-location-id={btoa("queryParameters")}>
             {this.renderKeyValueControlViaFormControl(
               "queryParameters",
               "",
@@ -372,7 +372,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           </FormInputContainer>
         </Collapsible>
         <Collapsible title="Authentication">
-          <FormInputContainer data-replay-id={btoa("authType")}>
+          <FormInputContainer data-location-id={btoa("authType")}>
             {this.renderDropdownControlViaFormControl(
               "authType",
               [
@@ -448,7 +448,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     const { authentication } = this.props.formData;
     return (
       <>
-        <FormInputContainer data-replay-id={btoa("authentication.label")}>
+        <FormInputContainer data-location-id={btoa("authentication.label")}>
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.label",
             label: "Key",
@@ -489,7 +489,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         </FormInputContainer>
         {_.get(authentication, "addTo") == "header" && (
           <FormInputContainer
-            data-replay-id={btoa("authentication.headerPrefix")}
+            data-location-id={btoa("authentication.headerPrefix")}
           >
             {this.renderInputTextControlViaFormControl({
               configProperty: "authentication.headerPrefix",
@@ -507,7 +507,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   renderBearerToken = () => {
     return (
-      <FormInputContainer data-replay-id={btoa("authentication.bearerToken")}>
+      <FormInputContainer data-location-id={btoa("authentication.bearerToken")}>
         {this.renderInputTextControlViaFormControl({
           configProperty: "authentication.bearerToken",
           label: "Bearer token",
@@ -523,7 +523,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   renderBasic = () => {
     return (
       <>
-        <FormInputContainer data-replay-id={btoa("authentication.username")}>
+        <FormInputContainer data-location-id={btoa("authentication.username")}>
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.username",
             label: "Username",
@@ -533,7 +533,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             isRequired: false,
           })}
         </FormInputContainer>
-        <FormInputContainer data-replay-id={btoa("authentication.password")}>
+        <FormInputContainer data-location-id={btoa("authentication.password")}>
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.password",
             label: "Password",
@@ -566,7 +566,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
     return (
       <>
-        <FormInputContainer data-replay-id={btoa("authentication.grantType")}>
+        <FormInputContainer data-location-id={btoa("authentication.grantType")}>
           {this.renderDropdownControlViaFormControl(
             "authentication.grantType",
             [
@@ -595,7 +595,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     return (
       <>
         <FormInputContainer
-          data-replay-id={btoa("authentication.isTokenHeader")}
+          data-location-id={btoa("authentication.isTokenHeader")}
         >
           {this.renderDropdownControlViaFormControl(
             "authentication.isTokenHeader",
@@ -617,7 +617,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         </FormInputContainer>
         {_.get(formData.authentication, "isTokenHeader") && (
           <FormInputContainer
-            data-replay-id={btoa("authentication.headerPrefix")}
+            data-location-id={btoa("authentication.headerPrefix")}
           >
             {this.renderInputTextControlViaFormControl({
               configProperty: "authentication.headerPrefix",
@@ -630,7 +630,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           </FormInputContainer>
         )}
         <FormInputContainer
-          data-replay-id={btoa("authentication.accessTokenUrl")}
+          data-location-id={btoa("authentication.accessTokenUrl")}
         >
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.accessTokenUrl",
@@ -642,7 +642,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             fieldValidator: this.urlValidator,
           })}
         </FormInputContainer>
-        <FormInputContainer data-replay-id={btoa("authentication.clientId")}>
+        <FormInputContainer data-location-id={btoa("authentication.clientId")}>
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.clientId",
             label: "Client ID",
@@ -653,7 +653,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           })}
         </FormInputContainer>
         <FormInputContainer
-          data-replay-id={btoa("authentication.clientSecret")}
+          data-location-id={btoa("authentication.clientSecret")}
         >
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.clientSecret",
@@ -665,7 +665,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             isSecretExistsPath: "authentication.secretExists.clientSecret",
           })}
         </FormInputContainer>
-        <FormInputContainer data-replay-id={btoa("authentication.scopeString")}>
+        <FormInputContainer
+          data-location-id={btoa("authentication.scopeString")}
+        >
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.scopeString",
             label: "Scope(s)",
@@ -676,7 +678,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           })}
         </FormInputContainer>
         <FormInputContainer
-          data-replay-id={btoa("authentication.isAuthorizationHeader")}
+          data-location-id={btoa("authentication.isAuthorizationHeader")}
         >
           {this.renderDropdownControlViaFormControl(
             "authentication.isAuthorizationHeader",
@@ -717,7 +719,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       <Collapsible title="Advanced Settings">
         {isGrantTypeAuthorizationCode && (
           <FormInputContainer
-            data-replay-id={btoa("authentication.sendScopeWithRefreshToken")}
+            data-location-id={btoa("authentication.sendScopeWithRefreshToken")}
           >
             {this.renderDropdownControlViaFormControl(
               "authentication.sendScopeWithRefreshToken",
@@ -740,7 +742,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         )}
         {isGrantTypeAuthorizationCode && (
           <FormInputContainer
-            data-replay-id={btoa(
+            data-location-id={btoa(
               "authentication.refreshTokenClientCredentialsLocation",
             )}
           >
@@ -764,7 +766,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           </FormInputContainer>
         )}
         {isConnectSelfSigned && (
-          <FormInputContainer data-replay-id={btoa("selfsignedcert")}>
+          <FormInputContainer data-location-id={btoa("selfsignedcert")}>
             {this.renderCheckboxViaFormControl(
               "authentication.useSelfSignedCert",
               "Use Self-Signed Certificate for Authorization requests",
@@ -780,7 +782,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   renderOauth2CommonAdvanced = () => {
     return (
       <>
-        <FormInputContainer data-replay-id={btoa("authentication.audience")}>
+        <FormInputContainer data-location-id={btoa("authentication.audience")}>
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.audience",
             label: "Audience",
@@ -790,7 +792,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             isRequired: false,
           })}
         </FormInputContainer>
-        <FormInputContainer data-replay-id={btoa("authentication.resource")}>
+        <FormInputContainer data-location-id={btoa("authentication.resource")}>
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.resource",
             label: "Resource",
@@ -822,7 +824,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       <>
         {this.renderOauth2Common()}
         <FormInputContainer
-          data-replay-id={btoa("authentication.authorizationUrl")}
+          data-location-id={btoa("authentication.authorizationUrl")}
         >
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.authorizationUrl",
@@ -846,7 +848,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           </div>
         </FormInputContainer>
         <FormInputContainer
-          data-replay-id={btoa("authentication.customAuthenticationParameters")}
+          data-location-id={btoa(
+            "authentication.customAuthenticationParameters",
+          )}
         >
           {this.renderKeyValueControlViaFormControl(
             "authentication.customAuthenticationParameters",

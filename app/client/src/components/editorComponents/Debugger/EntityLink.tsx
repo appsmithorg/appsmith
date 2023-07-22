@@ -1,14 +1,10 @@
 import { PluginType } from "entities/Action";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import {
   getAction,
   getAllWidgetsMap,
@@ -24,18 +20,18 @@ import type { Plugin } from "api/PluginApi";
 import { navigateToEntity } from "actions/editorActions";
 
 function ActionLink(props: EntityLinkProps) {
-  const applicationId = useSelector(getCurrentApplicationId);
   const action = useSelector((state: AppState) => getAction(state, props.id));
+  const dispatch = useDispatch();
 
   const onClick = useCallback(() => {
     if (action) {
-      const { id, pageId, pluginType } = action;
-      const actionConfig = getActionConfig(pluginType);
-      const url =
-        applicationId &&
-        actionConfig?.getURL(pageId, id, pluginType, props.plugin);
-      if (!url) return;
-      history.push(url);
+      dispatch(
+        navigateToEntity({
+          id: action.id,
+          entityType: ENTITY_TYPE.ACTION,
+          propertyPath: props.propertyPath,
+        }),
+      );
       const actionType = action.pluginType === PluginType.API ? "API" : "QUERY";
 
       AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
@@ -76,7 +72,7 @@ function JSCollectionLink(props: EntityLinkProps) {
         });
       }
     }
-  }, []);
+  }, [props.id, props.propertyPath]);
   return (
     <DebuggerEntityLink
       entityType={props.type}
