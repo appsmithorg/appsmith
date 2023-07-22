@@ -14,7 +14,6 @@ import {
 } from "./mockData/NestedArrayAccessorTree";
 import { updateDependencyMap } from "workers/common/DependencyMap";
 import type { WidgetConfiguration } from "widgets/constants";
-import { setEvalContext } from "workers/Evaluation/evaluate";
 import { replaceThisDotParams } from "./utils";
 import { isDataField } from "./utils";
 
@@ -230,24 +229,6 @@ describe("DataTreeEvaluator", () => {
         Button1: ["Button1.text"],
         "Button2.text": [],
       });
-    });
-  });
-
-  describe("parseJsActions", () => {
-    const postMessageMock = jest.fn();
-    beforeEach(() => {
-      dataTreeEvaluator.setupFirstTree(
-        {} as unknown as DataTree,
-        {} as unknown as ConfigTree,
-      );
-      dataTreeEvaluator.evalAndValidateFirstTree();
-
-      setEvalContext({
-        dataTree: dataTreeEvaluator.evalTree,
-        isDataField: false,
-        isTriggerBased: true,
-      });
-      self.postMessage = postMessageMock;
     });
   });
 

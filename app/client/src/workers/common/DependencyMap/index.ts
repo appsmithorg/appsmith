@@ -42,8 +42,8 @@ export function createDependencyMap(
   configTree: ConfigTree,
 ): CreateDependencyMap {
   const { allKeys, dependencyMap, validationDependencyMap } = dataTreeEvalRef;
-  dependencyMap.addNodes(allKeys);
-  validationDependencyMap.addNodes(allKeys);
+  dependencyMap.addNodes(allKeys, false);
+  validationDependencyMap.addNodes(allKeys, false);
 
   Object.keys(configTree).forEach((entityName) => {
     const entity = unEvalTree[entityName];
@@ -144,7 +144,7 @@ export const updateDependencyMap = ({
           const allAddedPaths = getAllPaths({
             [fullPropertyPath]: get(unEvalDataTree, fullPropertyPath),
           });
-          const didUpdateDep = dependencyMap.addNodes(allAddedPaths);
+          const didUpdateDep = dependencyMap.addNodes(allAddedPaths, false);
           if (didUpdateDep) didUpdateDependencyMap = true;
           if (isWidgetActionOrJsObject(entity)) {
             if (!isDynamicLeaf(unEvalDataTree, fullPropertyPath, configTree)) {

@@ -55,7 +55,11 @@ export const extractInfoFromBinding = (
   const { references } = extractIdentifierInfoFromCode(
     script,
     self.evaluationVersion,
-    invalidEntityIdentifiers,
+    {
+      ...JAVASCRIPT_KEYWORDS,
+      ...DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
+      ...libraryReservedIdentifiers,
+    },
   );
   return getPrunedReferences(references, allKeys);
 };
@@ -87,8 +91,8 @@ export const getPrunedReferences = (
       }
       subpaths.pop();
     }
-    // If no valid reference is derived, add paths two level deep
-    prunedReferences.add(convertPathToString(toPath(reference).slice(0, 2)));
+    // If no valid reference is derived, add reference as is
+    prunedReferences.add(reference);
   });
   return Array.from(prunedReferences);
 };
