@@ -2012,5 +2012,13 @@ export function* watchDatasourcesSagas() {
       ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE,
       setDatasourceViewModeSaga,
     ),
+    takeEvery(
+      ReduxActionTypes.SOFT_REFRESH_DATASOURCE_STRUCTURE,
+      handleFetchDatasourceStructureOnLoad,
+    ),
+    takeEvery(
+      ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE,
+      setDatasourceViewModeSaga,
+    ),
   ]);
 }

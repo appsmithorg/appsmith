@@ -58,7 +58,6 @@ public class DatasourceStorageServiceImpl extends DatasourceStorageServiceCEImpl
 
     @Override
     public Mono<DatasourceStorage> checkEnvironment(DatasourceStorage datasourceStorage) {
-
         Mono<Environment> environmentMono = environmentService.findById(datasourceStorage.getEnvironmentId());
         return environmentMono
                 .switchIfEmpty(Mono.error(new AppsmithException(

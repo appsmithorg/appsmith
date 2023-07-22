@@ -142,16 +142,17 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
     @Override
     public Mono<String> getDefaultEnvironmentId(String workspaceId, AclPermission aclPermission) {
         return environmentService
-                .findByWorkspaceId(workspaceId)
+                .findByWorkspaceId(workspaceId, aclPermission)
                 .filter(Environment::getIsDefault)
                 .next()
                 .map(Environment::getId);
     }
 
     @Override
-    public Mono<String> verifyEnvironmentIdByWorkspaceId(String workspaceId, String environmentId) {
+    public Mono<String> verifyEnvironmentIdByWorkspaceId(
+            String workspaceId, String environmentId, AclPermission aclPermission) {
         return environmentService
-                .findByWorkspaceId(workspaceId)
+                .findByWorkspaceId(workspaceId, aclPermission)
                 .filter(environment -> environment.getId().equals(environmentId))
                 .next()
                 .map(Environment::getId)
@@ -161,7 +162,7 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
 
     @Override
     public Flux<Environment> getDefaultEnvironment(String workspaceId) {
-        return environmentService.findByWorkspaceId(workspaceId).filter(Environment::getIsDefault);
+        return environmentService.findByWorkspaceId(workspaceId, null).filter(Environment::getIsDefault);
     }
 
     @Override

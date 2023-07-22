@@ -5,14 +5,14 @@ export class MultipleEnvironments {
   private locator = ObjectsRegistry.CommonLocators;
   private tedTestConfig = ObjectsRegistry.TEDTestConfigs;
 
-  public env_switcher = '[data-cy="t--switch-env"]';
+  public env_switcher = '[data-testid="t--switch-env"]';
   public env_switcher_dropdown_opt_prod =
-    '[data-cy="t--switch-env-dropdown-option-production"]';
+    '[data-testid="t--switch-env-dropdown-option-production"]';
   public env_switcher_dropdown_opt_stage =
-    '[data-cy="t--switch-env-dropdown-option-staging"]';
-  public ds_data_filter_disabled = '[data-cy="t--filter-disabled"]';
+    '[data-testid="t--switch-env-dropdown-option-staging"]';
+  public ds_data_filter_disabled = '[data-testid="t--filter-disabled"]';
   public env_switcher_dropdown_opt = (envName: string) =>
-    `[data-cy="t--switch-env-dropdown-option-${envName}"]`;
+    `[data-testid="t--switch-env-dropdown-option-${envName}"]`;
 
   public SwitchEnv(targetEnv: string) {
     this.agHelper
@@ -32,9 +32,7 @@ export class MultipleEnvironments {
           this.agHelper.GetNClick(this.env_switcher_dropdown_opt(targetEnv));
           this.agHelper.Sleep();
           this.agHelper.AssertElementExist(
-            this.locator._specificToast(
-              `...Environment switched to ${targetEnv} successfully`,
-            ),
+            this.locator._specificToast(`Environment switched to ${targetEnv}`),
           );
         }
       });

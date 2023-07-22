@@ -10,6 +10,7 @@ export interface EnvironmentType {
   isDefault?: boolean;
   userPermissions?: string[];
 }
+
 // Type for the environment state in redux
 export interface EnvironmentsReduxState {
   /**
@@ -21,6 +22,10 @@ export interface EnvironmentsReduxState {
    */
   error: boolean;
   /**
+   * @param {boolean} showEnvInfoModal - Whether to show the environment info modal before deploy
+   */
+  showEnvDeployInfoModal: boolean;
+  /**
    * @param {EnvironmentType} data - The list of environments
    */
   data: EnvironmentType[];
@@ -29,6 +34,7 @@ export interface EnvironmentsReduxState {
 // Initial state of the environment state in redux
 export const initialEnvironmentState: EnvironmentsReduxState = {
   isLoading: false,
+  showEnvDeployInfoModal: false,
   error: false,
   data: [],
 };
@@ -55,6 +61,18 @@ const handlers = {
     ...state,
     isLoading: false,
     error: true,
+  }),
+  [ReduxActionTypes.SHOW_ENV_INFO_MODAL]: (
+    state: EnvironmentsReduxState,
+  ): EnvironmentsReduxState => ({
+    ...state,
+    showEnvDeployInfoModal: true,
+  }),
+  [ReduxActionTypes.HIDE_ENV_INFO_MODAL]: (
+    state: EnvironmentsReduxState,
+  ): EnvironmentsReduxState => ({
+    ...state,
+    showEnvDeployInfoModal: false,
   }),
 };
 

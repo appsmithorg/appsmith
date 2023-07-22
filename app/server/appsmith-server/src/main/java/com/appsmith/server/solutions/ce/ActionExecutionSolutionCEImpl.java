@@ -208,7 +208,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                             environmentPermission.getExecutePermission(),
                                             isEmbedded));
                         }))
-                .flatMap(tuple2 -> this.executeAction(tuple2.getT1(), tuple2.getT2())) // getTrue is temporary call
+                .flatMap(tuple2 -> this.executeAction(tuple2.getT1(), tuple2.getT2()))
                 .name(ACTION_EXECUTION_SERVER_EXECUTION)
                 .tap(Micrometer.observation(observationRegistry));
     }

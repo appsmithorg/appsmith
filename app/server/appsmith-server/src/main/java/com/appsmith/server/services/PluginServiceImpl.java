@@ -26,13 +26,20 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class PluginServiceImpl extends PluginServiceCEImpl implements PluginService {
 
     private final AirgapInstanceConfig airgapInstanceConfig;
+
+    // Stores list of plugins that are out of scope for multiple environments today
+    Set<String> oosPluginIds = new HashSet<>();
+    private final Set<String> oosPluginsPackageNames = Set.of("saas-plugin", "google-sheets-plugin");
 
     public PluginServiceImpl(
             Scheduler scheduler,
@@ -114,6 +121,25 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
 
     public Mono<PluginDTO> getPluginIconLocation(String pluginId) {
         return this.repository.findById(pluginId).map(this::makePluginDTO);
+    }
+
+    @Override
+    public Mono<Boolean> isOosPluginForME(String pluginId) {
+        if (pluginId == null) {
+            return Mono.just(false);
+        }
+
+        Mono<Set<String>> oosPluginIdsMono = Mono.just(this.oosPluginIds);
+        if (oosPluginIds.isEmpty()) {
+            oosPluginIdsMono = repository
+                    .findAll()
+                    .filter(plugin -> oosPluginsPackageNames.contains(plugin.getPackageName()))
+                    .map(plugin -> plugin.getId())
+                    .collect(Collectors.toUnmodifiableSet())
+                    .doOnNext(pluginIds -> oosPluginIds = pluginIds);
+        }
+
+        return oosPluginIdsMono.map(pluginIds -> pluginIds.contains(pluginId));
     }
 
     @Override

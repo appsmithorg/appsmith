@@ -516,7 +516,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                     sideEffects, id, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
         } else if (tab == RoleTab.DATASOURCES_QUERIES && Datasource.class.equals(aClazz)) {
             sideEffectOnEnvironmentsGivenDatasourceUpdate(
-                    sideEffects, id, added, removed, sideEffectsAddedMap, sideEffectsRemovedMap, sideEffectsClassMap);
+                    sideEffects, id, added, sideEffectsAddedMap, sideEffectsClassMap);
         }
     }
 
@@ -568,9 +568,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
             List<Mono<Long>> sideEffects,
             String datasourceId,
             List<AclPermission> added,
-            List<AclPermission> removed,
             ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
-            ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
             ConcurrentHashMap<String, Class> sideEffectsClassMap) {
 
         List<String> includedFields = List.of(fieldName(QEnvironment.environment.id));
@@ -583,28 +581,19 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         boolean executeDatasourceAdded = added.stream()
                 .anyMatch(permission ->
                         AclPermission.EXECUTE_DATASOURCES.getValue().equals(permission.getValue()));
-        boolean executeDatasourceRemoved = removed.stream()
-                .anyMatch(permission ->
-                        AclPermission.EXECUTE_DATASOURCES.getValue().equals(permission.getValue()));
         List<AclPermission> envAdded = new ArrayList<>();
-        List<AclPermission> envRemoved = new ArrayList<>();
 
         if (executeDatasourceAdded) {
             envAdded.add(AclPermission.EXECUTE_ENVIRONMENTS);
         }
 
-        if (executeDatasourceRemoved) {
-            envRemoved.add(AclPermission.EXECUTE_ENVIRONMENTS);
-        }
-
         Mono<Long> environmentsUpdated = Mono.just(1L);
 
-        if (executeDatasourceAdded || executeDatasourceRemoved) {
+        if (executeDatasourceAdded) {
             environmentsUpdated = envIdFlux
                     .map(envId -> {
                         sideEffectsClassMap.put(envId, Environment.class);
                         sideEffectsAddedMap.merge(envId, envAdded, ListUtils::union);
-                        sideEffectsRemovedMap.merge(envId, envRemoved, ListUtils::union);
                         return 1L;
                     })
                     .reduce(0L, Long::sum);

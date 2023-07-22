@@ -44,6 +44,8 @@ export enum EE_PERMISSION_TYPE {
   READ_AUDIT_LOGS = "readAuditLogs:tenant",
   /* Workspace Permissions */
   DELETE_WORKSPACE = "delete:workspace",
+  /* Environment permissions */
+  EXECUTE_ENVIRONMENT = "execute:environments",
 }
 
 export const PERMISSION_TYPE = {

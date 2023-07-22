@@ -207,6 +207,24 @@ export const PAGE_SERVER_UNAVAILABLE_TITLE = (cloudHosting: boolean) => {
   }
 };
 
+// Environments
+export const ENVIRONMENT_FILTER_DISABLED_TOOLTIP = (PluginName = "This") =>
+  `${PluginName} data source doesn't support environments, your production configuration is also used for staging.`;
+export const ENV_INFO_MODAL_CHECKBOX_LABEL = () =>
+  "I understand, don't tell me again.";
+export const ENV_INFO_MODAL_HEADER = () =>
+  "All application changes will be deployed";
+export const ENV_INFO_MODAL_DESCRIPTION = () =>
+  "To isolate application changes between Staging and Production, connect your apps to a Git repo and create branches for Staging and Production.";
+export const ENV_INFO_MODAL_DOCUMENATION_LINK_TEXT = () =>
+  "Learn more about environments";
+export const ENV_INFO_CALLOUT_TOOLTIP = () =>
+  "Widgets, layouts, results from queries and code";
+export const ENV_INFO_CALLOUT_CONTENT_1 = () => "End-users will see all ";
+export const ENV_INFO_CALLOUT_CONTENT_2 = () => "application-level";
+export const ENV_INFO_CALLOUT_CONTENT_3 = () =>
+  " changes irrespective of whether you made them while on Staging or Production.";
+export const ENV_INFO_MODAL_DISMISS_ACTION = () => "Don't show me again";
 // Provisioning begin
 export const PROVISIONING_TITLE = () => "User provisioning & Group sync";
 export const PROVISIONING_DESC = () =>

@@ -1859,16 +1859,16 @@ public class WorkspaceServiceTest {
         assertThat(environmentIdList.size()).isEqualTo(2);
         String environmentIdOne = environmentIdList.get(0);
 
-        Mono<String> verifiedEnvironmentIdMono =
-                workspaceService.verifyEnvironmentIdByWorkspaceId(createdWorkspace.getId(), environmentIdOne);
+        Mono<String> verifiedEnvironmentIdMono = workspaceService.verifyEnvironmentIdByWorkspaceId(
+                createdWorkspace.getId(), environmentIdOne, AclPermission.EXECUTE_ENVIRONMENTS);
 
         StepVerifier.create(verifiedEnvironmentIdMono).assertNext(environmentId -> {
             assertThat(environmentId).isEqualTo(environmentIdOne);
         });
 
         String environmentIdTwo = environmentIdList.get(1);
-        Mono<String> verifiedEnvironmentIdTwoMono =
-                workspaceService.verifyEnvironmentIdByWorkspaceId(createdWorkspace.getId(), environmentIdTwo);
+        Mono<String> verifiedEnvironmentIdTwoMono = workspaceService.verifyEnvironmentIdByWorkspaceId(
+                createdWorkspace.getId(), environmentIdTwo, AclPermission.EXECUTE_ENVIRONMENTS);
 
         StepVerifier.create(verifiedEnvironmentIdTwoMono).assertNext(environmentId -> {
             assertThat(environmentId).isEqualTo(environmentIdTwo);

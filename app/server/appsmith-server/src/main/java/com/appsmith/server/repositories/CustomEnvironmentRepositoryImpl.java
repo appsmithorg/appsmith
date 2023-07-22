@@ -46,7 +46,8 @@ public class CustomEnvironmentRepositoryImpl extends CustomEnvironmentRepository
 
     @Override
     public Flux<Environment> findByWorkspaceId(String workspaceId, AclPermission aclPermission) {
-        return queryAll(List.of(workspaceIdCriteria(workspaceId)), aclPermission);
+        return queryAll(List.of(workspaceIdCriteria(workspaceId)), aclPermission)
+                .flatMap(this::setUserPermissionsInObject);
     }
 
     @Override

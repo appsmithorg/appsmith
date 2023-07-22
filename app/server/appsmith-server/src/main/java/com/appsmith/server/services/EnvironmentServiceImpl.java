@@ -24,7 +24,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import java.util.Comparator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.constants.CommonFieldName.PRODUCTION_ENVIRONMENT;
@@ -73,7 +75,7 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
     }
 
     @Override
-    public Mono<Environment> findById(String id, AclPermission aclPermission) {
+    public Mono<Environment> findById(String id, Optional<AclPermission> aclPermission) {
         return repository.findById(id, aclPermission);
     }
 
@@ -93,7 +95,7 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
                     }
 
                     // This method will be used only for executing environments
-                    return findById(envId, AclPermission.EXECUTE_ENVIRONMENTS)
+                    return findById(envId, Optional.of(AclPermission.EXECUTE_ENVIRONMENTS))
                             .map(EnvironmentDTO::createEnvironmentDTO);
                 });
     }
@@ -111,8 +113,10 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
                     }
 
                     // This method will be used only for executing environments
-                    return findByWorkspaceId(workspaceId, AclPermission.EXECUTE_ENVIRONMENTS)
-                            .map(EnvironmentDTO::createEnvironmentDTO);
+                    return findByWorkspaceId(workspaceId, null)
+                            .map(EnvironmentDTO::createEnvironmentDTO)
+                            .sort(Comparator.comparing(EnvironmentDTO::getIsDefault)
+                                    .reversed());
                 });
     }
 
