@@ -83,18 +83,23 @@ const SettingsContainer = styled.div`
   width: max-content;
   min-width: 700px;
   height: 100%;
-
   & > h3 {
     margin: 20px 0;
     font-size: ${(props) => props.theme.fontSizes[5]}px;
     font-weight: ${(props) => props.theme.fontWeights[2]};
     color: var(--ads-v2-color-fg-emphasis);
   }
+  overflow: hidden;
 `;
 
 const SettingsRowWrapper = styled.div`
   border-radius: var(--ads-v2-border-radius);
   overflow: hidden;
+`;
+const SettingsHeaderWrapper = styled.div``;
+const SettingsBodyWrapper = styled.div`
+  height: 100%;
+  overflow: auto;
 `;
 
 function SettingsHeading({ grow, hasInfo, info, text }: SettingsHeadingProps) {
@@ -204,30 +209,34 @@ function JSFunctionSettingsView({
       <SettingsContainer>
         <h3>{createMessage(FUNCTION_SETTINGS_HEADING)}</h3>
         <SettingsRowWrapper>
-          <SettingRow isHeading>
-            {SETTINGS_HEADINGS.map((setting, index) => (
-              <SettingsHeading
-                grow={index === 0}
-                hasInfo={setting.hasInfo}
-                info={setting.info}
-                key={setting.key}
-                text={setting.text}
-              />
-            ))}
-          </SettingRow>
-          {actions && actions.length ? (
-            actions.map((action) => (
-              <SettingsItem
-                action={action}
-                disabled={disabled}
-                key={action.id}
-              />
-            ))
-          ) : (
-            <SettingRow noBorder>
-              <SettingColumn>{createMessage(NO_JS_FUNCTIONS)}</SettingColumn>
+          <SettingsHeaderWrapper>
+            <SettingRow isHeading>
+              {SETTINGS_HEADINGS.map((setting, index) => (
+                <SettingsHeading
+                  grow={index === 0}
+                  hasInfo={setting.hasInfo}
+                  info={setting.info}
+                  key={setting.key}
+                  text={setting.text}
+                />
+              ))}
             </SettingRow>
-          )}
+          </SettingsHeaderWrapper>
+          <SettingsBodyWrapper>
+            {actions && actions.length ? (
+              actions.map((action) => (
+                <SettingsItem
+                  action={action}
+                  disabled={disabled}
+                  key={action.id}
+                />
+              ))
+            ) : (
+              <SettingRow noBorder>
+                <SettingColumn>{createMessage(NO_JS_FUNCTIONS)}</SettingColumn>
+              </SettingRow>
+            )}
+          </SettingsBodyWrapper>
         </SettingsRowWrapper>
       </SettingsContainer>
     </JSFunctionSettingsWrapper>
