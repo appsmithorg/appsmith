@@ -216,18 +216,6 @@ export const updateDependencyMap = ({
           break;
         }
         case DataTreeDiffEvent.DELETE: {
-          const allDeletedPaths = getAllPaths({
-            [fullPropertyPath]: get(oldUnEvalTree, fullPropertyPath),
-          });
-          const didUpdateDeps = dependencyMap.removeNodes(allDeletedPaths);
-          const didUpdateValidationDeps =
-            validationDependencyMap.removeNodes(allDeletedPaths);
-          if (didUpdateDeps) didUpdateDependencyMap = true;
-          if (didUpdateValidationDeps) didUpdateValidationDependencyMap = true;
-          // Add to removedPaths as they have been deleted from the evalTree
-          removedPaths.push(fullPropertyPath);
-          // If an existing entity was deleted, remove all the bindings from the global dependency map
-
           /**There are certain cases where the child paths of the entity could have errors and
            *  need them to be cleared post evaluations. Therefore we store all the paths that are
            * removed on deleting the entity and use that reference to clear the error logs post evaluation*/
@@ -240,6 +228,17 @@ export const updateDependencyMap = ({
               ],
             });
           }
+          const allDeletedPaths = getAllPaths({
+            [fullPropertyPath]: get(oldUnEvalTree, fullPropertyPath),
+          });
+          const didUpdateDeps = dependencyMap.removeNodes(allDeletedPaths);
+          const didUpdateValidationDeps =
+            validationDependencyMap.removeNodes(allDeletedPaths);
+          if (didUpdateDeps) didUpdateDependencyMap = true;
+          if (didUpdateValidationDeps) didUpdateValidationDependencyMap = true;
+          // Add to removedPaths as they have been deleted from the evalTree
+          removedPaths.push(fullPropertyPath);
+
           break;
         }
         case DataTreeDiffEvent.EDIT: {

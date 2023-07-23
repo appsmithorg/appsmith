@@ -1,4 +1,4 @@
-import { find, get, isEmpty, toPath, union } from "lodash";
+import { find, get, toPath, union } from "lodash";
 import type { EvalError, DependencyMap } from "utils/DynamicBindingUtils";
 import {
   EvalErrorTypes,
@@ -343,22 +343,6 @@ function isATriggerPath(
     return triggerPaths.hasOwnProperty(propertyPath);
   }
   return false;
-}
-
-export function updateMap(
-  map: DependencyMap,
-  path: string,
-  updates: string[],
-  options: Partial<{ deleteOnEmpty: boolean; replaceValue: boolean }> = {},
-) {
-  const { deleteOnEmpty, replaceValue } = options;
-  const oldValue = replaceValue ? [] : map[path];
-  const updatedEntries = mergeArrays(oldValue, updates);
-  if (deleteOnEmpty && isEmpty(updatedEntries)) {
-    delete map[path];
-  } else {
-    map[path] = updatedEntries;
-  }
 }
 
 export function isJSFunction(configTree: ConfigTree, fullPath: string) {
