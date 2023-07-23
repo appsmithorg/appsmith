@@ -222,7 +222,7 @@ export default class DependencyMap {
       const node = queue.shift() as string;
       if (visited.has(node)) continue;
       visited.add(node);
-      if (targets.includes(node)) reachableNodes.push(source);
+      if (targets.includes(node)) reachableNodes.push(node);
       const nodes = this.#dependencies.get(node) || [];
       for (const n of nodes) {
         queue.push(n);

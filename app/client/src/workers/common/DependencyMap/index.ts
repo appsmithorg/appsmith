@@ -15,7 +15,7 @@ import type {
 } from "entities/DataTree/dataTreeFactory";
 import type { ActionEntity, JSActionEntity } from "entities/DataTree/types";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
-import { extractInfoFromBindings } from "./utils";
+import { convertArrayToObject, extractInfoFromBindings } from "./utils";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { get, isEmpty, set } from "lodash";
 import {
@@ -28,6 +28,7 @@ import {
 } from "./utils/getEntityDependencies";
 import { getValidationDependencies } from "./utils/getValidationDependencies";
 import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
+import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
 
 interface CreateDependencyMap {
   dependencies: Record<string, string[]>;
@@ -42,7 +43,13 @@ export function createDependencyMap(
   configTree: ConfigTree,
 ): CreateDependencyMap {
   const { allKeys, dependencyMap, validationDependencyMap } = dataTreeEvalRef;
-  dependencyMap.addNodes(allKeys, false);
+  const allAppsmithInternalFunctions = convertArrayToObject(
+    AppsmithFunctionsWithFields,
+  );
+  dependencyMap.addNodes(
+    { ...allKeys, ...allAppsmithInternalFunctions },
+    false,
+  );
   validationDependencyMap.addNodes(allKeys, false);
 
   Object.keys(configTree).forEach((entityName) => {
