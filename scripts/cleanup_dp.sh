@@ -40,5 +40,7 @@ for i in $deployed_charts
       helm uninstall $i -n $i
       kubectl delete ns $i || true
       mongosh "mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$i?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" --eval 'db.dropDatabase()'
+      ACCESS_POINT_ID=$(aws efs describe-access-points --file-system-id "$APPSMITH_DP_EFS_ID" | jq -r '.AccessPoints[] | select(.Name=="'"$pr"'") | .AccessPointId')
+      aws efs delete-access-point --access-point-id $ACCESS_POINT_ID
     fi
   done
