@@ -87,6 +87,10 @@ public class ProductAlertServiceCEImplTest {
         Mockito.when(commonConfig.isCloudHosting()).thenReturn(true);
         Mono<List<ProductAlertResponseDTO>> productAlertResponseDTOMono =
                 productAlertServiceCE.getSingleApplicableMessage();
-        StepVerifier.create(productAlertResponseDTOMono).expectError(AppsmithException.class);
+        StepVerifier.create(productAlertResponseDTOMono)
+                .assertNext(productAlertResponseDTOs -> {
+                    assertThat(productAlertResponseDTOs.isEmpty());
+                })
+                .verifyComplete();
     }
 }
