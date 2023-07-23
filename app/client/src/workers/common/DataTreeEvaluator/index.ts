@@ -292,7 +292,11 @@ export default class DataTreeEvaluator {
         parseJSActionsStartTime,
       ),
     };
-    this.logs.push({ timeTakenForSetupFirstTree });
+    this.logs.push({
+      timeTakenForSetupFirstTree,
+      dependencies: this.dependencies,
+      inverseDependencies: this.inverseDependencies,
+    });
     return {
       jsUpdates,
       evalOrder: this.sortedDependencies,

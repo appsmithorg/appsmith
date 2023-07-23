@@ -231,6 +231,13 @@ export const updateDependencyMap = ({
           const allDeletedPaths = getAllPaths({
             [fullPropertyPath]: get(oldUnEvalTree, fullPropertyPath),
           });
+
+          for (const deletedPath of Object.keys(allDeletedPaths)) {
+            const pathsThatDependOnDeletedPath =
+              dependencyMap.getDependents(deletedPath);
+            dependenciesOfRemovedPaths.push(...pathsThatDependOnDeletedPath);
+          }
+
           const didUpdateDeps = dependencyMap.removeNodes(allDeletedPaths);
           const didUpdateValidationDeps =
             validationDependencyMap.removeNodes(allDeletedPaths);
