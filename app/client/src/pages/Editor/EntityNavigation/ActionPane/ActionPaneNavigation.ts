@@ -1,6 +1,6 @@
 import type { Action } from "entities/Action";
 import type { EntityInfo } from "../types";
-import { getAction } from "selectors/entitiesSelector";
+import { getAction, getSettingConfig } from "selectors/entitiesSelector";
 import { call, delay, select } from "redux-saga/effects";
 import PaneNavigation from "../PaneNavigation";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -15,8 +15,11 @@ export default class ActionPaneNavigation extends PaneNavigation {
     super(entityInfo);
     this.init = this.init.bind(this);
     this.getConfig = this.getConfig.bind(this);
+    this.navigate = this.navigate.bind(this);
+
     this.navigateToUrl = this.navigateToUrl.bind(this);
     this.scrollToView = this.scrollToView.bind(this);
+    this.isInSettingsTab = this.isInSettingsTab.bind(this);
   }
 
   *init() {
@@ -64,5 +67,23 @@ export default class ActionPaneNavigation extends PaneNavigation {
     element?.scrollIntoView({
       behavior: "smooth",
     });
+  }
+
+  *isInSettingsTab(propertyPath: string) {
+    const settingsConfig: any[] = yield select(
+      getSettingConfig,
+      this.action.pluginId,
+    );
+    let inSettingsTab = false;
+
+    settingsConfig.forEach((section) => {
+      if (section.children) {
+        inSettingsTab = section.children.some((config: any) => {
+          return propertyPath.includes(config.configProperty);
+        });
+      }
+    });
+
+    return inSettingsTab;
   }
 }

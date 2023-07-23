@@ -11,6 +11,7 @@ export default class ApiPaneNavigation extends ActionPaneNavigation {
     super(entityInfo);
     this.getConfig = this.getConfig.bind(this);
     this.navigate = this.navigate.bind(this);
+    this.getTabIndex = this.getTabIndex.bind(this);
   }
 
   *getConfig() {
@@ -42,6 +43,10 @@ export default class ApiPaneNavigation extends ActionPaneNavigation {
   *getTabIndex(propertyPath: string) {
     let currentTab;
     let index;
+    const modifiedProperty = propertyPath.replace(
+      "config",
+      "actionConfiguration",
+    );
 
     if (propertyPath.includes("headers")) currentTab = API_EDITOR_TABS.HEADERS;
     else if (propertyPath.includes("queryParameters"))
@@ -58,6 +63,15 @@ export default class ApiPaneNavigation extends ActionPaneNavigation {
       propertyPath.includes("limitBased")
     )
       currentTab = API_EDITOR_TABS.PAGINATION;
+    else {
+      const inSettingsTab: boolean = yield call(
+        this.isInSettingsTab,
+        modifiedProperty,
+      );
+      if (inSettingsTab) {
+        currentTab = API_EDITOR_TABS.SETTINGS;
+      }
+    }
 
     if (currentTab) {
       index = Object.values(API_EDITOR_TABS).indexOf(currentTab);
