@@ -21,11 +21,11 @@ export function* logJSFunctionExecution(
     body: { data: executionData },
   } = data;
 
-  // We only care about EVENT_EXECUTION in ce
-  const filteredExecutionData = executionData.filter(
+  // We only care about EVENT_EXECUTION
+  const triggerExecutionData = executionData.filter(
     (execData) =>
       execData.triggerMeta.triggerKind === TriggerKind.EVENT_EXECUTION,
   );
-  yield fork(logJSActionExecution, filteredExecutionData);
+  yield fork(logJSActionExecution, triggerExecutionData);
   return data;
 }
