@@ -25,7 +25,6 @@ export class DeployMode {
     ".t--app-viewer-navigation-header .t--app-viewer-back-to-apps-button";
   private _homeAppsmithImage = "a.t--appsmith-logo";
   public envInfoModal = `[data-testid="t--env-info-modal"]`;
-  public envInfoModalDismissCheckbox = `[data-testid="t--env-info-dismiss-checkbox"]`;
   public envInfoModalDeployButton = `[data-testid="t--env-info-modal-deploy-button"]`;
 
   //refering PublishtheApp from command.js
@@ -34,8 +33,7 @@ export class DeployMode {
     toCheckFailureToast = true,
     toValidateSavedState = true,
     addDebugFlag = true,
-    assertEnvInfoModal: "present" | "absent" = "present",
-    dismissModal = false,
+    assertEnvInfoModal = false,
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
 
@@ -46,14 +44,9 @@ export class DeployMode {
     this.assertHelper.AssertDocumentReady();
     this.StubbingDeployPage(addDebugFlag);
     this.agHelper.ClickButton("Deploy");
-    if (assertEnvInfoModal === "present") {
+    if (assertEnvInfoModal) {
       this.agHelper.WaitUntilEleAppear(this.envInfoModal);
       this.agHelper.AssertElementExist(this.envInfoModal);
-      if (dismissModal) {
-        this.agHelper.CheckUncheck(this.envInfoModalDismissCheckbox);
-      }
-    } else {
-      this.agHelper.AssertElementAbsence(this.envInfoModal);
     }
     this.agHelper.GetNClickIfPresent(this.envInfoModalDeployButton);
     this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //to make sure we have started navigation from Edit page
