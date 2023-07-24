@@ -17,5 +17,5 @@ public interface InstanceConfigHelperCE {
 
     Mono<Boolean> isLicenseValid();
 
-    void checkMongoDBVersion();
+    Mono<String> checkMongoDBVersion();
 }

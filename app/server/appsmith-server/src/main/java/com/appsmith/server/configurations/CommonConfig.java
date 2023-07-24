@@ -69,8 +69,7 @@ public class CommonConfig {
 
     private String mongoDBVersion;
 
-    @Value("${appsmith.productalert.minsupportedmongoversion:5}")
-    private String minSupportedMongoVersion;
+    private static final String MIN_SUPPORTED_MONGODB_VERSION = "5.0.0";
 
     @Bean
     public Scheduler scheduler() {
@@ -137,13 +136,13 @@ public class CommonConfig {
         return "http://127.0.0.1:" + rtsPort;
     }
 
-    public Boolean isMongoUptoDate() {
-        ComparableVersion minSupportedVersion = new ComparableVersion(minSupportedMongoVersion);
+    public boolean isMongoUptoDate() {
+        ComparableVersion minSupportedVersion = new ComparableVersion(MIN_SUPPORTED_MONGODB_VERSION);
         ComparableVersion connectedMongoVersion = new ComparableVersion(mongoDBVersion);
         return minSupportedVersion.compareTo(connectedMongoVersion) <= 0;
     }
 
-    public Boolean isConnectedMongoVersionAvailable() {
+    public boolean isConnectedMongoVersionAvailable() {
         return mongoDBVersion != null;
     }
 }

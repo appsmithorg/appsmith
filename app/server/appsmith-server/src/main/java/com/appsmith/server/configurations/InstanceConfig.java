@@ -37,6 +37,9 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 .then(instanceConfigHelper.performRtsHealthCheck())
                 .doFinally(ignored -> instanceConfigHelper.printReady());
 
+        String connectedMongoVersion =
+                instanceConfigHelper.checkMongoDBVersion().block();
+
         Mono<?> startupProcess = instanceConfigHelper
                 .checkInstanceSchemaVersion()
                 .flatMap(signal -> registrationAndRtsCheckMono)
