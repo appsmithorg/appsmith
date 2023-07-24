@@ -101,7 +101,7 @@ export function* waitForWidgetConfigBuild() {
 
 export function* reportSWStatus() {
   const mode: APP_MODE = yield select(getAppMode);
-  if (navigator.hasOwnProperty("serviceWorker")) {
+  if ("serviceWorker" in navigator) {
     navigator.serviceWorker
       .getRegistrations()
       .then((registrations) => {
