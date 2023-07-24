@@ -106,7 +106,7 @@ export function* reportSWStatus() {
       .getRegistrations()
       .then((registrations) => {
         if (registrations.length === 0) {
-          AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
+          return AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
             message: "Service worker not found",
             mode,
           });
@@ -115,7 +115,7 @@ export function* reportSWStatus() {
           (registration) => registration.active,
         );
         if (activeRegistrations.length === 0) {
-          AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
+          return AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
             message: "Service worker is not active",
             mode,
           });
