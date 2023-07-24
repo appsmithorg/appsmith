@@ -262,6 +262,9 @@ export class CommonLocators {
   _itemContainerWidget = ".t--widget-containerwidget div.style-container";
   _paginationButton = ".rc-pagination-item";
   _firstChild = ":first-child";
+  _adsV2Content = ".ads-v2__content";
+  _adsV2CollapsibleHeader = ".ads-v2-collapsible__header";
+  _adsV2Text = ".ads-v2-text";
   _svg = "svg";
   _nextPage = ".rc-pagination-next";
   _containerWidget = "[type='CONTAINER_WIDGET']";
@@ -271,5 +274,5 @@ export class CommonLocators {
   _evaluatedValue = ".t-property-evaluated-value";
   _selectSearch = ".rc-select-selection-search";
   public ds_editor_env_filter = (envName: string) =>
-    `[data-cy="t--ds-data-filter-${envName}"]`;
+    `[data-testid="t--ds-data-filter-${envName}"]`;
 }
