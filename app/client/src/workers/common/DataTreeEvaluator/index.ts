@@ -385,7 +385,7 @@ export default class DataTreeEvaluator {
     evalOrder: string[];
     jsUpdates: Record<string, JSUpdate>;
     nonDynamicFieldValidationOrder: string[];
-    pathsToClearErrorsFor: any[];
+    removedPaths: Array<{ entityId: string; fullpath: string }>;
     isNewWidgetAdded: boolean;
   } {
     this.setConfigTree(configTree);
@@ -457,7 +457,7 @@ export default class DataTreeEvaluator {
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
       return {
-        pathsToClearErrorsFor: [],
+        removedPaths: [],
         unEvalUpdates: [],
         evalOrder: [],
         jsUpdates: {},
@@ -503,7 +503,6 @@ export default class DataTreeEvaluator {
       dependenciesOfRemovedPaths,
       inverseDependencies,
       inverseValidationDependencies,
-      pathsToClearErrorsFor,
       removedPaths,
       validationDependencies,
     } = updateDependencyMap({
@@ -546,7 +545,6 @@ export default class DataTreeEvaluator {
         dependenciesOfRemovedPaths,
         removedPaths,
         translatedDiffs,
-        pathsToClearErrorsFor,
         findDifferenceTime,
         updateDependencyMapTime,
         configTree,
@@ -605,9 +603,8 @@ export default class DataTreeEvaluator {
     extraParams: {
       totalUpdateTreeSetupStartTime?: any;
       dependenciesOfRemovedPaths?: string[];
-      removedPaths?: string[];
+      removedPaths?: Array<{ entityId: string; fullpath: string }>;
       translatedDiffs?: DataTreeDiff[];
-      pathsToClearErrorsFor?: any[];
       pathsToSkipFromEval?: string[];
       findDifferenceTime?: string;
       updateDependencyMapTime?: string;
@@ -620,7 +617,6 @@ export default class DataTreeEvaluator {
       removedPaths = [],
       totalUpdateTreeSetupStartTime = performance.now(),
       translatedDiffs = [],
-      pathsToClearErrorsFor = [],
       pathsToSkipFromEval = [],
       findDifferenceTime = "0",
       updateDependencyMapTime = "0",
@@ -657,7 +653,7 @@ export default class DataTreeEvaluator {
 
     // Remove any deleted paths from the eval tree
     removedPaths.forEach((removedPath) => {
-      unset(this.evalTree, removedPath);
+      unset(this.evalTree, removedPath.fullpath);
     });
 
     const cloneStartTime = performance.now();
@@ -691,7 +687,7 @@ export default class DataTreeEvaluator {
       nonDynamicFieldValidationOrder: Array.from(
         nonDynamicFieldValidationOrderSet,
       ),
-      pathsToClearErrorsFor,
+      removedPaths,
       isNewWidgetAdded,
     };
   }
@@ -707,7 +703,7 @@ export default class DataTreeEvaluator {
         evalOrder: [],
         jsUpdates: {},
         nonDynamicFieldValidationOrder: [],
-        pathsToClearErrorsFor: [],
+        removedPaths: [],
         isNewWidgetAdded: false,
       };
     }
@@ -1546,7 +1542,7 @@ export default class DataTreeEvaluator {
   calculateSubTreeSortOrder(
     updatedValuePaths: string[][],
     dependenciesOfRemovedPaths: Array<string>,
-    removedPaths: Array<string>,
+    removedPaths: Array<{ entityId: string; fullpath: string }>,
     unEvalTree: DataTree,
     configTree: ConfigTree,
   ) {
@@ -1624,7 +1620,10 @@ export default class DataTreeEvaluator {
     );
 
     // Remove any paths that do not exist in the data tree anymore
-    return difference(completeSortOrder, removedPaths);
+    return difference(
+      completeSortOrder,
+      removedPaths.map((removedPath) => removedPath.fullpath),
+    );
   }
 
   evaluateActionBindings(
