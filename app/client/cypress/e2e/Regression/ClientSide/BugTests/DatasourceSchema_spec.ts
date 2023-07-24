@@ -106,5 +106,4 @@ describe("Datasource form related tests", function () {
     dataSources.CreateQueryAfterDSSaved();
     dataSources.VerifySchemaAbsenceInQueryEditor();
   });
-
 });
