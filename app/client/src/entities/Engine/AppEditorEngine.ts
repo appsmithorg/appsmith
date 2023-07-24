@@ -59,6 +59,7 @@ import {
 import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getAIPromptTriggered } from "utils/storage";
+import { trackOpenEditorTabs } from "../../utils/editor/EditorUtils";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -202,10 +203,17 @@ export default class AppEditorEngine extends AppEngine {
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
     );
+
+    const isAnotherTabOpen: boolean = yield call(
+      trackOpenEditorTabs,
+      currentApplication.id,
+    );
+
     if (currentApplication) {
       AnalyticsUtil.logEvent("EDITOR_OPEN", {
         appId: currentApplication.id,
         appName: currentApplication.name,
+        additionalTab: isAnotherTabOpen,
       });
     }
     yield put(loadGuidedTourInit());
