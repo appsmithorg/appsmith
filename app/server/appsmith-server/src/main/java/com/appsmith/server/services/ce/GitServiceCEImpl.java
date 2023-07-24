@@ -1765,13 +1765,16 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 // Create a Mono to fetch the status from remote
                                 Mono<String> fetchRemoteMono = executionTimeLogging.measureTask(
                                         "getStatus->gitExecutor.fetchRemote",
-                                        gitExecutor.fetchRemote(
-                                                repoSuffix,
-                                                gitAuth.getPublicKey(),
-                                                gitAuth.getPrivateKey(),
-                                                false,
-                                                branchName,
-                                                false));
+                                        gitExecutor
+                                                .fetchRemote(
+                                                        repoSuffix,
+                                                        gitAuth.getPublicKey(),
+                                                        gitAuth.getPrivateKey(),
+                                                        false,
+                                                        branchName,
+                                                        false)
+                                                .onErrorResume(error -> Mono.error(new AppsmithException(
+                                                        AppsmithError.GIT_GENERIC_ERROR, error.getMessage()))));
 
                                 Mono<ApplicationJson> exportAppMono = executionTimeLogging.measureTask(
                                         "getStatus->exportApplicationById",
