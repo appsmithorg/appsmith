@@ -9,11 +9,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import {
-  getAction,
-  getAllWidgetsMap,
-  getDatasource,
-} from "selectors/entitiesSelector";
+import { getAction, getDatasource } from "selectors/entitiesSelector";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
@@ -88,13 +84,9 @@ function JSCollectionLink(props: EntityLinkProps) {
 }
 
 function WidgetLink(props: EntityLinkProps) {
-  const widgetMap = useSelector(getAllWidgetsMap);
   const dispatch = useDispatch();
 
   const onClick = useCallback(() => {
-    const widget = widgetMap[props.id];
-    if (!widget) return;
-
     dispatch(
       navigateToEntity({
         id: props.id,
@@ -109,7 +101,13 @@ function WidgetLink(props: EntityLinkProps) {
       appsmithErrorCode: props.appsmithErrorCode,
       entityType: "WIDGET",
     });
-  }, [props.id, props.propertyPath]);
+  }, [
+    props.id,
+    props.propertyPath,
+    props.errorType,
+    props.errorSubType,
+    props.appsmithErrorCode,
+  ]);
 
   return (
     <DebuggerEntityLink
