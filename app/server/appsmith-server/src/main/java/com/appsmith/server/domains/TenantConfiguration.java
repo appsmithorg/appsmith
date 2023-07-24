@@ -74,6 +74,10 @@ public class TenantConfiguration extends TenantConfigurationCE {
     @Override
     public void copyNonSensitiveValues(TenantConfiguration tenantConfiguration) {
         super.copyNonSensitiveValues(tenantConfiguration);
+        if (tenantConfiguration == null) {
+            return;
+        }
+
         this.whiteLabelLogo = tenantConfiguration.getWhiteLabelLogo();
         this.whiteLabelFavicon = tenantConfiguration.getWhiteLabelFavicon();
         this.brandColors = tenantConfiguration.getBrandColors();
