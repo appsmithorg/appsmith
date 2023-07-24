@@ -15,8 +15,8 @@ export const StyledRadio = styled(HeadlessRadio)<RadioProps>`
     --radio-box-shadow: 0px 0px 0px var(--radio-border-width)
       var(--radio-border-color) inset;
 
-    width: calc(4 * var(--root-unit));
-    height: calc(4 * var(--root-unit));
+    width: var(--sizing-4);
+    height: var(--sizing-4);
     box-shadow: var(--radio-box-shadow);
     border-radius: 100%;
     color: transparent;

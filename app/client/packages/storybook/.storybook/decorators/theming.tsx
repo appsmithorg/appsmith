@@ -6,13 +6,14 @@ import {
   ThemeProvider,
   TokensAccessor,
   defaultTokens,
+  useFluidTokens,
 } from "@design-system/theming";
 import Color from "colorjs.io";
 
 const StyledThemeProvider = styled(ThemeProvider)`
   display: inline-flex;
-  width: 100%;
-  height: 100%;
+  min-width: 100%;
+  min-height: 100%;
   padding: 16px;
   align-items: center;
   justify-content: center;
@@ -20,9 +21,23 @@ const StyledThemeProvider = styled(ThemeProvider)`
   color: var(--color-fg);
 `;
 
-const tokensAccessor = new TokensAccessor(defaultTokens);
-
 export const theming = (Story, args) => {
+  const [rootUnitRatio, setRootUnitRatio] = useState(1);
+  const { fluid, ...restDefaultTokens } = defaultTokens;
+
+  const { typography, rootUnit, spacing, sizing } = useFluidTokens(
+    fluid,
+    rootUnitRatio,
+  );
+
+  const tokensAccessor = new TokensAccessor({
+    ...restDefaultTokens,
+    rootUnit,
+    spacing,
+    sizing,
+    typography,
+  });
+
   const [theme, setTheme] = useState(tokensAccessor.getAllTokens());
 
   const updateFontFamily = (fontFamily) => {
@@ -31,7 +46,7 @@ export const theming = (Story, args) => {
     setTheme((prevState) => {
       return {
         ...prevState,
-        ...tokensAccessor.getTypography(),
+        typography: tokensAccessor.getTypography(),
       };
     });
   };
@@ -107,21 +122,31 @@ export const theming = (Story, args) => {
   }, [args.globals.fontFamily]);
 
   useEffect(() => {
-    if (args.globals.rootUnit) {
-      tokensAccessor.updateRootUnit(
-        defaultTokens.rootUnit * args.globals.rootUnit,
-      );
+    if (args.globals.rootUnitRatio) {
+      setRootUnitRatio(args.globals.rootUnitRatio);
+      tokensAccessor.updateRootUnit(rootUnit);
+      tokensAccessor.updateSpacing(spacing);
 
       setTheme((prevState) => {
         return {
           ...prevState,
           rootUnit: tokensAccessor.getRootUnit(),
           ...tokensAccessor.getSpacing(),
-          ...tokensAccessor.getTypography(),
         };
       });
     }
-  }, [args.globals.rootUnit]);
+  }, [args.globals.rootUnitRatio]);
+
+  useEffect(() => {
+    tokensAccessor.updateTypography(typography);
+
+    setTheme((prevState) => {
+      return {
+        ...prevState,
+        typography: tokensAccessor.getTypography(),
+      };
+    });
+  }, [typography]);
 
   return (
     <StyledThemeProvider theme={theme}>

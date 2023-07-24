@@ -1001,7 +1001,7 @@ export const ONBOARDING_CHECKLIST_BODY = () =>
 export const ONBOARDING_CHECKLIST_COMPLETE_TEXT = () => "complete";
 
 export const SIGNPOSTING_POPUP_SUBTITLE = () =>
-  "These are all the things you need to do to build your first application.";
+  "Here’s what you need to do to build your first app:";
 export const SIGNPOSTING_SUCCESS_POPUP = {
   title: () => "🎉 Awesome! You’ve explored the basics of Appsmith",
   subtitle: () =>
@@ -1009,32 +1009,31 @@ export const SIGNPOSTING_SUCCESS_POPUP = {
 };
 
 export const ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE = {
-  bold: () => "Connect your datasource",
-  normal: () => "to start building your app",
+  bold: () => "Connect to a datasource",
+  normal: () => "So your UI can talk to your data.",
 };
 
 export const ONBOARDING_CHECKLIST_CREATE_A_QUERY = {
-  bold: () => "Write a query",
-  normalPrefix: () => "to import your",
-  normal: () => "data into appsmith",
+  bold: () => "Write your first query",
+  normal: () => "To get the data to present in widgets",
 };
 
 export const ONBOARDING_CHECKLIST_ADD_WIDGETS = {
-  bold: () => "Drag & drop a widget,",
-  normal: () => "so you can build a beautiful UI",
+  bold: () => "Drop a widget on the canvas",
+  normal: () => "To start building your UI",
 };
 
 export const ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET = {
-  bold: () => "Connect your data to the widgets",
-  normal: () => "using JavaScript bindings",
+  bold: () => "Connect queries and widgets",
+  normal: () => "using query names in bindings {{}}",
 };
 
 export const ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS = {
-  bold: () => "Deploy your application,",
-  normal: () => "and see your creation live.",
+  bold: () => "Deploy your application",
+  normal: () => "To see your live app and share it with end-users.",
 };
 
-export const SIGNPOSTING_LAST_STEP_TOOLTIP = () => "You are almost there!";
+export const SIGNPOSTING_LAST_STEP_TOOLTIP = () => "Almost there!";
 export const SIGNPOSTING_TOOLTIP = {
   DEFAULT: {
     content: () =>
@@ -1044,19 +1043,18 @@ export const SIGNPOSTING_TOOLTIP = {
     content: () => "Let's add a datasource",
   },
   CREATE_QUERY: {
-    content: () =>
-      "You successfully connected a datasource. Now try to create a query.",
+    content: () => "Datasource connected. Let's write your first query now.",
   },
   ADD_WIDGET: {
-    content: () =>
-      "You successfully created a query. Now its time to drag & drop a widget to bind data.",
+    content: () => "The query seems fine, right? Let's build our UI next.",
   },
   CONNECT_DATA_TO_WIDGET: {
     content: () =>
-      "You have a widget on the canvas now, its time to bind the data with it.",
+      "That was easy. Connect the query you wrote in Step 2 to present data in this widget.",
   },
   DEPLOY_APPLICATION: {
-    content: () => "Deploy you application to see what you’ve built.",
+    content: () =>
+      "Deploy your app to see it live and share it with your users.",
   },
   DOCUMENTATION: {
     content: () => "Open documentation",
