@@ -1,9 +1,9 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
-
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -11,6 +11,7 @@ export const CONFIG = {
   needsMeta: true,
   searchTags: ["range"],
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.SLIDERS],
   defaults: {
     min: 0,
     max: 100,
