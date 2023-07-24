@@ -14,7 +14,7 @@ import type {
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import type { ActionEntity, JSActionEntity } from "entities/DataTree/types";
-import { getEvalErrorPath } from "utils/DynamicBindingUtils";
+import { getEntityId, getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { convertArrayToObject, extractInfoFromBindings } from "./utils";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { get, isEmpty, set } from "lodash";
@@ -95,8 +95,7 @@ export function createDependencyMap(
 
 interface UpdateDependencyMap {
   dependenciesOfRemovedPaths: string[];
-  pathsToClearErrorsFor: string[];
-  removedPaths: string[];
+  removedPaths: Array<{ entityId: string; fullpath: string }>;
   dependencies: Record<string, string[]>;
   validationDependencies: Record<string, string[]>;
   inverseDependencies: Record<string, string[]>;
@@ -115,8 +114,7 @@ export const updateDependencyMap = ({
 }): UpdateDependencyMap => {
   const diffCalcStart = performance.now();
   const dependenciesOfRemovedPaths: Array<string> = [];
-  const removedPaths: Array<string> = [];
-  const pathsToClearErrorsFor: any[] = [];
+  const removedPaths: Array<{ entityId: string; fullpath: string }> = [];
   let didUpdateDependencyMap = false;
   let didUpdateValidationDependencyMap = false;
   const {
@@ -223,18 +221,6 @@ export const updateDependencyMap = ({
           break;
         }
         case DataTreeDiffEvent.DELETE: {
-          /**There are certain cases where the child paths of the entity could have errors and
-           *  need them to be cleared post evaluations. Therefore we store all the paths that are
-           * removed on deleting the entity and use that reference to clear the error logs post evaluation*/
-          if (isWidget(entity)) {
-            pathsToClearErrorsFor.push({
-              widgetId: entity?.widgetId,
-              paths: [
-                fullPropertyPath,
-                dependencyMap.getDirectDependencies(fullPropertyPath),
-              ],
-            });
-          }
           const allDeletedPaths = getAllPaths({
             [fullPropertyPath]: get(oldUnEvalTree, fullPropertyPath),
           });
@@ -250,9 +236,16 @@ export const updateDependencyMap = ({
             validationDependencyMap.removeNodes(allDeletedPaths);
           if (didUpdateDeps) didUpdateDependencyMap = true;
           if (didUpdateValidationDeps) didUpdateValidationDependencyMap = true;
-          // Add to removedPaths as they have been deleted from the evalTree
-          removedPaths.push(fullPropertyPath);
 
+          if (isWidgetActionOrJsObject(entity)) {
+            const entityId = getEntityId(entity);
+            for (const deletedPath of Object.keys(allDeletedPaths)) {
+              removedPaths.push({
+                entityId: entityId || "",
+                fullpath: deletedPath,
+              });
+            }
+          }
           break;
         }
         case DataTreeDiffEvent.EDIT: {
@@ -303,11 +296,9 @@ export const updateDependencyMap = ({
   }
 
   /** We need this in order clear out the paths that could have errors when a property is deleted */
-  if (pathsToClearErrorsFor.length) {
-    pathsToClearErrorsFor.forEach((error) => {
-      error.paths.forEach((path: string) => {
-        set(dataTreeEvalRef.evalProps, getEvalErrorPath(path), []);
-      });
+  if (removedPaths.length) {
+    removedPaths.forEach(({ fullpath }) => {
+      set(dataTreeEvalRef.evalProps, getEvalErrorPath(fullpath), []);
     });
   }
 
@@ -321,7 +312,6 @@ export const updateDependencyMap = ({
   });
 
   return {
-    pathsToClearErrorsFor,
     dependenciesOfRemovedPaths,
     removedPaths,
     dependencies: dependencyMap.dependencies,

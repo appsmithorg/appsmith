@@ -42,7 +42,7 @@ export default function (request: EvalWorkerSyncRequest) {
   let evalMetaUpdates: EvalMetaUpdates = [];
   let configTree: ConfigTree = {};
   let staleMetaIds: string[] = [];
-  let pathsToClearErrorsFor: any[] = [];
+  let removedPaths: Array<{ entityId: string; fullpath: string }> = [];
   let isNewWidgetAdded = false;
 
   const {
@@ -139,7 +139,7 @@ export default function (request: EvalWorkerSyncRequest) {
       evalOrder = setupUpdateTreeResponse.evalOrder;
       jsUpdates = setupUpdateTreeResponse.jsUpdates;
       unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
-      pathsToClearErrorsFor = setupUpdateTreeResponse.pathsToClearErrorsFor;
+      removedPaths = setupUpdateTreeResponse.removedPaths;
       isNewWidgetAdded = setupUpdateTreeResponse.isNewWidgetAdded;
 
       nonDynamicFieldValidationOrder =
@@ -220,7 +220,7 @@ export default function (request: EvalWorkerSyncRequest) {
     isCreateFirstTree,
     configTree,
     staleMetaIds,
-    pathsToClearErrorsFor,
+    removedPaths,
     isNewWidgetAdded,
     undefinedEvalValuesMap: dataTreeEvaluator?.undefinedEvalValuesMap || {},
     jsVarsCreatedEvent,

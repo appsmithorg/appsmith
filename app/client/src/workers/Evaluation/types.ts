@@ -52,7 +52,7 @@ export interface EvalTreeResponseData {
   isCreateFirstTree: boolean;
   configTree: ConfigTree;
   staleMetaIds: string[];
-  pathsToClearErrorsFor: any[];
+  removedPaths: Array<{ entityId: string; fullpath: string }>;
   isNewWidgetAdded: boolean;
   undefinedEvalValuesMap: Record<string, boolean>;
   jsVarsCreatedEvent?: { path: string; type: string }[];

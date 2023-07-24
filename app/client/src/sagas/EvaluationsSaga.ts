@@ -142,7 +142,7 @@ export function* updateDataTreeHandler(
     isNewWidgetAdded,
     jsUpdates,
     logs,
-    pathsToClearErrorsFor,
+    removedPaths,
     staleMetaIds,
     undefinedEvalValuesMap,
     unEvalUpdates,
@@ -190,7 +190,7 @@ export function* updateDataTreeHandler(
     evaluationOrder,
     reValidatedPaths,
     configTree,
-    pathsToClearErrorsFor,
+    removedPaths,
   );
 
   if (appMode !== APP_MODE.PUBLISHED) {
