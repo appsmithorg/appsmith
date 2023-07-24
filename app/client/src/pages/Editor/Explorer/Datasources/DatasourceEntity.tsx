@@ -13,9 +13,16 @@ import {
 } from "actions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
+import {
+  DatasourceStructureContainer,
+  DatasourceStructureContext,
+} from "./DatasourceStructureContainer";
 import { isStoredDatasource, PluginType } from "entities/Action";
-import { getAction } from "selectors/entitiesSelector";
+import {
+  getAction,
+  getDatasourceStructureById,
+  getIsFetchingDatasourceStructure,
+} from "selectors/entitiesSelector";
 import {
   datasourcesEditorIdURL,
   saasEditorDatasourceIdURL,
@@ -71,7 +78,7 @@ const ExplorerDatasourceEntity = React.memo(
         name: props.datasource.name,
       });
       history.push(url, { invokedBy: NavigationMethod.EntityExplorer });
-    }, [props.datasource.id, props.datasource.name, location.pathname]);
+    }, [props.datasource.id, props.datasource.name, location.pathname, pageId]);
 
     const queryId = getQueryIdFromURL();
     const queryAction = useSelector((state: AppState) =>
@@ -81,13 +88,13 @@ const ExplorerDatasourceEntity = React.memo(
     const updateDatasourceNameCall = (id: string, name: string) =>
       updateDatasourceName({ id: props.datasource.id, name });
 
-    const datasourceStructure = useSelector((state: AppState) => {
-      return state.entities.datasources.structure[props.datasource.id];
-    });
+    const datasourceStructure = useSelector((state: AppState) =>
+      getDatasourceStructureById(state, props.datasource.id),
+    );
 
-    const isFetchingDatasourceStructure = useSelector((state: AppState) => {
-      return state.entities.datasources.fetchingDatasourceStructure;
-    });
+    const isFetchingDatasourceStructure = useSelector((state: AppState) =>
+      getIsFetchingDatasourceStructure(state, props.datasource.id),
+    );
 
     const expandDatasourceId = useSelector((state: AppState) => {
       return state.ui.datasourcePane.expandDatasourceId;
@@ -95,7 +102,13 @@ const ExplorerDatasourceEntity = React.memo(
 
     //Debounce fetchDatasourceStructure request.
     const debounceFetchDatasourceRequest = debounce(async () => {
-      dispatch(fetchDatasourceStructure(props.datasource.id, true));
+      dispatch(
+        fetchDatasourceStructure(
+          props.datasource.id,
+          true,
+          DatasourceStructureContext.EXPLORER,
+        ),
+      );
     }, 300);
 
     const getDatasourceStructure = useCallback(
@@ -155,6 +168,7 @@ const ExplorerDatasourceEntity = React.memo(
         updateEntityName={updateDatasourceNameCall}
       >
         <DatasourceStructureContainer
+          context={DatasourceStructureContext.EXPLORER}
           datasourceId={props.datasource.id}
           datasourceStructure={datasourceStructure}
           step={props.step}

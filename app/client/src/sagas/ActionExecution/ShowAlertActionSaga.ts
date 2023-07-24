@@ -5,6 +5,7 @@ import type { ToastKind } from "design-system";
 import type { TShowAlertDescription } from "workers/Evaluation/fns/showAlert";
 import { call } from "redux-saga/effects";
 import showToast from "sagas/ToastSagas";
+import { uniqueId } from "lodash";
 
 export default function* showAlertSaga(action: TShowAlertDescription) {
   const { payload } = action;
@@ -22,6 +23,7 @@ export default function* showAlertSaga(action: TShowAlertDescription) {
     payload.message,
     {
       kind: payload.style as ToastKind,
+      toastId: uniqueId("ToastId"),
     },
     { forceDisplay: true },
   );

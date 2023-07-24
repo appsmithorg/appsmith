@@ -58,6 +58,7 @@ import {
 } from "@appsmith/sagas/userSagas";
 import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { getAIPromptTriggered } from "utils/storage";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -147,37 +148,25 @@ export default class AppEditorEngine extends AppEngine {
 
   private *loadPluginsAndDatasources() {
     const isAirgappedInstance = isAirgapped();
-    const initActions: ReduxAction<unknown>[] = [
-      fetchPlugins(),
-      fetchDatasources(),
-    ];
-
-    if (!isAirgappedInstance) {
-      initActions.push(fetchMockDatasources() as ReduxAction<{ type: string }>);
-    }
-    initActions.push(fetchPageDSLs() as ReduxAction<{ type: string }>);
+    const initActions = [fetchPlugins(), fetchDatasources(), fetchPageDSLs()];
 
     const successActions = [
       ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
       ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
-      ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
       ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS,
-    ].filter((action) =>
-      !isAirgappedInstance
-        ? true
-        : action !== ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
-    );
+    ];
 
     const errorActions = [
       ReduxActionErrorTypes.FETCH_PLUGINS_ERROR,
       ReduxActionErrorTypes.FETCH_DATASOURCES_ERROR,
-      ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR,
       ReduxActionErrorTypes.POPULATE_PAGEDSLS_ERROR,
-    ].filter((action) =>
-      !isAirgappedInstance
-        ? true
-        : action !== ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR,
-    );
+    ];
+
+    if (!isAirgappedInstance) {
+      initActions.push(fetchMockDatasources() as ReduxAction<{ type: string }>);
+      successActions.push(ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS);
+      errorActions.push(ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR);
+    }
 
     const initActionCalls: boolean = yield call(
       failFastApiCalls,
@@ -226,6 +215,16 @@ export default class AppEditorEngine extends AppEngine {
         payload: [],
       });
     }
+
+    const noOfTimesAIPromptTriggered: number = yield getAIPromptTriggered();
+
+    yield put({
+      type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
+      payload: {
+        value: noOfTimesAIPromptTriggered,
+      },
+    });
+
     yield call(waitForWidgetConfigBuild);
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
