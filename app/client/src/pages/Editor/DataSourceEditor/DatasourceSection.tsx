@@ -15,7 +15,7 @@ import {
 import { getPlugin } from "selectors/entitiesSelector";
 import type { PluginType } from "entities/Action";
 import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
-import { EnvConfigSection } from "@appsmith/components/EnvConfigSection.tsx";
+import { EnvConfigSection } from "@appsmith/components/EnvConfigSection";
 
 const Key = styled.div`
   color: var(--ads-v2-color-fg-muted);
