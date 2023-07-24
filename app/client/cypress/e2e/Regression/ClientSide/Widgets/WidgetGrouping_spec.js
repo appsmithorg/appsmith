@@ -1,8 +1,9 @@
 const dsl = require("../../../../fixtures/widgetSelection.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Widget Grouping", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("widgetSelection");
   });
 
   it("Select widgets using cmd + click and group using cmd + G", function () {

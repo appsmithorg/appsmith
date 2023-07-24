@@ -50,7 +50,8 @@ public class DocumentTypeMapper implements TypeInformationMapper {
                     typeToAliasMap.put(type, alias);
 
                 } catch (ClassNotFoundException e) {
-                    throw new IllegalStateException(String.format("Class [%s] could not be loaded.", bd.getBeanClassName()), e);
+                    throw new IllegalStateException(
+                            String.format("Class [%s] could not be loaded.", bd.getBeanClassName()), e);
                 }
             }
         }
@@ -90,7 +91,7 @@ public class DocumentTypeMapper implements TypeInformationMapper {
             return this;
         }
 
-        public Builder withBasePackages(Collection< ? extends String> basePackages) {
+        public Builder withBasePackages(Collection<? extends String> basePackages) {
             basePackagesToScan.addAll(basePackages);
             return this;
         }

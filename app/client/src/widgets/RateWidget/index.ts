@@ -2,6 +2,7 @@ import { Colors } from "constants/Colors";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { RateWidgetProps } from "./widget";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   features: {
@@ -13,6 +14,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Rating",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.CONTENT],
   needsMeta: true,
   searchTags: ["stars"],
   defaults: {
@@ -52,6 +54,7 @@ export const CONFIG = {
           return {
             // 21 is the size of a star, 5 is the margin between stars
             minWidth: `${maxCount * 21 + (maxCount + 1) * 5}px`,
+            minHeight: "40px",
           };
         },
       },
@@ -70,6 +73,7 @@ export const CONFIG = {
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+    setterConfig: Widget.getSetterConfig(),
   },
 };
 

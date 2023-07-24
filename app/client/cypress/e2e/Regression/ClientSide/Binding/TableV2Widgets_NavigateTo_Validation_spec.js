@@ -1,13 +1,12 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/tableV2WidgetDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
-const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
 import {
   agHelper,
   propPane,
   entityExplorer,
+  deployMode,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 and Navigate to functionality validation", function () {
@@ -20,13 +19,12 @@ describe("Table Widget V2 and Navigate to functionality validation", function ()
   });
 
   before(() => {
-    cy.addDsl(dsl);
-    cy.wait(2000); //dsl to settle!
+    agHelper.AddDsl("tableV2WidgetDsl");
   });
 
   it("1. Create MyPage and validate if its successfully created", function () {
     cy.Createpage(pageid);
-    cy.addDsl(dsl2);
+    agHelper.AddDsl("displayWidgetDsl");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     entityExplorer.ExpandCollapseEntity("Pages");
@@ -51,7 +49,7 @@ describe("Table Widget V2 and Navigate to functionality validation", function ()
 
   it("2. Validate NavigateTo Page functionality ", function () {
     cy.wait(2000);
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     cy.get(widgetsPage.chartWidget).should("not.exist");
     cy.isSelectRow(1);
     cy.get(widgetsPage.chartWidget).should("be.visible");

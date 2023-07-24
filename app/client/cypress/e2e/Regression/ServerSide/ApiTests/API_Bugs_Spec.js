@@ -1,13 +1,11 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const dslParallel = require("../../../../fixtures/apiParallelDsl.json");
-const dslTable = require("../../../../fixtures/apiTableDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-let apiPage = ObjectsRegistry.ApiPage,
-  agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  locator = ObjectsRegistry.CommonLocators;
+import {
+  agHelper,
+  locators,
+  entityExplorer,
+  apiPage,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Rest Bugs tests", function () {
   beforeEach(() => {
@@ -19,8 +17,7 @@ describe("Rest Bugs tests", function () {
   });
 
   it("1. Bug 5550: Not able to run APIs in parallel", function () {
-    cy.addDsl(dslParallel);
-    cy.wait(8000); //settling time for dsl!
+    agHelper.AddDsl("apiParallelDsl");
     cy.get(".ads-v2-spinner").should("not.exist");
 
     //Api 1
@@ -48,7 +45,7 @@ describe("Rest Bugs tests", function () {
     );
     agHelper.PressEscape();
 
-    ee.SelectEntityByName("Page1", "Pages");
+    entityExplorer.SelectEntityByName("Page1", "Pages");
     agHelper.ClickButton("Invoke APIs!");
     cy.wait(12000); // for all api calls to complete!
 
@@ -131,12 +128,7 @@ describe("Rest Bugs tests", function () {
 
   it("2. Bug 6863: Clicking on 'debug' crashes the appsmith application", function () {
     cy.startErrorRoutes();
-    cy.CreatePage();
-    cy.wait("@createPage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    entityExplorer.AddNewPage();
     //Api 1
     apiPage.CreateAndFillApi(
       "https://api.thecatapi.com/v1/images/search",
@@ -153,7 +145,7 @@ describe("Rest Bugs tests", function () {
   });
 
   it("3. Bug 4775: No Cyclical dependency when Api returns an error", function () {
-    cy.addDsl(dslTable);
+    agHelper.AddDsl("apiTableDsl");
     cy.wait(5000); //settling time for dsl!
     cy.get(".ads-v2-spinner").should("not.exist");
     //Api 1
@@ -163,8 +155,8 @@ describe("Rest Bugs tests", function () {
     );
     apiPage.RunAPI(false);
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    ee.SelectEntityByName("Table1", "Widgets");
-    ee.SelectEntityByName("Currencies", "Queries/JS");
+    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    entityExplorer.SelectEntityByName("Currencies", "Queries/JS");
     apiPage.EnterURL("https://api.coinbase.com/v2/");
     agHelper.Sleep();
     // cy.get(".t--dataSourceField").then(($el) => {
@@ -172,7 +164,7 @@ describe("Rest Bugs tests", function () {
     // });
     apiPage.RunAPI(false);
     agHelper.AssertElementAbsence(
-      locator._specificToast("Cyclic dependency found while evaluating"),
+      locators._specificToast("Cyclic dependency found while evaluating"),
     );
     cy.ResponseStatusCheck("404 NOT_FOUND");
     cy.get(commonlocators.errorTab).should("be.visible").click({ force: true });

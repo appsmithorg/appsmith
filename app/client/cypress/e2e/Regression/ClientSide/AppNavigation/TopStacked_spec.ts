@@ -1,0 +1,154 @@
+import {
+  agHelper,
+  assertHelper,
+  deployMode,
+  homePage,
+  appSettings,
+  locators,
+} from "../../../../support/Objects/ObjectsCore";
+
+describe("Test Top + Stacked navigation style", function () {
+  before(() => {
+    // Import an application
+    homePage.NavigateToHome();
+    homePage.ImportApp("appNavigationTestingAppWithLongPageNamesAndTitle.json");
+    assertHelper
+      .WaitForNetworkCall("importNewApplication")
+      .then((interception: any) => {
+        agHelper.Sleep();
+        const { isPartialImport } = interception.response.body.data;
+        if (isPartialImport) {
+          homePage.AssertNCloseImport();
+        } else {
+          homePage.AssertImportToast(0);
+        }
+      });
+  });
+
+  it("1. In an app with 15 pages, the navbar should be scrollable", () => {
+    const pageName = "Page9 - with long long name";
+    deployMode.DeployApp();
+    agHelper.AssertElementLength(appSettings.locators._scrollArrows, 2);
+    agHelper.AssertElementVisible(appSettings.locators._scrollArrows, 1);
+    agHelper
+      .GetElement(appSettings.locators._navigationMenuItem)
+      .contains(pageName)
+      .should("not.be.visible");
+    agHelper.GetNClickByContains(
+      appSettings.locators._navigationMenuItem,
+      pageName,
+      0,
+      true,
+    );
+    agHelper
+      .GetElement(appSettings.locators._navigationMenuItem)
+      .contains(pageName)
+      .should("be.visible");
+    deployMode.NavigateBacktoEditor();
+  });
+
+  it("2. Page change should work", () => {
+    const pageName = "Page1 - with long long name";
+    deployMode.DeployApp();
+    agHelper.GetNClickByContains(
+      appSettings.locators._navigationMenuItem,
+      pageName,
+      0,
+      true,
+    );
+    agHelper.AssertElementVisible(
+      appSettings.locators._getActivePage(pageName),
+    );
+  });
+
+  it("3. Left and right scroll arrows should work", () => {
+    const pageName = "Page1 - with long long name";
+
+    // Navigate to Page1
+    agHelper.GetNClickByContains(
+      appSettings.locators._navigationMenuItem,
+      pageName,
+      0,
+      true,
+    );
+
+    // Check for scroll arrows
+    agHelper.AssertElementLength(appSettings.locators._scrollArrows, 2);
+
+    // Scroll to the right and page 1 should not be visible
+    agHelper
+      .GetElement(appSettings.locators._navigationMenuItem)
+      .contains(pageName)
+      .should("be.visible");
+    agHelper
+      .GetElement(appSettings.locators._scrollArrows)
+      .last()
+      .trigger("mousedown");
+    agHelper.Sleep(1500);
+    agHelper
+      .GetElement(appSettings.locators._scrollArrows)
+      .last()
+      .trigger("mouseup", { force: true });
+    agHelper
+      .GetElement(appSettings.locators._navigationMenuItem)
+      .contains(pageName)
+      .should("not.be.visible");
+
+    // Scroll to the left again and page 1 should be visible
+    agHelper
+      .GetElement(appSettings.locators._scrollArrows)
+      .first()
+      .trigger("mousedown");
+    agHelper.Sleep(1500);
+    agHelper
+      .GetElement(appSettings.locators._scrollArrows)
+      .first()
+      .trigger("mouseup", { force: true });
+    agHelper
+      .GetElement(appSettings.locators._navigationMenuItem)
+      .contains(pageName)
+      .should("be.visible");
+  });
+
+  it("4. Navigation's background should be default to white, and should change when background color is set to theme", () => {
+    // The background should be white since light color style is default
+    agHelper.AssertCSS(
+      appSettings.locators._topStacked,
+      "background-color",
+      "rgb(255, 255, 255)",
+      0,
+    );
+    // Changing color style to theme should change navigation's background color
+    deployMode.NavigateBacktoEditor();
+    agHelper.GetNClick(appSettings.locators._appSettings);
+    agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
+    agHelper.GetNClick(appSettings.locators._colorStyleOptions._theme, 0, true);
+    deployMode.DeployApp();
+    agHelper.AssertCSS(
+      appSettings.locators._topStacked,
+      "background-color",
+      "rgb(85, 61, 233)",
+      0,
+    );
+    //Application name, share button, edit button, and user dropdown should be available in the app header
+    agHelper.AssertElementVisible(appSettings.locators._applicationName);
+    agHelper.AssertElementVisible(appSettings.locators._shareButton);
+    agHelper.AssertElementVisible(locators._backToEditor);
+    agHelper.AssertElementVisible(homePage._profileMenu);
+  });
+
+  it("5. Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu", () => {
+    // Share
+    agHelper.GetNClick(
+      `${appSettings.locators._header} ${appSettings.locators._shareButton}`,
+    );
+    agHelper.Sleep(1000);
+    agHelper.AssertElementVisible(appSettings.locators._modal);
+    agHelper.GetNClick(appSettings.locators._modalClose, 0, true);
+    // User profile dropdown
+    agHelper.GetNClick(homePage._profileMenu);
+    agHelper.AssertElementVisible(
+      appSettings.locators._userProfileDropdownMenu,
+    );
+  });
+});

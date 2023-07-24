@@ -5,11 +5,20 @@ import com.appsmith.server.dtos.OAuth2AuthorizedClientDTO;
 import com.appsmith.server.dtos.UserSessionDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import io.lettuce.core.resource.ClientResources;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisClusterConfiguration;
+import org.springframework.data.redis.connection.RedisNode;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
+import org.springframework.data.redis.connection.lettuce.observability.MicrometerTracingAdapter;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
@@ -25,6 +34,7 @@ import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.session.data.redis.config.annotation.web.server.EnableRedisWebSession;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +44,9 @@ import java.util.Map;
 // Setting the maxInactiveInterval to 30 days
 @EnableRedisWebSession(maxInactiveIntervalInSeconds = 2592000)
 public class RedisConfig {
+
+    @Value("${appsmith.redis.url:}")
+    private String redisURL;
 
     /**
      * This is the topic to which we will publish & subscribe to. We can have multiple topics based on the messages
@@ -47,8 +60,39 @@ public class RedisConfig {
     }
 
     @Bean
+    @Primary
+    public ReactiveRedisConnectionFactory reactiveRedisConnectionFactory() {
+        final URI redisUri = URI.create(redisURL);
+        final String scheme = redisUri.getScheme();
+
+        switch (scheme) {
+            case "redis" -> {
+                return new LettuceConnectionFactory(redisUri.getHost(), redisUri.getPort());
+            }
+
+            case "redis-cluster" -> {
+                // For ElastiCache Redis with cluster mode enabled, with the configuration endpoint.
+                final LettuceClientConfiguration config =
+                        LettucePoolingClientConfiguration.builder().build();
+                final RedisClusterConfiguration clusterConfig = new RedisClusterConfiguration();
+                clusterConfig.addClusterNode(new RedisNode(redisUri.getHost(), redisUri.getPort()));
+                return new LettuceConnectionFactory(clusterConfig, config);
+            }
+
+            default -> throw new InvalidRedisURIException("Invalid redis scheme: " + scheme);
+        }
+    }
+
+    @Bean
     public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
         return new JSONSessionRedisSerializer();
+    }
+
+    @Bean
+    public ClientResources clientResources(ObservationRegistry observationRegistry) {
+        return ClientResources.builder()
+                .tracing(new MicrometerTracingAdapter(observationRegistry, "appsmith-redis"))
+                .build();
     }
 
     @Primary
@@ -59,7 +103,8 @@ public class RedisConfig {
         RedisSerializationContext.RedisSerializationContextBuilder<String, String> builder =
                 RedisSerializationContext.newSerializationContext(new StringRedisSerializer());
 
-        RedisSerializationContext<String, String> context = builder.value(serializer).build();
+        RedisSerializationContext<String, String> context =
+                builder.value(serializer).build();
 
         return new ReactiveRedisTemplate<>(factory, context);
     }
@@ -67,12 +112,14 @@ public class RedisConfig {
     // Lifted from below and turned it into a bean. Wish Spring provided it as a bean.
     // RedisWebSessionConfiguration.createReactiveRedisTemplate
     @Bean
-    ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(ReactiveRedisConnectionFactory factory,
-                                                                RedisSerializer<Object> serializer) {
+    ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(
+            ReactiveRedisConnectionFactory factory, RedisSerializer<Object> serializer) {
         RedisSerializer<String> keySerializer = new StringRedisSerializer();
-        RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
-                .<String, Object>newSerializationContext(serializer).key(keySerializer).hashKey(keySerializer)
-                .build();
+        RedisSerializationContext<String, Object> serializationContext =
+                RedisSerializationContext.<String, Object>newSerializationContext(serializer)
+                        .key(keySerializer)
+                        .hashKey(keySerializer)
+                        .build();
         return new ReactiveRedisTemplate<>(factory, serializationContext);
     }
 
@@ -84,7 +131,8 @@ public class RedisConfig {
 
         private final JdkSerializationRedisSerializer fallback = new JdkSerializationRedisSerializer();
 
-        private final GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(new JsonMapper());
+        private final GenericJackson2JsonRedisSerializer jsonSerializer =
+                new GenericJackson2JsonRedisSerializer(new JsonMapper());
 
         @Override
         public byte[] serialize(Object t) {
@@ -107,7 +155,6 @@ public class RedisConfig {
                     final byte[] bytes = serializeOAuthClientMap(data);
                     return bytes == null ? null : ByteUtils.concat(OAUTH_CLIENT_PREFIX, bytes);
                 }
-
             }
 
             return fallback.serialize(t);
@@ -128,7 +175,10 @@ public class RedisConfig {
                     }
                     dataMap.put(key, dto);
                 } else {
-                    log.warn("Unknown data type found in session data. Key: {}, Value: {}", entry.getKey(), entry.getValue());
+                    log.warn(
+                            "Unknown data type found in session data. Key: {}, Value: {}",
+                            entry.getKey(),
+                            entry.getValue());
                 }
             }
             return jsonSerializer.serialize(dataMap);
@@ -156,17 +206,21 @@ public class RedisConfig {
 
                 final Map<String, OAuth2AuthorizedClient> sessionData = new HashMap<>();
                 for (final Map.Entry<String, Map<?, ?>> entry : clientData.entrySet()) {
-                    final OAuth2AuthorizedClientDTO dto = new ObjectMapper()
-                            .convertValue(entry.getValue(), OAuth2AuthorizedClientDTO.class);
+                    final OAuth2AuthorizedClientDTO dto =
+                            new ObjectMapper().convertValue(entry.getValue(), OAuth2AuthorizedClientDTO.class);
                     sessionData.put(entry.getKey(), dto.makeOAuth2AuthorizedClient());
                 }
 
                 return sessionData;
-
             }
 
             return fallback.deserialize(bytes);
         }
     }
 
+    private static class InvalidRedisURIException extends RuntimeException {
+        public InvalidRedisURIException(String message) {
+            super(message);
+        }
+    }
 }

@@ -2,6 +2,7 @@ import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 const isAirgappedInstance = isAirgapped();
 
@@ -13,6 +14,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Iframe",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.DISPLAY],
   needsMeta: true,
   searchTags: ["embed"],
   defaults: {
@@ -34,6 +36,7 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+    setterConfig: Widget.getSetterConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
   autoLayout: {

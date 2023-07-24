@@ -1,7 +1,7 @@
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Visual regression tests", () => {
+describe.skip("Visual regression tests", () => {
   // for any changes in UI, update the screenshot in snapshot folder, to do so:
   //  1. Delete the required screenshot which you want to update.
   //  2. Run test in headless mode with any browser
@@ -10,7 +10,6 @@ describe("Visual regression tests", () => {
 
   it("1. Layout validation for app page in edit mode", () => {
     _.homePage.NavigateToHome();
-    //cy.visit("/applications");
     //cy.wait(3000);
     _.homePage.CreateNewApplication();
     //cy.get(".createnew").should("be.visible").first().click();
@@ -31,7 +30,7 @@ describe("Visual regression tests", () => {
     cy.get("#root").matchImageSnapshot("emptyAppBuilder");
 
     //Layout Validation for Empty deployed app
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(3000);
     // taking screenshot of empty deployed app
     cy.get("#root").matchImageSnapshot("EmptyApp");

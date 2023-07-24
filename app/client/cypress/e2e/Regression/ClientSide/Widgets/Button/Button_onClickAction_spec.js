@@ -1,13 +1,11 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/newFormDsl.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
-const datasource = require("../../../../../locators/DatasourcesEditor.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Button Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("newFormDsl");
   });
 
   beforeEach(() => {
@@ -16,14 +14,14 @@ describe("Button Widget Functionality", function () {
 
   it("1. Button-Modal Validation", function () {
     //creating the Modal and verify Modal name
-    cy.createModal(this.data.ModalName, "onClick");
-    cy.PublishtheApp();
+    cy.createModal(this.dataSet.ModalName, "onClick");
+    _.deployMode.DeployApp();
     cy.wait(5000); //for page to load fully - for CI exclusively
     cy.get(publishPage.buttonWidget).should("be.visible");
     cy.get(publishPage.buttonWidget).click();
     cy.get(modalWidgetPage.modelTextField).should(
       "have.text",
-      this.data.ModalName,
+      this.dataSet.ModalName,
     );
   });
 
@@ -35,12 +33,11 @@ describe("Button Widget Functionality", function () {
     cy.CreateAPI("buttonApi");
     cy.log("Creation of buttonApi Action successful");
     cy.enterDatasourceAndPath(
-      this.data.paginationUrl,
+      this.dataSet.paginationUrl,
       "mock-api?records=20&page=4&size=3",
     );
     cy.SaveAndRunAPI();
 
-    // Going to HomePage where the button widget is located and opening it's property pane.
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("Container3");
     _.entityExplorer.SelectEntityByName("Button1");
@@ -50,7 +47,7 @@ describe("Button Widget Functionality", function () {
     // Filling the messages for success/failure in the onClickAction of the button widget.
     cy.onClickActions("Success", "Error", "Execute a query", "buttonApi.run");
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get("body").then(($ele) => {
       if ($ele.find(widgetsPage.apiCallToast).length <= 0) {
         cy.get(publishPage.buttonWidget).click();
@@ -70,39 +67,19 @@ describe("Button Widget Functionality", function () {
     //creating a query and calling it from the onClickAction of the button widget.
     // Creating a mock query
     // cy.CreateMockQuery("Query1");
-    let postgresDatasourceName;
-
-    cy.startRoutesForDatasource();
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.PostgreSQL).click();
-    cy.generateUUID().then((uid) => {
-      postgresDatasourceName = uid;
-
-      cy.get(".t--edit-datasource-name").click();
-      cy.get(".t--edit-datasource-name input")
-        .clear()
-        .type(postgresDatasourceName, { force: true })
-        .should("have.value", postgresDatasourceName)
-        .blur();
-
-      cy.fillPostgresDatasourceForm();
-      cy.saveDatasource();
-      cy.NavigateToActiveDSQueryPane(postgresDatasourceName);
-    });
-
-    cy.CreateMockQuery("Query1");
-
-    // Going to HomePage where the button widget is located and opeing it's property pane.
-    cy.get(widgetsPage.NavHomePage).click({ force: true });
-    cy.reload();
-    cy.openPropertyPane("buttonwidget");
+    _.dataSources.CreateDataSource("Postgres");
+    _.dataSources.CreateQueryAfterDSSaved(
+      `SELECT * FROM public."film" LIMIT 10;`,
+    );
+    _.entityExplorer.ExpandCollapseEntity("Container3");
+    _.entityExplorer.SelectEntityByName("Button1");
 
     // Adding the query in the onClickAction of the button widget.
     cy.executeDbQuery("Query1", "onClick");
     // Filling the messages for success/failure in the onClickAction of the button widget.
     cy.onClickActions("Success", "Error", "Execute a query", "Query1.run");
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     // Clicking the button to verify the success message
     cy.get(publishPage.buttonWidget).click();
@@ -123,7 +100,7 @@ describe("Button Widget Functionality", function () {
       "{{buttonApi.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
     );
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     // Clicking the button to verify the success message
     cy.get(publishPage.buttonWidget).click();
@@ -143,7 +120,7 @@ describe("Button Widget Functionality", function () {
       "{{Query1.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
     );
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     // Clicking the button to verify the success message
     cy.get(publishPage.buttonWidget).click();
@@ -164,7 +141,7 @@ describe("Button Widget Functionality", function () {
       "{{setTimeout(() => showAlert('Hello from setTimeout after 3 seconds'), 3000)}}",
     );
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
 
     // Clicking the button to verify the success message
     cy.get(publishPage.buttonWidget).click();
@@ -182,6 +159,6 @@ describe("Button Widget Functionality", function () {
   });
 
   afterEach(() => {
-    cy.goToEditFromPublish();
+    _.deployMode.NavigateBacktoEditor();
   });
 });

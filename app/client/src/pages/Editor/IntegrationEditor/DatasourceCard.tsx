@@ -45,6 +45,10 @@ import {
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
+import {
+  isEnvironmentConfigured,
+  getCurrentEnvironment,
+} from "@appsmith/utils/Environments";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -186,6 +190,8 @@ function DatasourceCard(props: DatasourceCardProps) {
     datasourceFormConfigs[datasource?.pluginId ?? ""];
   const QUERY = queriesWithThisDatasource > 1 ? "queries" : "query";
 
+  const currentEnv = getCurrentEnvironment();
+
   const editDatasource = useCallback(() => {
     AnalyticsUtil.logEvent("DATASOURCE_CARD_EDIT_ACTION");
     if (plugin && plugin.type === PluginType.SAAS) {
@@ -275,11 +281,12 @@ function DatasourceCard(props: DatasourceCardProps) {
             </Queries>
           </div>
           <ButtonsWrapper className="action-wrapper">
-            {(!datasource.isConfigured || supportTemplateGeneration) &&
+            {(!isEnvironmentConfigured(datasource, currentEnv) ||
+              supportTemplateGeneration) &&
               isDatasourceAuthorizedForQueryCreation(datasource, plugin) && (
                 <Button
                   className={
-                    datasource.isConfigured
+                    isEnvironmentConfigured(datasource, currentEnv)
                       ? "t--generate-template"
                       : "t--reconnect-btn"
                   }
@@ -287,18 +294,18 @@ function DatasourceCard(props: DatasourceCardProps) {
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    datasource.isConfigured
+                    isEnvironmentConfigured(datasource, currentEnv)
                       ? routeToGeneratePage()
                       : editDatasource();
                   }}
                   size="md"
                 >
-                  {datasource.isConfigured
+                  {isEnvironmentConfigured(datasource, currentEnv)
                     ? createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)
                     : createMessage(RECONNECT_BUTTON_TEXT)}
                 </Button>
               )}
-            {datasource.isConfigured && (
+            {isEnvironmentConfigured(datasource, currentEnv) && (
               <NewActionButton
                 datasource={datasource}
                 disabled={
@@ -381,6 +388,7 @@ function DatasourceCard(props: DatasourceCardProps) {
               <RenderDatasourceInformation
                 config={currentFormConfig[0]}
                 datasource={datasource}
+                showOnlyCurrentEnv
               />
             </DatasourceInfo>
           </CollapseComponent>

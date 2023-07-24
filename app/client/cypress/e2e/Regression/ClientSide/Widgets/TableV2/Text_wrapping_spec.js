@@ -1,16 +1,14 @@
-const dsl = require("../../../../../fixtures/Table/TextWrappingDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget text wrapping functionality", function () {
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-    cy.addDsl(dsl);
+    _.agHelper.RestoreLocalStorageCache();
+    _.agHelper.AddDsl("Table/TextWrappingDSL");
   });
 
   it("1. should check that cell is not wrapped when cell wrapping is disabled", () => {

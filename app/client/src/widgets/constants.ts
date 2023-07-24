@@ -1,6 +1,7 @@
 import { IconNames } from "@blueprintjs/icons";
 import type { Theme } from "constants/DefaultTheme";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import type { WidgetTags } from "constants/WidgetConstants";
 import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
 import type { Stylesheet } from "entities/AppTheming";
 import { omit } from "lodash";
@@ -15,6 +16,7 @@ import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "./BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
 import type {
   WidgetQueryConfig,
   WidgetQueryGenerationConfig,
@@ -61,6 +63,7 @@ export interface WidgetConfiguration {
   features?: WidgetFeatures;
   canvasHeightOffset?: (props: WidgetProps) => number;
   searchTags?: string[];
+  tags?: WidgetTags[];
   needsHeightForContent?: boolean;
   properties: {
     config?: PropertyPaneConfig[];
@@ -72,6 +75,7 @@ export interface WidgetConfiguration {
     loadingProperties?: Array<RegExp>;
     stylesheetConfig?: Stylesheet;
     autocompleteDefinitions?: AutocompletionDefinitions;
+    setterConfig?: Record<string, any>;
   };
   methods?: Record<string, WidgetMethods>;
 }
@@ -121,6 +125,7 @@ interface LayoutProps {
 export type AutocompleteDefinitionFunction = (
   widgetProps: WidgetProps,
   extraDefsToDefine?: ExtraDef,
+  configTree?: WidgetEntityConfig,
 ) => Record<string, any>;
 
 export type AutocompletionDefinitions =

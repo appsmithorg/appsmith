@@ -79,20 +79,14 @@ server {
     access_log  off;
   }
 
-  location ~ ^/app/[^/]+/[^/]+/edit\b {
-    try_files /edit.html /index.html =404;
-  }
-
-  location /app/ {
-    try_files /view.html /index.html =404;
-  }
-
   # If the path has an extension at the end, then respond with 404 status if the file not found.
   location ~ ^/(?!supervisor/).*\.[a-z]+$ {
     try_files \$uri =404;
   }
 
   location /api {
+    proxy_read_timeout ${APPSMITH_SERVER_TIMEOUT:-60};
+    proxy_send_timeout ${APPSMITH_SERVER_TIMEOUT:-60};
     proxy_pass http://localhost:8080;
   }
 

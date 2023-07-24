@@ -129,6 +129,10 @@ describe("Tern server", () => {
     ];
 
     testCases.forEach((testCase) => {
+      MockCodemirrorEditor.getTokenAt.mockReturnValueOnce({
+        type: "string",
+        string: "",
+      });
       const request = CodemirrorTernService.buildRequest(testCase.input, {});
       expect(request.query.end).toEqual(testCase.expectedOutput);
     });
@@ -187,9 +191,13 @@ describe("Tern server", () => {
       MockCodemirrorEditor.getCursor.mockReturnValueOnce(
         testCase.input.codeEditor.cursor,
       );
-      MockCodemirrorEditor.getDoc.mockReturnValueOnce(
+      MockCodemirrorEditor.getDoc.mockReturnValue(
         testCase.input.codeEditor.doc,
       );
+      MockCodemirrorEditor.getTokenAt.mockReturnValueOnce({
+        type: "string",
+        string: "",
+      });
 
       const mockAddFile = jest.fn();
       CodemirrorTernService.server.addFile = mockAddFile;
@@ -390,13 +398,22 @@ describe("Tern server sorting", () => {
       expectedType: AutocompleteDataType.STRING,
     };
     //completion that matches type and is present in dataTree.
-    const scoredCompletion1 = new ScoredCompletion(dataTreeCompletion);
+    const scoredCompletion1 = new ScoredCompletion(
+      dataTreeCompletion,
+      AutocompleteSorter.currentFieldInfo,
+    );
     expect(scoredCompletion1.score).toEqual(2 ** 5 + 2 ** 4 + 2 ** 3);
     //completion that belongs to the same entity.
-    const scoredCompletion2 = new ScoredCompletion(sameEntityCompletion);
+    const scoredCompletion2 = new ScoredCompletion(
+      sameEntityCompletion,
+      AutocompleteSorter.currentFieldInfo,
+    );
     expect(scoredCompletion2.score).toEqual(-Infinity);
     //completion that is a priority.
-    const scoredCompletion3 = new ScoredCompletion(priorityCompletion);
+    const scoredCompletion3 = new ScoredCompletion(
+      priorityCompletion,
+      AutocompleteSorter.currentFieldInfo,
+    );
     expect(scoredCompletion3.score).toBe(2 ** 6 + 2 ** 4 + 2 ** 3);
   });
 });

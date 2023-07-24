@@ -1,9 +1,8 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-const dsl = require("../../../../../fixtures/SelectDslWithEmptyOptions.json");
-
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 describe("MultiSelect, Tree Select and Multi Tree Select Widget Empty Options Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("SelectDslWithEmptyOptions");
   });
   it("1. To Check empty options for Multi Select Tree Widget", () => {
     cy.get(formWidgetsPage.treeSelectInput).first().click({ force: true });

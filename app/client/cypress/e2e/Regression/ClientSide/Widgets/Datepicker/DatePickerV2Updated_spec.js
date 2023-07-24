@@ -1,20 +1,17 @@
-const dsl = require("../../../../../fixtures/datePickerV2Updated_dsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
-let agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("DatePicker Widget Property pane tests with js bindings", function () {
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("datePickerV2Updated_dsl");
   });
 
   it("1. Datepicker tooltip renders if tooltip prop is not empty", () => {
@@ -33,7 +30,7 @@ describe("DatePicker Widget required property test", () => {
     //set the required condition to true in the property pane
     cy.get(".t--property-control-required label").last().click({ force: true });
     //preview changes
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(1000);
     //--wds-color-text-danger danger color var
     const cssDangerColor = "rgb(217, 25, 33)";

@@ -50,6 +50,10 @@ import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import {
+  getCurrentEnvName,
+  getCurrentEnvironment,
+} from "@appsmith/utils/Environments";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -163,6 +167,8 @@ class QueryEditor extends React.Component<Props> {
     AnalyticsUtil.logEvent("RUN_QUERY_CLICK", {
       actionId: this.props.actionId,
       dataSourceSize: dataSources.length,
+      environmentId: getCurrentEnvironment(),
+      environmentName: getCurrentEnvName(),
       pluginName: pluginName,
       datasourceId: datasource?.id,
       isMock: !!datasource?.isMock,
@@ -252,6 +258,7 @@ class QueryEditor extends React.Component<Props> {
     return (
       <QueryEditorForm
         dataSources={dataSources}
+        datasourceId={this.props.datasourceId}
         editorConfig={editorConfig}
         executedQueryData={responses[actionId]}
         formData={this.props.formData}
@@ -261,6 +268,7 @@ class QueryEditor extends React.Component<Props> {
         onCreateDatasourceClick={this.onCreateDatasourceClick}
         onDeleteClick={this.handleDeleteClick}
         onRunClick={this.handleRunClick}
+        pluginId={this.props.pluginId}
         runErrorMessage={runErrorMessage[actionId]}
         settingConfig={settingConfig}
         uiComponent={uiComponent}
@@ -279,6 +287,9 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const { editorConfigs, settingConfigs } = plugins;
 
   const action = getAction(state, actionId) as QueryAction | SaaSAction;
+  const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as
+    | QueryAction
+    | SaaSAction;
   let pluginId;
   if (action) {
     pluginId = action.pluginId;
@@ -319,10 +330,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   let uiComponent = UIComponentTypes.DbEditorForm;
   if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
 
-  const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as
-    | QueryAction
-    | SaaSAction;
-
   return {
     actionId,
     pluginId,
@@ -344,7 +351,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     uiComponent,
     applicationId: getCurrentApplicationId(state),
     actionObjectDiff,
-    datasourceId: action.datasource?.id,
+    datasourceId: action?.datasource?.id,
   };
 };
 

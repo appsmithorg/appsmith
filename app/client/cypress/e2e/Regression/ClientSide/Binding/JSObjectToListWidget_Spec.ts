@@ -1,21 +1,15 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
-let dataSet: any, valueToTest: any, jsName: any;
+let valueToTest: any, jsName: any;
 
 describe("Validate JSObj binding to Table widget", () => {
   before(() => {
-    cy.fixture("listwidgetdsl").then((val: any) => {
-      _.agHelper.AddDsl(val);
-    });
-
-    cy.fixture("example").then(function (data: any) {
-      dataSet = data;
-    });
+    _.agHelper.AddDsl("listwidgetdsl");
   });
 
   it("1. Add users api and bind to JSObject", () => {
-    cy.fixture("datasources").then((datasourceFormData: any) => {
-      _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"]);
-    });
+    _.apiPage.CreateAndFillApi(
+      _.tedTestConfig.dsValues[_.tedTestConfig.defaultEnviorment].mockApiUrl,
+    );
     _.apiPage.RunAPI();
     _.agHelper.GetNClick(_.dataSources._queryResponse("JSON"));
     _.apiPage.ReadApiResponsebyKey("name");

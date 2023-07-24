@@ -1,12 +1,15 @@
-import * as _ from "../../../../../support/Objects/ObjectsCore";
-
-const { agHelper, apiPage, entityExplorer, jsEditor, locators, propPane } = _;
+import {
+  agHelper,
+  locators,
+  entityExplorer,
+  jsEditor,
+  propPane,
+  apiPage,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("UI to Code", () => {
   before(() => {
-    cy.fixture("buttondsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("buttondsl");
     apiPage.CreateApi("Api1", "GET");
     apiPage.CreateApi("Api2", "POST");
   });
@@ -14,7 +17,7 @@ describe("UI to Code", () => {
   beforeEach(() => {
     entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext("onClick", "");
-    jsEditor.DisableJSContext("onClick");
+    propPane.ToggleJSMode("onClick", false);
   });
 
   it("1. adds an action", () => {
@@ -39,7 +42,7 @@ describe("UI to Code", () => {
     // Add second action
     propPane.SelectPlatformFunction("onClick", "Navigate to");
     propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
-    agHelper.GetNClick(_.propPane._navigateToType("URL"));
+    agHelper.GetNClick(propPane._navigateToType("URL"));
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Enter URL"),
       "https://google.com",
@@ -122,7 +125,7 @@ describe("UI to Code", () => {
     // Add second action
     propPane.SelectPlatformFunction("onClick", "Navigate to");
     propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
-    agHelper.GetNClick(_.propPane._navigateToType("URL"));
+    agHelper.GetNClick(propPane._navigateToType("URL"));
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Enter URL"),
       "https://google.com",
@@ -206,7 +209,7 @@ describe("UI to Code", () => {
     // Add second action
     propPane.SelectPlatformFunction("onClick", "Navigate to");
     propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
-    agHelper.GetNClick(_.propPane._navigateToType("URL"));
+    agHelper.GetNClick(propPane._navigateToType("URL"));
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Enter URL"),
       "https://google.com",
@@ -316,7 +319,7 @@ describe("UI to Code", () => {
       Api2.run().then(() => { showAlert("Hello") }).catch(() => { showAlert("World") });
      })}}`,
     );
-    jsEditor.DisableJSContext("onClick");
+    propPane.ToggleJSMode("onClick", false);
 
     // Select the card to show the callback button
     propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
@@ -358,7 +361,7 @@ describe("UI to Code", () => {
       Api2.run().then(() => { showAlert("Hello") }).catch(() => { showAlert("World") });
      })}}`,
     );
-    jsEditor.DisableJSContext("onClick");
+    propPane.ToggleJSMode("onClick", false);
 
     // Select the card to show the callback button
     propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
@@ -392,7 +395,7 @@ describe("UI to Code", () => {
        })
        `,
     );
-    jsEditor.DisableJSContext("onClick");
+    propPane.ToggleJSMode("onClick", false);
 
     // Select the card to show the callback button
     propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");

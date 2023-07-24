@@ -1,21 +1,16 @@
-const dsl = require("../../../../../fixtures/emptyDSL.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("MultiSelect Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("emptyDSL");
   });
   beforeEach(() => {
-    cy.wait(7000);
+    cy.wait(3000);
   });
-  it("Add new multiselect widget", () => {
-    cy.get(explorer.addWidget).click();
-    cy.dragAndDropToCanvas("multiselectwidgetv2", { x: 300, y: 300 });
-    cy.get(".t--widget-multiselectwidgetv2").should("exist");
-  });
-
-  it("should check that empty value is allowed in options", () => {
+  it("1. Add new multiselect widget", () => {
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.MULTISELECT);
+    //should check that empty value is allowed in options", () => {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.updateCodeInput(
       ".t--property-control-options",
@@ -39,7 +34,7 @@ describe("MultiSelect Widget Functionality", function () {
     );
   });
 
-  it("should check that more that one empty value is not allowed in options", () => {
+  it("2. should check that more that one empty value is not allowed in options", () => {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.updateCodeInput(
       ".t--property-control-options",
@@ -62,7 +57,8 @@ describe("MultiSelect Widget Functionality", function () {
       "exist",
     );
   });
-  it("should check that Objects can be added to multiselect Widget default value", () => {
+
+  it("3. should check that Objects can be added to multiselect Widget default value", () => {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.updateCodeInput(
       ".t--property-control-options",
@@ -102,7 +98,8 @@ describe("MultiSelect Widget Functionality", function () {
       .first()
       .should("have.text", "Green");
   });
-  it("should display the right label", () => {
+
+  it("4. should display the right label", () => {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.updateCodeInput(
       ".t--property-control-options",

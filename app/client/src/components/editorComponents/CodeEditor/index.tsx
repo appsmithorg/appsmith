@@ -71,7 +71,7 @@ import {
   bindingHint,
   sqlHint,
 } from "components/editorComponents/CodeEditor/hintHelpers";
-import BindingPrompt from "./BindingPrompt";
+
 import { showBindingPrompt } from "./BindingPromptHelper";
 import { Button } from "design-system";
 import "codemirror/addon/fold/brace-fold";
@@ -103,6 +103,7 @@ import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { startingEntityUpdate } from "actions/editorActions";
 import type { SlashCommandPayload } from "entities/Action";
+import { SlashCommand } from "entities/Action";
 import type { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
 import {
@@ -142,12 +143,12 @@ import {
   saveAndAutoIndentCode,
 } from "./utils/saveAndAutoIndent";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { selectFeatureFlags } from "selectors/usersSelectors";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 import classNames from "classnames";
 import {
   APPSMITH_AI,
-  askAIEnabled,
+  isAIEnabled,
 } from "@appsmith/components/editorComponents/GPT/trigger";
 import {
   getAllDatasourceTableKeys,
@@ -157,12 +158,11 @@ import { debug } from "loglevel";
 import { PeekOverlayExpressionIdentifier, SourceType } from "@shared/ast";
 import type { MultiplexingModeConfig } from "components/editorComponents/CodeEditor/modes";
 import { MULTIPLEXING_MODE_CONFIGS } from "components/editorComponents/CodeEditor/modes";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getDeleteLineShortcut } from "./utils/deleteLine";
+import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/CodeEditorSignPosting";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
-
-const { cloudHosting } = getAppsmithConfigs();
 
 export type CodeEditorExpected = {
   type: string;
@@ -317,6 +317,12 @@ class CodeEditor extends Component<Props, State> {
       props.input.value,
     );
     this.multiplexConfig = MULTIPLEXING_MODE_CONFIGS[this.props.mode];
+    /**
+     * Decides if AI is enabled by looking at repo, feature flags, props and environment
+     */
+    this.AIEnabled =
+      isAIEnabled(this.props.featureFlags, this.props.mode) &&
+      Boolean(this.props.AIAssisted);
   }
 
   componentDidMount(): void {
@@ -375,6 +381,9 @@ class CodeEditor extends Component<Props, State> {
         [getSaveAndAutoIndentKey()]: (editor) => {
           saveAndAutoIndentCode(editor);
           AnalyticsUtil.logEvent("PRETTIFY_AND_SAVE_KEYBOARD_SHORTCUT");
+        },
+        [getDeleteLineShortcut()]: () => {
+          return;
         },
       };
 
@@ -482,6 +491,10 @@ class CodeEditor extends Component<Props, State> {
   handleSlashCommandSelection = (...args: any) => {
     const [command] = args;
     if (command === APPSMITH_AI) {
+      this.props.executeCommand({
+        actionType: SlashCommand.ASK_AI,
+        args: {},
+      });
       this.setState({ showAIWindow: true });
     }
     this.handleAutocompleteVisibility(this.editor);
@@ -559,7 +572,7 @@ class CodeEditor extends Component<Props, State> {
          * and we check if they are different because the input value has changed
          * and not because the editor value has changed
          * */
-        if (inputValue !== editorValue && inputValue !== previousInputValue) {
+        if (inputValue !== editorValue) {
           // If it is focused update it only if the identifier has changed
           // if not focused, can be updated
           if (this.state.isFocused) {
@@ -1137,11 +1150,6 @@ class CodeEditor extends Component<Props, State> {
     changeObj?: CodeMirror.EditorChangeLinkedList,
   ) => {
     const value = this.editor?.getValue() || "";
-    if (changeObj && changeObj.origin === "complete") {
-      AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
-        searchString: changeObj.text[0],
-      });
-    }
     const inputValue = this.props.input.value || "";
     if (
       this.props.input.onChange &&
@@ -1242,6 +1250,8 @@ class CodeEditor extends Component<Props, State> {
           entityInformation.entityId = entity.widgetId;
           if (isTriggerPath)
             entityInformation.expectedType = AutocompleteDataType.FUNCTION;
+
+          entityInformation.widgetType = entity.type;
         }
       }
       entityInformation.propertyPath = propertyPath;
@@ -1480,24 +1490,6 @@ class CodeEditor extends Component<Props, State> {
     }
     const entityInformation = this.getEntityInformation();
 
-    /**
-     * Decides if AI is enabled by looking at repo, feature flags, props and environment
-     */
-    this.AIEnabled = Boolean(
-      askAIEnabled &&
-        this.props.featureFlags.ask_ai &&
-        this.props.AIAssisted &&
-        cloudHosting,
-    );
-
-    /**
-     * AI button is to be shown when following conditions are satisfied
-     * Enabled by feature flag and repo permissions
-     * Editor value is empty and editor is hovered or focused
-     * AI window is not open already
-     */
-    const showAIButton =
-      this.AIEnabled && !this.props.input.value && !this.state.showAIWindow;
     const showSlashCommandButton =
       showLightningMenu !== false &&
       !this.state.isFocused &&
@@ -1524,22 +1516,6 @@ class CodeEditor extends Component<Props, State> {
         skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
       >
         <div className="flex absolute gap-1 top-[6px] right-[6px] z-4 justify-center">
-          <Button
-            className={classNames(
-              "ai-trigger invisible",
-              this.state.isFocused && "!visible",
-              !showAIButton && "!hidden",
-            )}
-            kind="tertiary"
-            onClick={(e) => {
-              e.stopPropagation();
-              this.setState({ showAIWindow: true });
-            }}
-            size="sm"
-            tabIndex={-1}
-          >
-            AI
-          </Button>
           <Button
             className={classNames(
               "commands-button invisible",
@@ -1584,12 +1560,14 @@ class CodeEditor extends Component<Props, State> {
             currentValue={this.props.input.value}
             dataTreePath={dataTreePath}
             enableAIAssistance={this.AIEnabled}
+            entity={entityInformation}
             isOpen={this.state.showAIWindow}
             mode={this.props.mode}
             triggerContext={this.props.expected}
             update={this.updateValueWithAIResponse}
           >
             <EditorWrapper
+              AIEnabled
               border={border}
               borderLess={borderLess}
               className={`${className} ${replayHighlightClass} ${
@@ -1607,6 +1585,7 @@ class CodeEditor extends Component<Props, State> {
               isNotHover={this.state.isFocused || this.state.isOpened}
               isRawView={this.props.isRawView}
               isReadOnly={this.props.isReadOnly}
+              mode={this.props.mode}
               onMouseMove={this.handleLintTooltip}
               onMouseOver={this.handleMouseMove}
               ref={this.editorWrapperRef}
@@ -1636,9 +1615,12 @@ class CodeEditor extends Component<Props, State> {
                 ref={this.codeEditorTarget}
                 tabIndex={0}
               >
-                <BindingPrompt
+                <CodeEditorSignPosting
                   editorTheme={this.props.theme}
+                  forComp="editor"
+                  isAIEnabled={this.AIEnabled}
                   isOpen={this.isBindingPromptOpen()}
+                  mode={this.props.mode}
                   promptMessage={this.props.promptMessage}
                   showLightningMenu={this.props.showLightningMenu}
                 />

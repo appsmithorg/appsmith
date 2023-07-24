@@ -2,14 +2,17 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/displayWidgetDsl.json");
+import {
+  agHelper,
+  deployMode,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Image Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl("displayWidgetDsl");
   });
 
-  it("Image Widget Functionality", function () {
+  it("1. Image Widget Functionality", function () {
     cy.openPropertyPane("imagewidget");
     /**
      * @param{Text} Random Text
@@ -21,20 +24,20 @@ describe("Image Widget Functionality", function () {
       viewWidgetsPage.imageWidget,
       widgetsPage.widgetNameSpan,
     );
-    cy.testJsontext("defaultimage", this.data.defaultimage);
+    cy.testJsontext("defaultimage", this.dataSet.defaultimage);
     cy.wait(1000);
     cy.focused().blur();
     /**
      * @param{URL} ImageUrl
      */
-    cy.testCodeMirror(this.data.NewImage);
+    cy.testCodeMirror(this.dataSet.NewImage);
     cy.get(viewWidgetsPage.imageinner)
       .invoke("attr", "src")
-      .should("contain", this.data.validateImage);
+      .should("contain", this.dataSet.validateImage);
     cy.closePropertyPane();
   });
 
-  it("No Zoom functionality check", function () {
+  it("2. No Zoom functionality check", function () {
     cy.openPropertyPane("imagewidget");
     //Zoom validation
     cy.changeZoomLevel("1x (No Zoom)");
@@ -42,44 +45,39 @@ describe("Image Widget Functionality", function () {
     cy.get(commonlocators.imgWidget)
       .invoke("attr", "style")
       .should("not.contain", "zoom-in");
-    cy.PublishtheApp();
-  });
-
-  it("Image Widget Functionality To Validate Image", function () {
+    deployMode.DeployApp(publish.imageWidget);
+    // Image Widget Functionality To Validate Image
     cy.get(publish.imageWidget + " " + "img")
       .invoke("attr", "src")
-      .should("contain", this.data.NewImage);
+      .should("contain", this.dataSet.NewImage);
   });
 
-  it("Image Widget Functionality To Unchecked Visible Widget", function () {
-    cy.get(publish.backToEditor).click();
+  it("3. Image Widget Functionality To Check/Uncheck Visible Widget", function () {
+    deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("imagewidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     cy.get(publish.imageWidget).should("not.exist");
-    cy.get(publish.backToEditor).click();
-  });
-
-  it("Image Widget Functionality To Check Visible Widget", function () {
+    deployMode.NavigateBacktoEditor();
+    //Image Widget Functionality To Check Visible Widget", function () {
     cy.openPropertyPane("imagewidget");
     cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
-    cy.get(publish.imageWidget).should("be.visible");
-    cy.get(publish.backToEditor).click();
+    deployMode.DeployApp(publish.imageWidget);
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("Image Widget Functionality To check download option and validate image link", function () {
+  it("4. Image Widget Functionality To check download option and validate image link", function () {
     cy.openPropertyPane("imagewidget");
     cy.togglebar(".t--property-control-enabledownload input[type='checkbox']");
     cy.get(publish.imageWidget).trigger("mouseover");
     cy.get(`${publish.imageWidget} a[data-testid=t--image-download]`).should(
       "have.attr",
       "href",
-      this.data.NewImage,
+      this.dataSet.NewImage,
     );
   });
 
-  it("In case of an image loading error, show off the error message", () => {
+  it("5. In case of an image loading error, show off the error message", () => {
     cy.openPropertyPane("imagewidget");
     // Invalid image url
     const invalidImageUrl = "https://www.example.com/does-not-exist.jpg";
@@ -93,7 +91,4 @@ describe("Image Widget Functionality", function () {
       `${viewWidgetsPage.imageWidget} [data-testid="error-container"]`,
     ).contains("Unable to display the image");
   });
-});
-afterEach(() => {
-  // put your clean up code if any
 });

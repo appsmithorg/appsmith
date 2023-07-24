@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "storybook": "start-storybook -p 6006",
-    "build": "build-storybook"
+    "build": "build-storybook",
+    "chromatic": "chromatic --project-token CHROMATIC_PROJECT_TOKEN"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",
@@ -27,6 +28,7 @@
     "@types/react-dom": "^17.0.2",
     "autoprefixer": "^9.0.0",
     "babel-loader": "^8.3.0",
+    "chromatic": "^6.19.8",
     "postcss": "^8",
     "storybook-addon-pseudo-states": "^1.15.2",
     "storybook-color-picker": "^3.1.0",

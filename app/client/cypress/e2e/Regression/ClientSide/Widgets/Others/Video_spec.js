@@ -1,19 +1,18 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/videoWidgetDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
+import {
+  agHelper,
+  entityExplorer,
+  draggableWidgets,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Video Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl("videoWidgetDsl");
   });
 
   it("1. Video Widget play functionality validation", function () {
     cy.openPropertyPane("videowidget");
-    cy.widgetText(
-      "Video1",
-      widgetsPage.videoWidget,
-      widgetsPage.widgetNameSpan,
-    );
     cy.getAlert("onPlay", "Play success");
     cy.get(widgetsPage.autoPlay).click();
     cy.wait("@updateLayout").should(
@@ -72,18 +71,13 @@ describe("Video Widget Functionality", function () {
 
   it("4. Checks if video widget is reset on button click", function () {
     cy.testCodeMirror(testdata.videoUrl2);
-    cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
-    cy.openPropertyPane("buttonwidget");
-    cy.widgetText(
-      "Button1",
-      widgetsPage.buttonWidget,
-      widgetsPage.widgetNameSpan,
-    );
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
+
     cy.selectResetWidget("onClick");
     cy.selectWidgetForReset("Video1");
 
-    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
-    cy.openPropertyPane("textwidget");
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 300);
+
     cy.updateCodeInput(".t--property-control-text", `{{Video1.playState}}`);
 
     cy.openPropertyPane("videowidget");

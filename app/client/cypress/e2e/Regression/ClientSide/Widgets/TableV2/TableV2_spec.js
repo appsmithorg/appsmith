@@ -1,16 +1,11 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/tableV2WidgetDsl.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
-const table = ObjectsRegistry.Table;
-const PropPane = ObjectsRegistry.PropertyPane;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("tableV2WidgetDsl");
   });
 
   it("1. Table Widget V2 Functionality", function () {
@@ -26,7 +21,7 @@ describe("Table Widget V2 Functionality", function () {
       widgetsPage.tableWidgetV2,
       widgetsPage.widgetNameSpan,
     );
-    cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
+    cy.testJsontext("tabledata", JSON.stringify(this.dataSet.TableInput));
     cy.wait("@updateLayout");
   });
 
@@ -45,7 +40,7 @@ describe("Table Widget V2 Functionality", function () {
     cy.isSelectRow(1);
 
     const index = 1;
-    const imageVal = this.data.TableInput[index].image;
+    const imageVal = this.dataSet.TableInput[index].image;
     cy.readTableV2LinkPublish(index, "1").then((hrefVal) => {
       expect(hrefVal).to.contain(imageVal);
     });
@@ -57,7 +52,7 @@ describe("Table Widget V2 Functionality", function () {
     // Confirm if isSortable is true
     cy.get(commonlocators.isSortable).should("be.checked");
     // Publish App
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Confirm Current order
     cy.readTableV2dataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
@@ -84,9 +79,7 @@ describe("Table Widget V2 Functionality", function () {
       expect(tabValue).to.be.equal("Tobias Funke");
     });
     // Back to edit page
-    cy.get(publish.backToEditor).click({
-      force: true,
-    });
+    _.deployMode.NavigateBacktoEditor();
 
     cy.openPropertyPane("tablewidgetv2");
     // Disable isSortable
@@ -94,7 +87,7 @@ describe("Table Widget V2 Functionality", function () {
     cy.togglebarDisable(commonlocators.isSortable);
 
     // Publish App
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Confirm Current order
     cy.readTableV2dataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
@@ -118,15 +111,16 @@ describe("Table Widget V2 Functionality", function () {
       const tabValue = tabData;
       expect(tabValue).not.to.be.equal("Tobias Funke");
     });
-    cy.get(publish.backToEditor).click({
-      force: true,
-    });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("5. Verify that table filter dropdown only includes filterable columns", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.wait(500);
-    PropPane.UpdatePropertyFieldValue("Table data", `{{[{step: 1, task: 1}]}}`);
+    _.propPane.UpdatePropertyFieldValue(
+      "Table data",
+      `{{[{step: 1, task: 1}]}}`,
+    );
     cy.get(".t--property-control-allowfiltering input").click();
     cy.editColumn("step");
     cy.get(".t--table-filter-toggle-btn").click();
@@ -195,16 +189,16 @@ describe("Table Widget V2 Functionality", function () {
 
   it("6. Verify that table filter is retained when the tableData scehma doesn't change", () => {
     cy.openPropertyPane("tablewidgetv2");
-    PropPane.UpdatePropertyFieldValue(
+    _.propPane.UpdatePropertyFieldValue(
       "Table data",
       `{{[{number: "1", work: "test"}, {number: "2", work: "celebrate!"}]}}`,
     );
-    table.OpenNFilterTable("number", "contains", "2");
+    _.table.OpenNFilterTable("number", "contains", "2");
     cy.get(".t--table-filter-toggle-btn").should("have.text", "Filters (1)");
     cy.readTableV2data(0, 0).then((val) => {
       expect(val).to.equal("2");
     });
-    PropPane.UpdatePropertyFieldValue(
+    _.propPane.UpdatePropertyFieldValue(
       "Table data",
       `{{[{number: "1.1", work: "test"}, {number: "2", work: "celebrate!"}]}}`,
     );
@@ -213,7 +207,7 @@ describe("Table Widget V2 Functionality", function () {
       expect(val).to.equal("2");
     });
     cy.get(".t--close-filter-btn").click({ force: true });
-    PropPane.UpdatePropertyFieldValue(
+    _.propPane.UpdatePropertyFieldValue(
       "Table data",
       `{{[{number: "1.1", task: "test"}, {number: "2", task: "celebrate!"}]}}`,
     );
@@ -221,13 +215,13 @@ describe("Table Widget V2 Functionality", function () {
     cy.readTableV2data(0, 0).then((val) => {
       expect(val).to.equal("1.1");
     });
-    table.OpenNFilterTable("number", "contains", "2");
+    _.table.OpenNFilterTable("number", "contains", "2");
     cy.get(".t--table-filter-toggle-btn").should("have.text", "Filters (1)");
     cy.readTableV2data(0, 0).then((val) => {
       expect(val).to.equal("2");
     });
     cy.get(".t--close-filter-btn").click({ force: true });
-    PropPane.UpdatePropertyFieldValue(
+    _.propPane.UpdatePropertyFieldValue(
       "Table data",
       `{{[{number: "1", task: "test"}, {number: "2", task: "celebrate!"}]}}`,
     );
@@ -238,7 +232,7 @@ describe("Table Widget V2 Functionality", function () {
   });
 
   it("7. should check that adding cyclic dependency in the table doesn't crash the app", () => {
-    //cy.get(publish.backToEditor).click();
+    //_.deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("tablewidgetv2");
 
     cy.updateCodeInput(".t--property-control-defaultselectedrow", `{{Table1}}`);

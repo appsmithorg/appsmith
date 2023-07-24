@@ -1,19 +1,14 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-const dsl = require("../../../../../fixtures/SwitchGroupWidgetDsl.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
-let agHelper = ObjectsRegistry.AggregateHelper,
-  propPane = ObjectsRegistry.PropertyPane,
-  ee = ObjectsRegistry.EntityExplorer;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Switch Group Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("SwitchGroupWidgetDsl");
   });
   /*
   afterEach(() => {
-    cy.goToEditFromPublish();
+    _.deployMode.NavigateBacktoEditor();
   });
 */
   it("1. Widget name changes", function () {
@@ -22,13 +17,12 @@ describe("Switch Group Widget Functionality", function () {
      * @param{RadioWidget}Mouseover
      * @param{RadioPre Css} Assertion
      */
-    ee.SelectEntityByName("SwitchGroup1");
-    agHelper.RenameWidget("SwitchGroup1", "SwitchGroupTest");
+    _.propPane.RenameWidget("SwitchGroup1", "SwitchGroupTest");
   });
 
   it("2. Property: options", function () {
     // Add a new option
-    ee.SelectEntityByName("SwitchGroupTest");
+    _.entityExplorer.SelectEntityByName("SwitchGroupTest");
 
     const optionToAdd = `[
       {
@@ -48,7 +42,7 @@ describe("Switch Group Widget Functionality", function () {
         "value": "YELLOW"
       }
     ]`;
-    propPane.UpdatePropertyFieldValue("Options", optionToAdd);
+    _.propPane.UpdatePropertyFieldValue("Options", optionToAdd);
     // Assert
     cy.get(formWidgetsPage.labelSwitchGroup)
       .should("have.length", 4)
@@ -61,7 +55,7 @@ describe("Switch Group Widget Functionality", function () {
     const valueToAdd = `[
       "BLUE", "GREEN"
     ]`;
-    propPane.UpdatePropertyFieldValue("Default selected values", valueToAdd);
+    _.propPane.UpdatePropertyFieldValue("Default selected values", valueToAdd);
     // Assert
     cy.get(`${formWidgetsPage.labelSwitchGroup} input:checked`)
       .should("have.length", 2)
@@ -73,7 +67,7 @@ describe("Switch Group Widget Functionality", function () {
   it("4. Property: isVisible === FALSE", function () {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     /*
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.switchGroupWidget + " " + "input").should("not.exist");
     */
   });
@@ -81,7 +75,7 @@ describe("Switch Group Widget Functionality", function () {
   it("5. Property: isVisible === TRUE", function () {
     cy.togglebar(commonlocators.visibleCheckbox);
     /*
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.switchGroupWidget + " " + "input")
       .eq(0)
       .should("exist");
@@ -90,16 +84,16 @@ describe("Switch Group Widget Functionality", function () {
 
   it("6. Property: onSelectionChange", function () {
     // create an alert modal and verify its name
-    cy.createModal(this.data.ModalName, "onSelectionChange");
+    cy.createModal(this.dataSet.ModalName, "onSelectionChange");
     /*
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.switchGroupWidget + " " + "label.bp3-switch")
       .children()
       .first()
       .click({ force: true });
     cy.get(modalWidgetPage.modelTextField).should(
       "have.text",
-      this.data.ModalName,
+      this.dataSet.ModalName,
     );
     */
   });

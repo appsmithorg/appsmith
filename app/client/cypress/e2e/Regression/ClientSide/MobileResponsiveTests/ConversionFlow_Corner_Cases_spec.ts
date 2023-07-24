@@ -24,7 +24,9 @@ describe("Handle Cases while conversion", () => {
 
     cy.wait(1000);
 
-    entityExplorer.ActionContextMenuByEntityName("Page2");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Page2",
+    });
   });
 
   it("2. when snapshot is restored from a page created after Conversion, it should redirected to home page", () => {
@@ -41,9 +43,7 @@ describe("Handle Cases while conversion", () => {
     homePage.NavigateToHome();
     homePage.CreateNewApplication();
 
-    cy.fixture("templatePageWithNullbindings").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("templatePageWithNullbindings");
 
     autoLayout.ConvertToAutoLayoutAndVerify();
   });
@@ -52,9 +52,7 @@ describe("Handle Cases while conversion", () => {
     homePage.NavigateToHome();
     homePage.CreateNewApplication();
 
-    cy.fixture("conversionDslWithDynamicBindings").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("conversionDslWithDynamicBindings");
 
     autoLayout.ConvertToAutoLayoutAndVerify();
     autoLayout.UseSnapshotFromBanner();
@@ -66,7 +64,7 @@ describe("Handle Cases while conversion", () => {
     () => {
       entityExplorer.AddNewPage("Add page from template");
       agHelper.AssertElementVisible(template.templateDialogBox);
-      agHelper.GetNClick("//h1[text()='Marketing Dashboard']");
+      agHelper.GetNClick(template.marketingDashboard);
       cy.wait(10000); // for templates page to load fully
       agHelper.GetNClick(template.selectCheckbox);
       cy.wait(1000);
@@ -78,7 +76,6 @@ describe("Handle Cases while conversion", () => {
         "exist",
         widgetLocators.toastAction,
       );
-
       autoLayout.ConvertToAutoLayoutAndVerify();
     },
   );

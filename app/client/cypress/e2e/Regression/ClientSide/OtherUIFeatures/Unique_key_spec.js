@@ -1,22 +1,18 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
-const dsl = require("../../../../fixtures/basicDsl.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 // Since we cannot test the root cause as it does not show up on the DOM, we are testing the sideEffects
 // the root cause is when widget has same keys, which are not visible in DOM but confuses React when the list is modified.
 // please refer to issue, https://github.com/appsmithorg/appsmith/issues/7415 for more details.
 describe("Unique react keys", function () {
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-    cy.addDsl(dsl);
+    _.agHelper.RestoreLocalStorageCache();
+    _.agHelper.AddDsl("basicDsl");
   });
 
   it("1. Should not create duplicate versions of widget on drop from explorer", function () {

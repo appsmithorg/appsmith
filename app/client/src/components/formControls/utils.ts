@@ -11,13 +11,38 @@ import { diff } from "deep-diff";
 import { MongoDefaultActionConfig } from "constants/DatasourceEditorConstants";
 import type { Action } from "@sentry/react/dist/types";
 import { klona } from "klona/full";
-import type FeatureFlags from "entities/FeatureFlags";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import _ from "lodash";
 import { getType, Types } from "utils/TypeHelpers";
 import {
   FIELD_REQUIRED_ERROR,
   createMessage,
 } from "@appsmith/constants/messages";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getCurrentEditingEnvID } from "@appsmith/utils/Environments";
+
+// This function checks if the form is dirty
+// We needed this in the cases where datasources are created from APIs and the initial value
+// already has url set. If user presses back button, we need to show the confirmation dialog
+export const getIsFormDirty = (
+  isFormDirty: boolean,
+  formData: any,
+  isNewDatasource: boolean,
+  isRestPlugin: boolean,
+) => {
+  const url = isRestPlugin
+    ? get(
+        formData,
+        `datastoreStorages.${getCurrentEditingEnvID}.datasourceConfiguration.url`,
+        "",
+      )
+    : "";
+
+  if (!isFormDirty && isNewDatasource && isRestPlugin && url.length === 0) {
+    return true;
+  }
+  return isFormDirty;
+};
 
 export const getTrimmedData = (formData: any) => {
   const dataType = getType(formData);
@@ -80,10 +105,19 @@ export const normalizeValues = (
 export const validate = (
   requiredFields: Record<string, FormConfigType>,
   values: any,
+  currentEnvId?: string,
 ) => {
   const errors = {} as any;
 
   Object.keys(requiredFields).forEach((fieldConfigProperty) => {
+    // Do not check for required fields if the field is not part of the current environment
+    if (
+      !!currentEnvId &&
+      currentEnvId.length > 0 &&
+      !fieldConfigProperty.includes(currentEnvId)
+    ) {
+      return;
+    }
     const fieldConfig = requiredFields[fieldConfigProperty];
     if (fieldConfig.controlType === "KEYVALUE_ARRAY") {
       const configProperty = (fieldConfig.configProperty as string).split(
@@ -194,7 +228,7 @@ export const caculateIsHidden = (
       comparison = hiddenConfig.comparison;
     }
 
-    let flagValue: keyof FeatureFlags = "TEST_FLAG";
+    let flagValue: keyof FeatureFlags = FEATURE_FLAG.TEST_FLAG;
     if ("flagValue" in hiddenConfig) {
       flagValue = hiddenConfig.flagValue;
     }

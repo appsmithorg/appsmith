@@ -1,12 +1,12 @@
-const dsl = require("../../../../fixtures/tableV2WidgetDsl.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget V2", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("tableV2WidgetDsl");
   });
 
   it("1. Test_Add users api, execute it and go to sniping mode.", function () {
-    cy.createAndFillApi(this.data.userApi, "/mock-api?records=10");
+    cy.createAndFillApi(this.dataSet.userApi, "/mock-api?records=10");
     cy.RunAPI();
     cy.get(".t--select-in-canvas").click();
     cy.get(".t--sniping-mode-banner").should("be.visible");

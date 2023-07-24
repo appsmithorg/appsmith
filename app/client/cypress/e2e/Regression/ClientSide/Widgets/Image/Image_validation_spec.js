@@ -1,9 +1,9 @@
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
-const dsl = require("../../../../../fixtures/displayWidgetDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Image Widget Validation Image Urls", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("displayWidgetDsl");
   });
 
   it("1. Check default image src", function () {
@@ -17,10 +17,10 @@ describe("Image Widget Validation Image Urls", function () {
   });
 
   it("2. Add new image and check image is showing instead of default image", function () {
-    cy.testCodeMirror(this.data.NewImage);
+    cy.testCodeMirror(this.dataSet.NewImage);
     cy.get(viewWidgetsPage.imageinner)
       .invoke("attr", "src")
-      .should("contain", this.data.NewImage);
+      .should("contain", this.dataSet.NewImage);
     cy.closePropertyPane();
   });
 
@@ -51,11 +51,11 @@ describe("Image Widget Validation Image Urls", function () {
     cy.openPropertyPane("imagewidget");
     cy.clearPropertyValue(0);
 
-    cy.testCodeMirror(this.data.NewImage);
+    cy.testCodeMirror(this.dataSet.NewImage);
     // if imageError flag not reset properly, this test will fail.
     cy.get(viewWidgetsPage.imageinner)
       .invoke("attr", "src")
-      .should("contain", this.data.NewImage);
+      .should("contain", this.dataSet.NewImage);
     // error container doesn't exist
     cy.get(
       `${viewWidgetsPage.imageWidget} div[data-testid=error-container]`,

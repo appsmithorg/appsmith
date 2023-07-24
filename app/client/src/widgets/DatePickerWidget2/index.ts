@@ -4,10 +4,10 @@ import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import moment from "moment";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
-
 import { TimePrecision } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   features: {
@@ -20,6 +20,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "DatePicker",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.INPUTS],
   needsMeta: true,
   searchTags: ["calendar"],
   defaults: {
@@ -56,6 +57,7 @@ export const CONFIG = {
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+    setterConfig: Widget.getSetterConfig(),
   },
   autoLayout: {
     disabledPropsDefaults: {

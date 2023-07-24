@@ -129,7 +129,7 @@ export const useAppWideAndOtherDatasource = () => {
   };
 };
 
-const MAX_DATASOURCE_SUGGESTIONS = 3;
+export const MAX_DATASOURCE_SUGGESTIONS = 3;
 
 export const useDatasourceSuggestions = () => {
   const datasourcesUsedInApplication = useCurrentApplicationDatasource();
@@ -345,9 +345,8 @@ export const useFilteredEntities = (
 };
 
 export const useEntityUpdateState = (entityId: string) => {
-  return useSelector(
-    (state: AppState) =>
-      get(state, "ui.explorer.entity.updatingEntity") === entityId,
+  return useSelector((state: AppState) =>
+    get(state, "ui.explorer.entity.updatingEntity")?.includes(entityId),
   );
 };
 

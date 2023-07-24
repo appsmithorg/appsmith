@@ -318,12 +318,13 @@ export const SAVE_DATASOURCE = () => "Save as datasource";
 export const SAVE_DATASOURCE_MESSAGE = () =>
   "Save the URL as a datasource to access authentication settings";
 export const EDIT_DATASOURCE_MESSAGE = () =>
-  "Edit Datasource to access authentication settings";
+  "Edit datasource to access authentication settings";
 export const OAUTH_ERROR = () => "OAuth Error";
 export const OAUTH_2_0 = () => "OAuth 2.0";
 export const ENABLE = () => "Enable";
 export const UPGRADE = () => "Upgrade";
 export const EDIT = () => "Edit";
+export const CONFIGURE = () => "Configure";
 export const UNEXPECTED_ERROR = () => "An unexpected error occurred";
 export const EXPECTED_ERROR = () => "An error occurred";
 export const NO_DATASOURCE_FOR_QUERY = () =>
@@ -384,10 +385,8 @@ export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
   "LocalStorage is not supported on your device. Some features including the Appsmith store won't work.";
 
 export const OMNIBAR_PLACEHOLDER = () =>
-  `Search widgets, queries, documentation`;
-export const OMNIBAR_PLACEHOLDER_SNIPPETS = () => "Search code snippets";
+  `Search widgets, queries or create new`;
 export const OMNIBAR_PLACEHOLDER_NAV = () => "Search widgets and queries";
-export const OMNIBAR_PLACEHOLDER_DOC = () => "Search documentation";
 export const CREATE_NEW_OMNIBAR_PLACEHOLDER = () =>
   "Create a new query, API or JS Object";
 export const HELPBAR_PLACEHOLDER = () => "Search";
@@ -649,6 +648,9 @@ export const BULK_WIDGET_REMOVED = (widgetName: string) =>
 export const BULK_WIDGET_ADDED = (widgetName: string) =>
   `${widgetName} widgets are added back`;
 
+export const ACTION_CONFIGURATION_CHANGED = (name: string) =>
+  `${name}'s configuration has changed`;
+
 // Generate page from DB Messages
 
 export const UNSUPPORTED_PLUGIN_DIALOG_TITLE = () =>
@@ -693,19 +695,37 @@ export const ADD_NEW_WIDGET = () => "Add new widget";
 export const SUGGESTED_WIDGETS = () => "Suggested widgets";
 export const SUGGESTED_WIDGET_TOOLTIP = () => "Add to canvas";
 export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next mission";
+export const BINDING_SECTION_LABEL = () => "Bindings";
+export const ADD_NEW_WIDGET_SUB_HEADING = () =>
+  "Select how you want to display data.";
+export const CONNECT_EXISTING_WIDGET_LABEL = () => "Select a Widget";
+export const CONNECT_EXISTING_WIDGET_SUB_HEADING = () =>
+  "Replace the data of an existing widget";
+export const NO_EXISTING_WIDGETS = () => "Display data in a new widget";
+export const BINDING_WALKTHROUGH_TITLE = () => "Display your data";
+export const BINDING_WALKTHROUGH_DESC = () =>
+  "You can replace data of an existing widget of your page or you can select a new widget.";
+export const BINDINGS_DISABLED_TOOLTIP = () =>
+  "You can display data when you have a successful response to your query";
 
 // Data Sources pane
 export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
+
+// Datasource structure
+
 export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
-
-export const SNIPPET_EXECUTION_SUCCESS = () => `Snippet executed successfully.`;
-
-export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
-
-export const SNIPPET_INSERT = () => `Hit ⏎ to insert`;
-export const SNIPPET_COPY = () => `Hit ⏎ to copy`;
-export const SNIPPET_EXECUTE = () => `Hit ⏎ to run`;
-export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
+export const TABLE_OR_COLUMN_NOT_FOUND = () => "Table or column not found.";
+export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = () =>
+  "Search for table or attribute";
+export const SCHEMA_LABEL = () => "Schema";
+export const STRUCTURE_NOT_FETCHED = () =>
+  "We could not fetch the schema of the database.";
+export const TEST_DATASOURCE_AND_FIX_ERRORS = () =>
+  "Test the datasource and fix the errors.";
+export const LOADING_SCHEMA = () => "Loading schema...";
+export const SCHEMA_WALKTHROUGH_TITLE = () => "Query data fast";
+export const SCHEMA_WALKTHROUGH_DESC = () =>
+  "Select a template from a database table to quickly create your first query. ";
 
 // Git sync
 export const CONNECTED_TO_GIT = () => "Connected to Git";
@@ -741,7 +761,7 @@ export const NAME_YOUR_NEW_BRANCH = () => "Name your new branch";
 export const SWITCH_BRANCHES = () => "Switch branches";
 
 export const DOCUMENTATION = () => "Documentation";
-export const DOCUMENTATION_TOOLTIP = () => "Open docs in omnibar";
+export const DOCUMENTATION_TOOLTIP = () => "Open docs in new tab";
 export const CONNECT = () => "Connect";
 export const LATEST_DP_TITLE = () => "Latest deployed preview";
 export const LATEST_DP_SUBTITLE = () => "last deployed";
@@ -855,6 +875,8 @@ export const CONFIRM_SSH_KEY = () =>
   "Please make sure your SSH key has write access.";
 export const READ_DOCUMENTATION = () => "Read documentation";
 export const LEARN_MORE = () => "Learn more";
+
+export const I_UNDERSTAND = () => "I understand";
 export const GIT_NO_UPDATED_TOOLTIP = () => "No new updates to push";
 
 export const FIND_OR_CREATE_A_BRANCH = () => "Find or create a branch";
@@ -880,6 +902,8 @@ export const DISCARD_CHANGES = () => "Discard & pull";
 // GIT DEPLOY begin
 export const DEPLOY = () => "Deploy";
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
+export const CHANGES_APP_SETTINGS = () => "Application settings modified";
+export const CHANGES_THEME = () => "Theme modified";
 export const CHANGES_SINCE_LAST_DEPLOYMENT = () =>
   "Changes since last deployment";
 export const CHANGES_ONLY_USER = () => "Changes since last commit";
@@ -925,12 +949,6 @@ export const ERROR_GIT_AUTH_FAIL = () =>
 export const ERROR_GIT_INVALID_REMOTE = () =>
   "Either the remote repository doesn't exist or is unreachable.";
 // GIT ERRORS end
-
-// JS Snippets
-export const SNIPPET_DESCRIPTION = () =>
-  `Search and insert code snippets to perform complex actions quickly.`;
-export const DOC_DESCRIPTION = () =>
-  `Find answers through Appsmith documentation.`;
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 export const ACTION_OPERATION_DESCRIPTION = () =>
@@ -982,29 +1000,67 @@ export const ONBOARDING_CHECKLIST_BODY = () =>
   "Let’s get you started on your first application, explore Appsmith yourself or follow our guide below to discover what Appsmith can do.";
 export const ONBOARDING_CHECKLIST_COMPLETE_TEXT = () => "complete";
 
+export const SIGNPOSTING_POPUP_SUBTITLE = () =>
+  "These are all the things you need to do to build your first application.";
+export const SIGNPOSTING_SUCCESS_POPUP = {
+  title: () => "🎉 Awesome! You’ve explored the basics of Appsmith",
+  subtitle: () =>
+    "You can carry on building the app from here on. If you are still not sure, checkout our documentation or try guided tour.",
+};
+
 export const ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE = {
   bold: () => "Connect your datasource",
-  normal: () => "to start building an application.",
+  normal: () => "to start building your app",
 };
 
 export const ONBOARDING_CHECKLIST_CREATE_A_QUERY = {
-  bold: () => "Create a query",
-  normal: () => "of your datasource.",
+  bold: () => "Write a query",
+  normalPrefix: () => "to import your",
+  normal: () => "data into appsmith",
 };
 
 export const ONBOARDING_CHECKLIST_ADD_WIDGETS = {
-  bold: () => "Start visualising your application",
-  normal: () => "using widgets.",
+  bold: () => "Drag & drop a widget,",
+  normal: () => "so you can build a beautiful UI",
 };
 
 export const ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET = {
   bold: () => "Connect your data to the widgets",
-  normal: () => "using JavaScript.",
+  normal: () => "using JavaScript bindings",
 };
 
 export const ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS = {
   bold: () => "Deploy your application,",
   normal: () => "and see your creation live.",
+};
+
+export const SIGNPOSTING_LAST_STEP_TOOLTIP = () => "You are almost there!";
+export const SIGNPOSTING_TOOLTIP = {
+  DEFAULT: {
+    content: () =>
+      "Finish these 5 steps to learn the basics in-order to build an app & deploy it. This would take 5 mins of your time.",
+  },
+  CONNECT_A_DATASOURCE: {
+    content: () => "Let's add a datasource",
+  },
+  CREATE_QUERY: {
+    content: () =>
+      "You successfully connected a datasource. Now try to create a query.",
+  },
+  ADD_WIDGET: {
+    content: () =>
+      "You successfully created a query. Now its time to drag & drop a widget to bind data.",
+  },
+  CONNECT_DATA_TO_WIDGET: {
+    content: () =>
+      "You have a widget on the canvas now, its time to bind the data with it.",
+  },
+  DEPLOY_APPLICATION: {
+    content: () => "Deploy you application to see what you’ve built.",
+  },
+  DOCUMENTATION: {
+    content: () => "Open documentation",
+  },
 };
 
 export const ONBOARDING_CHECKLIST_FOOTER = () =>
@@ -1033,6 +1089,9 @@ export const START_TUTORIAL = () => "Start tutorial";
 export const WELCOME_TO_APPSMITH = () => "Welcome to Appsmith!";
 export const QUERY_YOUR_DATABASE = () =>
   "Query your own database or API inside Appsmith. Write JS to construct dynamic queries.";
+export const SIGNPOSTING_INFO_MENU = {
+  documentation: () => "Open documentation",
+};
 
 //Statusbar
 export const ONBOARDING_STATUS_STEPS_FIRST = () => "First, add a datasource";
@@ -1188,8 +1247,17 @@ export const OIDC_AUTH_DESC = () =>
   "Enable your workspace to sign in with your preferred OIDC compliant provider.";
 export const SAVE_BUTTON = () => "Save";
 export const SAVE_AND_RESTART_BUTTON = () => "Save & Restart";
+export const SAVE_AND_REFRESH_BUTTON = () => "Save & Refresh";
 export const RESET_BUTTON = () => "Reset";
 export const BUSINESS_TAG = () => "Business";
+export const ENTERPRISE_TAG = () => "Enterprise";
+
+// Upgrade pages begin
+export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
+export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
+  `The ${featureName} feature is exclusive to workspaces on the Business Edition`;
+export const AVAILABLE_ON_ENTERPRISE = () => "Available on Appsmith Enterprise";
+// Upgrade pages end
 
 // Audit logs begin
 export const AUDIT_LOGS = () => "Audit logs";
@@ -1211,9 +1279,6 @@ export const DEBUGGING_DETAIL1 = () =>
 export const INCIDENT_MANAGEMENT = () => "Incident management";
 export const INCIDENT_MANAGEMENT_DETAIL1 = () =>
   "Go back in time from an incident to see who did what, correlate events with breaking changes, and run RCAs to remediate incidents for now and the future.";
-export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
-export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
-  `The ${featureName} feature is exclusive to workspaces on the Business Edition`;
 // Audit logs Upgrade page end
 // Audit logs end
 
@@ -1237,6 +1302,22 @@ export const RESTRICT_PUBLIC_EXPOSURE_DETAIL1 = () =>
 export const ACCESS_CONTROL_UPGRADE_PAGE_FOOTER = () =>
   "Unlock granular access controls along with audit logs and SSO for enhanced security and reliability with an upgrade to our Business edition.";
 // Access control upgrade page end
+
+// Provisioning upgrade page begin
+export const USER_PROVISIONING_FOR_ENTERPRISES = () =>
+  "Manage Appsmith users via your identity provider";
+export const PROVISIONING_UPGRADE_PAGE_SUB_HEADING = () =>
+  `Add and remove Appsmith users centrally. Sync existing groups to Appsmith.`;
+export const PROVISION_DEPROVISION_USERS = () =>
+  "Provision and deprovision users from your IdP";
+export const PROVISION_DEPROVISION_USERS_DETAIL1 = () =>
+  `Control user authorization and access to Appsmith workspaces and apps via your IdP using the SCIM protocol.<div>&nbsp;</div><div><span style="font-style: italic;font-weight: normal;">More protocols coming soon</span></div>`;
+export const AUTO_GROUP_SYNC = () => "Automatic group sync";
+export const AUTO_GROUP_SYNC_DETAIL1 = () =>
+  `Easily manage access for groups when you sync them to Appsmith from your IdP.`;
+export const PROVISIONING_UPGRADE_PAGE_FOOTER = () =>
+  "Secure your Appsmith apps with Granular Access Controls, Audit Logs, Custom SSO, and more on Appsmith Enterprise.";
+// Provisioning upgrade page end
 
 //
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
@@ -1445,7 +1526,7 @@ export const FORK_THIS_TEMPLATE = () => "Use template";
 export const COULDNT_FIND_TEMPLATE = () =>
   "Couldn’t find what you are looking for?";
 export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
-  "A github issue portal will be opened up for you to create an issue regarding what type of template you need.";
+  "Submit suggestions for templates you'd like to see or upvote requests raised by others and our team will work on it.";
 export const REQUEST_TEMPLATE = () => "Request for a template";
 export const SEARCH_TEMPLATES = () => "Search templates";
 export const INTRODUCING_TEMPLATES = () => "Introducing templates";
@@ -1612,14 +1693,23 @@ export const IN_APP_EMBED_SETTING = {
   forkLabelTooltip: () =>
     "Forking allows developers to copy your app to their workspace",
   upgradeHeading: () =>
-    "Please contact your workspace admin to make the app public before embedding",
-  upgradeHeadingForInviteModal: () =>
-    "Make your app public in share settings to embed",
+    "Embedding in public mode is supported in the community edition. To make your app public, please contact your administrator.",
+  upgradeHeadingForInviteModal: () => "Public apps",
+  upgradeSubheadingForInviteModal: () =>
+    "Make your app public by visiting the share settings, and easily embed your Appsmith app into legacy applications",
+  privateAppsText: () => "Private apps",
+  rampSubtextModal: () =>
+    "Embed private Appsmith apps and seamlessly authenticate users through SSO in our Business Edition",
+  rampSubtextSidebar: () =>
+    "To embed private Appsmith apps and seamlessly authenticate users through SSO, try our ",
+  rampLinktext: () => "Try Business",
+  rampLinktextvariant2: () => "Business Edition",
   upgradeContent: () => "Private embedding is now available in",
   appsmithBusinessEdition: () => "Appsmith Business Edition.",
-  secondaryHeadingForAppSettings: () => "Make your app public to embed",
+  secondaryHeadingForAppSettings: () =>
+    "Make your app public to embed your Appsmith app into legacy applications",
   secondaryHeading: () =>
-    "Please contact your workspace admin to make the app public before embedding",
+    "Embedding in public mode is supported in the community edition. To make your app public, please contact your administrator.",
 };
 
 export const APP_NAVIGATION_SETTING = {
@@ -1779,3 +1869,18 @@ export const customJSLibraryMessages = {
 // Business Edition upgrade page
 export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
   `Move to Business edition${trailingChar ? trailingChar : ""}`;
+
+//Datasource environment
+export const START_SWITCH_ENVIRONMENT = (environment: string) =>
+  `...Switching your environment to ${environment}, and running all associated pageload actions`;
+export const SWITCH_ENVIRONMENT_SUCCESS = (environment: string) =>
+  `...Environment switched to ${environment} successfully`;
+
+export const TEST_DATASOURCE_SUCCESS = (
+  datasourceName: string,
+  environmentName: string,
+) =>
+  `Test was successful, ${datasourceName} ${environmentName} environment is correctly configured.`;
+
+export const TEST_DATASOURCE_ERROR = () =>
+  "Test failed, couldn't establish a connection";

@@ -9,7 +9,6 @@ import type {
 import { get, isUndefined, set } from "lodash";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
-  getEvalErrorPath,
   getEvalValuePath,
   isPathDynamicTrigger,
   PropertyEvaluationErrorType,
@@ -56,13 +55,15 @@ export function validateAndParseWidgetProperty({
   );
 
   let evaluatedValue;
+
+  // remove already present validation errors
+  resetValidationErrorsForEntityProperty({
+    evalProps,
+    fullPropertyPath,
+  });
+
   if (isValid) {
     evaluatedValue = parsed;
-    // remove validation errors is already present
-    resetValidationErrorsForEntityProperty({
-      evalProps,
-      fullPropertyPath,
-    });
   } else {
     evaluatedValue = isUndefined(transformed) ? evalPropertyValue : transformed;
 
@@ -150,9 +151,11 @@ export function getValidatedTree(
           : isUndefined(transformed)
           ? value
           : transformed;
+
+        const fullPropertyPath = `${entityKey}.${property}`;
         set(
           evalProps,
-          getEvalValuePath(`${entityKey}.${property}`, {
+          getEvalValuePath(fullPropertyPath, {
             isPopulated: false,
             fullPath: true,
           }),
@@ -166,13 +169,15 @@ export function getValidatedTree(
               severity: Severity.ERROR,
               raw: value,
             })) ?? [];
+
+          resetValidationErrorsForEntityProperty({
+            evalProps,
+            fullPropertyPath,
+          });
           addErrorToEntityProperty({
             errors: evalErrors,
             evalProps,
-            fullPropertyPath: getEvalErrorPath(`${entityKey}.${property}`, {
-              isPopulated: false,
-              fullPath: true,
-            }),
+            fullPropertyPath,
             dataTree: tree,
             configTree,
           });

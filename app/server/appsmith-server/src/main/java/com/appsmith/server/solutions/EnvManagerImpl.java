@@ -5,7 +5,6 @@ import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.configurations.OAuth2ClientRegistrationRepository;
 import com.appsmith.server.helpers.FileUtils;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
@@ -25,26 +24,42 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
 
-    public EnvManagerImpl(SessionUserService sessionUserService,
-                          UserService userService,
-                          AnalyticsService analyticsService,
-                          UserRepository userRepository,
-                          PolicyUtils policyUtils,
-                          EmailSender emailSender,
-                          CommonConfig commonConfig,
-                          EmailConfig emailConfig,
-                          JavaMailSender javaMailSender,
-                          GoogleRecaptchaConfig googleRecaptchaConfig,
-                          FileUtils fileUtils,
-                          PermissionGroupService permissionGroupService,
-                          ConfigService configService,
-                          UserUtils userUtils,
-                          TenantService tenantService,
-                          ObjectMapper objectMapper,
-                          OAuth2ClientRegistrationRepository oAuth2ClientRegistrationRepository) {
+    public EnvManagerImpl(
+            SessionUserService sessionUserService,
+            UserService userService,
+            AnalyticsService analyticsService,
+            UserRepository userRepository,
+            PolicyUtils policyUtils,
+            EmailSender emailSender,
+            CommonConfig commonConfig,
+            EmailConfig emailConfig,
+            JavaMailSender javaMailSender,
+            GoogleRecaptchaConfig googleRecaptchaConfig,
+            FileUtils fileUtils,
+            PermissionGroupService permissionGroupService,
+            ConfigService configService,
+            UserUtils userUtils,
+            TenantService tenantService,
+            ObjectMapper objectMapper,
+            OAuth2ClientRegistrationRepository oAuth2ClientRegistrationRepository) {
 
-        super(sessionUserService, userService, analyticsService, userRepository, policyUtils, emailSender, commonConfig,
-                emailConfig, javaMailSender, googleRecaptchaConfig, fileUtils, permissionGroupService, configService,
-                userUtils, tenantService, objectMapper, oAuth2ClientRegistrationRepository);
+        super(
+                sessionUserService,
+                userService,
+                analyticsService,
+                userRepository,
+                policyUtils,
+                emailSender,
+                commonConfig,
+                emailConfig,
+                javaMailSender,
+                googleRecaptchaConfig,
+                fileUtils,
+                permissionGroupService,
+                configService,
+                userUtils,
+                tenantService,
+                objectMapper,
+                oAuth2ClientRegistrationRepository);
     }
 }

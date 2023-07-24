@@ -1,12 +1,11 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/tableWidgetDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("tableWidgetDsl");
   });
 
   it("Table Widget Functionality", function () {
@@ -22,7 +21,7 @@ describe("Table Widget Functionality", function () {
       widgetsPage.tableWidget,
       widgetsPage.widgetNameSpan,
     );
-    cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
+    cy.testJsontext("tabledata", JSON.stringify(this.dataSet.TableInput));
     cy.wait("@updateLayout");
     //cy.get(widgetsPage.ColumnAction).click({ force: true });
     // cy.get(widgetsPage.tableOnRowSelected)
@@ -56,7 +55,7 @@ describe("Table Widget Functionality", function () {
     cy.isSelectRow(1);
 
     const index = 1;
-    const imageVal = this.data.TableInput[index].image;
+    const imageVal = this.dataSet.TableInput[index].image;
     cy.readTableLinkPublish(index, "1").then((hrefVal) => {
       expect(hrefVal).to.contain(imageVal);
     });
@@ -68,7 +67,7 @@ describe("Table Widget Functionality", function () {
     // Confirm if isSortable is true
     cy.get(commonlocators.isSortable_tablev1).should("be.checked");
     // Publish App
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Confirm Current order
     cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
@@ -93,9 +92,7 @@ describe("Table Widget Functionality", function () {
       expect(tabValue).to.be.equal("Tobias Funke");
     });
     // Back to edit page
-    cy.get(publish.backToEditor).click({
-      force: true,
-    });
+    _.deployMode.NavigateBacktoEditor();
 
     cy.openPropertyPane("tablewidget");
     // Disable isSortable
@@ -103,7 +100,7 @@ describe("Table Widget Functionality", function () {
     cy.togglebarDisable(commonlocators.isSortable_tablev1);
 
     // Publish App
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Confirm Current order
     cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
@@ -133,8 +130,7 @@ describe("Table Widget Functionality", function () {
   To enabled later
 
   it("Table Widget Functionality To Verify The Visiblity mode functionality", function() {
-    cy.get(publish.backToEditor)
-      .click();
+   _.deployMode.NavigateBacktoEditor();
     cy.isSelectRow(1);
     cy.readTabledataPublish("1", "3").then(tabData => {
       const tabValue = tabData;

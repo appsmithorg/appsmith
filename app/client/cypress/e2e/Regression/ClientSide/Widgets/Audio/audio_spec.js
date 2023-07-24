@@ -1,10 +1,10 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/audioWidgetDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Audio Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("audioWidgetDsl");
   });
 
   it("1. Audio Widget play functionality validation", function () {

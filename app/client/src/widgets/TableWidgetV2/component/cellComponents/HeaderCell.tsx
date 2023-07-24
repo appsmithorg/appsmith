@@ -266,7 +266,11 @@ const HeaderCellComponent = (props: HeaderProps) => {
           </Title>
         </ColumnNameContainer>
       </div>
-      <div className={`header-menu${!isMenuOpen ? " hide" : ""}`}>
+      <div
+        className={`header-menu ${
+          !isSortable && !props.canFreezeColumn && "hide-menu"
+        } ${!isMenuOpen && "hide"}`}
+      >
         <Popover2
           content={
             <Menu className={MENU_CONTENT_CLASS}>

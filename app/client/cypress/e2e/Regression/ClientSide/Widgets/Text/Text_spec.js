@@ -1,43 +1,38 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const publishPage = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/displayWidgetDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Text Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("displayWidgetDsl");
   });
 
   beforeEach(() => {
     cy.openPropertyPane("textwidget");
   });
 
-  it("Text-TextStyle Heading, Text Name Validation", function () {
+  it("1. Text-TextStyle Heading, Text Name Validation", function () {
     //changing the Text Name and verifying
     cy.widgetText(
-      this.data.TextName,
+      this.dataSet.TextName,
       widgetsPage.textWidget,
       widgetsPage.widgetNameSpan,
     );
     //Changing the text label
-    cy.testCodeMirror(this.data.TextLabelValue);
-    cy.moveToStyleTab();
-    cy.ChangeTextStyle(
-      this.data.TextHeading,
-      commonlocators.headingTextStyle,
-      this.data.TextLabelValue,
-    );
+    _.propPane.UpdatePropertyFieldValue("Text", this.dataSet.TextLabelValue);
+    _.propPane.MoveToTab("Style");
+    _.propPane.SelectPropertiesDropDown("Font size", "M");
     cy.wait("@updateLayout");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(commonlocators.headingTextStyle)
-      .should("have.text", this.data.TextLabelValue)
+      .should("have.text", this.dataSet.TextLabelValue)
       .should("have.css", "font-size", "16px");
   });
 
-  it("Text Email Parsing Validation", function () {
+  it("2. Text Email Parsing Validation", function () {
     cy.testCodeMirror("ab.end@domain.com");
     cy.wait("@updateLayout");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(commonlocators.headingTextStyle + " a").should(
       "have.attr",
       "href",
@@ -45,45 +40,45 @@ describe("Text Widget Functionality", function () {
     );
   });
 
-  it("Text-TextStyle Label Validation", function () {
-    cy.testCodeMirror(this.data.TextLabelValue);
+  it("3. Text-TextStyle Label Validation", function () {
+    cy.testCodeMirror(this.dataSet.TextLabelValue);
     cy.moveToStyleTab();
     //Changing the Text Style's and validating
     cy.ChangeTextStyle(
-      this.data.TextLabel,
+      this.dataSet.TextLabel,
       commonlocators.labelTextStyle,
-      this.data.TextLabelValue,
+      this.dataSet.TextLabelValue,
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(commonlocators.labelTextStyle)
-      .should("have.text", this.data.TextLabelValue)
+      .should("have.text", this.dataSet.TextLabelValue)
       .should("have.css", "font-size", "14px");
   });
 
-  it("Text-TextStyle Body Validation", function () {
+  it("4. Text-TextStyle Body Validation", function () {
     cy.moveToStyleTab();
     cy.ChangeTextStyle(
-      this.data.TextBody,
+      this.dataSet.TextBody,
       commonlocators.bodyTextStyle,
-      this.data.TextLabelValue,
+      this.dataSet.TextLabelValue,
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(commonlocators.bodyTextStyle)
-      .should("have.text", this.data.TextLabelValue)
+      .should("have.text", this.dataSet.TextLabelValue)
       .should("have.css", "font-size", "20px");
   });
 
-  it("Text widget depends on itself", function () {
-    cy.testJsontext("text", `{{${this.data.TextName}}}`);
+  it("5. Text widget depends on itself", function () {
+    cy.testJsontext("text", `{{${this.dataSet.TextName}}}`);
     cy.get(commonlocators.toastBody).first().contains("Cyclic");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(commonlocators.bodyTextStyle).should(
       "have.text",
-      `{{${this.data.TextName}}}`,
+      `{{${this.dataSet.TextName}}}`,
     );
   });
 
   afterEach(() => {
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 });

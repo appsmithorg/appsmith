@@ -55,6 +55,7 @@ import clsx from "clsx";
 import styled from "styled-components";
 import { importSvg } from "design-system-old";
 import classNames from "classnames";
+import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 
 const ResetIcon = importSvg(() => import("assets/icons/control/undo_2.svg"));
 
@@ -181,8 +182,14 @@ const PropertyControl = memo((props: Props) => {
     updateDataTreePathFn: childWidgetDataTreePathEnhancementFn,
   } = enhancementFns || {};
 
+  const connectDataClicked = useSelector(getIsOneClickBindingOptionsVisibility);
+
   const toggleDynamicProperty = useCallback(
-    (propertyName: string, isDynamic: boolean) => {
+    (
+      propertyName: string,
+      isDynamic: boolean,
+      shouldValidateValueOnDynamicPropertyOff?: boolean,
+    ) => {
       AnalyticsUtil.logEvent("WIDGET_TOGGLE_JS_PROP", {
         widgetType: widgetProperties?.type,
         widgetName: widgetProperties?.widgetName,
@@ -195,10 +202,11 @@ const PropertyControl = memo((props: Props) => {
       // we don't want to remove the path from dynamic binding list
       // on toggling of js in case of few widgets
       if (
-        SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR.includes(
+        (SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR.includes(
           props.controlType,
         ) &&
-        isDynamicValue(propertyValue)
+          isDynamicValue(propertyValue)) ||
+        !shouldValidateValueOnDynamicPropertyOff
       ) {
         shouldRejectDynamicBindingPathList = false;
       }
@@ -209,6 +217,7 @@ const PropertyControl = memo((props: Props) => {
           propertyName,
           !isDynamic,
           shouldRejectDynamicBindingPathList,
+          !shouldValidateValueOnDynamicPropertyOff,
         ),
       );
     },
@@ -246,6 +255,7 @@ const PropertyControl = memo((props: Props) => {
   const {
     isTriggerProperty,
     postUpdateAction,
+    shouldSwitchToNormalMode,
     updateHook,
     updateRelatedWidgetProperties,
   } = props;
@@ -689,8 +699,9 @@ const PropertyControl = memo((props: Props) => {
     };
 
     const uniqId = btoa(`${widgetProperties.widgetId}.${propertyName}`);
-    const canDisplayValueInUI =
-      PropertyControlFactory.controlUIToggleValidation.get(config.controlType);
+    const controlMethods = PropertyControlFactory.controlMethods.get(
+      config.controlType,
+    );
 
     const customJSControl = getCustomJSControl();
 
@@ -713,7 +724,8 @@ const PropertyControl = memo((props: Props) => {
         }
 
         // disable button if value can't be represented in UI mode
-        if (!canDisplayValueInUI?.(config, value)) isToggleDisabled = true;
+        if (!controlMethods?.canDisplayValueInUI?.(config, value))
+          isToggleDisabled = true;
       }
 
       // Enable button if the value is same as the one defined in theme stylesheet.
@@ -737,6 +749,17 @@ const PropertyControl = memo((props: Props) => {
         showEmptyBlock,
         setShowEmptyBlock,
       };
+    }
+
+    if (shouldSwitchToNormalMode) {
+      const switchMode = shouldSwitchToNormalMode(
+        isDynamic,
+        isToggleDisabled,
+        connectDataClicked,
+      );
+      if (switchMode) {
+        toggleDynamicProperty(propertyName, true);
+      }
     }
 
     try {
@@ -774,7 +797,14 @@ const PropertyControl = memo((props: Props) => {
                     isDisabled={isToggleDisabled}
                     isSelected={isDynamic}
                     onClick={() =>
-                      toggleDynamicProperty(propertyName, isDynamic)
+                      toggleDynamicProperty(
+                        propertyName,
+                        isDynamic,
+                        controlMethods?.shouldValidateValueOnDynamicPropertyOff(
+                          config,
+                          propertyValue,
+                        ),
+                      )
                     }
                     size="sm"
                   />

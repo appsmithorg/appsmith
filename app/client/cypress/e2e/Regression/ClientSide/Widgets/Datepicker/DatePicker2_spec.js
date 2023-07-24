@@ -1,13 +1,13 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-const dsl = require("../../../../../fixtures/newFormDsl.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dayjs = require("dayjs");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("DatePicker Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("newFormDsl");
   });
 
   beforeEach(() => {
@@ -23,7 +23,7 @@ describe("DatePicker Widget Functionality", function () {
 
     //changing the Button Name
     cy.widgetText(
-      this.data.Datepickername,
+      this.dataSet.Datepickername,
       formWidgetsPage.datepickerWidget,
       widgetsPage.widgetNameSpan,
     );
@@ -43,19 +43,18 @@ describe("DatePicker Widget Functionality", function () {
       "contain.value",
       nextDay,
     );
-
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publishPage.datepickerWidget + " .bp3-input").should(
       "contain.value",
       nextDay,
     );
   });
 
-  it("Datepicker-Clear date validation", function () {
+  it("1. Datepicker-Clear date validation", function () {
     const today = dayjs().add(0, "days").format("DD/MM/YYYY");
     cy.get(formWidgetsPage.defaultDate).click();
     cy.ClearDate();
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publishPage.datepickerWidget + " .bp3-input").should(
       "contain.value",
       "",
@@ -80,7 +79,7 @@ describe("DatePicker Widget Functionality", function () {
   //   cy.wait(1000);
   //   cy.setDate(1, "ddd MMM DD YYYY");
 
-  //   cy.PublishtheApp();
+  //   _.deployMode.DeployApp();
   //   cy.get(publishPage.datepickerWidget + " .bp3-input").click();
 
   //   const minDate = Cypress.moment()
@@ -112,7 +111,7 @@ describe("DatePicker Widget Functionality", function () {
   //     "1px solid rgb(206, 66, 87)",
   //   );
 
-  //   cy.PublishtheApp();
+  //   _.deployMode.DeployApp();
   // });
 
   // it("DatePicker-check Required field validation", function() {
@@ -122,7 +121,7 @@ describe("DatePicker Widget Functionality", function () {
   //     "contain.text",
   //     "From Date",
   //   );
-  //   cy.PublishtheApp();
+  //   _.deployMode.DeployApp();
   //   cy.get(publishPage.datepickerWidget + " .bp3-label").should(
   //     "contain.text",
   //     "From Date",
@@ -136,49 +135,49 @@ describe("DatePicker Widget Functionality", function () {
   //     "contain.text",
   //     "From Date",
   //   );
-  //   cy.PublishtheApp();
+  //   _.deployMode.DeployApp();
   //   cy.get(publishPage.datepickerWidget + " .bp3-label").should(
   //     "contain.text",
   //     "From Date",
   //   );
   // });
 
-  it("DatePicker-check Visible field  validation", function () {
+  it("2. DatePicker-check Visible field  validation", function () {
     // Check the visible checkbox
     cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publishPage.datepickerWidget).should("not.exist");
   });
 
-  it("DatePicker-uncheck Visible field validation", function () {
+  it("3. DatePicker-uncheck Visible field validation", function () {
     // Check the visible checkbox
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publishPage.datepickerWidget).should("be.visible");
   });
 
-  it("DatePicker-Disable field validation", function () {
+  it("4. DatePicker-Disable field validation", function () {
     //Check the Disabled checkbox
     cy.CheckWidgetProperties(commonlocators.disableCheckbox);
     cy.validateDisableWidget(
       formWidgetsPage.datepickerWidget,
       commonlocators.disabledField,
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.validateDisableWidget(
       publishPage.datepickerWidget,
       commonlocators.disabledField,
     );
   });
 
-  it("DatePicker-Enable field validation", function () {
+  it("5. DatePicker-Enable field validation", function () {
     //UnCheck the Disabled checkbox
     cy.UncheckWidgetProperties(commonlocators.disableCheckbox);
     cy.validateEnableWidget(
       formWidgetsPage.datepickerWidget,
       commonlocators.disabledField,
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.validateEnableWidget(
       publishPage.datepickerWidget,
       commonlocators.disabledField,
@@ -186,6 +185,6 @@ describe("DatePicker Widget Functionality", function () {
   });
 
   afterEach(() => {
-    cy.get(publishPage.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 });

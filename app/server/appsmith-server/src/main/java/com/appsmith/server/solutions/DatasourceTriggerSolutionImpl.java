@@ -12,17 +12,28 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class DatasourceTriggerSolutionImpl extends DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolution {
+public class DatasourceTriggerSolutionImpl extends DatasourceTriggerSolutionCEImpl
+        implements DatasourceTriggerSolution {
 
-    public DatasourceTriggerSolutionImpl(DatasourceService datasourceService,
-                                         DatasourceStorageService datasourceStorageService,
-                                         PluginExecutorHelper pluginExecutorHelper,
-                                         PluginService pluginService,
-                                         DatasourceStructureSolution datasourceStructureSolution,
-                                         AuthenticationValidator authenticationValidator,
-                                         DatasourceContextService datasourceContextService,
-                                         DatasourcePermission datasourcePermission) {
-        super(datasourceService, datasourceStorageService, pluginExecutorHelper, pluginService,
-                datasourceStructureSolution, authenticationValidator, datasourceContextService, datasourcePermission);
+    public DatasourceTriggerSolutionImpl(
+            DatasourceService datasourceService,
+            DatasourceStorageService datasourceStorageService,
+            PluginExecutorHelper pluginExecutorHelper,
+            PluginService pluginService,
+            DatasourceStructureSolution datasourceStructureSolution,
+            AuthenticationValidator authenticationValidator,
+            DatasourceContextService datasourceContextService,
+            DatasourcePermission datasourcePermission,
+            EnvironmentPermission environmentPermission) {
+        super(
+                datasourceService,
+                datasourceStorageService,
+                pluginExecutorHelper,
+                pluginService,
+                datasourceStructureSolution,
+                authenticationValidator,
+                datasourceContextService,
+                datasourcePermission,
+                environmentPermission);
     }
 }

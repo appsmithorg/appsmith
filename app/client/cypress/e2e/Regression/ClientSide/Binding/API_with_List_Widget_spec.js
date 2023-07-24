@@ -1,19 +1,22 @@
 /// <reference types="Cypress" />
 
-const dsl = require("../../../../fixtures/listwidgetdsl.json");
-const publishPage = require("../../../../locators/publishWidgetspage.json");
 import apiLocators from "../../../../locators/ApiEditor";
 
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  deployMode,
+  apiPage,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to List widget", function () {
   let valueToTest;
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl("listwidgetdsl");
   });
 
   it("1. Test_Add users api and execute api", function () {
-    _.apiPage.CreateAndFillApi(this.data.userApi + "/mock-api?records=10");
+    apiPage.CreateAndFillApi(this.dataSet.userApi + "/mock-api?records=10");
     cy.RunAPI();
     cy.get(apiLocators.jsonResponseTab).click();
     cy.get(apiLocators.responseBody)
@@ -31,7 +34,7 @@ describe("Test Create Api and Bind to List widget", function () {
   });
 
   it("2. Test_Validate the Api data is updated on List widget", function () {
-    _.entityExplorer.SelectEntityByName("List1");
+    entityExplorer.SelectEntityByName("List1");
 
     cy.testJsontext("items", "{{Api1.data}}");
     cy.get(".t--draggable-textwidget span").should("have.length", 8);
@@ -41,7 +44,7 @@ describe("Test Create Api and Bind to List widget", function () {
       .then((text) => {
         expect(text).to.equal(valueToTest);
       });
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     cy.wait("@postExecute").then((interception) => {
       valueToTest = JSON.stringify(
         interception.response.body.data.body[0].name,
@@ -66,13 +69,13 @@ describe("Test Create Api and Bind to List widget", function () {
   });
 
   it("3. Test_Validate the list widget ", function () {
-    cy.get(publishPage.backToEditor).click({ force: true });
+    deployMode.NavigateBacktoEditor();
     cy.wait("@postExecute").then((interception) => {
       valueToTest = JSON.stringify(
         interception.response.body.data.body[0].name,
       ).replace(/['"]+/g, "");
     });
-    _.entityExplorer.SelectEntityByName("List1", "Widgets");
+    entityExplorer.SelectEntityByName("List1", "Widgets");
     cy.moveToStyleTab();
     cy.testJsontext("itemspacing\\(px\\)", "50");
     cy.get(".t--draggable-textwidget span").should("have.length", 6);
@@ -82,7 +85,7 @@ describe("Test Create Api and Bind to List widget", function () {
       .then((text) => {
         expect(text).to.equal(valueToTest);
       });
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     cy.wait("@postExecute").then((interception) => {
       valueToTest = JSON.stringify(
         interception.response.body.data.body[0].name,

@@ -1,14 +1,13 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/formdsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Form Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("formdsl");
   });
   it("1. Default Form text,  Reset and Close button Validation", function () {
     cy.get(widgetsPage.textWidget).should("be.visible");
@@ -34,7 +33,6 @@ describe("Form Widget Functionality", function () {
     cy.wait(500);
     cy.get(formWidgetsPage.multiselectwidgetv2).should("be.visible");
     cy.get(widgetsPage.inputWidget).should("be.visible");
-    cy.PublishtheApp();
   });
 
   it("3. Form_Widget Minimize and maximize General Validation", function () {
@@ -43,8 +41,8 @@ describe("Form Widget Functionality", function () {
     cy.get(commonlocators.generalSection).should("not.be.visible");
     cy.get(commonlocators.generalChevran).click({ force: true });
     cy.get(commonlocators.generalSection).should("be.visible");
-    cy.PublishtheApp();
-    cy.goToEditFromPublish();
+    _.deployMode.DeployApp();
+    _.deployMode.NavigateBacktoEditor();
 
     //Rename Form widget from Entity Explorer
     _.entityExplorer.ExpandCollapseEntity("Widgets");
@@ -53,10 +51,11 @@ describe("Form Widget Functionality", function () {
     _.entityExplorer.RenameEntityFromExplorer("Form1", "Form");
 
     //Form Widget Functionality To Verify The Colour
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(formWidgetsPage.formD)
       .should("have.css", "background-color")
       .and("eq", "rgb(128, 128, 128)");
+    _.deployMode.NavigateBacktoEditor();
   });
 
   //it("Form Widget Functionality", function() {
@@ -100,20 +99,20 @@ describe("Form Widget Functionality", function () {
     cy.openPropertyPane("formwidget");
     // Uncheck the visble JS
     cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Verify the unchecked visible JS
     cy.get(publish.formWidget).should("not.exist");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
 
     //Check Visible
     // Open property pone
     cy.openPropertyPane("formwidget");
     // Check the visible JS
     cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Verify the Checked Visible JS
     cy.get(publish.formWidget).should("be.visible");
-    cy.get(publish.backToEditor).click();
+    _.deployMode.NavigateBacktoEditor();
   });
   it("5. Toggle JS - Form-Unckeck Visible field Validation", function () {
     cy.openPropertyPane("formwidget");
@@ -121,15 +120,15 @@ describe("Form Widget Functionality", function () {
     cy.get(widgetsPage.toggleVisible).click({ force: true });
     cy.wait(1000);
     cy.testJsontext("visible", "false");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.formWidget).should("not.exist");
-    cy.goToEditFromPublish();
+    _.deployMode.NavigateBacktoEditor();
 
     //check visible:
     cy.openPropertyPane("formwidget");
     //Check the disabled checkbox using JS and Validate
     cy.testJsontext("visible", "true");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.formWidget).should("be.visible");
   });
 
@@ -137,7 +136,7 @@ describe("Form Widget Functionality", function () {
     cy.openPropertyPane("formwidget");
     //Copy Form and verify all properties
     cy.copyWidget("formwidget", widgetsPage.formWidget); //to improve
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   /*
@@ -152,12 +151,8 @@ describe("Form Widget Functionality", function () {
       200,
     );
     //cy.deleteWidget(widgetsPage.formWidget);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(widgetsPage.formWidget).should("not.exist");
   });
   */
-});
-afterEach(() => {
-  // put your clean up code if any
-  cy.goToEditFromPublish();
 });

@@ -7,7 +7,8 @@ import type { RateSize } from "../constants";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
@@ -323,6 +324,26 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
     });
   };
 
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setValue: {
+          path: "defaultRate",
+          type: "number",
+          accessor: "value",
+        },
+      },
+    };
+  }
+
   getPageView() {
     return (
       (this.props.rate || this.props.rate === 0) && (
@@ -336,6 +357,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           key={this.props.widgetId}
           leftColumn={this.props.leftColumn}
           maxCount={this.props.maxCount}
+          minHeight={this.props.minHeight}
           onValueChanged={this.valueChangedHandler}
           readonly={this.props.isReadOnly}
           rightColumn={this.props.rightColumn}

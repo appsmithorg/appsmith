@@ -36,7 +36,6 @@ export interface EvalTreeRequestData {
   allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
   };
-  requiresLinting: boolean;
   forceEvaluation: boolean;
   metaWidgets: MetaWidgetsReduxState;
   appMode: APP_MODE | undefined;
@@ -48,6 +47,7 @@ export interface EvalTreeResponseData {
   errors: EvalError[];
   evalMetaUpdates: EvalMetaUpdates;
   evaluationOrder: string[];
+  reValidatedPaths: string[];
   jsUpdates: Record<string, JSUpdate>;
   logs: unknown[];
   unEvalUpdates: DataTreeDiff[];
@@ -57,4 +57,7 @@ export interface EvalTreeResponseData {
   pathsToClearErrorsFor: any[];
   isNewWidgetAdded: boolean;
   undefinedEvalValuesMap: Record<string, boolean>;
+  jsVarsCreatedEvent?: { path: string; type: string }[];
 }
+
+export type JSVarMutatedEvents = Record<string, { path: string; type: string }>;

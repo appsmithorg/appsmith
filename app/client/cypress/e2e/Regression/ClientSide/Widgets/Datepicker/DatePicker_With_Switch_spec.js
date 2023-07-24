@@ -1,12 +1,11 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/datepicker_switchDsl.json");
 const dayjs = require("dayjs");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Switch Widget within Form widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("datepicker_switchDsl");
   });
   it("Switch Widget Functionality check with success message", function () {
     cy.openPropertyPane("switchwidget");
@@ -15,7 +14,7 @@ describe("Switch Widget within Form widget Functionality", function () {
       formWidgetsPage.switchWidget,
       widgetsPage.widgetNameSpan,
     );
-    cy.testCodeMirror(this.data.switchInputName);
+    cy.testCodeMirror(this.dataSet.switchInputName);
     cy.get(widgetsPage.switchLabel).should("have.text", "Switch1");
     cy.togglebar(widgetsPage.defaultcheck);
     cy.getAlert("onChange");

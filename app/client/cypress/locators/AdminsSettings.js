@@ -14,7 +14,7 @@ export default {
   saveButton: ".t--admin-settings-save-button",
   resetButton: ".t--admin-settings-reset-button",
   textInput: ".t--admin-settings-text-input input",
-  instanceName: ".t--admin-settings-APPSMITH_INSTANCE_NAME input",
+  instanceName: ".t--admin-settings-instanceName input",
   adminEmails: ".t--admin-settings-APPSMITH_ADMIN_EMAILS input",
   fromAddress: ".t--admin-settings-APPSMITH_MAIL_FROM input",
   restartNotice: ".t--admin-settings-restart-notice",
@@ -27,8 +27,7 @@ export default {
   formLoginDisabled: "[data-testid='APPSMITH_FORM_LOGIN_DISABLED']",
   embedSettings: ".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS",
   upgrade: "//button//span[text()='Upgrade']",
-  accessControl:
-    "[data-testid='t--enterprise-settings-category-item-access-control']",
-  auditLogs: "[data-testid='t--enterprise-settings-category-item-audit-logs']",
+  accessControl: ".t--settings-category-access-control",
+  auditLogs: ".t--settings-category-audit-logs",
   upgrageLeftPane: "[data-testid='t--enterprise-settings-category-item-be']",
 };

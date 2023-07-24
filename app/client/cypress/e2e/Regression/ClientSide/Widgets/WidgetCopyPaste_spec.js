@@ -8,7 +8,7 @@ const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 describe("Widget Copy paste", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("WidgetCopyPaste");
   });
 
   it("1. When non Layout widget is selected, it should place below the widget selected", function () {

@@ -1,27 +1,29 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/newFormDsl.json");
-const data = require("../../../../../fixtures/example.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  locators,
+  entityExplorer,
+  propPane,
+  deployMode,
+} from "../../../../../support/Objects/ObjectsCore";
 
-describe("Dropdown Widget Functionality", function () {
+describe("Dropdown Widget", function () {
   before(() => {
-    cy.addDsl(dsl);
-    cy.wait(3000);
+    agHelper.AddDsl("newFormDsl");
   });
 
   it("1. Dropdown-Modal Validation", function () {
-    _.entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
-    _.entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
+    entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
+    entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
 
     cy.EnableAllCodeEditors();
-    cy.testJsontext("options", JSON.stringify(data.input));
+    cy.testJsontext("options", JSON.stringify(this.dataSet.input));
     //creating the Modal and verify Modal name //to fix below
     // cy.createModal("Modal1", false);
-    // cy.PublishtheApp();
+    // deployMode.DeployApp();
     // // Changing the option to verify the success message
     // cy.get(formWidgetsPage.selectWidget)
     //   .find(widgetLocators.dropdownSingleSelect)
@@ -43,7 +45,7 @@ describe("Dropdown Widget Functionality", function () {
     cy.CreateAPI("dropdownApi");
     cy.log("Creation of buttonApi Action successful");
     cy.enterDatasourceAndPath(
-      this.data.paginationUrl,
+      this.dataSet.paginationUrl,
       "mock-api?records=20&page=4&size=3",
     );
     cy.SaveAndRunAPI();
@@ -52,16 +54,15 @@ describe("Dropdown Widget Functionality", function () {
     cy.get("[data-guided-tour-id='explorer-entity-Page1']").click({
       force: true,
     });
-    _.entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
-    _.entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
+    entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
+    entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
     cy.reload();
 
     cy.executeDbQuery("dropdownApi", "onOptionChange");
     // Filling the messages for success/failure in the onOptionChangeAction of the dropdown widget.
     cy.onClickActions("Success", "Error", "Execute a query", "dropdownApi.run");
 
-    cy.PublishtheApp();
-
+    deployMode.DeployApp();
     // Changing the option to verify the success message
     cy.get(formWidgetsPage.selectWidget)
       .find(widgetLocators.dropdownSingleSelect)
@@ -70,6 +71,7 @@ describe("Dropdown Widget Functionality", function () {
       .contains("Option 3")
       .click({ force: true });
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
+    deployMode.NavigateBacktoEditor();
   });
 
   it("3. Dropdown-Call-Query Validation", function () {
@@ -102,12 +104,11 @@ describe("Dropdown Widget Functionality", function () {
     });
 
     cy.CreateMockQuery("Query1");
-
     // Going to HomePage where the button widget is located and opeing it's property pane.
     cy.get("[data-guided-tour-id='explorer-entity-Page1']").click({
       force: true,
     });
-    _.entityExplorer.NavigateToSwitcher("Widgets");
+    entityExplorer.NavigateToSwitcher("Widgets");
     cy.openPropertyPane("selectwidget");
     cy.reload();
     // Adding the query in the onOptionChangeAction of the dropdown widget.
@@ -115,7 +116,7 @@ describe("Dropdown Widget Functionality", function () {
     // Filling the messages for success/failure in the onOptionChangeAction of the dropdown widget.
     cy.onClickActions("Success", "Error", "Execute a query", "Query1.run");
 
-    cy.PublishtheApp();
+    deployMode.DeployApp();
 
     // Changing the option to verify the success message
     cy.get(formWidgetsPage.selectWidget)
@@ -125,14 +126,15 @@ describe("Dropdown Widget Functionality", function () {
       .contains("Option 2")
       .click({ force: true });
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
+    deployMode.NavigateBacktoEditor();
   });
 
   it("4. Toggle JS - Dropdown-Call-Query Validation", function () {
     //creating an api and calling it from the onOptionChangeAction of the button widget.
     // calling the existing api
-    _.entityExplorer.ExpandCollapseEntity("Widgets");
-    _.entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
-    _.entityExplorer.SelectEntityByName("Dropdown1");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
+    entityExplorer.SelectEntityByName("Dropdown1");
 
     cy.get(formWidgetsPage.toggleOnOptionChange).click({ force: true });
     cy.EnableAllCodeEditors();
@@ -141,7 +143,7 @@ describe("Dropdown Widget Functionality", function () {
       "{{Query1.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
     );
 
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     // Changing the option to verify the success message
     cy.get(formWidgetsPage.selectWidget)
       .find(widgetLocators.dropdownSingleSelect)
@@ -150,21 +152,22 @@ describe("Dropdown Widget Functionality", function () {
       .contains("Option 2")
       .click({ force: true });
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
+    deployMode.NavigateBacktoEditor();
   });
 
   it("5. Toggle JS - Dropdown-CallAnApi Validation", function () {
     //creating an api and calling it from the onOptionChangeAction of the button widget.
     // calling the existing api
-    _.entityExplorer.ExpandCollapseEntity("Widgets");
-    _.entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
-    _.entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
+    entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
 
     cy.testJsontext(
       "onoptionchange",
       "{{dropdownApi.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
     );
 
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     // Changing the option to verify the success message
     cy.get(formWidgetsPage.selectWidget)
       .find(widgetLocators.dropdownSingleSelect)
@@ -173,24 +176,24 @@ describe("Dropdown Widget Functionality", function () {
       .contains("Option 1")
       .click({ force: true });
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
-    cy.get(publish.backToEditor).click();
+    deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("selectwidget");
   });
 
   it("6. Dropdown Widget Functionality to Verify On Option Change Action", function () {
     // Open property pane
-    _.entityExplorer.ExpandCollapseEntity("Widgets");
-    _.entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
-    _.entityExplorer.SelectEntityByName("Dropdown1");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
+    entityExplorer.SelectEntityByName("Dropdown1");
 
     // Clear the JS code
-    _.propPane.UpdatePropertyFieldValue("onOptionChange", "");
-    cy.get(_.locators._jsToggle("onoptionchange")).click();
+    propPane.UpdatePropertyFieldValue("onOptionChange", "");
+    cy.get(locators._jsToggle("onoptionchange")).click();
 
     // Dropdown On Option Change
-    _.jsEditor.DisableJSContext("onOptionChange");
+    propPane.ToggleJSMode("onOptionChange", false);
     cy.getAlert("onOptionChange", "Option Changed");
-    cy.PublishtheApp();
+    deployMode.DeployApp();
     // Change the Option
     cy.get(formWidgetsPage.selectWidget)
       .find(widgetLocators.dropdownSingleSelect)
@@ -200,9 +203,6 @@ describe("Dropdown Widget Functionality", function () {
       .click({ force: true });
     // Verify Option is changed
     cy.validateToastMessage("Option Changed");
-    cy.get(publish.backToEditor).click();
+    deployMode.NavigateBacktoEditor();
   });
-});
-afterEach(() => {
-  cy.goToEditFromPublish();
 });

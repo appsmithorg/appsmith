@@ -44,7 +44,7 @@ import {
 import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
-import { getActionById, getCurrentPageId } from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import type { EventLocation } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type {
@@ -101,23 +101,7 @@ import {
   createNewApiAction,
   createNewQueryAction,
 } from "actions/apiPaneActions";
-import { getQueryParams } from "utils/URLUtils";
-import {
-  setGlobalSearchCategory,
-  setGlobalSearchFilterContext,
-} from "actions/globalSearchActions";
-import {
-  filterCategories,
-  SEARCH_CATEGORY_ID,
-} from "components/editorComponents/GlobalSearch/utils";
-import { getSelectedWidget, getWidgetByID } from "./selectors";
-import {
-  onApiEditor,
-  onQueryEditor,
-} from "components/editorComponents/Debugger/helpers";
 import type { Plugin } from "api/PluginApi";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import * as log from "loglevel";
 import { shouldBeDefined } from "utils/helpers";
 import {
@@ -127,7 +111,11 @@ import {
   queryEditorIdURL,
   saasEditorApiIdURL,
 } from "RouteBuilder";
-import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import {
+  RequestPayloadAnalyticsPath,
+  checkAndLogErrorsIfCyclicDependency,
+  enhanceRequestPayloadWithEventData,
+} from "./helper";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { toast } from "design-system";
 import { getFormValues } from "redux-form";
@@ -139,6 +127,7 @@ import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/Grap
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
+import { setAIPromptTriggered } from "utils/storage";
 
 export function* createDefaultActionPayload(
   pageId: string,
@@ -614,9 +603,15 @@ function* moveActionSaga(
 function* copyActionSaga(
   action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
 ) {
-  const actionObject: Action = yield select(getAction, action.payload.id);
+  let actionObject: Action = yield select(getAction, action.payload.id);
   try {
     if (!actionObject) throw new Error("Could not find action to copy");
+    // At this point the actionObject.id will be the id of the action to be copied
+    // We enhance the payload with eventData to track the action being copied
+    actionObject = enhanceRequestPayloadWithEventData(
+      actionObject,
+      action.type,
+    ) as Action;
 
     const copyAction = Object.assign({}, actionObject, {
       name: action.payload.name,
@@ -640,14 +635,24 @@ function* copyActionSaga(
           kind: "success",
         },
       );
-    }
 
-    AnalyticsUtil.logEvent("DUPLICATE_API", {
-      // @ts-expect-error: name not present on ActionCreateUpdateResponse
-      apiName: response.data.name,
-      pageName: pageName,
-      apiID: response.data.id,
-    });
+      // At this point the `actionObject.id` will not exist
+      // So we need to get the originalActionId from the payload
+      // if the eventData in the actionObject doesn't exist
+      const originalActionId = get(
+        actionObject,
+        `${RequestPayloadAnalyticsPath}.originalActionId`,
+        action.payload.id,
+      );
+      AnalyticsUtil.logEvent("DUPLICATE_ACTION", {
+        // @ts-expect-error: name not present on ActionCreateUpdateResponse
+        actionName: response.data.name,
+        pageName: pageName,
+        acitonId: response.data.id,
+        originalActionId,
+        actionType: actionObject.pluginType,
+      });
+    }
 
     // checking if there is existing datasource to be added to the action payload
     const existingDatasource = datasources.find(
@@ -911,137 +916,10 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
-function* buildMetaForSnippets(
-  entityId: any,
-  entityType: string,
-  expectedType: string,
-  propertyPath: string,
-) {
-  /*
-    Score is set to sort the snippets in the following order.
-      1. Field (10)
-      2. Entity + (All Queries / All Widgets) +Data Type (9)
-      3. Entity + Data Type (8)
-      4. Entity (5)
-      5. All Queries / All Widgets + Data Type (4)
-      6. All Queries / All Widgets 1
-  */
-  /*
-  UNKNOWN is given priority over other non matching dataTypes.
-  Eg. If there are no snippets matching a dataType criteria, we are promote snippets of type UNKNOWN
- */
-  const refinements: any = {
-    entities: [entityType],
-  };
-  const fieldMeta: {
-    dataType: Array<string>;
-    fields?: Array<string>;
-    entities?: Array<string>;
-  } = {
-    dataType: [`${expectedType}<score=3>`, `UNKNOWN<score=1>`],
-  };
-  if (propertyPath) {
-    const relevantField = propertyPath.split(".").slice(-1).pop();
-    fieldMeta.fields = [`${relevantField}<score=10>`];
-  }
-  if (entityType === ENTITY_TYPE.ACTION && entityId) {
-    const currentEntity: Action = yield select(getActionById, {
-      match: { params: { apiId: entityId } },
-    });
-    const plugin: Plugin = yield select(getPlugin, currentEntity.pluginId);
-    const type: string = plugin.packageName || "";
-    refinements.entities = [type, entityType];
-    fieldMeta.entities = [`${type}<score=5>`, `${entityType}<score=1>`];
-  }
-  if (entityType === ENTITY_TYPE.WIDGET && entityId) {
-    const currentEntity: FlattenedWidgetProps = yield select(
-      getWidgetByID(entityId),
-    );
-    const type: string = currentEntity.type || "";
-    refinements.entities = [type, entityType];
-    fieldMeta.entities = [`${type}<score=5>`, `${entityType}<score=1>`];
-  }
-  return { refinements, fieldMeta };
-}
-
-export function* getCurrentEntity(
-  pageId: string,
-  params: Record<string, string>,
-) {
-  let entityId = "",
-    entityType = "";
-  if (onApiEditor() || onQueryEditor()) {
-    const id = params.apiId || params.queryId;
-    const action: Action = yield select(getAction, id);
-    entityId = action?.id;
-    entityType = ENTITY_TYPE.ACTION;
-  } else {
-    const widget: FlattenedWidgetProps = yield select(getSelectedWidget);
-    entityId = widget?.widgetId;
-    entityType = ENTITY_TYPE.WIDGET;
-  }
-  return { entityId, entityType };
-}
-
 function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
   const pageId: string = yield select(getCurrentPageId);
   const callback = get(actionPayload, "payload.callback");
-  const params = getQueryParams();
   switch (actionPayload.payload.actionType) {
-    case SlashCommand.NEW_SNIPPET:
-      let { entityId, entityType } = get(actionPayload, "payload.args", {});
-      const { expectedType, propertyPath } = get(
-        actionPayload,
-        "payload.args",
-        {},
-      );
-      // Entity is derived using the dataTreePath property.
-      // Fallback to find current entity when dataTreePath property value is empty (Eg. trigger fields)
-      if (!entityId) {
-        const currentEntity: {
-          entityId: string;
-          entityType: string;
-        } = yield getCurrentEntity(pageId, params);
-        entityId = currentEntity.entityId;
-        entityType = currentEntity.entityType;
-      }
-
-      const { fieldMeta, refinements } = yield buildMetaForSnippets(
-        entityId,
-        entityType,
-        expectedType,
-        propertyPath,
-      );
-      yield put(
-        setGlobalSearchFilterContext({
-          refinements,
-          fieldMeta,
-        }),
-      );
-
-      yield put(
-        setGlobalSearchCategory(filterCategories[SEARCH_CATEGORY_ID.SNIPPETS]),
-      );
-      yield put(
-        setGlobalSearchFilterContext({
-          onEnter:
-            typeof callback === "function"
-              ? SnippetAction.INSERT
-              : SnippetAction.COPY, //Set insertSnippet to true only if values
-          hideOuterBindings: entityType === ENTITY_TYPE.JSACTION,
-        }),
-      );
-      AnalyticsUtil.logEvent("SNIPPET_LOOKUP", {
-        source:
-          typeof callback === "function" ? "SLASH_COMMAND" : "SNIPPET_BUTTON",
-      });
-      const effectRaceResult: { failure: any; success: any } = yield race({
-        failure: take(ReduxActionTypes.CANCEL_SNIPPET),
-        success: take(ReduxActionTypes.INSERT_SNIPPET),
-      });
-      if (effectRaceResult.failure) return;
-      if (callback) callback(effectRaceResult.success.payload);
-      break;
     case SlashCommand.NEW_INTEGRATION:
       history.push(
         integrationEditorURL({
@@ -1065,6 +943,21 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       break;
     case SlashCommand.ASK_AI: {
       const context = get(actionPayload, "payload.args", {});
+
+      const noOfTimesAIPromptTriggered: number = yield select(
+        (state) => state.ai.noOfTimesAITriggered,
+      );
+
+      if (noOfTimesAIPromptTriggered < 5) {
+        const currentValue: number = yield setAIPromptTriggered();
+        yield put({
+          type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
+          payload: {
+            value: currentValue,
+          },
+        });
+      }
+
       yield put({
         type: ReduxActionTypes.TOGGLE_AI_WINDOW,
         payload: {

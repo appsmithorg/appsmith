@@ -1,50 +1,67 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  dataSources,
+  entityItems,
+  deployMode,
+  locators,
+} from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any;
 
 describe("Check datasource doc links", function () {
   it("1. Verify Postgres documentation opens", function () {
-    _.dataSources.CreateDataSource("Postgres");
+    dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      _.dataSources.CreateQueryAfterDSSaved();
-      _.agHelper.AssertNewTabOpened(() => {
-        _.agHelper.GetNClick(_.dataSources._queryDoc);
-      });
+      dataSources.CreateQueryAfterDSSaved();
+      deployMode.StubWindowNAssert(
+        dataSources._queryDoc,
+        "querying-postgres#create-crud-queries",
+        "getWorkspace",
+      );
     });
   });
 
   it("2. Verify Mongo documentation opens", function () {
-    _.dataSources.CreateDataSource("Mongo");
+    dataSources.CreateDataSource("Mongo");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      _.dataSources.CreateQueryAfterDSSaved();
-      _.agHelper.AssertNewTabOpened(() => {
-        _.agHelper.GetNClick(_.dataSources._queryDoc);
-      });
+      dataSources.CreateQueryAfterDSSaved();
+      deployMode.StubWindowNAssert(
+        dataSources._queryDoc,
+        "querying-mongodb#create-queries",
+        "getWorkspace",
+      );
     });
   });
 
   it("3. Verify MySQL documentation opens", function () {
-    _.dataSources.CreateDataSource("MySql");
+    dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      _.dataSources.CreateQueryAfterDSSaved();
-      _.agHelper.AssertNewTabOpened(() => {
-        _.agHelper.GetNClick(_.dataSources._queryDoc);
-      });
+      dataSources.CreateQueryAfterDSSaved();
+      deployMode.StubWindowNAssert(
+        dataSources._queryDoc,
+        "querying-mysql#create-queries",
+        "getWorkspace",
+      );
     });
   });
 
   afterEach(() => {
-    _.agHelper.PressEscape();
-    _.agHelper.ActionContextMenuWithInPane("Delete");
-    _.entityExplorer.ExpandCollapseEntity("Datasources");
-    _.entityExplorer.ActionContextMenuByEntityName(
-      dsName,
-      "Delete",
-      "Are you sure?",
-    );
-    _.agHelper.AssertContains("deleted successfully");
+    agHelper.PressEscape();
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    dataSources.DeleteDatasouceFromActiveTab(dsName);
+    // entityExplorer.ActionContextMenuByEntityName({
+    //   entityNameinLeftSidebar: dsName,
+    //   action: "Delete",
+    //   entityType: entityItems.Datasource,
+    //   toastToValidate: "deleted successfully",
+    // });//Since after query delete, DS is not appearing in EntityExplorer, this has potential to fail
   });
 });

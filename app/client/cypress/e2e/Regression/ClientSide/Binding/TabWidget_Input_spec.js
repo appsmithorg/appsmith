@@ -1,11 +1,10 @@
-const dsl = require("../../../../fixtures/tabInputDsl.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the input Widget with tab Widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("tabInputDsl");
   });
 
   it("1. Input widget test with default value from tab widget", function () {
@@ -21,7 +20,7 @@ describe("Binding the input Widget with tab Widget", function () {
   });
 
   it("2. validation of data displayed in input widgets based on tab selected", function () {
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.tabWidget)
       .contains("Tab 2")
       .click()

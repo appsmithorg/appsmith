@@ -1,9 +1,9 @@
 import { LabelPosition } from "components/constants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { AlignWidgetTypes } from "widgets/constants";
-
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   features: {
@@ -15,6 +15,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Switch",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.TOGGLES],
   needsMeta: true,
   searchTags: ["boolean"],
   defaults: {
@@ -39,6 +40,7 @@ export const CONFIG = {
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+    setterConfig: Widget.getSetterConfig(),
   },
   autoLayout: {
     disabledPropsDefaults: {

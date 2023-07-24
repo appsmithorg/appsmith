@@ -7,6 +7,8 @@ import type {
   ActionConfigurationMongoDB,
   MongoDBFormData,
 } from "WidgetQueryGenerators/types";
+import { removeSpecialChars } from "utils/helpers";
+import { DatasourceConnectionMode } from "entities/Datasource";
 
 enum COMMAND_TYPES {
   "FIND" = "FIND",
@@ -30,7 +32,7 @@ export default abstract class MongoDB extends BaseQueryGenerator {
     if (select) {
       return {
         type: QUERY_TYPE.SELECT,
-        name: "Find_query",
+        name: `Find_${removeSpecialChars(formConfig.tableName)}`,
         formData: {
           find: {
             skip: { data: `{{${select["offset"]}}}` },
@@ -73,7 +75,7 @@ export default abstract class MongoDB extends BaseQueryGenerator {
     if (select) {
       return {
         type: QUERY_TYPE.TOTAL_RECORD,
-        name: "Total_record_query",
+        name: `Total_record_${removeSpecialChars(formConfig.tableName)}`,
         formData: {
           count: {
             query: {
@@ -102,7 +104,7 @@ export default abstract class MongoDB extends BaseQueryGenerator {
     if (update) {
       return {
         type: QUERY_TYPE.UPDATE,
-        name: "Update_query",
+        name: `Update_${removeSpecialChars(formConfig.tableName)}`,
         formData: {
           updateMany: {
             query: { data: `{_id: ObjectId('{{${update.where}._id}}')}` },
@@ -131,7 +133,7 @@ export default abstract class MongoDB extends BaseQueryGenerator {
     if (create) {
       return {
         type: QUERY_TYPE.CREATE,
-        name: "Insert_query",
+        name: `Insert_${removeSpecialChars(formConfig.tableName)}`,
         formData: {
           insert: {
             documents: { data: `{{${create.value}}}` },
@@ -195,7 +197,10 @@ export default abstract class MongoDB extends BaseQueryGenerator {
         ),
       );
     }
-    if (widgetConfig.update) {
+    if (
+      widgetConfig.update &&
+      formConfig.connectionMode === DatasourceConnectionMode.READ_WRITE
+    ) {
       configs.push(
         this.createPayload(
           initialValues,
@@ -204,7 +209,10 @@ export default abstract class MongoDB extends BaseQueryGenerator {
         ),
       );
     }
-    if (widgetConfig.create) {
+    if (
+      widgetConfig.create &&
+      formConfig.connectionMode === DatasourceConnectionMode.READ_WRITE
+    ) {
       configs.push(
         this.createPayload(
           initialValues,

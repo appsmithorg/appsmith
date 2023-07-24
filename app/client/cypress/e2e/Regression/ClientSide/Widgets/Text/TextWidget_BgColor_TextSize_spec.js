@@ -1,10 +1,10 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/textWidgetDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Text Widget Cell Background and Text Size Validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("textWidgetDsl");
   });
   it("Change the cell background color", function () {
     cy.openPropertyPane("textwidget");

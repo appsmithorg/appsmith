@@ -1,31 +1,30 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/newFormDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Input Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("newFormDsl");
   });
 
   // Note: commenting it out because Drag/Drop feature is not stable on cypress.
   // it("Checks if default values are not persisted in cache after delete", function() {
   //   cy.openPropertyPane("inputwidgetv2");
   //   cy.get(widgetsPage.defaultInput)
-  //     .type(this.data.command)
-  //     .type(this.data.defaultdata);
+  //     .type(this.dataSet.command)
+  //     .type(this.dataSet.defaultdata);
   //   cy.get(widgetsPage.inputWidget + " " + "input")
   //     .invoke("attr", "value")
-  //     .should("contain", this.data.defaultdata);
+  //     .should("contain", this.dataSet.defaultdata);
   //   cy.get(commonlocators.deleteWidget).click();
   //   cy.get(explorer.addWidget).click();
   //   cy.dragAndDropToCanvas("inputwidgetv2");
   //   cy.get(widgetsPage.inputWidget + " " + "input")
   //     .invoke("attr", "value")
-  //     .should("not.contain", this.data.defaultdata);
+  //     .should("not.contain", this.dataSet.defaultdata);
 
-  //   cy.addDsl(dsl);
+  //   _.agHelper.AddDsl("tableV2NewDsl");
   //   cy.reload();
   // });
 
@@ -39,86 +38,91 @@ describe("Input Widget Functionality", function () {
     cy.widgetText("day", widgetsPage.inputWidget, widgetsPage.widgetNameSpan);
     cy.selectDropdownValue(widgetsPage.datatype, "Single-line text");
 
-    cy.get(widgetsPage.innertext).click({ force: true }).type(this.data.para);
+    cy.get(widgetsPage.innertext)
+      .click({ force: true })
+      .type(this.dataSet.para);
     cy.get(widgetsPage.inputWidget + " " + "input")
       .invoke("attr", "value")
-      .should("contain", this.data.para);
+      .should("contain", this.dataSet.para);
     //cy.openPropertyPane("inputwidgetv2");
-    _.propPane.UpdatePropertyFieldValue("Default value", this.data.defaultdata);
+    _.propPane.UpdatePropertyFieldValue(
+      "Default value",
+      this.dataSet.defaultdata,
+    );
     cy.get(widgetsPage.inputWidget + " " + "input")
       .invoke("attr", "value")
-      .should("contain", this.data.defaultdata);
-    cy.testJsontext("placeholder", this.data.placeholder);
+      .should("contain", this.dataSet.defaultdata);
+    cy.testJsontext("placeholder", this.dataSet.placeholder);
     /**
      * @param{Widget} Widget InnerCss
      */
     cy.get(widgetsPage.innertext)
       .invoke("attr", "placeholder")
-      .should("contain", this.data.placeholder);
-    cy.testJsontext("regex", this.data.regex);
+      .should("contain", this.dataSet.placeholder);
+    cy.testJsontext("regex", this.dataSet.regex);
     /**
      * @param{Show Alert} Css for InputChange
      */
     cy.getAlert("onTextChanged");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("2. Input Widget Functionality To Validate Default Text and Placeholder", function () {
     cy.get(publish.inputWidget + " " + "input")
       .invoke("attr", "value")
-      .should("contain", this.data.defaultdata);
+      .should("contain", this.dataSet.defaultdata);
     cy.get(publish.inputWidget + " " + "input")
       .invoke("attr", "placeholder")
-      .should("contain", this.data.placeholder);
-    cy.get(publish.backToEditor).click({ force: true });
+      .should("contain", this.dataSet.placeholder);
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("3. isSpellCheck: true", function () {
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebar(commonlocators.spellCheck + " " + "input");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.inputWidget + " " + "input")
       .invoke("attr", "spellcheck")
       .should("eq", "true");
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
 
     //isSpellCheck: false
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebarDisable(commonlocators.spellCheck + " " + "input");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.inputWidget + " " + "input")
       .invoke("attr", "spellcheck")
       .should("eq", "false");
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("4. Input Widget Functionality To Check Disabled Widget", function () {
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebar(commonlocators.Disablejs + " " + "input");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.inputWidget + " " + "input").should("be.disabled");
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
 
     //Input Widget Functionality To Check Enabled Widget
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.inputWidget + " " + "input").should("be.enabled");
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
   it("5. Input Functionality To Unchecked Visible Widget", function () {
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.inputWidget + " " + "input").should("not.exist");
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
 
     //Input Functionality To Check Visible Widget
     cy.openPropertyPane("inputwidgetv2");
     cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(publish.inputWidget + " " + "input").should("be.visible");
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("6. Input Functionality To check number input type with custom regex", function () {

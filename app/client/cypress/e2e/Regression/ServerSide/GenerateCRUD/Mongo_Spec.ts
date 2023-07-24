@@ -1,20 +1,19 @@
 import { INTERCEPT } from "../../../../fixtures/variables";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let dsName: any;
-
-const agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  locator = ObjectsRegistry.CommonLocators,
-  dataSources = ObjectsRegistry.DataSources,
-  deployMode = ObjectsRegistry.DeployMode,
-  table = ObjectsRegistry.Table,
-  appSettings = ObjectsRegistry.AppSettings;
+import {
+  agHelper,
+  entityExplorer,
+  deployMode,
+  appSettings,
+  entityItems,
+  dataSources,
+  table,
+  locators,
+  assertHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Validate Mongo CRUD with JSON Form", () => {
-  before(() => {
-    //dataSources.StartDataSourceRoutes(); //already started in index.js beforeeach
-  });
+  let dsName: any;
 
   beforeEach(function () {
     if (INTERCEPT.MONGO) {
@@ -27,14 +26,14 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     appSettings.OpenPaneAndChangeTheme("Water Lily");
 
     dataSources.CreateDataSource("Mongo");
-    cy.get("@dsName").then(($dsName) => {
+    cy.get("@dsName").then(($dsName: any) => {
       dsName = $dsName;
-      ee.AddNewPage();
-      ee.AddNewPage("Generate page with data");
+      entityExplorer.AddNewPage();
+      entityExplorer.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
     });
-    agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "pokemon");
     GenerateCRUDNValidateDeployPage(
@@ -48,8 +47,11 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     table.WaitUntilTableLoad();
 
     //Delete the test data
-    ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?");
-    agHelper.ValidateNetworkStatus("@deletePage", 200);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Page2",
+      action: "Delete",
+      entityType: entityItems.Page,
+    });
 
     //Should not be able to delete ds until app is published again
     //coz if app is published & shared then deleting ds may cause issue, So!
@@ -64,16 +66,18 @@ describe("Validate Mongo CRUD with JSON Form", () => {
 
   it("2. Generate CRUD page from datasource present in ACTIVE section", function () {
     dataSources.NavigateFromActiveDS(dsName, false);
-    agHelper.ValidateNetworkStatus("@getDatasourceStructure");
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "coffeeCafe");
     GenerateCRUDNValidateDeployPage("", "", "Washington, US", 11);
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(1, 0);
     //Delete the test data
-    ee.ExpandCollapseEntity("Pages");
-    ee.ActionContextMenuByEntityName("CoffeeCafe", "Delete", "Are you sure?");
-    agHelper.ValidateNetworkStatus("@deletePage", 200);
+    entityExplorer.ExpandCollapseEntity("Pages");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "CoffeeCafe",
+      action: "Delete",
+      entityType: entityItems.Page,
+    });
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
@@ -88,13 +92,13 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     idIndex: number,
   ) {
     agHelper.GetNClick(dataSources._generatePageBtn);
-    agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     agHelper.AssertContains("Successfully generated a page"); // Commenting this since FindQuery failure appears sometimes
-    agHelper.ValidateNetworkStatus("@getActions", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@getActions", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
-    agHelper.ValidateNetworkStatus("@updateLayout", 200);
-    deployMode.DeployApp();
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
+    deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
@@ -109,7 +113,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     });
 
     //Validating loaded JSON form
-    cy.xpath(locator._spanButton("Update")).then((selector) => {
+    cy.xpath(locators._spanButton("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {

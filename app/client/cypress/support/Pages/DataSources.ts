@@ -1,6 +1,6 @@
-import datasourceFormData from "../../fixtures/datasources.json";
 import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
+import { EntityItems } from "./AssertHelper";
 
 const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -9,11 +9,12 @@ const DataSourceKVP = {
   UnAuthenticatedGraphQL: "GraphQL API",
   MsSql: "Microsoft SQL Server",
   Airtable: "Airtable",
-  Arango: "ArangoDB",
+  ArangoDB: "ArangoDB",
   Firestore: "Firestore",
   Elasticsearch: "Elasticsearch",
   Redis: "Redis",
   Oracle: "Oracle",
+  S3: "S3",
 }; //DataSources KeyValuePair
 
 export enum Widgets {
@@ -34,27 +35,36 @@ export class DataSources {
   private ee = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
   private apiPage = ObjectsRegistry.ApiPage;
+  private tedTestConfig = ObjectsRegistry.TEDTestConfigs;
+  private assertHelper = ObjectsRegistry.AssertHelper;
+
+  public ContainerKVP = (containerName: string) => {
+    return {
+      MsSql: this.tedTestConfig.mssql_docker(containerName),
+      Arango: this.tedTestConfig.arango_docker(containerName),
+      Elasticsearch: this.tedTestConfig.elastic_docker(containerName),
+    };
+  }; //Container KeyValuePair
 
   private _dsCreateNewTab = "[data-testid=t--tab-CREATE_NEW]";
   private _addNewDataSource = ".t--entity-add-btn.datasources button";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
-  private _collapseContainer = ".t--collapse-section-container";
-  private _collapseSettings =
-    "[data-testid='t--dropdown-connection.ssl.authType']";
-  private _host = "input[name='datasourceConfiguration.endpoints[0].host']";
-  private _port = "input[name='datasourceConfiguration.endpoints[0].port']";
-  _databaseName =
-    "input[name='datasourceConfiguration.authentication.databaseName']";
-  private _username =
-    "input[name='datasourceConfiguration.authentication.username']";
+  public _host = "input[name$='.datasourceConfiguration.endpoints[0].host']";
+  public _port = "input[name$='.datasourceConfiguration.endpoints[0].port']";
+  public _databaseName =
+    "input[name$='.datasourceConfiguration.authentication.databaseName']";
+  public _username =
+    "input[name$='.datasourceConfiguration.authentication.username']";
   private _section = (name: string) =>
     "//div[text()='" + name + "']/parent::div";
   private _sectionState = (name: string) =>
     this._section(name) +
     "/following-sibling::div/div[@class ='bp3-collapse-body']";
   private _password =
-    "input[name = 'datasourceConfiguration.authentication.password']";
+    "input[name $= '.datasourceConfiguration.authentication.password']";
+  private defaultDatabaseName =
+    "input[name*='datasourceConfiguration.connection.defaultDatabaseName']";
   private _testDs = ".t--test-datasource";
   _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   _saveDs = ".t--save-datasource";
@@ -166,7 +176,7 @@ export class DataSources {
   _globalSearchInput = (inputText: string) =>
     "//input[@id='global-search'][@value='" + inputText + "']";
   _gsScopeDropdown =
-    "[data-testid='datasourceConfiguration.authentication.scopeString']";
+    "[data-testid^='datasourceStorages.'][data-testid$='.datasourceConfiguration.authentication.scopeString']";
   _gsScopeOptions = ".ads-v2-select__dropdown .rc-select-item-option";
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
@@ -219,6 +229,13 @@ export class DataSources {
     "[data-testid='t--where-clause-delete-[" + index + "]']";
 
   _bodyCodeMirror = "//div[contains(@class, 't--actionConfiguration.body')]";
+  private _reconnectModalDSToolTip = ".t--ds-list .t--ds-list-title";
+  private _reconnectModalDSToopTipIcon = ".t--ds-list .ads-v2-icon";
+  private _datasourceTableSchemaInQueryEditor =
+    ".datasourceStructure-query-editor";
+  private _datasourceStructureHeader = ".datasourceStructure-header";
+  private _datasourceColumnSchemaInQueryEditor = ".t--datasource-column";
+  private _datasourceStructureSearchInput = ".datasourceStructure-search input";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -237,22 +254,24 @@ export class DataSources {
       `div[role="listbox"] p[kind="span"]:contains("${tableName}")`,
     ).click();
     this.agHelper.GetNClick(this._generatePageBtn);
-    this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
   }
 
   public GeneratePageWithMockDB() {
     this.ee.AddNewPage("Generate page with data");
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
-    this.agHelper.GetNClick(this.locator._dropdownText, 0);
-    this.agHelper.GetNClickByContains(this._mockDatasourceName, "Users");
-    this.agHelper.ValidateNetworkStatus("@getDatasourceStructure");
+    this.agHelper.GetNClickByContains(
+      this._dropdownOption,
+      "Connect new datasource",
+    );
+    this.agHelper.GetNClick(this._mockDB("Users"));
+    this.agHelper.Sleep(500);
+    this.assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
-    cy.get(
-      `div[role="listbox"] p[kind="span"]:contains("public.users")`,
-    ).click();
+    this.agHelper.GetNClickByContains(this._dropdownOption, "public.users");
     this.agHelper.GetNClick(this._generatePageBtn);
-    this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
   }
 
@@ -362,41 +381,13 @@ export class DataSources {
     this.agHelper.GetNClick(this._editButton);
   }
 
-  public ExpandSection(index: number) {
-    cy.get(this._collapseContainer).eq(index).click();
-    cy.get(this._collapseSettings).should("be.visible");
-  }
-
-  public ExpandSectionByName(sectionName: string) {
-    // Click on collapse section only if it collapsed, if it is expanded we ignore
-    this.agHelper
-      .GetElement(this._sectionState(sectionName))
-      .invoke("attr", "aria-hidden")
-      .then((hidden: any) => {
-        if (hidden == "true") {
-          this.agHelper.GetNClick(this._section(sectionName));
-        }
-      });
-  }
-
-  public AssertSectionCollapseState(index: number, collapsed = false) {
-    if (collapsed) {
-      cy.get(this._collapseSettings).should("not.be.visible");
-    } else {
-      cy.get(this._collapseSettings).should("be.visible");
-    }
-  }
-
   public NavigateToDSCreateNew() {
     this.ee.HoverOnEntityItem("Datasources");
     Cypress._.times(2, () => {
       this.agHelper.GetNClick(this._addNewDataSource, 0, true);
       this.agHelper.Sleep();
     });
-
-    // cy.get(this._dsCreateNewTab)
-    //   .should("be.visible")
-    //   .click({ force: true });
+    this.agHelper.RemoveTooltip("Add a new datasource");
     cy.get(this._newDatasourceContainer).scrollTo("bottom", {
       ensureScrollable: false,
     });
@@ -406,119 +397,137 @@ export class DataSources {
   CreateMockDB(dbName: "Users" | "Movies"): Cypress.Chainable<string> {
     this.NavigateToDSCreateNew();
     this.agHelper.GetNClick(this._mockDB(dbName));
+    this.assertHelper.AssertNetworkStatus("@getMockDb"); //To return the right mock DB name
     return cy
-      .wait("@getMockDb")
-      .then(($createdMock) => $createdMock.response?.body.data.name);
+      .get("@getMockDb")
+      .then(($createdMock: any) => $createdMock.response?.body.data.name);
   }
 
   public FillPostgresDSForm(
+    environment = this.tedTestConfig.defaultEnviorment,
     shouldAddTrailingSpaces = false,
     username = "",
     password = "",
   ) {
     const hostAddress = shouldAddTrailingSpaces
-      ? datasourceFormData["postgres-host"] + "  "
-      : datasourceFormData["postgres-host"];
+      ? this.tedTestConfig.dsValues[environment].postgres_host + "  "
+      : this.tedTestConfig.dsValues[environment].postgres_host;
     const databaseName = shouldAddTrailingSpaces
-      ? datasourceFormData["postgres-databaseName"] + "  "
-      : datasourceFormData["postgres-databaseName"];
-    this.agHelper.UpdateInputValue(this._host, hostAddress);
+      ? this.tedTestConfig.dsValues[environment].postgres_databaseName + "  "
+      : this.tedTestConfig.dsValues[environment].postgres_databaseName;
     this.agHelper.UpdateInputValue(
       this._port,
-      datasourceFormData["postgres-port"].toString(),
+      this.tedTestConfig.dsValues[environment].postgres_port.toString(),
     );
+    this.agHelper.UpdateInputValue(this._host, hostAddress);
     cy.get(this._databaseName).clear().type(databaseName);
-    this.ExpandSectionByName("Authentication");
     cy.get(this._username).type(
-      username == "" ? datasourceFormData["postgres-username"] : username,
+      username == ""
+        ? this.tedTestConfig.dsValues[environment].postgres_username
+        : username,
     );
     cy.get(this._password).type(
-      password == "" ? datasourceFormData["postgres-password"] : password,
+      password == ""
+        ? this.tedTestConfig.dsValues[environment].postgres_password
+        : password,
     );
+    this.ValidateNSelectDropdown("SSL mode", "Default");
   }
 
   public FillOracleDSForm(
+    environment = this.tedTestConfig.defaultEnviorment,
     shouldAddTrailingSpaces = false,
     username = "",
     password = "",
   ) {
     const hostAddress = shouldAddTrailingSpaces
-      ? datasourceFormData["oracle-host"] + "  "
-      : datasourceFormData["oracle-host"];
+      ? this.tedTestConfig.dsValues[environment].oracle_host + "  "
+      : this.tedTestConfig.dsValues[environment].oracle_host;
     const databaseName = shouldAddTrailingSpaces
-      ? datasourceFormData["oracle-name"] + "  "
-      : datasourceFormData["oracle-name"];
+      ? this.tedTestConfig.dsValues[environment].oracle_name + "  "
+      : this.tedTestConfig.dsValues[environment].oracle_name;
     this.agHelper.UpdateInputValue(this._host, hostAddress);
     this.agHelper.UpdateInputValue(
       this._port,
-      datasourceFormData["oracle-port"].toString(),
+      this.tedTestConfig.dsValues[environment].oracle_port.toString(),
     );
     cy.get(this._databaseName).clear().type(databaseName);
-    this.ExpandSectionByName("Authentication");
     cy.get(this._username).type(
-      username == "" ? datasourceFormData["oracle-username"] : username,
+      username == ""
+        ? this.tedTestConfig.dsValues[environment].oracle_username
+        : username,
     );
     cy.get(this._password).type(
-      password == "" ? datasourceFormData["oracle-password"] : password,
+      password == ""
+        ? this.tedTestConfig.dsValues[environment].oracle_password
+        : password,
     );
   }
 
-  public FillMongoDSForm(shouldAddTrailingSpaces = false) {
+  public FillMongoDSForm(
+    environment = this.tedTestConfig.defaultEnviorment,
+    shouldAddTrailingSpaces = false,
+  ) {
     const hostAddress = shouldAddTrailingSpaces
-      ? datasourceFormData["mongo-host"] + "  "
-      : datasourceFormData["mongo-host"];
+      ? this.tedTestConfig.dsValues[environment].mongo_host + "  "
+      : this.tedTestConfig.dsValues[environment].mongo_host;
     this.agHelper.UpdateInputValue(this._host, hostAddress);
     this.agHelper.UpdateInputValue(
       this._port,
-      datasourceFormData["mongo-port"].toString(),
+      this.tedTestConfig.dsValues[environment].mongo_port.toString(),
     );
-    this.ExpandSectionByName("Authentication");
     cy.get(this._databaseName)
       .clear()
-      .type(datasourceFormData["mongo-databaseName"]);
+      .type(this.tedTestConfig.dsValues[environment].mongo_databaseName);
   }
 
-  public FillMySqlDSForm(shouldAddTrailingSpaces = false) {
+  public FillMySqlDSForm(
+    environment = this.tedTestConfig.defaultEnviorment,
+    shouldAddTrailingSpaces = false,
+  ) {
     const hostAddress = shouldAddTrailingSpaces
-      ? datasourceFormData["mysql-host"] + "  "
-      : datasourceFormData["mysql-host"];
+      ? this.tedTestConfig.dsValues[environment].mysql_host + "  "
+      : this.tedTestConfig.dsValues[environment].mysql_host;
     const databaseName = shouldAddTrailingSpaces
-      ? datasourceFormData["mysql-databaseName"] + "  "
-      : datasourceFormData["mysql-databaseName"];
+      ? this.tedTestConfig.dsValues[environment].mysql_databaseName + "  "
+      : this.tedTestConfig.dsValues[environment].mysql_databaseName;
 
     this.agHelper.UpdateInputValue(this._host, hostAddress);
     this.agHelper.UpdateInputValue(
       this._port,
-      datasourceFormData["mysql-port"].toString(),
+      this.tedTestConfig.dsValues[environment].mysql_port.toString(),
     );
     cy.get(this._databaseName).clear().type(databaseName);
-    this.ExpandSectionByName("Authentication");
-    cy.get(this._username).type(datasourceFormData["mysql-username"]);
-    cy.get(this._password).type(datasourceFormData["mysql-password"]);
+    this.agHelper.UpdateInputValue(
+      this._username,
+      this.tedTestConfig.dsValues[environment].mysql_username,
+    );
+    cy.get(this._password).type(
+      this.tedTestConfig.dsValues[environment].mysql_password,
+    );
   }
 
-  public FillMsSqlDSForm() {
+  public FillMsSqlDSForm(environment = this.tedTestConfig.defaultEnviorment) {
     this.agHelper.UpdateInputValue(
       this._host,
-      datasourceFormData["mssql-host"],
+      this.tedTestConfig.dsValues[environment].mssql_host,
     );
     this.agHelper.UpdateInputValue(
       this._port,
-      datasourceFormData["mssql-port"].toString(),
+      this.tedTestConfig.dsValues[environment].mssql_port.toString(),
     );
     this.agHelper.ClearTextField(this._databaseName);
     // this.agHelper.UpdateInputValue(
     //   this._databaseName,
     //   datasourceFormData["mssql-databaseName"],
     // ); //Commenting until MsSQL is init loaded into container
-    this.ExpandSectionByName("Authentication");
     this.agHelper.UpdateInputValue(
       this._username,
-      datasourceFormData["mssql-username"],
+      this.tedTestConfig.dsValues[environment].mssql_username,
     );
     this.agHelper.UpdateInputValue(
       this._password,
-      datasourceFormData["mssql-password"],
+      this.tedTestConfig.dsValues[environment].mssql_password,
     );
   }
 
@@ -526,7 +535,7 @@ export class DataSources {
     this.ValidateNSelectDropdown(
       "Authentication type",
       "Please select an option",
-      "Bearer token",
+      "Personal access token",
     );
     this.agHelper.UpdateInput(
       this.locator._inputFieldByName("Bearer token"),
@@ -535,27 +544,26 @@ export class DataSources {
     this.agHelper.Sleep();
   }
 
-  public FillArangoDSForm() {
+  public FillArangoDSForm(environment = this.tedTestConfig.defaultEnviorment) {
     this.agHelper.UpdateInputValue(
       this._host,
-      datasourceFormData["arango-host"],
+      this.tedTestConfig.dsValues[environment].arango_host,
     );
     this.agHelper.UpdateInputValue(
       this._port,
-      datasourceFormData["arango-port"].toString(),
+      this.tedTestConfig.dsValues[environment].arango_port.toString(),
     );
     //Validating db name is _system, currently unable to create DB via curl in Arango
     this.agHelper
       .GetText(this._databaseName, "val")
       .then(($dbName) => expect($dbName).to.eq("_system"));
-    this.ExpandSectionByName("Authentication");
     this.agHelper.UpdateInputValue(
       this._username,
-      datasourceFormData["arango-username"],
+      this.tedTestConfig.dsValues[environment].arango_username,
     );
     this.agHelper.UpdateInputValue(
       this._password,
-      datasourceFormData["arango-password"],
+      this.tedTestConfig.dsValues[environment].arango_password,
     );
   }
 
@@ -572,14 +580,16 @@ export class DataSources {
     this.apiPage.RunAPI();
   }
 
-  public FillFirestoreDSForm() {
+  public FillFirestoreDSForm(
+    environment = this.tedTestConfig.defaultEnviorment,
+  ) {
     this.agHelper.UpdateInput(
       this.locator._inputFieldByName("Database URL"),
-      datasourceFormData["firestore-database-url"],
+      this.tedTestConfig.dsValues[environment].firestore_database_url,
     );
     this.agHelper.UpdateInput(
       this.locator._inputFieldByName("Project Id"),
-      datasourceFormData["firestore-projectID"],
+      this.tedTestConfig.dsValues[environment].firestore_projectID,
     );
     // cy.fixture("firestore-ServiceAccCreds").then((json: any) => {
     //   let ServiceAccCreds = JSON.parse(
@@ -591,50 +601,55 @@ export class DataSources {
     //     "ServiceAccCreds.private_key  is " +
     //       JSON.stringify(ServiceAccCreds.private_key),
     //   );
-    this.agHelper.UpdateFieldLongInput(
+    this.agHelper.UpdateFieldInput(
       this.locator._inputFieldByName("Service account credentials"),
       JSON.stringify(Cypress.env("FIRESTORE_PRIVATE_KEY")),
     );
     //});
   }
 
-  public FillElasticSearchDSForm() {
+  public FillElasticSearchDSForm(
+    environment = this.tedTestConfig.defaultEnviorment,
+  ) {
     this.agHelper.UpdateInputValue(
       this._host,
-      datasourceFormData["elastic-host"],
+      this.tedTestConfig.dsValues[environment].elastic_host,
     );
-
     this.agHelper.UpdateInputValue(
       this._port,
-      datasourceFormData["elastic-port"].toString(),
+      this.tedTestConfig.dsValues[environment].elastic_port.toString(),
     );
-    this.ExpandSectionByName("Authentication");
     this.agHelper.UpdateInputValue(
       this._username,
-      datasourceFormData["elastic-username"],
+      this.tedTestConfig.dsValues[environment].elastic_username,
     );
     this.agHelper.UpdateInputValue(
       this._password,
-      datasourceFormData["elastic-password"],
+      this.tedTestConfig.dsValues[environment].elastic_password,
     );
   }
 
-  public FillUnAuthenticatedGraphQLDSForm() {
+  public FillUnAuthenticatedGraphQLDSForm(
+    environment = this.tedTestConfig.defaultEnviorment,
+  ) {
     this.agHelper.GetNClick(this._createBlankGraphQL);
-    this.apiPage.EnterURL(datasourceFormData.GraphqlApiUrl_TED);
-    this.agHelper.ValidateNetworkStatus("@createNewApi", 201);
+    this.apiPage.EnterURL(
+      this.tedTestConfig.dsValues[environment].GraphqlApiUrl_TED,
+    );
+    this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
   }
 
   public CreateNFillAuthenticatedGraphQLDSForm(
     dataSourceName: string,
     hKey: string,
     hValue: string,
+    environment = this.tedTestConfig.defaultEnviorment,
   ) {
     this.NavigateToDSCreateNew();
     this.CreatePlugIn("Authenticated GraphQL API");
     this.agHelper.UpdateInput(
       this.locator._inputFieldByName("URL"),
-      datasourceFormData.GraphqlApiUrl_TED,
+      this.tedTestConfig.dsValues[environment].GraphqlApiUrl_TED,
     );
 
     this.agHelper.UpdateInputValue(this._graphQLHeaderKey, hKey);
@@ -647,34 +662,52 @@ export class DataSources {
     });
   }
 
-  public FillRedisDSForm() {
+  public FillRedisDSForm(environment = this.tedTestConfig.defaultEnviorment) {
     this.agHelper.UpdateInputValue(
       this._host,
-      datasourceFormData["redis-host"],
+      this.tedTestConfig.dsValues[environment].redis_host,
     );
     this.agHelper.UpdateInputValue(
       this._port,
-      datasourceFormData["redis-port"].toString(),
+      this.tedTestConfig.dsValues[environment].redis_port.toString(),
     );
   }
 
-  public TestSaveDatasource(expectedRes = true) {
+  public FillS3DSForm() {
+    this.agHelper.UpdateInputValue(
+      this._username,
+      Cypress.env("S3_ACCESS_KEY"),
+    );
+    this.agHelper.UpdateInputValue(
+      this._password,
+      Cypress.env("S3_SECRET_KEY"),
+    );
+  }
+
+  public TestSaveDatasource(expectedRes = true, isForkModal = false) {
     this.TestDatasource(expectedRes);
-    this.SaveDatasource();
+    this.SaveDatasource(isForkModal);
   }
 
   public TestDatasource(expectedRes = true) {
+    this.agHelper.Sleep(500); //bit of time for CI!
     this.agHelper.GetNClick(this._testDs, 0, false, 0);
-    this.agHelper.ValidateNetworkDataSuccess("@testDatasource", expectedRes);
+    this.agHelper.AssertNetworkDataSuccess("@testDatasource", expectedRes);
     if (expectedRes) {
       this.agHelper.AssertContains("datasource is valid");
     }
   }
 
-  public SaveDatasource() {
+  public SaveDatasource(isForkModal = false, isSavingEnvInOldDS = false) {
+    this.agHelper.Sleep(500); //bit of time for CI!
     this.agHelper.GetNClick(this._saveDs);
-    this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
-    this.agHelper.AssertContains("datasource created");
+    if (!isForkModal) {
+      this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
+      if (!isSavingEnvInOldDS)
+        this.agHelper.AssertContains("datasource created");
+    } else {
+      this.assertHelper.AssertNetworkStatus("@updateDatasource", 200);
+    }
 
     // cy.wait("@saveDatasource")
     //     .then((xhr) => {
@@ -684,12 +717,12 @@ export class DataSources {
 
   public AuthAPISaveAndAuthorize() {
     cy.get(this._saveAndAuthorizeDS).click();
-    this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
+    this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
   }
 
   public UpdateDatasource() {
     this.agHelper.GetNClick(this._saveDs);
-    // this.agHelper.ValidateNetworkStatus("@updateDatasource", 200);
+    // this.assertHelper.AssertNetworkStatus("@updateDatasource", 200);
     this.agHelper.AssertContains("datasource updated");
   }
 
@@ -731,26 +764,40 @@ export class DataSources {
   public DeleteDSDirectly(
     expectedRes: number | number[] = 200 || 409 || [200 | 409],
   ) {
-    this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, false, 200);
+    this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, true, 200);
     cy.get(this._contextMenuDSReviewPage).click({ force: true });
     this.agHelper.GetNClick(this._contextMenuDelete);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
     this.ValidateDSDeletion(expectedRes);
   }
+
+  public DeleteDSFromEntityExplorer(
+    dsName: string,
+    expectedRes: number | number[] = 200,
+  ) {
+    this.ee.SelectEntityByName(dsName, "Datasources");
+    this.ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Delete",
+      entityType: EntityItems.Datasource,
+    });
+    this.ValidateDSDeletion(expectedRes);
+  }
+
   public ValidateDSDeletion(expectedRes: number | number[] = 200) {
     let toValidateRes = expectedRes == 200 || expectedRes == 409 ? true : false;
     if (toValidateRes) {
       if (expectedRes == 200)
         this.agHelper.AssertContains("datasource deleted successfully");
       else this.agHelper.AssertContains("action(s) using it.");
-      this.agHelper.ValidateNetworkStatus(
+      this.assertHelper.AssertNetworkStatus(
         "@deleteDatasource",
         expectedRes as number,
       );
     } else {
-      cy.wait("@deleteDatasource").should((response: any) => {
-        expect(response.status).to.be.oneOf([200, 409]);
-      });
+      cy.wait("@deleteDatasource")
+        .its("response.body.responseMeta.status")
+        .should("be.oneOf", [200, 409]);
     }
   }
 
@@ -769,20 +816,34 @@ export class DataSources {
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
 
+    this.AssertDSActive(datasourceName)
+      .scrollIntoView()
+      .should("be.visible")
+      .then(($element) => {
+        cy.wrap($element)
+          .closest(this._datasourceCard)
+          .within(() => {
+            this.agHelper.GetNClick(btnLocator, 0, true);
+          });
+      });
+    this.agHelper.Sleep(3000); //for the CreateQuery/GeneratePage page to load
+    createQuery &&
+      this.agHelper.AssertElementVisible(
+        this.locator._spanButton("Run"),
+        0,
+        20000,
+      );
+    !createQuery &&
+      this.assertHelper.AssertNetworkStatus("@getDatasourceStructure", 200); //Making sure table dropdown is populated
+  }
+
+  public AssertDSActive(dsName: string) {
     this.ee.NavigateToSwitcher("Explorer", 0, true);
     this.ee.ExpandCollapseEntity("Datasources", false);
     //this.ee.SelectEntityByName(datasourceName, "Datasources");
     //this.ee.ExpandCollapseEntity(datasourceName, false);
     this.NavigateToActiveTab();
-    cy.get(this._datasourceCard)
-      .contains(datasourceName)
-      .scrollIntoView()
-      .should("be.visible")
-      .closest(this._datasourceCard)
-      .within(() => {
-        cy.get(btnLocator).click({ force: true });
-      });
-    this.agHelper.Sleep(2000); //for the CreateQuery/GeneratePage page to load
+    return this.agHelper.GetNAssertContains(this._datasourceCard, dsName);
   }
 
   public CreateQueryFromActiveTab(
@@ -798,23 +859,39 @@ export class DataSources {
       .closest(this._datasourceCard)
       .scrollIntoView()
       .within(() => {
-        cy.get(this._createQuery).click({ force: true });
+        this.agHelper.GetNClick(this._createQuery, 0, true);
       });
     this.agHelper.Sleep(2000); //for the CreateQuery
+    //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);//throwing 404 in CI sometimes
+    this.agHelper.AssertElementVisible(
+      this.locator._spanButton("Run"),
+      0,
+      20000,
+    );
   }
 
   CreateQueryAfterDSSaved(query = "", queryName = "") {
     this.agHelper.GetNClick(this._createQuery);
+    //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
+    this.agHelper.AssertElementVisible(
+      this.locator._spanButton("Run"),
+      0,
+      20000,
+    );
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
-      this.agHelper.GetNClick(this._templateMenu);
       this.EnterQuery(query);
+      this.AssertRunButtonDisability(false);
     }
   }
 
   DeleteQuery(queryName: string) {
     this.ee.ExpandCollapseEntity("Queries/JS");
-    this.ee.ActionContextMenuByEntityName(queryName, "Delete", "Are you sure?");
+    this.ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: queryName,
+      action: "Delete",
+      entityType: EntityItems.Query,
+    });
   }
 
   public ValidateNSelectDropdown(
@@ -835,15 +912,63 @@ export class DataSources {
     }
   }
 
-  public ReconnectDataSource(dbName: string, dsName: "PostgreSQL" | "MySQL") {
-    this.agHelper.AssertElementVisible(this._reconnectModal);
-    this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
-    cy.xpath(this._activeDSListReconnectModal(dsName)).should("be.visible");
-    cy.xpath(this._activeDSListReconnectModal(dbName)).should("be.visible"); //.click()
+  public ReconnectSingleDSNAssert(
+    dbName: string,
+    dsName: "PostgreSQL" | "MySQL" | "MongoDB",
+  ) {
+    this.ReconnectModalValidation(dbName, dsName);
     this.ValidateNSelectDropdown("Connection mode", "Read / Write");
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
-    cy.get(this._saveDs).click();
+    else if (dsName == "MongoDB") this.FillMongoDSForm();
+    this.SaveDatasource(true);
+    this.assertHelper.AssertNetworkStatus("@getPage", 200);
+    this.assertHelper.AssertNetworkStatus("getWorkspace");
+  }
+
+  public ReconnectModalValidation(
+    dbName: string,
+    dsName: "PostgreSQL" | "MySQL" | "MongoDB",
+  ) {
+    this.WaitForReconnectModalToAppear();
+    this.agHelper.AssertElementVisible(
+      this._activeDSListReconnectModal(dsName),
+    );
+    this.agHelper.AssertElementVisible(
+      this._activeDSListReconnectModal(dbName),
+    );
+
+    //Checking if tooltip for Ds name & icon is present (useful in cases of long name for ds)
+    this.agHelper.AssertText(this._reconnectModalDSToolTip, "text", dbName);
+    this.agHelper.AssertElementVisible(this._reconnectModalDSToopTipIcon);
+  }
+
+  public WaitForReconnectModalToAppear() {
+    this.agHelper.AssertElementVisible(this._reconnectModal);
+    this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
+  }
+
+  public ReconnectDSbyType(
+    dsName: "PostgreSQL" | "MySQL" | "MongoDB" | "S3" | "MongoDBUri",
+  ) {
+    this.WaitForReconnectModalToAppear();
+
+    if (dsName !== "MongoDBUri")
+      this.agHelper.GetNClick(this.locator._visibleTextSpan(dsName));
+    else if (dsName == "MongoDBUri")
+      this.agHelper.GetNClick(this.locator._visibleTextSpan("MongoDB"));
+
+    const methodMap = {
+      PostgreSQL: this.FillPostgresDSForm,
+      MySQL: this.FillMySqlDSForm,
+      MongoDB: this.FillMongoDSForm,
+      S3: this.FillS3DSForm,
+      MongoDBUri: this.FillMongoDatasourceFormWithURI,
+    };
+    if (methodMap[dsName]) {
+      methodMap[dsName].call(this);
+    }
+    this.SaveDatasource(true);
   }
 
   RunQuery({
@@ -851,14 +976,15 @@ export class DataSources {
     toValidateResponse = true,
     waitTimeInterval = 500,
   }: Partial<RunQueryParams> = {}) {
+    this.AssertRunButtonDisability(false);
     this.agHelper.GetNClick(this._runQueryBtn, 0, true, waitTimeInterval);
+    this.agHelper.AssertElementAbsence(
+      this.locator._cancelActionExecution,
+      10000,
+    ); //For the run to give response
     if (toValidateResponse) {
-      this.agHelper.AssertElementAbsence(
-        this.locator._cancelActionExecution,
-        10000,
-      ); //For the run to give response
       this.agHelper.Sleep();
-      this.agHelper.ValidateNetworkExecutionSuccess(
+      this.agHelper.AssertNetworkExecutionSuccess(
         "@postExecute",
         expectedStatus,
       );
@@ -866,19 +992,23 @@ export class DataSources {
   }
 
   AssertRunButtonDisability(disabled = false) {
-    let query = "";
-    if (disabled) {
-      query = "be.disabled";
-    } else {
-      query = "not.be.disabled";
-    }
-    cy.get(this._runQueryBtn).should(query);
+    this.agHelper.AssertElementEnabledDisabled(this._runQueryBtn, 0, disabled);
   }
 
   public ReadQueryTableResponse(index: number, timeout = 100) {
     //timeout can be sent higher values incase of larger tables
     this.agHelper.Sleep(timeout); //Settling time for table!
     return cy.xpath(this._queryTableResponse).eq(index).invoke("text");
+  }
+
+  public AssertQueryTableResponse(
+    index: number,
+    expectedValue: string,
+    timeout = 100,
+  ) {
+    this.ReadQueryTableResponse(index, timeout).then(($cellData: any) => {
+      expect($cellData).to.eq(expectedValue);
+    });
   }
 
   public AssertQueryResponseHeaders(columnHeaders: string[]) {
@@ -954,13 +1084,16 @@ export class DataSources {
       | "UnAuthenticatedGraphQL"
       | "MsSql"
       | "Airtable"
-      | "Arango"
+      | "ArangoDB"
       | "Firestore"
       | "Elasticsearch"
       | "Redis"
-      | "Oracle",
+      | "Oracle"
+      | "S3",
     navigateToCreateNewDs = true,
     testNSave = true,
+    environment = this.tedTestConfig.defaultEnviorment,
+    assetEnvironmentSelected = false,
   ) {
     let guid: any;
     let dataSourceName = "";
@@ -973,19 +1106,32 @@ export class DataSources {
         guid = uid;
         dataSourceName = dsType + " " + guid;
         this.agHelper.RenameWithInPane(dataSourceName, false);
-        if (DataSourceKVP[dsType] == "PostgreSQL") this.FillPostgresDSForm();
-        else if (DataSourceKVP[dsType] == "Oracle") this.FillOracleDSForm();
-        else if (DataSourceKVP[dsType] == "MySQL") this.FillMySqlDSForm();
-        else if (DataSourceKVP[dsType] == "MongoDB") this.FillMongoDSForm();
+        if (assetEnvironmentSelected) {
+          this.agHelper.AssertSelectedTab(
+            this.locator.ds_editor_env_filter(environment),
+            "true",
+          );
+        }
+        if (DataSourceKVP[dsType] == "PostgreSQL")
+          this.FillPostgresDSForm(environment);
+        else if (DataSourceKVP[dsType] == "Oracle")
+          this.FillOracleDSForm(environment);
+        else if (DataSourceKVP[dsType] == "MySQL")
+          this.FillMySqlDSForm(environment);
+        else if (DataSourceKVP[dsType] == "MongoDB")
+          this.FillMongoDSForm(environment);
         else if (DataSourceKVP[dsType] == "Microsoft SQL Server")
-          this.FillMsSqlDSForm();
+          this.FillMsSqlDSForm(environment);
         else if (DataSourceKVP[dsType] == "Airtable") this.FillAirtableDSForm();
-        else if (DataSourceKVP[dsType] == "ArangoDB") this.FillArangoDSForm();
+        else if (DataSourceKVP[dsType] == "ArangoDB")
+          this.FillArangoDSForm(environment);
         else if (DataSourceKVP[dsType] == "Firestore")
-          this.FillFirestoreDSForm();
+          this.FillFirestoreDSForm(environment);
         else if (DataSourceKVP[dsType] == "Elasticsearch")
-          this.FillElasticSearchDSForm();
-        else if (DataSourceKVP[dsType] == "Redis") this.FillRedisDSForm();
+          this.FillElasticSearchDSForm(environment);
+        else if (DataSourceKVP[dsType] == "Redis")
+          this.FillRedisDSForm(environment);
+        else if (DataSourceKVP[dsType] == "S3") this.FillS3DSForm();
 
         if (testNSave) {
           this.TestSaveDatasource();
@@ -993,7 +1139,7 @@ export class DataSources {
           this.SaveDatasource();
         }
       } else if (DataSourceKVP[dsType] == "GraphQL API")
-        this.FillUnAuthenticatedGraphQLDSForm();
+        this.FillUnAuthenticatedGraphQLDSForm(environment);
       cy.wrap(dataSourceName).as("dsName");
     });
   }
@@ -1004,10 +1150,9 @@ export class DataSources {
     queryName = "",
     sleep = 500,
   ) {
-    this.agHelper.ClickOutside(); //to close the evaluated pop-up
+    this.agHelper.RemoveEvaluatedPopUp(); //to close the evaluated pop-up
     this.ee.CreateNewDsQuery(dsName);
     if (query) {
-      this.agHelper.GetNClick(this._templateMenu);
       this.EnterQuery(query, sleep);
     }
     if (queryName) this.agHelper.RenameWithInPane(queryName);
@@ -1088,7 +1233,6 @@ export class DataSources {
 
   //Update with new password in the datasource conf page
   public UpdatePassword(newPassword: string) {
-    this.ExpandSectionByName("Authentication");
     cy.get(this._password).type(newPassword);
   }
 
@@ -1104,10 +1248,46 @@ export class DataSources {
     } else {
       this.SaveDatasource();
     }
-    this.ee.ActionContextMenuByEntityName(dataSourceName, "Refresh");
+    this.ee.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dataSourceName,
+      action: "Refresh",
+    });
     cy.wait("@getDSStructure").then(() => {
       cy.get(".bp3-collapse-body").contains(schema);
     });
+  }
+
+  public VerifyTableSchemaOnQueryEditor(schema: string) {
+    this.agHelper
+      .GetElement(this._datasourceTableSchemaInQueryEditor)
+      .contains(schema);
+  }
+
+  public VerifySchemaAbsenceInQueryEditor() {
+    this.agHelper.AssertElementAbsence(this._datasourceStructureHeader);
+  }
+
+  public VerifyColumnSchemaOnQueryEditor(schema: string, index = 0) {
+    this.agHelper
+      .GetElement(this._datasourceColumnSchemaInQueryEditor)
+      .eq(index)
+      .contains(schema);
+  }
+
+  public FilterAndVerifyDatasourceSchemaBySearch(
+    search: string,
+    verifySearch = false,
+    filterBy: "table" | "column" = "column",
+  ) {
+    this.agHelper.TypeText(this._datasourceStructureSearchInput, search);
+
+    if (verifySearch) {
+      if (filterBy === "column") {
+        this.VerifyColumnSchemaOnQueryEditor(search);
+      } else {
+        this.VerifyTableSchemaOnQueryEditor(search);
+      }
+    }
   }
 
   public SaveDSFromDialog(save = true) {
@@ -1121,7 +1301,7 @@ export class DataSources {
         true,
         0,
       );
-      this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
+      this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
       this.agHelper.AssertContains("datasource created");
     } else
       this.agHelper.GetNClick(
@@ -1136,10 +1316,10 @@ export class DataSources {
     return `[data-guided-tour-id="explorer-entity-${dSName}"]`;
   }
 
-  public FillAuthAPIUrl() {
+  public FillAuthAPIUrl(environment = this.tedTestConfig.defaultEnviorment) {
     this.agHelper.UpdateInput(
       this.locator._inputFieldByName("URL"),
-      datasourceFormData.authenticatedApiUrl,
+      this.tedTestConfig.dsValues[environment].authenticatedApiUrl,
     );
   }
 
@@ -1176,7 +1356,10 @@ export class DataSources {
     this.agHelper.GetNClick(this._editDatasourceFromActiveTab(dsName));
   }
 
-  public FillMongoDatasourceFormWithURI(uri: string) {
+  public FillMongoDatasourceFormWithURI(
+    environment = this.tedTestConfig.defaultEnviorment,
+  ) {
+    const uri = this.tedTestConfig.mongo_uri(environment);
     this.ValidateNSelectDropdown(
       "Use mongo connection string URI",
       "No",
@@ -1188,45 +1371,58 @@ export class DataSources {
     );
   }
 
-  public CreateOAuthClient(grantType: string) {
+  public CreateOAuthClient(
+    grantType: string,
+    environment = this.tedTestConfig.defaultEnviorment,
+  ) {
     let clientId, clientSecret;
 
     // Login to TED OAuth
     let formData = new FormData();
-    formData.append("username", datasourceFormData["OAuth_Username"]);
-    cy.request("POST", datasourceFormData["OAuth_Host"], formData).then(
-      (response) => {
-        expect(response.status).to.equal(200);
-      },
+    formData.append(
+      "username",
+      this.tedTestConfig.dsValues[environment].OAuth_Username,
     );
+    cy.request(
+      "POST",
+      this.tedTestConfig.dsValues[environment].OAuth_Host,
+      formData,
+    ).then((response) => {
+      expect(response.status).to.equal(200);
+    });
 
     // Create client
     let clientData = new FormData();
     clientData.append("client_name", "appsmith_cs_post");
     clientData.append("client_uri", "http://localhost/");
     clientData.append("scope", "profile");
-    clientData.append("redirect_uri", datasourceFormData["OAuth_RedirectUrl"]);
+    clientData.append(
+      "redirect_uri",
+      this.tedTestConfig.dsValues[environment].OAuth_RedirectUrl,
+    );
     clientData.append("grant_type", grantType);
     clientData.append("response_type", "code");
     clientData.append("token_endpoint_auth_method", "client_secret_post");
     cy.request(
       "POST",
-      datasourceFormData["OAuth_Host"] + "/create_client",
+      this.tedTestConfig.dsValues[environment].OAuth_Host + "/create_client",
       clientData,
     ).then((response) => {
       expect(response.status).to.equal(200);
     });
 
     // Get Client Credentials
-    cy.request("GET", datasourceFormData["OAuth_Host"]).then((response) => {
-      clientId = response.body.split("client_id: </strong>");
-      clientId = clientId[1].split("<strong>client_secret: </strong>");
-      clientSecret = clientId[1].split("<strong>");
-      clientSecret = clientSecret[0].trim();
-      clientId = clientId[0].trim();
-      cy.wrap(clientId).as("OAuthClientID");
-      cy.wrap(clientSecret).as("OAuthClientSecret");
-    });
+    cy.request("GET", this.tedTestConfig.dsValues[environment].OAuth_Host).then(
+      (response) => {
+        clientId = response.body.split("client_id: </strong>");
+        clientId = clientId[1].split("<strong>client_secret: </strong>");
+        clientSecret = clientId[1].split("<strong>");
+        clientSecret = clientSecret[0].trim();
+        clientId = clientId[0].trim();
+        cy.wrap(clientId).as("OAuthClientID");
+        cy.wrap(clientSecret).as("OAuthClientSecret");
+      },
+    );
   }
 
   public CreateOAuthDatasource(
@@ -1249,7 +1445,7 @@ export class DataSources {
     this.agHelper.GetNClick(this._consentSubmit);
 
     //Validate save
-    this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
+    this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
   }
 
   public FillAPIOAuthForm(
@@ -1257,12 +1453,13 @@ export class DataSources {
     grantType: "ClientCredentials" | "AuthCode",
     clientId: string,
     clientSecret: string,
+    environment = this.tedTestConfig.defaultEnviorment,
   ) {
     if (dsName) this.agHelper.RenameWithInPane(dsName, false);
     // Fill Auth Form
     this.agHelper.UpdateInput(
       this.locator._inputFieldByName("URL"),
-      datasourceFormData["OAuth_ApiUrl"],
+      this.tedTestConfig.dsValues[environment].OAuth_ApiUrl,
     );
     this.agHelper.GetNClick(this._authType);
     this.agHelper.GetNClick(this._oauth2);
@@ -1274,7 +1471,7 @@ export class DataSources {
 
     this.agHelper.UpdateInput(
       this.locator._inputFieldByName("Access token URL"),
-      datasourceFormData["OAUth_AccessTokenUrl"],
+      this.tedTestConfig.dsValues[environment].OAUth_AccessTokenUrl,
     );
 
     this.agHelper.UpdateInput(
@@ -1291,7 +1488,7 @@ export class DataSources {
     );
     this.agHelper.UpdateInput(
       this.locator._inputFieldByName("Authorization URL"),
-      datasourceFormData["OAuth_AuthUrl"],
+      this.tedTestConfig.dsValues[environment].OAuth_AuthUrl,
     );
   }
 
@@ -1333,11 +1530,83 @@ export class DataSources {
     fieldValue: string;
     fieldLabel: string;
   }) {
-    this.agHelper.GetNClick(this._getJSONswitchLocator(fieldProperty));
+    this.agHelper.Sleep();
+    this.agHelper
+      .GetElement(this._getJSONswitchLocator(fieldProperty))
+      .invoke("attr", "data-selected")
+      .then(($state: any) => {
+        if (!$state.includes("true"))
+          this.agHelper.GetNClick(
+            this._getJSONswitchLocator(fieldProperty),
+            0,
+            true,
+          );
+        else this.agHelper.Sleep(200);
+      });
     this.agHelper.EnterValue(fieldValue, {
       propFieldName: "",
       directInput: false,
       inputFieldName: fieldLabel,
+    });
+  }
+
+  public StopNDeleteContainer(containerName: string) {
+    // Stop the container
+    cy.exec(`docker stop ${containerName}`).then((stopResult) => {
+      cy.log("Output from stopping container:" + stopResult.stdout);
+      cy.log("Error from stopping container:" + stopResult.stderr);
+
+      // Delete the container
+      cy.exec(`docker rm ${containerName}`).then((deleteResult) => {
+        cy.log("Output from deleting container:" + deleteResult.stdout);
+        cy.log("Error from deleting container:" + deleteResult.stderr);
+      });
+    });
+  }
+
+  public IsContainerReady(containerName: string) {
+    return cy
+      .exec(`docker inspect -f '{{.State.Status}}' ${containerName}`)
+      .then((result) => {
+        const containerStatus = result.stdout.trim();
+        return containerStatus === "running";
+      });
+  }
+
+  public StartContainerNVerify(
+    containerType: "MsSql" | "Arango" | "Elasticsearch",
+    containerName: string,
+    sleepTime = 40000,
+  ) {
+    let containerCommand = "";
+    switch (containerType) {
+      case "MsSql":
+        containerCommand = this.ContainerKVP(containerName).MsSql;
+        break;
+      case "Arango":
+        containerCommand = this.ContainerKVP(containerName).Arango;
+        break;
+      case "Elasticsearch":
+        containerCommand = this.ContainerKVP(containerName).Elasticsearch;
+        break;
+      default:
+        break;
+    }
+    cy.exec(containerCommand).then((result) => {
+      // Wait for the container to be ready
+      cy.waitUntil(() => this.IsContainerReady(containerName), {
+        interval: 5000,
+        timeout: 60000,
+      }).then((isReady) => {
+        if (isReady) {
+          cy.log("Run id of started container is:" + result.stdout);
+          this.agHelper.Sleep(sleepTime); //allow some time for container to settle start for CI
+        } else
+          cy.log(
+            `Error from ${containerName} container start action:` +
+              result.stderr,
+          ); // Container did not start properly within the timeout
+      });
     });
   }
 }

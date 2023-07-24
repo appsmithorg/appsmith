@@ -47,6 +47,7 @@ import { toggleInstaller } from "actions/JSLibraryActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -72,6 +73,7 @@ type Props = {
   isPreviewMode: boolean;
   setPreviewModeAction: (shouldSet: boolean) => void;
   isExplorerPinned: boolean;
+  isSignpostingEnabled: boolean;
   setExplorerPinnedAction: (shouldPinned: boolean) => void;
   showCommitModal: () => void;
   getMousePosition: () => { x: number; y: number };
@@ -146,27 +148,6 @@ class GlobalHotKeys extends React.Component<Props> {
           label="Create new"
           onKeyDown={(e) =>
             this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.ACTION_OPERATION)
-          }
-        />
-        <Hotkey
-          allowInInput
-          combo="mod + j"
-          global
-          label="Lookup code snippets"
-          onKeyDown={(e) => {
-            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.SNIPPETS);
-            AnalyticsUtil.logEvent("SNIPPET_LOOKUP", {
-              source: "HOTKEY_COMBO",
-            });
-          }}
-        />
-        <Hotkey
-          allowInInput
-          combo="mod + l"
-          global
-          label="Search documentation"
-          onKeyDown={(e) =>
-            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.DOCUMENTATION)
           }
         />
         <Hotkey
@@ -353,6 +334,7 @@ class GlobalHotKeys extends React.Component<Props> {
         />
         <Hotkey
           combo="mod + /"
+          disabled={this.props.isSignpostingEnabled}
           global
           label="Pin/Unpin Entity Explorer"
           onKeyDown={() => {
@@ -384,6 +366,7 @@ const mapStateToProps = (state: AppState) => ({
   appMode: getAppMode(state),
   isPreviewMode: previewModeSelector(state),
   isExplorerPinned: getExplorerPinned(state),
+  isSignpostingEnabled: getIsFirstTimeUserOnboardingEnabled(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {

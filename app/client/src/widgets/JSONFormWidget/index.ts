@@ -8,6 +8,7 @@ import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import type { JSONFormWidgetProps } from "./widget";
 import Widget from "./widget";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,
@@ -28,6 +29,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "JSON Form",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.LAYOUT],
   needsMeta: true,
   defaults: {
     responsiveBehavior: ResponsiveBehavior.Fill,
@@ -97,6 +99,7 @@ export const CONFIG = {
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+    setterConfig: Widget.getSetterConfig(),
   },
   autoLayout: {
     widgetSize: [

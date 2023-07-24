@@ -4,43 +4,43 @@ const publish = require("../../../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../../locators/commonlocators.json");
 
-import { ObjectsRegistry } from "../../../../../../support/Objects/Registry";
+import * as _ from "../../../../../../support/Objects/ObjectsCore";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const widgetSelectorByType = (name) => `.t--widget-${name}`;
-
-let agHelper = ObjectsRegistry.AggregateHelper;
 
 // TODO: Test for Reset functionality
 const items = JSON.parse(dsl.dsl.children[0].listData);
 
 describe("Input Widgets", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("Listv2/simpleLargeListv2");
   });
 
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   it("1. Input Widgets default value", function () {
-    cy.dragAndDropToWidget("currencyinputwidget", "listwidgetv2", {
-      x: 50,
-      y: 50,
-    });
-    cy.dragAndDropToWidget("phoneinputwidget", "listwidgetv2", {
-      x: 50,
-      y: 120,
-    });
-
-    cy.dragAndDropToWidget("inputwidgetv2", "listwidgetv2", {
-      x: 50,
-      y: 200,
-    });
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.CURRENCY_INPUT,
+      300,
+      100,
+    );
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.PHONEINPUT,
+      300,
+      200,
+    );
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.INPUT_V2,
+      300,
+      300,
+    );
     cy.openPropertyPane("currencyinputwidget");
     cy.updateCodeInput(
       ".t--property-control-defaultvalue",
@@ -76,40 +76,38 @@ describe("Input Widgets", function () {
 
   it("2. Input Widgets isValid", function () {
     // Test for isValid === True
-    cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
-      x: 350,
-      y: 50,
-    });
-
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 600, 300);
     cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "Input_Widget");
     cy.wait(1000);
-    cy.testJsontext("text", `{{currentView.Input1.isValid}}`);
+    _.propPane.UpdatePropertyFieldValue(
+      "Text",
+      "{{currentView.Input1.isValid}}",
+    );
     cy.get(`${widgetSelector("Input_Widget")} ${commonlocators.bodyTextStyle}`)
       .first()
       .should("have.text", "true");
 
-    cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
-      x: 350,
-      y: 120,
-    });
-
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 600, 100);
     cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "Currency_Widget");
     cy.wait(1000);
-    cy.testJsontext("text", `{{currentView.CurrencyInput1.isValid}}`);
+    _.propPane.UpdatePropertyFieldValue(
+      "Text",
+      "{{currentView.CurrencyInput1.isValid}}",
+    );
     cy.get(
       `${widgetSelector("Currency_Widget")} ${commonlocators.bodyTextStyle}`,
     )
       .first()
       .should("have.text", "true");
 
-    cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
-      x: 350,
-      y: 210,
-    });
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 600, 200);
 
     cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "PhoneInput_Widget");
     cy.wait(1000);
-    cy.testJsontext("text", `{{currentView.PhoneInput1.isValid}}`);
+    _.propPane.UpdatePropertyFieldValue(
+      "Text",
+      "{{currentView.PhoneInput1.isValid}}",
+    );
     cy.get(
       `${widgetSelector("PhoneInput_Widget")} ${commonlocators.bodyTextStyle}`,
     )

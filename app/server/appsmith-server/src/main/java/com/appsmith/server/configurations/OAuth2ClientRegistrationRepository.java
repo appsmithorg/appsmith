@@ -50,13 +50,13 @@ public class OAuth2ClientRegistrationRepository implements ReactiveClientRegistr
             registrations.remove(GOOGLE_REGISTRATION_ID);
         } else {
             registrations.put(
-                GOOGLE_REGISTRATION_ID,
-                CommonOAuth2Provider.GOOGLE.getBuilder(GOOGLE_REGISTRATION_ID)
-                    .clientId(googleClientId)
-                    .clientSecret(googleClientSecret)
-                    .userNameAttributeName("email")
-                    .build()
-            );
+                    GOOGLE_REGISTRATION_ID,
+                    CommonOAuth2Provider.GOOGLE
+                            .getBuilder(GOOGLE_REGISTRATION_ID)
+                            .clientId(googleClientId)
+                            .clientSecret(googleClientSecret)
+                            .userNameAttributeName("email")
+                            .build());
         }
     }
 
@@ -65,13 +65,13 @@ public class OAuth2ClientRegistrationRepository implements ReactiveClientRegistr
             registrations.remove(GITHUB_REGISTRATION_ID);
         } else {
             registrations.put(
-                GITHUB_REGISTRATION_ID,
-                CommonOAuth2Provider.GITHUB.getBuilder(GITHUB_REGISTRATION_ID)
-                    .clientId(githubClientId)
-                    .clientSecret(githubClientSecret)
-                    .userNameAttributeName("login")
-                    .build()
-            );
+                    GITHUB_REGISTRATION_ID,
+                    CommonOAuth2Provider.GITHUB
+                            .getBuilder(GITHUB_REGISTRATION_ID)
+                            .clientId(githubClientId)
+                            .clientSecret(githubClientSecret)
+                            .userNameAttributeName("login")
+                            .build());
         }
     }
 
@@ -99,5 +99,4 @@ public class OAuth2ClientRegistrationRepository implements ReactiveClientRegistr
         // Note, this is a live-set. If the underlying map gets a key added or removed, it'll be reflected in this Set.
         return registrations.keySet();
     }
-
 }

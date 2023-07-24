@@ -1,13 +1,10 @@
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/chartUpdatedDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Chart Widget Functionality around custom chart feature", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("chartUpdatedDsl");
   });
 
   beforeEach(() => {
@@ -30,7 +27,7 @@ describe("Chart Widget Functionality around custom chart feature", function () {
     /**
      * @param{Text} Random Input Value
      */
-    cy.testJsontext("title", this.data.chartIndata);
+    cy.testJsontext("title", this.dataSet.chartIndata);
     cy.get(viewWidgetsPage.chartInnerText)
       .contains("App Sign Up")
       .should("have.text", "App Sign Up");
@@ -38,7 +35,7 @@ describe("Chart Widget Functionality around custom chart feature", function () {
     //Entering the Chart data
     cy.testJsontext(
       "chart-series-data-control",
-      JSON.stringify(this.data.chartInput),
+      JSON.stringify(this.dataSet.chartInput),
     );
     cy.get(".t--propertypane").click("right");
 
@@ -52,18 +49,18 @@ describe("Chart Widget Functionality around custom chart feature", function () {
     //Entring the label of x-axis
     cy.get(viewWidgetsPage.xlabel)
       .click({ force: true })
-      .type(this.data.command)
-      .type(this.data.plan);
+      .type(this.dataSet.command)
+      .type(this.dataSet.plan);
     //Entring the label of y-axis
     cy.get(viewWidgetsPage.ylabel)
       .click({ force: true })
-      .type(this.data.command)
+      .type(this.dataSet.command)
       .click({ force: true })
-      .type(this.data.ylabel);
+      .type(this.dataSet.ylabel);
 
     //Close edit prop
 
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("2. Custom Chart Widget Functionality", function () {
@@ -73,7 +70,7 @@ describe("Chart Widget Functionality around custom chart feature", function () {
 
     cy.testJsontext(
       "customfusionchart",
-      `{{${JSON.stringify(this.data.ChartCustomConfig)}}}`,
+      `{{${JSON.stringify(this.dataSet.ChartCustomConfig)}}}`,
     );
 
     //Verifying X-axis labels
@@ -85,7 +82,7 @@ describe("Chart Widget Functionality around custom chart feature", function () {
         .trigger("mousemove", { force: true });
       cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
     });
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
   });
 
   it("3. Toggle JS - Custom Chart Widget Functionality", function () {
@@ -111,7 +108,7 @@ describe("Chart Widget Functionality around custom chart feature", function () {
     });
 
     //Close edit prop
-    cy.PublishtheApp(false);
+    _.deployMode.DeployApp(_.locators._backToEditor, true, false);
   });
 
   it("4. Chart-Copy & Delete Verification", function () {
@@ -120,18 +117,17 @@ describe("Chart Widget Functionality around custom chart feature", function () {
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("Container3");
     _.propPane.CopyWidgetFromPropertyPane("Test");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     //Chart-Delete Verification"
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("Container3");
     _.propPane.DeleteWidgetFromPropertyPane("TestCopy");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(viewWidgetsPage.chartWidget).should("not.exist");
   });
 
   afterEach(() => {
-    cy.wait(2000);
-    cy.get(publish.backToEditor).click({ force: true });
+    _.deployMode.NavigateBacktoEditor();
   });
 });

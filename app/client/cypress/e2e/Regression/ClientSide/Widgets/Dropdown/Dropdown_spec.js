@@ -1,12 +1,12 @@
-const dsl = require("../../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Dropdown Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("emptyDSL");
   });
 
   it("Add new dropdown widget", () => {
@@ -144,19 +144,18 @@ describe("Dropdown Widget Functionality", function () {
     cy.openPropertyPane("selectwidget");
     // Disable the visible JS
     cy.togglebarDisable(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Verify the disabled visible JS
     cy.get(publish.selectwidget + " " + "input").should("not.exist");
-    cy.goToEditFromPublish();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("Dropdown Functionality To UnCheck disabled Widget", function () {
     cy.openPropertyPane("selectwidget");
     // Check the visible JS
     cy.togglebar(commonlocators.visibleCheckbox);
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     // Verify the checked visible JS
     cy.get(publish.selectwidget).should("exist");
-    cy.goToEditFromPublish();
   });
 });

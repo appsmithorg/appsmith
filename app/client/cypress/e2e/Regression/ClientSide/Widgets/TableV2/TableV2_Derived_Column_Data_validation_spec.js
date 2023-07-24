@@ -1,31 +1,37 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/tableV2TextPaginationDsl.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  apiPage,
+  entityExplorer,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl("tableV2TextPaginationDsl");
   });
 
   it("1. Create an API and Execute the API and bind with Table V2", function () {
     // Create and execute an API and bind with table
-    _.apiPage.CreateAndFillApi(
-      this.data.paginationUrl + this.data.paginationParam,
+    apiPage.CreateAndFillApi(
+      this.dataSet.paginationUrl + this.dataSet.paginationParam,
     );
-    cy.RunAPI();
+    agHelper.VerifyEvaluatedValue(
+      this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=10",
+    );
+    apiPage.RunAPI();
     //Validate Table V2 with API data and then add a column
     // Open property pane
-    _.entityExplorer.SelectEntityByName("Table1");
-    _.propPane.UpdatePropertyFieldValue("Table data", "{{Api1.data}}");
+    entityExplorer.SelectEntityByName("Table1");
+    propPane.UpdatePropertyFieldValue("Table data", "{{Api1.data}}");
     // Check Widget properties
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     // Open Text1 in propert pane
-    _.entityExplorer.SelectEntityByName("Text1");
-    _.propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow.url}}");
+    entityExplorer.SelectEntityByName("Text1");
+    propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow.url}}");
     // Open Table1 propert pane
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     // Compare table 1st index data with itself
     cy.readTableV2data("0", "0").then((tabData) => {
       const tableData = tabData;
@@ -47,7 +53,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.wait(1000);
     cy.moveToStyleTab();
     // Click on cell background JS button
-    _.propPane.EnterJSContext("Cell Background", "Green");
+    propPane.EnterJSContext("Cell Background", "Green");
     // Go back to table property pane
     cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
     cy.wait("@updateLayout");
@@ -78,10 +84,10 @@ describe("Test Create Api and Bind to Table widget", function () {
 
   it("4. Update table json data and check the column names updated", function () {
     // Open table propert pane
-    _.entityExplorer.SelectEntityByName("Table1");
+    entityExplorer.SelectEntityByName("Table1");
     cy.backFromPropertyPanel();
     // Change the table data
-    cy.testJsontext("tabledata", JSON.stringify(this.data.TableInputUpdate));
+    cy.testJsontext("tabledata", JSON.stringify(this.dataSet.TableInputUpdate));
     cy.wait("@updateLayout");
     // verify columns are visible or not in the propert pane
     cy.tableV2ColumnDataValidation("id");

@@ -23,6 +23,9 @@ export enum PluginPackageName {
   GRAPHQL = "graphql-plugin",
   JS = "js-plugin",
   ORACLE = "oracle-plugin",
+  MY_SQL = "mysql-plugin",
+  MS_SQL = "mssql-plugin",
+  SNOWFLAKE = "snowflake-plugin",
 }
 
 // more can be added subsequently.
@@ -37,6 +40,14 @@ export enum PluginName {
   SNOWFLAKE = "Snowflake",
   ARANGODB = "ArangoDB",
   REDSHIFT = "Redshift",
+  SMTP = "SMTP",
+  REST_API = "REST API",
+  REDIS = "Redis",
+  AIRTABLE = "Airtable",
+  TWILIO = "Twilio",
+  HUBSPOT = "HubSpot",
+  ELASTIC_SEARCH = "Elasticsearch",
+  GRAPHQL = "Authenticated GraphQL API",
 }
 
 export enum PaginationType {
@@ -197,7 +208,6 @@ export type ActionViewMode = {
 export type Action = ApiAction | QueryAction | SaaSAction | RemoteAction;
 
 export enum SlashCommand {
-  NEW_SNIPPET,
   NEW_API,
   NEW_QUERY,
   NEW_INTEGRATION,

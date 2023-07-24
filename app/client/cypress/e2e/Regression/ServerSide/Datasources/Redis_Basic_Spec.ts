@@ -1,10 +1,15 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  dataSources,
+  entityItems,
+} from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any;
 
 describe("Validate Redis DS", () => {
   before("Create a new Redis DS", () => {
-    _.dataSources.CreateDataSource("Redis");
+    dataSources.CreateDataSource("Redis");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
@@ -21,45 +26,35 @@ describe("Validate Redis DS", () => {
     let deletehKey = "DEL recipe:1";
 
     //Add HSET
-    _.dataSources.CreateQueryAfterDSSaved();
-    _.dataSources.EnterQuery(hSetReceipe);
-    _.dataSources.RunQueryNVerifyResponseViews(1); //verify all views are returned!
-    _.dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
-      expect($cellData).to.eq("4"); //Success response for 4 keys inserted via above HSET!
-    });
+    dataSources.CreateQueryAfterDSSaved();
+    dataSources.EnterQuery(hSetReceipe);
+    dataSources.RunQueryNVerifyResponseViews(1); //verify all views are returned!
+    dataSources.AssertQueryTableResponse(0, "4"); //Success response for 4 keys inserted via above HSET!
 
     //Read only one key from above HSET
-    _.dataSources.EnterQuery(hGetKeys);
-    _.dataSources.RunQueryNVerifyResponseViews(1); //verify all views are returned!
-    _.dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
-      expect($cellData).to.eq("Vegetable Stir Fry");
-    });
+    dataSources.EnterQuery(hGetKeys);
+    dataSources.RunQueryNVerifyResponseViews(1); //verify all views are returned!
+    dataSources.AssertQueryTableResponse(0, "Vegetable Stir Fry");
 
     //Read more than one key from above HSET
-    _.dataSources.EnterQuery(hMGet);
-    _.dataSources.RunQueryNVerifyResponseViews(2);
-    _.dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
-      expect($cellData).to.eq("easy");
-    });
-    _.dataSources.ReadQueryTableResponse(1).then(($cellData: any) => {
-      expect($cellData).to.eq("Vegetable Stir Fry");
-    });
+    dataSources.EnterQuery(hMGet);
+    dataSources.RunQueryNVerifyResponseViews(2);
+    dataSources.AssertQueryTableResponse(0, "easy");
+    dataSources.AssertQueryTableResponse(1, "Vegetable Stir Fry");
 
     //Update key value in HSET
-    _.dataSources.EnterQuery(hUpdate);
-    _.dataSources.RunQueryNVerifyResponseViews(1); //verify all views are returned!
+    dataSources.EnterQuery(hUpdate);
+    dataSources.RunQueryNVerifyResponseViews(1); //verify all views are returned!
 
     //validate updated key
-    _.dataSources.EnterQuery(getUpdatedKey);
-    _.dataSources.RunQueryNVerifyResponseViews(1);
-    _.dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
-      expect($cellData).to.eq("medium");
-    });
+    dataSources.EnterQuery(getUpdatedKey);
+    dataSources.RunQueryNVerifyResponseViews(1);
+    dataSources.AssertQueryTableResponse(0, "medium");
 
     //Get All keys from HSET
-    _.dataSources.EnterQuery(getAll);
-    _.dataSources.RunQueryNVerifyResponseViews(8); //4 keys, 4 values
-    _.dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
+    dataSources.EnterQuery(getAll);
+    dataSources.RunQueryNVerifyResponseViews(8); //4 keys, 4 values
+    dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
       expect($cellData).to.be.oneOf([
         "name",
         "ingredients",
@@ -67,18 +62,18 @@ describe("Validate Redis DS", () => {
         "difficulty",
       ]);
     });
-    // _.dataSources.ReadQueryTableResponse(6).then(($cellData: any) => {
+    // dataSources.ReadQueryTableResponse(6).then(($cellData: any) => {
     //   expect($cellData).to.eq("instructions");
     // });//order not always matching - hence commented
 
     //Ading one more key/value to HSET
-    _.dataSources.EnterQuery(addNewKeyValue);
-    _.dataSources.RunQueryNVerifyResponseViews(1);
+    dataSources.EnterQuery(addNewKeyValue);
+    dataSources.RunQueryNVerifyResponseViews(1);
 
     //Verify new key/value also added to HSET
-    _.dataSources.EnterQuery(getAll);
-    _.dataSources.RunQueryNVerifyResponseViews(10); //5 keys, 5 values
-    _.dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
+    dataSources.EnterQuery(getAll);
+    dataSources.RunQueryNVerifyResponseViews(10); //5 keys, 5 values
+    dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
       expect($cellData).to.be.oneOf([
         "name",
         "ingredients",
@@ -89,25 +84,25 @@ describe("Validate Redis DS", () => {
     });
 
     //Deleting the Hash key
-    _.dataSources.EnterQuery(deletehKey);
-    _.dataSources.RunQueryNVerifyResponseViews(1);
+    dataSources.EnterQuery(deletehKey);
+    dataSources.RunQueryNVerifyResponseViews(1);
 
     //Verify Deletion is success
-    _.dataSources.EnterQuery(hGetKeys);
-    _.dataSources.RunQueryNVerifyResponseViews(); //5 keys, 5 values
-    _.dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
-      expect($cellData).to.eq("null");
-    });
+    dataSources.EnterQuery(hGetKeys);
+    dataSources.RunQueryNVerifyResponseViews(); //5 keys, 5 values
+    dataSources.AssertQueryTableResponse(0, "null");
   });
 
   after("Delete the query & datasource", () => {
-    _.agHelper.ActionContextMenuWithInPane("Delete");
-    _.entityExplorer.SelectEntityByName(dsName, "Datasources");
-    _.entityExplorer.ActionContextMenuByEntityName(
-      dsName,
-      "Delete",
-      "Are you sure?",
-    );
-    _.agHelper.ValidateNetworkStatus("@deleteDatasource", 200);
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
+    entityExplorer.SelectEntityByName(dsName, "Datasources");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Delete",
+      entityType: entityItems.Datasource,
+    });
   });
 });

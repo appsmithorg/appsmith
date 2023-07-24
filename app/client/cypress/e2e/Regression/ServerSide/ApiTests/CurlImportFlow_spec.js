@@ -1,35 +1,40 @@
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 import ApiEditor from "../../../../locators/ApiEditor";
-import * as _ from "../../../../support/Objects/ObjectsCore";
+
+import {
+  agHelper,
+  apiPage,
+  dataSources,
+  entityItems,
+  tedTestConfig,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Test curl import flow", function () {
   it("1. Test curl import flow Run and Delete", function () {
-    cy.fixture("datasources").then((datasourceFormData) => {
-      localStorage.setItem("ApiPaneV2", "ApiPaneV2");
-      cy.NavigateToApiEditor();
-      _.dataSources.NavigateToDSCreateNew();
-      cy.get(ApiEditor.curlImage).click({ force: true });
-      cy.get("textarea").type(
-        "curl -X GET " + datasourceFormData["mockApiUrl"],
-      );
-      cy.importCurl();
-      cy.get("@curlImport").then((response) => {
-        expect(response.response.body.responseMeta.success).to.eq(true);
-        cy.get(apiwidget.ApiName)
-          .invoke("text")
-          .then((text) => {
-            const someText = text;
-            expect(someText).to.equal(response.response.body.data.name);
-          });
-      });
-      //cy.WaitAutoSave();
-      cy.RunAPI();
-      cy.ResponseStatusCheck("200 OK");
-      _.agHelper.ActionContextMenuWithInPane("Delete");
-      cy.get("@deleteAction").then((response) => {
-        expect(response.response.body.responseMeta.success).to.eq(true);
-      });
+    localStorage.setItem("ApiPaneV2", "ApiPaneV2");
+    cy.NavigateToApiEditor();
+    dataSources.NavigateToDSCreateNew();
+    cy.get(ApiEditor.curlImage).click({ force: true });
+    cy.get("textarea").type(
+      "curl -X GET " +
+        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+    );
+    cy.importCurl();
+    cy.get("@curlImport").then((response) => {
+      expect(response.response.body.responseMeta.success).to.eq(true);
+      cy.get(apiwidget.ApiName)
+        .invoke("text")
+        .then((text) => {
+          const someText = text;
+          expect(someText).to.equal(response.response.body.data.name);
+        });
+    });
+    cy.RunAPI();
+    cy.ResponseStatusCheck("200 OK");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Api,
     });
   });
 
@@ -66,11 +71,11 @@ describe("Test curl import flow", function () {
 
   it("3. Bug:19214 Test curl import flow for request without any headers", function () {
     cy.fixture("datasources").then((datasourceFormData) => {
-      _.dataSources.FillCurlNImport(
+      dataSources.FillCurlNImport(
         "curl -X GET " + datasourceFormData["echoApiUrl"],
       );
-      _.apiPage.AssertEmptyHeaderKeyValuePairsPresent(0);
-      _.apiPage.AssertEmptyHeaderKeyValuePairsPresent(1);
+      apiPage.AssertEmptyHeaderKeyValuePairsPresent(0);
+      apiPage.AssertEmptyHeaderKeyValuePairsPresent(1);
     });
   });
 });

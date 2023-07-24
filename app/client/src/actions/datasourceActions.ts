@@ -14,6 +14,7 @@ import type { PluginType } from "entities/Action";
 import type { executeDatasourceQueryRequest } from "api/DatasourcesApi";
 import type { ResponseMeta } from "api/ApiResponses";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 
 export const createDatasourceFromForm = (
   payload: CreateDatasourceConfig & Datasource,
@@ -39,17 +40,22 @@ export const createTempDatasourceFromForm = (
 
 export const updateDatasource = (
   payload: Datasource,
+  currEditingEnvId: string,
   onSuccess?: ReduxAction<unknown>,
   onError?: ReduxAction<unknown>,
   isInsideReconnectModal?: boolean,
 ): ReduxActionWithCallbacks<
-  Datasource & { isInsideReconnectModal: boolean },
+  Datasource & { isInsideReconnectModal: boolean; currEditingEnvId?: string },
   unknown,
   unknown
 > => {
   return {
     type: ReduxActionTypes.UPDATE_DATASOURCE_INIT,
-    payload: { ...payload, isInsideReconnectModal: !!isInsideReconnectModal },
+    payload: {
+      ...payload,
+      isInsideReconnectModal: !!isInsideReconnectModal,
+      currEditingEnvId,
+    },
     onSuccess,
     onError,
   };
@@ -106,12 +112,17 @@ export const redirectAuthorizationCode = (
   };
 };
 
-export const fetchDatasourceStructure = (id: string, ignoreCache?: boolean) => {
+export const fetchDatasourceStructure = (
+  id: string,
+  ignoreCache?: boolean,
+  schemaFetchContext?: DatasourceStructureContext,
+) => {
   return {
     type: ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT,
     payload: {
       id,
       ignoreCache,
+      schemaFetchContext,
     },
   };
 };
@@ -160,11 +171,15 @@ export const expandDatasourceEntity = (id: string) => {
   };
 };
 
-export const refreshDatasourceStructure = (id: string) => {
+export const refreshDatasourceStructure = (
+  id: string,
+  schemaRefreshContext?: DatasourceStructureContext,
+) => {
   return {
     type: ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT,
     payload: {
       id,
+      schemaRefreshContext,
     },
   };
 };
@@ -224,9 +239,21 @@ export const deleteDatasource = (
   };
 };
 
-export const setDatasourceViewMode = (payload: boolean) => {
+// sets viewMode flag along with clearing the datasource banner message
+export const setDatasourceViewMode = (payload: {
+  datasourceId: string;
+  viewMode: boolean;
+}) => {
   return {
     type: ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE,
+    payload,
+  };
+};
+
+// sets viewMode flag
+export const setDatasourceViewModeFlag = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE_FLAG,
     payload,
   };
 };
@@ -458,6 +485,10 @@ export const datasourceDiscardAction = (pluginId: string) => {
     },
   };
 };
+
+export const softRefreshDatasourceStructure = () => ({
+  type: ReduxActionTypes.SOFT_REFRESH_DATASOURCE_STRUCTURE,
+});
 
 export default {
   fetchDatasources,
