@@ -1,19 +1,15 @@
 import type { ReactNode } from "react";
-import type { FlattenSimpleInterpolation } from "styled-components";
-import type { ThemeToken } from "../token";
-import type { FontFamily, Typography, TypographyVariant } from "../typography";
+import type { FontFamily } from "../typography";
 import type { ColorMode } from "../color";
+import type { RootUnit, ThemeToken } from "../token";
 
 export type Theme = ThemeToken & {
-  typography: Typography;
-  rootUnit: number;
+  typography?: string;
+  rootUnit?: RootUnit;
 };
 
 export type ThemeContextType = ThemeToken & {
-  rootUnit: number;
-  typography?: {
-    [key in TypographyVariant]?: FlattenSimpleInterpolation;
-  };
+  rootUnit?: RootUnit;
 };
 
 export interface ThemeProviderProps {
@@ -27,5 +23,5 @@ export type UseThemeProps = {
   colorMode?: ColorMode;
   borderRadius?: string;
   fontFamily?: FontFamily;
-  rootUnit?: number;
+  rootUnitRatio?: number;
 };

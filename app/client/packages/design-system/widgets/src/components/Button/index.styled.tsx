@@ -1,73 +1,82 @@
 import styled, { css } from "styled-components";
 import { Button as HeadlessButton } from "@design-system/headless";
+import type { PickRename } from "../../utils";
 
 import type { ButtonProps } from "./Button";
 
-export const buttonStyles = css<ButtonProps>`
-  ${({ color = "accent", variant = "filled" }) => {
-    if (variant === "filled") {
+type StyledButtonProps = PickRename<
+  ButtonProps,
+  {
+    color: "$color";
+    variant: "$variant";
+  }
+>;
+
+export const buttonStyles = css<StyledButtonProps>`
+  ${({ $color, $variant }) => {
+    if ($variant === "filled") {
       return css`
-        background-color: var(--color-bg-${color});
-        color: var(--color-fg-on-${color});
+        background-color: var(--color-bg-${$color});
+        color: var(--color-fg-on-${$color});
         border-color: transparent;
 
         &[data-hovered]:not([aria-disabled]) {
-          background-color: var(--color-bg-${color}-hover);
+          background-color: var(--color-bg-${$color}-hover);
         }
 
         &[data-active]:not([aria-disabled]) {
-          background-color: var(--color-bg-${color}-active);
+          background-color: var(--color-bg-${$color}-active);
         }
       `;
     }
 
-    if (variant === "outlined") {
+    if ($variant === "outlined") {
       return css`
         background-color: transparent;
-        color: var(--color-fg-${color});
-        border-color: var(--color-bd-${color});
+        color: var(--color-fg-${$color});
+        border-color: var(--color-bd-${$color});
         border-width: var(--border-width-1);
 
         &[data-hovered]:not([aria-disabled]) {
-          background-color: var(--color-bg-${color}-subtle-hover);
+          background-color: var(--color-bg-${$color}-subtle-hover);
         }
 
         &[data-active]:not([aria-disabled]) {
-          background-color: var(--color-bg-${color}-subtle-active);
+          background-color: var(--color-bg-${$color}-subtle-active);
         }
       `;
     }
 
-    if (variant === "ghost") {
+    if ($variant === "ghost") {
       return css`
         background: transparent;
-        color: var(--color-fg-${color});
+        color: var(--color-fg-${$color});
         border-color: transparent;
         border-width: 0;
 
         &[data-hovered]:not([aria-disabled]) {
-          background: var(--color-bg-${color}-subtle-hover);
+          background: var(--color-bg-${$color}-subtle-hover);
         }
 
         &[data-active]:not([aria-disabled]) {
-          background: var(--color-bg-${color}-subtle-active);
+          background: var(--color-bg-${$color}-subtle-active);
         }
       `;
     }
   }}
 `;
 
-export const StyledButton = styled(HeadlessButton)<ButtonProps>`
+export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   outline: 0;
   padding: var(--spacing-2) var(--spacing-4);
-  block-size: calc(var(--root-unit) * 8);
+  block-size: var(--sizing-8);
   border-radius: var(--border-radius-1);
   user-select: none;
-  min-inline-size: calc(var(--root-unit) * 7.5);
+  min-inline-size: var(--sizing-8);
   position: relative;
   font-weight: 600;
 
@@ -81,12 +90,6 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
 
   ${buttonStyles}
 
-  // TODO(Valera): remove this when we use only flex layout
-  &[data-fit-container] {
-    width: 100%;
-    height: 100%;
-  }
-
   &[data-icon-position="end"] {
     flex-direction: row-reverse;
   }
@@ -96,8 +99,8 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     display: flex;
     justify-content: center;
     align-items: center;
-    height: calc(var(--sizing-root-unit) * 5);
-    width: calc(var(--sizing-root-unit) * 5);
+    height: var(--sizing-4);
+    width: var(--sizing-4);
   }
 
   // Note: adding important here as ADS is overriding the color of blueprint icon globally

@@ -7,13 +7,14 @@ import {
   TokensAccessor,
   defaultTokens,
   useTheme,
+  useFluidTokens,
 } from "@design-system/theming";
 import Color from "colorjs.io";
 
 const StyledThemeProvider = styled(ThemeProvider)`
   display: inline-flex;
-  width: 100%;
-  height: 100%;
+  min-width: 100%;
+  min-height: 100%;
   padding: 16px;
   align-items: center;
   justify-content: center;
@@ -27,7 +28,7 @@ export const theming = (Story, args) => {
     colorMode: args.globals.colorMode,
     borderRadius: args.globals.borderRadius,
     fontFamily: args.globals.fontFamily,
-    rootUnit: args.globals.rootUnit,
+    rootUnitRatio: args.globals.rootUnitRatio,
   });
 
   return (

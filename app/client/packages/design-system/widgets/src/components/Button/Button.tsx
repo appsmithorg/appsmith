@@ -74,11 +74,12 @@ export const Button = forwardRef(
 
     return (
       <StyledButton
+        $color={color}
+        $variant={variant}
         aria-busy={isLoading ? true : undefined}
         aria-disabled={
           visuallyDisabled || isLoading || props.isDisabled ? true : undefined
         }
-        color={color}
         data-button=""
         data-fit-container={isFitContainer ? "" : undefined}
         data-icon-position={iconPosition === "start" ? "start" : "end"}
@@ -86,7 +87,6 @@ export const Button = forwardRef(
         data-variant={variant}
         draggable
         ref={ref}
-        variant={variant}
         {...rest}
       >
         {renderChildren()}

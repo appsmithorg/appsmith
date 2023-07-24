@@ -1,5 +1,5 @@
 import type { ColorMode, ColorTypes } from "../color";
-import type { FontFamily, TypographySource } from "../typography";
+import type { FontFamily, Typography } from "../typography";
 
 export type ThemeToken = {
   [key in TokenType]?: { [key: string]: Token };
@@ -20,9 +20,11 @@ export interface Token {
   type: TokenType;
 }
 
+export type RootUnit = number | string;
+
 export interface TokenSource {
-  rootUnit: number;
-  typography: TypographySource;
+  rootUnit?: RootUnit;
+  typography?: Typography;
   seedColor?: ColorTypes;
   colorMode?: ColorMode;
   borderRadius?: TokenObj;
@@ -31,6 +33,8 @@ export interface TokenSource {
   opacity?: TokenObj;
   fontFamily?: FontFamily;
   zIndex?: TokenObj;
+  sizing?: TokenObj;
+  spacing?: TokenObj;
 }
 
 export type TokenObj = { [key: string]: string | number };
