@@ -37,7 +37,7 @@ export default function DatasourceStructureHeader(props: Props) {
   );
 
   return (
-    <HeaderWrapper>
+    <HeaderWrapper className="datasourceStructure-header">
       <Text kind="heading-xs" renderAs="h3">
         {createMessage(SCHEMA_LABEL)}
       </Text>

@@ -36,7 +36,10 @@ import {
 import { builderURL } from "RouteBuilder";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import DatasourceStructureHeader from "pages/Editor/Explorer/Datasources/DatasourceStructureHeader";
-import { DatasourceStructureContainer as DataStructureList } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
+import {
+  DatasourceStructureContainer as DataStructureList,
+  SCHEMALESS_PLUGINS,
+} from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import {
@@ -56,7 +59,6 @@ import {
   isUserSignedUpFlagSet,
   setFeatureFlagShownStatus,
 } from "utils/storage";
-import { PluginName } from "entities/Action";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Tooltip } from "design-system";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
@@ -423,7 +425,7 @@ function ActionSidebar({
   const showSchema =
     isEnabledForDSSchema &&
     pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm &&
-    pluginName !== PluginName.SMTP;
+    !SCHEMALESS_PLUGINS.includes(pluginName);
 
   useEffect(() => {
     if (showSchema) {

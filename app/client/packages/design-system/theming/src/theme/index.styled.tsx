@@ -2,9 +2,14 @@ import kebabCase from "lodash/kebabCase";
 import styled, { css } from "styled-components";
 import type { ThemeProviderProps } from "./types";
 
-export const StyledProvider = styled.div<ThemeProviderProps>`
-  ${({ theme }) => {
+interface StyledProviderProps extends ThemeProviderProps {
+  $typography?: string;
+}
+
+export const StyledProvider = styled.div<StyledProviderProps>`
+  ${({ $typography, theme }) => {
     return css`
+      ${$typography}
       ${Object.keys(theme).map((key) => {
         if (typeof theme[key] === "object") {
           return Object.keys(theme[key]).map((nestedKey) => {
@@ -13,8 +18,7 @@ export const StyledProvider = styled.div<ThemeProviderProps>`
             };`;
           });
         } else {
-          if (key === "rootUnit")
-            return `--${kebabCase(key)}: ${theme[key]}px;`;
+          if (key === "rootUnit") return `--${kebabCase(key)}: ${theme[key]};`;
         }
       })}
     `;

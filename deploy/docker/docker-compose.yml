@@ -1,28 +1,15 @@
+# Use for running an Appsmith, during development.
+
 version: "3"
 
 services:
-
   appsmith:
-    build:
-      context: ../../
+    image: index.docker.io/appsmith/appsmith-ce:release
     container_name: appsmith
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:80"
+    environment:
+      APPSMITH_ENCRYPTION_PASSWORD: abcd
+      APPSMITH_ENCRYPTION_SALT: abcd
     volumes:
       - ./stacks:/appsmith-stacks
-   # Uncomment the lines below to enable auto-update
-    #labels:
-    #  com.centurylinklabs.watchtower.enable: "true"
-
-  #auto_update:
-  #  image: containrrr/watchtower
-  #  volumes:
-  #    - /var/run/docker.sock:/var/run/docker.sock
-  #  # Update check interval in seconds.
-  #  command: --schedule "0 0 * ? * *" --label-enable --cleanup
-  #  restart: unless-stopped
-  #  depends_on:
-  #    - appsmith
-  #  environment:
-  #    - WATCHTOWER_LIFECYCLE_HOOKS=true
