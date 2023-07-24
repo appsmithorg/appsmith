@@ -1,6 +1,7 @@
 import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import type { WidgetType as FactoryWidgetType } from "utils/WidgetFactory";
 import { THEMEING_TEXT_SIZES } from "./ThemeConstants";
+import type { WidgetCardProps } from "widgets/BaseWidget";
 export type WidgetType = FactoryWidgetType;
 
 export const SKELETON_WIDGET_TYPE = "SKELETON_WIDGET";
@@ -209,6 +210,7 @@ export const WIDGET_PROPS_TO_SKIP_FROM_EVAL = {
   displayName: true,
   topRowBeforeCollapse: false,
   bottomRowBeforeCollapse: false,
+  tags: false,
 };
 
 /**
@@ -223,3 +225,30 @@ export const FLEXBOX_PADDING = 4;
 export const MAX_MODAL_WIDTH_FROM_MAIN_WIDTH = 0.95;
 
 export const FILE_SIZE_LIMIT_FOR_BLOBS = 5000 * 1024; // 5MB
+
+export const WIDGET_TAGS = {
+  SUGGESTED_WIDGETS: "Suggested",
+  INPUTS: "Inputs",
+  BUTTONS: "Buttons",
+  SELECT: "Select",
+  DISPLAY: "Display",
+  LAYOUT: "Layout",
+  MEDIA: "Media",
+  TOGGLES: "Toggles",
+  SLIDERS: "Sliders",
+  CONTENT: "Content",
+  EXTERNAL: "External",
+} as const;
+
+export type WidgetTags = (typeof WIDGET_TAGS)[keyof typeof WIDGET_TAGS];
+
+export type WidgetCardsGroupedByTags = Record<WidgetTags, WidgetCardProps[]>;
+
+export const SUGGESTED_WIDGETS_ORDER: Record<WidgetType, number> = {
+  TABLE_WIDGET_V2: 1,
+  JSON_FORM_WIDGET: 2,
+  INPUT_WIDGET_V2: 3,
+  TEXT_WIDGET: 4,
+  SELECT_WIDGET: 5,
+  LIST_WIDGET_V2: 6,
+};

@@ -95,8 +95,6 @@ describe("Undo/Redo functionality", function () {
 
   it("3. Checks undo/redo in query editor", () => {
     dataSources.NavigateFromActiveDS(postgresDatasourceName, true);
-    // Resetting the default query and rewriting a new one
-    dataSources.EnterQuery("");
     cy.get(".CodeMirror textarea").first().focus().type("{{FirstAPI}}", {
       force: true,
       parseSpecialCharSequences: false,

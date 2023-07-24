@@ -47,6 +47,7 @@ export class AggregateHelper extends ReusableHelper {
   private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
   private lazyCodeEditorFallback = ".t--lazyCodeEditor-fallback";
   private lazyCodeEditorRendered = ".t--lazyCodeEditor-editor";
+  private toolTipSpan = ".rc-tooltip-inner span";
 
   private selectChars = (noOfChars: number) =>
     `${"{leftArrow}".repeat(noOfChars) + "{shift}{cmd}{leftArrow}{backspace}"}`;
@@ -146,6 +147,22 @@ export class AggregateHelper extends ReusableHelper {
     this.GetText(this.locator._errorToolTip, "text").then(($error) =>
       expect($error).to.eq(expectedError),
     );
+  }
+
+  /**
+   *
+   * @param selector
+   * @param index
+   * Checks if the given selector has class with disabled in the class name
+   * @returns
+   */
+  public AssertElementClassContainsDisabled(selector: string, index = 0) {
+    return this.GetElement(selector)
+      .eq(index)
+      .should(($element) => {
+        const elementClass = $element.attr("class");
+        expect(elementClass).to.include("disabled");
+      });
   }
 
   public RenameWithInPane(renameVal: string, IsQuery = true) {
@@ -284,6 +301,10 @@ export class AggregateHelper extends ReusableHelper {
           });
       }
     });
+  }
+
+  public AssertTooltip(toolTipText: string) {
+    this.GetNAssertContains(this.toolTipSpan, toolTipText);
   }
 
   public RemoveEvaluatedPopUp() {
@@ -1061,6 +1082,17 @@ export class AggregateHelper extends ReusableHelper {
       .find("input")
       .invoke("attr", "value", value)
       .trigger("input");
+    this.Sleep(); //for value set to settle
+  }
+
+  public ValidateFieldInputValue(selector: string, value: string) {
+    this.GetElement(selector)
+      .closest("input")
+      .scrollIntoView({ easing: "linear" })
+      .invoke("val")
+      .then((inputValue) => {
+        expect(inputValue).to.equal(value);
+      });
     this.Sleep(); //for value set to settle
   }
 

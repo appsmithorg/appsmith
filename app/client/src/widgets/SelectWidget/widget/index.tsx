@@ -593,6 +593,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         setSelectedOption: {
           path: "defaultOptionValue",
           type: "string",
+          accessor: "selectedOptionValue",
         },
       },
     };

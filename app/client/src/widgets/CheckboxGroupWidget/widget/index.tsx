@@ -547,6 +547,7 @@ class CheckboxGroupWidget extends BaseWidget<
         setSelectedOptions: {
           path: "defaultSelectedValues",
           type: "array",
+          accessor: "selectedValues",
         },
       },
     };

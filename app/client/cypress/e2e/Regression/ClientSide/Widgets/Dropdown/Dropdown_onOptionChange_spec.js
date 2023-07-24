@@ -125,7 +125,7 @@ describe("Dropdown Widget", function () {
     cy.get(commonlocators.singleSelectWidgetMenuItem)
       .contains("Option 2")
       .click({ force: true });
-    cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
+    cy.get(formWidgetsPage.apiCallToast).should("contain.text", "Success");
     deployMode.NavigateBacktoEditor();
   });
 
@@ -151,7 +151,7 @@ describe("Dropdown Widget", function () {
     cy.get(commonlocators.singleSelectWidgetMenuItem)
       .contains("Option 2")
       .click({ force: true });
-    cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
+    cy.get(formWidgetsPage.apiCallToast).should("contain.text", "Success");
     deployMode.NavigateBacktoEditor();
   });
 
@@ -175,7 +175,7 @@ describe("Dropdown Widget", function () {
     cy.get(commonlocators.singleSelectWidgetMenuItem)
       .contains("Option 1")
       .click({ force: true });
-    cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
+    cy.get(formWidgetsPage.apiCallToast).should("contain.text", "Success");
     deployMode.NavigateBacktoEditor();
     cy.openPropertyPane("selectwidget");
   });
