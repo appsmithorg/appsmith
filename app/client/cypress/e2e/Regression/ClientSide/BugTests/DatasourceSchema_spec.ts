@@ -80,7 +80,7 @@ describe("Datasource form related tests", function () {
       false,
     );
     agHelper.RefreshPage();
-    dataSources.CreateDataSource("Airtable");
+    dataSources.CreateDataSource("Redis", true, false);
     dataSources.CreateQueryAfterDSSaved();
     dataSources.VerifySchemaAbsenceInQueryEditor();
   });
