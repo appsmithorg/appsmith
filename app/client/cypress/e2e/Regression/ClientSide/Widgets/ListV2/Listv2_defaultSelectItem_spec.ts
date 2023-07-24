@@ -49,7 +49,7 @@ const verifyDefaultItem = () => {
 };
 
 function setUpDataSource() {
-  apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl + "0");
+  apiPage.CreateAndFillApi(tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl + "0");
   apiPage.RunAPI(false);
   entityExplorer.SelectEntityByName("List1");
   agHelper.Sleep(200);
