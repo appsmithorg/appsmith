@@ -1,8 +1,13 @@
 import type { Action } from "entities/Action";
 import type { EntityInfo } from "../types";
-import { getAction, getSettingConfig } from "selectors/entitiesSelector";
+import {
+  getAction,
+  getPlugin,
+  getSettingConfig,
+} from "selectors/entitiesSelector";
 import { call, delay, select } from "redux-saga/effects";
 import PaneNavigation from "../PaneNavigation";
+import type { Plugin } from "api/PluginApi";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import history from "utils/history";
@@ -47,10 +52,12 @@ export default class ActionPaneNavigation extends PaneNavigation {
   }
 
   *navigateToUrl() {
-    const { id, pageId, pluginType } = this.action;
+    const { id, pageId, pluginId, pluginType } = this.action;
     const applicationId: string = yield select(getCurrentApplicationId);
+    const plugin: Plugin | undefined = yield select(getPlugin, pluginId);
     const actionConfig = getActionConfig(pluginType);
-    const url = applicationId && actionConfig?.getURL(pageId, id, pluginType);
+    const url =
+      applicationId && actionConfig?.getURL(pageId, id, pluginType, plugin);
     if (!url) return;
     history.push(url);
     yield delay(NAVIGATION_DELAY);
