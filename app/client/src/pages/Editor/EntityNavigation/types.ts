@@ -30,3 +30,7 @@ export interface IMatchedSection {
 export interface IApiPaneNavigationConfig {
   tabIndex?: number;
 }
+
+export interface IQueryPaneNavigationConfig {
+  tab: string;
+}

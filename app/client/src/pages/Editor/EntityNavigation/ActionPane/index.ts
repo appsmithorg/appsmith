@@ -2,7 +2,11 @@ import { PluginType, type Action } from "entities/Action";
 import type { EntityInfo } from "../types";
 import { getAction } from "selectors/entitiesSelector";
 import { select } from "redux-saga/effects";
-import { ActionPaneNavigation, ApiPaneNavigation } from "./exports";
+import {
+  ActionPaneNavigation,
+  ApiPaneNavigation,
+  QueryPaneNavigation,
+} from "./exports";
 
 export default class ActionPaneNavigationFactory {
   static *create(entityInfo: EntityInfo) {
@@ -12,6 +16,8 @@ export default class ActionPaneNavigationFactory {
     switch (action.pluginType) {
       case PluginType.API:
         return new ApiPaneNavigation(entityInfo);
+      case PluginType.DB:
+        return new QueryPaneNavigation(entityInfo);
       default:
         return new ActionPaneNavigation(entityInfo);
     }
