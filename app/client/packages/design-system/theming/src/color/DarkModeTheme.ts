@@ -846,17 +846,9 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bdNegativeHover() {
     const color = this.bdNegative.clone();
 
-    if (this.bdNegative.oklch.l < 0.8) {
-      color.oklch.l = color.oklch.l + 0.15;
-    }
+    // Lightness of bdNegative is known, no additional checks like in bdNeutralHover
 
-    if (this.bdNegative.oklch.l >= 0.8 && this.bdNegative.oklch.l < 0.9) {
-      color.oklch.l = color.oklch.l + 0.1;
-    }
-
-    if (this.bdNegative.oklch.l >= 0.9) {
-      color.oklch.l = color.oklch.l - 0.25;
-    }
+    color.oklch.l = color.oklch.l + 0.15;
 
     if (color.oklch.c < 0.19) {
       color.oklch.c = 0.19;
@@ -937,12 +929,10 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bdWarningHover() {
     const color = this.bdWarning.clone();
 
-    if (this.bdWarning.oklch.l < 0.8) {
-      color.oklch.l = color.oklch.l + 0.15;
-    }
+    // Lightness of bdWarning is known, no additional checks like in bdNeutralHover
 
-    if (this.bdWarning.oklch.l >= 0.8 && this.bdWarning.oklch.l < 0.9) {
-      color.oklch.l = color.oklch.l + 0.1;
+    if (this.bdWarning.oklch.l < 0.9) {
+      color.oklch.l = color.oklch.l + 0.11;
     }
 
     if (this.bdWarning.oklch.l >= 0.9) {
@@ -959,21 +949,9 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bdPositiveHover() {
     const color = this.bdPositive.clone();
 
-    if (this.bdPositive.oklch.l < 0.06) {
-      color.oklch.l = color.oklch.l + 0.6;
-    }
+    // Lightness of bdPositive is known, no additional checks like in bdNeutralHover
 
-    if (this.bdPositive.oklch.l >= 0.06 && this.bdPositive.oklch.l < 0.25) {
-      color.oklch.l = color.oklch.l + 0.4;
-    }
-
-    if (this.bdPositive.oklch.l >= 0.25 && this.bdPositive.oklch.l < 0.5) {
-      color.oklch.l = color.oklch.l + 0.25;
-    }
-
-    if (this.bdPositive.oklch.l >= 0.5) {
-      color.oklch.l = color.oklch.l + 0.1;
-    }
+    color.oklch.l = color.oklch.l + 0.12;
 
     return color;
   }
