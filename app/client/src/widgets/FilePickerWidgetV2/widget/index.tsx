@@ -24,6 +24,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import parseFileData from "./FileParser";
 import { FilePickerGlobalStyles } from "./index.styled";
+import { featureFlags, platformConfigs } from "widgets/wdi_utils";
 
 const CSV_ARRAY_LABEL = "Array of Objects (CSV, XLS(X), JSON, TSV)";
 
@@ -33,6 +34,11 @@ class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
   FilePickerWidgetState
 > {
+  @platformConfigs("file_max_size") static fileMaxSize: number;
+
+  @featureFlags("someFeatureFlagFromFlagSmith")
+  static someFeatureFlagFromFlagSmith: boolean;
+
   private isWidgetUnmounting: boolean;
 
   constructor(props: FilePickerWidgetProps) {
@@ -221,7 +227,7 @@ class FilePickerWidget extends BaseWidget<
               type: ValidationTypes.NUMBER,
               params: {
                 min: 1,
-                max: 100,
+                max: FilePickerWidget.fileMaxSize,
                 default: 5,
                 passThroughOnZero: false,
               },

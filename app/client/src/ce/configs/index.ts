@@ -126,7 +126,7 @@ const getConfig = (fromENV: string, fromWindow = "") => {
 };
 
 // TODO(Abhinav): See if this is called so many times, that we may need some form of memoization.
-export const getAppsmithConfigs = (): AppsmithUIConfigs => {
+export const getAppsmithConfigs = (): any => {
   const APPSMITH_FEATURE_CONFIGS =
     // This code might be called both from the main thread and a web worker
     typeof window === "undefined" ? undefined : window.APPSMITH_FEATURE_CONFIGS;
@@ -275,5 +275,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.customerPortalUrl ||
       APPSMITH_FEATURE_CONFIGS?.customerPortalUrl ||
       "",
+    file_max_size: 1024,
   };
 };
