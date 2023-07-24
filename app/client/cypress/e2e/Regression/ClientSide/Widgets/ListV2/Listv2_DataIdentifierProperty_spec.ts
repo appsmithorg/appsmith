@@ -52,18 +52,15 @@ describe("List v2 - Data Identifier property", () => {
   it("2. shows list of keys present in list data", () => {
     const keys = ["id", "name", "img"];
     entityExplorer.SelectEntityByName("List1");
-
     // clicking on the data identifier dropdown
     agHelper
-      .GetElement(`${locators._propertyControl}dataidentifier`)
+      .GetElement(locators._existingFieldTextByName("Data Identifier"))
       .find(locators._selectSearch)
       .last()
       .click({ force: true });
-    agHelper.Sleep(250);
-
     // check if all the keys are present
     agHelper
-      .AssertElementLength(".rc-select-item-option-content > div > span", 3)
+      .AssertElementLength(`${propPane._optionContent}> div > span`, 3)
       .then(($el) => {
         // we get a list of jQuery elements
         // convert the jQuery object into a plain array
@@ -78,19 +75,8 @@ describe("List v2 - Data Identifier property", () => {
 
   it("3. on selection of key from dropdown, it should show same number of rows", () => {
     entityExplorer.SelectEntityByName("List1");
-
-    // clicking on the data identifier dropdown
-    agHelper
-      .GetElement(`${locators._propertyControl}dataidentifier`)
-      .find(locators._selectSearch)
-      .last()
-      .click({ force: true });
-    agHelper.Sleep(250);
-
-    agHelper.GetNClick(locators._dropdownText, 0, true);
-
-    agHelper.Sleep(1000);
-
+    // clicking on the data identifier dropdown and select key id
+    propPane.SelectPropertiesDropDown("Data Identifier", "id");
     agHelper.AssertElementLength(
       locators._widgetInCanvas(draggableWidgets.CONTAINER),
       3,
@@ -98,26 +84,21 @@ describe("List v2 - Data Identifier property", () => {
   });
 
   it("4. enabling the JS mode, it should prefill with currentItem", () => {
-    agHelper.GetNClick(`${locators._jsToggle("dataidentifier")}`, 0, true);
-
+    propPane.ToggleJSMode("Data Identifier", true);
     agHelper
-      .GetElement(`${locators._propertyControl}dataidentifier`)
+      .GetElement(locators._existingFieldTextByName("Data Identifier"))
       .find(".CodeMirror .CodeMirror-code")
       .contains(`{{ currentItem["id"] }}`);
   });
 
   it("5. when given composite key, should produce a valid array", () => {
     const keys = ["001_Blue_0_ABC", "002_Green_1_ABC", "003_Red_2_ABC"];
-
-    agHelper.GetNClick(`${locators._jsToggle("dataidentifier")}`, 0, true);
-
-    propPane.TypeTextIntoField(
-      "dataidentifier",
+    propPane.ToggleJSMode("Data Identifier", false);
+    propPane.UpdatePropertyFieldValue(
+      "Data Identifier",
       "{{currentItem.id + '_' + currentItem.name + '_' + currentIndex }}_ABC",
     );
-
     agHelper.Sleep(1000);
-
     keys.forEach((key) => {
       agHelper.GetNAssertContains(locators._evaluatedValue, key);
     });
@@ -125,26 +106,14 @@ describe("List v2 - Data Identifier property", () => {
 
   it("6. with large data set and data identifier set, the rows should render", () => {
     agHelper.AddDsl("Listv2/simpleListWithLargeData");
-
     entityExplorer.SelectEntityByName("List1");
-
     // clicking on the data identifier dropdown
-    agHelper
-      .GetElement(`${locators._propertyControl}dataidentifier`)
-      .find(locators._selectSearch)
-      .last()
-      .click({ force: true });
-    agHelper.Sleep(250);
-
-    agHelper.GetNClick(locators._dropdownText, 0, true);
-
+    propPane.SelectPropertiesDropDown("Data Identifier", "id", "Action", 0);
     agHelper.AssertElementLength(
       locators._widgetInCanvas(draggableWidgets.CONTAINER),
       2,
     );
-
     agHelper.GetNClickByContains(`${locators._pagination} a`, "2", 0, true);
-
     agHelper.AssertElementLength(
       locators._widgetInCanvas(draggableWidgets.CONTAINER),
       2,
@@ -153,22 +122,12 @@ describe("List v2 - Data Identifier property", () => {
 
   it("7. non unique data identifier should throw error", () => {
     entityExplorer.SelectEntityByName("List1");
-
     // clicking on the data identifier dropdown
-    agHelper
-      .GetElement(`${locators._propertyControl}dataidentifier`)
-      .find(locators._selectSearch)
-      .last()
-      .click({ force: true });
-    agHelper.Sleep(250);
-
-    agHelper.GetElement(locators._dropdownText).last().click({ force: true });
-
+    propPane.SelectPropertiesDropDown("Data Identifier", "name", "Action", 0);
     agHelper.AssertElementLength(
       locators._widgetInCanvas(draggableWidgets.CONTAINER),
       2,
     );
-
     // click on debugger icon
     agHelper.GetNClick(debuggerHelper.locators._debuggerIcon, 0, true);
     agHelper.GetNAssertContains(
@@ -179,7 +138,6 @@ describe("List v2 - Data Identifier property", () => {
 
   it("8. pagination should work for non unique data identifier", () => {
     agHelper.GetNClickByContains(`${locators._pagination} a`, "2", 0, true);
-
     agHelper.AssertElementLength(
       locators._widgetInCanvas(draggableWidgets.CONTAINER),
       2,
@@ -196,9 +154,7 @@ describe("List v2 - Data Identifier property", () => {
     entityExplorer.ExpandCollapseEntity("List1");
     entityExplorer.ExpandCollapseEntity("Container1");
     entityExplorer.SelectEntityByName("Text2");
-
-    propPane.TypeTextIntoField("text", "{{currentIndex}}");
-
+    propPane.UpdatePropertyFieldValue("Text", "{{currentIndex}}");
     agHelper.AssertText(
       `${locators._widgetByName("Text2")} ${locators._bodyTextStyle}`,
       "text",
@@ -221,8 +177,7 @@ describe("List v2 - Data Identifier property", () => {
     entityExplorer.ExpandCollapseEntity("List2");
     entityExplorer.ExpandCollapseEntity("Container2");
     entityExplorer.SelectEntityByName("Text4");
-
-    propPane.TypeTextIntoField("text", "{{currentIndex}}");
+    propPane.UpdatePropertyFieldValue("Text", "{{currentIndex}}");
 
     agHelper.AssertText(
       `${locators._widgetByName("Text4")} ${locators._bodyTextStyle}`,
@@ -252,38 +207,20 @@ describe("List v2 - Data Identifier property", () => {
 
   it("11. Non unique data identifier should throw error- (data type issue)", () => {
     entityExplorer.SelectEntityByName("List2");
-
-    propPane.TypeTextIntoField("items", JSON.stringify(data));
-
+    propPane.UpdatePropertyFieldValue("Items", JSON.stringify(data));
     // clicking on the data identifier dropdown
     propPane.RemoveText("dataidentifier");
-    agHelper.GetNClick(`${locators._jsToggle("dataidentifier")}`, 0, true);
-    agHelper.Sleep(250);
-
-    agHelper
-      .GetElement(`${locators._propertyControl}dataidentifier`)
-      .find(locators._selectSearch)
-      .last()
-      .click({
-        force: true,
-      });
-    agHelper.Sleep(250);
-
-    agHelper
-      .GetElement(locators._dropdownText)
-      .contains("same")
-      .last()
-      .click({});
+    propPane.ToggleJSMode("Data Identifier", false);
+    // clicking on the data identifier dropdown and select key same
+    propPane.SelectPropertiesDropDown("Data Identifier", "same");
     agHelper.AssertElementLength(
       `${locators._widgetByName("List2")} ${locators._widgetInCanvas(
         draggableWidgets.CONTAINER,
       )}`,
       1,
     );
-
     //Open debugger by clicking debugger icon in canvas.
     debuggerHelper.ClickDebuggerIcon();
-
     agHelper.GetNAssertContains(
       debuggerHelper.locators._debuggerList,
       "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",

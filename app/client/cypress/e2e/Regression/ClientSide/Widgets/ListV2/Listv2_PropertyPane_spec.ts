@@ -36,7 +36,7 @@ describe("List widget V2 PropertyPane", () => {
     );
     entityExplorer.SelectEntityByName("List1");
     //Uncheck the disabled checkbox using JS and validate
-    agHelper.GetNClick(locators._jsToggle("visible"), 0, true);
+    propPane.ToggleJSMode("Visible", true);
     propPane.UpdatePropertyFieldValue("Visible", "false");
     deployMode.DeployApp();
     agHelper.AssertElementAbsence(

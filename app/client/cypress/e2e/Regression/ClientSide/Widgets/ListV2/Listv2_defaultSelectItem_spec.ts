@@ -49,7 +49,9 @@ const verifyDefaultItem = () => {
 };
 
 function setUpDataSource() {
-  apiPage.CreateAndFillApi(tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl + "0");
+  apiPage.CreateAndFillApi(
+    tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl + "0",
+  );
   apiPage.RunAPI(false);
   entityExplorer.SelectEntityByName("List1");
   agHelper.Sleep(200);
@@ -165,7 +167,6 @@ describe("List widget v2 Reset List widget and Refresh Data", () => {
     entityExplorer.SelectEntityByName("List1");
     propPane.UpdatePropertyFieldValue("Default selected item", "4");
     agHelper.AssertText(locators._listActivePage, "text", "2");
-
     verifyDefaultItem();
   });
 
