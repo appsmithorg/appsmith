@@ -9,6 +9,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.util.WebClientUtils;
+import joptsimple.internal.Strings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -180,7 +181,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
         return reactiveMongoTemplate
                 .executeCommand(new Document("buildInfo", 1))
                 .map(buildInfo -> {
-                    commonConfig.setMongoDBVersion(buildInfo.getString("version"));
+                    //                    commonConfig.setMongoDBVersion(buildInfo.getString("version"));
                     log.info("Fetched and set conenncted mongo db version as: {}", commonConfig.getMongoDBVersion());
                     return commonConfig.getMongoDBVersion();
                 })
@@ -188,7 +189,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
                     log.error(
                             "Error while getting mongo db version. Hence current mongo db version will remain unavailable in context",
                             error);
-                    return null;
+                    return Mono.just(Strings.EMPTY);
                 });
     }
 }
