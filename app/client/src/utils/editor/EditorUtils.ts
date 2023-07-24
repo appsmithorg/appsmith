@@ -23,7 +23,9 @@ const setCurrentTabs = (tabs: TabData) => {
 };
 
 let tabId: string;
-export const trackOpenEditorTabs = (appId: string): boolean => {
+export const trackOpenEditorTabs = (
+  appId: string,
+): [isOpenInAnotherTab: boolean, currentTabs: string[]] => {
   // Check if a tab id is created or else create one
   if (!tabId) {
     tabId = generateReactKey({ prefix: "tab:" });
@@ -42,6 +44,7 @@ export const trackOpenEditorTabs = (appId: string): boolean => {
     [tabId]: appId,
   };
   setCurrentTabs(newTabs);
-  // Return if current app is open in any other open tabs
-  return !!Object.values(currentTabs).indexOf(appId);
+  // if current app is open in any other open tabs
+  const isOpenInAnotherTab = Object.values(currentTabs).indexOf(appId) > -1;
+  return [isOpenInAnotherTab, Object.values(newTabs)];
 };

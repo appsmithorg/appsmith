@@ -204,7 +204,7 @@ export default class AppEditorEngine extends AppEngine {
       getCurrentApplication,
     );
 
-    const isAnotherTabOpen: boolean = yield call(
+    const [isAnotherEditorTabOpen, currentTabs] = yield call(
       trackOpenEditorTabs,
       currentApplication.id,
     );
@@ -213,7 +213,8 @@ export default class AppEditorEngine extends AppEngine {
       AnalyticsUtil.logEvent("EDITOR_OPEN", {
         appId: currentApplication.id,
         appName: currentApplication.name,
-        additionalTab: isAnotherTabOpen,
+        isAnotherEditorTabOpen,
+        currentTabs,
       });
     }
     yield put(loadGuidedTourInit());
