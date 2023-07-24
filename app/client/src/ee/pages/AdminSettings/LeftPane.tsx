@@ -19,6 +19,10 @@ import {
 
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import {
+  ADMIN_BILLING_SETTINGS_TITLE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 export default function LeftPane() {
   const categories = getSettingsCategory(CategoryType.GENERAL);
@@ -47,7 +51,7 @@ export default function LeftPane() {
   const filteredAclCategories = aclCategories
     ?.map((category) => {
       if (
-        (category.title === "Users" && !isSuperUser) ||
+        (["Users", "Provisioning"].includes(category.title) && !isSuperUser) ||
         (category.slug === "provisioning" &&
           !featureFlags.release_scim_provisioning_enabled)
       ) {
@@ -59,6 +63,14 @@ export default function LeftPane() {
 
   const filteredOthersCategories = othersCategories
     ?.map((category) => {
+      if (
+        [createMessage(ADMIN_BILLING_SETTINGS_TITLE)].includes(
+          category.title,
+        ) &&
+        !isSuperUser
+      ) {
+        return null;
+      }
       return category;
     })
     .filter(Boolean) as Category[];
