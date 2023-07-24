@@ -22,6 +22,24 @@ export const getCurrentEnvName = () => {
   return "";
 };
 
+// function to check if the datasource is created for the current environment
+export const isStorageEnvironmentCreated = (
+  datasource: Datasource | null,
+  environment?: string,
+) => {
+  !environment && (environment = getCurrentEnvironment());
+  return (
+    !!datasource &&
+    datasource.hasOwnProperty("datasourceStorages") &&
+    !!datasource.datasourceStorages &&
+    datasource.datasourceStorages.hasOwnProperty(environment) &&
+    datasource.datasourceStorages[environment].hasOwnProperty("id") &&
+    datasource.datasourceStorages[environment].hasOwnProperty(
+      "datasourceConfiguration",
+    )
+  );
+};
+
 // function to check if the datasource is configured for the current environment
 export const isEnvironmentConfigured = (
   datasource: Datasource | null,
