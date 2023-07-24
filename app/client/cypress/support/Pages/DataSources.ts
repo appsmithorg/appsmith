@@ -233,9 +233,11 @@ export class DataSources {
   private _reconnectModalDSToopTipIcon = ".t--ds-list .ads-v2-icon";
   private _datasourceTableSchemaInQueryEditor =
     ".datasourceStructure-query-editor";
+  private _datasourceSchemaRefreshBtn = ".datasourceStructure-refresh";
   private _datasourceStructureHeader = ".datasourceStructure-header";
   private _datasourceColumnSchemaInQueryEditor = ".t--datasource-column";
   private _datasourceStructureSearchInput = ".datasourceStructure-search input";
+  public _queryEditorCollapsibleIcon = ".collapsible-icon";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -1287,6 +1289,18 @@ export class DataSources {
       .GetElement(this._datasourceColumnSchemaInQueryEditor)
       .eq(index)
       .contains(schema);
+  }
+
+  public RefreshDatasourceSchema() {
+    this.agHelper.GetNClick(this._datasourceSchemaRefreshBtn);
+  }
+
+  public VerifySchemaCollapsibleOpenState(isOpen = false) {
+    if (isOpen) {
+      this.agHelper.AssertElementVisible(this._datasourceStructureSearchInput);
+    } else {
+      this.agHelper.AssertElementAbsence(this._datasourceStructureSearchInput);
+    }
   }
 
   public FilterAndVerifyDatasourceSchemaBySearch(
