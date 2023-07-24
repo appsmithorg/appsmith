@@ -8,6 +8,8 @@ describe("Bug 21734: On exiting from the Datasources page without saving changes
   it("1. Navigating from intermediary datasource to new page", function () {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("Mongo");
+    // Have to fill form since modal won't show for empty ds
+    dataSources.FillMongoDSForm();
 
     ee.AddNewPage();
 
@@ -27,6 +29,8 @@ describe("Bug 21734: On exiting from the Datasources page without saving changes
   it("2. Navigating from intermediary datasource to an existing page", function () {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("PostgreSQL");
+    // Have to fill form since modal won't show for empty ds
+    dataSources.FillPostgresDSForm();
 
     ee.SelectEntityByName("Page1");
     agHelper.AssertContains(

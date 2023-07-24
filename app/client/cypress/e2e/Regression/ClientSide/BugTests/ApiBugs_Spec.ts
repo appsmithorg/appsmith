@@ -26,7 +26,10 @@ describe("API Bugs", function () {
     agHelper.RefreshPage();
   });
   it("1. Bug 14037: User gets an error even when table widget is added from the API page successfully", function () {
-    apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl, "Api1");
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      "Api1",
+    );
     apiPage.RunAPI();
 
     dataSources.AddSuggesstedWidget(Widgets.Table);
@@ -54,7 +57,7 @@ describe("API Bugs", function () {
 
   it("3. Bug 18876 Ensures application does not crash when saving datasource", () => {
     apiPage.CreateAndFillApi(
-      tedTestConfig.mockApiUrl,
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
       "FirstAPI",
       10000,
       "POST",
@@ -70,11 +73,11 @@ describe("API Bugs", function () {
   });
 
   it("4. Bug 16683, When Api url has dynamic binding expressions, ensures the query params is not truncated", function () {
-    const apiUrl = `https://echo.hoppscotch.io/v6/deployments?limit=4{{Math.random() > 0.5 ? '&param1=5' : '&param2=6'}}`;
+    const apiUrl = `http://host.docker.internal:5001/v1/mock-api?records=4{{Math.random() > 0.5 ? '&param1=5' : '&param2=6'}}`;
 
     apiPage.CreateAndFillApi(apiUrl, "BindingExpressions");
     apiPage.ValidateQueryParams({
-      key: "limit",
+      key: "records",
       value: "4{{Math.random() > 0.5 ? '&param1=5' : '&param2=6'}}",
     });
   });

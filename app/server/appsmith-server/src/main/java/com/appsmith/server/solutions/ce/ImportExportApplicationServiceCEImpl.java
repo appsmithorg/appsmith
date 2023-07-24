@@ -214,7 +214,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         Mono<String> defaultEnvironmentIdMono = applicationService
                 .findById(applicationId)
-                .flatMap(application -> workspaceService.getDefaultEnvironmentId(application.getWorkspaceId()));
+                .flatMap(application -> workspaceService.getDefaultEnvironmentId(application.getWorkspaceId(), null));
 
         /**
          * Since we are exporting for git, we only consider unpublished JS libraries
@@ -1059,7 +1059,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }
                     return Mono.zip(existingDatasourceMono, Mono.just(workspace));
                 })
-                .zipWhen(objects -> workspaceService.getDefaultEnvironmentId(workspaceId))
+                .zipWhen(objects -> workspaceService.getDefaultEnvironmentId(workspaceId, null))
                 .flatMapMany(objects -> {
                     List<Datasource> existingDatasources = objects.getT1().getT1();
                     Workspace workspace = objects.getT1().getT2();
@@ -2064,7 +2064,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     public Mono<ApplicationImportDTO> getApplicationImportDTO(
             String applicationId, String workspaceId, Application application) {
         return findDatasourceByApplicationId(applicationId, workspaceId)
-                .zipWith(workspaceService.getDefaultEnvironmentId(workspaceId))
+                .zipWith(workspaceService.getDefaultEnvironmentId(workspaceId, null))
                 .map(tuple2 -> {
                     List<Datasource> datasources = tuple2.getT1();
                     String environmentId = tuple2.getT2();

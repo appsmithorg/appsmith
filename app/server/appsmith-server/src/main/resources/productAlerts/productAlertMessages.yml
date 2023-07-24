@@ -1,0 +1,15 @@
+productalertmessages: [\
+  {\
+    "messageId": "1",\
+    "title": "You seem to be using an unsupported MongoDB version.",\
+    "message": "Appsmith now supports only MongoDB versions 5.x or higher. For self-managed MongoDB, upgrade to v5.x \
+    or higher. If you don't have self-managed MongoDB, just upgrade your Appsmith version to the latest. \
+    This is a mandatory checkpoint before you can use your Appsmith instance again.",\
+    "learnMoreLink": "https://www.mongodb.com/docs/manual/release-notes/5.0-upgrade-replica-set",\
+    "canDismiss": true,\
+    "remindLaterDays": 5,\
+    "context": "COMMON_CONFIG",\
+    "applicabilityExpression": "!isCloudHosting",\
+    "precedenceIndex": 1\
+  }\
+]
