@@ -115,6 +115,7 @@ describe("Widget property navigation", () => {
   });
 
   it("Should switch panels correctly", () => {
+    _.agHelper.RefreshPage();
     _.entityExplorer.DragDropWidgetNVerify(
       _.draggableWidgets.MENUBUTTON,
       100,
