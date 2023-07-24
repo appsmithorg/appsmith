@@ -773,7 +773,7 @@ export function extractColorsFromString(widgets: CanvasWidgetsReduxState) {
         isString(widgets[widgetKey][key]) &&
         validateColor(widgets[widgetKey][key])
       ) {
-        colors.add(widgets[widgetKey][key].toLowerCase());
+        colors.add(widgets[widgetKey][key]);
       }
     });
   });
