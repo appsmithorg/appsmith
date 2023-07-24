@@ -71,6 +71,7 @@ import {
   isObject,
   isUndefined,
   set,
+  union,
   unset,
 } from "lodash";
 
@@ -798,17 +799,18 @@ export default class DataTreeEvaluator {
     // Initialize parents with the current sent of property paths that need to be evaluated
     let parents = changes;
     let subSortOrderArray: Array<string>;
+    let visitedNodes: string[] = [];
     while (computeSortOrder) {
       // Get all the nodes that would be impacted by the evaluation of the nodes in parents array in sorted order
       subSortOrderArray = this.getEvaluationSortOrder(parents, inverseMap);
-
+      visitedNodes = union(visitedNodes, parents);
       // Add all the sorted nodes in the final list
-      finalSortOrder = [...finalSortOrder, ...subSortOrderArray];
+      finalSortOrder = union(finalSortOrder, subSortOrderArray);
 
       parents = getImmediateParentsOfPropertyPaths(subSortOrderArray);
       // If we find parents of the property paths in the sorted array, we should continue finding all the nodes dependent
       // on the parents
-      computeSortOrder = parents.length > 0;
+      computeSortOrder = difference(parents, visitedNodes).length > 0;
     }
 
     // Remove duplicates from this list. Since we explicitly walk down the tree and implicitly (by fetching parents) walk
