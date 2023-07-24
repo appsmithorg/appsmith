@@ -233,6 +233,7 @@ export class DataSources {
   private _reconnectModalDSToopTipIcon = ".t--ds-list .ads-v2-icon";
   private _datasourceTableSchemaInQueryEditor =
     ".datasourceStructure-query-editor";
+  private _datasourceStructureHeader = ".datasourceStructure-header";
   private _datasourceColumnSchemaInQueryEditor = ".t--datasource-column";
   private _datasourceStructureSearchInput = ".datasourceStructure-search input";
 
@@ -1260,6 +1261,10 @@ export class DataSources {
     this.agHelper
       .GetElement(this._datasourceTableSchemaInQueryEditor)
       .contains(schema);
+  }
+
+  public VerifySchemaAbsenceInQueryEditor() {
+    this.agHelper.AssertElementAbsence(this._datasourceStructureHeader);
   }
 
   public VerifyColumnSchemaOnQueryEditor(schema: string, index = 0) {
