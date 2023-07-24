@@ -13,7 +13,7 @@ window.appsmith = {
 /*
  * Using the decorators to hide the global object from the widgets
  * And this will also allow us to change how we are getting the configs
- * without touching the code.
+ * without touching the widget code.
  */
 export function platformConfigs(config: string) {
   return function (obj: any, property: string) {
