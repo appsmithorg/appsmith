@@ -17,6 +17,7 @@ export default class ActionPaneNavigationFactory {
       case PluginType.API:
         return new ApiPaneNavigation(entityInfo);
       case PluginType.DB:
+      case PluginType.SAAS:
         return new QueryPaneNavigation(entityInfo);
       default:
         return new ActionPaneNavigation(entityInfo);
