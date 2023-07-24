@@ -1247,6 +1247,7 @@ export const OIDC_AUTH_DESC = () =>
   "Enable your workspace to sign in with your preferred OIDC compliant provider.";
 export const SAVE_BUTTON = () => "Save";
 export const SAVE_AND_RESTART_BUTTON = () => "Save & Restart";
+export const SAVE_AND_REFRESH_BUTTON = () => "Save & Refresh";
 export const RESET_BUTTON = () => "Reset";
 export const BUSINESS_TAG = () => "Business";
 export const ENTERPRISE_TAG = () => "Enterprise";
