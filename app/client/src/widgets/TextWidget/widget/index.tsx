@@ -385,7 +385,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         },
         setText: {
           path: "text",
-          type: "text",
+          type: "string",
         },
         setTextColor: {
           path: "textColor",

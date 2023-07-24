@@ -233,7 +233,7 @@ export const quickScrollToWidget = (
     const el = document.getElementById(widgetId);
     const canvas = document.getElementById("canvas-viewport");
 
-    if (el && canvas && !isElementVisibleInContainer(el, canvas)) {
+    if (el && canvas && !isElementVisibleInContainer(el, canvas, 5)) {
       const scrollElement = getWidgetElementToScroll(widgetId, canvasWidgets);
       if (scrollElement) {
         scrollIntoView(scrollElement, {

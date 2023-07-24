@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProductAlertServiceImpl extends ProductAlertServiceCEImpl implements ProductAlertService {
 
-    public ProductAlertServiceImpl(@Value("${productalertmessages}") String messageListJSONString, ObjectMapper objectMapper, CommonConfig commonConfig) {
+    public ProductAlertServiceImpl(
+            @Value("${productalertmessages}") String messageListJSONString,
+            ObjectMapper objectMapper,
+            CommonConfig commonConfig) {
         super(messageListJSONString, objectMapper, commonConfig);
     }
 }
