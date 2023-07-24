@@ -11,11 +11,13 @@ import type {
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
 import type { PropertyUpdates, SnipingModeProperty } from "widgets/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Table",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.DISPLAY],
   needsMeta: true,
   needsHeightForContent: true,
   defaults: {

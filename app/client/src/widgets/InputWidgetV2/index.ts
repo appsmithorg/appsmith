@@ -8,6 +8,7 @@ import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { SnipingModeProperty, PropertyUpdates } from "widgets/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   features: {
@@ -20,6 +21,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Input",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.INPUTS],
   needsMeta: true,
   searchTags: ["form", "text input", "number", "textarea"],
   defaults: {

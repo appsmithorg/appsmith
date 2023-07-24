@@ -3,6 +3,7 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import type { SnipingModeProperty, PropertyUpdates } from "widgets/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 const isAirgappedInstance = isAirgapped();
 
@@ -14,6 +15,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Iframe",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.DISPLAY],
   needsMeta: true,
   searchTags: ["embed"],
   defaults: {

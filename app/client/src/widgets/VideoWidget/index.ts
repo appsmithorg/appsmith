@@ -4,11 +4,13 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { SnipingModeProperty, PropertyUpdates } from "widgets/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Video",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.MEDIA],
   needsMeta: true,
   searchTags: ["youtube"],
   defaults: {

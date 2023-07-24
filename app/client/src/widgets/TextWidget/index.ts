@@ -1,5 +1,5 @@
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { DEFAULT_FONT_SIZE } from "constants/WidgetConstants";
+import { DEFAULT_FONT_SIZE, WIDGET_TAGS } from "constants/WidgetConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { OverflowTypes } from "./constants";
 import IconSVG from "./icon.svg";
@@ -25,6 +25,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Text",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.CONTENT],
   searchTags: ["typography", "paragraph", "label"],
   defaults: {
     text: "Hello {{appsmith.user.name || appsmith.user.email}}",

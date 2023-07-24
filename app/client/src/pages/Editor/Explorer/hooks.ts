@@ -129,7 +129,7 @@ export const useAppWideAndOtherDatasource = () => {
   };
 };
 
-const MAX_DATASOURCE_SUGGESTIONS = 3;
+export const MAX_DATASOURCE_SUGGESTIONS = 3;
 
 export const useDatasourceSuggestions = () => {
   const datasourcesUsedInApplication = useCurrentApplicationDatasource();

@@ -9,6 +9,7 @@ import {
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   features: {
@@ -20,6 +21,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Checkbox",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.TOGGLES],
   needsMeta: true,
   searchTags: ["boolean"],
   defaults: {

@@ -3,6 +3,7 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { RateWidgetProps } from "./widget";
 import type { SnipingModeProperty, PropertyUpdates } from "widgets/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   features: {
@@ -14,6 +15,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Rating",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.CONTENT],
   needsMeta: true,
   searchTags: ["stars"],
   defaults: {
