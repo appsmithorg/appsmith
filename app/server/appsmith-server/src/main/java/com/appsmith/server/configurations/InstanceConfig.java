@@ -37,11 +37,9 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 .then(instanceConfigHelper.performRtsHealthCheck())
                 .doFinally(ignored -> instanceConfigHelper.printReady());
 
-        String connectedMongoVersion =
-                instanceConfigHelper.checkMongoDBVersion().block();
-
         Mono<?> startupProcess = instanceConfigHelper
-                .checkInstanceSchemaVersion()
+                .checkMongoDBVersion()
+                .flatMap(ignored -> instanceConfigHelper.checkInstanceSchemaVersion())
                 .flatMap(signal -> registrationAndRtsCheckMono)
                 // Prefill the server cache with anonymous user permission group ids.
                 .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache())
