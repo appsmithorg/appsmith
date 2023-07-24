@@ -105,7 +105,11 @@ import {
   parseJSActions,
   updateEvalTreeWithJSCollectionState,
 } from "workers/Evaluation/JSObject";
-import { getFixedTimeDifference, replaceThisDotParams } from "./utils";
+import {
+  getFixedTimeDifference,
+  isWidgetActionOrJsObject,
+  replaceThisDotParams,
+} from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
   getValidatedTree,
@@ -920,7 +924,8 @@ export default class DataTreeEvaluator {
         (currentTree: DataTree, fullPropertyPath: string) => {
           const { entityName, propertyPath } =
             getEntityNameAndPropertyPath(fullPropertyPath);
-          const entity = currentTree[entityName] as WidgetEntity | ActionEntity;
+          const entity = currentTree[entityName];
+          if (!isWidgetActionOrJsObject(entity)) return currentTree;
           let unEvalPropertyValue = get(currentTree as any, fullPropertyPath);
           const entityConfig = oldConfigTree[entityName];
 
