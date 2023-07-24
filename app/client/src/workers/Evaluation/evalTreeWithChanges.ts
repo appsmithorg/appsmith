@@ -14,6 +14,7 @@ import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActio
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import { setEvalContext } from "./evaluate";
+import { generateOptimisedUpdates } from "sagas/EvaluationsSagaUtils";
 
 export function evalTreeWithChanges(
   updatedValuePaths: string[][],
@@ -75,8 +76,19 @@ export function evalTreeWithChanges(
     configTree = dataTreeEvaluator.oldConfigTree;
   }
 
-  const evalTreeResponse: EvalTreeResponseData = {
+  const identicalEvalPathsPatches =
+    dataTreeEvaluator?.getEvalPathsIdenticalToState(dataTree) || {};
+
+  //we compare the prev state with the next state and obtain the diff patches
+  const updates = generateOptimisedUpdates(
+    dataTreeEvaluator?.getPrevState(),
     dataTree,
+    identicalEvalPathsPatches,
+  );
+
+  dataTreeEvaluator?.setPrevState(dataTree);
+  const evalTreeResponse: EvalTreeResponseData = {
+    updates,
     dependencies,
     errors,
     evalMetaUpdates,

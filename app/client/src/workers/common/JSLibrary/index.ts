@@ -34,6 +34,12 @@ export const defaultLibraries: TJSLibrary[] = [
     docsURL: "https://github.com/digitalbazaar/forge",
     name: "forge",
   },
+  {
+    accessor: ["deep-diff"],
+    version: "1.0.2",
+    docsURL: "https://github.com/flitbit/diff#readme",
+    name: "deep-diff",
+  },
 ];
 
 export const JSLibraries = [...defaultLibraries];

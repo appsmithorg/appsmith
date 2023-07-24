@@ -23,6 +23,7 @@ import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
 import { setEvalContext } from "../evaluate";
 import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
 import { errorModifier } from "../errorModifier";
+import { generateOptimisedUpdates } from "sagas/EvaluationsSagaUtils";
 
 export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
@@ -210,8 +211,19 @@ export default function (request: EvalWorkerSyncRequest) {
 
   const jsVarsCreatedEvent = getJSVariableCreatedEvents(jsUpdates);
 
-  const evalTreeResponse: EvalTreeResponseData = {
+  const identicalEvalPathsPatches =
+    dataTreeEvaluator?.getEvalPathsIdenticalToState(dataTree) || {};
+
+  const updates = generateOptimisedUpdates(
+    dataTreeEvaluator?.getPrevState(),
     dataTree,
+    identicalEvalPathsPatches,
+  );
+
+  dataTreeEvaluator?.setPrevState(dataTree);
+
+  const evalTreeResponse: EvalTreeResponseData = {
+    updates,
     dependencies,
     errors,
     evalMetaUpdates,

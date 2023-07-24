@@ -27,6 +27,7 @@ export function makeEntityConfigsAsObjProperties(
   if (!evalProps) return dataTreeToReturn;
 
   const sanitizedEvalProps = removeFunctions(evalProps) as EvalProps;
+
   for (const [entityName, entityEvalProps] of Object.entries(
     sanitizedEvalProps,
   )) {
