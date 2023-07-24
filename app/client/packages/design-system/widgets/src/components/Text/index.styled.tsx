@@ -1,18 +1,9 @@
 import styled, { css } from "styled-components";
-import type { PickRename } from "../../utils/PickRename";
+import type { OmitRename } from "../../utils";
 
 import type { TextProps } from "./Text";
 
-type StyledTextProp = PickRename<
-  TextProps,
-  {
-    isBold: "$isBold";
-    isItalic: "$isItalic";
-    lineClamp: "$lineClamp";
-    textAlign: "$textAlign";
-    variant: "$variant";
-  }
->;
+type StyledTextProp = OmitRename<TextProps, "className" | "color" | "children">;
 
 const truncateStyles = css<StyledTextProp>`
   ${(props) => {
