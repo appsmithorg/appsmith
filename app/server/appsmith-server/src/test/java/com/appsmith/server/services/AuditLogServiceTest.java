@@ -143,7 +143,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_CUSTOM_DOMAIN;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_GOOGLE_MAPS_API_KEY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_HIDE_WATERMARK;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_INSTANCE_NAME;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_FROM;
@@ -3692,7 +3691,6 @@ public class AuditLogServiceTest {
                 entry(APPSMITH_MAIL_PASSWORD.name(), "testPassword"),
                 entry(APPSMITH_MAIL_PORT.name(), "25"),
                 entry(APPSMITH_REPLY_TO.name(), "testemail@test.com"),
-                entry(APPSMITH_GOOGLE_MAPS_API_KEY.name(), "testGoogleMapsAPIKey"),
                 entry(APPSMITH_CUSTOM_DOMAIN.name(), "testCustomDomain")));
 
         envManager.applyChanges(envChanges).block();
