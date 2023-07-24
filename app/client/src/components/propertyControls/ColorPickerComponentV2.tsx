@@ -76,7 +76,7 @@ const ColorPickerIconContainer = styled.div`
 
 const StyledInputGroup = styled(InputGroup)<{
   isValid?: boolean;
-  isCustomColor?: boolean;
+  isFullColorPicker?: boolean;
 }>`
   .${Classes.INPUT} {
     box-shadow: none;
@@ -87,8 +87,8 @@ const StyledInputGroup = styled(InputGroup)<{
     }
   }
   &&& input {
-    padding: ${({ isCustomColor }) =>
-      isCustomColor ? "0px 2px" : "0 10px 0 36px"};
+    padding: ${({ isFullColorPicker }) =>
+      isFullColorPicker ? "0px 2px" : "0 10px 0 36px"};
     height: 36px;
     border: ${({ isValid }) =>
       isValid
@@ -357,7 +357,7 @@ const ColorPickerComponent = React.forwardRef(
     const [color, setColor] = React.useState(
       props.evaluatedColorValue || props.color,
     );
-    const [isCustomColor, setCustomColor] = React.useState(false);
+    const [isFullColorPicker, setFullColorPicker] = React.useState(false);
 
     const debouncedOnChange = React.useCallback(
       debounce((color: string, isUpdatedViaKeyboard: boolean) => {
@@ -542,7 +542,7 @@ const ColorPickerComponent = React.forwardRef(
     };
 
     const handleOnInteraction = (nextOpenState: boolean) => {
-      if (isCustomColor) return;
+      if (isFullColorPicker) return;
 
       if (isOpen !== nextOpenState) {
         if (isClick.current) setIsOpen(true);
@@ -572,17 +572,17 @@ const ColorPickerComponent = React.forwardRef(
             autoFocus={props.autoFocus}
             data-testid="t--color-picker-input"
             inputRef={inputGroupRef}
-            isCustomColor={isCustomColor}
+            isFullColorPicker={isFullColorPicker}
             isValid={validateColor(color)}
             leftIcon={
-              !isCustomColor ? (
+              !isFullColorPicker ? (
                 <LeftIcon color={color} handleInputClick={handleInputClick} />
               ) : null
             }
             onChange={handleChangeColor}
             onClick={handleInputClick}
             placeholder={placeholderText || "enter color name or hex"}
-            type={isCustomColor ? "color" : "text"}
+            type={isFullColorPicker ? "color" : "text"}
             value={color}
           />
 
@@ -598,8 +598,8 @@ const ColorPickerComponent = React.forwardRef(
         </Popover>
         <div className="mt-2">
           <Switch
-            isSelected={isCustomColor}
-            onChange={(value) => setCustomColor(value)}
+            isSelected={isFullColorPicker}
+            onChange={(value) => setFullColorPicker(value)}
           >
             Full color picker
           </Switch>
