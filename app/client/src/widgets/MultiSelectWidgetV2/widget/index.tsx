@@ -115,6 +115,7 @@ class MultiSelectWidget extends BaseWidget<
             isJSConvertible: true,
             evaluatedDependencies: ["sourceData"],
             options: getLabelValueKeyOptions,
+            alwaysShowSelected: true,
             validation: {
               type: ValidationTypes.FUNCTION,
               params: {
@@ -146,6 +147,7 @@ class MultiSelectWidget extends BaseWidget<
             isJSConvertible: true,
             evaluatedDependencies: ["sourceData"],
             options: getLabelValueKeyOptions,
+            alwaysShowSelected: true,
             validation: {
               type: ValidationTypes.FUNCTION,
               params: {

@@ -103,6 +103,10 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       selected = options.find(
         (option) => option.value === computedValue,
       )?.value;
+
+      if (this.props.alwaysShowSelected && !selected) {
+        selected = computedValue;
+      }
     }
 
     const errors = getValidationErrorForProperty(
@@ -271,6 +275,7 @@ export interface DropDownControlProps extends ControlProps {
   optionWidth?: string;
   hideSubText?: boolean;
   dropdownUsePropertyValue?: boolean;
+  alwaysShowSelected?: boolean;
 }
 
 export default DropDownControl;

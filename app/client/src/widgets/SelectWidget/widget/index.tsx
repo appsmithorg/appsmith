@@ -115,6 +115,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isJSConvertible: true,
             evaluatedDependencies: ["sourceData"],
             options: getLabelValueKeyOptions,
+            alwaysShowSelected: true,
             validation: {
               type: ValidationTypes.FUNCTION,
               params: {
@@ -147,6 +148,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isJSConvertible: true,
             evaluatedDependencies: ["sourceData"],
             options: getLabelValueKeyOptions,
+            alwaysShowSelected: true,
             validation: {
               type: ValidationTypes.FUNCTION,
               params: {
