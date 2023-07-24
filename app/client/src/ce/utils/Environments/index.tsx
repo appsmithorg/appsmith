@@ -35,6 +35,31 @@ export const isEnvironmentConfigured = (
   return !!isConfigured ? isConfigured : false;
 };
 
+// function to check if the datasource is configured for the current environment
+export const doesAnyDsConfigExist = (
+  datasource: Datasource | null,
+  environment?: string,
+) => {
+  !environment && (environment = getCurrentEnvironment());
+  let isConfigured = false;
+  if (!!datasource && !!datasource.datasourceStorages) {
+    const envsList = Object.keys(datasource.datasourceStorages);
+    if (envsList.length === 0) {
+      isConfigured = false;
+    } else {
+      if (envsList.includes(environment)) {
+        isConfigured =
+          datasource.datasourceStorages[environment]?.isConfigured || false;
+      } else {
+        // Allow user to create a query even though the config is not
+        // there for the current environment
+        isConfigured = true;
+      }
+    }
+  }
+  return isConfigured;
+};
+
 // function to check if the datasource is valid for the current environment
 export const isEnvironmentValid = (
   datasource: Datasource | null,
