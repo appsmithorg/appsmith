@@ -8,7 +8,7 @@
   "inputPropsDataType": ".t--property-control-datatype input",
   "inputdatatypeplaceholder": ".t--property-control-placeholder",
   "buttonWidget": ".t--draggable-buttonwidget",
-  "buttonColor": ".t--property-control-buttoncolor input",
+  "buttonColor": ".t--property-control-buttoncolor [data-testid='t--color-picker-input']",
   "checkboxWidget": ".t--draggable-checkboxwidget",
   "buttonStyleDropdown": ".t--property-control-buttonstyle [name='downArrow']",
   "buttonBackground": ".sc-ecQjpJ > div > .bp3-button",

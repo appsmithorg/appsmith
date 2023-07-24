@@ -570,6 +570,7 @@ const ColorPickerComponent = React.forwardRef(
         >
           <StyledInputGroup
             autoFocus={props.autoFocus}
+            data-testid="t--color-picker-input"
             inputRef={inputGroupRef}
             isCustomColor={isCustomColor}
             isValid={validateColor(color)}
