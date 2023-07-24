@@ -20,12 +20,8 @@ describe(
         // feat: #25320, new query created for mock db movies, will be populated with default values
         agHelper.Sleep(500);
 
+        assertHelper.AssertNetworkStatus("@getDatasourceStructure", 200);
         dataSources.CreateQueryAfterDSSaved();
-        cy.wait("@getDatasourceStructure").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          200,
-        );
 
         assertHelper.AssertNetworkStatus("@trigger");
         dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
@@ -55,11 +51,7 @@ describe(
       dataSources.CreateMockDB("Users").then((mockDBName) => {
         dsName = mockDBName;
 
-        cy.wait("@getDatasourceStructure").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          200,
-        );
+        assertHelper.AssertNetworkStatus("@getDatasourceStructure", 200);
         dataSources.CreateQueryAfterDSSaved();
 
         // This will validate that query populated in editor uses existing table name
