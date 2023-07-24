@@ -41,7 +41,7 @@ export class EntityExplorer {
   private modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   private assertHelper = ObjectsRegistry.AssertHelper;
 
-  private _contextMenu = (entityNameinLeftSidebar: string) =>
+  public _contextMenu = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
     entityNameinLeftSidebar +
     "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]";
@@ -308,7 +308,7 @@ export class EntityExplorer {
     this.agHelper.Sleep(500);
   }
 
-  private DragNDropWidget(
+  public DragNDropWidget(
     widgetType: string,
     x = 300,
     y = 100,

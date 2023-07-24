@@ -761,6 +761,21 @@ export class DataSources {
     this.DeleteDSDirectly(expectedRes);
   }
 
+  // this initiates saving via the cancel button.
+  public cancelDSEditAndAssertModalPopUp(
+    shouldPopUpBeShown = false,
+    shouldSave = false,
+  ) {
+    // click cancel button.
+    this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, false, 200);
+
+    if (shouldPopUpBeShown) {
+      this.AssertDatasourceSaveModalVisibilityAndSave(shouldSave);
+    } else {
+      this.AssertDSDialogVisibility(false);
+    }
+  }
+
   public DeleteDSDirectly(
     expectedRes: number | number[] = 200 || 409 || [200 | 409],
   ) {
@@ -1290,10 +1305,18 @@ export class DataSources {
     }
   }
 
-  public SaveDSFromDialog(save = true) {
-    this.agHelper.GoBack();
-    this.agHelper.AssertElementVisible(this._datasourceModalDoNotSave);
-    this.agHelper.AssertElementVisible(this._datasourceModalSave);
+  public AssertDSDialogVisibility(isVisible = true) {
+    if (isVisible) {
+      this.agHelper.AssertElementVisible(this._datasourceModalDoNotSave);
+      this.agHelper.AssertElementVisible(this._datasourceModalSave);
+    } else {
+      this.agHelper.AssertElementAbsence(this._datasourceModalDoNotSave);
+      this.agHelper.AssertElementAbsence(this._datasourceModalSave);
+    }
+  }
+
+  public AssertDatasourceSaveModalVisibilityAndSave(save = true) {
+    this.AssertDSDialogVisibility();
     if (save) {
       this.agHelper.GetNClick(
         this.locator._visibleTextSpan("Save"),
@@ -1310,6 +1333,12 @@ export class DataSources {
         true,
         0,
       );
+  }
+
+  // this initiates saving via the back button.
+  public SaveDSFromDialog(save = true) {
+    this.agHelper.GoBack();
+    this.AssertDatasourceSaveModalVisibilityAndSave(save);
   }
 
   public getDSEntity(dSName: string) {
