@@ -33,6 +33,11 @@ export interface ChartSelectedDataPoint {
   seriesTitle: string;
 }
 
+export const messages = {
+  ErrorTitle: "Error in Chart Data/Configuration",
+  MoreDetails: "More Details",
+};
+
 export const CUSTOM_CHART_TYPES = [
   "area2d",
   "bar2d",
@@ -143,14 +148,6 @@ export const CUSTOM_CHART_TYPES = [
   "stackedcolumn2dlinedy",
   "stackedarea2dlinedy",
 ];
-
-export const CUSTOM_CHART_DEFAULT_PARSED = {
-  type: "",
-  dataSource: {
-    chart: {},
-    data: [],
-  },
-};
 
 export enum LabelOrientation {
   AUTO = "auto",
