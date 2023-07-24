@@ -607,6 +607,14 @@ export class AggregateHelper extends ReusableHelper {
     cy.get(`${alias}.all`).should("have.length", expectedNumberOfCalls);
   }
 
+  public GetNClickIfPresent(selector: string) {
+    cy.get("body").then(($body) => {
+      if ($body.find(selector).length > 0) {
+        cy.get(selector).click();
+      }
+    });
+  }
+
   public GetNClick(
     selector: string,
     index = 0,

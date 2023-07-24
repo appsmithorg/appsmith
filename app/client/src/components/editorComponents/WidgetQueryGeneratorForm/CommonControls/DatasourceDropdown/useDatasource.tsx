@@ -37,6 +37,7 @@ import type { AppState } from "@appsmith/reducers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import {
+  getCurrentEnvironment,
   getEnvironmentConfiguration,
   isEnvironmentValid,
 } from "@appsmith/utils/Environments";
@@ -145,11 +146,13 @@ export function useDatasource(searchText: string) {
           value: datasource.name,
           data: {
             pluginId: datasource.pluginId,
-            isValid: isEnvironmentValid(datasource),
+            isValid: isEnvironmentValid(datasource, getCurrentEnvironment()),
             pluginPackageName: pluginsPackageNamesMap[datasource.pluginId],
             isSample: false,
-            connectionMode:
-              getEnvironmentConfiguration(datasource)?.connection?.mode,
+            connectionMode: getEnvironmentConfiguration(
+              datasource,
+              getCurrentEnvironment(),
+            )?.connection?.mode,
           },
           icon: (
             <ImageWrapper>

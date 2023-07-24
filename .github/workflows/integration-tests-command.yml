@@ -94,7 +94,7 @@ jobs:
     # Only run if the build step is successful
     if: success()
     name: ci-test
-    uses: ./.github/workflows/ci-test-custom-script.yml
+    uses: ./.github/workflows/ci-test.yml
     secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
@@ -154,7 +154,7 @@ jobs:
         if: needs.ci-test.result != 'success'
         id: download_ci
         with:
-          name: failed-spec-ci
+          name: failed-spec-ci-${{github.run_attempt}}
           path: ~/failed_spec_ci
           
       # In case for any ci job failure, create combined failed spec

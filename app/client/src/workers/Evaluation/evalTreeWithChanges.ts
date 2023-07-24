@@ -20,6 +20,7 @@ export function evalTreeWithChanges(
   metaUpdates: EvalMetaUpdates = [],
 ) {
   let evalOrder: string[] = [];
+  let reValidatedPaths: string[] = [];
   let jsUpdates: Record<string, JSUpdate> = {};
   let unEvalUpdates: DataTreeDiff[] = [];
   let nonDynamicFieldValidationOrder: string[] = [];
@@ -51,6 +52,8 @@ export function evalTreeWithChanges(
       unEvalUpdates,
     );
 
+    reValidatedPaths = updateResponse.reValidatedPaths;
+
     setEvalContext({
       dataTree: dataTreeEvaluator.getEvalTree(),
       configTree: dataTreeEvaluator.getConfigTree(),
@@ -75,6 +78,7 @@ export function evalTreeWithChanges(
     errors,
     evalMetaUpdates,
     evaluationOrder: evalOrder,
+    reValidatedPaths,
     jsUpdates,
     logs,
     unEvalUpdates,

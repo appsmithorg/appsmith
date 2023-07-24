@@ -147,7 +147,9 @@ describe("Tests setTimeout API", function () {
   });
 
   it("6. Access to args passed into success/error callback functions in API.run when using setTimeout", () => {
-    apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl);
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+    );
     jsEditor.CreateJSObject(
       `export default {
         myVar1: [],
