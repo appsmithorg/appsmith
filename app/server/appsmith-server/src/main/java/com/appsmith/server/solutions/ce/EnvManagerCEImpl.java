@@ -136,7 +136,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
             UserService userService,
             AnalyticsService analyticsService,
             UserRepository userRepository,
-            PolicyUtils policyUtils,
             EmailSender emailSender,
             CommonConfig commonConfig,
             EmailConfig emailConfig,
