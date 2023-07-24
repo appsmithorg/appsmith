@@ -27,10 +27,6 @@ if [[ -z "${APPSMITH_OAUTH2_OIDC_CLIENT_ID}" ]] || [[ -z "${APPSMITH_OAUTH2_OIDC
   unset APPSMITH_OAUTH2_OIDC_CLIENT_SECRET
 fi
 
-if [[ -z "${APPSMITH_GOOGLE_MAPS_API_KEY}" ]]; then
-  unset APPSMITH_GOOGLE_MAPS_API_KEY
-fi
-
 if [[ -z "${APPSMITH_RECAPTCHA_SITE_KEY}" ]] || [[ -z "${APPSMITH_RECAPTCHA_SECRET_KEY}" ]] || [[ -z "${APPSMITH_RECAPTCHA_ENABLED}" ]]; then
   unset APPSMITH_RECAPTCHA_SITE_KEY # If this field is empty is might cause application crash
   unset APPSMITH_RECAPTCHA_SECRET_KEY
