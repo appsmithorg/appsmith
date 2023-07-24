@@ -12,7 +12,10 @@ describe("JS data update on button click", function () {
   });
 
   it("1. Populates js function data when triggered via button click", function () {
-    apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl, "Api1");
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      "Api1",
+    );
 
     const jsObjectString = `export default {
         myVar1: [],
