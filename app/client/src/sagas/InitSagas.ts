@@ -116,12 +116,12 @@ export function* reportSWStatus() {
         );
         if (activeRegistrations.length === 0) {
           AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
-            message: "Service worker not active",
+            message: "Service worker is not active",
             mode,
           });
         }
         AnalyticsUtil.logEvent("SW_REGISTRATION_SUCCESS", {
-          message: "Service worker not active",
+          message: "Service worker is active",
           mode,
         });
       })
@@ -131,6 +131,11 @@ export function* reportSWStatus() {
           mode,
         });
       });
+  } else {
+    AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
+      message: "SW is not supported",
+      mode,
+    });
   }
 }
 
