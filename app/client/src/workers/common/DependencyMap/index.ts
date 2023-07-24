@@ -50,6 +50,10 @@ export function createDependencyMap(
     { ...allKeys, ...allAppsmithInternalFunctions },
     false,
   );
+  // Internal functions should not be reactive
+  for (const appsmithInternalFunction of AppsmithFunctionsWithFields) {
+    dependencyMap.addDependency(appsmithInternalFunction, []);
+  }
   validationDependencyMap.addNodes(allKeys, false);
 
   Object.keys(configTree).forEach((entityName) => {
