@@ -75,8 +75,8 @@ const ColorPickerIconContainer = styled.div`
 `;
 
 const StyledInputGroup = styled(InputGroup)<{
-  isValid?: boolean;
-  isFullColorPicker?: boolean;
+  $isValid?: boolean;
+  $isFullColorPicker?: boolean;
 }>`
   .${Classes.INPUT} {
     box-shadow: none;
@@ -87,11 +87,11 @@ const StyledInputGroup = styled(InputGroup)<{
     }
   }
   &&& input {
-    padding: ${({ isFullColorPicker }) =>
-      isFullColorPicker ? "0px 2px" : "0 10px 0 36px"};
+    padding: ${({ $isFullColorPicker }) =>
+      $isFullColorPicker ? "0px 2px" : "0 10px 0 36px"};
     height: 36px;
-    border: ${({ isValid }) =>
-      isValid
+    border: ${({ $isValid }) =>
+      $isValid
         ? "1px solid var(--ads-v2-color-border)"
         : "1px solid var(--ads-v2-color-border-error)"};
     background: ${(props) =>
@@ -106,8 +106,8 @@ const StyledInputGroup = styled(InputGroup)<{
 
     &:hover,
     &:focus {
-      border-color: ${({ isValid }) =>
-        isValid
+      border-color: ${({ $isValid }) =>
+        $isValid
           ? "var(--ads-v2-color-border-emphasis)"
           : "var(--ads-v2-color-border-error)"};
     }
@@ -569,11 +569,11 @@ const ColorPickerComponent = React.forwardRef(
           portalContainer={props.portalContainer}
         >
           <StyledInputGroup
+            $isFullColorPicker={isFullColorPicker}
+            $isValid={validateColor(color)}
             autoFocus={props.autoFocus}
             data-testid="t--color-picker-input"
             inputRef={inputGroupRef}
-            isFullColorPicker={isFullColorPicker}
-            isValid={validateColor(color)}
             leftIcon={
               !isFullColorPicker ? (
                 <LeftIcon color={color} handleInputClick={handleInputClick} />
