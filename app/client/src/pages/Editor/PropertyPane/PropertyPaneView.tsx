@@ -36,6 +36,7 @@ import {
   BINDING_WIDGET_WALKTHROUGH_TITLE,
   createMessage,
 } from "@appsmith/constants/messages";
+import { getWidgets } from "sagas/selectors";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -78,13 +79,20 @@ function PropertyPaneView(
   }, [widgetProperties?.type, excludeList]);
   const { searchText, setSearchText } = useSearchText("");
   const { pushFeature } = useContext(WalkthroughContext) || {};
+  const widgets = useSelector(getWidgets);
 
   const showWalkthroughIfWidgetIdSet = async () => {
     const widgetId: string | null = await localStorage.getItem(
       WIDGET_ID_SHOW_WALKTHROUGH,
     );
 
-    if (widgetId && pushFeature) {
+    // Adding table condition as connecting to select, chart widgets is currently not working as expected
+    // When we fix those, we can remove this table condtion
+    const isTableWidget = !!widgetId
+      ? widgets[widgetId]?.type === "TABLE_WIDGET_V2"
+      : false;
+
+    if (widgetId && pushFeature && isTableWidget) {
       pushFeature({
         targetId: PROPERTY_PANE_ID,
         onDismiss: async () => {
