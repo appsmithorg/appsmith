@@ -317,7 +317,11 @@ function isSectionHidden(
 ) {
   if (config) {
     if (config.hidden) {
-      return config.hidden(widgetProps, propertyPath);
+      // We need to pass the parent property path i.e path to the section
+      return config.hidden(
+        widgetProps,
+        propertyPath.split(".").slice(0, -1).join("."),
+      );
     }
   }
   return false;
