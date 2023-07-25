@@ -144,7 +144,7 @@ jobs:
       contents: read
       id-token: write
 
-    # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
+    # Run this job as soon as the docker image is ready, if this is the release branch
     if: ( always() && github.ref == 'refs/heads/release' )
 
     steps:
