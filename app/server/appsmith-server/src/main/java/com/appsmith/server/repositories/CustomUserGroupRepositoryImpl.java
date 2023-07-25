@@ -159,7 +159,8 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
         Update updateGroup = new Update();
         updateGroup.set(fieldName(QUserGroup.userGroup.isProvisioned), isProvisioned);
         updateGroup.set(fieldName(QUserGroup.userGroup.policies), policies);
-        return updateByCriteria(List.of(criteriaIsProvisioned), updateGroup).thenReturn(Boolean.TRUE);
+        return updateByCriteriaWithoutPermission(List.of(criteriaIsProvisioned), updateGroup)
+                .thenReturn(Boolean.TRUE);
     }
 
     private List<Criteria> getCriteriaListFromFilters(MultiValueMap<String, String> filters) {
