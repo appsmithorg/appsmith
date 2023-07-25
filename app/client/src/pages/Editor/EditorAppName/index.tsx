@@ -52,6 +52,7 @@ const Container = styled.div`
     ${getTypographyByKey("h5")};
     line-height: ${(props) => props.theme.smallHeaderHeight} !important;
     padding: 0 ${(props) => props.theme.spaces[2]}px;
+    height: ${(props) => props.theme.smallHeaderHeight} !important;
   }
   &&&& .${Classes.EDITABLE_TEXT_INPUT} {
     margin-right: 20px;
