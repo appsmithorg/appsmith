@@ -835,6 +835,7 @@ function CameraComponent(props: CameraComponentProps) {
   const {
     borderRadius,
     boxShadow,
+    defaultCamera,
     disabled,
     mirrored,
     mode,
@@ -849,7 +850,6 @@ function CameraComponent(props: CameraComponentProps) {
   const webcamRef = useRef<Webcam>(null);
   const mediaRecorderRef = useRef<MediaRecorder>();
   const videoElementRef = useRef<HTMLVideoElement>(null);
-
   const isMobile = useIsMobileDevice();
   const [audioInputs, setAudioInputs] = useState<MediaDeviceInfo[]>([]);
   const [videoInputs, setVideoInputs] = useState<MediaDeviceInfo[]>([]);
@@ -884,6 +884,13 @@ function CameraComponent(props: CameraComponentProps) {
   const fullScreenHandle = useFullScreenHandle();
 
   const isAirgappedInstance = isAirgapped();
+
+  useEffect(() => {
+    setVideoConstraints({
+      ...videoConstraints,
+      facingMode: { ideal: defaultCamera },
+    });
+  }, [defaultCamera]);
 
   useEffect(() => {
     if (webcamRef.current && webcamRef.current.stream) {
@@ -1210,6 +1217,7 @@ export interface CameraComponentProps {
   width: number;
   borderRadius: string;
   boxShadow: string;
+  defaultCamera: string;
 }
 
 export default CameraComponent;

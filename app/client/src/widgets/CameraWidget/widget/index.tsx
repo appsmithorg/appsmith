@@ -92,6 +92,32 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "defaultCamera",
+            label: "Default camera view",
+            helpText: "Choose the default camera to be used , front or back.",
+            controlType: "DROP_DOWN",
+            defaultValue: "environment",
+            options: [
+              {
+                label: "Front",
+                value: "user",
+              },
+              {
+                label: "Back",
+                value: "environment",
+              },
+            ],
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["user", "environment"],
+                default: "environment",
+              },
+            },
+          },
         ],
       },
       {
@@ -242,6 +268,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   getPageView() {
     const {
       bottomRow,
+      defaultCamera,
       isDisabled,
       isMirrored,
       leftColumn,
@@ -261,6 +288,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       <CameraComponent
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
+        defaultCamera={defaultCamera}
         disabled={isDisabled}
         height={height}
         mirrored={isMirrored}
@@ -401,6 +429,7 @@ export interface CameraWidgetProps extends WidgetProps {
   borderRadius: string;
   boxShadow: string;
   isDirty: boolean;
+  defaultCamera: string;
 }
 
 export default CameraWidget;
