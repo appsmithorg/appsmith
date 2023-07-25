@@ -498,8 +498,9 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
         // Extract query params.
         final ActionConfiguration actionConfiguration = action.getActionConfiguration();
-        List<Property> queryParameters = actionConfiguration.getQueryParameters() == null ? new ArrayList<>() :
-                actionConfiguration.getQueryParameters();
+        List<Property> queryParameters = actionConfiguration.getQueryParameters() == null
+                ? new ArrayList<>()
+                : actionConfiguration.getQueryParameters();
         queryParameters.addAll(getQueryParams(url));
         actionConfiguration.setQueryParameters(queryParameters);
 
@@ -519,13 +520,12 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
          * value pair.
          */
         if (!isBlank(queryParamsString) && queryParamsString.contains("=")) {
-            Arrays.stream(queryParamsString.split("&"))
-                    .forEach(queryParam -> {
-                        String[] paramMap = queryParam.split("=", 2);
-                        if (paramMap.length > 1) {
-                            queryParamsList.add(new Property(paramMap[0], paramMap[1]));
-                        }
-                    });
+            Arrays.stream(queryParamsString.split("&")).forEach(queryParam -> {
+                String[] paramMap = queryParam.split("=", 2);
+                if (paramMap.length > 1) {
+                    queryParamsList.add(new Property(paramMap[0], paramMap[1]));
+                }
+            });
         }
 
         return queryParamsList;

@@ -1050,7 +1050,8 @@ public class CurlImporterServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testImportActionOnURLWithCurlyBraces() {
-        String curlCommandWithUrlContainingCurlyBraces = "curl -X GET https://mock-api.appsmith.com/{id}/users?name=test";
+        String curlCommandWithUrlContainingCurlyBraces =
+                "curl -X GET https://mock-api.appsmith.com/{id}/users?name=test";
         ActionDTO actionDTO = curlImporterService.curlToAction(curlCommandWithUrlContainingCurlyBraces);
 
         assertThat(actionDTO).isNotNull();
