@@ -2,7 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import styled from "styled-components";
-import { Button, Callout, Icon, Link, Text, Tooltip } from "design-system";
+import {
+  Button,
+  Callout,
+  Icon,
+  Link,
+  Spinner,
+  Text,
+  Tooltip,
+} from "design-system";
 import { BackButton } from "components/utils/helperComponents";
 import {
   BottomSpace,
@@ -196,6 +204,10 @@ export const ScimProvisioning = () => {
       dispatch(fetchProvisioningStatus());
     }
   };
+
+  if (isLoading.provisionStatus) {
+    return <Spinner />;
+  }
 
   return (
     <Wrapper>
