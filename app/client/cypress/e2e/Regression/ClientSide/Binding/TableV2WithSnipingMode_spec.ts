@@ -21,7 +21,7 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     agHelper.GetNClick(FirstTimeUserOnboarding.selectWidgetInCanvas);
     agHelper.AssertElementVisible(FirstTimeUserOnboarding.snipingBanner);
     //Click on table name controller to bind the data and exit sniping mode
-    agHelper.HoverElement(table._tableV2Widget);
+    agHelper.GetNClick(table._tableV2Widget);
     agHelper.AssertContains(
       "Api1",
       "exist",
