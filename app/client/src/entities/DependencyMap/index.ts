@@ -61,6 +61,7 @@ export default class DependencyMap {
    * @param dependencies
    */
   public addDependency = (node: string, dependencies: string[]) => {
+    if (!this.#nodes.has(node)) return;
     const validDependencies = new Set<string>();
     const invalidDependencies = new Set<string>();
 

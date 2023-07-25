@@ -262,7 +262,6 @@ describe("DataTreeEvaluator", () => {
             unEvalUpdates,
           );
           expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
-            "Api1.config",
             "Api1.data",
           ]);
           expect(dataTreeEvaluator.dependencies["Api1.data"]).toStrictEqual([
@@ -292,7 +291,6 @@ describe("DataTreeEvaluator", () => {
           );
 
           expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
-            "Api1.config",
             "Api1.data",
           ]);
           expect(dataTreeEvaluator.dependencies["Api1.data"]).toStrictEqual([]);
@@ -340,7 +338,6 @@ describe("DataTreeEvaluator", () => {
         );
 
         expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
-          "Api1.config",
           "Api1.data",
         ]);
         expect(dataTreeEvaluator.dependencies["Api1.data"]).toStrictEqual([]);
@@ -372,7 +369,6 @@ describe("DataTreeEvaluator", () => {
             unEvalUpdates,
           );
           expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
-            "Api1.config",
             "Api1.data",
           ]);
           expect(dataTreeEvaluator.dependencies["Api1.data"]).toStrictEqual([
@@ -404,7 +400,6 @@ describe("DataTreeEvaluator", () => {
             unEvalUpdates2,
           );
           expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
-            "Api1.config",
             "Api1.data",
           ]);
           expect(dataTreeEvaluator.dependencies["Api1.data"]).toStrictEqual([]);
@@ -455,7 +450,6 @@ describe("DataTreeEvaluator", () => {
         );
 
         expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
-          "Api1.config",
           "Api1.data",
         ]);
         expect(dataTreeEvaluator.dependencies["Api1.data"]).toStrictEqual([]);
@@ -502,7 +496,6 @@ describe("DataTreeEvaluator", () => {
           unEvalUpdates2,
         );
         expect(dataTreeEvaluator.dependencies["Api1"]).toStrictEqual([
-          "Api1.config",
           "Api1.data",
         ]);
         expect(dataTreeEvaluator.dependencies["Api1.data"]).toStrictEqual([
