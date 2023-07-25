@@ -367,11 +367,17 @@ export class HomePage {
     this.agHelper.Sleep(3000);
   }
 
-  public FilterApplication(appName: string, workspaceId?: string) {
+  public FilterApplication(
+    appName: string,
+    workspaceId?: string,
+    checkForShareButton = true,
+  ) {
     cy.get(this._searchInput).type(appName, { force: true });
     this.agHelper.Sleep(2000);
     workspaceId && cy.get(this._appContainer).contains(workspaceId);
-    cy.xpath(this.locator._spanButton("Share")).first().should("be.visible");
+    if (checkForShareButton) {
+      cy.xpath(this.locator._spanButton("Share")).first().should("be.visible");
+    }
   }
 
   /**
