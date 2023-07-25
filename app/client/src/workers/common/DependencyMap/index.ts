@@ -29,6 +29,10 @@ import {
 import { getValidationDependencies } from "./utils/getValidationDependencies";
 import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
 import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
+import {
+  getAllSetterFunctions,
+  getEntitySetterFunctions,
+} from "@appsmith/workers/Evaluation/Actions";
 
 interface CreateDependencyMap {
   dependencies: Record<string, string[]>;
@@ -46,8 +50,9 @@ export function createDependencyMap(
   const allAppsmithInternalFunctions = convertArrayToObject(
     AppsmithFunctionsWithFields,
   );
+  const setterFunctions = getAllSetterFunctions(unEvalTree, configTree);
   dependencyMap.addNodes(
-    { ...allKeys, ...allAppsmithInternalFunctions },
+    { ...allKeys, ...allAppsmithInternalFunctions, ...setterFunctions },
     false,
   );
   validationDependencyMap.addNodes(allKeys, false);
@@ -149,6 +154,14 @@ export const updateDependencyMap = ({
           const allAddedPaths = getAllPaths({
             [fullPropertyPath]: get(unEvalDataTree, fullPropertyPath),
           });
+          // If a new entity is added, add setter functions to all nodes
+          if (entityName === fullPropertyPath) {
+            const didUpdateDep = dependencyMap.addNodes(
+              getEntitySetterFunctions(entityConfig, entityName, entity),
+            );
+            if (didUpdateDep) didUpdateDependencyMap = true;
+          }
+
           const didUpdateDep = dependencyMap.addNodes(allAddedPaths, false);
           if (didUpdateDep) didUpdateDependencyMap = true;
           if (isWidgetActionOrJsObject(entity)) {
@@ -224,6 +237,13 @@ export const updateDependencyMap = ({
           const allDeletedPaths = getAllPaths({
             [fullPropertyPath]: get(oldUnEvalTree, fullPropertyPath),
           });
+          // If an entity is deleted, remove all setter functions
+          if (entityName === fullPropertyPath) {
+            const didUpdateDep = dependencyMap.removeNodes(
+              getEntitySetterFunctions(entityConfig, entityName, entity),
+            );
+            if (didUpdateDep) didUpdateDependencyMap = true;
+          }
 
           for (const deletedPath of Object.keys(allDeletedPaths)) {
             const pathsThatDependOnDeletedPath =

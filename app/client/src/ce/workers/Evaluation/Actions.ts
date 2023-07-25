@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
 import set from "lodash/set";
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import type {
+  ConfigTree,
+  DataTree,
+  DataTreeEntity,
+  DataTreeEntityConfig,
+} from "entities/DataTree/dataTreeFactory";
 import type { EvalContext } from "workers/Evaluation/evaluate";
 import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
@@ -113,19 +118,13 @@ export const addPlatformFunctionsToEvalContext = (context: any) => {
   }
 };
 
-export const getAllAsyncFunctions = (
+export function getAllSetterFunctions(
   dataTree: DataTree,
   configTree: ConfigTree,
-) => {
+) {
   const asyncFunctionNameMap: Record<string, true> = {};
   const dataTreeEntries = Object.entries(dataTree);
   for (const [entityName, entity] of dataTreeEntries) {
-    for (const entityFn of entityFns) {
-      if (!entityFn.qualifier(entity)) continue;
-      const fullPath = `${entityFn.path || `${entityName}.${entityFn.name}`}`;
-      asyncFunctionNameMap[fullPath] = true;
-    }
-
     const entityConfig = configTree[entityName];
     const entityMethodMap = setters.getEntitySettersFromConfig(
       entityConfig,
@@ -139,6 +138,37 @@ export const getAllAsyncFunctions = (
       asyncFunctionNameMap[`${entityName}.${methodName}`] = true;
     }
   }
+  return asyncFunctionNameMap;
+}
+
+export function getEntitySetterFunctions(
+  entityConfig: DataTreeEntityConfig,
+  entityName: string,
+  entity: DataTreeEntity,
+) {
+  const entityMethodMap = setters.getEntitySettersFromConfig(
+    entityConfig,
+    entityName,
+    entity,
+  );
+  return entityMethodMap;
+}
+
+export const getAllAsyncFunctions = (
+  dataTree: DataTree,
+  configTree: ConfigTree,
+) => {
+  let asyncFunctionNameMap: Record<string, true> = {};
+  const dataTreeEntries = Object.entries(dataTree);
+  for (const [entityName, entity] of dataTreeEntries) {
+    for (const entityFn of entityFns) {
+      if (!entityFn.qualifier(entity)) continue;
+      const fullPath = `${entityFn.path || `${entityName}.${entityFn.name}`}`;
+      asyncFunctionNameMap[fullPath] = true;
+    }
+  }
+  const setterMethods = getAllSetterFunctions(dataTree, configTree);
+  asyncFunctionNameMap = { ...asyncFunctionNameMap, ...setterMethods };
   for (const platformFn of getPlatformFunctions(self.$cloudHosting)) {
     asyncFunctionNameMap[platformFn.name] = true;
   }
