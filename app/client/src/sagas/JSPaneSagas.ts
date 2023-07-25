@@ -389,9 +389,11 @@ export function* handleExecuteJSFunctionSaga(data: {
 
       const debuggerSelectedTab = yield select(getDebuggerSelectedTab);
 
-    
-        yield put(setDebuggerSelectedTab(debuggerSelectedTab || DEBUGGER_TAB_KEYS.RESPONSE_TAB));
-    
+      yield put(
+        setDebuggerSelectedTab(
+          debuggerSelectedTab || DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+        ),
+      );
     }
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
