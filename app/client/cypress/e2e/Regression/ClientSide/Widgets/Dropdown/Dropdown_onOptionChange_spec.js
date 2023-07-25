@@ -18,9 +18,10 @@ describe("Dropdown Widget", function () {
   it("1. Dropdown-Modal Validation", function () {
     entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
     entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
-
-    cy.EnableAllCodeEditors();
-    cy.testJsontext("sourcedata", JSON.stringify(this.dataSet.input));
+    propPane.UpdatePropertyFieldValue(
+      "Options",
+      JSON.stringify(this.dataSet.input),
+    );
     //creating the Modal and verify Modal name //to fix below
     // cy.createModal("Modal1", false);
     // deployMode.DeployApp();
