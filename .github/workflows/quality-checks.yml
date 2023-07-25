@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       server: ${{ steps.filter.outputs.server }}
-      client: ${{ steps.filter.outputs.client }}
+      client: ${{ steps.filter.outputs.client && !steps.filter.outputs.cypress }}
     steps:
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Checkout the merged commit from PR and base branch
@@ -24,7 +24,9 @@ jobs:
             server:
               - 'app/server/**'
             client:
-              - 'app/client/**' && '!app/client/cypress/manual_TestSuite/**'
+              - 'app/client/**'
+            cypress:
+              - 'app/client/cypress/manual_TestSuite/**'
 
   server-spotless:
     name: server-spotless
