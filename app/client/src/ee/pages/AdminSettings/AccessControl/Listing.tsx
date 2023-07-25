@@ -3,8 +3,7 @@ import styled from "styled-components";
 import { Table } from "design-system-old";
 import { Loader } from "./components";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
-import type { ListingProps, MenuItemProps } from "./types";
-import { ListingType } from "./types";
+import { ListingType, type ListingProps, type MenuItemProps } from "./types";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -131,14 +130,17 @@ export function Listing(props: ListingProps) {
 
         const filteredMenuItems = useMemo(
           () =>
-            [`${ListingType.USERS}`].indexOf(listingType) !== -1
-              ? listMenuItems
-              : listMenuItems?.filter((menuItem) => {
-                  if (menuItem.label === "edit" && !canEdit) return false;
-                  if (menuItem.label === "delete" && !canDelete) return false;
-                  /* when we have clone option, we can add it here likewise*/
-                  return true;
-                }),
+            listMenuItems?.filter((menuItem) => {
+              if (
+                menuItem.label === "edit" &&
+                !canEdit &&
+                [`${ListingType.USERS}`].indexOf(listingType) === -1
+              )
+                return false;
+              if (menuItem.label === "delete" && !canDelete) return false;
+              /* when we have clone option, we can add it here likewise*/
+              return true;
+            }),
           [listMenuItems],
         );
 

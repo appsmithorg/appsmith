@@ -141,8 +141,9 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .getDefaultTenantId()
                 .flatMap(tenantId -> tenantService.findById(tenantId, TENANT_READ_ALL_USERS))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
-                .flatMapMany(tenant ->
-                        userRepository.getAllUserObjectsWithEmail(tenant.getId(), queryParams, Optional.of(READ_USERS)))
+                .flatMapMany(tenant -> userRepository
+                        .getAllUserObjectsWithEmail(tenant.getId(), queryParams, Optional.of(READ_USERS))
+                        .flatMap(userRepository::setUserPermissionsInObject))
                 .flatMap(this::addGroupsAndRolesForUser)
                 .sort(AppsmithComparators.managementUserComparator())
                 .collectList()
@@ -211,7 +212,12 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                     List<PermissionGroupInfoDTO> rolesInfo = tuple.getT1();
                     List<UserGroupCompactDTO> groupsInfo = tuple.getT2();
                     return new UserForManagementDTO(
-                            user.getId(), user.getUsername(), groupsInfo, rolesInfo, user.getIsProvisioned());
+                            user.getId(),
+                            user.getUsername(),
+                            groupsInfo,
+                            rolesInfo,
+                            user.getIsProvisioned(),
+                            user.getUserPermissions());
                 });
     }
 
