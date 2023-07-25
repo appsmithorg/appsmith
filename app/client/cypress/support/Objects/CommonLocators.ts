@@ -266,10 +266,8 @@ export class CommonLocators {
   _adsV2CollapsibleHeader = ".ads-v2-collapsible__header";
   _adsV2Text = ".ads-v2-text";
   _svg = "svg";
-  _nextPage = ".rc-pagination-next";
   _containerWidget = "[type='CONTAINER_WIDGET']";
   _listActivePage = ".t--widget-listwidgetv2 .rc-pagination-item-active";
-  _bodyTextStyle = ".bp3-ui-text span";
   _paginationItem = (value: number) => `.rc-pagination-item-${value}`;
   _evaluatedValue = ".t-property-evaluated-value";
   _selectSearch = ".rc-select-selection-search";

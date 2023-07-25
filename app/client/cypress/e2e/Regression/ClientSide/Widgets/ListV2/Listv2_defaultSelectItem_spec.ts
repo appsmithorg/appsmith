@@ -18,7 +18,7 @@ const verifyDefaultItem = () => {
     agHelper
       .GetElement(
         `${locators._widgetByName("SelectedItemView")} ${
-          locators._bodyTextStyle
+          propPane._propertyText
         }`,
       )
       .then((val) => {
@@ -29,7 +29,7 @@ const verifyDefaultItem = () => {
 
   agHelper
     .GetElement(
-      `${locators._widgetByName("SelectedItem")} ${locators._bodyTextStyle}`,
+      `${locators._widgetByName("SelectedItem")} ${propPane._propertyText}`,
     )
     .then((val) => {
       const data = JSON.parse(val.text());
@@ -38,7 +38,7 @@ const verifyDefaultItem = () => {
 
   agHelper
     .GetElement(
-      `${locators._widgetByName("SelectedItemKey")} ${locators._bodyTextStyle}`,
+      `${locators._widgetByName("SelectedItemKey")} ${propPane._propertyText}`,
     )
     .then((val) => {
       const data = JSON.parse(val.text());
@@ -74,7 +74,7 @@ describe("List widget v2 defaultSelectedItem", () => {
     table.AssertPageNumber_List(2, true, "v2");
     agHelper
       .GetElement(
-        `${locators._widgetByName("SelectedItem")} ${locators._bodyTextStyle}`,
+        `${locators._widgetByName("SelectedItem")} ${propPane._propertyText}`,
       )
       .then((val) => {
         const data = JSON.parse(val.text());
@@ -99,7 +99,7 @@ describe("List widget v2 defaultSelectedItem", () => {
 
     agHelper
       .GetElement(
-        `${locators._widgetByName("SelectedItem")} ${locators._bodyTextStyle}`,
+        `${locators._widgetByName("SelectedItem")} ${propPane._propertyText}`,
       )
       .then((val) => {
         const data = JSON.parse(val.text());
@@ -129,7 +129,7 @@ describe("List widget v2 defaultSelectedItem", () => {
 
     agHelper
       .GetElement(
-        `${locators._widgetByName("SelectedItem")} ${locators._bodyTextStyle}`,
+        `${locators._widgetByName("SelectedItem")} ${propPane._propertyText}`,
       )
       .then((val) => {
         const data = JSON.parse(val.text());
@@ -153,7 +153,7 @@ describe("List widget v2 defaultSelectedItem", () => {
 
     agHelper
       .GetElement(
-        `${locators._widgetByName("SelectedItem")} ${locators._bodyTextStyle}`,
+        `${locators._widgetByName("SelectedItem")} ${propPane._propertyText}`,
       )
       .then((val) => {
         const data = JSON.parse(val.text());
@@ -198,9 +198,7 @@ describe("List widget v2 Reset List widget and Refresh Data", () => {
     cy.waitUntil(() =>
       agHelper
         .GetElement(
-          `${locators._widgetByName("SelectedItem")} ${
-            locators._bodyTextStyle
-          }`,
+          `${locators._widgetByName("SelectedItem")} ${propPane._propertyText}`,
         )
         .then((val) => {
           const data = JSON.parse(val.text());

@@ -157,23 +157,15 @@ describe("List v2 - Data Identifier property", () => {
     entityExplorer.SelectEntityByName("Text2");
     propPane.UpdatePropertyFieldValue("Text", "{{currentIndex}}");
     agHelper.AssertText(
-      `${locators._widgetByName("Text2")} ${locators._bodyTextStyle}`,
+      `${locators._widgetByName("Text2")} ${propPane._propertyText}`,
       "text",
       "0",
       0,
     );
-
-    // agHelper.GetNClick(locators._nextPage, 0, true);
-    agHelper.GetNClick("//button[@area-label='next page']", 0, true);
-    agHelper.Sleep(3000);
-    agHelper
-      .GetText(locators._listActivePage, "text", 0)
-      .then(($newPageNo) => expect(Number($newPageNo)).to.eq(2));
-    // table.NavigateToNextPage_List("v2");
-    agHelper.Sleep(1000);
-
+    //
+    table.NavigateToPageUsingButton("next", 2);
     agHelper.AssertText(
-      `${locators._widgetByName("Text2")} ${locators._bodyTextStyle}`,
+      `${locators._widgetByName("Text2")} ${propPane._propertyText}`,
       "text",
       "0",
       0,
@@ -187,26 +179,24 @@ describe("List v2 - Data Identifier property", () => {
     propPane.UpdatePropertyFieldValue("Text", "{{currentIndex}}");
 
     agHelper.AssertText(
-      `${locators._widgetByName("Text4")} ${locators._bodyTextStyle}`,
+      `${locators._widgetByName("Text4")} ${propPane._propertyText}`,
       "text",
       "0",
       0,
     );
 
-    //agHelper.GetNClick(locators._nextPage, 1, true);
     table.NavigateToNextPage_List("v2", 1);
     agHelper.AssertText(
-      `${locators._widgetByName("Text4")} ${locators._bodyTextStyle}`,
+      `${locators._widgetByName("Text4")} ${propPane._propertyText}`,
       "text",
       "1",
       0,
     );
 
-    //agHelper.GetNClick(locators._nextPage, 1, true);
     table.NavigateToNextPage_List("v2", 1);
 
     agHelper.AssertText(
-      `${locators._widgetByName("Text4")} ${locators._bodyTextStyle}`,
+      `${locators._widgetByName("Text4")} ${propPane._propertyText}`,
       "text",
       "2",
       0,

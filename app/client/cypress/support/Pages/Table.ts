@@ -187,6 +187,9 @@ export class Table {
   _dayPickerFirstChild = ".DayPicker-Day:first-child";
   _divFirstChild = "div:first-child abbr";
   _listPreviousPage = ".rc-pagination-prev";
+  _paginationItem = ".rc-pagination-item";
+  _listNavigation = (move: string) =>
+    "//button[@area-label='" + move + " page']";
 
   public GetNumberOfRows() {
     return this.agHelper.GetElement(this._tr).its("length");
@@ -685,8 +688,7 @@ export class Table {
         .GetText(this.locator._listActivePage, "text", index)
         .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
       this.agHelper.GetNClick(this.locator._nextPage, index, true);
-      // this.agHelper.GetNClick("//button[@area-label='next page']", index, true);
-      this.agHelper.Sleep(3000);
+      this.agHelper.Sleep(1000);
       this.agHelper
         .GetText(this.locator._listActivePage, "text", index)
         .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
@@ -777,7 +779,16 @@ export class Table {
   }
 
   public NavigateToSpecificPage(pageNumber: number) {
-    this.agHelper.GetNClick(`.rc-pagination-item-${pageNumber}`);
+    this.agHelper.GetNClick(`${this._paginationItem}-${pageNumber}`);
+    this.agHelper
+      .GetText(this.locator._listActivePage, "text")
+      .then(($newPageNo) => expect(Number($newPageNo)).to.eq(pageNumber));
+  }
+
+  //This method is used to navigate forward using ">" button and backward "<"
+  public NavigateToPageUsingButton(movement: string, pageNumber: number) {
+    this.agHelper.GetNClick(this._listNavigation(movement), 0, true);
+    this.agHelper.Sleep(2000);
     this.agHelper
       .GetText(this.locator._listActivePage, "text")
       .then(($newPageNo) => expect(Number($newPageNo)).to.eq(pageNumber));
