@@ -210,7 +210,7 @@ function getJSPropertyPathDependencies(
   fullPropertyPath: string,
 ) {
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
-  const jsActionBindingPaths = jsActionConfig.bindingPaths || {};
+  const jsActionReactivePaths = jsActionConfig.reactivePaths || {};
   let dependencies: string[] = [];
   const jsInternalDependencyMap = jsActionConfig.dependencyMap || {};
   const jsPathInternalDependencies =
@@ -220,7 +220,7 @@ function getJSPropertyPathDependencies(
 
   dependencies = union(dependencies, jsPathInternalDependencies);
 
-  if (jsActionBindingPaths.hasOwnProperty(propertyPath)) {
+  if (jsActionReactivePaths.hasOwnProperty(propertyPath)) {
     const propertyPathDependencies = getDependencyFromEntityPath(
       propertyPath,
       jsEntity,

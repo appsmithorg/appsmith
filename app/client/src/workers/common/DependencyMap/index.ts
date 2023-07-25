@@ -290,7 +290,6 @@ export const updateDependencyMap = ({
               extractInfoFromBindings(entityPathDependencies, allKeys);
             dependencyMap.addDependency(fullPropertyPath, references);
             didUpdateDependencyMap = true;
-
             dataTreeEvalErrors = dataTreeEvalErrors.concat(
               extractDependencyErrors,
             );
