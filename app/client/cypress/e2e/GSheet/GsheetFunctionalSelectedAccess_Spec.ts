@@ -13,8 +13,8 @@ const dataSourceName = "gsheet-selected";
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet-automation-selected";
 describe("GSheet-Functional Tests With Selected Access", function () {
-  before("Setup app and spreadsheet", function () {
-    //Setting up the spreadsheet name
+  before("Setup app", function () {
+    //Setting up app name
     const uuid = Cypress._.random(0, 10000);
     appName = appName + "-" + uuid;
 
@@ -292,7 +292,7 @@ describe("GSheet-Functional Tests With Selected Access", function () {
   });
 
   after("Delete app", function () {
-    // Delete spreadsheet and app
+    // Delete app
     homePage.NavigateToHome();
     homePage.DeleteApplication(appName);
   });
