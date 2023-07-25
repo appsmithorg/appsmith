@@ -72,7 +72,7 @@ jobs:
       pr: ${{ github.event.pull_request.number }}
 
   qc-result:
-    name: formatting-result
+    name: qc-result
     needs: [server-formatting, server-unit-tests, client-formatting, client-unit-tests, client-lint]
     if: always()
     runs-on: ubuntu-latest
