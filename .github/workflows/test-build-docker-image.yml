@@ -12,6 +12,12 @@ on:
       - "app/server/**"
       - "app/client/packages/rts/**"
       - "!app/client/cypress/manual_TestSuite/**"
+      
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY: docker.io
+  # github.repository as <account>/<repo>
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   server-build:
@@ -214,6 +220,23 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
 #       - name: Build and push release image to Docker Hub
 #         if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
@@ -240,24 +263,24 @@ jobs:
 #             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{ github.sha }}
 #             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:nightly
 
-      - name: Check and push CI image to Docker Hub with commit tag
-        if: success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        working-directory: "."
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
-            tag=nightly
-          else
-            tag="${{ steps.vars.outputs.tag }}"
-          fi
-          docker run --detach --publish 80:80 --name appsmith \
-            "infohe/appsmith-ce:$tag"
-          sleep 180
-          cd deploy/docker
-          if bash run-test.sh; then
-            echo "Fat container test passed. Pushing image."
-            docker push --all-tags infohe/appsmith-ce
-          else
-            echo "Fat container test FAILED. Not pushing image."
-            # Temporarily pushing even if test fails.
-            docker push --all-tags infohe/appsmith-ce
-          fi
+#       - name: Check and push CI image to Docker Hub with commit tag
+#         if: success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+#         working-directory: "."
+#         run: |
+#           if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+#             tag=nightly
+#           else
+#             tag="${{ steps.vars.outputs.tag }}"
+#           fi
+#           docker run --detach --publish 80:80 --name appsmith \
+#             "infohe/appsmith-ce:$tag"
+#           sleep 180
+#           cd deploy/docker
+#           if bash run-test.sh; then
+#             echo "Fat container test passed. Pushing image."
+#             docker push --all-tags infohe/appsmith-ce
+#           else
+#             echo "Fat container test FAILED. Not pushing image."
+#             # Temporarily pushing even if test fails.
+#             docker push --all-tags infohe/appsmith-ce
+#           fi
