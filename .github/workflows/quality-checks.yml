@@ -25,9 +25,10 @@ jobs:
               - 'app/server/**'
             client:
               - 'app/client/**'
+              - '!app/client/cypress/manual_TestSuite/**'
 
-  server-formatting:
-    name: server-formatting
+  server-spotless:
+    name: server-spotless
     needs: path-filter
     if: needs.path-filter.outputs.server == 'true'
     uses: ./.github/workflows/server-spotless.yml
@@ -44,8 +45,17 @@ jobs:
     with:
       pr: ${{ github.event.pull_request.number }}
 
-  client-formatting:
-    name: client-formatting
+  client-build:
+    name: client-build
+    needs: path-filter
+    if: needs.path-filter.outputs.client == 'true'
+    uses: ./.github/workflows/client-build.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.pull_request.number }}
+
+  client-prettier:
+    name: client-prettier
     needs: path-filter
     if: needs.path-filter.outputs.client == 'true'
     uses: ./.github/workflows/client-prettier.yml
@@ -73,18 +83,19 @@ jobs:
 
   qc-result:
     name: qc-result
-    needs: [server-formatting, server-unit-tests, client-formatting, client-unit-tests, client-lint]
+    needs: [server-spotless, server-unit-tests, client-build, client-prettier, client-unit-tests, client-lint]
     if: always()
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
     steps:
-      - name: Return status for formatting checks
+      - name: Return status for quality checks
         run: |
-          if [[ "${{ needs.server-formatting.result }}" == "failure" || \
+          if [[ "${{ needs.server-spotless.result }}" == "failure" || \
            "${{ needs.server-unit-tests.result }}" == "failure" || \
-           "${{ needs.client-formatting.result }}" == "failure" || \
+           "${{ needs.client-build.result }}" == "failure" || \
+           "${{ needs.client-prettier.result }}" == "failure" || \
            "${{ needs.client-unit-tests.result }}" == "failure" || \
            "${{ needs.client-lint.result }}" == "failure" ]]; then
             echo "Quality checks failed";
