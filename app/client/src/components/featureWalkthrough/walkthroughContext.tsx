@@ -2,6 +2,8 @@ import React from "react";
 
 export type PositionType = "top" | "bottom" | "left" | "right";
 
+export const DEFAULT_DELAY = 0;
+
 export type OffsetType = {
   // Position for the instructions and indicator
   position?: PositionType;
@@ -38,6 +40,8 @@ export type FeatureParams = {
   offset?: OffsetType;
   // Event params
   eventParams?: Record<string, any>;
+  // Walkthrough delay in ms
+  delay?: number;
   // Multiple Highlights -> multiple ids for highlighter, if not present considers targetId as the only highlighting div.
   multipleHighlights?: string[];
 };

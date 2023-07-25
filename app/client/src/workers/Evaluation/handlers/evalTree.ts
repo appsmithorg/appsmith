@@ -31,6 +31,7 @@ export const CANVAS = "canvas";
 export default function (request: EvalWorkerSyncRequest) {
   const { data } = request;
   let evalOrder: string[] = [];
+  let reValidatedPaths: string[] = [];
   let jsUpdates: Record<string, JSUpdate> = {};
   let unEvalUpdates: DataTreeDiff[] = [];
   let nonDynamicFieldValidationOrder: string[] = [];
@@ -85,7 +86,7 @@ export default function (request: EvalWorkerSyncRequest) {
       staleMetaIds = dataTreeResponse.staleMetaIds;
     } else if (dataTreeEvaluator.hasCyclicalDependency || forceEvaluation) {
       if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
-        //allActionValidationConfigs may not be set in dataTreeEvaluatior. Therefore, set it explicitly via setter method
+        //allActionValidationConfigs may not be set in dataTreeEvaluator. Therefore, set it explicitly via setter method
         dataTreeEvaluator.setAllActionValidationConfig(
           allActionValidationConfig,
         );
@@ -155,6 +156,8 @@ export default function (request: EvalWorkerSyncRequest) {
         Object.keys(metaWidgets),
       );
 
+      reValidatedPaths = updateResponse.reValidatedPaths;
+
       setEvalContext({
         dataTree: dataTreeEvaluator.evalTree,
         configTree,
@@ -213,6 +216,7 @@ export default function (request: EvalWorkerSyncRequest) {
     errors,
     evalMetaUpdates,
     evaluationOrder: evalOrder,
+    reValidatedPaths,
     jsUpdates,
     logs,
     unEvalUpdates,

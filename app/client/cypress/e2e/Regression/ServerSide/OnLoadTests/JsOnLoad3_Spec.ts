@@ -137,7 +137,7 @@ describe("JSObjects OnLoad Actions tests", function () {
 
       agHelper.AssertElementAbsence(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is NO, dependent API confirmation should not appear
 
-      agHelper.RefreshPage(true, "viewPage");
+      agHelper.RefreshPage("viewPage");
       // agHelper.AssertElementVisible(
       //   jsEditor._dialogBody((jsName as string) + ".callTrump"),
       // );
@@ -305,12 +305,13 @@ describe("JSObjects OnLoad Actions tests", function () {
 
       entityExplorer.SelectEntityByName("Select1", "Widgets");
       propPane.UpdatePropertyFieldValue(
-        "Options",
+        "Source Data",
         `{{ getCitiesList.data.map((row) => {
         return { label: row.city, value: row.city }
      })
   }}`,
       );
+
       agHelper.ValidateToastMessage(
         "[getCitiesList] will be executed automatically on page load",
       );

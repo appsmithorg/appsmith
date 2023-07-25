@@ -215,7 +215,7 @@ jobs:
         if: needs.ci-test-limited.result != 'success'
         id: download_ci
         with:
-          name: failed-spec-ci
+          name: failed-spec-ci-${{github.run_attempt}}
           path: ~/failed_spec_ci
 
       # In case for any ci job failure, create combined failed spec
@@ -314,7 +314,7 @@ jobs:
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
         id: download_ci
         with:
-          name: failed-spec-ci
+          name: failed-spec-ci-${{github.run_attempt}}
           path: ~/failed_spec_ci
 
       # In case for any ci job failure, create combined failed spec

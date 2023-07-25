@@ -225,6 +225,7 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
   },
 };
 
+//TODO(Balaji): Abstraction leak.
 function getWidgetProps(
   suggestedWidget: SuggestedWidget,
   widgetInfo: WidgetBindingInfo,
@@ -270,7 +271,9 @@ function getWidgetProps(
       return {
         type: suggestedWidget.type,
         props: {
-          [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
+          sourceData: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
+          optionValue: "value",
+          optionLabel: "label",
           defaultOptionValue: `{{
             {
               label: ${widgetName}.options[0].label,
@@ -278,7 +281,7 @@ function getWidgetProps(
             }
           }}`,
           dynamicBindingPathList: [
-            { key: widgetInfo.propertyName },
+            { key: "sourceData" },
             { key: "defaultOptionValue" },
           ],
         },
@@ -498,6 +501,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
             FEATURE_WALKTHROUGH_KEYS.ab_ds_binding_enabled,
           [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForQueryBinding,
         },
+        delay: 5000,
       });
   };
 
