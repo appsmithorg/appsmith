@@ -41,6 +41,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
   it("1. Validate merge status", () => {
     entityExplorer.AssertEntityPresenceInExplorer("ListingAndReviews");
     //Wait for the app to settle
+    agHelper.AssertElementAbsence(locators._loading);
     agHelper.Sleep(3000);
     homePage.RenameApplication(appName);
 
