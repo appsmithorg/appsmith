@@ -34,7 +34,7 @@ export class DeployMode {
     toCheckFailureToast = true,
     toValidateSavedState = true,
     addDebugFlag = true,
-    assertEnvInfoModal: "present" | "absent" = "present",
+    assertEnvInfoModal: "present" | "absent",
     dismissModal = false,
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
@@ -46,7 +46,7 @@ export class DeployMode {
     this.assertHelper.AssertDocumentReady();
     this.StubbingDeployPage(addDebugFlag);
     this.agHelper.ClickButton("Deploy");
-    if (assertEnvInfoModal === "present") {
+    if (!!assertEnvInfoModal && assertEnvInfoModal === "present") {
       this.agHelper.WaitUntilEleAppear(this.envInfoModal);
       this.agHelper.AssertElementExist(this.envInfoModal);
       if (dismissModal) {
