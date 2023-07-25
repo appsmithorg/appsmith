@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Checkbox as HeadlessCheckbox } from "@design-system/headless";
+import { Switch as HeadlessCheckbox } from "@design-system/headless";
 
 import type { SwitchProps } from ".";
 import { inlineLabelStyles } from "../../styles/inlineLabelStyles";
