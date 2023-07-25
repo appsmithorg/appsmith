@@ -5,13 +5,14 @@ import {
   getPlugin,
   getSettingConfig,
 } from "selectors/entitiesSelector";
-import { call, delay, select } from "redux-saga/effects";
+import { call, delay, put, select } from "redux-saga/effects";
 import PaneNavigation from "../PaneNavigation";
 import type { Plugin } from "api/PluginApi";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import history from "utils/history";
 import { NAVIGATION_DELAY } from "../costants";
+import { setFocusableInputField } from "actions/editorContextActions";
 
 export default class ActionPaneNavigation extends PaneNavigation {
   action!: Action;
@@ -61,6 +62,8 @@ export default class ActionPaneNavigation extends PaneNavigation {
     if (!url) return;
     history.push(url);
     yield delay(NAVIGATION_DELAY);
+    // Reset context switching field for the id, to allow scrolling to the error field
+    yield put(setFocusableInputField(id));
   }
 
   *scrollToView(propertyPath: string) {

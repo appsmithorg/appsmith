@@ -52,13 +52,10 @@ export default class QueryPaneNavigation extends ActionPaneNavigation {
     const formEvaluationState: FormEvaluationState = yield select(
       getFormEvaluationState,
     );
-    if (isEmpty(formEvaluationState[this.action.id])) {
-      yield take(ReduxActionTypes.SET_FORM_EVALUATION);
-      yield delay(NAVIGATION_DELAY);
-    }
     const isSaving: boolean = yield select(isActionSaving(this.action.id));
-    if (isSaving) {
-      yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
+    if (isEmpty(formEvaluationState[this.action.id]) || isSaving) {
+      // Wait till the form fields are computed
+      yield take(ReduxActionTypes.FORM_EVALUATION_EMPTY_BUFFER);
       yield delay(NAVIGATION_DELAY);
     }
   }
