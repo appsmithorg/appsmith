@@ -19,12 +19,14 @@ public class RedisUtils {
     private static final Duration FILE_LOCK_TIME_LIMIT = Duration.ofSeconds(20);
 
     public Mono<Boolean> addFileLock(String key) {
-        return redisOperations.hasKey(key).flatMap(isKeyPresent -> {
+        // TODO Remove this once we are sure that the file lock is working as expected.
+        return Mono.just(true);
+        /*return redisOperations.hasKey(key).flatMap(isKeyPresent -> {
             if (Boolean.TRUE.equals(isKeyPresent)) {
                 return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE));
             }
             return redisOperations.opsForValue().set(key, REDIS_FILE_LOCK_VALUE, FILE_LOCK_TIME_LIMIT);
-        });
+        });*/
     }
 
     public Mono<Boolean> releaseFileLock(String key) {
