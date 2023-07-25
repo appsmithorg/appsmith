@@ -113,6 +113,7 @@ import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
 import static com.appsmith.server.helpers.ImportExportUtils.sanitizeDatasourceInActionDTO;
 import static com.appsmith.server.helpers.ImportExportUtils.setPropertiesToExistingApplication;
+import static com.appsmith.server.helpers.ImportExportUtils.setPublishedApplicationProperties;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -1186,6 +1187,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                     unpublishedPages.addAll(existingApplication.getPages());
                                                     return Mono.just(existingApplication);
                                                 }
+                                                // This method sets the published mode properties in the imported
+                                                // application.When a user imports an application from the git repo,
+                                                // since the git only stores the unpublished version, the current
+                                                // deployed version in the newly imported app is not updated.
+                                                // This function sets the initial deployed version to the same as the
+                                                // edit mode one.
+                                                setPublishedApplicationProperties(importedApplication);
                                                 setPropertiesToExistingApplication(
                                                         importedApplication, existingApplication);
                                                 // We are expecting the changes present in DB are committed to git
