@@ -1,4 +1,4 @@
-import { fork, put, select } from "redux-saga/effects";
+import { fork, put, select, call } from "redux-saga/effects";
 import type { RouteChangeActionPayload } from "actions/focusHistoryActions";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import log from "loglevel";
@@ -19,6 +19,7 @@ import { contextSwitchingSaga } from "sagas/ContextSwitchingSaga";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { flushErrors } from "actions/errorActions";
 import type { NavigationMethod } from "utils/history";
+import UsagePulse from "usagePulse";
 
 let previousPath: string;
 
@@ -28,6 +29,7 @@ export function* handleRouteChange(
   const { pathname, state } = action.payload.location;
   try {
     yield fork(clearErrors);
+    yield fork(watchForTrackableUrl);
     const isAnEditorPath = isEditorPath(pathname);
 
     // handled only on edit mode
@@ -62,6 +64,16 @@ function* clearErrors() {
   const isCrashed: boolean = yield select(getSafeCrash);
   if (isCrashed) {
     yield put(flushErrors());
+  }
+}
+
+function* watchForTrackableUrl() {
+  const isTrackable: boolean = yield call(
+    UsagePulse.isTrackableUrl,
+    window.location.pathname,
+  );
+  if (!isTrackable) {
+    yield call(UsagePulse.track);
   }
 }
 
