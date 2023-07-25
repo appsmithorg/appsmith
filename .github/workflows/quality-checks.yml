@@ -71,7 +71,7 @@ jobs:
     with:
       pr: ${{ github.event.pull_request.number }}
 
-  formatting-result:
+  qc-result:
     name: formatting-result
     needs: [server-formatting, server-unit-tests, client-formatting, client-unit-tests, client-lint]
     if: always()
