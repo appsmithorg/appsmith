@@ -20,6 +20,11 @@ export const PLUGIN_PACKAGE_DBS = [
   PluginPackageName.MONGO,
 ];
 
+export const MOCK_DB_TABLE_NAMES = {
+  MOVIES: "movies",
+  USERS: "public.users",
+};
+
 export enum EDITOR_TABS {
   QUERY = "QUERY",
   SETTINGS = "SETTINGS",

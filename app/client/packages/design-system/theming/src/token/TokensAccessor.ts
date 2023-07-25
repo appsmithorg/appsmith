@@ -1,21 +1,29 @@
 import kebabCase from "lodash/kebabCase";
-import range from "lodash/range";
-import type { ColorMode, ColorTypes } from "../color";
 import { DarkModeTheme, LightModeTheme } from "../color";
-import type { FontFamily, Typography, TypographySource } from "../typography";
+import { createTypographyStringMap } from "../typography";
 
-import type { ThemeToken, TokenObj, TokenSource, TokenType } from "./types";
+import type { ColorMode, ColorTypes } from "../color";
+import type { FontFamily, Typography } from "../typography";
+import type {
+  RootUnit,
+  ThemeToken,
+  TokenObj,
+  TokenSource,
+  TokenType,
+} from "./types";
 
 export class TokensAccessor {
   private seedColor?: ColorTypes;
   private colorMode?: ColorMode;
   private borderRadius?: TokenObj;
-  private rootUnit: number;
+  private rootUnit?: RootUnit;
   private boxShadow?: TokenObj;
   private borderWidth?: TokenObj;
   private opacity?: TokenObj;
-  private typography: TypographySource;
+  private typography?: Typography;
   private fontFamily?: FontFamily;
+  private spacing?: TokenObj;
+  private sizing?: TokenObj;
 
   constructor({
     borderRadius,
@@ -26,6 +34,8 @@ export class TokensAccessor {
     opacity,
     rootUnit,
     seedColor,
+    sizing,
+    spacing,
     typography,
   }: TokenSource) {
     this.seedColor = seedColor;
@@ -36,10 +46,12 @@ export class TokensAccessor {
     this.borderWidth = borderWidth;
     this.opacity = opacity;
     this.fontFamily = fontFamily;
+    this.sizing = sizing;
+    this.spacing = spacing;
     this.typography = typography;
   }
 
-  updateRootUnit = (rootUnit: number) => {
+  updateRootUnit = (rootUnit: RootUnit) => {
     this.rootUnit = rootUnit;
   };
 
@@ -47,7 +59,7 @@ export class TokensAccessor {
     this.fontFamily = fontFamily;
   };
 
-  updateTypography = (typography: TypographySource) => {
+  updateTypography = (typography: Typography) => {
     this.typography = typography;
   };
 
@@ -75,12 +87,22 @@ export class TokensAccessor {
     this.opacity = opacity;
   };
 
+  updateSpacing = (spacing: TokenObj) => {
+    this.spacing = spacing;
+  };
+
+  updateSizing = (sizing: TokenObj) => {
+    this.sizing = sizing;
+  };
+
   getAllTokens = () => {
     return {
       rootUnit: this.getRootUnit(),
-      ...this.getTypography(),
-      ...this.getColors(),
+      typography: this.getTypography(),
       ...this.getSpacing(),
+      ...this.getSizing(),
+      ...this.getSizing(),
+      ...this.getColors(),
       ...this.getBorderRadius(),
       ...this.getBoxShadow(),
       ...this.getBorderWidth(),
@@ -92,21 +114,10 @@ export class TokensAccessor {
     return this.rootUnit;
   };
 
-  getTypography = (): { typography: Typography } => {
-    const keys = Object.keys(this.typography) as Array<keyof TypographySource>;
-
-    return {
-      typography: keys.reduce((prev, current) => {
-        return {
-          ...prev,
-          [current]: {
-            capHeight: this.typography[current].capHeightRatio * this.rootUnit,
-            lineGap: this.typography[current].lineGapRatio * this.rootUnit,
-            fontFamily: this.typography[current].fontFamily ?? this.fontFamily,
-          },
-        };
-      }, {} as Typography),
-    };
+  getTypography = (): string | undefined => {
+    if (this.typography) {
+      return createTypographyStringMap(this.typography);
+    }
   };
 
   getColors = () => {
@@ -131,17 +142,16 @@ export class TokensAccessor {
     }
   };
 
-  getSpacing = (count = 6) => {
-    if (this.rootUnit == null) return {} as ThemeToken;
+  getSpacing = () => {
+    if (this.spacing == null) return {} as ThemeToken;
 
-    const spacing = range(count).reduce((acc, value, index) => {
-      return {
-        ...acc,
-        [index]: `${(this.rootUnit as number) * value}px`,
-      };
-    }, {});
+    return this.createTokenObject(this.spacing, "spacing");
+  };
 
-    return this.createTokenObject(spacing, "spacing");
+  getSizing = () => {
+    if (this.sizing == null) return {} as ThemeToken;
+
+    return this.createTokenObject(this.sizing, "sizing");
   };
 
   getBorderRadius = () => {
