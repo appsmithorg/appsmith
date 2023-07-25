@@ -250,14 +250,14 @@ jobs:
             tag="${{ steps.vars.outputs.tag }}"
           fi
           docker run --detach --publish 80:80 --name appsmith \
-            "${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:$tag"
+            "infohe/appsmith-ce:$tag"
           sleep 180
           cd deploy/docker
           if bash run-test.sh; then
             echo "Fat container test passed. Pushing image."
-            docker push --all-tags ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
+            docker push --all-tags infohe/appsmith-ce
           else
             echo "Fat container test FAILED. Not pushing image."
             # Temporarily pushing even if test fails.
-            docker push --all-tags ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
+            docker push --all-tags infohe/appsmith-ce
           fi
