@@ -6,10 +6,8 @@ import {
   deployMode,
   apiPage,
   tedTestConfig,
-  dataSources,
   propPane,
-  assertHelper,
-  jsEditor,
+  table,
 } from "../../../../../support/Objects/ObjectsCore";
 const dsl = require("../../../../../fixtures/Listv2/ListV2_Reset_dsl.json");
 
@@ -72,7 +70,8 @@ describe("List widget v2 defaultSelectedItem", () => {
         3,
       ),
     );
-    agHelper.GetNAssertElementText(locators._listActivePage, "2");
+
+    table.AssertPageNumber_List(2, true, "v2");
     agHelper
       .GetElement(
         `${locators._widgetByName("SelectedItem")} ${locators._bodyTextStyle}`,
@@ -96,7 +95,8 @@ describe("List widget v2 defaultSelectedItem", () => {
       ),
     );
 
-    agHelper.AssertText(locators._listActivePage, "text", "1");
+    table.AssertPageNumber_List(1, false, "v2");
+
     agHelper
       .GetElement(
         `${locators._widgetByName("SelectedItem")} ${locators._bodyTextStyle}`,
@@ -125,7 +125,7 @@ describe("List widget v2 defaultSelectedItem", () => {
     propPane.UpdatePropertyFieldValue("Items", "{{Api1.data}}");
     propPane.UpdatePropertyFieldValue("Default selected item", "4");
 
-    agHelper.AssertText(locators._listActivePage, "text", "2");
+    table.AssertPageNumber_List(2, false, "v2");
 
     agHelper
       .GetElement(
@@ -149,7 +149,8 @@ describe("List widget v2 defaultSelectedItem", () => {
       ),
     );
 
-    agHelper.AssertText(locators._listActivePage, "text", "2");
+    table.AssertPageNumber_List(2, false, "v2");
+
     agHelper
       .GetElement(
         `${locators._widgetByName("SelectedItem")} ${locators._bodyTextStyle}`,
@@ -165,13 +166,14 @@ describe("List widget v2 defaultSelectedItem", () => {
 describe("List widget v2 Reset List widget and Refresh Data", () => {
   it("1. Setup List Widget", () => {
     entityExplorer.SelectEntityByName("List1");
-    // Here updateLayout call is not happenign hence cant use UpdatePropertyFieldValue()
-    //propPane.UpdatePropertyFieldValue("Default selected item", "4");
-    propPane.TypeTextIntoField(
-      locators._existingFieldTextByName("Default selected item"),
+    propPane.UpdatePropertyFieldValue(
+      "Default selected item",
       "4",
+      true,
+      false,
     );
-    agHelper.AssertText(locators._listActivePage, "text", "2");
+    table.AssertPageNumber_List(2, false, "v2");
+
     verifyDefaultItem();
   });
 
@@ -183,7 +185,7 @@ describe("List widget v2 Reset List widget and Refresh Data", () => {
       true,
     );
 
-    agHelper.AssertText(locators._listActivePage, "text", "1");
+    table.AssertPageNumber_List(1, false, "v2");
 
     agHelper.GetNClick(
       `${locators._widgetByName("List1")} ${locators._containerWidget}`,
@@ -212,7 +214,7 @@ describe("List widget v2 Reset List widget and Refresh Data", () => {
       true,
     );
 
-    agHelper.AssertText(locators._listActivePage, "text", "2");
+    table.AssertPageNumber_List(2, false, "v2");
 
     cy.waitUntil(() =>
       agHelper.AssertElementLength(
@@ -234,7 +236,7 @@ describe("List widget v2 Reset List widget and Refresh Data", () => {
       true,
     );
 
-    agHelper.AssertText(locators._listActivePage, "text", "4");
+    table.AssertPageNumber_List(4, false, "v2");
 
     verifyDefaultItem();
 

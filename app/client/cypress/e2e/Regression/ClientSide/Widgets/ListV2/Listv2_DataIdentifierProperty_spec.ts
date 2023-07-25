@@ -6,6 +6,7 @@ import {
   draggableWidgets,
   debuggerHelper,
   apiPage,
+  table,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const data = [
@@ -162,7 +163,13 @@ describe("List v2 - Data Identifier property", () => {
       0,
     );
 
-    agHelper.GetNClick(locators._nextPage, 0, true);
+    // agHelper.GetNClick(locators._nextPage, 0, true);
+    agHelper.GetNClick("//button[@area-label='next page']", 0, true);
+    agHelper.Sleep(3000);
+    agHelper
+      .GetText(locators._listActivePage, "text", 0)
+      .then(($newPageNo) => expect(Number($newPageNo)).to.eq(2));
+    // table.NavigateToNextPage_List("v2");
     agHelper.Sleep(1000);
 
     agHelper.AssertText(
@@ -186,8 +193,8 @@ describe("List v2 - Data Identifier property", () => {
       0,
     );
 
-    agHelper.GetNClick(locators._nextPage, 1, true);
-
+    //agHelper.GetNClick(locators._nextPage, 1, true);
+    table.NavigateToNextPage_List("v2", 1);
     agHelper.AssertText(
       `${locators._widgetByName("Text4")} ${locators._bodyTextStyle}`,
       "text",
@@ -195,7 +202,8 @@ describe("List v2 - Data Identifier property", () => {
       0,
     );
 
-    agHelper.GetNClick(locators._nextPage, 1, true);
+    //agHelper.GetNClick(locators._nextPage, 1, true);
+    table.NavigateToNextPage_List("v2", 1);
 
     agHelper.AssertText(
       `${locators._widgetByName("Text4")} ${locators._bodyTextStyle}`,

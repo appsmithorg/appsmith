@@ -186,6 +186,7 @@ export class Table {
     ".bp3-dateinput-popover .bp3-daterangepicker-shortcuts";
   _dayPickerFirstChild = ".DayPicker-Day:first-child";
   _divFirstChild = "div:first-child abbr";
+  _listPreviousPage = ".rc-pagination-prev";
 
   public GetNumberOfRows() {
     return this.agHelper.GetElement(this._tr).its("length");
@@ -668,16 +669,28 @@ export class Table {
   }
 
   //List methods - keeping it for now!
-  public NavigateToNextPage_List() {
+  public NavigateToNextPage_List(tableVersion: "v1" | "v2" = "v1", index = 0) {
     let curPageNo: number;
-    cy.xpath(this._liCurrentSelectedPage)
-      .invoke("text")
-      .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
-    cy.get(this._liNextPage).click();
-    //cy.scrollTo('top', { easing: 'linear' })
-    cy.xpath(this._liCurrentSelectedPage)
-      .invoke("text")
-      .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
+    if (tableVersion == "v1") {
+      cy.xpath(this._liCurrentSelectedPage)
+        .invoke("text")
+        .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
+      cy.get(this._liNextPage).click();
+      //cy.scrollTo('top', { easing: 'linear' })
+      cy.xpath(this._liCurrentSelectedPage)
+        .invoke("text")
+        .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
+    } else if (tableVersion == "v2") {
+      this.agHelper
+        .GetText(this.locator._listActivePage, "text", index)
+        .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
+      this.agHelper.GetNClick(this.locator._nextPage, index, true);
+      // this.agHelper.GetNClick("//button[@area-label='next page']", index, true);
+      this.agHelper.Sleep(3000);
+      this.agHelper
+        .GetText(this.locator._listActivePage, "text", index)
+        .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
+    }
   }
 
   public NavigateToPreviousPage_List() {
@@ -692,17 +705,47 @@ export class Table {
       .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo - 1));
   }
 
-  public AssertPageNumber_List(pageNo: number, checkNoNextPage = false) {
-    cy.xpath(this._liCurrentSelectedPage)
-      .invoke("text")
-      .then(($currentPageNo) => expect(Number($currentPageNo)).to.eq(pageNo));
+  public AssertPageNumber_List(
+    pageNo: number,
+    checkNoNextPage = false,
+    tableVersion: "v1" | "v2" = "v1",
+  ) {
+    if (tableVersion == "v1") {
+      cy.xpath(this._liCurrentSelectedPage)
+        .invoke("text")
+        .then(($currentPageNo) => expect(Number($currentPageNo)).to.eq(pageNo));
 
-    if (pageNo == 1)
-      cy.get(this._liPreviousPage).should("have.attr", "aria-disabled", "true");
+      if (pageNo == 1)
+        cy.get(this._liPreviousPage).should(
+          "have.attr",
+          "aria-disabled",
+          "true",
+        );
 
-    if (checkNoNextPage)
-      cy.get(this._liNextPage).should("have.attr", "aria-disabled", "true");
-    else cy.get(this._liNextPage).should("have.attr", "aria-disabled", "false");
+      if (checkNoNextPage)
+        cy.get(this._liNextPage).should("have.attr", "aria-disabled", "true");
+      else
+        cy.get(this._liNextPage).should("have.attr", "aria-disabled", "false");
+    } else if (tableVersion == "v2") {
+      this.agHelper
+        .GetText(this.locator._listActivePage, "text")
+        .then(($currentPageNo) => expect(Number($currentPageNo)).to.eq(pageNo));
+
+      if (pageNo == 1)
+        cy.get(this._listPreviousPage).should(
+          "have.class",
+          "rc-pagination-disabled",
+        );
+
+      if (checkNoNextPage)
+        this.agHelper
+          .GetElement(this.locator._nextPage)
+          .should("have.class", "rc-pagination-disabled");
+      else
+        this.agHelper
+          .GetElement(this.locator._nextPage)
+          .should("not.have.class", "rc-pagination-disabled");
+    }
   }
 
   public AddSampleTableData() {
@@ -731,5 +774,12 @@ export class Table {
           expect(classes).includes("draggable-header");
         });
     });
+  }
+
+  public NavigateToSpecificPage(pageNumber: number) {
+    this.agHelper.GetNClick(`.rc-pagination-item-${pageNumber}`);
+    this.agHelper
+      .GetText(this.locator._listActivePage, "text")
+      .then(($newPageNo) => expect(Number($newPageNo)).to.eq(pageNumber));
   }
 }
