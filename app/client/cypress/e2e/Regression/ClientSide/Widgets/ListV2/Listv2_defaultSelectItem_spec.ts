@@ -165,7 +165,12 @@ describe("List widget v2 defaultSelectedItem", () => {
 describe("List widget v2 Reset List widget and Refresh Data", () => {
   it("1. Setup List Widget", () => {
     entityExplorer.SelectEntityByName("List1");
-    propPane.UpdatePropertyFieldValue("Default selected item", "4");
+    // Here updateLayout call is not happenign hence cant use UpdatePropertyFieldValue()
+    //propPane.UpdatePropertyFieldValue("Default selected item", "4");
+    propPane.TypeTextIntoField(
+      locators._existingFieldTextByName("Default selected item"),
+      "4",
+    );
     agHelper.AssertText(locators._listActivePage, "text", "2");
     verifyDefaultItem();
   });
