@@ -39,7 +39,7 @@ describe("Create new workspace and share with a user", function () {
       Cypress.env("TESTPASSWORD1"),
       "App Viewer",
     );
-    homePage.FilterApplication(appid);
+    homePage.FilterApplication(appid, workspaceId, false);
     // // eslint-disable-next-line cypress/no-unnecessary-waiting
     agHelper.Sleep(2000);
     agHelper.GetNAssertContains(homePage._appContainer, workspaceId);
