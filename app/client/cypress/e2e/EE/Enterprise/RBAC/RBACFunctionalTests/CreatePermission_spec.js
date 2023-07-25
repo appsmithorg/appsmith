@@ -322,7 +322,7 @@ describe("Create Permission flow ", function () {
     cy.get(explorer.createNew).click({ force: true });
     // create new query
     cy.get("[data-testid='t--file-operation']").eq(1).click({ force: true });
-    cy.get(queryLocators.queryNameField).type("get_columns");
+    agHelper.RenameWithInPane("get_columns");
     cy.WaitAutoSave();
     cy.LogOut();
   });
