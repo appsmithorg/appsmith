@@ -26,7 +26,7 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { getEnvironmentIdForHeader } from "@appsmith/api/ApiUtils";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -92,7 +92,8 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
     config.timeout = 1000 * 120; // increase timeout for git specific APIs
   }
 
-  const activeEnv = getEnvironmentIdForHeader();
+  // Add header for environment name
+  const activeEnv = getCurrentEnvironment();
 
   if (activeEnv && config.headers) {
     config.headers.environmentId = activeEnv;

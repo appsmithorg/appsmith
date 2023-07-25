@@ -154,6 +154,14 @@ export const DSEditorWrapper = styled.div`
   flex-direction: row;
 `;
 
+export const CalloutContainer = styled.div<{
+  isSideBarPresent: boolean;
+}>`
+  width: 30vw; 
+  margin-top: 24px;
+  margin-left ${(props) => (props.isSideBarPresent ? "24px" : "0px")}
+`;
+
 export type DatasourceFilterState = {
   id: string;
   name: string;
@@ -667,7 +675,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     );
     if (toastMessage.message)
       return (
-        <div style={{ width: "30vw", marginTop: "24px" }}>
+        <CalloutContainer isSideBarPresent={!!this.state.filterParams.name}>
           <Callout
             isClosable
             kind={toastMessage.kind as CalloutKind}
@@ -680,7 +688,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           >
             {toastMessage.message}
           </Callout>
-        </div>
+        </CalloutContainer>
       );
     return null;
   }
