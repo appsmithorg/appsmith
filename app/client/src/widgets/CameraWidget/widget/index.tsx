@@ -94,17 +94,18 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
           },
           {
             propertyName: "defaultCamera",
-            label: "Default camera view",
-            helpText: "Choose the default camera to be used , front or back.",
+            label: "Default mobile camera",
+            helpText:
+              "Default choice for mobile users. Not applicable for other devices",
             controlType: "DROP_DOWN",
             defaultValue: "environment",
             options: [
               {
-                label: "Front",
+                label: "Front (Selfie)",
                 value: "user",
               },
               {
-                label: "Back",
+                label: "Back (Rear)",
                 value: "environment",
               },
             ],
