@@ -100,9 +100,18 @@ export default class DependencyMap {
   };
 
   private removeDependency = (node: string) => {
+    let didUpdateDependencies = false;
+    const directDependenciesOfNode = this.getDirectDependencies(node);
+    for (const directDependency of directDependenciesOfNode) {
+      this.#dependenciesInverse.get(directDependency)?.delete(node);
+      didUpdateDependencies = true;
+    }
     const nodeExistedInDependencies = this.#dependencies.delete(node);
+    if (nodeExistedInDependencies) {
+      didUpdateDependencies = true;
+    }
     this.#invalidDependencies.delete(node);
-    return nodeExistedInDependencies;
+    return didUpdateDependencies;
   };
 
   /**
