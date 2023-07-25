@@ -24,8 +24,7 @@ jobs:
             server:
               - 'app/server/**'
             client:
-              - 'app/client/**'
-              - '!app/client/cypress/manual_TestSuite/**'
+              - 'app/client/**' && '!app/client/cypress/manual_TestSuite/**'
 
   server-spotless:
     name: server-spotless
