@@ -15,10 +15,10 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
     --checkbox-box-shadow: 0px 0px 0px var(--checkbox-border-width)
       var(--checkbox-border-color) inset;
 
-    width: calc(4 * var(--root-unit));
-    height: calc(4 * var(--root-unit));
+    width: var(--sizing-4);
+    height: var(--sizing-4);
     box-shadow: var(--checkbox-box-shadow);
-    border-radius: clamp(0px, var(--border-radius-1), 0.375rem);
+    border-radius: clamp(0px, var(--border-radius-1), 6px);
     color: transparent;
     display: inline-flex;
     align-items: center;

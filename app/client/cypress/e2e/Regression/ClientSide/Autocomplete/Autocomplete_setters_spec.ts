@@ -19,8 +19,14 @@ const jsObjectBody = `export default {
 }`;
 
 describe("Autocomplete tests for setters", () => {
-  it("1. Check if setters are present in autocomplete for widgets in JsObject", () => {
+  before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 400);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.CHECKBOX, 200, 600);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.SWITCH, 400, 200);
+  });
+
+  it("1. Check if setters are present in autocomplete for widgets in JsObject", () => {
     jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
       completeReplace: true,
@@ -36,14 +42,36 @@ describe("Autocomplete tests for setters", () => {
       locators._hints,
       "Button1.setColor()",
     );
+    agHelper.GetElementsNAssertTextPresence(
+      locators._hints,
+      "Button1.setDisabled()",
+    );
+    agHelper.GetElementsNAssertTextPresence(
+      locators._hints,
+      "Button1.setVisibility()",
+    );
 
-    //For table widget
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 500, 300);
-    entityExplorer.SelectEntityByName("JSObject1");
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
-    agHelper.RemoveCharsNType(locators._codeMirrorTextArea, 7, "Table1.set");
+    agHelper.RemoveCharsNType(locators._codeMirrorTextArea, 7, "Input1.set");
 
-    agHelper.GetElementsNAssertTextPresence(locators._hints, "setData()");
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "setValue()");
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "setDisabled()");
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "setVisibility()");
+
+    agHelper.RemoveCharsNType(
+      locators._codeMirrorTextArea,
+      10,
+      "Checkbox1.set",
+    );
+
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "setValue()");
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "setDisabled()");
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "setVisibility()");
+
+    agHelper.RemoveCharsNType(locators._codeMirrorTextArea, 13, "Switch1.set");
+
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "setDisabled()");
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "setRequired()");
   });
 
   it("2. Check if setters are present in autocomplete for widgets in property Pane", () => {
