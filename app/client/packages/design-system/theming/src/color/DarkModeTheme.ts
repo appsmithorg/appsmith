@@ -803,15 +803,29 @@ export class DarkModeTheme implements ColorModeTheme {
     return color;
   }
 
-  // Keyboard focus outline. Opposite complimentary hue to the seed.
   private get bdFocus() {
+    // Keyboard focus outline. Doesn't match the seed to increase contrast
     const color = this.seedColor.clone();
 
-    color.oklch.h = this.seedHue - 180;
-
-    // Set minimal lightness
     if (this.seedLightness < 0.4) {
       color.oklch.l = 0.4;
+    }
+
+    if (this.seedLightness > 0.65) {
+      color.oklch.l = 0.65;
+    }
+
+    // Achromatic seeds still produce colorful focus; this is good for accessibility even though it affects visual style
+    if (this.seedChroma < 0.12) {
+      color.oklch.c = 0.12;
+    }
+
+    // Green-red color blindness is among the most prevalent, so instead of 180 we're rotating hue by additional 60°
+    color.oklch.h = this.seedHue - 240;
+
+    // Additional adjustments for red, pinks, magentas
+    if ((this.seedHue >= 0 && this.seedHue <= 55) || this.seedHue >= 340) {
+      color.oklch.h = color.oklch.h + 160;
     }
 
     return color;
