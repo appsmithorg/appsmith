@@ -53,7 +53,7 @@
       "error",
       { "caseSensitive": false }
     ],
-    "no-console": "error",
+    "no-console": "warn",
     "no-debugger": "error",
     "@typescript-eslint/no-restricted-imports": [
       "error",

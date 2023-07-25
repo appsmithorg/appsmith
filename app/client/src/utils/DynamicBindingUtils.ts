@@ -10,10 +10,6 @@ import {
   isTrueObject,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type {
-  DataTreeEntity,
-  DataTreeEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
 
@@ -78,7 +74,7 @@ export function getDynamicStringSegments(dynamicString: string): string[] {
 //{{}}{{}}}
 export const getDynamicBindings = (
   dynamicString: string,
-  entity?: DataTreeEntity,
+  entity?: any,
 ): { stringSegments: string[]; jsSnippets: string[] } => {
   // Protect against bad string parse
   if (!dynamicString || !_.isString(dynamicString)) {
@@ -567,20 +563,17 @@ export function getDynamicBindingsChangesSaga(
   return dynamicBindings;
 }
 
-export function getEntityType(entity: DataTreeEntity) {
+export function getEntityType(entity: any) {
   return "ENTITY_TYPE" in entity && entity.ENTITY_TYPE;
 }
 
-export function getEntityId(entity: DataTreeEntity) {
+export function getEntityId(entity: any) {
   if (isAction(entity)) return entity.actionId;
   if (isWidget(entity)) return entity.widgetId;
-  if (isJSAction(entity)) return entity.actionId;
+  // if (isJSAction(entity)) return entity.actionId;
 }
 
-export function getEntityName(
-  entity: DataTreeEntity,
-  entityConfig: DataTreeEntityConfig,
-) {
+export function getEntityName(entity: any, entityConfig: any) {
   if (isAction(entity)) return entityConfig.name;
   if (isWidget(entity)) return entity.widgetName;
   if (isJSAction(entity)) return entityConfig.name;

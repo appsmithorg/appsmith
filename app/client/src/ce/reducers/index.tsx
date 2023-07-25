@@ -31,7 +31,7 @@ import type { ApiNameReduxState } from "reducers/uiReducers/apiNameReducer";
 import type { ExplorerReduxState } from "reducers/uiReducers/explorerReducer";
 import type { PageCanvasStructureReduxState } from "reducers/uiReducers/pageCanvasStructureReducer";
 import type { ModalActionReduxState } from "reducers/uiReducers/modalActionReducer";
-import type { AppDataState } from "reducers/entityReducers/appReducer";
+import type { AppDataState } from "reducers/entityReducers/appReducer.types";
 import type { DatasourceNameReduxState } from "reducers/uiReducers/datasourceNameReducer";
 import type { EvaluatedTreeState } from "reducers/evaluationReducers/treeReducer";
 import type { EvaluationDependencyState } from "reducers/evaluationReducers/dependencyReducer";

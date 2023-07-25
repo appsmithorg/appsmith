@@ -1,5 +1,5 @@
 import { IconNames } from "@blueprintjs/icons";
-import type { Theme } from "constants/DefaultTheme";
+// import type { Theme } from "constants/DefaultTheme";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import type { WidgetTags } from "constants/WidgetConstants";
 import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
@@ -360,6 +360,6 @@ export const dateFormatOptions = [
   },
 ];
 
-export type ThemeProp = {
-  theme: Theme;
-};
+// export type ThemeProp = {
+//   theme: Theme;
+// };

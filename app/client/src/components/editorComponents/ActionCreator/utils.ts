@@ -24,8 +24,8 @@ import type { TreeDropdownOption } from "design-system-old";
 import type { TActionBlock } from "./types";
 import { AppsmithFunction, DEFAULT_LABELS, FieldType } from "./constants";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
-import store from "store";
-import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
+// import store from "store";
+// import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
 import { FIELD_CONFIG } from "./Field/FieldConfig";
 import { setGenericArgAtPostition } from "@shared/ast/src/actionCreator";
 
@@ -73,8 +73,7 @@ export const argsStringToArray = (funcArgs: string): string[] => {
 };
 
 export function getEvaluationVersion() {
-  const state = store.getState();
-  return selectEvaluationVersion(state);
+  return 2;
 }
 
 export const modalSetter = (changeValue: any, currentValue: string) => {

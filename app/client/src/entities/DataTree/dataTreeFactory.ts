@@ -3,7 +3,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import type { AppDataState } from "reducers/entityReducers/appReducer";
+import type { AppDataState } from "reducers/entityReducers/appReducer.types";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
 import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";

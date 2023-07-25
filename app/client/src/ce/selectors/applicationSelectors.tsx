@@ -224,6 +224,6 @@ export const getIsDeletingNavigationLogo = (state: AppState) => {
 
 const DEFAULT_EVALUATION_VERSION = 2;
 
-export const selectEvaluationVersion = (state: AppState) =>
-  state.ui.applications.currentApplication?.evaluationVersion ||
+export const selectEvaluationVersion = (state?: AppState) =>
+  state?.ui?.applications?.currentApplication?.evaluationVersion ||
   DEFAULT_EVALUATION_VERSION;

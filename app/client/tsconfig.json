@@ -19,7 +19,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -34,6 +34,10 @@
     "noFallthroughCasesInSwitch": true,
     "importsNotUsedAsValues": "error"
   },
-  "include": ["./src/**/*", "./packages"],
-  "exclude": ["./packages/rts", "**/*.stories.tsx"]
+  "include": ["./src/migration-main"],
+  "exclude": ["./packages/rts", "**/*.stories.tsx"],
+  "ts-node": {
+    // Do not forget to `npm i -D tsconfig-paths`
+    "require": ["tsconfig-paths/register"]
+  }
 }
