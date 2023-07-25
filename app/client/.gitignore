@@ -16,7 +16,7 @@ dist
 build.tar
 /build_airgap
 
-# misc
+# miscellaneous
 .DS_Store
 .env.local
 .env.development.local
