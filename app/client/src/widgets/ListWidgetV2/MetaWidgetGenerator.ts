@@ -942,7 +942,7 @@ class MetaWidgetGenerator {
     metaWidgetName: string,
     templateWidgetName: string,
   ) => {
-    if (metaWidgetName === templateWidgetName) return binding;
+    if (metaWidgetName === templateWidgetName || !binding) return binding;
 
     const pattern = new RegExp(`${templateWidgetName}\\.`, "g");
 
