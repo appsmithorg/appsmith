@@ -10,6 +10,8 @@ const Wrapper = styled.div<{ step: number }>`
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  word-wrap: break-word;
+  width: 100%;
 `;
 
 export function EntityPlaceholder(props: {
