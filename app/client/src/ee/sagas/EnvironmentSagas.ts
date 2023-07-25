@@ -9,6 +9,7 @@ import type { EnvironmentType } from "@appsmith/reducers/environmentReducer";
 import {
   ENVIRONMENT_ID_LOCAL_STORAGE_KEY,
   ENVIRONMENT_QUERY_KEY,
+  removeCurrentEnvironment,
   setCurrentEditingEnvID,
   updateLocalStorage,
 } from "@appsmith/utils/Environments";
@@ -65,32 +66,39 @@ function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const defaultEnvironment = response.data.find(
-        (env: EnvironmentType) =>
-          env.isDefault &&
+      const queryParams = new URLSearchParams(window.location.search);
+      // list of env  which is exec
+      const executableEnvs = response.data.filter(
+        (env) =>
           env.userPermissions &&
           env.userPermissions.length > 0 &&
           env.userPermissions[0] === PERMISSION_TYPE.EXECUTE_ENVIRONMENT,
       );
-      const datasourceEnv: boolean = yield select(datasourceEnvEnabled);
-      const queryParams = new URLSearchParams(window.location.search);
-      if (defaultEnvironment) {
+      if (executableEnvs.length === 0) {
+        removeCurrentEnvironment();
+        queryParams.delete(ENVIRONMENT_QUERY_KEY);
+        window.history.replaceState({}, "", "?" + queryParams.toString());
+      } else {
+        const defaultEnvironment = executableEnvs.find(
+          (env: EnvironmentType) => env.isDefault,
+        );
+        const datasourceEnv: boolean = yield select(datasourceEnvEnabled);
+        const seletedEnv = defaultEnvironment
+          ? defaultEnvironment
+          : executableEnvs[0];
         if (!checkIfEnvIsAlreadySet(response.data, queryParams)) {
-          updateLocalStorage(defaultEnvironment.name, defaultEnvironment.id);
+          updateLocalStorage(seletedEnv.name, seletedEnv.id);
           if (datasourceEnv) {
             // Set new if there is no query param
             queryParams.set(
               ENVIRONMENT_QUERY_KEY,
-              defaultEnvironment.name.toLowerCase(),
+              seletedEnv.name.toLowerCase(),
             );
             // Replace current querystring with the new one.
             window.history.replaceState({}, "", "?" + queryParams.toString());
           }
         }
-        setCurrentEditingEnvID(defaultEnvironment.id);
-      } else {
-        queryParams.delete(ENVIRONMENT_QUERY_KEY);
-        window.history.replaceState({}, "", "?" + queryParams.toString());
+        setCurrentEditingEnvID(seletedEnv.id);
       }
       let envsData: Array<EnvironmentType> = [];
       if (!!response.data && response.data.length > 0) {

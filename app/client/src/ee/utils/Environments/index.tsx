@@ -35,7 +35,7 @@ export const getCurrentEnvName = () => {
   if (localStorageEnv && localStorageEnv.length > 0) {
     return localStorageEnv;
   }
-  return "unused_env";
+  return "";
 };
 
 // function to get the current environment from the URL
@@ -60,4 +60,10 @@ export const setCurrentEditingEnvID = (id = "") => {
 
 export const onUpdateFilterSuccess = (id: string) => {
   setCurrentEditingEnvID(id);
+};
+
+export const removeCurrentEnvironment = () => {
+  localStorage.removeItem(ENVIRONMENT_LOCAL_STORAGE_KEY);
+  localStorage.removeItem(ENVIRONMENT_ID_LOCAL_STORAGE_KEY);
+  localStorage.removeItem(EDITING_ENVIRONMENT_ID_LOCAL_STORAGE_KEY);
 };
