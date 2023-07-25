@@ -90,7 +90,10 @@ import type { PluginType } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
-import { onUpdateFilterSuccess } from "@appsmith/utils/Environments";
+import {
+  isStorageEnvironmentCreated,
+  onUpdateFilterSuccess,
+} from "@appsmith/utils/Environments";
 import type { CalloutKind } from "design-system";
 
 interface ReduxStateProps {
@@ -517,6 +520,15 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       } else {
         this.props.resetForm(this.props.formName);
       }
+      return this.updateFilterSuccess(
+        id,
+        name,
+        userPermissions,
+        showFilterPane,
+      );
+    } else if (
+      !isStorageEnvironmentCreated(this.props.formData as Datasource, id)
+    ) {
       return this.updateFilterSuccess(
         id,
         name,
