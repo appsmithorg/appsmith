@@ -1,5 +1,6 @@
 # For running all specs - uncomment below:
-cypress/e2e/**/**/*
-
+cypress/e2e/Regression/ClientSide/Widgets/ListV2/ListV2_nested_List_widget_spec.js
+cypress/e2e/Regression/ClientSide/Binding/TableTextPagination_spec.js
+cypress/e2e/Regression/ClientSide/Binding/TableV2TextPagination_spec.js
 # To run only limited tests - give the spec names in below format:
 #cypress/e2e/Regression/ServerSide/GenerateCRUD/Mongo_Spec.ts
