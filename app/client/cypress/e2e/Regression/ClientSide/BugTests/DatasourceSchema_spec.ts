@@ -1,19 +1,26 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const agHelper = ObjectsRegistry.AggregateHelper,
-  dataSources = ObjectsRegistry.DataSources,
-  ee = ObjectsRegistry.EntityExplorer;
+import {
+  agHelper,
+  entityItems,
+  dataSources,
+  entityExplorer,
+  homePage,
+} from "../../../../support/Objects/ObjectsCore";
 
 let guid;
 let dataSourceName: string;
 describe("Datasource form related tests", function () {
+  before(() => {
+    homePage.CreateNewWorkspace("FetchSchemaOnce", true);
+    homePage.CreateAppInWorkspace("FetchSchemaOnce");
+  });
+
   it("1. Bug - 17238 Verify datasource structure refresh on save - invalid datasource", () => {
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       guid = uid;
       dataSourceName = "Postgres " + guid;
-      ee.ExpandCollapseEntity("Datasources");
+      entityExplorer.ExpandCollapseEntity("Datasources");
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("PostgreSQL");
       agHelper.RenameWithInPane(dataSourceName, false);
@@ -36,14 +43,16 @@ describe("Datasource form related tests", function () {
 
   it("2. Verify if schema was fetched once #18448", () => {
     agHelper.RefreshPage();
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ExpandCollapseEntity(dataSourceName, false);
-    cy.intercept("GET", dataSources._getStructureReq).as("getDSStructure");
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ExpandCollapseEntity(dataSourceName);
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    entityExplorer.ExpandCollapseEntity(dataSourceName, false);
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    entityExplorer.ExpandCollapseEntity(dataSourceName);
     agHelper.Sleep(1500);
     agHelper.VerifyCallCount(`@getDatasourceStructure`, 1);
-    dataSources.DeleteQuery("Query1");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
     dataSources.DeleteDatasouceFromWinthinDS(dataSourceName);
   });
 
@@ -61,7 +70,7 @@ describe("Datasource form related tests", function () {
       dataSources.CreateMockDB("Users");
       dataSources.CreateQueryAfterDSSaved();
       dataSources.VerifyTableSchemaOnQueryEditor("public.users");
-      ee.ExpandCollapseEntity("public.users");
+      entityExplorer.ExpandCollapseEntity("public.users");
       dataSources.VerifyColumnSchemaOnQueryEditor("id");
       dataSources.FilterAndVerifyDatasourceSchemaBySearch(
         "gender",

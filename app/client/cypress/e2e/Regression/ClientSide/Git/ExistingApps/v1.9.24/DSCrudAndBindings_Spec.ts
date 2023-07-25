@@ -19,11 +19,10 @@ describe("Import and validate older app (app created in older versions of Appsmi
     keyId: any,
     workspaceName: any;
   before(() => {
-    homePage.NavigateToHome();
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       workspaceName = "GitImport_" + uid;
-      homePage.CreateNewWorkspace(workspaceName);
+      homePage.CreateNewWorkspace(workspaceName, true);
     });
     //Import App From Gitea
     gitSync.ImportAppFromGit(workspaceName, appRepoName, true);
