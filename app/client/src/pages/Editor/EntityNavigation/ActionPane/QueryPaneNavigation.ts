@@ -1,4 +1,4 @@
-import { call, delay, put, select, take } from "redux-saga/effects";
+import { call, delay, put, race, select, take } from "redux-saga/effects";
 import type { EntityInfo, IQueryPaneNavigationConfig } from "../types";
 import { ActionPaneNavigation } from "./exports";
 import { NAVIGATION_DELAY } from "../costants";
@@ -41,7 +41,6 @@ export default class QueryPaneNavigation extends ActionPaneNavigation {
 
     if (config.tab) {
       yield put(setQueryPaneConfigSelectedTabIndex(config.tab));
-      yield delay(NAVIGATION_DELAY);
     }
 
     yield call(this.waitForFormUpdate);
@@ -57,6 +56,11 @@ export default class QueryPaneNavigation extends ActionPaneNavigation {
       // Wait till the form fields are computed
       yield take(ReduxActionTypes.FORM_EVALUATION_EMPTY_BUFFER);
       yield delay(NAVIGATION_DELAY);
+    } else {
+      yield race({
+        evaluation: take(ReduxActionTypes.FORM_EVALUATION_EMPTY_BUFFER),
+        timeout: delay(NAVIGATION_DELAY),
+      });
     }
   }
 
