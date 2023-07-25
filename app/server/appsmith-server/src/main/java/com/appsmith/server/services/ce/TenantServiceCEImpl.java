@@ -55,15 +55,19 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> updateTenantConfiguration(String tenantId, TenantConfiguration tenantConfiguration) {
-        return repository.findById(tenantId, MANAGE_TENANT).flatMap(tenant -> {
-            TenantConfiguration oldtenantConfiguration = tenant.getTenantConfiguration();
-            if (oldtenantConfiguration == null) {
-                oldtenantConfiguration = new TenantConfiguration();
-            }
-            AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration, oldtenantConfiguration);
-            tenant.setTenantConfiguration(oldtenantConfiguration);
-            return repository.updateById(tenantId, tenant, MANAGE_TENANT);
-        });
+        return repository
+                .findById(tenantId, MANAGE_TENANT)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.TENANT, tenantId)))
+                .flatMap(tenant -> {
+                    TenantConfiguration oldtenantConfiguration = tenant.getTenantConfiguration();
+                    if (oldtenantConfiguration == null) {
+                        oldtenantConfiguration = new TenantConfiguration();
+                    }
+                    AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration, oldtenantConfiguration);
+                    tenant.setTenantConfiguration(oldtenantConfiguration);
+                    return repository.updateById(tenantId, tenant, MANAGE_TENANT);
+                });
     }
 
     @Override
@@ -131,17 +135,15 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
      * @return Tenant
      */
     protected Tenant getClientPertinentTenant(Tenant dbTenant, Tenant clientTenant) {
-        TenantConfiguration tenantConfiguration;
         if (clientTenant == null) {
             clientTenant = new Tenant();
-            tenantConfiguration = new TenantConfiguration();
-        } else {
-            tenantConfiguration = clientTenant.getTenantConfiguration();
+            clientTenant.setTenantConfiguration(new TenantConfiguration());
         }
+
+        final TenantConfiguration tenantConfiguration = clientTenant.getTenantConfiguration();
 
         // Only copy the values that are pertinent to the client
         tenantConfiguration.copyNonSensitiveValues(dbTenant.getTenantConfiguration());
-        clientTenant.setTenantConfiguration(tenantConfiguration);
         clientTenant.setUserPermissions(dbTenant.getUserPermissions());
 
         return clientTenant;

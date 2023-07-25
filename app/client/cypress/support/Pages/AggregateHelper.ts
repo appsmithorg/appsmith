@@ -47,6 +47,7 @@ export class AggregateHelper extends ReusableHelper {
   private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
   private lazyCodeEditorFallback = ".t--lazyCodeEditor-fallback";
   private lazyCodeEditorRendered = ".t--lazyCodeEditor-editor";
+  private toolTipSpan = ".rc-tooltip-inner span";
 
   private selectChars = (noOfChars: number) =>
     `${"{leftArrow}".repeat(noOfChars) + "{shift}{cmd}{leftArrow}{backspace}"}`;
@@ -92,8 +93,7 @@ export class AggregateHelper extends ReusableHelper {
 
   public AddDsl(
     dslFile: string,
-    elementToCheckPresenceaftDslLoad: string | "" = "",
-    reloadWithoutCache = true,
+    elementToCheckPresenceaftDslLoad: string | "" = "", //    reloadWithoutCache = true,
   ) {
     let pageid: string, layoutId;
     let appId: string | null;
@@ -125,7 +125,7 @@ export class AggregateHelper extends ReusableHelper {
             //cy.log("Pages resposne is : " + dslDumpResp.body);
             expect(dslDumpResp.status).equal(200);
             this.Sleep(3000); //for dsl to settle in layouts api & then refresh
-            this.RefreshPage(reloadWithoutCache);
+            this.RefreshPage();
             if (elementToCheckPresenceaftDslLoad)
               this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
             this.Sleep(2000); //settling time for dsl
@@ -147,6 +147,22 @@ export class AggregateHelper extends ReusableHelper {
     this.GetText(this.locator._errorToolTip, "text").then(($error) =>
       expect($error).to.eq(expectedError),
     );
+  }
+
+  /**
+   *
+   * @param selector
+   * @param index
+   * Checks if the given selector has class with disabled in the class name
+   * @returns
+   */
+  public AssertElementClassContainsDisabled(selector: string, index = 0) {
+    return this.GetElement(selector)
+      .eq(index)
+      .should(($element) => {
+        const elementClass = $element.attr("class");
+        expect(elementClass).to.include("disabled");
+      });
   }
 
   public RenameWithInPane(renameVal: string, IsQuery = true) {
@@ -285,6 +301,10 @@ export class AggregateHelper extends ReusableHelper {
           });
       }
     });
+  }
+
+  public AssertTooltip(toolTipText: string) {
+    this.GetNAssertContains(this.toolTipSpan, toolTipText);
   }
 
   public RemoveEvaluatedPopUp() {
@@ -608,6 +628,14 @@ export class AggregateHelper extends ReusableHelper {
     cy.get(`${alias}.all`).should("have.length", expectedNumberOfCalls);
   }
 
+  public GetNClickIfPresent(selector: string) {
+    cy.get("body").then(($body) => {
+      if ($body.find(selector).length > 0) {
+        cy.get(selector).click();
+      }
+    });
+  }
+
   public GetNClick(
     selector: string,
     index = 0,
@@ -866,8 +894,7 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public RefreshPage(
-    reloadWithoutCache = true,
-    networkCallAlias = "getWorkspace",
+    networkCallAlias = "getWorkspace", //    reloadWithoutCache = true,
   ) {
     this.Sleep(2000);
     this.assertHelper.AssertDocumentReady();
@@ -1055,6 +1082,17 @@ export class AggregateHelper extends ReusableHelper {
       .find("input")
       .invoke("attr", "value", value)
       .trigger("input");
+    this.Sleep(); //for value set to settle
+  }
+
+  public ValidateFieldInputValue(selector: string, value: string) {
+    this.GetElement(selector)
+      .closest("input")
+      .scrollIntoView({ easing: "linear" })
+      .invoke("val")
+      .then((inputValue) => {
+        expect(inputValue).to.equal(value);
+      });
     this.Sleep(); //for value set to settle
   }
 
