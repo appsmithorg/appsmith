@@ -24,7 +24,7 @@ export default defineConfig({
     openMode: 0,
   },
   e2e: {
-    baseUrl: "https://regression.test.appsmith.com",
+    baseUrl: "http://regression.test.appsmith.com",
     setupNodeEvents(on, config) {
       return require("./cypress/plugins/index.js")(on, config);
     },
