@@ -23,8 +23,7 @@ const DropdownSelect = styled.div<{
   width: string;
 }>`
   /* font-size: 14px; */
-  min-width: 380px;
-  max-width: 545px;
+  width: ${(props) => (props?.width ? props?.width : "270px")};
 `;
 
 class DropDownControl extends BaseControl<Props> {

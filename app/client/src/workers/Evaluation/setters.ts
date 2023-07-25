@@ -18,11 +18,16 @@ import { getFnWithGuards, isAsyncGuard } from "./fns/utils/fnGuard";
 import { shouldAddSetter } from "./evaluate";
 
 class Setters {
-  /** stores the setter accessor as key and true as value
+  /** stores the setter method accessor as key and true as value
    *
    * example - ```{ "Table1.setVisibility": true, "Table1.setData": true }```
    */
   private setterMethodLookup: Record<string, true> = {};
+  /** stores the setter property accessor as key and setter method name as value
+   *
+   * example - ```{ "Table1.tableData": "Table1.setData" }```
+   */
+  private setterAccessorMap: Record<string, string> = {};
 
   private applySetterMethod(
     path: string,
@@ -111,7 +116,11 @@ class Setters {
     });
   }
   /** Generates a new setter method */
-  private factory(path: string, setterMethodName: string, entityName: string) {
+  private createSetter(
+    path: string,
+    setterMethodName: string,
+    entityName: string,
+  ) {
     /** register the setter method in the lookup */
     set(this.setterMethodLookup, [entityName, setterMethodName], true);
 
@@ -135,6 +144,10 @@ class Setters {
     return this.setterMethodLookup;
   }
 
+  getSetterAccessorMap() {
+    return this.setterAccessorMap;
+  }
+
   getEntitySettersFromConfig(
     entityConfig: DataTreeEntityConfig,
     entityName: string,
@@ -145,13 +158,15 @@ class Setters {
 
     if (entityConfig.__setters) {
       for (const setterMethodName of Object.keys(entityConfig.__setters)) {
-        const path = entityConfig.__setters[setterMethodName].path;
+        const pathToSet = entityConfig.__setters[setterMethodName].path;
 
         if (!shouldAddSetter(entityConfig.__setters[setterMethodName], entity))
           continue;
 
-        setterMethodMap[setterMethodName] = this.factory(
-          path,
+        this.setterAccessorMap[pathToSet] = `${entityName}.${setterMethodName}`;
+
+        setterMethodMap[setterMethodName] = this.createSetter(
+          pathToSet,
           setterMethodName,
           entityName,
         );

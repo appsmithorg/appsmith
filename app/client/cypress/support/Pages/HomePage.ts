@@ -325,15 +325,20 @@ export class HomePage {
     cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
     cy.wait("@postLogout");
     this.agHelper.VisitNAssert("/user/login", "signUpLogin");
-    cy.get(this._username).should("be.visible").type(uname);
-    cy.get(this._password).type(pswd, { log: false });
-    cy.get(this._submitBtn).click();
-    cy.wait("@getMe");
+    this.agHelper.AssertElementVisible(this._username);
+    this.agHelper.TypeText(this._username, uname);
+    this.agHelper.TypeText(this._password, pswd);
+    this.agHelper.GetNClick(this._submitBtn);
+    this.assertHelper.AssertNetworkStatus("@getMe");
     this.agHelper.Sleep(3000);
-    if (role != "App Viewer")
-      cy.get(this._homePageAppCreateBtn)
-        .should("be.visible")
-        .should("be.enabled");
+    if (role != "App Viewer") {
+      this.agHelper.AssertElementVisible(this._homePageAppCreateBtn);
+      this.agHelper.AssertElementEnabledDisabled(
+        this._homePageAppCreateBtn,
+        undefined,
+        false,
+      );
+    }
   }
 
   public SignUp(uname: string, pswd: string) {
@@ -341,20 +346,21 @@ export class HomePage {
     cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
     cy.wait("@postLogout");
     this.agHelper.VisitNAssert("/user/signup", "signUpLogin");
-    cy.get(this.signupUsername).should("be.visible").type(uname);
-    cy.get(this._password).type(pswd, { log: false });
-    cy.get(this._submitBtn).click();
-    cy.wait(1000);
+    this.agHelper.AssertElementVisible(this.signupUsername);
+    this.agHelper.TypeText(this.signupUsername, uname);
+    this.agHelper.TypeText(this._password, pswd);
+    this.agHelper.GetNClick(this._submitBtn);
+    this.agHelper.Sleep(1000);
     cy.get("body").then(($body) => {
       if ($body.find(this.roleDropdown).length > 0) {
-        cy.get(this.roleDropdown).click();
-        cy.get(this.dropdownOption).click();
-        cy.get(this.useCaseDropdown).click();
-        cy.get(this.dropdownOption).click();
-        cy.get(this.roleUsecaseSubmit).click({ force: true });
+        this.agHelper.GetNClick(this.roleDropdown);
+        this.agHelper.GetNClick(this.dropdownOption);
+        this.agHelper.GetNClick(this.useCaseDropdown);
+        this.agHelper.GetNClick(this.dropdownOption);
+        this.agHelper.GetNClick(this.roleUsecaseSubmit, undefined, true);
       }
     });
-    cy.wait("@getMe");
+    this.assertHelper.AssertNetworkStatus("@getMe");
     this.agHelper.Sleep(3000);
   }
 
@@ -363,6 +369,16 @@ export class HomePage {
     this.agHelper.Sleep(2000);
     workspaceId && cy.get(this._appContainer).contains(workspaceId);
     cy.xpath(this.locator._spanButton("Share")).first().should("be.visible");
+  }
+
+  /**
+   * Searches for given app name and clicks edit icon
+   * @param appName
+   */
+  public SearchAndOpenApp(appName: string) {
+    this.agHelper.TypeText(this._searchInput, appName);
+    this.agHelper.Sleep(2000);
+    this.EditAppFromAppHover();
   }
 
   //Maps to launchApp in command.js

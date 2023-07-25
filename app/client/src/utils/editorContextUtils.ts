@@ -7,12 +7,25 @@ import {
 import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 import { diff } from "deep-diff";
 import { PluginName, PluginPackageName, PluginType } from "entities/Action";
-import type { Datasource } from "entities/Datasource";
+import type {
+  Datasource,
+  DatasourceStructure,
+  DatasourceTable,
+  QueryTemplate,
+} from "entities/Datasource";
 import { AuthenticationStatus, AuthType } from "entities/Datasource";
 import { get, isArray } from "lodash";
 import store from "store";
 import { getPlugin } from "selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
+import {
+  MOCK_DB_TABLE_NAMES,
+  SQL_DATASOURCES,
+} from "constants/QueryEditorConstants";
+import {
+  NOSQL_PLUGINS_DEFAULT_TEMPLATE_TYPE,
+  SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE,
+} from "constants/Datasource";
 export function isCurrentFocusOnInput() {
   return (
     ["input", "textarea"].indexOf(
@@ -203,5 +216,64 @@ export function getSQLPluginsMockTableName(pluginId: string) {
     default: {
       return "";
     }
+  }
+}
+
+export function getDefaultTemplateActionConfig(
+  plugin: Plugin,
+  dsStructure?: DatasourceStructure,
+  isMock?: boolean,
+) {
+  if (!!dsStructure) {
+    let defaultTableName = "";
+    let templateTitle = "";
+    let queryTemplate: QueryTemplate | undefined = undefined;
+    if (SQL_DATASOURCES.includes(plugin?.name)) {
+      templateTitle = SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE;
+    } else if (plugin?.name === PluginName.MONGO) {
+      templateTitle = NOSQL_PLUGINS_DEFAULT_TEMPLATE_TYPE;
+    }
+    if (isMock) {
+      switch (plugin?.name) {
+        case PluginName.MONGO: {
+          defaultTableName = MOCK_DB_TABLE_NAMES.MOVIES;
+          break;
+        }
+        case PluginName.POSTGRES: {
+          defaultTableName = MOCK_DB_TABLE_NAMES.USERS;
+          break;
+        }
+        default: {
+          defaultTableName = "";
+          break;
+        }
+      }
+    } else {
+      if (SQL_DATASOURCES.includes(plugin?.name)) {
+        defaultTableName =
+          !!dsStructure.tables && dsStructure.tables.length > 0
+            ? dsStructure.tables[0].name
+            : "";
+      }
+    }
+
+    const table: DatasourceTable | undefined = dsStructure.tables?.find(
+      (table: DatasourceTable) => table.name === defaultTableName,
+    );
+    queryTemplate = table?.templates?.find(
+      (template: QueryTemplate) => template.title === templateTitle,
+    );
+
+    // Reusing same functionality as QueryTemplate.tsx to populate actionConfiguration
+    if (!!queryTemplate) {
+      return {
+        body: queryTemplate.body,
+        pluginSpecifiedTemplates: queryTemplate.pluginSpecifiedTemplates,
+        formData: queryTemplate.configuration,
+        ...queryTemplate.actionConfiguration,
+      };
+    }
+
+    return null;
   }
 }
