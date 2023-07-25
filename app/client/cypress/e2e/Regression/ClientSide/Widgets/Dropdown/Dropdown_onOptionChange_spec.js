@@ -20,7 +20,7 @@ describe("Dropdown Widget", function () {
     entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
 
     cy.EnableAllCodeEditors();
-    cy.testJsontext("options", JSON.stringify(this.dataSet.input));
+    cy.testJsontext("sourcedata", JSON.stringify(this.dataSet.input));
     //creating the Modal and verify Modal name //to fix below
     // cy.createModal("Modal1", false);
     // deployMode.DeployApp();

@@ -655,7 +655,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     );
     if (toastMessage.message)
       return (
-        <div style={{ width: "30vw", marginTop: "24px", marginLeft: "24px" }}>
+        <div style={{ width: "30vw", marginTop: "24px" }}>
           <Callout
             isClosable
             kind={toastMessage.kind as CalloutKind}
