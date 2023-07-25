@@ -221,7 +221,11 @@ export const getPropertyPanePanelNavigationConfig = (
               .slice(0, 2 + panelDepth * 2)
               .join(".");
             const panelPath = pathList.slice(0, 1 + panelDepth * 2).join(".");
-            const panelIndex = getPanelIndex(widgetProps, panelTabPath);
+            const panelIndex = getPanelIndex(
+              widgetProps,
+              panelTabPath,
+              panelDepth,
+            );
             // We will also need the label to be sent as payload for actions to
             // set the panel, tab and section collapse state
             const panelLabel = get(widgetProps, panelTabPath)?.label;
@@ -290,8 +294,19 @@ function matchesPropertyPath(
   return false;
 }
 
-function getPanelIndex(widgetProps: WidgetProps, panelTabPath: string) {
+function getPanelIndex(
+  widgetProps: WidgetProps,
+  panelTabPath: string,
+  panelDepth: number,
+) {
   const obj = get(widgetProps, panelTabPath);
+  // The index field never seems to change for the widget
+  if (widgetProps.type === "TABLE_WIDGET_V2" && panelDepth === 0) {
+    const column = panelTabPath.split(".")[1];
+    const columnOrder: string[] = get(widgetProps, "columnOrder");
+    return columnOrder.indexOf(column);
+  }
+
   return obj?.index ?? obj?.position;
 }
 
@@ -302,7 +317,11 @@ function isSectionHidden(
 ) {
   if (config) {
     if (config.hidden) {
-      return config.hidden(widgetProps, propertyPath);
+      // We need to pass the parent property path i.e path to the section
+      return config.hidden(
+        widgetProps,
+        propertyPath.split(".").slice(0, -1).join("."),
+      );
     }
   }
   return false;

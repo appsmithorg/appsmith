@@ -10,6 +10,7 @@ import {
   reduxForm,
   initialize,
   getFormInitialValues,
+  reset,
 } from "redux-form";
 import type { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
@@ -126,6 +127,7 @@ interface DatasourceFormFunctions {
   loadFilePickerAction: () => void;
   datasourceDiscardAction: (pluginId: string) => void;
   initializeDatasource: (values: any) => void;
+  resetForm: (formName: string) => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -397,6 +399,17 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     this.closeDialogAndUnblockRoutes();
     this.state.navigation();
     this.props.datasourceDiscardAction(this.props?.pluginId);
+
+    if (!this.props.viewMode) {
+      this.props.setDatasourceViewMode({
+        datasourceId: this.props.datasourceId,
+        viewMode: true,
+      });
+    }
+
+    if (this.props.isFormDirty) {
+      this.props.resetForm(this.props.formName);
+    }
   }
 
   closeDialogAndUnblockRoutes(isNavigateBack?: boolean) {
@@ -429,6 +442,18 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       name: this.props.datasourceName,
     };
   };
+
+  onCancel() {
+    // if form has changed, show modal popup, or else simply set to view mode.
+    if (this.props.isFormDirty) {
+      this.setState({ showDialog: true });
+    } else {
+      this.props.setDatasourceViewMode({
+        datasourceId: this.props.datasourceId,
+        viewMode: true,
+      });
+    }
+  }
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
@@ -587,6 +612,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                     isInvalid={validate(this.props.requiredFields, formData)}
                     isSaving={isSaving}
                     isTesting={isTesting}
+                    onCancel={() => this.onCancel()}
                     pageId={pageId}
                     pluginName={plugin?.name || ""}
                     pluginPackageName={pluginPackageName}
@@ -757,6 +783,7 @@ const mapDispatchToProps = (dispatch: any): DatasourceFormFunctions => ({
     dispatch(datasourceDiscardAction(pluginId)),
   initializeDatasource: (values: any) =>
     dispatch(initialize(DATASOURCE_SAAS_FORM, values)),
+  resetForm: (formName: string) => dispatch(reset(formName)),
 });
 
 const SaaSEditor = connect(

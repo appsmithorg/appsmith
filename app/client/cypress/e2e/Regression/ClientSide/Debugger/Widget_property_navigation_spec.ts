@@ -113,4 +113,30 @@ describe("Widget property navigation", () => {
     _.entityExplorer.SelectEntityByName("JSONForm1");
     _.entityExplorer.DeleteWidgetFromEntityExplorer("JSONForm1");
   });
+
+  it("Should switch panels correctly", () => {
+    _.agHelper.RefreshPage();
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.MENUBUTTON,
+      100,
+      200,
+    );
+    _.propPane.OpenTableColumnSettings("menuItem1");
+
+    _.propPane.EnterJSContext("disabled", "{{test}}", true, false);
+    _.debuggerHelper.AssertErrorCount(1);
+    _.propPane.NavigateBackToPropertyPane();
+
+    _.propPane.OpenTableColumnSettings("menuItem2");
+    _.propPane.EnterJSContext("disabled", "{{test}}", true, false);
+    _.debuggerHelper.AssertErrorCount(2);
+
+    _.debuggerHelper.ClickDebuggerIcon();
+    _.debuggerHelper.ClicklogEntityLink(true);
+    _.agHelper.GetElement(_.propPane._paneTitle).contains("First Menu Item");
+
+    _.debuggerHelper.CloseBottomBar();
+    _.entityExplorer.SelectEntityByName("MenuButton1");
+    _.entityExplorer.DeleteWidgetFromEntityExplorer("MenuButton1");
+  });
 });
