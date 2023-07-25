@@ -180,7 +180,6 @@ export class DataSources {
   _gsScopeOptions = ".ads-v2-select__dropdown .rc-select-item-option";
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
-  _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
   private _suggestedWidget = (widgetType: string) =>
@@ -1265,7 +1264,6 @@ export class DataSources {
     schema: string,
     isUpdate = false,
   ) {
-    cy.intercept("GET", this._getStructureReq).as("getDSStructure");
     if (isUpdate) {
       this.UpdateDatasource();
     } else {
@@ -1275,7 +1273,7 @@ export class DataSources {
       entityNameinLeftSidebar: dataSourceName,
       action: "Refresh",
     });
-    cy.wait("@getDSStructure").then(() => {
+    cy.wait("@getDatasourceStructure").then(() => {
       cy.get(".bp3-collapse-body").contains(schema);
     });
   }
