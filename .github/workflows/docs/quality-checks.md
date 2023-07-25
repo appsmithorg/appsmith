@@ -57,4 +57,4 @@ Steps:
 
 1. Uses a Bash script to check the results of each job.
 2. If any of the previous jobs' results are "failure," the script echoes "Quality checks failed" and exits with an error code (1).
-3. If all previous jobs' results are successful, the script echoes "Quality checks successful" and exits with a success code (0).
+3. In any other non-failing scenario (skipped steps or successful steps), the script echoes "Quality checks successful" and exits with a success code (0).
