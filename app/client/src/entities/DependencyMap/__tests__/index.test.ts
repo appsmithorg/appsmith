@@ -21,6 +21,10 @@ describe("Tests for DependencyMap", () => {
     expect(dataDependencyMap.invalidDependencies).toEqual({ a: ["c"] });
     expect(dataDependencyMap.inverseInvalidDependencies).toEqual({ c: ["a"] });
   });
+  it("should not add a dependency for nodes that do not exist", () => {
+    dataDependencyMap.addDependency("absentNode", ["b", "c"]);
+    expect(dataDependencyMap.getDirectDependencies("absentNode")).toEqual([]);
+  });
   it("Adding new node should recompute valid and invalid dependencies", () => {
     dataDependencyMap.addNodes({ c: true });
     expect(dataDependencyMap.dependencies).toEqual({ a: ["b", "c"] });

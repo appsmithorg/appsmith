@@ -123,6 +123,11 @@ export default class DependencyMap {
       const nodesThatAlreadyDependedOnThis =
         this.#invalidDependenciesInverse.get(newNode) || new Set<string>();
       if (!strict) {
+        // In non-strict mode, when the newly added path is a parent of an invalid node,
+        // all paths depending on the invalid node should be added as paths depending on new path
+        // Example => if Button1.text depends on Api1.data.invalidNode(which doesn't exist), if Api1.data is newly added,
+        // then Button1.text should be added to paths that depend on Api1.data
+
         for (const [invalidNode, dependants] of this
           .#invalidDependenciesInverse) {
           if (
