@@ -82,6 +82,7 @@ export type SetterConfig = {
       path: string;
       type: string;
       disabled?: string;
+      accessor?: string;
     };
   };
 };

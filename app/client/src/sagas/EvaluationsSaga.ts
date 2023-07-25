@@ -136,6 +136,7 @@ export function* updateDataTreeHandler(
     errors,
     evalMetaUpdates = [],
     evaluationOrder,
+    reValidatedPaths,
     isCreateFirstTree = false,
     isNewWidgetAdded,
     jsUpdates,
@@ -180,12 +181,13 @@ export function* updateDataTreeHandler(
   log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
   logs?.forEach((evalLog: any) => log.debug(evalLog));
-  // Added type as any due to https://github.com/redux-saga/redux-saga/issues/1482
+
   yield call(
-    evalErrorHandler as any,
+    evalErrorHandler,
     errors,
     updatedDataTree,
     evaluationOrder,
+    reValidatedPaths,
     configTree,
     pathsToClearErrorsFor,
   );
