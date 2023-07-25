@@ -48,6 +48,15 @@ export default [
     icon: "https://github.com/LiosK.png?s=20",
   },
   {
+    name: "bcryptjs",
+    url: "https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js",
+    description: "A library to help you hash passwords",
+    author: "dcodeIO",
+    docsURL: "https://github.com/dcodeIO/bcrypt.js#bcryptjs",
+    version: "2.4.3",
+    icon: "https://github.com/dcodeIO.png?s=20",
+  },
+  {
     name: "Papa Parse 5",
     description:
       "Fast and powerful CSV (delimited text) parser that gracefully handles large files and malformed input",
