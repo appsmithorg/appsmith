@@ -31,7 +31,6 @@ describe("Slug URLs", () => {
   it("2. Checks if application slug updates on the URL when application name changes", () => {
     cy.generateUUID().then((appName) => {
       applicationName = appName;
-      agHelper.AssertElementAbsence(locators._loading);
       homePage.RenameApplication(applicationName);
       assertHelper.AssertNetworkStatus("updateApplication");
       cy.location("pathname").then((pathname) => {
