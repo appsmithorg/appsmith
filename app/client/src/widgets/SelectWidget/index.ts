@@ -67,7 +67,7 @@ export const CONFIG = {
     ): PropertyUpdates[] => {
       return [
         {
-          propertyPath: "options",
+          propertyPath: "sourceData",
           propertyValue: propValueMap.data,
           isDynamicPropertyPath: true,
         },
