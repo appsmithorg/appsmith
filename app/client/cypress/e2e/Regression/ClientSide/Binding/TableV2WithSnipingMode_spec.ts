@@ -18,7 +18,7 @@ describe("Test Create Api and Bind to Table widget V2", function () {
       tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
     );
     apiPage.RunAPI();
-    agHelper.GetNClick(FirstTimeUserOnboarding.selectWidgetInCanvas);
+    agHelper.GetNClick(FirstTimeUserOnboarding.selectWidgetBtn);
     agHelper.AssertElementVisible(FirstTimeUserOnboarding.snipingBanner);
     //Click on table name controller to bind the data and exit sniping mode
     agHelper.GetNClick(table._tableV2Widget);

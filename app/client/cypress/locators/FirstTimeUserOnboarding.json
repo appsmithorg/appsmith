@@ -20,6 +20,5 @@
   "welcomeTourBtn": ".t--start-building",
   "editorWelcomeTourBtn": "[data-testid='editor-welcome-tour']",
   "checklistCompletionBanner": "[data-testid='checklist-completion-banner']",
-  "snipingControl": ".t--settings-sniping-control",
-  "selectWidgetInCanvas": ".t--select-in-canvas"
+  "selectWidgetBtn": ".t--select-in-canvas"
 }
