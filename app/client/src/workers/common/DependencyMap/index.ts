@@ -163,7 +163,10 @@ export const updateDependencyMap = ({
           }
 
           const didUpdateDep = dependencyMap.addNodes(allAddedPaths, false);
+          const didUpdateValidationDep =
+            validationDependencyMap.addNodes(allAddedPaths);
           if (didUpdateDep) didUpdateDependencyMap = true;
+          if (didUpdateValidationDep) didUpdateValidationDependencyMap = true;
           if (isWidgetActionOrJsObject(entity)) {
             if (!isDynamicLeaf(unEvalDataTree, fullPropertyPath, configTree)) {
               const entityDependencyMap = getEntityDependencies(

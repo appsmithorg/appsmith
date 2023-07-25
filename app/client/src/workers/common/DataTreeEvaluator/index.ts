@@ -301,6 +301,8 @@ export default class DataTreeEvaluator {
       timeTakenForSetupFirstTree,
       dependencies: this.dependencies,
       inverseDependencies: this.inverseDependencies,
+      validationDependencies: this.validationDependencies,
+      inverseValidationDependencies: this.inverseValidationDependencies,
     });
     return {
       jsUpdates,
@@ -494,10 +496,7 @@ export default class DataTreeEvaluator {
     }
 
     const diffCheckTimeStopTime = performance.now();
-    this.logs.push({
-      differences,
-      translatedDiffs,
-    });
+
     const updateDependencyStartTime = performance.now();
     // TODO => Optimize using dataTree diff
     this.allKeys = getAllPaths(localUnEvalTree);
@@ -543,6 +542,10 @@ export default class DataTreeEvaluator {
     }
 
     const updatedValuePaths = [...pathsChangedSet];
+    this.logs.push({
+      differences,
+      translatedDiffs,
+    });
 
     return {
       ...this.setupTree(localUnEvalTree, updatedValuePaths, {
@@ -651,9 +654,11 @@ export default class DataTreeEvaluator {
 
     this.logs.push({
       sortedDependencies: this.sortedDependencies,
-      inverse: this.inverseDependencies,
+      inverseDependencies: this.inverseDependencies,
       updatedDependencies: this.dependencies,
       evaluationOrder: evaluationOrder,
+      updatedValidationDependencies: this.validationDependencies,
+      inverseValidationDependencies: this.inverseValidationDependencies,
     });
 
     // Remove any deleted paths from the eval tree
