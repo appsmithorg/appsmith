@@ -90,7 +90,10 @@ import type { PluginType } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
-import { onUpdateFilterSuccess } from "@appsmith/utils/Environments";
+import {
+  isStorageEnvironmentCreated,
+  onUpdateFilterSuccess,
+} from "@appsmith/utils/Environments";
 import type { CalloutKind } from "design-system";
 
 interface ReduxStateProps {
@@ -424,6 +427,18 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     });
   }
 
+  onCancel() {
+    // if form has changed, show modal popup, or else simply set to view mode.
+    if (this.props.isFormDirty) {
+      this.setState({ showDialog: true });
+    } else {
+      this.props.setDatasourceViewMode({
+        datasourceId: this.props.datasourceId,
+        viewMode: true,
+      });
+    }
+  }
+
   closeDialog() {
     this.setState({ showDialog: false });
   }
@@ -444,6 +459,18 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       this.props.datasourceDiscardAction(this.props?.pluginId);
     }
     this.state.navigation();
+    this.props.datasourceDiscardAction(this.props?.pluginId);
+
+    if (!this.props.viewMode) {
+      this.props.setDatasourceViewMode({
+        datasourceId: this.props.datasourceId,
+        viewMode: true,
+      });
+    }
+
+    if (this.props.isFormDirty) {
+      this.props.resetForm(this.props.formName);
+    }
   }
 
   closeDialogAndUnblockRoutes(isNavigateBack?: boolean) {
@@ -493,6 +520,15 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       } else {
         this.props.resetForm(this.props.formName);
       }
+      return this.updateFilterSuccess(
+        id,
+        name,
+        userPermissions,
+        showFilterPane,
+      );
+    } else if (
+      !isStorageEnvironmentCreated(this.props.formData as Datasource, id)
+    ) {
       return this.updateFilterSuccess(
         id,
         name,
@@ -631,7 +667,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     );
     if (toastMessage.message)
       return (
-        <div style={{ width: "30vw", marginTop: "24px", marginLeft: "24px" }}>
+        <div style={{ width: "30vw", marginTop: "24px" }}>
           <Callout
             isClosable
             kind={toastMessage.kind as CalloutKind}
@@ -852,6 +888,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                     isInvalid={this.validateForm()}
                     isSaving={isSaving}
                     isTesting={isTesting}
+                    onCancel={() => this.onCancel()}
                     pluginName={pluginName}
                     pluginPackageName={pluginPackageName}
                     pluginType={pluginType as PluginType}

@@ -180,7 +180,6 @@ export class DataSources {
   _gsScopeOptions = ".ads-v2-select__dropdown .rc-select-item-option";
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
-  _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
   private _suggestedWidget = (widgetType: string) =>
@@ -233,8 +232,11 @@ export class DataSources {
   private _reconnectModalDSToopTipIcon = ".t--ds-list .ads-v2-icon";
   private _datasourceTableSchemaInQueryEditor =
     ".datasourceStructure-query-editor";
+  private _datasourceSchemaRefreshBtn = ".datasourceStructure-refresh";
+  private _datasourceStructureHeader = ".datasourceStructure-header";
   private _datasourceColumnSchemaInQueryEditor = ".t--datasource-column";
   private _datasourceStructureSearchInput = ".datasourceStructure-search input";
+  public _queryEditorCollapsibleIcon = ".collapsible-icon";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -760,6 +762,21 @@ export class DataSources {
     this.DeleteDSDirectly(expectedRes);
   }
 
+  // this initiates saving via the cancel button.
+  public cancelDSEditAndAssertModalPopUp(
+    shouldPopUpBeShown = false,
+    shouldSave = false,
+  ) {
+    // click cancel button.
+    this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, false, 200);
+
+    if (shouldPopUpBeShown) {
+      this.AssertDatasourceSaveModalVisibilityAndSave(shouldSave);
+    } else {
+      this.AssertDSDialogVisibility(false);
+    }
+  }
+
   public DeleteDSDirectly(
     expectedRes: number | number[] = 200 || 409 || [200 | 409],
   ) {
@@ -1093,6 +1110,8 @@ export class DataSources {
     testNSave = true,
     environment = this.tedTestConfig.defaultEnviorment,
     assetEnvironmentSelected = false,
+    // function to be executed before filling the datasource form
+    preDSConfigAction?: (arg?: string) => void,
   ) {
     let guid: any;
     let dataSourceName = "";
@@ -1105,6 +1124,10 @@ export class DataSources {
         guid = uid;
         dataSourceName = dsType + " " + guid;
         this.agHelper.RenameWithInPane(dataSourceName, false);
+        // Execute the preDSConfigAction if it is defined
+        if (!!preDSConfigAction) {
+          preDSConfigAction.bind(this)(environment);
+        }
         if (assetEnvironmentSelected) {
           this.agHelper.AssertSelectedTab(
             this.locator.ds_editor_env_filter(environment),
@@ -1241,7 +1264,6 @@ export class DataSources {
     schema: string,
     isUpdate = false,
   ) {
-    cy.intercept("GET", this._getStructureReq).as("getDSStructure");
     if (isUpdate) {
       this.UpdateDatasource();
     } else {
@@ -1251,7 +1273,7 @@ export class DataSources {
       entityNameinLeftSidebar: dataSourceName,
       action: "Refresh",
     });
-    cy.wait("@getDSStructure").then(() => {
+    cy.wait("@getDatasourceStructure").then(() => {
       cy.get(".bp3-collapse-body").contains(schema);
     });
   }
@@ -1262,11 +1284,27 @@ export class DataSources {
       .contains(schema);
   }
 
+  public VerifySchemaAbsenceInQueryEditor() {
+    this.agHelper.AssertElementAbsence(this._datasourceStructureHeader);
+  }
+
   public VerifyColumnSchemaOnQueryEditor(schema: string, index = 0) {
     this.agHelper
       .GetElement(this._datasourceColumnSchemaInQueryEditor)
       .eq(index)
       .contains(schema);
+  }
+
+  public RefreshDatasourceSchema() {
+    this.agHelper.GetNClick(this._datasourceSchemaRefreshBtn);
+  }
+
+  public VerifySchemaCollapsibleOpenState(isOpen = false) {
+    if (isOpen) {
+      this.agHelper.AssertElementVisible(this._datasourceStructureSearchInput);
+    } else {
+      this.agHelper.AssertElementAbsence(this._datasourceStructureSearchInput);
+    }
   }
 
   public FilterAndVerifyDatasourceSchemaBySearch(
@@ -1285,10 +1323,18 @@ export class DataSources {
     }
   }
 
-  public SaveDSFromDialog(save = true) {
-    this.agHelper.GoBack();
-    this.agHelper.AssertElementVisible(this._datasourceModalDoNotSave);
-    this.agHelper.AssertElementVisible(this._datasourceModalSave);
+  public AssertDSDialogVisibility(isVisible = true) {
+    if (isVisible) {
+      this.agHelper.AssertElementVisible(this._datasourceModalDoNotSave);
+      this.agHelper.AssertElementVisible(this._datasourceModalSave);
+    } else {
+      this.agHelper.AssertElementAbsence(this._datasourceModalDoNotSave);
+      this.agHelper.AssertElementAbsence(this._datasourceModalSave);
+    }
+  }
+
+  public AssertDatasourceSaveModalVisibilityAndSave(save = true) {
+    this.AssertDSDialogVisibility();
     if (save) {
       this.agHelper.GetNClick(
         this.locator._visibleTextSpan("Save"),
@@ -1305,6 +1351,12 @@ export class DataSources {
         true,
         0,
       );
+  }
+
+  // this initiates saving via the back button.
+  public SaveDSFromDialog(save = true) {
+    this.agHelper.GoBack();
+    this.AssertDatasourceSaveModalVisibilityAndSave(save);
   }
 
   public getDSEntity(dSName: string) {

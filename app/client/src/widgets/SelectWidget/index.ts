@@ -6,6 +6,7 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   features: {
@@ -18,6 +19,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Select",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.SELECT],
   needsMeta: true,
   searchTags: ["dropdown"],
   defaults: {
@@ -28,11 +30,13 @@ export const CONFIG = {
     labelPosition: LabelPosition.Top,
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
-    options: [
-      { label: "Blue", value: "BLUE" },
-      { label: "Green", value: "GREEN" },
-      { label: "Red", value: "RED" },
+    sourceData: [
+      { name: "Blue", code: "BLUE" },
+      { name: "Green", code: "GREEN" },
+      { name: "Red", code: "RED" },
     ],
+    optionLabel: "name",
+    optionValue: "code",
     serverSideFiltering: false,
     widgetName: "Select",
     defaultOptionValue: "GREEN",
