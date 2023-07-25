@@ -1,7 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
 import { EntityItems } from "./AssertHelper";
-import formControl from "../../locators/FormControl.json";
 
 const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -242,6 +241,7 @@ export class DataSources {
     ".datasourceStructure-query-editor";
   private _datasourceColumnSchemaInQueryEditor = ".t--datasource-column";
   private _datasourceStructureSearchInput = ".datasourceStructure-search input";
+  _JSModeSortingControl = ".t--actionConfiguration\\.formData\\.sortBy\\.data";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -1612,7 +1612,7 @@ export class DataSources {
 
   public EnterSortByValues(sortBy: string, option: string, index = 0) {
     this.agHelper
-      .GetElement(formControl.JSModeSortingControl)
+      .GetElement(this._JSModeSortingControl)
       .eq(0)
       .children()
       .eq(index)
@@ -1630,7 +1630,7 @@ export class DataSources {
   public ClearSortByOption(index = 0) {
     this.agHelper.Sleep(500);
     this.agHelper
-      .GetElement(formControl.JSModeSortingControl)
+      .GetElement(this._JSModeSortingControl)
       .eq(0)
       .children()
       .eq(index)
@@ -1641,7 +1641,7 @@ export class DataSources {
 
   public AddNewSortByParameter() {
     this.agHelper
-      .GetElement(formControl.JSModeSortingControl)
+      .GetElement(this._JSModeSortingControl)
       .find("button[data-testid='t--sorting-add-field']")
       .click({ force: true });
   }
