@@ -482,6 +482,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
             FEATURE_FLAG.ab_ds_binding_enabled,
           [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForQueryBinding,
         },
+        delay: 5000,
       });
   };
 
