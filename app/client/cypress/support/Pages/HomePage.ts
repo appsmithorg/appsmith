@@ -40,7 +40,7 @@ export class HomePage {
     "//div[contains(@class, 'rc-select-item-option-content')]//span[1][text()='" +
     role +
     "']";
-  private _profileMenu = ".t--profile-menu-icon";
+  _profileMenu = ".t--profile-menu-icon";
   private _editProfileMenu = ".t--edit-profile";
   private _signout = ".t--sign-out";
   _searchUsersInput = ".search-input";
@@ -110,6 +110,12 @@ export class HomePage {
   // _appRenameTooltip =
   //   '//span[text()="Rename application"]/ancestor::div[contains(@class,"rc-tooltip")]';
   _appRenameTooltip = "span:contains('Rename application')";
+  _importFromGitBtn = "div.t--import-json-card + div";
+  private signupUsername = "input[name='email']";
+  private roleDropdown = ".setup-dropdown:first";
+  private useCaseDropdown = ".setup-dropdown:last";
+  private dropdownOption = ".rc-select-item-option:first";
+  private roleUsecaseSubmit = ".t--get-started-button";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -261,13 +267,14 @@ export class HomePage {
     this.onboarding.closeIntroModal();
     cy.get(this._applicationName).then(($appName) => {
       if (!$appName.hasClass(this._editAppName)) {
-        cy.get(this._applicationName).click();
-        cy.get(this._appMenu)
-          .contains("Edit name", { matchCase: false })
-          .click();
+        this.agHelper.GetNClick(this._applicationName);
+        // cy.get(this._appMenu)
+        //   .contains("Edit name", { matchCase: false })
+        this.agHelper.GetNClickByContains(this._appMenu, "Edit name");
       }
     });
-    cy.get(this._applicationName).type(appName + "{enter}");
+    cy.get(this._applicationName).type(appName);
+    this.agHelper.PressEnter();
     this.agHelper.RemoveTooltip("Rename application");
   }
 
@@ -318,15 +325,43 @@ export class HomePage {
     cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
     cy.wait("@postLogout");
     this.agHelper.VisitNAssert("/user/login", "signUpLogin");
-    cy.get(this._username).should("be.visible").type(uname);
-    cy.get(this._password).type(pswd, { log: false });
-    cy.get(this._submitBtn).click();
-    cy.wait("@getMe");
+    this.agHelper.AssertElementVisible(this._username);
+    this.agHelper.TypeText(this._username, uname);
+    this.agHelper.TypeText(this._password, pswd);
+    this.agHelper.GetNClick(this._submitBtn);
+    this.assertHelper.AssertNetworkStatus("@getMe");
     this.agHelper.Sleep(3000);
-    if (role != "App Viewer")
-      cy.get(this._homePageAppCreateBtn)
-        .should("be.visible")
-        .should("be.enabled");
+    if (role != "App Viewer") {
+      this.agHelper.AssertElementVisible(this._homePageAppCreateBtn);
+      this.agHelper.AssertElementEnabledDisabled(
+        this._homePageAppCreateBtn,
+        undefined,
+        false,
+      );
+    }
+  }
+
+  public SignUp(uname: string, pswd: string) {
+    this.agHelper.Sleep(); //waiting for window to load
+    cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+    cy.wait("@postLogout");
+    this.agHelper.VisitNAssert("/user/signup", "signUpLogin");
+    this.agHelper.AssertElementVisible(this.signupUsername);
+    this.agHelper.TypeText(this.signupUsername, uname);
+    this.agHelper.TypeText(this._password, pswd);
+    this.agHelper.GetNClick(this._submitBtn);
+    this.agHelper.Sleep(1000);
+    cy.get("body").then(($body) => {
+      if ($body.find(this.roleDropdown).length > 0) {
+        this.agHelper.GetNClick(this.roleDropdown);
+        this.agHelper.GetNClick(this.dropdownOption);
+        this.agHelper.GetNClick(this.useCaseDropdown);
+        this.agHelper.GetNClick(this.dropdownOption);
+        this.agHelper.GetNClick(this.roleUsecaseSubmit, undefined, true);
+      }
+    });
+    this.assertHelper.AssertNetworkStatus("@getMe");
+    this.agHelper.Sleep(3000);
   }
 
   public FilterApplication(appName: string, workspaceId?: string) {
@@ -334,6 +369,16 @@ export class HomePage {
     this.agHelper.Sleep(2000);
     workspaceId && cy.get(this._appContainer).contains(workspaceId);
     cy.xpath(this.locator._spanButton("Share")).first().should("be.visible");
+  }
+
+  /**
+   * Searches for given app name and clicks edit icon
+   * @param appName
+   */
+  public SearchAndOpenApp(appName: string) {
+    this.agHelper.TypeText(this._searchInput, appName);
+    this.agHelper.Sleep(2000);
+    this.EditAppFromAppHover();
   }
 
   //Maps to launchApp in command.js
@@ -437,6 +482,17 @@ export class HomePage {
       force: true,
     });
     this.agHelper.Sleep(3500);
+  }
+
+  public ImportGitApp(intoWorkspaceName = "") {
+    this.NavigateToHome();
+    if (intoWorkspaceName)
+      this.agHelper.GetNClick(this._optionsIconInWorkspace(intoWorkspaceName));
+    else this.agHelper.GetNClick(this._optionsIcon);
+    this.agHelper.GetNClick(this._workspaceImport, 0, true);
+    this.agHelper.AssertElementVisible(this._workspaceImportAppModal);
+    this.agHelper.GetNClick(this._importFromGitBtn);
+    this.agHelper.Sleep(1000);
   }
 
   // Do not use this directly, it will fail on EE. Use `InviteUserToApplication` instead

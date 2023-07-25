@@ -414,6 +414,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
         setValue: {
           path: "defaultDate",
           type: "string",
+          accessor: "selectedDate",
         },
       },
     };

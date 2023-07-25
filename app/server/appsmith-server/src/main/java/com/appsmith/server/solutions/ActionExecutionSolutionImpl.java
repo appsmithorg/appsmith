@@ -36,7 +36,7 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
             DatasourcePermission datasourcePermission,
             AnalyticsService analyticsService,
             DatasourceStorageService datasourceStorageService,
-            DatasourceStorageTransferSolution datasourceStorageTransferSolution) {
+            EnvironmentPermission environmentPermission) {
         super(
                 newActionService,
                 actionPermission,
@@ -54,6 +54,6 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
                 datasourcePermission,
                 analyticsService,
                 datasourceStorageService,
-                datasourceStorageTransferSolution);
+                environmentPermission);
     }
 }

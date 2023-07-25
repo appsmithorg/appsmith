@@ -20,6 +20,7 @@ export function evalTreeWithChanges(
   metaUpdates: EvalMetaUpdates = [],
 ) {
   let evalOrder: string[] = [];
+  let reValidatedPaths: string[] = [];
   let jsUpdates: Record<string, JSUpdate> = {};
   let unEvalUpdates: DataTreeDiff[] = [];
   let nonDynamicFieldValidationOrder: string[] = [];
@@ -28,7 +29,7 @@ export function evalTreeWithChanges(
   const errors: EvalError[] = [];
   const logs: any[] = [];
   const dependencies: DependencyMap = {};
-  let evalMetaUpdates: EvalMetaUpdates = metaUpdates;
+  let evalMetaUpdates: EvalMetaUpdates = [...metaUpdates];
   let staleMetaIds: string[] = [];
   const pathsToClearErrorsFor: any[] = [];
   let unevalTree: UnEvalTree = {};
@@ -51,6 +52,8 @@ export function evalTreeWithChanges(
       unEvalUpdates,
     );
 
+    reValidatedPaths = updateResponse.reValidatedPaths;
+
     setEvalContext({
       dataTree: dataTreeEvaluator.getEvalTree(),
       configTree: dataTreeEvaluator.getConfigTree(),
@@ -62,9 +65,8 @@ export function evalTreeWithChanges(
       evalProps: dataTreeEvaluator.evalProps,
     });
 
-    evalMetaUpdates = JSON.parse(
-      JSON.stringify(updateResponse.evalMetaUpdates),
-    );
+    evalMetaUpdates = [...evalMetaUpdates, ...updateResponse.evalMetaUpdates];
+
     staleMetaIds = updateResponse.staleMetaIds;
     unevalTree = dataTreeEvaluator.getOldUnevalTree();
     configTree = dataTreeEvaluator.oldConfigTree;
@@ -76,6 +78,7 @@ export function evalTreeWithChanges(
     errors,
     evalMetaUpdates,
     evaluationOrder: evalOrder,
+    reValidatedPaths,
     jsUpdates,
     logs,
     unEvalUpdates,

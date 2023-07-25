@@ -8,6 +8,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { isFunction } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { ALL_WIDGETS_AND_CONFIG, registerWidgets } from "./WidgetRegistry";
+import type { SetterConfig } from "entities/AppTheming";
 
 function validatePropertyPaneConfig(
   config: PropertyPaneConfig[],
@@ -191,5 +192,22 @@ describe("Tests all widget's propertyPane config", () => {
         }
       });
     }
+
+    it(`Check if ${widget.getWidgetType()}'s setter method are configured correctly`, () => {
+      const setterConfig = config.properties.setterConfig as SetterConfig;
+      if (setterConfig) {
+        expect(setterConfig).toHaveProperty("__setters");
+        const setters = setterConfig.__setters;
+        for (const [setterName, config] of Object.entries(setters)) {
+          expect(config).toHaveProperty("type");
+          expect(config).toHaveProperty("path");
+          expect(setterName).toContain("set");
+          const type = config.type;
+          const path = config.path;
+          expect(typeof type).toBe("string");
+          expect(typeof path).toBe("string");
+        }
+      }
+    });
   });
 });

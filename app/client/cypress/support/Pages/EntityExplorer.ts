@@ -41,7 +41,7 @@ export class EntityExplorer {
   private modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   private assertHelper = ObjectsRegistry.AssertHelper;
 
-  private _contextMenu = (entityNameinLeftSidebar: string) =>
+  public _contextMenu = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
     entityNameinLeftSidebar +
     "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]";
@@ -86,6 +86,12 @@ export class EntityExplorer {
     "//span[text()='" +
     dbName +
     "']/following-sibling::div[contains(@class, 't--entity') and contains(@class, 'action')]//div[contains(@class, 't--entity-name')]";
+  _widgetTagsList =
+    "[data-testid='widget-sidebar-scrollable-wrapper'] .widget-tag-collapisble";
+  _widgetCards = ".t--widget-card-draggable";
+  _widgetSearchInput = "#entity-explorer-search";
+  _widgetCardTitle = ".t--widget-card-draggable span.ads-v2-text";
+  _widgetTagSuggestedWidgets = ".widget-tag-collapisble-suggested";
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
@@ -302,7 +308,7 @@ export class EntityExplorer {
     this.agHelper.Sleep(500);
   }
 
-  public DragDropWidgetNVerify(
+  public DragNDropWidget(
     widgetType: string,
     x = 300,
     y = 100,
@@ -342,6 +348,16 @@ export class EntityExplorer {
     )
       .first()
       .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+  }
+
+  public DragDropWidgetNVerify(
+    widgetType: string,
+    x = 300,
+    y = 100,
+    parentWidgetType = "",
+    dropTargetId = "",
+  ) {
+    this.DragNDropWidget(widgetType, x, y, parentWidgetType, dropTargetId);
     this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
     if (widgetType === "modalwidget") {
       cy.get(".t--modal-widget").should("exist");

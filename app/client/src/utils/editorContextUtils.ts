@@ -6,10 +6,26 @@ import {
 } from "@appsmith/constants/forms";
 import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 import { diff } from "deep-diff";
-import { PluginPackageName, PluginType } from "entities/Action";
-import type { Datasource } from "entities/Datasource";
+import { PluginName, PluginPackageName, PluginType } from "entities/Action";
+import type {
+  Datasource,
+  DatasourceStructure,
+  DatasourceTable,
+  QueryTemplate,
+} from "entities/Datasource";
 import { AuthenticationStatus, AuthType } from "entities/Datasource";
 import { get, isArray } from "lodash";
+import store from "store";
+import { getPlugin } from "selectors/entitiesSelector";
+import type { AppState } from "@appsmith/reducers";
+import {
+  MOCK_DB_TABLE_NAMES,
+  SQL_DATASOURCES,
+} from "constants/QueryEditorConstants";
+import {
+  NOSQL_PLUGINS_DEFAULT_TEMPLATE_TYPE,
+  SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE,
+} from "constants/Datasource";
 export function isCurrentFocusOnInput() {
   return (
     ["input", "textarea"].indexOf(
@@ -83,12 +99,24 @@ export function getPropertyControlFocusElement(
 export function isDatasourceAuthorizedForQueryCreation(
   datasource: Datasource,
   plugin: Plugin,
+  currentEnvironment = getCurrentEnvironment(),
 ): boolean {
-  const currentEnvironment = getCurrentEnvironment();
-  if (!datasource) return false;
+  if (
+    !datasource ||
+    !datasource.hasOwnProperty("datasourceStorages") ||
+    !datasource.datasourceStorages.hasOwnProperty(currentEnvironment)
+  )
+    return false;
+  const datasourceStorage = datasource.datasourceStorages[currentEnvironment];
+  if (
+    !datasourceStorage ||
+    !datasourceStorage.hasOwnProperty("id") ||
+    !datasourceStorage.hasOwnProperty("datasourceConfiguration")
+  )
+    return false;
   const authType = get(
-    datasource,
-    `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationType`,
+    datasourceStorage,
+    "datasourceConfiguration.authentication.authenticationType",
   );
 
   const isGoogleSheetPlugin = isGoogleSheetPluginDS(plugin?.packageName);
@@ -96,8 +124,8 @@ export function isDatasourceAuthorizedForQueryCreation(
     const isAuthorized =
       authType === AuthType.OAUTH2 &&
       get(
-        datasource,
-        `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationStatus`,
+        datasourceStorage,
+        "datasourceConfiguration.authentication.authenticationStatus",
       ) === AuthenticationStatus.SUCCESS;
     return isAuthorized;
   }
@@ -170,4 +198,82 @@ export function getFormDiffPaths(initialValues: any, currentValues: any) {
     });
   }
   return diffPaths;
+}
+
+/**
+ * Returns mock datasource default table name to be populated in query editor, based on plugin name
+ * @param pluginId string
+ * @returns string
+ */
+export function getSQLPluginsMockTableName(pluginId: string) {
+  const state: AppState = store.getState();
+  const plugin: Plugin | undefined = getPlugin(state, pluginId);
+
+  switch (plugin?.name) {
+    case PluginName.POSTGRES: {
+      return "public.users";
+    }
+    default: {
+      return "";
+    }
+  }
+}
+
+export function getDefaultTemplateActionConfig(
+  plugin: Plugin,
+  dsStructure?: DatasourceStructure,
+  isMock?: boolean,
+) {
+  if (!!dsStructure) {
+    let defaultTableName = "";
+    let templateTitle = "";
+    let queryTemplate: QueryTemplate | undefined = undefined;
+    if (SQL_DATASOURCES.includes(plugin?.name)) {
+      templateTitle = SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE;
+    } else if (plugin?.name === PluginName.MONGO) {
+      templateTitle = NOSQL_PLUGINS_DEFAULT_TEMPLATE_TYPE;
+    }
+    if (isMock) {
+      switch (plugin?.name) {
+        case PluginName.MONGO: {
+          defaultTableName = MOCK_DB_TABLE_NAMES.MOVIES;
+          break;
+        }
+        case PluginName.POSTGRES: {
+          defaultTableName = MOCK_DB_TABLE_NAMES.USERS;
+          break;
+        }
+        default: {
+          defaultTableName = "";
+          break;
+        }
+      }
+    } else {
+      if (SQL_DATASOURCES.includes(plugin?.name)) {
+        defaultTableName =
+          !!dsStructure.tables && dsStructure.tables.length > 0
+            ? dsStructure.tables[0].name
+            : "";
+      }
+    }
+
+    const table: DatasourceTable | undefined = dsStructure.tables?.find(
+      (table: DatasourceTable) => table.name === defaultTableName,
+    );
+    queryTemplate = table?.templates?.find(
+      (template: QueryTemplate) => template.title === templateTitle,
+    );
+
+    // Reusing same functionality as QueryTemplate.tsx to populate actionConfiguration
+    if (!!queryTemplate) {
+      return {
+        body: queryTemplate.body,
+        pluginSpecifiedTemplates: queryTemplate.pluginSpecifiedTemplates,
+        formData: queryTemplate.configuration,
+        ...queryTemplate.actionConfiguration,
+      };
+    }
+
+    return null;
+  }
 }

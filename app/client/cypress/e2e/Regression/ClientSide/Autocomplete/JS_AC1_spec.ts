@@ -5,6 +5,7 @@ import {
   draggableWidgets,
   entityExplorer,
   entityItems,
+  tedTestConfig,
   jsEditor,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
@@ -172,28 +173,28 @@ describe("Autocomplete tests", () => {
   });
 
   it("5. Api data with array of object autocompletion test", () => {
-    cy.fixture("datasources").then((datasourceFormData: any) => {
-      apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"]);
-      agHelper.Sleep(2000);
-      apiPage.RunAPI();
-      // Using same js object
-      entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
-      agHelper.GetNClick(jsEditor._lineinJsEditor(5), 0, true);
-      agHelper.SelectNRemoveLineText(locators._codeMirrorTextArea);
-      //agHelper.GetNClick(jsEditor._lineinJsEditor(5));
-      agHelper.TypeText(locators._codeMirrorTextArea, "Api1.d");
-      agHelper.GetNAssertElementText(locators._hints, "data");
-      agHelper.Sleep();
-      agHelper.TypeText(locators._codeMirrorTextArea, "ata[0].e");
-      agHelper.GetNAssertElementText(locators._hints, "email");
-      agHelper.Sleep();
-      agHelper.TypeText(locators._codeMirrorTextArea, "mail");
-      entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "JSObject1",
-        action: "Delete",
-        entityType: entityItems.JSObject,
-      });
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+    );
+    agHelper.Sleep(2000);
+    apiPage.RunAPI();
+    // Using same js object
+    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5), 0, true);
+    agHelper.SelectNRemoveLineText(locators._codeMirrorTextArea);
+    //agHelper.GetNClick(jsEditor._lineinJsEditor(5));
+    agHelper.TypeText(locators._codeMirrorTextArea, "Api1.d");
+    agHelper.GetNAssertElementText(locators._hints, "data");
+    agHelper.Sleep();
+    agHelper.TypeText(locators._codeMirrorTextArea, "ata[0].e");
+    agHelper.GetNAssertElementText(locators._hints, "email");
+    agHelper.Sleep();
+    agHelper.TypeText(locators._codeMirrorTextArea, "mail");
+    entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "JSObject1",
+      action: "Delete",
+      entityType: entityItems.JSObject,
     });
   });
 

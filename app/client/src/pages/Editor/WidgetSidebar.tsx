@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import { getWidgetCards } from "selectors/editorSelectors";
 import { SearchInput } from "design-system";
-
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import { debounce } from "lodash";
 import {

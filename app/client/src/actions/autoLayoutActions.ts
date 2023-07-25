@@ -70,6 +70,12 @@ export function updateWidgetDimensionAction(
   };
 }
 
+export const fetchSnapshotDetailsAction = () => {
+  return {
+    type: ReduxActionTypes.FETCH_LAYOUT_SNAPSHOT_DETAILS,
+  };
+};
+
 export const setConversionStart = (conversionState: CONVERSION_STATES) => {
   return {
     type: ReduxActionTypes.START_CONVERSION_FLOW,

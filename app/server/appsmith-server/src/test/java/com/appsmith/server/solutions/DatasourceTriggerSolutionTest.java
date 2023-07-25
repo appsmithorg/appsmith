@@ -72,6 +72,9 @@ public class DatasourceTriggerSolutionTest {
     @MockBean
     FeatureFlagService featureFlagService;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     String workspaceId;
     String defaultEnvironmentId;
 
@@ -86,8 +89,9 @@ public class DatasourceTriggerSolutionTest {
         workspace.setName("Datasource Trigger Test Workspace");
         Workspace savedWorkspace = workspaceService.create(workspace).block();
         workspaceId = savedWorkspace.getId();
-        defaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(workspaceId).block();
+        defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         Datasource datasource = new Datasource();
         datasource.setName("Datasource Trigger Database");
@@ -146,19 +150,19 @@ public class DatasourceTriggerSolutionTest {
         Mockito.when(datasourceStructureSolution.getStructure(Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
                 .thenReturn(Mono.just(testStructure));
 
-        Datasource datasource = datasourceService
+        datasourceService
                 .findById(datasourceId, datasourcePermission.getReadPermission())
                 .block();
         Mockito.doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
 
         Mono<TriggerResultDTO> tableNameMono = datasourceTriggerSolution.trigger(
                 datasourceId,
-                null,
+                defaultEnvironmentId,
                 new TriggerRequestDTO("ENTITY_SELECTOR", Map.of(), ClientDataDisplayType.DROP_DOWN));
 
         Mono<TriggerResultDTO> columnNamesMono = datasourceTriggerSolution.trigger(
                 datasourceId,
-                null,
+                defaultEnvironmentId,
                 new TriggerRequestDTO(
                         "ENTITY_SELECTOR", Map.of("tableName", "Table1"), ClientDataDisplayType.DROP_DOWN));
 

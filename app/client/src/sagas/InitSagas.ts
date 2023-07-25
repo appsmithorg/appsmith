@@ -46,6 +46,10 @@ import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { safeCrashAppRequest } from "../actions/errorActions";
 import { resetSnipingMode } from "actions/propertyPaneActions";
 import {
+  setExplorerActiveAction,
+  setExplorerPinnedAction,
+} from "actions/explorerActions";
+import {
   isEditorPath,
   isViewerPath,
 } from "@appsmith/pages/Editor/Explorer/helpers";
@@ -55,6 +59,8 @@ import {
   matchBuilderPath,
   matchViewerPath,
 } from "../constants/routes";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -90,6 +96,46 @@ export function* waitForWidgetConfigBuild() {
   const isBuilt: boolean = yield select(getIsWidgetConfigBuilt);
   if (!isBuilt) {
     yield take(ReduxActionTypes.WIDGET_INIT_SUCCESS);
+  }
+}
+
+export function* reportSWStatus() {
+  const mode: APP_MODE = yield select(getAppMode);
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker
+      .getRegistrations()
+      .then((registrations) => {
+        if (registrations.length === 0) {
+          return AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
+            message: "Service worker not found",
+            mode,
+          });
+        }
+        const activeRegistrations = registrations.filter(
+          (registration) => registration.active,
+        );
+        if (activeRegistrations.length === 0) {
+          return AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
+            message: "Service worker is not active",
+            mode,
+          });
+        }
+        AnalyticsUtil.logEvent("SW_REGISTRATION_SUCCESS", {
+          message: "Service worker is active",
+          mode,
+        });
+      })
+      .catch(() => {
+        AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
+          message: "Failed to retrieve SW registrations",
+          mode,
+        });
+      });
+  } else {
+    AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
+      message: "SW is not supported",
+      mode,
+    });
   }
 }
 
@@ -132,6 +178,8 @@ function* resetEditorSaga() {
   // previously
   yield put(setPreviewModeAction(false));
   yield put(resetSnipingMode());
+  yield put(setExplorerActiveAction(true));
+  yield put(setExplorerPinnedAction(true));
   yield put(resetEditorSuccess());
 }
 
