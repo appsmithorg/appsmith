@@ -788,6 +788,7 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
   const selector = `.t--widget-card-draggable-${widgetType}`;
   cy.wait(500);
   cy.get(selector)
+    .first()
     .trigger("dragstart", { force: true })
     .trigger("mousemove", x, y, { force: true });
 
@@ -806,11 +807,13 @@ Cypress.Commands.add(
     const selector = `.t--widget-card-draggable-${widgetType}`;
     cy.wait(800);
     cy.get(selector)
+      .first()
       .scrollIntoView()
       .trigger("dragstart", { force: true })
       .trigger("mousemove", x, y, { force: true });
     const selector2 = `.t--draggable-${destinationWidget}`;
     cy.get(selector2)
+      .first()
       .scrollIntoView()
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
@@ -824,6 +827,7 @@ Cypress.Commands.add(
     const selector = `.t--widget-card-draggable-${widgetType}`;
     cy.wait(800);
     cy.get(selector)
+      .first()
       .scrollIntoView()
       .trigger("dragstart", { force: true })
       .trigger("mousemove", x, y, { force: true });

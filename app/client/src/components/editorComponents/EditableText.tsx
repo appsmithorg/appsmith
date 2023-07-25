@@ -61,7 +61,6 @@ const EditableTextWrapper = styled.div<{
       padding: ${(props) => (!props.minimal ? "5px 5px" : "0px")};
       border-radius: var(--ads-v2-border-radius);
       text-transform: none;
-      flex: 1 0 100%;
       max-width: 100%;
       overflow: hidden;
       display: flex;

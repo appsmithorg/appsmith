@@ -4,7 +4,6 @@ import {
   TokensAccessor,
   LightModeTheme,
   DarkModeTheme,
-  defaultTokens,
 } from "@design-system/theming";
 import Color from "colorjs.io";
 import { Text } from "../";
@@ -119,14 +118,6 @@ export const ColorGrid = (props: any) => {
             const seedColor = COLORS[colorKey][colorNestedKey];
 
             const tokensAccessor = new TokensAccessor({
-              rootUnit: 4,
-              typography: {
-                ...defaultTokens.typography,
-                footnote: {
-                  capHeightRatio: 1.4,
-                  lineGapRatio: 1,
-                },
-              },
               seedColor,
               colorMode: colorMode,
             });
@@ -173,10 +164,7 @@ export const ColorGrid = (props: any) => {
             };
 
             return (
-              <ThemeProvider
-                key={seedColor}
-                theme={tokensAccessor.getAllTokens()}
-              >
+              <ThemeProvider key={seedColor} theme={tokensAccessor.getColors()}>
                 <div
                   style={{
                     padding: `${currentSize === "small" ? "12px" : "90px"}`,

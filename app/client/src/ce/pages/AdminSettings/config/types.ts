@@ -91,6 +91,7 @@ export interface Category {
   slug: string;
   subText?: string;
   isConnected?: boolean;
+  needsRefresh?: boolean;
   children?: Category[];
   icon?: string;
   categoryType: string;
@@ -130,6 +131,7 @@ export type AdminConfigType = {
   children?: AdminConfigType[];
   canSave: boolean;
   isConnected?: boolean;
+  needsRefresh?: boolean;
   icon?: string;
   needsUpgrade?: boolean;
   categoryType: CategoryType;

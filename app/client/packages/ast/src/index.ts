@@ -241,6 +241,12 @@ export const isArrowFunctionExpression = (
   return node.type === NodeTypes.ArrowFunctionExpression;
 };
 
+export const isAssignmentExpression = (
+  node: Node,
+): node is AssignmentExpressionNode => {
+  return node.type === NodeTypes.AssignmentExpression;
+};
+
 export const isObjectExpression = (node: Node): node is ObjectExpression => {
   return node.type === NodeTypes.ObjectExpression;
 };
@@ -576,6 +582,19 @@ export interface MemberExpressionData {
   object: NodeWithLocation<IdentifierNode>;
 }
 
+export interface AssignmentExpressionData {
+  property: NodeWithLocation<IdentifierNode | LiteralNode>;
+  object: NodeWithLocation<IdentifierNode>;
+  start: number;
+  end: number;
+}
+
+export interface AssignmentExpressionNode extends Node {
+  operator: string;
+  left: Expression;
+  Right: Expression;
+}
+
 /** Function returns Invalid top-level member expressions from code
  * @param code
  * @param data
@@ -593,11 +612,15 @@ export interface MemberExpressionData {
  * },
  * For code {{Api1.name + JSObject.unknownProperty}}, function returns information about "JSObject.unknownProperty" node.
  */
-export const extractInvalidTopLevelMemberExpressionsFromCode = (
+export const extractExpressionsFromCode = (
   code: string,
   data: Record<string, any>,
   evaluationVersion: number,
-): MemberExpressionData[] => {
+): {
+  invalidTopLevelMemberExpressionsArray: MemberExpressionData[];
+  assignmentExpressionsData: AssignmentExpressionData[];
+} => {
+  const assignmentExpressionsData = new Set<AssignmentExpressionData>();
   const invalidTopLevelMemberExpressions = new Set<MemberExpressionData>();
   const variableDeclarations = new Set<string>();
   let functionalParams = new Set<string>();
@@ -609,13 +632,17 @@ export const extractInvalidTopLevelMemberExpressionsFromCode = (
   } catch (e) {
     if (e instanceof SyntaxError) {
       // Syntax error. Ignore and return empty list
-      return [];
+      return {
+        invalidTopLevelMemberExpressionsArray: [],
+        assignmentExpressionsData: [],
+      };
     }
     throw e;
   }
   simple(ast, {
     MemberExpression(node: Node) {
       const { computed, object, property } = node as MemberExpressionNode;
+
       // We are only interested in top-level MemberExpression nodes
       // Eg. for Api1.data.name, we are only interested in Api1.data
       if (!isIdentifierNode(object)) return;
@@ -671,6 +698,25 @@ export const extractInvalidTopLevelMemberExpressionsFromCode = (
         ...getFunctionalParamNamesFromNode(node),
       ]);
     },
+    AssignmentExpression(node: Node) {
+      if (
+        !isAssignmentExpression(node) ||
+        node.operator !== "=" ||
+        !isMemberExpressionNode(node.left)
+      )
+        return;
+
+      const { object, property } = node.left as MemberExpressionNode;
+      if (!isIdentifierNode(object)) return;
+      if (!(object.name in data)) return;
+
+      assignmentExpressionsData.add({
+        object,
+        property,
+        start: node.start,
+        end: node.end,
+      } as AssignmentExpressionData);
+    },
   });
 
   const invalidTopLevelMemberExpressionsArray = Array.from(
@@ -682,7 +728,10 @@ export const extractInvalidTopLevelMemberExpressionsFromCode = (
     );
   });
 
-  return invalidTopLevelMemberExpressionsArray;
+  return {
+    invalidTopLevelMemberExpressionsArray,
+    assignmentExpressionsData: [...assignmentExpressionsData],
+  };
 };
 
 const ancestorWalk = (ast: Node): NodeList => {

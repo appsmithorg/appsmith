@@ -32,10 +32,10 @@ export class GitSync {
     "']";
   _checkMergeability = "//span[contains(text(), 'Checking mergeability')]";
   private _branchListItem = "[data-testid=t--branch-list-item]";
-  private _bottomBarMergeButton = ".t--bottom-bar-merge";
-  private _mergeBranchDropdownDestination =
+  public _bottomBarMergeButton = ".t--bottom-bar-merge";
+  public _mergeBranchDropdownDestination =
     ".t--merge-branch-dropdown-destination";
-  private _dropdownmenu = ".rc-select-item-option-content";
+  public _dropdownmenu = ".rc-select-item-option-content";
   private _openRepoButton = "[data-testid=t--git-repo-button]";
   public _commitButton = ".t--commit-button";
   private _commitCommentInput = ".t--commit-comment-input textarea";
@@ -284,6 +284,25 @@ export class GitSync {
     this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
   }
 
+  public VerifyChangeLog(uncommitedChanges = false) {
+    // open gitsync modal and verify no uncommited changes exist
+    this.agHelper.GetNClick(this._bottomBarCommit);
+    this.agHelper.AssertElementVisible(this._gitSyncModal);
+    if (uncommitedChanges) {
+      this.agHelper.AssertElementEnabledDisabled(
+        this._commitCommentInput,
+        0,
+        false,
+      );
+    } else {
+      this.agHelper.AssertElementEnabledDisabled(
+        this._commitCommentInput,
+        0,
+        true,
+      );
+    }
+    this.CloseGitSyncModal();
+  }
   //#region Unused methods
 
   private AuthorizeLocalGitSSH(remoteUrl: string, assertConnect = true) {

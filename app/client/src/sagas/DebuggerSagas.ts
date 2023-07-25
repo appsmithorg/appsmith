@@ -62,6 +62,10 @@ import {
   isAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
+import {
+  getCurrentEnvName,
+  getCurrentEnvironment,
+} from "@appsmith/utils/Environments";
 
 // Saga to format action request values to be shown in the debugger
 function* formatActionRequestSaga(
@@ -487,6 +491,8 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
               type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
               payload: {
                 ...analyticsPayload,
+                environmentId: getCurrentEnvironment(),
+                environmentName: getCurrentEnvName(),
                 eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
                 errorId: errorLog.id + "_" + errorLog.timestamp,
                 errorMessage: errorMessage.message,
@@ -516,6 +522,8 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
               type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
               payload: {
                 ...analyticsPayload,
+                environmentId: getCurrentEnvironment(),
+                environmentName: getCurrentEnvName(),
                 eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
                 errorId: errorLog.id + "_" + errorLog.timestamp,
                 errorMessage: updatedErrorMessage.message,
@@ -542,6 +550,8 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
               type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
               payload: {
                 ...analyticsPayload,
+                environmentId: getCurrentEnvironment(),
+                environmentName: getCurrentEnvName(),
                 eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
                 errorId:
                   currentDebuggerErrors[id].id +
@@ -607,6 +617,8 @@ function* deleteDebuggerErrorLogsSaga(
             type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
             payload: {
               ...analyticsPayload,
+              environmentId: getCurrentEnvironment(),
+              environmentName: getCurrentEnvName(),
               eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
               errorId: error.id + "_" + error.timestamp,
               errorMessage: errorMessage.message,
