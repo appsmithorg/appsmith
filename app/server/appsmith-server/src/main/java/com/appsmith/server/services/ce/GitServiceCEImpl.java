@@ -148,7 +148,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private static final Duration RETRY_DELAY = Duration.ofSeconds(1);
     private static final Integer MAX_RETRIES = 20;
 
-    private static final Integer MAX_STALE_TIME = 60 * 60 * 24 * 7; // 5 min in seconds
+    private static final Integer MAX_STALE_TIME = 60 * 15; // 5 min in seconds
 
     @Override
     public Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata) {
