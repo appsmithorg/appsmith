@@ -1,8 +1,8 @@
 import React, { forwardRef } from "react";
 
 import type {
-  CheckboxRef as HeadlessSwitchRef,
-  CheckboxProps as HeadlessSwitchProps,
+  SwitchRef as HeadlessSwitchRef,
+  SwitchProps as HeadlessSwitchProps,
 } from "@design-system/headless";
 
 import { Text } from "../Text";
