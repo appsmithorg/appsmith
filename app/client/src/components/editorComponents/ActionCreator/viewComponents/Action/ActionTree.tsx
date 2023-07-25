@@ -55,7 +55,7 @@ export default function ActionTree(props: {
   const { error, success } = actionBlock;
   const { blocks: successBlocks } = success;
   const { blocks: errorBlocks } = error;
-  const [isOpen, open] = React.useState(false);
+  const [isOpen, open] = React.useState(true);
 
   const { selectBlock, selectedBlockId } =
     React.useContext(ActionCreatorContext);
@@ -64,7 +64,7 @@ export default function ActionTree(props: {
     setActionBlock(props.actionBlock);
   }, [props.actionBlock]);
 
-  const [callbacksExpanded, setCallbacksExpanded] = React.useState(false);
+  const [callbacksExpanded, setCallbacksExpanded] = React.useState(true);
 
   const handleCardSelection = useCallback(() => {
     if (selectedBlockId === id) return;
@@ -123,7 +123,8 @@ export default function ActionTree(props: {
     errorBlocks.filter(({ type }) => type === "failure").length;
 
   let areCallbacksApplicable =
-    chainableFns.includes(actionBlock.actionType) && props.level < 2;
+    actionBlock.actionType === AppsmithFunction.none ||
+    (chainableFns.includes(actionBlock.actionType) && props.level < 2);
 
   if (props.level === 1) {
     areCallbacksApplicable = callbacksCount > 0;

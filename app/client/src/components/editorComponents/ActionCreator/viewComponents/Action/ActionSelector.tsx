@@ -144,39 +144,43 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
         <Text className="mt-2" kind="heading-xs">
           {isChainedAction ? "Configure action" : label}
         </Text>
-        <Button
-          className="t--close"
-          isIconButton
-          kind="tertiary"
-          onClick={() => selectBlock("-1")}
-          size="sm"
-          startIcon="close-line"
-        />
+
+        <div className="">
+          <Button
+            className="t--delete cursor-pointer mr-4"
+            isIconButton
+            kind="tertiary"
+            onClick={() => {
+              onChange(
+                {
+                  code: "",
+                  actionType: AppsmithFunction.none,
+                  error: { blocks: [] },
+                  success: { blocks: [] },
+                },
+                true,
+              );
+              selectBlock("-1");
+            }}
+            size="sm"
+            startIcon="delete-bin-line"
+          />
+
+          <Button
+            className="t--close"
+            isIconButton
+            kind="tertiary"
+            onClick={() => selectBlock("-1")}
+            size="sm"
+            startIcon="close-line"
+          />
+        </div>
       </div>
 
       <div className="flex w-full justify-between px-3 mb-[4px]">
         <ActionText kind="body-s" renderAs="p">
           Action
         </ActionText>
-        <Button
-          className="t--delete cursor-pointer"
-          isIconButton
-          kind="tertiary"
-          onClick={() => {
-            onChange(
-              {
-                code: "",
-                actionType: AppsmithFunction.none,
-                error: { blocks: [] },
-                success: { blocks: [] },
-              },
-              true,
-            );
-            selectBlock("-1");
-          }}
-          size="sm"
-          startIcon="delete-bin-line"
-        />
       </div>
 
       <div className="p-3 pt-0">

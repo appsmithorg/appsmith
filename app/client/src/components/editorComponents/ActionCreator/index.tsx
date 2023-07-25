@@ -15,6 +15,8 @@ import { useApisQueriesAndJsActionOptions } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getActionTypeLabel } from "./viewComponents/ActionBlockTree/utils";
 import { AppsmithFunction } from "./constants";
+import { isEmpty } from "lodash";
+import styled from "styled-components";
 
 export const ActionCreatorContext = React.createContext<{
   label: string;
@@ -242,6 +244,19 @@ const ActionCreator = React.forwardRef(
       () => ({ label: props.action, selectedBlockId, selectBlock }),
       [selectedBlockId, props.action, selectBlock],
     );
+
+    const EmptyState = styled.div`
+      padding: 8px;
+      border-radius: 4px;
+      border: solid 0 var(--ads-v2-color-gray-300);
+      background-color: var(--ads-v2-color-gray-100);
+      color: var(--ads-v2-color-gray-400);
+      font-size: 14px;
+    `;
+
+    if (isEmpty(actions)) {
+      return <EmptyState className="">No action</EmptyState>;
+    }
 
     return (
       <ActionCreatorContext.Provider value={contextValue}>
