@@ -24,7 +24,7 @@ defaults:
     working-directory: app/client
 
 jobs:
-  build:
+  client-build:
     runs-on: ubuntu-latest-8-cores
     # Only run this workflow for internally triggered events
     if: |
