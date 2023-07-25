@@ -305,12 +305,13 @@ describe("JSObjects OnLoad Actions tests", function () {
 
       entityExplorer.SelectEntityByName("Select1", "Widgets");
       propPane.UpdatePropertyFieldValue(
-        "Options",
+        "Source Data",
         `{{ getCitiesList.data.map((row) => {
         return { label: row.city, value: row.city }
      })
   }}`,
       );
+
       agHelper.ValidateToastMessage(
         "[getCitiesList] will be executed automatically on page load",
       );
