@@ -6,6 +6,7 @@ import org.springframework.data.repository.NoRepositoryBean;
 import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +44,7 @@ public interface BaseRepository<T, ID extends Serializable> extends ReactiveMong
      * @param ids The list of ids of the document that needs to be archived.
      * @return
      */
-    Mono<Boolean> archiveAllById(List<ID> ids);
+    Mono<Boolean> archiveAllById(Collection<ID> ids);
 
     Mono<T> findByIdAndBranchName(ID id, String branchName);
 

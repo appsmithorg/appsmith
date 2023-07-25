@@ -1877,8 +1877,11 @@ export const SWITCH_ENVIRONMENT_SUCCESS = (environment: string) =>
 export const TEST_DATASOURCE_SUCCESS = (
   datasourceName: string,
   environmentName: string,
-) =>
-  `Test was successful, ${datasourceName} ${environmentName} environment is correctly configured.`;
+) => {
+  return environmentName
+    ? `Test was successful, ${datasourceName} ${environmentName} environment is correctly configured.`
+    : `Test was successful, ${datasourceName} is correctly configured.`;
+};
 
 export const TEST_DATASOURCE_ERROR = () =>
   "Test failed, couldn't establish a connection";
