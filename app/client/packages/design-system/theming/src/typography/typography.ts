@@ -1,5 +1,4 @@
-import { createStyleObject, createFontStack } from "@capsizecss/core";
-import { css } from "styled-components";
+import { createFontStack, createStyleString } from "@capsizecss/core";
 
 import arial from "@capsizecss/metrics/arial";
 import inter from "@capsizecss/metrics/inter";
@@ -31,50 +30,49 @@ export const fontMetrics = {
   "Segoe UI": segoeUI,
 } as const;
 
+import { TypographyVariant } from "./types";
 import type { FontFamily, Typography } from "./types";
 
-export const createTypographyStylesMap = (typography: Typography) => {
+export const getTypographyClassName = (key: keyof typeof TypographyVariant) => {
+  return `wds-${TypographyVariant[key]}-text`;
+};
+
+export const createTypographyStringMap = (typography: Typography) => {
   return Object.keys(typography).reduce((prev, current) => {
     const { capHeight, fontFamily, lineGap } =
       typography[current as keyof Typography];
-    return {
-      ...prev,
-      [current]: css`
-        ${createTypographyStyles(capHeight, lineGap, fontFamily)}
-      `,
-    };
-  }, {});
+    return (
+      prev +
+      `${createTypographyString(
+        capHeight,
+        lineGap,
+        current as keyof typeof TypographyVariant,
+        fontFamily,
+      )}`
+    );
+  }, "");
 };
 
-export const createTypographyStyles = (
+export const createTypographyString = (
   capHeight: number,
   lineGap: number,
+  typographyVariant: keyof typeof TypographyVariant,
   fontFamily?: FontFamily,
 ) => {
   // if there is no font family, use the default font stack
   if (!fontFamily) {
-    const styles = createStyleObject({
+    return createStyleString(getTypographyClassName(typographyVariant), {
       capHeight,
       lineGap,
       fontMetrics: appleSystem,
     });
-
-    return {
-      fontFamily: `-apple-system, BlinkMacSystemFont, "-apple-system Fallback: Segoe UI", "-apple-system Fallback: Roboto", "-apple-system Fallback: Ubuntu"`,
-      ...styles,
-    };
   }
 
-  const styles = createStyleObject({
+  return createStyleString(`wds-${typographyVariant}-text`, {
     capHeight,
     lineGap,
     fontMetrics: fontMetrics[fontFamily],
   });
-
-  return {
-    fontFamily: `"${fontFamily}"`,
-    ...styles,
-  };
 };
 
 export const createGlobalFontStack = () => {

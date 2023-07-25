@@ -41,6 +41,13 @@ export enum PluginName {
   ARANGODB = "ArangoDB",
   REDSHIFT = "Redshift",
   SMTP = "SMTP",
+  REST_API = "REST API",
+  REDIS = "Redis",
+  AIRTABLE = "Airtable",
+  TWILIO = "Twilio",
+  HUBSPOT = "HubSpot",
+  ELASTIC_SEARCH = "Elasticsearch",
+  GRAPHQL = "Authenticated GraphQL API",
 }
 
 export enum PaginationType {

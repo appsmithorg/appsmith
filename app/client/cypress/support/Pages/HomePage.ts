@@ -52,7 +52,7 @@ export class HomePage {
   _appEditIcon = ".t--application-edit-link";
   _homeIcon = ".t--appsmith-logo";
   private _homeAppsmithImage = "a.t--appsmith-logo";
-  private _appContainer = ".t--applications-container";
+  _appContainer = ".t--applications-container";
   _homePageAppCreateBtn = this._appContainer + " .createnew";
   private _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
     `//span[text()='${existingWorkspaceName}']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--new-button')]`;
@@ -110,6 +110,9 @@ export class HomePage {
   // _appRenameTooltip =
   //   '//span[text()="Rename application"]/ancestor::div[contains(@class,"rc-tooltip")]';
   _appRenameTooltip = "span:contains('Rename application')";
+  _sharePublicToggle =
+    "//div[contains(@class, 't--share-public-toggle')]//input[@role='switch']";
+  _modeSwitchToggle = ".t--comment-mode-switch-toggle";
   _importFromGitBtn = "div.t--import-json-card + div";
   private signupUsername = "input[name='email']";
   private roleDropdown = ".setup-dropdown:first";
@@ -369,6 +372,16 @@ export class HomePage {
     this.agHelper.Sleep(2000);
     workspaceId && cy.get(this._appContainer).contains(workspaceId);
     cy.xpath(this.locator._spanButton("Share")).first().should("be.visible");
+  }
+
+  /**
+   * Searches for given app name and clicks edit icon
+   * @param appName
+   */
+  public SearchAndOpenApp(appName: string) {
+    this.agHelper.TypeText(this._searchInput, appName);
+    this.agHelper.Sleep(2000);
+    this.EditAppFromAppHover();
   }
 
   //Maps to launchApp in command.js

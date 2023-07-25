@@ -30,11 +30,13 @@ export const CONFIG = {
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
     labelTextSize: "0.875rem",
-    options: [
-      { label: "Blue", value: "BLUE" },
-      { label: "Green", value: "GREEN" },
-      { label: "Red", value: "RED" },
+    sourceData: [
+      { name: "Blue", code: "BLUE" },
+      { name: "Green", code: "GREEN" },
+      { name: "Red", code: "RED" },
     ],
+    optionLabel: "name",
+    optionValue: "code",
     widgetName: "MultiSelect",
     isFilterable: true,
     serverSideFiltering: false,
