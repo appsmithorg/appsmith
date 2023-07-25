@@ -19,7 +19,7 @@ describe("Dropdown Widget", function () {
     entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
     entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
     propPane.UpdatePropertyFieldValue(
-      "Options",
+      "Source Data",
       JSON.stringify(this.dataSet.input),
     );
     //creating the Modal and verify Modal name //to fix below
