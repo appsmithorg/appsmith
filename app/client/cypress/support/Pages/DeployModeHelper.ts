@@ -24,6 +24,8 @@ export class DeployMode {
   private _backtoHome =
     ".t--app-viewer-navigation-header .t--app-viewer-back-to-apps-button";
   private _homeAppsmithImage = "a.t--appsmith-logo";
+  public envInfoModal = `[data-testid="t--env-info-modal"]`;
+  public envInfoModalDeployButton = `[data-testid="t--env-info-modal-deploy-button"]`;
 
   //refering PublishtheApp from command.js
   public DeployApp(
@@ -31,6 +33,7 @@ export class DeployMode {
     toCheckFailureToast = true,
     toValidateSavedState = true,
     addDebugFlag = true,
+    assertEnvInfoModal = false,
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
 
@@ -41,6 +44,11 @@ export class DeployMode {
     this.assertHelper.AssertDocumentReady();
     this.StubbingDeployPage(addDebugFlag);
     this.agHelper.ClickButton("Deploy");
+    if (assertEnvInfoModal) {
+      this.agHelper.WaitUntilEleAppear(this.envInfoModal);
+      this.agHelper.AssertElementExist(this.envInfoModal);
+    }
+    this.agHelper.GetNClickIfPresent(this.envInfoModalDeployButton);
     this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //to make sure we have started navigation from Edit page
     //cy.get("@windowDeployStub").should("be.calledOnce");
     this.assertHelper.AssertDocumentReady();
@@ -59,6 +67,7 @@ export class DeployMode {
         this.locator._specificToast("has failed"),
       ); //Validating bug - 14141 + 14252
     this.agHelper.Sleep(2000); //for Depoy page to settle!
+    // });
   }
 
   // Stubbing window.open to open in the same tab

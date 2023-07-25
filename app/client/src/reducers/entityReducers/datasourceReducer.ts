@@ -10,6 +10,7 @@ import type {
   DatasourceStructure,
   MockDatasource,
 } from "entities/Datasource";
+import { ToastMessageType } from "entities/Datasource";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import type { DropdownOption } from "design-system-old";
 import produce from "immer";
@@ -232,6 +233,7 @@ const datasourceReducer = createReducer(initialState, {
     action: ReduxAction<{
       show: boolean;
       id?: string;
+      environmentId: string;
       messages?: Array<string>;
       error?: any;
     }>,
@@ -239,13 +241,33 @@ const datasourceReducer = createReducer(initialState, {
     if (action.payload.id) {
       const list = state.list.map((datasource) => {
         if (datasource.id === action.payload.id) {
-          return { ...datasource, messages: action.payload.messages };
+          return {
+            ...datasource,
+            messages: action.payload.messages,
+            datasourceStorages: {
+              ...datasource.datasourceStorages,
+              [action.payload.environmentId]: {
+                ...datasource.datasourceStorages[action.payload.environmentId],
+                toastMessage: ToastMessageType.TEST_DATASOURCE_SUCCESS,
+              },
+            },
+          };
         }
         return datasource;
       });
       const unconfiguredList = state.unconfiguredList.map((datasource) => {
         if (datasource.id === action.payload.id) {
-          return { ...datasource, messages: action.payload.messages };
+          return {
+            ...datasource,
+            messages: action.payload.messages,
+            datasourceStorages: {
+              ...datasource.datasourceStorages,
+              [action.payload.environmentId]: {
+                ...datasource.datasourceStorages[action.payload.environmentId],
+                toastMessage: ToastMessageType.TEST_DATASOURCE_SUCCESS,
+              },
+            },
+          };
         }
         return datasource;
       });
@@ -447,6 +469,7 @@ const datasourceReducer = createReducer(initialState, {
     action: ReduxAction<{
       show: boolean;
       id?: string;
+      environmentId: string;
       messages?: Array<string>;
       error?: any;
     }>,
@@ -454,13 +477,33 @@ const datasourceReducer = createReducer(initialState, {
     if (action.payload.id) {
       const list = state.list.map((datasource) => {
         if (datasource.id === action.payload.id) {
-          return { ...datasource, messages: action.payload.messages };
+          return {
+            ...datasource,
+            messages: action.payload.messages,
+            datasourceStorages: {
+              ...datasource.datasourceStorages,
+              [action.payload.environmentId]: {
+                ...datasource.datasourceStorages[action.payload.environmentId],
+                toastMessage: ToastMessageType.TEST_DATASOURCE_ERROR,
+              },
+            },
+          };
         }
         return datasource;
       });
       const unconfiguredList = state.unconfiguredList.map((datasource) => {
         if (datasource.id === action.payload.id) {
-          return { ...datasource, messages: action.payload.messages };
+          return {
+            ...datasource,
+            messages: action.payload.messages,
+            datasourceStorages: {
+              ...datasource.datasourceStorages,
+              [action.payload.environmentId]: {
+                ...datasource.datasourceStorages[action.payload.environmentId],
+                toastMessage: ToastMessageType.TEST_DATASOURCE_ERROR,
+              },
+            },
+          };
         }
         return datasource;
       });
@@ -652,6 +695,43 @@ const datasourceReducer = createReducer(initialState, {
       };
       draftState.gsheetStructure.isFetchingColumns = false;
     });
+  },
+  [ReduxActionTypes.RESET_DATASOURCE_BANNER_MESSAGE]: (
+    state: DatasourceDataState,
+    action: ReduxAction<string>,
+  ) => {
+    if (action.payload) {
+      const list = state.list.map((datasource) => {
+        if (datasource.id === action.payload) {
+          Object.keys(datasource.datasourceStorages).map(
+            (datasourceStorage) => {
+              datasource.datasourceStorages[datasourceStorage].toastMessage =
+                ToastMessageType.EMPTY_TOAST_MESSAGE;
+            },
+          );
+        }
+        return datasource;
+      });
+      const unconfiguredList = state.unconfiguredList.map((datasource) => {
+        if (datasource.id === action.payload) {
+          Object.keys(datasource.datasourceStorages).forEach(
+            (datasourceStorage) => {
+              datasource.datasourceStorages[datasourceStorage].toastMessage =
+                ToastMessageType.EMPTY_TOAST_MESSAGE;
+            },
+          );
+        }
+        return datasource;
+      });
+      return {
+        ...state,
+        list: list,
+        unconfiguredList: unconfiguredList,
+      };
+    }
+    return {
+      ...state,
+    };
   },
 });
 

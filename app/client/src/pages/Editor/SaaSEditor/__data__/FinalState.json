@@ -158,12 +158,12 @@
                 "initialValue": "READ_WRITE",
                 "options": [
                   {
-                    "label": "Read only",
-                    "value": "READ_ONLY"
-                  },
-                  {
                     "label": "Read / Write",
                     "value": "READ_WRITE"
+                  },
+                  {
+                    "label": "Read only",
+                    "value": "READ_ONLY"
                   }
                 ],
                 "hidden": {
@@ -333,12 +333,12 @@
                 "initialValue": "READ_WRITE",
                 "options": [
                   {
-                    "label": "Read only",
-                    "value": "READ_ONLY"
-                  },
-                  {
                     "label": "Read / Write",
                     "value": "READ_WRITE"
+                  },
+                  {
+                    "label": "Read only",
+                    "value": "READ_ONLY"
                   }
                 ]
               },
