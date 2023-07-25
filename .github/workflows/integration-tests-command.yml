@@ -23,7 +23,6 @@ jobs:
   
   server-build:
     name: server-build
-    needs: [changeset]
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
