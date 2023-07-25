@@ -1,4 +1,4 @@
-name: Formatting checks
+name: Quality checks
 
 on:
   pull_request:
@@ -35,6 +35,15 @@ jobs:
     with:
       pr: ${{ github.event.pull_request.number }}
 
+  server-unit-tests:
+    name: server-unit-tests
+    needs: path-filter
+    if: needs.path-filter.outputs.server == 'true'
+    uses: ./.github/workflows/server-build.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.pull_request.number }}
+
   client-formatting:
     name: client-formatting
     needs: path-filter
@@ -44,9 +53,27 @@ jobs:
     with:
       pr: ${{ github.event.pull_request.number }}
 
+  client-unit-tests:
+    name: client-unit-tests
+    needs: path-filter
+    if: needs.path-filter.outputs.client == 'true'
+    uses: ./.github/workflows/client-unit-tests.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.pull_request.number }}
+
+  client-lint:
+    name: client-lint
+    needs: path-filter
+    if: needs.path-filter.outputs.client == 'true'
+    uses: ./.github/workflows/client-lint.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.pull_request.number }}
+
   formatting-result:
     name: formatting-result
-    needs: [server-formatting, client-formatting]
+    needs: [server-formatting, server-unit-tests, client-formatting, client-unit-tests, client-lint]
     if: always()
     runs-on: ubuntu-latest
     defaults:
@@ -55,10 +82,14 @@ jobs:
     steps:
       - name: Return status for formatting checks
         run: |
-          if [[ "${{ needs.server-formatting.result }}" == "failure" ||  "${{ needs.client-formatting.result }}" == "failure" ]]; then
-            echo "Formatting checks failed";
+          if [[ "${{ needs.server-formatting.result }}" == "failure" || \
+           "${{ needs.server-unit-tests.result }}" == "failure" || \
+           "${{ needs.client-formatting.result }}" == "failure" || \
+           "${{ needs.client-unit-tests.result }}" == "failure" || \
+           "${{ needs.client-lint.result }}" == "failure" ]]; then
+            echo "Quality checks failed";
             exit 1;
           else
-            echo "Formatting checks successful";
+            echo "Quality checks successful";
             exit 0;
           fi

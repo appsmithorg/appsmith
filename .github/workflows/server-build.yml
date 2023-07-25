@@ -2,8 +2,6 @@
 name: Appsmith Server Workflow
 
 on:
-  # This line enables manual triggering of this workflow.
-  workflow_dispatch:
   workflow_call:
     inputs:
       pr:
@@ -16,26 +14,14 @@ on:
         type: string
         default: "false"
 
-
-  pull_request:
-    branches: [release, master]
-    paths:
-      - "app/server/**"
-
 # Change the working directory for all the jobs in this workflow
 defaults:
   run:
     working-directory: app/server
 
 jobs:
-  build:
+  server-unit-tests:
     runs-on: ubuntu-latest-8-cores
-    # Only run this workflow for internally triggered events
-    if: |
-      github.event.pull_request.head.repo.full_name == github.repository ||
-      github.event_name == 'push' ||
-      github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'repository_dispatch'
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -55,7 +41,6 @@ jobs:
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Check out merged commit from PR and base branch
         uses: actions/checkout@v3
-        if: inputs.pr != 0
         with:
           fetch-depth: 0
           ref: refs/pull/${{ inputs.pr }}/merge
