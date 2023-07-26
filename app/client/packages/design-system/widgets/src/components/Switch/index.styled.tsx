@@ -1,10 +1,10 @@
 import styled from "styled-components";
-import { Switch as HeadlessCheckbox } from "@design-system/headless";
+import { Switch as HeadlessSwitch } from "@design-system/headless";
 
 import type { SwitchProps } from ".";
 import { inlineLabelStyles } from "../../styles/inlineLabelStyles";
 
-export const StyledSwitch = styled(HeadlessCheckbox)<SwitchProps>`
+export const StyledSwitch = styled(HeadlessSwitch)<SwitchProps>`
   ${inlineLabelStyles}
 
   [data-icon] {
@@ -65,16 +65,5 @@ export const StyledSwitch = styled(HeadlessCheckbox)<SwitchProps>`
   */
   &[data-focused] [data-icon] {
     box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-bd-focus);
-  }
-
-  /**
- * ----------------------------------------------------------------------------
- * ERROR ( INVALID )
- *-----------------------------------------------------------------------------
- */
-  &[data-invalid] [data-icon] {
-  }
-
-  &[data-hovered][data-invalid] [data-icon] {
   }
 `;

@@ -38,9 +38,9 @@ export const Switch = forwardRef((props: SwitchProps, ref: SwitchRef) => {
   const { visuallyHiddenProps } = useVisuallyHidden();
   const { focusProps, isFocusVisible } = useFocusRing({ autoFocus });
 
-  // The hooks will be swapped based on whether the checkbox is a part of a CheckboxGroup.
+  // The hooks will be swapped based on whether the switch is a part of a CheckboxGroup.
   // Although this approach is not conventional since hooks cannot usually be called conditionally,
-  // it should be safe in this case since the checkbox is not expected to be added or removed from the group.
+  // it should be safe in this case since the switch is not expected to be added or removed from the group.
   const context = useContext(CheckboxGroupContext) as CheckboxGroupContextType;
   const isDisabled = isDisabledProp || context?.isDisabled;
   const { hoverProps, isHovered } = useHover({ isDisabled });
@@ -49,12 +49,12 @@ export const Switch = forwardRef((props: SwitchProps, ref: SwitchRef) => {
       useCheckboxGroupItem(
         {
           ...props,
-          // Value is optional for standalone checkboxes, but required for CheckboxGroup items;
+          // Value is optional for standalone switch, but required for CheckboxGroup items;
           // it's passed explicitly here to avoid typescript error (requires ignore).
-          // @ts-expect-error value is required in checkbox group items
+          // @ts-expect-error value is required in switch group items
           value: props.value,
           // Only pass isRequired and validationState to react-aria if they came from
-          // the props for this individual checkbox, and not from the group via context.
+          // the props for this individual switch, and not from the group via context.
           isRequired: props.isRequired,
           validationState: props.validationState,
           isDisabled: isDisabled,
