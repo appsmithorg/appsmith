@@ -777,10 +777,15 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     let messages: Array<string> = [];
     if (isValidResponse) {
       const responseData = response.data;
-      if (
-        (responseData.invalids && responseData.invalids.length) ||
-        (responseData.messages && responseData.messages.length)
-      ) {
+      if (responseData.messages && responseData.messages.length) {
+        messages = responseData.messages;
+        if (responseData.success) {
+          toast.show(createMessage(DATASOURCE_VALID, payload.name), {
+            kind: "success",
+          });
+        }
+      }
+      if (responseData.invalids && responseData.invalids.length) {
         AnalyticsUtil.logEvent("TEST_DATA_SOURCE_FAILED", {
           datasoureId: datasource?.id,
           environmentId: currentEnvironment,
@@ -789,21 +794,11 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           errorMessages: responseData.invalids,
           messages: responseData.messages,
         });
-        if (responseData.invalids && responseData.invalids.length) {
-          responseData.invalids.forEach((message: string) => {
-            toast.show(message, {
-              kind: "error",
-            });
+        responseData.invalids.forEach((message: string) => {
+          toast.show(message, {
+            kind: "error",
           });
-        }
-        if (responseData.messages && responseData.messages.length) {
-          messages = responseData.messages;
-          if (responseData.success) {
-            toast.show(createMessage(DATASOURCE_VALID, payload.name), {
-              kind: "success",
-            });
-          }
-        }
+        });
         yield put({
           type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,
           payload: {
@@ -844,7 +839,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
             show: false,
             id: datasource.id,
             environmentId: currentEnvironment,
-            messages: [],
+            messages: messages,
           },
         });
         AppsmithConsole.info({

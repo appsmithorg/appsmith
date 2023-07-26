@@ -85,21 +85,12 @@ describe(" Nested List Widgets ", function () {
         y: 100,
       },
     );
-    propPane.RemoveText("Text");
+    propPane.TypeTextIntoField("Text", "{{level_1.currentView.");
 
-    agHelper.TypeText(
-      ".t--property-control-text .CodeMirror textarea",
-      "{{level_1.currentView.",
-    );
     checkAutosuggestion("Text1", "Object");
     checkAutosuggestion("List1Copy", "Object");
 
-    propPane.RemoveText("Text", false);
-
-    agHelper.TypeText(
-      ".t--property-control-text .CodeMirror textarea",
-      "{{level_1.currentView.List1Copy.",
-    );
+    propPane.TypeTextIntoField("Text", "{{level_1.currentView.List1Copy.");
     checkAutosuggestion("backgroundColor", "String");
     checkAutosuggestion("itemSpacing", "Number");
     checkAutosuggestion("isVisible", "Boolean");
