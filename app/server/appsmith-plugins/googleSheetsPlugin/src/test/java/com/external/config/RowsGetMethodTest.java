@@ -173,7 +173,7 @@ public class RowsGetMethodTest {
     }
 
     @Test
-    public void testvalidateExecutionMethodRequest_noSpreadsheetId_returnsException() throws JsonProcessingException {
+    public void testValidateExecutionMethodRequest_noSpreadsheetId_returnsException() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
         TriggerRequestDTO triggerRequest = new TriggerRequestDTO();
@@ -189,7 +189,7 @@ public class RowsGetMethodTest {
     }
 
     @Test
-    public void testvalidateExecutionMethodRequest_noSheetName_returnsException() throws JsonProcessingException {
+    public void testValidateExecutionMethodRequest_noSheetName_returnsException() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
         TriggerRequestDTO triggerRequest = new TriggerRequestDTO();
@@ -206,7 +206,7 @@ public class RowsGetMethodTest {
     }
 
     @Test
-    public void testvalidateExecutionMethodRequest_noTableHeaderIndex_returnsException()
+    public void testValidateExecutionMethodRequest_noTableHeaderIndex_returnsException()
             throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
@@ -227,7 +227,7 @@ public class RowsGetMethodTest {
     }
 
     @Test
-    public void testvalidateExecutionMethodRequest_allParamsPresent_returnsTrue() throws JsonProcessingException {
+    public void testValidateExecutionMethodRequest_allParamsPresent_returnsTrue() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
         TriggerRequestDTO triggerRequest = new TriggerRequestDTO();
