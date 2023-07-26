@@ -34,7 +34,7 @@ jobs:
       - name: Update job data to mongoDB
         run: |
           #  mongosh 'mongodb+srv://appsmithadmin:W58w5yCN6ZY5Y42A@appsmith-infra-test-clu.zljea.mongodb.net/appsmiht-ce-github-dp-runs' --eval 'db.appsmiht-ce-github-dp-runs.insert( { run_id: ${{ github.run_id }}, uid: ${{ github.event.inputs.uid }}, status: "Started" } )'
-          mongosh 'mongosh 'mongodb+srv://appsmithadmin:W58w5yCN6ZY5Y42A@appsmith-infra-test-clu.zljea.mongodb.net/appsmiht-ce-github-dp-runs' --eval 'db.appsmiht-ce-github-dp-runs.update(
+          mongosh 'mongodb+srv://appsmithadmin:W58w5yCN6ZY5Y42A@appsmith-infra-test-clu.zljea.mongodb.net/appsmiht-ce-github-dp-runs' --eval 'db.appsmiht-ce-github-dp-runs.update(
                                                                   { _id:  ${{ github.event.inputs.uid }} },
                                                                   {
                                                                     $set: {
