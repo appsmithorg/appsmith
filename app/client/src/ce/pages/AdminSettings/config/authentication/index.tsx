@@ -31,6 +31,11 @@ import {
   SAML_AUTH_DESC,
   createMessage,
 } from "@appsmith/constants/messages";
+import { isSSOEnabled } from "@appsmith/utils/planHelpers";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import store from "store";
+
+const featureFlags = selectFeatureFlags(store.getState());
 
 const FormAuth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
@@ -203,6 +208,7 @@ export const GoogleAuthCallout: AuthMethodType = {
   label: "Google",
   subText: createMessage(GOOGLE_AUTH_DESC),
   image: Google,
+  isEnabled: true,
 };
 
 export const GithubAuthCallout: AuthMethodType = {
@@ -211,6 +217,7 @@ export const GithubAuthCallout: AuthMethodType = {
   label: "GitHub",
   subText: createMessage(GITHUB_AUTH_DESC),
   image: Github,
+  isEnabled: true,
 };
 
 export const SamlAuthCallout: AuthMethodType = {
@@ -219,7 +226,7 @@ export const SamlAuthCallout: AuthMethodType = {
   label: "SAML 2.0",
   subText: createMessage(SAML_AUTH_DESC),
   image: SamlSso,
-  needsUpgrade: true,
+  isEnabled: isSSOEnabled(featureFlags),
 };
 
 export const OidcAuthCallout: AuthMethodType = {
@@ -228,7 +235,7 @@ export const OidcAuthCallout: AuthMethodType = {
   label: "OIDC",
   subText: createMessage(OIDC_AUTH_DESC),
   image: OIDC,
-  needsUpgrade: true,
+  isEnabled: isSSOEnabled(featureFlags),
 };
 
 const AuthMethods = [

@@ -102,6 +102,7 @@ export type AuthMethodType = {
   isConnected?: boolean;
   calloutBanner?: banner;
   icon?: string;
+  isEnabled?: boolean;
 };
 
 const ButtonWrapper = styled.div`
@@ -117,7 +118,7 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
   });
 
   const onClickHandler = (method: AuthMethodType) => {
-    if (!method.needsUpgrade || method.isConnected) {
+    if (method?.isEnabled || method.isConnected) {
       AnalyticsUtil.logEvent(
         method.isConnected
           ? "ADMIN_SETTINGS_EDIT_AUTH_METHOD"
@@ -141,7 +142,7 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
     <ButtonWrapper>
       <Button
         className={`t--settings-sub-category-${
-          method.needsUpgrade ? `upgrade-${method.category}` : method.category
+          !method?.isEnabled ? `upgrade-${method.category}` : method.category
         }`}
         data-testid="btn-auth-account"
         kind={"secondary"}
@@ -149,7 +150,7 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
         size="md"
       >
         {createMessage(
-          method.isConnected ? EDIT : !!method.needsUpgrade ? UPGRADE : ENABLE,
+          method.isConnected ? EDIT : !method.isEnabled ? UPGRADE : ENABLE,
         )}
       </Button>
     </ButtonWrapper>
@@ -191,7 +192,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                       renderAs="p"
                     >
                       {method.label}&nbsp;
-                      {method.needsUpgrade && (
+                      {!method?.isEnabled && (
                         <Tag isClosable={false}>
                           {createMessage(BUSINESS_TAG)}
                         </Tag>

@@ -15,6 +15,7 @@ export const FEATURE_FLAG = {
   release_scim_provisioning_enabled: "release_scim_provisioning_enabled",
   license_branding_enabled: "license_branding_enabled",
   release_widgetdiscovery_enabled: "release_widgetdiscovery_enabled",
+  license_sso_enabled: "license_sso_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -32,8 +33,9 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_ds_schema_enabled: false,
   ab_ds_binding_enabled: false,
   release_scim_provisioning_enabled: false,
-  license_branding_enabled: false,
   release_widgetdiscovery_enabled: false,
+  license_sso_enabled: false,
+  license_branding_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {
