@@ -1081,7 +1081,7 @@ public class FileUtilsImpl implements FileInterface {
             Instant validCreateTime = now.minusSeconds(validTime);
             if (fileTime.toInstant().isBefore(validCreateTime)) {
                 // Add base repo path
-                path = path.resolve(".git/index.lock");
+                path = Paths.get(path + ".lock");
                 deleteFile(path);
                 return Mono.just(now.minusMillis(fileTime.toMillis()).toEpochMilli());
             } else {
