@@ -52,7 +52,7 @@ export class HomePage {
   _appEditIcon = ".t--application-edit-link";
   _homeIcon = ".t--appsmith-logo";
   private _homeAppsmithImage = "a.t--appsmith-logo";
-  private _appContainer = ".t--applications-container";
+  _appContainer = ".t--applications-container";
   _homePageAppCreateBtn = this._appContainer + " .createnew";
   private _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
     `//span[text()='${existingWorkspaceName}']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--new-button')]`;
@@ -110,6 +110,9 @@ export class HomePage {
   // _appRenameTooltip =
   //   '//span[text()="Rename application"]/ancestor::div[contains(@class,"rc-tooltip")]';
   _appRenameTooltip = "span:contains('Rename application')";
+  _sharePublicToggle =
+    "//div[contains(@class, 't--share-public-toggle')]//input[@role='switch']";
+  _modeSwitchToggle = ".t--comment-mode-switch-toggle";
   _importFromGitBtn = "div.t--import-json-card + div";
   private signupUsername = "input[name='email']";
   private roleDropdown = ".setup-dropdown:first";
@@ -121,7 +124,11 @@ export class HomePage {
     this.agHelper.GetNClick(this._homeTab);
   }
 
-  public CreateNewWorkspace(workspaceNewName: string) {
+  public CreateNewWorkspace(
+    workspaceNewName: string,
+    toNavigateToHome = false,
+  ) {
+    if (toNavigateToHome) this.NavigateToHome();
     let oldName = "";
     this.agHelper.GetNClick(this._newWorkSpaceLink);
     this.assertHelper.AssertNetworkStatus("createWorkspace", 201);
@@ -252,6 +259,7 @@ export class HomePage {
   //Maps to CreateAppForWorkspace in command.js
   public CreateAppInWorkspace(workspaceName: string, appname = "") {
     cy.xpath(this._existingWorkspaceCreateNewApp(workspaceName))
+      .last()
       .scrollIntoView()
       .should("be.visible")
       .click({ force: true });
@@ -364,11 +372,17 @@ export class HomePage {
     this.agHelper.Sleep(3000);
   }
 
-  public FilterApplication(appName: string, workspaceId?: string) {
+  public FilterApplication(
+    appName: string,
+    workspaceId?: string,
+    checkForShareButton = true,
+  ) {
     cy.get(this._searchInput).type(appName, { force: true });
     this.agHelper.Sleep(2000);
     workspaceId && cy.get(this._appContainer).contains(workspaceId);
-    cy.xpath(this.locator._spanButton("Share")).first().should("be.visible");
+    if (checkForShareButton) {
+      cy.xpath(this.locator._spanButton("Share")).first().should("be.visible");
+    }
   }
 
   /**
