@@ -509,7 +509,10 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
         return repository
                 .findAllByUsersIn(Set.of(userId), READ_USER_GROUPS)
                 .map(userGroup -> new UserGroupCompactDTO(
-                        userGroup.getId(), userGroup.getName(), userGroup.getUserPermissions()));
+                        userGroup.getId(),
+                        userGroup.getName(),
+                        userGroup.getUserPermissions(),
+                        userGroup.getIsProvisioned()));
     }
 
     private UserGroupCompactDTO generateUserGroupCompactDTO(UserGroup userGroup) {

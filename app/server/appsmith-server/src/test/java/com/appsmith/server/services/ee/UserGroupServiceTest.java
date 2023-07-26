@@ -1199,6 +1199,50 @@ public class UserGroupServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void testIsProvisionedOnUsersIsSetTrueWhenReturningGroups() {
+        String testName = "testIsProvisionedOnUsersIsSetTrueWhenReturningGroups";
+        User user1 = new User();
+        user1.setEmail(testName + "user1@appsmith.com");
+        ProvisionResourceDto provisionedUser1 =
+                userService.createProvisionUser(user1).block();
+
+        User newUser = new User();
+        newUser.setEmail(testName + "user2@appsmith.com");
+        newUser.setPassword("password");
+        User user2 = userService.create(newUser).block();
+
+        UserGroup userGroup_provisioningFalse = new UserGroup();
+        userGroup_provisioningFalse.setName(testName + "_provisionedFalseGroup");
+        UserGroupDTO userGroupDTOProvisionedFalse =
+                userGroupService.createGroup(userGroup_provisioningFalse).block();
+
+        UsersForGroupDTO addUsersForGroupDTO = new UsersForGroupDTO();
+        addUsersForGroupDTO.setGroupIds(Set.of(userGroupDTOProvisionedFalse.getId()));
+        addUsersForGroupDTO.setUserIds(List.of(provisionedUser1.getResource().getId(), user2.getId()));
+
+        UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
+        inviteUsersToGroupDTO.setUsernames(Set.of(user1.getUsername(), user2.getUsername()));
+        inviteUsersToGroupDTO.setGroupIds(Set.of(userGroupDTOProvisionedFalse.getId()));
+        userGroupService.inviteUsers(inviteUsersToGroupDTO, null).block();
+        UserGroupDTO userGroup = userGroupService
+                .getGroupById(userGroup_provisioningFalse.getId())
+                .block();
+
+        assertThat(userGroup.getUsers()).hasSize(2);
+        UserCompactDTO uc1 = userGroup.getUsers().stream()
+                .filter(ug -> ug.getId().equals(provisionedUser1.getResource().getId()))
+                .findFirst()
+                .get();
+        UserCompactDTO uc2 = userGroup.getUsers().stream()
+                .filter(ug -> ug.getId().equals(user2.getId()))
+                .findFirst()
+                .get();
+        assertThat(uc1.isProvisioned()).isTrue();
+        assertThat(uc2.isProvisioned()).isFalse();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void testGetAllUserGroupsWithParams_shouldReturnCorrectResults() {
         String testName = "testGetAllUserGroupsWithParams_shouldReturnCorrectResults";
 
