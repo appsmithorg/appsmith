@@ -333,7 +333,7 @@ public class GlobalExceptionHandler {
     }
 
     private Mono<Boolean> deleteLockFileAndSendAnalytics(File file, String urlPath) {
-        return fileUtils.deleteIndexLockFile(Path.of(file.getPath()), 900).flatMap(fileTime -> {
+        return fileUtils.deleteIndexLockFile(Path.of(file.getPath())).flatMap(fileTime -> {
             Map<String, Object> analyticsProps = new HashMap<>();
             if (urlPath.contains("/git") && urlPath.contains("/app")) {
                 String appId = getAppIdFromUrlPath(urlPath);
