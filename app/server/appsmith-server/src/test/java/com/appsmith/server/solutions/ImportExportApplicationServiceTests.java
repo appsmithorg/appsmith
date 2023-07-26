@@ -120,6 +120,7 @@ import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.dtos.CustomJSLibApplicationDTO.getDTOFromCustomJSLib;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
 @ExtendWith(SpringExtension.class)
@@ -2559,6 +2560,7 @@ public class ImportExportApplicationServiceTests {
                                 DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {}));
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
+                        fail();
                     }
 
                     ArrayList children = (ArrayList) dsl.get("children");
