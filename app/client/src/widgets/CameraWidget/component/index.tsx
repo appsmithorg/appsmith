@@ -888,9 +888,9 @@ function CameraComponent(props: CameraComponentProps) {
   useEffect(() => {
     setVideoConstraints({
       ...videoConstraints,
-      facingMode: { ideal: defaultCamera },
+      ...(isMobile && { facingMode: { ideal: defaultCamera } }),
     });
-  }, [defaultCamera]);
+  }, [defaultCamera, isMobile]);
 
   useEffect(() => {
     if (webcamRef.current && webcamRef.current.stream) {

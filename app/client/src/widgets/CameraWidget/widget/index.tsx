@@ -12,8 +12,17 @@ import { FileDataTypes } from "widgets/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import CameraComponent from "../component";
 import type { CameraMode } from "../constants";
-import { CameraModeTypes, MediaCaptureStatusTypes } from "../constants";
+import {
+  CameraModeTypes,
+  DefaultMobileCameraTypes,
+  MediaCaptureStatusTypes,
+} from "../constants";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import {
+  createMessage,
+  DEFAULT_CAMERA_LABEL,
+  DEFAULT_CAMERA_LABEL_DESCRIPTION,
+} from "@appsmith/constants/messages";
 
 class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -94,19 +103,18 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
           },
           {
             propertyName: "defaultCamera",
-            label: "Default mobile camera",
-            helpText:
-              "Default choice for mobile users. Not applicable for other devices",
+            label: createMessage(DEFAULT_CAMERA_LABEL),
+            helpText: createMessage(DEFAULT_CAMERA_LABEL_DESCRIPTION),
             controlType: "DROP_DOWN",
-            defaultValue: "environment",
+            defaultValue: DefaultMobileCameraTypes.BACK,
             options: [
               {
                 label: "Front (Selfie)",
-                value: "user",
+                value: DefaultMobileCameraTypes.FRONT,
               },
               {
                 label: "Back (Rear)",
-                value: "environment",
+                value: DefaultMobileCameraTypes.BACK,
               },
             ],
             isBindProperty: true,
@@ -114,8 +122,11 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.TEXT,
               params: {
-                allowedValues: ["user", "environment"],
-                default: "environment",
+                allowedValues: [
+                  DefaultMobileCameraTypes.FRONT,
+                  DefaultMobileCameraTypes.BACK,
+                ],
+                default: DefaultMobileCameraTypes.BACK,
               },
             },
           },
