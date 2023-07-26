@@ -2,7 +2,7 @@ name: Build and Push image from branch ( To be used by ops.appsmith.com API laye
 
 on:
   # This workflow is only triggered by the `/build-deploy-preview` command dispatch
-  repository_dispatch:
+  workflow_dispatch:
     inputs:
       branch:
         description: "Github Branch to be deployed"
@@ -15,7 +15,7 @@ on:
       uid:
         description: "Unique ID to store the run data in the db"
         required: true
-      sud-domain-name:
+      sub-domain-name:
         description: "Sub-domain for dp.appsmith.com to by used by this deploy preview (This will also be the image name and the k8s namespace identifier)"
         required: true
 
