@@ -35,7 +35,6 @@ export interface TokenSource {
   zIndex?: TokenObj;
   sizing?: TokenObj;
   spacing?: TokenObj;
-  zIndex?: TokenObj;
 }
 
 export type TokenObj = { [key: string]: string | number };

@@ -15,7 +15,6 @@ export const FEATURE_FLAG = {
   release_scim_provisioning_enabled: "release_scim_provisioning_enabled",
   ab_wds_enabled: "ab_wds_enabled",
   release_widgetdiscovery_enabled: "release_widgetdiscovery_enabled",
-  ab_wds_enabled: "ab_wds_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -35,7 +34,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_scim_provisioning_enabled: false,
   ab_wds_enabled: false,
   release_widgetdiscovery_enabled: false,
-  ab_wds_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

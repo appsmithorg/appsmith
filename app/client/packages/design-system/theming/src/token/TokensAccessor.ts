@@ -22,7 +22,6 @@ export class TokensAccessor {
   private opacity?: TokenObj;
   private typography?: Typography;
   private fontFamily?: FontFamily;
-  private zIndex?: TokenObj;
   private spacing?: TokenObj;
   private sizing?: TokenObj;
   private zIndex?: TokenObj;
@@ -101,10 +100,6 @@ export class TokensAccessor {
 
   updateSizing = (sizing: TokenObj) => {
     this.sizing = sizing;
-  };
-
-  updateZIndex = (zIndex: TokenObj) => {
-    this.zIndex = zIndex;
   };
 
   getAllTokens = () => {
