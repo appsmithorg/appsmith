@@ -75,6 +75,7 @@ jobs:
             if [[ -f "$last_directory/$documentation_file_name" ]]; then
               file_name="$last_directory/$documentation_file_name"
                 echo "$file_name \n\n\n" >> documentation_comment.md
+                echo "documentation_contents=true" >> $GITHUB_OUTPUT
             fi
           done
 
@@ -86,4 +87,4 @@ jobs:
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body-path: 'documentation_comment.md'
+          body-path: "documentation_comment.md"
