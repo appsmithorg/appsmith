@@ -68,6 +68,7 @@ export default class JSObjectsPaneNavigation extends PaneNavigation {
     yield delay(NAVIGATION_DELAY);
     yield put(setJsPaneConfigSelectedTab(config.tab));
 
+    // Set cursor position
     if (this.entityInfo.position) {
       yield put(
         setFocusableInputField(
@@ -95,10 +96,19 @@ export default class JSObjectsPaneNavigation extends PaneNavigation {
   }
 
   *navigateToUrl() {
+    const matchesActionName = this.jsCollection.actions.some((action) => {
+      return action.name === this.entityInfo.propertyPath;
+    });
+    let functionName;
+    if (matchesActionName) {
+      functionName = this.entityInfo.propertyPath;
+    }
+
     const pageId: string = yield select(getCurrentPageId);
     const url = jsCollectionIdURL({
       pageId,
       collectionId: this.entityInfo.id,
+      functionName,
     });
     history.push(url);
   }
