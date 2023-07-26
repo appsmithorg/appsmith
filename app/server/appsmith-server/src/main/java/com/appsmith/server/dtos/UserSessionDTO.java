@@ -73,7 +73,9 @@ public class UserSessionDTO {
         session.email = user.getEmail();
         session.hashedEmail = user.getHashedEmail();
         session.name = user.getName();
-        session.createdAt = user.getCreatedAt().getEpochSecond();
+        if (user.getCreatedAt() != null) {
+            session.createdAt = user.getCreatedAt().getEpochSecond();
+        }
         session.source = user.getSource();
         session.state = user.getState();
         session.isEnabled = user.isEnabled();
@@ -110,7 +112,9 @@ public class UserSessionDTO {
         user.setEmail(email);
         user.setHashedEmail(hashedEmail);
         user.setName(name);
-        user.setCreatedAt(Instant.ofEpochSecond(createdAt));
+        if (createdAt != null) {
+            user.setCreatedAt(Instant.ofEpochSecond(createdAt));
+        }
         user.setSource(source);
         user.setState(state);
         user.setIsEnabled(isEnabled);
