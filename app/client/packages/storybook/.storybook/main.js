@@ -1,5 +1,5 @@
+import { dirname, join } from "path";
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-
 async function webpackConfig(config) {
   config.module.rules.push({
     test: /\.(js|jsx|ts|tsx)$/,
@@ -14,28 +14,30 @@ async function webpackConfig(config) {
       },
     },
   });
-
   config.resolve.plugins.push(new TsconfigPathsPlugin());
-
   return config;
 }
-
 module.exports = {
   stories: [
-    "../../design-system/**/*.stories.mdx",
-    "../../design-system/**/*.stories.@(js|jsx|ts|tsx)",
+    "./stories/**/*.stories.mdx",
+    "./stories/**/*.stories.@(js|jsx|ts|tsx)",
   ],
   addons: [
-    "@storybook/addon-essentials",
-    "@storybook/addon-interactions",
-    "@storybook/preset-create-react-app",
-    "./addons/theming/register.js",
+    getAbsolutePath("@storybook/addon-viewport"),
+    getAbsolutePath("@storybook/addon-docs"),
+    getAbsolutePath("@storybook/addon-actions"),
+    getAbsolutePath("@storybook/addon-controls"),
+    getAbsolutePath("@storybook/addon-toolbars"),
+    getAbsolutePath("@storybook/addon-measure"),
+    getAbsolutePath("@storybook/addon-outline"),
+    getAbsolutePath("@storybook/preset-create-react-app"),
+    "./addons/theming/manager.ts",
   ],
-  framework: "@storybook/react",
-  webpackFinal: webpackConfig,
-  core: {
-    builder: "@storybook/builder-webpack5",
+  framework: {
+    name: getAbsolutePath("@storybook/react-webpack5"),
+    options: {},
   },
+  webpackFinal: webpackConfig,
   typescript: {
     reactDocgen: "react-docgen-typescript",
     reactDocgenTypescriptOptions: {
@@ -45,4 +47,17 @@ module.exports = {
       },
     },
   },
+  docs: {
+    autodocs: true,
+  },
+  core: {
+    disableTelemetry: true,
+  },
 };
+/**
+ * This function is used to resolve the absolute path of a package.
+ * It is needed in projects that use Yarn PnP or are set up within a monorepo.
+ */
+function getAbsolutePath(value) {
+  return dirname(require.resolve(join(value, "package.json")));
+}

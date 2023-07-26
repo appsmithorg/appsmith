@@ -14,7 +14,7 @@ import { DragContainer, StyledButton } from "./index.styled";
 export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
   /** variant of the button
    *
-   * @default "filled"
+   * @default filled
    */
   variant?: ButtonVariant;
   /** Color tone of the button */
@@ -42,6 +42,7 @@ export const Button = forwardRef(
       onKeyUp,
       variant = "filled",
       visuallyDisabled,
+      ...rest
     } = props;
     const { visuallyHiddenProps } = useVisuallyHidden();
 
@@ -83,6 +84,7 @@ export const Button = forwardRef(
         data-variant={variant}
         draggable
         ref={ref}
+        {...rest}
       >
         {renderChildren()}
         <DragContainer data-hidden="" />
