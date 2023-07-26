@@ -74,7 +74,7 @@ jobs:
             SEARCHED_DIRECTORIES="$SEARCHED_DIRECTORIES:$last_directory"
             if [[ -f "$last_directory/$documentation_file_name" ]]; then
               file_name="$last_directory/$documentation_file_name"
-                echo "$file_name \n\n\n" >> documentation_comment.md
+                echo "$(cat "$file_name") \n\n\n" >> documentation_comment.md
                 echo "documentation_contents=true" >> $GITHUB_OUTPUT
             fi
           done
