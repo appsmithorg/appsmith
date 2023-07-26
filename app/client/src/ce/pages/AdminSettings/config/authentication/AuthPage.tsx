@@ -150,7 +150,7 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
         size="md"
       >
         {createMessage(
-          method.isConnected ? EDIT : !method.isEnabled ? UPGRADE : ENABLE,
+          method.isConnected ? EDIT : !method?.isEnabled ? UPGRADE : ENABLE,
         )}
       </Button>
     </ButtonWrapper>
