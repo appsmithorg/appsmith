@@ -73,7 +73,6 @@ describe("Container Widget Functionality", function () {
     entityExplorer.ExpandCollapseEntity("Container1");
     entityExplorer.SelectEntityByName("Text1");
     propPane.UpdatePropertyFieldValue("Text", `{{currentItem.first_name}}`);
-    //cy.testJsontext("text", `{{currentItem.first_name}}`);
     agHelper.GetNClick(appSettings.locators._canvas);
     // Verify Current Item Bindings
     agHelper.GetNAssertElementText(
@@ -117,7 +116,6 @@ describe("Container Widget Functionality", function () {
     propPane.UpdatePropertyFieldValue("Label", `{{currentItem.last_name}}`);
     propPane.SelectPlatformFunction("onClick", "Show alert");
     agHelper.EnterActionValue("Message", "{{currentItem.last_name}}");
-    //cy.addAction("{{currentItem.last_name}}", "onClick");
     cy.wait(3000);
     deployMode.DeployApp();
     // Verify Widget Button by clicking on it
@@ -125,22 +123,7 @@ describe("Container Widget Functionality", function () {
       locators._widgetInDeployed(draggableWidgets.BUTTON),
       2,
     );
-    // cy.get(locators._widgetInDeployed(draggableWidgets.BUTTON))
-    //   .closest("div")
-    //   .first()
-    //   .click({ force: true });
     agHelper.ClickButton("Lawson");
-    // agHelper
-    //   .GetElement(locators._widgetInDeployed(draggableWidgets.BUTTON))
-    //   .closest("div")
-    //   .first()
-    //   .click({ force: true });
-    // agHelper.GetClosestNClick(
-    //   locators._widgetInDeployed(draggableWidgets.BUTTON),
-    //   "div",
-    //   0,
-    //   true,
-    // );
     // Verify the click on first button
     agHelper.ValidateToastMessage(items[0].last_name);
   });
@@ -213,13 +196,9 @@ describe("Container Widget Functionality", function () {
     entityExplorer.SelectEntityByName("List1", "Widgets");
     propPane.MoveToTab("Style");
     // Scroll down to Styles and Add background colour
-    propPane.UpdatePropertyFieldValue;
-    //cy.selectColor("backgroundcolor");
     propPane.SelectColorFromColorPicker("backgroundcolor");
     cy.wait(1000);
-    //cy.selectColor("itembackgroundcolor");
     propPane.SelectColorFromColorPicker("itembackgroundcolor");
-
     // Click on Deploy and ensure it is deployed appropriately
     deployMode.DeployApp();
     // Ensure List Background Color
