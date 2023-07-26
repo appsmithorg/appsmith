@@ -29,7 +29,8 @@ const ConnectGitButton = styled(Button)`
   max-width: fit-content;
 `;
 
-const DOCUMENTATION_URL = "https://docs.appsmith.com";
+const DOCUMENTATION_URL =
+  "https://docs.appsmith.com/connect-data/concepts/Datasource-Environments";
 
 export default function EnvInfoModalBody() {
   const dispatch = useDispatch();
