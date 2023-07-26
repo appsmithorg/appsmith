@@ -39,7 +39,9 @@
         "isVisible": true,
         "label": "",
         "selectionType": "SINGLE_SELECT",
-        "options": "",
+        "sourceData": "",
+        "optionLabel": "label",
+        "optionValue": "value",
         "widgetName": "Dropdown1",
         "defaultOptionValue": {
           "value":"VEG",

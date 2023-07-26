@@ -11,20 +11,19 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.MarketplaceService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
-import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
+import com.appsmith.server.solutions.ActionPermissionImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PolicySolution;
+import com.mongodb.client.result.UpdateResult;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +44,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 
 @ExtendWith(SpringExtension.class)
 @Slf4j
-public class NewActionServiceCEImplTest {
+public class NewActionServiceUnitTest {
 
     NewActionServiceCEImpl newActionService;
 
@@ -71,9 +70,6 @@ public class NewActionServiceCEImplTest {
     PluginService pluginService;
 
     @MockBean
-    DatasourceContextService datasourceContextService;
-
-    @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
     @MockBean
@@ -89,13 +85,7 @@ public class NewActionServiceCEImplTest {
     ApplicationService applicationService;
 
     @MockBean
-    SessionUserService sessionUserService;
-
-    @MockBean
     PolicySolution policySolution;
-
-    @MockBean
-    AuthenticationValidator authenticationValidator;
 
     @MockBean
     ConfigService configService;
@@ -118,8 +108,7 @@ public class NewActionServiceCEImplTest {
     @MockBean
     PagePermission pagePermission;
 
-    @MockBean
-    ActionPermission actionPermission;
+    ActionPermission actionPermission = new ActionPermissionImpl();
 
     @MockBean
     ObservationRegistry observationRegistry;
@@ -203,6 +192,28 @@ public class NewActionServiceCEImplTest {
                 .assertNext(updatedAction -> {
                     assertEquals("testId", updatedAction.getPluginId());
                     assertEquals(PluginType.JS, updatedAction.getPluginType());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testPublishActionArchivesAndPublishesActions() {
+        String applicationId = "dummy-application-id";
+        UpdateResult updateResult = Mockito.mock(UpdateResult.class);
+        Mockito.when(updateResult.getModifiedCount()).thenReturn(10L);
+        Mockito.when(updateResult.getMatchedCount()).thenReturn(5L);
+
+        Mockito.when(newActionRepository.archiveDeletedUnpublishedActions(
+                        applicationId, actionPermission.getEditPermission()))
+                .thenReturn(Mono.empty());
+
+        Mockito.when(newActionRepository.publishActions(applicationId, actionPermission.getEditPermission()))
+                .thenReturn(Mono.just(updateResult));
+
+        StepVerifier.create(newActionService.publishActions(applicationId, actionPermission.getEditPermission()))
+                .assertNext(updateResult1 -> {
+                    assertEquals(10L, updateResult1.getModifiedCount());
+                    assertEquals(5L, updateResult1.getMatchedCount());
                 })
                 .verifyComplete();
     }

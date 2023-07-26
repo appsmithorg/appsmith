@@ -51,7 +51,6 @@ describe("Autocomplete tests for setters", () => {
       "Button1.setVisibility()",
     );
 
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.RemoveCharsNType(locators._codeMirrorTextArea, 7, "Input1.set");
 
     agHelper.GetElementsNAssertTextPresence(locators._hints, "setValue()");
