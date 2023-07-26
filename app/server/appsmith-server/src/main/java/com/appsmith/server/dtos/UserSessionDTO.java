@@ -73,6 +73,7 @@ public class UserSessionDTO {
         session.email = user.getEmail();
         session.hashedEmail = user.getHashedEmail();
         session.name = user.getName();
+        // user.getCreatedAt() is null for anonymous user
         if (user.getCreatedAt() != null) {
             session.createdAt = user.getCreatedAt().getEpochSecond();
         }
@@ -112,6 +113,7 @@ public class UserSessionDTO {
         user.setEmail(email);
         user.setHashedEmail(hashedEmail);
         user.setName(name);
+        // createdAt is null for anonymous user
         if (createdAt != null) {
             user.setCreatedAt(Instant.ofEpochSecond(createdAt));
         }
