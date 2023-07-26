@@ -70,7 +70,6 @@ import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
-import org.eclipse.jgit.errors.LockFailedException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
@@ -588,15 +587,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .onErrorResume(error -> {
                                 if (error instanceof EmptyCommitException) {
                                     return Mono.just(EMPTY_COMMIT_ERROR_MESSAGE);
-                                } else if (error instanceof LockFailedException) {
-                                    return fileUtils
-                                            .deleteIndexLockFile(baseRepoPath, MAX_STALE_TIME)
-                                            .flatMap(deleteStatus -> addAnalyticsForGitOperation(
-                                                    AnalyticsEvents.GIT_STALE_FILE_LOCK_DELETED.getEventName(),
-                                                    childApplication,
-                                                    null))
-                                            .then(Mono.error(new AppsmithException(
-                                                    AppsmithError.GIT_ACTION_FAILED, "commit", error.getMessage())));
                                 }
                                 return addAnalyticsForGitOperation(
                                                 AnalyticsEvents.GIT_COMMIT.getEventName(),
@@ -1103,19 +1093,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         if (error instanceof TransportException) {
                                             return Mono.error(
                                                     new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
-                                        } else if (error instanceof LockFailedException) {
-                                            return fileUtils
-                                                    .deleteIndexLockFile(baseRepoSuffix, MAX_STALE_TIME)
-                                                    .flatMap(deleteStatus -> addAnalyticsForGitOperation(
-                                                            AnalyticsEvents.GIT_STALE_FILE_LOCK_DELETED.getEventName(),
-                                                            application,
-                                                            application
-                                                                    .getGitApplicationMetadata()
-                                                                    .getIsRepoPrivate()))
-                                                    .then(Mono.error(new AppsmithException(
-                                                            AppsmithError.GIT_ACTION_FAILED,
-                                                            "push",
-                                                            error.getMessage())));
                                         }
                                         return Mono.error(new AppsmithException(
                                                 AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage()));
@@ -1497,24 +1474,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .flatMap(fetchStatus -> gitExecutor
                                     .checkoutRemoteBranch(repoPath, branchName)
                                     .zipWith(Mono.just(application))
-                                    .onErrorResume(error -> {
-                                        if (error instanceof LockFailedException) {
-                                            return fileUtils
-                                                    .deleteIndexLockFile(repoPath, MAX_STALE_TIME)
-                                                    .flatMap(deleteStatus -> addAnalyticsForGitOperation(
-                                                            AnalyticsEvents.GIT_STALE_FILE_LOCK_DELETED.getEventName(),
-                                                            application,
-                                                            gitApplicationMetadata.getIsRepoPrivate()))
-                                                    .then(Mono.error(new AppsmithException(
-                                                            AppsmithError.GIT_ACTION_FAILED,
-                                                            "checkout branch",
-                                                            error.getMessage())));
-                                        }
-                                        return Mono.error(new AppsmithException(
-                                                AppsmithError.GIT_ACTION_FAILED,
-                                                "checkout branch",
-                                                error.getMessage()));
-                                    }));
+                                    .onErrorResume(error -> Mono.error(new AppsmithException(
+                                            AppsmithError.GIT_ACTION_FAILED, "checkout branch", error.getMessage()))));
                 })
                 .flatMap(tuple -> {
                     /*
@@ -1711,15 +1672,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                         if (error instanceof RepositoryNotFoundException) {
                             Mono<List<GitBranchDTO>> branchListMono = handleRepoNotFoundException(defaultApplicationId);
                             return Mono.zip(branchListMono, Mono.just(application), Mono.just(repoPath));
-                        } else if (error instanceof LockFailedException) {
-                            return fileUtils
-                                    .deleteIndexLockFile(repoPath, MAX_STALE_TIME)
-                                    .flatMap(deleteStatus -> addAnalyticsForGitOperation(
-                                            AnalyticsEvents.GIT_STALE_FILE_LOCK_DELETED.getEventName(),
-                                            application,
-                                            gitApplicationMetadata.getIsRepoPrivate()))
-                                    .then(Mono.error(new AppsmithException(
-                                            AppsmithError.GIT_ACTION_FAILED, "list branch", error.getMessage())));
                         }
                         return Mono.error(new AppsmithException(
                                 AppsmithError.GIT_ACTION_FAILED, "branch --list", error.getMessage()));
@@ -1888,28 +1840,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 // Remove any files which are copied by hard resetting the repo
                                 .then(executionTimeLogging.measureTask(
                                         "getStatus->gitExecutor.resetToLastCommit",
-                                        gitExecutor
-                                                .resetToLastCommit(tuple.getT3(), branchName)
-                                                .onErrorResume(error -> {
-                                                    if (error instanceof LockFailedException) {
-                                                        // Add analytics event for the lock failure
-                                                        return fileUtils
-                                                                .deleteIndexLockFile(tuple.getT1(), MAX_STALE_TIME)
-                                                                .flatMap(deleteStatus -> addAnalyticsForGitOperation(
-                                                                        AnalyticsEvents.GIT_STALE_FILE_LOCK_DELETED
-                                                                                .getEventName(),
-                                                                        tuple.getT4(),
-                                                                        null))
-                                                                .then(Mono.error(new AppsmithException(
-                                                                        AppsmithError.GIT_ACTION_FAILED,
-                                                                        "status",
-                                                                        error.getMessage())));
-                                                    }
-                                                    return Mono.error(new AppsmithException(
-                                                            AppsmithError.GIT_ACTION_FAILED,
-                                                            "status",
-                                                            error.getMessage()));
-                                                })))
+                                        gitExecutor.resetToLastCommit(tuple.getT3(), branchName)))
                                 .flatMap(gitStatusDTO -> {
                                     if (Boolean.TRUE.equals(isFileLock)) {
                                         return executionTimeLogging
@@ -1920,23 +1851,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     }
                                     return branchedStatusMono;
                                 })
-                                .onErrorResume(error -> {
-                                    if (error instanceof LockFailedException) {
-                                        // Add analytics event for the lock failure
-                                        return fileUtils
-                                                .deleteIndexLockFile(tuple.getT1(), MAX_STALE_TIME)
-                                                .flatMap(deleteStatus -> addAnalyticsForGitOperation(
-                                                        AnalyticsEvents.GIT_STALE_FILE_LOCK_DELETED.getEventName(),
-                                                        tuple.getT4(),
-                                                        null))
-                                                .then(Mono.error(new AppsmithException(
-                                                        AppsmithError.GIT_ACTION_FAILED,
-                                                        "status",
-                                                        error.getMessage())));
-                                    }
-                                    return Mono.error(new AppsmithException(
-                                            AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage()));
-                                });
+                                .onErrorResume(error -> Mono.error(new AppsmithException(
+                                        AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage())));
                     } catch (GitAPIException | IOException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, e.getMessage()));
                     }
@@ -2052,20 +1968,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         if (error instanceof GitAPIException) {
                                             return Mono.error(new AppsmithException(
                                                     AppsmithError.GIT_MERGE_CONFLICTS, error.getMessage()));
-                                        }
-                                        if (error instanceof LockFailedException) {
-                                            return fileUtils
-                                                    .deleteIndexLockFile(repoSuffix, MAX_STALE_TIME)
-                                                    .flatMap(deleteStatus -> addAnalyticsForGitOperation(
-                                                            AnalyticsEvents.GIT_STALE_FILE_LOCK_DELETED.getEventName(),
-                                                            defaultApplication,
-                                                            defaultApplication
-                                                                    .getGitApplicationMetadata()
-                                                                    .getIsRepoPrivate()))
-                                                    .then(Mono.error(new AppsmithException(
-                                                            AppsmithError.GIT_ACTION_FAILED,
-                                                            "status",
-                                                            error.getMessage())));
                                         }
                                         return Mono.error(new AppsmithException(
                                                 AppsmithError.GIT_ACTION_FAILED, "merge", error.getMessage()));
@@ -2260,20 +2162,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             });
                                 } catch (GitAPIException | IOException e) {
                                     log.error("Error while resetting to last commit", e);
-                                    if (error instanceof LockFailedException) {
-                                        return fileUtils
-                                                .deleteIndexLockFile(repoSuffix, MAX_STALE_TIME)
-                                                .flatMap(deleteStatus -> addAnalyticsForGitOperation(
-                                                        AnalyticsEvents.GIT_STALE_FILE_LOCK_DELETED.getEventName(),
-                                                        application,
-                                                        application
-                                                                .getGitApplicationMetadata()
-                                                                .getIsRepoPrivate()))
-                                                .flatMap(deleteStatus -> Mono.error(new AppsmithException(
-                                                        AppsmithError.GIT_ACTION_FAILED,
-                                                        "merge status",
-                                                        error.getMessage())));
-                                    }
                                     return Mono.error(new AppsmithException(
                                             AppsmithError.GIT_ACTION_FAILED, "reset --hard HEAD", e.getMessage()));
                                 }
@@ -2650,18 +2538,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             "delete branch",
                                             "Cannot delete current checked out branch"));
                                 }
-                                if (throwable instanceof LockFailedException) {
-                                    return fileUtils
-                                            .deleteIndexLockFile(repoPath, MAX_STALE_TIME)
-                                            .flatMap(deleteStatus -> addAnalyticsForGitOperation(
-                                                    AnalyticsEvents.GIT_STALE_FILE_LOCK_DELETED.getEventName(),
-                                                    application,
-                                                    null))
-                                            .flatMap(deleteStatus -> Mono.error(new AppsmithException(
-                                                    AppsmithError.GIT_ACTION_FAILED,
-                                                    "merge status",
-                                                    throwable.getMessage())));
-                                }
                                 return Mono.error(new AppsmithException(
                                         AppsmithError.GIT_ACTION_FAILED, "delete branch", throwable.getMessage()));
                             })
@@ -2751,18 +2627,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                             })
                             .onErrorResume(throwable -> {
                                 log.error("Git Discard & Rebase failed {}", throwable.getMessage());
-                                if (throwable instanceof LockFailedException) {
-                                    return fileUtils
-                                            .deleteIndexLockFile(repoSuffix, MAX_STALE_TIME)
-                                            .flatMap(deleteStatus -> addAnalyticsForGitOperation(
-                                                    AnalyticsEvents.GIT_STALE_FILE_LOCK_DELETED.getEventName(),
-                                                    branchedApplication,
-                                                    null))
-                                            .flatMap(deleteStatus -> Mono.error(new AppsmithException(
-                                                    AppsmithError.GIT_ACTION_FAILED,
-                                                    "merge status",
-                                                    throwable.getMessage())));
-                                }
                                 return Mono.error(
                                         new AppsmithException(
                                                 AppsmithError.GIT_ACTION_FAILED,
@@ -3000,17 +2864,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                 "Nothing to fetch from remote. All changes are up to date.");
                                         mergeStatus.setMergeAble(true);
                                         return Mono.just(mergeStatus);
-                                    } else if (error instanceof LockFailedException) {
-                                        return fileUtils
-                                                .deleteIndexLockFile(repoSuffix, MAX_STALE_TIME)
-                                                .flatMap(deleteStatus -> addAnalyticsForGitOperation(
-                                                        AnalyticsEvents.GIT_STALE_FILE_LOCK_DELETED.getEventName(),
-                                                        defaultApplication,
-                                                        gitData.getIsRepoPrivate()))
-                                                .flatMap(deleteStatus -> Mono.error(new AppsmithException(
-                                                        AppsmithError.GIT_ACTION_FAILED,
-                                                        "merge status",
-                                                        error.getMessage())));
                                     }
                                     return Mono.error(new AppsmithException(
                                             AppsmithError.GIT_ACTION_FAILED, "pull", error.getMessage()));
