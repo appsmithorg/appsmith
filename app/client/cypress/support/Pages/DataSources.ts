@@ -47,6 +47,7 @@ export class DataSources {
   }; //Container KeyValuePair
 
   private _dsCreateNewTab = "[data-testid=t--tab-CREATE_NEW]";
+  private _dsReviewSection = "[data-testid='t--ds-review-section']";
   private _addNewDataSource = ".t--entity-add-btn.datasources button";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
@@ -440,6 +441,20 @@ export class DataSources {
         : password,
     );
     this.ValidateNSelectDropdown("SSL mode", "Default");
+  }
+
+  public ValidatePostgresDSForm(
+    environment = this.tedTestConfig.defaultEnviorment,
+  ) {
+    const databaseName =
+      this.tedTestConfig.dsValues[environment].postgres_databaseName;
+    this.agHelper.AssertContains(databaseName, "exist", this._dsReviewSection);
+  }
+
+  public ValidateMongoForm(environment = this.tedTestConfig.defaultEnviorment) {
+    const databaseName =
+      this.tedTestConfig.dsValues[environment].mongo_databaseName;
+    this.agHelper.AssertContains(this._dsReviewSection, databaseName);
   }
 
   public FillOracleDSForm(
@@ -908,6 +923,18 @@ export class DataSources {
     }
   }
 
+  public CreateQueryForDS(datasourceName: string, query = "", queryName = "") {
+    this.NavigateToActiveTab();
+    cy.get(this._datasourceCard)
+      .contains(datasourceName)
+      .scrollIntoView()
+      .should("be.visible")
+      .click();
+    this.agHelper.Sleep(); //for the Datasource page to open
+    this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, true, 200);
+    this.CreateQueryAfterDSSaved(query, queryName);
+  }
+
   DeleteQuery(queryName: string) {
     this.ee.ExpandCollapseEntity("Queries/JS");
     this.ee.ActionContextMenuByEntityName({
@@ -932,6 +959,17 @@ export class DataSources {
       //to expand the dropdown
       //this.agHelper.GetNClick(this._queryOption(newValue))
       cy.xpath(this._queryOption(newValue)).last().click({ force: true }); //to select the new value
+    }
+  }
+
+  public ValidateReviewModeConfig(
+    dsName: "PostgreSQL" | "MongoDB",
+    environment = this.tedTestConfig.defaultEnviorment,
+  ) {
+    if (dsName === "PostgreSQL") {
+      this.ValidatePostgresDSForm(environment);
+    } else if (dsName === "MongoDB") {
+      this.ValidateMongoForm(environment);
     }
   }
 
