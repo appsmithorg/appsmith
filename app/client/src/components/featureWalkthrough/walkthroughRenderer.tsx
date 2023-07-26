@@ -152,10 +152,10 @@ const WalkthroughRenderer = ({
   useEffect(() => {
     updateBoundingRect();
     const highlightArea = document.querySelector(`#${targetId}`);
-    AnalyticsUtil.logEvent("WALKTHROUGH_SHOWN", eventParams);
     window.addEventListener("resize", updateBoundingRect);
     const resizeObserver = new ResizeObserver(updateBoundingRect);
     if (highlightArea) {
+      AnalyticsUtil.logEvent("WALKTHROUGH_SHOWN", eventParams);
       resizeObserver.observe(highlightArea);
     }
     return () => {

@@ -3,9 +3,9 @@ import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
-
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   features: {
@@ -18,6 +18,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "MultiSelect",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.SELECT],
   needsMeta: true,
   searchTags: ["dropdown", "tags"],
   defaults: {
@@ -29,11 +30,13 @@ export const CONFIG = {
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
     labelTextSize: "0.875rem",
-    options: [
-      { label: "Blue", value: "BLUE" },
-      { label: "Green", value: "GREEN" },
-      { label: "Red", value: "RED" },
+    sourceData: [
+      { name: "Blue", code: "BLUE" },
+      { name: "Green", code: "GREEN" },
+      { name: "Red", code: "RED" },
     ],
+    optionLabel: "name",
+    optionValue: "code",
     widgetName: "MultiSelect",
     isFilterable: true,
     serverSideFiltering: false,
