@@ -140,18 +140,18 @@ describe("Container Widget Functionality", function () {
     agHelper.EnterActionValue("Message", "{{currentItem.first_name}}");
     deployMode.DeployApp();
     // Click on list first item
-    cy.get(
+    agHelper.GetNClick(
       `${locators._listWidget} ${locators._widgetInDeployed(
         draggableWidgets.CONTAINER,
       )}${locators._firstChild}`,
-    ).click();
+    );
     cy.get(locators._body).then(($ele) => {
       if ($ele.find(locators._toastMsg).length <= 0) {
-        cy.get(
+        agHelper.GetNClick(
           `${locators._listWidget} ${locators._widgetInDeployed(
             draggableWidgets.CONTAINER,
           )}${locators._firstChild}`,
-        ).click();
+        );
       }
     });
     // Verify the click on first item
