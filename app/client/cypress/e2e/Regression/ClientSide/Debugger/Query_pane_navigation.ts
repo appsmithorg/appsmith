@@ -2,8 +2,8 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
 
 describe("Query pane navigation", () => {
-  let ds1Name;
-  let ds2Name;
+  let ds1Name: any;
+  let ds2Name: any;
 
   beforeEach("Add dsl and create datasource", () => {
     _.dataSources.CreateDataSource("S3", true, false);
