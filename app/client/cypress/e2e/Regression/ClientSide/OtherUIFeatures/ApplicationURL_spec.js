@@ -1,6 +1,6 @@
+import homePageLocators from "../../../../locators/HomePage";
 const explorer = require("../../../../locators/explorerlocators.json");
 import {
-  agHelper,
   assertHelper,
   entityExplorer,
   homePage,
