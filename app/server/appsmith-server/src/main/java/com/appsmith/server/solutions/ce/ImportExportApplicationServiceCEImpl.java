@@ -396,8 +396,22 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 datasourceList.forEach(datasource ->
                                         datasourceIdToNameMap.put(datasource.getId(), datasource.getName()));
                                 List<DatasourceStorage> storageList = datasourceList.stream()
-                                        .map(datasource -> datasourceStorageService.getDatasourceStorageFromDatasource(
-                                                datasource, environmentId))
+                                        .map(datasource -> {
+                                            DatasourceStorage storage =
+                                                    datasourceStorageService.getDatasourceStorageFromDatasource(
+                                                            datasource, environmentId);
+
+                                            if (storage == null) {
+                                                // This means we were unable to find a storage for default environment
+                                                // We still need the user to be able to configure this datasource in a
+                                                // new workspace,
+                                                // So we will create a fallback storage using transient fields from the
+                                                // datasource
+                                                storage = new DatasourceStorage();
+                                                storage.prepareTransientFields(datasource);
+                                            }
+                                            return storage;
+                                        })
                                         .collect(Collectors.toList());
                                 applicationJson.setDatasourceList(storageList);
 
@@ -2073,6 +2087,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     Boolean isUnConfiguredDatasource = datasources.stream().anyMatch(datasource -> {
                         DatasourceStorageDTO datasourceStorageDTO =
                                 datasource.getDatasourceStorages().get(environmentId);
+                        if (datasourceStorageDTO == null) {
+                            // If this environment has not been configured,
+                            // We do not expect to find a storage, user will have to reconfigure
+                            return Boolean.FALSE;
+                        }
                         return Boolean.FALSE.equals(datasourceStorageDTO.getIsConfigured());
                     });
                     if (Boolean.TRUE.equals(isUnConfiguredDatasource)) {
