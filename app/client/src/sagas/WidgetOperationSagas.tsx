@@ -44,6 +44,8 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertToString } from "utils/AppsmithUtils";
 import type {
+  BatchUpdateDynamicPropertyUpdates,
+  BatchUpdateWidgetDynamicPropertyPayload,
   DeleteWidgetPropertyPayload,
   SetWidgetDynamicPropertyPayload,
   UpdateWidgetPropertyPayload,
@@ -480,22 +482,21 @@ export function removeDynamicBindingProperties(
   }
 }
 
-export function* setWidgetDynamicPropertySaga(
-  action: ReduxAction<SetWidgetDynamicPropertyPayload>,
+export function* handleUpdateWidgetDynamicProperty(
+  widget: WidgetProps,
+  update: BatchUpdateDynamicPropertyUpdates,
 ) {
   const {
     isDynamic,
     propertyPath,
     shouldRejectDynamicBindingPathList = true,
     skipValidation = false,
-    widgetId,
-  } = action.payload;
-  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
-  let widget = cloneDeep({ ...stateWidget });
-  const propertyValue = _.get(widget, propertyPath);
+  } = update;
 
+  const propertyValue = _.get(widget, propertyPath);
   let dynamicPropertyPathList = getWidgetDynamicPropertyPathList(widget);
   let dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
+
   if (isDynamic) {
     const keyExists =
       dynamicPropertyPathList.findIndex((path) => path.key === propertyPath) >
@@ -540,9 +541,49 @@ export function* setWidgetDynamicPropertySaga(
       widget = set(widget, propertyPath, parsed);
     }
   }
-
   widget.dynamicPropertyPathList = dynamicPropertyPathList;
   widget.dynamicBindingPathList = dynamicBindingPathList;
+  return widget;
+}
+
+export function* batchUpdateWidgetDynamicPropertySaga(
+  action: ReduxAction<BatchUpdateWidgetDynamicPropertyPayload>,
+) {
+  const { updates, widgetId } = action.payload;
+  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
+  let widget = cloneDeep({ ...stateWidget });
+
+  for (const update of updates) {
+    widget = yield call(handleUpdateWidgetDynamicProperty, widget, update);
+  }
+
+  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const widgets = { ...stateWidgets, [widgetId]: widget };
+  // Save the layout
+  yield put(updateAndSaveLayout(widgets));
+}
+
+export function* setWidgetDynamicPropertySaga(
+  action: ReduxAction<SetWidgetDynamicPropertyPayload>,
+) {
+  const {
+    isDynamic,
+    propertyPath,
+    shouldRejectDynamicBindingPathList = true,
+    skipValidation = false,
+    widgetId,
+  } = action.payload;
+  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
+  let widget = cloneDeep({ ...stateWidget });
+  const update = {
+    isDynamic,
+    propertyPath,
+    shouldRejectDynamicBindingPathList,
+    skipValidation,
+  };
+
+  widget = yield call(handleUpdateWidgetDynamicProperty, widget, update);
+
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
 
@@ -2109,6 +2150,10 @@ export default function* widgetOperationSagas() {
     takeEvery(
       ReduxActionTypes.SET_WIDGET_DYNAMIC_PROPERTY,
       setWidgetDynamicPropertySaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.BATCH_SET_WIDGET_DYNAMIC_PROPERTY,
+      batchUpdateWidgetDynamicPropertySaga,
     ),
     takeEvery(
       ReduxActionTypes.RESET_CHILDREN_WIDGET_META,

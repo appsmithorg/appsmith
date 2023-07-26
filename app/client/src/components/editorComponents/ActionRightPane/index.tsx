@@ -419,6 +419,7 @@ function ActionSidebar({
             FEATURE_FLAG.ab_ds_schema_enabled,
           [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForDSSchema,
         },
+        delay: 5000,
       });
   };
 

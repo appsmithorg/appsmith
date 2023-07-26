@@ -67,6 +67,7 @@
   "toggleVisible": ".t--property-control-visible .t--js-toggle",
   "inputToggleVisible": "div.t--property-control-visible div.CodeMirror-lines",
   "selectWidget": ".t--widget-selectwidget",
+  "multiSelectWidget": ".t--widget-multiselectwidgetv2",
   "filterCheckbox": ".t--property-control-filterable input[type=checkbox]",
   "searchBoxDropdown": ".select-popover-wrapper div.bp3-input-group",
   "NavHomePage": "[data-testid='t--default-home-icon']",
