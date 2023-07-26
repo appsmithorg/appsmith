@@ -24,7 +24,7 @@ export default defineConfig({
     openMode: 0,
   },
   e2e: {
-    baseUrl: "http://localhost/",
+    baseUrl: "https://regression.test.appsmith.com",
     setupNodeEvents(on, config) {
       return require("./cypress/plugins/index.js")(on, config);
     },
@@ -32,7 +32,9 @@ export default defineConfig({
     testIsolation: false,
     excludeSpecPattern: [
       "cypress/e2e/**/spec_utility.ts",
-      "cypress/e2e/GSheet/**/**/*",
+      "cypress/e2e/Regression/**/**/*",
+      "cypress/e2e/Sanity/**/**/*",
+      "cypress/e2e/Smoke/**/**/*",
     ],
   },
 });
