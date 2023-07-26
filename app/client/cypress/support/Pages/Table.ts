@@ -160,6 +160,7 @@ export class Table {
   _columnCheckbox = (columnName: string) =>
     "[data-rbd-draggable-id='" + columnName + "']" + " .t--card-checkbox input";
   _dateInputPopover = ".bp3-dateinput-popover";
+  _tableV2Widget = ".t--draggable-tablewidgetv2";
   _tableV2Row = ".t--draggable-tablewidgetv2 .tbody";
   _weekdayRowDayPicker =
     ".bp3-datepicker .DayPicker .DayPicker-Months .DayPicker-WeekdaysRow";
