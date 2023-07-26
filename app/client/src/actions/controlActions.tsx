@@ -40,6 +40,17 @@ export const batchUpdateWidgetProperty = (
     shouldReplay,
   },
 });
+
+export const batchUpdateWidgetDynamicProperty = (
+  widgetId: string,
+  updates: BatchUpdateDynamicPropertyUpdates[],
+): ReduxAction<BatchUpdateWidgetDynamicPropertyPayload> => ({
+  type: ReduxActionTypes.BATCH_SET_WIDGET_DYNAMIC_PROPERTY,
+  payload: {
+    widgetId,
+    updates,
+  },
+});
 export const batchUpdateMultipleWidgetProperties = (
   updatesArray: UpdateWidgetPropertyPayload[],
 ): ReduxAction<{ updatesArray: UpdateWidgetPropertyPayload[] }> => ({
@@ -127,6 +138,16 @@ export interface SetWidgetDynamicPropertyPayload {
   isDynamic: boolean;
   shouldRejectDynamicBindingPathList?: boolean;
   skipValidation?: boolean;
+}
+
+export type BatchUpdateDynamicPropertyUpdates = Omit<
+  SetWidgetDynamicPropertyPayload,
+  "widgetId"
+>;
+
+export interface BatchUpdateWidgetDynamicPropertyPayload {
+  widgetId: string;
+  updates: BatchUpdateDynamicPropertyUpdates[];
 }
 
 export interface DeleteWidgetPropertyPayload {
