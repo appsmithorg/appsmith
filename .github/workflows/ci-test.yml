@@ -161,10 +161,10 @@ jobs:
             -e APPSMITH_REDIS_URL=redis://host.docker.internal:6379/ \
             -e APPSMITH_APPS_API_KEY=dummy-api-key \
             -e APPSMITH_REMOTE_API_KEY=dummy-api-key \
-            -e APPSMITH_GITHUB_API_KEY=dummy-a410dda6273863a4ed3c05f4175a0a03 \
-            -e APPSMITH_JWT_SECRET=dummy-PVpkOTXPrft12EDrtma5PUmMyKwFNIPEhO2gTBDXB1KVxS77UBpk4qDjb4 \
-            -e APPSMITH_ENCRYPTION_SALT=RLjmffyNOweXf \
-            -e APPSMITH_ENCRYPTION_PASSWORD=VJWlQH20UESZB \
+            -e APPSMITH_GITHUB_API_KEY=dummy-appsmith-gh-api-key \
+            -e APPSMITH_JWT_SECRET=appsmith-cloud-services-jwt-secret-dummy-key \
+            -e APPSMITH_ENCRYPTION_SALT=encryption-salt \
+            -e APPSMITH_ENCRYPTION_PASSWORD=encryption-password \
             -e APPSMITH_CLOUD_SERVICES_URL=https://cs-dev.appsmith.com \
             -e APPSMITH_CUSTOMER_PORTAL_URL=https://dev.appsmith.com \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=https://cs-dev.appsmith.com \
