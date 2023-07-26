@@ -78,6 +78,7 @@ export const Button = forwardRef(
           visuallyDisabled || isLoading || props.isDisabled ? true : undefined
         }
         data-button=""
+        data-color={color}
         data-fit-container={isFitContainer ? "" : undefined}
         data-icon-position={iconPosition === "start" ? undefined : "end"}
         data-loading={isLoading ? "" : undefined}
