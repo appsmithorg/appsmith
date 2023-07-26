@@ -9,11 +9,11 @@ export const StyledSwitch = styled(HeadlessCheckbox)<SwitchProps>`
 
   [data-icon] {
     --gutter: 2px;
-    --knob-size: calc(3 * var(--root-unit));
+    --knob-size: var(--sizing-3);
 
     position: relative;
-    width: calc(8 * var(--root-unit));
-    height: calc(4 * var(--root-unit));
+    width: var(--sizing-8);
+    height: var(--sizing-4);
     background-color: var(--color-bg-neutral);
     border-radius: var(--knob-size);
     color: var(--color-bg);
