@@ -26,7 +26,7 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { getEnvironmentIdForHeader } from "@appsmith/api/ApiUtils";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -93,7 +93,7 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   }
 
   // Add header for environment name
-  const activeEnv = getCurrentEnvironment();
+  const activeEnv = getEnvironmentIdForHeader();
 
   if (activeEnv && config.headers) {
     config.headers.environmentId = activeEnv;
