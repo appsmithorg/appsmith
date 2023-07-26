@@ -43,7 +43,7 @@ import type { TJSLibrary } from "workers/common/JSLibrary";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { getSelectedWidgets } from "./ui";
+import { getFocusedWidget, getSelectedWidgets } from "./ui";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -1163,5 +1163,30 @@ export const getPositionOfSelectedWidget = createSelector(
       });
     }
     return arr;
+  },
+);
+
+export const getPositionOfFocusedWidget = createSelector(
+  getWidgetPositions,
+  getFocusedWidget,
+  getSelectedWidgets,
+  (state: AppState) => state.entities.canvasWidgets,
+  (state: AppState) => state.ui.widgetDragResize.isResizing,
+  (
+    positions,
+    focusedWidget,
+    selectedWidgets,
+    widgets,
+    isResizing,
+  ): { id: string; widgetName: string; position: any } | undefined => {
+    if (!focusedWidget || !widgets || isResizing) return;
+
+    const widget = widgets[focusedWidget];
+    if (!widget || selectedWidgets.indexOf(focusedWidget) > -1) return;
+    return {
+      id: widget.widgetId,
+      position: positions[widget.widgetId],
+      widgetName: widget.widgetName,
+    };
   },
 );

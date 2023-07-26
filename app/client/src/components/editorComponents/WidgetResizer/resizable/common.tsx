@@ -75,6 +75,7 @@ export type DimensionUpdateProps = {
   Y?: number;
   reflectPosition: boolean;
   reflectDimension: boolean;
+  reflectIndicator: -1 | 1;
 };
 
 type ResizableHandleProps = {
