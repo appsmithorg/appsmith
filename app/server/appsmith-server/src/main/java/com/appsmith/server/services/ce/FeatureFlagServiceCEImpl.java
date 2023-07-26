@@ -132,4 +132,13 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                     });
         });
     }
+
+    public Mono<Void> getAllRemoteFeaturesForTenant() {
+        return tenantService.getDefaultTenantId()
+                .flatMap(defaultTenantId -> {
+                    return cacheableFeatureFlagHelper.evictTenantCachedFeatures(defaultTenantId).thenReturn(defaultTenantId);
+                })
+                .flatMap(defaultTenantId -> cacheableFeatureFlagHelper.fetchTenantCachedFeatures(defaultTenantId))
+                .then();
+    }
 }

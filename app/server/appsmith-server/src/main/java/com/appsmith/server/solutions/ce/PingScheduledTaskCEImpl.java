@@ -11,6 +11,7 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +47,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
     private final UserRepository userRepository;
     private final ProjectProperties projectProperties;
     private final NetworkUtils networkUtils;
+    private final FeatureFlagService featureFlagService;
 
     /**
      * Gets the external IP address of this server and pings a data point to indicate that this server instance is live.
@@ -152,4 +154,15 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                 .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
     }
+
+
+    @Scheduled(initialDelay = 10 * 1000 /* ten seconds */, fixedRate = 2 * 60 * 60 * 1000 /* two hours */)
+    public void fetchFeatures() {
+        featureFlagService
+                .getAllRemoteFeaturesForTenant()
+                .doOnError(error -> log.error("Error sending anonymous counts {0}", error))
+                .subscribeOn(Schedulers.boundedElastic())
+                .subscribe();
+    }
+
 }

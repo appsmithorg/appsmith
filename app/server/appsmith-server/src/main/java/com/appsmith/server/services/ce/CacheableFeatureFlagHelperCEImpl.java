@@ -6,13 +6,16 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.dtos.ce.FeaturesRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagIdentityTraits;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserIdentifierService;
+import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -35,18 +38,21 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
     private final CommonConfig commonConfig;
 
     private final UserIdentifierService userIdentifierService;
+    private final ReleaseNotesService releaseNotesService;
 
     public CacheableFeatureFlagHelperCEImpl(
             TenantService tenantService,
             ConfigService configService,
             CloudServicesConfig cloudServicesConfig,
             CommonConfig commonConfig,
-            UserIdentifierService userIdentifierService) {
+            UserIdentifierService userIdentifierService,
+            ReleaseNotesService releaseNotesService) {
         this.tenantService = tenantService;
         this.configService = configService;
         this.cloudServicesConfig = cloudServicesConfig;
         this.commonConfig = commonConfig;
         this.userIdentifierService = userIdentifierService;
+        this.releaseNotesService = releaseNotesService;
     }
 
     @Cache(cacheName = "featureFlag", key = "{#userIdentifier}")
@@ -131,6 +137,62 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                     // We're gobbling up errors here so that all feature flags are turned off by default
                     // This will be problematic if we do not maintain code to reflect validity of flags
                     log.debug("Received error from CS for feature flags: {}", error.getMessage());
+                    return Mono.just(Map.of());
+                });
+    }
+
+    @Cache(cacheName = "features", key = "{#tenantId}")
+    public Mono<CachedFeatures> fetchTenantCachedFeatures(String tenantId) {
+        return this.forceAllRemoteFeaturesForTenant(tenantId).flatMap(flags -> {
+            CachedFeatures cachedFeatures = new CachedFeatures();
+            cachedFeatures.setRefreshedAt(Instant.now());
+            cachedFeatures.setNewFeatures(flags);
+            return Mono.just(cachedFeatures);
+        });
+    }
+
+    @CacheEvict(cacheName = "features", key = "{#tenantId}")
+    public Mono<Void> evictTenantCachedFeatures(String tenantId) {
+        return Mono.empty();
+    }
+
+    private Mono<Object> forceAllRemoteFeaturesForTenant(String tenantId) {
+        Mono<String> instanceIdMono = configService.getInstanceId();
+        String appsmithVersion = releaseNotesService.getRunningVersion();
+        return instanceIdMono
+                .map(instanceId -> {
+                    FeaturesRequestDTO featuresRequestDTO = new FeaturesRequestDTO();
+                    featuresRequestDTO.setTenantId(tenantId);
+                    featuresRequestDTO.setInstanceId(instanceId);
+                    featuresRequestDTO.setAppsmithVersion(appsmithVersion);
+
+                    return featuresRequestDTO;
+                })
+                .flatMap(this::getRemoteFeaturesForTenant)
+                .map(featuresMap -> featuresMap.get("features"));
+    }
+
+    private Mono<Map<String, Map<String, Object>>> getRemoteFeaturesForTenant(
+            FeaturesRequestDTO featuresRequestDTO) {
+        return WebClientUtils.create(cloudServicesConfig.getBaseUrl())
+                .post()
+                .uri("/api/v1/business-features")
+                .body(BodyInserters.fromValue(featuresRequestDTO))
+                .exchangeToMono(clientResponse -> {
+                    if (clientResponse.statusCode().is2xxSuccessful()) {
+                        return clientResponse.bodyToMono(
+                                new ParameterizedTypeReference<ResponseDTO<Map<String, Map<String, Object>>>>() {});
+                    } else {
+                        return clientResponse.createError();
+                    }
+                })
+                .map(ResponseDTO::getData)
+                .onErrorMap(
+                        // Only map errors if we haven't already wrapped them into an AppsmithException
+                        e -> !(e instanceof AppsmithException),
+                        e -> new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, e.getMessage()))
+                .onErrorResume(error -> {
+                    log.debug("Received error from CS while fetching features: {}", error.getMessage());
                     return Mono.just(Map.of());
                 });
     }

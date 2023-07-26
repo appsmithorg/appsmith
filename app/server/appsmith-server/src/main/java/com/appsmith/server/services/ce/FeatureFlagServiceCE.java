@@ -35,4 +35,6 @@ public interface FeatureFlagServiceCE {
      * @return Mono<Map < String, Boolean>>
      */
     Mono<Map<String, Boolean>> getAllFeatureFlagsForUser();
+
+    Mono<Void> getAllRemoteFeaturesForTenant();
 }
