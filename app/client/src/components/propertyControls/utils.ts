@@ -1,4 +1,9 @@
-import { getDynamicBindings } from "../../utils/DynamicBindingUtils";
+import type { WidgetProps } from "widgets/BaseWidget";
+import { get } from "lodash";
+import {
+  EVAL_ERROR_PATH,
+  getDynamicBindings,
+} from "../../utils/DynamicBindingUtils";
 
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
@@ -22,4 +27,11 @@ export const JSToString = (js: string): string => {
       } else return "{{" + segment + "}}";
     })
     .join("");
+};
+
+export const getValidationErrorForProperty = (
+  widget: WidgetProps,
+  propertyPath: string,
+) => {
+  return get(widget, `${EVAL_ERROR_PATH}.${propertyPath}`, []);
 };

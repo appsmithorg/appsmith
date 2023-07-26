@@ -21,6 +21,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
@@ -281,17 +282,21 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         });
     }
 
-    public Mono<UpdateResult> updateByCriteria(List<Criteria> criteriaList, Update updateObj) {
+    public Mono<UpdateResult> updateByCriteria(
+            List<Criteria> criteriaList, UpdateDefinition updateObj, AclPermission permission) {
         if (criteriaList == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "criteriaList"));
         }
         if (updateObj == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "updateObj"));
         }
-        List<Criteria> allCriterias = new ArrayList<>(criteriaList);
-        allCriterias.add(notDeleted());
-        Query query = new Query(new Criteria().andOperator(allCriterias));
-        return mongoOperations.updateMulti(query, updateObj, this.genericDomain);
+        Mono<Set<String>> permissionGroupsMono =
+                getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission));
+
+        return permissionGroupsMono.flatMap(permissionGroups -> {
+            Query queryWithPermission = createQueryWithPermission(criteriaList, permissionGroups, permission);
+            return mongoOperations.updateMulti(queryWithPermission, updateObj, this.genericDomain);
+        });
     }
 
     @Deprecated

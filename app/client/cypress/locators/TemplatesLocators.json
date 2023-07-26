@@ -8,5 +8,5 @@
   "templateDialogBox": "[data-testid=t--templates-dialog-component]",
   "selectCheckbox": ".ads-v2-checkbox",
   "closeButton": "//span[@name='close-x']",
-  "marketingDashboard":"//h1[text()='Marketing Dashboard']/parent::div//button[contains(@class, 't--fork-template')]"
+  "marketingDashboard": "//h1[text()='Marketing Dashboard']"
 }

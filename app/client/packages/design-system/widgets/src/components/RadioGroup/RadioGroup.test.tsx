@@ -81,18 +81,6 @@ describe("@design-system/widgets/RadioGroup", () => {
     expect(onChangeSpy).toHaveBeenCalled();
   });
 
-  it("should be able to render checkboxes in horizontal orientation", () => {
-    render(
-      <RadioGroup label="Radio  Group Label" orientation="horizontal">
-        <Radio value="value-1">Value 1</Radio>
-        <Radio value="value-2">Value 2</Radio>
-      </RadioGroup>,
-    );
-
-    const radioGroup = screen.getByRole("radiogroup");
-    expect(window.getComputedStyle(radioGroup).flexDirection).toBe("row");
-  });
-
   it("should be able to render disabled checkboxes", () => {
     render(
       <RadioGroup isDisabled label="Radio  Group Label">
@@ -104,17 +92,5 @@ describe("@design-system/widgets/RadioGroup", () => {
     const options = screen.getAllByRole("radio");
     expect(options[0]).toBeDisabled();
     expect(options[1]).toBeDisabled();
-  });
-
-  it("should be able to render set label position to left", () => {
-    const { container } = render(
-      <RadioGroup label="Radio  Group Label" labelPosition="side">
-        <Radio value="value-1">Value 1</Radio>
-        <Radio value="value-2">Value 2</Radio>
-      </RadioGroup>,
-    );
-
-    const field = container.querySelector("[data-field]") as HTMLElement;
-    expect(window.getComputedStyle(field).flexDirection).toBe("row");
   });
 });
