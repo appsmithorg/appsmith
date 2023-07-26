@@ -3056,6 +3056,108 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void
+            importApplicationInWorkspaceFromGit_WithNavSettingsInEditMode_ImportedAppHasNavSettingsInEditAndViewMode() {
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("import-with-navSettings-in-editMode");
+
+        Application testApplication = new Application();
+        testApplication.setName(
+                "importApplicationInWorkspaceFromGit_WithNavSettingsInEditMode_ImportedAppHasNavSettingsInEditAndViewMode");
+        Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
+        appNavigationSetting.setOrientation("top");
+        testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
+        testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
+        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("testBranch");
+        testApplication.setGitApplicationMetadata(gitData);
+        Application savedApplication = applicationPageService
+                .createApplication(testApplication, workspaceId)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService.save(application1);
+                })
+                .block();
+
+        Mono<Application> result = importExportApplicationService
+                .exportApplicationById(savedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL)
+                .flatMap(applicationJson -> {
+                    // setting published mode resource as null, similar to the app json exported to git repo
+                    applicationJson.getExportedApplication().setPublishedApplicationDetail(null);
+                    return importExportApplicationService.importApplicationInWorkspaceFromGit(
+                            workspaceId, applicationJson, savedApplication.getId(), gitData.getBranchName());
+                });
+
+        StepVerifier.create(result)
+                .assertNext(importedApp -> {
+                    assertThat(importedApp.getUnpublishedApplicationDetail()).isNotNull();
+                    assertThat(importedApp.getPublishedApplicationDetail()).isNotNull();
+                    assertThat(importedApp.getUnpublishedApplicationDetail().getNavigationSetting())
+                            .isNotNull();
+                    assertEquals(
+                            importedApp
+                                    .getUnpublishedApplicationDetail()
+                                    .getNavigationSetting()
+                                    .getOrientation(),
+                            "top");
+                    assertThat(importedApp.getPublishedApplicationDetail().getNavigationSetting())
+                            .isNotNull();
+                    assertEquals(
+                            importedApp
+                                    .getPublishedApplicationDetail()
+                                    .getNavigationSetting()
+                                    .getOrientation(),
+                            "top");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationInWorkspaceFromGit_WithAppLayoutInEditMode_ImportedAppHasAppLayoutInEditAndViewMode() {
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("import-with-appLayout-in-editMode");
+
+        Application testApplication = new Application();
+        testApplication.setName(
+                "importApplicationInWorkspaceFromGit_WithAppLayoutInEditMode_ImportedAppHasAppLayoutInEditAndViewMode");
+        testApplication.setUnpublishedAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
+        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("testBranch");
+        testApplication.setGitApplicationMetadata(gitData);
+        Application savedApplication = applicationPageService
+                .createApplication(testApplication, workspaceId)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService.save(application1);
+                })
+                .block();
+
+        Mono<Application> result = importExportApplicationService
+                .exportApplicationById(savedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL)
+                .flatMap(applicationJson -> {
+                    // setting published mode resource as null, similar to the app json exported to git repo
+                    applicationJson.getExportedApplication().setPublishedAppLayout(null);
+                    return importExportApplicationService.importApplicationInWorkspaceFromGit(
+                            workspaceId, applicationJson, savedApplication.getId(), gitData.getBranchName());
+                });
+
+        StepVerifier.create(result)
+                .assertNext(importedApp -> {
+                    assertThat(importedApp.getUnpublishedAppLayout()).isNotNull();
+                    assertThat(importedApp.getPublishedAppLayout()).isNotNull();
+                    assertThat(importedApp.getUnpublishedAppLayout().getType())
+                            .isEqualTo(Application.AppLayout.Type.DESKTOP);
+                    assertThat(importedApp.getPublishedAppLayout().getType())
+                            .isEqualTo(Application.AppLayout.Type.DESKTOP);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
             exportAndImportApplication_withMultiplePagesOrderDifferentInDeployAndEditMode_PagesOrderIsMaintainedInEditAndViewMode() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("template-org-with-ds");
