@@ -674,11 +674,20 @@ export class AggregateHelper extends ReusableHelper {
       .wait(waitTimeInterval);
   }
 
-  public HoverElement(selector: string, index = 0, waitTimeInterval = 100) {
-    return (
-      this.ScrollIntoView(selector, index)
+  public HoverElement(
+    selector: string,
+    index = 0,
+    realTouch = true,
+    waitTimeInterval = 100,
+  ) {
+    let chain = this.ScrollIntoView(selector, index);
+    if (realTouch) {
+      chain = chain
         .realTouch({ position: "center" })
-        .realHover({ pointer: "mouse" })
+        .realHover({ pointer: "mouse" });
+    }
+    return (
+      chain
         //.trigger("mousemove", { eventConstructor: "MouseEvent" })
         .wait(waitTimeInterval)
     );
