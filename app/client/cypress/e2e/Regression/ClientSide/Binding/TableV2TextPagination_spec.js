@@ -137,15 +137,9 @@ describe("Test Create Api and Bind to Table widget", function () {
 
   it("5. Table-Text, Validate Server Side Pagination of Paginate with Response URL", function () {
     /**Validate Response data with Table data in Text Widget */
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
-
-    // cy.ValidatePaginateResponseUrlDataV2(
-    //   apiPageLocators.apiPaginationPrevTest,
-    //   false,
-    // );
-    // cy.get("@postExecute.all");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitUntilTableLoad(0, 0, "v2");
+    agHelper.Sleep(3000);
     cy.wait("@postExecute").then((interception) => {
       let valueToTest = JSON.stringify(
         interception.response.body.data.body[0].name,

@@ -110,7 +110,7 @@ Cypress.Commands.add(
   (apiName, baseurl, path, verb, error = false) => {
     cy.get(".ads-v2-tabs__list").contains("Logs").click();
     cy.get("[data-testid=t--debugger-search]").clear().type(apiName);
-    agHelper.PressEnter()
+    agHelper.PressEnter();
 
     if (!error) {
       cy.get(".object-key").last().contains("request").click();
