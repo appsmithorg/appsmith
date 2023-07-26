@@ -29,6 +29,7 @@ export const CONFIG = {
     animateLoading: true,
     defaultSelectedRowIndex: 0,
     defaultSelectedRowIndices: [0],
+    enableServerSideFiltering: false,
     label: "Data",
     widgetName: "Table",
     searchKey: "",

@@ -505,7 +505,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
   const onValueChange = (value: string) => {
     dispatch({
       type: CascadeFieldActionTypes.CHANGE_VALUE,
-      payload: value,
+      payload: Number(value) || value,
     });
   };
   const onDateSelected = (date: string) => {

@@ -535,6 +535,11 @@ export default {
         return false;
       }
 
+      /* prevent client-side filtering when server side filtering is enabled */
+      if (props.enableServerSideFiltering) {
+        return true;
+      }
+
       /* when there is no filter defined */
       if (!props.filters || props.filters.length === 0) {
         return true;

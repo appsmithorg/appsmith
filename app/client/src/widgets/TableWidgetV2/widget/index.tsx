@@ -332,6 +332,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         isAddRowInProgress: "bool",
         previousPageVisited: generateTypeDef(widget.previousPageVisited),
         nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
+        filters: generateTypeDef(widget.filters),
       };
 
       return config;
@@ -1011,11 +1012,21 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   updateFilters = (filters: ReactTableFilter[]) => {
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+    const {
+      commitBatchMetaUpdates,
+      onTableFilterUpdate,
+      pushBatchMetaUpdates,
+    } = this.props;
 
     this.pushResetSelectedRowIndexUpdates();
 
-    pushBatchMetaUpdates("filters", filters);
+    pushBatchMetaUpdates("filters", filters, {
+      triggerPropertyName: "onTableFilterUpdate",
+      dynamicString: onTableFilterUpdate,
+      event: {
+        type: EventType.ON_FILTER_UPDATE,
+      },
+    });
 
     // Reset Page only when a filter is added
     if (!isEmpty(xorWith(filters, [DEFAULT_FILTER], equal))) {
