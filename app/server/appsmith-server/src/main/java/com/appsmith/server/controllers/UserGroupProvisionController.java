@@ -6,6 +6,7 @@ import com.appsmith.server.dtos.PagedDomain;
 import com.appsmith.server.dtos.ProvisionResourceDto;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
+import com.appsmith.server.dtos.UserGroupUpdateDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.services.UserGroupService;
 import lombok.extern.slf4j.Slf4j;
@@ -64,7 +65,7 @@ public class UserGroupProvisionController {
 
     @PutMapping("/{id}")
     public Mono<ResponseDTO<ProvisionResourceDto>> updateGroup(
-            @PathVariable String id, @RequestBody UserGroup userGroup) {
+            @PathVariable String id, @RequestBody UserGroupUpdateDTO userGroup) {
         return userGroupService
                 .updateProvisionGroup(id, userGroup)
                 .map(group -> new ResponseDTO<>(HttpStatus.OK.value(), group, null));

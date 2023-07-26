@@ -19,6 +19,7 @@ import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
 import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
+import com.appsmith.server.dtos.UserGroupUpdateDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.enums.ProvisionStatus;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -50,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -554,21 +556,26 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     }
 
     @Override
-    public Mono<ProvisionResourceDto> updateProvisionGroup(String id, UserGroup resource) {
+    public Mono<ProvisionResourceDto> updateProvisionGroup(String id, UserGroupUpdateDTO resource) {
         return repository
                 .findById(id, MANAGE_USER_GROUPS)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "update user groups")))
                 .flatMap(userGroup -> {
-                    List<String> updateCacheForUserIds =
-                            findSymmetricDiff(resource.getUsers(), userGroup.getUsers()).stream()
-                                    .toList();
                     userGroup.setName(resource.getName());
                     userGroup.setDescription(resource.getDescription());
-                    userGroup.setUsers(resource.getUsers());
-                    Mono<Long> updateCacheForUserIdsMono = permissionGroupService
-                            .cleanPermissionGroupCacheForUsers(updateCacheForUserIds)
-                            .thenReturn(1L);
+
+                    // Update members of group only when the request contains a non-null list of user ids
+                    Mono<Long> updateCacheForUserIdsMono = Mono.just(1L);
+                    if (Objects.nonNull(resource.getUsers())) {
+                        List<String> updateCacheForUserIds =
+                                findSymmetricDiff(resource.getUsers(), userGroup.getUsers()).stream()
+                                        .toList();
+                        userGroup.setUsers(resource.getUsers());
+                        permissionGroupService
+                                .cleanPermissionGroupCacheForUsers(updateCacheForUserIds)
+                                .thenReturn(1L);
+                    }
                     Mono<UserGroup> updateUserGroupMono =
                             super.update(id, userGroup).cache();
                     return Mono.zip(updateUserGroupMono, updateCacheForUserIdsMono)
