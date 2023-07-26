@@ -17,4 +17,35 @@ describe("JSObjects", () => {
       entityType: EntityItems.JSObject,
     });
   });
+  it("Focus and position cursor on the ch,line having an error", () => {
+    const JS_OBJECT_BODY = `export default {
+        myVar1: [],
+        myVar2: {},
+        myFun1 () {
+            //	write code here
+            //	this.myVar1 = [1,2,3]
+            let testing  = test + "test";
+        },
+        async myFun2 () {
+            return []
+            //	use async-await or promises
+            //	await storeValue('varName', 'hello world')
+        }
+    }`;
+    _.jsEditor.CreateJSObject(JS_OBJECT_BODY, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+
+    _.debuggerHelper.ClickDebuggerIcon();
+    _.debuggerHelper.ClicklogEntityLink();
+    _.agHelper.AssertCursorInput(".js-editor", { ch: 20, line: 6 });
+
+    _.entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "JSObject1",
+      entityType: EntityItems.JSObject,
+    });
+  });
 });

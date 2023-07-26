@@ -558,13 +558,13 @@ class CodeEditor extends Component<Props, State> {
         !isEqual(
           pick(this.props.editorLastCursorPosition, keys),
           pick(prevProps.editorLastCursorPosition, keys),
-        )
+        ) &&
+        this.props.editorLastCursorPosition.origin ===
+          CursorPositionOrigin.Navigation
       ) {
-        setTimeout(() => {
-          if (this.props.editorIsFocused) {
-            this.editor.focus();
-          }
-        }, 200);
+        if (this.props.editorIsFocused) {
+          this.editor.focus();
+        }
       }
     }
 
