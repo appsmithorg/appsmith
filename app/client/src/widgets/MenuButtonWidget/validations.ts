@@ -32,7 +32,7 @@ export function sourceDataArrayValidation(
       let isValid = true;
       let message = { name: "", message: "" };
 
-      if (options.length > 10) {
+      if (options.length > 10 && props.type !== "TABLE_WIDGET_V2") {
         isValid = false;
         message = {
           name: "RangeError",
