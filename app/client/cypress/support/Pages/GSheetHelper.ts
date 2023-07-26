@@ -67,6 +67,7 @@ export class GsheetHelper {
     dataSourceName: string,
     spreadSheet: string,
     rowData: string,
+    executeQuery = true,
     sheetName = "Sheet1",
     headRowIndex = "1",
   ) {
@@ -94,7 +95,7 @@ export class GsheetHelper {
       directInput: false,
       inputFieldName: inputField,
     });
-    this.dataSources.RunQuery();
+    if (executeQuery) this.dataSources.RunQuery();
   }
 
   public EnterBasicQueryValues(
