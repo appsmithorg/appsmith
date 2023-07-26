@@ -5,9 +5,9 @@ import { useTooltip } from "./useTooltip";
 import { TooltipContext } from "./TooltipContext";
 import type { TooltipOptions } from "./useTooltip";
 
-type TooltipProps = { children: ReactNode } & TooltipOptions;
+type TooltipRootProps = { children: ReactNode } & TooltipOptions;
 
-export function Tooltip({ children, ...options }: TooltipProps) {
+export function TooltipRoot({ children, ...options }: TooltipRootProps) {
   const tooltip = useTooltip(options);
 
   return (
