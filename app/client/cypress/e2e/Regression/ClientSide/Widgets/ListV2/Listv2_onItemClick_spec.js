@@ -4,6 +4,7 @@ import {
   agHelper,
   draggableWidgets,
   entityExplorer,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
@@ -69,10 +70,10 @@ describe("List widget v2 onItemClick", () => {
   });
 
   it("2. List widget V2 with onItemClick should be triggered when child widget without event is clicked", () => {
-    cy.get(widgetSelector("Image1")).first().click({ force: true });
+    agHelper.GetNClick(locators._widgetByName("Image1"), 0, true);
     agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
 
-    cy.get(widgetSelector("Text1")).first().click({ force: true });
+    agHelper.GetNClick(locators._widgetByName("Text1"), 0, true);
     agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
 
     deleteAllWidgetsInContainer();
