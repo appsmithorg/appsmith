@@ -1110,6 +1110,8 @@ export class DataSources {
     testNSave = true,
     environment = this.tedTestConfig.defaultEnviorment,
     assetEnvironmentSelected = false,
+    // function to be executed before filling the datasource form
+    preDSConfigAction?: (arg?: string) => void,
   ) {
     let guid: any;
     let dataSourceName = "";
@@ -1122,6 +1124,10 @@ export class DataSources {
         guid = uid;
         dataSourceName = dsType + " " + guid;
         this.agHelper.RenameWithInPane(dataSourceName, false);
+        // Execute the preDSConfigAction if it is defined
+        if (!!preDSConfigAction) {
+          preDSConfigAction.bind(this)(environment);
+        }
         if (assetEnvironmentSelected) {
           this.agHelper.AssertSelectedTab(
             this.locator.ds_editor_env_filter(environment),
@@ -1264,7 +1270,6 @@ export class DataSources {
     schema: string,
     isUpdate = false,
   ) {
-    cy.intercept("GET", this._getStructureReq).as("getDSStructure");
     if (isUpdate) {
       this.UpdateDatasource();
     } else {
@@ -1274,7 +1279,7 @@ export class DataSources {
       entityNameinLeftSidebar: dataSourceName,
       action: "Refresh",
     });
-    cy.wait("@getDSStructure").then(() => {
+    cy.wait("@getDatasourceStructure").then(() => {
       cy.get(".bp3-collapse-body").contains(schema);
     });
   }

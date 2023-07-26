@@ -16,10 +16,7 @@ import {
   deleteWidgetProperty,
   setWidgetDynamicProperty,
 } from "actions/controlActions";
-import type {
-  PropertyHookUpdates,
-  PropertyPaneControlConfig,
-} from "constants/PropertyControlConstants";
+import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import type { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
@@ -55,6 +52,7 @@ import clsx from "clsx";
 import styled from "styled-components";
 import { importSvg } from "design-system-old";
 import classNames from "classnames";
+import type { PropertyUpdates } from "widgets/constants";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 
 const ResetIcon = importSvg(() => import("assets/icons/control/undo_2.svg"));
@@ -265,7 +263,7 @@ const PropertyControl = memo((props: Props) => {
       propertyName: string,
       propertyValue: any,
     ): UpdateWidgetPropertyPayload | undefined => {
-      let propertiesToUpdate: Array<PropertyHookUpdates> | undefined;
+      let propertiesToUpdate: Array<PropertyUpdates> | undefined;
       // To support updating multiple properties of same widget.
       if (updateHook) {
         propertiesToUpdate = updateHook(

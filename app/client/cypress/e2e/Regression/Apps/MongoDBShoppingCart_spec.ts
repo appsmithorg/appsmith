@@ -12,10 +12,9 @@ describe("Shopping cart App", function () {
   let datasourceName: string, repoName: any;
 
   before(() => {
-    homePage.NavigateToHome();
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      homePage.CreateNewWorkspace("MongoDBShop" + uid);
+      homePage.CreateNewWorkspace("MongoDBShop" + uid, true);
       homePage.CreateAppInWorkspace("MongoDBShop" + uid, "MongoDBShopApp");
       agHelper.AddDsl("mongoAppdsl");
     });

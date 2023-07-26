@@ -235,6 +235,7 @@ export class PropertyPane {
     dropdownOption: string,
     action: "Action" | "Page" = "Action",
     index = 0,
+    optionIndex = 0,
   ) {
     if (action == "Action")
       this.agHelper.GetNClick(this._selectPropDropdown(endpoint), index);
@@ -243,7 +244,7 @@ export class PropertyPane {
         this.locator._selectPropPageDropdown(endpoint),
         index,
       );
-    this.agHelper.GetNClick(this._dropDownValue(dropdownOption));
+    this.agHelper.GetNClick(this._dropDownValue(dropdownOption), optionIndex);
   }
 
   public AssertPropertiesDropDownCurrentValue(

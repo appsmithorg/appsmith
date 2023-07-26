@@ -6,6 +6,7 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import type { SnipingModeProperty, PropertyUpdates } from "widgets/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
@@ -30,11 +31,13 @@ export const CONFIG = {
     labelPosition: LabelPosition.Top,
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
-    options: [
-      { label: "Blue", value: "BLUE" },
-      { label: "Green", value: "GREEN" },
-      { label: "Red", value: "RED" },
+    sourceData: [
+      { name: "Blue", code: "BLUE" },
+      { name: "Green", code: "GREEN" },
+      { name: "Red", code: "RED" },
     ],
+    optionLabel: "name",
+    optionValue: "code",
     serverSideFiltering: false,
     widgetName: "Select",
     defaultOptionValue: "GREEN",
@@ -57,6 +60,19 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
     setterConfig: Widget.getSetterConfig(),
+  },
+  methods: {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
+      return [
+        {
+          propertyPath: "sourceData",
+          propertyValue: propValueMap.data,
+          isDynamicPropertyPath: true,
+        },
+      ];
+    },
   },
   autoLayout: {
     disabledPropsDefaults: {
