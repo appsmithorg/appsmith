@@ -5,6 +5,7 @@
   "licenseFormInput": "[data-testid=t--license-input]",
   "activeInstanceBtn": "[data-testid=t--activate-instance-btn]",
   "activeInstanceModalBtn": "[data-testid=t--activate-instance-submit-btn]",
+  "licenseFormText": "[data-testid=t--license-form-text]",
   "getTrialLicenseCard": "[data-testid=t--get-trial-license-card-wrapper]",
   "getTrialLicenseLabel": "[data-testid=t--get-license-key-label]",
   "getTrialLicenseBtn": "[data-testid=t--customer-portal-cta]",
