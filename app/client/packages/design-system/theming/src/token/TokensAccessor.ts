@@ -106,6 +106,7 @@ export class TokensAccessor {
     return {
       rootUnit: this.getRootUnit(),
       typography: this.getTypography(),
+      fontFamily: this.getFontFamily(),
       ...this.getSpacing(),
       ...this.getSizing(),
       ...this.getSizing(),
@@ -124,8 +125,12 @@ export class TokensAccessor {
 
   getTypography = (): string | undefined => {
     if (this.typography) {
-      return createTypographyStringMap(this.typography);
+      return createTypographyStringMap(this.typography, this.fontFamily);
     }
+  };
+
+  getFontFamily = () => {
+    return this.fontFamily;
   };
 
   getColors = () => {
