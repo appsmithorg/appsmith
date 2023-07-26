@@ -19,9 +19,11 @@ import {
 } from "../constants";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import {
+  BACK_CAMERA_LABEL,
   createMessage,
   DEFAULT_CAMERA_LABEL,
   DEFAULT_CAMERA_LABEL_DESCRIPTION,
+  FRONT_CAMERA_LABEL,
 } from "@appsmith/constants/messages";
 
 class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
@@ -109,11 +111,11 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             defaultValue: DefaultMobileCameraTypes.BACK,
             options: [
               {
-                label: "Front (Selfie)",
+                label: createMessage(FRONT_CAMERA_LABEL),
                 value: DefaultMobileCameraTypes.FRONT,
               },
               {
-                label: "Back (Rear)",
+                label: createMessage(BACK_CAMERA_LABEL),
                 value: DefaultMobileCameraTypes.BACK,
               },
             ],
