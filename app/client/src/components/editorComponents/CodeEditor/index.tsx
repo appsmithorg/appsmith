@@ -27,7 +27,7 @@ import "codemirror/addon/hint/sql-hint";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import type { WrappedFieldInputProps } from "redux-form";
-import _, { debounce, isEqual } from "lodash";
+import _, { debounce, isEqual, pick } from "lodash";
 import scrollIntoView from "scroll-into-view-if-needed";
 
 import type {
@@ -552,7 +552,22 @@ class CodeEditor extends Component<Props, State> {
           }
         }, 200);
       }
+    } else if (this.props.editorLastCursorPosition) {
+      const keys = ["ch", "line"];
+      if (
+        !isEqual(
+          pick(this.props.editorLastCursorPosition, keys),
+          pick(prevProps.editorLastCursorPosition, keys),
+        )
+      ) {
+        setTimeout(() => {
+          if (this.props.editorIsFocused) {
+            this.editor.focus();
+          }
+        }, 200);
+      }
     }
+
     this.editor.operation(() => {
       if (prevProps.lintErrors !== this.props.lintErrors) {
         this.lintCode(this.editor);

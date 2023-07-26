@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   getCurrentPageId,
   getJSCollectionById,
@@ -15,7 +14,6 @@ import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 import { NAVIGATION_DELAY } from "../costants";
 import {
   setCodeEditorCursorAction,
-  setEditorFieldFocusAction,
   setFocusableInputField,
 } from "actions/editorContextActions";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
