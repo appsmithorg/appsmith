@@ -7,6 +7,7 @@ if (process.env.NODE_ENV === "development") {
   whyDidYouRender(React, {
     trackAllPureComponents: false,
     trackExtraHooks: [[require("react-redux/lib"), "useSelector"]],
+    trackHooks: false,
   });
 }
 export default "";

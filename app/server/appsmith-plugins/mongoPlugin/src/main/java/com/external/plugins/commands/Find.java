@@ -116,7 +116,8 @@ public class Find extends MongoCommand {
         return templates;
     }
 
-    private DatasourceStructure.Template generateFindTemplate(String collectionName, String filterFieldName, String filterFieldValue) {
+    private DatasourceStructure.Template generateFindTemplate(
+            String collectionName, String filterFieldName, String filterFieldValue) {
         Map<String, Object> configMap = new HashMap<>();
 
         setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
@@ -125,30 +126,23 @@ public class Find extends MongoCommand {
         setDataValueSafelyInFormData(configMap, FIND_SORT, "{\"_id\": 1}");
         setDataValueSafelyInFormData(configMap, FIND_LIMIT, "10");
 
-        String query = filterFieldName == null ? "{}" :
-                "{ \"" + filterFieldName + "\": \"" + filterFieldValue + "\"}";
+        String query = filterFieldName == null ? "{}" : "{ \"" + filterFieldName + "\": \"" + filterFieldValue + "\"}";
         setDataValueSafelyInFormData(configMap, FIND_QUERY, query);
 
-        String rawQuery = "{\n" +
-                "  \"find\": \"" + collectionName + "\",\n" +
-                (
-                        filterFieldName == null ? "" :
-                                "  \"filter\": {\n" +
-                                        "    \"" + filterFieldName + "\": \"" + filterFieldValue + "\"\n" +
-                                        "  },\n"
-                ) +
-                "  \"sort\": {\n" +
-                "    \"_id\": 1\n" +
-                "  },\n" +
-                "  \"limit\": 10\n" +
-                "}\n";
+        String rawQuery = "{\n" + "  \"find\": \""
+                + collectionName + "\",\n"
+                + (filterFieldName == null
+                        ? ""
+                        : "  \"filter\": {\n" + "    \"" + filterFieldName + "\": \"" + filterFieldValue + "\"\n"
+                                + "  },\n")
+                + "  \"sort\": {\n"
+                + "    \"_id\": 1\n"
+                + "  },\n"
+                + "  \"limit\": 10\n"
+                + "}\n";
         setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
-        return new DatasourceStructure.Template(
-                "Find",
-                null,
-                configMap
-        );
+        return new DatasourceStructure.Template("Find", null, configMap);
     }
 
     private DatasourceStructure.Template generateFindByIdTemplate(String collectionName) {
@@ -159,19 +153,14 @@ public class Find extends MongoCommand {
         setDataValueSafelyInFormData(configMap, FIND_QUERY, "{\"_id\": ObjectId(\"id_to_query_with\")}");
         setDataValueSafelyInFormData(configMap, COLLECTION, collectionName);
 
-        String rawQuery = "{\n" +
-                "  \"find\": \"" + collectionName + "\",\n" +
-                "  \"filter\": {\n" +
-                "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
-                "  }\n" +
-                "}\n";
+        String rawQuery = "{\n" + "  \"find\": \""
+                + collectionName + "\",\n" + "  \"filter\": {\n"
+                + "    \"_id\": ObjectId(\"id_to_query_with\")\n"
+                + "  }\n"
+                + "}\n";
         setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
-        return new DatasourceStructure.Template(
-                "Find by ID",
-                null,
-                configMap
-        );
+        return new DatasourceStructure.Template("Find by ID", null, configMap);
     }
 
     /**

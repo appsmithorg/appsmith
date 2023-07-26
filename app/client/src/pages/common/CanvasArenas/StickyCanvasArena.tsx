@@ -35,7 +35,7 @@ const StyledCanvasSlider = styled.div<{ paddingBottom: number }>`
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   overflow-y: auto;
-  z-index: -2;
+  z-index: 1;
 `;
 
 export const StickyCanvasArena = forwardRef(
@@ -53,7 +53,6 @@ export const StickyCanvasArena = forwardRef(
       snapRowSpace,
     } = props;
     const { slidingArenaRef, stickyCanvasRef } = ref.current;
-    console.log("####", { canvasId });
     const interSectionObserver = useRef(
       new IntersectionObserver((entries) => {
         entries.forEach(updateCanvasStylesIntersection);
@@ -157,7 +156,6 @@ export const StickyCanvasArena = forwardRef(
           ref={stickyCanvasRef}
           style={{
             position: "absolute",
-            zIndex: -2,
             width: "100%",
             height: "100%",
           }}

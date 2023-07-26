@@ -2,7 +2,6 @@
 import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { getPositionOfSelectedWidget } from "selectors/entitiesSelector";
-import { debounce } from "lodash";
 import { Layer, Stage } from "react-konva";
 import Konva from "konva";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -97,7 +96,7 @@ const OverlayCanvasContainer = (props: {
       xDiff: Math.abs(parentRect.left - canvasPositions.current.left),
       yDiff: Math.abs(parentRect.top - canvasPositions.current.top),
     };
-    const handleMouseMove = debounce((e: any) => {
+    const handleMouseMove = (e: any) => {
       if (!canvas) return;
       if (isMouseOver(e)) {
         if (canvas.style.pointerEvents === "none") {
@@ -108,7 +107,7 @@ const OverlayCanvasContainer = (props: {
         canvas.style.pointerEvents = "none";
         canvas.style.cursor = "default";
       }
-    }, 20);
+    };
     const handleScroll = () => {
       if (!props.parentRef?.current) return;
       const currentScrollTop: number = props.parentRef?.current?.scrollTop;

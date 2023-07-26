@@ -123,11 +123,11 @@ export function FlexComponent(props: AutoLayoutProps) {
     isSelected,
   );
 
-  useEffect(() => {
-    if (ref.current?.style && false) {
-      // ref.current.style.zIndex = zIndex.toString();
-    }
-  }, [zIndex]);
+  // useEffect(() => {
+  //   if (ref.current?.style) {
+  //     ref.current.style.zIndex = zIndex.toString();
+  //   }
+  // }, [zIndex]);
 
   const stopEventPropagation = (e: any) => {
     !isSnipingMode && e.stopPropagation();

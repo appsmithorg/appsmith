@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   GridDefaults,
@@ -47,6 +48,7 @@ export const useCanvasDragging = (
     canExtend,
     direction,
     dropDisabled,
+    layoutId,
     noPad,
     snapColumnSpace,
     snapRows,
@@ -81,6 +83,7 @@ export const useCanvasDragging = (
     draggingSpaces,
     getSnappedXY,
     isCurrentDraggedCanvas,
+    isCurrentDraggedLayout,
     isDragging,
     isNewWidget,
     isResizing,
@@ -98,6 +101,7 @@ export const useCanvasDragging = (
     alignItems,
     canExtend,
     direction,
+    layoutId,
     noPad,
     snapColumnSpace,
     snapRows,
@@ -125,6 +129,7 @@ export const useCanvasDragging = (
       blocksToDraw,
       canvasId: widgetId,
       isCurrentDraggedCanvas,
+      isCurrentDraggedLayout,
       isDragging,
       useAutoLayout,
     });
@@ -132,7 +137,7 @@ export const useCanvasDragging = (
 
   if (useAutoLayout) {
     setTimeout(() => {
-      calculateHighlights(snapColumnSpace);
+      calculateHighlights(snapColumnSpace, layoutId);
     }, 0);
 
     if (!isDragging || !isCurrentDraggedCanvas) {
@@ -300,10 +305,11 @@ export const useCanvasDragging = (
             }
             if (!isCurrentDraggedCanvas) {
               // we can just use canvasIsDragging but this is needed to render the relative DragLayerComponent
-              setDraggingCanvas(widgetId);
+              setDraggingCanvas(widgetId, layoutId);
             }
             canvasIsDragging = true;
-            slidingArenaRef.current.style.zIndex = "2";
+            // TODO: why is this zIndex updated?
+            // slidingArenaRef.current.style.zIndex = "2";
             const canvasRect =
               slidingArenaRef.current?.getBoundingClientRect() || {
                 left: 0,
@@ -626,10 +632,11 @@ export const useCanvasDragging = (
             }
             if (!isCurrentDraggedCanvas) {
               // we can just use canvasIsDragging but this is needed to render the relative DragLayerComponent
-              setDraggingCanvas(widgetId);
+              setDraggingCanvas(widgetId, layoutId);
             }
             canvasIsDragging = true;
-            slidingArenaRef.current.style.zIndex = "2";
+            // TODO: why is this zIndex updated?
+            // slidingArenaRef.current.style.zIndex = "2";
             const canvasRect =
               slidingArenaRef.current?.getBoundingClientRect() || {
                 left: 0,

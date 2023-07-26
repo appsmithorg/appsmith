@@ -4,7 +4,6 @@ import { theme } from "constants/DefaultTheme";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { isCurrentCanvasDragging } from "sagas/selectors";
 import { getIsAutoLayout } from "selectors/editorSelectors";
 import type { LayoutDirection } from "utils/autoLayout/constants";
 import { getNearestParentCanvas } from "utils/generators";
@@ -62,6 +61,7 @@ export function CanvasDraggingArena({
     canExtend,
     direction,
     dropDisabled,
+    layoutId,
     noPad,
     parentId,
     snapColumnSpace,
@@ -76,11 +76,11 @@ export function CanvasDraggingArena({
     slidingArenaRef,
   });
 
-  const isDragging = useSelector((state: AppState) =>
-    isCurrentCanvasDragging(state, widgetId),
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
-  console.log("####", { isDragging, showCanvas });
-  return showCanvas || true ? (
+
+  return showCanvas ? (
     <StickyCanvasArena
       canExtend={canExtend}
       canvasId={`canvas-dragging-${widgetId}-${layoutId}`}
@@ -97,3 +97,8 @@ export function CanvasDraggingArena({
   ) : null;
 }
 CanvasDraggingArena.displayName = "CanvasDraggingArena";
+
+// CanvasDraggingArena.whyDidYouRender = {
+//   logOnDifferentValues: true,
+//   customName: "CanvasDraggingArena",
+// };

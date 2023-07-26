@@ -9,7 +9,7 @@ import RangeSliderComponent from "../component/RangeSlider";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
 
@@ -53,6 +53,21 @@ class RangeSliderWidget extends BaseWidget<
 > {
   static getPropertyPaneContentConfig() {
     return contentConfig;
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisable: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+      },
+    };
   }
 
   static getPropertyPaneStyleConfig() {

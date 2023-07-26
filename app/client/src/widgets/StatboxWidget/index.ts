@@ -1,4 +1,3 @@
-import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import {
   FlexLayerAlignment,
@@ -15,9 +14,15 @@ import type { FlattenedWidgetProps } from "widgets/constants";
 import { BlueprintOperationTypes } from "widgets/constants";
 import get from "lodash/get";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
+import type {
+  FlexLayer,
+  LayoutComponentProps,
+} from "utils/autoLayout/autoLayoutTypes";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { generateReactKey } from "utils/generators";
 
 export const CONFIG = {
   features: {
@@ -101,20 +106,27 @@ export const CONFIG = {
                   },
                 },
                 {
-                  type: "ICON_BUTTON_WIDGET",
+                  type: "IMAGE_WIDGET",
                   size: {
                     rows: 8,
                     cols: 16,
                   },
-                  position: {
-                    top: 2,
-                    left: 46,
-                  },
+                  position: { top: 0, left: 0 },
                   props: {
-                    iconName: "arrow-top-right",
-                    buttonStyle: "PRIMARY",
-                    buttonVariant: ButtonVariantTypes.PRIMARY,
-                    version: 1,
+                    defaultImage: getAssetUrl(
+                      `${ASSETS_CDN_URL}/widgets/default.png`,
+                    ),
+                    imageShape: "RECTANGLE",
+                    maxZoomLevel: 1,
+                    image: "{{currentItem.img}}",
+                    boxShadow: "none",
+                    objectFit: "cover",
+                    dynamicBindingPathList: [
+                      {
+                        key: "image",
+                      },
+                    ],
+                    dynamicTriggerPathList: [],
                   },
                 },
                 {
@@ -170,8 +182,8 @@ export const CONFIG = {
             );
 
             //get all the Icon button Widgets
-            const iconWidget = children.filter(
-              (child) => child.type === "ICON_BUTTON_WIDGET",
+            const imageWidget = children.filter(
+              (child) => child.type === "IMAGE_WIDGET",
             )?.[0];
 
             //Create flex layer object based on the children
@@ -191,7 +203,7 @@ export const CONFIG = {
                     align: FlexLayerAlignment.Start,
                   },
                   {
-                    id: iconWidget.widgetId,
+                    id: imageWidget.widgetId,
                     align: FlexLayerAlignment.End,
                   },
                 ],
@@ -206,6 +218,72 @@ export const CONFIG = {
               },
             ];
 
+            const layout: LayoutComponentProps[] = [
+              {
+                layoutId: generateReactKey(),
+                layoutStyle: {
+                  columnGap: 4,
+                  flexWrap: "wrap-reverse",
+                },
+                layoutType: "ROW",
+                layout: [
+                  {
+                    isDropTarget: true,
+                    layoutId: generateReactKey(),
+                    layoutStyle: {
+                      rowGap: 12,
+                      flexGrow: 2,
+                      border: "1px dashed #979797",
+                    },
+                    layoutType: "COLUMN",
+                    layout: [
+                      {
+                        layoutId: generateReactKey(),
+                        layoutStyle: {
+                          columnGap: 4,
+                          alignSelf: "stretch",
+                        },
+                        layoutType: "ROW",
+                        layout: [textWidgets[0].widgetId],
+                        rendersWidgets: true,
+                      },
+                      {
+                        layoutId: generateReactKey(),
+                        layoutStyle: {
+                          columnGap: 4,
+                          alignSelf: "stretch",
+                        },
+                        layoutType: "ROW",
+                        layout: [textWidgets[1].widgetId],
+                        rendersWidgets: true,
+                      },
+                      {
+                        layoutId: generateReactKey(),
+                        layoutStyle: {
+                          columnGap: 4,
+                          alignSelf: "stretch",
+                        },
+                        layoutType: "ROW",
+                        layout: [textWidgets[2].widgetId],
+                        rendersWidgets: true,
+                      },
+                    ],
+                  },
+                  {
+                    isDropTarget: true,
+                    layoutId: generateReactKey(),
+                    layoutStyle: {
+                      rowGap: 12,
+                      border: "1px dashed #979797",
+                    },
+                    layoutType: "COLUMN",
+                    layout: [imageWidget.widgetId],
+                    rendersWidgets: true,
+                  },
+                ],
+              },
+            ];
+
             //create properties to be updated
             return getWidgetBluePrintUpdates({
               [widget.widgetId]: {
@@ -213,6 +291,7 @@ export const CONFIG = {
               },
               [canvasWidget.widgetId]: {
                 flexLayers,
+                layout,
                 useAutoLayout: true,
                 positioning: Positioning.Vertical,
               },
@@ -231,11 +310,11 @@ export const CONFIG = {
                 alignment: FlexLayerAlignment.Start,
                 rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS,
               },
-              [iconWidget.widgetId]: {
+              [imageWidget.widgetId]: {
                 responsiveBehavior: ResponsiveBehavior.Hug,
                 alignment: FlexLayerAlignment.End,
                 topRow: 4,
-                bottomRow: 8,
+                bottomRow: 12,
                 leftColumn: GridDefaults.DEFAULT_GRID_COLUMNS - 16,
                 rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS,
               },
@@ -253,6 +332,7 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+    setterConfig: Widget.getSetterConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
   autoLayout: {

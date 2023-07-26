@@ -1,3 +1,4 @@
+import { featureFlagIntercept } from "../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   assertHelper,
@@ -87,6 +88,13 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       dataSources.RunQuery();
     });
     //agHelper.ActionContextMenuWithInPane("Delete"); Since next case can continue in same template
+    featureFlagIntercept(
+      {
+        ab_ds_binding_enabled: false,
+      },
+      false,
+    );
+    agHelper.RefreshPage();
   });
 
   it("1. Validate simple queries - Show all existing tables, Describe table & verify query responses", () => {
@@ -239,7 +247,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       action: "Delete",
       entityType: entityItems.Datasource,
     });
-    dataSources.StopNDeleteContainer(containerName);
+    //dataSources.StopNDeleteContainer(containerName); //commenting to check if MsSQL specific container deletion is causing issues
   });
 
   function runQueryNValidate(query: string, columnHeaders: string[]) {

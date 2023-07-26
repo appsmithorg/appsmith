@@ -299,6 +299,27 @@ export const CONFIG = {
               },
             ];
 
+            /**
+             * HEADER 1 (ROW)
+             *   ROW (DT)
+             *   ROW (DT)
+             *
+             * HEADER 2 (COLUMN)
+             *   ROW (DT)
+             *   ROW (DT)
+             *
+             * HEADER 3 (ROW)
+             *  ROW (DT) (WRAP)
+             */
+
+            /**
+             * HEADER 1 (ROW, BOX1, BOX2)
+             *
+             * HEADER 2 (COLUMN, BOX3, BOX4)
+             *
+             * HEADER 3 (ROW, BOX5)
+             */
+
             const layout: LayoutComponentProps[] = [
               {
                 layoutId: "1",
@@ -313,13 +334,14 @@ export const CONFIG = {
                       alignSelf: "stretch",
                       columnGap: 4,
                     },
-                    layoutType: "ROW",
+                    layoutType: "ROW", // HEADER3 titleChildren: [], icons: [],
                     layout: [
                       {
                         layoutId: "3",
                         layoutStyle: {
                           columnGap: 4,
                           flexGrow: 1,
+                          border: "1px dashed #979797",
                         },
                         layoutType: "ROW",
                         isDropTarget: true,
@@ -332,6 +354,7 @@ export const CONFIG = {
                         layoutStyle: {
                           columnGap: 4,
                           minWidth: "30px",
+                          border: "1px dashed #979797",
                         },
                         layoutType: "ROW",
                         isDropTarget: true,
@@ -351,7 +374,7 @@ export const CONFIG = {
                       maxHeight: "300px",
                       overflow: "auto",
                     },
-                    layoutType: "ROW",
+                    layoutType: "ROW", // MAIN
                     layout: [
                       {
                         layoutId: "6",
@@ -359,16 +382,19 @@ export const CONFIG = {
                           minWidth: "220px",
                           rowGap: 12,
                           flexGrow: 3,
+                          border: "1px dashed #979797",
                         },
                         layoutType: "COLUMN",
                         isDropTarget: true,
                         layout: [
                           {
+                            isDropTarget: true,
                             layoutId: "7",
                             layoutStyle: {
                               alignSelf: "stretch",
                               columnGap: 4,
                               rowGap: 12,
+                              border: "1px dashed #979797",
                             },
                             layoutType: "ALIGNED_ROW",
                             layout: [[], [buttonWidget3.widgetId], []],
@@ -382,16 +408,19 @@ export const CONFIG = {
                           flexGrow: 1,
                           minWidth: "220px",
                           rowGap: 12,
+                          border: "1px dashed #979797",
                         },
                         layoutType: "COLUMN",
                         isDropTarget: true,
                         layout: [
                           {
+                            isDropTarget: true,
                             layoutId: "10",
                             layoutStyle: {
                               alignSelf: "stretch",
                               columnGap: 4,
                               rowGap: 12,
+                              border: "1px dashed #979797",
                             },
                             layoutType: "ALIGNED_ROW",
                             layout: [[], [], [buttonWidget4.widgetId]],
@@ -406,6 +435,7 @@ export const CONFIG = {
                     layoutId: "8",
                     layoutStyle: {
                       alignSelf: "stretch",
+                      border: "1px dashed #979797",
                     },
                     layoutType: "ALIGNED_ROW",
                     layout: [

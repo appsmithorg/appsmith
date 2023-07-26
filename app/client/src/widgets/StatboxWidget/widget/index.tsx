@@ -2,7 +2,7 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { ContainerWidget } from "widgets/ContainerWidget/widget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { Positioning } from "utils/autoLayout/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -47,6 +47,17 @@ class StatboxWidget extends ContainerWidget {
         ],
       },
     ];
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+      },
+    };
   }
 
   static getPropertyPaneStyleConfig() {

@@ -167,7 +167,6 @@ class CanvasWidget extends ContainerWidget {
   renderFlexCanvas() {
     const layout: LayoutComponentProps[] = this.props
       .layout as LayoutComponentProps[];
-    console.log("####", { layout });
     if (!layout) return this.renderFlexBoxCanvas();
     const map: { [key: string]: any } = {};
     const arr = this.renderChildren();

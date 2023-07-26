@@ -53,6 +53,7 @@ export interface HighlightInfo {
   isVertical: boolean; // determines if the highlight is vertical or horizontal.
   canvasId: string; // widgetId of the canvas to which the highlight belongs.
   dropZone: DropZone; // size of the drop zone of this highlight.
+  layoutId: string; // layoutId of the layout to which the highlight belongs.
 }
 
 /**

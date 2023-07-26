@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
@@ -15,6 +16,7 @@ export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];
   canvasId: string;
   isCurrentDraggedCanvas: boolean;
+  isCurrentDraggedLayout: boolean;
   isDragging: boolean;
   useAutoLayout?: boolean;
 }
@@ -29,6 +31,7 @@ export const useAutoLayoutHighlights = ({
   blocksToDraw,
   canvasId,
   isCurrentDraggedCanvas,
+  isCurrentDraggedLayout,
   isDragging,
   useAutoLayout,
 }: AutoLayoutHighlightProps) => {
@@ -74,15 +77,16 @@ export const useAutoLayoutHighlights = ({
     return flag;
   };
 
-  const calculateHighlights = (snapColumnSpace: number): HighlightInfo[] => {
+  const calculateHighlights = (
+    snapColumnSpace: number,
+    layoutId?: string,
+  ): HighlightInfo[] => {
     cleanUpTempStyles();
     let left = 0,
       top = 0;
 
     const mainCanvasElement = document.querySelector(".flex-container-0");
-    const currCanvasElement = document.querySelector(
-      `.flex-container-${canvasId}`,
-    );
+    const currCanvasElement = document.querySelector(`#layout-${layoutId}`);
 
     if (mainCanvasElement && currCanvasElement) {
       const { left: mainLeft, top: mainTop } =
@@ -93,7 +97,13 @@ export const useAutoLayoutHighlights = ({
       left = currLeft - mainLeft;
       top = currTop - mainTop;
     }
-    if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
+
+    if (
+      useAutoLayout &&
+      isDragging &&
+      isCurrentDraggedCanvas &&
+      isCurrentDraggedLayout
+    ) {
       if (!blocksToDraw || !blocksToDraw.length) return [];
       isFillWidget = checkForFillWidget();
       highlights.current = deriveHighlightsFromLayers(
@@ -105,6 +115,7 @@ export const useAutoLayoutHighlights = ({
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
         isMobile,
+        layoutId,
       );
     }
     // console.log("#### highlights", highlights.current);

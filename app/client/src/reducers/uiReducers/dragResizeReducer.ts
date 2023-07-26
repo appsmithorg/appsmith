@@ -29,9 +29,11 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     state: WidgetDragResizeState,
     action: ReduxAction<{
       draggedOn: string;
+      selectedLayout: string;
     }>,
   ) => {
     state.dragDetails.draggedOn = action.payload.draggedOn;
+    state.dragDetails.selectedLayout = action.payload.selectedLayout;
   },
   [ReduxActionTypes.SET_WIDGET_DRAGGING]: (
     state: WidgetDragResizeState,
@@ -121,6 +123,7 @@ export type DragDetails = {
   newWidget?: any;
   draggedOn?: string;
   dragOffset?: any;
+  selectedLayout?: string;
 };
 
 export type WidgetDragResizeState = {

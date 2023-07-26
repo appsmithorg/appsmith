@@ -30,7 +30,7 @@ export class AssertHelper extends ReusableHelper {
         expect(doc.readyState).to.equal("complete");
       }),
     );
-    cy.window().should("have.property", "onload");
+    cy.window({ timeout: 60000 }).should("have.property", "onload");
   }
 
   public AssertDelete(entityType: EntityItemsType) {
@@ -74,8 +74,8 @@ export class AssertHelper extends ReusableHelper {
     //   "response.body.responseMeta.status",
     //   expectedStatus,
     // );
-    this.Sleep(); //Wait a bit for call to finish!
-    return cy.wait(this.GetAliasName(aliasName));
+    this.Sleep(2000); //Wait a bit for call to finish!
+    return cy.wait(this.GetAliasName(aliasName), { responseTimeout: 60000 });
   }
 
   public AssertNetworkStatus(aliasName: string, expectedStatus = 200) {

@@ -12,6 +12,7 @@ interface FlexLayoutProps {
   flexWrap?: "nowrap" | "wrap" | "wrap-reverse";
   height?: number | string;
   justifyContent?: "flex-start" | "flex-end" | "center";
+  layoutId?: string;
   maxHeight?: string;
   minWidth?: string;
   minHeight?: string;
@@ -20,6 +21,7 @@ interface FlexLayoutProps {
   position?: "absolute" | "relative" | "static" | "sticky";
   rowGap?: number;
   width?: string;
+  border?: string;
 }
 
 const FlexLayout = (props: FlexLayoutProps) => {
@@ -46,9 +48,15 @@ const FlexLayout = (props: FlexLayoutProps) => {
       position: props.position || "relative",
       rowGap: props.rowGap || 0,
       width: props.width,
+      border: props.border || "none",
+      padding: 4,
     };
   }, [props]);
-  return <div style={layoutStyle}>{props.children}</div>;
+  return (
+    <div id={`layout-${props.layoutId}`} style={layoutStyle}>
+      {props.children}
+    </div>
+  );
 };
 
 export default FlexLayout;
