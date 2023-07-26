@@ -1,6 +1,6 @@
 import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
 import type { TriggerSource } from "constants/AppsmithActionConstants/ActionConstants";
-import { fork } from "redux-saga/effects";
+import { call } from "redux-saga/effects";
 import type { TMessage } from "utils/MessageUtil";
 import { logJSActionExecution } from "./analyticsSaga";
 
@@ -26,6 +26,5 @@ export function* logJSFunctionExecution(
     (execData) =>
       execData.triggerMeta.triggerKind === TriggerKind.EVENT_EXECUTION,
   );
-  yield fork(logJSActionExecution, triggerExecutionData);
-  return data;
+  yield call(logJSActionExecution, triggerExecutionData);
 }
