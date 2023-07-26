@@ -1,5 +1,6 @@
 import { ButtonWidget } from "./widget";
 import IconSVG from "./icon.svg";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ButtonPlacementTypes, RecaptchaTypes } from "components/constants";
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
@@ -11,6 +12,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: false,
   isCanvas: false,
+  tags: [WIDGET_TAGS.BUTTONS],
   searchTags: ["click", "submit"],
   features: {
     dynamicHeight: {

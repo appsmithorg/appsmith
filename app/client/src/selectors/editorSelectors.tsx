@@ -360,6 +360,7 @@ export const getWidgetCards = createSelector(
 
       return !config.hideCard;
     });
+
     const _cards: WidgetCardProps[] = cards.map((config) => {
       const {
         detachFromLayout = false,
@@ -392,6 +393,7 @@ export const getWidgetCards = createSelector(
       };
     });
     const sortedCards = sortBy(_cards, ["displayName"]);
+
     return sortedCards;
   },
 );
