@@ -263,6 +263,8 @@ export class CommonLocators {
   _adsV2CollapsibleHeader = ".ads-v2-collapsible__header";
   _adsV2Text = ".ads-v2-text";
   _svg = "svg";
+  _containerWidget = "[type='CONTAINER_WIDGET']";
+  _listActivePage = ".t--widget-listwidgetv2 .rc-pagination-item-active";
 
   public ds_editor_env_filter = (envName: string) =>
     `[data-testid="t--ds-data-filter-${envName}"]`;

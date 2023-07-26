@@ -187,6 +187,8 @@ export class Table {
     ".bp3-dateinput-popover .bp3-daterangepicker-shortcuts";
   _dayPickerFirstChild = ".DayPicker-Day:first-child";
   _divFirstChild = "div:first-child abbr";
+  _listNavigation = (move: string) =>
+    "//button[@area-label='" + move + " page']";
 
   public GetNumberOfRows() {
     return this.agHelper.GetElement(this._tr).its("length");
@@ -732,5 +734,12 @@ export class Table {
           expect(classes).includes("draggable-header");
         });
     });
+  }
+  public NavigateToPageUsingButton(movement: string, pageNumber: number) {
+    this.agHelper.GetNClick(this._listNavigation(movement), 0, true);
+    this.agHelper.Sleep(2000);
+    this.agHelper
+      .GetText(this.locator._listActivePage, "text")
+      .then(($newPageNo) => expect(Number($newPageNo)).to.eq(pageNumber));
   }
 }

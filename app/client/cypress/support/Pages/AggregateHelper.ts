@@ -1539,4 +1539,13 @@ export class AggregateHelper extends ReusableHelper {
       expect($x).contain(tooltipText);
     });
   }
+
+  public TypeTextWithoutWait(
+    selector: string,
+    value: string,
+    index = 0,
+    force = false
+  ) {
+    return this.GetElement(selector).eq(index).type(value, {force: force});
+  }
 }
