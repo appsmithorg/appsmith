@@ -78,31 +78,30 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 .map(datasourceStorage -> {
                     datasourceStorage.prepareTransientFields(datasource);
                     return datasourceStorage;
-                })
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE)));
+                });
     }
 
     @Override
     public Mono<DatasourceStorage> findByDatasourceAndEnvironmentIdForExecution(
             Datasource datasource, String environmentId) {
-        return this.findByDatasourceAndEnvironmentId(datasource, environmentId).flatMap(datasourceStorage -> {
-            if (datasourceStorage.getDatasourceConfiguration() == null) {
-                return Mono.error(new AppsmithException(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE));
-            }
-            return Mono.just(datasourceStorage);
-        });
+        return this.findByDatasourceAndEnvironmentId(datasource, environmentId)
+                .flatMap(datasourceStorage -> {
+                    if (datasourceStorage.getDatasourceConfiguration() == null) {
+                        return Mono.error(new AppsmithException(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE));
+                    }
+
+                    return Mono.just(datasourceStorage);
+                })
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasource.getName())));
     }
 
     @Override
     public Flux<DatasourceStorage> findByDatasource(Datasource datasource) {
-        return this.findByDatasourceId(datasource.getId())
-                .map(datasourceStorage -> {
-                    datasourceStorage.prepareTransientFields(datasource);
-                    return datasourceStorage;
-                })
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE)));
+        return this.findByDatasourceId(datasource.getId()).map(datasourceStorage -> {
+            datasourceStorage.prepareTransientFields(datasource);
+            return datasourceStorage;
+        });
     }
 
     protected Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
