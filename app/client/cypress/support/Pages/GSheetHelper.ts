@@ -75,6 +75,7 @@ export class GsheetHelper {
       dataSourceName,
       spreadSheet,
       true,
+      "Sheet Row(s)",
       sheetName,
       headRowIndex,
     );
@@ -101,6 +102,7 @@ export class GsheetHelper {
     dataSourceName: string,
     spreadSheet: string,
     renameQuery = true,
+    entity = "Sheet Row(s)",
     sheetName = "Sheet1",
     headRowIndex = "1",
   ) {
@@ -110,15 +112,17 @@ export class GsheetHelper {
       "Fetch Many",
       operation,
     );
-    this.dataSources.ValidateNSelectDropdown("Entity", "Sheet Row(s)");
+    this.dataSources.ValidateNSelectDropdown("Entity", "Sheet Row(s)", entity);
     this.agHelper.Sleep(500);
     this.dataSources.ValidateNSelectDropdown("Spreadsheet", "", spreadSheet);
-    this.dataSources.ValidateNSelectDropdown("Sheet name", "", sheetName);
-    this.agHelper.EnterValue(headRowIndex, {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Table heading row index",
-    });
+    if (!entity.includes("Spreadsheet")) {
+      this.dataSources.ValidateNSelectDropdown("Sheet name", "", sheetName);
+      this.agHelper.EnterValue(headRowIndex, {
+        propFieldName: "",
+        directInput: false,
+        inputFieldName: "Table heading row index",
+      });
+    }
     if (renameQuery) {
       this.agHelper.RenameWithInPane(
         operation.toLowerCase().replace(" ", "_") + "_query",
