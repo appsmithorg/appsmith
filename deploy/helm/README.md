@@ -75,12 +75,12 @@ The command uninstalls the release and removes all Kubernetes resources associat
 | `commonAnnotations`	| Annotations to add to all deployed objects 				| `{}` 					|
 
 ### Appsmith Image parameters
-| Name 								| Description 								| Value 											|
-| -------------------	| --------------------------- | --------------------------- |
-| `image.registry`		| Appsmith image registry			| `index.docker.io` 					|
-| `image.repository`	| Appsmith image repository		| `appsmith/appsmith-editor` 	|
-| `image.tag`					| Appsmith image tag					| `latest` 										|
-| `image.pullPolicy`	| Appsmith image pull policy	| `IfNotPresent` 							|
+| Name 								| Description 								| Value 											        |
+| -------------------	| --------------------------- |--------------------------|
+| `image.registry`		| Appsmith image registry			| `index.docker.io` 					  |
+| `image.repository`	| Appsmith image repository		| `appsmith/appsmith-ce` 	 |
+| `image.tag`					| Appsmith image tag					| `latest` 										      |
+| `image.pullPolicy`	| Appsmith image pull policy	| `IfNotPresent` 							   |
 
 ### Appsmith deployment parameters
 | Name 											 	| Description 																				| Value 					|
@@ -175,7 +175,6 @@ To change Appsmith configurations, you can use configuration UI in application o
 | `applicationConfig.APPSMITH_OAUTH2_GITHUB_CLIENT_ID`		| `""`									|
 | `applicationConfig.APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET`| `""`									|
 | `applicationConfig.APPSMITH_CLIENT_LOG_LEVEL`						| `""`									|
-| `applicationConfig.APPSMITH_GOOGLE_MAPS_API_KEY`				| `""`									|
 | `applicationConfig.APPSMITH_MAIL_ENABLED`								| `""`									|
 | `applicationConfig.APPSMITH_MAIL_HOST`									| `""`									|
 | `applicationConfig.APPSMITH_MAIL_PORT`									| `""`									|

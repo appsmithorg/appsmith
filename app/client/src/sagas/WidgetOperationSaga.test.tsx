@@ -3,6 +3,8 @@ const updateAndSaveLayoutMock = jest.fn();
 import {
   setWidgetDynamicPropertySaga,
   removeDynamicBindingProperties,
+  handleUpdateWidgetDynamicProperty,
+  batchUpdateWidgetDynamicPropertySaga,
 } from "./WidgetOperationSagas";
 
 const widget = {
@@ -62,6 +64,14 @@ describe("WidgetOperationSaga - ", () => {
       value.next(); // start
       value.next(widget as any); // yield select
       value.next({
+        ...widget,
+        dynamicPropertyPathList: [
+          {
+            key: "isVisible",
+          },
+        ],
+      } as any);
+      value.next({
         test: widget,
       } as any); // yield select
       value.next(); //yield put
@@ -88,7 +98,12 @@ describe("WidgetOperationSaga - ", () => {
       });
       value.next(); // start
       value.next(widget1 as any); // yield select
-      value.next({ parsed: 1 } as any); // yield call
+      value.next({
+        ...widget1,
+        dynamicPropertyPathList: [],
+        dynamicBindingPathList: [],
+        isVisible: 1,
+      } as any);
       value.next({
         test: widget1,
       } as any); // yield select
@@ -100,6 +115,105 @@ describe("WidgetOperationSaga - ", () => {
           isVisible: 1,
         },
       });
+    });
+  });
+});
+
+describe("Should test handleUpdateWidgetDynamicProperty ", () => {
+  it("should update dynamicBindingPathList on js toggle and return the widget with dynamicBindingPath", () => {
+    const value = handleUpdateWidgetDynamicProperty(widget as any, {
+      isDynamic: true,
+      propertyPath: "isVisible",
+    });
+    value.next(); // start
+    value.next(widget as any); // yield select
+    value.next({
+      test: widget,
+    } as any); // yield select
+    value.return({
+      test: {
+        ...widget,
+        dynamicPropertyPathList: [
+          {
+            key: "isVisible",
+          },
+        ],
+      },
+    } as any);
+    expect(value.next().done).toEqual(true);
+  });
+});
+
+describe("Should test batchUpdateWidgetDynamicPropertySaga ", () => {
+  it("should update dynamicBindingPathList on js toggle and return the widget with dynamicBindingPath", () => {
+    const value = batchUpdateWidgetDynamicPropertySaga({
+      type: "test",
+      payload: {
+        updates: [
+          {
+            isDynamic: true,
+            propertyPath: "isVisible",
+          },
+        ],
+        widgetId: "test",
+      },
+    });
+    value.next(); // start
+    value.next(widget as any); // yield select
+    value.next({
+      ...widget,
+      dynamicPropertyPathList: [
+        {
+          key: "isVisible",
+        },
+      ],
+    } as any);
+    value.next({
+      test: widget,
+    } as any); // yield select
+    value.next(); //yield put
+    expect(updateAndSaveLayoutMock).toHaveBeenCalledWith({
+      test: {
+        ...widget,
+        dynamicPropertyPathList: [
+          {
+            key: "isVisible",
+          },
+        ],
+      },
+    });
+  });
+  it("should remove property from dynamicBindingList on js toggle off when calling batchUpdateWidgetDynamicPropertySaga", () => {
+    const value = batchUpdateWidgetDynamicPropertySaga({
+      type: "test",
+      payload: {
+        updates: [
+          {
+            isDynamic: false,
+            propertyPath: "isVisible",
+          },
+        ],
+        widgetId: "test",
+      },
+    });
+    value.next(); // start
+    value.next(widget1 as any); // yield select
+    value.next({
+      ...widget1,
+      dynamicPropertyPathList: [],
+      dynamicBindingPathList: [],
+      isVisible: 1,
+    } as any);
+    value.next({
+      test: widget1,
+    } as any); // yield select
+    value.next(); //yield put
+    expect(updateAndSaveLayoutMock).toHaveBeenCalledWith({
+      test: {
+        dynamicPropertyPathList: [],
+        dynamicBindingPathList: [],
+        isVisible: 1,
+      },
     });
   });
 });

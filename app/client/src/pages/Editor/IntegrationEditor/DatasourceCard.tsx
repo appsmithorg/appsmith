@@ -46,8 +46,10 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
 import {
-  getCurrentEnvironment,
   isEnvironmentConfigured,
+  getCurrentEnvironment,
+  doesAnyDsConfigExist,
+  DB_NOT_SUPPORTED,
 } from "@appsmith/utils/Environments";
 
 const Wrapper = styled.div`
@@ -142,6 +144,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     getGenerateCRUDEnabledPluginMap,
   );
   const { datasource, plugin } = props;
+  const envSupportedDs = !DB_NOT_SUPPORTED.includes(plugin.type);
   const supportTemplateGeneration =
     !!generateCRUDSupportedPlugin[datasource.pluginId];
 
@@ -189,6 +192,8 @@ function DatasourceCard(props: DatasourceCardProps) {
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
   const QUERY = queriesWithThisDatasource > 1 ? "queries" : "query";
+
+  const currentEnv = getCurrentEnvironment();
 
   const editDatasource = useCallback(() => {
     AnalyticsUtil.logEvent("DATASOURCE_CARD_EDIT_ACTION");
@@ -279,31 +284,37 @@ function DatasourceCard(props: DatasourceCardProps) {
             </Queries>
           </div>
           <ButtonsWrapper className="action-wrapper">
-            {(!isEnvironmentConfigured(datasource) ||
-              supportTemplateGeneration) &&
+            {supportTemplateGeneration &&
               isDatasourceAuthorizedForQueryCreation(datasource, plugin) && (
                 <Button
-                  className={
-                    isEnvironmentConfigured(datasource)
-                      ? "t--generate-template"
-                      : "t--reconnect-btn"
-                  }
+                  className={"t--generate-template"}
                   kind="secondary"
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    isEnvironmentConfigured(datasource)
-                      ? routeToGeneratePage()
-                      : editDatasource();
+                    routeToGeneratePage();
                   }}
                   size="md"
                 >
-                  {isEnvironmentConfigured(datasource)
-                    ? createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)
-                    : createMessage(RECONNECT_BUTTON_TEXT)}
+                  {createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)}
                 </Button>
               )}
-            {isEnvironmentConfigured(datasource) && (
+            {envSupportedDs &&
+              !isEnvironmentConfigured(datasource, currentEnv) && (
+                <Button
+                  className={"t--reconnect-btn"}
+                  kind="secondary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    editDatasource();
+                  }}
+                  size="md"
+                >
+                  {createMessage(RECONNECT_BUTTON_TEXT)}
+                </Button>
+              )}
+            {doesAnyDsConfigExist(datasource, currentEnv) && (
               <NewActionButton
                 datasource={datasource}
                 disabled={
@@ -385,8 +396,8 @@ function DatasourceCard(props: DatasourceCardProps) {
             <DatasourceInfo>
               <RenderDatasourceInformation
                 config={currentFormConfig[0]}
-                currentEnvironment={getCurrentEnvironment()}
                 datasource={datasource}
+                showOnlyCurrentEnv
               />
             </DatasourceInfo>
           </CollapseComponent>

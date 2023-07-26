@@ -2,7 +2,7 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
-import type { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import type { PropertyUpdates } from "widgets/constants";
 import {
   RenderModes,
   TextSizes,
@@ -437,7 +437,7 @@ type composePropertyUpdateHookInputType = Array<
     props: unknown,
     propertyPath: string,
     propertyValue: any,
-  ) => PropertyHookUpdates[] | undefined
+  ) => PropertyUpdates[] | undefined
 >;
 describe("composePropertyUpdateHook", () => {
   it("should test that it's returning a function", () => {

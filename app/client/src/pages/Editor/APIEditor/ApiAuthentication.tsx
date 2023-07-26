@@ -136,19 +136,17 @@ const mapStateToProps = (state: AppState, ownProps: any): ReduxStateProps => {
       (d) => d.id === datasourceFromAction.id,
     );
     if (datasourceFromDataSourceList) {
-      datasourceMerged = merge(
-        {},
-        datasourceFromAction,
-        // datasourceFromDataSourceList,
-        datasourceFromDataSourceList.datasourceStorages[currentEnvironment],
-      );
+      const { datasourceStorages } = datasourceFromDataSourceList;
+      let dsObjectToMerge = {};
+      // in case the datasource is not configured for the current environment, we just merge with empty object
+      if (datasourceStorages.hasOwnProperty(currentEnvironment)) {
+        dsObjectToMerge = datasourceStorages[currentEnvironment];
+      }
+      datasourceMerged = merge({}, datasourceFromAction, dsObjectToMerge);
 
       // update the id in object to datasourceId, this is because the value in id post merge is the id of the datasource storage
       // and not of the datasource.
-      datasourceMerged.id =
-        datasourceFromDataSourceList.datasourceStorages[
-          currentEnvironment
-        ].datasourceId;
+      datasourceMerged.id = datasourceFromDataSourceList.id;
 
       // Adding user permissions for datasource from datasourceFromDataSourceList
       datasourceMerged.userPermissions =

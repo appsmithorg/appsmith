@@ -73,7 +73,10 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
             userTraits.put("instanceId", instanceId);
             userTraits.put("tenantId", user.getTenantId());
             userTraits.put("isTelemetryOn", !commonConfig.isTelemetryDisabled());
-            userTraits.put("createdAt", user.getCreatedAt());
+            // for anonymous user, user.getCreatedAt() is null
+            if (user.getCreatedAt() != null) {
+                userTraits.put("createdAt", user.getCreatedAt().getEpochSecond());
+            }
             userTraits.put("defaultTraitsUpdatedAt", Instant.now().getEpochSecond());
             userTraits.put("type", "user");
             return userTraits;

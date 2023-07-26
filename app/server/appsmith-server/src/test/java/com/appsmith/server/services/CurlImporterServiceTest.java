@@ -1046,4 +1046,25 @@ public class CurlImporterServiceTest {
         assert (map.containsKey(API_CONTENT_TYPE));
         assert (map.get(API_CONTENT_TYPE).equals(contentType));
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testImportActionOnURLWithCurlyBraces() {
+        String curlCommandWithUrlContainingCurlyBraces =
+                "curl -X GET https://mock-api.appsmith.com/{id}/users?name=test";
+        ActionDTO actionDTO = curlImporterService.curlToAction(curlCommandWithUrlContainingCurlyBraces);
+
+        assertThat(actionDTO).isNotNull();
+        assertThat(actionDTO.getDatasource()).isNotNull();
+        assertThat(actionDTO.getDatasource().getDatasourceConfiguration()).isNotNull();
+        assertThat(actionDTO.getDatasource().getDatasourceConfiguration().getUrl())
+                .isEqualTo("https://mock-api.appsmith.com");
+
+        final ActionConfiguration actionConfiguration = actionDTO.getActionConfiguration();
+        assertThat(actionConfiguration.getPath()).isEqualTo("/{id}/users");
+        assertThat(actionConfiguration.getQueryParameters().size()).isEqualTo(1);
+        assertThat(actionConfiguration.getQueryParameters().get(0).getKey()).isEqualTo("name");
+        assertThat(actionConfiguration.getQueryParameters().get(0).getValue()).isEqualTo("test");
+        assertThat(actionConfiguration.getHttpMethod()).isEqualTo(HttpMethod.GET);
+    }
 }

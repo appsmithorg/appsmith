@@ -40,6 +40,7 @@ export const excludeList: WidgetType[] = [
   "FILE_PICKER_WIDGET",
   "FILE_PICKER_WIDGET_V2",
   "TABLE_WIDGET_V2",
+  "BUTTON_WIDGET_V2",
 ];
 
 function PropertyPaneView(
@@ -184,7 +185,7 @@ function PropertyPaneView(
 
   return (
     <div
-      className="w-full overflow-y-scroll h-full"
+      className="w-full h-full overflow-y-scroll"
       key={`property-pane-${widgetProperties.widgetId}`}
       ref={containerRef}
     >

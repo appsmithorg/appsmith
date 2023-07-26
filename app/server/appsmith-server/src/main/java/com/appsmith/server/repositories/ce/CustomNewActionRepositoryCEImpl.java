@@ -7,24 +7,33 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QNewAction;
+import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.WriteModel;
 import com.mongodb.client.result.InsertManyResult;
+import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
+import org.springframework.data.mongodb.core.aggregation.GroupOperation;
+import org.springframework.data.mongodb.core.aggregation.MatchOperation;
+import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +41,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -554,5 +567,49 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         Criteria defaultAppIdCriteria =
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         return queryAll(List.of(defaultAppIdCriteria), permission);
+    }
+
+    @Override
+    public Mono<UpdateResult> publishActions(String applicationId, AclPermission permission) {
+        Criteria applicationIdCriteria =
+                where(fieldName(QNewAction.newAction.applicationId)).is(applicationId);
+        // using aggregation update instead of regular update here
+        // it's required to set a field to a value of another field from the same domain
+        AggregationUpdate aggregationUpdate = AggregationUpdate.update()
+                .set(fieldName(QNewAction.newAction.publishedAction))
+                .toValue("$" + fieldName(QNewAction.newAction.unpublishedAction));
+
+        return updateByCriteria(List.of(applicationIdCriteria), aggregationUpdate, permission);
+    }
+
+    @Override
+    public Mono<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission) {
+        Criteria applicationIdCriteria =
+                where(fieldName(QNewAction.newAction.applicationId)).is(applicationId);
+        String unpublishedDeletedAtFieldName = String.format(
+                "%s.%s",
+                fieldName(QNewAction.newAction.unpublishedAction),
+                fieldName(QNewAction.newAction.unpublishedAction.deletedAt));
+        Criteria deletedFromUnpublishedCriteria =
+                where(unpublishedDeletedAtFieldName).ne(null);
+
+        Update update = new Update();
+        update.set(FieldName.DELETED, true);
+        update.set(FieldName.DELETED_AT, Instant.now());
+        return updateByCriteria(List.of(applicationIdCriteria, deletedFromUnpublishedCriteria), update, permission);
+    }
+
+    @Override
+    public Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId) {
+        GroupOperation countByPluginType =
+                group(fieldName(QNewAction.newAction.pluginType)).count().as("count");
+        MatchOperation filterStates = match(where(fieldName(QNewAction.newAction.applicationId))
+                .is(applicationId)
+                .and(fieldName(QNewAction.newAction.deleted))
+                .ne(Boolean.TRUE));
+        ProjectionOperation projectionOperation = project("count").and("_id").as("pluginType");
+        Aggregation aggregation = newAggregation(filterStates, countByPluginType, projectionOperation);
+        return mongoOperations.aggregate(
+                aggregation, mongoOperations.getCollectionName(NewAction.class), PluginTypeAndCountDTO.class);
     }
 }

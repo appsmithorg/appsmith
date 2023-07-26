@@ -20,6 +20,8 @@ describe(
       //Create any other datasource, click on back button, discard popup should contain save
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("PostgreSQL");
+      // Need to add values since without that, going back won't show any popup
+      dataSources.FillPostgresDSForm();
       agHelper.GoBack();
       agHelper.AssertContains(
         "Save",
@@ -33,6 +35,7 @@ describe(
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("S3");
       dataSources.TestDatasource(false);
+      dataSources.FillS3DSForm();
       dataSources.SaveDSFromDialog(false);
     });
   },

@@ -36,7 +36,10 @@ import {
 import { builderURL } from "RouteBuilder";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import DatasourceStructureHeader from "pages/Editor/Explorer/Datasources/DatasourceStructureHeader";
-import { DatasourceStructureContainer as DataStructureList } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
+import {
+  DatasourceStructureContainer as DataStructureList,
+  SCHEMALESS_PLUGINS,
+} from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import {
@@ -56,7 +59,6 @@ import {
   isUserSignedUpFlagSet,
   setFeatureFlagShownStatus,
 } from "utils/storage";
-import { PluginName } from "entities/Action";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Tooltip } from "design-system";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
@@ -202,8 +204,9 @@ type CollapsibleProps = {
   expand?: boolean;
   children: ReactNode;
   label: string;
-  customLabelComponent?: JSX.Element;
+  CustomLabelComponent?: (props: any) => JSX.Element;
   isDisabled?: boolean;
+  datasourceId?: string;
 };
 
 type DisabledCollapsibleProps = {
@@ -213,7 +216,8 @@ type DisabledCollapsibleProps = {
 
 export function Collapsible({
   children,
-  customLabelComponent,
+  CustomLabelComponent,
+  datasourceId,
   expand = true,
   label,
 }: CollapsibleProps) {
@@ -226,9 +230,16 @@ export function Collapsible({
   return (
     <CollapsibleWrapper isOpen={isOpen}>
       <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
-        <Icon name={isOpen ? "down-arrow" : "arrow-right-s-line"} size="lg" />
-        {!!customLabelComponent ? (
-          customLabelComponent
+        <Icon
+          className="collapsible-icon"
+          name={isOpen ? "down-arrow" : "arrow-right-s-line"}
+          size="lg"
+        />
+        {!!CustomLabelComponent ? (
+          <CustomLabelComponent
+            datasourceId={datasourceId}
+            onRefreshCallback={() => setIsOpen(true)}
+          />
         ) : (
           <Text className="label" kind="heading-xs">
             {label}
@@ -408,13 +419,14 @@ function ActionSidebar({
             FEATURE_FLAG.ab_ds_schema_enabled,
           [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForDSSchema,
         },
+        delay: 5000,
       });
   };
 
   const showSchema =
     isEnabledForDSSchema &&
     pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm &&
-    pluginName !== PluginName.SMTP;
+    !SCHEMALESS_PLUGINS.includes(pluginName);
 
   useEffect(() => {
     if (showSchema) {
@@ -456,9 +468,8 @@ function ActionSidebar({
       {showSchema && (
         <SchemaSideBarSection height={50} id={SCHEMA_SECTION_ID}>
           <Collapsible
-            customLabelComponent={
-              <DatasourceStructureHeader datasourceId={datasourceId || ""} />
-            }
+            CustomLabelComponent={DatasourceStructureHeader}
+            datasourceId={datasourceId}
             expand={!showSuggestedWidgets}
             label="Schema"
           >
