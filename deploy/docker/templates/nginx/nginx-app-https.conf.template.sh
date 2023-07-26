@@ -26,6 +26,22 @@ map \$http_x_forwarded_host \$origin_host {
 }
 
 # redirect log to stdout for supervisor to capture
+log_format main '"\$time_local" client=\$remote_addr '
+               'method=\$request_method request="\$request" '
+               'request_length=\$request_length '
+               'status=\$status bytes_sent=\$bytes_sent '
+               'body_bytes_sent=\$body_bytes_sent '
+               'http_x_forwarded_host=\$http_x_forwarded_host '
+               'http_x_forwarded_proto=\$http_x_forwarded_proto '
+               'http_x_forwarded_for=\$http_x_forwarded_for '
+               'http_host=\$http_host '
+               'upstream_addr=\$upstream_addr '
+               'upstream_status=\$upstream_status '
+               'request_time=\$request_time '
+               'upstream_response_time=\$upstream_response_time '
+               'upstream_connect_time=\$upstream_connect_time '
+               'upstream_header_time=\$upstream_header_time';
+
 access_log /dev/stdout;
 
 server {
