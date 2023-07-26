@@ -63,6 +63,7 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.CannotDeleteCurrentBranchException;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
@@ -148,7 +149,8 @@ public class GitServiceCEImpl implements GitServiceCE {
     private static final Duration RETRY_DELAY = Duration.ofSeconds(1);
     private static final Integer MAX_RETRIES = 20;
 
-    private static final Integer MAX_STALE_TIME = 60 * 15; // 5 min in seconds
+    //@Value("${appsmith.index.lock.file.time:900}")
+    private int MAX_STALE_TIME = 900; // Default value is 15 minutes
 
     @Override
     public Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata) {
@@ -1868,9 +1870,26 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(tuple -> {
                     Mono<GitStatusDTO> branchedStatusMono = executionTimeLogging.measureTask(
                             "getStatus->gitExecutor.getStatus",
-                            gitExecutor
-                                    .getStatus(tuple.getT1(), finalBranchName)
-                                    .cache());
+                            gitExecutor.getStatus(tuple.getT1(), finalBranchName)
+                                    .cache()
+                                    .onErrorResume(error -> {
+                                        if (error instanceof LockFailedException) {
+                                            // Add analytics event for the lock failure
+                                            return fileUtils
+                                                    .deleteIndexLockFile(tuple.getT1(), MAX_STALE_TIME)
+                                                    .flatMap(deleteStatus -> addAnalyticsForGitOperation(
+                                                            AnalyticsEvents.GIT_STALE_FILE_LOCK_DELETED.getEventName(),
+                                                            tuple.getT4(),
+                                                            null))
+                                                    .then(Mono.error(new AppsmithException(
+                                                            AppsmithError.GIT_ACTION_FAILED,
+                                                            "status",
+                                                            error.getMessage())));
+                                        }
+                                        return Mono.error(new AppsmithException(
+                                                AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage()));
+                                    })
+                    );
 
                     try {
                         return executionTimeLogging
@@ -1887,7 +1906,25 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 // Remove any files which are copied by hard resetting the repo
                                 .then(executionTimeLogging.measureTask(
                                         "getStatus->gitExecutor.resetToLastCommit",
-                                        gitExecutor.resetToLastCommit(tuple.getT3(), branchName)))
+                                        gitExecutor.resetToLastCommit(tuple.getT3(), branchName)
+                                                .onErrorResume(error -> {
+                                                    if (error instanceof LockFailedException) {
+                                                        // Add analytics event for the lock failure
+                                                        return fileUtils
+                                                                .deleteIndexLockFile(tuple.getT1(), MAX_STALE_TIME)
+                                                                .flatMap(deleteStatus -> addAnalyticsForGitOperation(
+                                                                        AnalyticsEvents.GIT_STALE_FILE_LOCK_DELETED.getEventName(),
+                                                                        tuple.getT4(),
+                                                                        null))
+                                                                .then(Mono.error(new AppsmithException(
+                                                                        AppsmithError.GIT_ACTION_FAILED,
+                                                                        "status",
+                                                                        error.getMessage())));
+                                                    }
+                                                    return Mono.error(new AppsmithException(
+                                                            AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage()));
+                                        })
+                                ))
                                 .flatMap(gitStatusDTO -> {
                                     if (Boolean.TRUE.equals(isFileLock)) {
                                         return executionTimeLogging
