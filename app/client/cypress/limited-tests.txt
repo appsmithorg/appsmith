@@ -2,6 +2,11 @@
 #cypress/e2e/**/**/*
 
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Widgets/Dropdown/Dropdown_onOptionChange_spec.js
-cypress/e2e/Regression/ClientSide/Widgets/Button/Button_onClickAction_spec.js
-cypress/e2e/Regression/ClientSide/BugTests/DatasourceSchema_spec.ts
+cypress/e2e/Regression/ClientSide/Binding/TableTextPagination_spec.js
+cypress/e2e/Regression/ClientSide/Binding/TableV2TextPagination_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/ListV2/ListV2_nested_List_widget_spec.js
+cypress/e2e/Regression/ServerSide/GenerateCRUD/S3_Spec.js
+cypress/e2e/Regression/ServerSide/ApiTests/API_Edit_spec.js
+#cypress/e2e/Regression/ClientSide/Widgets/Dropdown/Dropdown_onOptionChange_spec.js
+#cypress/e2e/Regression/ClientSide/Widgets/Button/Button_onClickAction_spec.js
+#cypress/e2e/Regression/ClientSide/BugTests/DatasourceSchema_spec.ts
