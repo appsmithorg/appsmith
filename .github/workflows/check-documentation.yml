@@ -87,4 +87,4 @@ jobs:
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body-path: "documentation_comment.md"
+          body-file: "documentation_comment.md"
