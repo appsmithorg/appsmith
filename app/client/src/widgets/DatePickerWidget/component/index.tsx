@@ -8,7 +8,7 @@ import {
 import { ControlGroup, Classes, Label } from "@blueprintjs/core";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
-import moment from "moment-timezone";
+import moment from "moment";
 import "@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import type { DatePickerType } from "../constants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
