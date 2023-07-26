@@ -242,7 +242,7 @@ export class DataSources {
   private _datasourceStructureHeader = ".datasourceStructure-header";
   private _datasourceColumnSchemaInQueryEditor = ".t--datasource-column";
   private _datasourceStructureSearchInput = ".datasourceStructure-search input";
-  _JSModeSortingControl = ".t--actionConfiguration\\.formData\\.sortBy\\.data";
+  _jsModeSortingControl = ".t--actionConfiguration\\.formData\\.sortBy\\.data";
   public _queryEditorCollapsibleIcon = ".collapsible-icon";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
@@ -1664,7 +1664,7 @@ export class DataSources {
 
   public EnterSortByValues(sortBy: string, option: string, index = 0) {
     this.agHelper
-      .GetElement(this._JSModeSortingControl)
+      .GetElement(this._jsModeSortingControl)
       .eq(0)
       .children()
       .eq(index)
@@ -1682,7 +1682,7 @@ export class DataSources {
   public ClearSortByOption(index = 0) {
     this.agHelper.Sleep(500);
     this.agHelper
-      .GetElement(this._JSModeSortingControl)
+      .GetElement(this._jsModeSortingControl)
       .eq(0)
       .children()
       .eq(index)
@@ -1693,7 +1693,7 @@ export class DataSources {
 
   public AddNewSortByParameter() {
     this.agHelper
-      .GetElement(this._JSModeSortingControl)
+      .GetElement(this._jsModeSortingControl)
       .find("button[data-testid='t--sorting-add-field']")
       .click({ force: true });
   }
