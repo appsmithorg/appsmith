@@ -37,6 +37,10 @@ export function useConnectData() {
       columns: columns.map((column) => column.name),
       primaryColumn,
       connectionMode: config.datasourceConnectionMode,
+      aliases: Object.entries(config.alias).map(([key, value]) => ({
+        name: key,
+        alias: value,
+      })),
     };
 
     dispatch({
@@ -54,6 +58,7 @@ export function useConnectData() {
       additionalData: {
         dataTableName: config.table,
         searchableColumn: config.searchableColumn,
+        alias: config.alias,
       },
     });
   };

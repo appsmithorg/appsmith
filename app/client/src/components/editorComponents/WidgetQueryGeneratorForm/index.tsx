@@ -78,6 +78,8 @@ type Props = {
   widgetId: string;
   errorMsg: string;
   expectedType: string;
+  aliases: string[];
+  searchableColumn: boolean;
 };
 
 function WidgetQueryGeneratorForm(props: Props) {
@@ -221,7 +223,10 @@ function WidgetQueryGeneratorForm(props: Props) {
       <WidgetQueryGeneratorFormContext.Provider value={contextValue}>
         <CommonControls />
         <DatasourceSpecificControls />
-        <WidgetSpecificControls hasSearchableColumn />
+        <WidgetSpecificControls
+          aliases={props.aliases}
+          hasSearchableColumn={props.searchableColumn}
+        />
         <ConnectData />
       </WidgetQueryGeneratorFormContext.Provider>
     </Wrapper>

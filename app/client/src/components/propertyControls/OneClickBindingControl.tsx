@@ -52,11 +52,13 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
   public render() {
     return (
       <WidgetQueryGeneratorForm
+        aliases={this.props.controlConfig.aliases}
         errorMsg={this.getErrorMessage()}
         expectedType={this.props.expected?.autocompleteDataType || ""}
         onUpdate={this.onUpdatePropertyValue}
         propertyPath={this.props.propertyName}
         propertyValue={this.props.propertyValue}
+        searchableColumn={this.props.controlConfig.searchableColumn}
         widgetId={this.props.widgetProperties.widgetId}
       />
     );
@@ -65,4 +67,9 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
 
 export default OneClickBindingControl;
 
-export type OneClickBindingControlProps = ControlProps;
+export type OneClickBindingControlProps = ControlProps & {
+  controlConfig: {
+    aliases: string[];
+    searchableColumn: boolean;
+  };
+};

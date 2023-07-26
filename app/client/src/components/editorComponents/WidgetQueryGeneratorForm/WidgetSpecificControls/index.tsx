@@ -4,13 +4,12 @@ import { noop } from "lodash";
 
 type Props = {
   hasSearchableColumn?: boolean;
-  hasAliasPicker?: boolean;
   aliases?: string[];
 };
 
 export default function WidgetSpecificControls(props: Props) {
   let searchableColumn = null;
-  let aliasPicker = null;
+  let aliases = null;
 
   if (props.hasSearchableColumn) {
     searchableColumn = (
@@ -22,16 +21,21 @@ export default function WidgetSpecificControls(props: Props) {
     );
   }
 
-  if (props.hasAliasPicker && props.aliases) {
-    aliasPicker = props.aliases.map((alias) => {
-      <ColumnDropdown alias={`alias.${alias}`} label={alias} onSelect={noop} />;
-    });
+  if (props.aliases?.length) {
+    aliases = props.aliases.map((alias) => (
+      <ColumnDropdown
+        alias={`alias.${alias}`}
+        key={alias}
+        label={alias}
+        onSelect={noop}
+      />
+    ));
   }
 
   return (
     <>
       {searchableColumn}
-      {aliasPicker}
+      {aliases}
     </>
   );
 }

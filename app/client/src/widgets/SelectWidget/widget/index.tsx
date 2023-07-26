@@ -36,10 +36,37 @@ import {
   getLabelValueKeyOptions,
   valueKeyValidation,
 } from "./propertyUtils";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
 
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   constructor(props: SelectWidgetProps) {
     super(props);
+  }
+
+  static getQueryGenerationConfig(widget: WidgetProps) {
+    return {
+      select: {
+        where: `${widget.widgetName}.filterText`,
+      },
+    };
+  }
+
+  static getPropertyUpdatesForQueryBinding(
+    queryConfig: WidgetQueryConfig,
+    widget: WidgetProps,
+    formConfig: WidgetQueryGenerationFormConfig,
+  ) {
+    return {
+      modify: {
+        sourceData: queryConfig.select.data,
+        optionLabel: formConfig.aliases.find((d) => d.name === "label")?.alias,
+        optionValue: formConfig.aliases.find((d) => d.name === "value")?.alias,
+        defaultOptionValue: "",
+      },
+    };
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -79,7 +106,11 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               "Takes in an array of objects to display options. Bind data from an API using {{}}",
             propertyName: "sourceData",
             label: "Source Data",
-            controlType: "INPUT_TEXT",
+            controlType: "ONE_CLICK_BINDING_CONTROL",
+            controlConfig: {
+              aliases: ["label", "value"],
+            },
+            isJSConvertible: true,
             placeholderText: '[{ "label": "label1", "value": "value1" }]',
             isBindProperty: true,
             isTriggerProperty: false,
