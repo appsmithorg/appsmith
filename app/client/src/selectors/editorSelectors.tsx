@@ -61,7 +61,8 @@ import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { nestDSL } from "@shared/dsl";
 import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
 import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -337,8 +338,8 @@ export const getCurrentPageName = createSelector(
 export const getWidgetCards = createSelector(
   getWidgetConfigs,
   getIsAutoLayout,
-  selectFeatureFlags,
-  (widgetConfigs, isAutoLayout, featureFlags) => {
+  (_state) => selectFeatureFlagCheck(_state, FEATURE_FLAG.ab_wds_enabled),
+  (widgetConfigs, isAutoLayout, isWDSEnabled) => {
     const cards = Object.values(widgetConfigs.config).filter((config) => {
       if (isAirgapped()) {
         return config.widgetName !== "Map" && !config.hideCard;
@@ -347,13 +348,13 @@ export const getWidgetCards = createSelector(
       // if wds_vs is not enabled, hide all wds_v2 widgets
       if (
         Object.values(WDS_V2_WIDGET_MAP).includes(config.type) &&
-        featureFlags.ab_wds_enabled === false
+        isWDSEnabled === false
       ) {
         return false;
       }
 
       // if wds is enabled, only show the wds_v2 widgets
-      if (featureFlags.ab_wds_enabled === true) {
+      if (isWDSEnabled === true) {
         return Object.values(WDS_V2_WIDGET_MAP).includes(config.type);
       }
 

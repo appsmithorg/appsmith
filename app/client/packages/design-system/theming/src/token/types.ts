@@ -32,6 +32,7 @@ export interface TokenSource {
   borderWidth?: TokenObj;
   opacity?: TokenObj;
   fontFamily?: FontFamily;
+  zIndex?: TokenObj;
   sizing?: TokenObj;
   spacing?: TokenObj;
   zIndex?: TokenObj;

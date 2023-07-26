@@ -37,11 +37,11 @@ import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
 import HtmlTitle from "./AppViewerHtmlTitle";
+import BottomBar from "components/BottomBar";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
-import BottomBar from "components/BottomBar";
 import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
 import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import {
@@ -218,7 +218,9 @@ function AppViewer(props: Props) {
             {showBottomBar && <BottomBar viewMode />}
             {!hideWatermark && (
               <a
-                className="fixed hidden right-8 bottom-4 z-3 hover:no-underline md:flex"
+                className={`fixed hidden right-8 ${
+                  showBottomBar ? "bottom-12" : "bottom-4"
+                } z-3 hover:no-underline md:flex`}
                 href="https://appsmith.com"
                 rel="noreferrer"
                 target="_blank"
