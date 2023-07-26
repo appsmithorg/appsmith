@@ -12,10 +12,8 @@ describe("Datasource form OAuth2 client credentials related tests", function () 
   it("1. Create an API with app url and save as Datasource for Client Credentials test", function () {
     apiPage.CreateAndFillApi(testdata.appUrl, "TestOAuth");
     agHelper.GetNClick(apiPage._saveAsDS);
-    // agHelper.ValidateToastMessage("datasource created"); //verifying there is no error toast, Bug 14566
-  });
 
-  it("2. Add Oauth details to datasource and save", function () {
+    // Add Oauth details to datasource and save
     cy.get(datasource.saveBtn).should("not.be.disabled");
     dataSources.AddOAuth2AuthorizationCodeDetails(
       testdata.accessTokenUrl,
@@ -27,7 +25,7 @@ describe("Datasource form OAuth2 client credentials related tests", function () 
     // since we are moving to different, it will show unsaved changes dialog
     // save datasource and then proceed
     dataSources.SaveDatasource();
-
+    agHelper.ValidateToastMessage("datasource created"); //verifying there is no error toast, Bug 14566
     entityExplorer.SelectEntityByName("TestOAuth", "Queries/JS");
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
@@ -35,13 +33,10 @@ describe("Datasource form OAuth2 client credentials related tests", function () 
     });
   });
 
-  it("3. Create an API with app url and save as Datasource for Authorization code details test", function () {
+  it("2. Create an API with app url and save as Datasource for Authorization code details test", function () {
     apiPage.CreateAndFillApi(testdata.appUrl, "TestOAuth");
     agHelper.GetNClick(apiPage._saveAsDS);
-    // agHelper.ValidateToastMessage("datasource created"); //verifying there is no error toast, Bug 14566
-  });
-
-  it("4. Add Oauth details to datasource and save", function () {
+    //Add Oauth details to datasource and save
     cy.get(datasource.saveBtn).should("not.be.disabled");
     dataSources.AddOAuth2AuthorizationCodeDetails(
       testdata.accessTokenUrl,
@@ -51,7 +46,7 @@ describe("Datasource form OAuth2 client credentials related tests", function () 
     );
   });
 
-  it("5. Validate save and Authorise", function () {
+  it("3. Validate save and Authorise", function () {
     cy.get(datasource.saveAndAuthorize).click();
     cy.contains("#login-submit", "Login");
     cy.url().should("include", "oauth.mocklab.io/oauth/authorize");
