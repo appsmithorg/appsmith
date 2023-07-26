@@ -266,6 +266,26 @@ describe("GSheet-Functional Tests With All Access", function () {
     dataSources.AssertQueryTableResponse(0, "eac7efa5dbd3d667f26eb3d3ab504464");
   });
 
+  it("7. Verify Delete query", function () {
+    // Delete spreadsheet and app
+    gsheetHelper.EnterBasicQueryValues(
+      "Delete One",
+      dataSourceName,
+      spreadSheetName,
+    );
+    agHelper.EnterValue(GSHEET_DATA[0].rowIndex, {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Row Index",
+    });
+    dataSources.RunQuery();
+    cy.get("@postExecute").then((interception: any) => {
+      expect(interception.response.body.data.body.message).to.deep.equal(
+        "Deleted row successfully!",
+      );
+    });
+  });
+
   after("Delete spreadsheet and app", function () {
     // Delete spreadsheet and app
     gsheetHelper.DeleteSpreadsheetQuery(dataSourceName, spreadSheetName);
