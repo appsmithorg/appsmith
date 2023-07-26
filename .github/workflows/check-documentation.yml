@@ -59,7 +59,8 @@ jobs:
         if: steps.check_skip_documentation.outputs.label_check == 'success'
         run: |
           documentation_file_name="documentation.md"
-          documentation_contents=""
+
+          echo ":warning: ***Documentation Reminder*** \n It seems that changes have been made in the implementation. \n------" >> documentation_comment.md
 
           for file in ${{ steps.changed_files.outputs.files_updated }} ${{ steps.changed_files.outputs.files_deleted }} ${{steps.changed_files.outputs.files_created}}; do
             last_directory=$(dirname "$file")
@@ -73,11 +74,11 @@ jobs:
             SEARCHED_DIRECTORIES="$SEARCHED_DIRECTORIES:$last_directory"
             if [[ -f "$last_directory/$documentation_file_name" ]]; then
               file_name="$last_directory/$documentation_file_name"
-              documentation_contents="${documentation_contents}\n\n\n$(cat "$file_name")\n\n\n"
+                echo "$file_name \n\n\n" >> documentation_comment.md
             fi
           done
 
-          echo "documentation_contents=$documentation_contents" >> $GITHUB_OUTPUT
+          echo "\n------\nPlease ensure that the corresponding documentation is updated." >> documentation_comment.md
 
       # This step creates a comment on the PR for the documentation reminder.
       - name: Comment on PR if documentation files found
@@ -85,14 +86,4 @@ jobs:
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            :warning: ***Documentation Reminder***
-            It seems that changes have been made in the implementation.
-
-            ------
-
-            ${{steps.get_documentation_files_content.outputs.documentation_contents}}
-
-            ------
-
-            Please ensure that the corresponding documentation is updated.
+          body-path: 'documentation_comment.md'
