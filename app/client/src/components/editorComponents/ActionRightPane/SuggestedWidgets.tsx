@@ -402,7 +402,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
     );
     // To enable setting the widget id for showing walkthrough once the widget is created in WidgetOperationSagas.tsx -> addSuggestedWidget function
     if (!showStatus && isEnabledForQueryBinding) {
-      payload.props.setWidgetIdForWalkthrough = "true";
+      (payload.props as any).setWidgetIdForWalkthrough = "true";
     }
     if (isWalkthroughOpened) {
       closeWalkthrough();
