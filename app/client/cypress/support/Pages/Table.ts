@@ -191,6 +191,7 @@ export class Table {
   _paginationItem = ".rc-pagination-item";
   _listNavigation = (move: string) =>
     "//button[@area-label='" + move + " page']";
+  _listNextPage = ".rc-pagination-next";
 
   public GetNumberOfRows() {
     return this.agHelper.GetElement(this._tr).its("length");
@@ -679,7 +680,7 @@ export class Table {
       cy.xpath(this._liCurrentSelectedPage)
         .invoke("text")
         .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
-      cy.get(this._liNextPage).click();
+      cy.get(this._listNextPage).click();
       //cy.scrollTo('top', { easing: 'linear' })
       cy.xpath(this._liCurrentSelectedPage)
         .invoke("text")
@@ -688,7 +689,7 @@ export class Table {
       this.agHelper
         .GetText(this.locator._listActivePage, "text", index)
         .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
-      this.agHelper.GetNClick(this.locator._nextPage, index, true);
+      this.agHelper.GetNClick(this._listNextPage, index, true);
       this.agHelper.Sleep(1000);
       this.agHelper
         .GetText(this.locator._listActivePage, "text", index)
@@ -726,9 +727,13 @@ export class Table {
         );
 
       if (checkNoNextPage)
-        cy.get(this._liNextPage).should("have.attr", "aria-disabled", "true");
+        cy.get(this._listNextPage).should("have.attr", "aria-disabled", "true");
       else
-        cy.get(this._liNextPage).should("have.attr", "aria-disabled", "false");
+        cy.get(this._listNextPage).should(
+          "have.attr",
+          "aria-disabled",
+          "false",
+        );
     } else if (tableVersion == "v2") {
       this.agHelper
         .GetText(this.locator._listActivePage, "text")
@@ -742,11 +747,11 @@ export class Table {
 
       if (checkNoNextPage)
         this.agHelper
-          .GetElement(this.locator._nextPage)
+          .GetElement(this._listNextPage)
           .should("have.class", "rc-pagination-disabled");
       else
         this.agHelper
-          .GetElement(this.locator._nextPage)
+          .GetElement(this._listNextPage)
           .should("not.have.class", "rc-pagination-disabled");
     }
   }
