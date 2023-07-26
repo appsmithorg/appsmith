@@ -18,6 +18,12 @@ public class CacheableFeatureFlagHelperImpl extends CacheableFeatureFlagHelperCE
             CommonConfig commonConfig,
             UserIdentifierService userIdentifierService,
             ReleaseNotesService releaseNotesService) {
-        super(tenantService, configService, cloudServicesConfig, commonConfig, userIdentifierService, releaseNotesService);
+        super(
+                tenantService,
+                configService,
+                cloudServicesConfig,
+                commonConfig,
+                userIdentifierService,
+                releaseNotesService);
     }
 }

@@ -10,6 +10,8 @@ public interface CacheableFeatureFlagHelperCE {
     Mono<CachedFlags> fetchUserCachedFlags(String userIdentifier, User user);
 
     Mono<Void> evictUserCachedFlags(String userIdentifier);
+
     Mono<CachedFeatures> fetchTenantCachedFeatures(String tenantId);
+
     Mono<Void> evictTenantCachedFeatures(String tenantId);
 }
