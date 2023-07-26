@@ -351,7 +351,8 @@ describe("Create Permission flow ", function () {
       );
     });
     cy.SaveAndRunAPI();
-    cy.ResponseStatusCheck("200");
+    //TODO: Update the error message once updated from the server.
+    agHelper.ValidateToastMessage("Unable to find environmentid unused_env");
   });
 
   it("7. Omnibar : Action creation", function () {
