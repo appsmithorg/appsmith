@@ -19,8 +19,6 @@ export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
   variant?: ButtonVariant;
   /** Color tone of the button */
   color?: ButtonColor;
-  /** When true, makes the button occupy all the space available */
-  isFitContainer?: boolean;
   /** Indicates the loading state of the button */
   isLoading?: boolean;
   /** Icon to be used in the button of the button */
@@ -39,13 +37,11 @@ export const Button = forwardRef(
       color = "accent",
       icon,
       iconPosition = "start",
-      isFitContainer = false,
       isLoading,
       // eslint-disable-next-line -- TODO add onKeyUp when the bug is fixed https://github.com/adobe/react-spectrum/issues/4350
       onKeyUp,
       variant = "filled",
       visuallyDisabled,
-      ...rest
     } = props;
     const { visuallyHiddenProps } = useVisuallyHidden();
 
@@ -82,13 +78,11 @@ export const Button = forwardRef(
         }
         data-button=""
         data-color={color}
-        data-fit-container={isFitContainer ? "" : undefined}
         data-icon-position={iconPosition === "start" ? "start" : "end"}
         data-loading={isLoading ? "" : undefined}
         data-variant={variant}
         draggable
         ref={ref}
-        {...rest}
       >
         {renderChildren()}
         <DragContainer data-hidden="" />

@@ -26,11 +26,9 @@ module.exports = {
     "../../design-system/**/*.stories.@(js|jsx|ts|tsx)",
   ],
   addons: [
-    "@storybook/addon-links",
     "@storybook/addon-essentials",
     "@storybook/addon-interactions",
     "@storybook/preset-create-react-app",
-    "storybook-addon-pseudo-states",
     "./addons/theming/register.js",
   ],
   framework: "@storybook/react",

@@ -2419,7 +2419,6 @@ __metadata:
     "@storybook/addon-actions": ^6.5.16
     "@storybook/addon-essentials": ^6.5.16
     "@storybook/addon-interactions": ^6.5.16
-    "@storybook/addon-links": ^6.5.16
     "@storybook/addon-postcss": ^2.0.0
     "@storybook/builder-webpack5": ^6.5.16
     "@storybook/manager-webpack5": ^6.5.16
@@ -2435,7 +2434,6 @@ __metadata:
     colorjs.io: ^0.4.3
     postcss: ^8.4.23
     react-docgen-typescript: ^2.2.2
-    storybook-addon-pseudo-states: ^1.15.2
     storybook-color-picker: ^3.1.0
     tsconfig-paths-webpack-plugin: ^4.0.1
   languageName: unknown
@@ -5737,34 +5735,6 @@ __metadata:
     react-dom:
       optional: true
   checksum: cba31aa22e684c5551b9a7af95d949aa80286179324f1ef2a42e9f8be78109c140d730244bce1236af7dc157ba241bf567c3767ca99564162307ec377dffec48
-  languageName: node
-  linkType: hard
-
-"@storybook/addon-links@npm:^6.5.16":
-  version: 6.5.16
-  resolution: "@storybook/addon-links@npm:6.5.16"
-  dependencies:
-    "@storybook/addons": 6.5.16
-    "@storybook/client-logger": 6.5.16
-    "@storybook/core-events": 6.5.16
-    "@storybook/csf": 0.0.2--canary.4566f4d.1
-    "@storybook/router": 6.5.16
-    "@types/qs": ^6.9.5
-    core-js: ^3.8.2
-    global: ^4.4.0
-    prop-types: ^15.7.2
-    qs: ^6.10.0
-    regenerator-runtime: ^0.13.7
-    ts-dedent: ^2.0.0
-  peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0
-    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  peerDependenciesMeta:
-    react:
-      optional: true
-    react-dom:
-      optional: true
-  checksum: 40fa5fcd98df3be50b3587efda79ddf0156eb0078dd0afec43e81e961475bc8583feec1314baabe59fe2dc8e5b9b4bb4a738435172c208f828d1538cd59882fe
   languageName: node
   linkType: hard
 
@@ -28576,26 +28546,6 @@ __metadata:
   version: 2.14.2
   resolution: "store2@npm:2.14.2"
   checksum: 6f270fc5bab99b63f45fcc7bd8b99c2714b4adf880f557ed7ffb5ed3987131251165bccde425a00928aaf044870aee79ddeef548576d093c68703ed2edec45d7
-  languageName: node
-  linkType: hard
-
-"storybook-addon-pseudo-states@npm:^1.15.2":
-  version: 1.15.2
-  resolution: "storybook-addon-pseudo-states@npm:1.15.2"
-  peerDependencies:
-    "@storybook/addons": ^6.5.0
-    "@storybook/api": ^6.5.0
-    "@storybook/components": ^6.5.0
-    "@storybook/core-events": ^6.5.0
-    "@storybook/theming": ^6.5.0
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0
-    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  peerDependenciesMeta:
-    react:
-      optional: true
-    react-dom:
-      optional: true
-  checksum: 64d0fb698054961c1999585549631521ba0de63a01dd5bb27dcc0f519fa26d7ccaaad020feecb867a1087368b18505a060d9c229d43000ba8ba9f299079b1d38
   languageName: node
   linkType: hard
 

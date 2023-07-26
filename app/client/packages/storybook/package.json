@@ -17,7 +17,6 @@
     "@storybook/addon-actions": "^6.5.16",
     "@storybook/addon-essentials": "^6.5.16",
     "@storybook/addon-interactions": "^6.5.16",
-    "@storybook/addon-links": "^6.5.16",
     "@storybook/addon-postcss": "^2.0.0",
     "@storybook/builder-webpack5": "^6.5.16",
     "@storybook/manager-webpack5": "^6.5.16",
@@ -31,7 +30,6 @@
     "babel-loader": "9.1.2",
     "chromatic": "^6.19.8",
     "postcss": "^8.4.23",
-    "storybook-addon-pseudo-states": "^1.15.2",
     "storybook-color-picker": "^3.1.0",
     "tsconfig-paths-webpack-plugin": "^4.0.1"
   },
