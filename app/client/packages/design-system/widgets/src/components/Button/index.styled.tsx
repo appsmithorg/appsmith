@@ -1,8 +1,8 @@
 import styled, { css } from "styled-components";
 import { Button as HeadlessButton } from "@design-system/headless";
-import type { PickRename } from "../../utils";
 
 import type { ButtonProps } from "./Button";
+import type { PickRename } from "../../utils";
 
 type StyledButtonProps = PickRename<
   ButtonProps,
@@ -73,10 +73,10 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
   cursor: pointer;
   outline: 0;
   padding: var(--spacing-2) var(--spacing-4);
-  block-size: calc(var(--root-unit) * 8);
+  block-size: var(--sizing-8);
   border-radius: var(--border-radius-1);
   user-select: none;
-  min-inline-size: calc(var(--root-unit) * 7.5);
+  min-inline-size: var(--sizing-8);
   position: relative;
   font-weight: 600;
 
@@ -99,8 +99,8 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
     display: flex;
     justify-content: center;
     align-items: center;
-    height: var(--sizing-5);
-    width: var(--sizing-5);
+    height: var(--sizing-4);
+    width: var(--sizing-4);
   }
 
   // Note: adding important here as ADS is overriding the color of blueprint icon globally

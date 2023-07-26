@@ -43,16 +43,13 @@ import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import BottomBar from "components/BottomBar";
 import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import {
-  datasourceEnvEnabled,
-  selectFeatureFlagCheck,
-} from "@appsmith/selectors/featureFlagsSelectors";
+import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
 } from "@design-system/theming";
-import { useFeatureFlagCheck } from "selectors/featureFlagsSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import {} from "@appsmith/selectors/featureFlagsSelectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -188,9 +185,7 @@ function AppViewer(props: Props) {
     };
   }, [selectedTheme.properties.fontFamily.appFont]);
 
-  const isWDSV2Enabled = useSelector((state) =>
-    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_wds_enabled),
-  );
+  const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
   const backgroundForBody = isWDSV2Enabled
     ? "var(--color-bg)"
     : selectedTheme.properties.colors.backgroundColor;

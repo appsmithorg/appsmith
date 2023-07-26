@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
-import type { RootUnit, ThemeToken } from "../token";
-import type { FontFamily } from "../typography";
+
 import type { ColorMode } from "../color";
+import type { FontFamily } from "../typography";
+import type { RootUnit, ThemeToken } from "../token";
 
 export type Theme = ThemeToken & {
   typography?: string;
@@ -23,5 +24,5 @@ export type UseThemeProps = {
   colorMode?: ColorMode;
   borderRadius?: string;
   fontFamily?: FontFamily;
-  rootUnit?: number;
+  rootUnitRatio?: number;
 };

@@ -1,16 +1,52 @@
 import Color from "colorjs.io";
 import { useEffect, useState } from "react";
-import type { TokenSource } from "@design-system/theming";
-import { TokensAccessor, defaultTokens } from "@design-system/theming";
+import {
+  TokensAccessor,
+  defaultTokens,
+  useFluidTokens,
+} from "@design-system/theming";
+import type { ColorMode, FontFamily } from "@design-system/theming";
 
 import type { UseThemeProps } from "./types";
 
-const tokensAccessor = new TokensAccessor(defaultTokens as TokenSource);
-
 export function useTheme(props: UseThemeProps) {
-  const { borderRadius, colorMode, fontFamily, rootUnit, seedColor } = props;
+  const {
+    borderRadius,
+    colorMode = "light",
+    fontFamily,
+    rootUnitRatio: rootUnitRatioProp,
+    seedColor,
+  } = props;
+
+  const [rootUnitRatio, setRootUnitRatio] = useState(1);
+  const { fluid, ...restDefaultTokens } = defaultTokens;
+
+  const { rootUnit, sizing, spacing, typography } = useFluidTokens(
+    fluid,
+    rootUnitRatio,
+  );
+
+  const tokensAccessor = new TokensAccessor({
+    ...restDefaultTokens,
+    rootUnit,
+    spacing,
+    sizing,
+    typography,
+    colorMode: colorMode as ColorMode,
+  });
 
   const [theme, setTheme] = useState(tokensAccessor.getAllTokens());
+
+  const updateFontFamily = (fontFamily: FontFamily) => {
+    tokensAccessor.updateFontFamily(fontFamily);
+
+    setTheme((prevState) => {
+      return {
+        ...prevState,
+        typography: tokensAccessor.getTypography(),
+      };
+    });
+  };
 
   useEffect(() => {
     if (colorMode) {
@@ -66,31 +102,36 @@ export function useTheme(props: UseThemeProps) {
 
   useEffect(() => {
     if (fontFamily) {
-      tokensAccessor.updateFontFamily(fontFamily);
-
-      setTheme((prevState) => {
-        return {
-          ...prevState,
-          ...tokensAccessor.getTypography(),
-        };
-      });
+      updateFontFamily(fontFamily);
     }
   }, [fontFamily]);
 
   useEffect(() => {
-    if (rootUnit) {
-      tokensAccessor.updateRootUnit(defaultTokens.rootUnit * rootUnit);
+    if (rootUnitRatioProp) {
+      setRootUnitRatio(rootUnitRatioProp);
+      tokensAccessor.updateRootUnit(rootUnit);
+      tokensAccessor.updateSpacing(spacing);
 
       setTheme((prevState) => {
         return {
           ...prevState,
           rootUnit: tokensAccessor.getRootUnit(),
           ...tokensAccessor.getSpacing(),
-          ...tokensAccessor.getTypography(),
         };
       });
     }
-  }, [rootUnit]);
+  }, [rootUnitRatioProp]);
+
+  useEffect(() => {
+    tokensAccessor.updateTypography(typography);
+
+    setTheme((prevState) => {
+      return {
+        ...prevState,
+        typography: tokensAccessor.getTypography(),
+      };
+    });
+  }, [typography]);
 
   return { theme, setTheme };
 }

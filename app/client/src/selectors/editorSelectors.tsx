@@ -60,8 +60,8 @@ import WidgetFactory from "utils/WidgetFactory";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { nestDSL } from "@shared/dsl";
 import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
-import { selectFeatureFlags } from "./featureFlagsSelectors";
 import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
