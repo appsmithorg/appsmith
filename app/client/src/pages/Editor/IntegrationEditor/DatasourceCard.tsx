@@ -48,6 +48,8 @@ import { DatasourceEditEntryPoints } from "constants/Datasource";
 import {
   isEnvironmentConfigured,
   getCurrentEnvironment,
+  doesAnyDsConfigExist,
+  DB_NOT_SUPPORTED,
 } from "@appsmith/utils/Environments";
 
 const Wrapper = styled.div`
@@ -142,6 +144,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     getGenerateCRUDEnabledPluginMap,
   );
   const { datasource, plugin } = props;
+  const envSupportedDs = !DB_NOT_SUPPORTED.includes(plugin.type);
   const supportTemplateGeneration =
     !!generateCRUDSupportedPlugin[datasource.pluginId];
 
@@ -281,31 +284,37 @@ function DatasourceCard(props: DatasourceCardProps) {
             </Queries>
           </div>
           <ButtonsWrapper className="action-wrapper">
-            {(!isEnvironmentConfigured(datasource, currentEnv) ||
-              supportTemplateGeneration) &&
+            {supportTemplateGeneration &&
               isDatasourceAuthorizedForQueryCreation(datasource, plugin) && (
                 <Button
-                  className={
-                    isEnvironmentConfigured(datasource, currentEnv)
-                      ? "t--generate-template"
-                      : "t--reconnect-btn"
-                  }
+                  className={"t--generate-template"}
                   kind="secondary"
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    isEnvironmentConfigured(datasource, currentEnv)
-                      ? routeToGeneratePage()
-                      : editDatasource();
+                    routeToGeneratePage();
                   }}
                   size="md"
                 >
-                  {isEnvironmentConfigured(datasource, currentEnv)
-                    ? createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)
-                    : createMessage(RECONNECT_BUTTON_TEXT)}
+                  {createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)}
                 </Button>
               )}
-            {isEnvironmentConfigured(datasource, currentEnv) && (
+            {envSupportedDs &&
+              !isEnvironmentConfigured(datasource, currentEnv) && (
+                <Button
+                  className={"t--reconnect-btn"}
+                  kind="secondary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    editDatasource();
+                  }}
+                  size="md"
+                >
+                  {createMessage(RECONNECT_BUTTON_TEXT)}
+                </Button>
+              )}
+            {doesAnyDsConfigExist(datasource, currentEnv) && (
               <NewActionButton
                 datasource={datasource}
                 disabled={

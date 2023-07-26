@@ -1,6 +1,6 @@
+import Color from "colorjs.io";
 import { ColorsAccessor } from "./ColorsAccessor";
 
-import Color from "colorjs.io";
 import type { ColorTypes } from "colorjs.io/types/src/color";
 import type { ColorModeTheme } from "./types";
 
@@ -87,15 +87,20 @@ export class DarkModeTheme implements ColorModeTheme {
       fgOnAssistive: this.fgOnAssistive.to("sRGB").toString(),
       // bd
       bdAccent: this.bdAccent.toString(),
+      bdOnAccent: this.bdOnAccent.toString(),
       bdFocus: this.bdFocus.toString(),
       bdNegative: this.bdNegative.to("sRGB").toString(),
       bdNegativeHover: this.bdNegativeHover.to("sRGB").toString(),
+      bdOnNegative: this.bdOnNegative.to("sRGB").toString(),
       bdNeutral: this.bdNeutral.toString(),
       bdNeutralHover: this.bdNeutralHover.toString(),
+      bdOnNeutral: this.bdOnNeutral.to("sRGB").toString(),
       bdPositive: this.bdPositive.to("sRGB").toString(),
       bdPositiveHover: this.bdPositiveHover.to("sRGB").toString(),
+      bdOnPositive: this.bdOnPositive.to("sRGB").toString(),
       bdWarning: this.bdWarning.to("sRGB").toString(),
       bdWarningHover: this.bdWarningHover.to("sRGB").toString(),
+      bdOnWarning: this.bdOnWarning.to("sRGB").toString(),
     };
   };
 
@@ -803,15 +808,33 @@ export class DarkModeTheme implements ColorModeTheme {
     return color;
   }
 
-  // Keyboard focus outline. Opposite complimentary hue to the seed.
+  private get bdOnAccent() {
+    return this.fgOnAccent.clone();
+  }
+
   private get bdFocus() {
+    // Keyboard focus outline. Doesn't match the seed to increase contrast
     const color = this.seedColor.clone();
 
-    color.oklch.h = this.seedHue - 180;
-
-    // Set minimal lightness
     if (this.seedLightness < 0.4) {
       color.oklch.l = 0.4;
+    }
+
+    if (this.seedLightness > 0.65) {
+      color.oklch.l = 0.65;
+    }
+
+    // Achromatic seeds still produce colorful focus; this is good for accessibility even though it affects visual style
+    if (this.seedChroma < 0.12) {
+      color.oklch.c = 0.12;
+    }
+
+    // Green-red color blindness is among the most prevalent, so instead of 180 we're rotating hue by additional 60°
+    color.oklch.h = this.seedHue - 240;
+
+    // Additional adjustments for red, pinks, magentas
+    if ((this.seedHue >= 0 && this.seedHue <= 55) || this.seedHue >= 340) {
+      color.oklch.h = color.oklch.h + 160;
     }
 
     return color;
@@ -846,23 +869,19 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bdNegativeHover() {
     const color = this.bdNegative.clone();
 
-    if (this.bdNegative.oklch.l < 0.8) {
-      color.oklch.l = color.oklch.l + 0.15;
-    }
+    // Lightness of bdNegative is known, no additional checks like in bdNeutralHover
 
-    if (this.bdNegative.oklch.l >= 0.8 && this.bdNegative.oklch.l < 0.9) {
-      color.oklch.l = color.oklch.l + 0.1;
-    }
-
-    if (this.bdNegative.oklch.l >= 0.9) {
-      color.oklch.l = color.oklch.l - 0.25;
-    }
+    color.oklch.l = color.oklch.l + 0.15;
 
     if (color.oklch.c < 0.19) {
       color.oklch.c = 0.19;
     }
 
     return color;
+  }
+
+  private get bdOnNegative() {
+    return this.fgOnNegative.clone();
   }
 
   // Desatured version of the seed for harmonious combination with backgrounds and accents.
@@ -900,6 +919,10 @@ export class DarkModeTheme implements ColorModeTheme {
     return color;
   }
 
+  private get bdOnNeutral() {
+    return this.fgOnNeutral.clone();
+  }
+
   private get bdPositive() {
     const color = this.bgPositive.clone();
 
@@ -907,6 +930,24 @@ export class DarkModeTheme implements ColorModeTheme {
     color.oklch.c = color.oklch.c + 0.05;
 
     return color;
+  }
+
+  private get bdOnWarning() {
+    return this.fgOnWarning.clone();
+  }
+
+  private get bdPositiveHover() {
+    const color = this.bdPositive.clone();
+
+    // Lightness of bdPositive is known, no additional checks like in bdNeutralHover
+
+    color.oklch.l = color.oklch.l + 0.12;
+
+    return color;
+  }
+
+  private get bdOnPositive() {
+    return this.fgOnPositive.clone();
   }
 
   private get bdWarning() {
@@ -937,12 +978,10 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bdWarningHover() {
     const color = this.bdWarning.clone();
 
-    if (this.bdWarning.oklch.l < 0.8) {
-      color.oklch.l = color.oklch.l + 0.15;
-    }
+    // Lightness of bdWarning is known, no additional checks like in bdNeutralHover
 
-    if (this.bdWarning.oklch.l >= 0.8 && this.bdWarning.oklch.l < 0.9) {
-      color.oklch.l = color.oklch.l + 0.1;
+    if (this.bdWarning.oklch.l < 0.9) {
+      color.oklch.l = color.oklch.l + 0.11;
     }
 
     if (this.bdWarning.oklch.l >= 0.9) {
@@ -951,28 +990,6 @@ export class DarkModeTheme implements ColorModeTheme {
 
     if (color.oklch.c < 0.19) {
       color.oklch.c = 0.19;
-    }
-
-    return color;
-  }
-
-  private get bdPositiveHover() {
-    const color = this.bdPositive.clone();
-
-    if (this.bdPositive.oklch.l < 0.06) {
-      color.oklch.l = color.oklch.l + 0.6;
-    }
-
-    if (this.bdPositive.oklch.l >= 0.06 && this.bdPositive.oklch.l < 0.25) {
-      color.oklch.l = color.oklch.l + 0.4;
-    }
-
-    if (this.bdPositive.oklch.l >= 0.25 && this.bdPositive.oklch.l < 0.5) {
-      color.oklch.l = color.oklch.l + 0.25;
-    }
-
-    if (this.bdPositive.oklch.l >= 0.5) {
-      color.oklch.l = color.oklch.l + 0.1;
     }
 
     return color;

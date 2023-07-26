@@ -75,6 +75,7 @@ function* logNavigationAnalytics(payload: RouteChangeActionPayload) {
   const isRecent = recentEntityIds.some(
     (entityId) => entityId === currentEntity.id,
   );
+  const { height, width } = window.screen;
   AnalyticsUtil.logEvent("ROUTE_CHANGE", {
     toPath: pathname,
     fromPath: previousPath || undefined,
@@ -83,6 +84,8 @@ function* logNavigationAnalytics(payload: RouteChangeActionPayload) {
     recentLength: recentEntityIds.length,
     toType: currentEntity.entity,
     fromType: previousEntity.entity,
+    screenHeight: height,
+    screenWidth: width,
   });
 }
 

@@ -27,6 +27,7 @@ import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
+import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitFileUtils;
@@ -63,7 +64,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1066,7 +1066,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      */
     @Override
     public Mono<Application> publish(String applicationId, boolean isPublishedManually) {
-        /**
+        /*
          * Please note that it is a cached Mono, hence please be careful with using this Mono to update / read data
          * when latest updated application object is desired.
          */
@@ -1080,7 +1080,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 applicationMono.flatMap(application -> themeService.publishTheme(application.getId()));
 
         Set<CustomJSLibApplicationDTO> updatedPublishedJSLibDTOs = new HashSet<>();
-        Mono<List<NewPage>> publishApplicationAndPages = applicationMono
+        Mono<List<ApplicationPage>> publishApplicationAndPages = applicationMono
                 // Return all the pages in the Application
                 .flatMap(application -> {
                     // Update published custom JS lib objects.
@@ -1100,14 +1100,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     if (publishedPages == null) {
                         publishedPages = new ArrayList<>();
                     }
-                    Set<String> publishedPageIds = publishedPages.stream()
-                            .map(applicationPage -> applicationPage.getId())
-                            .collect(Collectors.toSet());
-                    Set<String> editedPageIds = pages.stream()
-                            .map(applicationPage -> applicationPage.getId())
-                            .collect(Collectors.toSet());
+                    Set<String> publishedPageIds =
+                            publishedPages.stream().map(ApplicationPage::getId).collect(Collectors.toSet());
+                    Set<String> editedPageIds =
+                            pages.stream().map(ApplicationPage::getId).collect(Collectors.toSet());
 
-                    /**
+                    /*
                      * Now add the published page ids and edited page ids into a single set and then remove the edited
                      * page ids to get a set of page ids which have been deleted in the edit mode.
                      * For example :
@@ -1120,13 +1118,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     publishedPageIds.addAll(editedPageIds);
                     publishedPageIds.removeAll(editedPageIds);
 
-                    Mono<List<NewPage>> archivePageListMono;
+                    Mono<Boolean> archivePageMono;
+
                     if (!publishedPageIds.isEmpty()) {
-                        archivePageListMono = Flux.fromStream(publishedPageIds.stream())
-                                .flatMap(newPageService::archiveById)
-                                .collectList();
+                        archivePageMono = newPageService.archiveByIds(publishedPageIds);
                     } else {
-                        archivePageListMono = Mono.just(new ArrayList<>());
+                        archivePageMono = Mono.just(Boolean.TRUE);
                     }
 
                     application.setPublishedPages(pages);
@@ -1137,44 +1134,23 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     if (isPublishedManually) {
                         application.setLastDeployedAt(Instant.now());
                     }
+                    Mono<UpdateResult> publishPagesMono =
+                            newPageService.publishPages(editedPageIds, pagePermission.getEditPermission());
+
                     // Archive the deleted pages and save the application changes and then return the pages so that
                     // the pages can also be published
-                    return Mono.zip(archivePageListMono, applicationService.save(application))
+                    return Mono.zip(archivePageMono, publishPagesMono, applicationService.save(application))
                             .thenReturn(pages);
                 })
-                .flatMapMany(Flux::fromIterable)
-                // In each page, copy each layout's dsl to publishedDsl field
-                .flatMap(applicationPage -> newPageService
-                        .findById(applicationPage.getId(), pagePermission.getEditPermission())
-                        // For a git connected app if the user does not have permission to edit few pages in master
-                        // branch
-                        // They don't get access to the same resources in feature branch. When they do operations like
-                        // commit and push we publish the changes automatically
-                        // and this will fail due to permission issue. Hence removing the throwing error part and
-                        // handling it gracefully
-                        // Only the pages which the user pocesses permission will be published
-                        .map(page -> {
-                            page.setPublishedPage(page.getUnpublishedPage());
-                            return page;
-                        }))
-                .flatMap(newPageService::save)
-                .collectList()
                 .cache(); // caching as we'll need this to send analytics attributes after publishing the app
 
-        Mono<Map<PluginType, Collection<NewAction>>> publishedActionsListMono = newActionService
-                .findAllByApplicationIdAndViewMode(applicationId, false, actionPermission.getEditPermission(), null)
-                .flatMap(newAction -> {
-                    // If the action was deleted in edit mode, now this document can be safely archived
-                    if (newAction.getUnpublishedAction().getDeletedAt() != null) {
-                        return newActionService.archive(newAction).then(Mono.empty());
-                    }
-                    // Publish the action by copying the unpublished actionDTO to published actionDTO
-                    newAction.setPublishedAction(newAction.getUnpublishedAction());
-                    return Mono.just(newAction);
-                })
-                .flatMap(newActionService::save)
-                .collectMultimap(newAction -> newAction.getPluginType())
-                .cache(); // caching as we'll need this to send analytics attributes after publishing the app
+        Mono<UpdateResult> publishActionsMono =
+                newActionService.publishActions(applicationId, actionPermission.getEditPermission());
+
+        // this is a map of pluginType to count of actions for that pluginType, required for analytics
+        Mono<Map<PluginType, Integer>> actionCountByPluginTypeMapMono = newActionService
+                .countActionsByPluginType(applicationId)
+                .collectMap(PluginTypeAndCountDTO::getPluginType, PluginTypeAndCountDTO::getCount);
 
         Mono<List<ActionCollection>> publishedActionCollectionsListMono = actionCollectionService
                 .findAllByApplicationIdAndViewMode(applicationId, false, actionPermission.getEditPermission(), null)
@@ -1190,30 +1166,36 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     return Mono.just(collection);
                 })
                 .flatMap(actionCollectionService::save)
-                .collectList();
+                .collectList()
+                .cache(); // caching because it's needed to send analytics attributes after publishing the app
 
         return publishApplicationAndPages
-                .flatMap(newPages ->
-                        Mono.zip(publishedActionsListMono, publishedActionCollectionsListMono, publishThemeMono))
+                .flatMap(newPages -> Mono.zip(publishActionsMono, publishedActionCollectionsListMono, publishThemeMono))
                 .then(sendApplicationPublishedEvent(
                         publishApplicationAndPages,
-                        publishedActionsListMono,
+                        actionCountByPluginTypeMapMono,
                         publishedActionCollectionsListMono,
                         Mono.just(updatedPublishedJSLibDTOs),
                         applicationId,
-                        isPublishedManually));
+                        isPublishedManually))
+                .elapsed()
+                .map(objects -> {
+                    log.debug(
+                            "Published application {} in {} ms", objects.getT2().getId(), objects.getT1());
+                    return objects.getT2();
+                });
     }
 
-    private int getActionCount(Map<PluginType, Collection<NewAction>> pluginTypeCollectionMap, PluginType pluginType) {
+    private int getActionCount(Map<PluginType, Integer> pluginTypeCollectionMap, PluginType pluginType) {
         if (pluginTypeCollectionMap.containsKey(pluginType)) {
-            return pluginTypeCollectionMap.get(pluginType).size();
+            return pluginTypeCollectionMap.get(pluginType);
         }
         return 0;
     }
 
     private Mono<Application> sendApplicationPublishedEvent(
-            Mono<List<NewPage>> publishApplicationAndPages,
-            Mono<Map<PluginType, Collection<NewAction>>> publishedActionsFlux,
+            Mono<List<ApplicationPage>> publishApplicationAndPages,
+            Mono<Map<PluginType, Integer>> publishedActionsFlux,
             Mono<List<ActionCollection>> publishedActionsCollectionFlux,
             Mono<Set<CustomJSLibApplicationDTO>> publishedJSLibDTOsMono,
             String applicationId,
@@ -1238,7 +1220,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             publicPermissionGroupId);
                     Map<String, Object> extraProperties = new HashMap<>();
                     extraProperties.put("pageCount", objects.getT1().size());
-                    Map<PluginType, Collection<NewAction>> pluginTypeCollectionMap = objects.getT2();
+                    Map<PluginType, Integer> pluginTypeCollectionMap = objects.getT2();
                     Integer dbQueryCount = getActionCount(pluginTypeCollectionMap, PluginType.DB);
                     Integer apiCount = getActionCount(pluginTypeCollectionMap, PluginType.API);
                     Integer jsFuncCount = getActionCount(pluginTypeCollectionMap, PluginType.JS);
