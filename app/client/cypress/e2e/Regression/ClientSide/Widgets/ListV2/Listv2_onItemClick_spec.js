@@ -71,9 +71,11 @@ describe("List widget v2 onItemClick", () => {
   });
 
   it("2. List widget V2 with onItemClick should be triggered when child widget without event is clicked", () => {
+    entityExplorer.SelectEntityByName("Image1", "Container1");
     agHelper.GetNClick(locators._widgetByName("Image1"), 0, true);
     agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
 
+    entityExplorer.SelectEntityByName("Text1", "Container1");
     agHelper.GetNClick(locators._widgetByName("Text1"), 0, true);
     agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
 
