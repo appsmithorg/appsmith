@@ -1,6 +1,7 @@
 package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.TriggerRequestDTO;
 import com.external.constants.ErrorMessages;
 import com.external.constants.FieldName;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -8,10 +9,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RowsGetMethodTest {
@@ -167,5 +170,77 @@ public class RowsGetMethodTest {
         assertTrue(result.isArray());
         assertEquals(3, result.size());
         assertEquals(0, result.get(0).get(FieldName.ROW_INDEX).asInt());
+    }
+
+    @Test
+    public void testValidateExecutionMethodRequest_noSpreadsheetId_returnsException() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
+        TriggerRequestDTO triggerRequest = new TriggerRequestDTO();
+        Map<String, Object> params = new HashMap<String, Object>();
+
+        triggerRequest.setParameters(params);
+
+        MethodConfig methodConfig = new MethodConfig(triggerRequest);
+        final AppsmithPluginException exception = assertThrows(
+                AppsmithPluginException.class, () -> rowsGetMethod.validateExecutionMethodRequest(methodConfig));
+
+        assertEquals("Missing required field 'Spreadsheet Url'", exception.getMessage());
+    }
+
+    @Test
+    public void testValidateExecutionMethodRequest_noSheetName_returnsException() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
+        TriggerRequestDTO triggerRequest = new TriggerRequestDTO();
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("sheetUrl", "https://docs.google.com/spreadsheets/d/spreadsheetId/");
+
+        triggerRequest.setParameters(params);
+
+        MethodConfig methodConfig = new MethodConfig(triggerRequest);
+        final AppsmithPluginException exception = assertThrows(
+                AppsmithPluginException.class, () -> rowsGetMethod.validateExecutionMethodRequest(methodConfig));
+
+        assertEquals("Missing required field 'Spreadsheet Name'", exception.getMessage());
+    }
+
+    @Test
+    public void testValidateExecutionMethodRequest_noTableHeaderIndex_returnsException()
+            throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
+        TriggerRequestDTO triggerRequest = new TriggerRequestDTO();
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("sheetUrl", "https://docs.google.com/spreadsheets/d/spreadsheetId/");
+        params.put("queryFormat", "ROWS");
+        params.put("sheetName", "sample_sheet_name");
+
+        triggerRequest.setParameters(params);
+
+        MethodConfig methodConfig = new MethodConfig(triggerRequest);
+        final AppsmithPluginException exception = assertThrows(
+                AppsmithPluginException.class, () -> rowsGetMethod.validateExecutionMethodRequest(methodConfig));
+
+        assertEquals(
+                "Unexpected value for table header index. Please use a number starting from 1", exception.getMessage());
+    }
+
+    @Test
+    public void testValidateExecutionMethodRequest_allParamsPresent_returnsTrue() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        RowsGetMethod rowsGetMethod = new RowsGetMethod(objectMapper);
+        TriggerRequestDTO triggerRequest = new TriggerRequestDTO();
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("sheetUrl", "https://docs.google.com/spreadsheets/d/spreadsheetId/");
+        params.put("queryFormat", "ROWS");
+        params.put("sheetName", "sample_sheet_name");
+        params.put("tableHeaderIndex", 1);
+
+        triggerRequest.setParameters(params);
+
+        MethodConfig methodConfig = new MethodConfig(triggerRequest);
+        Boolean actualResult = rowsGetMethod.validateExecutionMethodRequest(methodConfig);
+        assertEquals(true, actualResult);
     }
 }

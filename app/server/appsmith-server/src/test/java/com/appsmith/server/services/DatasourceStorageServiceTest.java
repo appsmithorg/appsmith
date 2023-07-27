@@ -204,4 +204,25 @@ public class DatasourceStorageServiceTest {
                     .isEqualTo(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getAppErrorCode());
         });
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyFindByDatasourceAndStorageIdGivesErrorWhenStorageIsAbsent() {
+        String datasourceId = "datasourceForUnsavedStorage";
+        String environmentIdOne = FieldName.UNUSED_ENVIRONMENT_ID;
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Datasource datasource = new Datasource();
+        datasource.setId(datasourceId);
+
+        Mono<DatasourceStorage> datasourceStorageMono =
+                datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(datasource, environmentIdOne);
+        StepVerifier.create(datasourceStorageMono).verifyErrorSatisfies(error -> {
+            assertThat(error).isInstanceOf(AppsmithException.class);
+            assertThat(((AppsmithException) error).getAppErrorCode())
+                    .isEqualTo(AppsmithError.NO_RESOURCE_FOUND.getAppErrorCode());
+        });
+    }
 }

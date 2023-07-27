@@ -5,6 +5,7 @@ import {
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 const isAirgappedInstance = isAirgapped();
 
@@ -12,6 +13,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Document Viewer", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.MEDIA],
   needsMeta: false, // Defines if this widget adds any meta properties
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   searchTags: ["pdf"],

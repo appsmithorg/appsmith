@@ -41,8 +41,6 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
     @Override
     public Mono<? extends Config> registerInstance() {
 
-        log.debug("Triggering registration of this instance...");
-
         final String baseUrl = cloudServicesConfig.getBaseUrl();
         if (baseUrl == null || StringUtils.isEmpty(baseUrl)) {
             return Mono.error(new AppsmithException(
@@ -51,11 +49,15 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
 
         return configService
                 .getInstanceId()
-                .flatMap(instanceId -> WebClientUtils.create(baseUrl + "/api/v1/installations")
-                        .post()
-                        .body(BodyInserters.fromValue(Map.of("key", instanceId)))
-                        .headers(httpHeaders -> httpHeaders.set(HttpHeaders.CONTENT_TYPE, "application/json"))
-                        .exchange())
+                .flatMap(instanceId -> {
+                    log.debug("Triggering registration of this instance...");
+
+                    return WebClientUtils.create(baseUrl + "/api/v1/installations")
+                            .post()
+                            .body(BodyInserters.fromValue(Map.of("key", instanceId)))
+                            .headers(httpHeaders -> httpHeaders.set(HttpHeaders.CONTENT_TYPE, "application/json"))
+                            .exchange();
+                })
                 .flatMap(clientResponse ->
                         clientResponse.toEntity(new ParameterizedTypeReference<ResponseDTO<String>>() {}))
                 .flatMap(responseEntity -> {

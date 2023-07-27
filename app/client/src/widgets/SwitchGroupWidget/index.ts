@@ -1,9 +1,9 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
-
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { FlexVerticalAlignment } from "utils/autoLayout/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   features: {
@@ -15,6 +15,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Switch Group", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.TOGGLES],
   needsMeta: true, // Defines if this widget adds any meta properties
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   defaults: {

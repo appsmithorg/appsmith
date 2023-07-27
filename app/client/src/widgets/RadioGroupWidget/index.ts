@@ -1,14 +1,16 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
-
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { FlexVerticalAlignment } from "utils/autoLayout/constants";
+import type { SnipingModeProperty, PropertyUpdates } from "widgets/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Radio Group",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.TOGGLES],
   needsMeta: true,
   features: {
     dynamicHeight: {
@@ -49,6 +51,19 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
     setterConfig: Widget.getSetterConfig(),
+  },
+  methods: {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
+      return [
+        {
+          propertyPath: "options",
+          propertyValue: propValueMap.data,
+          isDynamicPropertyPath: true,
+        },
+      ];
+    },
   },
   autoLayout: {
     defaults: {

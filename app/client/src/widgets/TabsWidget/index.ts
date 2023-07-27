@@ -5,10 +5,13 @@ import {
 } from "utils/autoLayout/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  WIDGET_TAGS,
+  WidgetHeightLimits,
+} from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
-
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -16,6 +19,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Tabs",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.LAYOUT],
   needsMeta: true,
   isCanvas: true,
   // TODO(abhinav): Default config like these are not serializable

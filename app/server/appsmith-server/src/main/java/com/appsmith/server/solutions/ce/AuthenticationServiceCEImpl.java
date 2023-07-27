@@ -102,7 +102,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     .findById(datasourceId, datasourcePermission.getEditPermission())
                     .flatMap(datasource -> {
                         return datasourceService.getTrueEnvironmentId(
-                                datasource.getWorkspaceId(), environmentId, datasource.getPluginId());
+                                datasource.getWorkspaceId(), environmentId, datasource.getPluginId(), null);
                     })
                     .flatMap(trueEnvironmentId -> getAuthorizationCodeURLForGenericOAuth2(
                             datasourceId, trueEnvironmentId, pageId, httpRequest));
@@ -125,7 +125,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     .findById(datasourceId, datasourcePermission.getEditPermission())
                     .flatMap(datasource -> {
                         return datasourceService.getTrueEnvironmentId(
-                                datasource.getWorkspaceId(), environmentId, datasource.getPluginId());
+                                datasource.getWorkspaceId(), environmentId, datasource.getPluginId(), null);
                     })
                     .flatMap(trueEnvironmentId -> getAppsmithToken(
                             datasourceId, trueEnvironmentId, pageId, branchName, request, importForGit));
@@ -142,7 +142,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     .findById(datasourceId, datasourcePermission.getEditPermission())
                     .flatMap(datasource -> {
                         return datasourceService.getTrueEnvironmentId(
-                                datasource.getWorkspaceId(), environmentId, datasource.getPluginId());
+                                datasource.getWorkspaceId(), environmentId, datasource.getPluginId(), null);
                     })
                     .flatMap(trueEnvironmentId ->
                             getAccessTokenFromCloud(datasourceId, trueEnvironmentId, appsmithToken));
