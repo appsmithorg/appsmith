@@ -145,7 +145,7 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
           {isChainedAction ? "Configure action" : label}
         </Text>
 
-        <div className="">
+        <div>
           <Button
             className="t--delete cursor-pointer mr-1"
             isIconButton

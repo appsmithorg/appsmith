@@ -296,8 +296,6 @@ describe("UI to Code", () => {
 
     agHelper.GetNClick(propPane._actionCardByTitle("Show alert"));
 
-    agHelper.GetNClick(propPane._actionCallbacks);
-
     // add a success callback
     agHelper.GetNClick(propPane._actionAddCallback("success")).wait(500);
     agHelper.GetNClick(locators._dropDownValue("Store value")).wait(500);
@@ -324,9 +322,6 @@ describe("UI to Code", () => {
     // Select the card to show the callback button
     propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
     agHelper.GetNClick(propPane._actionSelectorPopupClose);
-
-    // Click on the callback button
-    agHelper.GetNClick(propPane._actionCallbacks);
 
     // Edit the success callback of the nested Api2.run
     propPane.SelectActionByTitleAndValue("Execute a query", "Api2.run");
@@ -367,9 +362,6 @@ describe("UI to Code", () => {
     propPane.SelectActionByTitleAndValue("Execute a query", "Api1.run");
     agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
-    // Click on the callback button
-    agHelper.GetNClick(propPane._actionCallbacks);
-
     // Edit the success callback of the nested Api2.run
     propPane.SelectActionByTitleAndValue("Execute a query", "Api2.run");
     cy.get(
@@ -402,7 +394,6 @@ describe("UI to Code", () => {
     agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
     // Click on the callback button
-    agHelper.GetNClick(propPane._actionCallbacks);
     agHelper.GetNClick(propPane._actionAddCallback("success"));
     agHelper.GetNClick(locators._dropDownValue("Store value")).wait(500);
 
