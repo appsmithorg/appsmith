@@ -90,7 +90,10 @@ import type { PluginType } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
-import { onUpdateFilterSuccess } from "@appsmith/utils/Environments";
+import {
+  isStorageEnvironmentCreated,
+  onUpdateFilterSuccess,
+} from "@appsmith/utils/Environments";
 import type { CalloutKind } from "design-system";
 
 interface ReduxStateProps {
@@ -149,6 +152,14 @@ export const DSEditorWrapper = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: row;
+`;
+
+export const CalloutContainer = styled.div<{
+  isSideBarPresent: boolean;
+}>`
+  width: 30vw; 
+  margin-top: 24px;
+  margin-left ${(props) => (props.isSideBarPresent ? "24px" : "0px")}
 `;
 
 export type DatasourceFilterState = {
@@ -523,6 +534,15 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         userPermissions,
         showFilterPane,
       );
+    } else if (
+      !isStorageEnvironmentCreated(this.props.formData as Datasource, id)
+    ) {
+      return this.updateFilterSuccess(
+        id,
+        name,
+        userPermissions,
+        showFilterPane,
+      );
     } else if (showFilterPane !== this.state.filterParams.showFilterPane) {
       // In case just the viewmode changes but the id remains the same
       this.setState({
@@ -655,7 +675,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     );
     if (toastMessage.message)
       return (
-        <div style={{ width: "30vw", marginTop: "24px" }}>
+        <CalloutContainer isSideBarPresent={!!this.state.filterParams.name}>
           <Callout
             isClosable
             kind={toastMessage.kind as CalloutKind}
@@ -668,7 +688,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           >
             {toastMessage.message}
           </Callout>
-        </div>
+        </CalloutContainer>
       );
     return null;
   }

@@ -19,5 +19,6 @@
   "textWidgetName": ".t--widget-textwidget",
   "welcomeTourBtn": ".t--start-building",
   "editorWelcomeTourBtn": "[data-testid='editor-welcome-tour']",
-  "checklistCompletionBanner": "[data-testid='checklist-completion-banner']"
+  "checklistCompletionBanner": "[data-testid='checklist-completion-banner']",
+  "selectWidgetBtn": ".t--select-in-canvas"
 }

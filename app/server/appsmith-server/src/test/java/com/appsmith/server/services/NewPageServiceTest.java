@@ -5,22 +5,28 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
+import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.solutions.PagePermission;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -48,6 +54,12 @@ public class NewPageServiceTest {
 
     @Autowired
     ApplicationSnapshotRepository applicationSnapshotRepository;
+
+    @Autowired
+    NewPageRepository newPageRepository;
+
+    @Autowired
+    PagePermission pagePermission;
 
     @Test
     @WithUserDetails("api_user")
@@ -247,6 +259,76 @@ public class NewPageServiceTest {
                     assertThat(applicationPageDTO.getApplicationId()).isNotNull();
                     assertThat(applicationPageDTO.getName()).isEqualTo("page_" + randomId);
                     assertThat(applicationPageDTO.getIcon()).isEqualTo("flight");
+                })
+                .verifyComplete();
+    }
+
+    private NewPage createPageWithEditPermission(String pageName) {
+        Set<String> permissionGroupIds = permissionGroupRepository.findAll().collectList().block().stream()
+                .map(PermissionGroup::getId)
+                .collect(Collectors.toSet());
+
+        Policy testPolicy = Policy.builder()
+                .permissionGroups(permissionGroupIds)
+                .permission(pagePermission.getEditPermission().getValue())
+                .build();
+
+        NewPage newPage = new NewPage();
+        newPage.setPolicies(Set.of(testPolicy));
+
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setSlug(TextUtils.makeSlug(pageName));
+        pageDTO.setName(pageName);
+        newPage.setUnpublishedPage(pageDTO);
+        newPage.setPublishedPage(new PageDTO());
+        return newPage;
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void publishPages_WhenUserDoesNotHavePermissionOnPages_NotPublished() {
+        List<NewPage> newPages = List.of(
+                createPageWithEditPermission("Page1"),
+                createPageWithEditPermission("Page2"),
+                createPageWithEditPermission("Page3"));
+
+        Mono<List<NewPage>> newPagesMono = newPageRepository
+                .saveAll(newPages)
+                .collectList()
+                .flatMapMany(savedPages -> {
+                    // remove edit permission from the first page
+                    NewPage firstPage = savedPages.stream()
+                            .filter(page -> page.getUnpublishedPage().getName().equals("Page1"))
+                            .findFirst()
+                            .get();
+
+                    firstPage
+                            .getPolicies()
+                            .forEach(policy -> policy.setPermission(
+                                    pagePermission.getReadPermission().getValue()));
+                    return newPageRepository.save(firstPage).thenMany(Flux.fromIterable(savedPages));
+                })
+                .map(NewPage::getId)
+                .collectList()
+                .flatMap(pageIds -> newPageService
+                        .publishPages(pageIds, pagePermission.getEditPermission())
+                        .then(newPageRepository.findAllById(pageIds).collectList()));
+
+        StepVerifier.create(newPagesMono)
+                .assertNext(pages -> {
+                    assertThat(pages).hasSize(3);
+                    pages.forEach(page -> {
+                        if (page.getUnpublishedPage().getName().equals("Page1")) {
+                            // this page should not get published
+                            assertThat(page.getPublishedPage().getName()).isNull();
+                            assertThat(page.getPublishedPage().getSlug()).isNull();
+                        } else {
+                            assertThat(page.getUnpublishedPage().getName())
+                                    .isEqualTo(page.getPublishedPage().getName());
+                            assertThat(page.getUnpublishedPage().getSlug())
+                                    .isEqualTo(page.getPublishedPage().getSlug());
+                        }
+                    });
                 })
                 .verifyComplete();
     }
