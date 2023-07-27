@@ -9,14 +9,20 @@ import {
   getJSActionFromJSCollection,
 } from "selectors/entitiesSelector";
 import type { TMessage } from "utils/MessageUtil";
-import { get, set } from "lodash";
+import { get, isArray, isString, set } from "lodash";
 
-export function* logJSFunctionExecution(message: TMessage<any>) {
+export function* logJSFunctionExecution(
+  message: TMessage<{
+    data: unknown;
+  }>,
+) {
   const { body } = message;
   const { data: paths } = body;
+  if (!isArray(paths)) return;
   const funcLogged = {};
 
   for (const fullPath of paths) {
+    if (!isString(fullPath)) return;
     const { entityName: JSObjectName, propertyPath: functionName } =
       getEntityNameAndPropertyPath(fullPath);
 
