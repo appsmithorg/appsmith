@@ -81,4 +81,12 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
 
     Mono<Boolean> bulkUnAssignUsersAndUserGroupsFromPermissionGroupsWithoutPermission(
             List<User> users, List<UserGroup> groups, List<PermissionGroup> roles);
+
+    Flux<PermissionGroup> findAllByAssignedToUserIdsInWithoutPermission(Set<String> userIds);
+
+    Flux<PermissionGroup> findAllByAssignedToGroupIdsInWithoutPermission(Set<String> groupIds);
+
+    Flux<PermissionGroup> findAllByAssignedToUserIdWithoutPermission(String userId);
+
+    Flux<PermissionGroup> findAllByAssignedToGroupIdWithoutPermission(String groupId);
 }

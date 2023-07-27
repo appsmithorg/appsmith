@@ -41,4 +41,10 @@ public interface CustomPermissionGroupRepository extends CustomPermissionGroupRe
 
     Flux<PermissionGroup> findAllByAssignedToGroupIdAndDefaultDomainIdAndDefaultDomainType(
             String groupId, String defaultDomainId, String defaultDomainType, Optional<AclPermission> aclPermission);
+
+    Flux<PermissionGroup> findAllByAssignedToUserIds(
+            Set<String> userIds, Optional<List<String>> listIncludeFields, Optional<AclPermission> aclPermission);
+
+    Flux<PermissionGroup> findAllByAssignedToGroupIds(
+            Set<String> groupIds, Optional<List<String>> listIncludeFields, Optional<AclPermission> aclPermission);
 }
