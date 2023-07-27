@@ -20,7 +20,21 @@ import { isEmpty } from "lodash";
 import Table from "pages/Editor/QueryEditor/Table";
 import styled from "styled-components";
 
+const LoadingWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+`;
+
 const TableWrapper = styled.div`
+  && > div {
+    width: fit-content;
+  }
+
+  && > ${LoadingWrapper} {
+    width: 100%;
+  }
   && > div > div {
     border: none;
   }
@@ -54,13 +68,6 @@ const SelectListWrapper = styled.div`
   & div {
     margin-bottom: 0px;
   }
-`;
-
-const LoadingWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 200px;
 `;
 
 type Props = {
@@ -128,6 +135,7 @@ function GoogleSheetSchema(props: Props) {
   // Fetch all sheet data inside that sheet
   useEffect(() => {
     if (!!props.datasourceId && !!props.pluginId && selectedSheet.value) {
+      setCurrentSheetData(undefined);
       fetchSheetData({
         selectedDatasourceId: props.datasourceId,
         selectedSpreadsheetUrl: selectedSpreadsheet.value || "",
@@ -187,7 +195,10 @@ function GoogleSheetSchema(props: Props) {
 
   const isError = selectedDatasourceIsInvalid || failedFetchingSheetsList;
   const isLoading =
-    isFetchingSpreadsheets || isFetchingSheetsList || isFetchingSheetData;
+    isFetchingSpreadsheets ||
+    isFetchingSheetsList ||
+    isFetchingSheetData ||
+    (!isError && !currentSheetData);
 
   return (
     <>

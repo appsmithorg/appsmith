@@ -12,6 +12,7 @@ export const FEATURE_FLAG = {
     "release_embed_hide_share_settings_enabled",
   ab_ds_schema_enabled: "ab_ds_schema_enabled",
   ab_ds_binding_enabled: "ab_ds_binding_enabled",
+  ab_gsheet_schema_enabled: "ab_gsheet_schema_enabled",
   release_scim_provisioning_enabled: "release_scim_provisioning_enabled",
   ab_wds_enabled: "ab_wds_enabled",
   release_widgetdiscovery_enabled: "release_widgetdiscovery_enabled",

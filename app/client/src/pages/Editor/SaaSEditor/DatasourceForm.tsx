@@ -83,6 +83,8 @@ import { DSEditorWrapper } from "../DataSourceEditor";
 import type { DatasourceFilterState } from "../DataSourceEditor";
 import { getQueryParams } from "utils/URLUtils";
 import GoogleSheetSchema from "./GoogleSheetSchema";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -114,6 +116,7 @@ interface StateProps extends JSONtoFormProps {
   scopeValue?: string;
   requiredFields: Record<string, ControlProps>;
   configDetails: Record<string, string>;
+  isEnabledForGSheetSchema: boolean;
 }
 interface DatasourceFormFunctions {
   discardTempDatasource: () => void;
@@ -470,6 +473,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       gsheetToken,
       hiddenHeader,
       isDeleting,
+      isEnabledForGSheetSchema,
       isInsideReconnectModal,
       isPluginAuthorized,
       isSaving,
@@ -597,7 +601,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                           />
                         ) : undefined}
                       </ViewModeWrapper>
-                      {isGoogleSheetPlugin && isPluginAuthorized ? (
+                      {isGoogleSheetPlugin &&
+                      isPluginAuthorized &&
+                      isEnabledForGSheetSchema ? (
                         <GoogleSheetSchema
                           datasourceId={datasourceId}
                           pluginId={plugin?.id}
@@ -674,6 +680,12 @@ const mapStateToProps = (state: AppState, props: any) => {
   const initialValues = getFormInitialValues(DATASOURCE_SAAS_FORM)(
     state,
   ) as Datasource;
+
+  // A/B feature flag for gsheet schema.
+  const isEnabledForGSheetSchema = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.ab_gsheet_schema_enabled,
+  );
 
   // get scopeValue to be shown in analytical events
   const scopeValue = getDatasourceScopeValue(
@@ -763,6 +775,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     gsheetProjectID,
     showDebugger,
     scopeValue,
+    isEnabledForGSheetSchema,
   };
 };
 
