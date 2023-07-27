@@ -345,7 +345,7 @@ export const CONFIG = {
                         },
                         layoutType: "ROW",
                         isDropTarget: true,
-                        widgetsAllowed: ["1D"],
+                        // widgetsAllowed: ["1D"],
                         layout: [textWidget.widgetId],
                         rendersWidgets: true,
                       },

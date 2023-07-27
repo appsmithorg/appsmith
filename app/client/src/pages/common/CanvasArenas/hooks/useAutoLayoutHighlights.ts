@@ -43,6 +43,8 @@ export const useAutoLayoutHighlights = ({
   const highlights = useRef<HighlightInfo[]>([]);
   let lastActiveHighlight: HighlightInfo | undefined;
   let isFillWidget = false;
+  let draggedWidgetTypes: string[] = [];
+  let currentLayoutId: string | undefined;
 
   /**
    * START AUTO LAYOUT OFFSET CALCULATION
@@ -54,11 +56,16 @@ export const useAutoLayoutHighlights = ({
     highlights.current = [];
   };
 
-  const checkForFillWidget = (): boolean => {
+  const checkForFillWidget = (): {
+    isFillWidget: boolean;
+    widgetTypes: string[];
+  } => {
+    if (!blocksToDraw?.length) return { isFillWidget: false, widgetTypes: [] };
     let flag = false;
-    if (!blocksToDraw?.length) return flag;
+    const arr: string[] = [];
     for (const block of blocksToDraw) {
       const widget = allWidgets[block.widgetId];
+      arr.push(block.type);
       if (widget) {
         if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
           flag = true;
@@ -74,7 +81,8 @@ export const useAutoLayoutHighlights = ({
         }
       }
     }
-    return flag;
+    console.log("!!!! checkForFillWidget", flag, arr);
+    return { isFillWidget: flag, widgetTypes: arr };
   };
 
   const calculateHighlights = (
@@ -82,6 +90,7 @@ export const useAutoLayoutHighlights = ({
     layoutId?: string,
   ): HighlightInfo[] => {
     cleanUpTempStyles();
+    currentLayoutId = layoutId;
     let left = 0,
       top = 0;
 
@@ -105,7 +114,10 @@ export const useAutoLayoutHighlights = ({
       isCurrentDraggedLayout
     ) {
       if (!blocksToDraw || !blocksToDraw.length) return [];
-      isFillWidget = checkForFillWidget();
+      const data: { isFillWidget: boolean; widgetTypes: string[] } =
+        checkForFillWidget();
+      isFillWidget = data.isFillWidget;
+      draggedWidgetTypes = data.widgetTypes;
       highlights.current = deriveHighlightsFromLayers(
         allWidgets,
         widgetPositions,
@@ -115,7 +127,8 @@ export const useAutoLayoutHighlights = ({
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
         isMobile,
-        layoutId,
+        currentLayoutId,
+        draggedWidgetTypes,
       );
     }
     // console.log("#### highlights", highlights.current);
@@ -155,7 +168,11 @@ export const useAutoLayoutHighlights = ({
       top = currTop - mainTop;
     }
 
-    if (!highlights || !highlights?.current?.length)
+    if (!highlights || !highlights?.current?.length) {
+      const data: { isFillWidget: boolean; widgetTypes: string[] } =
+        checkForFillWidget();
+      isFillWidget = data.isFillWidget;
+      draggedWidgetTypes = data.widgetTypes;
       highlights.current = deriveHighlightsFromLayers(
         allWidgets,
         widgetPositions,
@@ -165,7 +182,10 @@ export const useAutoLayoutHighlights = ({
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
         isMobile,
+        currentLayoutId,
+        draggedWidgetTypes,
       );
+    }
 
     const highlight: HighlightInfo | undefined = getHighlightPayload(
       highlights.current,

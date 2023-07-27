@@ -79,6 +79,7 @@ export function deriveHighlightsFromLayers(
   hasFillWidget = false,
   isMobile = false,
   layoutId?: string,
+  draggedWidgetTypes?: string[],
 ): HighlightInfo[] {
   const widgets = { ...allWidgets };
   const canvas = widgets[canvasId];
@@ -94,7 +95,20 @@ export function deriveHighlightsFromLayers(
   const rowGap = isMobile ? MOBILE_ROW_GAP : ROW_GAP;
 
   let offsetTop = FLEXBOX_PADDING; // used to calculate distance of a highlight from parents's top.
+  console.log("#### selectedLayout", {
+    ...selectedLayout,
+    draggedWidgetTypes,
+    disallowed: draggedWidgetTypes?.filter(
+      (each: string) => selectedLayout?.widgetsAllowed?.indexOf(each) === -1,
+    ),
+  });
   if (layoutId) {
+    if (selectedLayout?.widgetsAllowed?.length && draggedWidgetTypes) {
+      const disallowedWidgets = draggedWidgetTypes.filter(
+        (each: string) => selectedLayout.widgetsAllowed?.indexOf(each) === -1,
+      );
+      if (disallowedWidgets.length) return [];
+    }
     console.log("#### layoutId", layoutId);
     const el = document.getElementById("layout-" + layoutId);
     const rect = el?.getBoundingClientRect();
