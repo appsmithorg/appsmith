@@ -65,7 +65,9 @@ export function* disconnectProvisioningStatusSaga(
   }
 }
 
-export function* generateProvisioningApiKeySaga() {
+export function* generateProvisioningApiKeySaga(
+  action: ReduxAction<{ configuredStatus: boolean }>,
+) {
   try {
     const response: ApiResponse = yield call(
       ProvisioningApi.generateProvisioningToken,
@@ -77,6 +79,9 @@ export function* generateProvisioningApiKeySaga() {
         type: ReduxActionTypes.GENERATE_PROVISIONING_API_KEY_SUCCESS,
         payload: response.data,
       });
+      if (action.payload.configuredStatus) {
+        yield put({ type: ReduxActionTypes.FETCH_PROVISIONING_STATUS });
+      }
     } else {
       yield put({
         type: ReduxActionErrorTypes.GENERATE_PROVISIONING_API_KEY_ERROR,

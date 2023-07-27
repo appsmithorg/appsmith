@@ -176,7 +176,7 @@ describe("ScimProvisioning", () => {
     );
   });
 
-  it("should dispatch the generateProvisioningApiKey action when the Regenerate API Key button is clicked", async () => {
+  it("should dispatch the fetchProvisioningStatus action when the Regenerate API Key button is clicked", async () => {
     renderComponent();
 
     // Click the Regenerate API Key button
@@ -186,7 +186,7 @@ describe("ScimProvisioning", () => {
 
     // Assert that the dispatch function was called with the expected action
     expect(mockDispatch).toHaveBeenCalledWith({
-      type: ReduxActionTypes.GENERATE_PROVISIONING_API_KEY,
+      type: ReduxActionTypes.FETCH_PROVISIONING_STATUS,
     });
   });
 });

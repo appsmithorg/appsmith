@@ -267,7 +267,9 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     }
 
     private Mono<User> updateProvisioningStatus(User user) {
-        return provisionUtils.updateProvisioningStatus(ProvisionStatus.ACTIVE).thenReturn(user);
+        return provisionUtils
+                .updateProvisioningStatusAndLastUpdatedAt(ProvisionStatus.ACTIVE)
+                .thenReturn(user);
     }
 
     /**
@@ -379,7 +381,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                             .content(provisionedUsersDto)
                             .build();
                 })
-                .zipWith(provisionUtils.updateProvisioningStatus(ProvisionStatus.ACTIVE))
+                .zipWith(provisionUtils.updateProvisioningStatusAndLastUpdatedAt(ProvisionStatus.ACTIVE))
                 .map(pair -> {
                     PagedDomain<ProvisionResourceDto> pagedUsers = pair.getT1();
                     Boolean updateProvisioningStatus = pair.getT2();

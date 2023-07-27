@@ -69,8 +69,7 @@ const DisableScimModal = (props: DisableScimModalProps) => {
   const dispatch = useDispatch();
   const history = useHistory();
   const { isModalOpen, provisioningDetails, setIsModalOpen } = props;
-  const { provisionedGroups, provisionedUsers, provisionStatus } =
-    provisioningDetails;
+  const { provisionedGroups, provisionedUsers } = provisioningDetails;
   const isProvisionedResourcesZero =
     provisionedUsers === 0 && provisionedGroups === 0;
   const showFinalScreen = nextScreen || isProvisionedResourcesZero;
@@ -98,14 +97,13 @@ const DisableScimModal = (props: DisableScimModalProps) => {
       <ModalContent style={{ width: "640px" }}>
         <ModalHeader>{createMessage(DISABLE_SCIM_MODAL_TITLE)}</ModalHeader>
         <ModalBody>
-          {isProvisionedResourcesZero && (
+          {isProvisionedResourcesZero ? (
             <Container>
               <Callout kind={"warning"}>
                 {createMessage(CONNECTION_INACTIVE_CALLOUT_ON_MODAL)}
               </Callout>
             </Container>
-          )}
-          {provisionStatus === "active" && !isProvisionedResourcesZero && (
+          ) : (
             <>
               <Connected>
                 <SyncedResourcesInfo

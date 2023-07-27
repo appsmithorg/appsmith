@@ -15,6 +15,7 @@ import { BackButton } from "components/utils/helperComponents";
 import {
   BottomSpace,
   HeaderWrapper,
+  LoaderContainer,
   SettingsFormWrapper,
   SettingsHeader,
   SettingsSubHeader,
@@ -199,14 +200,15 @@ export const ScimProvisioning = () => {
 
   const generateApiKey = () => {
     setIsButtonClicked(true);
-    dispatch(generateProvisioningApiKey());
-    if (configuredStatus) {
-      dispatch(fetchProvisioningStatus());
-    }
+    dispatch(generateProvisioningApiKey(configuredStatus));
   };
 
   if (isLoading.provisionStatus) {
-    return <Spinner />;
+    return (
+      <LoaderContainer>
+        <Spinner size="lg" />
+      </LoaderContainer>
+    );
   }
 
   return (

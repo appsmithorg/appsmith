@@ -405,6 +405,72 @@ class ProvisionServiceImplTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    void testDisconnectProvisioning_checkProvisioningStatusAtEveryStep_AfterReprovisionKey() {
+        String testName = "testDisconnectProvisioning_checkProvisioningStatusAtEveryStep_AfterReprovisionKey";
+        setTenantLicenseAsEnterprise();
+        provisionService.generateProvisionToken().block();
+
+        ProvisionStatusDTO provisionStatusAfterGeneratingProvisionToken =
+                provisionService.getProvisionStatus().block();
+
+        assertThat(provisionStatusAfterGeneratingProvisionToken).isNotNull();
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getProvisionStatus())
+                .isEqualTo(ProvisionStatus.INACTIVE.getValue());
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getConfiguredStatus())
+                .isTrue();
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getLastUpdatedAt())
+                .isNull();
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getProvisionedUsers())
+                .isZero();
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getProvisionedGroups())
+                .isZero();
+
+        Instant timeBeforeProvisioningUser1 = Instant.now();
+        Tenant tenant = tenantService.getDefaultTenant().block();
+        User user1 = new User();
+        user1.setEmail(testName + "_provisionedUser1");
+        ProvisionResourceDto provisionedUser1 =
+                userService.createProvisionUser(user1).block();
+        Optional<Policy> optionalResetPasswordPolicy1 = provisionedUser1.getResource().getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(RESET_PASSWORD_USERS.getValue()))
+                .findFirst();
+        assertThat(optionalResetPasswordPolicy1.isPresent()).isTrue();
+        assertThat(optionalResetPasswordPolicy1.get().getPermissionGroups()).hasSize(1);
+
+        ProvisionStatusDTO provisionStatusAfterProvisioningUser1 =
+                provisionService.getProvisionStatus().block();
+
+        assertThat(provisionStatusAfterProvisioningUser1).isNotNull();
+        assertThat(provisionStatusAfterProvisioningUser1.getProvisionStatus())
+                .isEqualTo(ProvisionStatus.ACTIVE.getValue());
+        assertThat(provisionStatusAfterProvisioningUser1.getLastUpdatedAt()).isNotNull();
+        assertThat(Instant.parse(provisionStatusAfterProvisioningUser1.getLastUpdatedAt()))
+                .isAfter(timeBeforeProvisioningUser1);
+        assertThat(Instant.parse(provisionStatusAfterProvisioningUser1.getLastUpdatedAt()))
+                .isBefore(Instant.now());
+        assertThat(provisionStatusAfterProvisioningUser1.getProvisionedUsers()).isEqualTo(1);
+        assertThat(provisionStatusAfterProvisioningUser1.getProvisionedGroups()).isZero();
+
+        provisionService.generateProvisionToken().block();
+
+        ProvisionStatusDTO provisionStatusAfterReGeneratingProvisionToken =
+                provisionService.getProvisionStatus().block();
+
+        assertThat(provisionStatusAfterReGeneratingProvisionToken).isNotNull();
+        assertThat(provisionStatusAfterReGeneratingProvisionToken.getProvisionStatus())
+                .isEqualTo(ProvisionStatus.INACTIVE.getValue());
+        assertThat(provisionStatusAfterReGeneratingProvisionToken.getConfiguredStatus())
+                .isTrue();
+        assertThat(provisionStatusAfterReGeneratingProvisionToken.getLastUpdatedAt())
+                .isNotNull();
+        assertThat(provisionStatusAfterReGeneratingProvisionToken.getProvisionedUsers())
+                .isEqualTo(1);
+        assertThat(provisionStatusAfterReGeneratingProvisionToken.getProvisionedGroups())
+                .isZero();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     void testDisconnectProvisioning_deleteProvisionedUsersAndGroups_checkProvisioningStatusAtEveryStep() {
         String testName = "testDisconnectProvisioning_keepProvisionedUsersAndGroups_checkProvisioningStatusAtEveryStep";
         setTenantLicenseAsEnterprise();

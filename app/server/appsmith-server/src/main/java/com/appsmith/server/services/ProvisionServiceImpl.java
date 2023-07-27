@@ -41,7 +41,6 @@ import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
 import static com.appsmith.server.constants.FieldName.CONFIGURED_STATUS;
 import static com.appsmith.server.constants.FieldName.PROVISIONING_LAST_UPDATED_AT;
 import static com.appsmith.server.constants.FieldName.PROVISIONING_STATUS;
-import static com.appsmith.server.enums.ProvisionStatus.ACTIVE;
 import static com.appsmith.server.enums.ProvisionStatus.INACTIVE;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
@@ -66,7 +65,7 @@ public class ProvisionServiceImpl implements ProvisionService {
         return tenantUtils
                 .enterpriseUpgradeRequired()
                 .then(apiKeyService.generateApiKey(apiKeyRequestDto))
-                .flatMap(apiKey -> provisionUtils.updateConfiguredStatus(true).thenReturn(apiKey));
+                .flatMap(apiKey -> provisionUtils.updateStatus(INACTIVE, true).thenReturn(apiKey));
     }
 
     @Override
@@ -83,17 +82,24 @@ public class ProvisionServiceImpl implements ProvisionService {
 
         return provisioningStatusConfigMono.flatMap(provisioningStatusConfig -> {
             JSONObject config = provisioningStatusConfig.getConfig();
-            // If inactive, just return ProvisionStatusDTO with status as Inactive
-            if (INACTIVE.getValue().equals(config.get(PROVISIONING_STATUS))) {
+
+            if (Boolean.FALSE.equals((Boolean) config.get(CONFIGURED_STATUS))) {
                 return Mono.just(ProvisionStatusDTO.builder()
                         .provisionStatus(INACTIVE.getValue())
                         .configuredStatus((Boolean) config.get(CONFIGURED_STATUS))
+                        .lastUpdatedAt(null)
+                        .provisionedUsers(0)
+                        .provisionedGroups(0)
                         .build());
             }
-            // If active, set the last updated as
-            // Get count of all provisioned users from Repo without permission
-            // Get count of all provisioned groups from Repo without permission
-            String lastUpdatedAt = (String) config.get(PROVISIONING_LAST_UPDATED_AT);
+
+            String lastUpdatedAt;
+            if (config.containsKey(PROVISIONING_LAST_UPDATED_AT)) {
+                lastUpdatedAt = config.getAsString(PROVISIONING_LAST_UPDATED_AT);
+            } else {
+                lastUpdatedAt = null;
+            }
+
             Mono<Long> provisionedUsersCountMono =
                     userRepository.countAllUsersByIsProvisioned(Boolean.TRUE, Optional.empty());
             Mono<Long> provisionedUserGroupsCountMono =
@@ -104,7 +110,7 @@ public class ProvisionServiceImpl implements ProvisionService {
                         Long countProvisionedUsers = pair.getT1();
                         Long countProvisionedUserGroups = pair.getT2();
                         return ProvisionStatusDTO.builder()
-                                .provisionStatus(ACTIVE.getValue())
+                                .provisionStatus(config.getAsString(PROVISIONING_STATUS))
                                 .lastUpdatedAt(lastUpdatedAt)
                                 .provisionedUsers(countProvisionedUsers)
                                 .provisionedGroups(countProvisionedUserGroups)

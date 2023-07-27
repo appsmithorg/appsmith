@@ -25,10 +25,15 @@ public class ProvisionUtils {
     public Mono<Boolean> updateStatus(ProvisionStatus provisionStatus, Boolean configuredStatus) {
         Mono<Config> updateStatusConfigMono = getOrCreateProvisioningStatusConfig()
                 .flatMap(provisionStatusConfig -> {
-                    JSONObject config = new JSONObject();
+                    JSONObject config = provisionStatusConfig.getConfig();
                     config.put(PROVISIONING_STATUS, provisionStatus.getValue());
                     config.put(CONFIGURED_STATUS, configuredStatus);
-                    config.put(PROVISIONING_LAST_UPDATED_AT, Instant.now().toString());
+                    // Remove the last updated at, when the configured status is false.
+                    // This would mean that we have disabled SCIM provisioning and hence, there should be no last
+                    // updated at.
+                    if (!configuredStatus) {
+                        config.remove(PROVISIONING_LAST_UPDATED_AT);
+                    }
                     provisionStatusConfig.setConfig(config);
                     return configRepository.save(provisionStatusConfig);
                 });
@@ -39,12 +44,8 @@ public class ProvisionUtils {
     public Mono<Boolean> updateConfiguredStatus(Boolean configuredStatus) {
         Mono<Config> updateStatusConfigMono = getOrCreateProvisioningStatusConfig()
                 .flatMap(provisionStatusConfig -> {
-                    JSONObject config = new JSONObject();
-                    config.put(
-                            PROVISIONING_STATUS,
-                            provisionStatusConfig.getConfig().get(PROVISIONING_STATUS));
+                    JSONObject config = provisionStatusConfig.getConfig();
                     config.put(CONFIGURED_STATUS, configuredStatus);
-                    config.put(PROVISIONING_LAST_UPDATED_AT, Instant.now().toString());
                     provisionStatusConfig.setConfig(config);
                     return configRepository.save(provisionStatusConfig);
                 });
@@ -52,13 +53,11 @@ public class ProvisionUtils {
         return updateStatusConfigMono.thenReturn(Boolean.TRUE);
     }
 
-    public Mono<Boolean> updateProvisioningStatus(ProvisionStatus provisionStatus) {
+    public Mono<Boolean> updateProvisioningStatusAndLastUpdatedAt(ProvisionStatus provisionStatus) {
         Mono<Config> updateStatusConfigMono = getOrCreateProvisioningStatusConfig()
                 .flatMap(provisionStatusConfig -> {
-                    JSONObject config = new JSONObject();
+                    JSONObject config = provisionStatusConfig.getConfig();
                     config.put(PROVISIONING_STATUS, provisionStatus.getValue());
-                    config.put(
-                            CONFIGURED_STATUS, provisionStatusConfig.getConfig().get(CONFIGURED_STATUS));
                     config.put(PROVISIONING_LAST_UPDATED_AT, Instant.now().toString());
                     provisionStatusConfig.setConfig(config);
                     return configRepository.save(provisionStatusConfig);
@@ -74,13 +73,12 @@ public class ProvisionUtils {
         }));
     }
 
-    public Config generateConfigObject(ProvisionStatus provisioningStatus, Boolean configuredStatus) {
+    private Config generateConfigObject(ProvisionStatus provisioningStatus, Boolean configuredStatus) {
         Config provisioningStatusConfig = new Config();
         provisioningStatusConfig.setName(PROVISIONING_STATUS_CONFIG);
         JSONObject config = new JSONObject();
         config.put(PROVISIONING_STATUS, provisioningStatus.getValue());
         config.put(CONFIGURED_STATUS, configuredStatus);
-        config.put(PROVISIONING_LAST_UPDATED_AT, Instant.now().toString());
         provisioningStatusConfig.setConfig(config);
         return provisioningStatusConfig;
     }

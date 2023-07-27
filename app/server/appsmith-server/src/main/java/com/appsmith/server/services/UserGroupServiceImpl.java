@@ -632,7 +632,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                             .content(provisionedUsersDto)
                             .build();
                 })
-                .zipWith(provisionUtils.updateProvisioningStatus(ProvisionStatus.ACTIVE))
+                .zipWith(provisionUtils.updateProvisioningStatusAndLastUpdatedAt(ProvisionStatus.ACTIVE))
                 .map(pair -> {
                     PagedDomain<ProvisionResourceDto> pagedGroups = pair.getT1();
                     Boolean updateProvisioningStatus = pair.getT2();
@@ -665,7 +665,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                             userEmailsFromGroupDTO.setGroupIds(removeUsersFromGroupDTO.getGroupIds());
                             return this.removeUsers(userEmailsFromGroupDTO);
                         }))
-                .zipWith(provisionUtils.updateProvisioningStatus(ProvisionStatus.ACTIVE))
+                .zipWith(provisionUtils.updateProvisioningStatusAndLastUpdatedAt(ProvisionStatus.ACTIVE))
                 .map(pair -> {
                     List<UserGroupDTO> userGroupDTOs = pair.getT1();
                     Boolean provisioningStatusUpdate = pair.getT2();
@@ -690,7 +690,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                             userEmailsFromGroupDTO.setGroupIds(addUsersFromGroupDTO.getGroupIds());
                             return this.inviteUsers(userEmailsFromGroupDTO, null);
                         }))
-                .zipWith(provisionUtils.updateProvisioningStatus(ProvisionStatus.ACTIVE))
+                .zipWith(provisionUtils.updateProvisioningStatusAndLastUpdatedAt(ProvisionStatus.ACTIVE))
                 .map(pair -> {
                     List<UserGroupDTO> userGroupDTOs = pair.getT1();
                     Boolean provisioningStatusUpdate = pair.getT2();
@@ -711,7 +711,9 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     }
 
     private Mono<UserGroup> updateProvisioningStatus(UserGroup userGroup) {
-        return provisionUtils.updateProvisioningStatus(ProvisionStatus.ACTIVE).thenReturn(userGroup);
+        return provisionUtils
+                .updateProvisioningStatusAndLastUpdatedAt(ProvisionStatus.ACTIVE)
+                .thenReturn(userGroup);
     }
 
     /**
