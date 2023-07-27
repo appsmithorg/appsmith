@@ -110,10 +110,7 @@ describe(" Nested List Widgets ", function () {
       cy.wrap($el).should("not.have.text", "triggeredItemView");
     });
 
-    cy.get(".CodeMirror-hints")
-      .contains("pageNo")
-      .first()
-      .click({ force: true });
+    agHelper.GetNClickByContains(".CodeMirror-hints", "pageNo", 0, true);
 
     cy.get(`${widgetSelector("Text2")} .bp3-ui-text span`).should(
       "have.text",
