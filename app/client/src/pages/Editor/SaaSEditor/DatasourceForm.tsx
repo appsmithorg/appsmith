@@ -82,6 +82,7 @@ import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DSEditorWrapper } from "../DataSourceEditor";
 import type { DatasourceFilterState } from "../DataSourceEditor";
 import { getQueryParams } from "utils/URLUtils";
+import GoogleSheetSchema from "./GoogleSheetSchema";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -573,28 +574,36 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                     </>
                   )}
                   {viewMode && !isInsideReconnectModal && (
-                    <ViewModeWrapper>
-                      {datasource &&
-                      isGoogleSheetPlugin &&
-                      !isPluginAuthorized ? (
-                        <AuthMessage
-                          actionType={ActionType.AUTHORIZE}
-                          datasource={datasource}
-                          description={authErrorMessage}
-                          isInViewMode
-                          pageId={pageId}
+                    <div>
+                      <ViewModeWrapper>
+                        {datasource &&
+                        isGoogleSheetPlugin &&
+                        !isPluginAuthorized ? (
+                          <AuthMessage
+                            actionType={ActionType.AUTHORIZE}
+                            datasource={datasource}
+                            description={authErrorMessage}
+                            isInViewMode
+                            pageId={pageId}
+                          />
+                        ) : null}
+                        {!isNil(formConfig) &&
+                        !isNil(datasource) &&
+                        !hideDatasourceSection ? (
+                          <DatasourceInformation
+                            config={formConfig[0]}
+                            datasource={datasource}
+                            viewMode={viewMode}
+                          />
+                        ) : undefined}
+                      </ViewModeWrapper>
+                      {isGoogleSheetPlugin && isPluginAuthorized ? (
+                        <GoogleSheetSchema
+                          datasourceId={datasourceId}
+                          pluginId={plugin?.id}
                         />
                       ) : null}
-                      {!isNil(formConfig) &&
-                      !isNil(datasource) &&
-                      !hideDatasourceSection ? (
-                        <DatasourceInformation
-                          config={formConfig[0]}
-                          datasource={datasource}
-                          viewMode={viewMode}
-                        />
-                      ) : undefined}
-                    </ViewModeWrapper>
+                    </div>
                   )}
                 </Form>
                 {/* Render datasource form call-to-actions */}
