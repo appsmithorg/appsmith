@@ -3,6 +3,7 @@ import {
   deployMode,
   entityExplorer,
   jsEditor,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
@@ -79,9 +80,11 @@ describe("List widget V2 Serverside Pagination", () => {
     });
 
     // Select First Row
-    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
-      .eq(0)
-      .click();
+    // cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
+    //   .eq(0)
+    //   .click();
+    agHelper.GetNClick(locators._imgwidget, 0, true);
+
     cy.wait(200);
 
     cy.get(
