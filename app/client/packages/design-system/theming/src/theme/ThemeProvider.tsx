@@ -11,7 +11,7 @@ const GlobalStyles = createGlobalStyle`${fontFaces}`;
 
 export const ThemeProvider = (props: ThemeProviderProps) => {
   const { children, className, theme } = props;
-  const { typography, ...rest } = theme;
+  const { fontFamily, typography, ...rest } = theme;
 
   return (
     <ThemeContext.Provider
@@ -21,6 +21,7 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
     >
       <GlobalStyles />
       <StyledProvider
+        $fontFamily={fontFamily}
         $typography={typography}
         className={className}
         data-theme-provider=""

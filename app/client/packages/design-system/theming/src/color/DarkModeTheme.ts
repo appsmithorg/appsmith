@@ -809,7 +809,22 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bdOnAccent() {
-    return this.fgOnAccent.clone();
+    // Separator on bgAccent, low contrast to not pull attention from actual separated content elements
+    const color = this.bgAccent.clone();
+
+    if (this.bgAccent.oklch.l >= 0.7) {
+      color.oklch.l = this.bgAccent.oklch.l - 0.22;
+    }
+
+    if (this.bgAccent.oklch.l < 0.7 && this.bgAccent.oklch.l >= 0.4) {
+      color.oklch.l = this.bgAccent.oklch.l - 0.29;
+    }
+
+    if (this.bgAccent.oklch.l < 0.4) {
+      color.oklch.l = this.bgAccent.oklch.l - 0.36;
+    }
+
+    return color;
   }
 
   private get bdFocus() {
@@ -881,7 +896,13 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bdOnNegative() {
-    return this.fgOnNegative.clone();
+    // Separator on bgNegative, low contrast to not pull attention from actual separated content elements
+    const color = this.bgNegative.clone();
+
+    // Lightness of bgNegative is known, no additional checks like in bdOnAccent / bdOnNeutral
+    color.oklch.l = this.bgNegative.oklch.l - 0.25;
+
+    return color;
   }
 
   // Desatured version of the seed for harmonious combination with backgrounds and accents.
@@ -920,7 +941,22 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bdOnNeutral() {
-    return this.fgOnNeutral.clone();
+    // Separator on bgNeutral, low contrast to not pull attention from actual separated content elements
+    const color = this.bgNeutral.clone();
+
+    if (this.bgNeutral.oklch.l >= 0.7) {
+      color.oklch.l = this.bgNeutral.oklch.l - 0.22;
+    }
+
+    if (this.bgNeutral.oklch.l < 0.7 && this.bgNeutral.oklch.l >= 0.4) {
+      color.oklch.l = this.bgNeutral.oklch.l - 0.29;
+    }
+
+    if (this.bgNeutral.oklch.l < 0.4) {
+      color.oklch.l = this.bgNeutral.oklch.l - 0.36;
+    }
+
+    return color;
   }
 
   private get bdPositive() {
@@ -933,7 +969,13 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bdOnWarning() {
-    return this.fgOnWarning.clone();
+    // Separator on bgWarning, low contrast to not pull attention from actual separated content elements
+    const color = this.bgWarning.clone();
+
+    // Lightness of bgWarning is known, no additional checks like in bdOnAccent / bdOnNeutral
+    color.oklch.l = this.bgWarning.oklch.l - 0.25;
+
+    return color;
   }
 
   private get bdPositiveHover() {
@@ -947,7 +989,13 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bdOnPositive() {
-    return this.fgOnPositive.clone();
+    // Separator on bgPositive, low contrast to not pull attention from actual separated content elements
+    const color = this.bgPositive.clone();
+
+    // Lightness of bgPositive is known, no additional checks like in bdOnAccent / bdOnNeutral
+    color.oklch.l = this.bgPositive.oklch.l - 0.2;
+
+    return color;
   }
 
   private get bdWarning() {
