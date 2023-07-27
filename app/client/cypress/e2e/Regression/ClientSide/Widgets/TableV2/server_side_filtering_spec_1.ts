@@ -3,60 +3,12 @@ import {
   propPane,
   agHelper,
   draggableWidgets,
-  deployMode,
   table,
   locators,
   dataSources,
-  jsEditor,
 } from "../../../../../support/Objects/ObjectsCore";
 import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 import { expandLoadMoreOptions } from "../../OneClickBinding/spec_utility";
-
-const SQL_QUERY_GEN_FUNC = `
-		const operatorMap = {
-			"isEqualTo": "=",
-			"notEqualTo": "!=",
-			"greaterThan": ">",
-			"greaterThanEqualTo": ">=",
-			"lessThan": "<",
-			"lessThanEqualTo": "<=",
-			"": ""
-		}
-
-		if(Table1.filters.length === 0){
-			return ""
-		} else {
-			// With reduce:
-			return Table1.filters.reduce((acc, curr, index) => {
-				const { condition, column, value, operator } = curr;
-				let currentOperator = "";
-				if(index === 0){
-					if(Table1.filters.length === 1){
-						currentOperator = "";
-					} else {
-						currentOperator = Table1.filters[1].operator;
-					}
-				} else if(index === Table1.filters.length - 1){
-					currentOperator = "";
-				} else {
-					currentOperator = operator;
-				}
-				const filterCondition = \`\${index === 0 && column !== "" ? "WHERE" : ""} \$\{column} \$\{operatorMap[condition]} \$\{value} \$\{currentOperator} \`\;
-				acc = acc + filterCondition;
-				return acc;
-			}, "");
-		}
-
-		return "";
-`;
-
-const SELECT_QUERY = `SELECT
-*
-FROM
-public.users {{JSObject1.myFun1() }}
-LIMIT
-{{Table1.pageSize}} OFFSET {{Table1.pageOffset}}
-`;
 
 const ALERT_SUCCESS_MSG = "Table data filtered";
 
@@ -99,14 +51,6 @@ describe("Table widget v2: test server side filtering", function () {
       );
 
       agHelper.GetNClick(oneClickBindingLocator.connectData);
-
-      //Create JS object and update it with sql query generator function
-      jsEditor.CreateJSObject(SQL_QUERY_GEN_FUNC);
-
-      // Update Query for Where clause
-      entityExplorer.SelectEntityByName("Select_public_users1", "Queries/JS");
-      dataSources.EnterQuery(SELECT_QUERY);
-      entityExplorer.NavigateToSwitcher("Widgets");
     });
   });
 
@@ -134,28 +78,20 @@ describe("Table widget v2: test server side filtering", function () {
     agHelper.EnterActionValue("Message", ALERT_SUCCESS_MSG);
   });
 
-  it("2. should test that select query gets executed on filter change", () => {
+  it("2. should test that select query gets executed on filter change and no data is filtered from client-side when serverside filtering is turned on", () => {
+    table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
+      expect(Number($cellData)).to.equal(0);
+    });
     table.OpenNFilterTable("id", "greater than", "10");
     agHelper.WaitUntilToastDisappear(ALERT_SUCCESS_MSG);
     table.CloseFilter();
-
-    table.OpenFilter();
-    table.OpenNFilterTable("id", "less than or equal to", "14", "AND", 1);
-    agHelper.WaitUntilToastDisappear(ALERT_SUCCESS_MSG);
-
-    // Verify table data here post filtering
-    // check first row
     table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
-      expect($cellData).to.eq("11");
-    });
-
-    // check last row
-    table.ReadTableRowColumnData(3, 0, "v2").then(($cellData) => {
-      expect($cellData).to.eq("14");
+      expect(Number($cellData)).to.equal(0);
     });
   });
 
   it("3. should test that removing the table filter executes the query", () => {
+    table.OpenFilter();
     table.RemoveFilter(true);
     agHelper.WaitUntilToastDisappear(ALERT_SUCCESS_MSG);
 
@@ -165,37 +101,15 @@ describe("Table widget v2: test server side filtering", function () {
     });
   });
 
-  it("4. should test server side filtering in deployed mode", () => {
-    /**
-     * Flow:
-     * 1. Add one filter and test the results
-     * 2. Add multiple filters and test the results
-     * 3. Remove filters and check if we get initial table data
-     */
+  it("4. should test that data is filtered client-side when serverside filtering is turned off", () => {
+    propPane.TogglePropertyState("serversidefiltering", "Off");
 
-    deployMode.DeployApp();
-
-    //1
-    table.OpenNFilterTable("id", "greater than", "10");
-    agHelper.WaitUntilToastDisappear(ALERT_SUCCESS_MSG);
+    table.OpenNFilterTable("id", "is equal to", "4");
     table.CloseFilter();
-    table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
-      expect($cellData).to.eq("11");
-    });
 
-    //2
-    table.OpenFilter();
-    table.OpenNFilterTable("id", "less than or equal to", "14", "AND", 1);
-    agHelper.WaitUntilToastDisappear(ALERT_SUCCESS_MSG);
-    table.ReadTableRowColumnData(3, 0, "v2").then(($cellData) => {
-      expect($cellData).to.eq("14");
-    });
-
-    //3
-    table.RemoveFilter(true);
-    agHelper.WaitUntilToastDisappear(ALERT_SUCCESS_MSG);
+    // check first row
     table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
-      expect(Number($cellData)).to.greaterThan(-1);
+      expect($cellData).to.eq("4");
     });
   });
 });

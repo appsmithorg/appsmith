@@ -1014,19 +1014,24 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   updateFilters = (filters: ReactTableFilter[]) => {
     const {
       commitBatchMetaUpdates,
+      enableServerSideFiltering,
       onTableFilterUpdate,
       pushBatchMetaUpdates,
     } = this.props;
 
     this.pushResetSelectedRowIndexUpdates();
 
-    pushBatchMetaUpdates("filters", filters, {
-      triggerPropertyName: "onTableFilterUpdate",
-      dynamicString: onTableFilterUpdate,
-      event: {
-        type: EventType.ON_FILTER_UPDATE,
-      },
-    });
+    if (enableServerSideFiltering) {
+      pushBatchMetaUpdates("filters", filters, {
+        triggerPropertyName: "onTableFilterUpdate",
+        dynamicString: onTableFilterUpdate,
+        event: {
+          type: EventType.ON_FILTER_UPDATE,
+        },
+      });
+    } else {
+      pushBatchMetaUpdates("filters", filters);
+    }
 
     // Reset Page only when a filter is added
     if (!isEmpty(xorWith(filters, [DEFAULT_FILTER], equal))) {
