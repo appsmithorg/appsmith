@@ -51,14 +51,19 @@ jobs:
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-server
 
+
       # Fetch prior run result
       - name: Get the previous run result
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
+        working-directory: app/server
+
 
       # In case of prior failure run the job
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
+        working-directory: app/server
+
 
       # Setup Java
       - name: Set up JDK 17
@@ -119,6 +124,7 @@ jobs:
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true
           ./build.sh $args
+        working-directory: app/server
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
