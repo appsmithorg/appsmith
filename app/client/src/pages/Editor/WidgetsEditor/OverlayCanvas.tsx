@@ -566,7 +566,6 @@ const OverlayCanvasContainer = (props: {
     selectedWidgetsData,
     focusedWidgetData,
     isResizing,
-    hoveredHandle.current,
     handlePositions,
     isAutoCanvasResizing,
   ]);

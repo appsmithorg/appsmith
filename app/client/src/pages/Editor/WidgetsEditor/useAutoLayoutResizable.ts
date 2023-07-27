@@ -321,11 +321,13 @@ export const useAutoLayoutResizable = (
         reflectIndicator: 1,
       };
 
-      if (widgetElement?.current) {
-        widgetElement.current.style.height = "100%";
-        widgetElement.current.style.width = "100%";
-      }
-      setIsResizing && setIsResizing(false);
+      setTimeout(() => {
+        setIsResizing && setIsResizing(false);
+        if (widgetElement?.current) {
+          widgetElement.current.style.height = "100%";
+          widgetElement.current.style.width = "100%";
+        }
+      }, 200);
     }
   };
 
