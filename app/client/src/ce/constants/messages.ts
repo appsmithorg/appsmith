@@ -1753,6 +1753,10 @@ export const DATASOURCE_INTERCOM_TEXT = () =>
 export const GOOGLE_SHEETS_ASK_FOR_SUPPORT = () => "Ask for support";
 export const GOOGLE_SHEETS_FILE_PICKER_TITLE = () =>
   "Select Google Sheets to query";
+export const GSHEETS_CREATE_LIST_AND_DETAIL = () => "Create a list and detail";
+export const GSHEETS_ERR_FETCHING_PREVIEW_DATA = () =>
+  "Some problem occured while fetching data";
+export const GSHEETS_FETCHING_PREVIEW_DATA = () => "Loading data";
 
 //Layout Conversion flow
 export const CONVERT = () => "Convert layout";

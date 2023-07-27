@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { DropdownOption } from "design-system-old";
-import { Option, Select, Spinner, Text } from "design-system";
+import { Button, Option, Select, Spinner, Text } from "design-system";
 import {
   useSheetData,
   useSheetsList,
@@ -19,6 +19,14 @@ import { SelectWrapper } from "../GeneratePage/components/GeneratePageForm/style
 import { isEmpty } from "lodash";
 import Table from "pages/Editor/QueryEditor/Table";
 import styled from "styled-components";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { generateTemplateToUpdatePage } from "actions/pageActions";
+import {
+  createMessage,
+  GSHEETS_CREATE_LIST_AND_DETAIL,
+  GSHEETS_ERR_FETCHING_PREVIEW_DATA,
+  GSHEETS_FETCHING_PREVIEW_DATA,
+} from "@appsmith/constants/messages";
 
 const LoadingWrapper = styled.div`
   display: flex;
@@ -28,6 +36,7 @@ const LoadingWrapper = styled.div`
 `;
 
 const TableWrapper = styled.div`
+  overflow-x: auto;
   && > div {
     width: fit-content;
   }
@@ -37,6 +46,9 @@ const TableWrapper = styled.div`
   }
   && > div > div {
     border: none;
+  }
+  & .table {
+    background: none;
   }
   & .table div:first-of-type .tr {
     background: var(--ads-v2-color-black-5);
@@ -51,6 +63,9 @@ const TableWrapper = styled.div`
   && .table .th {
     border-right: none;
     border-bottom: none;
+  }
+  button {
+    margin-right: 24px;
   }
 `;
 
@@ -82,21 +97,22 @@ function GoogleSheetSchema(props: Props) {
     useState<DropdownOptions>([]);
   const [selectedDatasourceIsInvalid, setSelectedDatasourceIsInvalid] =
     useState(false);
+  const { fetchAllSpreadsheets, isFetchingSpreadsheets } = useSpreadSheets({
+    setSelectedDatasourceTableOptions,
+    setSelectedDatasourceIsInvalid,
+  });
   const {
     failedFetchingSheetsList,
     fetchSheetsList,
     isFetchingSheetsList,
     sheetsList,
   } = useSheetsList();
-  const { fetchAllSpreadsheets, isFetchingSpreadsheets } = useSpreadSheets({
-    setSelectedDatasourceTableOptions,
-    setSelectedDatasourceIsInvalid,
-  });
   const { fetchSheetData, isFetchingSheetData, sheetData } = useSheetData();
   const [selectedSpreadsheet, setSelectedSpreadsheet] =
     useState<DropdownOption>({});
   const [selectedSheet, setSelectedSheet] = useState<DropdownOption>({});
   const [currentSheetData, setCurrentSheetData] = useState<any>();
+  const applicationId: string = useSelector(getCurrentApplicationId);
 
   const dispatch = useDispatch();
 
@@ -116,6 +132,7 @@ function GoogleSheetSchema(props: Props) {
   useEffect(() => {
     if (!!props.datasourceId && !!props.pluginId && selectedSpreadsheet.value) {
       setSelectedSheet(DEFAULT_DROPDOWN_OPTION);
+      setCurrentSheetData(undefined);
       fetchSheetsList({
         requestObject: {},
         selectedDatasourceId: props.datasourceId,
@@ -163,15 +180,20 @@ function GoogleSheetSchema(props: Props) {
 
   // Set first sheet as default option in the dropdown
   useEffect(() => {
-    if (sheetsList?.length > 0 && isEmpty(selectedSheet.value)) {
+    if (
+      sheetsList?.length > 0 &&
+      isEmpty(selectedSheet.value) &&
+      !isFetchingSheetsList
+    ) {
       setSelectedSheet(sheetsList[0]);
     }
-  }, [selectedSheet, sheetsList]);
+  }, [selectedSheet, sheetsList, isFetchingSheetsList]);
 
   // Set current sheet data
   useEffect(() => {
     if (sheetData?.length > 0) {
-      setCurrentSheetData(sheetData);
+      // Getting the top 12 rows as for experimentation we need to keep this number fixed for preview
+      setCurrentSheetData(sheetData.slice(0, 12));
     }
   }, [sheetData]);
 
@@ -199,6 +221,27 @@ function GoogleSheetSchema(props: Props) {
     isFetchingSheetsList ||
     isFetchingSheetData ||
     (!isError && !currentSheetData);
+
+  const onCreateListandDetail = () => {
+    const payload = {
+      applicationId: applicationId || "",
+      pageId: "",
+      columns:
+        !!currentSheetData && currentSheetData.length > 0
+          ? Object.keys(currentSheetData[0])
+          : [],
+      searchColumn: "",
+      tableName: selectedSheet?.value || "",
+      datasourceId: props.datasourceId || "",
+      pluginSpecificParams: {
+        sheetName: selectedSheet?.value || "",
+        sheetUrl: selectedSpreadsheet?.value || "",
+        tableHeaderIndex: 1,
+      },
+    };
+
+    dispatch(generateTemplateToUpdatePage(payload));
+  };
 
   return (
     <>
@@ -259,20 +302,34 @@ function GoogleSheetSchema(props: Props) {
             </SelectWrapper>
           </SelectListWrapper>
         ) : null}
+        {!isLoading && !isError && currentSheetData && (
+          <Button
+            className="t--create-list-and-detail"
+            key="create-list-and-detail"
+            kind="primary"
+            onClick={onCreateListandDetail}
+            size="md"
+            style={{ alignSelf: "flex-end" }}
+          >
+            {createMessage(GSHEETS_CREATE_LIST_AND_DETAIL)}
+          </Button>
+        )}
       </SelectContainer>
       <TableWrapper>
         {isLoading ? (
           <LoadingWrapper>
             <Spinner size="md" />
-            <Text style={{ marginLeft: "8px" }}>Loading data</Text>
+            <Text style={{ marginLeft: "8px" }}>
+              {createMessage(GSHEETS_FETCHING_PREVIEW_DATA)}
+            </Text>
           </LoadingWrapper>
         ) : isError ? (
           <Text color="var(--ads-color-red-500)">
-            Some problem occured while fetching data
+            {createMessage(GSHEETS_ERR_FETCHING_PREVIEW_DATA)}
           </Text>
-        ) : (
+        ) : currentSheetData ? (
           <Table data={currentSheetData} />
-        )}
+        ) : null}
       </TableWrapper>
     </>
   );
