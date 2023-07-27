@@ -252,3 +252,6 @@ export const SUGGESTED_WIDGETS_ORDER: Record<WidgetType, number> = {
   SELECT_WIDGET: 5,
   LIST_WIDGET_V2: 6,
 };
+
+// Constant key to show walkthrough for a widget -> stores widget id
+export const WIDGET_ID_SHOW_WALKTHROUGH = "WIDGET_ID_SHOW_WALKTHROUGH";
