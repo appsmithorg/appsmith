@@ -10111,7 +10111,7 @@ __metadata:
     jest: ^29.3.1
     klona: ^2.0.5
     loglevel: ^1.8.1
-    scimgateway: ^4.2.6
+    scimgateway: ^4.2.12
     socket.io: ^4.5.4
     socket.io-adapter: ^2.4.0
     source-map-support: ^0.5.19
@@ -28737,9 +28737,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"scimgateway@npm:^4.2.6":
-  version: 4.2.10
-  resolution: "scimgateway@npm:4.2.10"
+"scimgateway@npm:^4.2.12":
+  version: 4.2.12
+  resolution: "scimgateway@npm:4.2.12"
   dependencies:
     "@godaddy/terminus": ^4.12.0
     callsite: ^1.0.0
@@ -28762,7 +28762,7 @@ __metadata:
     winston: ^3.9.0
   bin:
     scimgateway: index.js
-  checksum: 3311a81ac9ba1e9377ad0b3727b7d45f231943583e416e3532a9a0fd493076d38883c68615923fe70ff15fd8e3472c6b857043d48356aaa9e2d4c7abaebaac10
+  checksum: 67b78ec8ad4e0ea72b0e8eca1a0cbf30f5b24011a17b32150c113264a4c2fec9cecc8faa36b9ab3ed27736604320994ddf69761ea5e8f44de977075bd13cf56e
   languageName: node
   linkType: hard
 

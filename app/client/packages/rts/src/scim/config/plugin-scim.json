@@ -5,7 +5,7 @@
     "payloadSize": null,
     "scim": {
       "version": "2.0",
-      "customSchema": "custom-schema.json",
+      "customSchema": null,
       "skipTypeConvert": false,
       "usePutSoftSync": false,
       "groupMemberOfUser": true
