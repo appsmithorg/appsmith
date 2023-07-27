@@ -120,6 +120,16 @@ export const FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT = () => `Reset`;
 export const FORGOT_PASSWORD_SUCCESS_TEXT = (email: string) =>
   `A password reset link has been sent to your email address ${email} registered with Appsmith.`;
 
+export const VERIFICATION_PENDING_TITLE = () => `Check your inbox`;
+export const VERIFICATION_PENDING_BODY = () =>
+  `To finish your account setup click on the verification link we have sent in an email to `;
+
+export const VERIFICATION_PENDING_NOT_YOU = () => `(not you?)`;
+
+export const VERIFICATION_PENDING_NO_EMAIL = () =>
+  `No email in your inbox or spam folder?`;
+
+export const VERIFICATION_PENDING_RESEND_LINK = () => `Resend the link`;
 export const PRIVACY_POLICY_LINK = () => `Privacy policy`;
 export const TERMS_AND_CONDITIONS_LINK = () => `Terms and conditions`;
 
