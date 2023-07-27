@@ -195,7 +195,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
      * @param featuresRequestDTO FeaturesRequestDTO
      * @return Mono of Map
      */
-    private Mono<Map<String, Map<String, Boolean>>> getRemoteFeaturesForTenant(FeaturesRequestDTO featuresRequestDTO) {
+    public Mono<Map<String, Map<String, Boolean>>> getRemoteFeaturesForTenant(FeaturesRequestDTO featuresRequestDTO) {
         return WebClientUtils.create(cloudServicesConfig.getBaseUrl())
                 .post()
                 .uri("/api/v1/business-features")

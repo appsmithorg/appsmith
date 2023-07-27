@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.User;
+import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -19,9 +21,15 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -31,7 +39,7 @@ public class FeatureFlagServiceTest {
     @Autowired
     FeatureFlagService featureFlagService;
 
-    @Autowired
+    @SpyBean
     CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
 
     @Autowired
@@ -108,6 +116,38 @@ public class FeatureFlagServiceTest {
         String userIdentifier = "testIdentifier";
         Mono<Void> evictCache = cacheableFeatureFlagHelper.evictUserCachedFlags(userIdentifier);
         Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("featureFlag:" + userIdentifier);
+        StepVerifier.create(evictCache.then(hasKeyMono))
+                .assertNext(isKeyPresent -> {
+                    assertFalse(isKeyPresent);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getFeatures_withTenantIdentifier_redisKeyExists() {
+        Map<String, Map<String, Boolean>> flagsResponse = new HashMap<>();
+        Map<String, Boolean> flags = new HashMap<>();
+        flags.put(UUID.randomUUID().toString(), true);
+        flags.put(UUID.randomUUID().toString(), false);
+        flagsResponse.put("features", flags);
+
+        doReturn(Mono.just(flagsResponse)).when(cacheableFeatureFlagHelper).getRemoteFeaturesForTenant(any());
+
+        String tenantIdentifier = UUID.randomUUID().toString();
+        Mono<CachedFeatures> cachedFeaturesMono = cacheableFeatureFlagHelper.fetchTenantCachedFeatures(tenantIdentifier);
+        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("features:" + tenantIdentifier);
+        StepVerifier.create(cachedFeaturesMono.then(hasKeyMono))
+                .assertNext(isKeyPresent -> {
+                    assertTrue(isKeyPresent);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void evictFeatures_withTenantIdentifier_redisKeyDoesNotExist() {
+        String tenantIdentifier = UUID.randomUUID().toString();
+        Mono<Void> evictCache = cacheableFeatureFlagHelper.evictTenantCachedFeatures(tenantIdentifier);
+        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("features:" + tenantIdentifier);
         StepVerifier.create(evictCache.then(hasKeyMono))
                 .assertNext(isKeyPresent -> {
                     assertFalse(isKeyPresent);
