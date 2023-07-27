@@ -1,8 +1,8 @@
 [
         {
                 "messageId": "1",
-                "title": "You seem to be using an unsupported MongoDB version.",
-                "message": "Appsmith now supports only MongoDB versions 5.x or higher. For self-managed MongoDB, upgrade to v5.x or higher.\n                If you don't have self-managed MongoDB, just upgrade your Appsmith version to the latest.\n                This is a mandatory checkpoint before you can use your Appsmith instance again.",
+                "title": "You seem to be using a soon-to-be unsupported MongoDB version.",
+                "message": "Appsmith now supports only MongoDB versions 5.x or higher. If you have external MongoDB for your Appsmith server, upgrade it to v5.x or higher before September 30.",
                 "learnMoreLink": "https://www.mongodb.com/docs/manual/release-notes/5.0-upgrade-replica-set",
                 "canDismiss": true,
                 "remindLaterDays": 5,
@@ -12,13 +12,24 @@
         },
         {
                 "messageId": "2",
-                "title": "Appsmith wasn’t able to detect your MongoDB version, but you could be using an unsupported MongoDB.",
-                "message": "Appsmith now supports only MongoDB versions 5.x or higher. For self-managed MongoDB, check its version and upgrade to v5.x or higher. If you don’t have self-managed MongoDB, just upgrade your Appsmith version to the latest. This is a mandatory checkpoint before you can use your Appsmith instance again.\nIf you are on MongoDB v5.x or higher, please ignore this alert.",
+                "title": "Appsmith wasn’t able to detect your MongoDB version, but you could be using a soon-to-be unsupported MongoDB.",
+                "message": "Appsmith now supports only MongoDB versions 5.x or higher. If you have external MongoDB for your Appsmith server, upgrade it to v5.x or higher before September 30.\nIf you are already on MongoDB v5.x or higher, please ignore this alert.",
                 "learnMoreLink": "https://www.mongodb.com/docs/manual/release-notes/5.0-upgrade-replica-set",
                 "canDismiss": true,
                 "remindLaterDays": 5,
                 "context": "COMMON_CONFIG",
                 "applicabilityExpression": "!isCloudHosting && !isConnectedMongoVersionAvailable",
                 "precedenceIndex": 2
+        },
+        {
+                "messageId": "3",
+                "title": "Appsmith Cloud at app.appsmith.com will be down for 45 minutes at <insert time, preferably between 9 and 11 AM> on Sunday, August 6, 2023.",
+                "message": "Appsmith Cloud will go through a scheduled upgrade to make it performant and scalable to all of you. This will take roughly 45 minutes at <insert time, preferably between 9 and 11 AM> on Sunday, August 6, 2023. We will let you know when it comes back online on Discord.",
+                "learnMoreLink": "https://www.mongodb.com/docs/manual/release-notes/5.0-upgrade-replica-set",
+                "canDismiss": true,
+                "remindLaterDays": 5,
+                "context": "COMMON_CONFIG",
+                "applicabilityExpression": "isCloudHosting",
+                "precedenceIndex": 3
         }
 ]
