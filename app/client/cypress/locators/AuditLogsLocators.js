@@ -38,4 +38,5 @@ export default {
   OptionsEmpty: ".rc-select-item-empty",
   SelectSearchBox: ".rc-select-selection-search-input",
   ...Table,
+  datePickerToday: "//*[contains(@class,'datepicker')]//*[text()='Today']",
 };
