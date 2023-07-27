@@ -28,12 +28,12 @@ jobs:
         shell: bash
 
     steps:
-      - uses: mxschmitt/action-tmate@v3
 
       - name: Checkout the build branch
         uses: actions/checkout@v3
         with:
           ref:  ${{ github.event.inputs.branch }}
+      - uses: mxschmitt/action-tmate@v3
 
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
