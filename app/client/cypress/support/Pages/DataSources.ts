@@ -92,6 +92,7 @@ export class DataSources {
     ddTitle +
     "']/following-sibling::span//button";
   _reconnectModal = "[data-testid='reconnect-datasource-modal']";
+  _reconnect = ".t--reconnect-btn";
   _dropdown = (ddTitle: string) =>
     "//span[contains(@title, '" +
     ddTitle +
@@ -987,6 +988,18 @@ export class DataSources {
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
+  public AssertReconnectDS(datasourceName: string) {
+    cy.get(this._datasourceCard, { withinSubject: null })
+      .find(this._activeDS)
+      .contains(datasourceName)
+      .scrollIntoView()
+      .should("be.visible")
+      .closest(this._datasourceCard)
+      .scrollIntoView()
+      .within(() => {
+        this.agHelper.AssertElementVisible(this._reconnect, 0, 20000);
+      });
+  }
   public ReconnectModalValidation(
     dbName: string,
     dsName: "PostgreSQL" | "MySQL" | "MongoDB",
@@ -1122,12 +1135,15 @@ export class DataSources {
   public RunQueryNVerifyResponseViews(
     expectedRecordsCount = 1,
     tableCheck = true,
+    responseAsTable = true,
   ) {
     this.RunQuery();
     tableCheck &&
-      this.agHelper.AssertElementVisible(this._queryResponse("TABLE"));
-    this.agHelper.AssertElementVisible(this._queryResponse("JSON"));
+      this.agHelper.AssertElementVisible(this._queryResponse("JSON"));
     this.agHelper.AssertElementVisible(this._queryResponse("RAW"));
+    if (responseAsTable) {
+      this.agHelper.AssertElementVisible(this._queryResponse("TABLE"));
+    }
     this.CheckResponseRecordsCount(expectedRecordsCount);
   }
 
