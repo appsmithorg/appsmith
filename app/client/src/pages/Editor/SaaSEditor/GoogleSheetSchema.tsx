@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { DropdownOption } from "design-system-old";
-import { Option, Select, Spinner, Text } from "design-system";
+import { Button, Option, Select, Spinner, Text } from "design-system";
 import {
   useSheetData,
   useSheetsList,
@@ -19,10 +19,19 @@ import { SelectWrapper } from "../GeneratePage/components/GeneratePageForm/style
 import { isEmpty } from "lodash";
 import Table from "pages/Editor/QueryEditor/Table";
 import styled from "styled-components";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { generateTemplateToUpdatePage } from "actions/pageActions";
+import {
+  createMessage,
+  GSHEETS_CREATE_LIST_AND_DETAIL,
+} from "@appsmith/constants/messages";
 
 const TableWrapper = styled.div`
-  && > div > div {
+  && > div > div > div {
     border: none;
+  }
+  & .table {
+    background: none;
   }
   & .table div:first-of-type .tr {
     background: var(--ads-v2-color-black-5);
@@ -37,6 +46,13 @@ const TableWrapper = styled.div`
   && .table .th {
     border-right: none;
     border-bottom: none;
+  }
+  & .table-and-cta {
+    display: flex;
+    justify-content: space-between;
+  }
+  button {
+    margin-right: 24px;
   }
 `;
 
@@ -90,6 +106,7 @@ function GoogleSheetSchema(props: Props) {
     useState<DropdownOption>({});
   const [selectedSheet, setSelectedSheet] = useState<DropdownOption>({});
   const [currentSheetData, setCurrentSheetData] = useState<any>();
+  const applicationId: string = useSelector(getCurrentApplicationId);
 
   const dispatch = useDispatch();
 
@@ -163,7 +180,8 @@ function GoogleSheetSchema(props: Props) {
   // Set current sheet data
   useEffect(() => {
     if (sheetData?.length > 0) {
-      setCurrentSheetData(sheetData);
+      // Getting the top 12 rows as for experimentation we need to keep this number fixed for preview
+      setCurrentSheetData(sheetData.slice(0, 12));
     }
   }, [sheetData]);
 
@@ -188,6 +206,27 @@ function GoogleSheetSchema(props: Props) {
   const isError = selectedDatasourceIsInvalid || failedFetchingSheetsList;
   const isLoading =
     isFetchingSpreadsheets || isFetchingSheetsList || isFetchingSheetData;
+
+  const onCreateListandDetail = () => {
+    const payload = {
+      applicationId: applicationId || "",
+      pageId: "",
+      columns:
+        !!currentSheetData && currentSheetData.length > 0
+          ? Object.keys(currentSheetData[0])
+          : [],
+      searchColumn: "",
+      tableName: selectedSheet?.value || "",
+      datasourceId: props.datasourceId || "",
+      pluginSpecificParams: {
+        sheetName: selectedSheet?.value || "",
+        sheetUrl: selectedSpreadsheet?.value || "",
+        tableHeaderIndex: 1,
+      },
+    };
+
+    dispatch(generateTemplateToUpdatePage(payload));
+  };
 
   return (
     <>
@@ -260,7 +299,18 @@ function GoogleSheetSchema(props: Props) {
             Some problem occured while fetching data
           </Text>
         ) : (
-          <Table data={currentSheetData} />
+          <div className="table-and-cta">
+            <Table data={currentSheetData} />
+            <Button
+              className="t--create-list-and-detail"
+              key="create-list-and-detail"
+              kind="primary"
+              onClick={onCreateListandDetail}
+              size="md"
+            >
+              {createMessage(GSHEETS_CREATE_LIST_AND_DETAIL)}
+            </Button>
+          </div>
         )}
       </TableWrapper>
     </>

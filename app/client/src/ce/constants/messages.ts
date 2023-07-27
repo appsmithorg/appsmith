@@ -1753,6 +1753,7 @@ export const DATASOURCE_INTERCOM_TEXT = () =>
 export const GOOGLE_SHEETS_ASK_FOR_SUPPORT = () => "Ask for support";
 export const GOOGLE_SHEETS_FILE_PICKER_TITLE = () =>
   "Select Google Sheets to query";
+export const GSHEETS_CREATE_LIST_AND_DETAIL = () => "Create a list and detail";
 
 //Layout Conversion flow
 export const CONVERT = () => "Convert layout";
