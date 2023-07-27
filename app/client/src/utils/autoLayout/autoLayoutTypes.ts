@@ -102,6 +102,7 @@ export interface LayoutComponentProps {
   widgetsAllowed?: string[];
   childTemplate?: LayoutComponentProps;
   insertChild?: boolean;
+  canBeDeleted?: boolean;
 
   childrenMap?: { [id: string]: JSX.Element | ReactNode };
   containerProps?: ContainerWidgetProps<WidgetProps> & {

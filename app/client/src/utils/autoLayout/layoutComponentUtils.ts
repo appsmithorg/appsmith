@@ -33,6 +33,8 @@ export function getLayoutFromId(
   return null;
 }
 
+// export function getLayoutDataType(layout: string | string[])
+
 export function updateLayoutById(
   parentLayout: LayoutComponentProps,
   updatedLayout: LayoutComponentProps,
@@ -342,4 +344,55 @@ export function addWidgetToTemplate(
     );
   }
   return obj;
+}
+
+export function updateLayoutAfterWidgetDeletion(
+  template: LayoutComponentProps,
+  child: string,
+): LayoutComponentProps {
+  const obj: LayoutComponentProps = {
+    ...template,
+    layout: [],
+  };
+  if (template.layout.length) {
+    if (template.rendersWidgets) {
+      obj.layout = (template.layout as string[]).filter(
+        (each) => each !== child,
+      );
+    } else
+      obj.layout = (template.layout as LayoutComponentProps[]).map((each) =>
+        updateLayoutAfterWidgetDeletion(each, child),
+      );
+  }
+  obj.layout = (obj.layout as LayoutComponentProps[]).filter(
+    (each: LayoutComponentProps) => !(each.canBeDeleted && !each.layout.length),
+  );
+  return obj;
+}
+
+export function deleteWidgetFromLayout(
+  widgets: CanvasWidgetsReduxState,
+  widgetId: string,
+  parentId: string,
+): CanvasWidgetsReduxState {
+  const parent = widgets[parentId];
+  if (!parent) return widgets;
+  const layout: LayoutComponentProps[] = parent.layout || [];
+  if (!layout?.length) return widgets;
+
+  const newLayout: LayoutComponentProps[] = layout.map(
+    (each: LayoutComponentProps) =>
+      updateLayoutAfterWidgetDeletion(each, widgetId),
+  );
+
+  return {
+    ...widgets,
+    [parentId]: {
+      ...parent,
+      layout: newLayout.filter(
+        (each: LayoutComponentProps) =>
+          !(each.canBeDeleted && !each.layout.length),
+      ),
+    },
+  };
 }

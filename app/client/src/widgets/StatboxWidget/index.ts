@@ -240,6 +240,7 @@ export const CONFIG = {
                       layout: [],
                       insertChild: true,
                       rendersWidgets: true,
+                      canBeDeleted: true,
                     },
                     layoutId: generateReactKey(),
                     layoutStyle: {
@@ -258,6 +259,7 @@ export const CONFIG = {
                         layoutType: "ROW",
                         layout: [textWidgets[0].widgetId],
                         rendersWidgets: true,
+                        canBeDeleted: true,
                       },
                       {
                         layoutId: generateReactKey(),
@@ -268,6 +270,7 @@ export const CONFIG = {
                         layoutType: "ROW",
                         layout: [textWidgets[1].widgetId],
                         rendersWidgets: true,
+                        canBeDeleted: true,
                       },
                       {
                         layoutId: generateReactKey(),
@@ -278,6 +281,7 @@ export const CONFIG = {
                         layoutType: "ROW",
                         layout: [textWidgets[2].widgetId],
                         rendersWidgets: true,
+                        canBeDeleted: true,
                       },
                     ],
                   },
