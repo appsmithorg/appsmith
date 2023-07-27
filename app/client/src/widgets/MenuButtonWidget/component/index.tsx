@@ -50,7 +50,7 @@ const PopoverStyles = createGlobalStyle<{
     margin-bottom: 8px !important;
     border-radius: ${({ borderRadius }) =>
       borderRadius >= THEMEING_TEXT_SIZES.lg ? `0.375rem` : borderRadius};
-    overflow-y: auto;
+    overflow-y: scroll;
     max-height: 384px;
   }
 
@@ -59,7 +59,7 @@ const PopoverStyles = createGlobalStyle<{
     border-radius: 0;
   }
 
-  .${Classes.POPOVER2_TARGET} {
+  & > .${Classes.POPOVER2_TARGET} {
     height: 100%;
   }
 
