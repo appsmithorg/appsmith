@@ -45,6 +45,7 @@ jobs:
       - name: Get the previous run result
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
+        working-directory: app/client/packages/rts
 
       # In case of prior failure run the job
       - if: steps.run_result.outputs.run_result != 'success'
