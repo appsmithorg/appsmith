@@ -137,6 +137,15 @@ describe("List Widget Functionality", function () {
         draggableWidgets.CONTAINER,
       )}${locators._firstChild}`,
     );
+    cy.get(locators._body).then(($ele) => {
+      if ($ele.find(locators._toastMsg).length <= 0) {
+        agHelper.GetNClick(
+          `${locators._listWidget} ${locators._widgetInDeployed(
+            draggableWidgets.CONTAINER,
+          )}${locators._firstChild}`,
+        );
+      }
+    });
     // Verify the click on first item
     agHelper.ValidateToastMessage(items[0].first_name);
   });
