@@ -31,7 +31,7 @@ export type WidgetQueryGenerationConfig = {
     value: string;
     where?: string;
   };
-  totalRecord: boolean;
+  totalRecord?: boolean;
 };
 
 export enum QUERY_TYPE {
