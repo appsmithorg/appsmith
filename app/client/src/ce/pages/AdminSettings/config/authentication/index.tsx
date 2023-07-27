@@ -200,6 +200,7 @@ export const FormAuthCallout: AuthMethodType = {
   subText: createMessage(FORM_LOGIN_DESC),
   image: Lock,
   icon: "lock-password-line",
+  isEnabled: true,
 };
 
 export const GoogleAuthCallout: AuthMethodType = {
