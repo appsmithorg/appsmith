@@ -98,7 +98,8 @@ describe("List widget v2 onItemClick", () => {
       draggableWidgets.CONTAINER,
     );
 
-    agHelper.GetNClick(`${locators._widgetByName("Select1")} button`, 0, true);
+    //This is clicking Select Widget
+    agHelper.ClickButton("Green", 0);
     agHelper.AssertElementAbsence(locators._toastMsg);
 
     deleteAllWidgetsInContainer();
@@ -110,14 +111,13 @@ describe("List widget v2 onItemClick", () => {
       draggableWidgets.CONTAINER,
     );
 
-    agHelper.GetNClick(`${locators._widgetByName("Button1")} button`, 0, true);
+    agHelper.ClickButton("Submit", 0);
     agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
 
-    propPane.ToggleJSMode("onClick");
-    propPane.UpdatePropertyFieldValue("onClick", "{{clearStore()}}");
+    propPane.EnterJSContext("onClick", "{{clearStore()}}");
     agHelper.Sleep(1000);
 
-    agHelper.GetNClick(`${locators._widgetByName("Button1")} button`, 0, true);
+    agHelper.ClickButton("Submit", 0);
     agHelper.AssertElementAbsence(locators._toastMsg);
   });
 });
