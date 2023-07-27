@@ -134,7 +134,8 @@ public class FeatureFlagServiceTest {
         doReturn(Mono.just(flagsResponse)).when(cacheableFeatureFlagHelper).getRemoteFeaturesForTenant(any());
 
         String tenantIdentifier = UUID.randomUUID().toString();
-        Mono<CachedFeatures> cachedFeaturesMono = cacheableFeatureFlagHelper.fetchTenantCachedFeatures(tenantIdentifier);
+        Mono<CachedFeatures> cachedFeaturesMono =
+                cacheableFeatureFlagHelper.fetchTenantCachedFeatures(tenantIdentifier);
         Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("features:" + tenantIdentifier);
         StepVerifier.create(cachedFeaturesMono.then(hasKeyMono))
                 .assertNext(isKeyPresent -> {
