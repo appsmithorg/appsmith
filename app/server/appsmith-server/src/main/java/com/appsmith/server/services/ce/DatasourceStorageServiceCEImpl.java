@@ -310,6 +310,12 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         }
         DatasourceStorageDTO datasourceStorageDTO =
                 this.getDatasourceStorageDTOFromDatasource(datasource, environmentId);
+
+        if (datasourceStorageDTO == null) {
+            // If this environment does not have a storage configured, return null
+            return null;
+        }
+
         DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
         datasourceStorage.prepareTransientFields(datasource);
 
