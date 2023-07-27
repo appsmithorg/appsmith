@@ -22,6 +22,10 @@ on:
 jobs:
   rts-build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/client/packages/rts
+        shell: bash
 
     steps:
 
