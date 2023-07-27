@@ -9,10 +9,9 @@ let tempBranch3: any;
 
 describe("Git Bugs", function () {
   before(() => {
-    _.homePage.NavigateToHome();
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      _.homePage.CreateNewWorkspace("GitBugs" + uid);
+      _.homePage.CreateNewWorkspace("GitBugs" + uid, true);
       _.homePage.CreateAppInWorkspace("GitBugs" + uid);
     });
   });

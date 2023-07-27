@@ -534,6 +534,7 @@ export default function* executePluginActionTriggerSaga(
     datasourceId: datasourceId,
     isMock: !!datasource?.isMock,
     actionId: action?.id,
+    inputParams: Object.keys(params).length,
   });
   const pagination =
     eventType === EventType.ON_NEXT_PAGE
@@ -608,6 +609,7 @@ export default function* executePluginActionTriggerSaga(
       isMock: !!datasource?.isMock,
       actionId: action?.id,
       ...payload.pluginErrorDetails,
+      inputParams: Object.keys(params).length,
     });
     if (onError) {
       throw new PluginTriggerFailureError(
@@ -635,6 +637,7 @@ export default function* executePluginActionTriggerSaga(
       datasourceId: datasourceId,
       isMock: !!datasource?.isMock,
       actionId: action?.id,
+      inputParams: Object.keys(params).length,
     });
     AppsmithConsole.info({
       logType: LOG_TYPE.ACTION_EXECUTION_SUCCESS,
@@ -1090,6 +1093,7 @@ function* executePageLoadAction(pageAction: PageAction) {
       datasourceId: datasourceId,
       isMock: !!datasource?.isMock,
       actionId: pageAction?.id,
+      inputParams: 0,
     });
 
     let payload = EMPTY_RESPONSE;
@@ -1178,6 +1182,7 @@ function* executePageLoadAction(pageAction: PageAction) {
         datasourceId: datasourceId,
         isMock: !!datasource?.isMock,
         actionId: pageAction?.id,
+        inputParams: 0,
         ...payload.pluginErrorDetails,
       });
     } else {
@@ -1196,6 +1201,7 @@ function* executePageLoadAction(pageAction: PageAction) {
         datasourceId: datasourceId,
         isMock: !!datasource?.isMock,
         actionId: pageAction?.id,
+        inputParams: 0,
       });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,

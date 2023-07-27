@@ -37,10 +37,12 @@ export const getTypographyClassName = (key: keyof typeof TypographyVariant) => {
   return `wds-${TypographyVariant[key]}-text`;
 };
 
-export const createTypographyStringMap = (typography: Typography) => {
+export const createTypographyStringMap = (
+  typography: Typography,
+  fontFamily?: FontFamily,
+) => {
   return Object.keys(typography).reduce((prev, current) => {
-    const { capHeight, fontFamily, lineGap } =
-      typography[current as keyof Typography];
+    const { capHeight, lineGap } = typography[current as keyof Typography];
     return (
       prev +
       `${createTypographyString(
@@ -68,7 +70,7 @@ export const createTypographyString = (
     });
   }
 
-  return createStyleString(`wds-${typographyVariant}-text`, {
+  return createStyleString(getTypographyClassName(typographyVariant), {
     capHeight,
     lineGap,
     fontMetrics: fontMetrics[fontFamily],
