@@ -23,6 +23,7 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
+import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -39,6 +40,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -556,6 +558,11 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         return archiveByIdEx(id, Optional.of(pagePermission.getDeletePermission()));
     }
 
+    @Override
+    public Mono<Boolean> archiveByIds(Collection<String> idList) {
+        return repository.archiveAllById(idList);
+    }
+
     public Mono<NewPage> archiveByIdEx(String id, Optional<AclPermission> permission) {
         Mono<NewPage> pageMono = this.findById(id, permission)
                 .switchIfEmpty(
@@ -682,5 +689,10 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             return Mono.error(new AppsmithException(
                     AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID + " or " + FieldName.PAGE_ID));
         }
+    }
+
+    @Override
+    public Mono<UpdateResult> publishPages(Collection<String> pageIds, AclPermission permission) {
+        return repository.publishPages(pageIds, permission);
     }
 }

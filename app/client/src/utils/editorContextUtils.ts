@@ -4,7 +4,10 @@ import {
   DATASOURCE_REST_API_FORM,
   DATASOURCE_SAAS_FORM,
 } from "@appsmith/constants/forms";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import {
+  DB_NOT_SUPPORTED,
+  getCurrentEnvironment,
+} from "@appsmith/utils/Environments";
 import { diff } from "deep-diff";
 import { PluginName, PluginPackageName, PluginType } from "entities/Action";
 import type {
@@ -101,12 +104,16 @@ export function isDatasourceAuthorizedForQueryCreation(
   plugin: Plugin,
   currentEnvironment = getCurrentEnvironment(),
 ): boolean {
-  if (
-    !datasource ||
-    !datasource.hasOwnProperty("datasourceStorages") ||
-    !datasource.datasourceStorages.hasOwnProperty(currentEnvironment)
-  )
+  if (!datasource || !datasource.hasOwnProperty("datasourceStorages"))
     return false;
+  const isGoogleSheetPlugin = isGoogleSheetPluginDS(plugin?.packageName);
+  const envSupportedDs = !DB_NOT_SUPPORTED.includes(plugin?.type || "");
+  if (!datasource.datasourceStorages.hasOwnProperty(currentEnvironment)) {
+    if (envSupportedDs) return false;
+    const envs = Object.keys(datasource.datasourceStorages);
+    if (envs.length === 0) return false;
+    currentEnvironment = envs[0];
+  }
   const datasourceStorage = datasource.datasourceStorages[currentEnvironment];
   if (
     !datasourceStorage ||
@@ -119,7 +126,6 @@ export function isDatasourceAuthorizedForQueryCreation(
     "datasourceConfiguration.authentication.authenticationType",
   );
 
-  const isGoogleSheetPlugin = isGoogleSheetPluginDS(plugin?.packageName);
   if (isGoogleSheetPlugin) {
     const isAuthorized =
       authType === AuthType.OAUTH2 &&
