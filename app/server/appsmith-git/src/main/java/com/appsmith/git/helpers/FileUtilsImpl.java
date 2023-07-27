@@ -436,6 +436,7 @@ public class FileUtilsImpl implements FileInterface {
             Files.createDirectories(path.getParent());
             return writeToFile(sourceEntity, path, gson);
         } catch (IOException e) {
+            log.error("Error while writing resource to file {} with {}", path, e.getMessage());
             log.debug(e.getMessage());
         }
         return false;
@@ -502,7 +503,7 @@ public class FileUtilsImpl implements FileInterface {
             Path metadataPath = path.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION);
             return writeToFile(sourceEntity, metadataPath, gson);
         } catch (IOException e) {
-            log.debug(e.getMessage());
+            log.error("Error while reading file {} with message {} with cause", path, e.getMessage(), e.getCause());
         }
         return false;
     }
@@ -537,7 +538,7 @@ public class FileUtilsImpl implements FileInterface {
                                         pathLocal.getFileName().toString()))
                         .forEach(this::deleteFile);
             } catch (IOException e) {
-                log.debug("Error while scanning directory: {}, with error {}", resourceDirectory, e);
+                log.error("Error while scanning directory: {}, with error {}", resourceDirectory, e.getMessage());
             }
         }
     }
@@ -558,7 +559,7 @@ public class FileUtilsImpl implements FileInterface {
                                 && !validResources.contains(path.getFileName().toString()))
                         .forEach(this::deleteDirectory);
             } catch (IOException e) {
-                log.debug("Error while scanning directory: {}, with error {}", resourceDirectory, e);
+                log.error("Error while scanning directory {} with error {}", resourceDirectory, e.getMessage());
             }
         }
     }
@@ -585,9 +586,9 @@ public class FileUtilsImpl implements FileInterface {
         try {
             Files.deleteIfExists(filePath);
         } catch (DirectoryNotEmptyException e) {
-            log.error("Unable to delete non-empty directory at {}", filePath);
+            log.error("Unable to delete non-empty directory at {} with cause", filePath, e.getMessage());
         } catch (IOException e) {
-            log.error("Unable to delete file, {}", e.getMessage());
+            log.error("Unable to delete file {} with {}", filePath, e.getMessage());
         }
     }
 
@@ -706,7 +707,7 @@ public class FileUtilsImpl implements FileInterface {
         try (JsonReader reader = new JsonReader(new FileReader(filePath.toFile()))) {
             file = gson.fromJson(reader, Object.class);
         } catch (Exception e) {
-            log.debug(e.getMessage());
+            log.error("Error while reading file {} with message {} with cause", filePath, e.getMessage(), e.getCause());
             return null;
         }
         return file;
@@ -726,7 +727,11 @@ public class FileUtilsImpl implements FileInterface {
                 try (JsonReader reader = new JsonReader(new FileReader(file))) {
                     resource.put(file.getName() + keySuffix, gson.fromJson(reader, Object.class));
                 } catch (Exception e) {
-                    log.debug(e.getMessage());
+                    log.error(
+                            "Error while reading file {} with message {} with cause",
+                            file.toPath(),
+                            e.getMessage(),
+                            e.getCause());
                 }
             });
         }
@@ -743,7 +748,7 @@ public class FileUtilsImpl implements FileInterface {
         try {
             data = FileUtils.readFileToString(filePath.toFile(), "UTF-8");
         } catch (IOException e) {
-            log.error(" Error while reading the file from git repo {0} ", e.getMessage());
+            log.error("Error while reading the file from git repo {} ", e.getMessage());
         }
         return data;
     }
