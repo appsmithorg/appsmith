@@ -97,6 +97,7 @@ export interface Category {
   categoryType: string;
   needsUpgrade?: boolean;
   isEnterprise?: boolean;
+  isEnabled?: boolean;
 }
 
 export const SettingCategories = {
