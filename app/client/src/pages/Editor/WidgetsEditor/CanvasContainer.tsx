@@ -234,16 +234,20 @@ function CanvasContainer(props: CanvasContainerProps) {
         )}
         {node}
       </Container>
-      <CanvasResizer
-        heightWithTopMargin={heightWithTopMargin}
-        isPageInitiated={!isPageInitializing && !!widgetsStructure}
-        shouldHaveTopMargin={shouldHaveTopMargin}
-      />
-      <OverlayCanvasContainer
-        canvasWidth={canvasWidth}
-        containerRef={props.containerRef}
-        parentRef={ref}
-      />
+      {isAutoLayout && (
+        <>
+          <CanvasResizer
+            heightWithTopMargin={heightWithTopMargin}
+            isPageInitiated={!isPageInitializing && !!widgetsStructure}
+            shouldHaveTopMargin={shouldHaveTopMargin}
+          />
+          <OverlayCanvasContainer
+            canvasWidth={canvasWidth}
+            containerRef={props.containerRef}
+            parentRef={ref}
+          />
+        </>
+      )}
     </>
   );
 }

@@ -44,6 +44,7 @@ import {
 } from "utils/autoLayout/flexWidgetUtils";
 import type { MinMaxSize } from "utils/autoLayout/flexWidgetUtils";
 import type { AlignWidgetTypes } from "widgets/constants";
+import log from "loglevel";
 
 export type AutoLayoutResizableProps = {
   mainCanvasWidth: number;
@@ -142,6 +143,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
     direction: ReflowDirection.UNSET,
     reflectDimension: true,
     reflectPosition: true,
+    reflectIndicator: 1,
   });
   const allWidgets = useSelector(getWidgets);
   const { minWidth }: { [key in keyof MinMaxSize]: number | undefined } =
@@ -298,6 +300,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
             };
           }
         }
+        log.debug("old", newRect);
         return newRect;
       });
     }
@@ -327,7 +330,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
   if (widget[leftColumnMap] !== 0 && props.handles.left) {
     handles.push({
       dragCallback: (x: number) => {
-        let dimensionUpdates = {
+        let dimensionUpdates: DimensionUpdateProps = {
           reflectDimension: true,
           reflectPosition: false,
           y: newDimensions.y,
@@ -335,6 +338,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
           X: x,
           height: newDimensions.height,
           width: props.componentWidth,
+          reflectIndicator: 1,
           x: x,
         };
         if (widgetAlignment === "start") {
@@ -374,7 +378,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
   ) {
     handles.push({
       dragCallback: (x: number) => {
-        let dimensionUpdates = {
+        let dimensionUpdates: DimensionUpdateProps = {
           reflectDimension: true,
           reflectPosition: false,
           y: newDimensions.y,
@@ -382,6 +386,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
           X: x,
           height: newDimensions.height,
           width: props.componentWidth,
+          reflectIndicator: 1,
           x: x,
         };
         if (widgetAlignment === "start") {
@@ -422,6 +427,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
           y: newDimensions.y,
           direction: ReflowDirection.BOTTOM,
           Y: y,
+          reflectIndicator: 1,
           reflectDimension: true,
           reflectPosition: true,
         });
@@ -434,7 +440,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
   if (props.handles.bottomRight) {
     handles.push({
       dragCallback: (x: number, y: number) => {
-        let dimensionUpdates = {
+        let dimensionUpdates: DimensionUpdateProps = {
           reflectDimension: true,
           reflectPosition: false,
           y: newDimensions.y,
@@ -442,6 +448,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
           height: props.componentHeight + y,
           x: newDimensions.x,
           direction: ReflowDirection.BOTTOMRIGHT,
+          reflectIndicator: 1,
           X: x,
           Y: y,
         };
@@ -478,7 +485,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
   if (props.handles.bottomLeft) {
     handles.push({
       dragCallback: (x: number, y: number) => {
-        let dimensionUpdates = {
+        let dimensionUpdates: DimensionUpdateProps = {
           reflectDimension: true,
           reflectPosition: false,
           x: x,
@@ -486,6 +493,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
           height: props.componentHeight + y,
           y: newDimensions.y,
           direction: ReflowDirection.BOTTOMLEFT,
+          reflectIndicator: 1,
           X: x,
           Y: y,
         };

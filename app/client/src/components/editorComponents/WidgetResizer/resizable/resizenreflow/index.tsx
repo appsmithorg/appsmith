@@ -98,6 +98,7 @@ export function ReflowResizable(props: ResizableProps) {
     y: 0,
     reset: false,
     direction: ReflowDirection.UNSET,
+    reflectIndicator: 1,
     ...dimensionReflectionProps,
   });
 
@@ -206,6 +207,7 @@ export function ReflowResizable(props: ResizableProps) {
           y: newDimensions.y,
           direction: ReflowDirection.LEFT,
           X: x,
+          reflectIndicator: 1,
           ...dimensionReflectionProps,
         });
       },
@@ -224,6 +226,7 @@ export function ReflowResizable(props: ResizableProps) {
           x: newDimensions.x,
           direction: ReflowDirection.TOP,
           Y: y,
+          reflectIndicator: 1,
           ...dimensionReflectionProps,
         });
       },
@@ -242,6 +245,7 @@ export function ReflowResizable(props: ResizableProps) {
           y: newDimensions.y,
           direction: ReflowDirection.RIGHT,
           X: x,
+          reflectIndicator: 1,
           ...dimensionReflectionProps,
         });
       },
@@ -260,6 +264,7 @@ export function ReflowResizable(props: ResizableProps) {
           y: newDimensions.y,
           direction: ReflowDirection.BOTTOM,
           Y: y,
+          reflectIndicator: 1,
           ...dimensionReflectionProps,
         });
       },
@@ -279,6 +284,7 @@ export function ReflowResizable(props: ResizableProps) {
           direction: ReflowDirection.TOPLEFT,
           X: x,
           Y: y,
+          reflectIndicator: 1,
           ...dimensionReflectionProps,
         });
       },
@@ -297,6 +303,7 @@ export function ReflowResizable(props: ResizableProps) {
           direction: ReflowDirection.TOPRIGHT,
           X: x,
           Y: y,
+          reflectIndicator: 1,
           ...dimensionReflectionProps,
         });
       },
@@ -315,6 +322,7 @@ export function ReflowResizable(props: ResizableProps) {
           direction: ReflowDirection.BOTTOMRIGHT,
           X: x,
           Y: y,
+          reflectIndicator: 1,
           ...dimensionReflectionProps,
         });
       },
@@ -333,6 +341,7 @@ export function ReflowResizable(props: ResizableProps) {
           direction: ReflowDirection.BOTTOMLEFT,
           X: x,
           Y: y,
+          reflectIndicator: 1,
           ...dimensionReflectionProps,
         });
       },

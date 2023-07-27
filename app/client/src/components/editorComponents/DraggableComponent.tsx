@@ -24,8 +24,13 @@ import {
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { useDragImageGenerator } from "pages/Editor/useDragImageGenerator";
 
-const DraggableWrapper = styled.div`
-  display: block;
+const DraggableWrapper = styled.div<{
+  $isFlexChild: boolean;
+  $isCurrentWidgetDragging: boolean;
+}>`
+  display: ${(props) =>
+    !props.$isFlexChild && props.$isCurrentWidgetDragging ? "none" : "block"};
+  padding: ${(props) => (props.$isFlexChild ? "3px" : "inherit")};
   flex-direction: column;
   width: 100%;
   height: 100%;
@@ -139,7 +144,8 @@ function DraggableComponent(props: DraggableComponentProps) {
     props.isFlexChild || !(isSelected && isDragging);
   // Display this draggable based on the current drag state
   const dragWrapperStyle: CSSProperties = {
-    display: !props.isFlexChild && isCurrentWidgetDragging ? "none" : "block",
+    width: "100%",
+    height: "100%",
   };
   const dragBoundariesStyle: React.CSSProperties = useMemo(() => {
     return {
@@ -213,9 +219,12 @@ function DraggableComponent(props: DraggableComponentProps) {
 
   return (
     <DraggableWrapper
+      $isCurrentWidgetDragging={isCurrentWidgetDragging}
+      $isFlexChild={!!props.isFlexChild}
       className={className}
       data-testid={isSelected ? "t--selected" : ""}
       draggable
+      id={`t--draggable-${props.widgetId}`}
       onDragStart={onDragStart}
       onMouseOver={handleMouseOver}
       ref={draggableRef}
