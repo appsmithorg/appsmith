@@ -6,7 +6,6 @@ import net.schmizz.sshj.connection.channel.direct.Parameters;
 import net.schmizz.sshj.userauth.keyprovider.PKCS8KeyFile;
 import net.schmizz.sshj.userauth.method.AuthPublickey;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -15,12 +14,23 @@ import java.net.ServerSocket;
 public class SSHUtils {
     public static SSHTunnelContext createSSHTunnel() throws IOException {
 
+        /*KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(2048);
+        KeyPair pair = keyGen.generateKeyPair();
+        KeyPairWrapper keyProvider = new KeyPairWrapper(pair);
+        Buffer.PlainBuffer buf = new Buffer.PlainBuffer().putPublicKey(pair.getPublic());
+        String publicKey = "ssh-rsa " + Base64.encodeBytes(buf.array(), buf.rpos(), buf.available()) + " test@example" +
+                ".com";*/
+
         final SSHClient client = new SSHClient();
 
         client.loadKnownHosts();
         client.connect("3.108.238.235", 22);
         PKCS8KeyFile keyFile = new PKCS8KeyFile();
-        keyFile.init(new File("/Users/sumitsum/Downloads/test-snippet.pem"));
+        // keyFile.init(new File("/Users/sumitsum/Downloads/test-snippet.pem"));
+        keyFile.init(
+                "",
+                null);
         client.auth("ubuntu", new AuthPublickey(keyFile));
 
         final ServerSocket ss = new ServerSocket();
@@ -29,7 +39,7 @@ public class SSHUtils {
         ss.bind(new InetSocketAddress(params.getLocalHost(), params.getLocalPort()));
         System.out.println("====== xxxxxxxx ==============");
         System.out.println("port no: " + ss.getLocalPort());
-        //client.newLocalPortForwarder(params, ss).listen();
+        // client.newLocalPortForwarder(params, ss).listen();
 
         Runnable serverTask = new Runnable() {
             @Override
@@ -44,7 +54,6 @@ public class SSHUtils {
         };
         Thread serverThread = new Thread(serverTask);
         serverThread.start();
-
 
         return new SSHTunnelContext(ss, serverThread, client);
     }

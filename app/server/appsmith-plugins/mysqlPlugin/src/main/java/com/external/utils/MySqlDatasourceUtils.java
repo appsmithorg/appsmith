@@ -71,7 +71,7 @@ public class MySqlDatasourceUtils {
             final List<String> hosts = new ArrayList<>();
 
             for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                //hosts.add(endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 3306L));
+                // hosts.add(endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 3306L));
                 hosts.add("localhost:" + serverSocket.getLocalPort());
             }
 
