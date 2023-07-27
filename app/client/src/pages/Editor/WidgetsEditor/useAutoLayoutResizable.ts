@@ -153,10 +153,12 @@ export const useAutoLayoutResizable = (
 
       const layerWidthInPixels =
         layerWidthInPixelsWithoutCurrWidget + widgetWidthInPixels;
-      const hasReachedMaxWidthLimit = !(
-        layerWidthInPixels < parentWidth &&
-        layerWidthInPixels + rect.width <= parentWidth
-      );
+
+      const hasReachedMaxWidthLimit =
+        // adjusting for interger values lost when calulating percentage
+        layerWidthInPixels >= parentWidth - 1
+          ? false
+          : !(layerWidthInPixels + rect.width <= parentWidth);
       const isIncreasingWidth = newRect.width > 0;
       const setMaxLimitAsWidth = hasReachedMaxWidthLimit && isIncreasingWidth;
 
@@ -179,16 +181,6 @@ export const useAutoLayoutResizable = (
           x: newRect.x !== 0 ? newRect.reflectIndicator * minWidthDiff : 0,
           X: newRect.reflectIndicator * minWidthDiff,
         };
-      } else {
-        //if it should not resize horizontally, we keep keep the previous horizontal dimensions
-        if (hasFillChild) {
-          newRect = {
-            ...newRect,
-            width: newDimensions.current.width,
-            x: newDimensions.current.x,
-            X: newDimensions.current.X,
-          };
-        }
       }
 
       updateWidgetDimensions(newRect || { X: 0, Y: 0 });
