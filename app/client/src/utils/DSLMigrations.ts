@@ -76,6 +76,7 @@ import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskin
 import {
   MigrateSelectTypeWidgetDefaultValue,
   migrateSelectWidgetOptionToSourceData,
+  migrateSelectWidgetSourceDataBindingPathList,
 } from "./migrations/SelectWidget";
 import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskinningMigrations";
 
@@ -1194,6 +1195,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 80) {
     currentDSL = migrateSelectWidgetOptionToSourceData(currentDSL);
+    currentDSL.version = 81;
+  }
+
+  if (currentDSL.version === 81) {
+    currentDSL = migrateSelectWidgetSourceDataBindingPathList(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
