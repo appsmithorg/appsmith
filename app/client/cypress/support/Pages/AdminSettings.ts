@@ -5,7 +5,7 @@ export class AdminSettings {
   public locator = ObjectsRegistry.CommonLocators;
   public homePage = ObjectsRegistry.HomePage;
 
-  private _adminSettingsBtn = '[data-testid="t--admin-settings-menu-option"]';
+  public _adminSettingsBtn = '[data-testid="t--admin-settings-menu-option"]';
   private _settingsList = ".t--settings-category-list";
   public _usersTab = ".t--settings-category-users";
   public _roles = (user: string) =>

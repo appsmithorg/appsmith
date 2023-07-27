@@ -13,7 +13,7 @@ import {
 } from "components/constants";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Theme } from "constants/DefaultTheme";
-import type { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import type { PropertyUpdates } from "widgets/constants";
 import {
   CANVAS_SELECTOR,
   CONTAINER_GRID_PADDING,
@@ -673,7 +673,7 @@ export const getMainCanvas = () =>
  * - Often times we would wanna call more than one hook when a property is
  *   changed. Use this hook instead of nested calls
  *
- * Eack hook should either return `undefined` or an array of PropertyHookUpdates
+ * Eack hook should either return `undefined` or an array of PropertyUpdates
  * this function ignores the undefined and concats all the property update array.
  */
 export function composePropertyUpdateHook(
@@ -682,16 +682,16 @@ export function composePropertyUpdateHook(
       props: any,
       propertyPath: string,
       propertyValue: any,
-    ) => Array<PropertyHookUpdates> | undefined
+    ) => Array<PropertyUpdates> | undefined
   >,
 ): (
   props: any,
   propertyPath: string,
   propertyValue: any,
-) => Array<PropertyHookUpdates> | undefined {
+) => Array<PropertyUpdates> | undefined {
   return (props: any, propertyPath: string, propertyValue: any) => {
     if (updateFunctions.length) {
-      let updates: PropertyHookUpdates[] = [];
+      let updates: PropertyUpdates[] = [];
 
       updateFunctions.forEach((func) => {
         if (typeof func === "function") {
