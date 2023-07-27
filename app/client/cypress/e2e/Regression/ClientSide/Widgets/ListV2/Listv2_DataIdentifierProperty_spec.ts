@@ -48,9 +48,9 @@ describe("List v2 - Data Identifier property", () => {
       `${locators._propertyControl}dataidentifier`,
       "Please select an option",
     );
-  });
 
-  it("2. shows list of keys present in list data", () => {
+    //shows list of keys present in list data"
+
     const keys = ["id", "name", "img"];
     entityExplorer.SelectEntityByName("List1");
     // clicking on the data identifier dropdown
@@ -74,7 +74,7 @@ describe("List v2 - Data Identifier property", () => {
       .should("deep.equal", keys);
   });
 
-  it("3. on selection of key from dropdown, it should show same number of rows", () => {
+  it("2. on selection of key from dropdown, it should show same number of rows", () => {
     entityExplorer.SelectEntityByName("List1");
     // clicking on the data identifier dropdown and select key id
     propPane.SelectPropertiesDropDown("Data Identifier", "id");
@@ -84,7 +84,7 @@ describe("List v2 - Data Identifier property", () => {
     );
   });
 
-  it("4. enabling the JS mode, it should prefill with currentItem", () => {
+  it("3. enabling the JS mode, it should prefill with currentItem", () => {
     propPane.ToggleJSMode("Data Identifier", true);
     agHelper
       .GetElement(locators._existingFieldTextByName("Data Identifier"))
@@ -92,7 +92,7 @@ describe("List v2 - Data Identifier property", () => {
       .contains(`{{ currentItem["id"] }}`);
   });
 
-  it("5. when given composite key, should produce a valid array", () => {
+  it("4. when given composite key, should produce a valid array", () => {
     const keys = ["001_Blue_0_ABC", "002_Green_1_ABC", "003_Red_2_ABC"];
     propPane.ToggleJSMode("Data Identifier", false);
     propPane.UpdatePropertyFieldValue(
@@ -105,7 +105,7 @@ describe("List v2 - Data Identifier property", () => {
     });
   });
 
-  it("6. with large data set and data identifier set, the rows should render", () => {
+  it("5. with large data set and data identifier set, the rows should render", () => {
     agHelper.AddDsl("Listv2/simpleListWithLargeData");
     entityExplorer.SelectEntityByName("List1");
     // clicking on the data identifier dropdown
@@ -121,7 +121,7 @@ describe("List v2 - Data Identifier property", () => {
     );
   });
 
-  it("7. non unique data identifier should throw error", () => {
+  it("6. non unique data identifier should throw error", () => {
     entityExplorer.SelectEntityByName("List1");
     // clicking on the data identifier dropdown
     propPane.SelectPropertiesDropDown("Data Identifier", "name", "Action", 0);
@@ -137,7 +137,7 @@ describe("List v2 - Data Identifier property", () => {
     );
   });
 
-  it("8. pagination should work for non unique data identifier", () => {
+  it("7. pagination should work for non unique data identifier", () => {
     agHelper.GetNClickByContains(`${locators._pagination} a`, "2", 0, true);
     agHelper.AssertElementLength(
       locators._widgetInCanvas(draggableWidgets.CONTAINER),
@@ -145,7 +145,7 @@ describe("List v2 - Data Identifier property", () => {
     );
   });
 
-  it("9. Widgets get displayed when PrimaryKey doesn't exist - SSP", () => {
+  it("8. Widgets get displayed when PrimaryKey doesn't exist - SSP", () => {
     agHelper.AddDsl("Listv2/ListV2WithNullPrimaryKey");
     apiPage.CreateAndFillApi(
       "https://api.punkapi.com/v2/beers?page={{List1.pageNo}}&per_page={{List1.pageSize}}",
@@ -172,7 +172,7 @@ describe("List v2 - Data Identifier property", () => {
     );
   });
 
-  it("10. Widgets get displayed when PrimaryKey doesn't exist - Client-Side Pagination", () => {
+  it("9. Widgets get displayed when PrimaryKey doesn't exist - Client-Side Pagination", () => {
     entityExplorer.ExpandCollapseEntity("List2");
     entityExplorer.ExpandCollapseEntity("Container2");
     entityExplorer.SelectEntityByName("Text4");
@@ -203,7 +203,7 @@ describe("List v2 - Data Identifier property", () => {
     );
   });
 
-  it("11. Non unique data identifier should throw error- (data type issue)", () => {
+  it("10. Non unique data identifier should throw error- (data type issue)", () => {
     entityExplorer.SelectEntityByName("List2");
     propPane.UpdatePropertyFieldValue("Items", JSON.stringify(data));
     // clicking on the data identifier dropdown

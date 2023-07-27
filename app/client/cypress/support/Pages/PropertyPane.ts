@@ -560,7 +560,7 @@ export class PropertyPane {
     return this.agHelper.GetText(this._propPaneSelectedItem(property));
   }
 
-  public SelectColorFromColorPicker(property: string, colorOffset = -15) {
+  public SelectColorFromColorPicker(property: string, colorOffset: number) {
     this.agHelper.GetNClick(this._propertyControlColorPicker(property));
     this.agHelper.GetNClick(this._colorPickerV2Color, colorOffset, true);
   }
