@@ -18,11 +18,11 @@ export type WidgetQueryGenerationFormConfig = {
 
 export type WidgetQueryGenerationConfig = {
   select?: {
-    limit: string;
-    offset: string;
-    where: string;
-    orderBy: string;
-    sortOrder: string;
+    limit?: string;
+    offset?: string;
+    where?: string;
+    orderBy?: string;
+    sortOrder?: string;
   };
   create?: {
     value: string;
