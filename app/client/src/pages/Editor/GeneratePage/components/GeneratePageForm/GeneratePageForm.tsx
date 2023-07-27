@@ -405,7 +405,6 @@ function GeneratePageForm() {
     canCreateDatasource,
     datasources,
     generateCRUDSupportedPlugin,
-    isGoogleSheetPlugin,
   });
 
   const spreadSheetsProps = useSpreadSheets({
