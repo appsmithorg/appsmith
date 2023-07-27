@@ -28,7 +28,7 @@ jobs:
         shell: bash
 
     steps:
-      - uses: valeriangalliat/action-sshd-cloudflared@v1
+      - uses: mxschmitt/action-tmate@v3
 
       - name: Checkout the build branch
         uses: actions/checkout@v3
