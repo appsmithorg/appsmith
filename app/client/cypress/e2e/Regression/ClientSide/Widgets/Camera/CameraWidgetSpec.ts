@@ -8,7 +8,6 @@ import {
 describe("Camera widget test", () => {
   before(() => {
     entityExplorer.DragNDropWidget(draggableWidgets.CAMERA);
-    entityExplorer.SelectEntityByName("Camera1", "Widgets");
   });
   it("1. should show default camera dropdown with default value as 'Back'", () => {
     agHelper.AssertElementExist(
