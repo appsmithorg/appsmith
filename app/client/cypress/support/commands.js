@@ -864,6 +864,8 @@ Cypress.Commands.add(
   (forSuccess, forFailure, actionType, actionValue, idx = 0) => {
     propPane.SelectActionByTitleAndValue(actionType, actionValue);
 
+    agHelper.Sleep();
+
     // add a success callback
     cy.get(propPane._actionAddCallback("success")).click().wait(500);
     cy.get(locators._dropDownValue("Show alert")).click().wait(500);
