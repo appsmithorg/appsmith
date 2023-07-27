@@ -74,7 +74,7 @@ describe("List widget v2 onItemClick", () => {
     agHelper.GetNClick(locators._imgwidget, 0, true);
     agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
 
-    agHelper.GetNClickByContains(locators._textWidget,"Blue", 0, true);
+    agHelper.GetNClickByContains(locators._textWidget, "Blue", 0, true);
     agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
 
     deleteAllWidgetsInContainer();
