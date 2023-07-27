@@ -67,21 +67,21 @@ function widgetErrorsFromStaticProps(props: Record<string, unknown>) {
   >;
   const widgetErrors: WidgetError[] = [];
 
-  for (const propertyPath in evaluationErrorMap) {
+  Object.keys(evaluationErrorMap).forEach((propertyPath) => {
     const propertyErrors = evaluationErrorMap[propertyPath];
 
-    for (const evalError of propertyErrors) {
+    propertyErrors.forEach((evalError) => {
       const widgetError: WidgetError = {
         name: evalError.errorMessage.name,
         message: evalError.errorMessage.message,
         stack: evalError.raw,
         type: "property",
-        propertyPath: propertyPath,
+        path: propertyPath,
       };
 
       widgetErrors.push(widgetError);
-    }
-  }
+    });
+  });
 
   return widgetErrors;
 }

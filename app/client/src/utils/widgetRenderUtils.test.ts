@@ -64,7 +64,7 @@ describe("createCanvasWidget functionality", () => {
     expect(response.errors[0].message).toStrictEqual("Error Message");
     expect(response.errors[0].stack).toStrictEqual("Error Message Stack");
     expect(response.errors[0].type).toStrictEqual("property");
-    expect(response.errors[0].propertyPath).toStrictEqual("propertyPath");
+    expect(response.errors[0].path).toStrictEqual("propertyPath");
   });
 });
 
