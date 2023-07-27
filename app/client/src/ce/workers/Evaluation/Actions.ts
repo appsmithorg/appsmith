@@ -146,12 +146,17 @@ export function getEntitySetterFunctions(
   entityName: string,
   entity: DataTreeEntity,
 ) {
+  const entitySetterFunctions: Record<string, true> = {};
   const entityMethodMap = setters.getEntitySettersFromConfig(
     entityConfig,
     entityName,
     entity,
   );
-  return entityMethodMap;
+
+  for (const methodName of Object.keys(entityMethodMap)) {
+    entitySetterFunctions[`${entityName}.${methodName}`] = true;
+  }
+  return entitySetterFunctions;
 }
 
 export const getAllAsyncFunctions = (
