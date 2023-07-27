@@ -308,10 +308,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     @ResponseBody
     public Mono<ResponseDTO<ErrorDTO>> catchJGitInternalException(JGitInternalException e, ServerWebExchange exchange) {
-        AppsmithError appsmithError = AppsmithError.GIT_ACTION_FAILED;
+        AppsmithError appsmithError = AppsmithError.GIT_FILE_IN_USE;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
-        // lockFailedException
         String urlPath = exchange.getRequest().getPath().toString();
         if (e.getCause() instanceof LockFailedException) {
             LockFailedException lockFailedException = (LockFailedException) e.getCause();
@@ -324,7 +323,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     @ResponseBody
     public Mono<ResponseDTO<ErrorDTO>> catchLockFailedException(LockFailedException e, ServerWebExchange exchange) {
-        AppsmithError appsmithError = AppsmithError.INTERNAL_SERVER_ERROR;
+        AppsmithError appsmithError = AppsmithError.GIT_FILE_IN_USE;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         String urlPath = exchange.getRequest().getPath().toString();

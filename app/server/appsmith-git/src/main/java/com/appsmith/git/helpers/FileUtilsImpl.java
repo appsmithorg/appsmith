@@ -1071,19 +1071,19 @@ public class FileUtilsImpl implements FileInterface {
     }
 
     @Override
-    public Mono<Long> deleteIndexLockFile(Path path, int validTime) {
+    public Mono<Long> deleteIndexLockFile(Path path, int validTimeInSeconds) {
         // Check the time created of the index.lock file
         // If the File is stale for more than validTime, then delete the file
         try {
             BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
             FileTime fileTime = attr.creationTime();
             Instant now = Instant.now();
-            Instant validCreateTime = now.minusSeconds(validTime);
+            Instant validCreateTime = now.minusSeconds(validTimeInSeconds);
             if (fileTime.toInstant().isBefore(validCreateTime)) {
                 // Add base repo path
                 path = Paths.get(path + ".lock");
                 deleteFile(path);
-                return Mono.just(now.minusMillis(fileTime.toMillis()).toEpochMilli());
+                return Mono.just(now.minusMillis(fileTime.toMillis()).getEpochSecond());
             } else {
                 return Mono.just(0L);
             }
