@@ -1,46 +1,59 @@
 import type { ChartComponentProps } from ".";
-import type { ChartData } from "../constants";
+import type { AllChartData } from "../constants";
+import { XAxisCategory } from "../constants";
 
 export class EChartsDatasetBuilder {
-  static chartData(props: ChartComponentProps) {
+  static chartData(props: ChartComponentProps): AllChartData {
     if (props.chartType == "PIE_CHART") {
-      return Object.values(props.chartData).slice(0, 1);
+      const firstKey = Object.keys(props.chartData)[0];
+      return { [firstKey]: props.chartData[firstKey] };
     } else {
-      return Object.values(props.chartData);
+      return props.chartData;
     }
   }
 
-  static datasetFromData(xAxisName: string, allSeriesData: ChartData[]) {
-    const xAxisDimension: string =
-      xAxisName.length > 0 ? xAxisName : "Category";
+  static datasetFromData(allSeriesData: AllChartData) {
+    // ["Category", "seriesID1", "seriesID2"]
+    const dimensions: string[] = [XAxisCategory];
 
-    const dimensions = [xAxisDimension];
-    const sourceObject: Record<string, any> = {};
+    // { Product1 : { "series1" : yValue1 }, "series2" : yValue2 }
+    const categories: Record<string, Record<string, unknown>> = {};
 
-    for (const data of allSeriesData) {
-      const seriesName = data.seriesName ?? "";
-      const seriesData = data.data;
+    Object.keys(allSeriesData).forEach((seriesID) => {
+      dimensions.push(seriesID);
 
-      for (const dataPoint of seriesData) {
-        const categoryName = dataPoint.x;
-        const value = dataPoint.y;
+      const seriesData = allSeriesData[seriesID];
+      const datapoints = seriesData.data;
 
-        if (!sourceObject[categoryName]) {
-          sourceObject[categoryName] = { [xAxisDimension]: categoryName };
+      for (const datapoint of datapoints) {
+        const categoryName = datapoint.x;
+        const value = datapoint.y;
+
+        if (!categories[categoryName]) {
+          categories[categoryName] = {};
         }
-
-        sourceObject[categoryName][seriesName] = value;
+        categories[categoryName][seriesID] = value;
       }
+    });
 
-      dimensions.push(seriesName);
-    }
-    const sources = [];
-    for (const categoryName in sourceObject) {
-      sources.push(sourceObject[categoryName]);
-    }
-    return {
-      dimensions: dimensions,
-      source: sources,
-    };
+    const chartDatasource: unknown[] = [dimensions];
+
+    Object.keys(categories).forEach((categoryName) => {
+      const values = categories[categoryName];
+
+      const categoryDatapoints: unknown[] = [];
+      categoryDatapoints.push(categoryName);
+
+      for (let i = 1; i < dimensions.length; i++) {
+        if (values.hasOwnProperty(dimensions[i])) {
+          categoryDatapoints.push(values[dimensions[i]]);
+        } else {
+          // datapoint doesn't exist for this category and series, so push empty value
+          categoryDatapoints.push("");
+        }
+      }
+      chartDatasource.push(categoryDatapoints);
+    });
+    return { source: chartDatasource };
   }
 }

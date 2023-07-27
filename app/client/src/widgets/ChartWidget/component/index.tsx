@@ -8,7 +8,6 @@ import type {
   ChartType,
   CustomFusionChartConfig,
   AllChartData,
-  ChartData,
   ChartSelectedDataPoint,
   LabelOrientation,
 } from "../constants";
@@ -112,7 +111,7 @@ class ChartComponent extends React.Component<
   eChartsContainerId = this.props.widgetId + "echart-container";
   eChartsHTMLContainer: HTMLElement | null = null;
 
-  eChartsData: ChartData[] = [];
+  eChartsData: AllChartData = {};
   echartsConfigurationBuilder: EChartsConfigurationBuilder;
 
   echartConfiguration: Record<string, any> = {};
@@ -134,52 +133,29 @@ class ChartComponent extends React.Component<
         this.eChartsData,
       ),
       dataset: {
-        ...EChartsDatasetBuilder.datasetFromData(
-          this.props.xAxisName,
-          this.eChartsData,
-        ),
+        ...EChartsDatasetBuilder.datasetFromData(this.eChartsData),
       },
     };
     return options;
   };
 
   dataClickCallback = (params: echarts.ECElementEvent) => {
-    const eventData: Record<string, unknown> = params.data as Record<
-      string,
-      unknown
-    >;
-    let x: unknown = "";
-    let y: unknown = "";
+    const eventData: unknown[] = params.data as unknown[];
+    const x: unknown = eventData[0];
 
-    if (params.seriesType == "pie") {
-      x = params.seriesName ? eventData[params.seriesName] : "null";
-      y = -1;
-      for (const key in eventData) {
-        if (key != params.seriesName) {
-          y = eventData[key];
-        }
-      }
-    } else {
-      x = params.name;
-      y = params.seriesName ? eventData[params.seriesName] : -1;
-    }
+    const index = (params.seriesIndex ?? 0) + 1;
+    const y: unknown = eventData[index];
 
-    let seriesTitle = params.seriesName || "";
+    const seriesName =
+      params.seriesName && params.seriesName?.length > 0
+        ? params.seriesName
+        : "null";
 
-    if (params.seriesType == "pie") {
-      for (const key in eventData) {
-        if (key != params.seriesName) {
-          seriesTitle = key;
-        }
-      }
-    }
-
-    const chartSelectedPoint: ChartSelectedDataPoint = {
+    this.props.onDataPointClick({
       x: x,
       y: y,
-      seriesTitle: seriesTitle,
-    };
-    this.props.onDataPointClick(chartSelectedPoint);
+      seriesTitle: seriesName,
+    });
   };
 
   initializeEchartsInstance = () => {

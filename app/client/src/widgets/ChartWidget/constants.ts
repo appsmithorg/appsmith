@@ -7,6 +7,7 @@ export type ChartType =
   | "SCATTER_CHART"
   | "CUSTOM_FUSION_CHART";
 
+export const XAxisCategory = "Category";
 export interface ChartDataPoint {
   x: any;
   y: any;

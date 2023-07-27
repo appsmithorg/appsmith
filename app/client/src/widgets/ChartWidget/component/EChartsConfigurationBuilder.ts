@@ -1,75 +1,113 @@
 import type { ChartComponentProps } from ".";
-import { LabelOrientation, type ChartData } from "../constants";
+import type { AllChartData } from "../constants";
+import { LabelOrientation, type ChartData, XAxisCategory } from "../constants";
 
 import { Colors } from "constants/Colors";
 
 export class EChartsConfigurationBuilder {
   fontFamily: string | undefined;
 
-  #seriesConfigForChartType(
+  #seriesConfigurationForPieChart(seriesID: string, seriesData: ChartData) {
+    const config = {
+      type: "pie",
+      radius: "40%",
+      center: ["50%", "55%"],
+      name: seriesData.seriesName ?? "null",
+      label: {
+        show: true,
+        fontFamily: this.fontFamily,
+        color: Colors.DOVE_GRAY2,
+        formatter: `{b}: {@${seriesData.seriesName}} ({d}%)`,
+      },
+      encode: {
+        itemName: XAxisCategory,
+        tooltip: seriesID,
+        value: seriesID,
+      },
+    };
+    return config;
+  }
+
+  #seriesConfigForChart(
     props: ChartComponentProps,
-    chartData: ChartData[],
+    allSeriesData: AllChartData,
   ) {
     /**
      * {
      *  series: [ { type: "pie", radius: "40%", center: ["50%", 50%]}]
      * }
      */
-    return chartData.map((chartDatum, index) => {
-      let config: Record<string, unknown> = {
-        label: { show: true, position: "top" },
-      };
-      let color = chartDatum.color;
+    const configs: unknown[] = [];
+
+    Object.keys(allSeriesData).forEach((seriesID, index) => {
+      const seriesData = allSeriesData[seriesID];
+      let color = seriesData.color;
 
       if (index == 0 && !color) {
         color = props.primaryColor;
       }
 
+      let config: Record<string, unknown> = {
+        label: { show: true, position: "top" },
+        name: seriesData.seriesName ?? "",
+        itemStyle: { color: color },
+      };
+
       switch (props.chartType) {
         case "BAR_CHART":
-          config = { ...config, type: "bar", itemStyle: { color: color } };
+          config = { ...config, type: "bar" };
 
           // The series label should be on the right for bar chart
           (config.label as Record<string, unknown>).position = "right";
           break;
         case "COLUMN_CHART":
-          config = { ...config, type: "bar", itemStyle: { color: color } };
+          config = { ...config, type: "bar" };
           break;
         case "LINE_CHART":
-          config = { ...config, type: "line", itemStyle: { color: color } };
+          config = { ...config, type: "line" };
           break;
         case "AREA_CHART":
           config = {
             ...config,
             type: "line",
-            itemStyle: { color: color },
             areaStyle: {},
           };
           break;
         case "PIE_CHART":
-          config = {
-            type: "pie",
-            radius: "40%",
-            center: ["50%", "55%"],
-            label: {
-              show: true,
-              fontFamily: this.fontFamily,
-              color: Colors.DOVE_GRAY2,
-              formatter: `{b}: {@${chartDatum.seriesName}} ({d}%)`,
-            },
-          };
+          config = this.#seriesConfigurationForPieChart(seriesID, seriesData);
           break;
       }
 
-      return config;
+      configs.push(config);
     });
+    return configs;
   }
 
   #evaluateFontFamily(fontFamily: string | undefined) {
     return fontFamily === "System Default" ? "inherit" : fontFamily;
   }
 
-  #titleConfigForChart(props: ChartComponentProps, chartData: ChartData[]) {
+  #titleConfigForPiechart(allSeriesData: AllChartData) {
+    const config: Record<string, unknown>[] = [];
+    const numSeries = Object.keys(allSeriesData).length;
+    const interval = 100 / (numSeries + 1);
+
+    Object.values(allSeriesData).forEach((seriesData, index) => {
+      const offset = `${(index + 1) * interval}%`;
+      config.push({
+        top: "25%",
+        left: offset,
+        textAlign: "center",
+        text: seriesData.seriesName ?? "",
+      });
+    });
+    return config;
+  }
+
+  #titleConfigForChart(
+    props: ChartComponentProps,
+    allSeriesData: AllChartData,
+  ) {
     /**
      * title: [
      * {
@@ -97,21 +135,12 @@ export class EChartsConfigurationBuilder {
         width: props.dimensions.componentWidth - 100,
       },
     };
-    if (props.chartType == "PIE_CHART") {
-      const config: Record<string, unknown>[] = [defaultTitleConfig];
-      const numSeries = chartData.length;
-      const interval = 100 / (numSeries + 1);
 
-      chartData.forEach((seriesData, index) => {
-        const offset = `${(index + 1) * interval}%`;
-        config.push({
-          top: "25%",
-          left: offset,
-          textAlign: "center",
-          text: seriesData.seriesName ?? "",
-        });
-      });
-      return config;
+    if (props.chartType == "PIE_CHART") {
+      return [
+        defaultTitleConfig,
+        ...this.#titleConfigForPiechart(allSeriesData),
+      ];
     } else {
       return defaultTitleConfig;
     }
@@ -161,6 +190,7 @@ export class EChartsConfigurationBuilder {
         textStyle: { fontFamily: this.fontFamily },
         padding: [5, 50],
       },
+
       tooltip: {
         trigger: "item",
       },
@@ -267,17 +297,17 @@ export class EChartsConfigurationBuilder {
     return [];
   };
 
-  prepareEChartConfig(props: ChartComponentProps, chartData: ChartData[]) {
+  prepareEChartConfig(props: ChartComponentProps, allSeriesData: AllChartData) {
     this.fontFamily = this.#evaluateFontFamily(props.fontFamily);
 
     const chartConfig: Record<string, unknown> =
       this.#defaultEChartConfig(props);
-    chartConfig.title = this.#titleConfigForChart(props, chartData);
+    chartConfig.title = this.#titleConfigForChart(props, allSeriesData);
     chartConfig.xAxis = this.#xAxisConfig(props);
     chartConfig.yAxis = this.#yAxisConfig(props);
 
     chartConfig.dataZoom = this.#scrollConfig(props);
-    chartConfig.series = this.#seriesConfigForChartType(props, chartData);
+    chartConfig.series = this.#seriesConfigForChart(props, allSeriesData);
     return chartConfig;
   }
 }
