@@ -56,6 +56,16 @@ describe("Import and validate older app (app created in older versions of Appsmi
     );
     agHelper.GetNAssertElementText(
       gitSync._gitStatusChanges,
+      "queries modified",
+      "not.contain.text",
+    );
+    agHelper.GetNAssertElementText(
+      gitSync._gitStatusChanges,
+      "datasource modified",
+      "not.contain.text",
+    );
+    agHelper.GetNAssertElementText(
+      gitSync._gitStatusChanges,
       "Some of the changes above are due to an improved file structure designed to reduce merge conflicts. You can safely commit them to your repository.",
       "contain.text",
     );
