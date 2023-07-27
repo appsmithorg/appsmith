@@ -84,7 +84,6 @@ jobs:
           echo "next_version = $next_version"
           echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
           echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
-        working-directory: app/client/packages/rts
 
       # Install all the dependencies
       - name: Install dependencies
