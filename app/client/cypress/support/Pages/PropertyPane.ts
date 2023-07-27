@@ -88,8 +88,10 @@ export class PropertyPane {
   _selectorViewLabel = '[data-testId="selector-view-label"]';
   _textView = ".text-view";
   _selectorView = ".selector-view";
+  _dropdownOptions =
+    "//div[@class='rc-virtual-list']//div[contains(@class, 'rc-select-item-option')]";
   _dropDownValue = (dropdownOption: string) =>
-    `//div[@class='rc-virtual-list']//div[contains(@class, 'rc-select-item-option')]//span[text()='${dropdownOption}']`;
+    `${this._dropdownOptions}//span[text()='${dropdownOption}']`;
   _selectPropDropdown = (ddName: string) =>
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
@@ -260,6 +262,33 @@ export class PropertyPane {
         });
         expect(found).to.be.true;
       });
+  }
+
+  public AssertPropertiesDropDownValues(
+    endpoint: string,
+    dropdownExpectedValues: string[],
+  ) {
+    this.agHelper.GetNClick(this._selectPropDropdown(endpoint));
+    this.agHelper
+      .GetElement(this._dropdownOptions)
+      .then(($ddVisibleTexts: any) => {
+        let foundAll = true; // Flag to track if all expected selections are found
+        const foundSelections: string[] = []; // Array to track found selections
+        $ddVisibleTexts.each((index: any, element: any) => {
+          const spanText = Cypress.$(element).text().trim();
+          foundSelections.push(spanText);
+        });
+        // Check if all expected selections are found in the dropdown
+        dropdownExpectedValues.forEach((expectedSelection) => {
+          if (!foundSelections.includes(expectedSelection)) {
+            foundAll = false;
+            cy.log("Expected dropdown text not found: " + expectedSelection);
+          }
+        });
+        expect(foundAll).to.be.true;
+        cy.log("All dropdown values are present");
+      });
+    this.agHelper.GetNClick(this._selectPropDropdown(endpoint)); //Closing dropdown
   }
 
   public SelectJSFunctionToExecuteInExistingActionBlock(

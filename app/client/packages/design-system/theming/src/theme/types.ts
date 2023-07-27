@@ -6,6 +6,7 @@ import type { RootUnit, ThemeToken } from "../token";
 
 export type Theme = ThemeToken & {
   typography?: string;
+  fontFamily?: string;
   rootUnit?: RootUnit;
 };
 
