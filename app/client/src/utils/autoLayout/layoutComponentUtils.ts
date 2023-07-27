@@ -93,7 +93,6 @@ export function updateVerticalDropZoneAndHeight(
       height,
     };
   }
-  console.log("#### vertical zone", { highlights });
   return highlights;
 }
 
@@ -118,7 +117,6 @@ export function generateHighlightsForRow(data: {
   const { layout, layoutId, rendersWidgets } = layoutProps;
   const offsetY = rect?.top || 0 + 2;
   const offsetX = rect?.left || 0 + 2;
-  console.log("#### derive row", { ...data });
   if (rendersWidgets) {
     const base = {
       alignment,
@@ -169,7 +167,6 @@ export function generateHighlightsForRow(data: {
       width: 4,
       height: maxHeight,
     });
-    console.log("#### row final highlights", { highlights });
     return updateVerticalDropZoneAndHeight(
       highlights,
       maxHeight,
@@ -200,7 +197,6 @@ export function generateHighlightsForColumn(data: {
 }): HighlightInfo[] {
   const { layoutProps, rect, widgetPositions, widgets } = data;
   const { layout, layoutId, rendersWidgets } = layoutProps;
-  console.log("#### column derive", { data });
   const base = {
     alignment: FlexLayerAlignment.Start,
     isNewLayer: true,
@@ -296,7 +292,6 @@ export function generateHighlightsForColumn(data: {
       width: (rect?.width || 0) - 4,
       height: 4,
     });
-    console.log("#### final column highlights", { highlights });
     return updateHorizontalDropZone(highlights);
   }
 }
@@ -324,7 +319,6 @@ export function updateHorizontalDropZone(
       dropZone,
     };
   });
-  console.log("#### updated horizontal highlights", { highlights });
   return highlights;
 }
 

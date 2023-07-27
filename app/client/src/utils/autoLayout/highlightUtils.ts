@@ -95,13 +95,6 @@ export function deriveHighlightsFromLayers(
   const rowGap = isMobile ? MOBILE_ROW_GAP : ROW_GAP;
 
   let offsetTop = FLEXBOX_PADDING; // used to calculate distance of a highlight from parents's top.
-  console.log("#### selectedLayout", {
-    ...selectedLayout,
-    draggedWidgetTypes,
-    disallowed: draggedWidgetTypes?.filter(
-      (each: string) => selectedLayout?.widgetsAllowed?.indexOf(each) === -1,
-    ),
-  });
   if (layoutId) {
     if (selectedLayout?.widgetsAllowed?.length && draggedWidgetTypes) {
       const disallowedWidgets = draggedWidgetTypes.filter(
@@ -109,10 +102,8 @@ export function deriveHighlightsFromLayers(
       );
       if (disallowedWidgets.length) return [];
     }
-    console.log("#### layoutId", layoutId);
     const el = document.getElementById("layout-" + layoutId);
     const rect = el?.getBoundingClientRect();
-    console.log("#### rect", rect);
     if (rect) {
       const arr = getHighlightsForLayoutType({
         layout: selectedLayout,
@@ -126,7 +117,6 @@ export function deriveHighlightsFromLayers(
         offsetTop,
         isParent: true,
       });
-      console.log("#### highlights", arr);
       return arr;
     }
   }
@@ -772,7 +762,6 @@ export function getHighlightsForLayoutType(data: {
     // rendersWidgets,
   } = layout;
   if (isDropTarget && !isParent) return [];
-  console.log("#### layoutType", { layoutType });
   switch (layoutType) {
     case "ROW":
       highlights.push(

@@ -81,7 +81,6 @@ export const useAutoLayoutHighlights = ({
         }
       }
     }
-    console.log("!!!! checkForFillWidget", flag, arr);
     return { isFillWidget: flag, widgetTypes: arr };
   };
 
