@@ -27,7 +27,7 @@ import { WidgetOperations } from "widgets/BaseWidget";
 
 export const HANDLE_WIDTH = 10;
 
-type Handle = {
+export type Handle = {
   left: number;
   top: number;
   height: number;
@@ -72,7 +72,7 @@ export const useAutoLayoutResizable = (
   const { id, position } =
     selectedWidgetsData?.length === 1 && selectedWidgetsData[0]
       ? selectedWidgetsData[0]
-      : { id: "", position: { left: 0, top: 0, height: 0, width: 0 } };
+      : { id: "", position: undefined };
 
   const selectedWidget = useSelector((state: AppState) => getWidget(state, id));
 
@@ -108,7 +108,7 @@ export const useAutoLayoutResizable = (
     : selectedWidget?.alignment || FlexLayerAlignment.Start;
 
   useEffect(() => {
-    if (!resizeDirection.current) {
+    if (!resizeDirection.current && !!position) {
       initialDimensions.current = { ...position };
       const tempHandlePositions = getHandlePositionsFromPosition();
       setHandlePositions(tempHandlePositions);

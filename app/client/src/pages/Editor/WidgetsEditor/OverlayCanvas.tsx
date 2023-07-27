@@ -19,8 +19,6 @@ const FONT_SIZE = 14;
 const LINE_HEIGHT = Math.floor(FONT_SIZE * 1.2);
 const VERTICAL_PADDING = 4;
 const HORIZONTAL_PADDING = 6;
-const SCROLLBAR_WIDTH = 5;
-const CANVAS_RESIZER_WIDTH = 2;
 const HANDLE_MAX_DIMENSION = 16;
 const HANDLE_MIN_DIMENSION = 8;
 
@@ -101,16 +99,22 @@ const OverlayCanvasContainer = (props: {
   }, [canvasRef?.current]);
 
   const getPositionsForBoundary = (position: any) => {
-    const isScroll =
-      (props.parentRef?.current?.scrollHeight || 0) >
-      (props.parentRef?.current?.clientHeight || 0);
+    const { left: parentLeft = 0, top: parentTop = 0 } =
+      props.parentRef?.current?.getBoundingClientRect() || {};
+    const { left: canvasLeft = 0, top: canvasTop = 0 } =
+      stageRef?.current?.content?.getBoundingClientRect() || {};
 
-    const left: number =
-      position.left -
-      (isScroll ? SCROLLBAR_WIDTH / 2 : 0) -
-      CANVAS_RESIZER_WIDTH;
-    const top: number =
-      position.top + canvasPositions.current.yDiff - scrollTop.current;
+    const leftOffset = parentLeft - canvasLeft;
+    const topOffset = parentTop - canvasTop;
+
+    canvasPositions.current = {
+      ...canvasPositions.current,
+      xDiff: leftOffset,
+      yDiff: topOffset,
+    };
+
+    const left: number = position.left + leftOffset;
+    const top: number = position.top + topOffset - scrollTop.current;
 
     return { left, top };
   };
@@ -118,22 +122,23 @@ const OverlayCanvasContainer = (props: {
   const getWidgetBoundary = (
     position: any,
     positionForBoundary: { left: number; top: number },
+    hasWidgetName: boolean,
   ) => {
     const { left, top } = positionForBoundary;
 
     const groupEl = new Konva.Group({
-      height: position.height + 2,
-      width: position.width + 2,
-      x: left - 1,
-      y: top - 1,
+      height: position.height,
+      width: position.width,
+      x: left,
+      y: top,
     });
 
     const rectEl = new Konva.Rect({
-      cornerRadius: [4, 4, 4, 4],
+      cornerRadius: [4, hasWidgetName ? 0 : 4, 4, 4],
       stroke: FILL_COLOR,
       strokeWidth: 1,
-      height: position.height + 2,
-      width: position.width + 2,
+      height: position.height,
+      width: position.width,
       x: 0,
       y: 0,
     });
@@ -159,7 +164,7 @@ const OverlayCanvasContainer = (props: {
         y: top + position.height - HANDLE_MIN_DIMENSION / 2,
       });
 
-      const outerBorderRadius = HANDLE_MIN_DIMENSION / 2 + 1;
+      const outerBorderRadius = HANDLE_MIN_DIMENSION / 2;
       const rectEl = new Konva.Rect({
         cornerRadius: [
           outerBorderRadius,
@@ -206,11 +211,11 @@ const OverlayCanvasContainer = (props: {
       const groupEl = new Konva.Group({
         height: HANDLE_MAX_DIMENSION,
         width: HANDLE_MIN_DIMENSION,
-        x: left - HANDLE_MIN_DIMENSION / 2 - 3,
+        x: left - HANDLE_MIN_DIMENSION / 2 - 1,
         y: top + position.height / 2 - HANDLE_MAX_DIMENSION / 2,
       });
 
-      const outerBorderRadius = HANDLE_MIN_DIMENSION / 2 + 1;
+      const outerBorderRadius = HANDLE_MIN_DIMENSION / 2;
       const rectEl = new Konva.Rect({
         cornerRadius: [
           outerBorderRadius,
@@ -261,7 +266,7 @@ const OverlayCanvasContainer = (props: {
         y: top + position.height / 2 - HANDLE_MAX_DIMENSION / 2,
       });
 
-      const outerBorderRadius = HANDLE_MIN_DIMENSION / 2 + 1;
+      const outerBorderRadius = HANDLE_MIN_DIMENSION / 2;
       const rectEl = new Konva.Rect({
         cornerRadius: [
           outerBorderRadius,
@@ -319,14 +324,11 @@ const OverlayCanvasContainer = (props: {
 
     const textWidth: number = textEl.width();
     const componentWidth: number = textWidth + HORIZONTAL_PADDING * 2;
-    const left: number =
-      position.left +
-      position.width -
-      componentWidth -
-      (hasScroll.current ? SCROLLBAR_WIDTH / 2 : 0) -
-      CANVAS_RESIZER_WIDTH / 2;
-    const top: number =
-      position.top + canvasPositions.current.yDiff - HEIGHT - scrollTop.current;
+
+    const { left: widgetLeft, top: widgetTop } =
+      getPositionsForBoundary(position);
+    const left: number = widgetLeft + position.width - componentWidth + 0.5;
+    const top: number = widgetTop - HEIGHT;
     widgetNamePositions.current = {
       left: left,
       text: widgetName,
@@ -377,7 +379,11 @@ const OverlayCanvasContainer = (props: {
     }
 
     const positionForBoundary = getPositionsForBoundary(position);
-    const widgetBoundary = getWidgetBoundary(position, positionForBoundary);
+    const widgetBoundary = getWidgetBoundary(
+      position,
+      positionForBoundary,
+      !!widgetName,
+    );
     layer.add(widgetBoundary);
 
     if (shouldRenderHandles) {
@@ -457,7 +463,7 @@ const OverlayCanvasContainer = (props: {
   const handleMouseMove = throttle((e: any) => {
     const canvas = canvasRef?.current as HTMLDivElement;
     if (!canvas) return;
-    const { cursor, handle, isMouseOver } = getMouseOverDatails(e);
+    const { cursor, handle, isMouseOver } = getMouseOverDetails(e);
 
     setHoveredHandle(handle);
     if (isMouseOver || isResizing) {
@@ -506,12 +512,6 @@ const OverlayCanvasContainer = (props: {
     const container: HTMLDivElement = props.containerRef
       ?.current as HTMLDivElement;
     const parent: HTMLDivElement = props.parentRef?.current as HTMLDivElement;
-    const parentRect: DOMRect = parent.getBoundingClientRect();
-    canvasPositions.current = {
-      ...canvasPositions.current,
-      xDiff: Math.abs(parentRect.left - canvasPositions.current.left),
-      yDiff: Math.abs(parentRect.top - canvasPositions.current.top),
-    };
     container.addEventListener("mousemove", handleMouseMove);
     parent.addEventListener("scroll", handleScroll);
     containerEventAdded.current = true;
@@ -528,7 +528,7 @@ const OverlayCanvasContainer = (props: {
     hoveredHandle.current,
   ]);
 
-  const getMouseOverDatails = (e: any) => {
+  const getMouseOverDetails = (e: any) => {
     const x =
       e.clientX - canvasPositions.current.left - canvasPositions.current.xDiff;
     const y = e.clientY - canvasPositions.current.top;
@@ -603,7 +603,7 @@ const OverlayCanvasContainer = (props: {
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
         ref={stageRef}
-        width={props.canvasWidth}
+        width={props.canvasWidth + 20}
       >
         <Layer />
       </Stage>
