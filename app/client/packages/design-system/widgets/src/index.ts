@@ -1,9 +1,6 @@
-// components
-export { Icon } from "@design-system/headless";
+export { Button } from "./components/Button";
+export { fontMetricsMap, createGlobalFontStack } from "./utils/typography";
 
-export * from "./components/Button";
-export * from "./components/Checkbox";
-export * from "./components/Text";
-export * from "./components/CheckboxGroup";
-export * from "./components/Tooltip";
-export * from "./utils";
+
+// testing 6
+

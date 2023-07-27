@@ -1,0 +1,168 @@
+name: Build FE from branch
+
+on:
+  # This workflow is only triggered by the `/build-deploy-preview` command dispatch
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Github Branch to be deployed"
+        required: true
+        default: "release"
+      skip-tests:
+        description: "Flag to skip tests durin build"
+        required: true
+        default: "true"
+      uid:
+        description: "Unique ID to store the run data in the db"
+        required: true
+      sub-domain-name:
+        description: "Sub-domain for dp.appsmith.com to by used by this deploy preview (This will also be the image name and the k8s namespace identifier)"
+        required: true
+
+jobs:
+    client-build:
+      runs-on: ubuntu-latest-8-cores
+    # Only run this workflow for internally triggered events
+      defaults:
+        run:
+          working-directory: app/client
+          shell: bash
+
+      steps:
+        - name: Checkout the build branch
+          uses: actions/checkout@v3
+          with:
+            # fetch-depth: 0
+            ref: ${{ github.event.inputs.branch }}
+
+
+
+        # get all the files changes in the cypress/e2e folder    
+        - name: Get added files in cypress/e2e folder
+          if: inputs.pr != 0
+          id: files
+          uses: umani/changed-files@v4.0.0
+          with:
+            repo-token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
+            pattern: 'app/client/cypress/e2e/.*'
+            pr-number: ${{ inputs.pr }}
+            
+
+        # In case this is second attempt try restoring status of the prior attempt from cache
+        - name: Restore the previous run result
+          uses: actions/cache@v3
+          with:
+            path: |
+              ~/run_result
+            key: ${{ github.run_id }}-${{ github.job }}-client
+
+        # Fetch prior run result
+        - name: Get the previous run result
+          id: run_result
+          run: cat ~/run_result 2>/dev/null || echo 'default'
+          working-directory: app/client
+
+        # In case of prior failure run the job
+        - if: steps.run_result.outputs.run_result != 'success'
+          run: echo "I'm alive!" && exit 0
+          working-directory: app/client
+
+        - name: Use Node.js 16.14.0
+          if: steps.run_result.outputs.run_result != 'success'
+          uses: actions/setup-node@v3
+          with:
+            node-version: "16.14.0"
+
+        # actions/setup-node@v3 doesn’t work properly with Yarn 3
+        # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
+        # Restoring the cache manually instead
+        - name: Restore Yarn cache
+          if: steps.run_result.outputs.run_result != 'success'
+          uses: actions/cache@v3
+          with:
+            path: app/client/.yarn/cache
+            key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+            restore-keys: |
+              v1-yarn3-
+
+        # Install all the dependencies
+        - name: Install dependencies
+          if: steps.run_result.outputs.run_result != 'success'
+          run: yarn install --immutable
+
+        # Type checking before starting the build
+        - name: Run type check
+          if: steps.run_result.outputs.run_result != 'success'
+          run: yarn run check-types
+          working-directory: app/client
+
+        - name: Set the build environment based on the branch
+          if: steps.run_result.outputs.run_result != 'success'
+          id: vars
+          run: |
+            echo "REACT_APP_ENVIRONMENT=DEVELOPMENT" >> $GITHUB_OUTPUT
+            if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
+                echo "REACT_APP_ENVIRONMENT=PRODUCTION" >> $GITHUB_OUTPUT
+            fi
+            if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
+                echo "REACT_APP_ENVIRONMENT=STAGING" >> $GITHUB_OUTPUT
+            fi
+            # Since this is an unreleased build, we set the version to incremented version number with
+            # a `-SNAPSHOT` suffix.
+            latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+            echo "latest_released_version = $latest_released_version"
+            next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+            echo "next_version = $next_version"
+            echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
+          working-directory: app/client
+
+        # We burn React environment & the Segment analytics key into the build itself.
+        # This is to ensure that we don't need to configure it in each installation
+        - name: Create the bundle
+          run: |
+            if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+              export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
+            else
+              export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}"
+            fi
+            REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
+              REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
+              SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
+              REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
+              REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
+              REACT_APP_VERSION_EDITION="Community" \
+              yarn build
+          working-directory: app/client
+
+        # Saving the cache to use it in subsequent runs
+        - name: Save Yarn cache
+          uses: actions/cache/save@v3
+          with:
+            path: app/client/.yarn/cache
+            key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+            restore-keys: |
+              v1-yarn3-
+
+        # Restore the previous built bundle if present. If not push the newly built into the cache
+        - name: Restore the previous bundle
+          uses: actions/cache@v3
+          with:
+            path: |
+              app/client/build/
+            key: ${{ github.run_id }}-${{ github.job }}-client
+
+        - name: Pack the client build directory
+          run: |
+            tar -cvf ./build.tar -C build .
+          working-directory: app/client
+
+        # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+        - name: Upload react build bundle
+          uses: actions/upload-artifact@v3
+          with:
+            name: client-build
+            path: app/client/build.tar
+
+        # Set status = success
+        - name: Save the status of the run
+          run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result

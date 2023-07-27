@@ -29,11 +29,14 @@ const truncateStyles = css<StyledTextProp>`
   }}}
 `;
 
-export const StyledText = styled.div<StyledTextProp>`
-  font-weight: ${({ $isBold }) => ($isBold ? "bold" : "normal")};
-  font-style: ${({ $isItalic }) => ($isItalic ? "italic" : "normal")};
-  text-align: ${({ $textAlign }) => $textAlign};
-  width: 100%;
+export const StyledText = styled.div.withConfig({
+  shouldForwardProp,
+})<TextProps>`
+  color: red;
+  font-weight: ${({ fontWeight }) => fontWeight};
+  text-decoration: ${({ textDecoration }) => textDecoration};
+  font-style: ${({ fontStyle }) => fontStyle};
+  text-align: ${({ textAlign }) => textAlign};
 
   color: ${({ color }) => {
     switch (true) {

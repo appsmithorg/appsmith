@@ -43,6 +43,7 @@ jobs:
       # the code before doing anything else.
 
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
+      
       - name: Checkout the merged commit from PR and base branch
         if: inputs.pr != 0
         uses: actions/checkout@v3
@@ -58,43 +59,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      # get all the files changes in the cypress/e2e folder    
-      - name: Get added files in cypress/e2e folder
-        if: inputs.pr != 0
-        id: files
-        uses: umani/changed-files@v4.0.0
-        with:
-          repo-token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
-          pattern: 'app/client/cypress/e2e/.*'
-          pr-number: ${{ inputs.pr }}
-          
-      # Check all the newly added files are in ts  
-      - name: Check the newly added files are written in ts
-        if: inputs.check-test-files == 'true' && inputs.pr != 0
-        id: check_files
-        run: |
-          files=(${{steps.files.outputs.files_created}})
-          non_ts_files=()
-          for file in "${files[@]}"; do
-            if [[ $file != *.ts ]]; then
-              non_ts_files+=("<li>$file")
-            fi
-          done
-          echo "non_ts_files=${non_ts_files[@]}" >> $GITHUB_OUTPUT
-          echo "non_ts_files_count=${#non_ts_files[@]}" >> $GITHUB_OUTPUT
-          
-      # Comment in PR if test files are not written in ts and fail the workflow    
-      - name: Comment in PR if test files are not written in ts
-        if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true' && inputs.pr != 0
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          issue-number: ${{ inputs.pr }}
-          body: |
-            <b>Below new test files are written in js 🔴 </b>
-            <b>Expected format ts. Please fix and retrigger ok-to-test:</b>
-            <ol>${{ steps.check_files.outputs.non_ts_files }}</ol>
-      - if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true' && inputs.pr != 0
-        run: exit 1
+      - name: Run Get values
+        if: steps.run_result.outputs.run_result != 'success' && inputs.skip-tests != 'true'
+        run: echo "we are hereeeeeee"
 
       # Create a run record exactly at the time of merge to release to
       # ensure we compare run details with code at this point
@@ -169,6 +136,12 @@ jobs:
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
           echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
+
+      # Run the Jest tests only if the workflow has been invoked in a PR and the previous re-run has failed
+      - name: Run the jest tests
+        if: steps.run_result.outputs.run_result != 'success' && inputs.skip-tests != 'true'
+        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
+
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation

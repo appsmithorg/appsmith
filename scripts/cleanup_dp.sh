@@ -35,10 +35,10 @@ for i in $deployed_charts
     pr=$(echo $i | cut -c 3-);
     pr_state="$(gh pr view "$pr" --json state --jq .state)"
     echo $pr_state
-    if [[ $pr_state == "MERGED" || $pr_state == "CLOSED" ]]
+    if [[ $pr_state == "MERGED" ]]
     then
-      helm uninstall $i -n $i
-      kubectl delete ns $i || true
-      mongosh "mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$i?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" --eval 'db.dropDatabase()'
+      echo "helm uninstall $i -n $i"
+      echo kubectl delete ns $i || echo "true"
+      echo mongosh "mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$i?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" --eval 'db.dropDatabase()'
     fi
   done

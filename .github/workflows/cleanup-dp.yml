@@ -1,11 +1,11 @@
 name: Cleanup Deploy Previews
 
 on:
-  schedule:
-    - cron: 0 0 * * *
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
 
 jobs:
-  execute:
+  execute:  
     runs-on: ubuntu-latest
     steps:
       # Checkout the code

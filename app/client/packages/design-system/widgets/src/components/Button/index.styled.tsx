@@ -72,9 +72,10 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
   align-items: center;
   cursor: pointer;
   outline: 0;
+  gap: 30px;
   padding: var(--spacing-2) var(--spacing-4);
-  block-size: var(--sizing-8);
-  border-radius: var(--border-radius-1);
+  min-height: calc(var(--sizing-root-unit) * 8);
+  border-radius: 100%;
   user-select: none;
   min-inline-size: var(--sizing-8);
   position: relative;
@@ -88,7 +89,10 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
     margin-inline-end: var(--spacing-1);
   }
 
-  ${buttonStyles}
+  &[data-variant="primary"] {
+    background-color: red;
+    color: var(--color-fg-on-accent);
+    border-color: transparent;
 
   &[data-icon-position="end"] {
     flex-direction: row-reverse;
