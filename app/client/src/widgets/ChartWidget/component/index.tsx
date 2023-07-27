@@ -134,7 +134,10 @@ class ChartComponent extends React.Component<
         this.eChartsData,
       ),
       dataset: {
-        ...EChartsDatasetBuilder.datasetFromData(this.eChartsData),
+        ...EChartsDatasetBuilder.datasetFromData(
+          this.props.xAxisName,
+          this.eChartsData,
+        ),
       },
     };
     return options;
@@ -145,11 +148,36 @@ class ChartComponent extends React.Component<
       string,
       unknown
     >;
-    const yValue = params.seriesName ? eventData[params.seriesName] : 0;
+    let x: unknown = "";
+    let y: unknown = "";
+
+    if (params.seriesType == "pie") {
+      x = params.seriesName ? eventData[params.seriesName] : "null";
+      y = -1;
+      for (const key in eventData) {
+        if (key != params.seriesName) {
+          y = eventData[key];
+        }
+      }
+    } else {
+      x = params.name;
+      y = params.seriesName ? eventData[params.seriesName] : -1;
+    }
+
+    let seriesTitle = params.seriesName || "";
+
+    if (params.seriesType == "pie") {
+      for (const key in eventData) {
+        if (key != params.seriesName) {
+          seriesTitle = key;
+        }
+      }
+    }
+
     const chartSelectedPoint: ChartSelectedDataPoint = {
-      x: eventData.xaxiscategoryname,
-      y: yValue,
-      seriesTitle: params.seriesName || "",
+      x: x,
+      y: y,
+      seriesTitle: seriesTitle,
     };
     this.props.onDataPointClick(chartSelectedPoint);
   };

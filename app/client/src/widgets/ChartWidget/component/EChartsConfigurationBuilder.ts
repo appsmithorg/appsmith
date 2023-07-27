@@ -27,6 +27,11 @@ export class EChartsConfigurationBuilder {
 
       switch (props.chartType) {
         case "BAR_CHART":
+          config = { ...config, type: "bar", itemStyle: { color: color } };
+
+          // The series label should be on the right for bar chart
+          (config.label as Record<string, unknown>).position = "right";
+          break;
         case "COLUMN_CHART":
           config = { ...config, type: "bar", itemStyle: { color: color } };
           break;
@@ -50,6 +55,7 @@ export class EChartsConfigurationBuilder {
               show: true,
               fontFamily: this.fontFamily,
               color: Colors.DOVE_GRAY2,
+              formatter: `{b}: {@${chartDatum.seriesName}} ({d}%)`,
             },
           };
           break;
@@ -133,6 +139,10 @@ export class EChartsConfigurationBuilder {
       if (offsetPercentage > offset) {
         offset = offsetPercentage;
       }
+    }
+
+    if (props.allowScroll) {
+      offset += 50;
     }
 
     return offset;
@@ -246,9 +256,10 @@ export class EChartsConfigurationBuilder {
       if (props.chartType != "PIE_CHART") {
         return [
           {
-            type: "inside",
+            type: "slider",
             filterMode: "filter",
             start: "20",
+            bottom: "50",
           },
         ];
       }

@@ -36,6 +36,7 @@ export interface ChartSelectedDataPoint {
 export const messages = {
   ErrorTitle: "Error in Chart Data/Configuration",
   MoreDetails: "More Details",
+  EmptyData: "No chart data to display",
 };
 
 export const CUSTOM_CHART_TYPES = [

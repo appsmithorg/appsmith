@@ -10,8 +10,11 @@ export class EChartsDatasetBuilder {
     }
   }
 
-  static datasetFromData(allSeriesData: ChartData[]) {
-    const dimensions = ["xaxiscategoryname"];
+  static datasetFromData(xAxisName: string, allSeriesData: ChartData[]) {
+    const xAxisDimension: string =
+      xAxisName.length > 0 ? xAxisName : "Category";
+
+    const dimensions = [xAxisDimension];
     const sourceObject: Record<string, any> = {};
 
     for (const data of allSeriesData) {
@@ -23,7 +26,7 @@ export class EChartsDatasetBuilder {
         const value = dataPoint.y;
 
         if (!sourceObject[categoryName]) {
-          sourceObject[categoryName] = { xaxiscategoryname: categoryName };
+          sourceObject[categoryName] = { [xAxisDimension]: categoryName };
         }
 
         sourceObject[categoryName][seriesName] = value;
