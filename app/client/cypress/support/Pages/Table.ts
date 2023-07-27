@@ -1,6 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import sampleTableData from "../../fixtures/Table/sampleTableData.json";
-import { locators } from "../Objects/ObjectsCore";
 
 const path = require("path");
 
@@ -189,6 +188,7 @@ export class Table {
   _dayPickerFirstChild = ".DayPicker-Day:first-child";
   _divFirstChild = "div:first-child abbr";
   _listPreviousPage = ".rc-pagination-prev";
+  _paginationItem = ".rc-pagination-item";
   _listNavigation = (move: string) =>
     "//button[@area-label='" + move + " page']";
   _listNextPage = ".rc-pagination-next";
@@ -785,7 +785,7 @@ export class Table {
   }
 
   public NavigateToSpecificPage(pageNumber: number) {
-    this.agHelper.GetNClick(`${locators._paginationItem(pageNumber)}`);
+    this.agHelper.GetNClick(`${this._paginationItem}-${pageNumber}`);
     this.agHelper
       .GetText(this.locator._listActivePage, "text")
       .then(($newPageNo) => expect(Number($newPageNo)).to.eq(pageNumber));

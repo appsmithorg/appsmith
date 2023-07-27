@@ -4,19 +4,19 @@ import {
   locators,
   propPane,
   deployMode,
+  appSettings,
   draggableWidgets,
-  table,
 } from "../../../../../support/Objects/ObjectsCore";
 const dsl = require("../../../../../fixtures/listdsl.json");
 
-describe("List Widget Functionality", function () {
+describe("Container Widget Functionality", function () {
   const items = JSON.parse(dsl.dsl.children[0].listData);
 
   before(() => {
     agHelper.AddDsl("listdsl");
   });
 
-  it("1. Validate Visibility via Toggle", function () {
+  it("1. List-Unckeck Visible field Validation", function () {
     // Open Property pane
     entityExplorer.SelectEntityByName("List1", "Widgets");
     //Uncheck the disabled checkbox and validate
@@ -38,7 +38,7 @@ describe("List Widget Functionality", function () {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("2. Validate Visibility via JS Mode", function () {
+  it("2. Toggle JS - List-Unckeck Visible field Validation", function () {
     // Open Property pane
     entityExplorer.SelectEntityByName("List1", "Widgets");
     //Uncheck the disabled checkbox using JS and validate
@@ -68,10 +68,12 @@ describe("List Widget Functionality", function () {
     );
     //checks currentItem binding
     // Open property pane
+    entityExplorer.ExpandCollapseEntity("Widgets");
     entityExplorer.ExpandCollapseEntity("List1");
     entityExplorer.ExpandCollapseEntity("Container1");
     entityExplorer.SelectEntityByName("Text1");
     propPane.UpdatePropertyFieldValue("Text", `{{currentItem.first_name}}`);
+    agHelper.GetNClick(appSettings.locators._canvas);
     // Verify Current Item Bindings
     agHelper.GetNAssertElementText(
       propPane._propertyText,
@@ -100,16 +102,21 @@ describe("List Widget Functionality", function () {
     );
     // Clear item spacing
     propPane.UpdatePropertyFieldValue("Item Spacing (px)", "");
-    agHelper.Sleep(2000);
+    cy.wait(2000);
+    // Close property pane
+    agHelper.GetNClick(appSettings.locators._canvas);
   });
 
   it("5. checks button action", function () {
     // Open property pane
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.ExpandCollapseEntity("List1");
+    entityExplorer.ExpandCollapseEntity("Container1");
     entityExplorer.SelectEntityByName("Button1");
     propPane.UpdatePropertyFieldValue("Label", `{{currentItem.last_name}}`);
     propPane.SelectPlatformFunction("onClick", "Show alert");
     agHelper.EnterActionValue("Message", "{{currentItem.last_name}}");
-    agHelper.Sleep(3000);
+    cy.wait(3000);
     deployMode.DeployApp();
     // Verify Widget Button by clicking on it
     agHelper.AssertElementLength(
@@ -138,13 +145,22 @@ describe("List Widget Functionality", function () {
         draggableWidgets.CONTAINER,
       )}${locators._firstChild}`,
     );
+    cy.get(locators._body).then(($ele) => {
+      if ($ele.find(locators._toastMsg).length <= 0) {
+        agHelper.GetNClick(
+          `${locators._listWidget} ${locators._widgetInDeployed(
+            draggableWidgets.CONTAINER,
+          )}${locators._firstChild}`,
+        );
+      }
+    });
     // Verify the click on first item
     agHelper.ValidateToastMessage(items[0].first_name);
   });
 
   it("7. it checks pagination", function () {
     // clicking on second pagination button
-    agHelper.GetNClick(`${locators._paginationItem(2)}`);
+    agHelper.GetNClick(`${locators._paginationButton}-2`);
 
     // now we are on the second page which shows first the 3rd item in the list
     agHelper.GetNAssertElementText(
@@ -180,9 +196,9 @@ describe("List Widget Functionality", function () {
     entityExplorer.SelectEntityByName("List1", "Widgets");
     propPane.MoveToTab("Style");
     // Scroll down to Styles and Add background colour
-    propPane.SelectColorFromColorPicker("backgroundcolor", -15);
-    agHelper.Sleep(1000);
-    propPane.SelectColorFromColorPicker("itembackgroundcolor", -15);
+    propPane.SelectColorFromColorPicker("backgroundcolor");
+    cy.wait(1000);
+    propPane.SelectColorFromColorPicker("itembackgroundcolor");
     // Click on Deploy and ensure it is deployed appropriately
     deployMode.DeployApp();
     // Ensure List Background Color
@@ -206,7 +222,7 @@ describe("List Widget Functionality", function () {
     propPane.MoveToTab("Style");
     // Scroll down to Styles and Add background colour
     propPane.EnterJSContext("Background color", "#FFC13D");
-    agHelper.Sleep(1000);
+    cy.wait(1000);
     propPane.EnterJSContext("Item Background color", "#38AFF4");
     // Click on Deploy and ensure it is deployed appropriately
     deployMode.DeployApp();
