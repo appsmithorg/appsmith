@@ -57,7 +57,7 @@ public interface GitServiceCE {
 
     Mono<GitApplicationMetadata> getGitApplicationMetadata(String defaultApplicationId);
 
-    Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName);
+    Mono<GitStatusDTO> getStatus(String defaultApplicationId, boolean compareRemote, String branchName);
 
     Mono<MergeStatusDTO> mergeBranch(String applicationId, GitMergeDTO gitMergeDTO);
 

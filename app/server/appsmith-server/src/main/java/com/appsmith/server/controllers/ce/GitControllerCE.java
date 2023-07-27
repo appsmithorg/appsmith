@@ -199,7 +199,7 @@ public class GitControllerCE {
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
             @RequestParam(required = false, defaultValue = "true") Boolean compareRemote) {
         log.debug("Going to get status for default application {}, branch {}", defaultApplicationId, branchName);
-        return service.getStatus(defaultApplicationId, branchName)
+        return service.getStatus(defaultApplicationId, compareRemote, branchName)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 

@@ -1747,6 +1747,10 @@ public class GitServiceCEImpl implements GitServiceCE {
         return Mono.create(sink -> branchMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
+    private Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName, boolean isFileLock) {
+        return getStatus(defaultApplicationId, branchName, isFileLock, true);
+    }
+
     /**
      * Get the status of the mentioned branch
      *
@@ -1756,7 +1760,7 @@ public class GitServiceCEImpl implements GitServiceCE {
      *                             Only for the direct hits from the client the locking will be added
      * @return Map of json file names which are added, modified, conflicting, removed and the working tree if this is clean
      */
-    private Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName, boolean isFileLock) {
+    private Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName, boolean isFileLock, boolean compareRemote) {
 
         if (StringUtils.isEmptyOrNull(branchName)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
@@ -1857,7 +1861,17 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     .cache());
 
                     try {
-                        return branchedStatusMono
+                        Mono<GitStatusDTO> gitStatusDTOMono = executionTimeLogging
+                                .measureTask(
+                                        "getStatus->gitExecutor.fetchRemote",
+                                        gitExecutor.fetchRemote(
+                                                tuple.getT1(),
+                                                tuple.getT2().getPublicKey(),
+                                                tuple.getT2().getPrivateKey(),
+                                                true,
+                                                branchName,
+                                                false))
+                                .then(branchedStatusMono)
                                 // Remove any files which are copied by hard resetting the repo
                                 .then(executionTimeLogging.measureTask(
                                         "getStatus->gitExecutor.resetToLastCommit",
@@ -1874,6 +1888,22 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 })
                                 .onErrorResume(error -> Mono.error(new AppsmithException(
                                         AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage())));
+
+                        if (compareRemote) {
+                            return executionTimeLogging
+                                    .measureTask(
+                                            "getStatus->gitExecutor.fetchRemote",
+                                            gitExecutor.fetchRemote(
+                                                    tuple.getT1(),
+                                                    tuple.getT2().getPublicKey(),
+                                                    tuple.getT2().getPrivateKey(),
+                                                    true,
+                                                    branchName,
+                                                    false))
+                                    .then(gitStatusDTOMono);
+                        } else {
+                            return gitStatusDTOMono;
+                        }
                     } catch (GitAPIException | IOException e) {
                         log.error("error occurred", e);
                         return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, e.getMessage()));
@@ -1891,8 +1921,8 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     @Override
-    public Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName) {
-        return getStatus(defaultApplicationId, branchName, true);
+    public Mono<GitStatusDTO> getStatus(String defaultApplicationId, boolean compareRemote, String branchName) {
+        return getStatus(defaultApplicationId, branchName, true, compareRemote);
     }
 
     /**
