@@ -15,6 +15,7 @@ import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import { ChartErrorComponent } from "../component/ChartErrorComponent";
+import { syntaxErrorsFromProps } from "./SyntaxErrorsEvaluation";
 
 const ChartComponent = lazy(() =>
   retryPromise(() => import(/* webpackChunkName: "charts" */ "../component")),
@@ -74,20 +75,10 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     );
   };
 
-  shouldShowChartComponent() {
-    return !this.props.errors || this.props.errors.length == 0;
-  }
-
-  error() {
-    if (this.props.errors && this.props.errors.length > 0) {
-      return this.props.errors[0];
-    } else {
-      return new Error();
-    }
-  }
-
   getPageView() {
-    if (this.shouldShowChartComponent()) {
+    const errors = syntaxErrorsFromProps(this.props);
+
+    if (errors.length == 0) {
       return (
         <Suspense fallback={<Skeleton />}>
           <ChartComponent
@@ -119,7 +110,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
         </Suspense>
       );
     } else {
-      return <ChartErrorComponent error={this.error()} />;
+      return <ChartErrorComponent error={errors[0]} />;
     }
   }
 
