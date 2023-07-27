@@ -10,10 +10,9 @@ import {
 
 describe("Content Management System App", function () {
   before(() => {
-    homePage.NavigateToHome();
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      homePage.CreateNewWorkspace("EchoApiCMS" + uid);
+      homePage.CreateNewWorkspace("EchoApiCMS" + uid, true);
       homePage.CreateAppInWorkspace("EchoApiCMS" + uid, "EchoApiCMSApp");
       agHelper.AddDsl("CMSdsl");
     });

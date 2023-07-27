@@ -57,13 +57,15 @@ describe(" File Picker Widget", function () {
     // Test for isValid === True
     cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
       x: 550,
-      y: 50,
+      y: 100,
     });
 
-    cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "FilePicker_Widget");
+    propPane.RenameWidget("Text1", "FilePicker_Widget");
+
     propPane.UpdatePropertyFieldValue(
       "Text",
       "{{currentView.FilePicker1.isDirty}}_{{currentView.FilePicker1.isValid}}_{{currentView.FilePicker1.files[0]?.name}}",
+      false,
     );
     cy.get(
       `${widgetSelector("FilePicker_Widget")} ${commonlocators.bodyTextStyle}`,

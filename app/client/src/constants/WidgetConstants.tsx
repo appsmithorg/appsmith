@@ -71,7 +71,7 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
-export const LATEST_PAGE_VERSION = 80;
+export const LATEST_PAGE_VERSION = 81;
 
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
