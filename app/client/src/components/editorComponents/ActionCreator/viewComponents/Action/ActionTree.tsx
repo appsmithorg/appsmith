@@ -60,8 +60,14 @@ export default function ActionTree(props: {
   const { selectBlock, selectedBlockId } =
     React.useContext(ActionCreatorContext);
 
+  const [canAddCallback, setCanAddCallback] = React.useState(
+    props.actionBlock.actionType !== AppsmithFunction.none,
+  );
+
   useEffect(() => {
     setActionBlock(props.actionBlock);
+
+    setCanAddCallback(props.actionBlock.actionType !== AppsmithFunction.none);
   }, [props.actionBlock]);
 
   const [callbacksExpanded, setCallbacksExpanded] = React.useState(true);
@@ -76,6 +82,10 @@ export default function ActionTree(props: {
   }, [selectedBlockId, id]);
 
   const handleAddSuccessBlock = useCallback(() => {
+    if (!canAddCallback) {
+      return;
+    }
+
     const {
       success: { blocks },
     } = actionBlock;
@@ -94,6 +104,10 @@ export default function ActionTree(props: {
   }, [actionBlock]);
 
   const handleAddErrorBlock = useCallback(() => {
+    if (!canAddCallback) {
+      return;
+    }
+
     const {
       error: { blocks },
     } = actionBlock;
@@ -191,7 +205,11 @@ export default function ActionTree(props: {
       ) : null}
       {callbacksExpanded && areCallbacksApplicable ? (
         <TreeStructure>
-          <ul className="tree flex flex-col gap-0">
+          <ul
+            className={`tree flex flex-col gap-0 ${
+              canAddCallback ? "" : "opacity-60"
+            }`}
+          >
             {callbackBlocks.map(
               ({
                 blockType,
@@ -218,6 +236,7 @@ export default function ActionTree(props: {
                       >
                         <span className="icon w-7 h-7 flex items-center justify-center">
                           <Button
+                            isDisabled={!canAddCallback}
                             isIconButton
                             kind="tertiary"
                             size="sm"

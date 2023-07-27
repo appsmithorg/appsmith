@@ -147,7 +147,7 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
 
         <div className="">
           <Button
-            className="t--delete cursor-pointer mr-4"
+            className="t--delete cursor-pointer mr-1"
             isIconButton
             kind="tertiary"
             onClick={() => {
