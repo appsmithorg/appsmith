@@ -6,12 +6,13 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class CachedFeatures implements Serializable {
-    Object currentFeatures;
-    Object newFeatures;
+    Map<String, Boolean> currentFeatures;
+    Map<String, Boolean> newFeatures;
     Instant refreshedAt;
 }

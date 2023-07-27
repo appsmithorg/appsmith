@@ -5,6 +5,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.TenantService;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.http.HttpStatus;
@@ -20,9 +21,11 @@ import java.util.Map;
 public class TenantControllerCE {
 
     private final TenantService service;
+    private final FeatureFlagService featureFlagService;
 
-    public TenantControllerCE(TenantService service) {
+    public TenantControllerCE(TenantService service, FeatureFlagService featureFlagService) {
         this.service = service;
+        this.featureFlagService = featureFlagService;
     }
 
     /**
@@ -38,6 +41,14 @@ public class TenantControllerCE {
     @GetMapping("/current")
     public Mono<ResponseDTO<Tenant>> getTenantConfig() {
         return service.getTenantConfiguration()
+                .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/current/features")
+    public Mono<ResponseDTO<Map<String, Boolean>>> getCurrentTenantFeatures() {
+        return featureFlagService
+                .getCurrentTenantFeatures()
                 .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
     }
 

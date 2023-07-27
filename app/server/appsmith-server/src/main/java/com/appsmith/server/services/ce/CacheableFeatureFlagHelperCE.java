@@ -11,7 +11,17 @@ public interface CacheableFeatureFlagHelperCE {
 
     Mono<Void> evictUserCachedFlags(String userIdentifier);
 
+    /**
+     * To fetch the tenant features via cache
+     * @param tenantId Id of the tenant
+     * @return Mono of CachedFeatures
+     */
     Mono<CachedFeatures> fetchTenantCachedFeatures(String tenantId);
 
+    /**
+     * To evict the tenant features cache
+     * @param tenantId Id of the tenant
+     * @return Mono of Void
+     */
     Mono<Void> evictTenantCachedFeatures(String tenantId);
 }

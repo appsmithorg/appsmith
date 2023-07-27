@@ -154,13 +154,4 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                 .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
     }
-
-    @Scheduled(initialDelay = 10 * 1000 /* ten seconds */, fixedRate = 2 * 60 * 60 * 1000 /* two hours */)
-    public void fetchFeatures() {
-        featureFlagService
-                .getAllRemoteFeaturesForTenant()
-                .doOnError(error -> log.error("Error sending anonymous counts {0}", error))
-                .subscribeOn(Schedulers.boundedElastic())
-                .subscribe();
-    }
 }

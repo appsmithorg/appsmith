@@ -133,6 +133,10 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
         });
     }
 
+    /**
+     * To get all features of the tenant from Cloud Services and store them locally
+     * @return Mono of Void
+     */
     public Mono<Void> getAllRemoteFeaturesForTenant() {
         return tenantService
                 .getDefaultTenantId()
@@ -143,5 +147,16 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                 })
                 .flatMap(defaultTenantId -> cacheableFeatureFlagHelper.fetchTenantCachedFeatures(defaultTenantId))
                 .then();
+    }
+
+    /**
+     * To get all features of the current tenant.
+     * @return Mono of Map
+     */
+    public Mono<Map<String, Boolean>> getCurrentTenantFeatures() {
+        return tenantService
+                .getDefaultTenantId()
+                .flatMap(defaultTenantId -> cacheableFeatureFlagHelper.fetchTenantCachedFeatures(defaultTenantId))
+                .map(cachedFeatures -> cachedFeatures.getCurrentFeatures());
     }
 }

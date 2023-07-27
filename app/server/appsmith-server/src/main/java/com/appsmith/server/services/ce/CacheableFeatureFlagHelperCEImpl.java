@@ -141,22 +141,40 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                 });
     }
 
+    /**
+     * To fetch the tenant features via cache
+     * @param tenantId Id of the tenant
+     * @return Mono of CachedFeatures
+     */
     @Cache(cacheName = "features", key = "{#tenantId}")
     public Mono<CachedFeatures> fetchTenantCachedFeatures(String tenantId) {
         return this.forceAllRemoteFeaturesForTenant(tenantId).flatMap(flags -> {
             CachedFeatures cachedFeatures = new CachedFeatures();
             cachedFeatures.setRefreshedAt(Instant.now());
+            // TODO: Set to default flags according to the price plan
+            // TODO: Store the current features to DB for safe storage
+            cachedFeatures.setCurrentFeatures(flags);
             cachedFeatures.setNewFeatures(flags);
             return Mono.just(cachedFeatures);
         });
     }
 
+    /**
+     * To evict the tenant features cache
+     * @param tenantId Id of the tenant
+     * @return Mono of Void
+     */
     @CacheEvict(cacheName = "features", key = "{#tenantId}")
     public Mono<Void> evictTenantCachedFeatures(String tenantId) {
         return Mono.empty();
     }
 
-    private Mono<Object> forceAllRemoteFeaturesForTenant(String tenantId) {
+    /**
+     * To force fetch all tenant features from Cloud Services
+     * @param tenantId Id of the tenant
+     * @return Mono of Map
+     */
+    private Mono<Map<String, Boolean>> forceAllRemoteFeaturesForTenant(String tenantId) {
         Mono<String> instanceIdMono = configService.getInstanceId();
         String appsmithVersion = releaseNotesService.getRunningVersion();
         return instanceIdMono
@@ -172,7 +190,12 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                 .map(featuresMap -> featuresMap.get("features"));
     }
 
-    private Mono<Map<String, Map<String, Object>>> getRemoteFeaturesForTenant(FeaturesRequestDTO featuresRequestDTO) {
+    /**
+     * To get all tenant features from Cloud Services
+     * @param featuresRequestDTO FeaturesRequestDTO
+     * @return Mono of Map
+     */
+    private Mono<Map<String, Map<String, Boolean>>> getRemoteFeaturesForTenant(FeaturesRequestDTO featuresRequestDTO) {
         return WebClientUtils.create(cloudServicesConfig.getBaseUrl())
                 .post()
                 .uri("/api/v1/business-features")
@@ -180,7 +203,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                 .exchangeToMono(clientResponse -> {
                     if (clientResponse.statusCode().is2xxSuccessful()) {
                         return clientResponse.bodyToMono(
-                                new ParameterizedTypeReference<ResponseDTO<Map<String, Map<String, Object>>>>() {});
+                                new ParameterizedTypeReference<ResponseDTO<Map<String, Map<String, Boolean>>>>() {});
                     } else {
                         return clientResponse.createError();
                     }
