@@ -1760,7 +1760,8 @@ public class GitServiceCEImpl implements GitServiceCE {
      *                             Only for the direct hits from the client the locking will be added
      * @return Map of json file names which are added, modified, conflicting, removed and the working tree if this is clean
      */
-    private Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName, boolean isFileLock, boolean compareRemote) {
+    private Mono<GitStatusDTO> getStatus(
+            String defaultApplicationId, String branchName, boolean isFileLock, boolean compareRemote) {
 
         if (StringUtils.isEmptyOrNull(branchName)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
