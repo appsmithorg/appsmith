@@ -19,6 +19,10 @@ describe("Camera widget test", () => {
     );
   });
   it("2. should be able to change the default mobile camera option", () => {
+    propPane.AssertPropertiesDropDownValues("Default mobile camera", [
+      "Back (Rear)",
+      "Front (Selfie)",
+    ]);
     propPane.AssertPropertiesDropDownCurrentValue(
       "Default mobile camera",
       "Back (Rear)",
