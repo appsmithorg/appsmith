@@ -16,8 +16,7 @@ import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldN
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
-
-@ChangeUnit(order = "003", id="migrate-default-workspace-id-to-default-domain-id")
+@ChangeUnit(order = "003", id = "migrate-default-workspace-id-to-default-domain-id")
 public class Migration003PermissionGroupDefaultWorkspaceIdMigration {
     private final MongoTemplate mongoTemplate;
 
@@ -26,13 +25,19 @@ public class Migration003PermissionGroupDefaultWorkspaceIdMigration {
     }
 
     @RollbackExecution
-    public void demoRollbackExecution() {
-    }
+    public void demoRollbackExecution() {}
 
     @Execution
     public void defaultWorkspaceIdMigration() {
-        Query defaultWorkspaceIdExistsQuery = query(where(
-                fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).exists(true));
+        Query defaultWorkspaceIdExistsQuery =
+                query(where(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId))
+                        .exists(true));
+
+        if (mongoTemplate.findOne(defaultWorkspaceIdExistsQuery, PermissionGroup.class) == null) {
+            System.out.println("No permissionGroup data to migrate.");
+            return;
+        }
+
         UpdateDefinition copyWorkspaceIdToDomainId = AggregationUpdate.update()
                 .set(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
                 .toValueOf(Fields.field(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)));
@@ -41,7 +46,7 @@ public class Migration003PermissionGroupDefaultWorkspaceIdMigration {
                 .toValue(Workspace.class.getSimpleName());
         UpdateDefinition makeWorkspaceIdNull = AggregationUpdate.update()
                 .set(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId))
-                        .toValue(null);
+                .toValue(null);
 
         mongoTemplate.updateMulti(defaultWorkspaceIdExistsQuery, copyWorkspaceIdToDomainId, PermissionGroup.class);
         mongoTemplate.updateMulti(defaultWorkspaceIdExistsQuery, addWorkspaceAsDomainType, PermissionGroup.class);

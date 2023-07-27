@@ -6,7 +6,6 @@ import {
   createTempDatasourceFromForm,
 } from "actions/datasourceActions";
 import type { AppState } from "@appsmith/reducers";
-import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import PlusLogo from "assets/images/Plus-logo.svg";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
@@ -15,11 +14,12 @@ import type { EventLocation } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginPackageName, PluginType } from "entities/Action";
-import { Spinner } from "@blueprintjs/core";
 import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { curlImportPageURL } from "RouteBuilder";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { Spinner } from "design-system";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -31,7 +31,7 @@ const StyledContainer = styled.div`
     justify-content: center;
     text-align: center;
     letter-spacing: -0.24px;
-    color: ${Colors.BLACK};
+    color: var(--ads-v2-color-fg);
     font-weight: 400;
     text-decoration: none !important;
     flex-wrap: wrap;
@@ -84,25 +84,18 @@ const ApiCard = styled.div`
   align-items: center;
   justify-content: space-between;
   height: 64px;
+  border-radius: var(--ads-v2-border-radius);
+
   &:hover {
-    background-color: ${Colors.GREY_1};
+    background-color: var(--ads-v2-color-bg-subtle);
     cursor: pointer;
   }
 
-  .content-icon-wrapper {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: ${Colors.GREY_2};
-    display: flex;
-    align-items: center;
-
-    .content-icon {
-      height: 28px;
-      width: auto;
-      margin: 0 auto;
-      max-width: 100%;
-    }
+  .content-icon {
+    height: 34px;
+    width: auto;
+    margin: 0 auto;
+    max-width: 100%;
   }
 
   .cta {
@@ -143,6 +136,7 @@ type ApiHomeScreenProps = {
   isCreating: boolean;
   showUnsupportedPluginDialog: (callback: any) => void;
   createTempDatasourceFromForm: (data: any) => void;
+  showSaasAPIs: boolean; // If this is true, only SaaS APIs will be shown
 };
 
 type Props = ApiHomeScreenProps;
@@ -156,7 +150,14 @@ const API_ACTION = {
 };
 
 function NewApiScreen(props: Props) {
-  const { createNewApiAction, history, isCreating, pageId, plugins } = props;
+  const {
+    createNewApiAction,
+    history,
+    isCreating,
+    pageId,
+    plugins,
+    showSaasAPIs,
+  } = props;
 
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
     getGenerateCRUDEnabledPluginMap,
@@ -257,82 +258,61 @@ function NewApiScreen(props: Props) {
   };
 
   // Api plugins with Graphql
-  const API_PLUGINS = plugins.filter(
-    (p) => p.packageName === PluginPackageName.GRAPHQL,
+  const API_PLUGINS = plugins.filter((p) =>
+    !showSaasAPIs
+      ? p.packageName === PluginPackageName.GRAPHQL
+      : p.type === PluginType.SAAS || p.type === PluginType.REMOTE,
   );
-
-  plugins.forEach((p) => {
-    if (p.type === PluginType.SAAS || p.type === PluginType.REMOTE) {
-      API_PLUGINS.push(p);
-    }
-  });
 
   return (
     <StyledContainer>
       <ApiCardsContainer data-testid="newapi-datasource-card-container">
-        <ApiCard
-          className="t--createBlankApiCard create-new-api"
-          onClick={() => handleOnClick(API_ACTION.CREATE_NEW_API)}
-        >
-          <CardContentWrapper data-testid="newapi-datasource-content-wrapper">
-            <div className="content-icon-wrapper">
-              <img
-                alt="New"
-                className="curlImage t--plusImage content-icon"
-                src={PlusLogo}
-              />
-            </div>
-            <p className="textBtn">REST API</p>
-          </CardContentWrapper>
-          {isCreating && <Spinner className="cta" size={25} />}
-        </ApiCard>
-        <ApiCard
-          className="t--createBlankCurlCard"
-          onClick={() => handleOnClick(API_ACTION.IMPORT_CURL)}
-        >
-          <CardContentWrapper>
-            <div className="content-icon-wrapper">
-              <img
-                alt="CURL"
-                className="curlImage t--curlImage content-icon"
-                src={CurlLogo}
-              />
-            </div>
-            <p className="textBtn">CURL import</p>
-          </CardContentWrapper>
-        </ApiCard>
-        {authApiPlugin && (
-          <ApiCard
-            className="t--createAuthApiDatasource"
-            onClick={() => handleOnClick(API_ACTION.AUTH_API)}
-          >
-            <CardContentWrapper>
-              <div className="content-icon-wrapper">
+        {!showSaasAPIs && (
+          <>
+            <ApiCard
+              className="t--createBlankApiCard create-new-api"
+              onClick={() => handleOnClick(API_ACTION.CREATE_NEW_API)}
+            >
+              <CardContentWrapper data-testid="newapi-datasource-content-wrapper">
                 <img
-                  alt="OAuth2"
-                  className="authApiImage t--authApiImage content-icon"
-                  src={authApiPlugin.iconLocation}
+                  alt="New"
+                  className="curlImage t--plusImage content-icon"
+                  src={PlusLogo}
                 />
-              </div>
-              <p className="t--plugin-name textBtn">Authenticated API</p>
-            </CardContentWrapper>
-          </ApiCard>
+                <p className="textBtn">REST API</p>
+              </CardContentWrapper>
+              {isCreating && <Spinner className="cta" size={25} />}
+            </ApiCard>
+            <ApiCard
+              className="t--createBlankApiGraphqlCard"
+              onClick={() => handleOnClick(API_ACTION.CREATE_NEW_GRAPHQL_API)}
+            >
+              <CardContentWrapper>
+                <img
+                  alt="New"
+                  className="curlImage t--plusImage content-icon"
+                  src={PlusLogo}
+                />
+                <p className="textBtn">GraphQL API</p>
+              </CardContentWrapper>
+            </ApiCard>
+            {authApiPlugin && (
+              <ApiCard
+                className="t--createAuthApiDatasource"
+                onClick={() => handleOnClick(API_ACTION.AUTH_API)}
+              >
+                <CardContentWrapper>
+                  <img
+                    alt="OAuth2"
+                    className="authApiImage t--authApiImage content-icon"
+                    src={getAssetUrl(authApiPlugin.iconLocation)}
+                  />
+                  <p className="t--plugin-name textBtn">Authenticated API</p>
+                </CardContentWrapper>
+              </ApiCard>
+            )}
+          </>
         )}
-        <ApiCard
-          className="t--createBlankApiGraphqlCard"
-          onClick={() => handleOnClick(API_ACTION.CREATE_NEW_GRAPHQL_API)}
-        >
-          <CardContentWrapper>
-            <div className="content-icon-wrapper">
-              <img
-                alt="New"
-                className="curlImage t--plusImage content-icon"
-                src={PlusLogo}
-              />
-            </div>
-            <p className="textBtn">GraphQL API</p>
-          </CardContentWrapper>
-        </ApiCard>
         {API_PLUGINS.map((p) => (
           <ApiCard
             className={`t--createBlankApi-${p.packageName}`}
@@ -348,19 +328,32 @@ function NewApiScreen(props: Props) {
             }}
           >
             <CardContentWrapper>
-              <div className="content-icon-wrapper">
-                <img
-                  alt={p.name}
-                  className={
-                    "content-icon saasImage t--saas-" + p.packageName + "-image"
-                  }
-                  src={p.iconLocation}
-                />
-              </div>
+              <img
+                alt={p.name}
+                className={
+                  "content-icon saasImage t--saas-" + p.packageName + "-image"
+                }
+                src={getAssetUrl(p.iconLocation)}
+              />
               <p className="t--plugin-name textBtn">{p.name}</p>
             </CardContentWrapper>
           </ApiCard>
         ))}
+        {!showSaasAPIs && (
+          <ApiCard
+            className="t--createBlankCurlCard"
+            onClick={() => handleOnClick(API_ACTION.IMPORT_CURL)}
+          >
+            <CardContentWrapper>
+              <img
+                alt="CURL"
+                className="curlImage t--curlImage content-icon"
+                src={CurlLogo}
+              />
+              <p className="textBtn">CURL import</p>
+            </CardContentWrapper>
+          </ApiCard>
+        )}
       </ApiCardsContainer>
     </StyledContainer>
   );

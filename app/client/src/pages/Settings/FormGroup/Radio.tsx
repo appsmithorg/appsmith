@@ -1,24 +1,14 @@
+import React, { useEffect, useState } from "react";
 import type { ReactElement } from "react";
-import React from "react";
-import type { OptionProps } from "design-system-old";
-import {
-  IconWrapper,
-  Radio,
-  Text,
-  TextType,
-  Button,
-  Size,
-  IconSize,
-} from "design-system-old";
+import { FieldError } from "design-system-old";
 import { Popover2 } from "@blueprintjs/popover2";
 import type { SettingComponentProps } from "./Common";
-import { FormGroup } from "./Common";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
-import { FieldError } from "design-system-old";
-import { Colors } from "constants/Colors";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { Position } from "@blueprintjs/core";
+import type { RadioProps } from "design-system";
+import { Icon, Link, Radio, RadioGroup, Tag, Text } from "design-system";
 
 type RadioOption = {
   node?: ReactElement;
@@ -27,21 +17,27 @@ type RadioOption = {
   nodeParentClass?: string;
   badge?: string;
   tooltip?: {
-    icon: any;
+    icon: string;
     text: string;
     linkText: string;
     link: string;
   };
-} & OptionProps;
-export type RadioProps = {
+  label: string;
+} & RadioProps;
+export type RadioOptionProps = {
   options: RadioOption[];
 };
 
-const Badge = styled(Text)<{ selected?: boolean }>`
+const StyledTag = styled(Tag)<{ selected?: boolean }>`
+  /* 
+  TODO: handle the colors on the Tag with the new component which will get introduced
   background-color: ${(props) =>
-    props.selected ? Colors.WARNING_ORANGE : Colors.SEA_SHELL};
-  padding: 1.5px 5px;
+    props.selected ? "var(--ads-v2-color-bg-warning)" : "inital"}; */
   margin-left: 4px;
+  /* .ads-v2-text {
+    color: ${(props) =>
+    props.selected ? "var(--ads-v2-color-fg-warning)" : "initial"};
+  }*/
 `;
 
 const TooltipContent = styled.div`
@@ -57,29 +53,38 @@ const TooltipContent = styled.div`
 
   .tooltip-text {
     line-height: 1.17;
-  }
-`;
-
-const RadioWrapper = styled.div<{ index: number }>`
-  ${(props) =>
-    props.index > 0 &&
-    `
-    margin-top: 12.5px;
-  `}
-
-  .icon {
-    margin-left: 4px;
+    margin-bottom: 8px;
   }
 `;
 
 const SuffixWrapper = styled.div`
   display: inline-flex;
   align-items: center;
+
+  .icon {
+    margin-left: 4px;
+
+    > svg {
+      cursor: pointer;
+    }
+  }
 `;
 
 const NodeWrapper = styled.div`
   margin-left: 27px;
   margin-top: 8px;
+`;
+
+const PopoverStyles = createGlobalStyle`
+  .bp3-popover, .bp3-popover2 {
+    box-shadow: none;
+    border-radius: var(--ads-v2-border-radius);
+    border: 1px solid var(--ads-v2-color-border);
+
+    .bp3-popover2-content {
+      border-radius: var(--ads-v2-border-radius);
+    }
+  }
 `;
 
 type RadioGroupProps = SettingComponentProps;
@@ -88,12 +93,13 @@ function RadioFieldWrapper(
   componentProps: {
     meta: Partial<WrappedFieldMetaProps>;
     input: Partial<WrappedFieldInputProps>;
-  } & RadioProps,
+  } & RadioOptionProps,
 ) {
-  function onChangeHandler(e?: any) {
+  function onChangeHandler(value: string) {
+    setValue(value);
     componentProps.input.onChange &&
       componentProps.input.onChange({
-        value: e.target.value,
+        value,
         additionalData: componentProps.input.value.additionalData,
       });
   }
@@ -111,69 +117,66 @@ function RadioFieldWrapper(
       });
   }
 
+  const [value, setValue] = useState<string>("");
+
+  useEffect(() => {
+    setValue(componentProps.input.value.value);
+  }, [componentProps.input.value]);
+
   return (
-    <div>
-      {componentProps.options.map((item, index) => {
-        const isSelected = componentProps.input.value.value === item.value;
+    <RadioGroup onChange={onChangeHandler as any} value={value}>
+      <PopoverStyles />
+      {componentProps.options.map((item) => {
+        const isSelected = item.value === value;
 
         return (
-          <RadioWrapper index={index} key={item.value}>
-            <Radio>
+          <div key={item.value}>
+            <Radio value={item.value}>
               {item.label}
-              <input
-                checked={isSelected}
-                onChange={onChangeHandler}
-                type="radio"
-                value={item.value}
-              />
-              <span className="checkbox" />
               <SuffixWrapper>
                 {item.badge && (
-                  <Badge
-                    color={isSelected ? Colors.WARNING_SOLID : Colors.GRAY_700}
-                    selected={isSelected}
-                    type={TextType.BUTTON_SMALL}
-                  >
+                  <StyledTag isClosable={false} selected={isSelected} size="sm">
                     {item.badge}
-                  </Badge>
+                  </StyledTag>
                 )}
                 {item.tooltip && (
                   <Popover2
+                    className="embed-settings-popover"
                     content={
                       <TooltipContent>
                         <Text
                           className="tooltip-text"
-                          color={Colors.GREY_900}
-                          type={TextType.P3}
+                          color="var(--ads-v2-color-fg)"
+                          kind="action-m"
+                          renderAs="p"
                         >
                           {item.tooltip.text}
                         </Text>
-                        <Button
-                          fill={false}
-                          href={item.tooltip.link}
-                          isLink
-                          size={Size.xxs}
+                        <Link
+                          endIcon="arrow-right-line"
+                          kind="primary"
                           target="_blank"
-                          text={item.tooltip.linkText}
-                        />
+                          to={item.tooltip.link}
+                        >
+                          {item.tooltip.linkText}
+                        </Link>
                       </TooltipContent>
                     }
+                    interactionKind="hover"
                     position={Position.RIGHT}
                   >
-                    <IconWrapper
-                      className="icon"
-                      fillColor="var(--ads-color-black-470)"
-                      size={IconSize.MEDIUM}
-                    >
-                      {item.tooltip.icon}
-                    </IconWrapper>
+                    <Icon className="icon" name={item.tooltip.icon} size="md" />
                   </Popover2>
                 )}
               </SuffixWrapper>
             </Radio>
             {item.node && isSelected && item.nodeInputPath && (
               <NodeWrapper className={item.nodeParentClass}>
-                <Text color={Colors.GRAY_700} type={TextType.P3}>
+                <Text
+                  color="var(--ads-v2-color-fg)"
+                  kind="body-s"
+                  renderAs="span"
+                >
                   {item.nodeLabel}
                 </Text>
                 {React.cloneElement(item.node, {
@@ -187,23 +190,31 @@ function RadioFieldWrapper(
                 )}
               </NodeWrapper>
             )}
-          </RadioWrapper>
+          </div>
         );
       })}
-    </div>
+    </RadioGroup>
   );
 }
 
 export default function RadioField({ setting }: RadioGroupProps) {
-  const controlTypeProps = setting.controlTypeProps as RadioProps;
+  const controlTypeProps = setting.controlTypeProps as RadioOptionProps;
 
   return (
-    <FormGroup
+    <div
       className={`t--admin-settings-radio t--admin-settings-${
         setting.name || setting.id
       }`}
-      setting={setting}
     >
+      <Text
+        className="admin-settings-form-group-label pt-2 pb-4"
+        color="var(--ads-v2-color-fg)"
+        data-testid="admin-settings-form-group-label"
+        kind="heading-xs"
+        renderAs="p"
+      >
+        {setting.label}
+      </Text>
       <Field
         component={RadioFieldWrapper}
         {...controlTypeProps}
@@ -211,6 +222,6 @@ export default function RadioField({ setting }: RadioGroupProps) {
         name={setting.name}
         parse={setting.parse}
       />
-    </FormGroup>
+    </div>
   );
 }

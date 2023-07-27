@@ -90,7 +90,7 @@ const AutoHeightLimitHandle = ({
 
   return (
     <AutoHeightLimitHandleContainer
-      data-cy={cypressDataID}
+      data-testid={cypressDataID}
       height={height}
       ref={ref}
       {...bindings}
@@ -134,7 +134,7 @@ const AutoHeightLimitHandleGroup: React.FC<AutoHeightLimitHandleGroupProps> = ({
   const isColliding = maxY === minY;
 
   return (
-    <AutoHeightLimitHandleGroupContainer data-cy="t-auto-height-overlay-handles">
+    <AutoHeightLimitHandleGroupContainer data-testid="t-auto-height-overlay-handles">
       <AutoHeightLimitHandle
         cypressDataID="t--auto-height-overlay-handles-min"
         height={minY}

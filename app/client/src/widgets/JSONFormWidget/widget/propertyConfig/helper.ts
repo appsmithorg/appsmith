@@ -37,7 +37,17 @@ export const fieldTypeUpdateHook = (
     widgetName,
     fieldThemeStylesheets: childStylesheet,
   });
+  const isInputOrEmailSelected = [
+    FieldType.EMAIL_INPUT,
+    FieldType.PASSWORD_INPUT,
+  ].includes(fieldType);
 
+  const schemaItemWithAutoFillState = isInputOrEmailSelected
+    ? {
+        ...newSchemaItem,
+        shouldAllowAutofill: true,
+      }
+    : newSchemaItem;
   /**
    * TODO(Ashit): Not suppose to update the whole schema but just
    * the path within the schema. This is just a hack to make sure
@@ -45,7 +55,7 @@ export const fieldTypeUpdateHook = (
    * the updateProperty function is fixed.
    */
   const updatedSchema = { schema: klona(schema) };
-  set(updatedSchema, schemaItemPath, newSchemaItem);
+  set(updatedSchema, schemaItemPath, schemaItemWithAutoFillState);
 
   return [{ propertyPath: "schema", propertyValue: updatedSchema.schema }];
 };

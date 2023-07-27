@@ -1,14 +1,9 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
-import { ControlGroup } from "@blueprintjs/core";
-import { debounce, noop, isEmpty } from "lodash";
+import { isEmpty } from "lodash";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
-import {
-  getTypographyByKey,
-  SearchInput,
-  SearchVariant,
-} from "design-system-old";
+import { SearchInput, Text } from "design-system";
 import TemplateList from "./TemplateList";
 import TemplateView from "./TemplateView";
 import Filters from "pages/Templates/Filters";
@@ -20,6 +15,7 @@ import {
   setTemplateSearchQuery,
 } from "actions/templateActions";
 import {
+  allTemplatesFiltersSelector,
   getForkableWorkspaces,
   getSearchedTemplateList,
   getTemplateFiltersLength,
@@ -32,14 +28,15 @@ import { editorInitializer } from "utils/editor/EditorUtils";
 import {
   getIsFetchingApplications,
   getUserApplicationsWorkspacesList,
-} from "selectors/applicationSelectors";
-import { getAllApplications } from "actions/applicationActions";
-import { Colors } from "constants/Colors";
+} from "@appsmith/selectors/applicationSelectors";
+import { getAllApplications } from "@appsmith/actions/applicationActions";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
 import LeftPaneBottomSection from "@appsmith/pages/Home/LeftPaneBottomSection";
 import type { Template } from "api/TemplatesApi";
 import LoadingScreen from "./TemplatesModal/LoadingScreen";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const PageWrapper = styled.div`
@@ -52,10 +49,9 @@ const SidebarWrapper = styled.div`
   width: ${(props) => props.theme.homePage.sidebar}px;
   height: 100%;
   display: flex;
-  padding-left: ${(props) => props.theme.spaces[7]}px;
-  padding-top: ${(props) => props.theme.spaces[11]}px;
+  padding: 16px 16px 0;
   flex-direction: column;
-  box-shadow: 1px 0px 0px ${Colors.GALLERY_2};
+  border-right: 1px solid var(--ads-v2-color-border);
   position: fixed;
 `;
 
@@ -73,23 +69,28 @@ export const TemplateListWrapper = styled.div`
   margin-left: ${(props) => props.theme.homePage.sidebar}px;
 `;
 
-export const ResultsCount = styled.div`
-  ${getTypographyByKey("h1")}
-  color: ${Colors.CODE_GRAY};
-  margin-top: ${(props) => props.theme.spaces[5]}px;
+export const ResultsCount = styled(Text)`
+  color: var(--ads-v2-color-fg-emphasis);
+  margin-top: 20px;
   margin-left: ${(props) => props.theme.spaces[12] - 8}px;
-  padding-bottom: ${(props) => props.theme.spaces[11]}px;
+  padding-bottom: 20px;
 `;
 
 const SearchWrapper = styled.div<{ sticky?: boolean }>`
   margin-left: ${(props) => props.theme.spaces[11]}px;
+  /* max-width: 250px; */
+  .templates-search {
+    max-width: 250px;
+  }
   ${(props) =>
     props.sticky &&
     `position: sticky;
   top: 0;
   position: -webkit-sticky;
   z-index: 1;
-  background-color: white;`}
+  background-color: var(--ads-v2-color-bg);
+  padding: var(--ads-v2-spaces-7);
+  margin-left: 0; `}
 `;
 
 function TemplateRoutes() {
@@ -104,9 +105,7 @@ function TemplateRoutes() {
   const templatesCount = useSelector(
     (state: AppState) => state.ui.templates.templates.length,
   );
-  const filters = useSelector(
-    (state: AppState) => state.ui.templates.allFilters,
-  );
+  const filters = useSelector(allTemplatesFiltersSelector);
 
   useEffect(() => {
     dispatch(setHeaderMeta(true, true));
@@ -151,6 +150,7 @@ type TemplatesContentProps = {
   onForkTemplateClick?: (template: Template) => void;
   stickySearchBar?: boolean;
   isForkingEnabled: boolean;
+  filterWithAllowPageImport?: boolean;
 };
 
 export function TemplatesContent(props: TemplatesContentProps) {
@@ -162,10 +162,17 @@ export function TemplatesContent(props: TemplatesContentProps) {
   const onChange = (query: string) => {
     dispatch(setTemplateSearchQuery(query));
   };
-  const debouncedOnChange = debounce(onChange, 250, { maxWait: 1000 });
-  const templates = useSelector(getSearchedTemplateList);
+  const filterWithAllowPageImport = props.filterWithAllowPageImport || false;
+  const templates = useSelector(getSearchedTemplateList).filter((template) =>
+    filterWithAllowPageImport ? !!template.allowPageImport : true,
+  );
   const filterCount = useSelector(getTemplateFiltersLength);
 
+  useEffect(() => {
+    dispatch({
+      type: ReduxActionTypes.RESET_TEMPLATE_FILTERS,
+    });
+  }, []);
   let resultsText =
     templates.length > 1
       ? `Showing all ${templates.length} templates`
@@ -189,18 +196,23 @@ export function TemplatesContent(props: TemplatesContentProps) {
   return (
     <>
       <SearchWrapper sticky={props.stickySearchBar}>
-        <ControlGroup>
+        <div className="templates-search">
           <SearchInput
-            cypressSelector={"t--application-search-input"}
-            defaultValue={templateSearchQuery}
-            disabled={isLoading}
-            onChange={debouncedOnChange || noop}
+            data-testid={"t--application-search-input"}
+            isDisabled={isLoading}
+            onChange={onChange}
             placeholder={createMessage(SEARCH_TEMPLATES)}
-            variant={SearchVariant.BACKGROUND}
+            value={templateSearchQuery}
           />
-        </ControlGroup>
+        </div>
       </SearchWrapper>
-      <ResultsCount>{resultsText}</ResultsCount>
+      <ResultsCount
+        data-testid="t--application-templates-results-header"
+        kind="heading-m"
+        renderAs="h1"
+      >
+        {resultsText}
+      </ResultsCount>
       <TemplateList
         isForkingEnabled={props.isForkingEnabled}
         onForkTemplateClick={props.onForkTemplateClick}

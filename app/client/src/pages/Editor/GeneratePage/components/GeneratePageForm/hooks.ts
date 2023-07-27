@@ -7,12 +7,13 @@ import type { executeDatasourceQuerySuccessPayload } from "actions/datasourceAct
 import { executeDatasourceQuery } from "actions/datasourceActions";
 import type { DropdownOption } from "design-system-old";
 import { useDispatch } from "react-redux";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 export const FAKE_DATASOURCE_OPTION = {
   CONNECT_NEW_DATASOURCE_OPTION: {
     id: CONNECT_NEW_DATASOURCE_OPTION_ID,
-    label: "Connect New Datasource",
-    value: "Connect New Datasource",
+    label: "Connect new datasource",
+    value: CONNECT_NEW_DATASOURCE_OPTION_ID,
     data: {
       pluginId: "",
     },
@@ -20,25 +21,37 @@ export const FAKE_DATASOURCE_OPTION = {
 };
 
 export const useDatasourceOptions = ({
+  canCreateDatasource,
   datasources,
   generateCRUDSupportedPlugin,
+  isGoogleSheetPlugin,
 }: {
+  canCreateDatasource: boolean;
   datasources: Datasource[];
   generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap;
+  isGoogleSheetPlugin: boolean;
 }) => {
   const [dataSourceOptions, setDataSourceOptions] = useState<DropdownOptions>(
     [],
   );
+  const currentEnvironment = getCurrentEnvironment();
 
   useEffect(() => {
     // On mount of component and on change of datasources, Update the list.
     const unSupportedDatasourceOptions: DropdownOptions = [];
     const supportedDatasourceOptions: DropdownOptions = [];
     let newDataSourceOptions: DropdownOptions = [];
-    newDataSourceOptions.push(
-      FAKE_DATASOURCE_OPTION.CONNECT_NEW_DATASOURCE_OPTION,
-    );
-    datasources.forEach(({ id, isValid, name, pluginId }) => {
+    if (canCreateDatasource) {
+      newDataSourceOptions.push(
+        FAKE_DATASOURCE_OPTION.CONNECT_NEW_DATASOURCE_OPTION,
+      );
+    }
+    datasources.forEach(({ datasourceStorages, id, name, pluginId }) => {
+      // Doing this since g sheets plugin is not supported for environments
+      // and we need to show the option in the dropdown
+      const datasourceStorage = isGoogleSheetPlugin
+        ? Object.values(datasourceStorages)[0]
+        : datasourceStorages[currentEnvironment];
       const datasourceObject = {
         id,
         label: name,
@@ -46,7 +59,7 @@ export const useDatasourceOptions = ({
         data: {
           pluginId,
           isSupportedForTemplate: !!generateCRUDSupportedPlugin[pluginId],
-          isValid,
+          isValid: datasourceStorage?.isValid,
         },
       };
       if (generateCRUDSupportedPlugin[pluginId])

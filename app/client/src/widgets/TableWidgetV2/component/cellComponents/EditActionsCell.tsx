@@ -1,5 +1,4 @@
-import React from "react";
-
+import React, { memo } from "react";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
 import { EditableCellActions } from "widgets/TableWidgetV2/constants";
@@ -18,7 +17,7 @@ type RenderEditActionsProps = BaseCellComponentProps & {
   onDiscard: () => void;
 };
 
-export function EditActionCell(props: RenderEditActionsProps) {
+function EditActionCellComponent(props: RenderEditActionsProps) {
   const {
     allowCellWrapping,
     cellBackground,
@@ -91,3 +90,4 @@ export function EditActionCell(props: RenderEditActionsProps) {
     </CellWrapper>
   );
 }
+export const EditActionCell = memo(EditActionCellComponent);

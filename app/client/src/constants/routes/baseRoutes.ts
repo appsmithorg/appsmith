@@ -24,6 +24,8 @@ export const AUTH_LOGIN_URL = `${USER_AUTH_URL}/login`;
 export const SIGNUP_SUCCESS_URL = `/signup-success`;
 export const WORKSPACE_INVITE_USERS_PAGE_URL = `${WORKSPACE_URL}/invite`;
 export const WORKSPACE_SETTINGS_PAGE_URL = `${WORKSPACE_URL}/settings`;
+export const WORKSPACE_SETTINGS_GENERAL_PAGE_URL = `${WORKSPACE_URL}/settings/general`;
+export const WORKSPACE_SETTINGS_MEMBERS_PAGE_URL = `${WORKSPACE_URL}/settings/members`;
 
 export const matchApplicationPath = match(APPLICATIONS_URL);
 export const matchTemplatesPath = match(TEMPLATES_PATH);

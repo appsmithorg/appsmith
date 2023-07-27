@@ -32,6 +32,7 @@ describe("EditorContextProvider", () => {
       "setWidgetCache",
       "updateMetaWidgetProperty",
       "syncUpdateWidgetMetaProperty",
+      "syncBatchUpdateWidgetMetaProperties",
       "triggerEvalOnMetaUpdate",
       "deleteMetaWidgets",
       "deleteWidgetProperty",
@@ -39,7 +40,10 @@ describe("EditorContextProvider", () => {
       "updateWidget",
       "updateWidgetProperty",
       "updateWidgetAutoHeight",
+      "updateWidgetDimension",
       "checkContainersForAutoHeight",
+      "updatePositionsOnTabChange",
+      "updateOneClickBindingOptionsVisibility",
     ].sort();
 
     const testRenderer = TestRenderer.create(
@@ -69,9 +73,12 @@ describe("EditorContextProvider", () => {
       "setWidgetCache",
       "updateMetaWidgetProperty",
       "syncUpdateWidgetMetaProperty",
+      "syncBatchUpdateWidgetMetaProperties",
       "triggerEvalOnMetaUpdate",
       "updateWidgetAutoHeight",
+      "updateWidgetDimension",
       "checkContainersForAutoHeight",
+      "updatePositionsOnTabChange",
     ].sort();
 
     const testRenderer = TestRenderer.create(

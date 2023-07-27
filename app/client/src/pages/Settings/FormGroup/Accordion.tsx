@@ -2,21 +2,16 @@ import React, { useState } from "react";
 import styled from "styled-components";
 
 import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import { createMessage } from "@appsmith//constants/messages";
-import { StyledLabel } from "./Common";
 import Group from "./group";
-import { Icon, IconSize } from "design-system-old";
+import { Icon, Text } from "design-system";
 
 const AccordionWrapper = styled.div`
   margin-top: 40px;
   max-width: 40rem;
 `;
 
-const AccordionHeader = styled(StyledLabel)`
-  text-transform: capitalize;
+const AccordionHeader = styled(Text)`
   margin-bottom: ${(props) => props.theme.spaces[9]}px;
-  font-size: 20px;
-  font-weight: 500;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
@@ -38,14 +33,14 @@ const Line = styled.hr`
   display: block;
   height: 1px;
   border: 0;
-  border-top: 1px solid #DFDFDF;
+  border-top: 1px solid var(--ads-v2-color-border);
   margin: 0 16px;
   flex: 1 0 auto;
 }
 `;
 
 type AccordionProps = {
-  label?: string;
+  label?: React.ReactNode;
   settings?: Setting[];
   isHidden?: boolean;
   category?: string;
@@ -63,13 +58,16 @@ export default function Accordion({
   return (
     <AccordionWrapper>
       {label && (
-        <AccordionHeader onClick={() => setIsOpen(!isOpen)}>
-          <span>{createMessage(() => label)}</span>
+        <AccordionHeader
+          color="var(--ads-v2-color-fg)"
+          data-testid="admin-settings-form-group-label"
+          kind="heading-s"
+          onClick={() => setIsOpen(!isOpen)}
+          renderAs="label"
+        >
+          <span>{label}</span>
           <Line />
-          <Icon
-            name={isOpen ? "expand-less" : "expand-more"}
-            size={IconSize.XXL}
-          />
+          <Icon name={isOpen ? "expand-less" : "expand-more"} size="md" />
         </AccordionHeader>
       )}
       {isOpen && (

@@ -59,6 +59,10 @@ import type { MenuButtonDynamicItemsControlProps } from "components/propertyCont
 import MenuButtonDynamicItemsControl from "components/propertyControls/MenuButtonDynamicItemsControl";
 import type { ListComputeControlProps } from "./ListComputeControl";
 import ListComputeControl from "./ListComputeControl";
+import type { OneClickBindingControlProps } from "./OneClickBindingControl";
+import OneClickBindingControl from "./OneClickBindingControl";
+import type { WrappedCodeEditorControlProps } from "./WrappedCodeEditorControl";
+import WrappedCodeEditorControl from "./WrappedCodeEditorControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -101,6 +105,8 @@ export const PropertyControls = {
   TableInlineEditValidationControl,
   TableInlineEditValidPropertyControl,
   ListComputeControl,
+  OneClickBindingControl,
+  WrappedCodeEditorControl,
 };
 
 export type PropertyControlPropsType =
@@ -124,7 +130,9 @@ export type PropertyControlPropsType =
   | PrimaryColumnColorPickerControlPropsV2
   | SelectDefaultValueControlProps
   | TableInlineEditValidationControlProps
-  | ListComputeControlProps;
+  | ListComputeControlProps
+  | OneClickBindingControlProps
+  | WrappedCodeEditorControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

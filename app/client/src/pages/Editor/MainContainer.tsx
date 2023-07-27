@@ -4,7 +4,6 @@ import React, { useCallback } from "react";
 import { Route, Switch, useRouteMatch } from "react-router";
 
 import { updateExplorerWidthAction } from "actions/explorerActions";
-import classNames from "classnames";
 import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import {
   BUILDER_CUSTOM_PATH,
@@ -16,10 +15,10 @@ import {
 import { previewModeSelector } from "selectors/editorSelectors";
 import { Installer } from "pages/Editor/Explorer/Libraries/Installer";
 import { getExplorerWidth } from "selectors/explorerSelector";
-import BottomBar from "./BottomBar";
 import WidgetsEditor from "./WidgetsEditor";
 import EditorsRouter from "./routes";
 import styled from "styled-components";
+import BottomBar from "components/BottomBar";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -95,13 +94,7 @@ function MainContainer() {
           </Switch>
         </div>
       </Container>
-      <BottomBar
-        className={classNames({
-          "translate-y-full bottom-0": isPreviewMode,
-          "translate-y-0 opacity-100": !isPreviewMode,
-          "transition-all transform duration-400": true,
-        })}
-      />
+      <BottomBar viewMode={isPreviewMode} />
       <Installer left={sidebarWidth} />
     </>
   );

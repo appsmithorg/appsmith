@@ -12,7 +12,7 @@
           "initialValue": "SEND",
           "options": [
             {
-              "label": "Send Email",
+              "label": "Send email",
               "value": "SEND"
             }
           ]

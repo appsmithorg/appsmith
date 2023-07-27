@@ -215,7 +215,7 @@ describe("#parse", () => {
                 identifier: "boolean",
                 position: 3,
                 backgroundColor:
-                  "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                  "{{((sourceData, formData, fieldState) => ((appsmith.theme.colors.primaryColor)))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
                 boxShadow: "none",
               }),
             },
@@ -845,7 +845,6 @@ describe("#getSchemaItemByFieldType", () => {
       "schema.__root_schema__.children.address.children.city";
     const schemaItem = get({ schema }, schemaItemPath);
     schemaItem.isCustomField = true;
-    schemaItem.name = "newCityName";
     schemaItem.accessor = "newCityName";
 
     const expectedOutput = {

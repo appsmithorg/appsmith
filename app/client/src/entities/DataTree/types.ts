@@ -5,6 +5,7 @@ import type { ActionConfig, PluginType } from "entities/Action";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import type { Variable } from "entities/JSCollection";
 import type { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
+import type { Page } from "@appsmith/constants/ReduxActionConstants";
 
 export type ActionDispatcher = (...args: any[]) => ActionDescription;
 
@@ -22,7 +23,7 @@ export enum EvaluationSubstitutionType {
 }
 
 // Action entity types
-export interface ActionEntityEvalTree {
+export interface ActionEntity {
   actionId: string;
   isLoading: boolean;
   data: ActionResponse["body"];
@@ -38,7 +39,7 @@ export interface ActionEntityEvalTree {
   datasourceUrl: string;
 }
 
-export interface ActionEntityConfig {
+export interface ActionEntityConfig extends EntityConfig {
   dynamicBindingPathList: DynamicPath[];
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   reactivePaths: Record<string, EvaluationSubstitutionType>;
@@ -59,7 +60,7 @@ export interface MetaArgs {
   confirmBeforeExecute: boolean;
 }
 
-export interface JSActionEntityConfig {
+export interface JSActionEntityConfig extends EntityConfig {
   meta: Record<string, MetaArgs>;
   dynamicBindingPathList: DynamicPath[];
   bindingPaths: Record<string, EvaluationSubstitutionType>;
@@ -72,10 +73,13 @@ export interface JSActionEntityConfig {
   actionId: string;
 }
 
-export interface JSActionEvalTree {
+export interface JSActionEntity {
   [propName: string]: any;
   body: string;
+  ENTITY_TYPE: ENTITY_TYPE.JSACTION;
+  actionId: string;
 }
+export type PagelistEntity = Page[];
 
 // Widget entity Types
 
@@ -105,7 +109,7 @@ export type PropertyOverrideDependency = Record<
   Partial<overrideDependency>
 >;
 
-export type WidgetConfig = {
+export interface WidgetConfig extends EntityConfig {
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   reactivePaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, boolean>;
@@ -115,4 +119,12 @@ export type WidgetConfig = {
   propertyOverrideDependency: PropertyOverrideDependency;
   overridingPropertyPaths: OverridingPropertyPaths;
   privateWidgets: PrivateWidgets;
-};
+}
+
+export interface EntityConfig {
+  __setters?: Record<string, unknown>;
+  bindingPaths?: Record<string, EvaluationSubstitutionType>;
+  reactivePaths?: Record<string, EvaluationSubstitutionType>;
+  validationPaths?: Record<string, ValidationConfig>;
+  dynamicBindingPathList?: DynamicPath[];
+}

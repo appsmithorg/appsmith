@@ -179,7 +179,11 @@ export default {
     };
     const compactMode = props.compactMode || "DEFAULT";
     const componentHeight =
-      (props.bottomRow - props.topRow) * props.parentRowSpace - 10;
+      (props.appPositioningType === "AUTO" && props.isMobile
+        ? props.mobileBottomRow - props.mobileTopRow
+        : props.bottomRow - props.topRow) *
+        props.parentRowSpace -
+      10;
     const tableSizes = TABLE_SIZES[compactMode];
 
     let pageSize =
@@ -319,7 +323,7 @@ export default {
       const sortBycolumn = columns.find(
         (column) => column.id === sortByColumnId,
       );
-      const sortByColumnOriginalId = sortBycolumn.originalId;
+      const sortByColumnOriginalId = sortBycolumn.alias;
 
       const columnType =
         sortBycolumn && sortBycolumn.columnType
@@ -362,6 +366,22 @@ export default {
                   );
                 } catch (e) {
                   return -1;
+                }
+              case "url":
+                const column = primaryColumns[sortByColumnOriginalId];
+                if (column && column.displayText) {
+                  if (_.isString(column.displayText)) {
+                    return sortByOrder(false);
+                  } else if (_.isArray(column.displayText)) {
+                    return sortByOrder(
+                      column.displayText[a.__originalIndex__]
+                        .toString()
+                        .toLowerCase() >
+                        column.displayText[b.__originalIndex__]
+                          .toString()
+                          .toLowerCase(),
+                    );
+                  }
                 }
               default:
                 return sortByOrder(
@@ -489,14 +509,28 @@ export default {
 
     const finalTableData = sortedTableData.filter((row) => {
       let isSearchKeyFound = true;
-
+      const columnWithDisplayText = Object.values(props.primaryColumns).filter(
+        (column) => column.columnType === "url" && column.displayText,
+      );
+      const displayedRow = {
+        ...row,
+        ...columnWithDisplayText.reduce((acc, column) => {
+          let displayText;
+          if (_.isArray(column.displayText)) {
+            displayText = column.displayText[row.__originalIndex__];
+          } else {
+            displayText = column.displayText;
+          }
+          acc[column.alias] = displayText;
+          return acc;
+        }, {}),
+      };
       if (searchKey) {
-        isSearchKeyFound = Object.values(_.omit(row, hiddenColumns))
+        isSearchKeyFound = Object.values(_.omit(displayedRow, hiddenColumns))
           .join(", ")
           .toLowerCase()
           .includes(searchKey);
       }
-
       if (!isSearchKeyFound) {
         return false;
       }
@@ -516,7 +550,7 @@ export default {
             ConditionFunctions[props.filters[i].condition];
           if (conditionFunction) {
             filterResult = conditionFunction(
-              row[props.filters[i].column],
+              displayedRow[props.filters[i].column],
               props.filters[i].value,
             );
           }
@@ -542,7 +576,6 @@ export default {
 
       return isSatisfyingFilters;
     });
-
     return finalTableData;
   },
   //
@@ -698,7 +731,7 @@ export default {
   //
   getEditableCellValidity: (props, moment, _) => {
     if (
-      (!props.editableCell.column && !props.isAddRowInProgress) ||
+      (!props.editableCell?.column && !props.isAddRowInProgress) ||
       !props.primaryColumns
     ) {
       return {};
@@ -752,11 +785,11 @@ export default {
         });
     } else {
       const editedColumn = Object.values(props.primaryColumns).find(
-        (column) => column.alias === props.editableCell.column,
+        (column) => column.alias === props.editableCell?.column,
       );
 
       if (validatableColumns.includes(editedColumn.columnType)) {
-        editableColumns.push([editedColumn, props.editableCell.value]);
+        editableColumns.push([editedColumn, props.editableCell?.value]);
       }
     }
 
@@ -821,6 +854,7 @@ export default {
     const columns = props.primaryColumns
       ? Object.values(props.primaryColumns)
       : [];
+
     return columns
       .sort((a, b) => a.index - b.index)
       .map((column) => ({

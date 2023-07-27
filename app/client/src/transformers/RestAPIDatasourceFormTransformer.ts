@@ -1,5 +1,9 @@
+import {
+  getCurrentEditingEnvID,
+  isEnvironmentValid,
+} from "@appsmith/utils/Environments";
 import type { Property } from "entities/Action";
-import type { Datasource } from "entities/Datasource";
+import type { Datasource, DatasourceStorage } from "entities/Datasource";
 import type {
   ApiDatasourceForm,
   Authentication,
@@ -9,74 +13,130 @@ import type {
   Basic,
   ApiKey,
   BearerToken,
+  SSL,
 } from "entities/Datasource/RestAPIForm";
 import { AuthType, GrantType, SSLType } from "entities/Datasource/RestAPIForm";
-import _ from "lodash";
+import { get, set } from "lodash";
 
 export const datasourceToFormValues = (
   datasource: Datasource,
 ): ApiDatasourceForm => {
-  const authType = _.get(
+  const currentEnvironment = getCurrentEditingEnvID();
+  const authType = get(
     datasource,
-    "datasourceConfiguration.authentication.authenticationType",
+    `datasourceStorages.${currentEnvironment}.datasourceConfiguration.authentication.authenticationType`,
     AuthType.NONE,
-  );
-  const connection = _.get(datasource, "datasourceConfiguration.connection", {
-    ssl: {
-      authType: SSLType.DEFAULT,
+  ) as AuthType;
+  const connection = get(
+    datasource,
+    `datasourceStorages.${currentEnvironment}.datasourceConfiguration.connection`,
+    {
+      ssl: {
+        authType: SSLType.DEFAULT,
+        authTypeControl: false,
+      } as SSL,
     },
-  });
+  );
+  // set value of authTypeControl in connection if it is not present
+  // authTypeControl is true if authType is SELF_SIGNED_CERTIFICATE else false
+  if (!connection.ssl.authTypeControl) {
+    set(
+      connection,
+      "ssl.authTypeControl",
+      connection.ssl.authType === SSLType.SELF_SIGNED_CERTIFICATE,
+    );
+  }
   const authentication = datasourceToFormAuthentication(authType, datasource);
   const isSendSessionEnabled =
-    _.get(datasource, "datasourceConfiguration.properties[0].value", "N") ===
-    "Y";
+    get(
+      datasource,
+      `datasourceStorages.${currentEnvironment}.datasourceConfiguration.properties[0].value`,
+      "N",
+    ) === "Y";
   const sessionSignatureKey = isSendSessionEnabled
-    ? _.get(datasource, "datasourceConfiguration.properties[1].value")
+    ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      get(
+        datasource,
+        `datasourceStorages.${currentEnvironment}.datasourceConfiguration.properties[1].value`,
+      )!
     : "";
   return {
     datasourceId: datasource.id,
     workspaceId: datasource.workspaceId,
     pluginId: datasource.pluginId,
-    isValid: datasource.isValid,
-    url: datasource.datasourceConfiguration?.url,
-    headers: cleanupProperties(datasource.datasourceConfiguration?.headers),
+    isValid: isEnvironmentValid(datasource, currentEnvironment),
+    url: datasource.datasourceStorages[currentEnvironment]
+      ?.datasourceConfiguration?.url,
+    headers: cleanupProperties(
+      datasource.datasourceStorages[currentEnvironment]?.datasourceConfiguration
+        ?.headers,
+    ),
     queryParameters: cleanupProperties(
-      datasource.datasourceConfiguration?.queryParameters,
+      datasource.datasourceStorages[currentEnvironment]?.datasourceConfiguration
+        ?.queryParameters,
     ),
     isSendSessionEnabled: isSendSessionEnabled,
     sessionSignatureKey: sessionSignatureKey,
     authType: authType,
     authentication: authentication,
     connection: connection,
-  };
+  } as ApiDatasourceForm;
 };
 
 export const formValuesToDatasource = (
   datasource: Datasource,
   form: ApiDatasourceForm,
 ): Datasource => {
+  const currentEnvironment = getCurrentEditingEnvID();
   const authentication = formToDatasourceAuthentication(
     form.authType,
     form.authentication,
   );
+  const dsStorages = datasource.datasourceStorages;
+  let dsStorage: DatasourceStorage;
+  if (dsStorages.hasOwnProperty(currentEnvironment)) {
+    dsStorage = dsStorages[currentEnvironment];
+  } else {
+    dsStorage = {
+      environmentId: currentEnvironment,
+      datasourceConfiguration: {
+        url: "",
+      },
+      isValid: false,
+      datasourceId: datasource.id,
+    };
+  }
 
-  return {
-    ...datasource,
-    datasourceConfiguration: {
-      url: form.url,
-      headers: cleanupProperties(form.headers),
-      queryParameters: cleanupProperties(form.queryParameters),
-      properties: [
-        {
-          key: "isSendSessionEnabled",
-          value: form.isSendSessionEnabled ? "Y" : "N",
-        },
-        { key: "sessionSignatureKey", value: form.sessionSignatureKey },
-      ],
-      authentication: authentication,
-      connection: form.connection,
-    },
-  } as Datasource;
+  if (!dsStorage.hasOwnProperty("environmentId")) {
+    dsStorage.environmentId = currentEnvironment;
+  }
+
+  const connection = form.connection;
+  if (connection) {
+    const authTypeControl = connection.ssl.authTypeControl;
+    set(
+      connection,
+      "ssl.authType",
+      authTypeControl ? SSLType.SELF_SIGNED_CERTIFICATE : SSLType.DEFAULT,
+    );
+  }
+  const conf = {
+    url: form.url,
+    headers: cleanupProperties(form.headers),
+    queryParameters: cleanupProperties(form.queryParameters),
+    properties: [
+      {
+        key: "isSendSessionEnabled",
+        value: form.isSendSessionEnabled ? "Y" : "N",
+      },
+      { key: "sessionSignatureKey", value: form.sessionSignatureKey },
+    ],
+    authentication: authentication,
+    connection: form.connection,
+  };
+  set(dsStorage, "datasourceConfiguration", conf);
+  set(dsStorages, currentEnvironment, dsStorage);
+  return datasource;
 };
 
 const formToDatasourceAuthentication = (
@@ -164,15 +224,20 @@ const datasourceToFormAuthentication = (
   authType: AuthType,
   datasource: Datasource,
 ): Authentication | undefined => {
+  const currentEnvironment = getCurrentEditingEnvID();
   if (
     !datasource ||
-    !datasource.datasourceConfiguration ||
-    !datasource.datasourceConfiguration.authentication
+    !datasource.datasourceStorages[currentEnvironment]
+      ?.datasourceConfiguration ||
+    !datasource.datasourceStorages[currentEnvironment]?.datasourceConfiguration
+      .authentication
   ) {
     return;
   }
 
-  const authentication = datasource.datasourceConfiguration.authentication;
+  const authentication =
+    datasource.datasourceStorages[currentEnvironment].datasourceConfiguration
+      .authentication || {};
   if (
     isClientCredentials(authType, authentication) ||
     isAuthorizationCode(authType, authentication)
@@ -253,7 +318,7 @@ const isClientCredentials = (
   if (authType !== AuthType.OAuth2) return false;
   // If there's no authentication object at all and it is oauth2, it is client credentials by default
   if (!val) return true;
-  return _.get(val, "grantType") === GrantType.ClientCredentials;
+  return get(val, "grantType") === GrantType.ClientCredentials;
 };
 
 const isAuthorizationCode = (
@@ -261,7 +326,7 @@ const isAuthorizationCode = (
   val: any,
 ): val is AuthorizationCode => {
   if (authType !== AuthType.OAuth2) return false;
-  return _.get(val, "grantType") === GrantType.AuthorizationCode;
+  return get(val, "grantType") === GrantType.AuthorizationCode;
 };
 
 const cleanupProperties = (values: Property[] | undefined): Property[] => {

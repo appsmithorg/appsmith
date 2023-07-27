@@ -13,17 +13,11 @@ import {
 } from "selectors/editorSelectors";
 import Entity, { EntityClassNames } from "../Entity";
 import history, { NavigationMethod } from "utils/history";
-import { createPage, updatePage } from "actions/pageActions";
-import {
-  currentPageIcon,
-  defaultPageIcon,
-  hiddenPageIcon,
-  pageIcon,
-} from "../ExplorerIcons";
+import { createNewPageFromEntities, updatePage } from "actions/pageActions";
+import { defaultPageIcon, pageIcon } from "../ExplorerIcons";
 import { ADD_PAGE_TOOLTIP, createMessage } from "@appsmith/constants/messages";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import styled from "styled-components";
 import PageContextMenu from "./PageContextMenu";
 import { resolveAsSpaceChar } from "utils/helpers";
@@ -47,6 +41,10 @@ import {
   hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getInstanceId } from "@appsmith//selectors/tenantSelectors";
+import classNames from "classnames";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;
@@ -81,6 +79,12 @@ const RelativeContainer = styled.div`
   position: relative;
 `;
 
+const ResizeHandler = styled.div`
+  &:hover {
+    background-color: var(--ads-v2-color-border);
+  }
+`;
+
 function Pages() {
   const applicationId = useSelector(getCurrentApplicationId);
   const pages: Page[] = useSelector(selectAllPages);
@@ -92,6 +96,7 @@ function Pages() {
   const storedHeightKey = "pagesContainerHeight_" + applicationId;
   const storedHeight = localStorage.getItem(storedHeightKey);
   const location = useLocation();
+  const featureFlags = useSelector(selectFeatureFlags);
 
   const resizeAfterCallback = (data: CallbackResponseType) => {
     localStorage.setItem(storedHeightKey, data.height.toString());
@@ -102,10 +107,6 @@ function Pages() {
     DIRECTION.vertical,
     resizeAfterCallback,
   );
-
-  useEffect(() => {
-    document.getElementsByClassName("activePage")[0]?.scrollIntoView();
-  }, [currentPageId]);
 
   useEffect(() => {
     if ((isPagesOpen === null ? true : isPagesOpen) && pageResizeRef.current) {
@@ -134,16 +135,24 @@ function Pages() {
 
   const [isMenuOpen, openMenu] = useState(false);
 
+  const workspaceId = useSelector(getCurrentWorkspaceId);
+  const instanceId = useSelector(getInstanceId);
+
   const createPageCallback = useCallback(() => {
     const name = getNextEntityName(
       "Page",
       pages.map((page: Page) => page.pageName),
     );
-    // Default layout is extracted by adding dynamically computed properties like min-height.
-    const defaultPageLayouts = [
-      { dsl: extractCurrentDSL(), layoutOnLoadActions: [] },
-    ];
-    dispatch(createPage(applicationId, name, defaultPageLayouts));
+
+    dispatch(
+      createNewPageFromEntities(
+        applicationId,
+        name,
+        workspaceId,
+        false,
+        instanceId,
+      ),
+    );
   }, [dispatch, pages, applicationId]);
 
   const onMenuClose = useCallback(() => openMenu(false), [openMenu]);
@@ -172,7 +181,6 @@ function Pages() {
     () =>
       pages.map((page) => {
         const icon = page.isDefault ? defaultPageIcon : pageIcon;
-        const rightIcon = !!page.isHidden ? hiddenPageIcon : null;
         const isCurrentPage = currentPageId === page.pageId;
         const pagePermissions = page.userPermissions;
         const canManagePages = hasManagePagePermission(pagePermissions);
@@ -191,17 +199,17 @@ function Pages() {
         return (
           <StyledEntity
             action={() => switchPage(page)}
+            active={isCurrentPage}
             canEditEntityName={canManagePages}
             className={`page ${isCurrentPage && "activePage"}`}
             contextMenu={contextMenu}
+            disabled={page.isHidden}
             entityId={page.pageId}
             icon={icon}
             isDefaultExpanded={isCurrentPage}
             key={page.pageId}
             name={page.pageName}
             onNameEdit={resolveAsSpaceChar}
-            preRightIcon={isCurrentPage ? currentPageIcon : ""}
-            rightIcon={rightIcon}
             searchKeyword={""}
             step={1}
             updateEntityName={(id, name) =>
@@ -218,7 +226,10 @@ function Pages() {
       <StyledEntity
         addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
         alwaysShowRightIcon
-        className="group pages"
+        className={classNames({
+          "group pages": true,
+          "p-3 pb-0": featureFlags.release_widgetdiscovery_enabled,
+        })}
         collapseRef={pageResizeRef}
         customAddButton={
           <AddPageContextMenu
@@ -247,9 +258,9 @@ function Pages() {
         className={`absolute -bottom-2 left-0 w-full h-2 group cursor-ns-resize ${tailwindLayers.resizer}`}
         onMouseDown={() => setMouseDown(true)}
       >
-        <div
-          className={`w-full h-1 bg-transparent hover:bg-gray-300 transform transition
-          ${mouseDown ? "hover:bg-blue-500" : ""}
+        <ResizeHandler
+          className={`w-full h-1 bg-transparent hover:bg-transparent transform transition
+          ${mouseDown ? "" : ""}
           `}
         />
       </div>

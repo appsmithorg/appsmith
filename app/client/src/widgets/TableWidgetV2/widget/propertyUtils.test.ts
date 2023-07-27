@@ -16,7 +16,9 @@ import { StickyType } from "../component/Constants";
 
 describe("PropertyUtils - ", () => {
   it("totalRecordsCountValidation - should test with all possible values", () => {
-    const ERROR_MESSAGE = "This value must be a number";
+    const ERROR_MESSAGE = [
+      { name: "ValidationError", message: "This value must be a number" },
+    ];
 
     const values = [
       [
@@ -24,7 +26,7 @@ describe("PropertyUtils - ", () => {
         {
           isValid: true,
           parsed: 0,
-          message: [""],
+          messages: [],
         },
       ],
       [
@@ -32,7 +34,7 @@ describe("PropertyUtils - ", () => {
         {
           isValid: true,
           parsed: 0,
-          message: [""],
+          messages: [],
         },
       ],
       [
@@ -40,7 +42,7 @@ describe("PropertyUtils - ", () => {
         {
           isValid: true,
           parsed: 0,
-          message: [""],
+          messages: [],
         },
       ],
       [
@@ -48,7 +50,7 @@ describe("PropertyUtils - ", () => {
         {
           isValid: false,
           parsed: 0,
-          message: [ERROR_MESSAGE],
+          messages: ERROR_MESSAGE,
         },
       ],
       [
@@ -56,7 +58,7 @@ describe("PropertyUtils - ", () => {
         {
           isValid: false,
           parsed: 0,
-          message: [ERROR_MESSAGE],
+          messages: ERROR_MESSAGE,
         },
       ],
       [
@@ -64,7 +66,7 @@ describe("PropertyUtils - ", () => {
         {
           isValid: false,
           parsed: 0,
-          message: [ERROR_MESSAGE],
+          messages: ERROR_MESSAGE,
         },
       ],
       [
@@ -72,7 +74,7 @@ describe("PropertyUtils - ", () => {
         {
           isValid: true,
           parsed: 1,
-          message: [""],
+          messages: [],
         },
       ],
       [
@@ -80,7 +82,7 @@ describe("PropertyUtils - ", () => {
         {
           isValid: true,
           parsed: 1,
-          message: [""],
+          messages: [],
         },
       ],
     ];
@@ -512,6 +514,22 @@ describe("selectColumnOptionsValidation", () => {
         isValid: true,
         parsed: [],
         messages: [""],
+      });
+    });
+
+    it("should check that there are no null or undefined values", () => {
+      expect(
+        selectColumnOptionsValidation(
+          [null, { label: "2", value: "1" }],
+          {} as TableWidgetProps,
+          _,
+        ),
+      ).toEqual({
+        isValid: false,
+        parsed: [],
+        messages: [
+          `Invalid entry at index: 0. This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`,
+        ],
       });
     });
 

@@ -13,7 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import reactor.core.publisher.Mono;
 
 @Slf4j
-public class CustomFormLoginServiceCEImpl implements ReactiveUserDetailsService{
+public class CustomFormLoginServiceCEImpl implements ReactiveUserDetailsService {
 
     private UserRepository repository;
 
@@ -31,7 +31,8 @@ public class CustomFormLoginServiceCEImpl implements ReactiveUserDetailsService{
      */
     @Override
     public Mono<UserDetails> findByUsername(String username) {
-        return repository.findByEmail(username)
+        return repository
+                .findByEmail(username)
                 .switchIfEmpty(repository.findByCaseInsensitiveEmail(username))
                 .switchIfEmpty(Mono.error(new UsernameNotFoundException("Unable to find username: " + username)))
                 .onErrorMap(error -> {
@@ -47,11 +48,8 @@ public class CustomFormLoginServiceCEImpl implements ReactiveUserDetailsService{
                     if (user.getPassword() == null && !LoginSource.FORM.equals(user.getSource())) {
                         // We can have a implementation to give which login method user should use but this will
                         // expose the sign-in source for external world and in turn to spammers
-                        throw new InternalAuthenticationServiceException(
-                            AppsmithError.INVALID_LOGIN_METHOD.getMessage(
-                                WordUtils.capitalize(user.getSource().toString().toLowerCase())
-                            )
-                        );
+                        throw new InternalAuthenticationServiceException(AppsmithError.INVALID_LOGIN_METHOD.getMessage(
+                                WordUtils.capitalize(user.getSource().toString().toLowerCase())));
                     }
                     return user;
                 });

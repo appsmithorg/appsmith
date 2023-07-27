@@ -30,9 +30,32 @@
       }
 
       return result;
-    }
+    };
     const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
     const ZIPY_KEY = parseConfig("__APPSMITH_ZIPY_SDK_KEY__");
+  </script>
+  <script>
+    window.__APPSMITH_CHUNKS_TO_PRELOAD =
+  <%=
+    (function () {
+      // This code emits URLs to be preloaded as soon as the main bundle loads.
+      // If you code-split away some files and need to preload them as well, here’s how to do that:
+      //  1) Give your import a name (use the `webpackChunkName` comment: `import(/* webpackChunkName: "my-name" */ "./my-file")`)
+      //  2) Add the name into the `chunksToPreload` array below
+      let chunksToPreload = {
+        'edit-mode': [...getChunkUrls("editor"), ...getChunkUrls("global-search")],
+        'view-mode': getChunkUrls("AppViewer")
+      };
+
+      return JSON.stringify(chunksToPreload);
+
+      function getChunkUrls(chunkName) {
+        return compilation.namedChunkGroups.get(chunkName).chunks.flatMap(chunk => [...chunk.files]);
+      }
+    })()
+      %>
+  </script>
+  <script>
     if (CLOUD_HOSTING && ZIPY_KEY) {
       const script = document.createElement('script');
       script.crossOrigin = "anonymous";
@@ -44,7 +67,6 @@
       const head = document.getElementsByTagName('head')[0];
       head && head.appendChild(script);
     }
-
     // This function is triggered on load of google apis javascript library
     // Even though the script is loaded asynchronously, in case of firefox run on windows
     // The gapi script is getting loaded even before the last script of index.html
@@ -53,9 +75,13 @@
     gapiLoaded = () => {
       window.googleAPIsLoaded = true;
     }
+    onError = () => {
+      window.googleAPIsLoaded = false;
+    };
   </script>
   <!-- Adding this Library to access google file picker API in case of limiting google sheet access -->
-  <script async defer id="googleapis" src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+  <script async defer id="googleapis" src="https://apis.google.com/js/api.js" onload="gapiLoaded()"
+    onerror="onError()"></script>
 </head>
 
 <body class="appsmith-light-theme">
@@ -67,6 +93,7 @@
   -->
   <div id="header-root"></div>
   <div id="root"></div>
+  <div id="date-picker-control" style="position: relative; z-index: 1000;"></div>
   <script type="text/javascript">
     // Ref: https://github.com/Modernizr/Modernizr/blob/94592f279a410436530c7c06acc42a6e90c20150/feature-detects/storage/localstorage.js
     const getIsLocalStorageSupported = () => {
@@ -112,7 +139,14 @@
     });
 
     const registerPageServiceWorker = () => {
-      if ("serviceWorker" in navigator) {
+      if (
+        "serviceWorker" in navigator
+        // Disable the service worker in Cypress tests. We primarily do this to make
+        // the Performance/LinkRelPreload_Spec.js test work (as it collects URLs all network requests,
+        // and service worker requests fail it.) But, anecdotally, disabling the service worker
+        // also seems to make the tests a bit faster, as the network load is lower.
+        && !window.Cypress
+      ) {
         window.addEventListener("load", function () {
           navigator.serviceWorker.register("/pageService.js").catch(error => {
             console.error("Service Worker Registration failed: " + error);
@@ -144,10 +178,6 @@
       smartLook: {
         id: parseConfig("__APPSMITH_SMART_LOOK_ID__"),
       },
-      enableGoogleOAuth: parseConfig("__APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__"),
-      enableGithubOAuth: parseConfig("__APPSMITH_OAUTH2_GITHUB_CLIENT_ID__"),
-      disableLoginForm: parseConfig("__APPSMITH_FORM_LOGIN_DISABLED__"),
-      disableSignup: parseConfig("__APPSMITH_SIGNUP_DISABLED__"),
       enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_ENABLED__"),
       segment: {
         apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),

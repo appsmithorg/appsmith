@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import React from "react";
-import { Icon, IconSize } from "design-system-old";
+import { Icon } from "design-system";
 
 const Wrapper = styled.div`
   position: absolute;
@@ -25,7 +25,7 @@ const Wrapper = styled.div`
 function TextLoaderIcon() {
   return (
     <Wrapper>
-      <Icon className="rotate" name="loader" size={IconSize.XL} />
+      <Icon className="rotate" name="loader" size="md" />
     </Wrapper>
   );
 }

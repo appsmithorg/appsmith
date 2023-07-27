@@ -1,33 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.appsmith</groupId>
         <artifactId>appsmith-plugins</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-
-    <modelVersion>4.0.0</modelVersion>
     <groupId>com.external.plugins</groupId>
     <artifactId>mysqlPlugin</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <name>mysqlPlugin</name>
 
-    <properties>
-        <plugin.id>mysql-plugin</plugin.id>
-        <plugin.class>com.external.plugins.MySqlPlugin</plugin.class>
-        <plugin.version>1.0-SNAPSHOT</plugin.version>
-        <plugin.provider>tech@appsmith.com</plugin.provider>
-        <plugin.dependencies/>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.mariadb</groupId>
             <artifactId>r2dbc-mariadb</artifactId>
-            <version>1.1.3</version>
+            <version>1.1.4</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.netty</groupId>
@@ -51,17 +42,17 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-resolver-dns-native-macos</artifactId>
-            <scope>runtime</scope>
-            <classifier>osx-x86_64</classifier>
             <version>4.1.75.Final</version>
+            <classifier>osx-x86_64</classifier>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-resolver-dns-native-macos</artifactId>
-            <scope>runtime</scope>
-            <classifier>osx-aarch_64</classifier>
             <version>4.1.75.Final</version>
+            <classifier>osx-aarch_64</classifier>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -125,41 +116,17 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
-                <executions>
-                    <execution>
-                        <id>shade-plugin-jar</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <minimizeJar>false</minimizeJar>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <manifestEntries>
-                                        <Plugin-Id>${plugin.id}</Plugin-Id>
-                                        <Plugin-Class>${plugin.class}</Plugin-Class>
-                                        <Plugin-Version>${plugin.version}</Plugin-Version>
-                                        <Plugin-Provider>${plugin.provider}</Plugin-Provider>
-                                    </manifestEntries>
-                                </transformer>
-                            </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>copy-dependencies</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <includeScope>runtime</includeScope>
                             <outputDirectory>${project.build.directory}/lib</outputDirectory>

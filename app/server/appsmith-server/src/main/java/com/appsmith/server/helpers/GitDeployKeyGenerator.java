@@ -38,7 +38,6 @@ public class GitDeployKeyGenerator {
             gitDeployKeyDTO.setPlatFormSupported(this.supportedPlatforms);
             return gitDeployKeyDTO;
         }
-
     }
 
     public static GitAuth generateSSHKey(String keyType) {
@@ -46,7 +45,7 @@ public class GitDeployKeyGenerator {
         KeyPair kpair;
         int key;
         int keySize;
-        if(!StringUtils.isEmpty(keyType) && keyType.equals(supportedProtocols.RSA.name())) {
+        if (!StringUtils.isEmpty(keyType) && keyType.equals(supportedProtocols.RSA.name())) {
             key = KeyPair.RSA;
             keySize = supportedProtocols.RSA.key_size;
         } else {

@@ -1,5 +1,3 @@
-import homePage from "../../../locators/HomePage";
-
 describe("insert workspace Logo  ", function () {
   it(" workspace logo upload ", function () {
     //Click on the dropdown next to workspace Name

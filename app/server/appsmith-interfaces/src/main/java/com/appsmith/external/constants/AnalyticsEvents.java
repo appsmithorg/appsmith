@@ -77,7 +77,14 @@ public enum AnalyticsEvents {
     UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUP,
     ACTIVATE_NEW_INSTANCE("Activate_New_Instance"),
     UPDATE_EXISTING_LICENSE("Update_Existing_License"),
-    ;
+
+    DS_SCHEMA_FETCH_EVENT("Datasource_Schema_Fetch"),
+
+    DS_TEST_EVENT("Test_Datasource_Clicked"),
+    DS_TEST_EVENT_SUCCESS("Test_Datasource_Success"),
+    DS_TEST_EVENT_FAILED("Test_Datasource_Failed"),
+
+    GIT_STALE_FILE_LOCK_DELETED;
 
     private final String eventName;
 
@@ -92,5 +99,4 @@ public enum AnalyticsEvents {
     public String getEventName() {
         return eventName;
     }
-
 }

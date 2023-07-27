@@ -22,7 +22,7 @@ describe(".generatePanelPropertyConfig", () => {
       ).find(({ propertyName }) => propertyName === "children");
 
       expect(fieldConfigurationProperty).not.toBeUndefined();
-      expect(fieldConfigurationProperty?.label).toEqual("Field Configuration");
+      expect(fieldConfigurationProperty?.label).toEqual("Field configuration");
       expect(fieldConfigurationProperty?.controlType).toEqual(
         "FIELD_CONFIGURATION",
       );

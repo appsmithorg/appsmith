@@ -1,11 +1,10 @@
 package com.appsmith.server.solutions.ce;
 
-import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.OAuthResponseDTO;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.OAuth2ResponseDTO;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import reactor.core.publisher.Mono;
-
 
 public interface AuthenticationServiceCE {
 
@@ -13,12 +12,14 @@ public interface AuthenticationServiceCE {
      * This method is used by the generic OAuth2 implementation that is used by REST APIs. Here, we only populate all the required fields
      * when hitting the authorization url and redirect to it from the controller.
      *
-     * @param datasourceId required to validate the details in the request and populate redirect url
-     * @param pageId       Required to populate redirect url
-     * @param httpRequest  Used to find the redirect domain
+     * @param datasourceId  required to validate the details in the request and populate redirect url
+     * @param environmentId
+     * @param pageId        Required to populate redirect url
+     * @param httpRequest   Used to find the redirect domain
      * @return a url String to continue the authorization flow
      */
-    Mono<String> getAuthorizationCodeURLForGenericOauth2(String datasourceId, String pageId, ServerHttpRequest httpRequest);
+    Mono<String> getAuthorizationCodeURLForGenericOAuth2(
+            String datasourceId, String environmentId, String pageId, ServerHttpRequest httpRequest);
 
     /**
      * This is the method that handles callback for generic OAuth2. We will be retrieving and storing token information here
@@ -29,10 +30,35 @@ public interface AuthenticationServiceCE {
      */
     Mono<String> getAccessTokenForGenericOAuth2(AuthorizationCodeCallbackDTO callbackDTO);
 
-    Mono<String> getAppsmithToken(String datasourceId, String pageId, String branchName, ServerHttpRequest request, String importForGit);
+    Mono<String> getAppsmithToken(
+            String datasourceId,
+            String environmentId,
+            String pageId,
+            String branchName,
+            ServerHttpRequest request,
+            String importForGit);
 
-    Mono<OAuthResponseDTO> getAccessTokenFromCloud(String datasourceId, String appsmithToken);
+    Mono<OAuth2ResponseDTO> getAccessTokenFromCloud(String datasourceId, String environmentId, String appsmithToken);
 
-    Mono<Datasource> refreshAuthentication(Datasource datasource);
+    Mono<DatasourceStorage> refreshAuthentication(DatasourceStorage datasourceStorage);
 
+    // TODO: temporaray tranisition commit: will be removed when client starts to send environmentId in the headers:
+    Mono<String> getAuthorizationCodeURLForGenericOAuth2(
+            String datasourceId,
+            String environmentId,
+            String pageId,
+            ServerHttpRequest httpRequest,
+            Boolean isTrueEnvironmentIdRequired);
+
+    Mono<String> getAppsmithToken(
+            String datasourceId,
+            String environmentId,
+            String pageId,
+            String branchName,
+            ServerHttpRequest request,
+            String importForGit,
+            Boolean isTrueEnvironmentIdRequired);
+
+    Mono<OAuth2ResponseDTO> getAccessTokenFromCloud(
+            String datasourceId, String environmentId, String appsmithToken, Boolean isTrueEnvironmentIdRequired);
 }

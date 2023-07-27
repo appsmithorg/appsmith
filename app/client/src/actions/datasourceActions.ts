@@ -4,11 +4,17 @@ import type {
 } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
-import type { Datasource } from "entities/Datasource";
+import type {
+  AuthenticationStatus,
+  Datasource,
+  FilePickerActionStatus,
+  MockDatasource,
+} from "entities/Datasource";
 import type { PluginType } from "entities/Action";
 import type { executeDatasourceQueryRequest } from "api/DatasourcesApi";
 import type { ResponseMeta } from "api/ApiResponses";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 
 export const createDatasourceFromForm = (
   payload: CreateDatasourceConfig & Datasource,
@@ -34,12 +40,22 @@ export const createTempDatasourceFromForm = (
 
 export const updateDatasource = (
   payload: Datasource,
+  currEditingEnvId: string,
   onSuccess?: ReduxAction<unknown>,
   onError?: ReduxAction<unknown>,
-): ReduxActionWithCallbacks<Datasource, unknown, unknown> => {
+  isInsideReconnectModal?: boolean,
+): ReduxActionWithCallbacks<
+  Datasource & { isInsideReconnectModal: boolean; currEditingEnvId?: string },
+  unknown,
+  unknown
+> => {
   return {
     type: ReduxActionTypes.UPDATE_DATASOURCE_INIT,
-    payload,
+    payload: {
+      ...payload,
+      isInsideReconnectModal: !!isInsideReconnectModal,
+      currEditingEnvId,
+    },
     onSuccess,
     onError,
   };
@@ -96,15 +112,57 @@ export const redirectAuthorizationCode = (
   };
 };
 
-export const fetchDatasourceStructure = (id: string, ignoreCache?: boolean) => {
+export const fetchDatasourceStructure = (
+  id: string,
+  ignoreCache?: boolean,
+  schemaFetchContext?: DatasourceStructureContext,
+) => {
   return {
     type: ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT,
     payload: {
       id,
       ignoreCache,
+      schemaFetchContext,
     },
   };
 };
+
+export const addAndFetchMockDatasourceStructure = (
+  datasource: MockDatasource,
+) => {
+  return {
+    type: ReduxActionTypes.ADD_AND_FETCH_MOCK_DATASOURCE_STRUCTURE_INIT,
+    payload: datasource,
+  };
+};
+
+export const fetchGheetSpreadsheets = (payload: {
+  datasourceId: string;
+  pluginId: string;
+}) => ({
+  type: ReduxActionTypes.FETCH_GSHEET_SPREADSHEETS,
+  payload,
+});
+
+export const fetchGheetSheets = (payload: {
+  datasourceId: string;
+  pluginId: string;
+  sheetUrl: string;
+}) => ({
+  type: ReduxActionTypes.FETCH_GSHEET_SHEETS,
+  payload,
+});
+
+export const fetchGheetColumns = (payload: {
+  datasourceId: string;
+  pluginId: string;
+  sheetName: string;
+  sheetUrl: string;
+  headerIndex: number;
+}) => ({
+  type: ReduxActionTypes.FETCH_GSHEET_COLUMNS,
+  payload,
+});
 
 export const expandDatasourceEntity = (id: string) => {
   return {
@@ -113,11 +171,15 @@ export const expandDatasourceEntity = (id: string) => {
   };
 };
 
-export const refreshDatasourceStructure = (id: string) => {
+export const refreshDatasourceStructure = (
+  id: string,
+  schemaRefreshContext?: DatasourceStructureContext,
+) => {
   return {
     type: ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT,
     payload: {
       id,
+      schemaRefreshContext,
     },
   };
 };
@@ -177,9 +239,21 @@ export const deleteDatasource = (
   };
 };
 
-export const setDatasourceViewMode = (payload: boolean) => {
+// sets viewMode flag along with clearing the datasource banner message
+export const setDatasourceViewMode = (payload: {
+  datasourceId: string;
+  viewMode: boolean;
+}) => {
   return {
     type: ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE,
+    payload,
+  };
+};
+
+// sets viewMode flag
+export const setDatasourceViewModeFlag = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE_FLAG,
     payload,
   };
 };
@@ -220,6 +294,7 @@ export interface addMockRequest
     pluginId: string;
     packageName: string;
     isGeneratePageMode?: string;
+    skipRedirection?: boolean;
   }> {
   extraParams?: any;
 }
@@ -230,10 +305,11 @@ export const addMockDatasourceToWorkspace = (
   pluginId: string,
   packageName: string,
   isGeneratePageMode?: string,
+  skipRedirection = false,
 ): addMockRequest => {
   return {
     type: ReduxActionTypes.ADD_MOCK_DATASOURCES_INIT,
-    payload: { name, packageName, pluginId, workspaceId },
+    payload: { name, packageName, pluginId, workspaceId, skipRedirection },
     extraParams: { isGeneratePageMode },
   };
 };
@@ -370,14 +446,49 @@ export const initializeDatasourceFormDefaults = (pluginType: string) => {
 // is used for handling file picker callback, when user selects files/cancels the selection
 // this callback action will be triggered
 export const filePickerCallbackAction = (data: {
-  action: string;
+  action: FilePickerActionStatus;
   datasourceId: string;
+  fileIds: Array<string>;
 }) => {
   return {
     type: ReduxActionTypes.FILE_PICKER_CALLBACK_ACTION,
     payload: data,
   };
 };
+
+// This action triggers google sheet file picker to load on blank page
+export const loadFilePickerAction = () => {
+  return {
+    type: ReduxActionTypes.LOAD_FILE_PICKER_ACTION,
+  };
+};
+
+// updates google sheet datasource auth state, in case of selected sheets
+export const updateDatasourceAuthState = (
+  datasource: Datasource,
+  authStatus: AuthenticationStatus,
+) => {
+  return {
+    type: ReduxActionTypes.UPDATE_DATASOURCE_AUTH_STATE,
+    payload: {
+      datasource: datasource,
+      authStatus: authStatus,
+    },
+  };
+};
+
+export const datasourceDiscardAction = (pluginId: string) => {
+  return {
+    type: ReduxActionTypes.DATASOURCE_DISCARD_ACTION,
+    payload: {
+      pluginId: pluginId,
+    },
+  };
+};
+
+export const softRefreshDatasourceStructure = () => ({
+  type: ReduxActionTypes.SOFT_REFRESH_DATASOURCE_STRUCTURE,
+});
 
 export default {
   fetchDatasources,

@@ -1,23 +1,18 @@
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
-import { getUserApplicationsWorkspaces } from "./applicationSelectors";
+import { getUserApplicationsWorkspaces } from "@appsmith/selectors/applicationSelectors";
 import { getWidgets } from "sagas/selectors";
-import {
-  getActionResponses,
-  getActions,
-  getCanvasWidgets,
-} from "./entitiesSelector";
+import { getActionResponses, getActions } from "./entitiesSelector";
 import { getLastSelectedWidget } from "./ui";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
+import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
+import { isBoolean } from "lodash";
 
 // Signposting selectors
-export const getEnableFirstTimeUserOnboarding = (state: AppState) => {
-  return state.ui.onBoarding.enableFirstTimeUserOnboarding;
-};
 
-export const getFirstTimeUserOnboardingApplicationId = (state: AppState) => {
-  return state.ui.onBoarding.firstTimeUserOnboardingApplicationId;
+export const getFirstTimeUserOnboardingApplicationIds = (state: AppState) => {
+  return state.ui.onBoarding.firstTimeUserOnboardingApplicationIds;
 };
 
 export const getFirstTimeUserOnboardingComplete = (state: AppState) => {
@@ -29,10 +24,9 @@ export const getFirstTimeUserOnboardingModal = (state: AppState) =>
 
 export const getIsFirstTimeUserOnboardingEnabled = createSelector(
   (state: AppState) => state.entities.pageList.applicationId,
-  getEnableFirstTimeUserOnboarding,
-  getFirstTimeUserOnboardingApplicationId,
-  (currentApplicationId, enabled, applicationId) => {
-    return enabled && currentApplicationId === applicationId;
+  getFirstTimeUserOnboardingApplicationIds,
+  (currentApplicationId, applicationIds) => {
+    return applicationIds.includes(currentApplicationId);
   },
 );
 
@@ -42,29 +36,28 @@ export const getInOnboardingWidgetSelection = (state: AppState) =>
 export const getIsOnboardingWidgetSelection = (state: AppState) =>
   state.ui.onBoarding.inOnboardingWidgetSelection;
 
-const previewModeSelector = (state: AppState) => {
-  return state.ui.editor.isPreviewMode;
-};
-
-export const getIsOnboardingTasksView = createSelector(
-  getCanvasWidgets,
-  getIsFirstTimeUserOnboardingEnabled,
-  getIsOnboardingWidgetSelection,
-  previewModeSelector,
-  (
-    widgets,
-    enableFirstTimeUserOnboarding,
-    isOnboardingWidgetSelection,
-    inPreviewMode,
-  ) => {
-    return (
-      Object.keys(widgets).length == 1 &&
-      enableFirstTimeUserOnboarding &&
-      !isOnboardingWidgetSelection &&
-      !inPreviewMode
-    );
+export const getSignpostingStepState = (state: AppState) =>
+  state.ui.onBoarding.stepState;
+export const getSignpostingStepStateByStep = createSelector(
+  getSignpostingStepState,
+  (_state: AppState, step: SIGNPOSTING_STEP) => step,
+  (stepState, step) => {
+    return stepState.find((state) => state.step === step);
   },
 );
+export const getSignpostingUnreadSteps = createSelector(
+  getSignpostingStepState,
+  (stepState) => {
+    if (!stepState.length) return [];
+    return stepState.filter((state) => isBoolean(state.read) && !state.read);
+  },
+);
+export const getSignpostingSetOverlay = (state: AppState) =>
+  state.ui.onBoarding.setOverlay;
+export const getSignpostingTooltipVisible = (state: AppState) =>
+  state.ui.onBoarding.showSignpostingTooltip;
+export const getIsAnonymousDataPopupVisible = (state: AppState) =>
+  state.ui.onBoarding.showAnonymousDataPopup;
 
 // Guided Tour selectors
 export const isExploringSelector = (state: AppState) =>
@@ -286,9 +279,7 @@ export const buttonWidgetHasOnSuccessBinding = createSelector(
       return (
         widget.type === "BUTTON_WIDGET" &&
         widget.onClick &&
-        widget.onClick.includes(
-          "{{updateCustomerInfo.run(() => getCustomers.run(), () => {})}}",
-        )
+        widget.onClick.includes("getCustomers.run()")
       );
     });
 

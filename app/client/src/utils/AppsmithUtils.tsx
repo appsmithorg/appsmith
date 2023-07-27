@@ -5,7 +5,7 @@ import * as Sentry from "@sentry/react";
 import type { Property } from "api/ActionAPI";
 import type { AppIconName } from "design-system-old";
 import { AppIconCollection } from "design-system-old";
-import _ from "lodash";
+import _, { isPlainObject } from "lodash";
 import * as log from "loglevel";
 import { osName } from "react-device-detect";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
@@ -82,24 +82,6 @@ export const initializeAnalyticsAndTrackers = () => {
   } catch (e) {
     Sentry.captureException(e);
     log.error(e);
-  }
-};
-
-export const initializeSegmentWithoutTracking = () => {
-  const appsmithConfigs = getAppsmithConfigs();
-
-  if (appsmithConfigs.segment.apiKey) {
-    // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
-    return AnalyticsUtil.initializeSegmentWithoutTracking(
-      appsmithConfigs.segment.apiKey,
-    );
-  } else if (appsmithConfigs.segment.ceKey) {
-    // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
-    return AnalyticsUtil.initializeSegmentWithoutTracking(
-      appsmithConfigs.segment.ceKey,
-    );
-  } else {
-    return Promise.resolve();
   }
 };
 
@@ -236,12 +218,13 @@ export const stopEventPropagation = (e: any) => {
 export const createNewQueryName = (
   queries: ActionDataState,
   pageId: string,
+  prefix = "Query",
 ) => {
   const pageApiNames = queries
     .filter((a) => a.config.pageId === pageId)
     .map((a) => a.config.name);
-  const newName = getNextEntityName("Query", pageApiNames);
-  return newName;
+
+  return getNextEntityName(prefix, pageApiNames);
 };
 
 export const convertToString = (value: any): string => {
@@ -255,10 +238,43 @@ export const convertToString = (value: any): string => {
   return value.toString();
 };
 
+export const getInitialsFromName = (fullName: string) => {
+  let inits = "";
+  // if name contains space. eg: "Full Name"
+  if (fullName && fullName.includes(" ")) {
+    const namesArr = fullName.split(" ");
+    let initials = namesArr
+      .map((name: string) => name.charAt(0))
+      .join("")
+      .toUpperCase();
+    initials = initials;
+    inits = initials.slice(0, 2);
+  } else {
+    // handle for camelCase
+    const str = fullName ? fullName.replace(/([a-z])([A-Z])/g, "$1 $2") : "";
+    const namesArr = str.split(" ");
+    const initials = namesArr
+      .map((name: string) => name.charAt(0))
+      .join("")
+      .toUpperCase();
+    inits = initials.slice(0, 2);
+  }
+
+  return inits;
+};
+
 export const getInitialsAndColorCode = (
-  fullName: any,
+  fullName = "",
   colorPalette: string[],
 ): string[] => {
+  const initials = getInitialsFromName(fullName);
+  const colorCode = getColorCode(initials, colorPalette);
+  return [initials, colorCode];
+};
+export const getInitials = (
+  fullName: any,
+  // colorPalette: string[],
+): string => {
   let inits = "";
   // if name contains space. eg: "Full Name"
   if (fullName && fullName.includes(" ")) {
@@ -274,10 +290,9 @@ export const getInitialsAndColorCode = (
     initials = initials.join("").toUpperCase();
     inits = initials.slice(0, 2);
   }
-  const colorCode = getColorCode(inits, colorPalette);
-  return [inits, colorCode];
+  // const colorCode = getColorCode(inits, colorPalette);
+  return inits;
 };
-
 export const getColorCode = (
   initials: string,
   colorPalette: string[],
@@ -357,10 +372,7 @@ export const isBlobUrl = (url: string) => {
  */
 export const createBlobUrl = (data: Blob | MediaSource, type: string) => {
   let url = URL.createObjectURL(data);
-  url = url.replace(
-    `${window.location.protocol}//${window.location.hostname}/`,
-    "",
-  );
+  url = url.replace(`${window.location.origin}/`, "");
 
   return `${url}?type=${type}`;
 };
@@ -371,9 +383,7 @@ export const createBlobUrl = (data: Blob | MediaSource, type: string) => {
  * @returns [string,string] [blobUrl, type]
  */
 export const parseBlobUrl = (blobId: string) => {
-  const url = `blob:${window.location.protocol}//${
-    window.location.hostname
-  }/${blobId.substring(5)}`;
+  const url = `blob:${window.location.origin}/${blobId.substring(5)}`;
   return url.split("?type=");
 };
 
@@ -446,4 +456,32 @@ export function areArraysEqual(arr1: string[], arr2: string[]) {
   if ([...arr1].sort().join(",") === [...arr2].sort().join(",")) return true;
 
   return false;
+}
+
+export enum DataType {
+  OBJECT = "OBJECT",
+  NUMBER = "NUMBER",
+  ARRAY = "ARRAY",
+  BOOLEAN = "BOOLEAN",
+  STRING = "STRING",
+  NULL = "NULL",
+  UNDEFINED = "UNDEFINED",
+}
+
+export function getDatatype(value: unknown) {
+  if (typeof value === "string") {
+    return DataType.STRING;
+  } else if (typeof value === "number") {
+    return DataType.NUMBER;
+  } else if (typeof value === "boolean") {
+    return DataType.BOOLEAN;
+  } else if (isPlainObject(value)) {
+    return DataType.OBJECT;
+  } else if (Array.isArray(value)) {
+    return DataType.ARRAY;
+  } else if (value === null) {
+    return DataType.NULL;
+  } else if (value === undefined) {
+    return DataType.UNDEFINED;
+  }
 }

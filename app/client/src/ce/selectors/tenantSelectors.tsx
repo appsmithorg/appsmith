@@ -34,5 +34,11 @@ export const isTenantLoading = (state: AppState) => {
 export const getGoogleMapsApiKey = (state: AppState): string | undefined =>
   state.tenant?.tenantConfiguration?.googleMapsKey as string | undefined;
 
+export const getThirdPartyAuths = (state: AppState): string[] =>
+  state.tenant?.tenantConfiguration?.thirdPartyAuths ?? [];
+
+export const getIsFormLoginEnabled = (state: AppState): boolean =>
+  state.tenant?.tenantConfiguration?.isFormLoginEnabled ?? true;
+
 export const getInstanceId = (state: AppState): string =>
   state.tenant?.instanceId;

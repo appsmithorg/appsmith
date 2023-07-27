@@ -10,11 +10,12 @@ import DividerWidget from "./";
 describe("<DividerWidget />", () => {
   const initialState = {
     ui: {
+      appSettingsPane: {
+        isOpen: false,
+      },
       users: {
         featureFlag: {
-          data: {
-            AUTO_LAYOUT: false,
-          },
+          data: {},
         },
       },
       widgetDragResize: {
@@ -36,6 +37,9 @@ describe("<DividerWidget />", () => {
       },
       autoHeightUI: {
         isAutoHeightWithLimitsChanging: false,
+      },
+      mainCanvas: {
+        width: 1159,
       },
       canvasSelection: {
         isDraggingForSelection: false,

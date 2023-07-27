@@ -1,8 +1,8 @@
 import type React from "react";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { Dispatch } from "react";
-import type { EventName } from "utils/AnalyticsUtil";
-import type { RadioProps } from "pages/Settings/FormGroup/Radio";
+import type { RadioOptionProps } from "pages/Settings/FormGroup/Radio";
+import type { CalloutKind, SelectOptionProps } from "design-system";
 
 type ControlType = {
   [K in keyof ControlPropsType]: {
@@ -12,7 +12,7 @@ type ControlType = {
 }[keyof ControlPropsType];
 
 type ControlPropsType = {
-  [SettingTypes.RADIO]: RadioProps;
+  [SettingTypes.RADIO]: RadioOptionProps;
   [SettingTypes.TEXTINPUT]: unknown;
   [SettingTypes.TOGGLE]: unknown;
   [SettingTypes.LINK]: unknown;
@@ -56,7 +56,7 @@ export type Setting = ControlType & {
   format?: (value: string) => any;
   parse?: (value: any) => any;
   helpText?: string;
-  label?: string;
+  label?: React.ReactNode;
   name?: string;
   placeholder?: string;
   validate?: (value: string, setting?: Setting) => string | void;
@@ -76,15 +76,14 @@ export type Setting = ControlType & {
   isVisible?: (values: Record<string, any>) => boolean;
   isHidden?: boolean;
   isDisabled?: (values: Record<string, any>) => boolean;
-  calloutType?: "Info" | "Warning" | "Notify";
+  calloutType?: CalloutKind;
   advanced?: Setting[];
   isRequired?: boolean;
   formName?: string;
   fieldName?: string;
-  dropdownOptions?: Array<{ id: string; value: string; label?: string }>;
+  dropdownOptions?: Partial<SelectOptionProps>[];
   needsUpgrade?: boolean;
-  upgradeLogEventName?: EventName;
-  upgradeIntercomMessage?: string;
+  tooltip?: string;
 };
 
 export interface Category {
@@ -92,8 +91,12 @@ export interface Category {
   slug: string;
   subText?: string;
   isConnected?: boolean;
+  needsRefresh?: boolean;
   children?: Category[];
   icon?: string;
+  categoryType: string;
+  needsUpgrade?: boolean;
+  isEnterprise?: boolean;
 }
 
 export const SettingCategories = {
@@ -108,14 +111,15 @@ export const SettingCategories = {
   GITHUB_AUTH: "github-auth",
   AUDIT_LOGS: "audit-logs",
   ACCESS_CONTROL: "access-control",
+  PROVISIONING: "provisioning",
   BRANDING: "branding",
 };
 
-export const SettingSubCategories = {
-  GOOGLE: "google signup",
-  GITHUB: "github signup",
-  FORMLOGIN: "form login",
-};
+export enum CategoryType {
+  GENERAL = "general",
+  ACL = "acl",
+  OTHER = "other",
+}
 
 export type AdminConfigType = {
   type: string;
@@ -127,6 +131,9 @@ export type AdminConfigType = {
   children?: AdminConfigType[];
   canSave: boolean;
   isConnected?: boolean;
+  needsRefresh?: boolean;
   icon?: string;
   needsUpgrade?: boolean;
+  categoryType: CategoryType;
+  isEnterprise?: boolean;
 };

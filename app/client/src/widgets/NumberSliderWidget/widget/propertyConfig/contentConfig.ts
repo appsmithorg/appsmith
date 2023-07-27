@@ -1,8 +1,9 @@
 import { Alignment } from "@blueprintjs/core";
+
 import { LabelPosition } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import type { NumberSliderWidgetProps } from "..";
 import {
   defaultValueValidation,
@@ -18,7 +19,7 @@ export default [
       {
         propertyName: "min",
         helpText: "Sets the min value of the widget",
-        label: "Min. Value",
+        label: "Min. value",
         controlType: "INPUT_TEXT",
         placeholderText: "0",
         isBindProperty: true,
@@ -38,7 +39,7 @@ export default [
       {
         propertyName: "max",
         helpText: "Sets the max value of the widget",
-        label: "Max. Value",
+        label: "Max. value",
         controlType: "INPUT_TEXT",
         placeholderText: "100",
         isBindProperty: true,
@@ -58,7 +59,7 @@ export default [
       {
         propertyName: "step",
         helpText: "The amount by which the slider value should increase",
-        label: "Step Size",
+        label: "Step size",
         controlType: "INPUT_TEXT",
         placeholderText: "10",
         isBindProperty: true,
@@ -78,7 +79,7 @@ export default [
       {
         propertyName: "defaultValue",
         helpText: "Sets the value of the widget",
-        label: "Default Value",
+        label: "Default value",
         controlType: "INPUT_TEXT",
         placeholderText: "Value:",
         isBindProperty: true,
@@ -116,6 +117,7 @@ export default [
         label: "Position",
         controlType: "ICON_TABS",
         fullWidth: true,
+        hidden: isAutoLayout,
         options: [
           { label: "Left", value: LabelPosition.Left },
           { label: "Top", value: LabelPosition.Top },
@@ -130,13 +132,14 @@ export default [
         propertyName: "labelAlignment",
         label: "Alignment",
         controlType: "LABEL_ALIGNMENT_OPTIONS",
+        fullWidth: false,
         options: [
           {
-            icon: "LEFT_ALIGN",
+            startIcon: "align-left",
             value: Alignment.LEFT,
           },
           {
-            icon: "RIGHT_ALIGN",
+            startIcon: "align-right",
             value: Alignment.RIGHT,
           },
         ],
@@ -184,7 +187,7 @@ export default [
       {
         propertyName: "showMarksLabel",
         helpText: "Show the marks label below the slider",
-        label: "Show Marks",
+        label: "Show marks",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -254,7 +257,7 @@ export default [
       },
       {
         propertyName: "animateLoading",
-        label: "Animate Loading",
+        label: "Animate loading",
         controlType: "SWITCH",
         helpText: "Controls the loading of the widget",
         defaultValue: true,
@@ -275,12 +278,11 @@ export default [
       },
     ],
   },
-  ...getResponsiveLayoutConfig("NUMBER_SLIDER_WIDGET"),
   {
     sectionName: "Events",
     children: [
       {
-        helpText: "Triggers an action when a user changes the slider value",
+        helpText: "when a user changes the slider value",
         propertyName: "onChange",
         label: "onChange",
         controlType: "ACTION_SELECTOR",

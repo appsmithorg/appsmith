@@ -4,14 +4,17 @@ import {
   RecaptchaTypes,
 } from "components/constants";
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
-import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import type { PropertyUpdates, SnipingModeProperty } from "widgets/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Button",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.BUTTONS],
   needsMeta: true,
   searchTags: ["click", "submit"],
   defaults: {
@@ -29,7 +32,7 @@ export const CONFIG = {
     resetFormOnClick: false,
     recaptchaType: RecaptchaTypes.V3,
     version: 1,
-    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    responsiveBehavior: ResponsiveBehavior.Hug,
     minWidth: BUTTON_MIN_WIDTH,
   },
   properties: {
@@ -40,6 +43,46 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+    setterConfig: Widget.getSetterConfig(),
+  },
+  methods: {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
+      return [
+        {
+          propertyPath: "onClick",
+          propertyValue: propValueMap.run,
+          isDynamicPropertyPath: true,
+        },
+      ];
+    },
+  },
+  autoLayout: {
+    defaults: {
+      rows: 4,
+      columns: 6.453,
+    },
+    autoDimension: {
+      width: true,
+    },
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "120px",
+            maxWidth: "360px",
+            minHeight: "40px",
+          };
+        },
+      },
+    ],
+    disableResizeHandles: {
+      horizontal: true,
+      vertical: true,
+    },
   },
 };
 

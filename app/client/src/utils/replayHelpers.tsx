@@ -1,45 +1,24 @@
-import React from "react";
-
 import scrollIntoView from "scroll-into-view-if-needed";
-
 import {
   modText,
   flashElementsById,
   isMacOrIOS,
   flashElement,
-  hasClass,
   shiftText,
 } from "./helpers";
 import localStorage from "./localStorage";
-import { Toaster } from "design-system-old";
 import {
   createMessage,
   WIDGET_ADDED,
   BULK_WIDGET_ADDED,
   WIDGET_REMOVED,
   BULK_WIDGET_REMOVED,
+  ACTION_CONFIGURATION_CHANGED,
 } from "@appsmith/constants/messages";
-
-/**
- * get the text for toast
- *
- * @param replayType
- * @returns
- */
-export const getReplayToastActionText = (replayType = "undo") => {
-  switch (replayType) {
-    case "undo":
-      return <>UNDO ({modText()} Z) </>;
-    case "redo":
-      return isMacOrIOS() ? (
-        <>
-          REDO ({modText()} {shiftText()} Z){" "}
-        </>
-      ) : (
-        <>REDO ({modText()} Y) </>
-      );
-  }
-};
+import { toast } from "design-system";
+import { setApiPaneConfigSelectedTabIndex } from "../actions/apiPaneActions";
+import { API_EDITOR_TABS } from "../constants/ApiEditorConstants/CommonApiConstants";
+import store from "../store";
 
 /**
  * process the toast for undo/redo
@@ -69,36 +48,62 @@ export const processUndoRedoToasts = (
   showUndoRedoToast(widgetName, isMultipleToasts, isCreated, !isUndo);
 };
 
+// context can be extended.
+export enum UndoRedoToastContext {
+  WIDGET = "widget",
+  QUERY_TEMPLATES = "query-templates",
+}
+
 /**
  * shows a toast for undo/redo
  *
- * @param widgetName
+ * @param actionName
  * @param isMultiple
  * @param isCreated
  * @param shouldUndo
+ * @param toastContext
  * @returns
  */
 export const showUndoRedoToast = (
-  widgetName: string | undefined,
+  actionName: string | undefined,
   isMultiple: boolean,
   isCreated: boolean,
   shouldUndo: boolean,
+  toastContext = UndoRedoToastContext.WIDGET,
 ) => {
-  if (shouldDisallowToast(shouldUndo)) return;
+  if (
+    shouldDisallowToast(shouldUndo) &&
+    toastContext === UndoRedoToastContext.WIDGET
+  )
+    return;
 
-  const actionDescription = getActionDescription(isCreated, isMultiple);
+  let actionDescription;
+  let actionText = "";
 
-  const text = createMessage(actionDescription, widgetName);
-  const actionElement = getReplayToastActionText(shouldUndo ? "undo" : "redo");
+  switch (toastContext) {
+    case UndoRedoToastContext.WIDGET:
+      actionDescription = getWidgetDescription(isCreated, isMultiple);
+      actionText = createMessage(actionDescription, actionName);
+      break;
+    case UndoRedoToastContext.QUERY_TEMPLATES:
+      actionDescription = ACTION_CONFIGURATION_CHANGED;
+      actionText = createMessage(actionDescription, actionName);
+      break;
+    default:
+      actionText = "";
+  }
 
-  Toaster.show({
-    text,
-    actionElement,
-    maxWidth: "500px",
-  });
+  const action = shouldUndo ? "undo" : "redo";
+  const actionKey = shouldUndo
+    ? `${modText()} Z`
+    : isMacOrIOS()
+    ? `${modText()} ${shiftText()} Z`
+    : `${modText()} Y`;
+
+  toast.show(`${actionText}. Press ${actionKey} to ${action}`);
 };
 
-function getActionDescription(isCreated: boolean, isMultiple: boolean) {
+function getWidgetDescription(isCreated: boolean, isMultiple: boolean) {
   if (isCreated) return isMultiple ? BULK_WIDGET_ADDED : WIDGET_ADDED;
   else return isMultiple ? BULK_WIDGET_REMOVED : WIDGET_REMOVED;
 }
@@ -155,12 +160,14 @@ export function highlightReplayElement(configProperties: Array<string> = []) {
 
 export function switchTab(replayId: string): boolean {
   if (!replayId) return false;
-  const element = document.querySelector(
-    `[data-replay-id="${replayId}"]`,
-  ) as HTMLElement;
+  const element = document.querySelector(`[id$="${replayId}"]`) as HTMLElement;
   if (!element) return false;
-  if (hasClass(element, "react-tabs__tab--selected")) return false;
-  element?.click();
+  if (element.getAttribute("data-state") == "active") return false;
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const index = Object.values(API_EDITOR_TABS).indexOf(replayId);
+  store.dispatch(setApiPaneConfigSelectedTabIndex(index));
+
   return true;
 }
 

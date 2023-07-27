@@ -29,6 +29,7 @@ export enum ERROR_CODES {
   REQUEST_TIMEOUT = "REQUEST_TIMEOUT",
   FAILED_TO_CORRECT_BINDING = "FAILED_TO_CORRECT_BINDING",
   REQUEST_FORBIDDEN = "REQUEST_FORBIDDEN",
+  CYPRESS_DEBUG = "CYPRESS_DEBUG",
 }
 
 export const OAuthURL = "/oauth2/authorization";
@@ -41,3 +42,6 @@ export const SUPER_USER_SUBMIT_PATH = `${SIGNUP_SUBMIT_PATH}/super`;
 
 export const getExportAppAPIRoute = (applicationId: string) =>
   `/api/v1/applications/export/${applicationId}`;
+
+export const getSnapShotAPIRoute = (applicationId: string) =>
+  `/v1/applications/snapshot/${applicationId}`;

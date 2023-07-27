@@ -35,43 +35,52 @@ import java.util.regex.Pattern;
 @Slf4j
 class RefactoringSolutionCEImplTest {
 
-    RefactoringSolutionCEImpl refactoringSolutionCE;
-    @MockBean
-    private ObjectMapper objectMapper;
-    @MockBean
-    private NewPageService newPageService;
-    @MockBean
-    private NewActionService newActionService;
-    @MockBean
-    private ActionCollectionService actionCollectionService;
-    @MockBean
-    private ResponseUtils responseUtils;
-    @MockBean
-    private LayoutActionService layoutActionService;
-    @MockBean
-    private ApplicationService applicationService;
-    @MockBean
-    private AstService astService;
-    @MockBean
-    private InstanceConfig instanceConfig;
-    @MockBean
-    private AnalyticsService analyticsService;
-    @MockBean
-    private SessionUserService sessionUserService;
-
-    PagePermission pagePermission;
-    ActionPermission actionPermission;
-
-    ObjectMapper mapper = new ObjectMapper();
-
     private final String preWord = "\\b(";
     private final String postWord = ")\\b";
+    RefactoringSolutionCEImpl refactoringSolutionCE;
+    PagePermission pagePermission;
+    ActionPermission actionPermission;
+    ObjectMapper mapper = new ObjectMapper();
+
+    @MockBean
+    private ObjectMapper objectMapper;
+
+    @MockBean
+    private NewPageService newPageService;
+
+    @MockBean
+    private NewActionService newActionService;
+
+    @MockBean
+    private ActionCollectionService actionCollectionService;
+
+    @MockBean
+    private ResponseUtils responseUtils;
+
+    @MockBean
+    private LayoutActionService layoutActionService;
+
+    @MockBean
+    private ApplicationService applicationService;
+
+    @MockBean
+    private AstService astService;
+
+    @MockBean
+    private InstanceConfig instanceConfig;
+
+    @MockBean
+    private AnalyticsService analyticsService;
+
+    @MockBean
+    private SessionUserService sessionUserService;
 
     @BeforeEach
     public void setUp() {
         pagePermission = new PagePermissionImpl();
         actionPermission = new ActionPermissionImpl();
-        refactoringSolutionCE = new RefactoringSolutionCEImpl(objectMapper,
+        refactoringSolutionCE = new RefactoringSolutionCEImpl(
+                objectMapper,
                 newPageService,
                 newActionService,
                 actionCollectionService,
@@ -79,8 +88,8 @@ class RefactoringSolutionCEImplTest {
                 layoutActionService,
                 applicationService,
                 astService,
-                instanceConfig, 
-                analyticsService, 
+                instanceConfig,
+                analyticsService,
                 sessionUserService,
                 pagePermission,
                 actionPermission);
@@ -89,24 +98,20 @@ class RefactoringSolutionCEImplTest {
     @Test
     void testRefactorNameInDsl_whenRenamingTextWidget_replacesAllReferences() {
         try (InputStream initialStream = this.getClass().getResourceAsStream("refactorDslWithOnlyWidgets.json");
-             InputStream finalStream = this.getClass().getResourceAsStream("refactorDslWithOnlyWidgetsWithNewText.json")) {
+                InputStream finalStream =
+                        this.getClass().getResourceAsStream("refactorDslWithOnlyWidgetsWithNewText.json")) {
             assert initialStream != null;
             JsonNode dslAsJsonNode = mapper.readTree(initialStream);
             final String oldName = "Text";
             Mono<Set<String>> updatesMono = refactoringSolutionCE.refactorNameInDsl(
-                    dslAsJsonNode,
-                    oldName,
-                    "newText",
-                    2,
-                    Pattern.compile(preWord + oldName + postWord));
+                    dslAsJsonNode, oldName, "newText", 2, Pattern.compile(preWord + oldName + postWord));
 
             StepVerifier.create(updatesMono)
                     .assertNext(updatedPaths -> {
                         Assertions.assertThat(updatedPaths).hasSize(3);
-                        Assertions.assertThat(updatedPaths).containsExactlyInAnyOrder(
-                                "Text.widgetName",
-                                "List1.template",
-                                "List1.onListItemClick");
+                        Assertions.assertThat(updatedPaths)
+                                .containsExactlyInAnyOrder(
+                                        "Text.widgetName", "List1.template", "List1.onListItemClick");
                     })
                     .verifyComplete();
 
@@ -121,25 +126,23 @@ class RefactoringSolutionCEImplTest {
     @Test
     void testRefactorNameInDsl_whenRenamingListWidget_replacesTemplateReferences() {
         try (InputStream initialStream = this.getClass().getResourceAsStream("refactorDslWithOnlyWidgets.json");
-             InputStream finalStream = this.getClass().getResourceAsStream("refactorDslWithOnlyWidgetsWithNewList.json")) {
+                InputStream finalStream =
+                        this.getClass().getResourceAsStream("refactorDslWithOnlyWidgetsWithNewList.json")) {
             assert initialStream != null;
             JsonNode dslAsJsonNode = mapper.readTree(initialStream);
             final String oldName = "List1";
             Mono<Set<String>> updatesMono = refactoringSolutionCE.refactorNameInDsl(
-                    dslAsJsonNode,
-                    oldName,
-                    "newList",
-                    2,
-                    Pattern.compile(preWord + oldName + postWord));
+                    dslAsJsonNode, oldName, "newList", 2, Pattern.compile(preWord + oldName + postWord));
 
             StepVerifier.create(updatesMono)
                     .assertNext(updatedPaths -> {
                         Assertions.assertThat(updatedPaths).hasSize(4);
-                        Assertions.assertThat(updatedPaths).containsExactlyInAnyOrder(
-                                "List1.widgetName",
-                                "List1.template.Text4.text",
-                                "List1.template.Image1.image",
-                                "List1.template.Text.text");
+                        Assertions.assertThat(updatedPaths)
+                                .containsExactlyInAnyOrder(
+                                        "List1.widgetName",
+                                        "List1.template.Text4.text",
+                                        "List1.template.Image1.image",
+                                        "List1.template.Text.text");
                     })
                     .verifyComplete();
 
@@ -150,5 +153,4 @@ class RefactoringSolutionCEImplTest {
             Assertions.fail("Unexpected IOException", e);
         }
     }
-
 }

@@ -3,8 +3,11 @@ import styled from "styled-components";
 import NoSearchDataImage from "assets/images/no_search_data.png";
 import { NO_SEARCH_DATA_TEXT } from "@appsmith/constants/messages";
 import { getTypographyByKey } from "design-system-old";
-import { ReactComponent as DiscordIcon } from "assets/icons/help/discord.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { importSvg } from "design-system-old";
+
+const DiscordIcon = importSvg(() => import("assets/icons/help/discord.svg"));
 
 const Container = styled.div`
   display: flex;
@@ -43,24 +46,27 @@ const StyledDiscordIcon = styled(DiscordIcon)`
 `;
 
 function ResultsNotFound() {
+  const isAirgappedInstance = isAirgapped();
   return (
     <Container>
       <img alt="No data" src={NoSearchDataImage} />
       <div className="no-data-title">{NO_SEARCH_DATA_TEXT()}</div>
-      <span className="discord">
-        🤖 Join our{"  "}
-        <span
-          className="discord-link"
-          onClick={() => {
-            window.open("https://discord.gg/rBTTVJp", "_blank");
-            AnalyticsUtil.logEvent("DISCORD_LINK_CLICK");
-          }}
-        >
-          <StyledDiscordIcon color="red" height={22} width={24} />
-          Discord Server
-        </span>{" "}
-        for more help.
-      </span>
+      {!isAirgappedInstance && (
+        <span className="discord">
+          🤖 Join our{"  "}
+          <span
+            className="discord-link"
+            onClick={() => {
+              window.open("https://discord.gg/rBTTVJp", "_blank");
+              AnalyticsUtil.logEvent("DISCORD_LINK_CLICK");
+            }}
+          >
+            <StyledDiscordIcon color="red" height={22} width={24} />
+            Discord Server
+          </span>{" "}
+          for more help.
+        </span>
+      )}
     </Container>
   );
 }

@@ -5,8 +5,8 @@ import { Button, ButtonGroup } from "@blueprintjs/core";
 
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { ControlIcons } from "icons/ControlIcons";
 import type { ThemeProp } from "widgets/constants";
+import { Icon } from "design-system";
 
 export enum ButtonBorderRadiusTypes {
   SHARP = "SHARP",
@@ -60,15 +60,13 @@ class ButtonBorderRadiusOptionsControl extends BaseControl<ButtonBorderRadiusOpt
       <StyledButtonGroup fill>
         <StyledButton
           active={propertyValue === ButtonBorderRadiusTypes.SHARP || undefined}
-          icon={<ControlIcons.BORDER_RADIUS_SHARP color="#979797" width={15} />}
+          icon={<Icon name="border-radius-sharp" size="md" />}
           large
           onClick={() => this.toggleOption(ButtonBorderRadiusTypes.SHARP)}
         />
         <StyledButton
           active={propertyValue === ButtonBorderRadiusTypes.ROUNDED}
-          icon={
-            <ControlIcons.BORDER_RADIUS_ROUNDED color="#979797" width={15} />
-          }
+          icon={<Icon name="border-radius-rounded" size="md" />}
           large
           onClick={() => this.toggleOption(ButtonBorderRadiusTypes.ROUNDED)}
         />

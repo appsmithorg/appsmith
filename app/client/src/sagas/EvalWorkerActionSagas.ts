@@ -2,7 +2,10 @@ import { all, call, put, spawn, take } from "redux-saga/effects";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
-import { evalErrorHandler } from "../sagas/PostEvaluationSagas";
+import {
+  evalErrorHandler,
+  logJSVarMutationEvent,
+} from "../sagas/PostEvaluationSagas";
 import type { Channel } from "redux-saga";
 import { storeLogs } from "../sagas/DebuggerSagas";
 import type {
@@ -15,11 +18,23 @@ import type { ResponsePayload } from "../sagas/EvaluationsSaga";
 import {
   evalWorker,
   executeTriggerRequestSaga,
+  updateDataTreeHandler,
 } from "../sagas/EvaluationsSaga";
 import { logJSFunctionExecution } from "@appsmith/sagas/JSFunctionExecutionSaga";
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
+import type {
+  EvalTreeResponseData,
+  JSVarMutatedEvents,
+} from "workers/Evaluation/types";
 import isEmpty from "lodash/isEmpty";
+import type { UnEvalTree } from "entities/DataTree/dataTreeFactory";
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
+import type { LintTreeSagaRequestData } from "plugins/Linting/types";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+export type UpdateDataTreeMessageData = {
+  workerResponse: EvalTreeResponseData;
+  unevalTree: UnEvalTree;
+};
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {
@@ -31,11 +46,12 @@ export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
 export function* lintTreeActionHandler(message: any) {
   const { body } = message;
   const { data } = body;
+  const { configTree, unevalTree } = data as LintTreeSagaRequestData;
   yield put({
     type: ReduxActionTypes.LINT_TREE,
     payload: {
-      pathsToLint: data.lintOrder,
-      unevalTree: data.unevalTree,
+      unevalTree,
+      configTree,
     },
   });
 }
@@ -90,6 +106,19 @@ export function* processTriggerHandler(message: any) {
   if (messageType === MessageType.REQUEST)
     yield call(evalWorker.respond, message.messageId, result);
 }
+export function* handleJSExecutionLog(data: TMessage<{ data: string[] }>) {
+  const {
+    body: { data: executedFns },
+  } = data;
+
+  for (const executedFn of executedFns) {
+    AnalyticsUtil.logEvent("EXECUTE_ACTION", {
+      type: "JS",
+      name: executedFn,
+    });
+  }
+  yield call(logJSFunctionExecution, data);
+}
 
 export function* handleEvalWorkerMessage(message: TMessage<any>) {
   const { body } = message;
@@ -116,7 +145,7 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
       break;
     }
     case MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION: {
-      yield logJSFunctionExecution(message);
+      yield call(handleJSExecutionLog, message);
       break;
     }
     case MAIN_THREAD_ACTION.PROCESS_BATCHED_TRIGGERS: {
@@ -133,6 +162,20 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
         }),
       );
       break;
+    }
+    case MAIN_THREAD_ACTION.UPDATE_DATATREE: {
+      const { unevalTree, workerResponse } = data as UpdateDataTreeMessageData;
+      yield call(updateDataTreeHandler, {
+        evalTreeResponse: workerResponse as EvalTreeResponseData,
+        unevalTree,
+        requiresLogging: false,
+      });
+      break;
+    }
+
+    case MAIN_THREAD_ACTION.PROCESS_JS_VAR_MUTATION_EVENTS: {
+      const jsVarMutatedEvents: JSVarMutatedEvents = data;
+      yield call(logJSVarMutationEvent, jsVarMutatedEvents);
     }
   }
 

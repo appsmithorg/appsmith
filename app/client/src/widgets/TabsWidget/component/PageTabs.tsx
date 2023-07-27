@@ -2,7 +2,10 @@ import React, { useRef, useEffect, useState } from "react";
 import styled from "styled-components";
 import { get } from "lodash";
 import { isEllipsisActive } from "utils/helpers";
-import { getTypographyByKey, TooltipComponent } from "design-system-old";
+import {
+  getTypographyByKey,
+  TooltipComponent,
+} from "@design-system/widgets-old";
 
 import { useSelector } from "react-redux";
 
@@ -11,7 +14,7 @@ import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";
 
 const PageTab = styled.div`
   display: flex;
-  max-width: 170px;
+  max-width: 12.5rem;
   align-self: flex-end;
   cursor: pointer;
   text-decoration: none;
@@ -47,11 +50,11 @@ const StyleTabText = styled.div<{
   color: ${(props) => getComplementaryGrayscaleColor(props.backgroundColor)};
   font-weight: normal;
   height: 32px;
-  max-width: 138px;
+  max-width: 12.5rem;
   display: flex;
 
   & div {
-    max-width: 138px;
+    max-width: inherit;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -63,6 +66,7 @@ const StyleTabText = styled.div<{
     text-overflow: ellipsis;
     white-space: nowrap;
     width: 100%;
+    line-height: initial;
 
     &.is-selected {
       color: ${(props) => props.accentColor};

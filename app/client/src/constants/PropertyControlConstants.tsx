@@ -9,6 +9,7 @@ import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import type { Stylesheet } from "entities/AppTheming";
 import type { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
+import type { PropertyUpdates } from "widgets/constants";
 
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = (typeof ControlTypes)[keyof typeof ControlTypes];
@@ -25,13 +26,6 @@ export type PropertyPaneSectionConfig = {
   tag?: string; // Used to show a tag right after the section name (only in the search results)
 };
 
-export type PropertyHookUpdates = {
-  propertyPath: string;
-  propertyValue?: unknown;
-  isDynamicPropertyPath?: boolean; // Toggles the property mode to JS
-  shouldDeleteProperty?: boolean; // Deletes the property, propertyValue is ignored
-};
-
 export type PanelConfig = {
   editableTitle: boolean;
   titlePropertyName: string;
@@ -44,7 +38,7 @@ export type PanelConfig = {
     props: any,
     propertyPath: string,
     propertyValue: any,
-  ) => Array<PropertyHookUpdates> | undefined;
+  ) => Array<PropertyUpdates> | undefined;
 };
 
 export type PropertyPaneControlConfig = {
@@ -71,7 +65,7 @@ export type PropertyPaneControlConfig = {
     props: any,
     propertyName: string,
     propertyValue: any,
-  ) => Array<PropertyHookUpdates> | undefined;
+  ) => Array<PropertyUpdates> | undefined;
   hidden?: (props: any, propertyPath: string) => boolean;
   invisible?: boolean;
   isBindProperty: boolean;
@@ -98,6 +92,12 @@ export type PropertyPaneControlConfig = {
   isPanelProperty?: boolean;
   // Numeric Input Control
   min?: number;
+  // Switch mode ( JS -> Text )
+  shouldSwitchToNormalMode?: (
+    isDynamic: boolean,
+    isToggleDisabled: boolean,
+    triggerFlag?: boolean,
+  ) => boolean;
 };
 
 type ValidationConfigParams = {
@@ -129,9 +129,12 @@ type ValidationConfigParams = {
   strict?: boolean; //for strict string validation of TEXT type
   ignoreCase?: boolean; //to ignore the case of key
   type?: ValidationTypes; // Used for ValidationType.ARRAY_OF_TYPE_OR_TYPE to define sub type
+  types?: ValidationConfig[]; // Used for ValidationType.UNION to define sub type
   params?: ValidationConfigParams; // Used for ValidationType.ARRAY_OF_TYPE_OR_TYPE to define sub type params
   passThroughOnZero?: boolean; // Used for ValidationType.NUMBER to allow 0 to be passed through. Deafults value is true
   limitLineBreaks?: boolean; // Used for ValidationType.TEXT to limit line breaks in a large json object.
+  defaultValue?: unknown; // used for ValidationType.UNION when none the union type validation is success
+  defaultErrorMessage?: string; // used for ValidationType.UNION when none the union type validation is success
 };
 
 export type ValidationConfig = {

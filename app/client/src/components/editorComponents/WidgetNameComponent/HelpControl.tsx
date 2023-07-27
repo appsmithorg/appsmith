@@ -2,7 +2,6 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { Tooltip } from "@blueprintjs/core";
 import styled from "styled-components";
-import { ControlIcons } from "icons/ControlIcons";
 import { Colors } from "constants/Colors";
 import { HelpMap } from "constants/HelpConstants";
 import {
@@ -10,11 +9,7 @@ import {
   setHelpModalVisibility,
 } from "actions/helpActions";
 import type { WidgetType } from "constants/WidgetConstants";
-
-const HelpIcon = ControlIcons.HELP_CONTROL;
-const helpControlIcon = (
-  <HelpIcon background="transparent" height={14} width={14} />
-);
+import { Icon } from "design-system";
 
 const StyledHelpIcon = styled.div`
   justify-self: flex-start;
@@ -50,7 +45,7 @@ export function HelpControl(props: { type: WidgetType; show: boolean }) {
       }}
     >
       <Tooltip content="Open Help" hoverOpenDelay={500} position="top">
-        {helpControlIcon}
+        <Icon name="help-control" size="sm" />
       </Tooltip>
     </StyledHelpIcon>
   ) : null;

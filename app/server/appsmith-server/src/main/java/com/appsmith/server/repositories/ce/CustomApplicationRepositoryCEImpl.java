@@ -27,8 +27,8 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -39,11 +39,13 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final ApplicationPermission applicationPermission;
+
     @Autowired
-    public CustomApplicationRepositoryCEImpl(@NonNull ReactiveMongoOperations mongoOperations,
-                                             @NonNull MongoConverter mongoConverter,
-                                             CacheableRepositoryHelper cacheableRepositoryHelper,
-                                             ApplicationPermission applicationPermission) {
+    public CustomApplicationRepositoryCEImpl(
+            @NonNull ReactiveMongoOperations mongoOperations,
+            @NonNull MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper,
+            ApplicationPermission applicationPermission) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.applicationPermission = applicationPermission;
@@ -56,7 +58,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission) {
-        Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
+        Criteria workspaceIdCriteria =
+                where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
         Criteria idCriteria = getIdCriteria(id);
 
         return queryOne(List.of(idCriteria, workspaceIdCriteria), permission);
@@ -70,13 +73,15 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission) {
-        Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
+        Criteria workspaceIdCriteria =
+                where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
         return queryAll(List.of(workspaceIdCriteria), permission);
     }
 
     @Override
     public Flux<Application> findByMultipleWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
-        Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).in(workspaceIds);
+        Criteria workspaceIdCriteria =
+                where(fieldName(QApplication.application.workspaceId)).in(workspaceIds);
         return queryAll(List.of(workspaceIdCriteria), permission);
     }
 
@@ -87,11 +92,10 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 .map(auth -> (User) auth.getPrincipal())
                 .flatMap(user -> {
                     if (user.getTenantId() == null) {
-                        return cacheableRepositoryHelper.getDefaultTenantId()
-                                .map(tenantId -> {
-                                    user.setTenantId(tenantId);
-                                    return user;
-                                });
+                        return cacheableRepositoryHelper.getDefaultTenantId().map(tenantId -> {
+                            user.setTenantId(tenantId);
+                            return user;
+                        });
                     }
                     return Mono.just(user);
                 });
@@ -99,18 +103,19 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         return currentUserWithTenantMono
                 .flatMap(cacheableRepositoryHelper::getPermissionGroupsOfUser)
                 .flatMapMany(permissionGroups -> queryAllWithPermissionGroups(
-                        List.of(), null, permission, null, permissionGroups, NO_RECORD_LIMIT)
-                );
+                        List.of(), null, permission, null, permissionGroups, NO_RECORD_LIMIT));
     }
 
     @Override
     public Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission) {
-        Criteria clonedFromCriteria = where(fieldName(QApplication.application.clonedFromApplicationId)).is(applicationId);
+        Criteria clonedFromCriteria = where(fieldName(QApplication.application.clonedFromApplicationId))
+                .is(applicationId);
         return queryAll(List.of(clonedFromCriteria), permission);
     }
 
     @Override
-    public Mono<UpdateResult> addPageToApplication(String applicationId, String pageId, boolean isDefault, String defaultPageId) {
+    public Mono<UpdateResult> addPageToApplication(
+            String applicationId, String pageId, boolean isDefault, String defaultPageId) {
         final ApplicationPage applicationPage = new ApplicationPage();
         applicationPage.setIsDefault(isDefault);
         applicationPage.setDefaultPageId(defaultPageId);
@@ -118,8 +123,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         return mongoOperations.updateFirst(
                 Query.query(getIdCriteria(applicationId)),
                 new Update().push(fieldName(QApplication.application.pages), applicationPage),
-                Application.class
-        );
+                Application.class);
     }
 
     @Override
@@ -127,8 +131,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         return mongoOperations.updateFirst(
                 Query.query(getIdCriteria(applicationId)),
                 new Update().set(fieldName(QApplication.application.pages), pages),
-                Application.class
-        );
+                Application.class);
     }
 
     @Override
@@ -137,16 +140,16 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         // be to pages and not publishedPages
 
         final Mono<UpdateResult> setAllAsNonDefaultMono = mongoOperations.updateFirst(
-                Query.query(getIdCriteria(applicationId)).addCriteria(Criteria.where("pages.isDefault").is(true)),
+                Query.query(getIdCriteria(applicationId))
+                        .addCriteria(Criteria.where("pages.isDefault").is(true)),
                 new Update().set("pages.$.isDefault", false),
-                Application.class
-        );
+                Application.class);
 
         final Mono<UpdateResult> setDefaultMono = mongoOperations.updateFirst(
-                Query.query(getIdCriteria(applicationId)).addCriteria(Criteria.where("pages._id").is(new ObjectId(pageId))),
+                Query.query(getIdCriteria(applicationId))
+                        .addCriteria(Criteria.where("pages._id").is(new ObjectId(pageId))),
                 new Update().set("pages.$.isDefault", true),
-                Application.class
-        );
+                Application.class);
 
         return setAllAsNonDefaultMono.then(setDefaultMono);
     }
@@ -155,9 +158,10 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public Mono<UpdateResult> setGitAuth(String applicationId, GitAuth gitAuth, AclPermission aclPermission) {
         Update updateObj = new Update();
         gitAuth.setGeneratedAt(Instant.now());
-        String path = String.format("%s.%s", fieldName(QApplication.application.gitApplicationMetadata),
-                fieldName(QApplication.application.gitApplicationMetadata.gitAuth)
-        );
+        String path = String.format(
+                "%s.%s",
+                fieldName(QApplication.application.gitApplicationMetadata),
+                fieldName(QApplication.application.gitApplicationMetadata.gitAuth));
 
         updateObj.set(path, gitAuth);
         return this.updateById(applicationId, updateObj, aclPermission);
@@ -165,38 +169,53 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     @Deprecated
-    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId, String branchName, AclPermission aclPermission) {
+    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(
+            String defaultApplicationId, String branchName, AclPermission aclPermission) {
         return getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, null, branchName, aclPermission);
     }
 
     @Override
-    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId,
-                                                                              List<String> projectionFieldNames,
-                                                                              String branchName,
-                                                                              AclPermission aclPermission) {
+    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(
+            String defaultApplicationId,
+            List<String> projectionFieldNames,
+            String branchName,
+            AclPermission aclPermission) {
 
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
-        Criteria defaultAppCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
-        Criteria branchNameCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.branchName)).is(branchName);
+        Criteria defaultAppCriteria = where(gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
+                .is(defaultApplicationId);
+        Criteria branchNameCriteria = where(gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.branchName))
+                .is(branchName);
         return queryOne(List.of(defaultAppCriteria, branchNameCriteria), projectionFieldNames, aclPermission);
     }
 
     @Override
-    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId, String branchName, Optional<AclPermission> aclPermission) {
+    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(
+            String defaultApplicationId, String branchName, Optional<AclPermission> aclPermission) {
 
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
 
-        Criteria defaultAppCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
-        Criteria branchNameCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.branchName)).is(branchName);
+        Criteria defaultAppCriteria = where(gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
+                .is(defaultApplicationId);
+        Criteria branchNameCriteria = where(gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.branchName))
+                .is(branchName);
         return queryOne(List.of(defaultAppCriteria, branchNameCriteria), null, aclPermission);
     }
 
     @Override
-    public Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId, AclPermission permission) {
+    public Flux<Application> getApplicationByGitDefaultApplicationId(
+            String defaultApplicationId, AclPermission permission) {
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
 
-        Criteria applicationIdCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
-        Criteria deletionCriteria = where(fieldName(QApplication.application.deleted)).ne(true);
+        Criteria applicationIdCriteria = where(gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
+                .is(defaultApplicationId);
+        Criteria deletionCriteria =
+                where(fieldName(QApplication.application.deleted)).ne(true);
         return queryAll(List.of(applicationIdCriteria, deletionCriteria), permission);
     }
 
@@ -211,14 +230,16 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Query query = new Query();
         query.addCriteria(where(fieldName(QApplication.application.workspaceId)).is(workspaceId));
         query.fields().include(fieldName(QApplication.application.id));
-        return mongoOperations.find(query, Application.class)
+        return mongoOperations
+                .find(query, Application.class)
                 .map(BaseDomain::getId)
                 .collectList();
     }
 
     @Override
     public Mono<Long> countByWorkspaceId(String workspaceId) {
-        Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
+        Criteria workspaceIdCriteria =
+                where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
         return this.count(List.of(workspaceIdCriteria));
     }
 
@@ -227,7 +248,9 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
         Query query = new Query();
         query.addCriteria(where(fieldName(QApplication.application.workspaceId)).is(workspaceId));
-        query.addCriteria(where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate)).is(Boolean.TRUE));
+        query.addCriteria(where(gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate))
+                .is(Boolean.TRUE));
         query.addCriteria(notDeleted());
         return mongoOperations.count(query, Application.class);
     }
@@ -237,10 +260,16 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
         // isRepoPrivate and gitAuth will be stored only with default application which ensures we will have only single
         // application per repo
-        Criteria repoCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate)).exists(Boolean.TRUE);
-        Criteria gitAuthCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.gitAuth)).exists(Boolean.TRUE);
-        Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
-        return queryAll(List.of(workspaceIdCriteria, repoCriteria, gitAuthCriteria), applicationPermission.getEditPermission());
+        Criteria repoCriteria = where(gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate))
+                .exists(Boolean.TRUE);
+        Criteria gitAuthCriteria = where(gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.gitAuth))
+                .exists(Boolean.TRUE);
+        Criteria workspaceIdCriteria =
+                where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
+        return queryAll(
+                List.of(workspaceIdCriteria, repoCriteria, gitAuthCriteria), applicationPermission.getEditPermission());
     }
 
     @Override
@@ -248,21 +277,26 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
 
         Query query = new Query();
-        query.addCriteria(where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId));
+        query.addCriteria(where(gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId))
+                .is(defaultApplicationId));
         query.addCriteria(where(fieldName(QApplication.application.deleted)).ne(true));
-        query.equals(where("this." + gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.branchName))
-                .equals("this." +gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultBranchName)));
+        query.equals(where("this." + gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.branchName))
+                .equals("this." + gitApplicationMetadata + "."
+                        + fieldName(QApplication.application.gitApplicationMetadata.defaultBranchName)));
 
-        return mongoOperations.findOne(query,Application.class);
+        return mongoOperations.findOne(query, Application.class);
     }
 
     @Override
-    public Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
+    public Mono<UpdateResult> setAppTheme(
+            String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
         Update updateObj = new Update();
-        if(StringUtils.hasLength(editModeThemeId)) {
+        if (StringUtils.hasLength(editModeThemeId)) {
             updateObj = updateObj.set(fieldName(QApplication.application.editModeThemeId), editModeThemeId);
         }
-        if(StringUtils.hasLength(publishedModeThemeId)) {
+        if (StringUtils.hasLength(publishedModeThemeId)) {
             updateObj = updateObj.set(fieldName(QApplication.application.publishedModeThemeId), publishedModeThemeId);
         }
 
@@ -270,16 +304,24 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(String defaultId, String defaultIdPath, Map<String, Object> fieldValueMap, String branchName,
-                                                                  String branchNamePath, AclPermission permission) {
-        return super.updateFieldByDefaultIdAndBranchName(defaultId, defaultIdPath, fieldValueMap, branchName,
-                branchNamePath, permission);
+    public Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(
+            String defaultId,
+            String defaultIdPath,
+            Map<String, Object> fieldValueMap,
+            String branchName,
+            String branchNamePath,
+            AclPermission permission) {
+        return super.updateFieldByDefaultIdAndBranchName(
+                defaultId, defaultIdPath, fieldValueMap, branchName, branchNamePath, permission);
     }
 
     @Override
-    public Mono<Application> findByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission) {
-        Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
-        Criteria applicationNameCriteria = where(fieldName(QApplication.application.name)).is(applicationName);
+    public Mono<Application> findByNameAndWorkspaceId(
+            String applicationName, String workspaceId, AclPermission permission) {
+        Criteria workspaceIdCriteria =
+                where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
+        Criteria applicationNameCriteria =
+                where(fieldName(QApplication.application.name)).is(applicationName);
         return queryOne(List.of(workspaceIdCriteria, applicationNameCriteria), permission);
     }
 }

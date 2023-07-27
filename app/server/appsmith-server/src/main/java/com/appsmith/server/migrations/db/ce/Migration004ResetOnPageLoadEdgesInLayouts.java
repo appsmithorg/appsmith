@@ -27,8 +27,7 @@ public class Migration004ResetOnPageLoadEdgesInLayouts {
     }
 
     @RollbackExecution
-    public void demoRollbackExecution() {
-    }
+    public void demoRollbackExecution() {}
 
     @Execution
     public void executeMigration() {

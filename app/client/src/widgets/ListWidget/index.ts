@@ -1,16 +1,21 @@
-import { Positioning } from "utils/autoLayout/constants";
+import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { cloneDeep, get, indexOf, isString } from "lodash";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { FlattenedWidgetProps } from "widgets/constants";
+import type {
+  FlattenedWidgetProps,
+  SnipingModeProperty,
+  PropertyUpdates,
+} from "widgets/constants";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -30,7 +35,7 @@ export const CONFIG = {
     animateLoading: true,
     gridType: "vertical",
     template: {},
-    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
     positioning: Positioning.Fixed,
     enhancements: {
@@ -90,17 +95,17 @@ export const CONFIG = {
       {
         id: "001",
         name: "Blue",
-        img: "https://assets.appsmith.com/widgets/default.png",
+        img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
       },
       {
         id: "002",
         name: "Green",
-        img: "https://assets.appsmith.com/widgets/default.png",
+        img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
       },
       {
         id: "003",
         name: "Red",
-        img: "https://assets.appsmith.com/widgets/default.png",
+        img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
       },
     ],
     widgetName: "List",
@@ -158,8 +163,9 @@ export const CONFIG = {
                                   },
                                   position: { top: 0, left: 0 },
                                   props: {
-                                    defaultImage:
-                                      "https://assets.appsmith.com/widgets/default.png",
+                                    defaultImage: getAssetUrl(
+                                      `${ASSETS_CDN_URL}/widgets/default.png`,
+                                    ),
                                     imageShape: "RECTANGLE",
                                     maxZoomLevel: 1,
                                     image: "{{currentItem.img}}",
@@ -416,6 +422,34 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+    setterConfig: Widget.getSetterConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+  },
+  methods: {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
+      return [
+        {
+          propertyPath: "listData",
+          propertyValue: propValueMap.data,
+          isDynamicPropertyPath: true,
+        },
+      ];
+    },
+  },
+  autoLayout: {
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "280px",
+            minHeight: "300px",
+          };
+        },
+      },
+    ],
   },
 };
 

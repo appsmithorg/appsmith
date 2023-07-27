@@ -10,6 +10,7 @@ import Markers from "./Markers";
 const Wrapper = styled.div`
   position: relative;
   height: 100%;
+  width: 100%;
 `;
 
 const StyledMap = styled.div<Pick<MapProps, "borderRadius" | "boxShadow">>`
@@ -118,7 +119,7 @@ const Map = (props: MapProps) => {
   const MarkersOrCluster = allowClustering ? Clusterer : Markers;
 
   return (
-    <Wrapper onMouseLeave={enableDrag}>
+    <Wrapper onClick={(e) => e.stopPropagation()} onMouseLeave={enableDrag}>
       <StyledMap
         borderRadius={borderRadius}
         boxShadow={boxShadow}

@@ -1,6 +1,6 @@
 import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { isArray, orderBy } from "lodash";
 import { default as React } from "react";
 import type { WidgetState } from "widgets/BaseWidget";
@@ -11,6 +11,8 @@ import type { MenuButtonWidgetProps, MenuItem } from "../constants";
 import { MenuItemsSource } from "../constants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -26,6 +28,16 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
       menuColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "none",
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Menu button widget is used to represent a set of actions in a group.",
+      "!url": "https://docs.appsmith.com/widget-reference/menu-button",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      label: "string",
     };
   }
 
@@ -102,6 +114,21 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
     return [];
   };
 
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+      },
+    };
+  }
+
   getPageView() {
     const { componentWidth } = this.getComponentDimensions();
     const menuDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
@@ -110,9 +137,13 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
       <MenuButtonComponent
         {...this.props}
         getVisibleItems={this.getVisibleItems}
+        maxWidth={this.props.maxWidth}
         menuDropDownWidth={menuDropDownWidth}
+        minHeight={this.props.minHeight}
+        minWidth={this.props.minWidth}
         onItemClicked={this.menuItemClickHandler}
         renderMode={this.props.renderMode}
+        shouldFitContent={this.isAutoLayoutMode}
         width={componentWidth}
       />
     );

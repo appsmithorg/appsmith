@@ -2,7 +2,7 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
 
-public class ActionPermissionCEImpl implements ActionPermissionCE {
+public class ActionPermissionCEImpl implements ActionPermissionCE, DomainPermissionCE {
     @Override
     public AclPermission getEditPermission() {
         return AclPermission.MANAGE_ACTIONS;

@@ -19,7 +19,7 @@
           "initialValue": ""
         },
         {
-          "label": "Service Account Credentials",
+          "label": "Service account credentials",
           "configProperty": "datasourceConfiguration.authentication.password",
           "controlType": "INPUT_TEXT",
           "dataType": "PASSWORD",

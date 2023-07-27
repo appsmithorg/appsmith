@@ -1,41 +1,20 @@
-import React, {
-  useState,
-  useCallback,
-  useContext,
-  useRef,
-  useEffect,
-} from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import "@github/g-emoji-element";
-import UpdatesButton from "./UpdatesButton";
 import type { AppState } from "@appsmith/reducers";
-import { LayersContext } from "constants/Layers";
 import ReleasesAPI from "api/ReleasesAPI";
 import { resetReleasesCount } from "actions/releasesActions";
 import type { Release } from "./ReleaseComponent";
 import ReleaseComponent from "./ReleaseComponent";
-import { DialogComponent as Dialog, ScrollIndicator } from "design-system-old";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-
-const StyledDialog = styled(Dialog)`
-  .bp3-dialog-body {
-    overflow: hidden !important;
-  }
-`;
+import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const Container = styled.div`
   position: relative;
   width: 100%;
   height: 410px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  &&::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.modal.scrollbar};
-  }
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
 `;
 
 type ProductUpdatesModalProps = {
@@ -45,54 +24,50 @@ type ProductUpdatesModalProps = {
 };
 
 function ProductUpdatesModal(props: ProductUpdatesModalProps) {
-  const { newReleasesCount, releaseItems } = useSelector(
-    (state: AppState) => state.ui.releases,
-  );
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { releaseItems } = useSelector((state: AppState) => state.ui.releases);
+  const isAirgappedInstance = isAirgapped();
   const dispatch = useDispatch();
+  const [isOpen, setIsOpen] = useState(!!props.isOpen);
 
   useEffect(() => {
-    if (props.hideTrigger && releaseItems.length === 0) {
+    if (
+      props.hideTrigger &&
+      releaseItems.length === 0 &&
+      !isAirgappedInstance
+    ) {
       dispatch({
         type: ReduxActionTypes.FETCH_RELEASES,
       });
     }
-  }, []);
+  }, [isAirgappedInstance]);
 
-  const onOpening = useCallback(async () => {
+  useEffect(() => {
+    if (!props.isOpen) return;
     setIsOpen(true);
     dispatch(resetReleasesCount());
-    await ReleasesAPI.markAsRead();
-  }, []);
+    ReleasesAPI.markAsRead();
+  }, [props.isOpen]);
 
-  const onClose = useCallback(() => {
-    props.onClose && props.onClose();
-    setIsOpen(false);
-  }, []);
-
-  const Layers = useContext(LayersContext);
-  const [isOpen, setIsOpen] = useState(!!props.isOpen);
+  const handleOnOpenChange = (open: boolean) => {
+    if (!open) {
+      props.onClose && props.onClose();
+      setIsOpen(false);
+    }
+  };
 
   return Array.isArray(releaseItems) && releaseItems.length > 0 ? (
-    <StyledDialog
-      canEscapeKeyClose
-      canOutsideClickClose
-      isOpen={isOpen}
-      maxHeight={"94vh"}
-      onClose={onClose}
-      onOpening={onOpening}
-      title="Product Updates"
-      trigger={<UpdatesButton newReleasesCount={newReleasesCount} />}
-      triggerZIndex={Layers.productUpdates}
-      width={"580px"}
-    >
-      <Container ref={containerRef}>
-        {releaseItems.map((release: Release, index: number) => (
-          <ReleaseComponent key={index} release={release} />
-        ))}
-      </Container>
-      <ScrollIndicator containerRef={containerRef} />
-    </StyledDialog>
+    <Modal onOpenChange={handleOnOpenChange} open={isOpen}>
+      <ModalContent style={{ width: "640px" }}>
+        <ModalHeader>Product updates</ModalHeader>
+        <ModalBody>
+          <Container>
+            {releaseItems.map((release: Release, index: number) => (
+              <ReleaseComponent key={index} release={release} />
+            ))}
+          </Container>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
   ) : null;
 }
 

@@ -1,59 +1,46 @@
 import type { MutableRefObject } from "react";
 import React, { useRef } from "react";
-import { get } from "lodash";
 import type { DropdownOption } from "design-system-old";
-import {
-  Classes,
-  Dropdown,
-  Icon,
-  IconSize,
-  TextInput,
-  TooltipComponent,
-} from "design-system-old";
-import styled, { useTheme } from "styled-components";
+import styled from "styled-components";
 import { useDispatch } from "react-redux";
 
 import { clearLogs } from "actions/debuggerActions";
 import { CLEAR_LOG_TOOLTIP, createMessage } from "@appsmith/constants/messages";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import type { Theme } from "constants/DefaultTheme";
+import {
+  Button,
+  Icon,
+  Option,
+  SearchInput,
+  Select,
+  Tooltip,
+  Text,
+} from "design-system";
 
 const Wrapper = styled.div`
   flex-direction: row;
   display: flex;
-  justify-content: flex-start;
-  padding: 8px 0;
-  margin-left: 16px;
-  margin-right: 16px;
-
-  .debugger-clear-logs {
-    display: flex;
-    align-items: center;
-  }
-
-  .debugger-search {
-    height: 32px;
-  }
+  justify-content: start;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px 8px 8px;
 
   .debugger-filter {
     width: 220px;
-    height: 32px;
-    min-height: 32px;
+  }
+
+  .debugger-filter .rc-select-selector {
+    height: 28px;
   }
 
   .input-container {
-    display: flex;
     max-width: 560px;
     min-width: 220px;
     flex-grow: 1;
-    height: 32px;
-    align-items: center;
-    margin: 0px 24px;
-    .${Classes.ICON} {
-      margin-left: -32px;
-      z-index: 2;
-    }
   }
+`;
+
+const OptionLabel = styled(Text)`
+  margin-top: 2px;
 `;
 
 type FilterHeaderProps = {
@@ -69,59 +56,58 @@ type FilterHeaderProps = {
 function FilterHeader(props: FilterHeaderProps) {
   const dispatch = useDispatch();
   const searchRef: MutableRefObject<HTMLInputElement | null> = useRef(null);
-  const theme = useTheme() as Theme;
   return (
     <Wrapper>
-      <TooltipComponent
+      <Tooltip
         className="debugger-clear-logs"
         content={createMessage(CLEAR_LOG_TOOLTIP)}
-        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position="bottom"
+        placement="bottom"
       >
-        <Icon
+        <Button
           className="t--debugger-clear-logs"
-          name="cancel"
+          isIconButton
+          kind="tertiary"
           onClick={() => dispatch(clearLogs())}
-          size={IconSize.XL}
+          size="sm"
+          startIcon="cancel"
         />
-      </TooltipComponent>
+      </Tooltip>
       <div className="input-container">
-        <TextInput
+        <SearchInput
           className="debugger-search"
-          cypressSelector="t--debugger-search"
-          defaultValue={props.defaultValue}
-          height="32px"
+          data-testid="t--debugger-search"
           onChange={props.onChange}
           placeholder="Filter"
           ref={searchRef}
-          value={props.value}
-          width="100%"
+          value={props.value || props.defaultValue}
         />
-        {props.searchQuery && (
-          <Icon
-            fillColor={get(theme, "colors.debugger.jsonIcon")}
-            hoverFillColor={get(theme, "colors.debugger.message")}
-            name="cross"
-            onClick={() => {
-              if (searchRef.current) {
-                props.onChange("");
-                searchRef.current.value = "";
-              }
-            }}
-            size={IconSize.LARGE}
-          />
-        )}
       </div>
-      <Dropdown
+      <Select
         className="debugger-filter"
-        height="32px"
         onSelect={props.onSelect}
-        optionWidth="220px"
-        options={props.options}
-        selected={props.selected}
-        showLabelOnly
-        width="220px"
-      />
+        size="sm"
+        value={{
+          key: props.selected.value,
+          label: (
+            <OptionLabel kind="body-s" renderAs="p">
+              {props.selected.label}
+            </OptionLabel>
+          ),
+        }}
+      >
+        {props.options.map((option) => (
+          <Option
+            aria-label={option.label}
+            key={option.value}
+            value={option.value}
+          >
+            {option.icon && (
+              <Icon color={option?.iconColor} name={option.icon} />
+            )}
+            {option.label}
+          </Option>
+        ))}
+      </Select>
     </Wrapper>
   );
 }

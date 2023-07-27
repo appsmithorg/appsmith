@@ -40,7 +40,10 @@ import {
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import { Toaster, Variant } from "design-system-old";
+import { toast } from "design-system";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+
+const isAirgappedInstance = isAirgapped();
 
 export function* fetchProviderTemplatesSaga(
   action: ReduxActionWithPromise<FetchProviderTemplatesRequest>,
@@ -94,9 +97,8 @@ export function* addApiToPageSaga(
         pageName: page?.pageName,
         source: payload.source,
       });
-      Toaster.show({
-        text: createMessage(ADD_API_TO_PAGE_SUCCESS_MESSAGE, payload.name),
-        variant: Variant.success,
+      toast.show(createMessage(ADD_API_TO_PAGE_SUCCESS_MESSAGE, payload.name), {
+        kind: "success",
       });
       yield put({
         type: ReduxActionTypes.ADD_API_TO_PAGE_SUCCESS,
@@ -226,28 +228,30 @@ export function* searchApiOrProviderSaga(
 }
 
 export default function* providersSagas() {
-  yield all([
-    takeLatest(
-      ReduxActionTypes.FETCH_PROVIDER_TEMPLATES_INIT,
-      fetchProviderTemplatesSaga,
-    ),
-    takeLatest(ReduxActionTypes.ADD_API_TO_PAGE_INIT, addApiToPageSaga),
-    takeLatest(
-      ReduxActionTypes.FETCH_PROVIDERS_CATEGORIES_INIT,
-      fetchProvidersCategoriesSaga,
-    ),
-    debounce(
-      300,
-      ReduxActionTypes.SEARCH_APIORPROVIDERS_INIT,
-      searchApiOrProviderSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.FETCH_PROVIDERS_WITH_CATEGORY_INIT,
-      fetchProvidersWithCategorySaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.FETCH_PROVIDER_DETAILS_BY_PROVIDER_ID_INIT,
-      fetchProviderDetailsByProviderIdSaga,
-    ),
-  ]);
+  if (!isAirgappedInstance) {
+    yield all([
+      takeLatest(
+        ReduxActionTypes.FETCH_PROVIDER_TEMPLATES_INIT,
+        fetchProviderTemplatesSaga,
+      ),
+      takeLatest(ReduxActionTypes.ADD_API_TO_PAGE_INIT, addApiToPageSaga),
+      takeLatest(
+        ReduxActionTypes.FETCH_PROVIDERS_CATEGORIES_INIT,
+        fetchProvidersCategoriesSaga,
+      ),
+      debounce(
+        300,
+        ReduxActionTypes.SEARCH_APIORPROVIDERS_INIT,
+        searchApiOrProviderSaga,
+      ),
+      takeLatest(
+        ReduxActionTypes.FETCH_PROVIDERS_WITH_CATEGORY_INIT,
+        fetchProvidersWithCategorySaga,
+      ),
+      takeLatest(
+        ReduxActionTypes.FETCH_PROVIDER_DETAILS_BY_PROVIDER_ID_INIT,
+        fetchProviderDetailsByProviderIdSaga,
+      ),
+    ]);
+  }
 }

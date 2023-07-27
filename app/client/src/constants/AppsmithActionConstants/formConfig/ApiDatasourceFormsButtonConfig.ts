@@ -1,6 +1,6 @@
 export default {
-  API: ["DELETE", "SAVE"],
-  DB: ["DELETE", "TEST", "SAVE"],
-  SAAS: ["DELETE", "SAVE_AND_AUTHORIZE"],
-  REMOTE: ["DELETE", "SAVE"],
+  API: ["CANCEL", "SAVE"],
+  DB: ["TEST", "CANCEL", "SAVE"],
+  SAAS: ["CANCEL", "SAVE_AND_AUTHORIZE"],
+  REMOTE: ["CANCEL", "SAVE"],
 };

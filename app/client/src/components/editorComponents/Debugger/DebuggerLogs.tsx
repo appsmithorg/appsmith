@@ -23,7 +23,7 @@ import { thinScrollbar } from "constants/DefaultTheme";
 import type { IconName } from "@blueprintjs/core";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
-const LIST_HEADER_HEIGHT = "38px";
+export const LIST_HEADER_HEIGHT = "38px";
 
 const ContainerWrapper = styled.div`
   overflow: hidden;
@@ -31,10 +31,11 @@ const ContainerWrapper = styled.div`
 `;
 
 export const ListWrapper = styled.div`
+  overflow-wrap: anywhere;
   overflow: auto;
   height: calc(100% - ${LIST_HEADER_HEIGHT});
   ${thinScrollbar};
-  padding-bottom: 25px;
+  padding-bottom: 37px;
 `;
 
 type Props = {

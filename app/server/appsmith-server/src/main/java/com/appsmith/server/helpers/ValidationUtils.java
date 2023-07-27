@@ -11,9 +11,8 @@ public final class ValidationUtils {
     public static final int LOGIN_PASSWORD_MAX_LENGTH = 48;
     private static final String EMAIL_PATTERN = "[\\w+\\-.%]+@[\\w\\-.]+\\.[A-Za-z]+";
 
-    private static final Pattern EMAIL_CSV_PATTERN = Pattern.compile(
-            "^\\s*(" + EMAIL_PATTERN + "\\s*,\\s*)*(" + EMAIL_PATTERN + ")\\s*$"
-    );
+    private static final Pattern EMAIL_CSV_PATTERN =
+            Pattern.compile("^\\s*(" + EMAIL_PATTERN + "\\s*,\\s*)*(" + EMAIL_PATTERN + ")\\s*$");
 
     public static boolean validateEmail(String emailStr) {
         return EmailValidator.getInstance().isValid(emailStr);
@@ -30,11 +29,12 @@ public final class ValidationUtils {
      * <li>At least one email must be present. Empty string is not allowed.</li>
      * <li>Space is allowed before and after comma</li>
      * </ul>
+     *
      * @param inputString input source
      * @return true if input is valid, false otherwise
      */
     public static boolean validateEmailCsv(String inputString) {
-        if(!StringUtils.hasLength(inputString)) { // check for null and empty string
+        if (!StringUtils.hasLength(inputString)) { // check for null and empty string
             return false;
         }
         final Matcher matcher = EMAIL_CSV_PATTERN.matcher(inputString);

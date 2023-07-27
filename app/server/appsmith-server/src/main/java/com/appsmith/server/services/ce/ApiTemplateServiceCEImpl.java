@@ -5,6 +5,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.repositories.ApiTemplateRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
@@ -14,19 +15,18 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Scheduler;
 
-import jakarta.validation.Validator;
-
-
 @Slf4j
-public class ApiTemplateServiceCEImpl extends BaseService<ApiTemplateRepository, ApiTemplate, String> implements ApiTemplateServiceCE {
+public class ApiTemplateServiceCEImpl extends BaseService<ApiTemplateRepository, ApiTemplate, String>
+        implements ApiTemplateServiceCE {
 
-    public ApiTemplateServiceCEImpl(Scheduler scheduler,
-                                    Validator validator,
-                                    MongoConverter mongoConverter,
-                                    ReactiveMongoTemplate reactiveMongoTemplate,
-                                    ApiTemplateRepository repository,
-                                    AnalyticsService analyticsService) {
-        
+    public ApiTemplateServiceCEImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            ApiTemplateRepository repository,
+            AnalyticsService analyticsService) {
+
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
     }
 

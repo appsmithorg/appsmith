@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { APP_MODE } from "entities/App";
 import { getWidget } from "sagas/selectors";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { useSelector } from "react-redux";
 import { updateWidgetMetaPropAndEval } from "actions/metaActions";
 import WidgetFactory from "utils/WidgetFactory";

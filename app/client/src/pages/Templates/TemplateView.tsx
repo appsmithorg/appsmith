@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { Icon, IconSize, Text, TextType } from "design-system-old";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
 import {
@@ -19,18 +18,19 @@ import type { AppState } from "@appsmith/reducers";
 import history from "utils/history";
 import { TEMPLATES_PATH } from "constants/routes";
 import { Colors } from "constants/Colors";
-import { createMessage, GO_BACK } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import TemplateDescription from "./Template/TemplateDescription";
 import SimilarTemplates from "./Template/SimilarTemplates";
 import { templateIdUrl } from "RouteBuilder";
+import TemplateViewHeader from "./TemplateViewHeader";
 
 const breakpointColumnsObject = {
   default: 4,
-  1600: 3,
-  1100: 2,
-  700: 1,
+  3000: 3,
+  1500: 3,
+  1024: 2,
+  800: 1,
 };
 
 const Wrapper = styled.div`
@@ -41,23 +41,9 @@ const Wrapper = styled.div`
 const TemplateViewWrapper = styled.div`
   padding-right: 132px;
   padding-left: 132px;
-  padding-top: ${(props) => props.theme.spaces[12]}px;
+  padding-top: var(--ads-v2-spaces-7);
   padding-bottom: 80px;
-  background-color: ${Colors.WHITE};
-`;
-
-const HeaderWrapper = styled.div`
-  display: flex;
-  align-items: center;
-
-  .left,
-  .right {
-    flex: 1;
-  }
-`;
-
-const Title = styled(Text)`
-  display: inline-block;
+  background-color: var(--ads-v2-color-bg);
 `;
 
 export const IframeWrapper = styled.div`
@@ -75,7 +61,7 @@ export const IframeWrapper = styled.div`
 
 export const IframeTopBar = styled.div`
   width: 100%;
-  background-color: ${Colors.GEYSER_LIGHT};
+  background-color: var(--ads-v2-color-bg-muted);
   border-radius: 8px 8px 0px 0px;
   display: flex;
   gap: ${(props) => props.theme.spaces[3]}px;
@@ -86,7 +72,7 @@ export const IframeTopBar = styled.div`
   .round {
     height: 12px;
     width: 12px;
-    border-radius: 6px;
+    border-radius: var(--ads-v2-border-radius-circle);
   }
 
   .red {
@@ -104,14 +90,6 @@ const PageWrapper = styled.div`
   display: flex;
   margin-top: ${(props) => props.theme.homePage.header}px;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
-`;
-
-const BackButtonWrapper = styled.div<{ width?: number }>`
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: ${(props) => props.theme.spaces[2]}px;
-  ${(props) => props.width && `width: ${props.width};`}
 `;
 
 const LoadingWrapper = styled.div`
@@ -166,10 +144,6 @@ function TemplateView() {
     }
   }, [params.templateId]);
 
-  const goBack = () => {
-    history.goBack();
-  };
-
   const onSimilarTemplateClick = (template: TemplateInterface) => {
     AnalyticsUtil.logEvent("SIMILAR_TEMPLATE_CLICK", {
       from: {
@@ -194,28 +168,14 @@ function TemplateView() {
         <Wrapper ref={containerRef}>
           <ReconnectDatasourceModal />
           <TemplateViewWrapper>
-            <HeaderWrapper>
-              <div className="left">
-                <BackButtonWrapper onClick={goBack}>
-                  <Icon name="view-less" size={IconSize.XL} />
-                  <Text type={TextType.P4}>{createMessage(GO_BACK)}</Text>
-                </BackButtonWrapper>
-              </div>
-              <Title type={TextType.DANGER_HEADING}>
-                {currentTemplate.title}
-              </Title>
-              <div className="right" />
-            </HeaderWrapper>
+            <TemplateViewHeader templateId={params.templateId} />
             <IframeWrapper>
               <IframeTopBar>
                 <div className="round red" />
                 <div className="round yellow" />
                 <div className="round green" />
               </IframeTopBar>
-              <iframe
-                src={`${currentTemplate.appUrl}?embed=true`}
-                width={"100%"}
-              />
+              <iframe src={currentTemplate.appUrl} width={"100%"} />
             </IframeWrapper>
             <TemplateDescription template={currentTemplate} />
           </TemplateViewWrapper>

@@ -1,22 +1,10 @@
 import React from "react";
-import styled from "styled-components";
-import { Button, Category, Size } from "design-system-old";
-
-const StyledButton = styled(Button)`
-  display: inline-block;
-  padding: 3px 7px;
-  position: absolute;
-  right: 16%;
-`;
+import { Tag } from "design-system";
 
 export default function DefaultTag() {
   return (
-    <StyledButton
-      category={Category.secondary}
-      data-testid="t--default-tag"
-      disabled
-      size={Size.xxs}
-      text={"DEFAULT"}
-    />
+    <Tag data-testid="t--default-tag" isClosable={false} size="sm">
+      Default
+    </Tag>
   );
 }

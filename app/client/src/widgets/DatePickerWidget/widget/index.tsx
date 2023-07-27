@@ -9,7 +9,10 @@ import { ISO_DATE_FORMAT, ValidationTypes } from "constants/WidgetValidation";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import moment from "moment";
 import type { DatePickerType } from "../constants";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
+import type { SetterConfig } from "entities/AppTheming";
 
 function defaultDateValidation(
   value: unknown,
@@ -176,6 +179,17 @@ function maxDateValidation(
   };
 }
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Datepicker is used to capture the date and time from a user. It can be used to filter data base on the input date range as well as to capture personal information such as date of birth",
+      "!url": "https://docs.appsmith.com/widget-reference/datepicker",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      selectedDate: "string",
+      isDisabled: "bool",
+    };
+  }
+
   static getPropertyPaneConfig() {
     return [
       {
@@ -206,7 +220,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
           {
             helpText: "Sets the format of the selected date",
             propertyName: "dateFormat",
-            label: "Date Format",
+            label: "Date format",
             controlType: "DROP_DOWN",
             isJSConvertible: true,
             options: [
@@ -267,7 +281,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -380,6 +394,30 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
         }
       }
     }
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
+        setValue: {
+          path: "defaultDate",
+          type: "string",
+          accessor: "selectedDate",
+        },
+      },
+    };
   }
 
   getPageView() {

@@ -1,7 +1,7 @@
 export enum GitSyncModalTab {
-  GIT_CONNECTION,
-  DEPLOY,
-  MERGE,
+  GIT_CONNECTION = "GIT_CONNECTION",
+  DEPLOY = "DEPLOY",
+  MERGE = "MERGE",
 }
 
 export type GitConfig = {

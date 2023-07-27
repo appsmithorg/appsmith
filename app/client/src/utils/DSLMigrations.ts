@@ -26,6 +26,9 @@ import {
   migrateMenuButtonDynamicItemsInsideTableWidget,
   migrateTableWidgetV2SelectOption,
   migrateColumnFreezeAttributes,
+  migrateTableSelectOptionAttributesForNewRow,
+  migrateBindingPrefixSuffixForInlineEditValidationControl,
+  migrateTableWidgetTableDataJsMode,
 } from "./migrations/TableWidget";
 import {
   migrateTextStyleFromTextWidget,
@@ -34,7 +37,6 @@ import {
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { theme } from "constants/DefaultTheme";
 import { getCanvasSnapRows } from "./WidgetPropsUtils";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import type { FetchPageResponse } from "api/PageApi";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 // import defaultTemplate from "templates/default";
@@ -71,7 +73,10 @@ import {
 import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
 import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigrations";
 import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskinningMigrations";
-import { MigrateSelectTypeWidgetDefaultValue } from "./migrations/SelectWidget";
+import {
+  MigrateSelectTypeWidgetDefaultValue,
+  migrateSelectWidgetOptionToSourceData,
+} from "./migrations/SelectWidget";
 import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskinningMigrations";
 
 import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMigrations";
@@ -82,6 +87,7 @@ import {
   migrateListWidgetChildrenForAutoHeight,
   migratePropertiesForDynamicHeight,
 } from "./migrations/autoHeightMigrations";
+import { flattenDSL } from "@shared/dsl";
 
 /**
  * adds logBlackList key for all list widget children
@@ -751,6 +757,7 @@ export const migrateInitialValues = (currentDSL: DSLWidget) => {
 
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
+// This needs the widget config to be already built to migrate correctly
 export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
   if (currentDSL.version === undefined) {
     // Since this top level widget is a CANVAS_WIDGET,
@@ -879,9 +886,7 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
   }
 
   if (currentDSL.version === 21) {
-    const {
-      entities: { canvasWidgets },
-    } = CanvasWidgetsNormalizer.normalize(currentDSL);
+    const canvasWidgets = flattenDSL(currentDSL);
     currentDSL = migrateWidgetsWithoutLeftRightColumns(
       currentDSL,
       canvasWidgets,
@@ -1168,6 +1173,27 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 76) {
     currentDSL = migrateColumnFreezeAttributes(currentDSL);
+    currentDSL.version = 77;
+  }
+
+  if (currentDSL.version === 77) {
+    currentDSL = migrateTableSelectOptionAttributesForNewRow(currentDSL);
+    currentDSL.version = 78;
+  }
+
+  if (currentDSL.version == 78) {
+    currentDSL =
+      migrateBindingPrefixSuffixForInlineEditValidationControl(currentDSL);
+    currentDSL.version = 79;
+  }
+
+  if (currentDSL.version == 79) {
+    currentDSL = migrateTableWidgetTableDataJsMode(currentDSL);
+    currentDSL.version = 80;
+  }
+
+  if (currentDSL.version === 80) {
+    currentDSL = migrateSelectWidgetOptionToSourceData(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

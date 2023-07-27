@@ -1,6 +1,6 @@
-import type { AnimationItem } from "lottie-web";
-import lottie from "lottie-web";
-import indicator from "assets/lottie/guided-tour-indicator.json";
+import type { LazyAnimationItem } from "utils/lazyLottie";
+import lazyLottie from "utils/lazyLottie";
+import indicatorAnimationURL from "assets/lottie/guided-tour-indicator.json.txt";
 import { Classes as GuidedTourClasses } from "pages/Editor/GuidedTour/constants";
 import {
   setExplorerActiveAction,
@@ -13,18 +13,18 @@ import {
 class IndicatorHelper {
   timerId!: ReturnType<typeof setTimeout>;
   indicatorWrapper!: HTMLDivElement;
-  animationItem!: AnimationItem;
+  animationItem!: LazyAnimationItem;
   indicatorHeightOffset: number;
   indicatorWidthOffset: number;
 
   constructor() {
     // The lottie animation has empty content around it.
     // These offsets are to compensate for the same to help with positioning it correctly.
-    this.indicatorHeightOffset = 23;
-    this.indicatorWidthOffset = 58;
+    this.indicatorHeightOffset = 18;
+    this.indicatorWidthOffset = 48;
   }
 
-  calculate(
+  async calculate(
     primaryReference: Element | null,
     position: string,
     offset: {
@@ -36,8 +36,7 @@ class IndicatorHelper {
       this.destroy();
       return;
     }
-    const coordinates = getCoordinates(primaryReference);
-
+    const coordinates = await getCoordinates(primaryReference);
     if (coordinates.hidden) {
       this.indicatorWrapper.style.display = "none";
     } else {
@@ -60,7 +59,12 @@ class IndicatorHelper {
         this.indicatorWidthOffset +
         "px";
     } else if (position === "bottom") {
-      this.indicatorWrapper.style.top = coordinates.height + offset.top + "px";
+      this.indicatorWrapper.style.top =
+        coordinates.top +
+        coordinates.height -
+        this.indicatorHeightOffset +
+        offset.top +
+        "px";
       this.indicatorWrapper.style.left =
         coordinates.width / 2 +
         coordinates.left -
@@ -69,7 +73,7 @@ class IndicatorHelper {
         "px";
     } else if (position === "left") {
       this.indicatorWrapper.style.top =
-        coordinates.top + this.indicatorHeightOffset + offset.top + "px";
+        coordinates.top - this.indicatorHeightOffset + offset.top + "px";
       this.indicatorWrapper.style.left =
         coordinates.left - this.indicatorWidthOffset + offset.left + "px";
     } else {
@@ -91,6 +95,7 @@ class IndicatorHelper {
     offset: {
       top: number;
       left: number;
+      zIndex?: number;
     },
   ) {
     if (this.timerId || this.indicatorWrapper) this.destroy();
@@ -104,14 +109,17 @@ class IndicatorHelper {
       GuidedTourClasses.GUIDED_TOUR_INDICATOR,
     );
     document.body.append(this.indicatorWrapper);
-    this.animationItem = lottie.loadAnimation({
-      animationData: indicator,
+    this.animationItem = lazyLottie.loadAnimation({
+      path: indicatorAnimationURL,
       autoplay: true,
       container: this.indicatorWrapper,
       renderer: "svg",
       loop: true,
     });
 
+    if (offset.zIndex) {
+      this.indicatorWrapper.style.zIndex = `${offset.zIndex}`;
+    }
     // This is to invoke at the start and then recalculate every 3 seconds
     // 3 seconds is an arbitrary value here to avoid calling getBoundingClientRect to many times
     this.calculate(primaryReference, position, offset);
@@ -130,18 +138,17 @@ const indicatorHelperInstance = new IndicatorHelper();
 
 // To check if the element is behind another element for e.g when it is scrolled
 // out of view
-function isBehindOtherElement(element: Element, boundingRect: DOMRect) {
-  const { bottom, left, right, top } = boundingRect;
-
-  if (element.contains(document.elementFromPoint(left, top))) return false;
-  if (element.contains(document.elementFromPoint(right, top))) return false;
-  if (element.contains(document.elementFromPoint(left, bottom))) return false;
-  if (element.contains(document.elementFromPoint(right, bottom))) return false;
-
-  return true;
+function isBehindOtherElement(element: Element) {
+  return new Promise((resolve) => {
+    const o = new IntersectionObserver(([entry]) => {
+      resolve(entry.intersectionRatio !== 1);
+      o.disconnect();
+    });
+    o.observe(element);
+  });
 }
 
-function getCoordinates(element: Element) {
+async function getCoordinates(element: Element) {
   const box = element.getBoundingClientRect();
 
   return {
@@ -153,7 +160,7 @@ function getCoordinates(element: Element) {
     height: box.height,
     // If the element present is not the same as the one we are interested in
     // we set the hidden flag to true to hide it using `display: none`.
-    hidden: isBehindOtherElement(element, box),
+    hidden: await isBehindOtherElement(element),
   };
 }
 
@@ -189,8 +196,8 @@ export function highlightSection(
 
   // We need to update the position and dimensions as and when the target's position
   // or dimension changes
-  function updatePosition(element: Element) {
-    const coordinates = getCoordinates(element);
+  async function updatePosition(element: Element) {
+    const coordinates = await getCoordinates(element);
     highlightBorder.style.left = coordinates.left - positionOffset + "px";
     highlightBorder.style.left = coordinates.left - positionOffset + "px";
     highlightBorder.style.top = coordinates.top - positionOffset + "px";
@@ -239,7 +246,7 @@ export function highlightSection(
 export function showIndicator(
   selector: string,
   position = "right",
-  offset = { top: 0, left: 0 },
+  offset: { top: number; left: number; zIndex?: number } = { top: 0, left: 0 },
 ) {
   let primaryReference: Element | null = null;
 

@@ -8,8 +8,9 @@ import RequestTemplate from "./Template/RequestTemplate";
 const breakpointColumnsObject = {
   default: 4,
   3000: 3,
-  1500: 2,
-  950: 1,
+  1500: 3,
+  1024: 2,
+  800: 1,
 };
 
 const Wrapper = styled.div`
@@ -45,7 +46,7 @@ function TemplateList(props: TemplateListProps) {
       >
         {props.templates.map((template) => (
           <Template
-            isForkingEnabled={props.isForkingEnabled}
+            hideForkTemplateButton={props.isForkingEnabled}
             key={template.id}
             onClick={props.onTemplateClick}
             onForkTemplateClick={props.onForkTemplateClick}

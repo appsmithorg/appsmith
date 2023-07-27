@@ -12,7 +12,8 @@ public interface UserSignupCE {
      * login is successful, the authentication success handlers will be called directly.
      * This needed to be pulled out into a separate solution class since it was creating a circular autowiring error if
      * placed inside UserService.
-     * @param user User object representing the new user to be signed-up and then logged-in.
+     *
+     * @param user     User object representing the new user to be signed-up and then logged-in.
      * @param exchange ServerWebExchange object with details of the current web request.
      * @return Mono of User, published the saved user object with a non-null value for its `getId()`.
      */
@@ -20,6 +21,7 @@ public interface UserSignupCE {
 
     /**
      * Creates a new user and logs them in, with the user details taken from the POST body, read as form-data.
+     *
      * @param exchange The `ServerWebExchange` instance representing the request.
      * @return Publisher of the created user object, with an `id` value.
      */
@@ -28,5 +30,4 @@ public interface UserSignupCE {
     Mono<User> signupAndLoginSuper(UserSignupRequestDTO userFromRequest, ServerWebExchange exchange);
 
     Mono<Void> signupAndLoginSuperFromFormData(ServerWebExchange exchange);
-
 }

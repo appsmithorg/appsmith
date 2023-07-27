@@ -7,7 +7,7 @@ import _ from "lodash";
 
 import type { RateSize } from "../constants";
 import { RATE_SIZES } from "../constants";
-import { TooltipComponent } from "design-system-old";
+import { TooltipComponent } from "@design-system/widgets-old";
 import type { ComponentProps } from "widgets/BaseComponent";
 
 /*
@@ -21,6 +21,7 @@ import type { ComponentProps } from "widgets/BaseComponent";
 interface RateContainerProps {
   isDisabled: boolean;
   readonly?: boolean;
+  minHeight?: number;
 }
 
 export const RateContainer = styled.div<RateContainerProps>`
@@ -30,6 +31,10 @@ export const RateContainer = styled.div<RateContainerProps>`
   justify-content: center;
   align-content: flex-start;
   overflow: auto;
+
+  ${({ minHeight }) => `
+    ${minHeight ? `min-height: ${minHeight}px;` : ""}
+  `};
 
   > span {
     display: flex !important;
@@ -80,6 +85,7 @@ export interface RateComponentProps extends ComponentProps {
   rightColumn?: number;
   topRow?: number;
   bottomRow?: number;
+  minHeight?: number;
 }
 
 const getIconColor = (props: RateComponentProps, isActive?: boolean) => {
@@ -140,12 +146,20 @@ function renderStarsWithTooltip(props: RateComponentProps, isActive?: boolean) {
 function RateComponent(props: RateComponentProps) {
   const rateContainerRef = React.createRef<HTMLDivElement>();
 
-  const { isAllowHalf, isDisabled, maxCount, onValueChanged, readonly, value } =
-    props;
+  const {
+    isAllowHalf,
+    isDisabled,
+    maxCount,
+    minHeight,
+    onValueChanged,
+    readonly,
+    value,
+  } = props;
 
   return (
     <RateContainer
       isDisabled={Boolean(isDisabled)}
+      minHeight={minHeight}
       readonly={readonly}
       ref={rateContainerRef}
     >

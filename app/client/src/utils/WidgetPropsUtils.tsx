@@ -21,6 +21,8 @@ import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import type { BlockSpace, GridProps } from "reflow/reflowTypes";
 import type { Rect } from "./boxHelpers";
 import { areIntersecting } from "./boxHelpers";
+import convertDSLtoAutoAndUpdatePositions from "./DSLConversions/fixedToAutoLayout";
+import { checkIsDSLAutoLayout } from "./autoLayout/AutoLayoutUtils";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -32,12 +34,35 @@ const defaultDSL = defaultTemplate;
 
 export const extractCurrentDSL = (
   fetchPageResponse?: FetchPageResponse,
-): DSLWidget => {
+  isAutoLayout?: boolean,
+  mainCanvasWidth?: number,
+): { dsl: DSLWidget; layoutId: string | undefined } => {
   const newPage = !fetchPageResponse;
   const currentDSL = fetchPageResponse?.data.layouts[0].dsl || {
     ...defaultDSL,
   };
-  return transformDSL(currentDSL as ContainerWidgetProps<WidgetProps>, newPage);
+
+  const transformedDSL = transformDSL(
+    currentDSL as ContainerWidgetProps<WidgetProps>,
+    newPage,
+  );
+
+  if (!isAutoLayout || checkIsDSLAutoLayout(transformedDSL)) {
+    return {
+      dsl: transformedDSL,
+      layoutId: fetchPageResponse?.data.layouts[0].id,
+    };
+  }
+
+  const convertedDSL = convertDSLtoAutoAndUpdatePositions(
+    transformedDSL,
+    mainCanvasWidth,
+  );
+
+  return {
+    dsl: convertedDSL,
+    layoutId: fetchPageResponse?.data.layouts[0].id,
+  };
 };
 
 /**
@@ -242,7 +267,7 @@ export const widgetOperationParams = (
           topRow + widgetSizeUpdates.height / parentRowSpace,
         ),
         rightColumn: fullWidth
-          ? 64
+          ? GridDefaults.DEFAULT_GRID_COLUMNS
           : Math.round(
               leftColumn + widgetSizeUpdates.width / parentColumnSpace,
             ),
@@ -254,7 +279,7 @@ export const widgetOperationParams = (
     // Therefore, this is an operation to add child to this container
   }
   const widgetDimensions = {
-    columns: fullWidth ? 64 : widget.columns,
+    columns: fullWidth ? GridDefaults.DEFAULT_GRID_COLUMNS : widget.columns,
     rows: widget.rows,
   };
 
@@ -285,7 +310,7 @@ export const getCanvasSnapRows = (
       : bottomRow;
   const totalRows = Math.floor(bottom / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
 
-  return totalRows - 1;
+  return isAutoLayoutActive ? totalRows : totalRows - 1;
 };
 
 export const getSnapColumns = (): number => {
@@ -313,6 +338,12 @@ export const generateWidgetProps = (
       topRow,
       bottomRow: topRow + widgetConfig.rows,
     };
+    const mobileSizes = {
+      mobileLeftColumn: leftColumn,
+      mobileRightColumn: leftColumn + widgetConfig.columns,
+      mobileTopRow: topRow,
+      mobileBottomRow: topRow + widgetConfig.rows,
+    };
 
     const others = {};
     const props: DSLWidget = {
@@ -325,6 +356,7 @@ export const generateWidgetProps = (
       parentColumnSpace,
       parentRowSpace,
       ...sizes,
+      ...mobileSizes,
       ...others,
       parentId: parent.widgetId,
       version,

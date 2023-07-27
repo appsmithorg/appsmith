@@ -9,25 +9,30 @@ import {
 import type { Diff } from "deep-diff";
 import type {
   DataTree,
-  DataTreeAction,
-  DataTreeAppsmith,
+  AppsmithEntity,
   DataTreeEntity,
-  DataTreeWidget,
-  DataTreeJSAction,
+  WidgetEntity,
+  DataTreeEntityConfig,
+  ConfigTree,
+  WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-
-import _, { difference, find, get, has, set } from "lodash";
+import _, { difference, find, get, has, isNil, set } from "lodash";
 import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { isObject } from "lodash";
-import type { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
-import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
-import type { PrivateWidgets } from "entities/DataTree/types";
+import type { DataTreeEntityObject } from "entities/DataTree/dataTreeFactory";
+import type {
+  JSActionEntityConfig,
+  PrivateWidgets,
+  JSActionEntity,
+  ActionEntity,
+} from "entities/DataTree/types";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
+import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -38,7 +43,7 @@ export enum DataTreeDiffEvent {
   NEW = "NEW",
   DELETE = "DELETE",
   EDIT = "EDIT",
-  NOOP = "NOOP",
+  NOOP = "NOOP", // No Operation (don’t do anything)
 }
 
 export type DataTreeDiff = {
@@ -90,7 +95,7 @@ export function getEntityNameAndPropertyPath(fullPath: string): {
   return { entityName, propertyPath };
 }
 
-function translateCollectionDiffs(
+export function translateCollectionDiffs(
   propertyPath: string,
   data: unknown,
   event: DataTreeDiffEvent,
@@ -205,17 +210,11 @@ export const translateDiffEventToDataTreeDiffEvent = (
       } else if (difference.lhs === undefined || difference.rhs === undefined) {
         // Handle static value changes that change structure that can lead to
         // old bindings being eligible
-        if (
-          difference.lhs === undefined &&
-          (isTrueObject(difference.rhs) || Array.isArray(difference.rhs))
-        ) {
+        if (difference.lhs === undefined && !isNil(difference.rhs)) {
           result.event = DataTreeDiffEvent.NEW;
           result.payload = { propertyPath };
         }
-        if (
-          difference.rhs === undefined &&
-          (isTrueObject(difference.lhs) || Array.isArray(difference.lhs))
-        ) {
+        if (difference.rhs === undefined && !isNil(difference.lhs)) {
           result = [
             {
               event: DataTreeDiffEvent.EDIT,
@@ -350,8 +349,8 @@ export const addDependantsOfNestedPropertyPaths = (
 };
 
 export function isWidget(
-  entity: Partial<DataTreeEntity>,
-): entity is DataTreeWidget {
+  entity: Partial<DataTreeEntity> | WidgetEntityConfig,
+): entity is WidgetEntity | WidgetEntityConfig {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -359,15 +358,15 @@ export function isWidget(
   );
 }
 
-export const shouldSuppressAutoComplete = (widget: DataTreeWidget) =>
+export const shouldSuppressAutoComplete = (widget: WidgetEntity) =>
   Boolean(widget.suppressAutoComplete);
 
-export const shouldSuppressDebuggerError = (widget: DataTreeWidget) =>
+export const shouldSuppressDebuggerError = (widget: WidgetEntity) =>
   Boolean(widget.suppressDebuggerError);
 
 export function isAction(
   entity: Partial<DataTreeEntity>,
-): entity is DataTreeAction {
+): entity is ActionEntity {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -377,7 +376,7 @@ export function isAction(
 
 export function isAppsmithEntity(
   entity: DataTreeEntity,
-): entity is DataTreeAppsmith {
+): entity is AppsmithEntity {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -385,7 +384,16 @@ export function isAppsmithEntity(
   );
 }
 
-export function isJSAction(entity: DataTreeEntity): entity is DataTreeJSAction {
+export function isJSAction(entity: DataTreeEntity): entity is JSActionEntity {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION
+  );
+}
+export function isJSActionConfig(
+  entity: DataTreeEntityConfig,
+): entity is JSActionEntityConfig {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -393,7 +401,7 @@ export function isJSAction(entity: DataTreeEntity): entity is DataTreeJSAction {
   );
 }
 
-export function isJSObject(entity: DataTreeEntity): entity is DataTreeJSAction {
+export function isJSObject(entity: DataTreeEntity): entity is JSActionEntity {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -401,6 +409,10 @@ export function isJSObject(entity: DataTreeEntity): entity is DataTreeJSAction {
     "pluginType" in entity &&
     entity.pluginType === PluginType.JS
   );
+}
+
+export function isDataTreeEntity(entity: unknown) {
+  return !!entity && typeof entity === "object" && "ENTITY_TYPE" in entity;
 }
 
 // We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
@@ -492,7 +504,7 @@ export const getAllPaths = (
       const tempKey = curKey ? `${curKey}[${i}]` : `${i}`;
       getAllPaths(records[i], tempKey, result);
     }
-  } else if (typeof records === "object" && records) {
+  } else if (isTrueObject(records)) {
     for (const key of Object.keys(records)) {
       const tempKey = curKey ? `${curKey}.${key}` : `${key}`;
       getAllPaths(records[key], tempKey, result);
@@ -526,36 +538,43 @@ export const trimDependantChangePaths = (
 export function getSafeToRenderDataTree(
   tree: DataTree,
   widgetTypeConfigMap: WidgetTypeConfigMap,
+  configTree: ConfigTree,
 ) {
   return Object.keys(tree).reduce((tree, entityKey: string) => {
-    const entity = tree[entityKey] as DataTreeWidget;
+    const entity = tree[entityKey];
+
     if (!isWidget(entity)) {
       return tree;
     }
+    const entityConfig = configTree[entityKey] as WidgetEntityConfig;
+
     const safeToRenderEntity = { ...entity };
     // Set user input values to their parsed values
-    Object.entries(entity.validationPaths).forEach(([property, validation]) => {
-      const value = _.get(entity, property);
-      // Pass it through parse
-      const { parsed } = validateWidgetProperty(
-        validation,
-        value,
-        entity,
-        property,
-      );
-      _.set(safeToRenderEntity, property, parsed);
-    });
-    // Set derived values to undefined or else they would go as bindings
-    Object.keys(widgetTypeConfigMap[entity.type].derivedProperties).forEach(
-      (property) => {
-        _.set(safeToRenderEntity, property, undefined);
+    Object.entries(entityConfig.validationPaths).forEach(
+      ([property, validation]) => {
+        const value = _.get(entity, property);
+        // Pass it through parse
+        const { parsed } = validateWidgetProperty(
+          validation,
+          value,
+          entityConfig,
+          property,
+        );
+        _.set(safeToRenderEntity, property, parsed);
       },
     );
+    // Set derived values to undefined or else they would go as bindings
+    Object.keys(
+      widgetTypeConfigMap[entityConfig.type].derivedProperties,
+    ).forEach((property) => {
+      _.set(safeToRenderEntity, property, undefined);
+    });
     return { ...tree, [entityKey]: safeToRenderEntity };
   }, tree);
 }
 
 export const addErrorToEntityProperty = ({
+  configTree,
   dataTree,
   errors,
   evalProps,
@@ -565,12 +584,15 @@ export const addErrorToEntityProperty = ({
   dataTree: DataTree;
   fullPropertyPath: string;
   evalProps: EvalProps;
+  configTree: ConfigTree;
 }) => {
   const { entityName, propertyPath } =
     getEntityNameAndPropertyPath(fullPropertyPath);
-  const isPrivateEntityPath =
-    getAllPrivateWidgetsInDataTree(dataTree)[entityName];
-  const logBlackList = get(dataTree, `${entityName}.logBlackList`, {});
+  const isPrivateEntityPath = getAllPrivateWidgetsInDataTree(
+    dataTree,
+    configTree,
+  )[entityName];
+  const logBlackList = get(configTree, `${entityName}.logBlackList`, {});
   if (propertyPath && !(propertyPath in logBlackList) && !isPrivateEntityPath) {
     const errorPath = `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`;
     const existingErrors = get(evalProps, errorPath, []) as EvaluationError[];
@@ -618,49 +640,55 @@ export const findDatatype = (value: unknown) => {
   return Object.prototype.toString.call(value).slice(8, -1).toLowerCase();
 };
 
-export const isDynamicLeaf = (unEvalTree: DataTree, propertyPath: string) => {
+export const isDynamicLeaf = (
+  unEvalTree: DataTree,
+  propertyPath: string,
+  configTree: ConfigTree,
+) => {
   const [entityName, ...propPathEls] = _.toPath(propertyPath);
   // Framework feature: Top level items are never leaves
   if (entityName === propertyPath) return false;
   // Ignore if this was a delete op
   if (!unEvalTree.hasOwnProperty(entityName)) return false;
 
+  const entityConfig = configTree[entityName];
   const entity = unEvalTree[entityName];
   if (!isAction(entity) && !isWidget(entity) && !isJSAction(entity))
     return false;
   const relativePropertyPath = convertPathToString(propPathEls);
   return (
-    relativePropertyPath in entity.reactivePaths ||
-    (isWidget(entity) && relativePropertyPath in entity.triggerPaths)
+    relativePropertyPath in entityConfig.reactivePaths ||
+    (isWidget(entityConfig) &&
+      relativePropertyPath in entityConfig?.triggerPaths)
   );
 };
 
 export const addWidgetPropertyDependencies = ({
-  entity,
-  entityName,
+  widgetConfig,
+  widgetName,
 }: {
-  entity: DataTreeWidget;
-  entityName: string;
+  widgetConfig: WidgetEntityConfig;
+  widgetName: string;
 }) => {
   const dependencies: DependencyMap = {};
 
-  Object.entries(entity.propertyOverrideDependency).forEach(
+  Object.entries(widgetConfig.propertyOverrideDependency).forEach(
     ([overriddenPropertyKey, overridingPropertyKeyMap]) => {
       const existingDependenciesSet = new Set(
-        dependencies[`${entityName}.${overriddenPropertyKey}`] || [],
+        dependencies[`${widgetName}.${overriddenPropertyKey}`] || [],
       );
       // add meta dependency
       overridingPropertyKeyMap.META &&
         existingDependenciesSet.add(
-          `${entityName}.${overridingPropertyKeyMap.META}`,
+          `${widgetName}.${overridingPropertyKeyMap.META}`,
         );
       // add default dependency
       overridingPropertyKeyMap.DEFAULT &&
         existingDependenciesSet.add(
-          `${entityName}.${overridingPropertyKeyMap.DEFAULT}`,
+          `${widgetName}.${overridingPropertyKeyMap.DEFAULT}`,
         );
 
-      dependencies[`${entityName}.${overriddenPropertyKey}`] = [
+      dependencies[`${widgetName}.${overriddenPropertyKey}`] = [
         ...existingDependenciesSet,
       ];
     },
@@ -681,13 +709,15 @@ export const isPrivateEntityPath = (
 
 export const getAllPrivateWidgetsInDataTree = (
   dataTree: DataTree,
+  configTree: ConfigTree,
 ): PrivateWidgets => {
   let privateWidgets: PrivateWidgets = {};
 
   Object.keys(dataTree).forEach((entityName) => {
     const entity = dataTree[entityName];
-    if (isWidget(entity) && !_.isEmpty(entity.privateWidgets)) {
-      privateWidgets = { ...privateWidgets, ...entity.privateWidgets };
+    const entityConfig = configTree[entityName] as WidgetEntityConfig;
+    if (isWidget(entity) && !_.isEmpty(entityConfig.privateWidgets)) {
+      privateWidgets = { ...privateWidgets, ...entityConfig.privateWidgets };
     }
   });
 
@@ -696,8 +726,9 @@ export const getAllPrivateWidgetsInDataTree = (
 
 export const getDataTreeWithoutPrivateWidgets = (
   dataTree: DataTree,
+  configTree: ConfigTree,
 ): DataTree => {
-  const privateWidgets = getAllPrivateWidgetsInDataTree(dataTree);
+  const privateWidgets = getAllPrivateWidgetsInDataTree(dataTree, configTree);
   const privateWidgetNames = Object.keys(privateWidgets);
   const treeWithoutPrivateWidgets = _.omit(dataTree, privateWidgetNames);
   return treeWithoutPrivateWidgets;
@@ -714,8 +745,14 @@ const getDataTreeWithoutSuppressedAutoComplete = (
   return _.omit(dataTree, entityIds);
 };
 
-export const getDataTreeForAutocomplete = (dataTree: DataTree): DataTree => {
-  const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(dataTree);
+export const getDataTreeForAutocomplete = (
+  dataTree: DataTree,
+  configTree: ConfigTree,
+): DataTree => {
+  const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(
+    dataTree,
+    configTree,
+  );
   const treeWithoutSuppressedAutoComplete =
     getDataTreeWithoutSuppressedAutoComplete(treeWithoutPrivateWidgets);
 
@@ -729,7 +766,7 @@ export const getDataTreeForAutocomplete = (dataTree: DataTree): DataTree => {
  *  we override the values like text and meta.text in dataTree, these values are called as overriddenPropertyPaths
  *
  * @param {{
- *   entity: DataTreeWidget;
+ *   entity: WidgetEntity;
  *   propertyPath: string;
  *   value: unknown;
  *   currentTree: DataTree;
@@ -738,30 +775,41 @@ export const getDataTreeForAutocomplete = (dataTree: DataTree): DataTree => {
  * @return {*}
  */
 export const overrideWidgetProperties = (params: {
-  entity: DataTreeWidget;
+  entity: WidgetEntity;
   propertyPath: string;
   value: unknown;
   currentTree: DataTree;
+  configTree: ConfigTree;
   evalMetaUpdates: EvalMetaUpdates;
+  fullPropertyPath: string;
   isNewWidget: boolean;
+  shouldUpdateGlobalContext?: boolean;
+  overriddenProperties?: string[];
 }) => {
   const {
+    configTree,
     currentTree,
     entity,
     evalMetaUpdates,
+    fullPropertyPath,
     isNewWidget,
+    overriddenProperties,
     propertyPath,
+    shouldUpdateGlobalContext,
     value,
   } = params;
   const clonedValue = klona(value);
-  if (propertyPath in entity.overridingPropertyPaths) {
+  const { entityName } = getEntityNameAndPropertyPath(fullPropertyPath);
+
+  const configEntity = configTree[entityName] as WidgetEntityConfig;
+  if (propertyPath in configEntity.overridingPropertyPaths) {
     const overridingPropertyPaths =
-      entity.overridingPropertyPaths[propertyPath];
+      configEntity.overridingPropertyPaths[propertyPath];
 
     const pathsNotToOverride = widgetPathsNotToOverride(
       isNewWidget,
-      entity,
       propertyPath,
+      configEntity,
     );
 
     overridingPropertyPaths.forEach((overriddenPropertyPath) => {
@@ -769,9 +817,14 @@ export const overrideWidgetProperties = (params: {
       if (pathsNotToOverride.includes(overriddenPropertyPath)) return;
       _.set(
         currentTree,
-        [entity.widgetName, ...overriddenPropertyPathArray],
+        [entityName, ...overriddenPropertyPathArray],
         clonedValue,
       );
+
+      if (shouldUpdateGlobalContext) {
+        _.set(self, [entityName, ...overriddenPropertyPathArray], clonedValue);
+      }
+      overriddenProperties?.push(overriddenPropertyPath);
       // evalMetaUpdates has all updates from property which overrides meta values.
       if (
         propertyPath.split(".")[0] !== "meta" &&
@@ -786,13 +839,13 @@ export const overrideWidgetProperties = (params: {
       }
     });
   } else if (
-    propertyPath in entity.propertyOverrideDependency &&
+    propertyPath in configEntity.propertyOverrideDependency &&
     clonedValue === undefined
   ) {
     // When a reset a widget its meta value becomes undefined, ideally they should reset to default value.
     // below we handle logic to reset meta values to default values.
     const propertyOverridingKeyMap =
-      entity.propertyOverrideDependency[propertyPath];
+      configEntity.propertyOverrideDependency[propertyPath];
     if (propertyOverridingKeyMap.DEFAULT) {
       const defaultValue = entity[propertyOverridingKeyMap.DEFAULT];
       const clonedDefaultValue = klona(defaultValue);
@@ -800,9 +853,13 @@ export const overrideWidgetProperties = (params: {
         const propertyPathArray = propertyPath.split(".");
         _.set(
           currentTree,
-          [entity.widgetName, ...propertyPathArray],
+          [entityName, ...propertyPathArray],
           clonedDefaultValue,
         );
+
+        if (shouldUpdateGlobalContext) {
+          _.set(self, [entityName, ...propertyPathArray], clonedDefaultValue);
+        }
 
         return {
           overwriteParsedValue: true,
@@ -814,17 +871,19 @@ export const overrideWidgetProperties = (params: {
 };
 export function isValidEntity(
   entity: DataTreeEntity,
-): entity is DataTreeObjectEntity {
+): entity is DataTreeEntityObject {
   if (!isObject(entity)) {
     return false;
   }
   return "ENTITY_TYPE" in entity;
 }
 export const isATriggerPath = (
-  entity: DataTreeEntity,
+  entityConfig: DataTreeEntityConfig,
   propertyPath: string,
 ) => {
-  return isWidget(entity) && isPathDynamicTrigger(entity, propertyPath);
+  return (
+    isWidget(entityConfig) && isPathDynamicTrigger(entityConfig, propertyPath)
+  );
 };
 
 // Checks if entity newly got added to the unevalTree
@@ -837,14 +896,15 @@ export const isNewEntity = (updates: DataTreeDiff[], entityName: string) => {
 
 const widgetPathsNotToOverride = (
   isNewWidget: boolean,
-  entity: DataTreeWidget,
   propertyPath: string,
+  entityConfig: WidgetEntityConfig,
 ) => {
   let pathsNotToOverride: string[] = [];
-  const overriddenPropertyPaths = entity.overridingPropertyPaths[propertyPath];
+  const overriddenPropertyPaths =
+    entityConfig.overridingPropertyPaths[propertyPath];
 
   // Check if widget has pre-existing meta values (although newly added to the unevalTree)
-  if (isNewWidget && entity.isMetaPropDirty) {
+  if (isNewWidget && entityConfig.isMetaPropDirty) {
     const overriddenMetaPaths = overriddenPropertyPaths.filter(
       (path) => path.split(".")[0] === "meta",
     );
@@ -852,10 +912,10 @@ const widgetPathsNotToOverride = (
     pathsNotToOverride = [...overriddenMetaPaths];
     // paths which these meta values override should also not get overridden
     overriddenMetaPaths.forEach((path) => {
-      if (entity.overridingPropertyPaths.hasOwnProperty(path)) {
+      if (entityConfig.overridingPropertyPaths.hasOwnProperty(path)) {
         pathsNotToOverride = [
           ...pathsNotToOverride,
-          ...entity.overridingPropertyPaths[path],
+          ...entityConfig.overridingPropertyPaths[path],
         ];
       }
     });
@@ -864,7 +924,7 @@ const widgetPathsNotToOverride = (
 };
 
 const isWidgetDefaultPropertyPath = (
-  widget: DataTreeWidget,
+  widget: WidgetEntityConfig,
   propertyPath: string,
 ) => {
   for (const property of Object.keys(widget.propertyOverrideDependency)) {
@@ -874,32 +934,37 @@ const isWidgetDefaultPropertyPath = (
   return false;
 };
 
-const isMetaWidgetTemplate = (widget: DataTreeWidget) => {
+const isMetaWidgetTemplate = (widget: WidgetEntity) => {
   return !!widget.siblingMetaWidgets;
 };
 
 // When a default value changes in a template(widgets used to generate other widgets), meta values of metaWidgets not present in the unevalTree become stale
 export function getStaleMetaStateIds(args: {
-  entity: DataTreeWidget;
+  entity: WidgetEntity;
+  entityConfig: WidgetEntityConfig;
   propertyPath: string;
   isNewWidget: boolean;
   metaWidgets: string[];
 }) {
-  const { entity, isNewWidget, metaWidgets, propertyPath } = args;
+  const { entity, entityConfig, isNewWidget, metaWidgets, propertyPath } = args;
   return !isNewWidget &&
-    isWidgetDefaultPropertyPath(entity, propertyPath) &&
+    isWidgetDefaultPropertyPath(entityConfig, propertyPath) &&
     isMetaWidgetTemplate(entity)
     ? difference(entity.siblingMetaWidgets, metaWidgets)
     : [];
 }
 
 export function convertJSFunctionsToString(
-  jscollections: Record<string, DataTreeJSAction>,
+  jscollections: Record<string, JSActionEntity>,
+  configTree: ConfigTree,
 ) {
   const collections = klona(jscollections);
   Object.keys(collections).forEach((collectionName) => {
     const jsCollection = collections[collectionName];
-    const jsFunctions = jsCollection.meta;
+    const jsCollectionConfig = configTree[
+      collectionName
+    ] as JSActionEntityConfig;
+    const jsFunctions = jsCollectionConfig.meta;
     for (const funcName in jsFunctions) {
       if (jsCollection[funcName] instanceof String) {
         if (has(jsCollection, [funcName, "data"])) {

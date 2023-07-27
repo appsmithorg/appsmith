@@ -1,6 +1,5 @@
 import { Colors } from "constants/Colors";
-import type { RenderMode } from "constants/WidgetConstants";
-import { FontStyleTypes, RenderModes } from "constants/WidgetConstants";
+import { FontStyleTypes } from "constants/WidgetConstants";
 import _, { filter, isBoolean, isObject, uniq, without } from "lodash";
 import tinycolor from "tinycolor2";
 import type {
@@ -49,9 +48,13 @@ export const getOriginalRowIndex = (
   tableData: TableData,
   selectedRowIndex: number | undefined,
   primaryColumnId: string,
-) => {
+): number => {
   let primaryKey = "";
   let index = -1;
+
+  if (prevTableData && prevTableData.length == 0) {
+    return selectedRowIndex ?? index;
+  }
 
   if (
     !_.isNil(selectedRowIndex) &&
@@ -188,6 +191,7 @@ export function getDefaultColumnProperties(
 ): ColumnProperties {
   const columnProps = {
     allowCellWrapping: false,
+    allowSameOptionsInNewRow: true,
     index: index,
     width: DEFAULT_COLUMN_WIDTH,
     originalId: id,
@@ -293,6 +297,7 @@ export const getArrayPropertyValue = (value: unknown, index: number) => {
 export const getCellProperties = (
   columnProperties: ColumnProperties,
   rowIndex: number,
+  isAddRowInProgress = false,
 ) => {
   if (columnProperties) {
     return {
@@ -493,9 +498,10 @@ export const getCellProperties = (
         true,
       ),
       shortcuts: getBooleanPropertyValue(columnProperties.shortcuts, rowIndex),
-      selectOptions: getArrayPropertyValue(
-        columnProperties.selectOptions,
+      selectOptions: getSelectOptions(
+        isAddRowInProgress,
         rowIndex,
+        columnProperties,
       ),
       timePrecision: getPropertyValue(
         columnProperties.timePrecision,
@@ -866,32 +872,6 @@ export const deleteLocalTableColumnOrderByWidgetId = (widgetId: string) => {
   }
 };
 
-export const fetchSticky = (
-  columnId: string,
-  primaryColumns: Record<string, ColumnProperties>,
-  renderMode: RenderMode,
-  widgetId?: string,
-): StickyType | undefined => {
-  if (renderMode === RenderModes.PAGE && widgetId) {
-    const localTableColumnOrder = getColumnOrderByWidgetIdFromLS(widgetId);
-    if (localTableColumnOrder) {
-      const { leftOrder, rightOrder } = localTableColumnOrder;
-      if (leftOrder.indexOf(columnId) > -1) {
-        return StickyType.LEFT;
-      } else if (rightOrder.indexOf(columnId) > -1) {
-        return StickyType.RIGHT;
-      } else {
-        return StickyType.NONE;
-      }
-    } else {
-      return get(primaryColumns, `${columnId}`).sticky;
-    }
-  }
-  if (renderMode === RenderModes.CANVAS) {
-    return get(primaryColumns, `${columnId}`).sticky;
-  }
-};
-
 export const updateAndSyncTableLocalColumnOrders = (
   columnName: string,
   leftOrder: string[],
@@ -1101,4 +1081,24 @@ export const getDragHandlers = (
     onDragStart,
     onDrop,
   };
+};
+
+export const getSelectOptions = (
+  isNewRow: boolean,
+  rowIndex: number,
+  columnProperties: ColumnProperties,
+) => {
+  if (isNewRow) {
+    if (
+      columnProperties.allowSameOptionsInNewRow &&
+      columnProperties?.selectOptions
+    ) {
+      // Use select options from the first row
+      return getArrayPropertyValue(columnProperties.selectOptions, 0);
+    } else {
+      return columnProperties.newRowSelectOptions;
+    }
+  } else {
+    return getArrayPropertyValue(columnProperties.selectOptions, rowIndex);
+  }
 };

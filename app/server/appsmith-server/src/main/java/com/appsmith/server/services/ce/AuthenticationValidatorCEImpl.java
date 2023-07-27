@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.AuthenticationDTO;
-import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.solutions.AuthenticationService;
 import lombok.RequiredArgsConstructor;
@@ -14,24 +14,22 @@ public class AuthenticationValidatorCEImpl implements AuthenticationValidatorCE 
 
     private final AuthenticationService authenticationService;
 
-    public Mono<Datasource> validateAuthentication(Datasource datasource) {
-        if (datasource.getDatasourceConfiguration() == null || datasource.getDatasourceConfiguration().getAuthentication() == null) {
-            return Mono.just(datasource);
+    public Mono<DatasourceStorage> validateAuthentication(DatasourceStorage datasourceStorage) {
+        if (datasourceStorage.getDatasourceConfiguration() == null
+                || datasourceStorage.getDatasourceConfiguration().getAuthentication() == null) {
+            return Mono.just(datasourceStorage);
         }
-        AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
-        return authentication.hasExpired()
+        AuthenticationDTO authentication =
+                datasourceStorage.getDatasourceConfiguration().getAuthentication();
+        return authentication
+                .hasExpired()
                 .filter(expired -> expired)
                 .flatMap(expired -> {
                     if (authentication instanceof OAuth2) {
-                        return authenticationService.refreshAuthentication(datasource);
+                        return authenticationService.refreshAuthentication(datasourceStorage);
                     }
-                    return Mono.just(datasource);
+                    return Mono.just(datasourceStorage);
                 })
-                .switchIfEmpty(Mono.just(datasource));
-    }
-
-    @Override
-    public Mono<Datasource> validateAuthentication(Datasource datasource, String environmentId){
-        return validateAuthentication(datasource);
+                .switchIfEmpty(Mono.just(datasourceStorage));
     }
 }

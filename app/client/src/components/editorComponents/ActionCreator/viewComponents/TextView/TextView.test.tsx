@@ -9,11 +9,12 @@ describe("Text view component", () => {
     label: "Key",
     value: "{{storeValue(,'1')}}",
     get: () => {
-      return 1;
+      return "";
     },
     set: () => {
       return 1;
     },
+    exampleText: "storeValue('a','1')",
   };
   test("Renders Text view component correctly", () => {
     render(<TextView {...props} />);

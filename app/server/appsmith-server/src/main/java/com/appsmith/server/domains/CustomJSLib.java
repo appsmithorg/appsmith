@@ -1,6 +1,6 @@
 package com.appsmith.server.domains;
 
-import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.BranchAwareDomain;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -19,7 +19,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @Document
-public class CustomJSLib extends BaseDomain {
+public class CustomJSLib extends BranchAwareDomain {
     /* Library name */
     String name;
 
@@ -49,9 +49,13 @@ public class CustomJSLib extends BaseDomain {
     String defs;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public CustomJSLib(@JsonProperty("name") String name, @JsonProperty("accessor") Set<String> accessor,
-                       @JsonProperty("url") String url, @JsonProperty("docsUrl") String docsUrl,
-                       @JsonProperty("version") String version, @JsonProperty("defs") String defs) {
+    public CustomJSLib(
+            @JsonProperty("name") String name,
+            @JsonProperty("accessor") Set<String> accessor,
+            @JsonProperty("url") String url,
+            @JsonProperty("docsUrl") String docsUrl,
+            @JsonProperty("version") String version,
+            @JsonProperty("defs") String defs) {
         this.name = name;
         this.accessor = accessor;
         this.url = url;
@@ -77,7 +81,7 @@ public class CustomJSLib extends BaseDomain {
      */
     @Override
     public boolean equals(Object o) {
-        if (! (o instanceof CustomJSLib)) {
+        if (!(o instanceof CustomJSLib)) {
             return false;
         }
 

@@ -1,13 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Rating from "react-rating";
-import {
-  Button,
-  getTypographyByKey,
-  Icon,
-  IconSize,
-  Size,
-} from "design-system-old";
+import { Button, Icon, Text } from "design-system";
 import {
   getPostWelcomeTourState,
   setPostWelcomeTourState,
@@ -25,14 +19,12 @@ import {
   RATING_TEXT,
   RATING_TITLE,
 } from "@appsmith/constants/messages";
-import { Colors } from "constants/Colors";
 import history from "utils/history";
 import { APPLICATIONS_URL } from "constants/routes";
 
 const Container = styled.div`
-  background-color: ${(props) => props.theme.colors.guidedTour.card.background};
-  padding: ${(props) => props.theme.spaces[9]}px
-    ${(props) => props.theme.spaces[11]}px;
+  background-color: var(--ads-v2-color-bg-success);
+  padding: var(--ads-v2-spaces-5);
   width: 100%;
 `;
 
@@ -40,30 +32,24 @@ const Wrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  .title {
+    color: var(--ads-v2-color-fg-emphasis);
+  }
 `;
 
 const Confetti = styled.span`
-  font-size: 40px;
-  margin-right: ${(props) => props.theme.spaces[7]}px;
-`;
-
-const Title = styled.div`
-  color: #000000;
-  ${getTypographyByKey("h2")}
-  font-weight: 600;
+  font-size: 30px;
+  margin-right: var(--ads-v2-spaces-5);
 `;
 
 const Description = styled.div`
-  color: ${(props) => props.theme.colors.guidedTour.stepCountBackground};
-  font-size: 16px;
-  margin-top: ${(props) => props.theme.spaces[3]}px;
+  font-size: 14px;
+  line-height: 16px;
+  margin-top: var(--ads-v2-spaces-2);
 `;
 
 const RatingText = styled.span`
-  ${getTypographyByKey("h4")}
-  color: #000000;
-  padding-bottom: ${(props) => props.theme.spaces[2]}px;
-  margin-right: ${(props) => props.theme.spaces[7]}px;
+  /* color: #000000; */
 `;
 
 const RatingWrapper = styled.div`
@@ -121,7 +107,9 @@ function CongratulationsView() {
           <Left>
             <Confetti>🎉</Confetti>
             <div>
-              <Title>{createMessage(RATING_TITLE)}</Title>
+              <Text className="title" kind="heading-s" renderAs="h2">
+                {createMessage(RATING_TITLE)}
+              </Text>
               <Description>{createMessage(RATING_DESCRIPTION)}</Description>
             </div>
           </Left>
@@ -131,17 +119,17 @@ function CongratulationsView() {
               emptySymbol={
                 <Icon
                   className={"t--guided-tour-rating star"}
-                  fillColor={Colors.GREY_7}
+                  color={"var(--ads-v2-color-fg-success)"}
                   name="star-line"
-                  size={IconSize.XXXXL}
+                  size="lg"
                 />
               }
               fullSymbol={
                 <Icon
                   className={"t--guided-tour-rating star"}
-                  fillColor={"#FFCB45"}
+                  color={"var(--ads-v2-color-fg-success)"}
                   name="star-fill"
-                  size={IconSize.XXXXL}
+                  size="lg"
                 />
               }
               onChange={onValueChanged}
@@ -155,17 +143,14 @@ function CongratulationsView() {
       <Container>
         <Wrapper>
           <div>
-            <Title>{createMessage(END_TITLE)}</Title>
+            <Text className="title" kind="heading-s" renderAs="h2">
+              {createMessage(END_TITLE)}
+            </Text>
             <Description>{createMessage(END_DESCRIPTION)}</Description>
           </div>
-          <Button
-            className="t--start-building"
-            height="38"
-            onClick={hideMessage}
-            size={Size.large}
-            tag="button"
-            text={createMessage(END_BUTTON_TEXT)}
-          />
+          <Button className="t--start-building" onClick={hideMessage} size="md">
+            {createMessage(END_BUTTON_TEXT)}
+          </Button>
         </Wrapper>
       </Container>
     );

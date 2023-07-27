@@ -1,8 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import java.util.Optional;
-
-
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitAuth;
@@ -16,6 +13,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface ApplicationServiceCE extends CrudService<Application, String> {
 
@@ -41,13 +39,14 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<UpdateResult> update(String defaultApplicationId, Map<String, Object> fieldNameValueMap, String branchName);
 
-    Mono<Application> createDefault(Application object);
+    Mono<Application> createDefaultApplication(Application object);
 
     Mono<Application> archive(Application application);
 
     Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO);
 
-    Mono<Application> changeViewAccess(String defaultApplicationId, String branchName, ApplicationAccessDTO applicationAccessDTO);
+    Mono<Application> changeViewAccess(
+            String defaultApplicationId, String branchName, ApplicationAccessDTO applicationAccessDTO);
 
     Flux<Application> findAllApplicationsByWorkspaceId(String workspaceId);
 
@@ -63,21 +62,21 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<GitAuthDTO> getSshKey(String applicationId);
 
-    Mono<Application> findByBranchNameAndDefaultApplicationId(String branchName,
-                                                              String defaultApplicationId,
-                                                              AclPermission aclPermission);
+    Mono<Application> findByBranchNameAndDefaultApplicationId(
+            String branchName, String defaultApplicationId, AclPermission aclPermission);
 
-    Mono<String> findBranchedApplicationId(Optional<String> branchName, String defaultApplicationId, Optional<AclPermission> permission);
+    Mono<String> findBranchedApplicationId(
+            Optional<String> branchName, String defaultApplicationId, Optional<AclPermission> permission);
 
-    Mono<Application> findByBranchNameAndDefaultApplicationId(String branchName,
-                                                              String defaultApplicationId,
-                                                              List<String> projectionFieldNames,
-                                                              AclPermission aclPermission);
+    Mono<Application> findByBranchNameAndDefaultApplicationId(
+            String branchName,
+            String defaultApplicationId,
+            List<String> projectionFieldNames,
+            AclPermission aclPermission);
 
-    Mono<Application> findByBranchNameAndDefaultApplicationIdAndFieldName(String branchName,
-                                                                          String defaultApplicationId,
-                                                                          String fieldName,
-                                                                          AclPermission aclPermission);
+    Mono<Application> findByBranchNameAndDefaultApplicationIdAndFieldName(
+            String branchName, String defaultApplicationId, String fieldName, AclPermission aclPermission);
+
     Mono<String> findBranchedApplicationId(String branchName, String defaultApplicationId, AclPermission permission);
 
     Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId, AclPermission permission);
@@ -88,7 +87,8 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     String getRandomAppCardColor();
 
-    Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission);
+    Mono<UpdateResult> setAppTheme(
+            String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission);
 
     Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId);
 
@@ -99,4 +99,6 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
     public Mono<Void> deleteAppNavigationLogo(String branchName, String applicationId);
 
     Mono<Application> findByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission);
+
+    Mono<Boolean> isApplicationConnectedToGit(String applicationId);
 }

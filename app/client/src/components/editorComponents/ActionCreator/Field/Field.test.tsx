@@ -1,11 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen } from "test/testUtils";
 import "@testing-library/jest-dom";
 import React from "react";
 import { ThemeProvider } from "styled-components";
 import { Field } from "./index";
 import { lightTheme } from "selectors/themeSelectors";
 import { FieldType } from "../constants";
-import { FIELD_CONFIG } from "../FieldConfig";
+import { FIELD_CONFIG } from "./FieldConfig";
 
 describe("Field component", () => {
   const commonProps = {
@@ -14,16 +14,23 @@ describe("Field component", () => {
         return null;
       },
       id: "page-name",
-      text: "Page Name",
+      text: "Page name",
+    },
+    activeTabApiAndQueryCallback: {
+      action: () => {
+        return null;
+      },
+      id: "onSuccess",
+      text: "On Success",
     },
     depth: 1,
-    integrationOptionTree: [],
+    integrationOptions: [],
     maxDepth: 0,
     modalDropdownList: [],
     navigateToSwitches: [
       {
         id: "page-name",
-        text: "Page Name",
+        text: "Page name",
         action: () => {
           return null;
         },
@@ -31,6 +38,22 @@ describe("Field component", () => {
       {
         id: "url",
         text: "URL",
+        action: () => {
+          return null;
+        },
+      },
+    ],
+    apiAndQueryCallbackTabSwitches: [
+      {
+        id: "onSuccess",
+        text: "onSuccess",
+        action: () => {
+          return null;
+        },
+      },
+      {
+        id: "onFailure",
+        text: "onFailure",
         action: () => {
           return null;
         },
@@ -46,11 +69,6 @@ describe("Field component", () => {
   };
   const tests = [
     {
-      field: FieldType.ACTION_SELECTOR_FIELD,
-      value: "",
-      testId: null,
-    },
-    {
       field: FieldType.ALERT_TEXT_FIELD,
       value: "{{showAlert()}}",
       testId: "text-view-label",
@@ -61,7 +79,7 @@ describe("Field component", () => {
       testId: "selector-view-label",
     },
     {
-      field: FieldType.KEY_TEXT_FIELD,
+      field: FieldType.KEY_TEXT_FIELD_STORE_VALUE,
       value: "{{storeValue()}}",
       testId: "text-view-label",
     },
@@ -106,7 +124,7 @@ describe("Field component", () => {
       testId: "selector-view-label",
     },
     {
-      field: FieldType.CALLBACK_FUNCTION_FIELD,
+      field: FieldType.CALLBACK_FUNCTION_FIELD_SET_INTERVAL,
       value: "{{setInterval()}}",
       testId: "text-view-label",
     },

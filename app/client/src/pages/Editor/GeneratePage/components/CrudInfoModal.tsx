@@ -5,16 +5,14 @@ import type { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Button,
-  Category,
-  DialogComponent as Dialog,
-  getTypographyByKey,
-  Size,
   Text,
-  TextType,
-} from "design-system-old";
+  Modal,
+  ModalContent,
+  ModalBody,
+  ModalFooter,
+} from "design-system";
 import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
-import { Colors } from "constants/Colors";
 
 import type { GenerateCRUDSuccessInfoData } from "reducers/uiReducers/crudInfoModalReducer";
 import {
@@ -28,38 +26,14 @@ import {
   Container as ProgressiveImageContainer,
 } from "design-system-old";
 import SuccessTick from "pages/common/SuccessTick";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 type Props = {
   crudInfoModalOpen: boolean;
   generateCRUDSuccessInfo: GenerateCRUDSuccessInfoData | null;
 };
 
-const Heading = styled.div`
-  color: ${Colors.CODE_GRAY};
-  display: flex;
-  justify-content: center;
-  ${getTypographyByKey("h1")}
-`;
-
-const ActionButtonWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  margin: 30px 0px 0px;
-`;
-
-export const StyledSeparator = styled.div`
-  width: 100%;
-  background-color: ${(props) => props.theme.colors.modal.separator};
-  opacity: 0.6;
-  height: 1px;
-`;
-
-const ActionButton = styled(Button)`
-  margin-right: 16px;
-`;
-
 const Content = styled.div`
-  padding: 16px;
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -70,22 +44,22 @@ const Wrapper = styled.div`
   flex-direction: column;
   height: 100%;
   max-height: 700px;
-  min-height: 500px;
+  min-height: 400px;
 
   .info-subtitle {
-    padding-top: 5px;
     text-align: center;
   }
 `;
 
 const ImageWrapper = styled.div`
-  padding: 50px 10px 10px;
+  padding: 40px 0px 10px;
   display: flex;
   flex: 1;
   justify-content: center;
   & ${ProgressiveImageContainer} {
     width: 100%;
     height: 284px;
+    width: 526px;
   }
   .progressive-image--thumb,
   progressive-image--full {
@@ -108,6 +82,12 @@ const SuccessContentWrapper = styled.div`
   height: 100%;
 `;
 
+const InfoContentHeadingText = styled.span`
+  color: var(--ads-v2-color-fg);
+`;
+const SuccessText = styled(Text)`
+  color: var(--ads-v2-color-fg-emphasis);
+`;
 const STEP = {
   SHOW_SUCCESS_GIF: "show_success_gif",
   SHOW_INFO: "show_info",
@@ -116,44 +96,29 @@ const STEP = {
 const DELAY_TIME = 3000;
 
 function InfoContent({
-  onClose,
   successImageUrl,
   successMessage,
 }: {
-  onClose: () => void;
   successMessage: string;
   successImageUrl: string;
 }) {
   return (
-    <>
-      <Content>
-        <Text
-          className="info-subtitle"
-          dangerouslySetInnerHTML={{
-            __html: successMessage,
-          }}
-          type={TextType.P1}
+    <Content>
+      {/* TODO: Replace this with ADS text */}
+      <InfoContentHeadingText
+        className="info-subtitle"
+        dangerouslySetInnerHTML={{
+          __html: successMessage,
+        }}
+      />
+      <ImageWrapper>
+        <ProgressiveImage
+          alt="template information"
+          imageSource={getAssetUrl(successImageUrl)}
+          thumbnailSource={getInfoThumbnail()}
         />
-        <ImageWrapper>
-          <ProgressiveImage
-            alt="template information"
-            imageSource={successImageUrl}
-            thumbnailSource={getInfoThumbnail()}
-          />
-        </ImageWrapper>
-      </Content>
-
-      <ActionButtonWrapper>
-        <ActionButton
-          category={Category.primary}
-          onClick={() => {
-            onClose();
-          }}
-          size={Size.medium}
-          text="GOT IT"
-        />
-      </ActionButtonWrapper>
-    </>
+      </ImageWrapper>
+    </Content>
   );
 }
 
@@ -186,28 +151,34 @@ function GenCRUDSuccessModal(props: Props) {
   }, [setStep]);
 
   return (
-    <Dialog
-      canEscapeKeyClose
-      canOutsideClickClose
-      isOpen={crudInfoModalOpen}
-      setModalClose={onClose}
-    >
-      <Wrapper>
-        {step === STEP.SHOW_SUCCESS_GIF ? (
-          <SuccessContentWrapper>
-            <SuccessTick height="80px" width="80px" />
-            <Heading> {createMessage(GEN_CRUD_SUCCESS_MESSAGE)}</Heading>
-          </SuccessContentWrapper>
-        ) : null}
-        {step === STEP.SHOW_INFO ? (
-          <InfoContent
-            onClose={onClose}
-            successImageUrl={successImageUrl}
-            successMessage={successMessage}
-          />
-        ) : null}
-      </Wrapper>
-    </Dialog>
+    <Modal onOpenChange={onClose} open={crudInfoModalOpen}>
+      <ModalContent style={{ width: "640px" }}>
+        <ModalBody>
+          <Wrapper>
+            {step === STEP.SHOW_SUCCESS_GIF ? (
+              <SuccessContentWrapper>
+                <SuccessTick height="80px" width="80px" />
+                <SuccessText kind="heading-m">
+                  {" "}
+                  {createMessage(GEN_CRUD_SUCCESS_MESSAGE)}
+                </SuccessText>
+              </SuccessContentWrapper>
+            ) : null}
+            {step === STEP.SHOW_INFO ? (
+              <InfoContent
+                successImageUrl={successImageUrl}
+                successMessage={successMessage}
+              />
+            ) : null}
+          </Wrapper>
+        </ModalBody>
+        <ModalFooter>
+          <Button kind="primary" onClick={onClose} size={"md"}>
+            Got it
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 }
 

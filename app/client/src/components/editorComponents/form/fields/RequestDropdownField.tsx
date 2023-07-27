@@ -3,33 +3,19 @@ import _ from "lodash";
 import type { WrappedFieldProps } from "redux-form";
 import { Field } from "redux-form";
 import DropdownFieldWrapper from "components/editorComponents/form/fields/DropdownFieldWrapper";
-
-interface RequestDropdownProps {
-  className?: string;
-  name: string;
-  options: Array<{
-    value: string;
-    label?: string;
-    id?: string;
-  }>;
-  placeholder: string;
-  width?: string;
-  height?: string;
-  optionWidth?: string;
-  disabled?: boolean;
-}
+import type { SelectOptionProps } from "design-system";
 
 const renderComponent = (
-  componentProps: WrappedFieldProps & RequestDropdownProps,
+  componentProps: WrappedFieldProps & SelectOptionProps,
 ) => {
   return <DropdownFieldWrapper {...componentProps} />;
 };
 
-function RequestDropdownField(props: RequestDropdownProps) {
+function RequestDropdownField(props: SelectOptionProps) {
   return (
     <Field
       component={renderComponent}
-      format={(value: string) => _.find(props.options, { value }) || ""}
+      format={(value: string) => _.find(props.options, { value }) || undefined}
       normalize={(option: { value: string }) => option.value}
       {...props}
     />

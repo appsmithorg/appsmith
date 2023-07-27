@@ -1,7 +1,7 @@
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { Switch } from "design-system-old";
+import { Switch } from "design-system";
 import type { ControlType } from "constants/PropertyControlConstants";
 import type { WrappedFieldProps } from "redux-form";
 import { Field } from "redux-form";
@@ -18,27 +18,9 @@ const SwitchWrapped = styled.div`
   flex-direction: row;
   display: flex;
   align-items: center;
+  justify-content: end;
   position: relative;
-  .bp3-control {
-    margin-bottom: 0px;
-  }
   max-width: 60vw;
-  && .bp3-control.bp3-switch .bp3-control-indicator {
-    width: 40px;
-    height: 20px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    margin: 0;
-    margin-left: 10px;
-  }
-  .bp3-control.bp3-switch .bp3-control-indicator::before {
-    width: 16px;
-    height: 16px;
-  }
-  .bp3-control.bp3-switch input:checked ~ .bp3-control-indicator::before {
-    left: calc(100% - 20px);
-  }
 `;
 
 export class SwitchField extends React.Component<SwitchFieldProps, any> {
@@ -51,20 +33,16 @@ export class SwitchField extends React.Component<SwitchFieldProps, any> {
     }
   }
 
-  onChange: React.FormEventHandler<HTMLInputElement> = () => {
-    this.props.input.onChange(!this.value);
-  };
-
   render() {
     return (
-      <SwitchWrapped data-cy={this.props.input.name}>
+      <SwitchWrapped data-testid={this.props.input.name}>
+        {/* TODO: refactor so that the label of the field props is also passed down and a part of Switch.*/}
         <Switch
-          checked={this.value}
           className="switch-control"
-          disabled={this.props.disabled}
-          large
+          isDisabled={this.props.disabled}
+          isSelected={this.value}
           name={this.props.input.name}
-          onChange={this.onChange}
+          onChange={(isSelected) => this.props.input.onChange(isSelected)}
         />
       </SwitchWrapped>
     );

@@ -4,6 +4,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "../evaluate";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import { overrideWebAPIs } from "../fns/overrides";
+import type { ActionEntity } from "entities/DataTree/types";
 
 describe("Expects appsmith setTimeout to pass the following criteria", () => {
   overrideWebAPIs(self);
@@ -105,12 +106,11 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
         ENTITY_TYPE: ENTITY_TYPE.ACTION,
         dependencyMap: {},
         logBlackList: {},
-      },
+      } as ActionEntity,
     };
     self["$isDataField"] = false;
     const evalContext = createEvaluationContext({
       dataTree,
-      resolvedFunctions: {},
       isTriggerBased: true,
       context: {},
     });

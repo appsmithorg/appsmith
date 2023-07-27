@@ -140,7 +140,7 @@ class ListView extends React.Component<Props> {
           icon={"plus"}
           minimal
           onClick={() => this.handleCreateNewDatasource(plugin.id)}
-          text="New Datasource"
+          text="New datasource"
         />
 
         {datasources.map((datasource) => {

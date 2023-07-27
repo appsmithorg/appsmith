@@ -30,18 +30,20 @@ public class AppsmithException extends BaseException {
 
     @Override
     public String getDownstreamErrorMessage() {
-        //Downstream error message is not available for AppsmithError
+        // Downstream error message is not available for AppsmithError
         return null;
     }
 
     @Override
     public String getDownstreamErrorCode() {
-        //Downstream error code is not available for AppsmithError
+        // Downstream error code is not available for AppsmithError
         return null;
     }
 
     public String getAppErrorCode() {
-        return this.error == null ? AppsmithPluginErrorCode.GENERIC_PLUGIN_ERROR.getCode() : this.error.getAppErrorCode();
+        return this.error == null
+                ? AppsmithPluginErrorCode.GENERIC_PLUGIN_ERROR.getCode()
+                : this.error.getAppErrorCode();
     }
 
     public AppsmithErrorAction getErrorAction() {
@@ -54,8 +56,11 @@ public class AppsmithException extends BaseException {
     }
 
     @Override
-    public String getErrorType() { return this.error.getErrorType(); }
+    public String getErrorType() {
+        return this.error.getErrorType();
+    }
 
-    public String getReferenceDoc() { return this.error.getReferenceDoc(); }
-
+    public String getReferenceDoc() {
+        return this.error.getReferenceDoc();
+    }
 }

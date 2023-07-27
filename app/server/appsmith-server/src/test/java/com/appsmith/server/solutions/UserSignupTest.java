@@ -5,10 +5,9 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.UserDataService;
@@ -44,13 +43,7 @@ public class UserSignupTest {
     private ConfigService configService;
 
     @MockBean
-    private PolicyUtils policyUtils;
-
-    @MockBean
     private AnalyticsService analyticsService;
-
-    @MockBean
-    private ApplicationPageService applicationPageService;
 
     @MockBean
     private EnvManager envManager;
@@ -61,18 +54,28 @@ public class UserSignupTest {
     @MockBean
     private UserUtils userUtils;
 
+    @MockBean
+    private NetworkUtils networkUtils;
+
     private UserSignup userSignup;
 
     @BeforeEach
     public void setup() {
-        userSignup = new UserSignupImpl(userService, userDataService, captchaService, authenticationSuccessHandler,
-                configService, analyticsService, envManager, commonConfig, userUtils);
+        userSignup = new UserSignupImpl(
+                userService,
+                userDataService,
+                captchaService,
+                authenticationSuccessHandler,
+                configService,
+                analyticsService,
+                envManager,
+                commonConfig,
+                userUtils,
+                networkUtils);
     }
 
     private String createRandomString(int length) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Z".repeat(Math.max(0, length)));
-        return builder.toString();
+        return "Z".repeat(Math.max(0, length));
     }
 
     @Test
@@ -86,12 +89,11 @@ public class UserSignupTest {
                 .expectErrorSatisfies(error -> {
                     assertTrue(error instanceof AppsmithException);
 
-                    String expectedErrorMessage = AppsmithError.INVALID_PASSWORD_LENGTH
-                            .getMessage(LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH);
+                    String expectedErrorMessage = AppsmithError.INVALID_PASSWORD_LENGTH.getMessage(
+                            LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH);
                     assertEquals(expectedErrorMessage, error.getMessage());
                 })
                 .verify();
-
     }
 
     @Test
@@ -105,8 +107,8 @@ public class UserSignupTest {
                 .expectErrorSatisfies(error -> {
                     assertTrue(error instanceof AppsmithException);
 
-                    String expectedErrorMessage = AppsmithError.INVALID_PASSWORD_LENGTH
-                            .getMessage(LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH);
+                    String expectedErrorMessage = AppsmithError.INVALID_PASSWORD_LENGTH.getMessage(
+                            LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH);
                     assertEquals(expectedErrorMessage, error.getMessage());
                 })
                 .verify();

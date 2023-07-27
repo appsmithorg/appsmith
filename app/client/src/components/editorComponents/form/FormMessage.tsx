@@ -111,7 +111,6 @@ export function FormMessage(props: FormMessageProps) {
     props.actions.map((action) => (
       <ActionButton key={action.text} {...action} />
     ));
-  const Icon = IntentIcons[props.intent];
   const iconbgcolor = tinycolor(IntentColors[props.intent])
     .lighten()
     .setAlpha(0.2)
@@ -119,7 +118,7 @@ export function FormMessage(props: FormMessageProps) {
   return (
     <StyledMessage>
       <MessageContainer iconbgcolor={iconbgcolor}>
-        <Icon color={IntentColors[props.intent]} height={20} width={20} />
+        {IntentIcons[props.intent]}
         <p>{props.message}</p>
       </MessageContainer>
       {actions && <ActionsContainer>{actions}</ActionsContainer>}

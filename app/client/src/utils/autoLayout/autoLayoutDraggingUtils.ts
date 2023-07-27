@@ -70,6 +70,8 @@ export function updateRelationships(
   parentId: string,
   onlyUpdateFlexLayers = false,
   isMobile = false,
+  mainCanvasWidth: number,
+  metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
   // Check if parent has changed
@@ -113,7 +115,14 @@ export function updateRelationships(
   }
   if (prevParents.length) {
     for (const id of prevParents) {
-      const updatedWidgets = updateWidgetPositions(widgets, id, isMobile);
+      const updatedWidgets = updateWidgetPositions(
+        widgets,
+        id,
+        isMobile,
+        mainCanvasWidth,
+        false,
+        metaProps,
+      );
       return updatedWidgets;
     }
   }
@@ -121,7 +130,7 @@ export function updateRelationships(
 }
 
 /**
- * If widgets are dropped into a new vertical position in an auto layout canvas,
+ * If widgets are dropped into a new vertical position in an auto-layout canvas,
  * then add a new FlexLayer to contain the new widgets.
  * Use the layerIndex to add the new layer at the right position.
  * @param newLayer | FlexLayer

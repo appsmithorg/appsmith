@@ -1,3 +1,6 @@
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+
 export const originalDSLForDSLMigrations = {
   widgetName: "MainContainer",
   backgroundColor: "none",
@@ -106,7 +109,7 @@ export const originalDSLForDSLMigrations = {
               boxShadow: "none",
               widgetName: "IconButton8",
               buttonColor: "#fff",
-              displayName: "Icon Button",
+              displayName: "Icon button",
               iconSVG:
                 "/static/media/icon.1a0c634ac75f9fa6b6ae7a8df882a3ba.svg",
               searchTags: ["click", "submit"],
@@ -313,8 +316,9 @@ export const originalDSLForDSLMigrations = {
                           key: "image",
                         },
                       ],
-                      defaultImage:
-                        "https://assets.appsmith.com/widgets/default.png",
+                      defaultImage: getAssetUrl(
+                        `${ASSETS_CDN_URL}/widgets/default.png`,
+                      ),
                       key: "52v1r95ynr",
                       image: "{{lst_user.selectedItem.image}}",
                       isDeprecated: false,
@@ -387,7 +391,7 @@ export const originalDSLForDSLMigrations = {
                           boxShadow: "NONE",
                           widgetName: "IconButton2",
                           buttonColor: "#2E3D49",
-                          displayName: "Icon Button",
+                          displayName: "Icon button",
                           iconSVG: "/static/media/icon.1a0c634a.svg",
                           topRow: 5,
                           bottomRow: 9,
@@ -632,7 +636,7 @@ export const originalDSLForDSLMigrations = {
                               key: "borderRadius",
                             },
                           ],
-                          displayName: "Icon Button",
+                          displayName: "Icon button",
                           iconSVG: "/static/media/icon.1a0c634a.svg",
                           topRow: 5,
                           bottomRow: 10,
@@ -1181,7 +1185,7 @@ export const originalDSLForDSLMigrations = {
                                           key: "borderRadius",
                                         },
                                       ],
-                                      displayName: "Icon Button",
+                                      displayName: "Icon button",
                                       iconSVG:
                                         "/static/media/icon.1a0c634a.svg",
                                       topRow: 4,
@@ -1624,8 +1628,9 @@ export const originalDSLForDSLMigrations = {
                             },
                           ],
                           leftColumn: 0,
-                          defaultImage:
-                            "https://assets.appsmith.com/widgets/default.png",
+                          defaultImage: getAssetUrl(
+                            `${ASSETS_CDN_URL}/widgets/default.png`,
+                          ),
                           key: "6zvrwxg59v",
                           image:
                             "{{lst_user.listData.map((currentItem) => currentItem.image)}}",
@@ -1865,7 +1870,7 @@ export const originalDSLForDSLMigrations = {
                               key: "buttonColor",
                             },
                           ],
-                          displayName: "Icon Button",
+                          displayName: "Icon button",
                           iconSVG:
                             "/static/media/icon.1a0c634ac75f9fa6b6ae7a8df882a3ba.svg",
                           searchTags: ["click", "submit"],
@@ -2187,8 +2192,9 @@ export const originalDSLForDSLMigrations = {
                                         },
                                       ],
                                       leftColumn: 0,
-                                      defaultImage:
-                                        "https://assets.appsmith.com/widgets/default.png",
+                                      defaultImage: getAssetUrl(
+                                        `${ASSETS_CDN_URL}/widgets/default.png`,
+                                      ),
                                       key: "6zvrwxg59v",
                                       image: "{{currentItem.image}}",
                                       isDeprecated: false,
@@ -2438,7 +2444,7 @@ export const originalDSLForDSLMigrations = {
                                           key: "buttonColor",
                                         },
                                       ],
-                                      displayName: "Icon Button",
+                                      displayName: "Icon button",
                                       iconSVG:
                                         "/static/media/icon.1a0c634ac75f9fa6b6ae7a8df882a3ba.svg",
                                       searchTags: ["click", "submit"],
@@ -3260,7 +3266,7 @@ export const originalDSLForDSLMigrations = {
                           key: "onClick",
                         },
                       ],
-                      displayName: "Icon Button",
+                      displayName: "Icon button",
                       iconSVG:
                         "/static/media/icon.1a0c634ac75f9fa6b6ae7a8df882a3ba.svg",
                       searchTags: ["click", "submit"],
@@ -3417,7 +3423,7 @@ export const originalDSLForDSLMigrations = {
                   key: "borderRadius",
                 },
               ],
-              displayName: "Icon Button",
+              displayName: "Icon button",
               iconSVG: "/static/media/icon.1a0c634a.svg",
               topRow: 0,
               bottomRow: 5,
@@ -3528,7 +3534,7 @@ export const originalDSLForDSLMigrations = {
               widgetName: "IconButton6",
               onClick: "{{closeModal('Modal1')}}",
               buttonColor: "{{appsmith.theme.colors.primaryColor}}",
-              displayName: "Icon Button",
+              displayName: "Icon button",
               iconSVG: "/static/media/icon.1a0c634a.svg",
               topRow: 1,
               bottomRow: 6,

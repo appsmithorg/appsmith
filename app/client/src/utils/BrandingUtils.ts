@@ -1,6 +1,5 @@
 import tinycolor from "tinycolor2";
 import { darkenColor } from "widgets/WidgetUtils";
-import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   ADMIN_BRANDING_LOGO_SIZE_ERROR,
@@ -9,20 +8,28 @@ import {
   ADMIN_BRANDING_FAVICON_FORMAT_ERROR,
   ADMIN_BRANDING_FAVICON_DIMENSION_ERROR,
 } from "@appsmith/constants/messages";
+import { toast } from "design-system";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const FAVICON_MAX_WIDTH = 32;
 const FAVICON_MAX_HEIGHT = 32;
 const DEFAULT_BRANDING_PRIMARY_COLOR = "#D7D7D7";
-export const APPSMITH_BRAND_PRIMARY_COLOR = "#F86A2B";
-export const APPSMITH_BRAND_FAVICON_URL =
-  "https://assets.appsmith.com/appsmith-favicon-orange.ico";
-export const APPSMITH_BRAND_LOGO_URL =
-  "https://assets.appsmith.com/appsmith-logo-no-margin.png";
+export const APPSMITH_BRAND_PRIMARY_COLOR = getComputedStyle(
+  document.documentElement,
+).getPropertyValue("--ads-v2-color-bg-brand");
+export const APPSMITH_BRAND_BG_COLOR = "#F1F5F9";
+export const APPSMITH_BRAND_FAVICON_URL = getAssetUrl(
+  `${ASSETS_CDN_URL}/appsmith-favicon-orange.ico`,
+);
+export const APPSMITH_BRAND_LOGO_URL = getAssetUrl(
+  `${ASSETS_CDN_URL}/appsmith-logo-no-margin.png`,
+);
 
 /**
  * create brand colors from primary color
  *
- * @param color
+ * @param brand
  */
 export function createBrandColorsFromPrimaryColor(
   brand: string = DEFAULT_BRANDING_PRIMARY_COLOR,
@@ -46,13 +53,18 @@ export function createBrandColorsFromPrimaryColor(
 
   // if the primary color is appsmith orange, use gray shade for the bg color
   if (brand === APPSMITH_BRAND_PRIMARY_COLOR) {
-    bgColor = "#F8F9FA";
+    bgColor = APPSMITH_BRAND_BG_COLOR;
   }
 
   const disabledColor = `#${tinycolor(
     `hsl ${hue} ${saturation} ${92}}`,
   ).toHex()}`;
-  const hoverColor = darkenColor(brand);
+  const hoverColor =
+    brand === APPSMITH_BRAND_PRIMARY_COLOR
+      ? getComputedStyle(document.documentElement).getPropertyValue(
+          "--ads-v2-color-bg-brand-emphasis",
+        )
+      : darkenColor(brand);
 
   return {
     primary: brand,
@@ -85,9 +97,8 @@ export const logoImageValidator = (
 
   // case 2: file size > 2mb
   if (file.size > 2 * 1024 * 1024) {
-    Toaster.show({
-      text: createMessage(ADMIN_BRANDING_LOGO_SIZE_ERROR),
-      variant: Variant.danger,
+    toast.show(createMessage(ADMIN_BRANDING_LOGO_SIZE_ERROR), {
+      kind: "error",
     });
 
     return false;
@@ -97,9 +108,8 @@ export const logoImageValidator = (
   const validTypes = ["image/jpeg", "image/png"];
 
   if (!validTypes.includes(file.type)) {
-    Toaster.show({
-      text: createMessage(ADMIN_BRANDING_LOGO_FORMAT_ERROR),
-      variant: Variant.danger,
+    toast.show(createMessage(ADMIN_BRANDING_LOGO_FORMAT_ERROR), {
+      kind: "error",
     });
 
     return false;
@@ -135,9 +145,8 @@ export const faivconImageValidator = (
 
   // case 2: file size > 2mb
   if (file.size > 2 * 1024 * 1024) {
-    Toaster.show({
-      text: createMessage(ADMIN_BRANDING_FAVICON_SIZE_ERROR),
-      variant: Variant.danger,
+    toast.show(createMessage(ADMIN_BRANDING_FAVICON_SIZE_ERROR), {
+      kind: "error",
     });
 
     return false;
@@ -153,9 +162,8 @@ export const faivconImageValidator = (
   ];
 
   if (!validTypes.includes(file.type)) {
-    Toaster.show({
-      text: createMessage(ADMIN_BRANDING_FAVICON_FORMAT_ERROR),
-      variant: Variant.danger,
+    toast.show(createMessage(ADMIN_BRANDING_FAVICON_FORMAT_ERROR), {
+      kind: "error",
     });
 
     return false;
@@ -172,9 +180,8 @@ export const faivconImageValidator = (
     window.URL.revokeObjectURL(image.src);
 
     if (height > FAVICON_MAX_HEIGHT || width > FAVICON_MAX_WIDTH) {
-      Toaster.show({
-        text: createMessage(ADMIN_BRANDING_FAVICON_DIMENSION_ERROR),
-        variant: Variant.danger,
+      toast.show(createMessage(ADMIN_BRANDING_FAVICON_DIMENSION_ERROR), {
+        kind: "error",
       });
 
       return false;

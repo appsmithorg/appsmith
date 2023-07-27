@@ -3,11 +3,12 @@ import * as React from "react";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { CircularProgressComponentProps } from "../component";
 import CircularProgressComponent from "../component";
 import type { Stylesheet } from "entities/AppTheming";
-
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 interface CircularProgressWidgetProps
   extends WidgetProps,
     CircularProgressComponentProps {
@@ -69,7 +70,7 @@ class CircularProgressWidget extends BaseWidget<
         children: [
           {
             propertyName: "fillColor",
-            label: "Fill Color",
+            label: "Fill color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -95,6 +96,15 @@ class CircularProgressWidget extends BaseWidget<
     return {
       fillColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc": "Circular Progress is a simple UI widget used to show progress",
+      "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      progress: "number",
     };
   }
 

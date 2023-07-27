@@ -1,9 +1,14 @@
 import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
-import _, { debounce } from "lodash";
+import _, { debounce, random } from "lodash";
 import { useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom";
 import { useLocation } from "react-router";
-import type { WidgetType } from "constants/WidgetConstants";
+import type {
+  WidgetCardsGroupedByTags,
+  WidgetTags,
+  WidgetType,
+} from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import ResizeObserver from "resize-observer-polyfill";
 import WidgetFactory from "utils/WidgetFactory";
 import {
@@ -13,6 +18,7 @@ import {
 import type { URLBuilderParams } from "RouteBuilder";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import type { WidgetCardProps } from "widgets/BaseWidget";
 
 export const draggableElement = (
   id: string,
@@ -188,7 +194,7 @@ const createDragHandler = (
   dragElement.style.zIndex = renderDragBlockPositions?.zIndex ?? "3";
 
   if (cypressSelectorDragHandle) {
-    dragElement.setAttribute("data-cy", cypressSelectorDragHandle);
+    dragElement.setAttribute("data-testid", cypressSelectorDragHandle);
   }
 
   oldDragHandler
@@ -296,3 +302,33 @@ export function useHref<T extends URLBuilderParams>(
 
   return href;
 }
+
+// Ended up not using it, but leaving it here, incase anyone needs a helper function to generate random numbers.
+export const generateRandomNumbers = (
+  lowerBound = 1000,
+  upperBound = 9000,
+  allowFloating = false,
+) => {
+  return random(lowerBound, upperBound, allowFloating);
+};
+
+export const groupWidgetCardsByTags = (widgetCards: WidgetCardProps[]) => {
+  const tagsOrder = Object.values(WIDGET_TAGS);
+  const groupedCards: WidgetCardsGroupedByTags = {} as WidgetCardsGroupedByTags;
+
+  tagsOrder.forEach((tag: WidgetTags) => {
+    groupedCards[tag] = [];
+  });
+
+  widgetCards.forEach((item) => {
+    if (item.tags) {
+      item.tags.forEach((tag) => {
+        if (groupedCards[tag]) {
+          groupedCards[tag].push(item);
+        }
+      });
+    }
+  });
+
+  return groupedCards;
+};

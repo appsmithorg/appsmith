@@ -6,7 +6,7 @@ describe("Test Ideas for GooglSheet API", function () {
   it("Add a Datasource", function () {
     //Add the datasource to Email Id
     //Ensure different Email Id can be associate to different Email Id
-    //Ensure Datasource has two action "Read Only" and "Read"
+    //Ensure Datasource has two action "Read only" and "Read"
     //Ensure user can Save the Datasource
     //Click on "Add API"
   });
@@ -23,7 +23,7 @@ describe("Test Ideas for GooglSheet API", function () {
     //Ensure response :id,name,createdTime,modifiedTime,permissions
   });
 
-  it("Create New Sheet", function () {
+  it("Create new Sheet", function () {
     //Ensure the response is appropriate
     //Ensure to select the method
     //Ensure to select a new name to the spreadsheet
@@ -37,7 +37,7 @@ describe("Test Ideas for GooglSheet API", function () {
     //Ensure to select the method
     //Ensure to add the spreadsheet URL
     //Ensure add the sheet name in which it needs to be inserted
-    //Ensure add the Table Heading Row Index
+    //Ensure add the Table heading row index
     //Ensure to add appropriate raw object
     //Ensure to submit one row empty each time and account the error
     //Ensure to make changes in the raw object to throw error
@@ -50,7 +50,7 @@ describe("Test Ideas for GooglSheet API", function () {
   it("Bulk Insert or Bulk Update", function () {
     //Ensure to select the method
     //Ensure to add the spreadsheet URL
-    //Ensure add the Table Heading Row Index
+    //Ensure add the Table heading row index
     //Ensure to add appropriate raw object
     //Add inappropriate data in each field to get appropriate error
     //Add few inappropritae row name and value and check for partial insertion
@@ -63,7 +63,7 @@ describe("Test Ideas for GooglSheet API", function () {
     //Ensure to select the method
     //Ensure to add the spreadsheet URL
     //Ensure to add the sheet name
-    //Ensure add the Table Heading Row Index
+    //Ensure add the Table heading row index
     //Ensure to add the valid index
     //Enter index as 0 and check if the table header is not deleted
     //Enter index as on and check the first data value gets deleted

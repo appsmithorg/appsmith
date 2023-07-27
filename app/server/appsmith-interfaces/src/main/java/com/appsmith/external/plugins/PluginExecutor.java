@@ -10,12 +10,10 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Param;
-import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import io.micrometer.observation.ObservationRegistry;
 import org.pf4j.ExtensionPoint;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
@@ -23,13 +21,14 @@ import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_PLUGIN_EXECUTION;
+import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_PLUGIN_EXECUTION;
 import static com.appsmith.external.helpers.PluginUtils.getHintMessageForLocalhostUrl;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
 
@@ -44,7 +43,8 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
      * @return ActionExecutionResult  : This object is returned to the user which contains the result values from the execution.
      */
-    Mono<ActionExecutionResult> execute(C connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration);
+    Mono<ActionExecutionResult> execute(
+            C connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration);
 
     /**
      * This function is responsible for creating the connection to the data source and returning the connection variable
@@ -53,7 +53,34 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      * @param datasourceConfiguration
      * @return Connection object
      */
-    Mono<C> datasourceCreate(DatasourceConfiguration datasourceConfiguration);
+    //    Mono<C> datasourceCreate(DatasourceConfiguration datasourceConfiguration);
+
+    default Mono<C> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        Properties properties = new Properties();
+        return Mono.fromCallable(() -> addAuthParamsToConnectionConfig(datasourceConfiguration, properties))
+                .map(properties1 -> addPluginSpecificProperties(datasourceConfiguration, properties1))
+                .flatMap(properties1 -> createConnectionClient(datasourceConfiguration, properties1))
+                .onErrorResume(error -> {
+                    // We always expect to have an error object, but the error object may not be well-formed
+                    final String errorMessage = error.getMessage();
+                    throw new RuntimeException(errorMessage);
+                })
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    default Mono<C> createConnectionClient(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+        return this.datasourceCreate(datasourceConfiguration);
+    }
+
+    default Properties addPluginSpecificProperties(
+            DatasourceConfiguration datasourceConfiguration, Properties properties) {
+        return properties;
+    }
+
+    default Properties addAuthParamsToConnectionConfig(
+            DatasourceConfiguration datasourceConfiguration, Properties properties) {
+        return properties;
+    }
 
     /**
      * This function is used to bring down/destroy the connection to the data source.
@@ -70,8 +97,8 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      * @param datasourceConfiguration
      * @return boolean
      */
-    default boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration) {
-        return CollectionUtils.isEmpty(validateDatasource(datasourceConfiguration));
+    default boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration, boolean isEmbeddedDatasource) {
+        return isEmpty(validateDatasource(datasourceConfiguration, isEmbeddedDatasource));
     }
 
     /**
@@ -87,6 +114,15 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      */
     Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration);
 
+    default Set<String> validateDatasource(
+            DatasourceConfiguration datasourceConfiguration, boolean isEmbeddedDatasource) {
+        if (!isEmbeddedDatasource) {
+            return this.validateDatasource(datasourceConfiguration);
+        }
+
+        return Set.of();
+    }
+
     /**
      * This function tests the datasource by executing a test query or hitting the endpoint to check the correctness
      * of the values provided in the datasource configuration.
@@ -101,18 +137,18 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
     default Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
         return this.datasourceCreate(datasourceConfiguration)
                 .flatMap(connection -> {
-                    return this.testDatasource(connection)
-                            .doFinally(signal -> this.datasourceDestroy(connection));
+                    return this.testDatasource(connection).doFinally(signal -> this.datasourceDestroy(connection));
                 })
                 .onErrorResume(error -> {
                     // We always expect to have an error object, but the error object may not be well-formed
                     final String errorMessage = error.getMessage() == null
                             ? AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage()
                             : error.getMessage();
-                            if (error instanceof AppsmithPluginException &&
-                                    StringUtils.hasLength(((AppsmithPluginException) error).getDownstreamErrorMessage())) {
-                                return Mono.just(new DatasourceTestResult(((AppsmithPluginException) error).getDownstreamErrorMessage(), errorMessage));
-                            }
+                    if (error instanceof AppsmithPluginException
+                            && StringUtils.hasLength(((AppsmithPluginException) error).getDownstreamErrorMessage())) {
+                        return Mono.just(new DatasourceTestResult(
+                                ((AppsmithPluginException) error).getDownstreamErrorMessage(), errorMessage));
+                    }
                     return Mono.just(new DatasourceTestResult(errorMessage));
                 })
                 .subscribeOn(Schedulers.boundedElastic());
@@ -145,19 +181,6 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
     }
 
     /**
-     * This function executes the DB query to fetch details about the datasource when we don't want to create new action
-     * just to get the information about the datasource
-     * e.g. Get Spreadsheets from Google Drive, Get first row in datasource etc.
-     *
-     * @param pluginSpecifiedTemplates
-     * @param datasourceConfiguration
-     * @return
-     */
-    default Mono<ActionExecutionResult> getDatasourceMetadata(List<Property> pluginSpecifiedTemplates, DatasourceConfiguration datasourceConfiguration) {
-        return Mono.empty();
-    }
-
-    /**
      * Appsmith Server calls this function for execution of the action.
      * Default implementation which takes the variables that need to be substituted and then calls the plugin execute function
      * <p>
@@ -172,19 +195,21 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
      * @return ActionExecutionResult  : This object is returned to the user which contains the result values from the execution.
      */
-    default Mono<ActionExecutionResult> executeParameterized(C connection,
-                                                             ExecuteActionDTO executeActionDTO,
-                                                             DatasourceConfiguration datasourceConfiguration,
-                                                             ActionConfiguration actionConfiguration) {
+    default Mono<ActionExecutionResult> executeParameterized(
+            C connection,
+            ExecuteActionDTO executeActionDTO,
+            DatasourceConfiguration datasourceConfiguration,
+            ActionConfiguration actionConfiguration) {
         prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
         return this.execute(connection, datasourceConfiguration, actionConfiguration);
     }
 
-    default Mono<ActionExecutionResult> executeParameterizedWithMetrics(C connection,
-                                                                        ExecuteActionDTO executeActionDTO,
-                                                                        DatasourceConfiguration datasourceConfiguration,
-                                                                        ActionConfiguration actionConfiguration,
-                                                                        ObservationRegistry observationRegistry) {
+    default Mono<ActionExecutionResult> executeParameterizedWithMetrics(
+            C connection,
+            ExecuteActionDTO executeActionDTO,
+            DatasourceConfiguration datasourceConfiguration,
+            ActionConfiguration actionConfiguration,
+            ObservationRegistry observationRegistry) {
         return this.executeParameterized(connection, executeActionDTO, datasourceConfiguration, actionConfiguration)
                 .tag("plugin", this.getClass().getName())
                 .name(ACTION_EXECUTION_PLUGIN_EXECUTION)
@@ -198,26 +223,25 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      * @param actionConfiguration
      * @param datasourceConfiguration
      */
-    default void prepareConfigurationsForExecution(ExecuteActionDTO executeActionDTO,
-                                                   ActionConfiguration actionConfiguration,
-                                                   DatasourceConfiguration datasourceConfiguration) {
+    default void prepareConfigurationsForExecution(
+            ExecuteActionDTO executeActionDTO,
+            ActionConfiguration actionConfiguration,
+            DatasourceConfiguration datasourceConfiguration) {
 
         variableSubstitution(actionConfiguration, datasourceConfiguration, executeActionDTO);
-
     }
 
     /**
      * This function replaces the variables in the action and datasource configuration with the actual params
      */
-    default void variableSubstitution(ActionConfiguration actionConfiguration,
-                                      DatasourceConfiguration datasourceConfiguration,
-                                      ExecuteActionDTO executeActionDTO) {
-        //Do variable substitution
-        //Do this only if params have been provided in the execute command
-        if (executeActionDTO != null && !CollectionUtils.isEmpty(executeActionDTO.getParams())) {
-            Map<String, String> replaceParamsMap = executeActionDTO
-                    .getParams()
-                    .stream()
+    default void variableSubstitution(
+            ActionConfiguration actionConfiguration,
+            DatasourceConfiguration datasourceConfiguration,
+            ExecuteActionDTO executeActionDTO) {
+        // Do variable substitution
+        // Do this only if params have been provided in the execute command
+        if (executeActionDTO != null && !isEmpty(executeActionDTO.getParams())) {
+            Map<String, String> replaceParamsMap = executeActionDTO.getParams().stream()
                     .collect(Collectors.toMap(
                             // Trimming here for good measure. If the keys have space on either side,
                             // Mustache won't be able to find the key.
@@ -227,8 +251,7 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
                             p -> p.getKey().trim(), // .replaceAll("[\"\n\\\\]", "\\\\$0"),
                             Param::getValue,
                             // In case of a conflict, we pick the older value
-                            (oldValue, newValue) -> oldValue)
-                    );
+                            (oldValue, newValue) -> oldValue));
 
             MustacheHelper.renderFieldValues(datasourceConfiguration, replaceParamsMap);
             MustacheHelper.renderFieldValues(actionConfiguration, replaceParamsMap);
@@ -249,8 +272,8 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      * @param datasourceConfiguration
      * @return A tuple of datasource and action configuration related hint messages.
      */
-    default Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(ActionConfiguration actionConfiguration,
-                                                                   DatasourceConfiguration datasourceConfiguration) {
+    default Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(
+            ActionConfiguration actionConfiguration, DatasourceConfiguration datasourceConfiguration) {
         Set<String> datasourceHintMessages = new HashSet<>();
         Set<String> actionHintMessages = new HashSet<>();
 
@@ -259,7 +282,8 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
         return Mono.zip(Mono.just(datasourceHintMessages), Mono.just(actionHintMessages));
     }
 
-    default Mono<TriggerResultDTO> trigger(C connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
+    default Mono<TriggerResultDTO> trigger(
+            C connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
         return Mono.empty();
     }
 
@@ -274,8 +298,7 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      * @param actionConfiguration
      * @return modified actionConfiguration object after setting the two keys mentioned above in `formData`.
      */
-    default void extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
-    }
+    default void extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {}
 
     /**
      * This method returns a set of paths that are expected to contain bindings that refer to the same action
@@ -285,5 +308,9 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
      */
     default Set<String> getSelfReferencingDataPaths() {
         return Set.of("prev", "next");
+    }
+
+    default Mono<DatasourceConfiguration> getDatasourceMetadata(DatasourceConfiguration datasourceConfiguration) {
+        return Mono.just(datasourceConfiguration);
     }
 }

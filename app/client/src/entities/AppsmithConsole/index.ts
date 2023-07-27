@@ -91,6 +91,8 @@ export interface LogActionPayload {
   logType?: LOG_TYPE;
   // This is the preview of the log that the user sees.
   text: string;
+  // The environment in which the log was generated.
+  environmentName?: string;
   // Number of times this log has been repeated
   occurrenceCount?: number;
   // Deconstructed data of the log, this includes the whole nested objects/arrays/strings etc.
@@ -107,6 +109,7 @@ export interface LogActionPayload {
   analytics?: Record<string, any>;
   // plugin error details if any (only for plugin errors).
   pluginErrorDetails?: any;
+  meta?: Record<string, any>;
 }
 
 export interface Message {
@@ -125,6 +128,8 @@ export interface Log extends LogActionPayload {
   category: LOG_CATEGORY;
   // "when" did this event happen
   timestamp: string;
+  // expanded state of the log.
+  isExpanded: boolean;
 }
 
 /**

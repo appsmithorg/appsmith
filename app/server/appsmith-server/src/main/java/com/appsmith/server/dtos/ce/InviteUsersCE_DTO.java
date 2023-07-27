@@ -1,9 +1,9 @@
 package com.appsmith.server.dtos.ce;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 @Getter
@@ -12,7 +12,5 @@ public class InviteUsersCE_DTO {
 
     List<String> usernames;
 
-    @NotNull
-    String permissionGroupId;
-
+    @NotNull String permissionGroupId;
 }

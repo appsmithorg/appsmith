@@ -13,3 +13,17 @@ export const getIsBranchUpdated = (
 
   return branch1 !== branch2;
 };
+
+export const addClassToDocumentRoot = (className: string) => {
+  const element: HTMLElement | null = document.querySelector("#root");
+  if (!!element) {
+    element.classList.add(className);
+  }
+};
+
+export const removeClassFromDocumentRoot = (className: string) => {
+  const element: HTMLElement | null = document.querySelector("#root");
+  if (!!element) {
+    element.classList.remove(className);
+  }
+};

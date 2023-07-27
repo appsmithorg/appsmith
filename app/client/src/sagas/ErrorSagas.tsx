@@ -7,8 +7,7 @@ import {
 import log from "loglevel";
 import history from "utils/history";
 import type { ApiResponse } from "api/ApiResponses";
-import { Toaster, Variant } from "design-system-old";
-import { flushErrors } from "actions/errorActions";
+import { flushErrors, safeCrashApp } from "actions/errorActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import type { User } from "constants/userConstants";
 import {
@@ -30,8 +29,10 @@ import {
 import store from "store";
 
 import * as Sentry from "@sentry/react";
-import { axiosConnectionAbortedCode } from "api/ApiUtils";
+import { axiosConnectionAbortedCode } from "@appsmith/api/ApiUtils";
 import { getLoginUrl } from "@appsmith/utils/adminSettingsHelpers";
+import type { PluginErrorDetails } from "api/ActionAPI";
+import showToast from "sagas/ToastSagas";
 
 /**
  * making with error message with action name
@@ -97,12 +98,15 @@ export function* validateResponse(
   if (!response.responseMeta && !response.status) {
     throw Error(getErrorMessage(0));
   }
+
   if (!response.responseMeta && response.status) {
     throw Error(getErrorMessage(response.status, response.resourceType));
   }
+
   if (response.responseMeta.success) {
     return true;
   }
+
   if (
     SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET.includes(
       response.responseMeta.error.code,
@@ -114,7 +118,7 @@ export function* validateResponse(
   yield put({
     type: ReduxActionErrorTypes.API_ERROR,
     payload: {
-      error: response.responseMeta.error,
+      error: new Error(response.responseMeta.error.message),
       logToSentry,
       show,
     },
@@ -128,7 +132,29 @@ export function getResponseErrorMessage(response: ApiResponse) {
     : undefined;
 }
 
-type ErrorPayloadType = {
+type ClientDefinedErrorMetadata = {
+  clientDefinedError: boolean;
+  statusCode: string;
+  message: string;
+  pluginErrorDetails: PluginErrorDetails;
+};
+
+export function extractClientDefinedErrorMetadata(
+  err: any,
+): ClientDefinedErrorMetadata | undefined {
+  if (err?.clientDefinedError && err?.response) {
+    return {
+      clientDefinedError: err?.clientDefinedError,
+      statusCode: err?.statusCode,
+      message: err?.message,
+      pluginErrorDetails: err?.pluginErrorDetails,
+    };
+  } else {
+    return undefined;
+  }
+}
+
+export type ErrorPayloadType = {
   code?: number | string;
   message?: string;
   crash?: boolean;
@@ -183,6 +209,7 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
   }
 
   if (error && error.crash) {
+    effects.push(ErrorEffectTypes.LOG_TO_SENTRY);
     effects.push(ErrorEffectTypes.SAFE_CRASH);
   }
 
@@ -197,11 +224,23 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
         break;
       }
       case ErrorEffectTypes.SHOW_ALERT: {
-        showAlertAboutError(message);
+        // This is the toast that is rendered when any page load API fails.
+        yield call(showToast, message, { kind: "error" });
+
+        if ((window as any).Cypress) {
+          if (message === "" || message === null) {
+            yield put(
+              safeCrashApp({
+                ...error,
+                code: ERROR_CODES.CYPRESS_DEBUG,
+              }),
+            );
+          }
+        }
         break;
       }
       case ErrorEffectTypes.SAFE_CRASH: {
-        yield call(crashAppSaga, error);
+        yield put(safeCrashApp(error));
         break;
       }
       case ErrorEffectTypes.LOG_TO_SENTRY: {
@@ -216,30 +255,20 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
     payload: {
       source: errorAction.type,
       message,
+      stackTrace: (error as any)?.stack,
     },
   });
 }
 
 function logErrorSaga(action: ReduxAction<{ error: ErrorPayloadType }>) {
   log.debug(`Error in action ${action.type}`);
-  if (action.payload) log.error(action.payload.error);
-}
-
-function showAlertAboutError(message: string) {
-  Toaster.show({ text: message, variant: Variant.danger });
-}
-
-function* crashAppSaga(error: ErrorPayloadType) {
-  yield put({
-    type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
-    payload: error,
-  });
+  if (action.payload) log.error(action.payload.error, action);
 }
 
 /**
  * this saga do some logic before actually setting safeCrash to true
  */
-function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
+function* safeCrashSagaRequest(action: ReduxAction<{ code?: ERROR_CODES }>) {
   const user: User | undefined = yield select(getCurrentUser);
   const code = get(action, "payload.code");
 
@@ -250,12 +279,10 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
     code === ERROR_CODES.PAGE_NOT_FOUND
   ) {
     const queryParams = new URLSearchParams(window.location.search);
-    const embedQueryParam = queryParams.get("embed");
     const ssoTriggerQueryParam = queryParams.get("ssoTrigger");
-    const ssoLoginUrl =
-      embedQueryParam === "true" && ssoTriggerQueryParam
-        ? getLoginUrl(ssoTriggerQueryParam || "")
-        : null;
+    const ssoLoginUrl = ssoTriggerQueryParam
+      ? getLoginUrl(ssoTriggerQueryParam || "")
+      : null;
     if (ssoLoginUrl) {
       window.location.href = `${ssoLoginUrl}?redirectUrl=${encodeURIComponent(
         window.location.href,
@@ -270,12 +297,7 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
   }
 
   // if there is no action to be done, just calling the safe crash action
-  yield put({
-    type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
-    payload: {
-      code,
-    },
-  });
+  yield put(safeCrashApp({ code }));
 }
 
 /**

@@ -1,12 +1,7 @@
 import type { ReactNode } from "react";
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { TreeDropdownOption } from "pages/Editor/Explorer/TreeDropdown";
-import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
-import { noop } from "lodash";
-import ContextMenuTrigger from "../ContextMenuTrigger";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { ContextMenuPopoverModifiers } from "@appsmith/pages/Editor/Explorer/helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import {
   clonePageInit,
@@ -15,7 +10,7 @@ import {
   updatePage,
 } from "actions/pageActions";
 import styled from "styled-components";
-import { Icon } from "@blueprintjs/core";
+import { Icon } from "design-system";
 import {
   CONTEXT_EDIT_NAME,
   CONTEXT_CLONE,
@@ -33,8 +28,10 @@ import {
   hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { getPageById } from "selectors/editorSelectors";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { AppState } from "@appsmith/reducers";
+import ContextMenu from "pages/Editor/Explorer/ContextMenu";
+import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -151,7 +148,7 @@ export function PageContextMenu(props: {
       label: (
         <CustomLabel>
           {props.isHidden ? "Show" : "Hide"}
-          <Icon icon={props.isHidden ? "eye-open" : "eye-off"} iconSize={14} />
+          <Icon name={props.isHidden ? "eye-on" : "eye-off"} size="md" />
         </CustomLabel>
       ) as ReactNode as string,
     },
@@ -189,15 +186,10 @@ export function PageContextMenu(props: {
   ].filter(Boolean);
 
   return optionsTree?.length > 0 ? (
-    <TreeDropdown
+    <ContextMenu
       className={props.className}
-      defaultText=""
-      modifiers={ContextMenuPopoverModifiers}
-      onSelect={noop}
       optionTree={optionsTree as TreeDropdownOption[]}
-      selectedValue=""
       setConfirmDelete={setConfirmDelete}
-      toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
   ) : null;
 }

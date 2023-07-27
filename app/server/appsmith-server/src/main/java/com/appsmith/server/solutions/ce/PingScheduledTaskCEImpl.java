@@ -35,9 +35,7 @@ import java.util.Map;
 public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
 
     private final ConfigService configService;
-
     private final SegmentConfig segmentConfig;
-
     private final CommonConfig commonConfig;
 
     private final WorkspaceRepository workspaceRepository;
@@ -46,8 +44,8 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
     private final NewActionRepository newActionRepository;
     private final DatasourceRepository datasourceRepository;
     private final UserRepository userRepository;
-
     private final ProjectProperties projectProperties;
+    private final NetworkUtils networkUtils;
 
     /**
      * Gets the external IP address of this server and pings a data point to indicate that this server instance is live.
@@ -61,7 +59,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
             return;
         }
 
-        Mono.zip(configService.getInstanceId(), NetworkUtils.getExternalAddress())
+        Mono.zip(configService.getInstanceId(), networkUtils.getExternalAddress())
                 .flatMap(tuple -> doPing(tuple.getT1(), tuple.getT2()))
                 .subscribeOn(Schedulers.single())
                 .subscribe();
@@ -85,18 +83,20 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
             return Mono.empty();
         }
 
-        return WebClientUtils
-                .create("https://api.segment.io")
+        return WebClientUtils.create("https://api.segment.io")
                 .post()
                 .uri("/v1/track")
                 .headers(headers -> headers.setBasicAuth(ceKey, ""))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(Map.of(
-                        "userId", instanceId,
-                        "context", Map.of("ip", ipAddress),
-                        "properties", Map.of("instanceId", instanceId),
-                        "event", "Instance Active"
-                )))
+                        "userId",
+                        instanceId,
+                        "context",
+                        Map.of("ip", ipAddress),
+                        "properties",
+                        Map.of("instanceId", instanceId),
+                        "event",
+                        "Instance Active")))
                 .retrieve()
                 .bodyToMono(String.class);
     }
@@ -116,18 +116,16 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
 
         Mono.zip(
                         configService.getInstanceId().defaultIfEmpty("null"),
-                        NetworkUtils.getExternalAddress(),
+                        networkUtils.getExternalAddress(),
                         workspaceRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                         applicationRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                         newPageRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                         newActionRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                         datasourceRepository.countByDeletedAtNull().defaultIfEmpty(0L),
-                        userRepository.countByDeletedAtNull().defaultIfEmpty(0L)
-                )
+                        userRepository.countByDeletedAtNull().defaultIfEmpty(0L))
                 .flatMap(statsData -> {
                     final String ipAddress = statsData.getT2();
-                    return WebClientUtils
-                            .create("https://api.segment.io")
+                    return WebClientUtils.create("https://api.segment.io")
                             .post()
                             .uri("/v1/track")
                             .headers(headers -> headers.setBasicAuth(ceKey, ""))
@@ -135,19 +133,18 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                             .body(BodyInserters.fromValue(Map.of(
                                     "userId", statsData.getT1(),
                                     "context", Map.of("ip", ipAddress),
-                                    "properties", Map.of(
-                                            "instanceId", statsData.getT1(),
-                                            "numOrgs", statsData.getT3(),
-                                            "numApps", statsData.getT4(),
-                                            "numPages", statsData.getT5(),
-                                            "numActions", statsData.getT6(),
-                                            "numDatasources", statsData.getT7(),
-                                            "numUsers", statsData.getT8(),
-                                            "version", projectProperties.getVersion(),
-                                            "edition", ProjectProperties.EDITION
-                                    ),
-                                    "event", "instance_stats"
-                            )))
+                                    "properties",
+                                            Map.of(
+                                                    "instanceId", statsData.getT1(),
+                                                    "numOrgs", statsData.getT3(),
+                                                    "numApps", statsData.getT4(),
+                                                    "numPages", statsData.getT5(),
+                                                    "numActions", statsData.getT6(),
+                                                    "numDatasources", statsData.getT7(),
+                                                    "numUsers", statsData.getT8(),
+                                                    "version", projectProperties.getVersion(),
+                                                    "edition", ProjectProperties.EDITION),
+                                    "event", "instance_stats")))
                             .retrieve()
                             .bodyToMono(String.class);
                 })
@@ -155,5 +152,4 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                 .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
     }
-
 }

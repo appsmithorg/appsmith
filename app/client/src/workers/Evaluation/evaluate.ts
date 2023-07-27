@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
@@ -7,11 +7,13 @@ import { Severity } from "entities/AppsmithConsole";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
-import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
-import { DOM_APIS } from "./SetupDOM";
+import DOM_APIS from "./domApis";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
+import log from "loglevel";
+import * as Sentry from "@sentry/react";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 
 export type EvalResult = {
   result: any;
@@ -23,6 +25,7 @@ export enum EvaluationScriptType {
   ANONYMOUS_FUNCTION = "ANONYMOUS_FUNCTION",
   ASYNC_ANONYMOUS_FUNCTION = "ASYNC_ANONYMOUS_FUNCTION",
   TRIGGERS = "TRIGGERS",
+  OBJECT_PROPERTY = "OBJECT_PROPERTY",
 }
 
 export const ScriptTemplate = "<<string>>";
@@ -58,6 +61,13 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   }
   $$closedFn.call(THIS_CONTEXT)
   `,
+  [EvaluationScriptType.OBJECT_PROPERTY]: `
+  function $$closedFn () {
+    const $$result = {${ScriptTemplate}}
+    return $$result
+  }
+  $$closedFn.call(THIS_CONTEXT)
+  `,
 };
 
 const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
@@ -66,7 +76,6 @@ const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
 }, {} as any);
 
 function resetWorkerGlobalScope() {
-  self.$isDataField = false;
   for (const key of Object.keys(self)) {
     if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
     //TODO: Remove this once we have a better way to handle this
@@ -113,15 +122,17 @@ export const getScriptToEval = (
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
 export type EvalContext = Record<string, any>;
-type ResolvedFunctions = Record<string, any>;
 export interface createEvaluationContextArgs {
   dataTree: DataTree;
-  resolvedFunctions: ResolvedFunctions;
+  configTree?: ConfigTree;
   context?: EvaluateContext;
   isTriggerBased: boolean;
   evalArguments?: Array<unknown>;
-  // Whether not to add functions like "run", "clear" to entity in global data
-  skipEntityFunctions?: boolean;
+  /*
+   Whether to remove functions like "run", "clear" from entities in global context
+   use case => To show lint warning when Api.run is used in a function bound to a data field (Eg. Button.text)
+   */
+  removeEntityFunctions?: boolean;
 }
 /**
  * This method created an object with dataTree and appsmith's framework actions that needs to be added to worker global scope for the JS code evaluation to then consume it.
@@ -131,12 +142,12 @@ export interface createEvaluationContextArgs {
  */
 export const createEvaluationContext = (args: createEvaluationContextArgs) => {
   const {
+    configTree = {},
     context,
     dataTree,
     evalArguments,
     isTriggerBased,
-    resolvedFunctions,
-    skipEntityFunctions,
+    removeEntityFunctions,
   } = args;
 
   const EVAL_CONTEXT: EvalContext = {};
@@ -152,43 +163,12 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
   addDataTreeToContext({
     EVAL_CONTEXT,
     dataTree,
-    skipEntityFunctions: !!skipEntityFunctions,
+    configTree,
+    removeEntityFunctions: !!removeEntityFunctions,
     isTriggerBased,
   });
 
-  assignJSFunctionsToContext(EVAL_CONTEXT, resolvedFunctions, isTriggerBased);
-
   return EVAL_CONTEXT;
-};
-
-export const assignJSFunctionsToContext = (
-  EVAL_CONTEXT: EvalContext,
-  resolvedFunctions: ResolvedFunctions,
-  isTriggerBased: boolean,
-) => {
-  const jsObjectNames = Object.keys(resolvedFunctions || {});
-  for (const jsObjectName of jsObjectNames) {
-    const resolvedObject = resolvedFunctions[jsObjectName];
-    const jsObject = EVAL_CONTEXT[jsObjectName];
-    const jsObjectFunction: Record<string, Record<"data", unknown>> = {};
-    if (!jsObject) continue;
-    for (const fnName of Object.keys(resolvedObject)) {
-      const fn = resolvedObject[fnName];
-      if (typeof fn !== "function") continue;
-      // Investigate promisify of JSObject function confirmation
-      // Task: https://github.com/appsmithorg/appsmith/issues/13289
-      // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
-      const data = jsObject[fnName]?.data;
-      jsObjectFunction[fnName] = isTriggerBased
-        ? jsObjectFunctionFactory(fn, jsObjectName + "." + fnName)
-        : fn;
-      if (!!data) {
-        jsObjectFunction[fnName]["data"] = data;
-      }
-    }
-
-    EVAL_CONTEXT[jsObjectName] = Object.assign({}, jsObject, jsObjectFunction);
-  }
 };
 
 export function sanitizeScript(js: string) {
@@ -229,31 +209,46 @@ export const getUserScriptToEvaluate = (
   return { script };
 };
 
+export function setEvalContext({
+  configTree,
+  context,
+  dataTree,
+  evalArguments,
+  isDataField,
+  isTriggerBased,
+}: {
+  context?: EvaluateContext;
+  dataTree: DataTree;
+  configTree?: ConfigTree;
+  evalArguments?: Array<any>;
+  isDataField: boolean;
+  isTriggerBased: boolean;
+}) {
+  self["$isDataField"] = isDataField;
+
+  const evalContext = createEvaluationContext({
+    dataTree,
+    configTree,
+    context,
+    evalArguments,
+    isTriggerBased,
+  });
+
+  Object.assign(self, evalContext);
+}
+
 export default function evaluateSync(
   userScript: string,
   dataTree: DataTree,
-  resolvedFunctions: Record<string, any>,
   isJSCollection: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
+  configTree?: ConfigTree,
 ): EvalResult {
   return (function () {
     resetWorkerGlobalScope();
     const errors: EvaluationError[] = [];
     let result;
-
-    // skipping log reset if the js collection is being evaluated without run
-    // Doing this because the promise execution is losing logs in the process due to resets
-    /**** Setting the eval context ****/
-    const evalContext: EvalContext = createEvaluationContext({
-      dataTree,
-      resolvedFunctions,
-      context,
-      evalArguments,
-      isTriggerBased: isJSCollection,
-    });
-
-    evalContext["$isDataField"] = true;
 
     const { script } = getUserScriptToEvaluate(
       userScript,
@@ -270,35 +265,38 @@ export default function evaluateSync(
       };
     }
 
-    // Set it to self so that the eval function can have access to it
-    // as global data. This is what enables access all appsmith
-    // entity properties from the global context
-    Object.assign(self, evalContext);
+    setEvalContext({
+      dataTree,
+      configTree,
+      isDataField: true,
+      isTriggerBased: isJSCollection,
+      context,
+      evalArguments,
+    });
 
     try {
       result = indirectEval(script);
       if (result instanceof Promise) {
         /**
-         * If a promise is returned in sync field then show the error to help understand sync field doesn't await to resolve promise.
-         * NOTE: Awaiting for promise will make sync field evaluation slower.
+         * If a promise is returned in data field then show the error to help understand data field doesn't await to resolve promise.
+         * NOTE: Awaiting for promise will make data field evaluation slower.
          */
         throw new FoundPromiseInSyncEvalError();
       }
     } catch (error) {
+      const { errorCategory, errorMessage } = errorModifier.run(error as Error);
       errors.push({
-        errorMessage: errorModifier.run(error as Error),
+        errorMessage,
         severity: Severity.ERROR,
         raw: script,
         errorType: PropertyEvaluationErrorType.PARSE,
         originalBinding: userScript,
+        kind: errorCategory && {
+          category: errorCategory,
+          rootcause: "",
+        },
       });
     } finally {
-      for (const entityName in evalContext) {
-        if (evalContext.hasOwnProperty(entityName)) {
-          // @ts-expect-error: Types are not available
-          delete self[entityName];
-        }
-      }
       self["$isDataField"] = false;
     }
     return { result, errors };
@@ -308,7 +306,7 @@ export default function evaluateSync(
 export async function evaluateAsync(
   userScript: string,
   dataTree: DataTree,
-  resolvedFunctions: Record<string, any>,
+  configTree: ConfigTree,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
 ) {
@@ -317,33 +315,33 @@ export async function evaluateAsync(
     const errors: EvaluationError[] = [];
     let result;
 
-    /**** Setting the eval context ****/
-    const evalContext: EvalContext = createEvaluationContext({
+    const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
+
+    setEvalContext({
       dataTree,
-      resolvedFunctions,
+      configTree,
+      isDataField: false,
+      isTriggerBased: true,
       context,
       evalArguments,
-      isTriggerBased: true,
     });
-
-    const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
-    evalContext["$isDataField"] = false;
-
-    // Set it to self so that the eval function can have access to it
-    // as global data. This is what enables access all appsmith
-    // entity properties from the global context
-    Object.assign(self, evalContext);
 
     try {
       result = await indirectEval(script);
-    } catch (e) {
-      const error = e as Error;
-      const errorMessage = error.name
-        ? { name: error.name, message: error.message }
-        : {
-            name: "UncaughtPromiseRejection",
-            message: `${error.message}`,
-          };
+    } catch (e: any) {
+      let errorMessage;
+      if (e instanceof Error) {
+        errorMessage = { name: e.name, message: e.message };
+      } else {
+        // this covers cases where any primitive value is thrown
+        // for eg., throw "error";
+        // These types of errors might have a name/message but are not an instance of Error class
+        const message = convertAllDataTypesToString(e);
+        errorMessage = {
+          name: e?.name || "Error",
+          message: e?.message || message,
+        };
+      }
       errors.push({
         errorMessage: errorMessage,
         severity: Severity.ERROR,
@@ -358,4 +356,31 @@ export async function evaluateAsync(
       };
     }
   })();
+}
+
+export function convertAllDataTypesToString(e: any) {
+  // Functions do not get converted properly with JSON.stringify
+  // So using String fot functions
+  // Types like [], {} get converted to "" using String
+  // hence using JSON.stringify for the rest
+  if (typeof e === "function") {
+    return String(e);
+  } else {
+    try {
+      return JSON.stringify(e);
+    } catch (error) {
+      log.debug(error);
+      Sentry.captureException(error);
+    }
+  }
+}
+
+export function shouldAddSetter(setter: any, entity: DataTreeEntity) {
+  const isDisabledExpression = setter.disabled;
+
+  if (!isDisabledExpression) return true;
+
+  const isDisabledFn = new Function("options", isDisabledExpression);
+
+  return !isDisabledFn({ entity });
 }

@@ -1,14 +1,11 @@
 import React from "react";
-import type { Datasource, EmbeddedRestDatasource } from "entities/Datasource";
+import type { EmbeddedRestDatasource } from "entities/Datasource";
 import { get, merge } from "lodash";
 import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
-import { Text, TextType } from "design-system-old";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { formValueSelector } from "redux-form";
 import type { AppState } from "@appsmith/reducers";
-import { ReactComponent as SheildSuccess } from "assets/icons/ads/shield-success.svg";
-import { ReactComponent as SheildError } from "assets/icons/ads/shield-error.svg";
 import {
   EDIT_DATASOURCE_MESSAGE,
   OAUTH_2_0,
@@ -22,8 +19,10 @@ import {
   hasCreateDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
+import { Icon, Text } from "design-system";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 interface ReduxStateProps {
-  datasource: EmbeddedRestDatasource | Datasource;
+  datasource: EmbeddedRestDatasource;
 }
 
 const AuthContainer = styled.div`
@@ -41,13 +40,16 @@ const OAuthContainer = styled.div`
   flex-direction: row;
   padding: 12px 5px;
 `;
-
 interface ErrorProps {
   hasError: boolean;
 }
 
+// TODO (tanvi): this should probably be a different component?
 const OAuthText = styled.span<ErrorProps>`
-  color: ${(props) => (props.hasError ? "#F22B2B" : "#03B365")};
+  color: ${(props) =>
+    props.hasError
+      ? "var(--ads-v2-color-fg-error)"
+      : "var(--ads-v2-color-fg-success)"};
   margin-left: 5px;
 `;
 
@@ -58,7 +60,15 @@ const DescriptionText = styled(Text)`
 function OAuthLabel(props: ErrorProps) {
   return (
     <OAuthContainer>
-      {props.hasError ? <SheildError /> : <SheildSuccess />}
+      <Icon
+        color={
+          props.hasError
+            ? "var(--ads-v2-color-fg-error)"
+            : "var(--ads-v2-color-fg-success)"
+        }
+        name="shield"
+        size="md"
+      />
       <OAuthText hasError={props.hasError}>
         {props.hasError ? OAUTH_ERROR() : OAUTH_2_0()}
       </OAuthText>
@@ -70,7 +80,7 @@ type Props = ReduxStateProps;
 
 function ApiAuthentication(props: Props): JSX.Element {
   const { datasource } = props;
-  const authType = get(
+  const authType: string = get(
     datasource,
     "datasourceConfiguration.authentication.authenticationType",
     "",
@@ -102,7 +112,7 @@ function ApiAuthentication(props: Props): JSX.Element {
   return (
     <AuthContainer>
       {authType === AuthType.OAuth2 && <OAuthLabel hasError={hasError} />}
-      <DescriptionText type={TextType.P1}>
+      <DescriptionText kind="body-m">
         {shouldSave
           ? createMessage(SAVE_DATASOURCE_MESSAGE)
           : createMessage(EDIT_DATASOURCE_MESSAGE)}
@@ -119,17 +129,28 @@ function ApiAuthentication(props: Props): JSX.Element {
 const mapStateToProps = (state: AppState, ownProps: any): ReduxStateProps => {
   const apiFormValueSelector = formValueSelector(ownProps.formName);
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
-  let datasourceMerged = datasourceFromAction;
+  const currentEnvironment = getCurrentEnvironment();
+  let datasourceMerged: EmbeddedRestDatasource = datasourceFromAction;
   if (datasourceFromAction && "id" in datasourceFromAction) {
     const datasourceFromDataSourceList = state.entities.datasources.list.find(
       (d) => d.id === datasourceFromAction.id,
     );
     if (datasourceFromDataSourceList) {
-      datasourceMerged = merge(
-        {},
-        datasourceFromAction,
-        datasourceFromDataSourceList,
-      );
+      const { datasourceStorages } = datasourceFromDataSourceList;
+      let dsObjectToMerge = {};
+      // in case the datasource is not configured for the current environment, we just merge with empty object
+      if (datasourceStorages.hasOwnProperty(currentEnvironment)) {
+        dsObjectToMerge = datasourceStorages[currentEnvironment];
+      }
+      datasourceMerged = merge({}, datasourceFromAction, dsObjectToMerge);
+
+      // update the id in object to datasourceId, this is because the value in id post merge is the id of the datasource storage
+      // and not of the datasource.
+      datasourceMerged.id = datasourceFromDataSourceList.id;
+
+      // Adding user permissions for datasource from datasourceFromDataSourceList
+      datasourceMerged.userPermissions =
+        datasourceFromDataSourceList.userPermissions || [];
     }
   }
 

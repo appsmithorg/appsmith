@@ -27,6 +27,7 @@ const PROPERTIES = {
         helpText: "Sets the position of the field",
         label: "Position",
         controlType: "ICON_TABS",
+        defaultValue: "LEFT",
         fullWidth: true,
         isBindProperty: true,
         isTriggerProperty: false,
@@ -47,7 +48,7 @@ const PROPERTIES = {
     ],
     events: [
       {
-        helpText: "Triggers an action when the switch state is changed",
+        helpText: "when the switch state is changed",
         propertyName: "onChange",
         label: "onChange",
         controlType: "ACTION_SELECTOR",

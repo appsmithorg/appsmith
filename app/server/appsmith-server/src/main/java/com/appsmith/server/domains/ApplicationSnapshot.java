@@ -22,7 +22,7 @@ public class ApplicationSnapshot extends BaseDomain {
     /**
      * binary data, will be present always
      */
-    private byte [] data;
+    private byte[] data;
 
     /**
      * chunkOrder: present only in child chunks. Used to maintain the order of the chunks.
@@ -32,9 +32,11 @@ public class ApplicationSnapshot extends BaseDomain {
 
     /**
      * Adding this method as updatedAt field in BaseDomain is annotated with @JsonIgnore
+     *
      * @return Updated at timestamp in ISO format
      */
     public String getUpdatedTime() {
+        if (this.getUpdatedAt() == null) return null;
         return DateUtils.ISO_FORMATTER.format(this.getUpdatedAt());
     }
 }

@@ -41,6 +41,7 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
     }
   },
   [ReduxActionTypes.FETCH_PAGE_INIT]: () => initialState,
+  [ReduxActionTypes.RESET_DATA_TREE]: () => initialState,
 });
 
 export default evaluatedTreeReducer;

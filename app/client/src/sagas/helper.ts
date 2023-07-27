@@ -1,4 +1,3 @@
-import { Toaster, Variant } from "design-system-old";
 import { createMessage } from "@appsmith/constants/messages";
 import type { LayoutOnLoadActionErrors } from "constants/AppsmithActionConstants/ActionConstants";
 import type {
@@ -14,6 +13,15 @@ import {
   PLATFORM_ERROR,
   Severity,
 } from "entities/AppsmithConsole";
+import { toast } from "design-system";
+import {
+  ReduxActionTypes,
+  type ReduxActionType,
+} from "@appsmith/constants/ReduxActionConstants";
+import type { Action } from "entities/Action";
+import get from "lodash/get";
+import set from "lodash/set";
+import log from "loglevel";
 
 // function to extract all objects that have dynamic values
 export const extractFetchDynamicValueFormConfigs = (
@@ -66,12 +74,14 @@ const logCyclicDependecyErrors = (
 ) => {
   if (!!layoutErrors) {
     for (let index = 0; index < layoutErrors.length; index++) {
-      Toaster.show({
-        text: createMessage(() => {
+      toast.show(
+        createMessage(() => {
           return layoutErrors[index]?.errorType;
         }),
-        variant: Variant.danger,
-      });
+        {
+          kind: "error",
+        },
+      );
     }
     AppsmithConsole.addLogs(
       layoutErrors.reduce((acc: Log[], error: LayoutOnLoadActionErrors) => {
@@ -96,6 +106,7 @@ const logCyclicDependecyErrors = (
             name: error?.code?.toString(),
             id: error?.code?.toString(),
           },
+          isExpanded: false,
         });
         return acc;
       }, []),
@@ -114,4 +125,30 @@ export const checkAndLogErrorsIfCyclicDependency = (
   if (!checkIfNoCyclicDependencyErrors(layoutErrors)) {
     logCyclicDependecyErrors(layoutErrors);
   }
+};
+
+export const RequestPayloadAnalyticsPath = "eventData.analyticsData";
+/**
+ * [Mutation] Utility to enhance request payload with event data, based on the Redux action type
+ * @param payload : Payload to be enhanced
+ * @param type : Redux action type
+ * @returns : Mutated payload with the `eventData` object
+ */
+export const enhanceRequestPayloadWithEventData = (
+  payload: unknown,
+  type: ReduxActionType,
+) => {
+  try {
+    switch (type) {
+      case ReduxActionTypes.COPY_ACTION_INIT:
+        const actionObject = payload as Action;
+        const path = `${RequestPayloadAnalyticsPath}.originalActionId`;
+        const originalActionId = get(actionObject, path, actionObject.id);
+        if (originalActionId !== undefined)
+          return set(actionObject, path, originalActionId);
+    }
+  } catch (e) {
+    log.error("Failed to enhance payload with event data");
+  }
+  return payload;
 };

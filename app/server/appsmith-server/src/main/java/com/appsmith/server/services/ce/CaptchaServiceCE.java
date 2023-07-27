@@ -3,7 +3,6 @@ package com.appsmith.server.services.ce;
 import reactor.core.publisher.Mono;
 
 public interface CaptchaServiceCE {
-  
-  Mono<Boolean> verify(String recaptchaResponse);
-  
+
+    Mono<Boolean> verify(String recaptchaResponse);
 }

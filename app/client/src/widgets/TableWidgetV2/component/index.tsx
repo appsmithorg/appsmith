@@ -102,6 +102,8 @@ interface ReactTableComponentProps {
   disabledAddNewRowSave: boolean;
   handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
   canFreezeColumn?: boolean;
+  showConnectDataOverlay: boolean;
+  onConnectData: () => void;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -139,6 +141,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     onAddNewRowAction,
     onBulkEditDiscard,
     onBulkEditSave,
+    onConnectData,
     onRowClick,
     pageNo,
     pageSize,
@@ -150,6 +153,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     selectedRowIndex,
     selectedRowIndices,
     serverSidePaginationEnabled,
+    showConnectDataOverlay,
     sortTableColumn: _sortTableColumn,
     tableData,
     totalRecordsCount,
@@ -162,44 +166,47 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     width,
   } = props;
 
-  const sortTableColumn = (columnIndex: number, asc: boolean) => {
-    if (allowSorting) {
-      if (columnIndex === -1) {
-        _sortTableColumn("", asc);
-      } else {
-        const column = columns[columnIndex];
-        const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
-        if (
-          columnType !== ColumnTypes.IMAGE &&
-          columnType !== ColumnTypes.VIDEO
-        ) {
-          _sortTableColumn(column.alias, asc);
+  const sortTableColumn = useCallback(
+    (columnIndex: number, asc: boolean) => {
+      if (allowSorting) {
+        if (columnIndex === -1) {
+          _sortTableColumn("", asc);
+        } else {
+          const column = columns[columnIndex];
+          const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
+          if (
+            columnType !== ColumnTypes.IMAGE &&
+            columnType !== ColumnTypes.VIDEO
+          ) {
+            _sortTableColumn(column.alias, asc);
+          }
         }
       }
-    }
-  };
+    },
+    [_sortTableColumn, allowSorting, columns],
+  );
 
-  const selectTableRow = (row: {
-    original: Record<string, unknown>;
-    index: number;
-  }) => {
-    if (allowRowSelection) {
-      onRowClick(row.original, row.index);
-    }
-  };
-
-  const toggleAllRowSelect = (
-    isSelect: boolean,
-    pageData: Row<Record<string, unknown>>[],
-  ) => {
-    if (allowRowSelection) {
-      if (isSelect) {
-        selectAllRow(pageData);
-      } else {
-        unSelectAllRow(pageData);
+  const selectTableRow = useCallback(
+    (row: { original: Record<string, unknown>; index: number }) => {
+      if (allowRowSelection) {
+        onRowClick(row.original, row.index);
       }
-    }
-  };
+    },
+    [allowRowSelection, onRowClick],
+  );
+
+  const toggleAllRowSelect = useCallback(
+    (isSelect: boolean, pageData: Row<Record<string, unknown>>[]) => {
+      if (allowRowSelection) {
+        if (isSelect) {
+          selectAllRow(pageData);
+        } else {
+          unSelectAllRow(pageData);
+        }
+      }
+    },
+    [allowRowSelection, selectAllRow, unSelectAllRow],
+  );
 
   const memoziedDisableDrag = useCallback(
     () => disableDrag(true),
@@ -248,6 +255,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       onAddNewRowAction={onAddNewRowAction}
       onBulkEditDiscard={onBulkEditDiscard}
       onBulkEditSave={onBulkEditSave}
+      onConnectData={onConnectData}
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
       prevPageClick={prevPageClick}
@@ -258,6 +266,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       selectedRowIndex={selectedRowIndex}
       selectedRowIndices={selectedRowIndices}
       serverSidePaginationEnabled={serverSidePaginationEnabled}
+      showConnectDataOverlay={showConnectDataOverlay}
       sortTableColumn={sortTableColumn}
       toggleAllRowSelect={toggleAllRowSelect}
       totalRecordsCount={totalRecordsCount}
@@ -310,11 +319,13 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.borderWidth === next.borderWidth &&
     prev.borderColor === next.borderColor &&
     prev.accentColor === next.accentColor &&
+    //shallow equal possible
     equal(prev.columnWidthMap, next.columnWidthMap) &&
-    equal(prev.tableData, next.tableData) &&
+    //static reference
+    prev.tableData === next.tableData &&
     // Using JSON stringify becuase isEqual doesnt work with functions,
     // and we are not changing the columns manually.
-    JSON.stringify(prev.columns) === JSON.stringify(next.columns) &&
+    prev.columns === next.columns &&
     equal(prev.editableCell, next.editableCell) &&
     prev.variant === next.variant &&
     prev.primaryColumnId === next.primaryColumnId &&
@@ -324,6 +335,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.allowRowSelection === next.allowRowSelection &&
     prev.allowSorting === next.allowSorting &&
     prev.disabledAddNewRowSave === next.disabledAddNewRowSave &&
-    prev.canFreezeColumn === next.canFreezeColumn
+    prev.canFreezeColumn === next.canFreezeColumn &&
+    prev.showConnectDataOverlay === next.showConnectDataOverlay
   );
 });

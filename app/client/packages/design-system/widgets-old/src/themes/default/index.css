@@ -1,0 +1,127 @@
+@import "colors.css";
+@import "variables.css";
+
+:root {
+  /* new variables */
+  --ads-color-brand: var(--ads-color-orange-500);
+  --ads-color-brand-light: var(--ads-orange-accent);
+  --ads-color-brand-hover: var(--ads-old-color-rock-spray);
+  --ads-color-brand-active: var(--ads-old-color-rock-spray);
+  --ads-color-brand-focus: var(--ads-old-color-rock-spray);
+  --ads-color-brand-disabled: var(--ads-old-color-bridesmaid);
+  --ads-color-brand-text: var(--ads-color-black-0);
+  --ads-color-text: var(--ads-color-black-750);
+  --ads-color-background: var(--ads-color-black-0);
+  --ads-color-background-secondary: var(--ads-color-black-0);
+  --ads-color-border: var(--ads-color-gray-200);
+  --ads-color-background-hover: var(--ads-color-gray-100);
+  --ads-color-border-selected: var(--ads-color-gray-700);
+  --ads-color-background-focus: var(--ads-color-gray-700);
+  /* --ads-color-background-active: var(--ads-color-gray-200); */
+  --ads-color-background-disabled: var(--ads-color-gray-200);
+  --ads-border-radius: 0px;
+  /* new variables end here */
+
+  --ads-border-color: var(--ads-color-black-250);
+  --ads-border-color-focus: var(--ads-color-black-900);
+
+  /** Naming convention for tokens
+  *
+  * --ads-<component>-<componentType>-<state>-<property>-<subProperty>
+  *
+  * component: button, checkbox, dropdown, input, link, list, menu, radio, select, textarea...
+  * subComponent: label, divider...
+  * componentType: primary, secondary...
+  * state: hover, focus, active, disabled, default...
+  * property: color, background, border...
+  * subProperty: color, width, radius...
+  *
+  */
+
+  /** Dropdown */
+  --ads-dropdown-hover-background-color: var(--ads-old-color-gallery-2);
+  --ads-dropdown-selected-text-color: var(--ads-old-color-gray-10);
+  --ads-dropdown-disabled-header-text-color: #9f9f9f;
+  --ads-dropdown-disabled-header-background-color: var(--ads-color-black-75);
+  --ads-dropdown-default-header-text-color: var(--ads-color-black-750);
+  --ads-dropdown-selected-header-text-color: var(--ads-old-color-gray-10);
+  --ads-dropdown-default-menu-border-color: var(--ads-color-black-100);
+  --ads-dropdown-default-menu-subtext-text-color: var(--ads-old-color-gray-7);
+  --ads-dropdown-selected-menu-subtext-text-color: var(--ads-color-black-550);
+  --ads-dropdown-default-menu-text-color: var(--ads-color-black-750);
+  --ads-dropdown-default-menu-hover-text-color: var(--ads-old-color-gray-10);
+  --ads-dropdown-default-menu-hover-background-color: var(
+    --ads-color-black-200
+  );
+  --ads-dropdown-default-icon-fill-color: var(--ads-color-black-550);
+  --ads-dropdown-default-icon-background-color: var(--ads-color-black-250);
+  --ads-dropdown-default-icon-selected-fill-color: var(--ads-old-color-gray-7);
+  --ads-dropdown-default-icon-hover: var(--ads-color-black-0);
+  --ads-dropdown-default-dropdown-trigger-border-color: var(
+    --ads-color-black-900
+  );
+  --ads-dropdown-default-close-hover-background-color: var(
+    --ads-old-color-gallery-2
+  );
+
+  /** Intent Colors */
+  --ads-intent-color-primary: var(--ads-old-color-jade);
+  --ads-intent-color-secondary: var(--ads-old-color-black-pearl);
+  --ads-intent-color-success: var(--ads-old-color-cornflower-blue);
+  --ads-intent-color-danger: var(--ads-old-color-danger-red);
+  --ads-intent-color-none: var(--ads-color-black-200);
+  --ads-intent-color-warning: var(--ads-old-color-jaffa);
+  --ads-intent-color-success-light: var(--ads-old-color-jade);
+
+  /** Label with Tooltip */
+  --ads-label-with-tooltip-default-text-color: var(--ads-color-black-550);
+  --ads-label-with-tooltip-default-icon-fill-color: var(--ads-color-black-450);
+  --ads-label-with-tooltip-hover-icon-fill-color: var(--ads-color-black-550);
+
+  /** Menu Divider */
+  --ads-menu-divider-border-color: var(--ads-old-color-mercury);
+
+  /** Scroll Indicator */
+  --ads-scroll-indicator-light-thumb-background-color: var(
+    --ads-old-color-black-750-opacity-50
+  );
+  --ads-scroll-indicator-light-track-background-color: var(
+    --ads-old-color-white-opacity-50
+  );
+  --ads-scroll-indicator-dark-thumb-background-color: var(
+    --ads-old-color-alto-opacity-50
+  );
+  --ads-scroll-indicator-dark-track-background-color: var(
+    --ads-old-color-gray-10-opacity-50
+  );
+
+  /** Search Input */
+  --ads-search-input-border-color: var(--ads-color-black-400);
+  --ads-search-input-active-border-color: var(--ads-color-black-900);
+
+  /** TableDropdown  */
+  --ads-table-dropdown-background-color: var(--ads-color-black-0);
+  --ads-table-dropdown-selected-background-color: var(--ads-color-black-75);
+  --ads-table-dropdown-selected-hover-text-color: var(--ads-color-black-850);
+
+  /** Text */
+  --ads-text-color: var(--ads-color-text);
+  --ads-text-heading-color: var(--ads-color-black-850);
+  --ads-text-highlight-color: var(--ads-color-black-0);
+
+  /* Toast */
+  --ads-toast-background-color: var(--ads-old-color-gray-10);
+  --ads-toast-icon-fill-color: #dcad00;
+  --ads-toast-icon-outline-color: var(--ads-old-color-pomegranate);
+  --ads-toast-text-color: var(--ads-color-black-25);
+  --ads-toast-undo-text-color: var(--ads-color-brand);
+  --ads-toast-redo-text-color: var(--ads-color-brand);
+
+  /** Uncategorized/common */
+  --ads-danger-main: #e22c2c;
+  --appsmith-input-focus-border-color: var(--ads-color-black-900);
+  --ads-text-color-on-dark-background: var(--ads-color-black-0);
+  --ads-property-pane-default-label-fill-color: var(--ads-color-black-750);
+  --ads-small-header-height: 32px;
+  --ads-bottom-bar-height: 34px;
+}

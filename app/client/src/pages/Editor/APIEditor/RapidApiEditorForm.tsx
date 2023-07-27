@@ -12,7 +12,6 @@ import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValue
 import ApiResponseView from "components/editorComponents/ApiResponseView";
 import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import CredentialsTooltip from "components/editorComponents/form/CredentialsTooltip";
-import { FormIcons } from "icons/FormIcons";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination from "./Pagination";
 import type { PaginationType, Action } from "entities/Action";
@@ -21,6 +20,8 @@ import { NameWrapper } from "./CommonEditorForm";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { getActionData } from "../../../selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
+import { Icon } from "design-system";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 const Form = styled.form`
   display: flex;
@@ -117,6 +118,7 @@ interface APIFormProps {
   dispatch: any;
   responseDataTypes: { key: string; title: string }[];
   responseDisplayFormat: { title: string; value: string };
+  showDebugger: boolean;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -136,6 +138,7 @@ function RapidApiEditorForm(props: Props) {
     providerURL,
     responseDataTypes,
     responseDisplayFormat,
+    showDebugger,
     templateId,
   } = props;
 
@@ -195,7 +198,7 @@ function RapidApiEditorForm(props: Props) {
           />
           <DynamicTextField
             disabled
-            leftIcon={FormIcons.SLASH_ICON}
+            leftIcon={<Icon name="slash" />}
             name="actionConfiguration.path"
             placeholder="v1/method"
           />
@@ -244,7 +247,9 @@ function RapidApiEditorForm(props: Props) {
                             label=""
                             name="actionConfiguration.bodyFormData"
                             pushFields={false}
-                            rightIcon={FormIcons.INFO_ICON}
+                            /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
+                            // @ts-ignore
+                            rightIcon={<Icon name="info" />}
                           />
                         )}
                       </PostbodyContainer>
@@ -266,13 +271,14 @@ function RapidApiEditorForm(props: Props) {
             ]}
           />
         </TabbedViewContainer>
-
-        <ApiResponseView
-          apiName={props.apiName}
-          onRunClick={onRunClick}
-          responseDataTypes={responseDataTypes}
-          responseDisplayFormat={responseDisplayFormat}
-        />
+        {showDebugger && (
+          <ApiResponseView
+            apiName={props.apiName}
+            onRunClick={onRunClick}
+            responseDataTypes={responseDataTypes}
+            responseDisplayFormat={responseDisplayFormat}
+          />
+        )}
       </SecondaryWrapper>
     </Form>
   );
@@ -295,6 +301,9 @@ export default connect((state: AppState) => {
     state,
     "actionConfiguration.headers",
   );
+
+  // Debugger render flag
+  const showDebugger = showDebuggerFlag(state);
 
   if (
     typeof actionConfigurationBodyFormData === "string" &&
@@ -336,6 +345,7 @@ export default connect((state: AppState) => {
     providerURL,
     responseDataTypes,
     responseDisplayFormat,
+    showDebugger,
     templateId,
     providerCredentialSteps,
   };

@@ -99,10 +99,7 @@ public class DataUtils {
             }
         } catch (JsonSyntaxException | ParseException e) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                    body,
-                    "Malformed JSON: " + e.getMessage()
-            );
+                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, body, "Malformed JSON: " + e.getMessage());
         }
         return body;
     }
@@ -131,7 +128,6 @@ public class DataUtils {
                     return key + "=" + value;
                 })
                 .collect(Collectors.joining("&"));
-
     }
 
     public BodyInserter<?, ?> parseMultipartFileData(List<Property> bodyFormData) {
@@ -139,114 +135,107 @@ public class DataUtils {
             return BodyInserters.fromValue(new byte[0]);
         }
 
-        return (BodyInserter<?, ClientHttpRequest>) (outputMessage, context) ->
-                Mono.defer(() -> {
-                    MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
+        return (BodyInserter<?, ClientHttpRequest>) (outputMessage, context) -> Mono.defer(() -> {
+            MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
 
-                    for (Property property : bodyFormData) {
-                        final String key = property.getKey();
+            for (Property property : bodyFormData) {
+                final String key = property.getKey();
 
-                        if (property.getKey() == null) {
-                            continue;
+                if (property.getKey() == null) {
+                    continue;
+                }
+
+                // This condition is for the current scenario, while we wait for client changes to come in
+                // before the migration can be introduced
+                if (property.getType() == null) {
+                    bodyBuilder.part(key, property.getValue());
+                    continue;
+                }
+
+                final MultipartFormDataType multipartFormDataType =
+                        MultipartFormDataType.valueOf(property.getType().toUpperCase(Locale.ROOT));
+
+                switch (multipartFormDataType) {
+                    case TEXT:
+                        byte[] valueBytesArray = new byte[0];
+                        if (StringUtils.hasLength(String.valueOf(property.getValue()))) {
+                            valueBytesArray =
+                                    String.valueOf(property.getValue()).getBytes(StandardCharsets.ISO_8859_1);
                         }
-
-                        // This condition is for the current scenario, while we wait for client changes to come in
-                        // before the migration can be introduced
-                        if (property.getType() == null) {
-                            bodyBuilder.part(key, property.getValue());
-                            continue;
+                        bodyBuilder.part(key, valueBytesArray, MediaType.TEXT_PLAIN);
+                        break;
+                    case FILE:
+                        try {
+                            populateFileTypeBodyBuilder(bodyBuilder, property, outputMessage);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            throw new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                    "Unable to parse content. Expected to receive an array or object of multipart data");
                         }
-
-                        final MultipartFormDataType multipartFormDataType =
-                                MultipartFormDataType.valueOf(property.getType().toUpperCase(Locale.ROOT));
-
-                        switch (multipartFormDataType) {
-                            case TEXT:
-                                byte[] valueBytesArray = new byte[0];
-                                if (StringUtils.hasLength(String.valueOf(property.getValue()))) {
-                                    valueBytesArray = String.valueOf(property.getValue()).getBytes(StandardCharsets.ISO_8859_1);
-                                }
-                                bodyBuilder.part(key, valueBytesArray, MediaType.TEXT_PLAIN);
-                                break;
-                            case FILE:
-                                try {
-                                    populateFileTypeBodyBuilder(bodyBuilder, property, outputMessage);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                    throw new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                            "Unable to parse content. Expected to receive an array or object of multipart data"
-                                    );
-                                }
-                                break;
-                            case ARRAY:
-                                if (property.getValue() instanceof String) {
-                                    final String value = (String) property.getValue();
-                                    try {
-                                        final JsonNode jsonNode = objectMapper.readTree(value);
-                                        if (jsonNode.isArray()) {
-                                            for (JsonNode node : jsonNode) {
-                                                if (node.isTextual()) bodyBuilder.part(key, node.asText());
-                                                else bodyBuilder.part(key, node);
-                                            }
-                                        } else {
-                                            bodyBuilder.part(key, value);
-                                        }
-                                    } catch (JsonProcessingException e) {
-                                        bodyBuilder.part(key, value);
+                        break;
+                    case ARRAY:
+                        if (property.getValue() instanceof String) {
+                            final String value = (String) property.getValue();
+                            try {
+                                final JsonNode jsonNode = objectMapper.readTree(value);
+                                if (jsonNode.isArray()) {
+                                    for (JsonNode node : jsonNode) {
+                                        if (node.isTextual()) bodyBuilder.part(key, node.asText());
+                                        else bodyBuilder.part(key, node);
                                     }
                                 } else {
-                                    bodyBuilder.part(key, property.getValue());
+                                    bodyBuilder.part(key, value);
                                 }
-                                break;
+                            } catch (JsonProcessingException e) {
+                                bodyBuilder.part(key, value);
+                            }
+                        } else {
+                            bodyBuilder.part(key, property.getValue());
                         }
-                    }
+                        break;
+                }
+            }
 
-                    final BodyInserters.MultipartInserter multipartInserter =
-                            BodyInserters
-                                    .fromMultipartData(bodyBuilder.build());
-                    return multipartInserter
-                            .insert(outputMessage, context);
-                });
+            final BodyInserters.MultipartInserter multipartInserter =
+                    BodyInserters.fromMultipartData(bodyBuilder.build());
+            return multipartInserter.insert(outputMessage, context);
+        });
     }
 
-    private void populateFileTypeBodyBuilder(MultipartBodyBuilder bodyBuilder, Property property, ClientHttpRequest outputMessage)
-            throws IOException {
+    private void populateFileTypeBodyBuilder(
+            MultipartBodyBuilder bodyBuilder, Property property, ClientHttpRequest outputMessage) throws IOException {
         final String fileValue = (String) property.getValue();
         final String key = property.getKey();
         List<MultipartFormDataDTO> multipartFormDataDTOs = new ArrayList<>();
 
-
         if (fileValue.startsWith("{")) {
             // Check whether the JSON string is an object
-            final MultipartFormDataDTO multipartFormDataDTO = objectMapper.readValue(
-                    fileValue,
-                    MultipartFormDataDTO.class);
+            final MultipartFormDataDTO multipartFormDataDTO =
+                    objectMapper.readValue(fileValue, MultipartFormDataDTO.class);
             multipartFormDataDTOs.add(multipartFormDataDTO);
         } else if (fileValue.startsWith("[")) {
             // Check whether the JSON string is an array
-            multipartFormDataDTOs = Arrays.asList(
-                    objectMapper.readValue(
-                            fileValue,
-                            MultipartFormDataDTO[].class));
+            multipartFormDataDTOs = Arrays.asList(objectMapper.readValue(fileValue, MultipartFormDataDTO[].class));
         } else {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                     "Unable to parse content. Expected to receive an array or object of multipart data");
         }
 
         multipartFormDataDTOs.forEach(multipartFormDataDTO -> {
             final MultipartFormDataDTO finalMultipartFormDataDTO = multipartFormDataDTO;
             Flux<DataBuffer> data = DataBufferUtils.readInputStream(
-                    () -> new ByteArrayInputStream(String.valueOf(finalMultipartFormDataDTO.getData())
-                            .getBytes(StandardCharsets.ISO_8859_1)),
+                    () -> new ByteArrayInputStream(
+                            String.valueOf(finalMultipartFormDataDTO.getData()).getBytes(StandardCharsets.ISO_8859_1)),
                     outputMessage.bufferFactory(),
                     4096);
 
-            bodyBuilder.asyncPart(key, data, DataBuffer.class)
+            bodyBuilder
+                    .asyncPart(key, data, DataBuffer.class)
                     .filename(multipartFormDataDTO.getName())
                     .contentType(MediaType.valueOf(multipartFormDataDTO.getType()));
         });
-
     }
 
     /**
@@ -280,22 +269,33 @@ public class DataUtils {
         }
 
         return parsedJson;
-
     }
 
-    public Object getRequestBodyObject(ActionConfiguration actionConfiguration, String reqContentType,
-                                       boolean encodeParamsToggle, HttpMethod httpMethod) {
+    public Object getRequestBodyObject(
+            ActionConfiguration actionConfiguration,
+            String reqContentType,
+            boolean encodeParamsToggle,
+            HttpMethod httpMethod) {
+        // We will read the request body for all HTTP calls where the apiContentType is NOT "none".
+        // This is irrespective of the content-type header or the HTTP method
+        String apiContentTypeStr = (String)
+                PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), FIELD_API_CONTENT_TYPE);
+        ApiContentType apiContentType = ApiContentType.getValueFromString(apiContentTypeStr);
+
+        if (httpMethod.equals(HttpMethod.GET) && (apiContentType == null || apiContentType == ApiContentType.NONE)) {
+            /**
+             * Setting request body object to null makes the webClient object to ignore the body when sending the API
+             * request. Earlier, we were setting it to an empty string, which worked fine for almost all the use
+             * cases, however it caused error when used to call Figma's GET API call. Figma's server detected that
+             * there is a body attached with the request and would return with a `BAD REQUEST` error.
+             * Ref: https://github.com/appsmithorg/appsmith/issues/14894
+             */
+            return null;
+        }
+
         // We initialize this object to an empty string because body can never be empty
         // Based on the content-type, this Object may be of type MultiValueMap or String
         Object requestBodyObj = "";
-
-        // We will read the request body for all HTTP calls where the apiContentType is NOT "none".
-        // This is irrespective of the content-type header or the HTTP method
-        String apiContentTypeStr = (String) PluginUtils.getValueSafelyFromFormData(
-                actionConfiguration.getFormData(),
-                FIELD_API_CONTENT_TYPE
-        );
-        ApiContentType apiContentType = ApiContentType.getValueFromString(apiContentTypeStr);
 
         if (!httpMethod.equals(HttpMethod.GET)) {
             // Read the body normally as this is a non-GET request

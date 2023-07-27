@@ -18,7 +18,7 @@ public class CollectionUtilsTest {
         sampleList.add("c");
         CollectionUtils.putAtFirst(sampleList, "d");
         assertEquals(4, sampleList.size());
-        assertArrayEquals(new String[]{ "d", "a", "b", "c" }, sampleList.toArray());
+        assertArrayEquals(new String[] {"d", "a", "b", "c"}, sampleList.toArray());
     }
 
     @Test
@@ -29,7 +29,7 @@ public class CollectionUtilsTest {
         sampleList.add("c");
         CollectionUtils.putAtFirst(sampleList, "a");
         assertEquals(3, sampleList.size());
-        assertArrayEquals(new String[]{ "a", "b", "c" }, sampleList.toArray());
+        assertArrayEquals(new String[] {"a", "b", "c"}, sampleList.toArray());
     }
 
     @Test
@@ -40,7 +40,7 @@ public class CollectionUtilsTest {
         sampleList.add("c");
         CollectionUtils.putAtFirst(sampleList, "b");
         assertEquals(3, sampleList.size());
-        assertArrayEquals(new String[]{ "b", "a", "c" }, sampleList.toArray());
+        assertArrayEquals(new String[] {"b", "a", "c"}, sampleList.toArray());
     }
 
     @Test
@@ -53,7 +53,7 @@ public class CollectionUtilsTest {
 
         CollectionUtils.removeDuplicates(sampleList);
         assertEquals(3, sampleList.size());
-        assertArrayEquals(new String[]{ "a", "b", "c" }, sampleList.toArray());
+        assertArrayEquals(new String[] {"a", "b", "c"}, sampleList.toArray());
     }
 
     @Test
@@ -65,7 +65,7 @@ public class CollectionUtilsTest {
 
         CollectionUtils.removeDuplicates(sampleList);
         assertEquals(3, sampleList.size());
-        assertArrayEquals(new String[]{ "a", "b", "c" }, sampleList.toArray());
+        assertArrayEquals(new String[] {"a", "b", "c"}, sampleList.toArray());
     }
 
     @Test
@@ -79,7 +79,7 @@ public class CollectionUtilsTest {
 
         CollectionUtils.removeDuplicates(sampleList);
         assertEquals(3, sampleList.size());
-        assertArrayEquals(new String[]{ "a", "b", "c" }, sampleList.toArray());
+        assertArrayEquals(new String[] {"a", "b", "c"}, sampleList.toArray());
     }
 
     @Test
@@ -93,7 +93,6 @@ public class CollectionUtilsTest {
 
         CollectionUtils.removeDuplicates(sampleList);
         assertEquals(3, sampleList.size());
-        assertArrayEquals(new String[]{ "a", "b", "c" }, sampleList.toArray());
+        assertArrayEquals(new String[] {"a", "b", "c"}, sampleList.toArray());
     }
-
 }

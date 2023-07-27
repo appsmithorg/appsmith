@@ -36,6 +36,7 @@ export interface Connection {
 
 export interface SSL {
   authType: SSLType;
+  authTypeControl: boolean;
   certificateFile: Certificate;
 }
 
@@ -57,6 +58,8 @@ export interface ApiDatasourceForm {
   authType: AuthType;
   authentication?: Authentication;
   connection?: Connection;
+  userPermissions?: string[];
+  name?: string;
 }
 
 export interface Oauth2Common {

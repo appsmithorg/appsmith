@@ -31,7 +31,7 @@ public class FileInfoMethodTest {
 
         FileInfoMethod fileInfoMethod = new FileInfoMethod(objectMapper);
         assertThrows(AppsmithPluginException.class, () -> {
-            fileInfoMethod.transformExecutionResponse(null, null);
+            fileInfoMethod.transformExecutionResponse(null, null, null);
         });
     }
 
@@ -48,7 +48,7 @@ public class FileInfoMethodTest {
         methodConfig.setBody(sheetNode);
 
         FileInfoMethod fileInfoMethod = new FileInfoMethod(objectMapper);
-        JsonNode result = fileInfoMethod.transformExecutionResponse(jsonNode, methodConfig);
+        JsonNode result = fileInfoMethod.transformExecutionResponse(jsonNode, methodConfig, null);
 
         assertNotNull(result);
         assertTrue(result.isObject());
@@ -67,7 +67,7 @@ public class FileInfoMethodTest {
         methodConfig.setBody(new ArrayList<>());
 
         FileInfoMethod fileInfoMethod = new FileInfoMethod(objectMapper);
-        JsonNode result = fileInfoMethod.transformExecutionResponse(jsonNode, methodConfig);
+        JsonNode result = fileInfoMethod.transformExecutionResponse(jsonNode, methodConfig, null);
 
         assertNotNull(result);
         assertTrue(result.isObject());
@@ -78,7 +78,8 @@ public class FileInfoMethodTest {
     public void testTransformExecutionResponse_validSheets_toListOfSheets() throws JsonProcessingException {
 
         final String jsonString = "{\"key1\":\"value1\",\"key2\":\"value2\"}";
-        final String sheetMetadataString = "{\"sheetId\":\"1\", \"title\":\"test\", \"sheetType\":\"GRID\", \"index\":0}";
+        final String sheetMetadataString =
+                "{\"sheetId\":\"1\", \"title\":\"test\", \"sheetType\":\"GRID\", \"index\":0}";
 
         JsonNode jsonNode = objectMapper.readTree(jsonString);
         assertNotNull(jsonNode);
@@ -88,12 +89,13 @@ public class FileInfoMethodTest {
         methodConfig.setBody(List.of(sheetNode));
 
         FileInfoMethod fileInfoMethod = new FileInfoMethod(objectMapper);
-        JsonNode result = fileInfoMethod.transformExecutionResponse(jsonNode, methodConfig);
+        JsonNode result = fileInfoMethod.transformExecutionResponse(jsonNode, methodConfig, null);
 
         assertNotNull(result);
         assertTrue(result.isObject());
         assertEquals(1, result.get("sheets").size());
-        assertTrue("test".equalsIgnoreCase(result.get("sheets").get(0).get("title").asText()));
+        assertTrue(
+                "test".equalsIgnoreCase(result.get("sheets").get(0).get("title").asText()));
     }
 
     @Test
@@ -107,7 +109,7 @@ public class FileInfoMethodTest {
         MethodConfig methodConfig = new MethodConfig(new HashMap<>());
 
         TriggerMethod fileInfoMethod = new FileInfoMethod(objectMapper);
-        JsonNode result = fileInfoMethod.transformTriggerResponse(jsonNode, methodConfig);
+        JsonNode result = fileInfoMethod.transformTriggerResponse(jsonNode, methodConfig, null);
 
         assertNotNull(result);
         assertTrue(result.isArray());
@@ -125,7 +127,7 @@ public class FileInfoMethodTest {
         MethodConfig methodConfig = new MethodConfig(new HashMap<>());
 
         TriggerMethod fileInfoMethod = new FileInfoMethod(objectMapper);
-        JsonNode result = fileInfoMethod.transformTriggerResponse(jsonNode, methodConfig);
+        JsonNode result = fileInfoMethod.transformTriggerResponse(jsonNode, methodConfig, null);
 
         assertNotNull(result);
         assertTrue(result.isArray());

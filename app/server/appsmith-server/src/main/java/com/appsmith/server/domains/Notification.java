@@ -13,7 +13,8 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @Document
 public class Notification extends BaseDomain {
 
-    // TODO: This class extends BaseDomain, so it has policies. Should we use information from policies instead of this field?
+    // TODO: This class extends BaseDomain, so it has policies. Should we use information from policies instead of this
+    // field?
     String forUsername;
 
     /**
@@ -27,6 +28,7 @@ public class Notification extends BaseDomain {
 
     /**
      * This method has been added because the createdAt property in base domain has @JsonIgnore annotation
+     *
      * @return created time as a string
      */
     @JsonProperty(value = "createdAt", access = JsonProperty.Access.READ_ONLY)

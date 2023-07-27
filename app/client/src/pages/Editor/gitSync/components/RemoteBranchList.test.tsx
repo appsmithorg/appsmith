@@ -24,7 +24,7 @@ describe("RemoteBranchList", function () {
     expect(renderedList?.children.length).toEqual(2);
 
     // contains styled segment header
-    const header = await screen.queryByTestId("t--styled-segment-header");
+    const header = await screen.queryByTestId("t--branch-list-header-local");
     expect(header).not.toBeNull();
     expect(header?.innerHTML.includes("Remote branches")).toBeTruthy();
   });

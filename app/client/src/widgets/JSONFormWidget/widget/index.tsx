@@ -24,10 +24,13 @@ import { convertSchemaItemToFormData } from "../helper";
 import type {
   ButtonStyles,
   ChildStylesheet,
+  SetterConfig,
   Stylesheet,
 } from "entities/AppTheming";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -215,6 +218,38 @@ class JSONFormWidget extends BaseWidget<
           accentColor: "{{appsmith.theme.colors.primaryColor}}",
           borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
           boxShadow: "none",
+        },
+      },
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return (widget: JSONFormWidgetProps) => {
+      const definitions: AutocompletionDefinitions = {
+        "!doc":
+          "JSON Form widget can be used to auto-generate forms by providing a JSON source data.",
+        // TODO: Update the url
+        "!url": "https://docs.appsmith.com/widget-reference",
+        formData: generateTypeDef(widget.formData),
+        sourceData: generateTypeDef(widget.sourceData),
+        fieldState: generateTypeDef(widget.fieldState),
+        isValid: "bool",
+      };
+
+      return definitions;
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setSourceData: {
+          path: "sourceData",
+          type: "object",
         },
       },
     };

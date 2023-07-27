@@ -1,6 +1,7 @@
 import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import type { WidgetType as FactoryWidgetType } from "utils/WidgetFactory";
 import { THEMEING_TEXT_SIZES } from "./ThemeConstants";
+import type { WidgetCardProps } from "widgets/BaseWidget";
 export type WidgetType = FactoryWidgetType;
 
 export const SKELETON_WIDGET_TYPE = "SKELETON_WIDGET";
@@ -70,7 +71,7 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
-export const LATEST_PAGE_VERSION = 77;
+export const LATEST_PAGE_VERSION = 81;
 
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
@@ -85,11 +86,27 @@ export const GridDefaults = {
 
 export const CANVAS_MIN_HEIGHT = 380;
 
+export const DefaultDimensionMap = {
+  leftColumn: "leftColumn",
+  rightColumn: "rightColumn",
+  topRow: "topRow",
+  bottomRow: "bottomRow",
+};
+
 // Note: Widget Padding + Container Padding === DEFAULT_GRID_ROW_HEIGHT to gracefully lose one row when a container is used,
 // which wud allow the user to place elements centered inside a container(columns are rendered proportionally so it take cares of itself).
 
 export const CONTAINER_GRID_PADDING =
   GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.6;
+
+/**
+ * Padding introduced by container-like widgets in AutoLayout mode.
+ * FlexComponent - margin: 2px (2 * 2 = 4px) [Deploy mode = 4px ( 4 * 2 = 8px)]
+ * ResizeWrapper - padding: 1px, border: 1px (2 * 2 = 4px) [Deploy mode = 0px]
+ * ContainerComponent - border: 1px (1 * 2 = 2px) [Deploy mode = 2px]
+ * Total - 5px (5 * 2 = 10px)
+ */
+export const AUTO_LAYOUT_CONTAINER_PADDING = 5;
 
 export const WIDGET_PADDING = GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
 
@@ -130,6 +147,10 @@ export const WIDGET_STATIC_PROPS = {
   rightColumn: true,
   topRow: true,
   bottomRow: true,
+  mobileTopRow: true,
+  mobileBottomRow: true,
+  mobileLeftColumn: true,
+  mobileRightColumn: true,
   minHeight: true,
   parentColumnSpace: true,
   parentRowSpace: true,
@@ -151,6 +172,7 @@ export const WIDGET_DSL_STRUCTURE_PROPS = {
   children: true,
   requiresFlatWidgetChildren: true,
   hasMetaWidgets: true,
+  isMetaWidget: true,
   parentId: true,
   referencedWidgetId: true,
   topRow: true,
@@ -188,6 +210,45 @@ export const WIDGET_PROPS_TO_SKIP_FROM_EVAL = {
   displayName: true,
   topRowBeforeCollapse: false,
   bottomRowBeforeCollapse: false,
+  tags: false,
 };
 
+/**
+ * This is the padding that is applied to the flexbox container.
+ * It is also used to calculate widget positions and highlight placements.
+ */
 export const FLEXBOX_PADDING = 4;
+
+/**
+ * max width of modal widget constant as a multiplier of Main canvasWidth
+ */
+export const MAX_MODAL_WIDTH_FROM_MAIN_WIDTH = 0.95;
+
+export const FILE_SIZE_LIMIT_FOR_BLOBS = 5000 * 1024; // 5MB
+
+export const WIDGET_TAGS = {
+  SUGGESTED_WIDGETS: "Suggested",
+  INPUTS: "Inputs",
+  BUTTONS: "Buttons",
+  SELECT: "Select",
+  DISPLAY: "Display",
+  LAYOUT: "Layout",
+  MEDIA: "Media",
+  TOGGLES: "Toggles",
+  SLIDERS: "Sliders",
+  CONTENT: "Content",
+  EXTERNAL: "External",
+} as const;
+
+export type WidgetTags = (typeof WIDGET_TAGS)[keyof typeof WIDGET_TAGS];
+
+export type WidgetCardsGroupedByTags = Record<WidgetTags, WidgetCardProps[]>;
+
+export const SUGGESTED_WIDGETS_ORDER: Record<WidgetType, number> = {
+  TABLE_WIDGET_V2: 1,
+  JSON_FORM_WIDGET: 2,
+  INPUT_WIDGET_V2: 3,
+  TEXT_WIDGET: 4,
+  SELECT_WIDGET: 5,
+  LIST_WIDGET_V2: 6,
+};

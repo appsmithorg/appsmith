@@ -25,9 +25,8 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
     private final PagePermission pagePermission;
 
     @Autowired
-    public LayoutServiceCEImpl(NewPageService newPageService,
-                               ResponseUtils responseUtils,
-                               PagePermission pagePermission) {
+    public LayoutServiceCEImpl(
+            NewPageService newPageService, ResponseUtils responseUtils, PagePermission pagePermission) {
         this.newPageService = newPageService;
         this.responseUtils = responseUtils;
         this.pagePermission = pagePermission;
@@ -44,14 +43,13 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
                 .findPageById(pageId, pagePermission.getEditPermission(), false)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID)));
 
-        return pageMono
-                .map(page -> {
+        return pageMono.map(page -> {
                     List<Layout> layoutList = page.getLayouts();
                     if (layoutList == null) {
-                        //no layouts exist for this page
+                        // no layouts exist for this page
                         layoutList = new ArrayList<Layout>();
                     }
-                    //Adding an Id to the layout to ensure that a layout can be referred to by its ID as well.
+                    // Adding an Id to the layout to ensure that a layout can be referred to by its ID as well.
                     layout.setId(new ObjectId().toString());
 
                     layoutList.add(layout);
@@ -67,19 +65,26 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
         if (StringUtils.isEmpty(branchName)) {
             return createLayout(defaultPageId, layout);
         }
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
-                .flatMap(branchedPage ->  createLayout(branchedPage.getId(), layout))
+        return newPageService
+                .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
+                .flatMap(branchedPage -> createLayout(branchedPage.getId(), layout))
                 .map(responseUtils::updateLayoutWithDefaultResources);
     }
 
     @Override
     public Mono<Layout> getLayout(String pageId, String layoutId, Boolean viewMode) {
-        return newPageService.findByIdAndLayoutsId(pageId, layoutId, pagePermission.getReadPermission(), viewMode)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
+        return newPageService
+                .findByIdAndLayoutsId(pageId, layoutId, pagePermission.getReadPermission(), viewMode)
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();
-                    //Because the findByIdAndLayoutsId call returned non-empty result, we are guaranteed to find the layoutId here.
-                    Layout matchedLayout = layoutList.stream().filter(layout -> layout.getId().equals(layoutId)).findFirst().get();
+                    // Because the findByIdAndLayoutsId call returned non-empty result, we are guaranteed to find the
+                    // layoutId here.
+                    Layout matchedLayout = layoutList.stream()
+                            .filter(layout -> layout.getId().equals(layoutId))
+                            .findFirst()
+                            .get();
                     matchedLayout.setViewMode(viewMode);
                     return matchedLayout;
                 });
@@ -90,11 +95,9 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
         if (StringUtils.isEmpty(branchName)) {
             return getLayout(defaultPageId, layoutId, viewMode);
         }
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
-                .flatMap(branchedPage ->  getLayout(branchedPage.getId(), layoutId, viewMode))
+        return newPageService
+                .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
+                .flatMap(branchedPage -> getLayout(branchedPage.getId(), layoutId, viewMode))
                 .map(responseUtils::updateLayoutWithDefaultResources);
     }
-
-
 }
-

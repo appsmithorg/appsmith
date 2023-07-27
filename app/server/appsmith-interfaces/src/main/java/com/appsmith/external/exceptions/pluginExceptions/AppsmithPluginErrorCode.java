@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum AppsmithPluginErrorCode {
-    //All Appsmith error codes for common plugin errors
+    // All Appsmith error codes for common plugin errors
     JSON_PROCESSING_ERROR("PE-JSN-4000", "JSON processing error either at serializing or deserializing"),
     SMART_SUBSTITUTION_VALUE_MISSING("PE-SST-5000", "Missing required binding parameter's value"),
     GENERIC_PLUGIN_ERROR("PE-PLG-5000", "A generic plugin error"),
@@ -19,9 +19,8 @@ public enum AppsmithPluginErrorCode {
     PLUGIN_AUTHENTICATION_ERROR("PE-ATH-5000", "Datasource authentication error"),
     PLUGIN_UQI_WHERE_CONDITION_UNKNOWN("PE-UQI-5000", "Where condition could not be parsed"),
     GENERIC_STALE_CONNECTION("PE-STC-5000", "Secondary stale connection error"),
-    PLUGIN_EXECUTE_ARGUMENT_ERROR("PE-ARG-5000", "Wrong arguments provided")
-    ;
-
+    PLUGIN_EXECUTE_ARGUMENT_ERROR("PE-ARG-5000", "Wrong arguments provided"),
+    PLUGIN_VALIDATE_DATASOURCE_ERROR("PE-DSE-5005", "Failed to validate datasource");
 
     private final String code;
     private final String description;

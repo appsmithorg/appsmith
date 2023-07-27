@@ -7,10 +7,13 @@ import {
 } from "@appsmith/constants/messages";
 import {
   Button,
-  Category,
-  DialogComponent as Dialog,
-  Size,
-} from "design-system-old";
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Text,
+} from "design-system";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 
@@ -42,37 +45,34 @@ function SaveOrDiscardDatasourceModal(props: SaveOrDiscardModalProps) {
   const disableSaveButton = !createMode && !canManageDatasources;
 
   return (
-    <Dialog
-      canOutsideClickClose
-      isOpen={isOpen}
-      onClose={onClose}
-      title={createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
-      width={"596px"}
-    >
-      <div className="pb-8 space-y-3 ">
-        <p>{createMessage(SAVE_OR_DISCARD_DATASOURCE_WARNING)}</p>
-      </div>
-
-      <div className="">
-        <div className="flex items-center justify-end space-x-3">
+    <Modal onOpenChange={onClose} open={isOpen}>
+      <ModalContent style={{ width: "600px" }}>
+        <ModalHeader>
+          {createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
+        </ModalHeader>
+        <ModalBody>
+          <Text>{createMessage(SAVE_OR_DISCARD_DATASOURCE_WARNING)}</Text>
+        </ModalBody>
+        <ModalFooter>
           <Button
-            category={Category.secondary}
             className="t--datasource-modal-do-not-save"
+            kind="secondary"
             onClick={onDiscard}
-            size={Size.medium}
-            text={createMessage(DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT)}
-          />
+            size="md"
+          >
+            {createMessage(DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT)}
+          </Button>
           <Button
-            category={Category.primary}
             className="t--datasource-modal-save"
-            disabled={disableSaveButton}
-            onClick={!disableSaveButton && onSave}
-            size={Size.medium}
-            text={saveButtonText}
-          />
-        </div>
-      </div>
-    </Dialog>
+            isDisabled={disableSaveButton}
+            onClick={onSave}
+            size="md"
+          >
+            {saveButtonText}
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 }
 

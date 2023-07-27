@@ -1,31 +1,16 @@
-import { getPlatformOS, PLATFORM_OS } from "utils/helpers";
+import { getPlatformOS } from "utils/helpers";
 import type CodeMirror from "codemirror";
 import { isNil } from "lodash";
-
-const autoIndentShortcut = {
-  [PLATFORM_OS.MAC]: "Shift-Cmd-P",
-  [PLATFORM_OS.IOS]: "Shift-Cmd-P",
-  [PLATFORM_OS.WINDOWS]: "Shift-Alt-F",
-  [PLATFORM_OS.ANDROID]: "Shift-Alt-F",
-  [PLATFORM_OS.LINUX]: "Shift-Ctrl-I",
-};
-
-const autoIndentShortcutText = {
-  [PLATFORM_OS.MAC]: "Shift + Cmd + P",
-  [PLATFORM_OS.IOS]: "Shift + Cmd + P",
-  [PLATFORM_OS.WINDOWS]: "Shift + Alt + F",
-  [PLATFORM_OS.ANDROID]: "Shift + Alt + F",
-  [PLATFORM_OS.LINUX]: "Shift + Ctrl + I",
-};
+import { KEYBOARD_SHORTCUTS_BY_PLATFORM } from "./keyboardShortcutConstants";
 
 export const getAutoIndentShortcutKey = () => {
-  const platformOS = getPlatformOS();
-  return platformOS ? autoIndentShortcut[platformOS] : "Shift-Alt-F";
+  const platformOS = getPlatformOS() || "default";
+  return KEYBOARD_SHORTCUTS_BY_PLATFORM[platformOS].autoIndentShortcut;
 };
 
 export const getAutoIndentShortcutKeyText = () => {
-  const platformOS = getPlatformOS();
-  return platformOS ? autoIndentShortcutText[platformOS] : "Shift + Alt + F";
+  const platformOS = getPlatformOS() || "default";
+  return KEYBOARD_SHORTCUTS_BY_PLATFORM[platformOS].autoIndentShortcutText;
 };
 
 export const autoIndentCode = (editor: CodeMirror.Editor) => {

@@ -5,6 +5,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.repositories.ProviderRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
@@ -15,28 +16,65 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import jakarta.validation.Validator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
-public class ProviderServiceCEImpl extends BaseService<ProviderRepository, Provider, String> implements ProviderServiceCE {
+public class ProviderServiceCEImpl extends BaseService<ProviderRepository, Provider, String>
+        implements ProviderServiceCE {
 
-    private static final List<String> CATEGORIES = Arrays.asList("Business", "Visual Recognition", "Location", "Science",
-            "Food", "Travel, Transportation", "Music", "Tools", "Text Analysis", "Weather", "Gaming", "SMS", "Events", "Health, Fitness",
-            "Payments", "Financial", "Translation", "Storage", "Logistics", "Database", "Search", "Reward", "Mapping", "Machine Learning",
-            "Email", "News, Media", "Video, Images", "eCommerce", "Medical", "Devices", "Business Software", "Advertising", "Education",
-            "Media", "Social", "Commerce", "Communication", "Other", "Monitoring", "Energy");
+    private static final List<String> CATEGORIES = Arrays.asList(
+            "Business",
+            "Visual Recognition",
+            "Location",
+            "Science",
+            "Food",
+            "Travel, Transportation",
+            "Music",
+            "Tools",
+            "Text Analysis",
+            "Weather",
+            "Gaming",
+            "SMS",
+            "Events",
+            "Health, Fitness",
+            "Payments",
+            "Financial",
+            "Translation",
+            "Storage",
+            "Logistics",
+            "Database",
+            "Search",
+            "Reward",
+            "Mapping",
+            "Machine Learning",
+            "Email",
+            "News, Media",
+            "Video, Images",
+            "eCommerce",
+            "Medical",
+            "Devices",
+            "Business Software",
+            "Advertising",
+            "Education",
+            "Media",
+            "Social",
+            "Commerce",
+            "Communication",
+            "Other",
+            "Monitoring",
+            "Energy");
 
     private static final String DEFAULT_CATEGORY = "Business Software";
 
-    public ProviderServiceCEImpl(Scheduler scheduler,
-                                 Validator validator,
-                                 MongoConverter mongoConverter,
-                                 ReactiveMongoTemplate reactiveMongoTemplate,
-                                 ProviderRepository repository,
-                                 AnalyticsService analyticsService) {
+    public ProviderServiceCEImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            ProviderRepository repository,
+            AnalyticsService analyticsService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
     }
 

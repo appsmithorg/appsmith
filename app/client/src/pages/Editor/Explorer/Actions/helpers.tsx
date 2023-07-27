@@ -1,6 +1,11 @@
 import type { ReactNode } from "react";
 import React, { useMemo } from "react";
-import { dbQueryIcon, ApiMethodIcon, EntityIcon } from "../ExplorerIcons";
+import {
+  dbQueryIcon,
+  ApiMethodIcon,
+  EntityIcon,
+  ENTITY_ICON_SIZE,
+} from "../ExplorerIcons";
 import { isGraphqlPlugin, PluginType } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 
@@ -15,6 +20,7 @@ import {
   queryEditorIdURL,
   saasEditorApiIdURL,
 } from "RouteBuilder";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 // TODO [new_urls] update would break for existing paths
 // using a common todo, this needs to be fixed
@@ -78,8 +84,11 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
       }
       if (plugin && plugin.iconLocation)
         return (
-          <EntityIcon>
-            <img alt="entityIcon" src={plugin.iconLocation} />
+          <EntityIcon
+            height={`${ENTITY_ICON_SIZE}px`}
+            width={`${ENTITY_ICON_SIZE}px`}
+          >
+            <img alt="entityIcon" src={getAssetUrl(plugin.iconLocation)} />
           </EntityIcon>
         );
       else if (plugin && plugin.type === PluginType.DB) return dbQueryIcon;

@@ -11,13 +11,13 @@ import {
 } from "actions/datasourceActions";
 import type { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import { Colors } from "constants/Colors";
 import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 // This function remove the given key from queryParams and return string
 const removeQueryParams = (paramKeysToRemove: Array<string>) => {
@@ -40,7 +40,7 @@ const DatasourceHomePage = styled.div`
   .textBtn {
     justify-content: center;
     text-align: center;
-    color: ${Colors.BLACK};
+    color: var(--ads-v2-color-fg);
     font-weight: 400;
     text-decoration: none !important;
     white-space: nowrap;
@@ -68,24 +68,17 @@ const DatasourceCard = styled.div`
   align-items: center;
   justify-content: space-between;
   height: 64px;
+  border-radius: var(--ads-v2-border-radius);
   &:hover {
-    background: ${Colors.GREY_1};
+    background: var(--ads-v2-color-bg-subtle);
     cursor: pointer;
   }
 
-  .dataSourceImageWrapper {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: ${Colors.GREY_2};
-    display: flex;
-    align-items: center;
-    .dataSourceImage {
-      height: 28px;
-      width: auto;
-      margin: 0 auto;
-      max-width: 100%;
-    }
+  .dataSourceImage {
+    height: 34px;
+    width: auto;
+    margin: 0 auto;
+    max-width: 100%;
   }
 
   .cta {
@@ -208,14 +201,12 @@ class DatasourceHomeScreen extends React.Component<Props> {
                 }}
               >
                 <DatasourceContentWrapper data-testid="database-datasource-content-wrapper">
-                  <div className="dataSourceImageWrapper">
-                    <img
-                      alt="Datasource"
-                      className="dataSourceImage"
-                      data-testid="database-datasource-image"
-                      src={pluginImages[plugin.id]}
-                    />
-                  </div>
+                  <img
+                    alt="Datasource"
+                    className="dataSourceImage"
+                    data-testid="database-datasource-image"
+                    src={getAssetUrl(pluginImages[plugin.id])}
+                  />
                   <p className="t--plugin-name textBtn">{plugin.name}</p>
                 </DatasourceContentWrapper>
               </DatasourceCard>

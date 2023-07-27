@@ -1,5 +1,3 @@
-import homePage from "../../../locators/HomePage";
-
 describe("Checking for error message on Workspace Name ", function () {
   it("Ensure of Inactive Submit button ", function () {
     // Navigate to home Page

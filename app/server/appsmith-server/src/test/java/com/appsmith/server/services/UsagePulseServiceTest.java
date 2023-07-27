@@ -38,6 +38,7 @@ public class UsagePulseServiceTest {
     public void setup() {
         commonConfig.setCloudHosting(false);
     }
+
     /**
      * To verify anonymous user usage pulses are logged properly
      */
@@ -132,6 +133,5 @@ public class UsagePulseServiceTest {
         assertThat(usagePulseCount).isNotNull();
         assertThat(usagePulseCountForSelfHostedInstance).isEqualTo(usagePulseCount + 1);
         assertThat(usagePulseCountForSelfHostedInstance).isEqualTo(usagePulseCountForCloud);
-
     }
 }

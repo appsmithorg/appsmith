@@ -1,7 +1,5 @@
-import {
-  Page,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { Page } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { initEditor } from "actions/initActions";
 import { setAppMode, updateCurrentPage } from "actions/pageActions";
 import { APP_MODE } from "entities/App";
@@ -12,13 +10,12 @@ import { getCanvasWidgetsPayload } from "sagas/PageSagas";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { editorInitializer } from "utils/editor/EditorUtils";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
-
 import type { AppState } from "@appsmith/reducers";
-import type { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import type { DSLWidget } from "widgets/constants";
+import { nestDSL } from "@shared/dsl";
 
 export const useMockDsl = (dsl: any, mode?: APP_MODE) => {
   const dispatch = useDispatch();
@@ -54,7 +51,7 @@ export const useMockDsl = (dsl: any, mode?: APP_MODE) => {
     payload: [
       {
         pageId: mockResp.data.id,
-        dsl: extractCurrentDSL(mockResp),
+        dsl: extractCurrentDSL(mockResp).dsl,
       },
     ],
   });
@@ -97,9 +94,7 @@ export function MockPageDSL({ children, dsl }: any) {
 export const mockGetCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
   (canvasWidgets: CanvasWidgetsReduxState): DSLWidget => {
-    return CanvasWidgetsNormalizer.denormalize("0", {
-      canvasWidgets,
-    });
+    return nestDSL(canvasWidgets);
   },
 );
 
@@ -111,7 +106,7 @@ const getChildWidgets = (
 
   if (parentWidget.children) {
     return parentWidget.children.map((childWidgetId) => {
-      const childWidget = { ...canvasWidgets[childWidgetId] } as DataTreeWidget;
+      const childWidget = { ...canvasWidgets[childWidgetId] } as WidgetEntity;
 
       if (childWidget?.children?.length > 0) {
         childWidget.children = getChildWidgets(canvasWidgets, childWidgetId);
@@ -135,7 +130,7 @@ export const mockGetPagePermissions = () => {
 export const mockCreateCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  evaluatedWidget: DataTreeWidget,
+  evaluatedWidget: WidgetEntity,
 ): any => {
   return { ...canvasWidget };
 };
@@ -146,7 +141,7 @@ export const mockGetWidgetEvalValues = (
 ) => {
   return Object.values(state.entities.canvasWidgets).find(
     (widget) => widget.widgetName === widgetName,
-  ) as DataTreeWidget;
+  ) as WidgetEntity;
 };
 
 export const syntheticTestMouseEvent = (

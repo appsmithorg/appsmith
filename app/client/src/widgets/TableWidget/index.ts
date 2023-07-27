@@ -1,11 +1,16 @@
 import { Colors } from "constants/Colors";
 import { cloneDeep, set } from "lodash";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { BlueprintOperationTypes } from "widgets/constants";
+import {
+  BlueprintOperationTypes,
+  type SnipingModeProperty,
+  type PropertyUpdates,
+} from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -18,6 +23,7 @@ export const CONFIG = {
   hideCard: true,
   needsHeightForContent: true,
   defaults: {
+    responsiveBehavior: ResponsiveBehavior.Fill,
     rows: 28,
     columns: 34,
     animateLoading: true,
@@ -209,12 +215,39 @@ export const CONFIG = {
     delimiter: ",",
     version: 3,
   },
+  autoLayout: {
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "280px",
+          };
+        },
+      },
+    ],
+  },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+    setterConfig: Widget.getSetterConfig(),
+  },
+  methods: {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
+      return [
+        {
+          propertyPath: "tableData",
+          propertyValue: propValueMap.data,
+          isDynamicPropertyPath: true,
+        },
+      ];
+    },
   },
 };
 

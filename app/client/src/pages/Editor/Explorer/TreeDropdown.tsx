@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { find, noop } from "lodash";
 import type { DropdownOption } from "components/constants";
-import { StyledDropDownContainer } from "components/propertyControls/StyledControls";
 import { StyledMenu } from "design-system-old";
 import type { IPopoverSharedProps, Position } from "@blueprintjs/core";
 import {
@@ -15,7 +14,10 @@ import {
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
-import { entityTooltipCSS } from "./Entity";
+import {
+  EntityClassNames,
+  entityTooltipCSS,
+} from "pages/Editor/Explorer/Entity";
 import { useCloseMenuOnScroll } from "./hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 
@@ -153,6 +155,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     const isSelected =
       selectedOption.value === option.value ||
       selectedOption.type === option.value;
+
     return (
       <MenuItem
         active={isSelected}
@@ -184,13 +187,18 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   }
 
   const list = optionTree.map(renderTreeOption);
+
   const menuItems = (
-    <StyledMenu className="t--entity-context-menu" width={menuWidth}>
+    <StyledMenu
+      className={`t--entity-context-menu ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
+      width={menuWidth}
+    >
       {list}
     </StyledMenu>
   );
+
   const defaultToggle = (
-    <StyledDropDownContainer>
+    <div className="w-full h-full">
       <BlueprintButton
         className={`t--open-dropdown-${defaultText.split(" ").join("-")} ${
           selectedLabelModifier ? "code-highlight" : ""
@@ -202,8 +210,9 @@ export default function TreeDropdown(props: TreeDropdownProps) {
             : selectedOption.label
         }
       />
-    </StyledDropDownContainer>
+    </div>
   );
+
   return (
     <StyledPopover
       boundary="viewport"

@@ -18,22 +18,8 @@ export const changeQuery = (
 };
 
 export const setQueryPaneConfigSelectedTabIndex: (
-  payload: number,
-) => ReduxAction<{ selectedTabIndex: number }> = (payload: number) => ({
+  payload: string,
+) => ReduxAction<{ selectedTabIndex: string }> = (payload: string) => ({
   type: ReduxActionTypes.SET_QUERY_PANE_CONFIG_SELECTED_TAB,
   payload: { selectedTabIndex: payload },
-});
-
-export const setQueryPaneResponseSelectedTab: (
-  payload: string,
-) => ReduxAction<{ selectedTab: string }> = (payload: string) => ({
-  type: ReduxActionTypes.SET_QUERY_PANE_RESPONSE_SELECTED_TAB,
-  payload: { selectedTab: payload },
-});
-
-export const setQueryPaneResponsePaneHeight: (
-  payload: number,
-) => ReduxAction<{ height: number }> = (payload: number) => ({
-  type: ReduxActionTypes.SET_QUERY_PANE_RESPONSE_PANE_HEIGHT,
-  payload: { height: payload },
 });

@@ -1,5 +1,5 @@
 import type { AppState } from "@appsmith/reducers";
-import type FeatureFlags from "entities/FeatureFlags";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import type {
   CodeEditorHistory,
   CursorPosition,
@@ -9,7 +9,7 @@ import type {
 } from "reducers/uiReducers/editorContextReducer";
 import { isSubEntities } from "reducers/uiReducers/editorContextReducer";
 import { createSelector } from "reselect";
-import { selectFeatureFlags } from "selectors/usersSelectors";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 export const getFocusableInputField = (state: AppState) =>
   state.ui.editorContext.focusedInputField;
@@ -22,9 +22,6 @@ export const getPropertyPanelState = (state: AppState) =>
 
 export const getAllPropertySectionState = (state: AppState) =>
   state.ui.editorContext.propertySectionState;
-
-export const getSelectedCanvasDebuggerTab = (state: AppState) =>
-  state.ui.editorContext.selectedDebuggerTab;
 
 export const getWidgetSelectedPropertyTabIndex = (state: AppState) =>
   state.ui.editorContext.selectedPropertyTabIndex;

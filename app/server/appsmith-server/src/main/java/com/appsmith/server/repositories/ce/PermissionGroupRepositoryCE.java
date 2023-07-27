@@ -9,7 +9,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.Set;
 
-public interface PermissionGroupRepositoryCE extends BaseRepository<PermissionGroup, String>, CustomPermissionGroupRepository {
+public interface PermissionGroupRepositoryCE
+        extends BaseRepository<PermissionGroup, String>, CustomPermissionGroupRepository {
 
     Flux<PermissionGroup> findAllById(Set<String> ids);
 
@@ -18,6 +19,6 @@ public interface PermissionGroupRepositoryCE extends BaseRepository<PermissionGr
     Flux<PermissionGroup> findByAssignedToUserIdsIn(String userId);
 
     Flux<PermissionGroup> findByDefaultWorkspaceId(String defaultWorkspaceId);
-    Flux<PermissionGroup> findByDefaultDomainIdAndDefaultDomainType(String defaultDomainId, String domainType);
 
+    Flux<PermissionGroup> findByDefaultDomainIdAndDefaultDomainType(String defaultDomainId, String domainType);
 }

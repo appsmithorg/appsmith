@@ -1,9 +1,5 @@
-import { matchDatasourcePath } from "constants/routes";
 import type { Log } from "entities/AppsmithConsole";
-import type {
-  DataTree,
-  DataTreeWidget,
-} from "entities/DataTree/dataTreeFactory";
+import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { isEmpty } from "lodash";
 import type { AppState } from "@appsmith/reducers";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -75,7 +71,7 @@ export const getFilteredErrors = createSelector(
 );
 
 export const isParentVisible = (
-  currentWidgetData: DataTreeWidget,
+  currentWidgetData: WidgetEntity,
   canvasWidgets: CanvasWidgetsReduxState,
   dataTree: DataTree,
 ): boolean => {
@@ -86,7 +82,7 @@ export const isParentVisible = (
   const parentWidget = canvasWidgets[currentWidgetData.parentId as string];
   if (!parentWidget) return isWidgetVisible;
 
-  const parentWidgetData = dataTree[parentWidget.widgetName] as DataTreeWidget;
+  const parentWidgetData = dataTree[parentWidget.widgetName] as WidgetEntity;
   if (!parentWidgetData) return isWidgetVisible;
 
   switch (parentWidgetData.type) {
@@ -108,7 +104,7 @@ export const isParentVisible = (
   }
 };
 
-export const hasParentWidget = (widget: DataTreeWidget) =>
+export const hasParentWidget = (widget: WidgetEntity) =>
   widget.parentId && widget.parentId !== "0";
 
 export const getMessageCount = createSelector(getFilteredErrors, (errors) => {
@@ -129,5 +125,21 @@ export const getMessageCount = createSelector(getFilteredErrors, (errors) => {
   return { errors: errorsCount, warnings: warningsCount };
 });
 
-export const hideDebuggerIconSelector = () =>
-  matchDatasourcePath(window.location.pathname);
+// get selected tab in debugger.
+export const getDebuggerSelectedTab = (state: AppState) =>
+  state.ui.debugger.context.selectedDebuggerTab;
+
+export const getResponsePaneHeight = (state: AppState) =>
+  state.ui.debugger.context.responseTabHeight;
+
+export const getErrorCount = (state: AppState) =>
+  state.ui.debugger.context.errorCount;
+
+export const getScrollPosition = (state: AppState) =>
+  state.ui.debugger.context.scrollPosition;
+
+export const getDebuggerContext = (state: AppState) =>
+  state.ui.debugger.context;
+
+export const showDebuggerFlag = (state: AppState) =>
+  state.ui.debugger.isOpen && !state.ui.editor.isPreviewMode;

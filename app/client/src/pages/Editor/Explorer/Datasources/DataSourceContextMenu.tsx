@@ -4,10 +4,6 @@ import {
   deleteDatasource,
   refreshDatasourceStructure,
 } from "actions/datasourceActions";
-import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
-import ContextMenuTrigger from "../ContextMenuTrigger";
-import { noop } from "lodash";
-import { ContextMenuPopoverModifiers } from "@appsmith/pages/Editor/Explorer/helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import {
   CONTEXT_EDIT_NAME,
@@ -21,8 +17,11 @@ import {
   hasDeleteDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
-import type { TreeDropdownOption } from "design-system-old";
+
 import { getDatasource } from "selectors/entitiesSelector";
+import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
+import ContextMenu from "pages/Editor/Explorer/ContextMenu";
+import { DatasourceStructureContext } from "./DatasourceStructureContainer";
 
 export function DataSourceContextMenu(props: {
   datasourceId: string;
@@ -38,7 +37,12 @@ export function DataSourceContextMenu(props: {
     [dispatch, props.entityId],
   );
   const dispatchRefresh = useCallback(() => {
-    dispatch(refreshDatasourceStructure(props.datasourceId));
+    dispatch(
+      refreshDatasourceStructure(
+        props.datasourceId,
+        DatasourceStructureContext.EXPLORER,
+      ),
+    );
   }, [dispatch, props.datasourceId]);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -85,15 +89,10 @@ export function DataSourceContextMenu(props: {
   ].filter(Boolean);
 
   return treeOptions.length > 0 ? (
-    <TreeDropdown
+    <ContextMenu
       className={props.className}
-      defaultText=""
-      modifiers={ContextMenuPopoverModifiers}
-      onSelect={noop}
-      optionTree={treeOptions && (treeOptions as TreeDropdownOption[])}
-      selectedValue=""
+      optionTree={treeOptions as TreeDropdownOption[]}
       setConfirmDelete={setConfirmDelete}
-      toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
   ) : null;
 }

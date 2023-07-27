@@ -11,9 +11,10 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import Landing from "pages/setup/Welcome";
 import { Center } from "pages/setup/common";
-import { IconSize, Spinner } from "design-system-old";
+import { Spinner } from "design-system";
 import { isValidLicense } from "@appsmith/selectors/tenantSelectors";
 import { redirectUserAfterSignup } from "@appsmith/utils/signupHelpers";
+import { setUserSignedUpFlag } from "utils/storage";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();
@@ -23,8 +24,11 @@ export function SignupSuccess() {
     "enableFirstTimeUserExperience",
   );
   const validLicense = useSelector(isValidLicense);
+  const user = useSelector(getCurrentUser);
+
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
+    user?.email && setUserSignedUpFlag(user?.email);
   }, []);
 
   const redirectUsingQueryParam = useCallback(
@@ -49,7 +53,6 @@ export function SignupSuccess() {
     redirectUsingQueryParam();
   }, []);
 
-  const user = useSelector(getCurrentUser);
   const { cloudHosting } = getAppsmithConfigs();
   const isCypressEnv = !!(window as any).Cypress;
 
@@ -72,7 +75,7 @@ export function SignupSuccess() {
     // Showing a loader until the redirect
     return (
       <Center>
-        <Spinner size={IconSize.XXXXL} />
+        <Spinner size="lg" />
       </Center>
     );
   }

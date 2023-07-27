@@ -1,7 +1,7 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import { ThemeProvider } from "styled-components";
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Provider } from "react-redux";
 
@@ -25,17 +25,21 @@ describe("<MainContainerLayoutControl />", () => {
   );
 
   it("Pressing tab should focus on the first component", () => {
-    render(getTestComponent());
+    const { container } = render(getTestComponent());
     userEvent.tab();
 
     // Should focus on the first component
-    const tab = screen.getAllByRole("button")[0];
+    const tab = container.getElementsByClassName(
+      "ads-v2-segmented-control__segments-container",
+    )[0];
     expect(tab).toHaveFocus();
   });
 
   it("{ArrowRight} should focus the next item", () => {
-    render(getTestComponent());
-    const tabs = screen.getAllByRole("button");
+    const { container } = render(getTestComponent());
+    const tabs = container.getElementsByClassName(
+      "ads-v2-segmented-control__segments-container",
+    );
     userEvent.tab();
 
     navigateWithArrowKeys("{ArrowRight}", 1);
@@ -50,8 +54,11 @@ describe("<MainContainerLayoutControl />", () => {
   });
 
   it("{ArrowLeft} should focus the next item", async () => {
-    render(getTestComponent());
-    const tabs = screen.getAllByRole("button");
+    const { container } = render(getTestComponent());
+    const tabs = container.getElementsByClassName(
+      "ads-v2-segmented-control__segments-container",
+    );
+
     userEvent.tab();
 
     // Arrow Left on the First item should focus on the last item

@@ -1,14 +1,12 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.Plugin;
 import reactor.core.publisher.Mono;
 
 import java.util.function.Function;
-import java.util.Map;
 
 public interface DatasourceContextServiceCE {
 
@@ -19,20 +17,18 @@ public interface DatasourceContextServiceCE {
      * In case the datasourceId is not found in the
      * map, create a new datasource context and return that.
      * The environmentMap parameter is not being Used in the CE version. it's specific to EE version
-     * @param datasource
-     * @param datasourceContextIdentifier
-     * @param environmentMap
+     * @param datasourceStorage
      * @return DatasourceContext
      */
-    Mono<DatasourceContext<?>> getDatasourceContext(Datasource datasource, DatasourceContextIdentifier datasourceContextIdentifier,
-                                                    Map<String, BaseDomain> environmentMap);
+    Mono<DatasourceContext<?>> getDatasourceContext(DatasourceStorage datasourceStorage);
 
-    Mono<DatasourceContext<?>> getRemoteDatasourceContext(Plugin plugin, Datasource datasource);
+    Mono<DatasourceContext<?>> getDatasourceContext(DatasourceStorage datasourceStorage, Plugin plugin);
 
-    <T> Mono<T> retryOnce(Datasource datasource, DatasourceContextIdentifier datasourceContextIdentifier,
-                          Map<String, BaseDomain> environmentMap, Function<DatasourceContext<?>, Mono<T>> task);
+    Mono<DatasourceContext<?>> getRemoteDatasourceContext(Plugin plugin, DatasourceStorage datasourceStorage);
 
-    Mono<DatasourceContext<?>> deleteDatasourceContext(DatasourceContextIdentifier datasourceContextIdentifier);
+    <T> Mono<T> retryOnce(DatasourceStorage datasourceStorage, Function<DatasourceContext<?>, Mono<T>> task);
 
-    DatasourceContextIdentifier createDsContextIdentifier(Datasource datasource);
+    Mono<DatasourceContext<?>> deleteDatasourceContext(DatasourceStorage datasourceStorage);
+
+    DatasourceContextIdentifier initializeDatasourceContextIdentifier(DatasourceStorage datasourceStorage);
 }

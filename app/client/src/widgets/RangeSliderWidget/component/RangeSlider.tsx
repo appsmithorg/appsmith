@@ -88,7 +88,7 @@ export interface RangeSliderComponentProps
   /** Color for the Label text  */
   labelTextColor?: string;
 
-  /** Font Size for the Label text  */
+  /** Font size for the Label text  */
   labelTextSize?: TextSize;
 
   /** Font Style for the Label text  */

@@ -1,7 +1,11 @@
 import _ from "lodash";
 
-import { primaryColumnValidation } from "./propertyConfig";
+import {
+  defaultSelectedItemValidation,
+  primaryColumnValidation,
+} from "./propertyConfig";
 import type { ListWidgetProps } from ".";
+import type { ValidationResponse } from "constants/WidgetValidation";
 
 describe(".primaryColumnValidation", () => {
   it("validates uniqueness of values with valid input", () => {
@@ -123,7 +127,7 @@ describe(".primaryColumnValidation", () => {
     });
   });
 
-  it(" returns empty with error when JS mode enabled and input is empty", () => {
+  it("returns empty with error when JS mode enabled and input is empty", () => {
     const props = {
       listData: [
         {
@@ -153,7 +157,7 @@ describe(".primaryColumnValidation", () => {
     });
   });
 
-  it(" primary key that doesn't exist", () => {
+  it("primary key that doesn't exist", () => {
     const props = {
       listData: [
         {
@@ -172,7 +176,7 @@ describe(".primaryColumnValidation", () => {
 
     expect(output).toEqual({
       isValid: false,
-      parsed: input,
+      parsed: [],
       messages: [
         {
           name: "ValidationError",
@@ -183,7 +187,7 @@ describe(".primaryColumnValidation", () => {
     });
   });
 
-  it(" primary key contain null value in array", () => {
+  it("primary key contain null value in array", () => {
     const props = {
       listData: [
         {
@@ -208,7 +212,7 @@ describe(".primaryColumnValidation", () => {
 
     expect(output).toEqual({
       isValid: false,
-      parsed: input,
+      parsed: [],
       messages: [
         {
           name: "ValidationError",
@@ -217,5 +221,96 @@ describe(".primaryColumnValidation", () => {
         },
       ],
     });
+  });
+
+  it("validates uniqueness of values with their datatypes", () => {
+    const props = {
+      listData: [
+        {
+          id: 1,
+        },
+        {
+          id: 2,
+        },
+        {
+          id: "2",
+        },
+      ],
+    } as unknown as ListWidgetProps;
+
+    const inputValue = [1, 2, "2"];
+
+    const expectedOutput = {
+      isValid: false,
+      parsed: [],
+      messages: [
+        {
+          name: "ValidationError",
+          message:
+            "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
+        },
+      ],
+    };
+
+    const output = primaryColumnValidation(inputValue, props, _);
+
+    expect(output).toEqual(expectedOutput);
+  });
+
+  it("no error when there's no list data or list data is empty", () => {
+    const props = {
+      listData: [],
+    } as unknown as ListWidgetProps;
+
+    const inputValue = [1, 2];
+
+    const expectedOutput = {
+      isValid: true,
+      parsed: inputValue,
+      messages: [{ name: "", message: "" }],
+    };
+
+    const output = primaryColumnValidation(inputValue, props, _);
+
+    expect(output).toEqual(expectedOutput);
+  });
+});
+
+describe(".defaultSelectedItemValidation", () => {
+  it("accepts only number and string", () => {
+    const validOutput = (parsed: unknown): ValidationResponse => ({
+      isValid: true,
+      parsed: String(parsed),
+      messages: [{ name: "", message: "" }],
+    });
+
+    const inValidOutput = (parsed: unknown): ValidationResponse => ({
+      isValid: false,
+      parsed,
+      messages: [
+        { name: "TypeError", message: "This value must be string or number" },
+      ],
+    });
+
+    const inputValues: [unknown, (value: unknown) => ValidationResponse][] = [
+      [1, validOutput],
+      ["2", validOutput],
+      [null, inValidOutput],
+      [true, inValidOutput],
+      [{}, inValidOutput],
+      [[], inValidOutput],
+    ];
+
+    for (const inputs of inputValues) {
+      const value = inputs[0];
+      const expected = inputs[1];
+      const output = defaultSelectedItemValidation(
+        value,
+        {} as ListWidgetProps,
+        _,
+      );
+
+      expect(output).toEqual(expected(value));
+    }
   });
 });

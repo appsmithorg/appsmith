@@ -1,18 +1,20 @@
-import React, { ReactElement } from "react";
-import { render, RenderOptions, queries } from "@testing-library/react";
+import type { ReactElement } from "react";
+import React from "react";
+import type { RenderOptions } from "@testing-library/react";
+import { render, queries } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { ThemeProvider } from "styled-components";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import * as customQueries from "./customQueries";
 import { BrowserRouter } from "react-router-dom";
-import appReducer, { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
+import appReducer from "@appsmith/reducers";
 import { applyMiddleware, compose, createStore } from "redux";
 import { reduxBatch } from "@manaflair/redux-batch";
 import createSagaMiddleware from "redux-saga";
 import store, { testStore } from "store";
 import { sagasToRunForTests } from "./sagas";
 import { all, call, spawn } from "redux-saga/effects";
-import RouteChangeListener from "RouteChangeListener";
 
 const testSagaMiddleware = createSagaMiddleware();
 
@@ -58,7 +60,6 @@ const customRender = (
   return render(
     <BrowserRouter>
       <Provider store={reduxStore}>
-        <RouteChangeListener />
         <ThemeProvider theme={defaultTheme}>{ui}</ThemeProvider>
       </Provider>
     </BrowserRouter>,

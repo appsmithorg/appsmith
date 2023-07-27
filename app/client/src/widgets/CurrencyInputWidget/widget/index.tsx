@@ -15,7 +15,7 @@ import {
   CurrencyDropdownOptions,
   getCountryCodeFromCurrencyCode,
 } from "../component/CurrencyCodeDropdown";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import _ from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import BaseInputWidget from "widgets/BaseInputWidget";
@@ -32,9 +32,11 @@ import {
   getLocaleDecimalSeperator,
   getLocaleThousandSeparator,
   isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { NumberInputStepButtonPosition } from "widgets/BaseInputWidget/constants";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -70,12 +72,20 @@ export function defaultValueValidation(
     };
   }
 
+  if (_.isBoolean(value) || _.isUndefined(value) || _.isNull(value)) {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: [NUMBER_ERROR_MESSAGE],
+    };
+  }
+
   let parsed: any = Number(value);
   let isValid, messages;
 
   if (_.isString(value) && value.trim() === "") {
     /*
-     *  When value is emtpy string
+     *  When value is empty string
      */
     isValid = true;
     messages = [EMPTY_ERROR_MESSAGE];
@@ -133,6 +143,59 @@ class CurrencyInputWidget extends BaseInputWidget<
   CurrencyInputWidgetProps,
   WidgetState
 > {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "An input text field is used to capture a currency value. Inputs are used in forms and can have custom validations.",
+      "!url": "https://docs.appsmith.com/widget-reference/currency-input",
+      text: {
+        "!type": "string",
+        "!doc": "The formatted text value of the input",
+        "!url": "https://docs.appsmith.com/widget-reference/currency-input",
+      },
+      value: {
+        "!type": "number",
+        "!doc": "The value of the input",
+        "!url": "https://docs.appsmith.com/widget-reference/currency-input",
+      },
+      isValid: "bool",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      isDisabled: "bool",
+      countryCode: {
+        "!type": "string",
+        "!doc": "Selected country code for Currency",
+      },
+      currencyCode: {
+        "!type": "string",
+        "!doc": "Selected Currency code",
+      },
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
+        setValue: {
+          path: "defaultText",
+          type: "string",
+          accessor: "text",
+        },
+      },
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return mergeWidgetConfig(
       [
@@ -143,7 +206,7 @@ class CurrencyInputWidget extends BaseInputWidget<
               helpText:
                 "Sets the default text of the widget. The text is updated if the default text changes",
               propertyName: "defaultText",
-              label: "Default Value",
+              label: "Default value",
               controlType: "INPUT_TEXT",
               placeholderText: "100",
               isBindProperty: true,
@@ -170,6 +233,7 @@ class CurrencyInputWidget extends BaseInputWidget<
               controlType: "DROP_DOWN",
               searchPlaceholderText: "Search by code or name",
               options: CurrencyDropdownOptions,
+              virtual: true,
               isJSConvertible: true,
               isBindProperty: true,
               isTriggerProperty: false,
@@ -179,7 +243,7 @@ class CurrencyInputWidget extends BaseInputWidget<
             },
             {
               propertyName: "allowCurrencyChange",
-              label: "Allow Currency Change",
+              label: "Allow currency change",
               helpText: "Search by currency or country",
               controlType: "SWITCH",
               isJSConvertible: true,
@@ -190,7 +254,7 @@ class CurrencyInputWidget extends BaseInputWidget<
             {
               helpText: "No. of decimals in currency input",
               propertyName: "decimals",
-              label: "Decimals Allowed",
+              label: "Decimals allowed",
               controlType: "DROP_DOWN",
               options: [
                 {

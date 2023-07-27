@@ -17,12 +17,12 @@ describe("Property configuration search", () => {
           ...commonProperties,
         },
         {
-          label: "Scroll Contents",
+          label: "Scroll contents",
           propertyName: "scrollContents",
           ...commonProperties,
         },
         {
-          label: "Show Reset",
+          label: "Show reset",
           propertyName: "showReset",
           ...commonProperties,
         },
@@ -32,17 +32,17 @@ describe("Property configuration search", () => {
           ...commonProperties,
         },
         {
-          label: "Animate Loading",
+          label: "Animate loading",
           propertyName: "animateLoading",
           ...commonProperties,
         },
         {
-          label: "Submit Button Label",
+          label: "Submit button label",
           propertyName: "submitButtonLabel",
           ...commonProperties,
         },
         {
-          label: "Reset Button Label",
+          label: "Reset button label",
           invisible: true,
           propertyName: "resetButtonLabel",
           ...commonProperties,
@@ -53,12 +53,12 @@ describe("Property configuration search", () => {
       sectionName: "Section Two",
       children: [
         {
-          label: "Button Color",
+          label: "Button color",
           propertyName: "buttonColor",
           ...commonProperties,
         },
         {
-          label: "Button Variant",
+          label: "Button variant",
           propertyName: "buttonVariant",
           ...commonProperties,
         },
@@ -88,7 +88,7 @@ describe("Property configuration search", () => {
       sectionName: "Another Button Section",
       children: [
         {
-          label: "Google reCAPTCHA Key",
+          label: "Google reCAPTCHA key",
           propertyName: "recaptchaKey",
           ...commonProperties,
         },
@@ -148,7 +148,7 @@ describe("Property configuration search", () => {
         sectionName: "Section One",
         children: [
           {
-            label: "Animate Loading",
+            label: "Animate loading",
             propertyName: "animateLoading",
             ...commonProperties,
           },
@@ -179,12 +179,12 @@ describe("Property configuration search", () => {
         sectionName: "Section Two",
         children: [
           {
-            label: "Button Color",
+            label: "Button color",
             propertyName: "buttonColor",
             ...commonProperties,
           },
           {
-            label: "Button Variant",
+            label: "Button variant",
             propertyName: "buttonVariant",
             ...commonProperties,
           },
@@ -194,7 +194,7 @@ describe("Property configuration search", () => {
         sectionName: "Another Button Section",
         children: [
           {
-            label: "Google reCAPTCHA Key",
+            label: "Google reCAPTCHA key",
             propertyName: "recaptchaKey",
             ...commonProperties,
           },
@@ -204,7 +204,7 @@ describe("Property configuration search", () => {
         sectionName: "Section One",
         children: [
           {
-            label: "Submit Button Label",
+            label: "Submit button label",
             propertyName: "submitButtonLabel",
             ...commonProperties,
           },
@@ -294,7 +294,7 @@ describe("Property configuration search", () => {
         sectionName: "Another Button Section",
         children: [
           {
-            label: "Google reCAPTCHA Key",
+            label: "Google reCAPTCHA key",
             propertyName: "recaptchaKey",
             ...commonProperties,
           },
@@ -309,7 +309,7 @@ describe("Property configuration search", () => {
   });
 
   it("Shouldn't search for properties with invisible flag set", () => {
-    const result = searchPropertyPaneConfig(config, "Reset Button Label");
+    const result = searchPropertyPaneConfig(config, "Reset button label");
     expect(result).toEqual([]);
   });
 

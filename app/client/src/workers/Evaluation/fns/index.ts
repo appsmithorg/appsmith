@@ -45,11 +45,8 @@ import run, { clear } from "./actionFns";
 import {
   isAction,
   isAppsmithEntity,
-} from "ce/workers/Evaluation/evaluationUtils";
-import type {
-  DataTreeAction,
-  DataTreeEntity,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import type {
   TGetGeoLocationActionType,
   TGetGeoLocationDescription,
@@ -63,7 +60,8 @@ import {
   stopWatchGeoLocation,
   watchGeoLocation,
 } from "./geolocationFns";
-import { isAsyncGuard } from "./utils/fnGuard";
+import { getFnWithGuards, isAsyncGuard } from "./utils/fnGuard";
+import type { ActionEntity } from "entities/DataTree/types";
 
 // cloudHosting -> to use in EE
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -122,16 +120,24 @@ export const entityFns = [
   {
     name: "run",
     qualifier: (entity: DataTreeEntity) => isAction(entity),
-    fn: (entity: DataTreeEntity) =>
-      isAsyncGuard(run.bind(entity), `${(entity as DataTreeAction).name}.run`),
+    fn: (entity: DataTreeEntity, entityName: string) => {
+      // @ts-expect-error: name is not defined on ActionEntity
+      entity.name = entityName;
+      return getFnWithGuards(
+        run.bind(entity as ActionEntity),
+        `${entityName}.run`,
+        [isAsyncGuard],
+      );
+    },
   },
   {
     name: "clear",
     qualifier: (entity: DataTreeEntity) => isAction(entity),
-    fn: (entity: DataTreeEntity) =>
-      isAsyncGuard(
-        clear.bind(entity),
-        `${(entity as DataTreeAction).name}.clear`,
+    fn: (entity: DataTreeEntity, entityName: string) =>
+      getFnWithGuards(
+        clear.bind(entity as ActionEntity),
+        `${entityName}.clear`,
+        [isAsyncGuard],
       ),
   },
   {
@@ -139,21 +145,29 @@ export const entityFns = [
     path: "appsmith.geolocation.getCurrentPosition",
     qualifier: (entity: DataTreeEntity) => isAppsmithEntity(entity),
     fn: () =>
-      isAsyncGuard(getGeoLocation, "appsmith.geolocation.getCurrentPosition"),
+      getFnWithGuards(
+        getGeoLocation,
+        "appsmith.geolocation.getCurrentPosition",
+        [isAsyncGuard],
+      ),
   },
   {
     name: "watchGeoLocation",
     path: "appsmith.geolocation.watchPosition",
     qualifier: (entity: DataTreeEntity) => isAppsmithEntity(entity),
     fn: () =>
-      isAsyncGuard(watchGeoLocation, "appsmith.geolocation.watchPosition"),
+      getFnWithGuards(watchGeoLocation, "appsmith.geolocation.watchPosition", [
+        isAsyncGuard,
+      ]),
   },
   {
     name: "stopWatchGeoLocation",
     path: "appsmith.geolocation.clearWatch",
     qualifier: (entity: DataTreeEntity) => isAppsmithEntity(entity),
     fn: () =>
-      isAsyncGuard(stopWatchGeoLocation, "appsmith.geolocation.clearWatch"),
+      getFnWithGuards(stopWatchGeoLocation, "appsmith.geolocation.clearWatch", [
+        isAsyncGuard,
+      ]),
   },
 ];
 

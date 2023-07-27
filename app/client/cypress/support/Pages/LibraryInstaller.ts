@@ -2,7 +2,8 @@ import { ObjectsRegistry } from "../Objects/Registry";
 
 export class LibraryInstaller {
   private _aggregateHelper = ObjectsRegistry.AggregateHelper;
-  private _installer_trigger_locator = ".t--entity-add-btn.group.libraries";
+  private _installer_trigger_locator =
+    ".t--entity-add-btn.group.libraries button";
   private _installer_close_locator = ".t--close-installer";
 
   private getLibraryLocatorInExplorer(libraryName: string) {
@@ -13,11 +14,11 @@ export class LibraryInstaller {
     return `div.library-card.t--${libraryName}`;
   }
 
-  public openInstaller() {
-    this._aggregateHelper.GetNClick(this._installer_trigger_locator);
+  public OpenInstaller(force = false) {
+    this._aggregateHelper.GetNClick(this._installer_trigger_locator, 0, force);
   }
 
-  public closeInstaller() {
+  public CloseInstaller() {
     this._aggregateHelper.GetNClick(this._installer_close_locator);
   }
 

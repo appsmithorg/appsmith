@@ -3,7 +3,6 @@ import "@testing-library/jest-dom";
 import AutoHeightLimitHandleDot from "./AutoHeightLimitHandleDot";
 import "jest-styled-components";
 import renderer from "react-test-renderer";
-import { OVERLAY_COLOR } from "../constants";
 
 describe("<AutoHeightLimitHandleDot />", () => {
   it("should have scale style set to 1 when isDragging is false", () => {

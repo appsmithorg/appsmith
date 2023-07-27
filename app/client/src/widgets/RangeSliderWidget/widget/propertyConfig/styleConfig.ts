@@ -1,4 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 export default [
   {
@@ -35,11 +36,11 @@ export default [
     ],
   },
   {
-    sectionName: "Label Styles",
+    sectionName: "Label styles",
     children: [
       {
         propertyName: "labelTextColor",
-        label: "Font Color",
+        label: "Font color",
         helpText: "Control the color of the label associated",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
@@ -49,10 +50,11 @@ export default [
       },
       {
         propertyName: "labelTextSize",
-        label: "Label Text Size",
+        label: "Label text size",
         helpText: "Control the font size of the label associated",
         controlType: "DROP_DOWN",
         defaultValue: "0.875rem",
+        hidden: isAutoLayout,
         options: [
           {
             label: "S",
@@ -97,11 +99,11 @@ export default [
         controlType: "BUTTON_GROUP",
         options: [
           {
-            icon: "BOLD_FONT",
+            icon: "text-bold",
             value: "BOLD",
           },
           {
-            icon: "ITALICS_FONT",
+            icon: "text-italic",
             value: "ITALIC",
           },
         ],
@@ -118,7 +120,7 @@ export default [
       {
         helpText: "Sets the fill color of the widget",
         propertyName: "accentColor",
-        label: "Fill Color",
+        label: "Fill color",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,

@@ -99,7 +99,7 @@ export const Thumb = forwardRef<HTMLDivElement, ThumbProps>(
         aria-valuemin={min}
         aria-valuenow={parseInt(tooltipValue)}
         color={color}
-        data-cy="slider-thumb"
+        data-testid="slider-thumb"
         disabled={disabled}
         onBlur={() => {
           setFocused(false);

@@ -6,8 +6,10 @@ import {
 } from "./selectors";
 import _, { find, isString, reduce, remove } from "lodash";
 import type { WidgetType } from "constants/WidgetConstants";
+import { AUTO_LAYOUT_CONTAINER_PADDING } from "constants/WidgetConstants";
 import {
   CONTAINER_GRID_PADDING,
+  FLEXBOX_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
@@ -54,10 +56,12 @@ import {
 import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
-import type { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
+import { Positioning } from "utils/autoLayout/constants";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -344,7 +348,7 @@ function sortWidgetsMetaByParent(widgetsMeta: MetaState, parentId: string) {
 export type DescendantWidgetMap = {
   id: string;
   // To accomodate metaWidgets which might not be present on the evalTree, evaluatedWidget might be undefined
-  evaluatedWidget: DataTreeWidget | undefined;
+  evaluatedWidget: WidgetEntity | undefined;
 };
 
 /**
@@ -368,7 +372,7 @@ export function getWidgetDescendantToReset(
   )) {
     const evaluatedChildWidget = find(evaluatedDataTree, function (entity) {
       return isWidget(entity) && entity.widgetId === childMetaWidgetId;
-    }) as DataTreeWidget | undefined;
+    }) as WidgetEntity | undefined;
     descendantList.push({
       id: childMetaWidgetId,
       evaluatedWidget: evaluatedChildWidget,
@@ -664,7 +668,8 @@ export function getBoundariesFromSelectedWidgets(
  */
 export const getSelectedWidgetWhenPasting = function* () {
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const copiedWidgetGroups: CopiedWidgetGroup[] = yield getCopiedWidgets();
+  const { widgets: copiedWidgetGroups }: { widgets: CopiedWidgetGroup[] } =
+    yield getCopiedWidgets();
 
   let selectedWidget: FlattenedWidgetProps | undefined = yield select(
     getSelectedWidget,
@@ -740,13 +745,22 @@ export function getMousePositions(
  * @returns
  */
 export function getSnappedGrid(LayoutWidget: WidgetProps, canvasWidth: number) {
-  let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
+  // For all widgets inside a container, we remove both container padding as well as widget padding from component width
+  let padding =
+    ((LayoutWidget?.appPositioningType === AppPositioningTypes.AUTO
+      ? AUTO_LAYOUT_CONTAINER_PADDING
+      : CONTAINER_GRID_PADDING) +
+      WIDGET_PADDING) *
+    2;
   if (
     LayoutWidget.widgetId === MAIN_CONTAINER_WIDGET_ID ||
     LayoutWidget.type === "CONTAINER_WIDGET"
   ) {
-    //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
-    padding = CONTAINER_GRID_PADDING * 2;
+    // For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
+    padding =
+      LayoutWidget.positioning === Positioning.Vertical
+        ? FLEXBOX_PADDING * 2
+        : CONTAINER_GRID_PADDING * 2;
   }
   if (LayoutWidget.noPad) {
     // Widgets like ListWidget choose to have no container padding so will only have widget padding

@@ -1,6 +1,8 @@
 import type { AxiosPromise } from "axios";
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import type { ProductAlert } from "../../reducers/uiReducers/usersReducer";
 
 export interface LoginUserRequest {
   email: string;
@@ -55,6 +57,7 @@ export interface UpdateUserRequest {
   email?: string;
   role?: string;
   useCase?: string;
+  intercomConsentGiven?: boolean;
 }
 
 export interface SendTestEmailPayload {
@@ -80,6 +83,7 @@ export interface CreateSuperUserRequest {
 
 export class UserApi extends Api {
   static usersURL = "v1/users";
+  static productAlertURL = "v1/product-alert/alert";
   static forgotPasswordURL = `${UserApi.usersURL}/forgotPassword`;
   static verifyResetPasswordTokenURL = `${UserApi.usersURL}/verifyPasswordResetToken`;
   static resetPasswordURL = `${UserApi.usersURL}/resetPassword`;
@@ -182,7 +186,7 @@ export class UserApi extends Api {
     return Api.put(UserApi.leaveWorkspaceURL + "/" + request.workspaceId);
   }
 
-  static fetchFeatureFlags(): AxiosPromise<ApiResponse> {
+  static fetchFeatureFlags(): AxiosPromise<ApiResponse<FeatureFlags>> {
     return Api.get(UserApi.featureFlagsURL);
   }
 
@@ -214,6 +218,10 @@ export class UserApi extends Api {
     payload: SendTestEmailPayload,
   ): AxiosPromise<ApiResponse> {
     return Api.post(UserApi.sendTestEmailURL, payload);
+  }
+
+  static getProductAlert(): AxiosPromise<ApiResponse<ProductAlert>> {
+    return Api.get(UserApi.productAlertURL);
   }
 }
 

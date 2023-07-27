@@ -745,10 +745,46 @@ const migrations: Migration[] = [
     ],
     version: 76,
   },
+  {
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateTableSelectOptionAttributesForNewRow",
+      },
+    ],
+    version: 77,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName:
+          "migrateBindingPrefixSuffixForInlineEditValidationControl",
+      },
+    ],
+    version: 78,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateTableWidgetTableDataJsMode",
+      },
+    ],
+    version: 79,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: selectWidgetMigration,
+        functionName: "migrateSelectWidgetOptionToSourceData",
+      },
+    ],
+    version: 80,
+  },
 ];
 
 const mockFnObj: Record<number, any> = {};
-let migratedDSL: ContainerWidgetProps<WidgetProps>;
 
 describe("Test all the migrations are running", () => {
   afterAll(() => {
@@ -785,7 +821,7 @@ describe("Test all the migrations are running", () => {
   });
 
   // Runs all the migrations
-  migratedDSL = DSLMigrations.transformDSL(
+  DSLMigrations.transformDSL(
     originalDSLForDSLMigrations as unknown as ContainerWidgetProps<WidgetProps>,
   );
 

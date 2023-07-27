@@ -1,12 +1,12 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ApiTemplate;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TemplateCollection;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.BaseApiImporter;
 import com.appsmith.server.services.NewPageService;
@@ -18,8 +18,6 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-
 @Slf4j
 public class PostmanImporterServiceCEImpl extends BaseApiImporter implements PostmanImporterServiceCE {
 
@@ -27,16 +25,16 @@ public class PostmanImporterServiceCEImpl extends BaseApiImporter implements Pos
     private final ResponseUtils responseUtils;
     private final PagePermission pagePermission;
 
-    public PostmanImporterServiceCEImpl(NewPageService newPageService,
-                                        ResponseUtils responseUtils,
-                                        PagePermission pagePermission) {
+    public PostmanImporterServiceCEImpl(
+            NewPageService newPageService, ResponseUtils responseUtils, PagePermission pagePermission) {
         this.newPageService = newPageService;
         this.responseUtils = responseUtils;
         this.pagePermission = pagePermission;
     }
 
     @Override
-    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String workspaceId, String branchName) {
+    public Mono<ActionDTO> importAction(
+            Object input, String pageId, String name, String workspaceId, String branchName) {
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         Datasource datasource = new Datasource();
@@ -46,7 +44,8 @@ public class PostmanImporterServiceCEImpl extends BaseApiImporter implements Pos
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(pageId);
         action.setName(name);
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, pageId, pagePermission.getActionCreatePermission())
+        return newPageService
+                .findByBranchNameAndDefaultPageId(branchName, pageId, pagePermission.getActionCreatePermission())
                 .map(branchedPage -> {
                     action.setDefaultResources(branchedPage.getDefaultResources());
                     return action;
@@ -116,5 +115,4 @@ public class PostmanImporterServiceCEImpl extends BaseApiImporter implements Pos
 
         return templateCollection;
     }
-
 }

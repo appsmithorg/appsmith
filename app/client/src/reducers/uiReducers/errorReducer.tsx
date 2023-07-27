@@ -10,7 +10,7 @@ import _ from "lodash";
 const initialState: ErrorReduxState = {
   safeCrash: false,
   safeCrashCode: undefined,
-  currentError: { sourceAction: "", message: "" },
+  currentError: { sourceAction: "", message: "", stackTrace: "" },
 };
 
 const errorReducer = createReducer(initialState, {
@@ -20,7 +20,7 @@ const errorReducer = createReducer(initialState, {
   ) => ({
     ...state,
     safeCrash: true,
-    safeCrashCode: _.get(action, "payload.code", 502), // when the server is not responding
+    safeCrashCode: _.get(action, "payload.code"),
   }),
   [ReduxActionTypes.REPORT_ERROR]: (
     state: ErrorReduxState,
@@ -31,6 +31,7 @@ const errorReducer = createReducer(initialState, {
       currentError: {
         sourceAction: action.payload.source,
         message: action.payload.message,
+        stackTrace: action.payload.stackTrace,
       },
     };
   },
@@ -45,6 +46,7 @@ export interface ErrorReduxState {
   currentError: {
     sourceAction?: string;
     message?: string;
+    stackTrace?: string;
   };
 }
 

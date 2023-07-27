@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import { getWidgetCards } from "selectors/editorSelectors";
-import ExplorerSearch from "./Explorer/ExplorerSearch";
+import { SearchInput } from "design-system";
+import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import { debounce } from "lodash";
 import {
   createMessage,
@@ -10,16 +11,15 @@ import {
 } from "@appsmith/constants/messages";
 import Fuse from "fuse.js";
 import type { WidgetCardProps } from "widgets/BaseWidget";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
-  let fuse: Fuse<WidgetCardProps, Fuse.FuseOptions<WidgetCardProps>>;
-
-  useEffect(() => {
-    fuse = new Fuse(cards, {
+  const fuse = useMemo(() => {
+    const options = {
       keys: [
         {
           name: "displayName",
@@ -32,10 +32,20 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
       ],
       threshold: 0.2,
       distance: 100,
-    });
+    };
+
+    return new Fuse(cards, options);
   }, [cards]);
 
+  const sendWidgetSearchAnalytics = debounce((value: string) => {
+    if (value !== "") {
+      AnalyticsUtil.logEvent("WIDGET_SEARCH", { value });
+    }
+  }, 1000);
+
   const filterCards = (keyword: string) => {
+    sendWidgetSearchAnalytics(keyword);
+
     if (keyword.trim().length > 0) {
       const searchResult = fuse.search(keyword);
       setFilteredCards(searchResult as WidgetCardProps[]);
@@ -48,40 +58,30 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
     if (isActive) searchInputRef.current?.focus();
   }, [isActive]);
 
-  /**
-   * filter widgets
-   */
-  const search = debounce((e: any) => {
-    filterCards(e.target.value.toLowerCase());
+  const search = debounce((value: string) => {
+    filterCards(value.toLowerCase());
   }, 300);
-
-  /**
-   * clear the search input
-   */
-  const clearSearchInput = () => {
-    if (searchInputRef.current) {
-      searchInputRef.current.value = "";
-    }
-    filterCards("");
-    searchInputRef.current?.focus();
-  };
 
   return (
     <div
-      className={`flex flex-col overflow-hidden ${isActive ? "" : "hidden"}`}
+      className={`flex flex-col  overflow-hidden ${isActive ? "" : "hidden"}`}
     >
-      <ExplorerSearch
-        autoFocus
-        clear={clearSearchInput}
-        onChange={search}
-        placeholder="Search widgets..."
-        ref={searchInputRef}
-      />
+      <div className="sticky top-0 px-3 mt-0.5">
+        <SearchInput
+          autoComplete="off"
+          autoFocus
+          id={ENTITY_EXPLORER_SEARCH_ID}
+          onChange={search}
+          placeholder="Search widgets"
+          ref={searchInputRef}
+          type="text"
+        />
+      </div>
       <div
-        className="flex-grow px-3 overflow-y-scroll"
-        data-cy="widget-sidebar-scrollable-wrapper"
+        className="flex-grow px-3 mt-3 overflow-y-scroll"
+        data-testid="widget-sidebar-scrollable-wrapper"
       >
-        <p className="px-3 py-3 text-sm leading-relaxed text-trueGray-400 t--widget-sidebar">
+        <p className="px-3 py-3 text-sm leading-relaxed t--widget-sidebar">
           {createMessage(WIDGET_SIDEBAR_CAPTION)}
         </p>
         <div className="grid items-stretch grid-cols-3 gap-3 justify-items-stretch">

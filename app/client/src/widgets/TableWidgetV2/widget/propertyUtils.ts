@@ -1,5 +1,6 @@
 import { Alignment } from "@blueprintjs/core";
 import type { ColumnProperties } from "../component/Constants";
+import { StickyType } from "../component/Constants";
 import { CellAlignmentTypes } from "../component/Constants";
 import type { TableWidgetProps } from "../constants";
 import { ColumnTypes, InlineEditingSaveOptions } from "../constants";
@@ -13,7 +14,7 @@ import {
   createEditActionColumn,
   generateNewColumnOrderFromStickyValue,
 } from "./utilities";
-import type { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import type { PropertyUpdates } from "widgets/constants";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 
 export function totalRecordsCountValidation(
@@ -31,7 +32,7 @@ export function totalRecordsCountValidation(
     return {
       isValid: true,
       parsed: defaultValue,
-      message: [""],
+      messages: [],
     };
   } else if (
     (!_.isFinite(value) && !_.isString(value)) ||
@@ -43,7 +44,7 @@ export function totalRecordsCountValidation(
     return {
       isValid: false,
       parsed: defaultValue,
-      message: [ERROR_MESSAGE],
+      messages: [{ name: "ValidationError", message: ERROR_MESSAGE }],
     };
   } else {
     /*
@@ -52,7 +53,7 @@ export function totalRecordsCountValidation(
     return {
       isValid: true,
       parsed: Number(value),
-      message: [""],
+      messages: [],
     };
   }
 }
@@ -193,7 +194,8 @@ export const updateColumnOrderHook = (
 
     const rightColumnIndex = findIndex(
       newColumnOrder,
-      (colName: string) => props.primaryColumns[colName].sticky === "right",
+      (colName: string) =>
+        props.primaryColumns[colName]?.sticky === StickyType.RIGHT,
     );
 
     if (rightColumnIndex !== -1) {
@@ -239,7 +241,7 @@ export const updateInlineEditingOptionDropdownVisibilityHook = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
-): Array<PropertyHookUpdates> | undefined => {
+): Array<PropertyUpdates> | undefined => {
   let propertiesToUpdate = [];
 
   if (
@@ -493,7 +495,7 @@ export const updateInlineEditingSaveOptionHook = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
-): Array<PropertyHookUpdates> | undefined => {
+): Array<PropertyUpdates> | undefined => {
   if (propertyValue !== InlineEditingSaveOptions.ROW_LEVEL) {
     const columnsArray = Object.values(props.primaryColumns);
     const edtiActionColumn = columnsArray.find(
@@ -566,14 +568,14 @@ export function updateThemeStylesheetsInColumns(
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
-): Array<PropertyHookUpdates> | undefined {
+): Array<PropertyUpdates> | undefined {
   const regex = /^primaryColumns\.(\w+)\.(.*)$/;
   const matches = propertyPath.match(regex);
   const columnId = matches?.[1];
   const columnProperty = matches?.[2];
 
   if (columnProperty === "columnType") {
-    const propertiesToUpdate: Array<PropertyHookUpdates> = [];
+    const propertiesToUpdate: Array<PropertyUpdates> = [];
     const oldColumnType = get(props, `primaryColumns.${columnId}.columnType`);
     const newColumnType = propertyValue;
 
@@ -667,7 +669,7 @@ export const updateCustomColumnAliasOnLabelChange = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: unknown,
-): Array<PropertyHookUpdates> | undefined => {
+): Array<PropertyUpdates> | undefined => {
   // alias will be updated along with label change only for custom columns
   const regex = /^primaryColumns\.(customColumn\d+)\.label$/;
   if (propertyPath?.length && regex.test(propertyPath)) {
@@ -753,7 +755,7 @@ export const updateMenuItemsSource = (
         propertiesToUpdate.push({
           propertyPath: `${baseProperty}.configureMenuItems`,
           propertyValue: {
-            label: "Configure Menu Items",
+            label: "Configure menu items",
             id: "config",
             config: {
               id: "config",
@@ -779,6 +781,7 @@ export function selectColumnOptionsValidation(
     _parsed,
     _message = "";
   let uniqueValues: Set<unknown>;
+  const invalidArrayValueMessage = `This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`;
   const invalidMessage = `This value does not evaluate to type Array<{ "label": string | number, "value": string | number | boolean }>`;
   const allowedValueTypes = ["string", "number", "boolean"];
   const allowedLabelTypes = ["string", "number"];
@@ -791,6 +794,15 @@ export function selectColumnOptionsValidation(
       rowIndex !== null ? ` Row: ${rowIndex}` : ""
     } index: ${optionIndex}.`;
   };
+
+  const generateInvalidArrayValueMessage = (
+    rowIndex: number | null,
+    optionIndex: number,
+  ) =>
+    `${generateErrorMessagePrefix(
+      rowIndex,
+      optionIndex,
+    )} ${invalidArrayValueMessage}`;
 
   const validateOption = (
     option: any,
@@ -897,6 +909,12 @@ export function selectColumnOptionsValidation(
               uniqueValues = new Set();
 
               for (let j = 0; j < value[i].length; j++) {
+                if (_.isNil(value[i][j])) {
+                  _isValid = false;
+                  _message = generateInvalidArrayValueMessage(i, j);
+                  _parsed = [];
+                  break;
+                }
                 if ((_message = validateOption(value[i][j], i, j))) {
                   _isValid = false;
                   break;
@@ -913,6 +931,13 @@ export function selectColumnOptionsValidation(
           _parsed = value;
           _isValid = true;
           for (let i = 0; i < (value as Array<unknown>).length; i++) {
+            if (_.isNil((value as Array<unknown>)[i])) {
+              _isValid = false;
+              _message = generateInvalidArrayValueMessage(null, i);
+              _parsed = [];
+              break;
+            }
+
             if (
               (_message = validateOption((value as Array<unknown>)[i], null, i))
             ) {
@@ -945,3 +970,82 @@ export function selectColumnOptionsValidation(
 
 export const getColumnPath = (propPath: string) =>
   propPath.split(".").slice(0, 2).join(".");
+
+export const tableDataValidation = (
+  value: unknown,
+  props: TableWidgetProps,
+  _?: any,
+) => {
+  const invalidResponse = {
+    isValid: false,
+    parsed: [],
+    messages: [
+      {
+        name: "TypeError",
+        message: `This value does not evaluate to type Array<Object>}`,
+      },
+    ],
+  };
+
+  if (value === "") {
+    return {
+      isValid: true,
+      parsed: [],
+    };
+  }
+
+  if (value === undefined || value === null) {
+    return {
+      isValid: false,
+      parsed: [],
+      messages: [
+        {
+          name: "ValidationError",
+          message: "Data is undefined, re-run your query or fix the data",
+        },
+      ],
+    };
+  }
+
+  if (!_.isString(value) && !Array.isArray(value)) {
+    return invalidResponse;
+  }
+
+  let parsed = value;
+
+  if (_.isString(value)) {
+    try {
+      parsed = JSON.parse(value as string);
+    } catch (e) {
+      return invalidResponse;
+    }
+  }
+
+  if (Array.isArray(parsed)) {
+    if (parsed.length === 0) {
+      return {
+        isValid: true,
+        parsed: [],
+      };
+    }
+
+    for (let i = 0; i < parsed.length; i++) {
+      if (!_.isPlainObject(parsed[i])) {
+        return {
+          isValid: false,
+          parsed: [],
+          messages: [
+            {
+              name: "ValidationError",
+              message: `Invalid object at index ${i}`,
+            },
+          ],
+        };
+      }
+    }
+
+    return { isValid: true, parsed };
+  }
+
+  return invalidResponse;
+};

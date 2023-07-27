@@ -110,10 +110,7 @@
                   "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                   "displayName": "Button",
                   "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
-                  "searchTags": [
-                    "click",
-                    "submit"
-                  ],
+                  "searchTags": ["click", "submit"],
                   "topRow": 10.0,
                   "bottomRow": 14.0,
                   "parentRowSpace": 10.0,
@@ -153,12 +150,7 @@
                   "widgetName": "Input1",
                   "displayName": "Input",
                   "iconSVG": "/static/media/icon.9f505595da61a34f563dba82adeb06ec.svg",
-                  "searchTags": [
-                    "form",
-                    "text input",
-                    "number",
-                    "textarea"
-                  ],
+                  "searchTags": ["form", "text input", "number", "textarea"],
                   "topRow": 5.0,
                   "bottomRow": 9.0,
                   "parentRowSpace": 10.0,
@@ -245,11 +237,7 @@
                   "allowScroll": false,
                   "displayName": "Chart",
                   "iconSVG": "/static/media/icon.6adbe31ed817fc4bfd66f9f0a6fc105c.svg",
-                  "searchTags": [
-                    "graph",
-                    "visuals",
-                    "visualisations"
-                  ],
+                  "searchTags": ["graph", "visuals", "visualisations"],
                   "topRow": 5.0,
                   "bottomRow": 45.0,
                   "parentRowSpace": 10.0,
@@ -351,11 +339,7 @@
                   "isCanvas": true,
                   "displayName": "Container",
                   "iconSVG": "/static/media/icon.1977dca3370505e2db3a8e44cfd54907.svg",
-                  "searchTags": [
-                    "div",
-                    "parent",
-                    "group"
-                  ],
+                  "searchTags": ["div", "parent", "group"],
                   "topRow": 46.0,
                   "bottomRow": 86.0,
                   "parentRowSpace": 10.0,
@@ -399,11 +383,7 @@
                           "widgetName": "Text1",
                           "displayName": "Text",
                           "iconSVG": "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
-                          "searchTags": [
-                            "typography",
-                            "paragraph",
-                            "label"
-                          ],
+                          "searchTags": ["typography", "paragraph", "label"],
                           "topRow": 8.0,
                           "bottomRow": 29.0,
                           "parentRowSpace": 10.0,
@@ -483,11 +463,7 @@
                   "isCanvas": true,
                   "displayName": "Modal",
                   "iconSVG": "/static/media/icon.4975978e9a961fb0bfb4e38de7ecc7c5.svg",
-                  "searchTags": [
-                    "dialog",
-                    "popup",
-                    "notification"
-                  ],
+                  "searchTags": ["dialog", "popup", "notification"],
                   "topRow": 32.0,
                   "bottomRow": 272.0,
                   "parentRowSpace": 10.0,
@@ -523,12 +499,9 @@
                           "widgetName": "IconButton1",
                           "onClick": "{{closeModal('Modal1')}}",
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                          "displayName": "Icon Button",
+                          "displayName": "Icon button",
                           "iconSVG": "/static/media/icon.1a0c634ac75f9fa6b6ae7a8df882a3ba.svg",
-                          "searchTags": [
-                            "click",
-                            "submit"
-                          ],
+                          "searchTags": ["click", "submit"],
                           "topRow": 0.0,
                           "bottomRow": 4.0,
                           "type": "ICON_BUTTON_WIDGET",
@@ -562,11 +535,7 @@
                           "widgetName": "Text2",
                           "displayName": "Text",
                           "iconSVG": "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
-                          "searchTags": [
-                            "typography",
-                            "paragraph",
-                            "label"
-                          ],
+                          "searchTags": ["typography", "paragraph", "label"],
                           "topRow": 1.0,
                           "bottomRow": 5.0,
                           "type": "TEXT_WIDGET",
@@ -615,10 +584,7 @@
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "displayName": "Button",
                           "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
-                          "searchTags": [
-                            "click",
-                            "submit"
-                          ],
+                          "searchTags": ["click", "submit"],
                           "topRow": 18.0,
                           "bottomRow": 22.0,
                           "type": "BUTTON_WIDGET",
@@ -659,10 +625,7 @@
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "displayName": "Button",
                           "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
-                          "searchTags": [
-                            "click",
-                            "submit"
-                          ],
+                          "searchTags": ["click", "submit"],
                           "topRow": 18.0,
                           "bottomRow": 22.0,
                           "type": "BUTTON_WIDGET",
@@ -969,9 +932,7 @@
         "isValid": true,
         "invalids": [],
         "messages": [],
-        "jsonPathKeys": [
-          "() => {}"
-        ],
+        "jsonPathKeys": ["() => {}"],
         "userSetOnLoad": false,
         "confirmBeforeExecute": false,
         "policies": [],
@@ -1345,9 +1306,7 @@
         "isValid": true,
         "invalids": [],
         "messages": [],
-        "jsonPathKeys": [
-          "() => {}"
-        ],
+        "jsonPathKeys": ["() => {}"],
         "userSetOnLoad": false,
         "confirmBeforeExecute": false,
         "policies": [],
@@ -1435,9 +1394,7 @@
       "JSObject1.myFun1##ENTITY_SEPARATOR##Page1",
       "SQL_Query##ENTITY_SEPARATOR##Page1"
     ],
-    "pageList": [
-      "Page1"
-    ],
+    "pageList": ["Page1"],
     "actionCollectionList": [
       "JSObject1##ENTITY_SEPARATOR##Page1",
       "JSObject2##ENTITY_SEPARATOR##Page1"

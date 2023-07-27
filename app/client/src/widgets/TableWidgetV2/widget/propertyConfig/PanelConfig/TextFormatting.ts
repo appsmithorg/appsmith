@@ -4,7 +4,7 @@ import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { hideByColumnType, showByColumnType } from "../../propertyUtils";
 
 export default {
-  sectionName: "Text Formatting",
+  sectionName: "Text formatting",
   hidden: (props: TableWidgetProps, propertyPath: string) => {
     return showByColumnType(
       props,
@@ -16,7 +16,7 @@ export default {
   children: [
     {
       propertyName: "textSize",
-      label: "Text Size",
+      label: "Text size",
       helpText: "Controls the size of text in the column",
       controlType: "DROP_DOWN",
       isJSConvertible: true,
@@ -68,15 +68,15 @@ export default {
       controlType: "BUTTON_GROUP",
       options: [
         {
-          icon: "BOLD_FONT",
+          icon: "text-bold",
           value: "BOLD",
         },
         {
-          icon: "ITALICS_FONT",
+          icon: "text-italic",
           value: "ITALIC",
         },
         {
-          icon: "UNDERLINE",
+          icon: "text-underline",
           value: "UNDERLINE",
         },
       ],
@@ -102,21 +102,21 @@ export default {
     },
     {
       propertyName: "horizontalAlignment",
-      label: "Text Align",
+      label: "Text align",
       helpText: "Sets the horizontal alignment of the content in the column",
       controlType: "ICON_TABS",
       fullWidth: true,
       options: [
         {
-          icon: "LEFT_ALIGN",
+          startIcon: "align-left",
           value: "LEFT",
         },
         {
-          icon: "CENTER_ALIGN",
+          startIcon: "align-center",
           value: "CENTER",
         },
         {
-          icon: "RIGHT_ALIGN",
+          startIcon: "align-right",
           value: "RIGHT",
         },
       ],
@@ -148,21 +148,21 @@ export default {
     },
     {
       propertyName: "verticalAlignment",
-      label: "Vertical Alignment",
+      label: "Vertical alignment",
       helpText: "Sets the vertical alignment of the content in the column",
       controlType: "ICON_TABS",
       fullWidth: true,
       options: [
         {
-          icon: "VERTICAL_TOP",
+          startIcon: "vertical-align-top",
           value: "TOP",
         },
         {
-          icon: "VERTICAL_CENTER",
+          startIcon: "vertical-align-middle",
           value: "CENTER",
         },
         {
-          icon: "VERTICAL_BOTTOM",
+          startIcon: "vertical-align-bottom",
           value: "BOTTOM",
         },
       ],

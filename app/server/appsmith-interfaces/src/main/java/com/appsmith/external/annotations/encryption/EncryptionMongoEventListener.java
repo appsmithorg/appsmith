@@ -34,5 +34,4 @@ public class EncryptionMongoEventListener<E> extends AbstractMongoEventListener<
 
         encryptionHandler.convertEncryption(source, encryptionService::decryptString);
     }
-
 }
