@@ -1,7 +1,11 @@
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
 
-import { TooltipRoot, TooltipTrigger, TooltipContent } from "./";
-import { Button } from "../Button";
+import {
+  TooltipRoot,
+  TooltipTrigger,
+  TooltipContent,
+  Button,
+} from "@design-system/headless";
 
 <Meta
   title="Design-system/headless/Tooltip"
@@ -16,7 +20,7 @@ export const Template = (args) => {
   return (
     <TooltipRoot {...args}>
       <TooltipTrigger>
-        <button>My trigger</button>
+        <Button>My trigger</Button>
       </TooltipTrigger>
       <TooltipContent>My tooltip</TooltipContent>
     </TooltipRoot>
@@ -31,6 +35,8 @@ A tooltip is a small pop-up that appears when a user places their cursor over an
   <Story name="Tooltip">{Template.bind({})}</Story>
 </Canvas>
 
+<ArgsTable story="Tooltip" of={TooltipRoot} />
+
 # Placement
 
 The placement of the tooltip can be changed by passing the `placement` prop.
@@ -39,25 +45,25 @@ The placement of the tooltip can be changed by passing the `placement` prop.
   <Story name="Tooltip placement">
     <TooltipRoot placement="left">
       <TooltipTrigger>
-        <button>Left</button>
+        <Button>Left</Button>
       </TooltipTrigger>
       <TooltipContent>My tooltip</TooltipContent>
     </TooltipRoot>
     <TooltipRoot placement="top">
       <TooltipTrigger>
-        <button>Top</button>
+        <Button>Top</Button>
       </TooltipTrigger>
       <TooltipContent>My tooltip</TooltipContent>
     </TooltipRoot>
     <TooltipRoot placement="bottom">
       <TooltipTrigger>
-        <button>Bottom</button>
+        <Button>Bottom</Button>
       </TooltipTrigger>
       <TooltipContent>My tooltip</TooltipContent>
     </TooltipRoot>
     <TooltipRoot placement="right">
       <TooltipTrigger>
-        <button>Right</button>
+        <Button>Right</Button>
       </TooltipTrigger>
       <TooltipContent>My tooltip</TooltipContent>
     </TooltipRoot>
@@ -78,5 +84,3 @@ If the trigger is disabled, the tooltip will not be displayed.
     </TooltipRoot>
   </Story>
 </Canvas>
-
-<ArgsTable story="Tooltip" of={Tooltip} />
