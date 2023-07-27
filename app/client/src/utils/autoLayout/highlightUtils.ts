@@ -95,10 +95,12 @@ export function deriveHighlightsFromLayers(
 
   let offsetTop = FLEXBOX_PADDING; // used to calculate distance of a highlight from parents's top.
   if (layoutId) {
+    console.log("#### layoutId", layoutId);
     const el = document.getElementById("layout-" + layoutId);
     const rect = el?.getBoundingClientRect();
-    if (rect)
-      return getHighlightsForLayoutType({
+    console.log("#### rect", rect);
+    if (rect) {
+      const arr = getHighlightsForLayoutType({
         layout: selectedLayout,
         widgets,
         widgetPositions,
@@ -110,6 +112,9 @@ export function deriveHighlightsFromLayers(
         offsetTop,
         isParent: true,
       });
+      console.log("#### highlights", arr);
+      return arr;
+    }
   }
   for (const layer of layers) {
     /**
@@ -753,6 +758,7 @@ export function getHighlightsForLayoutType(data: {
     // rendersWidgets,
   } = layout;
   if (isDropTarget && !isParent) return [];
+  console.log("#### layoutType", { layoutType });
   switch (layoutType) {
     case "ROW":
       highlights.push(
@@ -763,25 +769,6 @@ export function getHighlightsForLayoutType(data: {
           rect: Row.getDOMRect(layout),
         }),
       );
-      break;
-      // get layer from row
-      const payload = generateVerticalHighlights({
-        widgets,
-        widgetPositions,
-        canvasPositions,
-        canvasWidth, // calculate width
-        layer: getFlexLayerFromRow(
-          children as string[],
-          FlexLayerAlignment.Start,
-        ),
-        childCount: 0,
-        layerIndex: 0,
-        offsetTop,
-        canvasId,
-        draggedWidgets,
-        isMobile,
-      });
-      highlights.push(...payload.highlights);
       break;
     case "COLUMN":
       return Column.deriveHighlights({

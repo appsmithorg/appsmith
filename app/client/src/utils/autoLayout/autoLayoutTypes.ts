@@ -100,6 +100,8 @@ export interface LayoutComponentProps {
   isDropTarget?: boolean;
   rendersWidgets?: boolean;
   widgetsAllowed?: string[];
+  childTemplate?: LayoutComponentProps;
+  insertChild?: boolean;
 
   childrenMap?: { [id: string]: JSX.Element | ReactNode };
   containerProps?: ContainerWidgetProps<WidgetProps> & {

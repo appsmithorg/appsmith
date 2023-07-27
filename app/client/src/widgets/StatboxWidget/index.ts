@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Colors } from "constants/Colors";
 import {
   FlexLayerAlignment,
@@ -229,6 +230,17 @@ export const CONFIG = {
                 layout: [
                   {
                     isDropTarget: true,
+                    childTemplate: {
+                      layoutId: "",
+                      layoutStyle: {
+                        columnGap: 4,
+                        alignSelf: "stretch",
+                      },
+                      layoutType: "ROW",
+                      layout: [],
+                      insertChild: true,
+                      rendersWidgets: true,
+                    },
                     layoutId: generateReactKey(),
                     layoutStyle: {
                       rowGap: 12,
@@ -283,6 +295,7 @@ export const CONFIG = {
                 ],
               },
             ];
+            console.log("#### layout", { layout });
 
             //create properties to be updated
             return getWidgetBluePrintUpdates({

@@ -7,6 +7,7 @@ import { DEFAULT_HIGHLIGHT_SIZE } from "components/designSystems/appsmith/autoLa
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsReducer";
 import { FlexLayerAlignment } from "./constants";
+import { generateReactKey } from "utils/generators";
 
 export function getLayoutComponent(type: string): any {
   const map: { [id: string]: any } = {
@@ -90,6 +91,7 @@ export function updateVerticalDropZoneAndHeight(
       height,
     };
   }
+  console.log("#### vertical zone", { highlights });
   return highlights;
 }
 
@@ -111,9 +113,10 @@ export function generateHighlightsForRow(data: {
     offsetTop = 0,
     childIndex = 0,
   } = data;
-  const { isDropTarget, layout, layoutId, rendersWidgets } = layoutProps;
-  const offsetY = isDropTarget && false ? 4 : rect?.top || 0 + 4;
-  const offsetX = isDropTarget && false ? 4 : rect?.left || 0 + 4;
+  const { layout, layoutId, rendersWidgets } = layoutProps;
+  const offsetY = rect?.top || 0 + 2;
+  const offsetX = rect?.left || 0 + 2;
+  console.log("#### derive row", { ...data });
   if (rendersWidgets) {
     const base = {
       alignment,
@@ -164,6 +167,7 @@ export function generateHighlightsForRow(data: {
       width: 4,
       height: maxHeight,
     });
+    console.log("#### row final highlights", { highlights });
     return updateVerticalDropZoneAndHeight(
       highlights,
       maxHeight,
@@ -173,6 +177,7 @@ export function generateHighlightsForRow(data: {
   const highlights: HighlightInfo[] = [];
   for (const each of layout as LayoutComponentProps[]) {
     const layoutComp = getLayoutComponent(each.layoutType);
+    if (!layoutComp) continue;
     highlights.push(
       layoutComp.deriveHighlights({
         layoutProps: each,
@@ -192,7 +197,8 @@ export function generateHighlightsForColumn(data: {
   rect: DOMRect | undefined;
 }): HighlightInfo[] {
   const { layoutProps, rect, widgetPositions, widgets } = data;
-  const { isDropTarget, layout, layoutId, rendersWidgets } = layoutProps;
+  const { layout, layoutId, rendersWidgets } = layoutProps;
+  console.log("#### column derive", { data });
   const base = {
     alignment: FlexLayerAlignment.Start,
     isNewLayer: true,
@@ -202,8 +208,8 @@ export function generateHighlightsForColumn(data: {
     dropZone: {},
     layoutId,
   };
-  const offsetTop = isDropTarget && false ? 4 : rect?.top || 0 + 4;
-  const offsetLeft = isDropTarget && false ? 4 : rect?.left || 0 + 4;
+  const offsetTop = rect?.top || 0 + 2;
+  const offsetLeft = rect?.left || 0 + 2;
   if (rendersWidgets) {
     const highlights: HighlightInfo[] = [];
     if (!layout?.length)
@@ -224,14 +230,6 @@ export function generateHighlightsForColumn(data: {
       const widget = widgets[id];
       if (!widget) continue;
       const { left, top, width } = widgetPositions[id];
-      console.log("!!!! widget", {
-        top,
-        left,
-        width,
-        id,
-        offsetLeft,
-        offsetTop,
-      });
       maxWidth = Math.max(maxWidth, width);
       highlights.push({
         ...base,
@@ -256,7 +254,6 @@ export function generateHighlightsForColumn(data: {
       width: (rect?.width || 0) - 4,
       height: 4,
     });
-    console.log("!!!! highlights", highlights);
     return updateHorizontalDropZone(highlights);
   } else {
     const highlights: HighlightInfo[] = [];
@@ -274,6 +271,7 @@ export function generateHighlightsForColumn(data: {
         height: 4,
       });
       const layoutComp = getLayoutComponent(each.layoutType);
+      if (!layoutComp) continue;
       const layoutRect: DOMRect | undefined = layoutComp.getDOMRect(each);
       highlights.push(
         ...layoutComp.deriveHighlights({
@@ -296,6 +294,7 @@ export function generateHighlightsForColumn(data: {
       width: (rect?.width || 0) - 4,
       height: 4,
     });
+    console.log("#### final column highlights", { highlights });
     return updateHorizontalDropZone(highlights);
   }
 }
@@ -323,5 +322,24 @@ export function updateHorizontalDropZone(
       dropZone,
     };
   });
+  console.log("#### updated horizontal highlights", { highlights });
   return highlights;
+}
+
+export function addWidgetToTemplate(
+  template: LayoutComponentProps,
+  children: string[] | LayoutComponentProps[],
+): LayoutComponentProps {
+  const obj: LayoutComponentProps = {
+    ...template,
+    layout: [],
+    layoutId: generateReactKey(),
+  };
+  if (template.insertChild) obj.layout = children;
+  else if (template.layout?.length) {
+    obj.layout = (template.layout as LayoutComponentProps[]).map((each) =>
+      addWidgetToTemplate(each, children),
+    );
+  }
+  return obj;
 }

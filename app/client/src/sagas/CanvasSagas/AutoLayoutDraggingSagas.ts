@@ -37,6 +37,7 @@ import {
 import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
 import { BlueprintOperationTypes } from "widgets/constants";
 import {
+  addWidgetToTemplate,
   getLayoutComponent,
   getLayoutFromId,
   updateLayoutById,
@@ -151,9 +152,19 @@ function addToLayout(
   );
   if (!layout) return widgets;
   const Comp = getLayoutComponent(layout.layoutType);
+  console.log("#### template", { template: layout.childTemplate });
+  let newWidgets: string[] | LayoutComponentProps[] = movedWidgets;
+  if (highlight.isNewLayer && layout.childTemplate) {
+    const childLayout: LayoutComponentProps = addWidgetToTemplate(
+      layout.childTemplate,
+      movedWidgets,
+    );
+    console.log("#### child layout", childLayout);
+    newWidgets = [childLayout];
+  }
   const updatedLayout: LayoutComponentProps = Comp.addChild(
     layout,
-    movedWidgets,
+    newWidgets,
     rowIndex,
   );
   return {

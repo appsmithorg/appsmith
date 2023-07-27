@@ -61,7 +61,6 @@ const Row = (props: LayoutComponentProps) => {
     );
   }
   const layout: LayoutComponentProps[] = props.layout as LayoutComponentProps[];
-  console.log("####", { layout });
   return (
     <FlexLayout
       flexDirection="row"

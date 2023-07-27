@@ -158,17 +158,24 @@ Column.addChild = (
   props: LayoutComponentProps,
   children: string[] | LayoutComponentProps[],
   index: number,
-): string[] | LayoutComponentProps[] => {
+): LayoutComponentProps => {
   const layout: any = props.layout;
-  return [...layout.slice(0, index), ...children, ...layout.slice(index)];
+  console.log("!!!! children", { children, index, layout });
+  return {
+    ...props,
+    layout: [...layout.slice(0, index), ...children, ...layout.slice(index)],
+  };
 };
 
 Column.removeChild = (
   props: LayoutComponentProps,
   index: number,
-): string[] | LayoutComponentProps[] => {
+): LayoutComponentProps => {
   const layout: any = props.layout;
-  return [...layout.slice(0, index), ...layout.slice(index + 1)];
+  return {
+    ...props,
+    layout: [...layout.slice(0, index), ...layout.slice(index + 1)],
+  };
 };
 
 export default Column;
