@@ -76,6 +76,13 @@ describe("Admin settings page", function () {
       cy.get("@pricingPage").should("be.called");
       cy.wait(2000);
       cy.go(-1);
+      cy.get(adminsSettings.provisioning).click();
+      cy.url().should("contain", "/settings/provisioning");
+      stubPricingPage();
+      cy.xpath(adminsSettings.upgrade).click();
+      cy.get("@pricingPage").should("be.called");
+      cy.wait(2000);
+      cy.go(-1);
     }
   });
 });
