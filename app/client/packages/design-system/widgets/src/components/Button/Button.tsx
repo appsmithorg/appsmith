@@ -8,6 +8,7 @@ import { useVisuallyHidden } from "@react-aria/visually-hidden";
 
 import { Text } from "../Text";
 import { Spinner } from "../Spinner";
+import type { ButtonColor, ButtonIconPosition, ButtonVariant } from "./types";
 import { DragContainer, StyledButton } from "./index.styled";
 
 export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
@@ -15,9 +16,9 @@ export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
    *
    * @default "filled"
    */
-  variant?: "filled" | "outlined" | "ghost";
+  variant?: ButtonVariant;
   /** Color tone of the button */
-  color?: "accent" | "neutral" | "positive" | "negative" | "warning";
+  color?: ButtonColor;
   /** When true, makes the button occupy all the space available */
   isFitContainer?: boolean;
   /** Indicates the loading state of the button */
@@ -25,7 +26,7 @@ export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
   /** Icon to be used in the button of the button */
   icon?: React.ReactNode;
   /** Indicates the position of icon of the button */
-  iconPosition?: "start" | "end";
+  iconPosition?: ButtonIconPosition;
   /** Makes the button visually and functionaly disabled but focusable */
   visuallyDisabled?: boolean;
 }
@@ -64,26 +65,29 @@ export const Button = forwardRef(
       return (
         <>
           {icon}
-          <Text lineClamp={1}>{children}</Text>
+          <Text lineClamp={1} textAlign="center">
+            {children}
+          </Text>
         </>
       );
     };
 
     return (
       <StyledButton
+        $color={color}
+        $variant={variant}
         aria-busy={isLoading ? true : undefined}
         aria-disabled={
           visuallyDisabled || isLoading || props.isDisabled ? true : undefined
         }
-        color={color}
         data-button=""
+        data-color={color}
         data-fit-container={isFitContainer ? "" : undefined}
-        data-icon-position={iconPosition === "start" ? undefined : "end"}
+        data-icon-position={iconPosition === "start" ? "start" : "end"}
         data-loading={isLoading ? "" : undefined}
         data-variant={variant}
         draggable
         ref={ref}
-        variant={variant}
         {...rest}
       >
         {renderChildren()}
