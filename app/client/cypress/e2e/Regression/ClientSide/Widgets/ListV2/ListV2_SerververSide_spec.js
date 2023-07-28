@@ -79,11 +79,8 @@ describe("List widget V2 Serverside Pagination", () => {
       cy.wrap(data).should("deep.equal", {});
     });
 
-    // Select First Row
-    // cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
-    //   .eq(0)
-    //   .click();
-    agHelper.GetNClick(locators._imgwidget, 0, true);
+    // Select First Row in List
+    agHelper.GetNClick(locators._imgWidgetInsideList, 0, true);
 
     cy.wait(200);
 

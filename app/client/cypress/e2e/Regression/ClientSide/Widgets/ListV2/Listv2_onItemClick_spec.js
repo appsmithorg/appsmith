@@ -71,7 +71,8 @@ describe("List widget v2 onItemClick", () => {
   });
 
   it("2. List widget V2 with onItemClick should be triggered when child widget without event is clicked", () => {
-    agHelper.GetNClick(locators._imgwidget, 0, true);
+    //Select first row Image within list
+    agHelper.GetNClick(locators._imgWidgetInsideList, 0, true);
     agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
 
     agHelper.GetNClickByContains(locators._textWidget, "Blue", 0, true);
