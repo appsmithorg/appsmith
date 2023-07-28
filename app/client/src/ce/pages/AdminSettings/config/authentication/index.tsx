@@ -1,8 +1,8 @@
 import React from "react";
 import {
+  EMAIL_SETUP_DOC,
   GITHUB_SIGNUP_SETUP_DOC,
   GOOGLE_SIGNUP_SETUP_DOC,
-  SIGNUP_RESTRICTION_DOC,
 } from "constants/ThirdPartyConstants";
 import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import {
@@ -31,6 +31,9 @@ import {
   SAML_AUTH_DESC,
   createMessage,
 } from "@appsmith/constants/messages";
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+const { mailEnabled } = getAppsmithConfigs();
 
 const FormAuth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
@@ -57,13 +60,23 @@ const FormAuth: AdminConfigType = {
           : "Allow all users to signup",
     },
     {
+      id: "APPSMITH_EMAIL_VERIFICATION_ENABLED",
+      category: SettingCategories.FORM_AUTH,
+      controlType: SettingTypes.TOGGLE,
+      label: "email verification",
+      isDisabled: () => {
+        return !mailEnabled;
+      },
+    },
+    {
       id: "APPSMITH_FORM_CALLOUT_BANNER",
       category: SettingCategories.FORM_AUTH,
       controlType: SettingTypes.LINK,
       label:
-        "The form login method does not verify the emails of users that create accounts.",
-      url: SIGNUP_RESTRICTION_DOC,
+        "To enable email verification for form login, you must enable SMTP server from email settings",
+      url: EMAIL_SETUP_DOC,
       calloutType: "warning",
+      isVisible: () => !mailEnabled,
     },
   ],
 };
