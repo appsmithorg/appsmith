@@ -6,18 +6,46 @@ import "./styles.css";
 export const decorators = [theming];
 
 const customViewports = {
-  kindleFire2: {
-    name: "Kindle Fire 2",
+  HighResLaptop: {
+    name: "High-res laptop or desktop",
     styles: {
-      width: "600px",
-      height: "963px",
+      width: "1920px",
+      height: "1080px",
     },
   },
-  kindleFireHD: {
-    name: "Kindle Fire HD",
+  Laptop: {
+    name: "Laptop",
     styles: {
-      width: "533px",
-      height: "801px",
+      width: "1366px",
+      height: "768px",
+    },
+  },
+  Tablet: {
+    name: "Tablet",
+    styles: {
+      width: "768px",
+      height: "1024px",
+    },
+  },
+  Pixel2: {
+    name: "Pixel2",
+    styles: {
+      width: "411px",
+      height: "731px",
+    },
+  },
+  iPhoneX: {
+    name: "iPhoneX",
+    styles: {
+      width: "375px",
+      height: "812px",
+    },
+  },
+  Mobile: {
+    name: "Mobile",
+    styles: {
+      width: "360px",
+      height: "720px",
     },
   },
 };

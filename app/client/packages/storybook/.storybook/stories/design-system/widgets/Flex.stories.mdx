@@ -117,40 +117,23 @@ To make everything work, we just need to add `isContainer` prop to the parent FL
 
 ## Responsive cards
 
-export const WidthControl = ({ children }) => {
-  let [width, setWidth] = useState("100%");
-  const widthOptions = ["300px", "480px", "680px", "926px", "100%"];
-  return (
-    <Flex direction="column" gap="spacing-4" width="100%" alignSelf="stretch">
-      <RadioGroup value={width} onChange={setWidth} orientation="horizontal">
-        {widthOptions.map((width) => (
-          <Radio value={width}>{width}</Radio>
-        ))}
-      </RadioGroup>
-      <div style={{ width: `${width}` }}>{children}</div>
-    </Flex>
-  );
-};
-
 <Canvas>
   <Story name="Responsive cards">
-    <WidthControl>
-      <Flex isContainer gap="spacing-2" width="100%" wrap>
-        {[...Array(12)].map(() => (
-          <Flex
-            flex="1"
-            minWidth={{
-              base: "44%",
-              "400px": "30%",
-              "680px": "22%",
-              "926px": "14%",
-            }}
-          >
-            <StyledResponsiveBlock />
-          </Flex>
-        ))}
-      </Flex>
-    </WidthControl>
+    <Flex isContainer gap="spacing-2" width="100%" wrap>
+      {[...Array(12)].map(() => (
+        <Flex
+          flex="1"
+          minWidth={{
+            base: "44%",
+            "400px": "30%",
+            "680px": "22%",
+            "926px": "14%",
+          }}
+        >
+          <StyledResponsiveBlock />
+        </Flex>
+      ))}
+    </Flex>
   </Story>
 </Canvas>
 
@@ -158,35 +141,33 @@ export const WidthControl = ({ children }) => {
 
 <Canvas>
   <Story name="Responsive list">
-    <WidthControl>
-      <Flex
-        direction={{ base: "row", "520px": "column" }}
-        gap="spacing-6"
-        wrap
-        isContainer
-      >
-        {[...Array(4)].map(() => (
-          <Flex
-            direction={{ base: "column", "520px": "row" }}
-            flex={{ base: "0", "320px": "1", "520px": "none" }}
-            gap="spacing-4"
-            minWidth={{ base: "100%", "320px": "45%", "520px": "100%" }}
-          >
-            <Flex flex="1" maxWidth={{ base: "100%", "520px": "sizing-38" }}>
-              <StyledResponsiveBlock />
-            </Flex>
-            <Flex direction="column" flex="1" gap="spacing-4">
-              <Text variant="subtitle">Title</Text>
-              <Text>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Autem
-                consequuntur explicabo quia veniam? Aliquid amet cum delectus
-                deleniti eligendi eum facilis, fugit in iusto nemo, porro quod
-                reiciendis sint velit?
-              </Text>
-            </Flex>
+    <Flex
+      direction={{ base: "row", "520px": "column" }}
+      gap="spacing-6"
+      wrap
+      isContainer
+    >
+      {[...Array(4)].map(() => (
+        <Flex
+          direction={{ base: "column", "520px": "row" }}
+          flex={{ base: "0", "320px": "1", "520px": "none" }}
+          gap="spacing-4"
+          minWidth={{ base: "100%", "320px": "45%", "520px": "100%" }}
+        >
+          <Flex flex="1" maxWidth={{ base: "100%", "520px": "sizing-38" }}>
+            <StyledResponsiveBlock />
           </Flex>
-        ))}
-      </Flex>
-    </WidthControl>
+          <Flex direction="column" flex="1" gap="spacing-4">
+            <Text variant="subtitle">Title</Text>
+            <Text>
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Autem
+              consequuntur explicabo quia veniam? Aliquid amet cum delectus
+              deleniti eligendi eum facilis, fugit in iusto nemo, porro quod
+              reiciendis sint velit?
+            </Text>
+          </Flex>
+        </Flex>
+      ))}
+    </Flex>
   </Story>
 </Canvas>
