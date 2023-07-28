@@ -4,7 +4,6 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
-import com.appsmith.server.configurations.OAuth2ClientRegistrationRepository;
 import com.appsmith.server.constants.EnvVariables;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Tenant;
@@ -116,8 +115,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     private final TenantService tenantService;
 
     private final ObjectMapper objectMapper;
-
-    private final OAuth2ClientRegistrationRepository oAuth2ClientRegistrationRepository;
 
     /**
      * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
