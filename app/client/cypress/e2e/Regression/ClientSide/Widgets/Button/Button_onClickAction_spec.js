@@ -47,19 +47,11 @@ describe("Button Widget Functionality", function () {
     // Filling the messages for success/failure in the onClickAction of the button widget.
     cy.onClickActions("Success", "Error", "Execute a query", "buttonApi.run");
 
-    _.deployMode.DeployApp();
-    cy.get("body").then(($ele) => {
-      if ($ele.find(widgetsPage.apiCallToast).length <= 0) {
-        cy.get(publishPage.buttonWidget).click();
-      }
-    });
-    // Clicking the button to verify the success message
-    cy.get(publishPage.buttonWidget).click();
-    cy.get("body").then(($ele) => {
-      if ($ele.find(widgetsPage.apiCallToast).length <= 0) {
-        cy.get(publishPage.buttonWidget).click();
-      }
-    });
+    _.deployMode.DeployApp(
+      _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
+    );
+    _.agHelper.Sleep();
+    _.agHelper.ClickButton("Submit");
     cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
   });
 

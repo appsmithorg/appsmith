@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import { datasourceTableIcon } from "../ExplorerIcons";
 import QueryTemplates from "./QueryTemplates";
@@ -17,9 +17,6 @@ import styled from "styled-components";
 import { DatasourceStructureContext } from "./DatasourceStructureContainer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Plugin } from "api/PluginApi";
-import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { setFeatureFlagShownStatus } from "utils/storage";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 type DatasourceStructureProps = {
   dbStructure: DatasourceTable;
@@ -41,9 +38,6 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
   let templateMenu = null;
   const [active, setActive] = useState(false);
   useCloseMenuOnScroll(SIDEBAR_ID, active, () => setActive(false));
-
-  const { isOpened: isWalkthroughOpened, popFeature } =
-    useContext(WalkthroughContext) || {};
 
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, props.datasourceId),
@@ -72,15 +66,6 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
     });
 
     canCreateDatasourceActions && setActive(!active);
-
-    dbStructure.templates.length === 0 &&
-      isWalkthroughOpened &&
-      closeWalkthrough();
-  };
-
-  const closeWalkthrough = () => {
-    popFeature && popFeature();
-    setFeatureFlagShownStatus(FEATURE_FLAG.ab_ds_schema_enabled, true);
   };
 
   const lightningMenu =

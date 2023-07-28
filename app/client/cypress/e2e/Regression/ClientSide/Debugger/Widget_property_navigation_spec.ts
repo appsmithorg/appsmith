@@ -1,4 +1,5 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import OneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 
 describe("Widget property navigation", () => {
   it("Collapsed field navigation", () => {
@@ -112,5 +113,65 @@ describe("Widget property navigation", () => {
     _.debuggerHelper.CloseBottomBar();
     _.entityExplorer.SelectEntityByName("JSONForm1");
     _.entityExplorer.DeleteWidgetFromEntityExplorer("JSONForm1");
+  });
+
+  it("Should switch panels correctly", () => {
+    _.agHelper.RefreshPage();
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.MENUBUTTON,
+      100,
+      200,
+    );
+    _.propPane.OpenTableColumnSettings("menuItem1");
+
+    _.propPane.EnterJSContext("disabled", "{{test}}", true, false);
+    _.debuggerHelper.AssertErrorCount(1);
+    _.propPane.NavigateBackToPropertyPane();
+
+    _.propPane.OpenTableColumnSettings("menuItem2");
+    _.propPane.EnterJSContext("disabled", "{{test}}", true, false);
+    _.debuggerHelper.AssertErrorCount(2);
+
+    _.debuggerHelper.ClickDebuggerIcon();
+    _.debuggerHelper.ClicklogEntityLink(true);
+    _.agHelper.GetElement(_.propPane._paneTitle).contains("First Menu Item");
+
+    _.debuggerHelper.CloseBottomBar();
+    _.entityExplorer.SelectEntityByName("MenuButton1");
+    _.entityExplorer.DeleteWidgetFromEntityExplorer("MenuButton1");
+  });
+  it("Table widget validation regex", () => {
+    _.agHelper.RefreshPage();
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 100, 200);
+    _.agHelper.GetNClick(OneClickBindingLocator.datasourceDropdownSelector);
+    _.agHelper.GetNClick(OneClickBindingLocator.datasourceSelector());
+    _.assertHelper.AssertNetworkStatus("@getDatasourceStructure");
+    _.agHelper.AssertElementExist(OneClickBindingLocator.connectData);
+
+    _.agHelper.AssertElementEnabledDisabled(OneClickBindingLocator.connectData);
+    _.agHelper.Sleep(3000); //for tables to populate for CI runs
+    _.agHelper.GetNClick(OneClickBindingLocator.tableOrSpreadsheetDropdown);
+    _.agHelper.GetNClick(
+      OneClickBindingLocator.tableOrSpreadsheetDropdownOption(),
+    );
+    _.agHelper.GetNClick(OneClickBindingLocator.searchableColumn);
+    _.agHelper.GetNClick(
+      OneClickBindingLocator.searchableColumnDropdownOption(),
+    );
+    _.agHelper.GetNClick(OneClickBindingLocator.connectData);
+
+    _.propPane.OpenTableColumnSettings("imdb_id");
+    _.propPane.TypeTextIntoField("Regex", "{{test}}");
+    _.debuggerHelper.AssertErrorCount(1);
+    _.propPane.ToggleSection("validation");
+    _.propPane.NavigateBackToPropertyPane();
+
+    _.debuggerHelper.ClickDebuggerIcon();
+    _.debuggerHelper.ClicklogEntityLink();
+    _.agHelper.GetElement(_.propPane._paneTitle).contains("imdb_id");
+
+    _.debuggerHelper.CloseBottomBar();
+    _.entityExplorer.SelectEntityByName("Table1");
+    _.entityExplorer.DeleteWidgetFromEntityExplorer("Table1");
   });
 });

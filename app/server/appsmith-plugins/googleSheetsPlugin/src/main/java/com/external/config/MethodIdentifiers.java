@@ -20,4 +20,5 @@ public class MethodIdentifiers {
     public static final String TRIGGER_SPREADSHEET_SELECTOR = "SPREADSHEET_SELECTOR";
     public static final String TRIGGER_SHEET_SELECTOR = "SHEET_SELECTOR";
     public static final String TRIGGER_COLUMNS_SELECTOR = "COLUMNS_SELECTOR";
+    public static final String TRIGGER_SHEET_DATA = "SHEET_DATA";
 }

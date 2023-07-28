@@ -21,11 +21,17 @@ import {
   setSelectedPropertyPanel,
   unsetSelectedPropertyPanel,
 } from "actions/propertyPaneActions";
-import { getSelectedPropertyPanel } from "selectors/propertyPaneSelectors";
+import {
+  getSelectedPropertyPanel,
+  getWidgetPropsForPropertyPane,
+} from "selectors/propertyPaneSelectors";
 import type { SelectedPropertyPanel } from "reducers/uiReducers/propertyPaneReducer";
 import { setSelectedPropertyTabIndex } from "actions/editorContextActions";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { NAVIGATION_DELAY } from "../costants";
+import { getWidgetEnhancementSelector } from "selectors/widgetEnhancementSelectors";
+import { evaluateHiddenProperty } from "pages/Editor/PropertyPane/helpers";
+import { NavigationMethod } from "utils/history";
 
 export default class PropertyPaneNavigation extends PaneNavigation {
   widget!: WidgetProps;
@@ -50,7 +56,7 @@ export default class PropertyPaneNavigation extends PaneNavigation {
     this.widget = widget;
   }
 
-  *getConfig() {
+  *getConfig(): any {
     const config: PropertyPaneNavigationConfig = {
       tabIndex: 0,
       panelStack: [],
@@ -63,25 +69,50 @@ export default class PropertyPaneNavigation extends PaneNavigation {
       WidgetFactory.getWidgetPropertyPaneContentConfig(this.widget?.type);
     const propertyPaneStyleConfig =
       WidgetFactory.getWidgetPropertyPaneStyleConfig(this.widget?.type);
+    const widgetProps: WidgetProps | undefined = yield select(
+      getWidgetPropsForPropertyPane,
+    );
+
+    const enhancementSelector = yield call(
+      getWidgetEnhancementSelector,
+      widgetProps?.widgetId,
+    );
+    const enhancements = yield select(enhancementSelector as any);
+    const finalProps = yield call(
+      evaluateHiddenProperty,
+      [...propertyPaneContentConfig, ...propertyPaneStyleConfig],
+      widgetProps,
+      enhancements?.enhancementFns?.shouldHidePropertyFn,
+    );
+    const evaluateHiddenPropertyCallback = (
+      propertyPaneConfig: readonly PropertyPaneConfig[],
+    ) => {
+      return evaluateHiddenProperty(
+        propertyPaneConfig,
+        widgetProps,
+        enhancements?.enhancementFns?.shouldHidePropertyFn,
+      );
+    };
 
     // Get the panel config
     if (this.entityInfo.propertyPath) {
       config["panelStack"] = yield call(
         getPropertyPanePanelNavigationConfig,
-        [...propertyPaneContentConfig, ...propertyPaneStyleConfig],
+        finalProps,
         this.widget,
         this.entityInfo.propertyPath,
+        evaluateHiddenPropertyCallback,
       );
 
       // If the field is in a sub-panel we search the style config of that panel
       const panelStack = config["panelStack"];
       let panelStyleConfig: PropertyPaneConfig[] = [];
       let panelContentConfig: PropertyPaneConfig[] = [];
+      // The number of sub-panels after which we found the property;
+      const panelDepth = panelStack.length;
       if (panelStack?.length) {
-        panelStyleConfig =
-          panelStack[panelStack.length - 1]?.styleChildren || [];
-        panelContentConfig =
-          panelStack[panelStack.length - 1]?.contentChildren || [];
+        panelStyleConfig = panelStack[panelDepth - 1]?.styleChildren || [];
+        panelContentConfig = panelStack[panelDepth - 1]?.contentChildren || [];
       }
       config["tabIndex"] = yield call(
         getSelectedTabIndex,
@@ -92,11 +123,10 @@ export default class PropertyPaneNavigation extends PaneNavigation {
       // Get section id
       config["sectionId"] = yield call(
         getSectionId,
-        panelStack?.length
+        panelDepth
           ? [...panelContentConfig, ...panelStyleConfig]
           : [...propertyPaneContentConfig, ...propertyPaneStyleConfig],
         this.entityInfo.propertyPath,
-        this.widget,
       );
     }
 
@@ -106,15 +136,19 @@ export default class PropertyPaneNavigation extends PaneNavigation {
   *navigate() {
     if (!this.widget) throw Error("Initialisation failed");
 
+    // Initially select widget
+    yield put(
+      selectWidgetInitAction(
+        SelectionRequestType.One,
+        [this.widget.widgetId],
+        NavigationMethod.Debugger,
+      ),
+    );
+    yield delay(NAVIGATION_DELAY);
+
     const navigationConfig: PropertyPaneNavigationConfig = yield call(
       this.getConfig,
     );
-
-    // Initially select widget
-    yield put(
-      selectWidgetInitAction(SelectionRequestType.One, [this.widget.widgetId]),
-    );
-    yield delay(NAVIGATION_DELAY);
 
     // Nothing more to do if we don't have the property path
     if (!this.entityInfo.propertyPath) return;
