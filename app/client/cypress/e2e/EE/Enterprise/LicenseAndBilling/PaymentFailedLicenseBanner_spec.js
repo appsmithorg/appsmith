@@ -1,4 +1,5 @@
 import LicenseLocators from "../../../../locators/LicenseLocators.json";
+import { agHelper, homePage } from "../../../../support/Objects/ObjectsCore";
 
 describe("excludeForAirgap", "Payment Failed License Banner", function () {
   it("1. should show payment failure banner for tenants with payment failure", function () {
@@ -19,7 +20,7 @@ describe("excludeForAirgap", "Payment Failed License Banner", function () {
       licenseStatus: "IN_GRACE_PERIOD",
       expiry: (new Date().getTime() + 2 * 24 * 60 * 60 * 1000) / 1000,
     });
-    cy.reload();
+    agHelper.RefreshPage("getReleaseItems");
     cy.get(LicenseLocators.warningBannerMainText).should(
       "have.text",
       "Your last payment has failed.",
@@ -37,20 +38,23 @@ describe("excludeForAirgap", "Payment Failed License Banner", function () {
 
   it("3. should not have banner in paid license", () => {
     cy.interceptLicenseApi({ licenseStatus: "ACTIVE", licenseType: "PAID" });
-    cy.reload();
+    agHelper.RefreshPage("getReleaseItems");
     cy.get(LicenseLocators.warningBanner).should("not.exist");
   });
 
   it("4. should not show payment failure banner for tenants with payment failure for non admin users", function () {
-    cy.LogOut();
-    cy.LoginFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
+    homePage.LogOutviaAPI();
+    homePage.LogintoApp(
+      Cypress.env("TESTUSERNAME1"),
+      Cypress.env("TESTPASSWORD1"),
+    );
     cy.interceptLicenseApi({
       licenseStatus: "ACTIVE",
       licenseType: "PAID",
       licenseStatus: "IN_GRACE_PERIOD",
     });
-    cy.reload();
-    cy.wait(2000);
-    cy.get(LicenseLocators.wrapperBanner).should("not.exist");
+    agHelper.Sleep(3000);
+    agHelper.RefreshPage("getReleaseItems");
+    agHelper.AssertElementAbsence(LicenseLocators.wrapperBanner);
   });
 });
