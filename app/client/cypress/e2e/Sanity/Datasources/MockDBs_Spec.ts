@@ -15,6 +15,7 @@ describe(
     it("1. Create Query from Mock Mongo DB & verify active queries count", () => {
       dataSources.CreateMockDB("Movies").then((mockDBName) => {
         dsName = mockDBName;
+        cy.log("Mock DB Name: " + mockDBName);
 
         // delay is introduced so that structure fetch is complete before moving to query creation
         // feat: #25320, new query created for mock db movies, will be populated with default values
@@ -26,7 +27,7 @@ describe(
         assertHelper.AssertNetworkStatus("@trigger");
         dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
         dataSources.ValidateNSelectDropdown("Collection", "movies");
-        dataSources.RunQueryNVerifyResponseViews(1, false);
+        dataSources.RunQueryNVerifyResponseViews(2, false);
         dataSources.NavigateToActiveTab();
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))
@@ -37,7 +38,7 @@ describe(
         entityExplorer.CreateNewDsQuery(mockDBName);
         dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
         dataSources.ValidateNSelectDropdown("Collection", "movies");
-        dataSources.RunQueryNVerifyResponseViews(1, false);
+        dataSources.RunQueryNVerifyResponseViews(2, false);
         dataSources.NavigateToActiveTab();
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))
@@ -50,6 +51,7 @@ describe(
     it("2. Create Query from Mock Postgres DB & verify active queries count", () => {
       dataSources.CreateMockDB("Users").then((mockDBName) => {
         dsName = mockDBName;
+        cy.log("Mock DB Name: " + mockDBName);
 
         assertHelper.AssertNetworkStatus("@getDatasourceStructure", 200);
         dataSources.CreateQueryAfterDSSaved();
