@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import {
   Button,
   Text,
@@ -7,7 +7,7 @@ import {
   TooltipRoot,
   TooltipTrigger,
   TooltipContent,
-} from "../";
+} from "@design-system/widgets";
 
 export const ComplexForm = () => {
   return (
@@ -47,3 +47,5 @@ export const ComplexForm = () => {
     </div>
   );
 };
+
+export const Documentation = () => <ComplexForm />;

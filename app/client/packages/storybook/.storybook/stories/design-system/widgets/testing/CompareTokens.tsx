@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import * as React from "react";
+import { useState } from "react";
 import { useThemeContext } from "@design-system/theming";
 
 export const CompareTokens = () => {

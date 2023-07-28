@@ -1,11 +1,9 @@
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
-import { Flex } from "../Flex";
-import { Button } from "../Button";
-import { ButtonGroup } from "./";
+import { Flex, Button, ButtonGroup } from "@design-system/widgets";
 
-<Meta title="Design-system/widgets/Button Group" />
+<Meta title="Design-system/Widgets/Button Group" />
 
-## Button Group
+# Button Group
 
 A button group is a group of buttons that are visually connected together.
 
@@ -85,31 +83,7 @@ A button group is a group of buttons that are visually connected together.
   </Story>
 </Canvas>
 
-<Canvas>
-  <Story name="Button Group - Filled">
-    <ButtonGroup>
-      <Button variant="filled">Option 1</Button>
-      <Button variant="filled">Option 2</Button>
-      <Button variant="filled">Option 3</Button>
-    </ButtonGroup>
-  </Story>
-  <Story name="Button Group - Outlined">
-    <ButtonGroup>
-      <Button variant="outlined">Option 1</Button>
-      <Button variant="outlined">Option 2</Button>
-      <Button variant="outlined">Option 3</Button>
-    </ButtonGroup>
-  </Story>
-  <Story name="Button Group - Ghost">
-    <ButtonGroup>
-      <Button variant="ghost">Option 1</Button>
-      <Button variant="ghost">Option 2</Button>
-      <Button variant="ghost">Option 3</Button>
-    </ButtonGroup>
-  </Story>
-</Canvas>
-
-# Orientation
+## Orientation
 
 <Canvas>
   <Story name="Button Group - Vertical Filled">
@@ -135,7 +109,7 @@ A button group is a group of buttons that are visually connected together.
   </Story>
 </Canvas>
 
-# Disabled
+## Disabled
 
 <Canvas>
   <Story name="Button Group Filled Disabled">

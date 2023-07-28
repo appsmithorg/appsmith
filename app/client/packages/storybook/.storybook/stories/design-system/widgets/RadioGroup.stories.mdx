@@ -1,34 +1,32 @@
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
-
-import { CheckboxGroup } from "./";
-import { Checkbox } from "../Checkbox";
+import { RadioGroup, Radio } from "@design-system/widgets";
 
 <Meta
-  title="Design-system/widgets/CheckboxGroup"
-  component={CheckboxGroup}
+  title="Design-system/Widgets/RadioGroup"
+  component={RadioGroup}
   args={{
-    label: "Checkbox Group",
-    defaultValue: ["value-1"],
+    label: "Radio Group",
+    defaultValue: "value-1",
     children: (
       <>
-        <Checkbox value="value-1">Value 1</Checkbox>
-        <Checkbox value="value-2">Value 2</Checkbox>
+        <Radio value="value-1">Value 1</Radio>
+        <Radio value="value-2">Value 2</Radio>
       </>
     ),
   }}
 />
 
-export const Template = (args) => <CheckboxGroup {...args} />;
+export const Template = (args) => <RadioGroup {...args} />;
 
-# Checkbox Group
+# Radio Group
 
-Checkbox Group is a group of checkboxes that can be selected together.
+Radio group is a component that allows users to select one option from a set of options.
 
 <Canvas>
-  <Story name="Checkbox Group">{Template.bind({})}</Story>
+  <Story name="Radio Group">{Template.bind({})}</Story>
 </Canvas>
 
-<ArgsTable story="Checkbox Group" of={CheckboxGroup} />
+<ArgsTable story="Radio Group" of={RadioGroup} />
 
 # Orientation
 

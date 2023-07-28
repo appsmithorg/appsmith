@@ -1,10 +1,9 @@
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
 import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
-
-import { Checkbox } from "./";
+import { Checkbox } from "@design-system/widgets";
 
 <Meta
-  title="Design-system/widgets/Checkbox"
+  title="Design-system/Widgets/Checkbox"
   component={Checkbox}
   args={{
     children: "Check me",
@@ -21,7 +20,9 @@ Checkbox is a component that allows the user to select one or more options from 
   <Story name="Checkbox">{Template.bind({})}</Story>
 </Canvas>
 
-### States
+<ArgsTable story="Checkbox" of={Checkbox} />
+
+## States
 
 <Canvas>
   <Story
@@ -92,7 +93,7 @@ Checkbox is a component that allows the user to select one or more options from 
   </Story>
 </Canvas>
 
-### Label Position
+## Label Position
 
 <Canvas>
   <Story
@@ -121,7 +122,7 @@ Checkbox is a component that allows the user to select one or more options from 
   </Story>
 </Canvas>
 
-### Custom Icon
+## Custom Icon
 
 <Canvas>
   <Story

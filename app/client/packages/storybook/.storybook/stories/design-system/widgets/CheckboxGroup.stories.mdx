@@ -1,36 +1,36 @@
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
-
-import { RadioGroup } from "./";
-import { Radio } from "../Radio";
+import { CheckboxGroup, Checkbox } from "@design-system/widgets";
 
 <Meta
-  title="Design-system/widgets/RadioGroup"
-  component={RadioGroup}
+  title="Design-system/Widgets/CheckboxGroup"
+  component={CheckboxGroup}
   args={{
-    label: "Radio Group",
-    defaultValue: "value-1",
+    label: "Checkbox Group",
+    defaultValue: ["value-1"],
     children: (
       <>
-        <Radio value="value-1">Value 1</Radio>
-        <Radio value="value-2">Value 2</Radio>
+        <Checkbox value="value-1">Value 1</Checkbox>
+        <Checkbox value="value-2">Value 2</Checkbox>
       </>
     ),
   }}
 />
 
-export const Template = (args) => <RadioGroup {...args} />;
+export const Template = (args) => <CheckboxGroup {...args} />;
 
-# Radio Group
+<ArgsTable story="Checkbox Group" of={CheckboxGroup} />
 
-Radio group is a component that allows users to select one option from a set of options.
+# Checkbox Group
+
+Checkbox Group is a group of checkboxes that can be selected together.
 
 <Canvas>
-  <Story name="Radio Group">{Template.bind({})}</Story>
+  <Story name="Checkbox Group">{Template.bind({})}</Story>
 </Canvas>
 
-<ArgsTable story="Radio Group" of={RadioGroup} />
+<ArgsTable story="Checkbox Group" of={CheckboxGroup} />
 
-# Orientation
+## Orientation
 
 <Canvas>
   <Story
@@ -51,7 +51,7 @@ Radio group is a component that allows users to select one option from a set of 
   </Story>
 </Canvas>
 
-# Emphasized
+## Emphasized
 
 <Canvas>
   <Story
@@ -64,7 +64,7 @@ Radio group is a component that allows users to select one option from a set of 
   </Story>
 </Canvas>
 
-# Label Position and Alignment
+## Label Position and Alignment
 
 <Canvas>
   <Story
@@ -79,7 +79,7 @@ Radio group is a component that allows users to select one option from a set of 
   </Story>
 </Canvas>
 
-# Is Disabled
+## Disabled
 
 <Canvas>
   <Story
@@ -92,7 +92,7 @@ Radio group is a component that allows users to select one option from a set of 
   </Story>
 </Canvas>
 
-# Is Required
+## Required
 
 <Canvas>
   <Story
@@ -105,7 +105,7 @@ Radio group is a component that allows users to select one option from a set of 
   </Story>
 </Canvas>
 
-# Invalid State
+## Invalid State
 
 <Canvas>
   <Story

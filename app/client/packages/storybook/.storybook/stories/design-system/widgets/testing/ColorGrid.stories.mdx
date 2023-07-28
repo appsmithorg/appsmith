@@ -1,7 +1,7 @@
-import { Canvas, Meta, Story } from "@storybook/addon-docs";
+import { Meta, Canvas, Story } from "@storybook/addon-docs";
 import { ColorGrid } from "./ColorGrid";
 
-<Meta title="Design-system/Testing" component={ColorGrid} />
+<Meta title="Design-system/Widgets/Testing" />
 
 export const Template = (args, { globals: { colorMode } }) => (
   <ColorGrid {...args} colorMode={colorMode}>
@@ -21,7 +21,7 @@ export const Template = (args, { globals: { colorMode } }) => (
     args={{
       source: "oklch",
       size: "small",
-      steps: 11,
+      steps: 8,
       colorSpace: "oklch",
       variant: "primary",
       isHovered: false,
