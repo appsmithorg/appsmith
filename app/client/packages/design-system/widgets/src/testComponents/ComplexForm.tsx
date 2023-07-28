@@ -4,7 +4,7 @@ import {
   Text,
   CheckboxGroup,
   Checkbox,
-  Tooltip,
+  TooltipRoot,
   TooltipTrigger,
   TooltipContent,
 } from "../";
@@ -34,14 +34,14 @@ export const ComplexForm = () => {
           gap: "var(--spacing-2)",
         }}
       >
-        <Tooltip>
+        <TooltipRoot>
           <TooltipTrigger>
             <Button variant="outlined">Cancel</Button>
           </TooltipTrigger>
           <TooltipContent>
             If you cancel, you will lose your order
           </TooltipContent>
-        </Tooltip>
+        </TooltipRoot>
         <Button>Ok</Button>
       </div>
     </div>

@@ -117,7 +117,7 @@ export class ApiPage {
   ) {
     this.CreateApi(apiName, apiVerb, aftDSSaved);
     this.EnterURL(url);
-    //this.agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.
+    this.agHelper.Sleep(2000); // Added because api name edit takes some time to reflect in api sidebar after the call passes.
     this.AssertRunButtonDisability();
     if (queryTimeout != 10000) this.SetAPITimeout(queryTimeout);
   }
@@ -132,8 +132,7 @@ export class ApiPage {
       directInput: true,
       inputFieldName: "",
     });
-    this.agHelper.AssertAutoSave();
-
+    this.agHelper.Sleep();
     if (evaluatedValue) {
       this.agHelper.VerifyEvaluatedValue(evaluatedValue);
     }

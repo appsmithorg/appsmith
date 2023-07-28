@@ -6,27 +6,20 @@ import type {
 import { get } from "lodash";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { IMatchedSection, IPanelStack } from "../types";
+import { updateConfigPaths } from "pages/Editor/PropertyPane/helpers";
 
 export const getSectionId = (
   config: readonly PropertyPaneConfig[],
   propertyPath: string,
-  widgetProps: WidgetProps,
 ): string | undefined => {
   const matchedSections: IMatchedSection[] = [];
   function _getSectionId(
     config: readonly PropertyPaneConfig[],
-    propertyPath: string,
     rootSectionId?: string,
   ) {
     for (let index = 0; index < config.length; index++) {
       const sectionChildren = config[index].children;
-      const _isSectionHidden = isSectionHidden(
-        config[index],
-        widgetProps,
-        propertyPath,
-      );
-      // Skip searching hidden sections
-      if (sectionChildren && !_isSectionHidden) {
+      if (sectionChildren) {
         for (
           let childIndex = 0;
           childIndex < sectionChildren.length;
@@ -57,7 +50,6 @@ export const getSectionId = (
           } else if (controlConfig.children) {
             _getSectionId(
               controlConfig.children,
-              propertyPath,
               rootSectionId ?? config[index].id,
             );
           }
@@ -77,10 +69,11 @@ export const getSectionId = (
     }
   }
 
-  _getSectionId(config, propertyPath);
+  _getSectionId(config);
 
   if (!matchedSections.length) return;
 
+  // NOTE: Might not be required
   // If the propertyPath `resetButtonStyles.boxShadow` matches with the property names
   // "boxShadow" and "resetButtonStyles.boxShadow"
   // The intendened match is "resetButtonStyles.boxShadow".
@@ -106,7 +99,6 @@ export const getSelectedTabIndex = (
 ): number => {
   function _getSelectedTabIndex(
     config: readonly PropertyPaneConfig[],
-    propertyPath: string,
   ): number | undefined {
     for (let index = 0; index < config.length; index++) {
       const sectionChildren = config[index].children;
@@ -119,13 +111,16 @@ export const getSelectedTabIndex = (
           const controlConfig = sectionChildren[
             childIndex
           ] as PropertyPaneControlConfig;
-          if (matchesPropertyPath(propertyPath, controlConfig.propertyName)) {
+          if (
+            matchesPropertyPath(
+              propertyPath,
+              controlConfig.propertyName,
+              "start",
+            )
+          ) {
             return 1;
           } else if (controlConfig.children) {
-            const index = _getSelectedTabIndex(
-              controlConfig.children,
-              propertyPath,
-            );
+            const index = _getSelectedTabIndex(controlConfig.children);
             // We want to continue searching if there isn't a match, so
             // we don't return/exit unless there is a match
             if (index) return index;
@@ -135,6 +130,7 @@ export const getSelectedTabIndex = (
         matchesPropertyPath(
           propertyPath,
           (config[index] as PropertyPaneControlConfig).propertyName,
+          "start",
         )
       ) {
         return 1;
@@ -142,7 +138,7 @@ export const getSelectedTabIndex = (
     }
   }
 
-  const finalIndex = _getSelectedTabIndex(config, propertyPath);
+  const finalIndex = _getSelectedTabIndex(config);
   return finalIndex ?? 0;
 };
 
@@ -151,14 +147,15 @@ export const getPropertyPanePanelNavigationConfig = (
   config: readonly PropertyPaneConfig[],
   widgetProps: WidgetProps,
   propertyPath: string,
-  panelDepth = 0,
+  evaluateHiddenPropertyCallback: (
+    config: readonly PropertyPaneConfig[],
+  ) => PropertyPaneConfig[],
 ): IPanelStack[] => {
   function _getNavigationConfig(
     config: readonly PropertyPaneConfig[],
-    widgetProps: WidgetProps,
-    propertyPath: string,
     panelDepth = 0,
     rootProperty = "",
+    parentPanelPath = "",
   ) {
     let stack: IPanelStack[] = [];
     for (let index = 0; index < config.length; index++) {
@@ -172,35 +169,18 @@ export const getPropertyPanePanelNavigationConfig = (
           const controlConfig = sectionChildren[
             childIndex
           ] as PropertyPaneControlConfig;
-          let isMatchingPropertyName = false;
           const currentProperty = controlConfig.propertyName;
 
           let pathList = propertyPath.split(".");
-          if (panelDepth === 0) {
-            isMatchingPropertyName = matchesPropertyPath(
-              propertyPath,
-              currentProperty,
-              "start",
-            );
-          } else {
+          if (panelDepth !== 0) {
             const pathWithoutRootProperty = propertyPath.replace(
               `${rootProperty}.`,
               "",
             );
             pathList = [rootProperty, ...pathWithoutRootProperty.split(".")];
-            // primaryColumns.title.menuItems.menuItemneyc7dqksw.textColor
-            // Every alternate path is a dynamic property not part of the property
-            // pane config, these dynamic properties represent the panel id's
-            // static - S exists in the property pane config, dynamic - D
-            // primaryColumns.title.menuItems.menuItemneyc7dqksw.textColor
-            //       S          D        S            D             S
-            isMatchingPropertyName =
-              pathList.slice(panelDepth * 2, 1 + panelDepth * 2).join(".") ===
-              currentProperty;
           }
-
           if (
-            isMatchingPropertyName &&
+            matchesPropertyPath(propertyPath, currentProperty, "start") &&
             controlConfig.hasOwnProperty("panelConfig")
           ) {
             if (!rootProperty) {
@@ -212,9 +192,6 @@ export const getPropertyPanePanelNavigationConfig = (
                 currentProperty,
                 ...pathWithoutRootProperty.split("."),
               ];
-              isMatchingPropertyName =
-                pathList.slice(panelDepth * 2, 1 + panelDepth * 2).join(".") ===
-                currentProperty;
             }
 
             const panelTabPath = pathList
@@ -226,6 +203,28 @@ export const getPropertyPanePanelNavigationConfig = (
             // set the panel, tab and section collapse state
             const panelLabel = get(widgetProps, panelTabPath)?.label;
 
+            const newParentPanelPath = getNextParentPropertPath(
+              propertyPath,
+              parentPanelPath,
+              currentProperty,
+            );
+            // Update configs with full paths
+            const updatedStyleChildren = updateConfigPaths(
+              controlConfig.panelConfig?.styleChildren || [],
+              newParentPanelPath,
+            );
+            const updatedContentChildren = updateConfigPaths(
+              controlConfig.panelConfig?.contentChildren ||
+                controlConfig.panelConfig?.children ||
+                [],
+              newParentPanelPath,
+            );
+            const styleChildren =
+              evaluateHiddenPropertyCallback(updatedStyleChildren);
+            const contentChildren = evaluateHiddenPropertyCallback(
+              updatedContentChildren,
+            );
+
             stack.push({
               path: panelPath,
               index: panelIndex,
@@ -233,24 +232,17 @@ export const getPropertyPanePanelNavigationConfig = (
               // style config of the panel
               // This is used later on to only parse only that panel's properties to
               // find the correct tab to switch to.
-              styleChildren: controlConfig.panelConfig?.styleChildren || [],
-              contentChildren:
-                controlConfig.panelConfig?.contentChildren ||
-                controlConfig.panelConfig?.children ||
-                [],
+              styleChildren,
+              contentChildren,
             });
             // When we don't have multiple tabs we just have `children`
-            const panelConfig =
-              controlConfig.panelConfig?.contentChildren ||
-              controlConfig.panelConfig?.children ||
-              [];
+            const panelConfig = contentChildren;
             stack = stack.concat(
               _getNavigationConfig(
                 panelConfig as readonly PropertyPaneConfig[],
-                widgetProps,
-                propertyPath,
                 panelDepth + 1,
                 rootProperty || currentProperty,
+                newParentPanelPath,
               ),
             );
             return stack;
@@ -261,12 +253,7 @@ export const getPropertyPanePanelNavigationConfig = (
     return stack;
   }
 
-  const finalConfig = _getNavigationConfig(
-    config,
-    widgetProps,
-    propertyPath,
-    panelDepth,
-  );
+  const finalConfig = _getNavigationConfig(config, 0);
   return finalConfig;
 };
 
@@ -295,15 +282,20 @@ function getPanelIndex(widgetProps: WidgetProps, panelTabPath: string) {
   return obj?.index ?? obj?.position;
 }
 
-function isSectionHidden(
-  config: PropertyPaneConfig,
-  widgetProps: WidgetProps,
+function getNextParentPropertPath(
   propertyPath: string,
+  prevParentPropertyPath: string,
+  currentProperty: string,
 ) {
-  if (config) {
-    if (config.hidden) {
-      return config.hidden(widgetProps, propertyPath);
-    }
+  const remainingPath = propertyPath.replace(
+    `${prevParentPropertyPath || currentProperty}.`,
+    "",
+  );
+  const index = remainingPath.split(".")[0];
+  const originalCurrentProperty = remainingPath.split(".")[1];
+  if (!prevParentPropertyPath) {
+    return `${currentProperty}.${index}`;
   }
-  return false;
+
+  return `${prevParentPropertyPath}.${index}.${originalCurrentProperty}`;
 }
