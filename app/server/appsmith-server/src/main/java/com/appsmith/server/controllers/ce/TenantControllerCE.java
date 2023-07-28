@@ -44,14 +44,6 @@ public class TenantControllerCE {
                 .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
     }
 
-    @JsonView(Views.Public.class)
-    @GetMapping("/current/features")
-    public Mono<ResponseDTO<Map<String, Boolean>>> getCurrentTenantFeatures() {
-        return featureFlagService
-                .getCurrentTenantFeatures()
-                .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
-    }
-
     @PutMapping("")
     public Mono<ResponseDTO<Tenant>> updateTenantConfiguration(@RequestBody TenantConfiguration tenantConfiguration) {
         return service.updateDefaultTenantConfiguration(tenantConfiguration)
