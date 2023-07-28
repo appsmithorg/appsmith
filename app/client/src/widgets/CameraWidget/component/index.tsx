@@ -46,7 +46,6 @@ import {
 import type { ThemeProp } from "widgets/constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { importSvg } from "design-system-old";
-import { getVideoConstraints } from "./utils";
 
 const CameraOfflineIcon = importSvg(
   () => import("assets/icons/widget/camera/camera-offline.svg"),
@@ -862,6 +861,7 @@ function CameraComponent(props: CameraComponentProps) {
         ? {
             height: 720,
             width: 1280,
+            facingMode: { ideal: defaultCamera },
           }
         : {},
     );
@@ -885,15 +885,6 @@ function CameraComponent(props: CameraComponentProps) {
   const fullScreenHandle = useFullScreenHandle();
 
   const isAirgappedInstance = isAirgapped();
-
-  useEffect(() => {
-    const constraints = getVideoConstraints(
-      videoConstraints,
-      isMobile,
-      defaultCamera,
-    );
-    setVideoConstraints(constraints);
-  }, [defaultCamera, isMobile]);
 
   useEffect(() => {
     if (webcamRef.current && webcamRef.current.stream) {
@@ -989,13 +980,10 @@ function CameraComponent(props: CameraComponentProps) {
         });
       }
       if (mediaDeviceInfo.kind === "videoinput") {
-        const constraints = getVideoConstraints(
-          videoConstraints,
-          isMobile,
-          "", // when switching camera device we don't want to set the default camera ( facing mode )
-          mediaDeviceInfo.deviceId,
-        );
-        setVideoConstraints(constraints);
+        setVideoConstraints({
+          ...videoConstraints,
+          deviceId: mediaDeviceInfo.deviceId,
+        });
       }
     },
     [],
