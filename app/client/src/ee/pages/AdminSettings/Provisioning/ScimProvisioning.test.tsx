@@ -169,6 +169,10 @@ describe("ScimProvisioning", () => {
     expect(reconfigureApiKeyButton).toBeInTheDocument();
     expect(apiKeyField).not.toBeInTheDocument();
     await fireEvent.click(reconfigureApiKeyButton);
+    const modal = screen.queryByRole("dialog");
+    expect(modal).toBeTruthy();
+    const confirmButton = screen.getByTestId("t--confirm-reconfigure-api-key");
+    await fireEvent.click(confirmButton);
     apiKeyField = await screen.queryByTestId("scim-api-key");
     expect(apiKeyField).toBeInTheDocument();
     expect(apiKeyField?.getElementsByTagName("input")?.[0]).toHaveValue(

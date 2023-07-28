@@ -256,17 +256,10 @@ export const LAST_SYNC_MESSAGE = (lastUpdated: string) =>
 export const DISABLE_SCIM_MODAL_TITLE = () => "Disable SCIM config";
 export const DISABLE_SCIM_MODAL_BUTTON = () => "Disable this SCIM config";
 export const RADIO_GROUP_HEADING = () =>
-  "Before disabling this config, choose one of the below options";
+  "If you would still like to disable this config, choose one of the below options";
 export const DISABLE_SCIM_MODAL_CONFIRMATION = () => "I understand and confirm";
 export const CONNECTION_INACTIVE_CALLOUT_ON_MODAL = () =>
   "This connection will be disabled. Any updates in your IdP will not sync with Appsmith.";
-export const KEEP_RESOURCES_CALLOUT_ON_MODAL = () =>
-  "This connection will be disabled but users and groups will be retained.";
-export const REMOVE_RESOURCES_CALLOUT_ON_MODAL = (
-  userCount: number,
-  groupCount: number,
-) =>
-  `You have chosen to remove ${userCount} users and ${groupCount} groups in Appsmith via this connection.`;
 export const KEEP_PROVISIONED_RESOURCES = () =>
   "Keep users and groups from this connection";
 export const REMOVE_PROVISIONED_RESOURCES = () =>
@@ -275,4 +268,11 @@ export const KEEP_RESOURCES_SUB_TEXT_ON_MODAL = () =>
   "This will keep all users and groups linked to Appsmith via this SCIM connection, but any updates in your IdP provider will not sync with Appsmith";
 export const REMOVE_RESOURCES_SUB_TEXT_ON_MODAL = () =>
   "This will permanently remove all users and groups linked to Appsmith from this SCIM connection.";
+export const DISABLE_SCIM_WARNING = () =>
+  "We strongly advise disabling provisioning in your IdP to remove users from Appsmith. This step ensures seamless user management and avoids potential conflicts while re-configuring SCIM with Appsmith in the future.";
+export const RECONFIGURE_API_KEY_MODAL_TITLE = () => "Re-configure API key";
+export const RECONFIGURE_API_KEY_MODAL_CONTENT = () =>
+  "Regenerating your API key will invalidate the current key, leading to API failures. Please proceed with key regeneration only if you intend to replace your existing key on your IdP. Exercise caution to avoid disruption of services relying on the current API key.";
+export const RECONFIGURE_API_KEY_MODAL_CANCEL_BUTTON = () => "Cancel";
+export const RECONFIGURE_API_KEY_MODAL_SUBMIT_BUTTON = () => "Re-configure";
 // Provisioning end
