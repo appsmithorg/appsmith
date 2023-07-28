@@ -183,7 +183,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
         return reactiveMongoTemplate
                 .executeCommand(new Document("buildInfo", 1))
                 .map(buildInfo -> {
-                    //                    commonConfig.setMongoDBVersion(buildInfo.getString("version"));
+                    commonConfig.setMongoDBVersion(buildInfo.getString("version"));
                     log.info("Fetched and set conenncted mongo db version as: {}", commonConfig.getMongoDBVersion());
                     return commonConfig.getMongoDBVersion();
                 })
