@@ -731,7 +731,7 @@ public enum AppsmithError {
             ErrorType.GIT_CONFIGURATION_ERROR,
             null),
     GIT_GENERIC_ERROR(
-            504,
+            400,
             AppsmithErrorCode.GIT_GENERIC_ERROR.getCode(),
             "Git command execution error: {0}",
             AppsmithErrorAction.DEFAULT,
