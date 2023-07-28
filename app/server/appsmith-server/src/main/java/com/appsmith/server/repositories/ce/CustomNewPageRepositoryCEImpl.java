@@ -9,8 +9,10 @@ import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -18,6 +20,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -245,5 +248,17 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
         return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
+    }
+
+    @Override
+    public Mono<UpdateResult> publishPages(Collection<String> pageIds, AclPermission permission) {
+        Criteria applicationIdCriteria = where(fieldName(QNewPage.newPage.id)).in(pageIds);
+        // using aggregation update instead of regular update here
+        // it's required to set a field to a value of another field from the same domain
+        AggregationUpdate aggregationUpdate = AggregationUpdate.update()
+                .set(fieldName(QNewPage.newPage.publishedPage))
+                .toValue("$" + fieldName(QNewPage.newPage.unpublishedPage));
+
+        return updateByCriteria(List.of(applicationIdCriteria), aggregationUpdate, permission);
     }
 }

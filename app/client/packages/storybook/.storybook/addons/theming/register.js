@@ -135,14 +135,13 @@ addons.register("widgets/theming", () => {
             <div>
               <H6>Root Unit Ratio</H6>
               <NumberControl
-                name="root-unit"
-                label="Root Unit"
-                value={globals.rootUnit}
-                defaultValue={globals.rootUnit}
-                min={0.5}
-                max={2}
-                step={0.1}
-                onChange={(value) => updateGlobal("rootUnit", value)}
+                name="root-unit-ratio"
+                label="Root Unit Ratio"
+                value={globals.rootUnitRatio ?? 1}
+                min={0.8}
+                max={1.2}
+                step={0.01}
+                onChange={(value) => updateGlobal("rootUnitRatio", value)}
               />
             </div>
           </Wrapper>

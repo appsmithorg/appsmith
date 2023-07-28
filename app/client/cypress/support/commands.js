@@ -864,7 +864,8 @@ Cypress.Commands.add(
   (forSuccess, forFailure, actionType, actionValue, idx = 0) => {
     propPane.SelectActionByTitleAndValue(actionType, actionValue);
 
-    cy.get(propPane._actionCallbacks).last().click();
+    agHelper.Sleep();
+    agHelper.GetNClick(propPane._actionCallbacks, 0, true);
 
     // add a success callback
     cy.get(propPane._actionAddCallback("success")).click().wait(500);
