@@ -28,13 +28,22 @@ import { isWidgetActionOrJsObject } from "workers/common/DataTreeEvaluator/utils
 export function getEntityDependencies(
   entity: DataTreeEntity,
   entityConfig: DataTreeEntityConfig,
+  allKeys: Record<string, true>,
 ): Record<string, string[]> {
   if (!isWidgetActionOrJsObject(entity)) return {};
   switch (entity.ENTITY_TYPE) {
     case ENTITY_TYPE.ACTION:
-      return getActionDependencies(entity, entityConfig as ActionEntityConfig);
+      return getActionDependencies(
+        entity,
+        entityConfig as ActionEntityConfig,
+        allKeys,
+      );
     case ENTITY_TYPE.JSACTION:
-      return getJSDependencies(entity, entityConfig as JSActionEntityConfig);
+      return getJSDependencies(
+        entity,
+        entityConfig as JSActionEntityConfig,
+        allKeys,
+      );
     case ENTITY_TYPE.WIDGET:
       return getWidgetDependencies(
         entity as WidgetEntity,
@@ -81,6 +90,7 @@ export function getWidgetDependencies(
 export function getJSDependencies(
   jsEntity: JSActionEntity,
   jsActionConfig: JSActionEntityConfig,
+  allKeys: Record<string, true>,
 ): Record<string, string[]> {
   let dependencies: Record<string, string[]> = {};
   const jsActionReactivePaths = jsActionConfig.reactivePaths || {};
@@ -91,9 +101,9 @@ export function getJSDependencies(
     jsActionDependencyMap,
   )) {
     const fullPropertyPath = `${jsObjectName}.${propertyPath}`;
-    const propertyPathDependencies: string[] = pathDeps.map(
-      (dependentPath) => `${jsObjectName}.${dependentPath}`,
-    );
+    const propertyPathDependencies: string[] = pathDeps
+      .map((dependentPath) => `${jsObjectName}.${dependentPath}`)
+      .filter((path) => allKeys.hasOwnProperty(path));
     dependencies[fullPropertyPath] = propertyPathDependencies;
   }
 
@@ -113,6 +123,7 @@ export function getJSDependencies(
 export function getActionDependencies(
   actionEntity: ActionEntity,
   actionConfig: ActionEntityConfig,
+  allKeys: Record<string, true>,
 ): Record<string, string[]> {
   let dependencies: Record<string, string[]> = {};
   const actionName = actionConfig.name;
@@ -121,9 +132,9 @@ export function getActionDependencies(
 
   for (const [propertyPath, pathDeps] of Object.entries(actionDependencyMap)) {
     const fullPropertyPath = `${actionName}.${propertyPath}`;
-    const propertyPathDependencies: string[] = pathDeps.map(
-      (dependentPath) => `${actionName}.${dependentPath}`,
-    );
+    const propertyPathDependencies: string[] = pathDeps
+      .map((dependentPath) => `${actionName}.${dependentPath}`)
+      .filter((path) => allKeys.hasOwnProperty(path));
     dependencies[fullPropertyPath] = propertyPathDependencies;
   }
 
@@ -146,6 +157,7 @@ export function getEntityPathDependencies(
   entity: DataTreeEntity,
   entityConfig: DataTreeEntityConfig,
   fullPropertyPath: string,
+  allKeys: Record<string, true>,
 ) {
   if (!isWidgetActionOrJsObject(entity)) return [];
   switch (entity.ENTITY_TYPE) {
@@ -154,12 +166,14 @@ export function getEntityPathDependencies(
         entity,
         entityConfig as ActionEntityConfig,
         fullPropertyPath,
+        allKeys,
       );
     case ENTITY_TYPE.JSACTION:
       return getJSPropertyPathDependencies(
         entity,
         entityConfig as JSActionEntityConfig,
         fullPropertyPath,
+        allKeys,
       );
     case ENTITY_TYPE.WIDGET:
       return getWidgetPropertyPathDependencies(
@@ -208,15 +222,16 @@ function getJSPropertyPathDependencies(
   jsEntity: JSActionEntity,
   jsActionConfig: JSActionEntityConfig,
   fullPropertyPath: string,
+  allKeys: Record<string, true>,
 ) {
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
   const jsActionReactivePaths = jsActionConfig.reactivePaths || {};
   let dependencies: string[] = [];
   const jsInternalDependencyMap = jsActionConfig.dependencyMap || {};
   const jsPathInternalDependencies =
-    jsInternalDependencyMap[propertyPath]?.map(
-      (dep) => `${jsActionConfig.name}.${dep}`,
-    ) || [];
+    jsInternalDependencyMap[propertyPath]
+      ?.map((dep) => `${jsActionConfig.name}.${dep}`)
+      ?.filter((path) => allKeys.hasOwnProperty(path)) || [];
 
   dependencies = union(dependencies, jsPathInternalDependencies);
 
@@ -233,14 +248,15 @@ function getActionPropertyPathDependencies(
   actionEntity: ActionEntity,
   actionConfig: ActionEntityConfig,
   fullPropertyPath: string,
+  allKeys: Record<string, true>,
 ) {
   let actionPathDependencies: string[] = [];
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
   const actionInternalDependencyMap = actionConfig.dependencyMap || {};
   const actionPathInternalDependencies =
-    actionInternalDependencyMap[propertyPath]?.map(
-      (dep) => `${actionConfig.name}.${dep}`,
-    ) || [];
+    actionInternalDependencyMap[propertyPath]
+      ?.map((dep) => `${actionConfig.name}.${dep}`)
+      .filter((path) => allKeys.hasOwnProperty(path)) || [];
   actionPathDependencies = union(
     actionPathDependencies,
     actionPathInternalDependencies,

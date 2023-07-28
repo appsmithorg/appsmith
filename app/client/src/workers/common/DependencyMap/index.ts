@@ -60,7 +60,11 @@ export function createDependencyMap(
   Object.keys(configTree).forEach((entityName) => {
     const entity = unEvalTree[entityName];
     const entityConfig = configTree[entityName];
-    const entityDependencies = getEntityDependencies(entity, entityConfig);
+    const entityDependencies = getEntityDependencies(
+      entity,
+      entityConfig,
+      allKeys,
+    );
 
     for (const path of Object.keys(entityDependencies)) {
       const pathDependencies = entityDependencies[path];
@@ -172,6 +176,7 @@ export const updateDependencyMap = ({
               const entityDependencyMap = getEntityDependencies(
                 entity,
                 configTree[entityName],
+                allKeys,
               );
               if (!isEmpty(entityDependencyMap)) {
                 // The entity might already have some dependencies,
@@ -209,6 +214,7 @@ export const updateDependencyMap = ({
                 entity,
                 entityConfig,
                 fullPropertyPath,
+                allKeys,
               );
               const { errors: extractDependencyErrors, references } =
                 extractInfoFromBindings(entityPathDependencies, allKeys);
@@ -285,6 +291,7 @@ export const updateDependencyMap = ({
               entity,
               entityConfig,
               fullPropertyPath,
+              allKeys,
             );
             const { errors: extractDependencyErrors, references } =
               extractInfoFromBindings(entityPathDependencies, allKeys);
