@@ -731,6 +731,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     viewMode = viewModeFromURLParams === "true";
   }
 
+  // Returning false to isPluginAuthorized if there exists no plugin or formdata.
   const isPluginAuthorized =
     !!plugin && !!formData
       ? isDatasourceAuthorizedForQueryCreation(
@@ -738,7 +739,7 @@ const mapStateToProps = (state: AppState, props: any) => {
           plugin,
           getCurrentEditingEnvID(),
         )
-      : true;
+      : false;
 
   return {
     datasource,
