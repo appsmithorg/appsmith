@@ -1,8 +1,8 @@
-import React from "react";
+import * as React from "react";
 import styled from "styled-components";
 import { CopyLink } from "./CopyLink";
 
-import type { Token } from "./types";
+import type { Token } from "@design-system/theming";
 import type { ReactNode } from "react";
 
 export const StyledLinePreview = styled.div`
