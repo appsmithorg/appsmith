@@ -129,7 +129,36 @@ function preprocessMongoDBURI(uri /* string */) {
 
   return cs.toString();
 }
+function execCommandSilent(cmd, options) {
+  return new Promise((resolve, reject) => {
+    let isPromiseDone = false;
 
+    const p = childProcess.spawn(cmd[0], cmd.slice(1), {
+      ...options,
+    });
+
+    p.on("exit", (code) => {
+      if (isPromiseDone) {
+        return;
+      }
+      isPromiseDone = true;
+      if (code === 0) {
+        resolve();
+      } else {
+        reject();
+      }
+    });
+
+    p.on("error", (err) => {
+      if (isPromiseDone) {
+        return;
+      }
+      isPromiseDone = true;
+      console.error("Error running command", err);
+      reject();
+    });
+  });
+}
 module.exports = {
   showHelp,
   start,
@@ -140,4 +169,5 @@ module.exports = {
   getLastBackupErrorMailSentInMilliSec,
   getCurrentAppsmithVersion,
   preprocessMongoDBURI,
+  execCommandSilent,
 };
