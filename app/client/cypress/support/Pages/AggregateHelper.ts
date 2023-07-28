@@ -1544,8 +1544,8 @@ export class AggregateHelper extends ReusableHelper {
     selector: string,
     value: string,
     index = 0,
-    force = false
+    force = false,
   ) {
-    return this.GetElement(selector).eq(index).type(value, {force: force});
+    return this.GetElement(selector).eq(index).type(value, { force: force });
   }
 }
