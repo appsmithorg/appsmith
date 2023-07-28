@@ -99,7 +99,10 @@ function getEncryptionPasswordFromUser(){
     const encryptionPwd1 = readlineSync.question('Enter a password to encrypt the backup archive: ', { hideEchoBack: true });
     const encryptionPwd2 = readlineSync.question('Enter the above password again: ', { hideEchoBack: true });
     if (encryptionPwd1 === encryptionPwd2){
-       return encryptionPwd1; 
+       if (encryptionPwd1){
+        return encryptionPwd1;
+       }
+       console.error("Invalid input. Empty password is not allowed, please try again.")
     }
     else {
       console.error("The passwords do not match, please try again.");
