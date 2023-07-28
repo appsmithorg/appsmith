@@ -95,6 +95,10 @@ export function* updateTenantConfigSaga(
           kind: "success",
         });
       }
+
+      if (action.payload.needsRefresh) {
+        location.reload();
+      }
     }
   } catch (error) {
     const errorObj = error as APIResponseError;
