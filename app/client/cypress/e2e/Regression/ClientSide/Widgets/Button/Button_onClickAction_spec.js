@@ -58,7 +58,7 @@ describe("Button Widget Functionality", function () {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
     agHelper.Sleep();
     agHelper.ClickButton("Submit");
-    cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
+    agHelper.ValidateToastMessage("Success");
   });
 
   it("3. Button-Call-Query Validation", function () {
