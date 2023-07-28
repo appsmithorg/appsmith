@@ -53,25 +53,7 @@ describe("List v2 - Data Identifier property", () => {
 
     const keys = ["id", "name", "img"];
     entityExplorer.SelectEntityByName("List1");
-    // clicking on the data identifier dropdown
-    agHelper
-      .GetElement(locators._existingFieldTextByName("Data Identifier"))
-      .find(locators._selectSearch)
-      .last()
-      .click({ force: true });
-    // check if all the keys are present
-    agHelper
-      .AssertElementLength(`${propPane._optionContent}> div > span`, 3)
-      .then(($el) => {
-        // we get a list of jQuery elements
-        // convert the jQuery object into a plain array
-        return (
-          Cypress.$.makeArray($el)
-            // extract inner text from each
-            .map((el: any) => el.innerText)
-        );
-      })
-      .should("deep.equal", keys);
+    propPane.AssertPropertiesDropDownValues("Data Identifier", keys);
   });
 
   it("2. on selection of key from dropdown, it should show same number of rows", () => {

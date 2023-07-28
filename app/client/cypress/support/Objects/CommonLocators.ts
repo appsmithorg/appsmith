@@ -274,4 +274,5 @@ export class CommonLocators {
   _selectSearch = ".rc-select-selection-search";
   public ds_editor_env_filter = (envName: string) =>
     `[data-testid="t--ds-data-filter-${envName}"]`;
+  _textWidgetContaioner = ".t--text-widget-container span";
 }
