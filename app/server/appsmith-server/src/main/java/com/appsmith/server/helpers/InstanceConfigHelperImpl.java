@@ -10,6 +10,7 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.TenantService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -31,8 +32,9 @@ public class InstanceConfigHelperImpl extends InstanceConfigHelperCEImpl impleme
             CommonConfig commonConfig,
             ApplicationContext applicationContext,
             TenantService tenantService,
-            AirgapInstanceConfig airgapInstanceConfig) {
-        super(configService, cloudServicesConfig, commonConfig, applicationContext);
+            AirgapInstanceConfig airgapInstanceConfig,
+            ReactiveMongoTemplate reactiveMongoTemplate) {
+        super(configService, cloudServicesConfig, commonConfig, applicationContext, reactiveMongoTemplate);
         this.tenantService = tenantService;
         this.airgapInstanceConfig = airgapInstanceConfig;
         this.configService = configService;
