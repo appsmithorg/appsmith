@@ -37,11 +37,17 @@ async function getBackupFileName() {
 
 }
 async function decryptArchive(encryptedFilePath, backupFilePath){
-  try{
-    await utils.execCommand(['openssl', 'enc', '-d', '-aes-256-cbc', '-pbkdf2', '-iter', 100000, '-in', encryptedFilePath, '-out', backupFilePath])
-  } catch (error) {
-    throw new Error('Invalid password. Please try again with the correct password.');
+  console.log('Enter the password to decrypt the backup archive:')
+  for (const _ of [1, 2, 3]) {
+    const decryptionPwd = readlineSync.question('', { hideEchoBack: true });
+    try{
+      await utils.execCommandSilent(['openssl', 'enc', '-d', '-aes-256-cbc', '-pbkdf2', '-iter', 100000, '-in', encryptedFilePath, '-out', backupFilePath, '-k', decryptionPwd])
+      return true
+    } catch (error) {
+      console.log('Invalid password. Please try again:');
+    }
   }
+  return false
 }
 async function extractArchive(backupFilePath, restoreRootPath) {
   console.log('Extracting the Appsmith backup archive at ' + backupFilePath);
@@ -159,7 +165,11 @@ async function run() {
         backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
         cleanupArchive = true;
         overwriteEncryptionKeys = false;
-        await decryptArchive(encryptedBackupFilePath, backupFilePath);
+        const decryptSuccess = await decryptArchive(encryptedBackupFilePath, backupFilePath);
+        if (!decryptSuccess){
+          console.log('You have entered the incorrect password multiple times. Aborting the restore process.')
+          process.exit(errorCode)
+        }
       }
       const backupName = backupFileName.replace(/\.tar\.gz$/, "");
       const restoreRootPath = await fsPromises.mkdtemp(os.tmpdir());
