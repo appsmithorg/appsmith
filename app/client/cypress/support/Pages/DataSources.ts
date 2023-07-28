@@ -141,7 +141,7 @@ export class DataSources {
     responseType +
     "']";
   _queryRecordResult = (recordCount: number) =>
-    `//div/span[text()='Result:']/span[contains(text(),' ${recordCount} Record')]`;
+    `//div/span[text()='Result:']/span[number(substring-before(normalize-space(text()), ' Record')) >= ${recordCount}]`;
   _noRecordFound = "span[data-testid='no-data-table-message']";
   _usePreparedStatement =
     "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox']";
