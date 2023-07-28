@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { Collapse } from "@blueprintjs/core";
-import { Button, Size, Text, TextType } from "@design-system/widgets-old";
+import {
+  Button,
+  Category,
+  Size,
+  Text,
+  TextType,
+} from "@design-system/widgets-old";
 import { messages } from "../constants";
 
 const ChartErrorContainer = styled.div`
@@ -34,6 +40,12 @@ const ErrorStack = styled.div`
 const MoreDetailsButton = styled(Button)`
   flex-shrink: 2;
   border-radius: 4px;
+  text-transform: none;
+`;
+
+const Title = styled(Text)`
+  overflow: scroll;
+  font-weight: var(--ads-font-weight-bold-xl);
 `;
 
 export interface ChartErrorProps {
@@ -71,8 +83,9 @@ export function ChartErrorComponent(props: ChartErrorProps) {
     <ChartErrorContainer>
       <ErrorBox>
         <Text type={TextType.H4}>{errorMessage().title}</Text>
-        <Text type={TextType.H4}>{errorMessage().subheading}</Text>
+        <Title type={TextType.H4}>{errorMessage().subheading}</Title>
         <MoreDetailsButton
+          category={Category.tertiary}
           icon={arrowIconName()}
           onClick={toggleBody}
           size={Size.large}

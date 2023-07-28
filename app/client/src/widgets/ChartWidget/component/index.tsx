@@ -8,7 +8,6 @@ import type {
   ChartType,
   CustomFusionChartConfig,
   AllChartData,
-  ChartData,
   ChartSelectedDataPoint,
   LabelOrientation,
 } from "../constants";
@@ -112,7 +111,7 @@ class ChartComponent extends React.Component<
   eChartsContainerId = this.props.widgetId + "echart-container";
   eChartsHTMLContainer: HTMLElement | null = null;
 
-  eChartsData: ChartData[] = [];
+  eChartsData: AllChartData = {};
   echartsConfigurationBuilder: EChartsConfigurationBuilder;
 
   echartConfiguration: Record<string, any> = {};
@@ -141,17 +140,22 @@ class ChartComponent extends React.Component<
   };
 
   dataClickCallback = (params: echarts.ECElementEvent) => {
-    const eventData: Record<string, unknown> = params.data as Record<
-      string,
-      unknown
-    >;
-    const yValue = params.seriesName ? eventData[params.seriesName] : 0;
-    const chartSelectedPoint: ChartSelectedDataPoint = {
-      x: eventData.xaxiscategoryname,
-      y: yValue,
-      seriesTitle: params.seriesName || "",
-    };
-    this.props.onDataPointClick(chartSelectedPoint);
+    const eventData: unknown[] = params.data as unknown[];
+    const x: unknown = eventData[0];
+
+    const index = (params.seriesIndex ?? 0) + 1;
+    const y: unknown = eventData[index];
+
+    const seriesName =
+      params.seriesName && params.seriesName?.length > 0
+        ? params.seriesName
+        : "null";
+
+    this.props.onDataPointClick({
+      x: x,
+      y: y,
+      seriesTitle: seriesName,
+    });
   };
 
   initializeEchartsInstance = () => {

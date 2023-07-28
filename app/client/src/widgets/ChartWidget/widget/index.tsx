@@ -15,10 +15,29 @@ import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import { ChartErrorComponent } from "../component/ChartErrorComponent";
+import { syntaxErrorsFromProps } from "./SyntaxErrorsEvaluation";
+import { EmptyChartData } from "../component/EmptyChartData";
 
 const ChartComponent = lazy(() =>
   retryPromise(() => import(/* webpackChunkName: "charts" */ "../component")),
 );
+
+export const emptyChartData = (props: ChartWidgetProps) => {
+  if (props.chartType == "CUSTOM_FUSION_CHART") {
+    if (!props.customFusionChartConfig) {
+      return true;
+    } else {
+      return Object.keys(props.customFusionChartConfig).length == 0;
+    }
+  } else {
+    for (const seriesID in props.chartData) {
+      if (props.chartData[seriesID].data.length > 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+};
 
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -74,52 +93,46 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     );
   };
 
-  shouldShowChartComponent() {
-    return !this.props.errors || this.props.errors.length == 0;
-  }
-
-  error() {
-    if (this.props.errors && this.props.errors.length > 0) {
-      return this.props.errors[0];
-    } else {
-      return new Error();
-    }
-  }
-
   getPageView() {
-    if (this.shouldShowChartComponent()) {
-      return (
-        <Suspense fallback={<Skeleton />}>
-          <ChartComponent
-            allowScroll={this.props.allowScroll}
-            borderRadius={this.props.borderRadius}
-            bottomRow={this.props.bottomRow}
-            boxShadow={this.props.boxShadow}
-            chartData={this.props.chartData}
-            chartName={this.props.chartName}
-            chartType={this.props.chartType}
-            customFusionChartConfig={this.props.customFusionChartConfig}
-            dimensions={this.getComponentDimensions()}
-            fontFamily={this.props.fontFamily ?? "Nunito Sans"}
-            hasOnDataPointClick={Boolean(this.props.onDataPointClick)}
-            isLoading={this.props.isLoading}
-            isVisible={this.props.isVisible}
-            key={this.props.widgetId}
-            labelOrientation={this.props.labelOrientation}
-            leftColumn={this.props.leftColumn}
-            onDataPointClick={this.onDataPointClick}
-            primaryColor={this.props.accentColor ?? Colors.ROYAL_BLUE_2}
-            rightColumn={this.props.rightColumn}
-            setAdaptiveYMin={this.props.setAdaptiveYMin}
-            topRow={this.props.topRow}
-            widgetId={this.props.widgetId}
-            xAxisName={this.props.xAxisName}
-            yAxisName={this.props.yAxisName}
-          />
-        </Suspense>
-      );
+    const errors = syntaxErrorsFromProps(this.props);
+
+    if (errors.length == 0) {
+      if (emptyChartData(this.props)) {
+        return <EmptyChartData />;
+      } else {
+        return (
+          <Suspense fallback={<Skeleton />}>
+            <ChartComponent
+              allowScroll={this.props.allowScroll}
+              borderRadius={this.props.borderRadius}
+              bottomRow={this.props.bottomRow}
+              boxShadow={this.props.boxShadow}
+              chartData={this.props.chartData}
+              chartName={this.props.chartName}
+              chartType={this.props.chartType}
+              customFusionChartConfig={this.props.customFusionChartConfig}
+              dimensions={this.getComponentDimensions()}
+              fontFamily={this.props.fontFamily ?? "Nunito Sans"}
+              hasOnDataPointClick={Boolean(this.props.onDataPointClick)}
+              isLoading={this.props.isLoading}
+              isVisible={this.props.isVisible}
+              key={this.props.widgetId}
+              labelOrientation={this.props.labelOrientation}
+              leftColumn={this.props.leftColumn}
+              onDataPointClick={this.onDataPointClick}
+              primaryColor={this.props.accentColor ?? Colors.ROYAL_BLUE_2}
+              rightColumn={this.props.rightColumn}
+              setAdaptiveYMin={this.props.setAdaptiveYMin}
+              topRow={this.props.topRow}
+              widgetId={this.props.widgetId}
+              xAxisName={this.props.xAxisName}
+              yAxisName={this.props.yAxisName}
+            />
+          </Suspense>
+        );
+      }
     } else {
-      return <ChartErrorComponent error={this.error()} />;
+      return <ChartErrorComponent error={errors[0]} />;
     }
   }
 

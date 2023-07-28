@@ -7,6 +7,7 @@ export type ChartType =
   | "SCATTER_CHART"
   | "CUSTOM_FUSION_CHART";
 
+export const XAxisCategory = "Category";
 export interface ChartDataPoint {
   x: any;
   y: any;
@@ -36,6 +37,7 @@ export interface ChartSelectedDataPoint {
 export const messages = {
   ErrorTitle: "Error in Chart Data/Configuration",
   MoreDetails: "More Details",
+  EmptyData: "No chart data to display",
 };
 
 export const CUSTOM_CHART_TYPES = [
