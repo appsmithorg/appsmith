@@ -47,5 +47,3 @@ export const ComplexForm = () => {
     </div>
   );
 };
-
-export const Documentation = () => <ComplexForm />;

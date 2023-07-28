@@ -25,130 +25,108 @@ A button group is a group of buttons that are visually connected together.
 
 ### Filled variant
 
-<Canvas>
-  <Story name="Filled variant">
-    <Flex direction="column" gap="spacing-4">
-      {["accent", "neutral", "positive", "negative", "warning"].map((color) => (
-        <ButtonGroup>
-          <Button variant="filled" color={color} children={`filled-${color}`} />
-          <Button variant="filled" color={color} children={`filled-${color}`} />
-          <Button variant="filled" color={color} children={`filled-${color}`} />
-        </ButtonGroup>
-      ))}
-    </Flex>
-  </Story>
-</Canvas>
+<Story name="Filled variant">
+  <Flex direction="column" gap="spacing-4">
+    {["accent", "neutral", "positive", "negative", "warning"].map((color) => (
+      <ButtonGroup>
+        <Button variant="filled" color={color} children={`filled-${color}`} />
+        <Button variant="filled" color={color} children={`filled-${color}`} />
+        <Button variant="filled" color={color} children={`filled-${color}`} />
+      </ButtonGroup>
+    ))}
+  </Flex>
+</Story>
 
 ### Outlined variant
 
-<Canvas>
-  <Story name="Outlined variant">
-    <Flex direction="column" gap="spacing-4">
-      {["accent", "neutral", "positive", "negative", "warning"].map((color) => (
-        <ButtonGroup>
-          <Button
-            variant="outlined"
-            color={color}
-            children={`filled-${color}`}
-          />
-          <Button
-            variant="outlined"
-            color={color}
-            children={`filled-${color}`}
-          />
-          <Button
-            variant="outlined"
-            color={color}
-            children={`filled-${color}`}
-          />
-        </ButtonGroup>
-      ))}
-    </Flex>
-  </Story>
-</Canvas>
+<Story name="Outlined variant">
+  <Flex direction="column" gap="spacing-4">
+    {["accent", "neutral", "positive", "negative", "warning"].map((color) => (
+      <ButtonGroup>
+        <Button variant="outlined" color={color} children={`filled-${color}`} />
+        <Button variant="outlined" color={color} children={`filled-${color}`} />
+        <Button variant="outlined" color={color} children={`filled-${color}`} />
+      </ButtonGroup>
+    ))}
+  </Flex>
+</Story>
 
 ### Ghost variant
 
-<Canvas>
-  <Story name="Ghost variant">
-    <Flex direction="column" gap="spacing-4">
-      {["accent", "neutral", "positive", "negative", "warning"].map((color) => (
-        <ButtonGroup>
-          <Button variant="ghost" color={color} children={`filled-${color}`} />
-          <Button variant="ghost" color={color} children={`filled-${color}`} />
-          <Button variant="ghost" color={color} children={`filled-${color}`} />
-        </ButtonGroup>
-      ))}
-    </Flex>
-  </Story>
-</Canvas>
+<Story name="Ghost variant">
+  <Flex direction="column" gap="spacing-4">
+    {["accent", "neutral", "positive", "negative", "warning"].map((color) => (
+      <ButtonGroup>
+        <Button variant="ghost" color={color} children={`filled-${color}`} />
+        <Button variant="ghost" color={color} children={`filled-${color}`} />
+        <Button variant="ghost" color={color} children={`filled-${color}`} />
+      </ButtonGroup>
+    ))}
+  </Flex>
+</Story>
 
 ## Orientation
 
-<Canvas>
-  <Story name="Button Group - Vertical Filled">
-    <ButtonGroup>
-      <Button variant="filled">Option 2</Button>
-      <Button variant="filled">Option 2</Button>
-      <Button variant="filled">Option 3</Button>
-    </ButtonGroup>
-  </Story>
-  <Story name="Button Group - Vertical Outlined">
-    <ButtonGroup>
-      <Button variant="outlined">Option 2</Button>
-      <Button variant="outlined">Option 2</Button>
-      <Button variant="outlined">Option 3</Button>
-    </ButtonGroup>
-  </Story>
-  <Story name="Button Group - Vertical Ghost">
-    <ButtonGroup>
-      <Button variant="ghost">Option 2</Button>
-      <Button variant="ghost">Option 2</Button>
-      <Button variant="ghost">Option 3</Button>
-    </ButtonGroup>
-  </Story>
-</Canvas>
+<Story name="Button Group - Vertical Filled">
+  <ButtonGroup>
+    <Button variant="filled">Option 2</Button>
+    <Button variant="filled">Option 2</Button>
+    <Button variant="filled">Option 3</Button>
+  </ButtonGroup>
+</Story>
+<Story name="Button Group - Vertical Outlined">
+  <ButtonGroup>
+    <Button variant="outlined">Option 2</Button>
+    <Button variant="outlined">Option 2</Button>
+    <Button variant="outlined">Option 3</Button>
+  </ButtonGroup>
+</Story>
+<Story name="Button Group - Vertical Ghost">
+  <ButtonGroup>
+    <Button variant="ghost">Option 2</Button>
+    <Button variant="ghost">Option 2</Button>
+    <Button variant="ghost">Option 3</Button>
+  </ButtonGroup>
+</Story>
 
 ## Disabled
 
-<Canvas>
-  <Story name="Button Group Filled Disabled">
-    <ButtonGroup>
-      <Button variant="filled" isDisabled>
-        Option 2
-      </Button>
-      <Button variant="filled" isDisabled>
-        Option 2
-      </Button>
-      <Button variant="filled" isDisabled>
-        Option 3
-      </Button>
-    </ButtonGroup>
-  </Story>
-  <Story name="Button Group Outlined Disabled">
-    <ButtonGroup>
-      <Button variant="outlined" isDisabled>
-        Option 2
-      </Button>
-      <Button variant="outlined" isDisabled>
-        Option 2
-      </Button>
-      <Button variant="outlined" isDisabled>
-        Option 3
-      </Button>
-    </ButtonGroup>
-  </Story>
-  <Story name="Button Group Ghost Disabled">
-    <ButtonGroup>
-      <Button variant="ghost" isDisabled>
-        Option 2
-      </Button>
-      <Button variant="ghost" isDisabled>
-        Option 2
-      </Button>
-      <Button variant="ghost" isDisabled>
-        Option 3
-      </Button>
-    </ButtonGroup>
-  </Story>
-</Canvas>
+<Story name="Button Group Filled Disabled">
+  <ButtonGroup>
+    <Button variant="filled" isDisabled>
+      Option 2
+    </Button>
+    <Button variant="filled" isDisabled>
+      Option 2
+    </Button>
+    <Button variant="filled" isDisabled>
+      Option 3
+    </Button>
+  </ButtonGroup>
+</Story>
+<Story name="Button Group Outlined Disabled">
+  <ButtonGroup>
+    <Button variant="outlined" isDisabled>
+      Option 2
+    </Button>
+    <Button variant="outlined" isDisabled>
+      Option 2
+    </Button>
+    <Button variant="outlined" isDisabled>
+      Option 3
+    </Button>
+  </ButtonGroup>
+</Story>
+<Story name="Button Group Ghost Disabled">
+  <ButtonGroup>
+    <Button variant="ghost" isDisabled>
+      Option 2
+    </Button>
+    <Button variant="ghost" isDisabled>
+      Option 2
+    </Button>
+    <Button variant="ghost" isDisabled>
+      Option 3
+    </Button>
+  </ButtonGroup>
+</Story>

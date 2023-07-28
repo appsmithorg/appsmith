@@ -14,6 +14,7 @@ addons.register("widgets/theming", () => {
       return !!(
         storyId &&
         storyId?.includes("widgets") &&
+        !storyId?.includes("widgets-old") &&
         !!(viewMode && viewMode.match(/^(story|docs)$/))
       );
     },

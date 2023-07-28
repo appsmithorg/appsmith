@@ -225,7 +225,6 @@
     "@faker-js/faker": "^7.4.0",
     "@redux-saga/testing-utils": "^1.1.5",
     "@sentry/webpack-plugin": "^1.18.9",
-    "@storybook/addons": "^7.1.1",
     "@testing-library/jest-dom": "5.16.1",
     "@testing-library/react": "12.1.2",
     "@testing-library/react-hooks": "^7.0.2",

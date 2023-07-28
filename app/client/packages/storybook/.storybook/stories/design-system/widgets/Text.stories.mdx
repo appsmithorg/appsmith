@@ -25,54 +25,48 @@ Text is a component that renders a capsized text.
 
 ## Line clamp
 
-<Canvas>
-  <Story
-    name="Line clamp"
-    parameters={{
-      width: 300,
-    }}
-    args={{
-      lineClamp: 2,
-    }}
-  >
-    {Template.bind({})}
-  </Story>
-</Canvas>
+<Story
+  name="Line clamp"
+  parameters={{
+    width: 300,
+  }}
+  args={{
+    lineClamp: 2,
+  }}
+>
+  {Template.bind({})}
+</Story>
 
 ## Variant
 
-<Canvas>
-  <Story name="Variant">
-    <Flex
-      flex="1"
-      gap="spacing-6"
-      alignItems="center"
-      justifyContent="start"
-      direction="row-reverse"
-    >
-      {Object.keys(TypographyVariant).map((variant) => (
-        <Text variant={variant}>aA</Text>
-      ))}
-    </Flex>
-  </Story>
-</Canvas>
+<Story name="Variant">
+  <Flex
+    flex="1"
+    gap="spacing-6"
+    alignItems="center"
+    justifyContent="start"
+    direction="row-reverse"
+  >
+    {Object.keys(TypographyVariant).map((variant) => (
+      <Text variant={variant}>aA</Text>
+    ))}
+  </Flex>
+</Story>
 
 ## Color
 
-<Canvas>
-  <Story name="Color">
-    <Flex
-      flex="1"
-      gap="spacing-6"
-      alignItems="center"
-      justifyContent="start"
-      direction="row-reverse"
-    >
-      {Object.keys(TypographyColor).map((color) => (
-        <Text variant="heading" color={color}>
-          aA
-        </Text>
-      ))}
-    </Flex>
-  </Story>
-</Canvas>
+<Story name="Color">
+  <Flex
+    flex="1"
+    gap="spacing-6"
+    alignItems="center"
+    justifyContent="start"
+    direction="row-reverse"
+  >
+    {Object.keys(TypographyColor).map((color) => (
+      <Text variant="heading" color={color}>
+        aA
+      </Text>
+    ))}
+  </Flex>
+</Story>

@@ -42,58 +42,52 @@ A tooltip is a small pop-up that appears when a user places their cursor over an
 
 The placement of the tooltip can be changed by passing the `placement` prop.
 
-<Canvas>
-  <Story name="Tooltip placement">
-    <ButtonGroup>
-      <TooltipRoot placement="left">
-        <TooltipTrigger>
-          <Button variant="outlined">Left</Button>
-        </TooltipTrigger>
-        <TooltipContent>My tooltip</TooltipContent>
-      </TooltipRoot>
-      <TooltipRoot placement="top">
-        <TooltipTrigger>
-          <Button variant="outlined">Top</Button>
-        </TooltipTrigger>
-        <TooltipContent>My tooltip</TooltipContent>
-      </TooltipRoot>
-      <TooltipRoot placement="bottom">
-        <TooltipTrigger>
-          <Button variant="outlined">Bottom</Button>
-        </TooltipTrigger>
-        <TooltipContent>My tooltip</TooltipContent>
-      </TooltipRoot>
-      <TooltipRoot placement="right">
-        <TooltipTrigger>
-          <Button variant="outlined">Right</Button>
-        </TooltipTrigger>
-        <TooltipContent>My tooltip</TooltipContent>
-      </TooltipRoot>
-    </ButtonGroup>
-  </Story>
-</Canvas>
+<Story name="Tooltip placement">
+  <ButtonGroup>
+    <TooltipRoot placement="left">
+      <TooltipTrigger>
+        <Button variant="outlined">Left</Button>
+      </TooltipTrigger>
+      <TooltipContent>My tooltip</TooltipContent>
+    </TooltipRoot>
+    <TooltipRoot placement="top">
+      <TooltipTrigger>
+        <Button variant="outlined">Top</Button>
+      </TooltipTrigger>
+      <TooltipContent>My tooltip</TooltipContent>
+    </TooltipRoot>
+    <TooltipRoot placement="bottom">
+      <TooltipTrigger>
+        <Button variant="outlined">Bottom</Button>
+      </TooltipTrigger>
+      <TooltipContent>My tooltip</TooltipContent>
+    </TooltipRoot>
+    <TooltipRoot placement="right">
+      <TooltipTrigger>
+        <Button variant="outlined">Right</Button>
+      </TooltipTrigger>
+      <TooltipContent>My tooltip</TooltipContent>
+    </TooltipRoot>
+  </ButtonGroup>
+</Story>
 
 # Disabled
 
 If the trigger is disabled, the tooltip will still be displayed.
 
-<Canvas>
-  <Story name="Tooltip disabled">
-    <TooltipRoot>
-      <TooltipTrigger>
-        <Button isDisabled>My trigger</Button>
-      </TooltipTrigger>
-      <TooltipContent>My tooltip</TooltipContent>
-    </TooltipRoot>
-  </Story>
-</Canvas>
+<Story name="Tooltip disabled">
+  <TooltipRoot>
+    <TooltipTrigger>
+      <Button isDisabled>My trigger</Button>
+    </TooltipTrigger>
+    <TooltipContent>My tooltip</TooltipContent>
+  </TooltipRoot>
+</Story>
 
 # Tooltip Component
 
-<Canvas>
-  <Story name="Tooltip Component">
-    <Tooltip tooltip="Tooltip">
-      <Button>My trigger</Button>
-    </Tooltip>
-  </Story>
-</Canvas>
+<Story name="Tooltip Component">
+  <Tooltip tooltip="Tooltip">
+    <Button>My trigger</Button>
+  </Tooltip>
+</Story>

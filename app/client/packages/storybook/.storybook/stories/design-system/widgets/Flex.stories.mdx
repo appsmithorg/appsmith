@@ -68,43 +68,37 @@ export const Template = (args) => (
 
 ## Vertical stack with gap
 
-<Canvas>
-  <Story name="Vertical stack">
-    <Flex direction="column" gap="spacing-2">
-      <StyledNegativeBlock />
-      <StyledPositiveBlock />
-      <StyledWarningBlock />
-    </Flex>
-  </Story>
-</Canvas>
+<Story name="Vertical stack">
+  <Flex direction="column" gap="spacing-2">
+    <StyledNegativeBlock />
+    <StyledPositiveBlock />
+    <StyledWarningBlock />
+  </Flex>
+</Story>
 
 ## Horizontal stack with gap
 
-<Canvas>
-  <Story name="Horizontal stack">
-    <Flex gap="spacing-2">
-      <StyledNegativeBlock />
-      <StyledPositiveBlock />
-      <StyledWarningBlock />
-    </Flex>
-  </Story>
-</Canvas>
+<Story name="Horizontal stack">
+  <Flex gap="spacing-2">
+    <StyledNegativeBlock />
+    <StyledPositiveBlock />
+    <StyledWarningBlock />
+  </Flex>
+</Story>
 
 ## Nesting
 
-<Canvas>
-  <Story name="Nesting">
-    <Flex direction="column" gap="spacing-2" width="100%">
-      <StyledAccentBlock />
-      <Flex gap="spacing-2" height="sizing-40">
-        <StyledNegativeBlock />
-        <StyledPositiveBlock />
-        <StyledNeutralBlock />
-      </Flex>
-      <StyledWarningBlock />
+<Story name="Nesting">
+  <Flex direction="column" gap="spacing-2" width="100%">
+    <StyledAccentBlock />
+    <Flex gap="spacing-2" height="sizing-40">
+      <StyledNegativeBlock />
+      <StyledPositiveBlock />
+      <StyledNeutralBlock />
     </Flex>
-  </Story>
-</Canvas>
+    <StyledWarningBlock />
+  </Flex>
+</Story>
 
 ## Responsive
 
@@ -117,57 +111,53 @@ To make everything work, we just need to add `isContainer` prop to the parent FL
 
 ## Responsive cards
 
-<Canvas>
-  <Story name="Responsive cards">
-    <Flex isContainer gap="spacing-2" width="100%" wrap>
-      {[...Array(12)].map(() => (
-        <Flex
-          flex="1"
-          minWidth={{
-            base: "44%",
-            "400px": "30%",
-            "680px": "22%",
-            "926px": "14%",
-          }}
-        >
-          <StyledResponsiveBlock />
-        </Flex>
-      ))}
-    </Flex>
-  </Story>
-</Canvas>
+<Story name="Responsive cards">
+  <Flex isContainer gap="spacing-2" width="100%" wrap>
+    {[...Array(12)].map(() => (
+      <Flex
+        flex="1"
+        minWidth={{
+          base: "44%",
+          "400px": "30%",
+          "680px": "22%",
+          "926px": "14%",
+        }}
+      >
+        <StyledResponsiveBlock />
+      </Flex>
+    ))}
+  </Flex>
+</Story>
 
 ## Responsive list
 
-<Canvas>
-  <Story name="Responsive list">
-    <Flex
-      direction={{ base: "row", "520px": "column" }}
-      gap="spacing-6"
-      wrap
-      isContainer
-    >
-      {[...Array(4)].map(() => (
-        <Flex
-          direction={{ base: "column", "520px": "row" }}
-          flex={{ base: "0", "320px": "1", "520px": "none" }}
-          gap="spacing-4"
-          minWidth={{ base: "100%", "320px": "45%", "520px": "100%" }}
-        >
-          <Flex flex="1" maxWidth={{ base: "100%", "520px": "sizing-38" }}>
-            <StyledResponsiveBlock />
-          </Flex>
-          <Flex direction="column" flex="1" gap="spacing-4">
-            <Text variant="subtitle">Title</Text>
-            <Text>
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Autem
-              consequuntur explicabo quia veniam? Aliquid amet cum delectus
-              deleniti eligendi eum facilis, fugit in iusto nemo, porro quod
-              reiciendis sint velit?
-            </Text>
-          </Flex>
+<Story name="Responsive list">
+  <Flex
+    direction={{ base: "row", "520px": "column" }}
+    gap="spacing-6"
+    wrap
+    isContainer
+  >
+    {[...Array(4)].map(() => (
+      <Flex
+        direction={{ base: "column", "520px": "row" }}
+        flex={{ base: "0", "320px": "1", "520px": "none" }}
+        gap="spacing-4"
+        minWidth={{ base: "100%", "320px": "45%", "520px": "100%" }}
+      >
+        <Flex flex="1" maxWidth={{ base: "100%", "520px": "sizing-38" }}>
+          <StyledResponsiveBlock />
         </Flex>
-      ))}
-    </Flex>
-  </Story>
-</Canvas>
+        <Flex direction="column" flex="1" gap="spacing-4">
+          <Text variant="subtitle">Title</Text>
+          <Text>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Autem
+            consequuntur explicabo quia veniam? Aliquid amet cum delectus
+            deleniti eligendi eum facilis, fugit in iusto nemo, porro quod
+            reiciendis sint velit?
+          </Text>
+        </Flex>
+      </Flex>
+    ))}
+  </Flex>
+</Story>
