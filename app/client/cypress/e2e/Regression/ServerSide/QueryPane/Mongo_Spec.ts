@@ -326,7 +326,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   it("3. Validate 'Find' record from new collection & verify query response", () => {
     entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Find");
     dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
-    dataSources.RunQueryNVerifyResponseViews(1, false);
+    dataSources.RunQueryNVerifyResponseViews(1, false, false);
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -344,7 +344,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       directInput: false,
       inputFieldName: "Query",
     });
-    dataSources.RunQueryNVerifyResponseViews(1, false);
+    dataSources.RunQueryNVerifyResponseViews(1, false, false);
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -647,7 +647,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   it("14. Validate 'Aggregate' record from new collection & verify query response", () => {
     entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Aggregate");
     dataSources.ValidateNSelectDropdown("Commands", "Aggregate");
-    dataSources.RunQueryNVerifyResponseViews(7, false);
+    dataSources.RunQueryNVerifyResponseViews(7, false, false);
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -812,7 +812,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     entityExplorer.ActionTemplateMenuByEntityName("BirthNDeath", "Find");
     dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
-    dataSources.RunQueryNVerifyResponseViews(4, false);
+    dataSources.RunQueryNVerifyResponseViews(4, false, false);
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
