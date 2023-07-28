@@ -530,14 +530,14 @@ jobs:
       - name: Update job data to mongoDB
         run: |
           #  mongosh '' --eval 'db.appsmiht-ce-github-dp-runs.insert( { run_id: ${{ github.run_id }}, uid: ${{ github.event.inputs.uid }}, status: "Started" } )'
-          mongosh '' --eval 'db.appsmiht-ce-github-dp-runs.update(
-                                                                  { _id:  ${{ github.event.inputs.uid }} },
-                                                                  {
-                                                                    $set: {
-                                                                      status: "DEPLOYMENT IN PROGRESS"
-                                                                    }
-                                                                  }
-                                                                )'
+         # mongosh '' --eval 'db.appsmiht-ce-github-dp-runs.update(
+                                                                 # { _id:  ${{ github.event.inputs.uid }} },
+                                                                 # {
+                                                                  #  $set: {
+                                                                 #     status: "DEPLOYMENT IN PROGRESS"
+                                                                #    }
+                                                                #  }
+                                                            #    )'
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
       - name: Checkout PR
