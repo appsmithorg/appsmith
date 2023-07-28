@@ -24,7 +24,11 @@ const ChartComponent = lazy(() =>
 
 export const emptyChartData = (props: ChartWidgetProps) => {
   if (props.chartType == "CUSTOM_FUSION_CHART") {
-    return Object.keys(props.customFusionChartConfig).length == 0;
+    if (!props.customFusionChartConfig) {
+      return true;
+    } else {
+      return Object.keys(props.customFusionChartConfig).length == 0;
+    }
   } else {
     for (const seriesID in props.chartData) {
       if (props.chartData[seriesID].data.length > 0) {

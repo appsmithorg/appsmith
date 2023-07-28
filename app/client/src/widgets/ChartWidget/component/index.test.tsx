@@ -8,18 +8,19 @@ import React from "react";
 import { render } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
+import { screen } from "@testing-library/react";
 
 let container: any;
 
 describe("Chart Widget", () => {
   const seriesData1: ChartData = {
     seriesName: "series1",
-    data: [{ x: "x1", y: 1 }],
+    data: [{ x: "x1", y: 1000 }],
     color: "series1color",
   };
   const seriesData2: ChartData = {
     seriesName: "series2",
-    data: [{ x: "x1", y: 2 }],
+    data: [{ x: "x1", y: 2000 }],
     color: "series2color",
   };
   const defaultProps: ChartComponentProps = {
@@ -103,20 +104,11 @@ describe("Chart Widget", () => {
       mockCallback();
     };
 
-    const { container } = render(<ChartComponent {...props} />);
-
-    /**
-     * path[d^='M89 -1l0 0l0 102l0 0Z'] is the html element for a data point rendered by ECharts.
-     * I have manually fetched this value from the dom using debug() statement to get it.
-     * It will need to be updated if anything in the dom changes
-     *
-     * */
-    const datapoint =
-      container.querySelector("path[d^='M89 -1l0 0l0 102l0 0Z']") ||
-      document.createElement("div");
+    render(<ChartComponent {...props} />);
 
     expect(mockCallback.mock.calls.length).toEqual(0);
-    userEvent.click(datapoint);
+    const el = await screen.findByText("1000");
+    userEvent.click(el);
     expect(mockCallback.mock.calls.length).toEqual(1);
   });
 });

@@ -38,7 +38,7 @@ describe("Chart renders widget errors", () => {
     agHelper.EnterActionValue("Series data", "");
 
     agHelper.AssertContains(
-      "No Chart data to display",
+      "No chart data to display",
       "exist",
       locators._widgetInDeployed(draggableWidgets.CHART),
     );

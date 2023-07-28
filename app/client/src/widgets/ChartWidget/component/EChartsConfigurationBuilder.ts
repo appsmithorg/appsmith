@@ -43,7 +43,7 @@ export class EChartsConfigurationBuilder {
       const seriesData = allSeriesData[seriesID];
       let color = seriesData.color;
 
-      if (index == 0 && !color) {
+      if (index == 0 && (!color || color.length == 0)) {
         color = props.primaryColor;
       }
 
