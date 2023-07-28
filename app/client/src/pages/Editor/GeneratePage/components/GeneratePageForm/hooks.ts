@@ -8,6 +8,7 @@ import { executeDatasourceQuery } from "actions/datasourceActions";
 import type { DropdownOption } from "design-system-old";
 import { useDispatch } from "react-redux";
 import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { PluginPackageName } from "entities/Action";
 
 export const FAKE_DATASOURCE_OPTION = {
   CONNECT_NEW_DATASOURCE_OPTION: {
@@ -24,12 +25,10 @@ export const useDatasourceOptions = ({
   canCreateDatasource,
   datasources,
   generateCRUDSupportedPlugin,
-  isGoogleSheetPlugin,
 }: {
   canCreateDatasource: boolean;
   datasources: Datasource[];
   generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap;
-  isGoogleSheetPlugin: boolean;
 }) => {
   const [dataSourceOptions, setDataSourceOptions] = useState<DropdownOptions>(
     [],
@@ -49,6 +48,10 @@ export const useDatasourceOptions = ({
     datasources.forEach(({ datasourceStorages, id, name, pluginId }) => {
       // Doing this since g sheets plugin is not supported for environments
       // and we need to show the option in the dropdown
+      const isGoogleSheetPlugin =
+        generateCRUDSupportedPlugin.hasOwnProperty(pluginId) &&
+        generateCRUDSupportedPlugin[pluginId] ===
+          PluginPackageName.GOOGLE_SHEETS;
       const datasourceStorage = isGoogleSheetPlugin
         ? Object.values(datasourceStorages)[0]
         : datasourceStorages[currentEnvironment];

@@ -32,6 +32,7 @@ import net.minidev.json.parser.ParseException;
 import org.apache.commons.collections.PredicateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import reactor.core.Exceptions;
@@ -72,6 +73,10 @@ public class GitFileUtils {
     private final SessionUserService sessionUserService;
 
     private final Gson gson;
+
+    // Number of seconds after lock file is stale
+    @Value("${appsmith.index.lock.file.time}")
+    public static final int INDEX_LOCK_FILE_STALE_TIME = 900;
 
     // Only include the application helper fields in metadata object
     private static final Set<String> blockedMetadataFields = Set.of(
@@ -570,5 +575,9 @@ public class GitFileUtils {
                 getApplicationResource(applicationReference.getDatasources(), DatasourceStorage.class));
 
         return applicationJson;
+    }
+
+    public Mono<Long> deleteIndexLockFile(Path path) {
+        return fileUtils.deleteIndexLockFile(path, INDEX_LOCK_FILE_STALE_TIME);
     }
 }
