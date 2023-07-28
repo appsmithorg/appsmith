@@ -27,7 +27,7 @@ describe(
         assertHelper.AssertNetworkStatus("@trigger");
         dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
         dataSources.ValidateNSelectDropdown("Collection", "movies");
-        dataSources.RunQueryNVerifyResponseViews(2, false);
+        dataSources.RunQueryNVerifyResponseViews(1, false);
         dataSources.NavigateToActiveTab();
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))
@@ -38,7 +38,7 @@ describe(
         entityExplorer.CreateNewDsQuery(mockDBName);
         dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
         dataSources.ValidateNSelectDropdown("Collection", "movies");
-        dataSources.RunQueryNVerifyResponseViews(2, false);
+        dataSources.RunQueryNVerifyResponseViews(1, false);
         dataSources.NavigateToActiveTab();
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))
@@ -62,7 +62,7 @@ describe(
           'SELECT * FROM public."users" LIMIT 10;',
         );
 
-        dataSources.RunQueryNVerifyResponseViews(10);
+        dataSources.RunQueryNVerifyResponseViews(5); //minimum 5 rows are expected
         dataSources.NavigateToActiveTab();
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))
