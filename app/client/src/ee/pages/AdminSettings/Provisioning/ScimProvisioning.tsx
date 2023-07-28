@@ -27,7 +27,7 @@ import {
   Wrapper,
 } from "pages/Settings/components";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
-import { GOOGLE_SIGNUP_SETUP_DOC } from "constants/ThirdPartyConstants";
+import { PROVISIONING_SETUP_DOC } from "constants/ThirdPartyConstants";
 import CopyUrlForm from "pages/Settings/FormGroup/CopyUrlForm";
 import { getProvisioningDetails } from "@appsmith/selectors/provisioningSelectors";
 import {
@@ -252,7 +252,7 @@ export const ScimProvisioning = () => {
                 <Link
                   endIcon="book-line"
                   target="_blank"
-                  to={GOOGLE_SIGNUP_SETUP_DOC}
+                  to={PROVISIONING_SETUP_DOC}
                 >
                   {""}
                 </Link>
@@ -282,7 +282,7 @@ export const ScimProvisioning = () => {
                 links={[
                   {
                     children: createMessage(OPEN_DOCUMENTATION),
-                    to: GOOGLE_SIGNUP_SETUP_DOC,
+                    to: PROVISIONING_SETUP_DOC,
                     startIcon: "book-line",
                   },
                 ]}
