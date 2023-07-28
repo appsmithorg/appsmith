@@ -71,7 +71,7 @@ describe("Button Widget Functionality", function () {
     // Filling the messages for success/failure in the onClickAction of the button widget.
     cy.onClickActions("Success", "Error", "Execute a query", "Query1.run");
 
-    deployMode.DeployApp();
+    deployMode.DeployApp(publishPage.buttonWidget);
 
     // Clicking the button to verify the success message
     agHelper.GetNClick(publishPage.buttonWidget);
