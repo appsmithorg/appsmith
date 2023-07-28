@@ -5,26 +5,32 @@ import type {
 import React, { forwardRef } from "react";
 import { Icon as HeadlessIcon } from "@design-system/headless";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
-
 import { Text } from "../Text";
 import { Spinner } from "../Spinner";
-import type { ButtonColor, ButtonIconPosition, ButtonVariant } from "./types";
+import type {
+  BUTTON_COLORS,
+  BUTTON_VARIANTS,
+  BUTTON_ICON_POSITIONS,
+} from "./types";
 import { DragContainer, StyledButton } from "./index.styled";
 
 export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
   /** variant of the button
-   *
    * @default filled
    */
-  variant?: ButtonVariant;
-  /** Color tone of the button */
-  color?: ButtonColor;
+  variant?: (typeof BUTTON_VARIANTS)[keyof typeof BUTTON_VARIANTS];
+  /** Color tone of the button
+   * @default accent
+   */
+  color?: (typeof BUTTON_COLORS)[keyof typeof BUTTON_COLORS];
   /** Indicates the loading state of the button */
   isLoading?: boolean;
   /** Icon to be used in the button of the button */
   icon?: React.ReactNode;
-  /** Indicates the position of icon of the button */
-  iconPosition?: ButtonIconPosition;
+  /** Indicates the position of icon of the button
+   * @default accent
+   */
+  iconPosition?: (typeof BUTTON_ICON_POSITIONS)[keyof typeof BUTTON_ICON_POSITIONS];
   /** Makes the button visually and functionaly disabled but focusable */
   visuallyDisabled?: boolean;
 }
