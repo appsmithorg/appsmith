@@ -189,6 +189,7 @@ export class Table {
   _divFirstChild = "div:first-child abbr";
   _listNavigation = (move: string) =>
     "//button[@area-label='" + move + " page']";
+  _listNextPage = ".rc-pagination-next";
 
   public GetNumberOfRows() {
     return this.agHelper.GetElement(this._tr).its("length");
@@ -671,16 +672,27 @@ export class Table {
   }
 
   //List methods - keeping it for now!
-  public NavigateToNextPage_List() {
+  public NavigateToNextPage_List(tableVersion: "v1" | "v2" = "v1", index = 0) {
     let curPageNo: number;
-    cy.xpath(this._liCurrentSelectedPage)
-      .invoke("text")
-      .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
-    cy.get(this._liNextPage).click();
-    //cy.scrollTo('top', { easing: 'linear' })
-    cy.xpath(this._liCurrentSelectedPage)
-      .invoke("text")
-      .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
+    if (tableVersion == "v1") {
+      cy.xpath(this._liCurrentSelectedPage)
+        .invoke("text")
+        .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
+      cy.get(this._listNextPage).click();
+      //cy.scrollTo('top', { easing: 'linear' })
+      cy.xpath(this._liCurrentSelectedPage)
+        .invoke("text")
+        .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
+    } else if (tableVersion == "v2") {
+      this.agHelper
+        .GetText(this.locator._listActivePage, "text", index)
+        .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
+      this.agHelper.GetNClick(this._listNextPage, index, true);
+      this.agHelper.Sleep(1000);
+      this.agHelper
+        .GetText(this.locator._listActivePage, "text", index)
+        .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
+    }
   }
 
   public NavigateToPreviousPage_List() {
