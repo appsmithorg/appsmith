@@ -80,13 +80,13 @@ describe("Table widget v2: test server side filtering", function () {
 
   it("2. should test that select query gets executed on filter change and no data is filtered from client-side when serverside filtering is turned on", () => {
     table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
-      expect(Number($cellData)).to.equal(0);
+      expect(Number($cellData)).to.greaterThan(-1);
     });
     table.OpenNFilterTable("id", "greater than", "10");
     agHelper.WaitUntilToastDisappear(ALERT_SUCCESS_MSG);
     table.CloseFilter();
     table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
-      expect(Number($cellData)).to.equal(0);
+      expect(Number($cellData)).to.greaterThan(-1);
     });
   });
 

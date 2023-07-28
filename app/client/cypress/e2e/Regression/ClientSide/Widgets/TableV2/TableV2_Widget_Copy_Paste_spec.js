@@ -42,7 +42,7 @@ describe("Test Suite to validate copy/paste table Widget V2", function () {
     });
     cy.wait(200);
     cy.get(apiwidget.propertyList).then(function ($lis) {
-      expect($lis).to.have.length(22);
+      expect($lis).to.have.length(23);
       expect($lis.eq(0)).to.contain("{{Table1Copy.selectedRow}}");
       expect($lis.eq(1)).to.contain("{{Table1Copy.selectedRows}}");
     });
