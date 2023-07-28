@@ -16,4 +16,6 @@ public interface InstanceConfigHelperCE {
     boolean getIsRtsAccessible();
 
     Mono<Boolean> isLicenseValid();
+
+    Mono<String> checkMongoDBVersion();
 }
