@@ -62,6 +62,10 @@ describe("Admin settings page", function () {
   it("3. should test that Business features shows upgrade button and direct to pricing page", () => {
     cy.visit("/settings/general", { timeout: 60000 });
     if (CURRENT_REPO === REPO.CE) {
+      cy.get(adminsSettings.accessControl)
+        .siblings(adminsSettings.businessTag)
+        .should("exist")
+        .should("contain", "Business");
       cy.get(adminsSettings.accessControl).click();
       cy.url().should("contain", "/settings/access-control");
       stubPricingPage();
@@ -69,6 +73,10 @@ describe("Admin settings page", function () {
       cy.get("@pricingPage").should("be.called");
       cy.wait(2000);
       cy.go(-1);
+      cy.get(adminsSettings.auditLogs)
+        .siblings(adminsSettings.businessTag)
+        .should("exist")
+        .should("contain", "Business");
       cy.get(adminsSettings.auditLogs).click();
       cy.url().should("contain", "/settings/audit-logs");
       stubPricingPage();
@@ -76,6 +84,10 @@ describe("Admin settings page", function () {
       cy.get("@pricingPage").should("be.called");
       cy.wait(2000);
       cy.go(-1);
+      cy.get(adminsSettings.provisioning)
+        .siblings(adminsSettings.businessTag)
+        .should("exist")
+        .should("contain", "Enterprise");
       cy.get(adminsSettings.provisioning).click();
       cy.url().should("contain", "/settings/provisioning");
       stubPricingPage();
