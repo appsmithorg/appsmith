@@ -1,7 +1,15 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
-import { agHelper, dataSources, deployMode, entityExplorer, locators, propPane } from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  dataSources,
+  deployMode,
+  draggableWidgets,
+  entityExplorer,
+  locators,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Button Widget Functionality", function () {
   before(() => {
@@ -47,9 +55,7 @@ describe("Button Widget Functionality", function () {
     // Filling the messages for success/failure in the onClickAction of the button widget.
     cy.onClickActions("Success", "Error", "Execute a query", "buttonApi.run");
 
-    deployMode.DeployApp(
-      locators._widgetInDeployed(draggableWidgets.BUTTON),
-    );
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
     agHelper.Sleep();
     agHelper.ClickButton("Submit");
     cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
@@ -80,7 +86,11 @@ describe("Button Widget Functionality", function () {
         agHelper.GetNClick(publishPage.buttonWidget);
       }
     });
-    agHelper.GetNAssertElementText(widgetsPage.apiCallToast, "Success", "contain.text");
+    agHelper.GetNAssertElementText(
+      widgetsPage.apiCallToast,
+      "Success",
+      "contain.text",
+    );
   });
 
   it("4. Toggle JS - Button-CallAnApi Validation", function () {
