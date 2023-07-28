@@ -83,9 +83,7 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_PORT;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_SMTP_AUTH;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_USERNAME;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GITHUB_CLIENT_ID;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_RECAPTCHA_SECRET_KEY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_RECAPTCHA_SITE_KEY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_REPLY_TO;
@@ -146,8 +144,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
             ConfigService configService,
             UserUtils userUtils,
             TenantService tenantService,
-            ObjectMapper objectMapper,
-            OAuth2ClientRegistrationRepository oAuth2ClientRegistrationRepository) {
+            ObjectMapper objectMapper) {
 
         this.sessionUserService = sessionUserService;
         this.userService = userService;
@@ -164,7 +161,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         this.userUtils = userUtils;
         this.tenantService = tenantService;
         this.objectMapper = objectMapper;
-        this.oAuth2ClientRegistrationRepository = oAuth2ClientRegistrationRepository;
     }
 
     /**
@@ -398,26 +394,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     if (changesCopy.containsKey(APPSMITH_SIGNUP_ALLOWED_DOMAINS.name())) {
                         commonConfig.setAllowedDomainsString(
                                 changesCopy.remove(APPSMITH_SIGNUP_ALLOWED_DOMAINS.name()));
-                    }
-
-                    if (changesCopy.containsKey(APPSMITH_OAUTH2_GOOGLE_CLIENT_ID.name())) {
-                        oAuth2ClientRegistrationRepository.setGoogleClientId(
-                                changesCopy.remove(APPSMITH_OAUTH2_GOOGLE_CLIENT_ID.name()));
-                    }
-
-                    if (changesCopy.containsKey(APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET.name())) {
-                        oAuth2ClientRegistrationRepository.setGoogleClientSecret(
-                                changesCopy.remove(APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET.name()));
-                    }
-
-                    if (changesCopy.containsKey(APPSMITH_OAUTH2_GITHUB_CLIENT_ID.name())) {
-                        oAuth2ClientRegistrationRepository.setGithubClientId(
-                                changesCopy.remove(APPSMITH_OAUTH2_GITHUB_CLIENT_ID.name()));
-                    }
-
-                    if (changesCopy.containsKey(APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET.name())) {
-                        oAuth2ClientRegistrationRepository.setGithubClientSecret(
-                                changesCopy.remove(APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET.name()));
                     }
 
                     if (changesCopy.containsKey(APPSMITH_ADMIN_EMAILS.name())) {
