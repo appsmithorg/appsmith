@@ -266,6 +266,7 @@ export class CommonLocators {
   _adsV2CollapsibleHeader = ".ads-v2-collapsible__header";
   _adsV2Text = ".ads-v2-text";
   _svg = "svg";
+  _imgWidgetInsideList = `//div[@data-testid='styledImage']//img`;
   _containerWidget = "[type='CONTAINER_WIDGET']";
   _listActivePage = ".t--widget-listwidgetv2 .rc-pagination-item-active";
   _paginationItem = (value: number) => `.rc-pagination-item-${value}`;

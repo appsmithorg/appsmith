@@ -154,6 +154,9 @@ const ActionCreator = React.forwardRef(
             actionType: getActionTypeLabel(actionType),
             code: newValueWithoutMoustache,
             callback: null,
+            widgetName: props.widgetName,
+            propertyName: props.propertyName,
+            widgetType: props.widgetType,
           });
         } else {
           const prevRootCallExpression = getCallExpressions(
@@ -173,6 +176,9 @@ const ActionCreator = React.forwardRef(
               actionType: getActionTypeLabel(actionType),
               code: newValueWithoutMoustache,
               callback: null,
+              widgetName: props.widgetName,
+              propertyName: props.propertyName,
+              widgetType: props.widgetType,
             });
           }
         }
@@ -187,6 +193,9 @@ const ActionCreator = React.forwardRef(
           actionType: getActionTypeLabel(actionType),
           code: newActions[id],
           callback: null,
+          widgetName: props.widgetName,
+          propertyName: props.propertyName,
+          widgetType: props.widgetType,
         });
         delete newActions[id];
         !actions[id] && setActions(newActions);
@@ -253,6 +262,9 @@ const ActionCreator = React.forwardRef(
               index={index}
               key={id}
               onChange={handleActionChange(id)}
+              propertyName={props.propertyName}
+              widgetName={props.widgetName}
+              widgetType={props.widgetType}
             />
           ))}
         </div>
