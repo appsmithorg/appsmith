@@ -265,6 +265,7 @@ export class CommonLocators {
   _svg = "svg";
   _containerWidget = "[type='CONTAINER_WIDGET']";
   _listActivePage = ".t--widget-listwidgetv2 .rc-pagination-item-active";
+  _imgWidgetInsideList = `//div[@data-testid='styledImage']//img`;
 
   public ds_editor_env_filter = (envName: string) =>
     `[data-testid="t--ds-data-filter-${envName}"]`;

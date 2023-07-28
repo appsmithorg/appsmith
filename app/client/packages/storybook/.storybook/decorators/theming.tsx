@@ -1,15 +1,6 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
-import * as webfontloader from "webfontloader";
 import styled from "styled-components";
-import {
-  ThemeProvider,
-  TokensAccessor,
-  defaultTokens,
-  useFluidTokens,
-  useTheme,
-} from "@design-system/theming";
-import Color from "colorjs.io";
+import { ThemeProvider, useTheme } from "@design-system/theming";
 
 const StyledThemeProvider = styled(ThemeProvider)`
   display: inline-flex;

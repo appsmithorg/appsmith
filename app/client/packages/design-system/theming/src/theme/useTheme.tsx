@@ -1,13 +1,19 @@
 import Color from "colorjs.io";
 import { useEffect, useState } from "react";
+import type { TokenSource } from "@design-system/theming";
 import {
   TokensAccessor,
   defaultTokens,
   useFluidTokens,
 } from "@design-system/theming";
-import type { ColorMode, FontFamily } from "@design-system/theming";
 
 import type { UseThemeProps } from "./types";
+
+const { fluid, ...restDefaultTokens } = defaultTokens;
+
+const tokensAccessor = new TokensAccessor({
+  ...(restDefaultTokens as TokenSource),
+});
 
 export function useTheme(props: UseThemeProps) {
   const {
@@ -19,34 +25,22 @@ export function useTheme(props: UseThemeProps) {
   } = props;
 
   const [rootUnitRatio, setRootUnitRatio] = useState(1);
-  const { fluid, ...restDefaultTokens } = defaultTokens;
 
   const { rootUnit, sizing, spacing, typography } = useFluidTokens(
     fluid,
     rootUnitRatio,
   );
 
-  const tokensAccessor = new TokensAccessor({
-    ...restDefaultTokens,
-    rootUnit,
-    spacing,
-    sizing,
-    typography,
-    colorMode: colorMode as ColorMode,
-  });
-
   const [theme, setTheme] = useState(tokensAccessor.getAllTokens());
 
-  const updateFontFamily = (fontFamily: FontFamily) => {
-    tokensAccessor.updateFontFamily(fontFamily);
+  useEffect(() => {
+    tokensAccessor.updateRootUnit(rootUnit);
+    tokensAccessor.updateSpacing(spacing);
+    tokensAccessor.updateSizing(sizing);
+    tokensAccessor.updateTypography(typography);
 
-    setTheme((prevState) => {
-      return {
-        ...prevState,
-        typography: tokensAccessor.getTypography(),
-      };
-    });
-  };
+    setTheme(tokensAccessor.getAllTokens());
+  }, []);
 
   useEffect(() => {
     if (colorMode) {
@@ -102,25 +96,36 @@ export function useTheme(props: UseThemeProps) {
 
   useEffect(() => {
     if (fontFamily) {
-      updateFontFamily(fontFamily);
+      tokensAccessor.updateFontFamily(fontFamily);
+
+      setTheme((prevState) => {
+        return {
+          ...prevState,
+          typography: tokensAccessor.getTypography(),
+          fontFamily: tokensAccessor.getFontFamily(),
+        };
+      });
     }
   }, [fontFamily]);
 
   useEffect(() => {
     if (rootUnitRatioProp) {
       setRootUnitRatio(rootUnitRatioProp);
-      tokensAccessor.updateRootUnit(rootUnit);
-      tokensAccessor.updateSpacing(spacing);
-
-      setTheme((prevState) => {
-        return {
-          ...prevState,
-          rootUnit: tokensAccessor.getRootUnit(),
-          ...tokensAccessor.getSpacing(),
-        };
-      });
     }
   }, [rootUnitRatioProp]);
+
+  useEffect(() => {
+    tokensAccessor.updateRootUnit(rootUnit);
+    tokensAccessor.updateSpacing(spacing);
+
+    setTheme((prevState) => {
+      return {
+        ...prevState,
+        rootUnit: tokensAccessor.getRootUnit(),
+        ...tokensAccessor.getSpacing(),
+      };
+    });
+  }, [rootUnit, spacing]);
 
   useEffect(() => {
     tokensAccessor.updateTypography(typography);
