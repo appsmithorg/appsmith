@@ -862,6 +862,7 @@ function CameraComponent(props: CameraComponentProps) {
         ? {
             height: 720,
             width: 1280,
+            facingMode: { ideal: defaultCamera },
           }
         : {},
     );
@@ -885,15 +886,6 @@ function CameraComponent(props: CameraComponentProps) {
   const fullScreenHandle = useFullScreenHandle();
 
   const isAirgappedInstance = isAirgapped();
-
-  useEffect(() => {
-    const constraints = getVideoConstraints(
-      videoConstraints,
-      isMobile,
-      defaultCamera,
-    );
-    setVideoConstraints(constraints);
-  }, [defaultCamera, isMobile]);
 
   useEffect(() => {
     if (webcamRef.current && webcamRef.current.stream) {
