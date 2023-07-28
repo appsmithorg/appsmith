@@ -13,7 +13,7 @@ addons.register("widgets/theming", () => {
       // show the addon only on wds
       return !!(
         storyId &&
-        storyId?.includes("stories") &&
+        storyId?.includes("widgets") &&
         !!(viewMode && viewMode.match(/^(story|docs)$/))
       );
     },

@@ -1,6 +1,6 @@
-import React from "react";
+import * as React from "react";
 
-import SearchComponent from "./index";
+import { SearchComponent } from "@design-system/widgets-old";
 
 // TODO: How to write well-typed stories for a class component?
 export default {
@@ -13,7 +13,6 @@ export default {
 const Template = (args) => <SearchComponent {...args} />;
 
 export const SearchInput = Template.bind({});
-//@ts-expect-error no type access
 SearchInput.args = {
   onSearch: () => {
     // eslint-disable-next-line no-console

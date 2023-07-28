@@ -1,7 +1,7 @@
-import React from "react";
+import * as React from "react";
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
-import TextComponent, { TextType } from "./index";
+import { Text as TextComponent, TextType } from "@design-system/widgets-old";
 
 export default {
   title: "Design System/widgets-old/Text",

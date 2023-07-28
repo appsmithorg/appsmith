@@ -1,7 +1,11 @@
-import React from "react";
+import * as React from "react";
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
-import IconComponent, { IconCollection, IconSize } from "./index";
+import {
+  Icon as IconComponent,
+  IconCollection,
+  IconSize,
+} from "@design-system/widgets-old";
 import styled from "styled-components";
 
 export default {

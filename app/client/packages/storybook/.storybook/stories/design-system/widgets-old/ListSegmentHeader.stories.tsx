@@ -1,8 +1,8 @@
-import React from "react";
+import * as React from "react";
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
 // change ThisComponentName to the name of the component you are writing a story for
-import SegmentHeader from "./index";
+import { SegmentHeader } from "@design-system/widgets-old";
 
 export default {
   // change ComponentDisplay to the name of the component you are writing a story for

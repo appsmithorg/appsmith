@@ -1,7 +1,7 @@
-import React from "react";
+import * as React from "react";
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
-import SpinnerComponent from "./index";
+import { Spinner as SpinnerComponent } from "@design-system/widgets-old";
 
 export default {
   title: "Design System/widgets-old/Spinner",
@@ -14,7 +14,6 @@ const Template: ComponentStory<typeof SpinnerComponent> = (args: any) => (
 );
 
 export const Spinner = Template.bind({});
-
 Spinner.args = {
   size: "small",
 };

@@ -1,7 +1,7 @@
-import React from "react";
+import * as React from "react";
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
-import TableDropdownComponent from "./index";
+import { TableDropdown as TableDropdownComponent } from "@design-system/widgets-old";
 
 export default {
   title: "Design System/widgets-old/TableDropdown",

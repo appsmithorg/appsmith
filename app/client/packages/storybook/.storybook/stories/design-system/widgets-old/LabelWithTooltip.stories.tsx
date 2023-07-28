@@ -1,10 +1,9 @@
-import React from "react";
+import * as React from "react";
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
 // change ThisComponentName to the name of the component you are writing a story for
-import LabelWithTooltip from "./index";
+import { LabelWithTooltip, LabelPosition } from "@design-system/widgets-old";
 import { Alignment } from "@blueprintjs/core";
-import { LabelPosition } from "../types/common";
 
 export default {
   // change ComponentDisplay to the name of the component you are writing a story for
