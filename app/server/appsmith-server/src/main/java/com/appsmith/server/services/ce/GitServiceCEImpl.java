@@ -1782,10 +1782,40 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 return executionTimeLogging.measureTask(
                                         "checkoutBranch", checkoutBranch(defaultApplicationId, finalBranchName));
                             })
-                            .zipWhen(application -> executionTimeLogging.measureTask(
-                                    "getStatus->exportApplicationById",
-                                    importExportApplicationService.exportApplicationById(
-                                            application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)));
+                            .zipWhen(application -> {
+                                Path repoSuffix = Paths.get(
+                                        application.getWorkspaceId(),
+                                        gitApplicationMetadata.getDefaultApplicationId(),
+                                        gitApplicationMetadata.getRepoName());
+                                GitAuth gitAuth = gitApplicationMetadata.getGitAuth();
+
+                                // Create a Mono to fetch the status from remote
+                                Mono<String> fetchRemoteMono = executionTimeLogging.measureTask(
+                                        "getStatus->gitExecutor.fetchRemote",
+                                        gitExecutor
+                                                .fetchRemote(
+                                                        repoSuffix,
+                                                        gitAuth.getPublicKey(),
+                                                        gitAuth.getPrivateKey(),
+                                                        false,
+                                                        branchName,
+                                                        false)
+                                                .onErrorResume(error -> Mono.error(new AppsmithException(
+                                                        AppsmithError.GIT_GENERIC_ERROR, error.getMessage()))));
+
+                                Mono<ApplicationJson> exportAppMono = executionTimeLogging.measureTask(
+                                        "getStatus->exportApplicationById",
+                                        importExportApplicationService.exportApplicationById(
+                                                application.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
+
+                                return Mono.zip(exportAppMono, fetchRemoteMono) // zip will run them in parallel
+                                        .elapsed()
+                                        .map(objects -> {
+                                            log.debug("Time to fetch remote and export app: {} ms", objects.getT1());
+                                            // we need the applicationJson only
+                                            return objects.getT2().getT1();
+                                        });
+                            });
 
                     if (Boolean.TRUE.equals(isFileLock)) {
                         // Add file lock for the status API call to avoid sending wrong info on the status
@@ -1826,17 +1856,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     .cache());
 
                     try {
-                        return executionTimeLogging
-                                .measureTask(
-                                        "getStatus->gitExecutor.fetchRemote",
-                                        gitExecutor.fetchRemote(
-                                                tuple.getT1(),
-                                                tuple.getT2().getPublicKey(),
-                                                tuple.getT2().getPrivateKey(),
-                                                true,
-                                                branchName,
-                                                false))
-                                .then(branchedStatusMono)
+                        return branchedStatusMono
                                 // Remove any files which are copied by hard resetting the repo
                                 .then(executionTimeLogging.measureTask(
                                         "getStatus->gitExecutor.resetToLastCommit",
@@ -1854,6 +1874,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .onErrorResume(error -> Mono.error(new AppsmithException(
                                         AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage())));
                     } catch (GitAPIException | IOException e) {
+                        log.error("error occurred", e);
                         return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, e.getMessage()));
                     }
                 });

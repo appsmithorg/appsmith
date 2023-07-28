@@ -145,6 +145,11 @@ describe("Widget property navigation", () => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 100, 200);
     _.agHelper.GetNClick(OneClickBindingLocator.datasourceDropdownSelector);
     _.agHelper.GetNClick(OneClickBindingLocator.datasourceSelector());
+    _.assertHelper.AssertNetworkStatus("@getDatasourceStructure");
+    _.agHelper.AssertElementExist(OneClickBindingLocator.connectData);
+
+    _.agHelper.AssertElementEnabledDisabled(OneClickBindingLocator.connectData);
+    _.agHelper.Sleep(3000); //for tables to populate for CI runs
     _.agHelper.GetNClick(OneClickBindingLocator.tableOrSpreadsheetDropdown);
     _.agHelper.GetNClick(
       OneClickBindingLocator.tableOrSpreadsheetDropdownOption(),
