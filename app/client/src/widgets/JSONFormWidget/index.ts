@@ -13,6 +13,11 @@ import IconSVG from "./icon.svg";
 import type { JSONFormWidgetProps } from "./widget";
 import Widget from "./widget";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,
@@ -106,6 +111,20 @@ export const CONFIG = {
     setterConfig: Widget.getSetterConfig(),
   },
   methods: {
+    getQueryGenerationConfig: (widgetProps: WidgetProps) => {
+      return Widget.getQueryGenerationConfig(widgetProps);
+    },
+    getPropertyUpdatesForQueryBinding: (
+      queryConfig: WidgetQueryConfig,
+      widget: WidgetProps,
+      formConfig: WidgetQueryGenerationFormConfig,
+    ) => {
+      return Widget.getPropertyUpdatesForQueryBinding(
+        queryConfig,
+        widget,
+        formConfig,
+      );
+    },
     getSnipingModeUpdates: (
       propValueMap: SnipingModeProperty,
     ): PropertyUpdates[] => {

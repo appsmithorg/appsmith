@@ -52,13 +52,13 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
   public render() {
     return (
       <WidgetQueryGeneratorForm
-        aliases={this.props.controlConfig.aliases}
+        aliases={this.props.controlConfig?.aliases}
         errorMsg={this.getErrorMessage()}
         expectedType={this.props.expected?.autocompleteDataType || ""}
         onUpdate={this.onUpdatePropertyValue}
         propertyPath={this.props.propertyName}
         propertyValue={this.props.propertyValue}
-        searchableColumn={this.props.controlConfig.searchableColumn}
+        searchableColumn={this.props.controlConfig?.searchableColumn}
         widgetId={this.props.widgetProperties.widgetId}
       />
     );

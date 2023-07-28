@@ -34,7 +34,7 @@ export function useConnectData() {
       widgetId: widgetId,
       tableHeaderIndex: config.tableHeaderIndex,
       searchableColumn: config.searchableColumn,
-      columns: columns.map((column) => column.name),
+      columns: columns,
       primaryColumn,
       connectionMode: config.datasourceConnectionMode,
       aliases: Object.entries(config.alias).map(([key, value]) => ({

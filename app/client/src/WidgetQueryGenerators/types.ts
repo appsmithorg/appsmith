@@ -11,7 +11,7 @@ export type WidgetQueryGenerationFormConfig = {
   }[];
   widgetId: string;
   searchableColumn: string;
-  columns: string[];
+  columns: any[];
   primaryColumn: string;
   connectionMode: string;
 } & GsheetConfig;

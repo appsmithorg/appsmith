@@ -31,6 +31,10 @@ import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -123,6 +127,49 @@ class JSONFormWidget extends BaseWidget<
     return {
       formData: {},
       fieldState: {},
+    };
+  }
+
+  static getQueryGenerationConfig(widget: WidgetProps) {
+    return {
+      create: {
+        value: `(${widget.widgetName}.formData || {})`,
+      },
+    };
+  }
+
+  static getPropertyUpdatesForQueryBinding(
+    queryConfig: WidgetQueryConfig,
+    widget: WidgetProps,
+    formConfig: WidgetQueryGenerationFormConfig,
+  ) {
+    let modify = {};
+
+    if (queryConfig.create) {
+      modify = {
+        sourceData: formConfig.columns.reduce((obj: any, curr: any) => {
+          obj[curr.name] = (() => {
+            switch (curr.type) {
+              case "int4":
+              case "int2":
+                return 1;
+              case "varchar":
+              case "text":
+                return "";
+              case "date":
+                return "01/01/1970";
+              default:
+                return "";
+            }
+          })();
+          return obj;
+        }, {}),
+        onSubmit: queryConfig.create.run,
+      };
+    }
+
+    return {
+      modify,
     };
   }
 
