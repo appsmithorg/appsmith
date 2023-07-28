@@ -2,8 +2,8 @@ import React from "react";
 import { Button, Tag } from "design-system";
 import { ContentBox } from "pages/Settings/components";
 import {
-  ADMIN_BRANDING_SETTINGS_SUBTITLE,
-  ADMIN_BRANDING_SETTINGS_TITLE,
+  ADMIN_BRANDING_SETTINGS_SUBTITLE_UPGRADE,
+  ADMIN_BRANDING_SETTINGS_TITLE_UPGRADE,
   BUSINESS_TAG,
   createMessage,
 } from "@appsmith/constants/messages";
@@ -36,7 +36,7 @@ const UpgradeBanner = () => {
             kind="heading-l"
             renderAs="h1"
           >
-            {createMessage(ADMIN_BRANDING_SETTINGS_TITLE)}
+            {createMessage(ADMIN_BRANDING_SETTINGS_TITLE_UPGRADE)}
           </SettingsHeader>
           <StyledSettingsSubHeader
             className="w-7/12 mt-1"
@@ -44,11 +44,16 @@ const UpgradeBanner = () => {
             kind="body-m"
             renderAs="h2"
           >
-            {createMessage(ADMIN_BRANDING_SETTINGS_SUBTITLE)}
+            {createMessage(ADMIN_BRANDING_SETTINGS_SUBTITLE_UPGRADE)}
           </StyledSettingsSubHeader>
         </main>
         <aside>
-          <Button onClick={onUpgrade} size="md" startIcon="star-line">
+          <Button
+            data-testid="t--branding-upgrade-button"
+            onClick={onUpgrade}
+            size="md"
+            startIcon="star-line"
+          >
             Upgrade
           </Button>
         </aside>
