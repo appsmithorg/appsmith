@@ -3,7 +3,6 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
-import com.appsmith.server.configurations.OAuth2ClientRegistrationRepository;
 import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
@@ -39,8 +38,8 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
             ConfigService configService,
             UserUtils userUtils,
             TenantService tenantService,
-            ObjectMapper objectMapper,
-            OAuth2ClientRegistrationRepository oAuth2ClientRegistrationRepository) {
+            ObjectMapper objectMapper) {
+
         super(
                 sessionUserService,
                 userService,
@@ -56,7 +55,6 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
                 configService,
                 userUtils,
                 tenantService,
-                objectMapper,
-                oAuth2ClientRegistrationRepository);
+                objectMapper);
     }
 }
