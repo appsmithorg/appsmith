@@ -120,8 +120,7 @@ public enum AppsmithRole {
     APPLICATION_VIEWER(
             FieldName.APPLICATION_VIEWER,
             FieldName.APPLICATION_VIEWER_DESCRIPTION,
-            Set.of(READ_APPLICATIONS, EXECUTE_DATASOURCES, INVITE_USERS_APPLICATIONS, EXECUTE_ENVIRONMENTS))
-            ;
+            Set.of(READ_APPLICATIONS, EXECUTE_DATASOURCES, INVITE_USERS_APPLICATIONS, EXECUTE_ENVIRONMENTS));
 
     private Set<AclPermission> permissions;
     private String name;

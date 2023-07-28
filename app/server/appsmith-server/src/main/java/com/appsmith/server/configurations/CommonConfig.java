@@ -10,6 +10,7 @@ import jakarta.validation.ValidatorFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -71,6 +72,10 @@ public class CommonConfig {
 
     @Value("${APPSMITH_OAUTH2_OIDC_AUDIENCE:}")
     private String oidcAudience;
+
+    private String mongoDBVersion;
+
+    private static final String MIN_SUPPORTED_MONGODB_VERSION = "5.0.0";
 
     @Bean
     public Scheduler scheduler() {
@@ -135,5 +140,15 @@ public class CommonConfig {
 
     public String getRtsBaseUrl() {
         return "http://127.0.0.1:" + rtsPort;
+    }
+
+    public boolean isMongoUptoDate() {
+        ComparableVersion minSupportedVersion = new ComparableVersion(MIN_SUPPORTED_MONGODB_VERSION);
+        ComparableVersion connectedMongoVersion = new ComparableVersion(mongoDBVersion);
+        return minSupportedVersion.compareTo(connectedMongoVersion) <= 0;
+    }
+
+    public boolean isConnectedMongoVersionAvailable() {
+        return mongoDBVersion != null;
     }
 }
