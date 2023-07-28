@@ -129,7 +129,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const isCurrentWidgetResizing = isResizing && isSelected;
   const showBoundary =
     !props.isFlexChild && (isCurrentWidgetDragging || isDraggingSibling);
-  const { getWidgetDragImage, resetCanvas } = useDragImageGenerator();
+  const { getWidgetDragImage } = useDragImageGenerator();
 
   // When mouse is over this draggable
   const handleMouseOver = (e: any) => {
@@ -207,10 +207,6 @@ function DraggableComponent(props: DraggableComponentProps) {
         );
         const canvas = getWidgetDragImage(props.widgetName);
         e.dataTransfer.setDragImage(canvas, 0, 0);
-
-        setTimeout(() => {
-          resetCanvas();
-        }, 100);
       } else {
         e.preventDefault();
       }

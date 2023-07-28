@@ -381,8 +381,12 @@ export function generateHighlightsForAlignment(data: {
   if (!avoidInitialHighlight) {
     const lastChild: FlattenedWidgetProps | null =
       arr && arr.length ? arr[arr.length - 1] : null;
-    const { height, left, top, width } =
-      widgetPositions[lastChild?.widgetId || ""] || {};
+    const {
+      height = 0,
+      left,
+      top,
+      width = 0,
+    } = widgetPositions[lastChild?.widgetId || ""] || {};
 
     const highlightHeight = isMobile && lastChild !== null ? height : maxHeight;
 
@@ -401,10 +405,7 @@ export function generateHighlightsForAlignment(data: {
         canvasWidth,
         startPosition,
       ),
-      posY:
-        lastChild === null
-          ? offsetTop + height - highlightHeight
-          : highlightTop,
+      posY: lastChild === null ? offsetTop : highlightTop,
       width: DEFAULT_HIGHLIGHT_SIZE,
       height: isMobile && lastChild !== null ? height : maxHeight,
       isVertical: true,

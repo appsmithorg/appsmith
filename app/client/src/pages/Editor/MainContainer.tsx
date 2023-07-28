@@ -12,13 +12,17 @@ import {
   WIDGETS_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
-import { previewModeSelector } from "selectors/editorSelectors";
+import {
+  getIsAutoLayout,
+  previewModeSelector,
+} from "selectors/editorSelectors";
 import { Installer } from "pages/Editor/Explorer/Libraries/Installer";
 import { getExplorerWidth } from "selectors/explorerSelector";
 import WidgetsEditor from "./WidgetsEditor";
 import EditorsRouter from "./routes";
 import styled from "styled-components";
 import BottomBar from "components/BottomBar";
+import { DRAG_IMAGE_HEIGHT } from "./useDragImageGenerator";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -34,6 +38,7 @@ const Container = styled.div`
 function MainContainer() {
   const dispatch = useDispatch();
   const sidebarWidth = useSelector(getExplorerWidth);
+  const isAutoLayout = useSelector(getIsAutoLayout);
   const { path } = useRouteMatch();
 
   /**
@@ -96,6 +101,18 @@ function MainContainer() {
       </Container>
       <BottomBar viewMode={isPreviewMode} />
       <Installer left={sidebarWidth} />
+      {isAutoLayout && (
+        <canvas
+          height={DRAG_IMAGE_HEIGHT}
+          id="widget-drag-image"
+          style={{
+            position: "absolute",
+            zIndex: 11,
+            left: "-100px",
+          }}
+          width={100}
+        />
+      )}
     </>
   );
 }

@@ -345,6 +345,7 @@ abstract class BaseWidget<
   getAutoLayoutComponentDimensions = () => {
     const {
       bottomRow,
+      detachFromLayout,
       leftColumn,
       mobileBottomRow = 0,
       mobileLeftColumn = 0,
@@ -353,8 +354,9 @@ abstract class BaseWidget<
       rightColumn,
       topRow,
     } = this.props;
-    const widthFromGridProps =
-      ((rightColumn - leftColumn) * 100) / GridDefaults.DEFAULT_GRID_COLUMNS;
+    const widthFromGridProps = detachFromLayout
+      ? rightColumn - leftColumn
+      : ((rightColumn - leftColumn) * 100) / GridDefaults.DEFAULT_GRID_COLUMNS;
     const heightFromGridProps =
       (bottomRow - topRow) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
     const mobileWidthValuesExist = mobileRightColumn + mobileLeftColumn > 0;
