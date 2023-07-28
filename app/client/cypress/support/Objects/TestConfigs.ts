@@ -77,6 +77,7 @@ export class TEDTestConfigs {
       mockHttpCodeUrl: "http://host.docker.internal:5001/v1/mock-http-codes/",
       AirtableBaseForME: "appubHrVbovcudwN6",
       AirtableTableForME: "tblsFCQSskVFf7xNd",
+      ApiUrlME: "http://host.docker.internal:5001/v1/production",
 
       firestore_database_url: "https://appsmith-22e8b.firebaseio.com",
       firestore_projectID: "appsmith-22e8b",
@@ -165,6 +166,7 @@ export class TEDTestConfigs {
       mockHttpCodeUrl: "http://host.docker.internal:5001/v1/mock-http-codes/",
       AirtableBaseForME: "appubHrVbovcudwN6",
       AirtableTableForME: "tblsFCQSskVFf7xNd",
+      ApiUrlME: "http://host.docker.internal:5001/v1/staging",
 
       firestore_database_url: "https://appsmith-22e8b.firebaseio.com",
       firestore_projectID: "appsmith-22e8b",
