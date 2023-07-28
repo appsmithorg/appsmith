@@ -31,6 +31,7 @@ import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { NAVIGATION_DELAY } from "../costants";
 import { getWidgetEnhancementSelector } from "selectors/widgetEnhancementSelectors";
 import { evaluateHiddenProperty } from "pages/Editor/PropertyPane/helpers";
+import { NavigationMethod } from "utils/history";
 
 export default class PropertyPaneNavigation extends PaneNavigation {
   widget!: WidgetProps;
@@ -135,15 +136,19 @@ export default class PropertyPaneNavigation extends PaneNavigation {
   *navigate() {
     if (!this.widget) throw Error("Initialisation failed");
 
+    // Initially select widget
+    yield put(
+      selectWidgetInitAction(
+        SelectionRequestType.One,
+        [this.widget.widgetId],
+        NavigationMethod.Debugger,
+      ),
+    );
+    yield delay(NAVIGATION_DELAY);
+
     const navigationConfig: PropertyPaneNavigationConfig = yield call(
       this.getConfig,
     );
-
-    // Initially select widget
-    yield put(
-      selectWidgetInitAction(SelectionRequestType.One, [this.widget.widgetId]),
-    );
-    yield delay(NAVIGATION_DELAY);
 
     // Nothing more to do if we don't have the property path
     if (!this.entityInfo.propertyPath) return;
