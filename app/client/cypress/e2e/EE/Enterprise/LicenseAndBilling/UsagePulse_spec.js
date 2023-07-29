@@ -2,7 +2,7 @@ import homePageLocators from "../../../../locators/HomePage";
 import {
   agHelper,
   deployMode,
-  homePage
+  homePage,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("excludeForAirgap", "Usage pulse", function () {
@@ -14,7 +14,7 @@ describe("excludeForAirgap", "Usage pulse", function () {
     agHelper.Sleep(2000);
     cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
     agHelper.AssertElementVisible(homePageLocators.appEditIcon);
-    homePage.EditAppFromAppHover()
+    homePage.EditAppFromAppHover();
     agHelper.RefreshPage("getReleaseItems");
     cy.wait("@usagePulse").then((result) => {
       const payload = result.request.body;
