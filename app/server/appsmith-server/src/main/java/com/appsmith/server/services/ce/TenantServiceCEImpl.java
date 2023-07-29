@@ -2,7 +2,6 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.configurations.OAuth2ClientRegistrationRepository;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
@@ -27,8 +26,6 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     private final ConfigService configService;
 
-    private final OAuth2ClientRegistrationRepository oAuth2ClientRegistrationRepository;
-
     public TenantServiceCEImpl(
             Scheduler scheduler,
             Validator validator,
@@ -36,11 +33,9 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             ReactiveMongoTemplate reactiveMongoTemplate,
             TenantRepository repository,
             AnalyticsService analyticsService,
-            ConfigService configService,
-            OAuth2ClientRegistrationRepository oAuth2ClientRegistrationRepository) {
+            ConfigService configService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.configService = configService;
-        this.oAuth2ClientRegistrationRepository = oAuth2ClientRegistrationRepository;
     }
 
     @Override
@@ -99,10 +94,6 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
             config.setGoogleMapsKey(System.getenv("APPSMITH_GOOGLE_MAPS_API_KEY"));
 
-            for (final String clientId : oAuth2ClientRegistrationRepository.getAvailableClientIds()) {
-                config.addThirdPartyAuth(clientId);
-            }
-
             config.setIsFormLoginEnabled(!"true".equals(System.getenv("APPSMITH_FORM_LOGIN_DISABLED")));
 
             return tenant;
@@ -121,7 +112,15 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
         return repository
                 .findBySlug(FieldName.DEFAULT)
-                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)));
+                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)))
+                .map(tenant -> {
+                    final TenantConfiguration config = tenant.getTenantConfiguration();
+                    config.setGoogleClientId(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"));
+                    config.setGoogleClientSecret(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET"));
+                    config.setGithubClientId(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"));
+                    config.setGithubClientSecret(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET"));
+                    return tenant;
+                });
     }
 
     @Override

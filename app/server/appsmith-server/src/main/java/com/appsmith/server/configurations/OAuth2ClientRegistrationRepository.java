@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+// This class may not be needed anymore.
 @Component
 public class OAuth2ClientRegistrationRepository implements ReactiveClientRegistrationRepository {
 

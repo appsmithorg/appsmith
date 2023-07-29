@@ -5,13 +5,15 @@ import com.appsmith.server.constants.Security;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.services.TenantService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -22,7 +24,6 @@ import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
@@ -46,6 +47,7 @@ import java.util.Map;
  * We couldn't simply extend the base class because of the use of private variables and methods to invoke these functions.
  */
 @Slf4j
+@RequiredArgsConstructor
 public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerOAuth2AuthorizationRequestResolver {
 
     /**
@@ -61,9 +63,8 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
 
     private static final char PATH_DELIMITER = '/';
 
-    private final ServerWebExchangeMatcher authorizationRequestMatcher;
-
-    private final ReactiveClientRegistrationRepository clientRegistrationRepository;
+    private final ServerWebExchangeMatcher authorizationRequestMatcher =
+            new PathPatternParserServerWebExchangeMatcher(DEFAULT_AUTHORIZATION_REQUEST_PATTERN);
 
     private final StringKeyGenerator stateGenerator =
             new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding());
@@ -77,44 +78,7 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
 
     private final RedirectHelper redirectHelper;
 
-    /**
-     * Creates a new instance
-     *
-     * @param clientRegistrationRepository the repository to resolve the {@link ClientRegistration}
-     * @param commonConfig
-     * @param redirectHelper
-     */
-    public CustomServerOAuth2AuthorizationRequestResolverCE(
-            ReactiveClientRegistrationRepository clientRegistrationRepository,
-            CommonConfig commonConfig,
-            RedirectHelper redirectHelper) {
-        this(
-                clientRegistrationRepository,
-                new PathPatternParserServerWebExchangeMatcher(DEFAULT_AUTHORIZATION_REQUEST_PATTERN),
-                commonConfig,
-                redirectHelper);
-    }
-
-    /**
-     * Creates a new instance
-     *
-     * @param clientRegistrationRepository the repository to resolve the {@link ClientRegistration}
-     * @param authorizationRequestMatcher  the matcher that determines if the request is a match and extracts the
-     *                                     {@link #DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME} from the path variables.
-     * @param redirectHelper
-     */
-    public CustomServerOAuth2AuthorizationRequestResolverCE(
-            ReactiveClientRegistrationRepository clientRegistrationRepository,
-            ServerWebExchangeMatcher authorizationRequestMatcher,
-            CommonConfig commonConfig,
-            RedirectHelper redirectHelper) {
-        this.redirectHelper = redirectHelper;
-        Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
-        Assert.notNull(authorizationRequestMatcher, "authorizationRequestMatcher cannot be null");
-        this.clientRegistrationRepository = clientRegistrationRepository;
-        this.authorizationRequestMatcher = authorizationRequestMatcher;
-        this.commonConfig = commonConfig;
-    }
+    private final TenantService tenantService;
 
     @Override
     public Mono<OAuth2AuthorizationRequest> resolve(ServerWebExchange exchange) {
@@ -129,20 +93,35 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
 
     @Override
     public Mono<OAuth2AuthorizationRequest> resolve(ServerWebExchange exchange, String clientRegistrationId) {
-        return this.findByRegistrationId(clientRegistrationId).flatMap(clientRegistration -> {
-            if (MISSING_VALUE_SENTINEL.equals(clientRegistration.getClientId())) {
-                return Mono.error(new AppsmithException(AppsmithError.OAUTH_NOT_AVAILABLE, clientRegistrationId));
-            } else {
-                return authorizationRequest(exchange, clientRegistration);
-            }
-        });
-    }
-
-    private Mono<ClientRegistration> findByRegistrationId(String clientRegistration) {
-        return this.clientRegistrationRepository
-                .findByRegistrationId(clientRegistration)
-                .switchIfEmpty(Mono.error(
-                        () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid client registration id")));
+        return tenantService
+                .getDefaultTenant()
+                .flatMap(tenant -> {
+                    var config = tenant.getTenantConfiguration();
+                    if ("google".equals(clientRegistrationId)) {
+                        return Mono.just(CommonOAuth2Provider.GOOGLE
+                                .getBuilder("google")
+                                .clientId(config.getGoogleClientId())
+                                .clientSecret(config.getGoogleClientSecret())
+                                .userNameAttributeName("email")
+                                .build());
+                    } else if ("github".equals(clientRegistrationId)) {
+                        return Mono.just(CommonOAuth2Provider.GITHUB
+                                .getBuilder("github")
+                                .clientId(config.getGithubClientId())
+                                .clientSecret(config.getGithubClientSecret())
+                                .userNameAttributeName("login")
+                                .build());
+                    }
+                    return Mono.error(
+                            new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid client registration id"));
+                })
+                .flatMap(clientRegistration -> {
+                    if (MISSING_VALUE_SENTINEL.equals(clientRegistration.getClientId())) {
+                        return Mono.error(
+                                new AppsmithException(AppsmithError.OAUTH_NOT_AVAILABLE, clientRegistrationId));
+                    }
+                    return authorizationRequest(exchange, clientRegistration);
+                });
     }
 
     private Mono<OAuth2AuthorizationRequest> authorizationRequest(

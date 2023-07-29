@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.configurations.OAuth2ClientRegistrationRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.ce.TenantServiceCEImpl;
 import jakarta.validation.Validator;
@@ -19,16 +18,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             ReactiveMongoTemplate reactiveMongoTemplate,
             TenantRepository repository,
             AnalyticsService analyticsService,
-            ConfigService configService,
-            OAuth2ClientRegistrationRepository oAuth2ClientRegistrationRepository) {
-        super(
-                scheduler,
-                validator,
-                mongoConverter,
-                reactiveMongoTemplate,
-                repository,
-                analyticsService,
-                configService,
-                oAuth2ClientRegistrationRepository);
+            ConfigService configService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, configService);
     }
 }

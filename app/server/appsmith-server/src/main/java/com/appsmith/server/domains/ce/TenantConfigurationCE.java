@@ -3,9 +3,11 @@ package com.appsmith.server.domains.ce;
 import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.TenantConfiguration;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +31,18 @@ public class TenantConfigurationCE {
     @JsonInclude
     private List<String> thirdPartyAuths;
 
+    @JsonIgnore
+    private String googleClientId;
+
+    @JsonIgnore
+    private String googleClientSecret;
+
+    @JsonIgnore
+    private String githubClientId;
+
+    @JsonIgnore
+    private String githubClientSecret;
+
     public void addThirdPartyAuth(String auth) {
         if (thirdPartyAuths == null) {
             thirdPartyAuths = new ArrayList<>();
@@ -47,5 +61,13 @@ public class TenantConfigurationCE {
         googleMapsKey = ObjectUtils.defaultIfNull(tenantConfiguration.getGoogleMapsKey(), googleMapsKey);
         isFormLoginEnabled = ObjectUtils.defaultIfNull(tenantConfiguration.getIsFormLoginEnabled(), isFormLoginEnabled);
         instanceName = ObjectUtils.defaultIfNull(tenantConfiguration.getInstanceName(), instanceName);
+
+        if (StringUtils.isNoneEmpty(tenantConfiguration.getGoogleClientId())) {
+            addThirdPartyAuth("google");
+        }
+
+        if (StringUtils.isNoneEmpty(tenantConfiguration.getGithubClientId())) {
+            addThirdPartyAuth("github");
+        }
     }
 }
