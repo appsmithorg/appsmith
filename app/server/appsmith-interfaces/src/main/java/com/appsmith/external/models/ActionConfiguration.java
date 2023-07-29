@@ -83,7 +83,6 @@ public class ActionConfiguration implements AppsmithDomain {
     // Body, the raw class data, is shared with API type actions
     // Represents the values that need to be
     List<JSValue> jsArguments;
-    Boolean isAsync;
     Boolean isValid;
 
     /*

@@ -418,7 +418,6 @@ public class LayoutServiceTest {
                     action.setFullyQualifiedName("Collection.anAsyncCollectionActionWithoutCall");
                     final ActionConfiguration ac1 = new ActionConfiguration();
                     ac1.setBody("hiddenAction1.data");
-                    ac1.setIsAsync(true);
                     action.setActionConfiguration(ac1);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
@@ -437,7 +436,6 @@ public class LayoutServiceTest {
                     action.setFullyQualifiedName("Collection.aSyncCollectionActionWithoutCall");
                     final ActionConfiguration ac2 = new ActionConfiguration();
                     ac2.setBody("hiddenAction2.data");
-                    ac2.setIsAsync(false);
                     action.setActionConfiguration(ac2);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
@@ -457,7 +455,6 @@ public class LayoutServiceTest {
                     action.setDynamicBindingPathList(List.of(new Property("body", null)));
                     final ActionConfiguration ac3 = new ActionConfiguration();
                     ac3.setBody("hiddenAction3.data");
-                    ac3.setIsAsync(true);
                     action.setActionConfiguration(ac3);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
@@ -476,7 +473,6 @@ public class LayoutServiceTest {
                     action.setFullyQualifiedName("Collection.aSyncCollectionActionWithCall");
                     final ActionConfiguration ac4 = new ActionConfiguration();
                     ac4.setBody("hiddenAction4.data");
-                    ac4.setIsAsync(false);
                     action.setActionConfiguration(ac4);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
@@ -644,7 +640,6 @@ public class LayoutServiceTest {
                     action.setDynamicBindingPathList(List.of(new Property("body", null)));
                     final ActionConfiguration ac1 = new ActionConfiguration();
                     ac1.setBody("hiddenAction1.data");
-                    ac1.setIsAsync(true);
                     action.setActionConfiguration(ac1);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
@@ -665,7 +660,6 @@ public class LayoutServiceTest {
                     action.setDynamicBindingPathList(List.of(new Property("body", null)));
                     final ActionConfiguration ac2 = new ActionConfiguration();
                     ac2.setBody("hiddenAction2.data");
-                    ac2.setIsAsync(false);
                     action.setActionConfiguration(ac2);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
@@ -686,7 +680,6 @@ public class LayoutServiceTest {
                     action.setDynamicBindingPathList(List.of(new Property("body", null)));
                     final ActionConfiguration ac3 = new ActionConfiguration();
                     ac3.setBody("hiddenAction3.data");
-                    ac3.setIsAsync(true);
                     action.setActionConfiguration(ac3);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
@@ -706,7 +699,6 @@ public class LayoutServiceTest {
                     action.setFullyQualifiedName("Collection.aSyncCollectionActionWithCall");
                     final ActionConfiguration ac4 = new ActionConfiguration();
                     ac4.setBody("hiddenAction4.data");
-                    ac4.setIsAsync(false);
                     action.setActionConfiguration(ac4);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
@@ -726,7 +718,6 @@ public class LayoutServiceTest {
                     action.setFullyQualifiedName("Collection.data");
                     final ActionConfiguration ac5 = new ActionConfiguration();
                     ac5.setBody("hiddenAction5.data");
-                    ac5.setIsAsync(false);
                     action.setActionConfiguration(ac5);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
@@ -746,7 +737,6 @@ public class LayoutServiceTest {
                     action.setFullyQualifiedName("Collection2.data");
                     final ActionConfiguration ac6 = new ActionConfiguration();
                     ac6.setBody("hiddenAction6.data");
-                    ac6.setIsAsync(true);
                     action.setActionConfiguration(ac6);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
