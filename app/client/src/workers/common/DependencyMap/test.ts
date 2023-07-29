@@ -188,6 +188,7 @@ describe("DependencyMap utils", function () {
       entity,
       entityConfig,
       "Button1.onClick",
+      {},
     );
 
     expect([]).toStrictEqual(actualResult);
@@ -347,6 +348,7 @@ describe("DependencyMap utils", function () {
       entity2,
       entityConfig2,
       "Button1.googleRecaptchaKey",
+      {},
     );
     const expected = ["JSObject.myVar1"];
 
