@@ -13,12 +13,12 @@ import static com.appsmith.server.migrations.MigrationHelperMethods.getQueryToFe
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
-@ChangeUnit(order = "010", id = "add-smtp-email-body-type", author = " ")
-public class Migration010AddEmailBodyTypeToSMTPPlugin {
+@ChangeUnit(order = "013", id = "add-smtp-email-body-type", author = " ")
+public class Migration013AddEmailBodyTypeToSMTPPlugin {
 
     private final MongoTemplate mongoTemplate;
 
-    public Migration010AddEmailBodyTypeToSMTPPlugin(MongoTemplate mongoTemplate) {
+    public Migration013AddEmailBodyTypeToSMTPPlugin(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
