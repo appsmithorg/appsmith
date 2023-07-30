@@ -7,6 +7,7 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.ce.FeaturesRequestDTO;
+import com.appsmith.server.dtos.ce.FeaturesResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFeatures;
@@ -142,30 +143,50 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
     }
 
     /**
-     * To fetch the tenant features via cache
+     * To fetch the tenant current features via cache
      * @param tenantId Id of the tenant
      * @return Mono of CachedFeatures
      */
-    @Cache(cacheName = "features", key = "{#tenantId}")
-    public Mono<CachedFeatures> fetchTenantCachedFeatures(String tenantId) {
+    @Cache(cacheName = "tenantCurrentFeatures", key = "{#tenantId}")
+    public Mono<CachedFeatures> fetchCachedTenantCurrentFeatures(String tenantId) {
+        // TODO: Add logic to fetch default or current features from persistent storage
+        // TODO: Store the current features to DB for safe storage
+        // TODO: Update cache and persistent storage with newFeatures when migration is applied
+        return Mono.empty();
+    }
+
+    /**
+     * To evict the tenant current features cache
+     * @param tenantId Id of the tenant
+     * @return Mono of Void
+     */
+    @CacheEvict(cacheName = "tenantCurrentFeatures", key = "{#tenantId}")
+    public Mono<Void> evictCachedTenantCurrentFeatures(String tenantId) {
+        return Mono.empty();
+    }
+
+    /**
+     * To fetch the tenant new features via cache
+     * @param tenantId Id of the tenant
+     * @return Mono of CachedFeatures
+     */
+    @Cache(cacheName = "tenantNewFeatures", key = "{#tenantId}")
+    public Mono<CachedFeatures> fetchCachedTenantNewFeatures(String tenantId) {
         return this.forceAllRemoteFeaturesForTenant(tenantId).flatMap(flags -> {
             CachedFeatures cachedFeatures = new CachedFeatures();
             cachedFeatures.setRefreshedAt(Instant.now());
-            // TODO: Set to default flags according to the price plan
-            // TODO: Store the current features to DB for safe storage
-            cachedFeatures.setCurrentFeatures(flags);
-            cachedFeatures.setNewFeatures(flags);
+            cachedFeatures.setFeatures(flags);
             return Mono.just(cachedFeatures);
         });
     }
 
     /**
-     * To evict the tenant features cache
+     * To evict the tenant new features cache
      * @param tenantId Id of the tenant
      * @return Mono of Void
      */
-    @CacheEvict(cacheName = "features", key = "{#tenantId}")
-    public Mono<Void> evictTenantCachedFeatures(String tenantId) {
+    @CacheEvict(cacheName = "tenantNewFeatures", key = "{#tenantId}")
+    public Mono<Void> evictCachedTenantNewFeatures(String tenantId) {
         return Mono.empty();
     }
 
@@ -187,7 +208,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                     return featuresRequestDTO;
                 })
                 .flatMap(this::getRemoteFeaturesForTenant)
-                .map(featuresMap -> featuresMap.get("features"));
+                .map(featuresMap -> featuresMap.getFeatures());
     }
 
     /**
@@ -195,7 +216,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
      * @param featuresRequestDTO FeaturesRequestDTO
      * @return Mono of Map
      */
-    public Mono<Map<String, Map<String, Boolean>>> getRemoteFeaturesForTenant(FeaturesRequestDTO featuresRequestDTO) {
+    public Mono<FeaturesResponseDTO> getRemoteFeaturesForTenant(FeaturesRequestDTO featuresRequestDTO) {
         return WebClientUtils.create(cloudServicesConfig.getBaseUrl())
                 .post()
                 .uri("/api/v1/business-features")
@@ -203,7 +224,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                 .exchangeToMono(clientResponse -> {
                     if (clientResponse.statusCode().is2xxSuccessful()) {
                         return clientResponse.bodyToMono(
-                                new ParameterizedTypeReference<ResponseDTO<Map<String, Map<String, Boolean>>>>() {});
+                                new ParameterizedTypeReference<ResponseDTO<FeaturesResponseDTO>>() {});
                     } else {
                         return clientResponse.createError();
                     }
@@ -215,7 +236,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                         e -> new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, e.getMessage()))
                 .onErrorResume(error -> {
                     log.debug("Received error from CS while fetching features: {}", error.getMessage());
-                    return Mono.just(Map.of());
+                    return Mono.just(new FeaturesResponseDTO());
                 });
     }
 }

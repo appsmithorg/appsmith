@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ce.FeaturesResponseDTO;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
@@ -125,18 +126,20 @@ public class FeatureFlagServiceTest {
 
     @Test
     public void getFeatures_withTenantIdentifier_redisKeyExists() {
-        Map<String, Map<String, Boolean>> flagsResponse = new HashMap<>();
         Map<String, Boolean> flags = new HashMap<>();
         flags.put(UUID.randomUUID().toString(), true);
         flags.put(UUID.randomUUID().toString(), false);
-        flagsResponse.put("features", flags);
+        FeaturesResponseDTO featuresResponseDTO = new FeaturesResponseDTO();
+        featuresResponseDTO.setFeatures(flags);
 
-        doReturn(Mono.just(flagsResponse)).when(cacheableFeatureFlagHelper).getRemoteFeaturesForTenant(any());
+        doReturn(Mono.just(featuresResponseDTO))
+                .when(cacheableFeatureFlagHelper)
+                .getRemoteFeaturesForTenant(any());
 
         String tenantIdentifier = UUID.randomUUID().toString();
         Mono<CachedFeatures> cachedFeaturesMono =
-                cacheableFeatureFlagHelper.fetchTenantCachedFeatures(tenantIdentifier);
-        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("features:" + tenantIdentifier);
+                cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(tenantIdentifier);
+        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("tenantNewFeatures:" + tenantIdentifier);
         StepVerifier.create(cachedFeaturesMono.then(hasKeyMono))
                 .assertNext(isKeyPresent -> {
                     assertTrue(isKeyPresent);
@@ -147,8 +150,8 @@ public class FeatureFlagServiceTest {
     @Test
     public void evictFeatures_withTenantIdentifier_redisKeyDoesNotExist() {
         String tenantIdentifier = UUID.randomUUID().toString();
-        Mono<Void> evictCache = cacheableFeatureFlagHelper.evictTenantCachedFeatures(tenantIdentifier);
-        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("features:" + tenantIdentifier);
+        Mono<Void> evictCache = cacheableFeatureFlagHelper.evictCachedTenantNewFeatures(tenantIdentifier);
+        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("tenantNewFeatures:" + tenantIdentifier);
         StepVerifier.create(evictCache.then(hasKeyMono))
                 .assertNext(isKeyPresent -> {
                     assertFalse(isKeyPresent);

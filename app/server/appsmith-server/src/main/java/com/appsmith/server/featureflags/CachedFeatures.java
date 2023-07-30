@@ -12,7 +12,6 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CachedFeatures implements Serializable {
-    Map<String, Boolean> currentFeatures;
-    Map<String, Boolean> newFeatures;
+    Map<String, Boolean> features;
     Instant refreshedAt;
 }

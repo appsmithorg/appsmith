@@ -142,10 +142,10 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                 .getDefaultTenantId()
                 .flatMap(defaultTenantId -> {
                     return cacheableFeatureFlagHelper
-                            .evictTenantCachedFeatures(defaultTenantId)
+                            .evictCachedTenantNewFeatures(defaultTenantId)
                             .thenReturn(defaultTenantId);
                 })
-                .flatMap(defaultTenantId -> cacheableFeatureFlagHelper.fetchTenantCachedFeatures(defaultTenantId))
+                .flatMap(defaultTenantId -> cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(defaultTenantId))
                 .then();
     }
 
@@ -156,7 +156,8 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     public Mono<Map<String, Boolean>> getCurrentTenantFeatures() {
         return tenantService
                 .getDefaultTenantId()
-                .flatMap(defaultTenantId -> cacheableFeatureFlagHelper.fetchTenantCachedFeatures(defaultTenantId))
-                .map(cachedFeatures -> cachedFeatures.getCurrentFeatures());
+                // TODO: Update to call fetchCachedTenantCurrentFeatures once default value storing is complete
+                .flatMap(defaultTenantId -> cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(defaultTenantId))
+                .map(cachedFeatures -> cachedFeatures.getFeatures());
     }
 }
