@@ -1,16 +1,14 @@
 package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.configurations.OAuth2ClientRegistrationRepository;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.RedirectHelper;
-import com.appsmith.server.services.TenantService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -26,7 +24,6 @@ import org.springframework.security.web.server.util.matcher.PathPatternParserSer
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -78,7 +75,7 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
 
     private final RedirectHelper redirectHelper;
 
-    private final TenantService tenantService;
+    private final OAuth2ClientRegistrationRepository clientRegistrationRepository;
 
     @Override
     public Mono<OAuth2AuthorizationRequest> resolve(ServerWebExchange exchange) {
@@ -93,28 +90,8 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
 
     @Override
     public Mono<OAuth2AuthorizationRequest> resolve(ServerWebExchange exchange, String clientRegistrationId) {
-        return tenantService
-                .getDefaultTenant()
-                .flatMap(tenant -> {
-                    var config = tenant.getTenantConfiguration();
-                    if ("google".equals(clientRegistrationId)) {
-                        return Mono.just(CommonOAuth2Provider.GOOGLE
-                                .getBuilder("google")
-                                .clientId(config.getGoogleClientId())
-                                .clientSecret(config.getGoogleClientSecret())
-                                .userNameAttributeName("email")
-                                .build());
-                    } else if ("github".equals(clientRegistrationId)) {
-                        return Mono.just(CommonOAuth2Provider.GITHUB
-                                .getBuilder("github")
-                                .clientId(config.getGithubClientId())
-                                .clientSecret(config.getGithubClientSecret())
-                                .userNameAttributeName("login")
-                                .build());
-                    }
-                    return Mono.error(
-                            new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid client registration id"));
-                })
+        return clientRegistrationRepository
+                .findByRegistrationId(clientRegistrationId)
                 .flatMap(clientRegistration -> {
                     if (MISSING_VALUE_SENTINEL.equals(clientRegistration.getClientId())) {
                         return Mono.error(
