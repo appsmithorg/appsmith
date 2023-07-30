@@ -9,11 +9,11 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
-@ChangeUnit(order = "014", id = "update-oracle-doc-link", author = " ")
-public class Migration014UpdateOraclePluginDocumentationLink {
+@ChangeUnit(order = "018", id = "update-oracle-doc-link", author = " ")
+public class Migration018UpdateOraclePluginDocumentationLink {
     private final MongoTemplate mongoTemplate;
 
-    public Migration014UpdateOraclePluginDocumentationLink(MongoTemplate mongoTemplate) {
+    public Migration018UpdateOraclePluginDocumentationLink(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
