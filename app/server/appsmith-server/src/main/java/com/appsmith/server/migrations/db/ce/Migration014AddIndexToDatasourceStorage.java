@@ -10,12 +10,12 @@ import org.springframework.data.mongodb.core.index.Index;
 import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 
-@ChangeUnit(order = "010", id = "index-for-datasource-storage")
-public class Migration010AddIndexToDatasourceStorage {
+@ChangeUnit(order = "014", id = "index-for-datasource-storage")
+public class Migration014AddIndexToDatasourceStorage {
 
     private final MongoTemplate mongoTemplate;
 
-    public Migration010AddIndexToDatasourceStorage(MongoTemplate mongoTemplate) {
+    public Migration014AddIndexToDatasourceStorage(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 

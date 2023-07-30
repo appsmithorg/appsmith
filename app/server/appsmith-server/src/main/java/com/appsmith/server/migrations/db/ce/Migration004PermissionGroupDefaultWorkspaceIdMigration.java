@@ -16,11 +16,11 @@ import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldN
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
-@ChangeUnit(order = "003", id = "migrate-default-workspace-id-to-default-domain-id")
-public class Migration003PermissionGroupDefaultWorkspaceIdMigration {
+@ChangeUnit(order = "004", id = "migrate-default-workspace-id-to-default-domain-id")
+public class Migration004PermissionGroupDefaultWorkspaceIdMigration {
     private final MongoTemplate mongoTemplate;
 
-    public Migration003PermissionGroupDefaultWorkspaceIdMigration(MongoTemplate mongoTemplate) {
+    public Migration004PermissionGroupDefaultWorkspaceIdMigration(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
