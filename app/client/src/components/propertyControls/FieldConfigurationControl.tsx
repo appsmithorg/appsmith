@@ -56,6 +56,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
     if (schemaItem) {
       this.props.openNextPanel({
+        index,
         ...schemaItem,
         propPaneId: this.props.widgetProperties.widgetId,
       });
