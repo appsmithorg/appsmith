@@ -14,14 +14,14 @@ import org.springframework.data.mongodb.core.query.Update;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
-@ChangeUnit(order = "009", id = "remove-structure-from-within-datasource-modified")
-public class Migration009RemoveStructureFromWithinDatasource {
+@ChangeUnit(order = "012", id = "remove-structure-from-within-datasource-modified")
+public class Migration012RemoveStructureFromWithinDatasource {
 
     private final MongoOperations mongoOperations;
 
     private final MongoTemplate mongoTemplate;
 
-    public Migration009RemoveStructureFromWithinDatasource(
+    public Migration012RemoveStructureFromWithinDatasource(
             MongoOperations mongoOperations, MongoTemplate mongoTemplate) {
         this.mongoOperations = mongoOperations;
         this.mongoTemplate = mongoTemplate;
