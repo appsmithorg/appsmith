@@ -11,7 +11,6 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +46,6 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
     private final UserRepository userRepository;
     private final ProjectProperties projectProperties;
     private final NetworkUtils networkUtils;
-    private final FeatureFlagService featureFlagService;
 
     /**
      * Gets the external IP address of this server and pings a data point to indicate that this server instance is live.
