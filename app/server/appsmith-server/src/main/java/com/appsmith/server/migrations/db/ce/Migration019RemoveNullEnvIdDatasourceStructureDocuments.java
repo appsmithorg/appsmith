@@ -11,13 +11,13 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
 @Slf4j
-@ChangeUnit(order = "015", id = "delete-null-envId-key-document", author = " ")
-public class Migration015RemoveNullEnvIdDatasourceStrucutureDocuments {
+@ChangeUnit(order = "019", id = "delete-null-envId-key-document", author = " ")
+public class Migration019RemoveNullEnvIdDatasourceStructureDocuments {
 
     private final MongoTemplate mongoTemplate;
     private static final String environmentId = FieldName.ENVIRONMENT_ID;
 
-    public Migration015RemoveNullEnvIdDatasourceStrucutureDocuments(MongoTemplate mongoTemplate) {
+    public Migration019RemoveNullEnvIdDatasourceStructureDocuments(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 

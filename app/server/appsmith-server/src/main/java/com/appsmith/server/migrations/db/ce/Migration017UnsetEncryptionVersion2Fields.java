@@ -26,8 +26,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Slf4j
-@ChangeUnit(order = "013", id = "unset-not-encrypted-encryption-version-2-fields", author = " ")
-public class Migration013UnsetEncryptionVersion2Fields {
+@ChangeUnit(order = "017", id = "unset-not-encrypted-encryption-version-2-fields", author = " ")
+public class Migration017UnsetEncryptionVersion2Fields {
 
     private final MongoTemplate mongoTemplate;
     private static final int ENCRYPTION_VERSION = 2;
@@ -52,7 +52,7 @@ public class Migration013UnsetEncryptionVersion2Fields {
     private static final String TOKEN_RESPONSE_QUALIFIED_NAME =
             AUTHENTICATION_RESPONSE_QUALIFIED_NAME + DELIMITER + TOKEN_RESPONSE;
 
-    public Migration013UnsetEncryptionVersion2Fields(MongoTemplate mongoTemplate) {
+    public Migration017UnsetEncryptionVersion2Fields(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
