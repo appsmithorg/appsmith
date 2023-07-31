@@ -549,7 +549,9 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public SelectAllWidgets(parentWidget = ".appsmith_widget_0", index = 0) {
-    cy.get(parentWidget).eq(index).type(this.isMac ? "{meta}A" : "{ctrl}A");
+    cy.get(parentWidget)
+      .eq(index)
+      .type(this.isMac ? "{meta}A" : "{ctrl}A");
   }
 
   public SetCanvasViewportWidth(width: number) {
@@ -1538,14 +1540,5 @@ export class AggregateHelper extends ReusableHelper {
     cy.get(".rc-tooltip-inner").should(($x) => {
       expect($x).contain(tooltipText);
     });
-  }
-
-  public TypeTextWithoutWait(
-    selector: string,
-    value: string,
-    index = 0,
-    force = false,
-  ) {
-    return this.GetElement(selector).eq(index).type(value, { force: force });
   }
 }
