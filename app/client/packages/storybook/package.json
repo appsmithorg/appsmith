@@ -29,7 +29,7 @@
     "@storybook/react-webpack5": "^7.1.1",
     "@storybook/theming": "^7.1.1",
     "babel-loader": "9.1.2",
-    "chromatic": "^6.19.8",
+    "chromatic": "^6.20.0",
     "react-docgen-typescript": "^2.2.2",
     "storybook": "^7.1.1",
     "tsconfig-paths-webpack-plugin": "^4.0.1"

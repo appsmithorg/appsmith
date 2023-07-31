@@ -2314,7 +2314,7 @@ __metadata:
     "@storybook/react-webpack5": ^7.1.1
     "@storybook/theming": ^7.1.1
     babel-loader: 9.1.2
-    chromatic: ^6.19.8
+    chromatic: ^6.20.0
     colorjs.io: ^0.4.3
     react-docgen-typescript: ^2.2.2
     storybook: ^7.1.1
@@ -11278,14 +11278,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chromatic@npm:^6.19.8":
-  version: 6.19.8
-  resolution: "chromatic@npm:6.19.8"
+"chromatic@npm:^6.20.0":
+  version: 6.20.0
+  resolution: "chromatic@npm:6.20.0"
   bin:
     chroma: dist/bin.js
     chromatic: dist/bin.js
     chromatic-cli: dist/bin.js
-  checksum: 3f80373d9e77d3363924c274c8b9465b5f0ff835b7fb4a753848e37068a4564fa67ab205a4cf89820cf136fdefd637b54730819a5c376406a87bf8737ddf03ac
+  checksum: 90d413144ea9502cb96fd0065a0cf2ece63d832da2d7fd93f9577fd09080cbeb829ce9ca1d2384d4f7739cc249aa09033ca61820ac3c1656ff92d6a4ba2fbd67
   languageName: node
   linkType: hard
 
