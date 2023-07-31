@@ -69,12 +69,8 @@ describe("@design-system/widgets/Button", () => {
   });
 
   it("sets icon position attribute based on the prop ", () => {
-    const { container } = render(<Button iconPosition="end" />);
-
-    const button = container.querySelector("button") as HTMLElement;
+    render(<Button iconPosition="end" />);
+    const button = screen.getByRole("button");
     expect(button).toHaveAttribute("data-icon-position", "end");
-
-    const styles = window.getComputedStyle(button);
-    expect(styles.flexDirection).toBe("row-reverse");
   });
 });

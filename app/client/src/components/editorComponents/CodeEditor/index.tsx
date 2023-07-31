@@ -572,7 +572,7 @@ class CodeEditor extends Component<Props, State> {
          * and we check if they are different because the input value has changed
          * and not because the editor value has changed
          * */
-        if (inputValue !== editorValue && inputValue !== previousInputValue) {
+        if (inputValue !== editorValue) {
           // If it is focused update it only if the identifier has changed
           // if not focused, can be updated
           if (this.state.isFocused) {

@@ -214,7 +214,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         Mono<String> defaultEnvironmentIdMono = applicationService
                 .findById(applicationId)
-                .flatMap(application -> workspaceService.getDefaultEnvironmentId(application.getWorkspaceId()));
+                .flatMap(application -> workspaceService.getDefaultEnvironmentId(application.getWorkspaceId(), null));
 
         /**
          * Since we are exporting for git, we only consider unpublished JS libraries
@@ -396,8 +396,22 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 datasourceList.forEach(datasource ->
                                         datasourceIdToNameMap.put(datasource.getId(), datasource.getName()));
                                 List<DatasourceStorage> storageList = datasourceList.stream()
-                                        .map(datasource -> datasourceStorageService.getDatasourceStorageFromDatasource(
-                                                datasource, environmentId))
+                                        .map(datasource -> {
+                                            DatasourceStorage storage =
+                                                    datasourceStorageService.getDatasourceStorageFromDatasource(
+                                                            datasource, environmentId);
+
+                                            if (storage == null) {
+                                                // This means we were unable to find a storage for default environment
+                                                // We still need the user to be able to configure this datasource in a
+                                                // new workspace,
+                                                // So we will create a fallback storage using transient fields from the
+                                                // datasource
+                                                storage = new DatasourceStorage();
+                                                storage.prepareTransientFields(datasource);
+                                            }
+                                            return storage;
+                                        })
                                         .collect(Collectors.toList());
                                 applicationJson.setDatasourceList(storageList);
 
@@ -1059,7 +1073,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     }
                     return Mono.zip(existingDatasourceMono, Mono.just(workspace));
                 })
-                .zipWhen(objects -> workspaceService.getDefaultEnvironmentId(workspaceId))
+                .zipWhen(objects -> workspaceService.getDefaultEnvironmentId(workspaceId, null))
                 .flatMapMany(objects -> {
                     List<Datasource> existingDatasources = objects.getT1().getT1();
                     Workspace workspace = objects.getT1().getT2();
@@ -2064,7 +2078,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     public Mono<ApplicationImportDTO> getApplicationImportDTO(
             String applicationId, String workspaceId, Application application) {
         return findDatasourceByApplicationId(applicationId, workspaceId)
-                .zipWith(workspaceService.getDefaultEnvironmentId(workspaceId))
+                .zipWith(workspaceService.getDefaultEnvironmentId(workspaceId, null))
                 .map(tuple2 -> {
                     List<Datasource> datasources = tuple2.getT1();
                     String environmentId = tuple2.getT2();
@@ -2073,6 +2087,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     Boolean isUnConfiguredDatasource = datasources.stream().anyMatch(datasource -> {
                         DatasourceStorageDTO datasourceStorageDTO =
                                 datasource.getDatasourceStorages().get(environmentId);
+                        if (datasourceStorageDTO == null) {
+                            // If this environment has not been configured,
+                            // We do not expect to find a storage, user will have to reconfigure
+                            return Boolean.FALSE;
+                        }
                         return Boolean.FALSE.equals(datasourceStorageDTO.getIsConfigured());
                     });
                     if (Boolean.TRUE.equals(isUnConfiguredDatasource)) {

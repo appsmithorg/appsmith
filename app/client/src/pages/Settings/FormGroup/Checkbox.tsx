@@ -19,7 +19,7 @@ const CheckboxWrapper = styled.div`
 `;
 
 type CheckboxProps = {
-  label?: string;
+  label?: React.ReactNode;
   id?: string;
   isDisabled?: boolean;
   needsUpgrade?: boolean;

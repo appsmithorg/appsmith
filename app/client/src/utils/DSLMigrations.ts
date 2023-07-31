@@ -73,7 +73,11 @@ import {
 import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
 import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigrations";
 import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskinningMigrations";
-import { MigrateSelectTypeWidgetDefaultValue } from "./migrations/SelectWidget";
+import {
+  MigrateSelectTypeWidgetDefaultValue,
+  migrateSelectWidgetOptionToSourceData,
+  migrateSelectWidgetSourceDataBindingPathList,
+} from "./migrations/SelectWidget";
 import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskinningMigrations";
 
 import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMigrations";
@@ -1186,6 +1190,16 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version == 79) {
     currentDSL = migrateTableWidgetTableDataJsMode(currentDSL);
+    currentDSL.version = 80;
+  }
+
+  if (currentDSL.version === 80) {
+    currentDSL = migrateSelectWidgetOptionToSourceData(currentDSL);
+    currentDSL.version = 81;
+  }
+
+  if (currentDSL.version === 81) {
+    currentDSL = migrateSelectWidgetSourceDataBindingPathList(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
