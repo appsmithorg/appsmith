@@ -906,6 +906,15 @@ public enum AppsmithError {
             "Invalid application property configuration",
             ErrorType.INTERNAL_ERROR,
             null),
+
+    INVALID_SMTP_CONFIGURATION(
+            400,
+            AppsmithErrorCode.INVALID_SMTP_CONFIGURATION.getCode(),
+            "Your SMTP configuration is invalid. Please configure SMTP to enable to proceed",
+            AppsmithErrorAction.DEFAULT,
+            "Invalid SMTP configuration",
+            ErrorType.INTERNAL_ERROR,
+            null),
     ;
 
     private final Integer httpErrorCode;

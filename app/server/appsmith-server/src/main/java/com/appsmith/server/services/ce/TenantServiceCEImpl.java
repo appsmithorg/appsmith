@@ -77,7 +77,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                         envMono = envManager.getAllNonEmpty().flatMap(properties -> {
                             if (properties.get("APPSMITH_MAIL_HOST") == null
                                     || properties.get("APPSMITH_MAIL_HOST") == "") {
-                                tenantConfiguration.setEmailVerificationEnabled(null);
+                                return Mono.error(new AppsmithException(AppsmithError.INVALID_SMTP_CONFIGURATION));
                             }
                             return Mono.empty();
                         });
