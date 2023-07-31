@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import styled from "styled-components";
@@ -10,6 +10,9 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { getRampLink } from "utils/ProductRamps";
+import { isDatasourceInViewMode } from "selectors/ui";
+import { matchDatasourcePath, matchSAASGsheetsPath } from "constants/routes";
+import { useLocation } from "react-router";
 
 const Wrapper = styled.div`
   display: flex;
@@ -68,8 +71,20 @@ const TooltipLink = styled(Link)`
 `;
 
 export default function SwitchEnvironment({}: Props) {
+  const [diableSwitchEnvironment, setDiableSwitchEnvironment] = useState(false);
   // Fetching feature flags from the store and checking if the feature is enabled
   const allowedToRender = useSelector(datasourceEnvEnabled);
+  const location = useLocation();
+  //listen to url change and disable switch environment if datasource page is open
+  useEffect(() => {
+    setDiableSwitchEnvironment(
+      !!matchDatasourcePath(window.location.pathname) ||
+        !!matchSAASGsheetsPath(window.location.pathname),
+    );
+  }, [location.pathname]);
+  //URL for datasource edit and review page is same
+  //this parameter helps us to differentiate between the two.
+  const isDatasourceViewMode = useSelector(isDatasourceInViewMode);
 
   if (!allowedToRender) return null;
 
@@ -98,10 +113,17 @@ export default function SwitchEnvironment({}: Props) {
   };
 
   return (
-    <Wrapper aria-disabled={false} data-testid="t--switch-env">
+    <Wrapper
+      aria-disabled={diableSwitchEnvironment && !isDatasourceViewMode}
+      data-testid="t--switch-env"
+    >
       <Select
         className="select_environemnt"
         dropdownClassName="select_environemnt_dropdown"
+        isDisabled={
+          (diableSwitchEnvironment && !isDatasourceViewMode) ||
+          environmentList.length === 1
+        }
         value={capitalizeFirstLetter(environmentList[0].name)}
       >
         {environmentList.map((env: EnvironmentType) => (
