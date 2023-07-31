@@ -5,11 +5,11 @@ import {
   Icon as IconComponent,
   IconCollection,
   IconSize,
-} from "@design-system/Widgets-old";
+} from "@design-system/widgets-old";
 import styled from "styled-components";
 
 export default {
-  title: "Design System/widgets-old/Icon",
+  title: "Design System/Widgets-old/Icon",
   component: IconComponent,
   argTypes: {
     size: {

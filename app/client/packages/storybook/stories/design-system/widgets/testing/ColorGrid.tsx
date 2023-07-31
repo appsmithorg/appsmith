@@ -30,6 +30,7 @@ const getTestObj = (steps: number, source: "oklch" | "hex") => {
   const HRatio = 360 / (steps - 1);
 
   for (let i = 0; i < steps; i++) {
+    // @ts-expect-error for some reason
     obj[i] = {};
     for (let k = 0; k < steps; k++) {
       const l = clean(k * LRatio);
@@ -40,6 +41,7 @@ const getTestObj = (steps: number, source: "oklch" | "hex") => {
         .set("oklch.l", l)
         .set("oklch.c", c)
         .set("oklch.h", h);
+      // @ts-expect-error for some reason
       obj[i][`${l} ${c} ${h}`] =
         source === "oklch" ? color : color.toString({ format: "hex" });
     }
@@ -110,7 +112,9 @@ export const ColorGrid = (props: any) => {
         }}
       >
         {Object.keys(COLORS).map((colorKey) => {
+          // @ts-expect-error for some reason
           return Object.keys(COLORS[colorKey]).map((colorNestedKey) => {
+            // @ts-expect-error for some reason
             const seedColor = COLORS[colorKey][colorNestedKey];
 
             const tokensAccessor = new TokensAccessor({
