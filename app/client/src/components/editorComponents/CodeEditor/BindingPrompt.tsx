@@ -43,11 +43,7 @@ function BindingPrompt(props: {
       ref={promptRef}
       visible={props.isOpen}
     >
-      {props.isAIEnabled ? (
-        <>
-          Use <b>/ai</b> to generate JS expressions
-        </>
-      ) : props.promptMessage ? (
+      {props.promptMessage ? (
         props.promptMessage
       ) : (
         <>

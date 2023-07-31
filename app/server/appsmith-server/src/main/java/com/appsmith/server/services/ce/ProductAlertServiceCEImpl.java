@@ -6,8 +6,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
@@ -19,14 +17,13 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
 @Service
 @Slf4j
-@PropertySource("classpath:/productAlerts/productAlertMessages.yml")
 public class ProductAlertServiceCEImpl implements ProductAlertServiceCE {
-    private final String messageListJSONString;
 
     private final CommonConfig commonConfig;
 
@@ -36,15 +33,19 @@ public class ProductAlertServiceCEImpl implements ProductAlertServiceCE {
 
     private final Scheduler scheduler = Schedulers.boundedElastic();
 
-    public ProductAlertServiceCEImpl(
-            @Value("${productalertmessages}") String messageListJSONString,
-            ObjectMapper objectMapper,
-            CommonConfig commonConfig) {
-        this.messageListJSONString = messageListJSONString;
+    public ProductAlertServiceCEImpl(ObjectMapper objectMapper, CommonConfig commonConfig) {
         this.commonConfig = commonConfig;
         this.mapper = objectMapper;
+        ClassLoader classLoader = getClass().getClassLoader();
         try {
-            this.messages = mapper.readValue(messageListJSONString, ProductAlertResponseDTO[].class);
+            this.messages = mapper.readValue(
+                    new String(
+                            classLoader
+                                    .getResource("productAlerts/productAlertMessages.json")
+                                    .openStream()
+                                    .readAllBytes(),
+                            StandardCharsets.UTF_8),
+                    ProductAlertResponseDTO[].class);
         } catch (Exception e) {
             log.error("failed to read product alert properties correctly.", e);
             throw new AppsmithException(AppsmithError.INVALID_PROPERTIES_CONFIGURATION, "productalertmessages");
@@ -75,8 +76,10 @@ public class ProductAlertServiceCEImpl implements ProductAlertServiceCE {
                 try {
                     return (Boolean) expression.getValue(context);
                 } catch (EvaluationException ee) {
-                    log.error("error while evaluating applicability expression");
-                    throw ee;
+                    log.error(
+                            "error while evaluating applicability expression. message not added applicable messages.",
+                            ee);
+                    return false;
                 }
             case STATIC:
                 return (Boolean) expression.getValue();
