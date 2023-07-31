@@ -90,6 +90,8 @@ type Props = {
   pluginId?: string;
 };
 
+const MAX_SHEET_ROWS_LENGTH = 12;
+
 // ---------- GoogleSheetSchema Component -------
 
 function GoogleSheetSchema(props: Props) {
@@ -193,7 +195,7 @@ function GoogleSheetSchema(props: Props) {
   useEffect(() => {
     if (sheetData?.length > 0) {
       // Getting the top 12 rows as for experimentation we need to keep this number fixed for preview
-      setCurrentSheetData(sheetData.slice(0, 12));
+      setCurrentSheetData(sheetData.slice(0, MAX_SHEET_ROWS_LENGTH));
     }
   }, [sheetData]);
 
