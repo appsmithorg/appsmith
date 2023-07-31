@@ -6,15 +6,11 @@ import {
 } from "@appsmith/constants/messages";
 import type { JSAction } from "entities/JSCollection";
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { RADIO_OPTIONS, SETTINGS_HEADINGS } from "./constants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Icon, Radio, RadioGroup, Tooltip } from "design-system";
-import type { AppState } from "@appsmith/reducers";
-import equal from "fast-deep-equal";
-import { isEmpty } from "lodash";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 type SettingsHeadingProps = {
   text: string;
@@ -106,38 +102,6 @@ const SettingsBodyWrapper = styled.div`
   overflow: auto;
 `;
 
-function useDependency(name: string) {
-  const dataFieldDependencies = new Set<string>();
-  const inverseDependencies = useSelector(
-    (state: AppState) =>
-      state.evaluations.dependencies.inverseDependencyMap[name],
-    equal,
-  );
-  const canvasWidgets = useSelector(
-    (state: AppState) => state.entities.canvasWidgets,
-    equal,
-  );
-  if (isEmpty(inverseDependencies) || isEmpty(canvasWidgets))
-    return { dataFieldDependencies: Array.from(dataFieldDependencies) };
-
-  for (const dependency of inverseDependencies) {
-    const { entityName, propertyPath } =
-      getEntityNameAndPropertyPath(dependency);
-    const widget = Object.values(canvasWidgets).find(
-      (widget) => widget.widgetName === entityName,
-    );
-    if (!widget) continue;
-    const bindingPaths = widget.dynamicBindingPathList;
-    if (
-      bindingPaths &&
-      bindingPaths.find((path) => path.key === propertyPath)
-    ) {
-      dataFieldDependencies.add(dependency);
-    }
-  }
-  return { dataFieldDependencies: Array.from(dataFieldDependencies) };
-}
-
 function SettingsHeading({ grow, hasInfo, info, text }: SettingsHeadingProps) {
   return (
     <SettingColumn grow={grow} isHeading>
@@ -153,20 +117,12 @@ function SettingsHeading({ grow, hasInfo, info, text }: SettingsHeadingProps) {
 
 function SettingsItem({ action, disabled }: SettingsItemProps) {
   const dispatch = useDispatch();
-  const { dataFieldDependencies } = useDependency(
-    action.fullyQualifiedName || "",
-  );
   const [executeOnPageLoad, setExecuteOnPageLoad] = useState(
     String(!!action.executeOnLoad),
   );
   const [confirmBeforeExecute, setConfirmBeforeExecute] = useState(
     String(!!action.confirmBeforeExecute),
   );
-  const onPageloadDisabled = dataFieldDependencies.length > 0 || disabled;
-
-  if (dataFieldDependencies.length > 0) {
-    executeOnPageLoad !== "true" && setExecuteOnPageLoad("true");
-  }
 
   const updateProperty = (value: boolean | number, propertyName: string) => {
     dispatch(
@@ -213,7 +169,7 @@ function SettingsItem({ action, disabled }: SettingsItemProps) {
         >
           {RADIO_OPTIONS.map((option) => (
             <Radio
-              isDisabled={onPageloadDisabled}
+              isDisabled={disabled}
               key={option.label}
               value={option.value}
             >
