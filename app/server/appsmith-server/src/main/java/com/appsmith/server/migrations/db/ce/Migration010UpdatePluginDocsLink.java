@@ -10,11 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@ChangeUnit(order = "007", id = "update-plugins-docs-link", author = " ")
-public class Migration007UpdatePluginDocsLink {
+@ChangeUnit(order = "010", id = "update-plugins-docs-link", author = " ")
+public class Migration010UpdatePluginDocsLink {
     private final MongoTemplate mongoTemplate;
 
-    public Migration007UpdatePluginDocsLink(MongoTemplate mongoTemplate) {
+    public Migration010UpdatePluginDocsLink(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 

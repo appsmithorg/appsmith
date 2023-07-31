@@ -34,7 +34,7 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 // 107-ee,
 // as this migration has EE overrides for default environmentId, and for getting the environments on existing
 // workspaces, 107-ee needs to run
-public class Migration109TransferToDatasourceStorage {
+public class Migration020TransferToDatasourceStorage {
     private final MongoTemplate mongoTemplate;
 
     private final String migrationFlag = "hasDatasourceStorage";
@@ -46,7 +46,7 @@ public class Migration109TransferToDatasourceStorage {
 
     private final DatasourceStorageMigrationSolution solution = new DatasourceStorageMigrationSolution();
 
-    public Migration109TransferToDatasourceStorage(MongoTemplate mongoTemplate) {
+    public Migration020TransferToDatasourceStorage(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 

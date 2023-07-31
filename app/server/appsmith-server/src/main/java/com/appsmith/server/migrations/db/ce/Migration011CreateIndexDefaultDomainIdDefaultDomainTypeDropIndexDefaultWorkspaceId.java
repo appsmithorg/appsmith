@@ -13,8 +13,8 @@ import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
-@ChangeUnit(order = "008", id = "create-index-default-domain-id-default-domain-type", author = " ")
-public class Migration008CreateIndexDefaultDomainIdDefaultDomainTypeDropIndexDefaultWorkspaceId {
+@ChangeUnit(order = "011", id = "create-index-default-domain-id-default-domain-type", author = " ")
+public class Migration011CreateIndexDefaultDomainIdDefaultDomainTypeDropIndexDefaultWorkspaceId {
 
     private final MongoTemplate mongoTemplate;
 
@@ -25,7 +25,7 @@ public class Migration008CreateIndexDefaultDomainIdDefaultDomainTypeDropIndexDef
     public static final String newPermissionGroupIndexNameDefaultDomainIdDefaultDomainType =
             "permission_group_domainId_domainType_deleted";
 
-    public Migration008CreateIndexDefaultDomainIdDefaultDomainTypeDropIndexDefaultWorkspaceId(
+    public Migration011CreateIndexDefaultDomainIdDefaultDomainTypeDropIndexDefaultWorkspaceId(
             MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }

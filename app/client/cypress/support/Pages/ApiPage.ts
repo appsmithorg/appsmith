@@ -77,6 +77,7 @@ export class ApiPage {
   _nextCursorValue = ".t--apiFormPaginationNextCursorValue";
   _fileOperation = "[data-testid='t--file-operation']";
   _addMore = ".t--addApiHeader";
+  public _editorDS = ".t--datasource-editor";
 
   CreateApi(
     apiName = "",
