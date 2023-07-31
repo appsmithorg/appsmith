@@ -36,6 +36,8 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     private final long featureFlagCacheTimeMin = 120;
 
+    private final long tenantFeaturesCacheTimeMin = 120;
+
     private final UserIdentifierService userIdentifierService;
 
     private final CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
@@ -142,10 +144,19 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                 .getDefaultTenantId()
                 .flatMap(defaultTenantId -> {
                     return cacheableFeatureFlagHelper
-                            .evictCachedTenantNewFeatures(defaultTenantId)
-                            .thenReturn(defaultTenantId);
+                            .fetchCachedTenantNewFeatures(defaultTenantId)
+                            .map(cachedFeatures -> {
+                                if (cachedFeatures.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
+                                        < this.tenantFeaturesCacheTimeMin) {
+                                    return cachedFeatures;
+                                } else {
+                                    return cacheableFeatureFlagHelper
+                                            .evictCachedTenantNewFeatures(defaultTenantId)
+                                            .then(cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(
+                                                    defaultTenantId));
+                                }
+                            });
                 })
-                .flatMap(defaultTenantId -> cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(defaultTenantId))
                 .then();
     }
 
