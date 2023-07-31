@@ -582,7 +582,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                       <ViewModeWrapper>
                         {datasource &&
                         isGoogleSheetPlugin &&
-                        !!isPluginAuthorized ? (
+                        !isPluginAuthorized ? (
                           <AuthMessage
                             actionType={ActionType.AUTHORIZE}
                             datasource={datasource}
