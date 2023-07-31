@@ -18,11 +18,11 @@ import org.springframework.data.mongodb.core.query.UpdateDefinition;
  * and this is essentially redundant information.
  * This migration gets rid of the edges property from the layout in all existing pages.
  */
-@ChangeUnit(order = "004", id = "reset-on-page-load-edges-in-layouts")
-public class Migration004ResetOnPageLoadEdgesInLayouts {
+@ChangeUnit(order = "006", id = "reset-on-page-load-edges-in-layouts")
+public class Migration006ResetOnPageLoadEdgesInLayouts {
     private final MongoTemplate mongoTemplate;
 
-    public Migration004ResetOnPageLoadEdgesInLayouts(MongoTemplate mongoTemplate) {
+    public Migration006ResetOnPageLoadEdgesInLayouts(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
