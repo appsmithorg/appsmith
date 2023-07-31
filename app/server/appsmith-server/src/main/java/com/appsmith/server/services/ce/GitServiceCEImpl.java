@@ -1988,11 +1988,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return checkoutBranchMono
                             .then(fetchRemoteMono)
                             .then(branchedStatusMono)
-                            .flatMap(gitStatusDTO -> {
+                            .flatMap(branchTrackingStatus -> {
                                 if (Boolean.TRUE.equals(isFileLock)) {
-                                    return releaseFileLock(defaultApplicationId).thenReturn(gitStatusDTO);
+                                    return releaseFileLock(defaultApplicationId).thenReturn(branchTrackingStatus);
                                 }
-                                return Mono.just(gitStatusDTO);
+                                return Mono.just(branchTrackingStatus);
                             })
                             .onErrorResume(error -> {
                                 if (Boolean.TRUE.equals(isFileLock)) {
