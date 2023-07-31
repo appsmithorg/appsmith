@@ -32,3 +32,4 @@ export const fakerHelper = ObjectsRegistry.FakerHelper;
 export const tedTestConfig = ObjectsRegistry.TEDTestConfigs;
 export const entityItems = EntityItems;
 export const tabs = ObjectsRegistry.Tabs;
+export const gsheetHelper = ObjectsRegistry.GSheetHelper;

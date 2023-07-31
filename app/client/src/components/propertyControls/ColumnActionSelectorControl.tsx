@@ -32,6 +32,7 @@ const Wrapper = styled.div`
 
 class ColumnActionSelectorControl extends BaseControl<ColumnActionSelectorControlProps> {
   render() {
+    const { propertyName, widgetProperties } = this.props;
     return (
       <>
         {this.props.propertyValue &&
@@ -63,7 +64,10 @@ class ColumnActionSelectorControl extends BaseControl<ColumnActionSelectorContro
                       this,
                       columnAction,
                     )}
+                    propertyName={propertyName}
                     value={columnAction.dynamicTrigger}
+                    widgetName={widgetProperties.widgetName}
+                    widgetType={widgetProperties.type}
                   />
                 </Wrapper>
                 <StyledDeleteButton

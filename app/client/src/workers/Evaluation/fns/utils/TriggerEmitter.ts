@@ -11,6 +11,10 @@ import { get } from "lodash";
 import { getType } from "utils/TypeHelpers";
 import type { JSVarMutatedEvents } from "workers/Evaluation/types";
 import { dataTreeEvaluator } from "workers/Evaluation/handlers/evalTree";
+import type {
+  TriggerKind,
+  TriggerSource,
+} from "constants/AppsmithActionConstants/ActionConstants";
 
 const _internalSetTimeout = self.setTimeout;
 const _internalClearTimeout = self.clearTimeout;
@@ -182,15 +186,20 @@ TriggerEmitter.on(
   jsVariableUpdatesHandlerWrapper,
 );
 
-export const fnInvokeLogHandler = priorityBatchedActionHandler<string>(
-  (data) => {
-    const set = new Set([...data]);
-    WorkerMessenger.ping({
-      method: MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION,
-      data: [...set],
-    });
-  },
-);
+export const fnInvokeLogHandler = deferredBatchedActionHandler<{
+  jsFnFullName: string;
+  isSuccess: boolean;
+  triggerMeta: {
+    source: TriggerSource;
+    triggerPropertyName: string | undefined;
+    triggerKind: TriggerKind | undefined;
+  };
+}>((data) => {
+  WorkerMessenger.ping({
+    method: MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION,
+    data,
+  });
+});
 
 TriggerEmitter.on(BatchKey.process_batched_fn_invoke_log, fnInvokeLogHandler);
 
