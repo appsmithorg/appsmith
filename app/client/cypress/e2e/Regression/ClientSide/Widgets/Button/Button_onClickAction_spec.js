@@ -38,7 +38,6 @@ describe("Button Widget Functionality", function () {
     );
     cy.SaveAndRunAPI();
 
-    // Going to HomePage where the button widget is located and opening it's property pane.
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("Container3");
     _.entityExplorer.SelectEntityByName("Button1");
@@ -48,19 +47,11 @@ describe("Button Widget Functionality", function () {
     // Filling the messages for success/failure in the onClickAction of the button widget.
     cy.onClickActions("Success", "Error", "Execute a query", "buttonApi.run");
 
-    _.deployMode.DeployApp();
-    cy.get("body").then(($ele) => {
-      if ($ele.find(widgetsPage.apiCallToast).length <= 0) {
-        cy.get(publishPage.buttonWidget).click();
-      }
-    });
-    // Clicking the button to verify the success message
-    cy.get(publishPage.buttonWidget).click();
-    cy.get("body").then(($ele) => {
-      if ($ele.find(widgetsPage.apiCallToast).length <= 0) {
-        cy.get(publishPage.buttonWidget).click();
-      }
-    });
+    _.deployMode.DeployApp(
+      _.locators._widgetInDeployed(_.draggableWidgets.BUTTON),
+    );
+    _.agHelper.Sleep();
+    _.agHelper.ClickButton("Submit");
     cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
   });
 
@@ -69,8 +60,9 @@ describe("Button Widget Functionality", function () {
     // Creating a mock query
     // cy.CreateMockQuery("Query1");
     _.dataSources.CreateDataSource("Postgres");
-    _.entityExplorer.ActionTemplateMenuByEntityName("public.film", "SELECT");
-    // Going to HomePage where the button widget is located and opeing it's property pane.
+    _.dataSources.CreateQueryAfterDSSaved(
+      `SELECT * FROM public."film" LIMIT 10;`,
+    );
     _.entityExplorer.ExpandCollapseEntity("Container3");
     _.entityExplorer.SelectEntityByName("Button1");
 

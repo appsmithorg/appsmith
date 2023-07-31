@@ -32,20 +32,19 @@ describe("Fork application with multiple datasources", function () {
   it("1. Bug Id: 24708  - fork and test the forked application", function () {
     // Create a new workspace and fork application
     const appname: string = localStorage.getItem("AppName") || "randomApp";
-    homePage.NavigateToHome();
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       workspaceId = "forkApp" + uid;
-      homePage.CreateNewWorkspace(workspaceId);
+      homePage.CreateNewWorkspace(workspaceId, true);
       agHelper.PressEscape();
       cy.log("------------------" + workspaceId);
       homePage.ForkApplication(appname, workspaceId);
     });
     // In the forked application, reconnect all datasources
-    dataSources.ReconnectDSbyName("MongoDBUri");
-    dataSources.ReconnectDSbyName("PostgreSQL");
-    dataSources.ReconnectDSbyName("MySQL");
-    dataSources.ReconnectDSbyName("S3");
+    dataSources.ReconnectDSbyType("MongoDBUri");
+    dataSources.ReconnectDSbyType("PostgreSQL");
+    dataSources.ReconnectDSbyType("MySQL");
+    dataSources.ReconnectDSbyType("S3");
 
     // assert if the datasources are connected as expeced
     homePage.AssertNCloseImport();

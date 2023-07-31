@@ -541,14 +541,6 @@ public class MssqlPlugin extends BasePlugin {
                     .append(";");
         }
 
-        if (StringUtils.hasLength(authentication.getUsername())) {
-            urlBuilder.append("user=").append(authentication.getUsername()).append(";");
-        }
-
-        if (StringUtils.hasLength(authentication.getPassword())) {
-            urlBuilder.append("password=").append(authentication.getPassword()).append(";");
-        }
-
         addSslOptionsToUrlBuilder(datasourceConfiguration, urlBuilder);
 
         hikariConfig.setJdbcUrl(urlBuilder.toString());

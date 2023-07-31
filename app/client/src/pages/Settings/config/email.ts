@@ -6,6 +6,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { isNil, omitBy } from "lodash";
 import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import {
+  CategoryType,
   SettingCategories,
   SettingSubtype,
   SettingTypes,
@@ -14,6 +15,7 @@ import {
 export const config: AdminConfigType = {
   icon: "mail-line",
   type: SettingCategories.EMAIL,
+  categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.GROUP,
   title: "Email",
   canSave: true,

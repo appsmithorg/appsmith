@@ -1,7 +1,6 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -22,8 +21,8 @@ public interface DatasourceServiceCE {
 
     /**
      * @param datasourceStorageDTO - The datasourceStorageDTO which is about to be tested
-     * @param activeEnvironmentId - environmentId, name of the environment on which the datasource is getting tested,
-     *                      this variable is unused in the CE version of the code.
+     * @param activeEnvironmentId  - environmentId, name of the environment on which the datasource is getting tested,
+     *                             this variable is unused in the CE version of the code.
      * @return Mono<DatasourceTestResult> - result whether the datasource secures a valid connection with the remote DB
      */
     Mono<DatasourceTestResult> testDatasource(DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId);
@@ -57,8 +56,9 @@ public interface DatasourceServiceCE {
     /**
      * Retrieves all datasources based on workspaceId. The retrieved datasources will contain
      * configurations from all environments.
+     *
      * @param workspaceId
-     * @param permission In case permissions are absent, the DB query disregards GAC rules
+     * @param permission  In case permissions are absent, the DB query disregards GAC rules
      * @return
      */
     Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, Optional<AclPermission> permission);
@@ -79,14 +79,21 @@ public interface DatasourceServiceCE {
 
     Map<String, Object> getAnalyticsProperties(Datasource datasource);
 
-    // TODO: Remove the following snippet after client side API changes
-    Mono<DatasourceDTO> convertToDatasourceDTO(Datasource datasource);
+    /**
+     * If we are trying to get environment id with respect to a particular plugin,
+     * we use this method to check out of scope plugins first
+     *
+     * @param workspaceId
+     * @param environmentId
+     * @param pluginId
+     * @param aclPermission
+     * @return
+     */
+    Mono<String> getTrueEnvironmentId(
+            String workspaceId, String environmentId, String pluginId, AclPermission aclPermission);
 
-    // TODO: Remove the following snippet after client side API changes
-    Mono<Datasource> convertToDatasource(DatasourceDTO datasourceDTO, String environmentId);
-
-    // TODO: Remove the following snippet after client side API changes
-    Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId);
+    Mono<String> getTrueEnvironmentId(
+            String workspaceId, String environmentId, String pluginId, AclPermission aclPermission, boolean isEmbedded);
 
     Datasource createDatasourceFromDatasourceStorage(DatasourceStorage datasourceStorage);
 }

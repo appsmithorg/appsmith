@@ -3,30 +3,22 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
-import com.appsmith.server.featureflags.FeatureFlagTrait;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserIdentifierService;
-import com.appsmith.util.WebClientUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.ff4j.FF4j;
 import org.ff4j.core.FlippingExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -43,6 +35,8 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     private final CloudServicesConfig cloudServicesConfig;
 
     private final long featureFlagCacheTimeMin = 120;
+
+    private final long tenantFeaturesCacheTimeMin = 120;
 
     private final UserIdentifierService userIdentifierService;
 
@@ -125,7 +119,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
             String userIdentifier = userIdentifierService.getUserIdentifier(user);
             // Checks for flags present in cache and if the cache is not expired
             return cacheableFeatureFlagHelper
-                    .fetchUserCachedFlags(userIdentifier)
+                    .fetchUserCachedFlags(userIdentifier, user)
                     .flatMap(cachedFlags -> {
                         if (cachedFlags.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
                                 < this.featureFlagCacheTimeMin) {
@@ -134,37 +128,47 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                             // empty the cache for the userIdentifier as expired
                             return cacheableFeatureFlagHelper
                                     .evictUserCachedFlags(userIdentifier)
-                                    .then(cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier))
+                                    .then(cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier, user))
                                     .flatMap(cachedFlagsUpdated -> Mono.just(cachedFlagsUpdated.getFlags()));
                         }
                     });
         });
     }
 
-    @Override
-    public Mono<Void> remoteSetUserTraits(List<FeatureFlagTrait> featureFlagTraits) {
-
-        return WebClientUtils.create(cloudServicesConfig.getBaseUrl())
-                .post()
-                .uri("/api/v1/feature-flags/trait")
-                .body(BodyInserters.fromValue(featureFlagTraits))
-                .exchangeToMono(clientResponse -> {
-                    if (clientResponse.statusCode().is2xxSuccessful()) {
-                        return clientResponse.bodyToMono(new ParameterizedTypeReference<ResponseDTO<Void>>() {});
-                    } else {
-                        return clientResponse.createError();
-                    }
+    /**
+     * To get all features of the tenant from Cloud Services and store them locally
+     * @return Mono of Void
+     */
+    public Mono<Void> getAllRemoteFeaturesForTenant() {
+        return tenantService
+                .getDefaultTenantId()
+                .flatMap(defaultTenantId -> {
+                    return cacheableFeatureFlagHelper
+                            .fetchCachedTenantNewFeatures(defaultTenantId)
+                            .map(cachedFeatures -> {
+                                if (cachedFeatures.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
+                                        < this.tenantFeaturesCacheTimeMin) {
+                                    return cachedFeatures;
+                                } else {
+                                    return cacheableFeatureFlagHelper
+                                            .evictCachedTenantNewFeatures(defaultTenantId)
+                                            .then(cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(
+                                                    defaultTenantId));
+                                }
+                            });
                 })
-                .map(ResponseDTO::getData)
-                .onErrorMap(
-                        // Only map errors if we haven't already wrapped them into an AppsmithException
-                        e -> !(e instanceof AppsmithException),
-                        e -> new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, e.getMessage()))
-                .onErrorResume(error -> {
-                    // We're gobbling up errors here so that all feature flags are turned off by default
-                    // This will be problematic if we do not maintain code to reflect validity of flags
-                    log.debug("Received error from CS for feature flags: {}", error.getMessage());
-                    return Mono.empty();
-                });
+                .then();
+    }
+
+    /**
+     * To get all features of the current tenant.
+     * @return Mono of Map
+     */
+    public Mono<Map<String, Boolean>> getCurrentTenantFeatures() {
+        return tenantService
+                .getDefaultTenantId()
+                // TODO: Update to call fetchCachedTenantCurrentFeatures once default value storing is complete
+                .flatMap(defaultTenantId -> cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(defaultTenantId))
+                .map(cachedFeatures -> cachedFeatures.getFeatures());
     }
 }

@@ -731,7 +731,7 @@ public enum AppsmithError {
             ErrorType.GIT_CONFIGURATION_ERROR,
             null),
     GIT_GENERIC_ERROR(
-            504,
+            400,
             AppsmithErrorCode.GIT_GENERIC_ERROR.getCode(),
             "Git command execution error: {0}",
             AppsmithErrorAction.DEFAULT,
@@ -889,6 +889,22 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT,
             "Unsupported operation",
             ErrorType.BAD_REQUEST,
+            null),
+    DUPLICATE_DATASOURCE_CONFIGURATION(
+            409,
+            AppsmithErrorCode.DUPLICATE_DATASOURCE_CONFIGURATION.getCode(),
+            "Duplicate Configuration error: Configuration for datasource id: {0} & environment id: {1} already exists. Please reach out to Appsmith customer support to resolve this.",
+            AppsmithErrorAction.DEFAULT,
+            "Duplicate Configuration",
+            ErrorType.BAD_REQUEST,
+            null),
+    INVALID_PROPERTIES_CONFIGURATION(
+            500,
+            AppsmithErrorCode.INVALID_PROPERTIES_CONFIGURATION.getCode(),
+            "Property configuration is wrong or malformed.",
+            AppsmithErrorAction.DEFAULT,
+            "Invalid application property configuration",
+            ErrorType.INTERNAL_ERROR,
             null),
     ;
 

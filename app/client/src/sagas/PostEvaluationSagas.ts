@@ -62,7 +62,7 @@ const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 function logLatestEvalPropertyErrors(
   currentDebuggerErrors: Record<string, Log>,
   dataTree: DataTree,
-  evaluationOrder: Array<string>,
+  evalAndValidationOrder: Array<string>,
   configTree: ConfigTree,
   pathsToClearErrorsFor?: any[],
 ) {
@@ -72,7 +72,7 @@ function logLatestEvalPropertyErrors(
     ...currentDebuggerErrors,
   };
 
-  for (const evaluatedPath of evaluationOrder) {
+  for (const evaluatedPath of evalAndValidationOrder) {
     const { entityName, propertyPath } =
       getEntityNameAndPropertyPath(evaluatedPath);
     const entity = dataTree[entityName];
@@ -221,18 +221,24 @@ export function* evalErrorHandler(
   errors: EvalError[],
   dataTree?: DataTree,
   evaluationOrder?: Array<string>,
+  reValidatedPaths?: Array<string>,
   configTree?: ConfigTree,
   pathsToClearErrorsFor?: any[],
-): any {
-  if (dataTree && evaluationOrder && configTree) {
+) {
+  if (dataTree && evaluationOrder && configTree && reValidatedPaths) {
     const currentDebuggerErrors: Record<string, Log> = yield select(
       getDebuggerErrors,
     );
+
+    const evalAndValidationOrder = new Set([
+      ...reValidatedPaths,
+      ...evaluationOrder,
+    ]);
     // Update latest errors to the debugger
     logLatestEvalPropertyErrors(
       currentDebuggerErrors,
       dataTree,
-      evaluationOrder,
+      [...evalAndValidationOrder],
       configTree,
       pathsToClearErrorsFor,
     );

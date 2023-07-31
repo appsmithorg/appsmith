@@ -852,7 +852,8 @@ public class ThemeServiceTest {
     @WithUserDetails("api_user")
     @Test
     public void importThemesToApplication_ApplicationThemeNotFound_DefaultThemeImported() {
-        Theme defaultTheme = themeRepository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME).block();
+        Theme defaultTheme =
+                themeRepository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME).block();
 
         // create the theme information present in the application JSON
         Theme themeInJson = new Theme();
@@ -874,18 +875,18 @@ public class ThemeServiceTest {
                 .flatMap(applicationRepository::save)
                 .flatMap(savedApplication -> {
                     assert savedApplication.getId() != null;
-                    return themeService.importThemesToApplication(savedApplication, applicationJson)
+                    return themeService
+                            .importThemesToApplication(savedApplication, applicationJson)
                             .thenReturn(savedApplication.getId());
                 })
-                .flatMap(applicationId ->
-                    applicationRepository.findById(applicationId, MANAGE_APPLICATIONS)
-                );
+                .flatMap(applicationId -> applicationRepository.findById(applicationId, MANAGE_APPLICATIONS));
 
         StepVerifier.create(applicationMono)
                 .assertNext(app -> {
                     // both edit mode and published mode should have default theme set
                     assertThat(app.getEditModeThemeId()).isEqualTo(app.getPublishedModeThemeId());
                     assertThat(app.getEditModeThemeId()).isEqualTo(defaultTheme.getId());
-                }).verifyComplete();
+                })
+                .verifyComplete();
     }
 }

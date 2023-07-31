@@ -20,7 +20,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     homePage.ImportApp("ImportApps/JSOnLoadImport.json", "JSOnLoadTest");
     cy.wait("@importNewApplication").then(() => {
       agHelper.Sleep();
-      dataSources.ReconnectDataSource("MySQL-Ds", "MySQL");
+      dataSources.ReconnectSingleDSNAssert("MySQL-Ds", "MySQL");
     });
     AssertJSOnPageLoad("runSpaceCraftImages", true);
   });

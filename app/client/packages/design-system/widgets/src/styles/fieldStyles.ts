@@ -31,7 +31,7 @@ export const fieldStyles = css<FieldStylesProps>`
 
     //  when the label is on the side, we need to make sure the label is aligned
     &[data-position="side"] {
-      min-height: calc(5 * var(--root-unit));
+      min-height: var(--sizing-5);
       width: ${({ labelWidth }) => labelWidth};
     }
   }
@@ -73,6 +73,7 @@ export const fieldStyles = css<FieldStylesProps>`
     flex-direction: column;
 
     &[data-orientation="horizontal"] {
+      gap: var(--spacing-4);
       flex-direction: row;
     }
 
