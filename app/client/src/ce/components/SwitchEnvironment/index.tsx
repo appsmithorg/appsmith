@@ -9,10 +9,11 @@ import {
   SWITCH_ENV_DISABLED_TOOLTIP_TEXT,
   createMessage,
 } from "@appsmith/constants/messages";
-import { getRampLink } from "utils/ProductRamps";
+import { getRampLink, showProductRamps } from "utils/ProductRamps";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { matchDatasourcePath, matchSAASGsheetsPath } from "constants/routes";
 import { useLocation } from "react-router";
+import { RAMP_NAME, RampFeature } from "utils/ProductRamps/RampsControlList";
 
 const Wrapper = styled.div`
   display: flex;
@@ -74,6 +75,7 @@ export default function SwitchEnvironment({}: Props) {
   const [diableSwitchEnvironment, setDiableSwitchEnvironment] = useState(false);
   // Fetching feature flags from the store and checking if the feature is enabled
   const allowedToRender = useSelector(datasourceEnvEnabled);
+  const showRamps = showProductRamps(RAMP_NAME.MULTIPLE_ENV);
   const location = useLocation();
   //listen to url change and disable switch environment if datasource page is open
   useEffect(() => {
@@ -86,14 +88,16 @@ export default function SwitchEnvironment({}: Props) {
   //this parameter helps us to differentiate between the two.
   const isDatasourceViewMode = useSelector(isDatasourceInViewMode);
 
-  if (!allowedToRender) return null;
+  if (!allowedToRender || !showRamps) return null;
 
   const renderEnvOption = (env: EnvironmentType) => {
     return (
-      <StyledText disabled={!env.selected}>
-        {!env.selected && <StyledIcon name="lock-2-line" />}
-        {capitalizeFirstLetter(env.name)}
-      </StyledText>
+      <div className="flex w-100">
+        <StyledText disabled={!env.selected}>
+          {!env.selected && <StyledIcon name="lock-2-line" />}
+          {capitalizeFirstLetter(env.name)}
+        </StyledText>
+      </div>
     );
   };
 
@@ -104,7 +108,7 @@ export default function SwitchEnvironment({}: Props) {
         <TooltipLink
           kind="primary"
           target="_blank"
-          to={getRampLink("app_share")}
+          to={getRampLink("bottom_bar_env_switcher", RampFeature.MultipleEnv)}
         >
           {createMessage(BUSINESS_EDITION_TEXT)}
         </TooltipLink>
@@ -120,18 +124,20 @@ export default function SwitchEnvironment({}: Props) {
       <Select
         className="select_environemnt"
         dropdownClassName="select_environemnt_dropdown"
+        getPopupContainer={(triggerNode) => triggerNode.parentNode.parentNode}
         isDisabled={
           (diableSwitchEnvironment && !isDatasourceViewMode) ||
           environmentList.length === 1
         }
+        size="md"
         value={capitalizeFirstLetter(environmentList[0].name)}
       >
-        {environmentList.map((env: EnvironmentType) => (
+        {environmentList.map((env: EnvironmentType, index: number) => (
           <Option
             aria-checked={env.selected}
             data-testid={`t--switch-env-dropdown-option-${env.name}`}
-            isDisabled={!env.selected}
-            key={env.id}
+            disabled={!env.selected}
+            key={`${env.id}-${index}`}
             label={env.name}
             selected={env.selected}
             value={env}

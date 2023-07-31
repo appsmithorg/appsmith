@@ -2,14 +2,16 @@ import React, { useEffect, useState } from "react";
 import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import { Link, Text, Tooltip } from "design-system";
+import { Link, Tag, Text, Tooltip } from "design-system";
 import {
   BUSINESS_EDITION_TEXT,
+  BUSINESS_TAG,
   SWITCH_ENV_DISABLED_TOOLTIP_TEXT,
   createMessage,
 } from "@appsmith/constants/messages";
 import { capitalizeFirstLetter } from "utils/helpers";
-import { getRampLink } from "utils/ProductRamps";
+import { getRampLink, showProductRamps } from "utils/ProductRamps";
+import { RAMP_NAME, RampFeature } from "utils/ProductRamps/RampsControlList";
 
 const Container = styled.div`
   display: flex;
@@ -17,14 +19,6 @@ const Container = styled.div`
   border-right: 1px solid var(--ads-v2-color-border);
   width: 160px;
   height: 100%;
-`;
-
-const DisabledLabel = styled(Text)`
-  margin-left: auto;
-  background-color: var(--ads-color-background-secondary);
-  padding: 2px 4px 2px 4px;
-  border-radius: 4px;
-  color: var(--ads-v2-color-gray-600);
 `;
 
 const FilterComponentContainer = styled.div<{
@@ -100,12 +94,14 @@ function DSDataFilter({
 }: DSDataFilterProps) {
   const [showFilterPane, setShowFilterPane] = useState(false);
   const datasourceEnv: boolean = useSelector(datasourceEnvEnabled);
+  const showRamps = showProductRamps(RAMP_NAME.MULTIPLE_ENV);
 
   // update the selected environment if the list of environments changes
   useEffect(() => {
     const isRenderAllowed =
       environments.length > 0 &&
       datasourceEnv &&
+      showRamps &&
       !viewMode &&
       !isInsideReconnectModal;
 
@@ -145,9 +141,9 @@ function DSDataFilter({
           {capitalizeFirstLetter(env.name)}
         </FilterComponentLabel>
         {isDisabled && (
-          <DisabledLabel data-testid="t--filter-disabled" kind="body-s">
-            Business
-          </DisabledLabel>
+          <Tag isClosable={false} size="md">
+            {createMessage(BUSINESS_TAG)}
+          </Tag>
         )}
       </FilterComponentContainer>
     );
@@ -160,7 +156,7 @@ function DSDataFilter({
         <TooltipLink
           kind="primary"
           target="_blank"
-          to={getRampLink("app_share")}
+          to={getRampLink("ds_editor", RampFeature.MultipleEnv)}
         >
           {createMessage(BUSINESS_EDITION_TEXT)}
         </TooltipLink>
