@@ -73,6 +73,10 @@ const SelectContainer = styled.div`
   display: flex;
   margin-top: 16px;
   margin-bottom: 16px;
+  .t--create-list-and-detail {
+    align-self: flex-end;
+    margin-left: auto;
+  }
 `;
 
 const SelectListWrapper = styled.div`
@@ -311,7 +315,6 @@ function GoogleSheetSchema(props: Props) {
             kind="primary"
             onClick={onCreateListandDetail}
             size="md"
-            style={{ alignSelf: "flex-end" }}
           >
             {createMessage(GSHEETS_CREATE_LIST_AND_DETAIL)}
           </Button>
