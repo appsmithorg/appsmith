@@ -79,7 +79,7 @@ jobs:
         run: |
           declare -a args
           if [[ "${{ inputs.pr }}" != 0 ]]; then
-            args+=(--cache-from "${{ vars.DOCKER_HUB_ORGANIZATION }}/${{ vars.DOCKER_HUB_REPO }}:release")
+            args+=(--cache-from "${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:release")
           fi
           docker build -t cicontainer "${args[@]}" .
 
