@@ -23,6 +23,7 @@ import GlobalStyles from "globalStyles";
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
 
+// @ts-expect-error __webpack_public_path__ might be set on runtime when the CDN is used in EE
 __webpack_public_path__ = window.CDN_URL;
 
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
