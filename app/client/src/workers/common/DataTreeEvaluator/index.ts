@@ -239,8 +239,18 @@ export default class DataTreeEvaluator {
       localUnEvalTree,
       configTree,
     );
+    const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
+    const stringifiedLocalUnEvalTreeJSCollection = convertJSFunctionsToString(
+      localUnEvalTreeJSCollection,
+      configTree,
+    );
+    const unEvalTreeWithStrigifiedJSFunctions = Object.assign(
+      {},
+      localUnEvalTree,
+      stringifiedLocalUnEvalTreeJSCollection,
+    );
     const allKeysGenerationStartTime = performance.now();
-    this.allKeys = getAllPaths(localUnEvalTree);
+    this.allKeys = getAllPaths(unEvalTreeWithStrigifiedJSFunctions);
     const allKeysGenerationEndTime = performance.now();
 
     const createDependencyMapStartTime = performance.now();
@@ -499,7 +509,7 @@ export default class DataTreeEvaluator {
 
     const updateDependencyStartTime = performance.now();
     // TODO => Optimize using dataTree diff
-    this.allKeys = getAllPaths(localUnEvalTree);
+    this.allKeys = getAllPaths(localUnEvalTreeWithStrigifiedJSFunctions);
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
     const {
