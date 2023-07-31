@@ -80,6 +80,12 @@ export function getSetterConfig(
           modifiedSetterConfig.__setters[setterMethodName].disabled =
             staticConfigSetter.disabled;
         }
+
+        if (staticConfigSetter.accessor) {
+          modifiedSetterConfig.__setters[
+            setterMethodName
+          ].accessor = `${widget.widgetName}.${staticConfigSetter.accessor}`;
+        }
       }
     }
 

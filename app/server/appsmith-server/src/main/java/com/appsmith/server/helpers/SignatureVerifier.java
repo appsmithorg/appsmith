@@ -2,8 +2,8 @@ package com.appsmith.server.helpers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
+import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.bouncycastle.crypto.util.OpenSSHPublicKeyUtil;
 import org.pf4j.util.StringUtils;
 import org.springframework.http.HttpHeaders;
@@ -20,7 +20,8 @@ import static com.appsmith.server.constants.ApiConstants.DATE;
 public class SignatureVerifier {
 
     // Public key for verifying signatures with ED25519 scheme.
-    private static final String PUBLIC_VERIFICATION_KEY = "AAAAC3NzaC1lZDI1NTE5AAAAICNwJ+zx2opXjjOga/YyzRxb2czvNgQ/twA+miCKDIX3";
+    private static final String PUBLIC_VERIFICATION_KEY =
+            "AAAAC3NzaC1lZDI1NTE5AAAAICNwJ+zx2opXjjOga/YyzRxb2czvNgQ/twA+miCKDIX3";
 
     private static final String TIMESTAMP = "timestamp";
 
@@ -29,7 +30,8 @@ public class SignatureVerifier {
     private static final AsymmetricKeyParameter publicKeyParameters;
 
     static {
-        publicKeyParameters = OpenSSHPublicKeyUtil.parsePublicKey(Base64.getDecoder().decode(PUBLIC_VERIFICATION_KEY));
+        publicKeyParameters =
+                OpenSSHPublicKeyUtil.parsePublicKey(Base64.getDecoder().decode(PUBLIC_VERIFICATION_KEY));
     }
 
     /**
@@ -38,7 +40,8 @@ public class SignatureVerifier {
      * @return          If the signature is valid
      */
     public static boolean isSignatureValid(HttpHeaders headers) {
-        if (CollectionUtils.isEmpty(headers.get(CLOUD_SERVICES_SIGNATURE)) || CollectionUtils.isEmpty(headers.get(DATE))) {
+        if (CollectionUtils.isEmpty(headers.get(CLOUD_SERVICES_SIGNATURE))
+                || CollectionUtils.isEmpty(headers.get(DATE))) {
             return false;
         }
         String signature = headers.get(CLOUD_SERVICES_SIGNATURE).get(0);
@@ -75,16 +78,17 @@ public class SignatureVerifier {
         verifier.update(signingDataBytes, 0, signingDataBytes.length);
 
         // Verify the signature to check if the data is tampered
-        if(verifier.verifySignature(signatureBytes)) {
+        if (verifier.verifySignature(signatureBytes)) {
             String decodedData = new String(Base64.getDecoder().decode(signingData));
             // To avoid the replay attacks check if the date provided in the header is within 24hrs and matches with
             // the date used while encoding the data.
             // Data format for ref: String.format("data=%s_timestamp=%s", dataset.toString(), date)
             String timestampFieldFormat = TIMESTAMP + EQUAL;
-            String date = decodedData
-                    .substring(decodedData.indexOf(timestampFieldFormat) + timestampFieldFormat.length());
+            String date =
+                    decodedData.substring(decodedData.indexOf(timestampFieldFormat) + timestampFieldFormat.length());
 
-            return dateHeader.equals(date) && Instant.parse(date).isAfter(Instant.now().minus(24, ChronoUnit.HOURS));
+            return dateHeader.equals(date)
+                    && Instant.parse(date).isAfter(Instant.now().minus(24, ChronoUnit.HOURS));
         }
         return false;
     }

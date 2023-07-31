@@ -29,5 +29,4 @@ class SignatureVerifierTest {
         headers.set(CLOUD_SERVICES_SIGNATURE, UUID.randomUUID().toString());
         Assertions.assertFalse(SignatureVerifier.isSignatureValid(headers));
     }
-
 }

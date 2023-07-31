@@ -304,8 +304,6 @@ describe("Table Widget property pane feature validation", function () {
     cy.get(".bp3-menu-item").eq(0).click({
       force: true,
     });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(3000);
     // Validating the toast message
     cy.get(widgetsPage.toastAction).should("be.visible");
     cy.get(widgetsPage.toastActionText)

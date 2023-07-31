@@ -731,7 +731,7 @@ public enum AppsmithError {
             ErrorType.GIT_CONFIGURATION_ERROR,
             null),
     GIT_GENERIC_ERROR(
-            504,
+            400,
             AppsmithErrorCode.GIT_GENERIC_ERROR.getCode(),
             "Git command execution error: {0}",
             AppsmithErrorAction.DEFAULT,
@@ -897,6 +897,14 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT,
             "Duplicate Configuration",
             ErrorType.BAD_REQUEST,
+            null),
+    INVALID_PROPERTIES_CONFIGURATION(
+            500,
+            AppsmithErrorCode.INVALID_PROPERTIES_CONFIGURATION.getCode(),
+            "Property configuration is wrong or malformed.",
+            AppsmithErrorAction.DEFAULT,
+            "Invalid application property configuration",
+            ErrorType.INTERNAL_ERROR,
             null),
     ;
 

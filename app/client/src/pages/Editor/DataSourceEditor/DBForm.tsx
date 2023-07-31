@@ -131,11 +131,10 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
           </>
         )}
         {viewMode && (
-          <ViewModeWrapper>
+          <ViewModeWrapper data-testid="t--ds-review-section">
             {!_.isNil(formConfig) && !_.isNil(datasource) ? (
               <DatasourceInformation
                 config={formConfig[0]}
-                currentEnvironment={this.props.currentEnvironment}
                 datasource={datasource}
                 viewMode={viewMode}
               />

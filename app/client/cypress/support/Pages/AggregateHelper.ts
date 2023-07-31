@@ -47,6 +47,7 @@ export class AggregateHelper extends ReusableHelper {
   private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
   private lazyCodeEditorFallback = ".t--lazyCodeEditor-fallback";
   private lazyCodeEditorRendered = ".t--lazyCodeEditor-editor";
+  private toolTipSpan = ".rc-tooltip-inner span";
 
   private selectChars = (noOfChars: number) =>
     `${"{leftArrow}".repeat(noOfChars) + "{shift}{cmd}{leftArrow}{backspace}"}`;
@@ -92,8 +93,7 @@ export class AggregateHelper extends ReusableHelper {
 
   public AddDsl(
     dslFile: string,
-    elementToCheckPresenceaftDslLoad: string | "" = "",
-    reloadWithoutCache = true,
+    elementToCheckPresenceaftDslLoad: string | "" = "", //    reloadWithoutCache = true,
   ) {
     let pageid: string, layoutId;
     let appId: string | null;
@@ -125,7 +125,7 @@ export class AggregateHelper extends ReusableHelper {
             //cy.log("Pages resposne is : " + dslDumpResp.body);
             expect(dslDumpResp.status).equal(200);
             this.Sleep(3000); //for dsl to settle in layouts api & then refresh
-            this.RefreshPage(reloadWithoutCache);
+            this.RefreshPage();
             if (elementToCheckPresenceaftDslLoad)
               this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
             this.Sleep(2000); //settling time for dsl
@@ -149,6 +149,22 @@ export class AggregateHelper extends ReusableHelper {
     );
   }
 
+  /**
+   *
+   * @param selector
+   * @param index
+   * Checks if the given selector has class with disabled in the class name
+   * @returns
+   */
+  public AssertElementClassContainsDisabled(selector: string, index = 0) {
+    return this.GetElement(selector)
+      .eq(index)
+      .should(($element) => {
+        const elementClass = $element.attr("class");
+        expect(elementClass).to.include("disabled");
+      });
+  }
+
   public RenameWithInPane(renameVal: string, IsQuery = true) {
     const name = IsQuery ? this.locator._queryName : this.locator._dsName;
     const text = IsQuery ? this.locator._queryNameTxt : this.locator._dsNameTxt;
@@ -160,7 +176,7 @@ export class AggregateHelper extends ReusableHelper {
       .should("have.value", renameVal)
       .blur();
     this.PressEnter();
-    this.AssertElementAbsence(this.locator._btnSpinner, 10000);
+    this.AssertElementVisible(this.locator._editIcon);
     this.Sleep(300); //allow lil more time for new name to settle
   }
 
@@ -285,6 +301,10 @@ export class AggregateHelper extends ReusableHelper {
           });
       }
     });
+  }
+
+  public AssertTooltip(toolTipText: string) {
+    this.GetNAssertContains(this.toolTipSpan, toolTipText);
   }
 
   public RemoveEvaluatedPopUp() {
@@ -608,6 +628,14 @@ export class AggregateHelper extends ReusableHelper {
     cy.get(`${alias}.all`).should("have.length", expectedNumberOfCalls);
   }
 
+  public GetNClickIfPresent(selector: string) {
+    cy.get("body").then(($body) => {
+      if ($body.find(selector).length > 0) {
+        cy.get(selector).click();
+      }
+    });
+  }
+
   public GetNClick(
     selector: string,
     index = 0,
@@ -646,11 +674,20 @@ export class AggregateHelper extends ReusableHelper {
       .wait(waitTimeInterval);
   }
 
-  public HoverElement(selector: string, index = 0, waitTimeInterval = 100) {
-    return (
-      this.ScrollIntoView(selector, index)
+  public HoverElement(
+    selector: string,
+    index = 0,
+    realTouch = true,
+    waitTimeInterval = 100,
+  ) {
+    let chain = this.ScrollIntoView(selector, index);
+    if (realTouch) {
+      chain = chain
         .realTouch({ position: "center" })
-        .realHover({ pointer: "mouse" })
+        .realHover({ pointer: "mouse" });
+    }
+    return (
+      chain
         //.trigger("mousemove", { eventConstructor: "MouseEvent" })
         .wait(waitTimeInterval)
     );
@@ -866,8 +903,7 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public RefreshPage(
-    reloadWithoutCache = true,
-    networkCallAlias = "getWorkspace",
+    networkCallAlias = "getWorkspace", //    reloadWithoutCache = true,
   ) {
     this.Sleep(2000);
     this.assertHelper.AssertDocumentReady();
@@ -1055,6 +1091,17 @@ export class AggregateHelper extends ReusableHelper {
       .find("input")
       .invoke("attr", "value", value)
       .trigger("input");
+    this.Sleep(); //for value set to settle
+  }
+
+  public ValidateFieldInputValue(selector: string, value: string) {
+    this.GetElement(selector)
+      .closest("input")
+      .scrollIntoView({ easing: "linear" })
+      .invoke("val")
+      .then((inputValue) => {
+        expect(inputValue).to.equal(value);
+      });
     this.Sleep(); //for value set to settle
   }
 
@@ -1459,6 +1506,12 @@ export class AggregateHelper extends ReusableHelper {
     return this.GetElement(this.locator._modal).invoke("attr", "id");
   }
 
+  public BrowserNavigation(direction: number) {
+    //passing 1 works as browser back
+    //passing -1 works as browser forward
+    cy.go(direction);
+  }
+
   //Not used:
   // private xPathToCss(xpath: string) {
   //     return xpath
@@ -1480,4 +1533,10 @@ export class AggregateHelper extends ReusableHelper {
   //     }
   //     return items;
   //   }, { timeout: 5000 });
+
+  public AssertTooltip(tooltipText: string) {
+    cy.get(".rc-tooltip-inner").should(($x) => {
+      expect($x).contain(tooltipText);
+    });
+  }
 }
