@@ -48,6 +48,7 @@ import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { updateFlexLayersOnDelete } from "../utils/autoLayout/AutoLayoutUtils";
+import { deleteWidgetFromLayout } from "utils/autoLayout/layoutComponentUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -114,7 +115,13 @@ function* deleteTabChildSaga(
           mainCanvasWidth,
           metaProps,
         );
-      yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
+      const widgetsAfterUpdatingLayout: CanvasWidgetsReduxState =
+        deleteWidgetFromLayout(
+          widgetsAfterUpdatingFlexLayers,
+          widgetId,
+          tabWidget.parentId,
+        );
+      yield put(updateAndSaveLayout(widgetsAfterUpdatingLayout));
       yield call(postDelete, widgetId, label, otherWidgetsToDelete);
     }
   }
@@ -246,7 +253,13 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
             mainCanvasWidth,
             metaProps,
           );
-        yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
+        const widgetsAfterUpdatingLayout: CanvasWidgetsReduxState =
+          deleteWidgetFromLayout(
+            widgetsAfterUpdatingFlexLayers,
+            widgetId,
+            parentId,
+          );
+        yield put(updateAndSaveLayout(widgetsAfterUpdatingLayout));
         yield put(generateAutoHeightLayoutTreeAction(true, true));
         const analyticsEvent = isShortcut
           ? "WIDGET_DELETE_VIA_SHORTCUT"
@@ -329,6 +342,11 @@ function* deleteAllSelectedWidgetsSaga(
           isMobile,
           mainCanvasWidth,
           metaProps,
+        );
+        widgetsAfterUpdatingFlexLayers = deleteWidgetFromLayout(
+          widgetsAfterUpdatingFlexLayers,
+          widgetId,
+          parentId,
         );
       }
     }

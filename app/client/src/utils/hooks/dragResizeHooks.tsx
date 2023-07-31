@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -140,11 +141,12 @@ export const useWidgetDragResize = () => {
       [dispatch],
     ),
     setDraggingCanvas: useCallback(
-      (draggedOn?: string) => {
+      (draggedOn?: string, layoutId?: string) => {
         dispatch({
           type: ReduxActionTypes.SET_DRAGGING_CANVAS,
           payload: {
             draggedOn,
+            selectedLayout: layoutId,
           },
         });
       },

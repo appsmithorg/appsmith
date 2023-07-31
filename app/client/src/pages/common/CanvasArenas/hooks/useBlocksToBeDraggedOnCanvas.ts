@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
@@ -57,6 +58,7 @@ export type WidgetDraggingBlock = {
 export const useBlocksToBeDraggedOnCanvas = ({
   alignItems,
   direction,
+  layoutId,
   noPad,
   snapColumnSpace,
   snapRows,
@@ -457,6 +459,8 @@ export const useBlocksToBeDraggedOnCanvas = ({
 
   const isChildOfCanvas = dragParent === widgetId;
   const isCurrentDraggedCanvas = dragDetails.draggedOn === widgetId;
+  const isCurrentDraggedLayout = dragDetails.selectedLayout === layoutId;
+
   const isNewWidgetInitialTargetCanvas =
     isNewWidget && widgetId === MAIN_CONTAINER_WIDGET_ID;
   const parentDiff = isDragging
@@ -500,6 +504,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     getSnappedXY,
     isChildOfCanvas,
     isCurrentDraggedCanvas,
+    isCurrentDraggedLayout,
     isDragging,
     isNewWidget,
     isNewWidgetInitialTargetCanvas,

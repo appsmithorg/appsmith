@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
@@ -15,6 +16,7 @@ export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];
   canvasId: string;
   isCurrentDraggedCanvas: boolean;
+  isCurrentDraggedLayout: boolean;
   isDragging: boolean;
   useAutoLayout?: boolean;
 }
@@ -29,6 +31,7 @@ export const useAutoLayoutHighlights = ({
   blocksToDraw,
   canvasId,
   isCurrentDraggedCanvas,
+  isCurrentDraggedLayout,
   isDragging,
   useAutoLayout,
 }: AutoLayoutHighlightProps) => {
@@ -40,6 +43,8 @@ export const useAutoLayoutHighlights = ({
   const highlights = useRef<HighlightInfo[]>([]);
   let lastActiveHighlight: HighlightInfo | undefined;
   let isFillWidget = false;
+  let draggedWidgetTypes: string[] = [];
+  let currentLayoutId: string | undefined;
 
   /**
    * START AUTO LAYOUT OFFSET CALCULATION
@@ -51,11 +56,16 @@ export const useAutoLayoutHighlights = ({
     highlights.current = [];
   };
 
-  const checkForFillWidget = (): boolean => {
+  const checkForFillWidget = (): {
+    isFillWidget: boolean;
+    widgetTypes: string[];
+  } => {
+    if (!blocksToDraw?.length) return { isFillWidget: false, widgetTypes: [] };
     let flag = false;
-    if (!blocksToDraw?.length) return flag;
+    const arr: string[] = [];
     for (const block of blocksToDraw) {
       const widget = allWidgets[block.widgetId];
+      arr.push(block.type);
       if (widget) {
         if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
           flag = true;
@@ -71,18 +81,20 @@ export const useAutoLayoutHighlights = ({
         }
       }
     }
-    return flag;
+    return { isFillWidget: flag, widgetTypes: arr };
   };
 
-  const calculateHighlights = (snapColumnSpace: number): HighlightInfo[] => {
+  const calculateHighlights = (
+    snapColumnSpace: number,
+    layoutId?: string,
+  ): HighlightInfo[] => {
     cleanUpTempStyles();
+    currentLayoutId = layoutId;
     let left = 0,
       top = 0;
 
     const mainCanvasElement = document.querySelector(".flex-container-0");
-    const currCanvasElement = document.querySelector(
-      `.flex-container-${canvasId}`,
-    );
+    const currCanvasElement = document.querySelector(`#layout-${layoutId}`);
 
     if (mainCanvasElement && currCanvasElement) {
       const { left: mainLeft, top: mainTop } =
@@ -93,9 +105,18 @@ export const useAutoLayoutHighlights = ({
       left = currLeft - mainLeft;
       top = currTop - mainTop;
     }
-    if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
+
+    if (
+      useAutoLayout &&
+      isDragging &&
+      isCurrentDraggedCanvas &&
+      isCurrentDraggedLayout
+    ) {
       if (!blocksToDraw || !blocksToDraw.length) return [];
-      isFillWidget = checkForFillWidget();
+      const data: { isFillWidget: boolean; widgetTypes: string[] } =
+        checkForFillWidget();
+      isFillWidget = data.isFillWidget;
+      draggedWidgetTypes = data.widgetTypes;
       highlights.current = deriveHighlightsFromLayers(
         allWidgets,
         widgetPositions,
@@ -105,6 +126,8 @@ export const useAutoLayoutHighlights = ({
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
         isMobile,
+        currentLayoutId,
+        draggedWidgetTypes,
       );
     }
     // console.log("#### highlights", highlights.current);
@@ -144,7 +167,11 @@ export const useAutoLayoutHighlights = ({
       top = currTop - mainTop;
     }
 
-    if (!highlights || !highlights?.current?.length)
+    if (!highlights || !highlights?.current?.length) {
+      const data: { isFillWidget: boolean; widgetTypes: string[] } =
+        checkForFillWidget();
+      isFillWidget = data.isFillWidget;
+      draggedWidgetTypes = data.widgetTypes;
       highlights.current = deriveHighlightsFromLayers(
         allWidgets,
         widgetPositions,
@@ -154,7 +181,10 @@ export const useAutoLayoutHighlights = ({
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
         isMobile,
+        currentLayoutId,
+        draggedWidgetTypes,
       );
+    }
 
     const highlight: HighlightInfo | undefined = getHighlightPayload(
       highlights.current,

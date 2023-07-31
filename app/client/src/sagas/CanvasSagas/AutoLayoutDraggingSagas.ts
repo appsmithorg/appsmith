@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
@@ -26,6 +27,7 @@ import {
 import type {
   HighlightInfo,
   FlexLayer,
+  LayoutComponentProps,
 } from "utils/autoLayout/autoLayoutTypes";
 import { updatePositionsOfParentAndSiblings } from "utils/autoLayout/positionUtils";
 import {
@@ -34,6 +36,12 @@ import {
 } from "selectors/editorSelectors";
 import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
 import { BlueprintOperationTypes } from "widgets/constants";
+import {
+  addWidgetToTemplate,
+  getLayoutComponent,
+  getLayoutFromId,
+  updateLayoutById,
+} from "utils/autoLayout/layoutComponentUtils";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{
@@ -102,7 +110,16 @@ function* addWidgetAndReorderSaga(
       },
     );
 
-    yield put(updateAndSaveLayout(updatedWidgetsOnMove));
+    const widgetsAfterLayoutUpdation = addToLayout(
+      updatedWidgetsOnMove,
+      dropPayload,
+      [newWidget.newWidgetId],
+      parentId,
+    );
+
+    console.log("#### drop", { dropPayload, widgetsAfterLayoutUpdation });
+
+    yield put(updateAndSaveLayout(widgetsAfterLayoutUpdation));
     log.debug(
       "Auto-layout : add new widget took",
       performance.now() - start,
@@ -117,6 +134,48 @@ function* addWidgetAndReorderSaga(
       },
     });
   }
+}
+
+function addToLayout(
+  widgets: CanvasWidgetsReduxState,
+  highlight: HighlightInfo,
+  movedWidgets: string[],
+  parentId: string,
+): CanvasWidgetsReduxState {
+  const canvas = widgets[parentId];
+  const parentLayout: LayoutComponentProps[] = canvas.layout;
+  if (!parentLayout) return widgets;
+  const { layoutId, rowIndex } = highlight;
+  const layout: LayoutComponentProps | null = getLayoutFromId(
+    parentLayout,
+    layoutId,
+  );
+  if (!layout) return widgets;
+  const Comp = getLayoutComponent(layout.layoutType);
+  console.log("#### template", { template: layout.childTemplate });
+  let newWidgets: string[] | LayoutComponentProps[] = movedWidgets;
+  if (highlight.isNewLayer && layout.childTemplate) {
+    const childLayout: LayoutComponentProps = addWidgetToTemplate(
+      layout.childTemplate,
+      movedWidgets,
+    );
+    console.log("#### child layout", childLayout);
+    newWidgets = [childLayout];
+  }
+  const updatedLayout: LayoutComponentProps = Comp.addChild(
+    layout,
+    newWidgets,
+    rowIndex,
+  );
+  return {
+    ...widgets,
+    [parentId]: {
+      ...canvas,
+      layout: canvas.layout.map((each: LayoutComponentProps) =>
+        updateLayoutById(each, updatedLayout),
+      ),
+    },
+  };
 }
 
 function* autoLayoutReorderSaga(

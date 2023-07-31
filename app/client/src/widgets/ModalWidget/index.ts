@@ -12,7 +12,10 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { get } from "lodash";
-import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
+import type {
+  FlexLayer,
+  LayoutComponentProps,
+} from "utils/autoLayout/autoLayoutTypes";
 import {
   FlexLayerAlignment,
   Positioning,
@@ -129,6 +132,38 @@ export const CONFIG = {
                     version: 1,
                   },
                 },
+                {
+                  type: "BUTTON_WIDGET",
+                  position: {
+                    left: 47,
+                    top: 18,
+                  },
+                  size: {
+                    rows: 4,
+                    cols: 16,
+                  },
+                  props: {
+                    text: "Confirm",
+                    buttonStyle: "PRIMARY_BUTTON",
+                    version: 1,
+                  },
+                },
+                {
+                  type: "BUTTON_WIDGET",
+                  position: {
+                    left: 47,
+                    top: 18,
+                  },
+                  size: {
+                    rows: 4,
+                    cols: 16,
+                  },
+                  props: {
+                    text: "Confirm",
+                    buttonStyle: "PRIMARY_BUTTON",
+                    version: 1,
+                  },
+                },
               ],
               operations: [
                 {
@@ -221,9 +256,8 @@ export const CONFIG = {
               (child) => child.type === "ICON_BUTTON_WIDGET",
             )?.[0];
 
-            const [buttonWidget1, buttonWidget2] = children.filter(
-              (child) => child.type === "BUTTON_WIDGET",
-            );
+            const [buttonWidget1, buttonWidget2, buttonWidget3, buttonWidget4] =
+              children.filter((child) => child.type === "BUTTON_WIDGET");
 
             //Create flex layer object based on the children
             const flexLayers: FlexLayer[] = [
@@ -242,12 +276,174 @@ export const CONFIG = {
               {
                 children: [
                   {
+                    id: buttonWidget3.widgetId,
+                    align: FlexLayerAlignment.Start,
+                  },
+                  {
+                    id: buttonWidget4.widgetId,
+                    align: FlexLayerAlignment.End,
+                  },
+                ],
+              },
+              {
+                children: [
+                  {
                     id: buttonWidget1.widgetId,
                     align: FlexLayerAlignment.End,
                   },
                   {
                     id: buttonWidget2.widgetId,
                     align: FlexLayerAlignment.End,
+                  },
+                ],
+              },
+            ];
+
+            /**
+             * HEADER 1 (ROW)
+             *   ROW (DT)
+             *   ROW (DT)
+             *
+             * HEADER 2 (COLUMN)
+             *   ROW (DT)
+             *   ROW (DT)
+             *
+             * HEADER 3 (ROW)
+             *  ROW (DT) (WRAP)
+             */
+
+            /**
+             * HEADER 1 (ROW, BOX1, BOX2)
+             *
+             * HEADER 2 (COLUMN, BOX3, BOX4)
+             *
+             * HEADER 3 (ROW, BOX5)
+             */
+
+            const layout: LayoutComponentProps[] = [
+              {
+                layoutId: "1",
+                layoutStyle: {
+                  rowGap: 12,
+                },
+                layoutType: "COLUMN",
+                layout: [
+                  {
+                    layoutId: "2",
+                    layoutStyle: {
+                      alignSelf: "stretch",
+                      columnGap: 4,
+                    },
+                    layoutType: "ROW", // HEADER3 titleChildren: [], icons: [],
+                    layout: [
+                      {
+                        layoutId: "3",
+                        layoutStyle: {
+                          columnGap: 4,
+                          flexGrow: 1,
+                          border: "1px dashed #979797",
+                        },
+                        layoutType: "ROW",
+                        isDropTarget: true,
+                        // widgetsAllowed: ["1D"],
+                        layout: [textWidget.widgetId],
+                        rendersWidgets: true,
+                      },
+                      {
+                        layoutId: "4",
+                        layoutStyle: {
+                          columnGap: 4,
+                          minWidth: "30px",
+                          border: "1px dashed #979797",
+                        },
+                        layoutType: "ROW",
+                        isDropTarget: true,
+                        widgetsAllowed: ["ICON_BUTTON_WIDGET"],
+                        layout: [iconWidget.widgetId],
+                        rendersWidgets: true,
+                      },
+                    ],
+                  },
+                  {
+                    layoutId: "5",
+                    layoutStyle: {
+                      alignSelf: "stretch",
+                      columnGap: 4,
+                      flexWrap: "wrap",
+                      height: "auto",
+                      maxHeight: "300px",
+                      overflow: "auto",
+                    },
+                    layoutType: "ROW", // MAIN
+                    layout: [
+                      {
+                        layoutId: "6",
+                        layoutStyle: {
+                          minWidth: "220px",
+                          rowGap: 12,
+                          flexGrow: 3,
+                          border: "1px dashed #979797",
+                        },
+                        layoutType: "COLUMN",
+                        isDropTarget: true,
+                        layout: [
+                          {
+                            isDropTarget: true,
+                            layoutId: "7",
+                            layoutStyle: {
+                              alignSelf: "stretch",
+                              columnGap: 4,
+                              rowGap: 12,
+                              border: "1px dashed #979797",
+                            },
+                            layoutType: "ALIGNED_ROW",
+                            layout: [[], [buttonWidget3.widgetId], []],
+                            rendersWidgets: true,
+                          },
+                        ],
+                      },
+                      {
+                        layoutId: "9",
+                        layoutStyle: {
+                          flexGrow: 1,
+                          minWidth: "220px",
+                          rowGap: 12,
+                          border: "1px dashed #979797",
+                        },
+                        layoutType: "COLUMN",
+                        isDropTarget: true,
+                        layout: [
+                          {
+                            isDropTarget: true,
+                            layoutId: "10",
+                            layoutStyle: {
+                              alignSelf: "stretch",
+                              columnGap: 4,
+                              rowGap: 12,
+                              border: "1px dashed #979797",
+                            },
+                            layoutType: "ALIGNED_ROW",
+                            layout: [[], [], [buttonWidget4.widgetId]],
+                            rendersWidgets: true,
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    isDropTarget: true,
+                    layoutId: "8",
+                    layoutStyle: {
+                      alignSelf: "stretch",
+                      border: "1px dashed #979797",
+                    },
+                    layoutType: "ALIGNED_ROW",
+                    layout: [
+                      [],
+                      [],
+                      [buttonWidget1.widgetId, buttonWidget2.widgetId],
+                    ],
+                    rendersWidgets: true,
                   },
                 ],
               },
@@ -266,6 +462,7 @@ export const CONFIG = {
               },
               [canvasWidget.widgetId]: {
                 flexLayers,
+                layout,
                 useAutoLayout: true,
                 positioning: Positioning.Vertical,
                 bottomRow: 100,

@@ -51,10 +51,7 @@ const Container = styled.div<{
         })`};
       right: 0;
       bottom: 0;
-      height: ${(props) =>
-        `calc(100vh - (${props.headerHeight}px + ${
-          props.isEditMode ? props.smallHeaderHeight : "0px"
-        }))`};
+      height: auto;
       z-index: ${(props) => props.zIndex};
       width: 100%;
       display: flex;
@@ -287,7 +284,6 @@ export default function ModalComponent(props: ModalComponentProps) {
         <Container
           bottom={props.bottom}
           headerHeight={headerHeight}
-          height={props.height}
           isEditMode={props.isEditMode}
           left={props.left}
           maxWidth={props.maxWidth}

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Colors } from "constants/Colors";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
@@ -179,7 +180,6 @@ export const useRenderBlocksOnCanvas = (
           totalScrollTop > parentOffsetTop
         )
           val += totalScrollTop - parentOffsetTop;
-
         // roundRect is not currently supported in firefox.
         if (canvasCtx.roundRect)
           canvasCtx.roundRect(posX, posY - val, width, height, 4);

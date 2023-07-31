@@ -360,7 +360,7 @@ export const Resizable = function Resizable(props: ResizableProps) {
       {(_props) => (
         <ResizeWrapper
           className={wrapperClassName}
-          style={{ ..._props, ...resizeWrapperStyle }}
+          style={{ ..._props, ...resizeWrapperStyle, height: "auto" }}
         >
           {props.children}
           {props.enableHorizontalResize && renderHandles}

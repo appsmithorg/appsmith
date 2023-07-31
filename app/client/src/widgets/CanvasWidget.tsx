@@ -1,9 +1,9 @@
+/* eslint-disable no-console */
 import {
   LayoutDirection,
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
@@ -23,8 +23,12 @@ import ContainerWidget from "widgets/ContainerWidget/widget";
 import type { CanvasWidgetStructure, DSLWidget } from "./constants";
 import ContainerComponent from "./ContainerWidget/component";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { AutoLayoutDropTarget } from "components/editorComponents/AutoLayoutDropTarget";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import type { LayoutComponentProps } from "utils/autoLayout/autoLayoutTypes";
+import { getLayoutComponent } from "utils/autoLayout/layoutComponentUtils";
+import { isArray } from "lodash";
+import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import { AutoLayoutDropTarget } from "components/editorComponents/AutoLayoutDropTarget";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -38,7 +42,10 @@ class CanvasWidget extends ContainerWidget {
     return {};
   }
 
-  getCanvasProps(): DSLWidget & { minHeight: number } {
+  getCanvasProps(): DSLWidget & {
+    minHeight: number;
+    layout: LayoutComponentProps[];
+  } {
     return {
       ...this.props,
       parentRowSpace: 1,
@@ -49,6 +56,7 @@ class CanvasWidget extends ContainerWidget {
       detachFromLayout: true,
       minHeight: this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX,
       shouldScrollContents: false,
+      layout: this.props.layout || [],
     };
   }
 
@@ -142,7 +150,7 @@ class CanvasWidget extends ContainerWidget {
     );
   }
 
-  renderFlexCanvas() {
+  renderFlexBoxCanvas() {
     const stretchFlexBox = !this.props.children || !this.props.children?.length;
     return (
       <FlexBoxComponent
@@ -153,6 +161,45 @@ class CanvasWidget extends ContainerWidget {
       >
         {this.renderChildren()}
       </FlexBoxComponent>
+    );
+  }
+
+  renderFlexCanvas() {
+    const layout: LayoutComponentProps[] = this.props
+      .layout as LayoutComponentProps[];
+    if (!layout) return this.renderFlexBoxCanvas();
+    const map: { [key: string]: any } = {};
+    const arr = this.renderChildren();
+    if (isArray(arr)) {
+      for (const child of arr) {
+        map[(child as JSX.Element).props?.widgetId] = child;
+      }
+    }
+    return (
+      <>
+        {layout.map((item: LayoutComponentProps, index: number) => {
+          const Comp = getLayoutComponent(item.layoutType);
+          const snapRows = getCanvasSnapRows(
+            this.props.bottomRow,
+            this.props.mobileBottomRow,
+            this.props.isMobile,
+            this.props.appPositioningType === AppPositioningTypes.AUTO,
+          );
+          console.log("####", { item });
+          return (
+            <Comp
+              childrenMap={map}
+              containerProps={{
+                ...this.getCanvasProps(),
+                snapRows,
+                snapSpaces: this.getSnapSpaces(),
+              }}
+              key={index}
+              {...item}
+            />
+          );
+        })}
+      </>
     );
   }
 
@@ -203,6 +250,7 @@ class CanvasWidget extends ContainerWidget {
 
   getCanvasView() {
     if (this.props.appPositioningType === AppPositioningTypes.AUTO) {
+      if (this.props.layout) return this.renderFlexCanvas();
       return (
         <AutoLayoutDropTarget widgetId={this.props.widgetId}>
           {this.renderAsContainerComponent(this.getCanvasProps())}

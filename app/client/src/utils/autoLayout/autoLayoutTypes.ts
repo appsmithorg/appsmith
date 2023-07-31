@@ -1,6 +1,8 @@
 import type { FlattenedWidgetProps } from "widgets/constants";
 import type { FlexLayerAlignment } from "./constants";
 import type { ReactNode } from "react";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export type AlignmentColumnInfo = {
   [key in FlexLayerAlignment]: number;
@@ -51,6 +53,7 @@ export interface HighlightInfo {
   isVertical: boolean; // determines if the highlight is vertical or horizontal.
   canvasId: string; // widgetId of the canvas to which the highlight belongs.
   dropZone: DropZone; // size of the drop zone of this highlight.
+  layoutId: string; // layoutId of the layout to which the highlight belongs.
 }
 
 /**
@@ -88,3 +91,22 @@ export interface Row extends PositionsAlignmentInfo {
 /**
  * End: Position utils types
  */
+
+export interface LayoutComponentProps {
+  layoutId: string;
+  layoutStyle?: { [key: string]: string | number | number[] | string[] };
+  layoutType: string;
+  layout: LayoutComponentProps[] | string[] | string[][];
+  isDropTarget?: boolean;
+  rendersWidgets?: boolean;
+  widgetsAllowed?: string[];
+  childTemplate?: LayoutComponentProps;
+  insertChild?: boolean;
+  canBeDeleted?: boolean;
+
+  childrenMap?: { [id: string]: JSX.Element | ReactNode };
+  containerProps?: ContainerWidgetProps<WidgetProps> & {
+    snapRows: number;
+    snapSpaces: any;
+  };
+}
