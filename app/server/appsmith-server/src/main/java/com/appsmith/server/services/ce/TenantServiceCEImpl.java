@@ -120,6 +120,12 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
         return repository
                 .findBySlug(FieldName.DEFAULT)
+                .map(tenant -> {
+                    if (tenant.getTenantConfiguration() == null) {
+                        tenant.setTenantConfiguration(new TenantConfiguration());
+                    }
+                    return tenant;
+                })
                 .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)));
     }
 
