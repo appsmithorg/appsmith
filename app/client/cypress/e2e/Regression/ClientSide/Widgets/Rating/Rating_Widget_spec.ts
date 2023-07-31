@@ -5,14 +5,15 @@ import {
   fakerHelper,
   draggableWidgets,
   entityExplorer,
+  deployMode,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-import widgetsLoc from "../../../../../locators/Widgets.json";
-
 describe("Rating widet testcases", () => {
-  it("1. Validate Max rating and Default rating", () => {
+  before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.RATING, 450, 200);
+  });
+  it("1. Validate Max rating and Default rating", () => {
     agHelper.GetElement(RATING_WIDGET.star_icon).should("have.length", 10);
     // assert error on decimal value in max rating
     propPane.UpdatePropertyFieldValue("Max rating", "1.5");
@@ -77,5 +78,27 @@ describe("Rating widet testcases", () => {
     agHelper.VerifyEvaluatedErrorMessage(
       "This value must be less than or equal to max count",
     );
+  });
+
+  it("2. Validations on Tooltip values", () => {
+    propPane.UpdatePropertyFieldValue("Max rating", "10");
+    propPane.UpdatePropertyFieldValue("Default rating", "5");
+    // set list of string as values for tooltips in UpdatePropertyFieldValue
+    propPane.UpdatePropertyFieldValue("Tooltips", "[1,2,3]");
+    propPane.UpdatePropertyFieldValue("Tooltips", "Bad,Good,Neutral");
+    agHelper.VerifyEvaluatedErrorMessage(
+      "This value does not evaluate to type Array<string>",
+    );
+    propPane.UpdatePropertyFieldValue("Tooltips", '["Worse","Bad","Neutral"]');
+    deployMode.DeployApp(RATING_WIDGET.ratingwidget);
+    agHelper.GetNClick(RATING_WIDGET.star_icon, 12, true, 0);
+    agHelper
+      .GetElement(RATING_WIDGET.star_icon_filled(100))
+      .should("have.length", 7);
+    deployMode.NavigateBacktoEditor();
+  });
+
+  it("3. Read data for tooltip from query", () => {
+    cy.log("");
   });
 });
