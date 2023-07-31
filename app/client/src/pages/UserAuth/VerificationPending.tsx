@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import Container from "./Container";
 import {
   createMessage,
@@ -9,11 +9,10 @@ import {
   VERIFICATION_PENDING_TITLE,
 } from "@appsmith/constants/messages";
 import type { RouteComponentProps } from "react-router-dom";
-import { Link, Text, toast } from "design-system";
+import { Link, Text } from "design-system";
 import styled from "styled-components";
 import { AUTH_LOGIN_URL } from "constants/routes";
-import UserApi from "@appsmith/api/UserApi";
-import * as Sentry from "@sentry/react";
+import { useResendEmailVerification } from "./helpers";
 
 const Body = styled.div`
   display: flex;
@@ -28,19 +27,7 @@ const VerificationPending = (props: RouteComponentProps<{ email: string }>) => {
   const queryParams = new URLSearchParams(props.location.search);
   const email = queryParams.get("email");
 
-  const resendVerificationLink = useCallback(() => {
-    if (!email) {
-      Sentry.captureMessage("Email not found for retry verification");
-      return;
-    }
-    UserApi.resendEmailVerification(email)
-      .then(() => {
-        toast.show("Verification email sent!", { kind: "success" });
-      })
-      .catch((error) => {
-        toast.show(error.message, { kind: "error" });
-      });
-  }, [email]);
+  const resendVerificationLink = useResendEmailVerification(email);
 
   return (
     <Container title={createMessage(VERIFICATION_PENDING_TITLE)}>

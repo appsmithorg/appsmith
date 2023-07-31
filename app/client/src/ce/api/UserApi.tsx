@@ -88,6 +88,7 @@ export class UserApi extends Api {
   static verifyResetPasswordTokenURL = `${UserApi.usersURL}/verifyPasswordResetToken`;
   static resetPasswordURL = `${UserApi.usersURL}/resetPassword`;
   static resendEmailVerificationURL = `${UserApi.usersURL}/resendEmailVerification`;
+  static verifyUserEmailURL = `${UserApi.usersURL}/verifyEmailVerificationToken`;
   static inviteUserURL = "v1/users/invite";
   static verifyInviteTokenURL = `${UserApi.inviteUserURL}/verify`;
   static confirmUserInviteURL = `${UserApi.inviteUserURL}/confirm`;
@@ -227,6 +228,10 @@ export class UserApi extends Api {
 
   static resendEmailVerification(email: string) {
     return Api.post(UserApi.resendEmailVerificationURL, { email });
+  }
+
+  static verifyUser(token: string, email: string): AxiosPromise<ApiResponse> {
+    return Api.post(UserApi.verifyUserEmailURL, { token, email });
   }
 }
 

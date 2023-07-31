@@ -130,6 +130,12 @@ export const VERIFICATION_PENDING_NO_EMAIL = () =>
   `No email in your inbox or spam folder?`;
 
 export const VERIFICATION_PENDING_RESEND_LINK = () => `Resend the link`;
+
+export const VERIFY_ERROR_ALREADY_VERIFIED_TITLE = () =>
+  `Email already verified`;
+
+export const VERIFY_ERROR_EXPIRED_TITLE = () => "Oops, this link has expired";
+
 export const PRIVACY_POLICY_LINK = () => `Privacy policy`;
 export const TERMS_AND_CONDITIONS_LINK = () => `Terms and conditions`;
 

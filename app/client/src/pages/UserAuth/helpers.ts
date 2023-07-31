@@ -1,5 +1,9 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SubmissionError } from "redux-form";
+import { useCallback } from "react";
+import * as Sentry from "@sentry/react";
+import UserApi from "@appsmith/api/UserApi";
+import { toast } from "design-system";
 
 export type LoginFormValues = {
   username?: string;
@@ -105,4 +109,21 @@ export const forgotPasswordSubmitHandler = (
     error.email = "";
     throw new SubmissionError(error);
   });
+};
+
+export const useResendEmailVerification = (email: string | null) => {
+  const resendVerificationLink = useCallback(() => {
+    if (!email) {
+      Sentry.captureMessage("Email not found for retry verification");
+      return;
+    }
+    UserApi.resendEmailVerification(email)
+      .then(() => {
+        toast.show("Verification email sent!", { kind: "success" });
+      })
+      .catch((error) => {
+        toast.show(error.message, { kind: "error" });
+      });
+  }, [email]);
+  return resendVerificationLink;
 };
