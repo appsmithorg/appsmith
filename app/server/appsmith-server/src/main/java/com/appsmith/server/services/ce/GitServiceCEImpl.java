@@ -1797,18 +1797,23 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 GitAuth gitAuth = gitApplicationMetadata.getGitAuth();
 
                                 // Create a Mono to fetch the status from remote
-                                Mono<String> fetchRemoteMono = executionTimeLogging.measureTask(
-                                        "getStatus->gitExecutor.fetchRemote",
-                                        gitExecutor
-                                                .fetchRemote(
-                                                        repoSuffix,
-                                                        gitAuth.getPublicKey(),
-                                                        gitAuth.getPrivateKey(),
-                                                        false,
-                                                        branchName,
-                                                        false)
-                                                .onErrorResume(error -> Mono.error(new AppsmithException(
-                                                        AppsmithError.GIT_GENERIC_ERROR, error.getMessage()))));
+                                Mono<String> fetchRemoteMono;
+                                if (compareRemote) {
+                                    fetchRemoteMono = executionTimeLogging.measureTask(
+                                            "getStatus->gitExecutor.fetchRemote",
+                                            gitExecutor
+                                                    .fetchRemote(
+                                                            repoSuffix,
+                                                            gitAuth.getPublicKey(),
+                                                            gitAuth.getPrivateKey(),
+                                                            false,
+                                                            branchName,
+                                                            false)
+                                                    .onErrorResume(error -> Mono.error(new AppsmithException(
+                                                            AppsmithError.GIT_GENERIC_ERROR, error.getMessage()))));
+                                } else {
+                                    fetchRemoteMono = Mono.just("ignored");
+                                }
 
                                 Mono<ApplicationJson> exportAppMono = executionTimeLogging.measureTask(
                                         "getStatus->exportApplicationById",
@@ -1863,17 +1868,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     .cache());
 
                     try {
-                        Mono<GitStatusDTO> gitStatusDTOMono = executionTimeLogging
-                                .measureTask(
-                                        "getStatus->gitExecutor.fetchRemote",
-                                        gitExecutor.fetchRemote(
-                                                tuple.getT1(),
-                                                tuple.getT2().getPublicKey(),
-                                                tuple.getT2().getPrivateKey(),
-                                                true,
-                                                branchName,
-                                                false))
-                                .then(branchedStatusMono)
+                        return branchedStatusMono
                                 // Remove any files which are copied by hard resetting the repo
                                 .then(executionTimeLogging.measureTask(
                                         "getStatus->gitExecutor.resetToLastCommit",
@@ -1891,21 +1886,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .onErrorResume(error -> Mono.error(new AppsmithException(
                                         AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage())));
 
-                        if (compareRemote) {
-                            return executionTimeLogging
-                                    .measureTask(
-                                            "getStatus->gitExecutor.fetchRemote",
-                                            gitExecutor.fetchRemote(
-                                                    tuple.getT1(),
-                                                    tuple.getT2().getPublicKey(),
-                                                    tuple.getT2().getPrivateKey(),
-                                                    true,
-                                                    branchName,
-                                                    false))
-                                    .then(gitStatusDTOMono);
-                        } else {
-                            return gitStatusDTOMono;
-                        }
                     } catch (GitAPIException | IOException e) {
                         log.error("error occurred", e);
                         return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, e.getMessage()));
