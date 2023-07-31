@@ -59,7 +59,7 @@ const PopoverStyles = createGlobalStyle<{
     border-radius: 0;
   }
 
-  .${Classes.POPOVER2_TARGET} {
+  .menu-button-popover-target {
     height: 100%;
   }
 
@@ -389,6 +389,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
         parentWidth={width - WidgetContainerDiff}
       />
       <Popover2
+        className="menu-button-popover-target"
         content={
           <PopoverContent
             backgroundColor={menuColor}
