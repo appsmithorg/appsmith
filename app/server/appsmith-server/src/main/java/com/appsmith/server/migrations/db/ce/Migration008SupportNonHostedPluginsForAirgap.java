@@ -18,11 +18,11 @@ import static com.appsmith.external.constants.PluginConstants.PackageName.DYNAMO
 import static com.appsmith.external.constants.PluginConstants.PackageName.FIRESTORE_PLUGIN;
 import static com.appsmith.external.constants.PluginConstants.PackageName.REDSHIFT_PLUGIN;
 
-@ChangeUnit(order = "006", id = "support-non-self-hosted-plugins-for-airgap", author = " ")
-public class Migration006SupportNonHostedPluginsForAirgap {
+@ChangeUnit(order = "008", id = "support-non-self-hosted-plugins-for-airgap", author = " ")
+public class Migration008SupportNonHostedPluginsForAirgap {
     private final MongoTemplate mongoTemplate;
 
-    public Migration006SupportNonHostedPluginsForAirgap(MongoTemplate mongoTemplate) {
+    public Migration008SupportNonHostedPluginsForAirgap(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 

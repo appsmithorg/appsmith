@@ -24,9 +24,9 @@ import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
-@ChangeUnit(order = "012", id = "rename-indexes-with-long-names")
+@ChangeUnit(order = "016", id = "rename-indexes-with-long-names")
 @RequiredArgsConstructor
-public class Migration012RenameIndexesWithLongNames {
+public class Migration016RenameIndexesWithLongNames {
 
     private final MongoTemplate mongoTemplate;
 
@@ -125,7 +125,7 @@ public class Migration012RenameIndexesWithLongNames {
                         fieldName(QPermissionGroup.permissionGroup.deleted),
                         fieldName(QPermissionGroup.permissionGroup.deletedAt))
                 .named(
-                        Migration008CreateIndexDefaultDomainIdDefaultDomainTypeDropIndexDefaultWorkspaceId
+                        Migration011CreateIndexDefaultDomainIdDefaultDomainTypeDropIndexDefaultWorkspaceId
                                 .newPermissionGroupIndexNameDefaultDomainIdDefaultDomainType);
         ensureIndexes(mongoTemplate, PermissionGroup.class, newIndexDefaultDomainIdDefaultDomainTypeDeletedDeletedAt);
 

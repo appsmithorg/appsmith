@@ -12,11 +12,11 @@ import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
-@ChangeUnit(order = "011", id = "app-id-plugin-type-index-for-new-action", author = " ")
-public class Migration011AddPluginTypeIndexToNewActionCollection {
+@ChangeUnit(order = "015", id = "app-id-plugin-type-index-for-new-action", author = " ")
+public class Migration015AddPluginTypeIndexToNewActionCollection {
     private final MongoTemplate mongoTemplate;
 
-    public Migration011AddPluginTypeIndexToNewActionCollection(MongoTemplate mongoTemplate) {
+    public Migration015AddPluginTypeIndexToNewActionCollection(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 

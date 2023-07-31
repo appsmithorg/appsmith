@@ -160,7 +160,7 @@ export function Categories({
               )}
               <SettingName active={active}>{config.title}</SettingName>
               {config?.needsUpgrade && (
-                <Tag isClosable={false}>
+                <Tag data-testid="t--business-tag" isClosable={false}>
                   {createMessage(
                     config?.isEnterprise ? ENTERPRISE_TAG : BUSINESS_TAG,
                   )}

@@ -144,7 +144,9 @@ describe("Widget property navigation", () => {
     _.agHelper.RefreshPage();
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 100, 200);
     _.agHelper.GetNClick(OneClickBindingLocator.datasourceDropdownSelector);
-    _.agHelper.GetNClick(OneClickBindingLocator.datasourceSelector());
+    _.agHelper.GetNClick(
+      OneClickBindingLocator.datasourceSelector("sample Movies"),
+    );
     _.assertHelper.AssertNetworkStatus("@getDatasourceStructure");
     _.agHelper.AssertElementExist(OneClickBindingLocator.connectData);
 
