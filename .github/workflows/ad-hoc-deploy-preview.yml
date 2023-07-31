@@ -209,7 +209,7 @@ jobs:
           DB_URL: ${{ secrets.DB_URL }}
         run: |
           echo "environment variables set to deploy the image" $IMAGE_HASH
-          /bin/bash ./scripts/build_dp_form_branch.sh
+          /bin/bash ./scripts/build_dp_from_branch.sh
 
   update-db-on-completion:
     needs: [build-deploy-preview]
