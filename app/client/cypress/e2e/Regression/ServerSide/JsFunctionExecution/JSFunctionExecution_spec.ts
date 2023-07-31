@@ -72,395 +72,395 @@ describe("JS Function Execution", function () {
     });
   }
 
-  // it("1. Allows execution of js function when lint warnings(not errors) are present in code", function () {
-  //   jsEditor.CreateJSObject(
-  //     `export default {
-  // 	myFun1: ()=>{
-  // 		f;
-  // 		return "yes"
-  // 	}
-  // }`,
-  //     {
-  //       paste: true,
-  //       completeReplace: true,
-  //       toRun: false,
-  //       shouldCreateNewJSObj: true,
-  //       prettify: false,
-  //     },
-  //   );
+  it("1. Allows execution of js function when lint warnings(not errors) are present in code", function () {
+    jsEditor.CreateJSObject(
+      `export default {
+  	myFun1: ()=>{
+  		f;
+  		return "yes"
+  	}
+  }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+        prettify: false,
+      },
+    );
 
-  //   jsEditor.AssertParseError(false);
-  //   agHelper.ActionContextMenuWithInPane({
-  //     action: "Delete",
-  //     entityType: entityItems.JSObject,
-  //   });
-  // });
+    jsEditor.AssertParseError(false);
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.JSObject,
+    });
+  });
 
-  // it("2. Prevents execution of js function when parse errors are present in code", function () {
-  //   jsEditor.CreateJSObject(
-  //     `export default {
-  // 	myFun1: ()=>>{
-  // 		return "yes"
-  // 	}
-  // }`,
-  //     {
-  //       paste: true,
-  //       completeReplace: true,
-  //       toRun: false,
-  //       shouldCreateNewJSObj: true,
-  //       prettify: false,
-  //     },
-  //   );
-  //   //Debugger shouldn't open when there is a parse error.
-  //   //It should open only in case of execution error.
-  //   debuggerHelper.AssertClosed();
-  //   //Verify there is no error shown in the response tab.
-  //   debuggerHelper.ClickDebuggerIcon();
-  //   debuggerHelper.ClickResponseTab();
-  //   jsEditor.AssertParseError(false);
-  //   agHelper.ActionContextMenuWithInPane({
-  //     action: "Delete",
-  //     entityType: entityItems.JSObject,
-  //   });
-  // });
+  it("2. Prevents execution of js function when parse errors are present in code", function () {
+    jsEditor.CreateJSObject(
+      `export default {
+  	myFun1: ()=>>{
+  		return "yes"
+  	}
+  }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+        prettify: false,
+      },
+    );
+    //Debugger shouldn't open when there is a parse error.
+    //It should open only in case of execution error.
+    debuggerHelper.AssertClosed();
+    //Verify there is no error shown in the response tab.
+    debuggerHelper.ClickDebuggerIcon();
+    debuggerHelper.ClickResponseTab();
+    jsEditor.AssertParseError(false);
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.JSObject,
+    });
+  });
 
-  // it("3. Prioritizes parse errors that render JS Object invalid over function execution parse errors in debugger callouts", function () {
-  //   const JSObjectWithFunctionExecutionParseErrors = `export default {
-  //     myFun1 :()=>{
-  //       return f
-  //     }
-  //   }`;
+  it("3. Prioritizes parse errors that render JS Object invalid over function execution parse errors in debugger callouts", function () {
+    const JSObjectWithFunctionExecutionParseErrors = `export default {
+      myFun1 :()=>{
+        return f
+      }
+    }`;
 
-  //   const JSObjectWithParseErrors = `export default {
-  //     myFun1:  (a ,b)=>>{
-  //     return "yes"
-  //     }
-  //   }`;
+    const JSObjectWithParseErrors = `export default {
+      myFun1:  (a ,b)=>>{
+      return "yes"
+      }
+    }`;
 
-  //   // create jsObject with parse error (that doesn't render JS Object invalid)
-  //   jsEditor.CreateJSObject(JSObjectWithFunctionExecutionParseErrors, {
-  //     paste: true,
-  //     completeReplace: true,
-  //     toRun: true,
-  //     shouldCreateNewJSObj: true,
-  //     prettify: false,
-  //   });
+    // create jsObject with parse error (that doesn't render JS Object invalid)
+    jsEditor.CreateJSObject(JSObjectWithFunctionExecutionParseErrors, {
+      paste: true,
+      completeReplace: true,
+      toRun: true,
+      shouldCreateNewJSObj: true,
+      prettify: false,
+    });
 
-  //   // Assert presence of function execution parse error callout
-  //   jsEditor.AssertParseError(true);
+    // Assert presence of function execution parse error callout
+    jsEditor.AssertParseError(true);
 
-  //   // Add parse error that renders JS Object invalid in code
-  //   jsEditor.CreateJSObject(JSObjectWithParseErrors, {
-  //     paste: true,
-  //     completeReplace: true,
-  //     toRun: false,
-  //     shouldCreateNewJSObj: false,
-  //     prettify: false,
-  //   });
+    // Add parse error that renders JS Object invalid in code
+    jsEditor.CreateJSObject(JSObjectWithParseErrors, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: false,
+      prettify: false,
+    });
 
-  //   agHelper.Sleep(2000); // Giving more time for parsing to reduce flakiness!
+    agHelper.Sleep(2000); // Giving more time for parsing to reduce flakiness!
 
-  //   // Assert presence of parse error callout (entire JS Object is invalid)
-  //   jsEditor.AssertParseError(true);
-  //   agHelper.ActionContextMenuWithInPane({
-  //     action: "Delete",
-  //     entityType: entityItems.JSObject,
-  //   });
-  // });
+    // Assert presence of parse error callout (entire JS Object is invalid)
+    jsEditor.AssertParseError(true);
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.JSObject,
+    });
+  });
 
-  // it("4. Shows lint error and toast modal when JS Object doesn't start with 'export default'", () => {
-  //   const invalidJSObjectStartToastMessage = "Start object with export default";
-  //   const jsComment = "// This is a comment";
-  //   const jsObjectStartLine = `export default{`;
-  //   const jsObjectStartLineWithSpace = `export  default{`;
-  //   const jsObjectStartingWithAComment = `${jsComment}
-  // ${jsObjectStartLine}
-  //       fun1:()=>true
-  //     }`;
-  //   const jsObjectStartingWithASpace = `${jsObjectStartLineWithSpace}
-  //       fun1:()=>true
-  //     }`;
+  it("4. Shows lint error and toast modal when JS Object doesn't start with 'export default'", () => {
+    const invalidJSObjectStartToastMessage = "Start object with export default";
+    const jsComment = "// This is a comment";
+    const jsObjectStartLine = `export default{`;
+    const jsObjectStartLineWithSpace = `export  default{`;
+    const jsObjectStartingWithAComment = `${jsComment}
+  ${jsObjectStartLine}
+        fun1:()=>true
+      }`;
+    const jsObjectStartingWithASpace = `${jsObjectStartLineWithSpace}
+        fun1:()=>true
+      }`;
 
-  //   const jsObjectStartingWithANewLine = `
-  //   ${jsObjectStartLine}
-  //       fun1:()=>true
-  //     }`;
+    const jsObjectStartingWithANewLine = `
+    ${jsObjectStartLine}
+        fun1:()=>true
+      }`;
 
-  //   const assertInvalidJSObjectStart = (
-  //     jsCode: string,
-  //     highlightedLintText: string,
-  //   ) => {
-  //     // create jsObject that doesn't start with 'export default'
-  //     jsEditor.CreateJSObject(jsCode, {
-  //       paste: true,
-  //       completeReplace: true,
-  //       toRun: false,
-  //       shouldCreateNewJSObj: true,
-  //     });
+    const assertInvalidJSObjectStart = (
+      jsCode: string,
+      highlightedLintText: string,
+    ) => {
+      // create jsObject that doesn't start with 'export default'
+      jsEditor.CreateJSObject(jsCode, {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      });
 
-  //     // Assert presence of toast message
-  //     agHelper.AssertContains(invalidJSObjectStartToastMessage);
+      // Assert presence of toast message
+      agHelper.AssertContains(invalidJSObjectStartToastMessage);
 
-  //     // Assert presence of lint error at the start line
-  //     agHelper.GetNAssertElementText(
-  //       locators._lintErrorElement,
-  //       highlightedLintText,
-  //       "contain.text",
-  //       -1,
-  //     );
-  //     agHelper.WaitUntilAllToastsDisappear();
-  //     agHelper.ActionContextMenuWithInPane({
-  //       action: "Delete",
-  //       entityType: entityItems.JSObject,
-  //     });
-  //   };
-  //   assertInvalidJSObjectStart(jsObjectStartingWithAComment, jsComment);
-  //   assertInvalidJSObjectStart(jsObjectStartingWithANewLine, jsObjectStartLine);
-  //   assertInvalidJSObjectStart(
-  //     jsObjectStartingWithASpace,
-  //     jsObjectStartLineWithSpace,
-  //   );
-  // });
+      // Assert presence of lint error at the start line
+      agHelper.GetNAssertElementText(
+        locators._lintErrorElement,
+        highlightedLintText,
+        "contain.text",
+        -1,
+      );
+      agHelper.WaitUntilAllToastsDisappear();
+      agHelper.ActionContextMenuWithInPane({
+        action: "Delete",
+        entityType: entityItems.JSObject,
+      });
+    };
+    assertInvalidJSObjectStart(jsObjectStartingWithAComment, jsComment);
+    assertInvalidJSObjectStart(jsObjectStartingWithANewLine, jsObjectStartLine);
+    assertInvalidJSObjectStart(
+      jsObjectStartingWithASpace,
+      jsObjectStartLineWithSpace,
+    );
+  });
 
-  // it("5. Supports the use of large JSON data (doesn't crash)", () => {
-  //   const jsObjectWithLargeJSONData = `export default{
-  //     largeData: ${JSON.stringify(largeJSONData)},
-  //     myfun1: ()=> this.largeData
-  //   }`;
-  //   const crashMessage = "Oops! Something went wrong";
-  //   // create jsObject with large json data and run
-  //   jsEditor.CreateJSObject(jsObjectWithLargeJSONData, {
-  //     paste: true,
-  //     completeReplace: true,
-  //     toRun: false,
-  //     shouldCreateNewJSObj: true,
-  //   });
+  it("5. Supports the use of large JSON data (doesn't crash)", () => {
+    const jsObjectWithLargeJSONData = `export default{
+      largeData: ${JSON.stringify(largeJSONData)},
+      myfun1: ()=> this.largeData
+    }`;
+    const crashMessage = "Oops! Something went wrong";
+    // create jsObject with large json data and run
+    jsEditor.CreateJSObject(jsObjectWithLargeJSONData, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
 
-  //   // wait for 3 secs and assert that App doesn't crash
-  //   agHelper.Sleep(3000);
-  //   agHelper.AssertContains(crashMessage, "not.exist");
+    // wait for 3 secs and assert that App doesn't crash
+    agHelper.Sleep(3000);
+    agHelper.AssertContains(crashMessage, "not.exist");
 
-  //   // Edit JSObject and run
-  //   jsEditor.CreateJSObject(" ", {
-  //     paste: true,
-  //     completeReplace: false,
-  //     toRun: true,
-  //     shouldCreateNewJSObj: false,
-  //   });
+    // Edit JSObject and run
+    jsEditor.CreateJSObject(" ", {
+      paste: true,
+      completeReplace: false,
+      toRun: true,
+      shouldCreateNewJSObj: false,
+    });
 
-  //   cy.get("@jsObjName").then((jsObjName) => {
-  //     entityExplorer.SelectEntityByName("Table1", "Widgets");
-  //     propPane.UpdatePropertyFieldValue(
-  //       "Table data",
-  //       `{{${jsObjName}.largeData}}`,
-  //     );
-  //   });
+    cy.get("@jsObjName").then((jsObjName) => {
+      entityExplorer.SelectEntityByName("Table1", "Widgets");
+      propPane.UpdatePropertyFieldValue(
+        "Table data",
+        `{{${jsObjName}.largeData}}`,
+      );
+    });
 
-  //   // Deploy App and test that table loads properly
-  //   deployMode.DeployApp();
-  //   table.WaitUntilTableLoad();
-  //   table.ReadTableRowColumnData(0, 1, "v1", 2000).then(($cellData) => {
-  //     expect($cellData).to.eq("1"); //validating id column value - row 0
-  //     deployMode.NavigateBacktoEditor();
-  //   });
-  //   entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
-  //   entityExplorer.ActionContextMenuByEntityName({
-  //     entityNameinLeftSidebar: "JSObject1",
-  //     action: "Delete",
-  //     entityType: entityItems.JSObject,
-  //   });
-  // });
+    // Deploy App and test that table loads properly
+    deployMode.DeployApp();
+    table.WaitUntilTableLoad();
+    table.ReadTableRowColumnData(0, 1, "v1", 2000).then(($cellData) => {
+      expect($cellData).to.eq("1"); //validating id column value - row 0
+      deployMode.NavigateBacktoEditor();
+    });
+    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "JSObject1",
+      action: "Delete",
+      entityType: entityItems.JSObject,
+    });
+  });
 
-  // it("6. Doesn't cause cyclic dependency when function name is edited", () => {
-  //   const syncJSCode = `export default {
-  //     myFun1 :()=>{
-  //       return "yes"`;
+  it("6. Doesn't cause cyclic dependency when function name is edited", () => {
+    const syncJSCode = `export default {
+      myFun1 :()=>{
+        return "yes"`;
 
-  //   const syncJSCodeWithRenamedFunction1 = `export default {
-  //     myFun2 :()=>{
-  //       return "yes"
-  //     }
-  //   }`;
+    const syncJSCodeWithRenamedFunction1 = `export default {
+      myFun2 :()=>{
+        return "yes"
+      }
+    }`;
 
-  //   const syncJSCodeWithRenamedFunction2 = `export default {
-  //     myFun3 :()=>{
-  //       return "yes"
-  //     }
-  //   }`;
+    const syncJSCodeWithRenamedFunction2 = `export default {
+      myFun3 :()=>{
+        return "yes"
+      }
+    }`;
 
-  //   const asyncJSCode = `export default {
-  //     myFun1 :async ()=>{
-  //       return "yes"`;
+    const asyncJSCode = `export default {
+      myFun1 :async ()=>{
+        return "yes"`;
 
-  //   const asyncJSCodeWithRenamedFunction1 = `export default {
-  //     myFun2 :async ()=>{
-  //       return "yes"
-  //     }
-  //   }`;
+    const asyncJSCodeWithRenamedFunction1 = `export default {
+      myFun2 :async ()=>{
+        return "yes"
+      }
+    }`;
 
-  //   const asyncJSCodeWithRenamedFunction2 = `export default {
-  //     myFun3 :async ()=>{
-  //       return "yes"
-  //     }
-  //   }`;
+    const asyncJSCodeWithRenamedFunction2 = `export default {
+      myFun3 :async ()=>{
+        return "yes"
+      }
+    }`;
 
-  //   jsEditor.CreateJSObject(syncJSCode, {
-  //     paste: false,
-  //     completeReplace: true,
-  //     toRun: false,
-  //     shouldCreateNewJSObj: true,
-  //     prettify: false,
-  //   });
+    jsEditor.CreateJSObject(syncJSCode, {
+      paste: false,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+      prettify: false,
+    });
 
-  //   // change sync function name and test that cyclic dependency is not created
-  //   jsEditor.EditJSObj(syncJSCodeWithRenamedFunction1, false);
-  //   agHelper.AssertContains("Cyclic dependency", "not.exist");
-  //   jsEditor.EditJSObj(syncJSCodeWithRenamedFunction2, false);
-  //   agHelper.AssertContains("Cyclic dependency", "not.exist");
+    // change sync function name and test that cyclic dependency is not created
+    jsEditor.EditJSObj(syncJSCodeWithRenamedFunction1, false);
+    agHelper.AssertContains("Cyclic dependency", "not.exist");
+    jsEditor.EditJSObj(syncJSCodeWithRenamedFunction2, false);
+    agHelper.AssertContains("Cyclic dependency", "not.exist");
 
-  //   jsEditor.CreateJSObject(asyncJSCode, {
-  //     paste: false,
-  //     completeReplace: true,
-  //     toRun: false,
-  //     shouldCreateNewJSObj: true,
-  //     prettify: false,
-  //   });
-  //   // change async function name and test that cyclic dependency is not created
-  //   jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction1, false);
-  //   agHelper.AssertContains("Cyclic dependency", "not.exist");
-  //   jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction2, false);
-  //   agHelper.AssertContains("Cyclic dependency", "not.exist");
-  //   agHelper.ActionContextMenuWithInPane({
-  //     action: "Delete",
-  //     entityType: entityItems.JSObject,
-  //   });
-  // });
+    jsEditor.CreateJSObject(asyncJSCode, {
+      paste: false,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+      prettify: false,
+    });
+    // change async function name and test that cyclic dependency is not created
+    jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction1, false);
+    agHelper.AssertContains("Cyclic dependency", "not.exist");
+    jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction2, false);
+    agHelper.AssertContains("Cyclic dependency", "not.exist");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.JSObject,
+    });
+  });
 
-  // it("7. Maintains order of async functions in settings tab alphabetically at all times", function () {
-  //   functionsLength = FUNCTIONS_SETTINGS_DEFAULT_DATA.length;
-  //   // Number of functions set to run on page load and should also confirm before execute
-  //   onPageLoadAndConfirmExecuteFunctionsLength =
-  //     FUNCTIONS_SETTINGS_DEFAULT_DATA.filter(
-  //       (func) => func.onPageLoad && func.confirmBeforeExecute,
-  //     ).length;
+  it("7. Maintains order of async functions in settings tab alphabetically at all times", function () {
+    functionsLength = FUNCTIONS_SETTINGS_DEFAULT_DATA.length;
+    // Number of functions set to run on page load and should also confirm before execute
+    onPageLoadAndConfirmExecuteFunctionsLength =
+      FUNCTIONS_SETTINGS_DEFAULT_DATA.filter(
+        (func) => func.onPageLoad && func.confirmBeforeExecute,
+      ).length;
 
-  //   getJSObject = (data: IFunctionSettingData[]) => {
-  //     let JS_OBJECT_BODY = `export default`;
-  //     for (let i = 0; i < functionsLength; i++) {
-  //       const functionName = data[i].name;
-  //       JS_OBJECT_BODY +=
-  //         i === 0
-  //           ? `{
-  //             ${functionName}: async ()=>"${functionName}",`
-  //           : i === functionsLength - 1
-  //           ? `
-  //           ${functionName}: async ()=>"${functionName}",
-  //         }`
-  //           : `
-  //           ${functionName}: async ()=> "${functionName}",`;
-  //     }
-  //     return JS_OBJECT_BODY;
-  //   };
+    getJSObject = (data: IFunctionSettingData[]) => {
+      let JS_OBJECT_BODY = `export default`;
+      for (let i = 0; i < functionsLength; i++) {
+        const functionName = data[i].name;
+        JS_OBJECT_BODY +=
+          i === 0
+            ? `{
+              ${functionName}: async ()=>"${functionName}",`
+            : i === functionsLength - 1
+            ? `
+            ${functionName}: async ()=>"${functionName}",
+          }`
+            : `
+            ${functionName}: async ()=> "${functionName}",`;
+      }
+      return JS_OBJECT_BODY;
+    };
 
-  //   // Create js object
-  //   jsEditor.CreateJSObject(getJSObject(FUNCTIONS_SETTINGS_DEFAULT_DATA), {
-  //     paste: true,
-  //     completeReplace: true,
-  //     toRun: false,
-  //     shouldCreateNewJSObj: true,
-  //     prettify: false,
-  //   });
+    // Create js object
+    jsEditor.CreateJSObject(getJSObject(FUNCTIONS_SETTINGS_DEFAULT_DATA), {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+      prettify: false,
+    });
 
-  //   cy.get("@jsObjName").then((jsObjName: any) => {
-  //     jsObj = jsObjName;
-  //   });
-  //   // Switch to settings tab
-  //   agHelper.GetNClick(jsEditor._settingsTab);
-  //   // Add settings for each function (according to data)
-  //   Object.values(FUNCTIONS_SETTINGS_DEFAULT_DATA).forEach(
-  //     (functionSetting) => {
-  //       jsEditor.EnableDisableAsyncFuncSettings(
-  //         functionSetting.name,
-  //         functionSetting.onPageLoad,
-  //         functionSetting.confirmBeforeExecute,
-  //       );
-  //     },
-  //   );
-  //   // Switch to settings tab
-  //   agHelper.GetNClick(jsEditor._settingsTab);
-  //   //After JSObj is created - check methods are in alphabetical order
-  //   assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
+    cy.get("@jsObjName").then((jsObjName: any) => {
+      jsObj = jsObjName;
+    });
+    // Switch to settings tab
+    agHelper.GetNClick(jsEditor._settingsTab);
+    // Add settings for each function (according to data)
+    Object.values(FUNCTIONS_SETTINGS_DEFAULT_DATA).forEach(
+      (functionSetting) => {
+        jsEditor.EnableDisableAsyncFuncSettings(
+          functionSetting.name,
+          functionSetting.onPageLoad,
+          functionSetting.confirmBeforeExecute,
+        );
+      },
+    );
+    // Switch to settings tab
+    agHelper.GetNClick(jsEditor._settingsTab);
+    //After JSObj is created - check methods are in alphabetical order
+    assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
 
-  //   agHelper.RefreshPage();
-  //   // click "Yes" button for all onPageload && ConfirmExecute functions
-  //   for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
-  //     //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
-  //     jsEditor.ConfirmationClick("Yes");
-  //     agHelper.Sleep(2000);
-  //   }
-  //   // Switch to settings tab and assert order
-  //   agHelper.GetNClick(jsEditor._settingsTab);
-  //   assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
-  // });
+    agHelper.RefreshPage();
+    // click "Yes" button for all onPageload && ConfirmExecute functions
+    for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
+      //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
+      jsEditor.ConfirmationClick("Yes");
+      agHelper.Sleep(2000);
+    }
+    // Switch to settings tab and assert order
+    agHelper.GetNClick(jsEditor._settingsTab);
+    assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
+  });
 
-  // it("8. Verify Async methods have alphabetical order after cloning page and renaming it", () => {
-  //   const FUNCTIONS_SETTINGS_RENAMED_DATA: IFunctionSettingData[] = [
-  //     {
-  //       name: "newGetId",
-  //       onPageLoad: true,
-  //       confirmBeforeExecute: false,
-  //     },
-  //     {
-  //       name: "zip1",
-  //       onPageLoad: true,
-  //       confirmBeforeExecute: true,
-  //     },
-  //     {
-  //       name: "base",
-  //       onPageLoad: false,
-  //       confirmBeforeExecute: false,
-  //     },
-  //     {
-  //       name: "newAssert",
-  //       onPageLoad: true,
-  //       confirmBeforeExecute: false,
-  //     },
-  //     {
-  //       name: "test",
-  //       onPageLoad: true,
-  //       confirmBeforeExecute: true,
-  //     },
-  //   ];
+  it("8. Verify Async methods have alphabetical order after cloning page and renaming it", () => {
+    const FUNCTIONS_SETTINGS_RENAMED_DATA: IFunctionSettingData[] = [
+      {
+        name: "newGetId",
+        onPageLoad: true,
+        confirmBeforeExecute: false,
+      },
+      {
+        name: "zip1",
+        onPageLoad: true,
+        confirmBeforeExecute: true,
+      },
+      {
+        name: "base",
+        onPageLoad: false,
+        confirmBeforeExecute: false,
+      },
+      {
+        name: "newAssert",
+        onPageLoad: true,
+        confirmBeforeExecute: false,
+      },
+      {
+        name: "test",
+        onPageLoad: true,
+        confirmBeforeExecute: true,
+      },
+    ];
 
-  //   // clone page and assert order of functions
-  //   entityExplorer.ClonePage();
-  //   agHelper.Sleep();
-  //   agHelper.WaitUntilAllToastsDisappear();
-  //   agHelper.Sleep();
-  //   // click "Yes" button for all onPageload && ConfirmExecute functions
-  //   for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
-  //     //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
-  //     jsEditor.ConfirmationClick("Yes");
-  //     agHelper.Sleep(2000); //for current pop up to close & next to appear!
-  //   }
-  //   entityExplorer.ExpandCollapseEntity("Queries/JS");
-  //   entityExplorer.SelectEntityByName(jsObj, "Queries/JS");
-  //   agHelper.GetNClick(jsEditor._settingsTab);
-  //   assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
+    // clone page and assert order of functions
+    entityExplorer.ClonePage();
+    agHelper.Sleep();
+    agHelper.WaitUntilAllToastsDisappear();
+    agHelper.Sleep();
+    // click "Yes" button for all onPageload && ConfirmExecute functions
+    for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
+      //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
+      jsEditor.ConfirmationClick("Yes");
+      agHelper.Sleep(2000); //for current pop up to close & next to appear!
+    }
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.SelectEntityByName(jsObj, "Queries/JS");
+    agHelper.GetNClick(jsEditor._settingsTab);
+    assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
 
-  //   // rename functions and assert order
-  //   agHelper.GetNClick(jsEditor._codeTab);
-  //   jsEditor.EditJSObj(getJSObject(FUNCTIONS_SETTINGS_RENAMED_DATA), false);
-  //   agHelper.Sleep(3000);
-  //   agHelper.GetNClick(jsEditor._settingsTab);
-  //   assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_RENAMED_DATA);
-  //   agHelper.ActionContextMenuWithInPane({
-  //     action: "Delete",
-  //     entityType: entityItems.JSObject,
-  //   });
-  // });
+    // rename functions and assert order
+    agHelper.GetNClick(jsEditor._codeTab);
+    jsEditor.EditJSObj(getJSObject(FUNCTIONS_SETTINGS_RENAMED_DATA), false);
+    agHelper.Sleep(3000);
+    agHelper.GetNClick(jsEditor._settingsTab);
+    assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_RENAMED_DATA);
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.JSObject,
+    });
+  });
 
-  it("9. Bug 13197: Verify converting async functions to sync should not reset all settings", () => {
+  it("9. Bug 13197: Verify converting async functions to sync resets all settings", () => {
     const asyncJSCode = `export default {
 name: "Appsmith",
 asyncToSync : async ()=>{
@@ -484,15 +484,14 @@ return "yes";`;
     // Switch to settings tab
     agHelper.GetNClick(jsEditor._settingsTab);
     // Enable all settings
-    jsEditor.EnableDisableAsyncFuncSettings("asyncToSync", true, false);
+    jsEditor.EnableDisableAsyncFuncSettings("asyncToSync", true, true);
 
     // Modify js object
     jsEditor.EditJSObj(syncJSCode, false);
 
     agHelper.RefreshPage();
-    agHelper.Sleep(3000);
     cy.wait("@jsCollections").then(({ response }) => {
-      expect(response?.body.data.actions[0].executeOnLoad).to.eq(true);
+      expect(response?.body.data.actions[0].executeOnLoad).to.eq(false);
       expect(response?.body.data.actions[0].confirmBeforeExecute).to.eq(false);
     });
     agHelper.ActionContextMenuWithInPane({
