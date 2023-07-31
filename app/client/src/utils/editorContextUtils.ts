@@ -105,7 +105,6 @@ export function isDatasourceAuthorizedForQueryCreation(
   datasource: Datasource,
   plugin: Plugin,
   currentEnvironment = getCurrentEnvironment(),
-  authStatusToBeChecked: AuthenticationStatus = AuthenticationStatus.SUCCESS,
 ): boolean {
   if (!datasource || !datasource.hasOwnProperty("datasourceStorages"))
     return false;
@@ -135,7 +134,7 @@ export function isDatasourceAuthorizedForQueryCreation(
       get(
         datasourceStorage,
         "datasourceConfiguration.authentication.authenticationStatus",
-      ) === authStatusToBeChecked;
+      ) === AuthenticationStatus.SUCCESS;
     return isAuthorized;
   }
 
