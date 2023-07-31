@@ -19,7 +19,7 @@ function SignPostingBanner(props: SignPostingBannerProps) {
     <Container className="py-2 px-3 rounded">
       <div className="flex items-start">
         <Icon
-          className="font-semibold mr-2 flex items-start"
+          className="font-semibold mr-2 flex items-start mt-0.5"
           color="var(--ads-v2-color-fg-information)"
           name={props.iconName}
           size="md"
