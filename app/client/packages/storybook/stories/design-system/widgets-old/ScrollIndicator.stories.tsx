@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useRef } from "react";
-import type { ComponentMeta } from "@storybook/react";
+import type { ComponentStory, ComponentMeta } from "@storybook/react";
 
 import { ScrollIndicator } from "@design-system/widgets-old";
 
@@ -9,7 +9,7 @@ export default {
   component: ScrollIndicator,
 } as ComponentMeta<typeof ScrollIndicator>;
 
-const Template = () => {
+const Template: ComponentStory<typeof ScrollIndicator> = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   return (
     <div

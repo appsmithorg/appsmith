@@ -1,5 +1,5 @@
 import * as React from "react";
-import type { ComponentMeta } from "@storybook/react";
+import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
 import { MenuDivider } from "@design-system/widgets-old";
 
@@ -8,7 +8,7 @@ export default {
   component: MenuDivider,
 } as ComponentMeta<typeof MenuDivider>;
 
-const Template = () => (
+const Template: ComponentStory<typeof MenuDivider> = () => (
   <div style={{ minWidth: "8rem" }}>
     <MenuDivider />
   </div>

@@ -11,7 +11,7 @@ export default {
 } as ComponentMeta<typeof SegmentHeader>;
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof SegmentHeader> = (args: any) => {
+const Template: ComponentStory<typeof SegmentHeader> = (args) => {
   return <SegmentHeader {...args} />;
 };
 

@@ -34,7 +34,7 @@ export default {
 } as ComponentMeta<typeof IconComponent>;
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof IconComponent> = (args: any) => (
+const Template: ComponentStory<typeof IconComponent> = (args) => (
   <IconComponent {...args} />
 );
 

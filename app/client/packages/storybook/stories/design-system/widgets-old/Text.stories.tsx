@@ -9,7 +9,7 @@ export default {
 } as ComponentMeta<typeof TextComponent>;
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof TextComponent> = (args: any) => {
+const Template: ComponentStory<typeof TextComponent> = (args) => {
   return <TextComponent {...args}> Some Content 🍎 </TextComponent>;
 };
 

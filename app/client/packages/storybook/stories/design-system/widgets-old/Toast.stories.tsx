@@ -10,7 +10,7 @@ export default {
 } as ComponentMeta<typeof ToastComponent>;
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof ToastComponent> = (args: any) => {
+const Template: ComponentStory<typeof ToastComponent> = (args) => {
   return <ToastComponent {...args} />;
 };
 

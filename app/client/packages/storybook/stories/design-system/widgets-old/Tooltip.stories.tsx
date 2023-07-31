@@ -9,7 +9,7 @@ export default {
 } as ComponentMeta<typeof TooltipComponent>;
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof TooltipComponent> = (args: any) => (
+const Template: ComponentStory<typeof TooltipComponent> = (args) => (
   <TooltipComponent {...args}>Hover over me 😁</TooltipComponent>
 );
 

@@ -119,7 +119,7 @@ export const ColorGrid = (props: any) => {
 
             const tokensAccessor = new TokensAccessor({
               seedColor,
-              colorMode: colorMode,
+              colorMode,
             });
 
             const tokens =

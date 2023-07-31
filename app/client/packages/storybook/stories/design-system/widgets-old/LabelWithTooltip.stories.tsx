@@ -12,7 +12,7 @@ export default {
 } as ComponentMeta<typeof LabelWithTooltip>;
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof LabelWithTooltip> = (args: any) => {
+const Template: ComponentStory<typeof LabelWithTooltip> = (args) => {
   return <LabelWithTooltip {...args} />;
 };
 

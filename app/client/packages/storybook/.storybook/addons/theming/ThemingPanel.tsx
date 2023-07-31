@@ -8,13 +8,11 @@ import { fontMetrics } from "@design-system/theming";
 import { debounce } from "lodash";
 import styled from "styled-components";
 
-const { Select, Input } = Form;
-
 interface PanelProps {
   active: boolean;
 }
 
-const StyledSelect = styled(Select)`
+const StyledSelect = styled(Form.Select)`
   appearance: none;
   padding-right: 30px;
   -moz-appearance: none;
