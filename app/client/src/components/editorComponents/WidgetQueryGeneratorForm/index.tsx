@@ -39,6 +39,7 @@ type WidgetQueryGeneratorFormContextType = {
   onSourceClose: () => void;
   errorMsg: string;
   expectedType: string;
+  sampleData: string;
 };
 
 const DEFAULT_CONFIG_VALUE = {
@@ -64,6 +65,7 @@ const DEFAULT_CONTEXT_VALUE = {
   errorMsg: "",
   propertyName: "",
   expectedType: "",
+  sampleData: "",
 };
 
 export const WidgetQueryGeneratorFormContext =
@@ -80,6 +82,7 @@ type Props = {
   expectedType: string;
   aliases: string[];
   searchableColumn: boolean;
+  sampleData: string;
 };
 
 function WidgetQueryGeneratorForm(props: Props) {
@@ -93,6 +96,7 @@ function WidgetQueryGeneratorForm(props: Props) {
     onUpdate,
     propertyPath,
     propertyValue,
+    sampleData,
     widgetId,
   } = props;
 
@@ -199,6 +203,7 @@ function WidgetQueryGeneratorForm(props: Props) {
       errorMsg,
       propertyName: propertyPath,
       expectedType,
+      sampleData,
     };
   }, [
     config,
@@ -210,6 +215,7 @@ function WidgetQueryGeneratorForm(props: Props) {
     onSourceClose,
     errorMsg,
     propertyPath,
+    sampleData,
   ]);
 
   useEffect(() => {

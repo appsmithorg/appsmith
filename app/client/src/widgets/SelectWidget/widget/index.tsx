@@ -59,13 +59,19 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     widget: WidgetProps,
     formConfig: WidgetQueryGenerationFormConfig,
   ) {
-    return {
-      modify: {
+    let modify;
+
+    if (queryConfig.select) {
+      modify = {
         sourceData: queryConfig.select.data,
         optionLabel: formConfig.aliases.find((d) => d.name === "label")?.alias,
         optionValue: formConfig.aliases.find((d) => d.name === "value")?.alias,
         defaultOptionValue: "",
-      },
+      };
+    }
+
+    return {
+      modify,
     };
   }
 
@@ -109,6 +115,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             controlType: "ONE_CLICK_BINDING_CONTROL",
             controlConfig: {
               aliases: ["label", "value"],
+              sampleData: `[{"name":"Blue","code":"BLUE"},{"name":"Green","code":"GREEN"},{"name":"Red","code":"RED"}]`,
             },
             isJSConvertible: true,
             placeholderText: '[{ "label": "label1", "value": "value1" }]',

@@ -58,6 +58,7 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
         onUpdate={this.onUpdatePropertyValue}
         propertyPath={this.props.propertyName}
         propertyValue={this.props.propertyValue}
+        sampleData={this.props.controlConfig.sampleData}
         searchableColumn={this.props.controlConfig.searchableColumn}
         widgetId={this.props.widgetProperties.widgetId}
       />
@@ -71,5 +72,6 @@ export type OneClickBindingControlProps = ControlProps & {
   controlConfig: {
     aliases: string[];
     searchableColumn: boolean;
+    sampleData: string;
   };
 };
