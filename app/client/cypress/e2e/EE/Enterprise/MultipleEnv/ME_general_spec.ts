@@ -8,8 +8,7 @@ import { multipleEnv } from "../../../../support/ee/ObjectsCore_EE";
 
 let prodEnv: string, stagingEnv: string;
 
-//TODO: add exclude for airgap
-describe("excludeForAirgap", function () {
+describe("excludeForAirgap", "excludeForAirgap", function () {
   before(() => {
     featureFlagIntercept({ release_datasource_environments_enabled: true });
     prodEnv = tedTestConfig.defaultEnviorment;
