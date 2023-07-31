@@ -104,7 +104,7 @@ jobs:
                 "🚨 *Note*: The release environment runs EE code, so using a frontend-only DP on this repo, will",
                 "likely behave unexpectedly. Consider using a full DP instead.",
                 "[Learn more](https://notion.so/031b87bce3404e3a95240d4c14c82e46).",
-              ]
+              )
             }
             github.rest.issues.createComment({
               issue_number: context.payload.pull_request.number,
