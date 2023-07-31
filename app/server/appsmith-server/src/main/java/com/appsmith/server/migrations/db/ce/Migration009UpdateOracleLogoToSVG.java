@@ -9,11 +9,11 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
-@ChangeUnit(order = "007", id = "update-oracle-logo-to-svg", author = " ")
-public class Migration007UpdateOracleLogoToSVG {
+@ChangeUnit(order = "009", id = "update-oracle-logo-to-svg", author = " ")
+public class Migration009UpdateOracleLogoToSVG {
     private final MongoTemplate mongoTemplate;
 
-    public Migration007UpdateOracleLogoToSVG(MongoTemplate mongoTemplate) {
+    public Migration009UpdateOracleLogoToSVG(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 

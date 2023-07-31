@@ -1791,4 +1791,15 @@ describe("#updateWidgetNameInDynamicBinding", () => {
       },
     );
   });
+
+  it("returns same binding value when it falsy", () => {
+    ["", undefined, null, false].forEach((d: unknown) => {
+      const updatedBinding = generator.updateWidgetNameInDynamicBinding(
+        d as string,
+        "test",
+        "test",
+      );
+      expect(updatedBinding).toBe(d);
+    });
+  });
 });

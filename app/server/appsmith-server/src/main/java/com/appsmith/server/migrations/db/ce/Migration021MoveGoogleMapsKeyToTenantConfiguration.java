@@ -21,8 +21,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
 @RequiredArgsConstructor
-@ChangeUnit(order = "016", id = "move-google-maps-key-to-tenant-configuration")
-public class Migration016MoveGoogleMapsKeyToTenantConfiguration {
+@ChangeUnit(order = "021", id = "move-google-maps-key-to-tenant-configuration")
+public class Migration021MoveGoogleMapsKeyToTenantConfiguration {
     private final MongoTemplate mongoTemplate;
     private final CommonConfig commonConfig;
 

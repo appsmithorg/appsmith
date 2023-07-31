@@ -18,12 +18,12 @@ import static com.appsmith.external.constants.PluginConstants.PackageName.RAPID_
 import static com.appsmith.external.constants.PluginConstants.PackageName.REDSHIFT_PLUGIN;
 import static com.appsmith.external.constants.PluginConstants.PackageName.SAAS_PLUGIN;
 
-@ChangeUnit(order = "005", id = "opt-out-unsupported-plugins-airgap-instance", author = " ")
-public class Migration005OptOutUnsupportedPluginsForAirGap {
+@ChangeUnit(order = "007", id = "opt-out-unsupported-plugins-airgap-instance", author = " ")
+public class Migration007OptOutUnsupportedPluginsForAirGap {
 
     private final MongoTemplate mongoTemplate;
 
-    public Migration005OptOutUnsupportedPluginsForAirGap(MongoTemplate mongoTemplate) {
+    public Migration007OptOutUnsupportedPluginsForAirGap(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
