@@ -17,14 +17,15 @@ describe("Button Widget Functionality", function () {
   });
 
   beforeEach(() => {
-    cy.openPropertyPane("buttonwidget");
+    entityExplorer.ExpandCollapseEntity("Widgets");
+    entityExplorer.SelectEntityByName("Button1", "Container3");
   });
 
   it("1. Button-Modal Validation", function () {
     //creating the Modal and verify Modal name
     cy.createModal(this.dataSet.ModalName, "onClick");
     deployMode.DeployApp();
-    cy.wait(5000); //for page to load fully - for CI exclusively
+    cy.wait(2500); //for page to load fully - for CI exclusively
     cy.get(publishPage.buttonWidget).should("be.visible");
     cy.get(publishPage.buttonWidget).click();
     cy.get(modalWidgetPage.modelTextField).should(
@@ -47,92 +48,79 @@ describe("Button Widget Functionality", function () {
     cy.SaveAndRunAPI();
 
     entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.ExpandCollapseEntity("Container3");
-    entityExplorer.SelectEntityByName("Button1");
+    entityExplorer.SelectEntityByName("Button1", "Container3");
 
     // Adding the api in the onClickAction of the button widget.
     cy.executeDbQuery("buttonApi", "onClick");
     // Filling the messages for success/failure in the onClickAction of the button widget.
-    cy.onClickActions("Success", "Error", "Execute a query", "buttonApi.run");
-
+    cy.onClickActions(
+      "Success buttonApi run",
+      "Error",
+      "Execute a query",
+      "buttonApi.run",
+    );
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
     agHelper.Sleep();
     agHelper.ClickButton("Submit");
-    agHelper.ValidateToastMessage("Success");
+    agHelper.ValidateToastMessage("Success buttonApi run");
   });
 
   it("3. Button-Call-Query Validation", function () {
     //creating a query and calling it from the onClickAction of the button widget.
     // Creating a mock query
-    // cy.CreateMockQuery("Query1");
     dataSources.CreateDataSource("Postgres");
-    dataSources.CreateQueryAfterDSSaved(
-      `SELECT * FROM public."film" LIMIT 10;`,
-    );
+    dataSources.CreateQueryAfterDSSaved();
     entityExplorer.ExpandCollapseEntity("Container3");
     entityExplorer.SelectEntityByName("Button1");
+
+    // Delete the buttonApi action
+    agHelper.GetNClick(propPane._actionCardByTitle("Execute a query"));
+    agHelper.GetNClick(propPane._actionSelectorDelete);
 
     // Adding the query in the onClickAction of the button widget.
     cy.executeDbQuery("Query1", "onClick");
     // Filling the messages for success/failure in the onClickAction of the button widget.
-    cy.onClickActions("Success", "Error", "Execute a query", "Query1.run");
+    cy.onClickActions(
+      "Success postgres query run",
+      "Error",
+      "Execute a query",
+      "Query1.run",
+    );
 
-    deployMode.DeployApp(publishPage.buttonWidget);
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
+    agHelper.Sleep();
 
     // Clicking the button to verify the success message
-    agHelper.GetNClick(publishPage.buttonWidget);
-    cy.get("body").then(($ele) => {
-      if ($ele.find(widgetsPage.apiCallToast).length <= 0) {
-        agHelper.GetNClick(publishPage.buttonWidget);
-      }
-    });
-    agHelper.GetNAssertElementText(
-      widgetsPage.apiCallToast,
-      "Success",
-      "contain.text",
-    );
+    agHelper.ClickButton("Submit");
+    agHelper.ValidateToastMessage("Success postgres query run");
   });
 
-  it("4. Toggle JS - Button-CallAnApi Validation", function () {
+  it("4. Toggle JS - Button-CallAnApi - JS mode", function () {
     //creating an api and calling it from the onClickAction of the button widget.
     // calling the existing api
     cy.get(widgetsPage.toggleOnClick).click({ force: true });
     propPane.UpdatePropertyFieldValue(
       "onClick",
-      "{{buttonApi.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
+      "{{buttonApi.run(() => showAlert('Success buttonapi run','success'), () => showAlert('Error','error'))}}",
     );
 
-    deployMode.DeployApp();
-
-    // Clicking the button to verify the success message
-    cy.get(publishPage.buttonWidget).click();
-    cy.get("body").then(($ele) => {
-      if ($ele.find(widgetsPage.apiCallToast).length <= 0) {
-        cy.get(publishPage.buttonWidget).click();
-      }
-    });
-    cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
+    agHelper.Sleep();
+    agHelper.ClickButton("Submit");
+    agHelper.ValidateToastMessage("Success buttonapi run");
   });
 
-  it("5. Toggle JS - Button-Call-Query Validation", function () {
+  it("5. Toggle JS - Button-Call-Query - JS mode", function () {
     //creating a query and calling it from the onClickAction of the button widget.
     // Creating a mock query
     propPane.UpdatePropertyFieldValue(
       "onClick",
-      "{{Query1.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
+      "{{Query1.run(() => showAlert('Success postgres query run','success'), () => showAlert('Error','error'))}}",
     );
-
-    deployMode.DeployApp();
-
-    // Clicking the button to verify the success message
-    cy.get(publishPage.buttonWidget).click();
-    cy.get("body").then(($ele) => {
-      if ($ele.find(widgetsPage.apiCallToast).length <= 0) {
-        cy.get(publishPage.buttonWidget).click();
-        cy.wait(3000);
-      }
-    });
-    cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
+    agHelper.Sleep();
+    agHelper.ClickButton("Submit");
+    agHelper.ValidateToastMessage("Success postgres query run");
   });
 
   it("6. Toggle JS - Button-Call-SetTimeout Validation", function () {
@@ -143,21 +131,11 @@ describe("Button Widget Functionality", function () {
       "{{setTimeout(() => showAlert('Hello from setTimeout after 3 seconds'), 3000)}}",
     );
 
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
+    agHelper.Sleep();
 
-    // Clicking the button to verify the success message
-    cy.get(publishPage.buttonWidget).click();
-    cy.wait(3000);
-    cy.get("body").then(($ele) => {
-      if ($ele.find(widgetsPage.apiCallToast).length <= 0) {
-        cy.get(publishPage.buttonWidget).click();
-        cy.wait(3000);
-      }
-    });
-    cy.get(widgetsPage.apiCallToast).should(
-      "have.text",
-      "Hello from setTimeout after 3 seconds",
-    );
+    agHelper.ClickButton("Submit");
+    agHelper.ValidateToastMessage("Hello from setTimeout after 3 seconds");
   });
 
   afterEach(() => {
