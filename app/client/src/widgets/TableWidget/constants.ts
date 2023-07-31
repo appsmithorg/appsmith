@@ -47,6 +47,7 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   primaryColor: string;
   borderRadius: string;
   boxShadow?: string;
+  yScrollVisibility?: boolean;
 }
 
 export const getCurrentRowBinding = (

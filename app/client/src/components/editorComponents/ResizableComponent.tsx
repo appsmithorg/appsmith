@@ -265,6 +265,8 @@ export const ResizableComponent = memo(function ResizableComponent(
       startWidth: dimensions.width,
       endHeight: newDimensions.height,
       endWidth: newDimensions.width,
+      pageSize: props.pageSize,
+      yScrollVisibility: props.yScrollVisibility,
     });
   };
 
