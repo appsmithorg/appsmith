@@ -4,7 +4,7 @@ import { noop } from "lodash";
 
 type Props = {
   hasSearchableColumn?: boolean;
-  aliases?: string[];
+  aliases?: { name: string; isSearcheable: boolean }[];
 };
 
 export default function WidgetSpecificControls(props: Props) {
@@ -22,11 +22,11 @@ export default function WidgetSpecificControls(props: Props) {
   }
 
   if (props.aliases?.length) {
-    aliases = props.aliases.map((alias) => (
+    aliases = props.aliases.map(({ name }) => (
       <ColumnDropdown
-        alias={`alias.${alias}`}
-        key={alias}
-        label={alias}
+        alias={`alias.${name}`}
+        key={name}
+        label={name.slice(0, 1).toUpperCase() + name.slice(1)}
         onSelect={noop}
       />
     ));

@@ -365,7 +365,7 @@ export function useDatasource(searchText: string) {
             widgetName: widget.widgetName,
             widgetType: widget.type,
             propertyName: propertyName,
-            selectedAction: "Connect new datasource",
+            selectedAction: "Sample data",
           });
         },
       });

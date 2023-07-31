@@ -67,6 +67,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         optionLabel: formConfig.aliases.find((d) => d.name === "label")?.alias,
         optionValue: formConfig.aliases.find((d) => d.name === "value")?.alias,
         defaultOptionValue: "",
+        serverSideFiltering: true,
+        onFilterUpdate: queryConfig.select.run,
       };
     }
 
@@ -114,7 +116,15 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             label: "Source Data",
             controlType: "ONE_CLICK_BINDING_CONTROL",
             controlConfig: {
-              aliases: ["label", "value"],
+              aliases: [
+                {
+                  name: "label",
+                  isSearcheable: true,
+                },
+                {
+                  name: "value",
+                },
+              ],
               sampleData: `[{"name":"Blue","code":"BLUE"},{"name":"Green","code":"GREEN"},{"name":"Red","code":"RED"}]`,
             },
             isJSConvertible: true,
