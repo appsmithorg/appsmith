@@ -95,10 +95,10 @@ jobs:
         uses: depot/setup-action@v1
 
       # Check out merge commit
-      - name: Checkout PR
+      - name: Checkout Branch
         uses: actions/checkout@v3
         with:
-          ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
+          ref: ${{ github.event.inputs.branch }}
 
       # Timestamp will be used to create cache key
       - id: timestamp
