@@ -20,7 +20,7 @@ export class DeployMode {
     direction: "up" | "down" = "up",
   ) =>
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='input-container']// ${
-      direction ? this.locator._chevronUp : this.locator._chevronDown
+      direction == "up" ? this.locator._chevronUp : this.locator._chevronDown
     }`;
   _jsonSelectDropdown = "button.select-button";
   private _jsonFormMultiSelectByName = (fieldName: string) =>
