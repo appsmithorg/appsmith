@@ -1,7 +1,10 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
@@ -35,6 +38,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Instant;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doReturn;
 
@@ -191,6 +197,41 @@ public class GitServiceCEImplTest {
 
         StepVerifier.create(gitService1.isRepoLimitReached("workspaceId", false))
                 .assertNext(aBoolean -> assertEquals(true, aBoolean))
+                .verifyComplete();
+    }
+
+    @Test
+    public void getUncommittedChanges_WhenRepoIsNotConnectedToGit_ReturnsFalse() {
+        AclPermission permission = AclPermission.READ_APPLICATIONS;
+        String applicationId = "test-app-id", branch = "test-branch";
+        Mockito.when(applicationPermission.getReadPermission()).thenReturn(permission);
+        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(branch, applicationId, permission))
+                .thenReturn(Mono.empty());
+
+        StepVerifier.create(gitService.getUncommittedChanges(applicationId, branch))
+                .assertNext(uncommittedChangesDTO -> {
+                    assertThat(uncommittedChangesDTO.isClean()).isFalse();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getUncommittedChanges_WhenApplicationLastUpdateAfterLastCommit_ReturnsTrue() {
+        AclPermission permission = AclPermission.READ_APPLICATIONS;
+        Application application = new Application();
+        application.setLastEditedAt(Instant.now());
+        application.setGitApplicationMetadata(new GitApplicationMetadata());
+        application.getGitApplicationMetadata().setLastCommittedAt(Instant.now().minusSeconds(30)); // 120 seconds ago
+
+        String applicationId = "test-app-id", branch = "test-branch";
+        Mockito.when(applicationPermission.getReadPermission()).thenReturn(permission);
+        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(branch, applicationId, permission))
+                .thenReturn(Mono.just(application));
+
+        StepVerifier.create(gitService.getUncommittedChanges(applicationId, branch))
+                .assertNext(uncommittedChangesDTO -> {
+                    assertThat(uncommittedChangesDTO.isClean()).isFalse();
+                })
                 .verifyComplete();
     }
 }

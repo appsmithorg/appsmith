@@ -3179,9 +3179,9 @@ public class GitServiceCEImpl implements GitServiceCE {
     public Mono<UncommittedChangesDTO> getUncommittedChanges(String defaultApplicationId, String branchName) {
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
-                        branchName, defaultApplicationId, applicationPermission.getEditPermission())
+                        branchName, defaultApplicationId, applicationPermission.getReadPermission())
                 .map(application -> {
-                    Instant lastUpdateAt = application.getUpdatedAt();
+                    Instant lastUpdateAt = application.getLastEditedAt();
                     Instant lastCommittedAt =
                             application.getGitApplicationMetadata().getLastCommittedAt();
                     return lastCommittedAt != null && !lastUpdateAt.isAfter(lastCommittedAt);
