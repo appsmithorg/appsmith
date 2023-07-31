@@ -94,14 +94,6 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
             config.setGoogleMapsKey(System.getenv("APPSMITH_GOOGLE_MAPS_API_KEY"));
 
-            if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
-                config.addThirdPartyAuth("google");
-            }
-
-            if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"))) {
-                config.addThirdPartyAuth("github");
-            }
-
             config.setIsFormLoginEnabled(!"true".equals(System.getenv("APPSMITH_FORM_LOGIN_DISABLED")));
 
             return tenant;
@@ -120,7 +112,15 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
         return repository
                 .findBySlug(FieldName.DEFAULT)
-                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)));
+                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)))
+                .map(tenant -> {
+                    final TenantConfiguration config = tenant.getTenantConfiguration();
+                    config.setGoogleClientId(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"));
+                    config.setGoogleClientSecret(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET"));
+                    config.setGithubClientId(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"));
+                    config.setGithubClientSecret(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET"));
+                    return tenant;
+                });
     }
 
     @Override

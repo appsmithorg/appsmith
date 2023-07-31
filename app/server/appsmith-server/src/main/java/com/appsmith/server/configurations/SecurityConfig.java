@@ -7,7 +7,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.filters.CSRFFilter;
-import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,7 +25,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
@@ -81,16 +79,10 @@ public class SecurityConfig {
     private ServerAuthenticationEntryPoint authenticationEntryPoint;
 
     @Autowired
-    private ReactiveClientRegistrationRepository reactiveClientRegistrationRepository;
-
-    @Autowired
     private AccessDeniedHandler accessDeniedHandler;
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private RedirectHelper redirectHelper;
 
     @Value("${appsmith.internal.password}")
     private String INTERNAL_PASSWORD;
@@ -141,7 +133,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+    public SecurityWebFilterChain securityWebFilterChain(
+            ServerHttpSecurity http,
+            CustomServerOAuth2AuthorizationRequestResolver customServerOAuth2AuthorizationRequestResolver) {
         ServerAuthenticationEntryPointFailureHandler failureHandler =
                 new ServerAuthenticationEntryPointFailureHandler(authenticationEntryPoint);
 
@@ -203,8 +197,7 @@ public class SecurityConfig {
                 // For Google SSO Login, check transformation class: CustomOAuth2UserServiceImpl
                 .oauth2Login(oAuth2LoginSpec -> oAuth2LoginSpec
                         .authenticationFailureHandler(failureHandler)
-                        .authorizationRequestResolver(new CustomServerOAuth2AuthorizationRequestResolver(
-                                reactiveClientRegistrationRepository, commonConfig, redirectHelper))
+                        .authorizationRequestResolver(customServerOAuth2AuthorizationRequestResolver)
                         .authenticationSuccessHandler(authenticationSuccessHandler)
                         .authenticationFailureHandler(authenticationFailureHandler)
                         .authorizedClientRepository(new ClientUserRepository(userService, commonConfig)))
