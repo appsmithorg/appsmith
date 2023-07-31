@@ -26,7 +26,7 @@ export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
   icon?: React.ReactNode;
   /** Indicates the position of icon of the button */
   iconPosition?: "start" | "end";
-  /** Makes the button visually and functionaly disabled but focusable */
+  /** Makes the button visually and functionally disabled but focusable */
   visuallyDisabled?: boolean;
 }
 
@@ -71,11 +71,12 @@ export const Button = forwardRef(
 
     return (
       <StyledButton
+        $color={color}
+        $variant={variant}
         aria-busy={isLoading ? true : undefined}
         aria-disabled={
           visuallyDisabled || isLoading || props.isDisabled ? true : undefined
         }
-        color={color}
         data-button=""
         data-fit-container={isFitContainer ? "" : undefined}
         data-icon-position={iconPosition === "start" ? undefined : "end"}
@@ -83,7 +84,6 @@ export const Button = forwardRef(
         data-variant={variant}
         draggable
         ref={ref}
-        variant={variant}
         {...rest}
       >
         {renderChildren()}

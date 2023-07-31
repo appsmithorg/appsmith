@@ -1,6 +1,6 @@
 export * from "ce/pages/AdminSettings/Main";
 import React from "react";
-import AdminConfig, { AclFactory, OthersFactory } from "./config";
+import AdminConfig from "./config";
 import { Redirect, useParams } from "react-router";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import SettingsForm from "pages/Settings/SettingsForm";
@@ -8,23 +8,34 @@ import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelper
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 const Main = () => {
   const params = useParams() as any;
   const { category, selected: subCategory } = params;
   const user = useSelector(getCurrentUser);
   const tenantPermissions = useSelector(getTenantPermissions);
+  const isSuperUser = user?.isSuperUser || false;
   const wrapperCategory =
-    AdminConfig.wrapperCategories[subCategory ?? category];
-  const aclWrapperCategory = AclFactory.wrapperCategories[category];
-  const otherWrapperCategory = OthersFactory.wrapperCategories[category];
-  if (!!otherWrapperCategory?.component) {
-    const { component: WrapperCategoryComponent } = otherWrapperCategory;
-    return <WrapperCategoryComponent />;
-  } else if (!!aclWrapperCategory?.component) {
-    const { component: WrapperCategoryComponent } = aclWrapperCategory;
-    return <WrapperCategoryComponent />;
-  } else if (!!wrapperCategory?.component) {
+    AdminConfig.wrapperCategories[
+      ["users", "groups", "roles"].includes(category)
+        ? category
+        : subCategory ?? category
+    ];
+  const featureFlags = useSelector(selectFeatureFlags);
+
+  if (
+    category === "provisioning" &&
+    !featureFlags.release_scim_provisioning_enabled
+  ) {
+    return (
+      <Redirect
+        to={getDefaultAdminSettingsPath({ isSuperUser, tenantPermissions })}
+      />
+    );
+  }
+
+  if (!!wrapperCategory?.component) {
     const { component: WrapperCategoryComponent } = wrapperCategory;
     return <WrapperCategoryComponent category={wrapperCategory} />;
   } else if (
@@ -34,7 +45,7 @@ const Main = () => {
     return (
       <Redirect
         to={getDefaultAdminSettingsPath({
-          isSuperUser: user?.isSuperUser,
+          isSuperUser,
           tenantPermissions,
         })}
       />

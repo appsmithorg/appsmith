@@ -23,8 +23,9 @@ Cypress.Commands.add(
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(RBAC.backButton).click();
-    cy.wait(1000);
+    agHelper.WaitUntilToastDisappear("Saved successfully");
+    agHelper.GetNClick(RBAC.rolesTab);
+    agHelper.Sleep(1000);
     cy.get(RBAC.searchBar).clear().type(Role);
     cy.wait(2000);
     cy.get(RBAC.roleRow).first().should("have.text", Role);
@@ -52,7 +53,8 @@ Cypress.Commands.add(
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(RBAC.backButton).click();
+    agHelper.ValidateToastMessage("Saved successfully");
+    agHelper.GetNClick(RBAC.rolesTab);
     cy.wait(1000);
     cy.get(RBAC.searchBar).clear().type(Role);
     cy.wait(2000);
@@ -83,7 +85,8 @@ Cypress.Commands.add(
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(RBAC.backButton).click();
+    agHelper.ValidateToastMessage("Saved successfully");
+    agHelper.GetNClick(RBAC.rolesTab);
     cy.wait(1000);
     cy.get(RBAC.searchBar).clear().type(Role);
     cy.wait(2000);
@@ -118,7 +121,7 @@ Cypress.Commands.add(
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(RBAC.backButton).click();
+    agHelper.GetNClick(RBAC.rolesTab);
     cy.wait(1000);
     cy.get(RBAC.searchBar).clear().type(Role);
     cy.wait(2000);
@@ -149,7 +152,7 @@ Cypress.Commands.add(
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(RBAC.backButton).click();
+    agHelper.GetNClick(RBAC.rolesTab);
     cy.wait(1000);
     cy.get(RBAC.searchBar).clear().type(Role);
     cy.wait(2000);
@@ -180,7 +183,7 @@ Cypress.Commands.add(
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(RBAC.backButton).click();
+    agHelper.GetNClick(RBAC.rolesTab);
     cy.wait(1000);
     cy.get(RBAC.searchBar).clear().type(Role);
     cy.wait(2000);
@@ -284,7 +287,7 @@ Cypress.Commands.add("EditPermissionWorkspaceLevel", (Role, WorkspaceName) => {
     "response.body.responseMeta.status",
     200,
   );
-  cy.get(RBAC.backButton).click();
+  agHelper.GetNClick(RBAC.rolesTab);
   cy.wait(1000);
   cy.get(RBAC.searchBar).clear().type(Role);
   cy.wait(2000);
@@ -313,7 +316,7 @@ Cypress.Commands.add(
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(RBAC.backButton).click();
+    agHelper.GetNClick(RBAC.rolesTab);
     cy.wait(1000);
     cy.get(RBAC.searchBar).clear().type(Role);
     cy.wait(2000);
@@ -345,7 +348,7 @@ Cypress.Commands.add(
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(RBAC.backButton).click();
+    agHelper.GetNClick(RBAC.rolesTab);
     cy.wait(1000);
     cy.get(RBAC.searchBar).clear().type(Role);
     cy.wait(2000);
@@ -375,7 +378,7 @@ Cypress.Commands.add(
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(RBAC.backButton).click();
+    agHelper.GetNClick(RBAC.rolesTab);
     cy.wait(1000);
     cy.get(RBAC.searchBar).clear().type(Role);
     cy.wait(2000);
@@ -402,7 +405,7 @@ Cypress.Commands.add("ViewPermissionWorkspaceLevel", (Role, WorkspaceName) => {
     "response.body.responseMeta.status",
     200,
   );
-  cy.get(RBAC.backButton).click();
+  agHelper.GetNClick(RBAC.rolesTab);
   cy.wait(1000);
   cy.get(RBAC.searchBar).clear().type(Role);
   cy.wait(2000);
@@ -431,7 +434,7 @@ Cypress.Commands.add(
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(RBAC.backButton).click();
+    agHelper.GetNClick(RBAC.rolesTab);
     cy.wait(1000);
     cy.get(RBAC.searchBar).clear().type(Role);
 
@@ -464,7 +467,7 @@ Cypress.Commands.add(
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(RBAC.backButton).click();
+    agHelper.GetNClick(RBAC.rolesTab);
     cy.wait(1000);
     cy.get(RBAC.searchBar).clear().type(Role);
     cy.wait(2000);
@@ -497,7 +500,7 @@ Cypress.Commands.add(
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(RBAC.backButton).click();
+    agHelper.GetNClick(RBAC.rolesTab);
     cy.wait(1000);
     cy.get(RBAC.searchBar).clear().type(Role);
     cy.wait(2000);
@@ -568,7 +571,7 @@ Cypress.Commands.add("CreatePermissionGroupsRoles", (Role) => {
     "response.body.responseMeta.status",
     200,
   );
-  cy.get(RBAC.backButton).click();
+  agHelper.GetNClick(RBAC.rolesTab);
   cy.wait(1000);
   cy.get(RBAC.searchBar).clear().type(Role);
   cy.wait(2000);
@@ -596,7 +599,7 @@ Cypress.Commands.add("ViewAuditLogsRole", (Role) => {
     "response.body.responseMeta.status",
     200,
   );
-  cy.get(RBAC.backButton).click();
+  cy.get(RBAC.rolesTab).click();
   cy.wait(1000);
   cy.get(RBAC.searchBar).clear().type(Role);
   cy.wait(2000);
@@ -623,7 +626,7 @@ Cypress.Commands.add("CreateWorkspaceRole", (Role) => {
     "response.body.responseMeta.status",
     200,
   );
-  cy.get(RBAC.backButton).click();
+  agHelper.GetNClick(RBAC.rolesTab);
   cy.wait(1000);
   cy.get(RBAC.searchBar).clear().type(Role);
   cy.wait(2000);
@@ -660,7 +663,7 @@ Cypress.Commands.add("EditWorkspaceRole", (Role, WorkspaceName) => {
     "response.body.responseMeta.status",
     200,
   );
-  cy.get(RBAC.backButton).click();
+  agHelper.GetNClick(RBAC.rolesTab);
   cy.wait(1000);
   cy.get(RBAC.searchBar).clear().type(Role);
   cy.wait(2000);
@@ -697,8 +700,7 @@ Cypress.Commands.add("DeleteWorkspaceRole", (Role, WorkspaceName) => {
     "response.body.responseMeta.status",
     200,
   );
-  cy.get(RBAC.backButton).click();
-  cy.wait(1000);
+  agHelper.GetNClick(RBAC.rolesTab);
   cy.get(RBAC.searchBar).clear().type(Role);
   cy.wait(2000);
   cy.get(RBAC.roleRow).first().should("have.text", Role);

@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class ProvisionStatusDTO {
     private String lastUpdatedAt = null;
     private String provisionStatus;
+    private Boolean configuredStatus = false;
     private long provisionedUsers = 0;
     private long provisionedGroups = 0;
 }

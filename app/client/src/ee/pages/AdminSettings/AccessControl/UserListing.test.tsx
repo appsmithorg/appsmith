@@ -6,6 +6,7 @@ import { allUsers } from "./mocks/UserListingMock";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
 import * as userSelectors from "selectors/usersSelectors";
+import type { UserProps } from "./types";
 
 let container: any = null;
 const onSelectFn = jest.fn();
@@ -108,6 +109,25 @@ describe("<UserListing />", () => {
     expect(window.location.pathname).toEqual(
       `/settings/users/${allUsers[0].id}`,
     );
+  });
+  it("should render link-unlink icon for provisioned groups", () => {
+    renderComponent();
+    const user = screen.getAllByTestId("user-listing-userCell");
+    allUsers.forEach((u: UserProps, index: number) => {
+      if (u?.isProvisioned) {
+        expect(
+          user[index].querySelectorAll(
+            "[data-testid='t--provisioned-resource']",
+          ),
+        ).not.toHaveLength(1);
+      } else {
+        expect(
+          user[index].querySelectorAll(
+            "[data-testid='t--provisioned-resource']",
+          ),
+        ).toHaveLength(0);
+      }
+    });
   });
   it("should search and filter users on search", async () => {
     renderComponent();

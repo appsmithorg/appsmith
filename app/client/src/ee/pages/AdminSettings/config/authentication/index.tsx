@@ -12,9 +12,9 @@ import {
 import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import {
   SettingCategories,
-  SettingSubCategories,
   SettingTypes,
   SettingSubtype,
+  CategoryType,
 } from "@appsmith/pages/AdminSettings/config/types";
 import { Saml } from "@appsmith/pages/AdminSettings/SAML";
 import Oidc from "@appsmith/pages/AdminSettings/OIDC";
@@ -24,7 +24,6 @@ import SamlSso from "assets/images/saml.svg";
 import OIDC from "assets/images/oidc.svg";
 import React from "react";
 import { OIDC_SIGNUP_SETUP_DOC } from "constants/ThirdPartyConstants";
-import { REDIRECT_URL_FORM } from "@appsmith/constants/forms";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import {
   getIsFormLoginEnabled,
@@ -32,12 +31,14 @@ import {
 } from "@appsmith/selectors/tenantSelectors";
 import {
   OIDC_AUTH_DESC,
+  REDIRECT_URL_TOOLTIP,
   SAML_AUTH_DESC,
   createMessage,
 } from "@appsmith/constants/messages";
 
 const SsoAuth: AdminConfigType = {
   type: SettingCategories.SAML_AUTH,
+  categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.PAGE,
   title: "SAML 2.0",
   component: Saml,
@@ -47,6 +48,7 @@ const SsoAuth: AdminConfigType = {
 
 const OidcAuth: AdminConfigType = {
   type: SettingCategories.OIDC_AUTH,
+  categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.PAGE,
   title: "OpenID connect",
   component: Oidc,
@@ -56,7 +58,6 @@ const OidcAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_OIDC_READ_MORE",
       category: SettingCategories.OIDC_AUTH,
-      subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.LINK,
       label: "How to configure?",
       url: OIDC_SIGNUP_SETUP_DOC,
@@ -64,18 +65,16 @@ const OidcAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_OIDC_REDIRECT_URL",
       category: SettingCategories.OIDC_AUTH,
-      subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.UNEDITABLEFIELD,
       label: "Redirect URL",
-      formName: REDIRECT_URL_FORM,
       fieldName: "redirect-url-form",
       value: "/login/oauth2/code/oidc",
+      tooltip: createMessage(REDIRECT_URL_TOOLTIP),
       helpText: "Paste this URL in your IdP service providers console.",
     },
     {
       id: "APPSMITH_OAUTH2_OIDC_CLIENT_ID",
       category: SettingCategories.OIDC_AUTH,
-      subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client ID",
@@ -84,7 +83,6 @@ const OidcAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_OIDC_CLIENT_SECRET",
       category: SettingCategories.OIDC_AUTH,
-      subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client secret",
@@ -93,7 +91,6 @@ const OidcAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_OIDC_AUTHORIZATION_URI",
       category: SettingCategories.OIDC_AUTH,
-      subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Authorization URL",
@@ -102,7 +99,6 @@ const OidcAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_OIDC_TOKEN_URI",
       category: SettingCategories.OIDC_AUTH,
-      subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Token URL",
@@ -111,7 +107,6 @@ const OidcAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_OIDC_USER_INFO",
       category: SettingCategories.OIDC_AUTH,
-      subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "User info URL",
@@ -120,7 +115,6 @@ const OidcAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_OIDC_JWK_SET_URI",
       category: SettingCategories.OIDC_AUTH,
-      subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "JWK set URL",
@@ -129,7 +123,6 @@ const OidcAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_OIDC_SCOPE",
       category: SettingCategories.OIDC_AUTH,
-      subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.TAGINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Scope",
@@ -139,7 +132,6 @@ const OidcAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_OIDC_USERNAME_ATTRIBUTE",
       category: SettingCategories.OIDC_AUTH,
-      subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Username attribute",
@@ -149,14 +141,12 @@ const OidcAuth: AdminConfigType = {
     {
       id: "APPSMITH_OAUTH2_OIDC_ADVANCED",
       category: SettingCategories.OIDC_AUTH,
-      subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.ACCORDION,
       label: "Advanced",
       advanced: [
         {
           id: "APPSMITH_OAUTH2_OIDC_SIGNING_ALGO",
           category: SettingCategories.OIDC_AUTH,
-          subCategory: SettingSubCategories.OIDC,
           controlType: SettingTypes.DROPDOWN,
           label: "Token signing algorithm",
           dropdownOptions: [
@@ -174,7 +164,6 @@ const OidcAuth: AdminConfigType = {
         {
           id: "APPSMITH_OAUTH2_OIDC_AUDIENCE",
           category: SettingCategories.OIDC_AUTH,
-          subCategory: SettingSubCategories.OIDC,
           controlType: SettingTypes.TEXTINPUT,
           label: "Audience",
         },

@@ -9,9 +9,8 @@ import {
   StyledHeader,
   Wrapper,
 } from "ce/pages/AdminSettings/LeftPane";
-import { AclFactory, OthersFactory } from "./config";
 import { getCurrentUser } from "selectors/usersSelectors";
-import type { Category } from "./config/types";
+import { CategoryType, type Category } from "./config/types";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import {
   isPermitted,
@@ -19,23 +18,16 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-
-function getAclCategory() {
-  return Array.from(AclFactory.categories);
-}
-
-function getOthersCategory() {
-  return Array.from(OthersFactory.categories);
-}
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import {
+  ADMIN_BILLING_SETTINGS_TITLE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 export default function LeftPane() {
-  const categories = getSettingsCategory();
-  const aclCategories = getAclCategory();
-  /** otherCategories will be built from its own factory in future;
-   * The last value in `categories` (ATM) is AuditLogs.
-   * */
-  // const othersCategories: Category[] = [categories.splice(-1, 1)[0]];
-  const othersCategories = getOthersCategory();
+  const categories = getSettingsCategory(CategoryType.GENERAL);
+  const aclCategories = getSettingsCategory(CategoryType.ACL);
+  const othersCategories = getSettingsCategory(CategoryType.OTHER);
   const { category, selected: subCategory } = useParams() as any;
   const user = useSelector(getCurrentUser);
   const isSuperUser = user?.isSuperUser;
@@ -45,6 +37,7 @@ export default function LeftPane() {
     PERMISSION_TYPE.READ_AUDIT_LOGS,
   );
   const isAirgappedInstance = isAirgapped();
+  const featureFlags = useSelector(selectFeatureFlags);
 
   const filteredGeneralCategories = categories
     ?.map((category) => {
@@ -57,7 +50,11 @@ export default function LeftPane() {
 
   const filteredAclCategories = aclCategories
     ?.map((category) => {
-      if (category.title === "Users" && !isSuperUser) {
+      if (
+        (["Users", "Provisioning"].includes(category.title) && !isSuperUser) ||
+        (category.slug === "provisioning" &&
+          !featureFlags.release_scim_provisioning_enabled)
+      ) {
         return null;
       }
       return category;
@@ -66,6 +63,14 @@ export default function LeftPane() {
 
   const filteredOthersCategories = othersCategories
     ?.map((category) => {
+      if (
+        [createMessage(ADMIN_BILLING_SETTINGS_TITLE)].includes(
+          category.title,
+        ) &&
+        !isSuperUser
+      ) {
+        return null;
+      }
       return category;
     })
     .filter(Boolean) as Category[];

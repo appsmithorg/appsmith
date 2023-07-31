@@ -61,7 +61,7 @@ export async function getGroups(
   if (getObj.operator) {
     if (
       getObj.operator === "eq" &&
-      ["id", "displayName", "externalId"].includes(getObj.attribute)
+      ["id", "displayName"].includes(getObj.attribute)
     ) {
       // mandatory - unique filtering - single unique user to be returned - correspond to getUser() in versions < 4.x.x
       if (getObj.attribute === "id")

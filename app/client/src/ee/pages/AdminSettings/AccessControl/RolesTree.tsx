@@ -443,13 +443,21 @@ export function getEntireHoverMap(hoverMap: any, key: string) {
   return finalMap;
 }
 
-export function getEntireDisableMap(map: any, rowId: string, column: string) {
+export function getEntireDisableMap(map: any, rowData: any, column: string) {
   const currentKeyMap: any = map
     ? Object.fromEntries(
-        Object.entries(map).filter(([key]) => key.includes(rowId)),
+        Object.entries(map).filter(([key]) => {
+          const splitKey = key.split("_");
+          return (
+            key.includes(rowData.id) &&
+            (splitKey[2] ===
+              `Tenant${rowData.name.substring(0, rowData.name.length - 1)}` ||
+              !splitKey[2])
+          );
+        }),
       )
     : [];
-  const key = `${rowId}_${column}`;
+  const key = `${rowData.id}_${column}`;
   const finalMap: any[] = [];
   for (const entry in currentKeyMap) {
     for (const trav of currentKeyMap[entry]) {
@@ -568,7 +576,6 @@ export function updateSubRows(
 
 export function updateCheckbox(
   rowData: any,
-  rIndex: number,
   value: any,
   hoverMap: any[],
   permissions: any,
@@ -581,10 +588,10 @@ export function updateCheckbox(
 
     let dependencies = 0;
     const disableMapForCheckbox =
-      getEntireDisableMap(disableHelperMap, updatedRow.id, map.p) || [];
+      getEntireDisableMap(disableHelperMap, updatedRow, map.p) || [];
     for (const i of disableMapForCheckbox) {
       const allEl = document.querySelectorAll(`[data-cellId="${i}"]`);
-      const el = allEl.length > 1 ? allEl[rIndex] : allEl[0];
+      const el = allEl[0];
       const input = el?.getElementsByTagName("input")[0];
       if (input && input.checked && !input.disabled) {
         dependencies += 1;
@@ -650,7 +657,6 @@ export function updateData(
     if (currentCellId[0] === rowDataToUpdate.id) {
       updatedData[parseInt(rowIdArray[0])] = updateCheckbox(
         rowDataToUpdate,
-        parseInt(rowIdArray[0]),
         newValue,
         hoverMap,
         permissions,
@@ -809,11 +815,7 @@ export function RolesTree(props: RoleTreeProps & { selectedTab: boolean }) {
         const disableMap = useMemo(
           () =>
             isChecked && canEditRole && tabData.disableHelperMap
-              ? getEntireDisableMap(
-                  tabData.disableHelperMap,
-                  rowData.id,
-                  column,
-                )
+              ? getEntireDisableMap(tabData.disableHelperMap, rowData, column)
               : [],
           [isChecked],
         );
@@ -863,9 +865,7 @@ export function RolesTree(props: RoleTreeProps & { selectedTab: boolean }) {
           for (const i of disableMap) {
             const allEl = document.querySelectorAll(`[data-cellId="${i}"]`);
             const el =
-              allEl.length > 1
-                ? allEl[rIndex]
-                : allEl[0]?.getAttribute("data-rowid") === rIndex.toString()
+              allEl[0]?.getAttribute("data-rowid") === rIndex.toString()
                 ? allEl[0]
                 : null;
             const input = el?.getElementsByTagName("input")[0];

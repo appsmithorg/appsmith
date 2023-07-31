@@ -53,6 +53,7 @@ const CellContainer = styled.div`
   align-items: center;
   cursor: pointer;
   color: var(--ads-v2-color-fg);
+  gap: var(--ads-v2-spaces-4);
 `;
 
 const CrossedEditIcon = styled(Icon)`

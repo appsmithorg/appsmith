@@ -65,6 +65,7 @@ import {
   ModalBody,
   ModalContent,
   ModalHeader,
+  Icon,
 } from "design-system";
 import { AvatarComponent } from "pages/common/AvatarComponent";
 
@@ -104,9 +105,9 @@ const ListUsers = styled.div`
 const EachUser = styled.div`
   display: flex;
   align-items: center;
+  gap: var(--ads-v2-spaces-3);
 
   .user-icons {
-    margin-right: 8px;
     cursor: initial;
 
     span {
@@ -325,7 +326,7 @@ export function GroupAddEdit(props: GroupEditProps) {
       Cell: function UserCell(props: any) {
         const user = props.cell.row.original;
         return (
-          <EachUser>
+          <EachUser data-testid="t--user-row">
             <AvatarComponent
               className="user-icons"
               size="sm"
@@ -337,6 +338,9 @@ export function GroupAddEdit(props: GroupEditProps) {
               userName={user.username}
             />
             <HighlightText highlight={searchValue} text={user.username} />
+            {user?.isProvisioned && (
+              <Icon data-testid="t--provisioned-resource" name="link-unlink" />
+            )}
           </EachUser>
         );
       },

@@ -82,6 +82,7 @@ import com.appsmith.server.solutions.ActionExecutionSolution;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.CreateDBTablePageSolution;
 import com.appsmith.server.solutions.EnvManager;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
@@ -142,7 +143,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_CUSTOM_DOMAIN;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
-import static com.appsmith.server.constants.EnvVariables.APPSMITH_GOOGLE_MAPS_API_KEY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_HIDE_WATERMARK;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_INSTANCE_NAME;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_FROM;
@@ -272,6 +272,9 @@ public class AuditLogServiceTest {
     @Autowired
     UserWorkspaceService userWorkspaceService;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     private static String workspaceId;
     private static String defaultEnvironmentId;
     private static Application app;
@@ -300,8 +303,9 @@ public class AuditLogServiceTest {
                         .block();
                 workspaceId = workspace.getId();
 
-                defaultEnvironmentId =
-                        workspaceService.getDefaultEnvironmentId(workspaceId).block();
+                defaultEnvironmentId = workspaceService
+                        .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                        .block();
             }
 
             // Make api_user super user as AuditLogs are accessible for super users only
@@ -1352,7 +1356,7 @@ public class AuditLogServiceTest {
         Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         String environmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application application = new Application();
@@ -2287,7 +2291,7 @@ public class AuditLogServiceTest {
         workspace.setName("AuditLogWorkspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
         String environmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application application = new Application();
@@ -2375,7 +2379,7 @@ public class AuditLogServiceTest {
         workspace.setName("AuditLogWorkspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
         String environmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application application = new Application();
@@ -2469,7 +2473,7 @@ public class AuditLogServiceTest {
         workspace.setName("AuditLogWorkspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
         String environmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application application = new Application();
@@ -2535,7 +2539,7 @@ public class AuditLogServiceTest {
         workspace.setName("AuditLogWorkspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
         String environmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application application = new Application();
@@ -2625,7 +2629,7 @@ public class AuditLogServiceTest {
         Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         String environmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application application = new Application();
@@ -2763,7 +2767,7 @@ public class AuditLogServiceTest {
         workspace.setName("AuditLogWorkspace");
         Workspace createdWorkspace = workspaceService.create(workspace).block();
         String environmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application application = new Application();
@@ -3529,7 +3533,7 @@ public class AuditLogServiceTest {
         Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         String environmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application application = new Application();
@@ -3687,7 +3691,6 @@ public class AuditLogServiceTest {
                 entry(APPSMITH_MAIL_PASSWORD.name(), "testPassword"),
                 entry(APPSMITH_MAIL_PORT.name(), "25"),
                 entry(APPSMITH_REPLY_TO.name(), "testemail@test.com"),
-                entry(APPSMITH_GOOGLE_MAPS_API_KEY.name(), "testGoogleMapsAPIKey"),
                 entry(APPSMITH_CUSTOM_DOMAIN.name(), "testCustomDomain")));
 
         envManager.applyChanges(envChanges).block();

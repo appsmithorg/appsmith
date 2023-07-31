@@ -62,7 +62,9 @@ public class Migration111EEAddPublicPermissionGroupToEnvironments {
                                                 Criteria.where("permission")
                                                         .is(AclPermission.READ_APPLICATIONS.getValue()),
                                                 Criteria.where("permissionGroups")
-                                                        .in(publicPermissionGroupId))));
+                                                        .in(publicPermissionGroupId))))
+                .and("policies.permissionGroups")
+                .exists(true);
 
         Query publicApplicationsQuery = new Query().addCriteria(publicApplicationsCriteria);
         publicApplicationsQuery.fields().include(fieldName(QApplication.application.workspaceId));
@@ -91,7 +93,9 @@ public class Migration111EEAddPublicPermissionGroupToEnvironments {
                                                 Criteria.where("permission")
                                                         .is(AclPermission.EXECUTE_ENVIRONMENTS.getValue()),
                                                 Criteria.where("permissionGroups")
-                                                        .nin(publicPermissionGroupId))));
+                                                        .nin(publicPermissionGroupId))))
+                .and("policies.permissionGroups")
+                .exists(true);
         Query applicableEnvironmentsQuery = new Query().addCriteria(applicableEnvironmentsCriteria);
 
         Update environmentUpdateQuery = new Update().addToSet("policies.$.permissionGroups", publicPermissionGroupId);

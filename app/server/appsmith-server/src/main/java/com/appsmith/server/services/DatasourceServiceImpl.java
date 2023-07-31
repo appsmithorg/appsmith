@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -12,6 +13,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.ce.DatasourceServiceCEImpl;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.constraints.NotNull;
@@ -30,11 +32,10 @@ import java.util.Map;
 @Service
 public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements DatasourceService {
 
-    private final VariableReplacementService variableReplacementService;
-
     private final WorkspaceService workspaceService;
-
     private final ObservationRegistry observationRegistry;
+
+    private final EnvironmentPermission environmentPermission;
 
     public DatasourceServiceImpl(
             DatasourceRepository repository,
@@ -47,10 +48,10 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
             SequenceService sequenceService,
             NewActionRepository newActionRepository,
             DatasourceContextService datasourceContextService,
-            VariableReplacementService variableReplacementService,
             DatasourcePermission datasourcePermission,
             WorkspacePermission workspacePermission,
             DatasourceStorageService datasourceStorageService,
+            EnvironmentPermission environmentPermission,
             ObservationRegistry observationRegistry) {
 
         super(
@@ -66,15 +67,21 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                 datasourceContextService,
                 datasourcePermission,
                 workspacePermission,
-                datasourceStorageService);
+                datasourceStorageService,
+                environmentPermission);
 
-        this.variableReplacementService = variableReplacementService;
         this.workspaceService = workspaceService;
         this.observationRegistry = observationRegistry;
+        this.environmentPermission = environmentPermission;
     }
 
     @Override
-    public Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId) {
+    public Mono<String> getTrueEnvironmentId(
+            String workspaceId,
+            String environmentId,
+            String pluginId,
+            AclPermission aclPermission,
+            boolean isEmbedded) {
         // These two constants should Ideally be moved to constants, but that needs to be added from CE,
         // this is here until we add these in CE repo
         String observationTag = "isDefaultCall";
@@ -84,19 +91,38 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        if (!StringUtils.hasText(environmentId)) {
-            return workspaceService
-                    .getDefaultEnvironmentId(workspaceId)
-                    .tag(observationTag, Boolean.TRUE.toString())
-                    .name(observationName)
-                    .tap(Micrometer.observation(observationRegistry));
+        if (Boolean.TRUE.equals(isEmbedded)) {
+            // We don't care about any of the other params in this case,
+            // since environments do not apply to an embedded datasource
+            return workspaceService.verifyEnvironmentIdByWorkspaceId(workspaceId, environmentId, null);
         }
 
-        return workspaceService
-                .verifyEnvironmentIdByWorkspaceId(workspaceId, environmentId)
-                .tag(observationTag, Boolean.FALSE.toString())
-                .name(observationName)
-                .tap(Micrometer.observation(observationRegistry));
+        return Mono.just(!StringUtils.hasText(environmentId))
+                .zipWith(pluginService.isOosPluginForME(pluginId))
+                .flatMap(tuple2 -> {
+                    if (tuple2.getT1()) {
+                        // If there is no environment provided, always opt for the default,
+                        // provided that this user has the requisite permissions
+                        return workspaceService
+                                .getDefaultEnvironmentId(workspaceId, AclPermission.EXECUTE_ENVIRONMENTS)
+                                .tag(observationTag, Boolean.TRUE.toString())
+                                .name(observationName)
+                                .tap(Micrometer.observation(observationRegistry));
+                    } else if (tuple2.getT2()) {
+                        // If this is an OOS plugin, check if the user has access to the current environment
+                        // If they do, opt to use the default environment irrespective of access
+                        return workspaceService
+                                .verifyEnvironmentIdByWorkspaceId(workspaceId, environmentId, aclPermission)
+                                .then(workspaceService.getDefaultEnvironmentId(workspaceId, null));
+                    }
+                    // In case the environment id is provided and this is not an OOS plugin,
+                    // Opt to check for access for this particular environment itself
+                    return workspaceService
+                            .verifyEnvironmentIdByWorkspaceId(workspaceId, environmentId, aclPermission)
+                            .tag(observationTag, Boolean.FALSE.toString())
+                            .name(observationName)
+                            .tap(Micrometer.observation(observationRegistry));
+                });
     }
 
     @Override
@@ -125,7 +151,10 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
 
         return Flux.fromIterable(storages.values())
                 .flatMap(datasourceStorageDTO -> this.getTrueEnvironmentId(
-                                savedDatasource.getWorkspaceId(), datasourceStorageDTO.getEnvironmentId())
+                                savedDatasource.getWorkspaceId(),
+                                datasourceStorageDTO.getEnvironmentId(),
+                                savedDatasource.getPluginId(),
+                                null)
                         .map(trueEnvironmentId -> {
                             datasourceStorageDTO.setEnvironmentId(trueEnvironmentId);
                             DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
@@ -134,10 +163,5 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                             return datasourceStorage;
                         }))
                 .thenMany(Flux.fromIterable(storagesToBeSaved.values()));
-    }
-
-    @Override
-    public Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId, String pluginId) {
-        return getTrueEnvironmentId(workspaceId, environmentId);
     }
 }

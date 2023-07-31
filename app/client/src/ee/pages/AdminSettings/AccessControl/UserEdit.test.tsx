@@ -51,6 +51,30 @@ describe("<UserEdit />", () => {
     expect(userInfo[0]).toHaveTextContent(selectedUser.username);
     expect(userInfo[0]).toHaveTextContent(selectedUser.name);
   });
+  it("should display provisioned resource with link-unlink icons", () => {
+    renderComponent();
+    const tabs = screen.getAllByRole("tab");
+    expect(tabs.length).toEqual(2);
+    const activeGroupsData = allUsers[0].groups;
+    const activeGroups = screen.queryAllByTestId("t--active-group-row");
+    expect(activeGroups.length).toEqual(activeGroupsData.length);
+
+    activeGroupsData.map((group: BaseGroupRoleProps, index: number) => {
+      if (group?.isProvisioned) {
+        expect(
+          activeGroups[index].querySelectorAll(
+            "[data-testid='t--provisioned-resource']",
+          ),
+        ).toHaveLength(1);
+      } else {
+        expect(
+          activeGroups[index].querySelectorAll(
+            "[data-testid='t--provisioned-resource']",
+          ),
+        ).toHaveLength(0);
+      }
+    });
+  });
   it("should display active and all roles properly with icons for default roles", () => {
     renderComponent();
     const tabs = screen.getAllByRole("tab");

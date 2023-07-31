@@ -13,6 +13,7 @@ export type WidgetQueryGenerationFormConfig = {
   searchableColumn: string;
   columns: string[];
   primaryColumn: string;
+  connectionMode: string;
 } & GsheetConfig;
 
 export type WidgetQueryGenerationConfig = {

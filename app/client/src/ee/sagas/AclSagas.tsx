@@ -34,9 +34,12 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentUser } from "actions/authActions";
 import omit from "lodash/omit";
 
-export function* fetchAclUsersSaga() {
+export function* fetchAclUsersSaga(action: any) {
   try {
-    const response: ApiResponse = yield call(AclApi.fetchAclUsers);
+    const response: ApiResponse = yield call(
+      AclApi.fetchAclUsers,
+      action?.payload,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
@@ -233,6 +236,16 @@ export function* updateRolesInUserSaga(
       action.payload,
     );
 
+    if (
+      !response?.responseMeta?.success &&
+      response?.responseMeta?.status === 403 &&
+      response?.responseMeta?.error?.message === "Unauthorized access"
+    ) {
+      history.push(`/applications`);
+      yield put(getCurrentUser());
+      return;
+    }
+
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
@@ -266,9 +279,12 @@ export function* updateRolesInUserSaga(
   }
 }
 
-export function* fetchAclGroupsSaga() {
+export function* fetchAclGroupsSaga(action: any) {
   try {
-    const response: ApiResponse = yield call(AclApi.fetchAclGroups);
+    const response: ApiResponse = yield call(
+      AclApi.fetchAclGroups,
+      action.payload,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {

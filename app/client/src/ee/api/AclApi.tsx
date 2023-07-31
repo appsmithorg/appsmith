@@ -78,8 +78,10 @@ export class AclApi extends Api {
   static inviteViaGroups = "/v1/user-groups/add-member";
   static iconLocation = "/v1/plugins/icon-location";
 
-  static async fetchAclUsers(): Promise<AxiosPromise<ApiResponse>> {
-    const response = await Api.get(`${AclApi.users}/manage/all`);
+  static async fetchAclUsers(
+    request?: any,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.get(`${AclApi.users}/manage/all`, request);
     return response;
   }
 
@@ -176,8 +178,10 @@ export class AclApi extends Api {
     return response;
   }
 
-  static async fetchAclGroups(): Promise<AxiosPromise<ApiResponse>> {
-    const response = await Api.get(AclApi.userGroups);
+  static async fetchAclGroups(
+    request?: any,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.get(AclApi.userGroups, request);
     return response;
   }
 

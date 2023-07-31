@@ -45,6 +45,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.roles.constants.PermissionViewableName;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
 import com.appsmith.server.solutions.roles.dtos.ActionResourceDTO;
@@ -174,6 +175,9 @@ public class WorkspaceResourcesTest {
     @MockBean
     FeatureFlagService featureFlagService;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     User api_user = null;
 
     String superAdminPermissionGroupId = null;
@@ -227,7 +231,7 @@ public class WorkspaceResourcesTest {
         toCreate.setPluginId(restApiPlugin.getId());
 
         String environmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
         DatasourceStorage datasourceStorage = new DatasourceStorage(toCreate, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
@@ -640,7 +644,7 @@ public class WorkspaceResourcesTest {
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
         datasource.setWorkspaceId(createdWorkspace1.getId());
         String environmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace1.getId())
+                .getDefaultEnvironmentId(createdWorkspace1.getId(), environmentPermission.getExecutePermission())
                 .block();
         DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
@@ -1818,7 +1822,7 @@ public class WorkspaceResourcesTest {
         datasource.setPluginId(installed_plugin.getId());
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
         String environmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace1.getId())
+                .getDefaultEnvironmentId(createdWorkspace1.getId(), environmentPermission.getExecutePermission())
                 .block();
         DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, environmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();

@@ -3,7 +3,9 @@ package com.appsmith.server.solutions.ce;
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.dtos.ParamProperty;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Param;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
@@ -23,12 +25,14 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -65,6 +69,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
@@ -122,6 +127,9 @@ class ActionExecutionSolutionCEImplTest {
     @MockBean
     DatasourceStorageService datasourceStorageService;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     private BodyExtractor.Context context;
 
     private Map<String, Object> hints;
@@ -144,7 +152,8 @@ class ActionExecutionSolutionCEImplTest {
                 authenticationValidator,
                 datasourcePermission,
                 analyticsService,
-                datasourceStorageService);
+                datasourceStorageService,
+                environmentPermission);
 
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);
@@ -278,9 +287,14 @@ class ActionExecutionSolutionCEImplTest {
 
         NewAction newAction = new NewAction();
         newAction.setId("63285a3388e48972c7519b18");
+        Datasource datasource = new Datasource();
+        ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setDatasource(datasource);
+        newAction.setUnpublishedAction(actionDTO);
         doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID))
                 .when(datasourceService)
-                .getTrueEnvironmentId(any(), any(), any());
+                .getTrueEnvironmentId(
+                        any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
@@ -331,9 +345,14 @@ class ActionExecutionSolutionCEImplTest {
 
         NewAction newAction = new NewAction();
         newAction.setId("63285a3388e48972c7519b18");
+        Datasource datasource = new Datasource();
+        ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setDatasource(datasource);
+        newAction.setUnpublishedAction(actionDTO);
         doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID))
                 .when(datasourceService)
-                .getTrueEnvironmentId(any(), any(), any());
+                .getTrueEnvironmentId(
+                        any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 

@@ -92,10 +92,12 @@ export const userGroupTableData: GroupProps[] = [
       {
         username: "techak@appsmith.com",
         id: "123",
+        isProvisioned: true,
       },
       {
         username: "hello123@appsmith.com",
         id: "456",
+        isProvisioned: false,
       },
     ],
     userPermissions: ["read:userGroups"],

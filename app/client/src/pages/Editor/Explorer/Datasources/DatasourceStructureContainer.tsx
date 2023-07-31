@@ -20,6 +20,7 @@ import type { AppState } from "@appsmith/reducers";
 import DatasourceStructureLoadingContainer from "./DatasourceStructureLoadingContainer";
 import DatasourceStructureNotFound from "./DatasourceStructureNotFound";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { PluginName } from "entities/Action";
 
 type Props = {
   datasourceId: string;
@@ -36,6 +37,19 @@ export enum DatasourceStructureContext {
   // this does not exist yet, but in case it does in the future.
   API_EDITOR = "api-editor",
 }
+
+// leaving out DynamoDB and Firestore because they have a schema but not templates
+export const SCHEMALESS_PLUGINS: Array<string> = [
+  PluginName.SMTP,
+  PluginName.TWILIO,
+  PluginName.HUBSPOT,
+  PluginName.ELASTIC_SEARCH,
+  PluginName.AIRTABLE,
+  PluginName.GRAPHQL,
+  PluginName.REST_API,
+  PluginName.REDIS,
+  PluginName.GOOGLE_SHEETS,
+];
 
 const DatasourceStructureSearchContainer = styled.div`
   margin-bottom: 8px;

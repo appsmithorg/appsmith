@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useHistory } from "react-router";
+import { useParams, useHistory, useLocation } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
 import { HighlightText } from "design-system-old";
-import { Spinner } from "design-system";
+import { Icon, Spinner } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { GroupAddEdit } from "./GroupAddEdit";
@@ -46,12 +46,16 @@ const CellContainer = styled.div`
   align-items: center;
   cursor: pointer;
   color: var(--ads-v2-color-fg);
+  gap: var(--ads-v2-spaces-3);
 `;
 
 export function GroupListing() {
   const history = useHistory();
   const params = useParams() as any;
   const dispatch = useDispatch();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const provisionedQueryParam = queryParams.get("provisioned");
 
   const userGroups = useSelector(getGroups);
   const selectedGroup = useSelector(getSelectedGroup);
@@ -89,7 +93,16 @@ export function GroupListing() {
       setSelectedUserGroup(null);
       dispatch(getGroupById({ id: selectedUserGroupId }));
     } else if (!selectedUserGroupId) {
-      dispatch({ type: ReduxActionTypes.FETCH_ACL_GROUPS });
+      dispatch({
+        type: ReduxActionTypes.FETCH_ACL_GROUPS,
+        ...(provisionedQueryParam
+          ? {
+              payload: {
+                provisioned: provisionedQueryParam,
+              },
+            }
+          : {}),
+      });
     }
   }, [selectedUserGroupId]);
 
@@ -104,19 +117,20 @@ export function GroupListing() {
       Header: `Groups (${data.length})`,
       accessor: "name",
       Cell: function GroupCell(cellProps: any) {
+        const { id, isProvisioned, name } = cellProps.cell.row.original;
         return (
           <Link
             data-testid="t--usergroup-cell"
             to={adminSettingsCategoryUrl({
               category: SettingCategories.GROUPS_LISTING,
-              selected: cellProps.cell.row.original.id,
+              selected: id,
             })}
           >
             <CellContainer>
-              <HighlightText
-                highlight={searchValue}
-                text={cellProps.cell.row.original.name}
-              />
+              <HighlightText highlight={searchValue} text={name} />
+              {isProvisioned && (
+                <Icon data-tesid="t--provisioned-resource" name="link-unlink" />
+              )}
             </CellContainer>
           </Link>
         );

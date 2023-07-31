@@ -69,3 +69,4 @@ LICENSE
 config
 lib
 index.js
+!src/*/config

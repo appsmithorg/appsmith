@@ -7,7 +7,7 @@ import {
   homePage,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe.skip("Groups&Roles tab Tests", function () {
+describe("Groups&Roles tab Tests", function () {
   let workspaceName;
   let appName;
   let newWorkspaceName;
@@ -107,7 +107,7 @@ describe.skip("Groups&Roles tab Tests", function () {
           200,
         );
         // verify custom role is added to the list
-        cy.get(RBAC.backButton).click();
+        cy.get(RBAC.rolesTab).click();
         cy.wait(2000);
         cy.get(RBAC.searchBar).clear().type(EditPermissionGroupsandRoles);
         cy.wait(2000);
@@ -136,7 +136,7 @@ describe.skip("Groups&Roles tab Tests", function () {
           200,
         );
         // verify custom role is added to the list
-        cy.get(RBAC.backButton).click();
+        cy.get(RBAC.rolesTab).click();
         cy.wait(2000);
         cy.get(RBAC.searchBar).clear().type(ViewPermissionGroupsandRoles);
         cy.wait(2000);
@@ -164,7 +164,7 @@ describe.skip("Groups&Roles tab Tests", function () {
           200,
         );
         // verify custom role is added to the list
-        cy.get(RBAC.backButton).click();
+        cy.get(RBAC.rolesTab).click();
         cy.wait(2000);
         cy.get(RBAC.searchBar).clear().type(DeletePermissionGroupsandRoles);
         cy.wait(2000);
@@ -202,7 +202,7 @@ describe.skip("Groups&Roles tab Tests", function () {
           200,
         );
         // verify custom role is added to the list
-        cy.get(RBAC.backButton).click();
+        cy.get(RBAC.rolesTab).click();
         cy.wait(2000);
         cy.get(RBAC.searchBar).clear().type(ViewGroupsAssociateRolesPermission);
         cy.wait(2000);

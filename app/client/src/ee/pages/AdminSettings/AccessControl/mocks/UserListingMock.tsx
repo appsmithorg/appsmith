@@ -8,16 +8,19 @@ export const allUsers: UserProps[] = [
         id: "1",
         name: "Administrator",
         userPermissions: ["removeUsers:userGroups"],
+        isProvisioned: true,
       },
       {
         id: "2",
         name: "Test_Admin",
         userPermissions: ["removeUsers:userGroups"],
+        isProvisioned: false,
       },
       {
         id: "3",
         name: "HR_Admin",
         userPermissions: [],
+        isProvisioned: true,
       },
     ],
     allGroups: [
@@ -56,6 +59,7 @@ export const allUsers: UserProps[] = [
     username: "techak@appsmith.com",
     id: "123",
     userPermissions: ["manage:users", "delete:users"],
+    isProvisioned: false,
   },
   {
     name: "Sangy Sivan",
@@ -107,6 +111,7 @@ export const allUsers: UserProps[] = [
     username: "sangy@appsmith.com",
     id: "456",
     userPermissions: ["manage:users"],
+    isProvisioned: false,
   },
   {
     name: "SS Sivan",
@@ -158,5 +163,6 @@ export const allUsers: UserProps[] = [
     username: "sangy123@appsmith.com",
     id: "789",
     userPermissions: [],
+    isProvisioned: true,
   },
 ];

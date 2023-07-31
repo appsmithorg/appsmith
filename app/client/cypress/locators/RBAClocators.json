@@ -28,7 +28,7 @@
   "cloneRole": ".clone-menu-item",
   "othersTab": "[data-testid='t--tab-Others']",
   "usersTabinGroup": "[data-testid='t--tab-users']",
-  "backButton": ".t--admin-settings-back-button",
+  "backButton": ".t--admin-settings-back-button span",
   "groupsAndRolesTab": "[data-testid='t--tab-Groups & Roles']",
   "dataSourcesandQueriesTab": "[data-testid='t--tab-Datasources & Queries']",
   "contextMenu": "[data-testid=t--page-header-actions]",

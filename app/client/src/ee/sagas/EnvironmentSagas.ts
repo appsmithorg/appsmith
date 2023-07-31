@@ -7,10 +7,54 @@ import EnvironmentApi from "@appsmith/api/EnvironmentApi";
 import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
 import type { EnvironmentType } from "@appsmith/reducers/environmentReducer";
 import {
+  ENVIRONMENT_ID_LOCAL_STORAGE_KEY,
   ENVIRONMENT_QUERY_KEY,
+  setCurrentEditingEnvID,
   updateLocalStorage,
 } from "@appsmith/utils/Environments";
 import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
+
+const checkIfEnvIsAlreadySet = (
+  envs: EnvironmentType[],
+  queryParams: URLSearchParams,
+) => {
+  // check if query params have the environment name
+  // do not override the default environment if it is already set
+
+  if (queryParams.has(ENVIRONMENT_QUERY_KEY)) {
+    // check if this env is present in the incoming payload
+    const envName = queryParams.get(ENVIRONMENT_QUERY_KEY);
+    const env = envs.find(
+      (env: EnvironmentType) =>
+        env.name.toLowerCase() === envName &&
+        env.userPermissions &&
+        env.userPermissions.length > 0 &&
+        env.userPermissions[0] === PERMISSION_TYPE.EXECUTE_ENVIRONMENT,
+    );
+    // if the env is not present in the incoming payload, override the localstorage
+    if (!env) {
+      return false;
+    }
+  }
+
+  // check localstorage if the default environment is already set
+  const localStorageEnvId = localStorage.getItem(
+    ENVIRONMENT_ID_LOCAL_STORAGE_KEY,
+  );
+  if (!localStorageEnvId || localStorageEnvId.length === 0) return false;
+
+  // check if this id is present in the incoming payload
+  const localStorageEnv = envs.find(
+    (env: EnvironmentType) => env.id === localStorageEnvId,
+  );
+
+  if (!!localStorageEnv) {
+    return true;
+  }
+
+  return false;
+};
 
 // Saga to handle fetching the environment configs
 function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
@@ -22,26 +66,44 @@ function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const defaultEnvironment = response.data.find(
-        (env: EnvironmentType) => env.isDefault,
+        (env: EnvironmentType) =>
+          env.isDefault &&
+          env.userPermissions &&
+          env.userPermissions.length > 0 &&
+          env.userPermissions[0] === PERMISSION_TYPE.EXECUTE_ENVIRONMENT,
       );
       const datasourceEnv: boolean = yield select(datasourceEnvEnabled);
-      // Only fetch if the feature flag allows it
+      const queryParams = new URLSearchParams(window.location.search);
       if (defaultEnvironment) {
-        updateLocalStorage(defaultEnvironment.name, defaultEnvironment.id);
-        if (datasourceEnv) {
-          const queryParams = new URLSearchParams(window.location.search);
-          // Set new or modify existing parameter value.
-          queryParams.set(
-            ENVIRONMENT_QUERY_KEY,
-            defaultEnvironment.name.toLowerCase(),
-          );
-          // Replace current querystring with the new one.
-          window.history.replaceState({}, "", "?" + queryParams.toString());
+        if (!checkIfEnvIsAlreadySet(response.data, queryParams)) {
+          updateLocalStorage(defaultEnvironment.name, defaultEnvironment.id);
+          if (datasourceEnv) {
+            // Set new if there is no query param
+            queryParams.set(
+              ENVIRONMENT_QUERY_KEY,
+              defaultEnvironment.name.toLowerCase(),
+            );
+            // Replace current querystring with the new one.
+            window.history.replaceState({}, "", "?" + queryParams.toString());
+          }
         }
+        setCurrentEditingEnvID(defaultEnvironment.id);
+      } else {
+        queryParams.delete(ENVIRONMENT_QUERY_KEY);
+        window.history.replaceState({}, "", "?" + queryParams.toString());
+      }
+      let envsData: Array<EnvironmentType> = [];
+      if (!!response.data && response.data.length > 0) {
+        // env data needs to be sorted with env that has isDeault true at the top
+        envsData = response.data.sort((a, b) => {
+          if (a.isDefault) return -1;
+          if (b.isDefault) return 1;
+          return 0;
+        });
       }
       yield put({
         type: ReduxActionTypes.FETCH_ENVIRONMENT_SUCCESS,
-        payload: (response?.data as any) || [],
+        payload: envsData,
       });
     } else {
       yield put({

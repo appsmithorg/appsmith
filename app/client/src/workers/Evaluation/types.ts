@@ -47,6 +47,7 @@ export interface EvalTreeResponseData {
   errors: EvalError[];
   evalMetaUpdates: EvalMetaUpdates;
   evaluationOrder: string[];
+  reValidatedPaths: string[];
   jsUpdates: Record<string, JSUpdate>;
   logs: unknown[];
   unEvalUpdates: DataTreeDiff[];
