@@ -8,20 +8,12 @@ import {
 
 function deleteAllWidgetsInContainer() {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-
-  agHelper.GetNClick(
+  agHelper.SelectAllWidgets(
     `${locators._widgetByName("List1")} ${locators._containerWidget}`,
-    0,
-    true,
   );
-  agHelper.SelectAllWidgets();
   agHelper.PressDelete();
   // Clear All Toast
   agHelper.WaitUntilAllToastsDisappear();
-  // agHelper.GetElement(locators._toastMsg).each(($el) => {
-  //   cy.wrap($el).click();
-  // });
-  // agHelper.Sleep(1000);
 }
 
 describe("List widget v2 onItemClick", () => {
@@ -33,12 +25,6 @@ describe("List widget v2 onItemClick", () => {
       "{{showAlert('ListWidget_' + currentItem.name + '_' + currentIndex,'success')}}",
       true,
     );
-    // agHelper.GetNClick(locators._jsToggle("onitemclick"));
-    // propPane.TypeTextIntoField(
-    //   "onitemclick",
-    //   "{{showAlert('ListWidget_' + currentItem.name + '_' + currentIndex,'success')}}",
-    // );
-
     agHelper.GetNClick(
       `${locators._widgetByName("List1")} ${locators._containerWidget}`,
       0,

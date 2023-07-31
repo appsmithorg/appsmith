@@ -548,8 +548,8 @@ export class AggregateHelper extends ReusableHelper {
     cy.get("body").type(`{del}`, { force: true });
   }
 
-  public SelectAllWidgets(parentWidget = ".appsmith_widget_0") {
-    cy.get(parentWidget).type(this.isMac ? "{meta}A" : "{ctrl}A");
+  public SelectAllWidgets(parentWidget = ".appsmith_widget_0", index = 0) {
+    cy.get(parentWidget).eq(index).type(this.isMac ? "{meta}A" : "{ctrl}A");
   }
 
   public SetCanvasViewportWidth(width: number) {

@@ -159,7 +159,7 @@ describe("List widget V2 page number and page size", () => {
   it("excludeForAirgap 3. should reset page no if higher than max when switched from server side to client side", () => {
     agHelper.AddDsl("Listv2/listWithServerSideData");
     agHelper.Sleep(2000);
-    dataSources.CreateMockDB("users").then(() => {
+    dataSources.CreateMockDB("Users").then(() => {
       dataSources.CreateQueryAfterDSSaved();
       dataSources.ToggleUsePreparedStatement(false);
     });
@@ -169,7 +169,6 @@ describe("List widget V2 page number and page size", () => {
     );
 
     agHelper.AssertAutoSave();
-
     dataSources.RunQuery();
     entityExplorer.SelectEntityByName("Page1");
     //agHelper.GetNClick(entityExplorer._entityNameContains("Page1"), 0, true);
