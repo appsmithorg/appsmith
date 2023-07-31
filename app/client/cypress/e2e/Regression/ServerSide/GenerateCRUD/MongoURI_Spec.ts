@@ -143,6 +143,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
 
   it("5 Verify Filter & Search & Download from Deploy page - on MongoMart - existing record", () => {
     table.SearchTable("Swag");
+    agHelper.Sleep(2500); //for search to load
     for (let i = 0; i <= 1; i++) {
       table.ReadTableRowColumnData(i, 6, "v1").then(($cellData) => {
         expect($cellData).to.eq("Swag");
