@@ -9,6 +9,7 @@ import {
   assertHelper,
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
+import { Widgets } from "../../../../support/Pages/DataSources";
 
 describe("Validate Mongo URI CRUD with JSON Form", () => {
   let dsName: any;
@@ -86,9 +87,9 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
       "Slogan",
       "Write Your Story with Elegance: The Pen of Choice!",
     );
-    agHelper.GetNClick(deployMode._jsonFormIncrementFieldByName("Stars")); //1
-    agHelper.GetNClick(deployMode._jsonFormIncrementFieldByName("Stars")); //2
-    agHelper.GetNClick(deployMode._jsonFormIncrementFieldByName("Stars")); //3
+    agHelper.GetNClick(deployMode._jsonFormNumberFieldByName("Stars", "up")); //1
+    agHelper.GetNClick(deployMode._jsonFormNumberFieldByName("Stars", "up")); //2
+    agHelper.GetNClick(deployMode._jsonFormNumberFieldByName("Stars", "up")); //3
 
     agHelper.ClickButton("Update");
     agHelper.AssertElementAbsence(locators._toastMsg); //Validating fix for Bug 14063
@@ -121,7 +122,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
     }
   });
 
-  it("4. Verify Delete from Deploy page - on MongoMart - existing record", () => {
+  it("4. Verify Delete from Deploy page - on MongoMart - newly added record", () => {
     agHelper.ClickButton("Delete", 0);
     agHelper.AssertElementVisible(locators._modal);
     agHelper.AssertElementVisible(
@@ -158,10 +159,34 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
     table.CloseFilter();
 
     table.DownloadFromTable("Download as CSV");
-    table.ValidateDownloadNVerify("Table1.csv", "USB Stick (Green)");
+    table.ValidateDownloadNVerify("data_table.csv", "USB Stick (Green)");
 
     table.DownloadFromTable("Download as Excel");
-    table.ValidateDownloadNVerify("Table1.xlsx", "USB Stick (Leaf)");
+    table.ValidateDownloadNVerify("data_table.xlsx", "USB Stick (Leaf)");
+    table.OpenFilter();
+    table.RemoveFilter();
+    agHelper
+      .GetText(table._filtersCount)
+      .then(($filters) => expect($filters).to.eq("Filters"));
+  });
+
+  it("6. Suggested Widget - Table", () => {
+    table.SelectTableRow(8);
+    agHelper.GetNClick(deployMode._jsonFormNumberFieldByName("Stars", "down")); //2
+    agHelper.GetNClick(deployMode._jsonFormNumberFieldByName("Stars", "down")); //1
+    agHelper.GetNClick(deployMode._jsonFormNumberFieldByName("Stars", "down")); //0
+    agHelper.ClickButton("Update");
+
+    deployMode.NavigateBacktoEditor();
+    table.WaitUntilTableLoad();
+    entityExplorer.AddNewPage();
+    dataSources.NavigateFromActiveDS(dsName, true);
+    dataSources.ValidateNSelectDropdown("Collection", "", "mongomart");
+    dataSources.RunQuery({ toValidateResponse: false });
+    dataSources.AddSuggesstedWidget(Widgets.Table);
+    table.ReadTableRowColumnData(0, 3, "v2").then((cellData) => {
+      expect(cellData).to.eq("1");
+    });
   });
 });
 
