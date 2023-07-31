@@ -4,7 +4,7 @@ import type { ComponentMeta } from "@storybook/react";
 import { MenuDivider } from "@design-system/widgets-old";
 
 export default {
-  title: "Design System/widgets-old/Menu Divider",
+  title: "Design System/Widgets-old/Menu Divider",
   component: MenuDivider,
 } as ComponentMeta<typeof MenuDivider>;
 

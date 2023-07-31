@@ -4,7 +4,7 @@ import type { ComponentMeta, ComponentStory } from "@storybook/react";
 import { Text as TextComponent, TextType } from "@design-system/widgets-old";
 
 export default {
-  title: "Design System/widgets-old/Text",
+  title: "Design System/Widgets-old/Text",
   component: TextComponent,
 } as ComponentMeta<typeof TextComponent>;
 

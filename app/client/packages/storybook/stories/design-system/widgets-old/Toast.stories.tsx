@@ -5,7 +5,7 @@ import { ToastComponent, Variant, Button } from "@design-system/widgets-old";
 
 export default {
   // change ComponentDisplay to the name of the component you are writing a story for
-  title: "Design System/widgets-old/Toast",
+  title: "Design System/Widgets-old/Toast",
   component: ToastComponent,
 } as ComponentMeta<typeof ToastComponent>;
 

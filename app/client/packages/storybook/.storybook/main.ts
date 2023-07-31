@@ -19,8 +19,8 @@ async function webpackConfig(config) {
 }
 module.exports = {
   stories: [
-    "./stories/**/*.stories.mdx",
-    "./stories/**/*.stories.@(js|jsx|ts|tsx)",
+    "../stories/**/*.stories.mdx",
+    "../stories/**/*.stories.@(js|jsx|ts|tsx)",
   ],
   addons: [
     getAbsolutePath("@storybook/addon-viewport"),

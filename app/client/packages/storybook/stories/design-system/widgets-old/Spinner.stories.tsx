@@ -4,7 +4,7 @@ import type { ComponentMeta, ComponentStory } from "@storybook/react";
 import { Spinner as SpinnerComponent } from "@design-system/widgets-old";
 
 export default {
-  title: "Design System/widgets-old/Spinner",
+  title: "Design System/Widgets-old/Spinner",
   component: SpinnerComponent,
 } as ComponentMeta<typeof SpinnerComponent>;
 

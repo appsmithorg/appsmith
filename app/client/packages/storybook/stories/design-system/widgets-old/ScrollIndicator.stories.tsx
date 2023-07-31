@@ -5,7 +5,7 @@ import type { ComponentMeta } from "@storybook/react";
 import { ScrollIndicator } from "@design-system/widgets-old";
 
 export default {
-  title: "Design System/widgets-old/Scroll Indicator",
+  title: "Design System/Widgets-old/Scroll Indicator",
   component: ScrollIndicator,
 } as ComponentMeta<typeof ScrollIndicator>;
 

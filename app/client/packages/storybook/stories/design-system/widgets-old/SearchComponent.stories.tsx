@@ -4,7 +4,7 @@ import { SearchComponent } from "@design-system/widgets-old";
 
 // TODO: How to write well-typed stories for a class component?
 export default {
-  title: "Design System/widgets-old/Search Input",
+  title: "Design System/Widgets-old/Search Input",
   component: SearchComponent,
 };
 

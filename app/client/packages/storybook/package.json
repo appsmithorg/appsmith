@@ -35,6 +35,10 @@
     "tsconfig-paths-webpack-plugin": "^4.0.1"
   },
   "dependencies": {
+    "@design-system/headless": "workspace:^",
+    "@design-system/theming": "workspace:^",
+    "@design-system/widgets": "workspace:^",
+    "@design-system/widgets-old": "workspace:^",
     "colorjs.io": "^0.4.3"
   }
 }

@@ -7,7 +7,7 @@ import { Alignment } from "@blueprintjs/core";
 
 export default {
   // change ComponentDisplay to the name of the component you are writing a story for
-  title: "Design System/widgets-old/LabelWithTooltip",
+  title: "Design System/Widgets-old/LabelWithTooltip",
   component: LabelWithTooltip,
 } as ComponentMeta<typeof LabelWithTooltip>;
 

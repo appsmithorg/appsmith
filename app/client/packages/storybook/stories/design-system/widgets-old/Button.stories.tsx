@@ -3,7 +3,7 @@ import type { ComponentMeta, ComponentStory } from "@storybook/react";
 import { Button, Size } from "@design-system/widgets-old";
 
 export default {
-  title: "Design System/widgets-old/Button",
+  title: "Design System/Widgets-old/Button",
   component: Button,
   args: {
     fill: true,

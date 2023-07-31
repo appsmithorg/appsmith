@@ -5,7 +5,7 @@ import {
   Icon as IconComponent,
   IconCollection,
   IconSize,
-} from "@design-system/widgets-old";
+} from "@design-system/Widgets-old";
 import styled from "styled-components";
 
 export default {

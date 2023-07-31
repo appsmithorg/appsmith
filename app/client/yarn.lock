@@ -2299,6 +2299,10 @@ __metadata:
     "@babel/preset-env": ^7.20.2
     "@babel/preset-react": ^7.18.6
     "@babel/preset-typescript": ^7.21.0
+    "@design-system/headless": "workspace:^"
+    "@design-system/theming": "workspace:^"
+    "@design-system/widgets": "workspace:^"
+    "@design-system/widgets-old": "workspace:^"
     "@storybook/addon-actions": ^7.1.1
     "@storybook/addon-controls": ^7.1.1
     "@storybook/addon-docs": ^7.1.1

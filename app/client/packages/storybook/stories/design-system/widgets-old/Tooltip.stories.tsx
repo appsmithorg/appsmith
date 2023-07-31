@@ -4,7 +4,7 @@ import type { ComponentMeta, ComponentStory } from "@storybook/react";
 import { TooltipComponent } from "@design-system/widgets-old";
 
 export default {
-  title: "Design System/widgets-old/Tooltip",
+  title: "Design System/Widgets-old/Tooltip",
   component: TooltipComponent,
 } as ComponentMeta<typeof TooltipComponent>;
 

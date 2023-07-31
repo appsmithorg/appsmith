@@ -4,7 +4,7 @@ import type { ComponentMeta, ComponentStory } from "@storybook/react";
 import { TableDropdown as TableDropdownComponent } from "@design-system/widgets-old";
 
 export default {
-  title: "Design System/widgets-old/TableDropdown",
+  title: "Design System/Widgets-old/TableDropdown",
   component: TableDropdownComponent,
 } as ComponentMeta<typeof TableDropdownComponent>;
 
