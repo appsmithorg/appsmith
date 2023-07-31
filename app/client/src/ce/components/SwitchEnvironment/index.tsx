@@ -48,12 +48,12 @@ type EnvironmentType = {
 
 const environmentList: Array<EnvironmentType> = [
   {
-    id: "1",
+    id: "unused_env",
     name: "production",
     selected: true,
   },
   {
-    id: "2",
+    id: "unused_env",
     name: "staging",
     selected: false,
   },
