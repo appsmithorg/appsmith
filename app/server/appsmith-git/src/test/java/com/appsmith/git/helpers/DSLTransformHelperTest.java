@@ -272,5 +272,6 @@ public class DSLTransformHelperTest {
                         .put(CommonConstants.WIDGET_NAME, "Child1")
                         .put(CommonConstants.PARENT_ID, "ExistingChild1")
                         .toString());
+
     }
 }
