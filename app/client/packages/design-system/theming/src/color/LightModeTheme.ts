@@ -360,7 +360,6 @@ export class LightModeTheme implements ColorModeTheme {
     const color = this.bgNeutral.clone();
 
     // Simplified and adjusted version of bgAccentActive algorithm (bgNeutral has very low or no chroma)
-
     if (this.bgNeutral.oklch.l < 0.4) {
       color.oklch.l = color.oklch.l - 0.03;
     }
@@ -380,7 +379,6 @@ export class LightModeTheme implements ColorModeTheme {
     const color = this.seedColor.clone();
 
     // Adjusted version of bgAccentSubtle (less or no chroma)
-
     if (this.seedIsVeryLight) {
       color.oklch.l = 0.955;
     }
@@ -606,15 +604,16 @@ export class LightModeTheme implements ColorModeTheme {
     // This ensures harmonious combination with main accents and neutrals.
     const color = this.seedColor.clone();
 
+    color.oklch.l = 0.12;
     // If seed color didn't have substantial amount of chroma make sure fg is achromatic.
     if (this.seedIsAchromatic) {
-      color.oklch.l = 0.12;
       color.oklch.c = 0;
-      return color;
     }
 
-    color.oklch.l = 0.12;
-    color.oklch.c = 0.032;
+    if (!this.seedIsAchromatic) {
+      color.oklch.c = 0.032;
+    }
+
     return color;
   }
 
@@ -624,15 +623,15 @@ export class LightModeTheme implements ColorModeTheme {
 
     // For dark content on light background APCA contrast is positive. 60 is “The minimum level recommended for content text that is not body, column, or block text. In other words, text you want people to read.” Failure to reach this contrast level is most likely due to high lightness. Lightness and chroma are set to ones that reach the threshold universally regardless of hue.
     if (this.bg.contrastAPCA(this.seedColor) <= 60) {
+      color.oklch.l = 0.45;
+
       if (this.seedIsAchromatic) {
-        color.oklch.l = 0.45;
         color.oklch.c = 0;
-        return color;
       }
 
-      color.oklch.l = 0.45;
-      color.oklch.c = 0.164;
-      return color;
+      if (!this.seedIsAchromatic) {
+        color.oklch.c = 0.164;
+      }
     }
 
     return color;
@@ -835,12 +834,12 @@ export class LightModeTheme implements ColorModeTheme {
       if (this.seedIsAchromatic) {
         color.oklch.l = 0.3;
         color.oklch.c = 0;
-        return color;
       }
 
-      color.oklch.l = 0.55;
-      color.oklch.c = 0.25;
-      return color;
+      if (!this.seedIsAchromatic) {
+        color.oklch.l = 0.55;
+        color.oklch.c = 0.25;
+      }
     }
 
     return color;
@@ -944,7 +943,6 @@ export class LightModeTheme implements ColorModeTheme {
     const color = this.bdPositive.clone();
 
     // Lightness of bdPositive is known, no additional checks like in bdNeutralHover
-
     color.oklch.l = color.oklch.l + 0.1;
 
     return color;
@@ -981,7 +979,6 @@ export class LightModeTheme implements ColorModeTheme {
     const color = this.bdNegative.clone();
 
     // Lightness of bdNegative is known, no additional checks like in bdNeutralHover
-
     color.oklch.l = color.oklch.l + 0.1;
 
     return color;
@@ -1018,7 +1015,6 @@ export class LightModeTheme implements ColorModeTheme {
     const color = this.bdWarning.clone();
 
     // Lightness of bdWarning is known, no additional checks like in bdNeutralHover
-
     color.oklch.l = color.oklch.l + 0.1;
 
     return color;
