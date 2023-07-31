@@ -6,6 +6,12 @@ on:
     - cron: "30 1 * * 1-5"
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
+    inputs:
+      pr:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
+        default: 0
   workflow_call:
     inputs:
       pr:
@@ -238,8 +244,8 @@ jobs:
         env:
           EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
         run: |
-          if [[ ${{ inputs.pr }} -ne 0 ]]; then
-            echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
+          if [[ ${{ github.event_name }} == 'schedule' ]]; then
+            echo "COMMIT_INFO_MESSAGE=Scheduled workflow run for gsheet tests" >> $GITHUB_ENV
           else
             echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV
           fi

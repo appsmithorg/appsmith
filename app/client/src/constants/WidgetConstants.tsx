@@ -71,7 +71,7 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
-export const LATEST_PAGE_VERSION = 81;
+export const LATEST_PAGE_VERSION = 83;
 
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
@@ -252,3 +252,6 @@ export const SUGGESTED_WIDGETS_ORDER: Record<WidgetType, number> = {
   SELECT_WIDGET: 5,
   LIST_WIDGET_V2: 6,
 };
+
+// Constant key to show walkthrough for a widget -> stores widget id
+export const WIDGET_ID_SHOW_WALKTHROUGH = "WIDGET_ID_SHOW_WALKTHROUGH";
