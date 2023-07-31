@@ -77,6 +77,7 @@ export class ApiPage {
   private _createQuery = ".t--create-query";
   _apiCallToast = ".ads-v2-toast .ads-v2-toast__body .ads-v2-text";
   _addEntityApi = ".datasources .t--entity-add-btn";
+  public _editorDS = ".t--datasource-editor";
 
   CreateApi(
     apiName = "",
