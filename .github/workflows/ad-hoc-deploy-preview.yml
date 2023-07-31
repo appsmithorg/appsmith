@@ -208,7 +208,7 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_URL: ${{ secrets.DB_URL }}
         run: |
-          echo "environment variables set to deploy the image" $IMAGE_HASH
+          echo "environment variables set to deploy the image $IMAGE_HASH"
           /bin/bash ./scripts/build_dp_from_branch.sh
 
   update-db-on-completion:
