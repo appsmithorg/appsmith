@@ -2,8 +2,14 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import styled from "styled-components";
-import { Link, Option, Select, Text, Tooltip } from "design-system";
+import { Icon, Link, Option, Select, Text, Tooltip } from "design-system";
 import { capitalizeFirstLetter } from "utils/helpers";
+import {
+  BUSINESS_EDITION_TEXT,
+  SWITCH_ENV_DISABLED_TOOLTIP_TEXT,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { getRampLink } from "utils/ProductRamps";
 
 const Wrapper = styled.div`
   display: flex;
@@ -22,6 +28,12 @@ const StyledText = styled(Text)<{
 }>`
   color: var(--ads-v2-color-fg-emphasis);
   opacity: ${(props) => (props.disabled ? 0.6 : 1)};
+  display: flex;
+  flex-direction: row;
+`;
+
+const StyledIcon = styled(Icon)`
+  margin-right: 8px;
 `;
 
 type Props = {
@@ -47,15 +59,24 @@ const environmentList: Array<EnvironmentType> = [
   },
 ];
 
+const TooltipText = styled(Text)`
+  color: var(--ads-color-black-0);
+`;
+
+const TooltipLink = styled(Link)`
+  display: inline;
+`;
+
 export default function SwitchEnvironment({}: Props) {
   // Fetching feature flags from the store and checking if the feature is enabled
   const allowedToRender = useSelector(datasourceEnvEnabled);
 
-  if (allowedToRender) return null;
+  if (!allowedToRender) return null;
 
   const renderEnvOption = (env: EnvironmentType) => {
     return (
       <StyledText disabled={!env.selected}>
+        {!env.selected && <StyledIcon name="lock-2-line" />}
         {capitalizeFirstLetter(env.name)}
       </StyledText>
     );
@@ -63,10 +84,16 @@ export default function SwitchEnvironment({}: Props) {
 
   const DisabledTooltipContent = () => {
     return (
-      <>
-        <Text>To access environments for datasources, try out our</Text>
-        <Link>business edition</Link>
-      </>
+      <TooltipText kind="action-s">
+        {createMessage(SWITCH_ENV_DISABLED_TOOLTIP_TEXT)}
+        <TooltipLink
+          kind="primary"
+          target="_blank"
+          to={getRampLink("app_share")}
+        >
+          {createMessage(BUSINESS_EDITION_TEXT)}
+        </TooltipLink>
+      </TooltipText>
     );
   };
 

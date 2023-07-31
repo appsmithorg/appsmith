@@ -1875,6 +1875,8 @@ export const START_SWITCH_ENVIRONMENT = (environment: string) =>
   `...Switching your environment to ${environment}, and running all associated pageload actions`;
 export const SWITCH_ENVIRONMENT_SUCCESS = (environment: string) =>
   `...Environment switched to ${environment} successfully`;
+export const SWITCH_ENV_DISABLED_TOOLTIP_TEXT = () =>
+  "To access environments for datasources, try out our ";
 
 export const TEST_DATASOURCE_SUCCESS = (
   datasourceName: string,
