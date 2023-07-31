@@ -76,7 +76,7 @@ const Canvas = (props: CanvasProps) => {
         <Container
           $isAutoLayout={!!props.isAutoLayout}
           background={backgroundForCanvas}
-          className={`relative t--canvas-artboard ${paddingBottomClass} ${marginHorizontalClass} ${getViewportClassName(
+          className={`relative t--canvas-artboard ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
             canvasWidth,
           )}`}
           data-testid="t--canvas-artboard"

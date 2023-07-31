@@ -191,7 +191,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   return (
     <div
       className={classNames({
-        [`js-entity-explorer t--entity-explorer transform transition-all flex h-[inherit] duration-400 border-r ${tailwindLayers.entityExplorer}`]:
+        [`js-entity-explorer t--entity-explorer transition-transform transform  flex h-[inherit] duration-400 border-r ${tailwindLayers.entityExplorer}`]:
           true,
         relative: pinned && !isPreviewingApp,
         "-translate-x-full": (!pinned && !active) || isPreviewingApp,

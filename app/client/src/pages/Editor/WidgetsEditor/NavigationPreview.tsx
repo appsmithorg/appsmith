@@ -18,7 +18,7 @@ const NavigationPreview = forwardRef(
         className={classNames({
           "absolute top-0 z-3 w-full transform bg-gray-50 ease-in t--navigation-preview":
             true,
-          "translate-y-0 ease-in transition duration-300":
+          "translate-y-0 ease-in transition duration-400":
             isPreviewMode || isAppSettingsPaneWithNavigationTabOpen,
           "-translate-y-full duration-0":
             !isPreviewMode || !isAppSettingsPaneWithNavigationTabOpen,
