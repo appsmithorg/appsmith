@@ -1,4 +1,5 @@
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
+import { dataSources } from "../Objects/ObjectsCore";
+import { ObjectsRegistry } from "../Objects/Registry";
 
 export class MultipleEnvironments {
   private agHelper = ObjectsRegistry.AggregateHelper;
@@ -13,6 +14,8 @@ export class MultipleEnvironments {
   public ds_data_filter_disabled = '[data-testid="t--filter-disabled"]';
   public env_switcher_dropdown_opt = (envName: string) =>
     `[data-testid="t--switch-env-dropdown-option-${envName}"]`;
+  public ds_review_mode_configs = (envName: string) =>
+    `[data-testid="t--review-section-${envName}"]`;
 
   public SwitchEnv(targetEnv: string) {
     this.agHelper
@@ -48,6 +51,14 @@ export class MultipleEnvironments {
       this.locator.ds_editor_env_filter(target_environment),
       "true",
     );
+  }
+
+  public VerifyEnvDetailsInReviewMode(
+    dsName: "PostgreSQL" | "MongoDB",
+    envName: string,
+  ) {
+    this.agHelper.AssertElementExist(this.ds_review_mode_configs(envName));
+    dataSources.ValidateReviewModeConfig(dsName, envName);
   }
 
   //#endregion

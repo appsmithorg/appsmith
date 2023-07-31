@@ -47,9 +47,10 @@ export function EnvConfigSection({
         if (checkIfStorageIsValid(storageValueForEnv)) {
           return (
             <>
-              <Text kind={"heading-m"}>{`${capitalizeFirstLetter(
-                env.name,
-              )} Environment`}</Text>
+              <Text
+                data-testid={`t--review-section-${env.name}`}
+                kind={"heading-m"}
+              >{`${capitalizeFirstLetter(env.name)} Environment`}</Text>
               {renderDatasourceSection(config, envId, datasource, viewMode)}
             </>
           );
