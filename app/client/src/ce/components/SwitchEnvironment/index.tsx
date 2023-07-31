@@ -63,10 +63,6 @@ const environmentList: Array<EnvironmentType> = [
   },
 ];
 
-const TooltipText = styled(Text)`
-  color: var(--ads-color-black-0);
-`;
-
 const TooltipLink = styled(Link)`
   display: inline;
 `;
@@ -103,7 +99,7 @@ export default function SwitchEnvironment({}: Props) {
 
   const DisabledTooltipContent = () => {
     return (
-      <TooltipText kind="action-s">
+      <Text color="var(--ads-v2-color-white)" kind="action-m">
         {createMessage(SWITCH_ENV_DISABLED_TOOLTIP_TEXT)}
         <TooltipLink
           kind="primary"
@@ -112,7 +108,7 @@ export default function SwitchEnvironment({}: Props) {
         >
           {createMessage(BUSINESS_EDITION_TEXT)}
         </TooltipLink>
-      </TooltipText>
+      </Text>
     );
   };
 
@@ -129,6 +125,7 @@ export default function SwitchEnvironment({}: Props) {
           (diableSwitchEnvironment && !isDatasourceViewMode) ||
           environmentList.length === 1
         }
+        listHeight={400}
         size="md"
         value={capitalizeFirstLetter(environmentList[0].name)}
       >

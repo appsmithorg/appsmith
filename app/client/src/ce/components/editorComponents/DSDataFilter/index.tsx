@@ -42,10 +42,6 @@ const FilterComponentLabel = styled(Text)<{ disabled: boolean }>`
   opacity: ${(props) => (props.disabled ? 0.6 : 1)};
 `;
 
-const TooltipText = styled(Text)`
-  color: var(--ads-color-black-0);
-`;
-
 const TooltipLink = styled(Link)`
   display: inline;
 `;
@@ -141,7 +137,7 @@ function DSDataFilter({
           {capitalizeFirstLetter(env.name)}
         </FilterComponentLabel>
         {isDisabled && (
-          <Tag isClosable={false} size="md">
+          <Tag isClosable={false} size="md" style={{ marginLeft: "auto" }}>
             {createMessage(BUSINESS_TAG)}
           </Tag>
         )}
@@ -151,16 +147,16 @@ function DSDataFilter({
 
   const DisabledTooltipContent = () => {
     return (
-      <TooltipText kind="action-s">
+      <Text color="var(--ads-v2-color-white)" kind="action-m">
         {createMessage(SWITCH_ENV_DISABLED_TOOLTIP_TEXT)}
         <TooltipLink
           kind="primary"
           target="_blank"
-          to={getRampLink("ds_editor", RampFeature.MultipleEnv)}
+          to={getRampLink("bottom_bar_env_switcher", RampFeature.MultipleEnv)}
         >
           {createMessage(BUSINESS_EDITION_TEXT)}
         </TooltipLink>
-      </TooltipText>
+      </Text>
     );
   };
 
