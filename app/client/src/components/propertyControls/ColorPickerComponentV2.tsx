@@ -261,7 +261,10 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
           (showApplicationColors && applicationColors.length > 0)) && (
           <h3 className="text-xs">All Colors</h3>
         )}
-        <div className="grid grid-cols-5 gap-2 t--tailwind-colors">
+        <div
+          className="grid grid-cols-5 gap-2 t--tailwind-colors"
+          data-testid="t--all-colors"
+        >
           {Object.keys(TAILWIND_COLORS).map((colorKey, rowIndex) =>
             Object.keys(get(TAILWIND_COLORS, `${colorKey}`)).map(
               (singleColorKey, colIndex) => (
