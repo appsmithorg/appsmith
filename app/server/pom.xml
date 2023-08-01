@@ -47,6 +47,7 @@
         <spotless.version>2.36.0</spotless.version>
         <spring-boot.version>3.0.6</spring-boot.version>
         <testcontainers.version>1.17.3</testcontainers.version>
+        <spring-security.version>6.0.5</spring-security.version>
     </properties>
 
     <build>
