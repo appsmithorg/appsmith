@@ -29,7 +29,7 @@ Organizations build internal applications (also known as admin tools or internal
 There are two ways to start using Appsmith.
 
 - To quickly explore and use the platform, signup on [Appsmith Cloud](https://app.appsmith.com/).
-- To  install and manage Appsmith on your machine: 
+- To install and manage Appsmith on your machine, see the installation guides below. 
 
 | Installation Methods                                                                                                            | Documentation                                                                                                                                                    |
 | ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -41,7 +41,7 @@ There are two ways to start using Appsmith.
 For other deployment options, see the [Installation Guides](https://docs.appsmith.com/getting-started/setup/installation-guides?utm_source=github&utm_medium=organic&utm_campaign=readme) documentation.  
 
 ## Development
-To build and run Appsmith in your local dev environment, see [Setup for local development]((https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development).
+To build and run Appsmith in your local dev environment, see [Setup for local development](https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development).
 
 ## Learning and Resources
 - [Documentation](https://docs.appsmith.com?utm_source=github&utm_medium=organic&utm_campaign=readme)
