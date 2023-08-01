@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 import { get, isEqual, isNil, map, memoize, omit } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import type { Datasource } from "entities/Datasource";
@@ -85,6 +86,13 @@ import { getQueryParams } from "utils/URLUtils";
 import GoogleSheetSchema from "./GoogleSheetSchema";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+
+const ViewModeContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+`;
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -508,6 +516,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       !isPluginAuthorized &&
       authErrorMessage == GSHEET_AUTHORIZATION_ERROR;
 
+    const isGoogleSheetSchemaAvailable =
+      isGoogleSheetPlugin && isPluginAuthorized && isEnabledForGSheetSchema;
+
     return (
       <>
         {!hiddenHeader && (
@@ -519,6 +530,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             datasourceId={datasourceId}
             isDeleting={isDeleting}
             isNewDatasource={createFlow}
+            isNewQuerySecondaryButton={!!isGoogleSheetSchemaAvailable}
             isPluginAuthorized={isPluginAuthorized}
             pluginImage={pluginImage}
             pluginName={plugin?.name || ""}
@@ -578,7 +590,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                     </>
                   )}
                   {viewMode && !isInsideReconnectModal && (
-                    <div>
+                    <ViewModeContainer>
                       <ViewModeWrapper>
                         {datasource &&
                         isGoogleSheetPlugin &&
@@ -601,15 +613,13 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                           />
                         ) : undefined}
                       </ViewModeWrapper>
-                      {isGoogleSheetPlugin &&
-                      isPluginAuthorized &&
-                      isEnabledForGSheetSchema ? (
+                      {isGoogleSheetSchemaAvailable && (
                         <GoogleSheetSchema
                           datasourceId={datasourceId}
                           pluginId={plugin?.id}
                         />
-                      ) : null}
-                    </div>
+                      )}
+                    </ViewModeContainer>
                   )}
                 </Form>
                 {/* Render datasource form call-to-actions */}

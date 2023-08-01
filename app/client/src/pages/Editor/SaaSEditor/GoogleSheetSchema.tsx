@@ -23,10 +23,11 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import {
   createMessage,
-  GSHEETS_CREATE_LIST_AND_DETAIL,
   GSHEETS_ERR_FETCHING_PREVIEW_DATA,
   GSHEETS_FETCHING_PREVIEW_DATA,
+  GSHEETS_GENERATE_PAGE_BUTTON,
 } from "@appsmith/constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const LoadingWrapper = styled.div`
   display: flex;
@@ -73,7 +74,7 @@ const SelectContainer = styled.div`
   display: flex;
   margin-top: 16px;
   margin-bottom: 16px;
-  .t--create-list-and-detail {
+  .t--gsheet-generate-page {
     align-self: flex-end;
     margin-left: auto;
   }
@@ -199,16 +200,24 @@ function GoogleSheetSchema(props: Props) {
   useEffect(() => {
     if (sheetData?.length > 0) {
       // Getting the top 12 rows as for experimentation we need to keep this number fixed for preview
+      AnalyticsUtil.logEvent("GSHEET_PREVIEW_DATA_SHOWN", {
+        datasourceId: props.datasourceId,
+        pluginId: props.pluginId,
+      });
       setCurrentSheetData(sheetData.slice(0, MAX_SHEET_ROWS_LENGTH));
     }
   }, [sheetData]);
 
   const onSelectSpreadsheet = (
     table: string | undefined,
-    TableObj: DatasourceTableDropdownOption | undefined,
+    tableObj: DatasourceTableDropdownOption | undefined,
   ) => {
-    if (table && TableObj) {
-      setSelectedSpreadsheet(TableObj);
+    if (table && tableObj) {
+      AnalyticsUtil.logEvent("GSHEET_PREVIEW_SPREADSHEET_CHANGE", {
+        datasourceId: props.datasourceId,
+        pluginId: props.pluginId,
+      });
+      setSelectedSpreadsheet(tableObj);
     }
   };
 
@@ -217,6 +226,10 @@ function GoogleSheetSchema(props: Props) {
     sheetObj: DropdownOption | undefined,
   ) => {
     if (sheetValue && sheetObj) {
+      AnalyticsUtil.logEvent("GSHEET_PREVIEW_SHEET_CHANGE", {
+        datasourceId: props.datasourceId,
+        pluginId: props.pluginId,
+      });
       setSelectedSheet(sheetObj);
     }
   };
@@ -228,7 +241,7 @@ function GoogleSheetSchema(props: Props) {
     isFetchingSheetData ||
     (!isError && !currentSheetData);
 
-  const onCreateListandDetail = () => {
+  const onGsheetGeneratePage = () => {
     const payload = {
       applicationId: applicationId || "",
       pageId: "",
@@ -245,6 +258,11 @@ function GoogleSheetSchema(props: Props) {
         tableHeaderIndex: 1,
       },
     };
+
+    AnalyticsUtil.logEvent("GSHEET_GENERATE_PAGE_BUTTON_CLICKED", {
+      datasourceId: props.datasourceId,
+      pluginId: props.pluginId,
+    });
 
     dispatch(generateTemplateToUpdatePage(payload));
   };
@@ -310,13 +328,13 @@ function GoogleSheetSchema(props: Props) {
         ) : null}
         {!isLoading && !isError && currentSheetData && (
           <Button
-            className="t--create-list-and-detail"
-            key="create-list-and-detail"
+            className="t--gsheet-generate-page"
+            key="gsheet-generate-page"
             kind="primary"
-            onClick={onCreateListandDetail}
+            onClick={onGsheetGeneratePage}
             size="md"
           >
-            {createMessage(GSHEETS_CREATE_LIST_AND_DETAIL)}
+            {createMessage(GSHEETS_GENERATE_PAGE_BUTTON)}
           </Button>
         )}
       </SelectContainer>

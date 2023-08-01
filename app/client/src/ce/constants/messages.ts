@@ -1756,7 +1756,7 @@ export const DATASOURCE_INTERCOM_TEXT = () =>
 export const GOOGLE_SHEETS_ASK_FOR_SUPPORT = () => "Ask for support";
 export const GOOGLE_SHEETS_FILE_PICKER_TITLE = () =>
   "Select Google Sheets to query";
-export const GSHEETS_CREATE_LIST_AND_DETAIL = () => "Generate page";
+export const GSHEETS_GENERATE_PAGE_BUTTON = () => "Generate page";
 export const GSHEETS_ERR_FETCHING_PREVIEW_DATA = () =>
   "Some problem occured while fetching data";
 export const GSHEETS_FETCHING_PREVIEW_DATA = () => "Loading data";
