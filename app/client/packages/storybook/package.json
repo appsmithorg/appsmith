@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "storybook": "storybook dev -p 6006",
-    "build": "build-storybook",
+    "build": "storybook build",
     "storybook-chromatic": "CHROMATIC=1 storybook dev -p 6006"
   },
   "devDependencies": {
