@@ -42,7 +42,13 @@ const DataAttrWrapper = (props: DataAttrWrapperProps) => {
   return <Component ref={ref} {...incomingProps} />;
 };
 
-const states = ["", "data-hovered", "data-active", "data-focused"];
+const states = [
+  "",
+  "data-hovered",
+  "data-active",
+  "data-focused",
+  "aria-disabled",
+];
 
 export const States: Story = {
   render: () => (
@@ -51,7 +57,7 @@ export const States: Story = {
         display: "grid",
         justifyContent: "center",
         gap: "10px",
-        gridTemplateColumns: "repeat(4, 1fr)",
+        gridTemplateColumns: "repeat(5 , 1fr)",
         flexWrap: "wrap",
       }}
     >
@@ -71,21 +77,6 @@ export const States: Story = {
           )),
         ),
       )}
-    </div>
-  ),
-};
-
-export const WithIcon: Story = {
-  render: () => (
-    <div
-      style={{
-        display: "grid",
-        justifyContent: "center",
-        gap: "10px",
-        gridTemplateColumns: "repeat(2, 1fr)",
-        flexWrap: "wrap",
-      }}
-    >
       <Button
         icon={
           <Icon>

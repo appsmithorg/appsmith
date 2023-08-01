@@ -21,7 +21,7 @@ async function webpackConfig(config) {
 
 function getStories() {
   if (process.env.CHROMATIC) {
-    return ["../chromatic/**/*.stories.@(js|jsx|ts|tsx)"];
+    return ["../chromatic/**/*.chromatic.stories.@(js|jsx|ts|tsx)"];
   }
 
   return [
