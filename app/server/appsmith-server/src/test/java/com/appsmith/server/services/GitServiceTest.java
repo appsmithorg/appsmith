@@ -199,8 +199,9 @@ public class GitServiceTest {
                         .create(toCreate, apiUser, Boolean.FALSE)
                         .block();
                 workspaceId = workspace.getId();
-                defaultEnvironmentId =
-                        workspaceService.getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission()).block();
+                defaultEnvironmentId = workspaceService
+                        .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                        .block();
             }
         }
 
@@ -1608,7 +1609,7 @@ public class GitServiceTest {
                         Mockito.any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
-                        eq(true),
+                        eq(false),
                         Mockito.anyString(),
                         Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetched"));
@@ -1641,6 +1642,14 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(new ApplicationJson()));
+        Mockito.when(gitExecutor.fetchRemote(
+                        Mockito.any(Path.class),
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        eq(false),
+                        Mockito.anyString(),
+                        Mockito.anyBoolean()))
+                .thenReturn(Mono.just("fetched"));
         Mockito.when(gitExecutor.pullApplication(
                         Mockito.any(Path.class),
                         Mockito.anyString(),
@@ -3559,8 +3568,9 @@ public class GitServiceTest {
         workspace.setName("gitImportOrg");
         final String testWorkspaceId =
                 workspaceService.create(workspace).map(Workspace::getId).block();
-        String environmentId =
-                workspaceService.getDefaultEnvironmentId(testWorkspaceId, environmentPermission.getExecutePermission()).block();
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(testWorkspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepo.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey(null).block();
@@ -3621,8 +3631,9 @@ public class GitServiceTest {
         workspace.setName("gitImportOrgCancelledMidway");
         final String testWorkspaceId =
                 workspaceService.create(workspace).map(Workspace::getId).block();
-        String environmentId =
-                workspaceService.getDefaultEnvironmentId(testWorkspaceId, environmentPermission.getExecutePermission()).block();
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(testWorkspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         GitConnectDTO gitConnectDTO =
                 getConnectRequest("git@github.com:test/testGitImportRepoCancelledMidway.git", testUserProfile);

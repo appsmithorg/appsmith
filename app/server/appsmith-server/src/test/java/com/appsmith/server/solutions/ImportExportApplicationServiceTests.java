@@ -120,6 +120,7 @@ import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.dtos.CustomJSLibApplicationDTO.getDTOFromCustomJSLib;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
 @ExtendWith(SpringExtension.class)
@@ -212,8 +213,9 @@ public class ImportExportApplicationServiceTests {
         workspace.setName("Import-Export-Test-Workspace");
         Workspace savedWorkspace = workspaceService.create(workspace).block();
         workspaceId = savedWorkspace.getId();
-        defaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission()).block();
+        defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         Application testApplication = new Application();
         testApplication.setName("Export-Application-Test-Application");
@@ -872,7 +874,8 @@ public class ImportExportApplicationServiceTests {
         Mono<Workspace> workspaceMono = workspaceService.create(newWorkspace).cache();
 
         String environmentId = workspaceMono
-                .flatMap(workspace -> workspaceService.getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission()))
+                .flatMap(workspace -> workspaceService.getDefaultEnvironmentId(
+                        workspace.getId(), environmentPermission.getExecutePermission()))
                 .block();
 
         final Mono<ApplicationImportDTO> resultMono = workspaceMono.flatMap(
@@ -1169,8 +1172,8 @@ public class ImportExportApplicationServiceTests {
                                 .findAllByApplicationIdAndViewMode(
                                         applicationImportDTO.getApplication().getId(), false, MANAGE_ACTIONS, null)
                                 .collectList(),
-                        workspaceMono.flatMap(
-                                workspace -> workspaceService.getDefaultEnvironmentId(workspace.getId(), environmentPermission.getExecutePermission())))))
+                        workspaceMono.flatMap(workspace -> workspaceService.getDefaultEnvironmentId(
+                                workspace.getId(), environmentPermission.getExecutePermission())))))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1().getApplication();
                     final List<Datasource> datasourceList = tuple.getT2();
@@ -2557,6 +2560,7 @@ public class ImportExportApplicationServiceTests {
                                 DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {}));
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
+                        fail();
                     }
 
                     ArrayList children = (ArrayList) dsl.get("children");
@@ -2811,8 +2815,9 @@ public class ImportExportApplicationServiceTests {
         Workspace testWorkspace = new Workspace();
         testWorkspace.setName("Duplicate datasource with different plugin org");
         testWorkspace = workspaceService.create(testWorkspace).block();
-        String defaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(testWorkspace.getId(), environmentPermission.getExecutePermission()).block();
+        String defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(testWorkspace.getId(), environmentPermission.getExecutePermission())
+                .block();
 
         Datasource testDatasource = new Datasource();
         // Chose any plugin except for mongo, as json static file has mongo plugin for datasource
@@ -2876,8 +2881,9 @@ public class ImportExportApplicationServiceTests {
         Workspace testWorkspace = new Workspace();
         testWorkspace.setName("Duplicate datasource with same plugin org");
         testWorkspace = workspaceService.create(testWorkspace).block();
-        String defaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(testWorkspace.getId(), environmentPermission.getExecutePermission()).block();
+        String defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(testWorkspace.getId(), environmentPermission.getExecutePermission())
+                .block();
         Datasource testDatasource = new Datasource();
         // Chose plugin same as mongo, as json static file has mongo plugin for datasource
         Plugin postgreSQLPlugin = pluginRepository.findByName("MongoDB").block();
@@ -3043,6 +3049,108 @@ public class ImportExportApplicationServiceTests {
                             .isEqualTo(publishedPageDTOs.get(1).getId());
                     assertThat(newPage3.getId())
                             .isEqualTo(publishedPageDTOs.get(2).getId());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            importApplicationInWorkspaceFromGit_WithNavSettingsInEditMode_ImportedAppHasNavSettingsInEditAndViewMode() {
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("import-with-navSettings-in-editMode");
+
+        Application testApplication = new Application();
+        testApplication.setName(
+                "importApplicationInWorkspaceFromGit_WithNavSettingsInEditMode_ImportedAppHasNavSettingsInEditAndViewMode");
+        Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
+        appNavigationSetting.setOrientation("top");
+        testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
+        testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
+        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("testBranch");
+        testApplication.setGitApplicationMetadata(gitData);
+        Application savedApplication = applicationPageService
+                .createApplication(testApplication, workspaceId)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService.save(application1);
+                })
+                .block();
+
+        Mono<Application> result = importExportApplicationService
+                .exportApplicationById(savedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL)
+                .flatMap(applicationJson -> {
+                    // setting published mode resource as null, similar to the app json exported to git repo
+                    applicationJson.getExportedApplication().setPublishedApplicationDetail(null);
+                    return importExportApplicationService.importApplicationInWorkspaceFromGit(
+                            workspaceId, applicationJson, savedApplication.getId(), gitData.getBranchName());
+                });
+
+        StepVerifier.create(result)
+                .assertNext(importedApp -> {
+                    assertThat(importedApp.getUnpublishedApplicationDetail()).isNotNull();
+                    assertThat(importedApp.getPublishedApplicationDetail()).isNotNull();
+                    assertThat(importedApp.getUnpublishedApplicationDetail().getNavigationSetting())
+                            .isNotNull();
+                    assertEquals(
+                            importedApp
+                                    .getUnpublishedApplicationDetail()
+                                    .getNavigationSetting()
+                                    .getOrientation(),
+                            "top");
+                    assertThat(importedApp.getPublishedApplicationDetail().getNavigationSetting())
+                            .isNotNull();
+                    assertEquals(
+                            importedApp
+                                    .getPublishedApplicationDetail()
+                                    .getNavigationSetting()
+                                    .getOrientation(),
+                            "top");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationInWorkspaceFromGit_WithAppLayoutInEditMode_ImportedAppHasAppLayoutInEditAndViewMode() {
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("import-with-appLayout-in-editMode");
+
+        Application testApplication = new Application();
+        testApplication.setName(
+                "importApplicationInWorkspaceFromGit_WithAppLayoutInEditMode_ImportedAppHasAppLayoutInEditAndViewMode");
+        testApplication.setUnpublishedAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
+        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("testBranch");
+        testApplication.setGitApplicationMetadata(gitData);
+        Application savedApplication = applicationPageService
+                .createApplication(testApplication, workspaceId)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService.save(application1);
+                })
+                .block();
+
+        Mono<Application> result = importExportApplicationService
+                .exportApplicationById(savedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL)
+                .flatMap(applicationJson -> {
+                    // setting published mode resource as null, similar to the app json exported to git repo
+                    applicationJson.getExportedApplication().setPublishedAppLayout(null);
+                    return importExportApplicationService.importApplicationInWorkspaceFromGit(
+                            workspaceId, applicationJson, savedApplication.getId(), gitData.getBranchName());
+                });
+
+        StepVerifier.create(result)
+                .assertNext(importedApp -> {
+                    assertThat(importedApp.getUnpublishedAppLayout()).isNotNull();
+                    assertThat(importedApp.getPublishedAppLayout()).isNotNull();
+                    assertThat(importedApp.getUnpublishedAppLayout().getType())
+                            .isEqualTo(Application.AppLayout.Type.DESKTOP);
+                    assertThat(importedApp.getPublishedAppLayout().getType())
+                            .isEqualTo(Application.AppLayout.Type.DESKTOP);
                 })
                 .verifyComplete();
     }

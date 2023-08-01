@@ -10,7 +10,10 @@ import {
 
 describe("Tests functionality of platform function", () => {
   it("1. Tests access to outer variable", () => {
-    apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl, "getAllUsers");
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      "getAllUsers",
+    );
     jsEditor.CreateJSObject(
       `export default {
         myFun1: () => {

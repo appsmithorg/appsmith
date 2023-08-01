@@ -332,6 +332,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         setValue: {
           path: "defaultCheckedState",
           type: "boolean",
+          accessor: "isChecked",
         },
       },
     };

@@ -29,6 +29,7 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
+import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.dtos.ce.ImportActionCollectionResultDTO;
 import com.appsmith.server.dtos.ce.ImportActionResultDTO;
 import com.appsmith.server.dtos.ce.ImportedActionAndCollectionMapsDTO;
@@ -52,6 +53,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PolicySolution;
+import com.mongodb.client.result.UpdateResult;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -1933,5 +1935,27 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .collectList()
                 .flatMap(actions -> repository.bulkUpdate(actions))
                 .thenReturn(mapsDTO);
+    }
+
+    /**
+     * This method is used to publish actions of an application. It does two things:
+     * 1. it deletes actions which are deleted from the edit mode.
+     * 2. It updates actions in bulk by setting publishedAction=unpublishedAction
+     * @param applicationId
+     * @param permission
+     * @return
+     */
+    @Override
+    public Mono<UpdateResult> publishActions(String applicationId, AclPermission permission) {
+        // delete the actions that were deleted in edit mode
+        return repository
+                .archiveDeletedUnpublishedActions(applicationId, permission)
+                // copy the unpublished action dto to published action dto
+                .then(repository.publishActions(applicationId, permission));
+    }
+
+    @Override
+    public Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId) {
+        return repository.countActionsByPluginType(applicationId);
     }
 }

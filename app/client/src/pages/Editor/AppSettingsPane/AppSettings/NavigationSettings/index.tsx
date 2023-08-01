@@ -23,8 +23,7 @@ import { updateApplication } from "@appsmith/actions/applicationActions";
 import { Spinner } from "design-system";
 import LogoInput from "@appsmith/pages/Editor/NavigationSettings/LogoInput";
 import SwitchSettingForLogoConfiguration from "./SwitchSettingForLogoConfiguration";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 /**
  * TODO - @Dhruvik - ImprovedAppNav
@@ -48,9 +47,7 @@ export type LogoConfigurationSwitches = {
 function NavigationSettings() {
   const application = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId);
-  const isAppLogoEnabled = useSelector((state) =>
-    selectFeatureFlagCheck(state, FEATURE_FLAG.APP_NAVIGATION_LOGO_UPLOAD),
-  );
+  const featureFlags = useSelector(selectFeatureFlags);
   const dispatch = useDispatch();
   const [navigationSetting, setNavigationSetting] = useState(
     application?.applicationDetail?.navigationSetting,
@@ -393,7 +390,8 @@ function NavigationSettings() {
             updateSetting={updateSetting}
           />
 
-          {(navigationSetting?.logoAssetId || isAppLogoEnabled) && (
+          {(navigationSetting?.logoAssetId ||
+            featureFlags.release_appnavigationlogoupload_enabled) && (
             <>
               <SwitchSettingForLogoConfiguration
                 keyName="logo"

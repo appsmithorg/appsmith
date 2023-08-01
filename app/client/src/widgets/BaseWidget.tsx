@@ -22,6 +22,7 @@ import type {
   CSSUnit,
   PositionType,
   RenderMode,
+  WidgetTags,
   WidgetType,
 } from "constants/WidgetConstants";
 import { FLEXBOX_PADDING } from "constants/WidgetConstants";
@@ -870,6 +871,7 @@ export const WIDGET_DISPLAY_PROPS = {
 };
 export interface WidgetError extends Error {
   type: "property" | "configuration" | "other";
+  path?: string;
 }
 export interface WidgetErrorProps {
   errors?: WidgetError[];
@@ -911,6 +913,7 @@ export interface WidgetCardProps {
   displayName: string;
   icon: string;
   isBeta?: boolean;
+  tags?: WidgetTags[];
 }
 
 export const WidgetOperations = {

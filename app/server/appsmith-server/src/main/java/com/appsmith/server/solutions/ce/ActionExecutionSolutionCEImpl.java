@@ -184,12 +184,29 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                 branchName, executeActionDTO.getActionId(), actionPermission.getExecutePermission())
                         .flatMap(branchedAction -> {
                             executeActionDTO.setActionId(branchedAction.getId());
+
+                            boolean isEmbedded;
+                            if (executeActionDTO.getViewMode()) {
+                                isEmbedded = branchedAction
+                                                .getPublishedAction()
+                                                .getDatasource()
+                                                .getId()
+                                        == null;
+                            } else {
+                                isEmbedded = branchedAction
+                                                .getUnpublishedAction()
+                                                .getDatasource()
+                                                .getId()
+                                        == null;
+                            }
+
                             return Mono.just(executeActionDTO)
                                     .zipWith(datasourceService.getTrueEnvironmentId(
                                             branchedAction.getWorkspaceId(),
                                             environmentId,
                                             branchedAction.getPluginId(),
-                                            environmentPermission.getExecutePermission()));
+                                            environmentPermission.getExecutePermission(),
+                                            isEmbedded));
                         }))
                 .flatMap(tuple2 -> this.executeAction(tuple2.getT1(), tuple2.getT2())) // getTrue is temporary call
                 .name(ACTION_EXECUTION_SERVER_EXECUTION)
@@ -993,7 +1010,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             DATASOURCE_CREATED_AT_SHORTNAME,
                             dsCreatedAt,
                             ENVIRONMENT_NAME_SHORTNAME,
-                            ObjectUtils.defaultIfNull(datasourceStorage.getIsMock(), ENVIRONMENT_NAME_DEFAULT)));
+                            ObjectUtils.defaultIfNull(environmentName, ENVIRONMENT_NAME_DEFAULT)));
 
                     // Add the error message in case of erroneous execution
                     if (FALSE.equals(actionExecutionResult.getIsExecutionSuccess())) {

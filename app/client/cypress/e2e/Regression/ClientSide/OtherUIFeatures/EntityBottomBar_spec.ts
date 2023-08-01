@@ -38,7 +38,9 @@ describe("Entity bottom bar", () => {
 
   it("3. Api bottom pane should be collapsable", () => {
     _.entityExplorer.NavigateToSwitcher("Explorer");
-    _.apiPage.CreateAndFillApi(_.tedTestConfig.mockApiUrl);
+    _.apiPage.CreateAndFillApi(
+      _.tedTestConfig.dsValues[_.tedTestConfig.defaultEnviorment].mockApiUrl,
+    );
     //Verify if bottom bar opens on clicking debugger icon in api page.
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.AssertOpen(PageType.API);
