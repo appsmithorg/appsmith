@@ -79,16 +79,16 @@ describe("Video Widget Functionality", function () {
 
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 300);
     propPane.UpdatePropertyFieldValue("Text", "{{Video1.playState}}");
-
+    agHelper.Sleep(1500); // Wait time added for the widget to load current video state
     cy.get(".t--widget-textwidget").should("contain", "PLAYING");
 
     cy.openPropertyPane("videowidget");
     propPane.TogglePropertyState("Autoplay", "On");
-    agHelper.Sleep(); // Wait time added, allowing a second to pass between playing and pausing the widget, before it is reset to zero
+    agHelper.Sleep(1500); // Wait time added for the widget to load current video state
     cy.get(".t--widget-textwidget").should("contain", "ENDED");
 
     propPane.TogglePropertyState("Autoplay", "Off");
-    agHelper.Sleep(); // Wait time added, allowing a second to pass between playing and pausing the widget, before it is reset to zero
+    agHelper.Sleep(1500); // Wait time added, allowing a second to pass between playing and pausing the widget, before it is reset to zero
     cy.get(".t--widget-textwidget").should("contain", "PAUSED");
 
     agHelper.ClickButton("Submit");
@@ -97,6 +97,7 @@ describe("Video Widget Functionality", function () {
       const video = $video.get(0);
       expect(video.currentTime).to.equal(0);
     });
+    agHelper.Sleep(1500); // Wait time added for the widget to load current video state
     cy.get(".t--widget-textwidget").should("contain", "NOT_STARTED");
   });
 

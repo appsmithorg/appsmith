@@ -5,3 +5,4 @@
 #cypress/e2e/Regression/ClientSide/Widgets/Dropdown/Dropdown_onOptionChange_spec.js
 cypress/e2e/Regression/ClientSide/Widgets/Others/Video_spec.js
 cypress/e2e/Regression/ClientSide/Widgets/ListV2/Childwigets/List_Inputs_spec.js
+cypress/e2e/Regression/ClientSide/ActionExecution/uiToCode_spec.ts
