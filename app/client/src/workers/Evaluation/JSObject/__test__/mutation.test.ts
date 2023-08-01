@@ -4,7 +4,7 @@ import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import JSObjectCollection from "../Collection";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import TriggerEmitter, {
-  jsVariableUpdatesHandlerWrapper,
+  jsVariableUpdatesHandler,
 } from "workers/Evaluation/fns/utils/TriggerEmitter";
 
 jest.mock("../../evalTreeWithChanges.ts", () => {
@@ -57,10 +57,7 @@ jest.mock("../../handlers/evalTree", () => {
   };
 });
 
-TriggerEmitter.on(
-  "process_js_variable_updates",
-  jsVariableUpdatesHandlerWrapper,
-);
+TriggerEmitter.on("process_js_variable_updates", jsVariableUpdatesHandler);
 
 describe("Mutation", () => {
   it("Global scope value mutation tracking", async () => {

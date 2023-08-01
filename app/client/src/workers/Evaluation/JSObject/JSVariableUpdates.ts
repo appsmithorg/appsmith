@@ -1,6 +1,5 @@
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { updateEvalTreeValueFromContext } from ".";
 import { evalTreeWithChanges } from "../evalTreeWithChanges";
 import { get } from "lodash";
 import { isJSObjectVariable } from "./utils";
@@ -53,9 +52,7 @@ export function getUpdatedPaths(potentialUpdatedPathsMap: UpdatedPathsMap) {
 export function applyJSVariableUpdatesToEvalTree(updatesMap: UpdatedPathsMap) {
   const modifiedVariablesList = getUpdatedPaths(updatesMap);
 
-  updateEvalTreeValueFromContext(modifiedVariablesList);
+  if (modifiedVariablesList.length == 0) return;
 
-  if (modifiedVariablesList.length > 0) {
-    evalTreeWithChanges(modifiedVariablesList);
-  }
+  evalTreeWithChanges(modifiedVariablesList);
 }
