@@ -411,7 +411,7 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
       { actionid: actionPayload.payload.id },
     );
 
-    let action = yield select(getAction, actionPayload.payload.id);
+    let action: Action = yield select(getAction, actionPayload.payload.id);
     if (!action) throw new Error("Could not find action to update");
 
     if (isAPIAction(action)) {
@@ -430,10 +430,7 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
       // @ts-expect-error: Types are not available
       action = fixActionPayloadForMongoQuery(action);
     }
-    const response: ApiResponse<Action> = yield ActionAPI.updateAction(
-      // @ts-expect-error: Types are not available
-      action,
-    );
+    const response: ApiResponse<Action> = yield ActionAPI.updateAction(action);
 
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
