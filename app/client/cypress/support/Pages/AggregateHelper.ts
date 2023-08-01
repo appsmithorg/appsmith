@@ -677,7 +677,7 @@ export class AggregateHelper extends ReusableHelper {
     force = false,
     waitTimeInterval = 500,
   ) {
-    return this.ScrollIntoView(selector, index)
+    return (this.ScrollIntoView(selector, index) as any)
       .realHover()
       .click({ force: force })
       .wait(waitTimeInterval);
@@ -691,7 +691,7 @@ export class AggregateHelper extends ReusableHelper {
   ) {
     let chain = this.ScrollIntoView(selector, index);
     if (realTouch) {
-      chain = chain
+      chain = (chain as any)
         .realTouch({ position: "center" })
         .realHover({ pointer: "mouse" });
     }
@@ -1170,10 +1170,12 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   DragEvaluatedValuePopUp(x: number, y: number) {
-    cy.get(this.locator._evaluatedCurrentValue)
-      .first()
-      .should("be.visible")
-      .realHover({ pointer: "mouse" });
+    (
+      cy
+        .get(this.locator._evaluatedCurrentValue)
+        .first()
+        .should("be.visible") as any
+    ).realHover({ pointer: "mouse" });
     cy.get(this.locator._evaluatedValuePopDragHandler)
       .trigger("mousedown", { which: 1 })
       .trigger("mousemove", { clientX: x, clientY: y })
@@ -1553,10 +1555,4 @@ export class AggregateHelper extends ReusableHelper {
   //     }
   //     return items;
   //   }, { timeout: 5000 });
-
-  public AssertTooltip(tooltipText: string) {
-    cy.get(".rc-tooltip-inner").should(($x) => {
-      expect($x).contain(tooltipText);
-    });
-  }
 }
