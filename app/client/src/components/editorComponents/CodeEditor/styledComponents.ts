@@ -233,7 +233,7 @@ export const EditorWrapper = styled.div<{
       }
 
       .cm-binding-brackets {
-        letter-spacing: -1.8px;
+        // letter-spacing: -1.8px;
         color: hsl(222, 70%, 77%);
       }
 
