@@ -63,7 +63,7 @@ import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldN
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
-@ChangeLog(order = "100")
+@ChangeLog(order = "002-ee")
 // Marking this class as EE because it contains a migration that is only applicable to EE. Making the changelog order
 // to be 100 so that it is executed after all the CE migrations
 public class DatabaseChangelogEE {

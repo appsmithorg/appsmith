@@ -70,6 +70,7 @@ import static com.appsmith.server.constants.Url.ASSET_URL;
 import static com.appsmith.server.constants.Url.CUSTOM_JS_LIB_URL;
 import static com.appsmith.server.constants.Url.PAGE_URL;
 import static com.appsmith.server.constants.Url.PLUGIN_URL;
+import static com.appsmith.server.constants.Url.PRODUCT_ALERT;
 import static com.appsmith.server.constants.Url.TENANT_URL;
 import static com.appsmith.server.constants.Url.THEME_URL;
 import static com.appsmith.server.constants.Url.USAGE_PULSE_URL;
@@ -237,7 +238,8 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, ANALYTICS_URL + "/event"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USAGE_PULSE_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CUSTOM_JS_LIB_URL + "/*/view"),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ENVIRONMENT_URL + "/workspaces/**"))
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ENVIRONMENT_URL + "/workspaces/**"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PRODUCT_ALERT + "/alert"))
                 .permitAll()
                 .pathMatchers("/public/**", "/oauth2/**", "/actuator/**")
                 .permitAll()

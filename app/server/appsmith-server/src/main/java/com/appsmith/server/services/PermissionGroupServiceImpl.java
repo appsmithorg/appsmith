@@ -684,4 +684,24 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                 cleanPermissionGroupCacheForUsers(userIdsForClearingCache).thenReturn(TRUE);
         return Mono.zip(updateRolesMono, clearCacheForUsers).map(pair -> TRUE);
     }
+
+    @Override
+    public Flux<PermissionGroup> findAllByAssignedToUserIdsInWithoutPermission(Set<String> userIds) {
+        return repository.findAllByAssignedToUserIds(userIds, Optional.empty(), Optional.empty());
+    }
+
+    @Override
+    public Flux<PermissionGroup> findAllByAssignedToGroupIdsInWithoutPermission(Set<String> groupIds) {
+        return repository.findAllByAssignedToGroupIds(groupIds, Optional.empty(), Optional.empty());
+    }
+
+    @Override
+    public Flux<PermissionGroup> findAllByAssignedToUserIdWithoutPermission(String userId) {
+        return findAllByAssignedToUserIdsInWithoutPermission(Set.of(userId));
+    }
+
+    @Override
+    public Flux<PermissionGroup> findAllByAssignedToGroupIdWithoutPermission(String groupId) {
+        return findAllByAssignedToGroupIdsInWithoutPermission(Set.of(groupId));
+    }
 }

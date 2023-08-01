@@ -14,7 +14,10 @@ import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import { getCurrentUser } from "actions/authActions";
 import { getCurrentUserLoading } from "selectors/usersSelectors";
 import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import { fetchFeatureFlagsInit } from "actions/userActions";
+import {
+  fetchFeatureFlagsInit,
+  fetchProductAlertInit,
+} from "actions/userActions";
 import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
@@ -26,6 +29,7 @@ import LicenseCheckPage from "./pages/setup/LicenseCheckPage";
 import { LICENSE_CHECK_PATH } from "constants/routes";
 import { requiresLicenseCheck } from "./requiresLicenseCheck";
 import { initCurrentPage } from "actions/initActions";
+import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
 
 const loadingIndicator = <PageLoadingBar />;
 
@@ -39,11 +43,17 @@ function AppRouter(props: {
   getFeatureFlags: () => void;
   getCurrentTenant: () => void;
   initCurrentPage: () => void;
+  fetchProductAlert: () => void;
   isLicenseValid: boolean;
   safeCrashCode?: ERROR_CODES;
 }) {
-  const { getCurrentTenant, getCurrentUser, getFeatureFlags, initCurrentPage } =
-    props;
+  const {
+    fetchProductAlert,
+    getCurrentTenant,
+    getCurrentUser,
+    getFeatureFlags,
+    initCurrentPage,
+  } = props;
   const tenantIsLoading = useSelector(isTenantLoading);
   const currentUserIsLoading = useSelector(getCurrentUserLoading);
 
@@ -52,6 +62,7 @@ function AppRouter(props: {
     getFeatureFlags();
     getCurrentTenant();
     initCurrentPage();
+    fetchProductAlert();
   }, []);
 
   useBrandingTheme();
@@ -94,6 +105,7 @@ function AppRouter(props: {
               )}
               <EE_Routes />
             </Switch>
+            <ProductAlertBanner />
           </>
         )}
       </Suspense>
@@ -112,6 +124,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   getFeatureFlags: () => dispatch(fetchFeatureFlagsInit()),
   getCurrentTenant: () => dispatch(getCurrentTenant(false)),
   initCurrentPage: () => dispatch(initCurrentPage()),
+  fetchProductAlert: () => dispatch(fetchProductAlertInit()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppRouter);

@@ -200,6 +200,7 @@ jobs:
           platforms: linux/arm64,linux/amd64
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
+            APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:release
 

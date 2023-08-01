@@ -6,3 +6,5 @@ export const getLicenseKey = () => {
   const licenseKey = state?.tenant?.tenantConfiguration?.license?.key;
   return licenseKey || "";
 };
+
+export const pricingPageUrlSource = "BE";

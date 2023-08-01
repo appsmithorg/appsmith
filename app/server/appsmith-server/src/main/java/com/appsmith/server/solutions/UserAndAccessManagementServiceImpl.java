@@ -230,7 +230,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .flatMap(tenant -> userRepository.findById(userId))
                 .flatMap(user -> {
                     Mono<Set<String>> permissionGroupIdsMono = permissionGroupService
-                            .findAllByAssignedToUsersIn(Set.of(user.getId()))
+                            .findAllByAssignedToUserIdsInWithoutPermission(Set.of(user.getId()))
                             .map(PermissionGroup::getId)
                             .collect(Collectors.toSet());
                     Mono<Set<String>> groupIdsMono = userGroupService
@@ -406,9 +406,9 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         Set<String> userIds = users.stream().map(User::getId).collect(Collectors.toSet());
         Set<String> groupIds = groups.stream().map(UserGroup::getId).collect(Collectors.toSet());
         Flux<PermissionGroup> allRolesByAssignedToUsersInFlux =
-                permissionGroupService.findAllByAssignedToUsersIn(userIds);
+                permissionGroupService.findAllByAssignedToUserIdsInWithoutPermission(userIds);
         Flux<PermissionGroup> allRolesByAssignedToGroupIdsInFlux =
-                permissionGroupService.findAllByAssignedToGroupIdsIn(groupIds);
+                permissionGroupService.findAllByAssignedToGroupIdsInWithoutPermission(groupIds);
 
         Mono<List<PermissionGroup>> allInterestingRolesMono = Flux.merge(
                         allRolesByAssignedToGroupIdsInFlux, allRolesByAssignedToUsersInFlux)

@@ -18,7 +18,6 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 export default function LeftPane() {
   const categories = getSettingsCategory(CategoryType.GENERAL);
@@ -33,7 +32,6 @@ export default function LeftPane() {
     PERMISSION_TYPE.READ_AUDIT_LOGS,
   );
   const isAirgappedInstance = isAirgapped();
-  const featureFlags = useSelector(selectFeatureFlags);
 
   const filteredGeneralCategories = categories
     ?.map((category) => {
@@ -46,12 +44,9 @@ export default function LeftPane() {
 
   const filteredAclCategories = aclCategories
     ?.map((category) => {
-      const hiddenByFeatureFlag =
-        category.slug === "provisioning" &&
-        !featureFlags.release_scim_provisioning_enabled;
       if (
         (!isSuperUser && ["groups", "roles"].includes(category.slug)) ||
-        (isSuperUser && !hiddenByFeatureFlag)
+        isSuperUser
       ) {
         return category;
       }

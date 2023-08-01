@@ -1026,7 +1026,7 @@ public class GitServiceWithRBACTest {
                         Mockito.any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
-                        eq(true),
+                        Mockito.anyBoolean(),
                         Mockito.anyString(),
                         Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetched"));

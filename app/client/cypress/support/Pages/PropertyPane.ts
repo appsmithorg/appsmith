@@ -39,7 +39,7 @@ export class PropertyPane {
     "']//ancestor::div[@class= 'space-y-1 group']";
   private _jsonFieldConfigList =
     "//div[contains(@class, 't--property-control-fieldconfiguration group')]//div[contains(@class, 'content')]/div//input";
-  private _tableEditColumnButton = ".t--edit-column-btn";
+  _tableEditColumnButton = ".t--edit-column-btn";
   private _tableColumnSettings = (column: string) =>
     `[data-rbd-draggable-id='${column}'] ${this._tableEditColumnButton}`;
   private _sectionCollapse = (section: string) =>
@@ -88,8 +88,10 @@ export class PropertyPane {
   _selectorViewLabel = '[data-testId="selector-view-label"]';
   _textView = ".text-view";
   _selectorView = ".selector-view";
+  _dropdownOptions =
+    "//div[@class='rc-virtual-list']//div[contains(@class, 'rc-select-item-option')]";
   _dropDownValue = (dropdownOption: string) =>
-    `//div[@class='rc-virtual-list']//div[contains(@class, 'rc-select-item-option')]//span[text()='${dropdownOption}']`;
+    `${this._dropdownOptions}//span[text()='${dropdownOption}']`;
   _selectPropDropdown = (ddName: string) =>
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
@@ -123,6 +125,11 @@ export class PropertyPane {
   _addOptionProperty = ".t--property-control-options-add";
   _optionContent = ".rc-select-item-option-content";
   _dropdownOptionSpan = ".t--dropdown-option span";
+  _paneTitle = ".t--property-pane-title";
+  _segmentedControl = (value: string) =>
+    `.ads-v2-segmented-control-value-${value}`;
+  _addMenuItem = ".t--add-menu-item-btn";
+  _addColumnItem = ".t--add-column-btn";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
@@ -143,9 +150,12 @@ export class PropertyPane {
     this.assertHelper.AssertNetworkStatus("@updateLayout");
   }
 
-  public NavigateBackToPropertyPane() {
+  public NavigateBackToPropertyPane(assertElementVisible = true) {
     this.agHelper.GetNClick(this._goBackToProperty);
-    this.agHelper.AssertElementVisible(this._copyWidget);
+
+    if (assertElementVisible) {
+      this.agHelper.AssertElementVisible(this._copyWidget);
+    }
     //this.agHelper.AssertElementVisible(this._deleteWidget); //extra valisation, hence commenting!
   }
 
@@ -257,6 +267,33 @@ export class PropertyPane {
         });
         expect(found).to.be.true;
       });
+  }
+
+  public AssertPropertiesDropDownValues(
+    endpoint: string,
+    dropdownExpectedValues: string[],
+  ) {
+    this.agHelper.GetNClick(this._selectPropDropdown(endpoint));
+    this.agHelper
+      .GetElement(this._dropdownOptions)
+      .then(($ddVisibleTexts: any) => {
+        let foundAll = true; // Flag to track if all expected selections are found
+        const foundSelections: string[] = []; // Array to track found selections
+        $ddVisibleTexts.each((index: any, element: any) => {
+          const spanText = Cypress.$(element).text().trim();
+          foundSelections.push(spanText);
+        });
+        // Check if all expected selections are found in the dropdown
+        dropdownExpectedValues.forEach((expectedSelection) => {
+          if (!foundSelections.includes(expectedSelection)) {
+            foundAll = false;
+            cy.log("Expected dropdown text not found: " + expectedSelection);
+          }
+        });
+        expect(foundAll).to.be.true;
+        cy.log("All dropdown values are present");
+      });
+    this.agHelper.GetNClick(this._selectPropDropdown(endpoint)); //Closing dropdown
   }
 
   public SelectJSFunctionToExecuteInExistingActionBlock(
@@ -383,9 +420,14 @@ export class PropertyPane {
     toVerifySave && this.agHelper.AssertAutoSave();
   }
 
-  public TypeTextIntoField(endp: string, value: string, removeText = true) {
+  public TypeTextIntoField(
+    endp: string,
+    value: string,
+    removeText = true,
+    toVerifySave = true,
+  ) {
     if (removeText) {
-      this.RemoveText(endp);
+      this.RemoveText(endp, toVerifySave);
     }
     this.agHelper
       .GetElement(this.locator._propertyInputField(endp))
@@ -466,6 +508,10 @@ export class PropertyPane {
     );
     if (property)
       this.agHelper.AssertElementExist(this._propertyControl(property));
+  }
+
+  public AssertIfPropertyIsVisible(property: string) {
+    this.agHelper.AssertElementVisible(this._propertyControl(property));
   }
 
   public AddAction(property: string) {

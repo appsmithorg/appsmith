@@ -160,6 +160,7 @@ import type { MultiplexingModeConfig } from "components/editorComponents/CodeEdi
 import { MULTIPLEXING_MODE_CONFIGS } from "components/editorComponents/CodeEditor/modes";
 import { getDeleteLineShortcut } from "./utils/deleteLine";
 import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/CodeEditorSignPosting";
+import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -541,10 +542,24 @@ class CodeEditor extends Component<Props, State> {
       //Refresh editor when the container height is increased.
       this.debounceEditorRefresh();
     }
+
+    const entityInformation = this.getEntityInformation();
+    const isWidgetType = entityInformation.entityType === ENTITY_TYPE.WIDGET;
+
+    const hasFocusedValueChanged =
+      getEditorIdentifier(this.props) !== this.props.focusedProperty;
+
+    if (hasFocusedValueChanged && isWidgetType) {
+      if (this.state.showAIWindow) {
+        this.setState({ showAIWindow: false });
+      }
+    }
+
     if (identifierHasChanged) {
       if (this.state.showAIWindow) {
         this.setState({ showAIWindow: false });
       }
+
       if (shouldFocusOnPropertyControl()) {
         setTimeout(() => {
           if (this.props.editorIsFocused) {
@@ -553,6 +568,7 @@ class CodeEditor extends Component<Props, State> {
         }, 200);
       }
     }
+
     this.editor.operation(() => {
       if (prevProps.lintErrors !== this.props.lintErrors) {
         this.lintCode(this.editor);
@@ -1662,6 +1678,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   featureFlags: selectFeatureFlags(state),
   datasourceTableKeys: getAllDatasourceTableKeys(state, props.dataTreePath),
   installedLibraries: selectInstalledLibraries(state),
+  focusedProperty: getFocusablePropertyPaneField(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

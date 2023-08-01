@@ -47,7 +47,7 @@ export class Templates {
       this.agHelper.AssertElementVisible(
         this.locators._requestForTemplateBtn,
         0,
-        30000,
+        60000,
       ); //giving more time here for templates page to fully load, since there is no intercept validation for same
     });
   }

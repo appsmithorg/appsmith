@@ -8,7 +8,6 @@ import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelper
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 const Main = () => {
   const params = useParams() as any;
@@ -22,18 +21,6 @@ const Main = () => {
         ? category
         : subCategory ?? category
     ];
-  const featureFlags = useSelector(selectFeatureFlags);
-
-  if (
-    category === "provisioning" &&
-    !featureFlags.release_scim_provisioning_enabled
-  ) {
-    return (
-      <Redirect
-        to={getDefaultAdminSettingsPath({ isSuperUser, tenantPermissions })}
-      />
-    );
-  }
 
   if (!!wrapperCategory?.component) {
     const { component: WrapperCategoryComponent } = wrapperCategory;

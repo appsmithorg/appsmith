@@ -10,7 +10,9 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserApiKey;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.DisconnectProvisioningDto;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ProvisionResourceDto;
 import com.appsmith.server.dtos.ProvisionStatusDTO;
 import com.appsmith.server.enums.ProvisionStatus;
@@ -18,8 +20,10 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.ApiKeyRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.solutions.UserAndAccessManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +48,7 @@ import static com.appsmith.server.acl.AclPermission.DELETE_USERS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
+import static com.appsmith.server.constants.ce.FieldNameCE.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -61,6 +66,9 @@ class ProvisionServiceImplTest {
     UserGroupService userGroupService;
 
     @Autowired
+    UserAndAccessManagementService userAndAccessManagementService;
+
+    @Autowired
     PermissionGroupService permissionGroupService;
 
     @Autowired
@@ -70,10 +78,16 @@ class ProvisionServiceImplTest {
     TenantService tenantService;
 
     @Autowired
+    WorkspaceService workspaceService;
+
+    @Autowired
     PolicyGenerator policyGenerator;
 
     @Autowired
     ApiKeyRepository apiKeyRepository;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -911,5 +925,71 @@ class ProvisionServiceImplTest {
         setTenantLicenseAsAirGapped();
         String provisionToken = provisionService.generateProvisionToken().block();
         assertThat(provisionToken).isNotBlank();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            createProvisionUser_assignWorkspaceRoles_deleteProvisioningUser_workspaceRolesShouldNotContainProvisionedUser() {
+        String testName =
+                "createProvisionUser_assignWorkspaceRoles_deleteProvisioningUser_workspaceRolesShouldNotContainProvisionedUser";
+        setTenantLicenseAsEnterprise();
+        String provisionToken = provisionService.generateProvisionToken().block();
+        assertThat(provisionToken).isNotNull();
+
+        Workspace workspace = new Workspace();
+        workspace.setName(testName + "_workspace");
+
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        String createUserBody = "{\"email\": \"" + testName + "@_provisionedUser@appsmith.com" + "\"}";
+
+        // Rest call using provision token to create provision user
+        webTestClient
+                .post()
+                .uri(Url.PROVISION_USER_URL)
+                .header("x-appsmith-key", provisionToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(createUserBody))
+                .exchange()
+                .expectStatus()
+                .isEqualTo(200);
+
+        User provisionedUser = userRepository
+                .findByCaseInsensitiveEmail(testName + "@_provisionedUser@appsmith.com")
+                .block();
+
+        List<PermissionGroup> defaultRoles = permissionGroupService
+                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
+
+        PermissionGroup appViewerRole = defaultRoles.stream()
+                .filter(role -> role.getName().startsWith(VIEWER))
+                .findAny()
+                .get();
+
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setUsernames(List.of(testName + "@_provisionedUser@appsmith.com"));
+        inviteUsersDTO.setPermissionGroupId(appViewerRole.getId());
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "test").block();
+
+        PermissionGroup appViewerRolePostInvite =
+                permissionGroupRepository.findById(appViewerRole.getId()).block();
+        assertThat(appViewerRolePostInvite.getAssignedToUserIds()).contains(provisionedUser.getId());
+
+        // Rest call using provision token to delete provision user
+        webTestClient
+                .delete()
+                .uri(Url.PROVISION_USER_URL + "/" + provisionedUser.getId())
+                .header("x-appsmith-key", provisionToken)
+                .header("X-Requested-By", "Appsmith")
+                .exchange()
+                .expectStatus()
+                .isEqualTo(200);
+
+        PermissionGroup appViewerRolePostInviteAndDeleteUser =
+                permissionGroupRepository.findById(appViewerRole.getId()).block();
+        assertThat(appViewerRolePostInviteAndDeleteUser.getAssignedToUserIds()).doesNotContain(provisionedUser.getId());
     }
 }
