@@ -28,7 +28,8 @@ interface EntityActionParams {
     | "Copy to page"
     | "Move to page"
     | "Hide"
-    | "Refresh";
+    | "Refresh"
+    | "Set as home page";
   subAction?: string;
   entityType?: EntityItems;
   toAssertAction?: boolean;

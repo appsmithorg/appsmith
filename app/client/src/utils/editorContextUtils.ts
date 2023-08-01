@@ -60,7 +60,7 @@ export function shouldFocusOnPropertyControl(
  * @returns
  */
 export function getPropertyControlFocusElement(
-  element: HTMLDivElement | null,
+  element: HTMLElement | null,
 ): HTMLElement | undefined {
   if (element?.children) {
     const [, propertyInputElement] = element.children;
