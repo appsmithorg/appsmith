@@ -15,6 +15,13 @@ export class DeployMode {
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='radiogroup-container']//input`;
   _jsonFormDatepickerFieldByName = (fieldName: string) =>
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='datepicker-container']//input`;
+  _jsonFormNumberFieldByName = (
+    fieldName: string,
+    direction: "up" | "down" = "up",
+  ) =>
+    `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='input-container']// ${
+      direction == "up" ? this.locator._chevronUp : this.locator._chevronDown
+    }`;
   _jsonSelectDropdown = "button.select-button";
   private _jsonFormMultiSelectByName = (fieldName: string) =>
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='multiselect-container']//div[contains(@class, 'rc-select-show-arrow')]`;
