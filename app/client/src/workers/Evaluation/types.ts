@@ -18,6 +18,7 @@ import type { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import type { WorkerRequest } from "@appsmith/workers/common/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { APP_MODE } from "entities/App";
 
 export type EvalWorkerSyncRequest = WorkerRequest<any, EVAL_WORKER_SYNC_ACTION>;
 export type EvalWorkerASyncRequest = WorkerRequest<
@@ -37,6 +38,7 @@ export interface EvalTreeRequestData {
   };
   forceEvaluation: boolean;
   metaWidgets: MetaWidgetsReduxState;
+  appMode?: APP_MODE;
 }
 
 export interface EvalTreeResponseData {

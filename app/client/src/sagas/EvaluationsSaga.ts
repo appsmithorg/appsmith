@@ -261,6 +261,7 @@ export function* evaluateTreeSaga(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
+  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
 
   const evalTreeRequestData: EvalTreeRequestData = {
     unevalTree: unEvalAndConfigTree,
@@ -271,6 +272,7 @@ export function* evaluateTreeSaga(
     allActionValidationConfig,
     forceEvaluation,
     metaWidgets,
+    appMode,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
