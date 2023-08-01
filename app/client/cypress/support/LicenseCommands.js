@@ -66,13 +66,13 @@ Cypress.Commands.add("validateLicense", () => {
       .its("status")
       .should("equal", 200);
   } else {
-    cy.get(LicenseLocators.licenseFormInput).clear().type("VALID LICENSE KEY");
+    cy.get(LicenseLocators.licenseFormInput).clear().type("VALID-LICENSE-KEY");
     cy.get(LicenseLocators.activeInstanceBtn).click();
     cy.wait(2000);
     cy.request({
       method: "PUT",
       url: "/api/v1/tenants/license",
-      body: { key: "VALID LICENSE KEY" },
+      body: { key: "VALID-LICENSE-KEY" },
       failOnStatusCode: false,
     })
       .its("status")

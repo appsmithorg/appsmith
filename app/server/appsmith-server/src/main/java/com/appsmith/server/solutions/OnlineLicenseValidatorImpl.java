@@ -40,7 +40,7 @@ public class OnlineLicenseValidatorImpl extends BaseLicenseValidatorImpl impleme
      */
     public Mono<License> licenseCheck(Tenant tenant) {
         log.debug("Initiating online license check");
-        final String baseUrl = cloudServicesConfig.getBaseUrl();
+        final String baseUrl = cloudServicesConfig.getBaseUrlWithSignatureVerification();
         if (StringUtils.isEmpty(baseUrl)) {
             log.debug("Unable to find cloud services base URL. Shutting down.");
             // Shutting dwn server as we can't check the license validity without cloud-server
@@ -59,7 +59,7 @@ public class OnlineLicenseValidatorImpl extends BaseLicenseValidatorImpl impleme
 
         return this.populateLicenseValidationRequest(tenant)
                 .flatMap(requestDTO -> {
-                    return WebClientUtils.create(cloudServicesConfig.getBaseUrl() + "/api/v1/license/validate")
+                    return WebClientUtils.create(baseUrl + "/api/v1/license/validate")
                             .post()
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON)
