@@ -152,7 +152,7 @@ function DSDataFilter({
         <TooltipLink
           kind="primary"
           target="_blank"
-          to={getRampLink("bottom_bar_env_switcher", RampFeature.MultipleEnv)}
+          to={getRampLink("ds_editor", RampFeature.MultipleEnv)}
         >
           {createMessage(BUSINESS_EDITION_TEXT)}
         </TooltipLink>
