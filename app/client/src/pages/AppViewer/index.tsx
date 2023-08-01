@@ -49,8 +49,8 @@ import {
   useTheme,
 } from "@design-system/theming";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { showProductRamps } from "selectors/rampSelectors";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
+import { showProductRamps } from "utils/ProductRamps";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
