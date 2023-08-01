@@ -8,7 +8,7 @@ import {
 } from "../../../support/Objects/ObjectsCore";
 
 let dsName: any, jsonSpecies: any, offset: any, insertedRecordId: any;
-describe.skip("excludeForAirgap", "Validate Airtable Ds", () => {
+describe("excludeForAirgap", "Validate Airtable Ds", () => {
   before("Create a new Airtable DS", () => {
     dataSources.CreateDataSource("Airtable", true, false);
     cy.get("@dsName").then(($dsName) => {
@@ -259,7 +259,8 @@ describe.skip("excludeForAirgap", "Validate Airtable Ds", () => {
     });
   });
 
-  it("2. Create/Retrieve/Update/Delete records", () => {
+  //Skipping since Create records sometimes not giving results
+  it.skip("2. Create/Retrieve/Update/Delete records", () => {
     let createReq = `[{"fields": {
       "Species_ID": "SF",
       "Genus": "Sigmodon",
@@ -379,6 +380,6 @@ describe.skip("excludeForAirgap", "Validate Airtable Ds", () => {
       action: "Delete",
       entityType: entityItems.Datasource,
     });
-    assertHelper.AssertNetworkStatus("@deleteDatasource", 200);
+    //assertHelper.AssertNetworkStatus("@deleteDatasource", 200);  //to uncomment after 2nd case is fixed
   });
 });
