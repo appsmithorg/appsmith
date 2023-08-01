@@ -1889,3 +1889,10 @@ export const TEST_DATASOURCE_SUCCESS = (
 
 export const TEST_DATASOURCE_ERROR = () =>
   "Test failed, couldn't establish a connection";
+
+// Camera widget
+export const DEFAULT_CAMERA_LABEL = () => "Default mobile camera";
+export const DEFAULT_CAMERA_LABEL_DESCRIPTION = () =>
+  "Default choice for mobile users. Not applicable for other devices";
+export const FRONT_CAMERA_LABEL = () => "Front (Selfie)";
+export const BACK_CAMERA_LABEL = () => "Back (Rear)";
