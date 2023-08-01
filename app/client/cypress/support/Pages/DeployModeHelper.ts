@@ -37,7 +37,7 @@ export class DeployMode {
 
   //refering PublishtheApp from command.js
   public DeployApp(
-    eleToCheckInDeployPage: string = this.locator._backToEditor,
+    eleToCheckInDeployPage = this.locator._backToEditor,
     toCheckFailureToast = true,
     toValidateSavedState = true,
     addDebugFlag = true,
