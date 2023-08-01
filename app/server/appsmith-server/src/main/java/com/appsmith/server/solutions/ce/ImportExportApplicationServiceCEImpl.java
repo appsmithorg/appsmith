@@ -1878,7 +1878,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .then(applicationMono)
                             .flatMap(application -> {
                                 log.info("Imported application with id {}", application.getId());
-                                return applicationService.save(application);
+                                return applicationService.update(application.getId(), application);
                             })
                             .onErrorResume(throwable -> {
                                 String errorMessage = ImportExportUtils.getErrorMessage(throwable);
