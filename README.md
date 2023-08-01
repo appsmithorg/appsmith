@@ -19,17 +19,15 @@
 
 ---
 
-Organizations build internal applications (also known as admin tools or internal tools) such as dashboards, database GUIs, admin panels, approval apps, customer support tools, and more to help their teams perform day-to-day operations. Appsmith is an open-source developer tool that enables the rapid creation of such internal tools.
-
-[See the features in action and check out use cases](https://www.appsmith.com/).
+Organizations build internal applications such as dashboards, database GUIs, admin panels, approval apps, customer support dashboards, and more to help their teams perform day-to-day operations. Appsmith is an open-source tool that enables the rapid development of these internal apps.
 
 ![Appsmith Canvas](/static/images/appsmith-editor.png)
 
 ## Installation
 There are two ways to start using Appsmith.
 
-- To quickly explore and use the platform, signup on [Appsmith Cloud](https://app.appsmith.com/).
-- To install and manage Appsmith on your machine, see the installation guides below. 
+- Signup on [Appsmith Cloud](https://app.appsmith.com/).
+- Install Appsmith on your machine (see the installation guides below). 
 
 | Installation Methods                                                                                                            | Documentation                                                                                                                                                    |
 | ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -43,11 +41,12 @@ For other deployment options, see the [Installation Guides](https://docs.appsmit
 ## Development
 To build and run Appsmith in your local dev environment, see [Setup for local development](https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development).
 
-## Learning and Resources
+## Learning Resources
 - [Documentation](https://docs.appsmith.com?utm_source=github&utm_medium=organic&utm_campaign=readme)
 - [Tutorials](https://docs.appsmith.com/getting-started/tutorials)
 - [Videos](https://www.youtube.com/appsmith?utm_source=github&utm_medium=organic&utm_campaign=readme)
 - [Templates](https://docs.appsmith.com/getting-started/tutorials?utm_source=github&utm_medium=organic&utm_campaign=readme)
+- [Features & Use Cases](https://appsmith.com?utm_source=github&utm_medium=organic&utm_campaign=readme)
 
 ## Need Help?
 - [Discord](https://discord.gg/rBTTVJp)
