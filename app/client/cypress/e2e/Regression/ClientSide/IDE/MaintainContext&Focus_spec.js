@@ -79,7 +79,6 @@ describe("MaintainContext&Focus", function () {
 
     cy.wait(1000);
     _.dataSources.EnterJSContext({
-      fieldProperty: _.dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "TestCollection",
     });
