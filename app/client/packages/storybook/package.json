@@ -5,8 +5,9 @@
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
   "license": "MIT",
   "scripts": {
-    "storybook": "start-storybook -p 6006",
-    "build": "build-storybook"
+    "storybook": "storybook dev -p 6006",
+    "build": "build-storybook",
+    "storybook-chromatic": "CHROMATIC=1 storybook dev -p 6006"
   },
   "devDependencies": {
     "@babel/core": "^7.21.0",
