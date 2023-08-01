@@ -243,7 +243,7 @@ describe("Validate Mongo query commands", function () {
     cy.get(generatePage.dropdownOption)
       //.first()
       .contains("listingAndReviews")
-      // .scrollIntoView()
+      .scrollIntoView()
       .should("be.visible")
       .click();
 
