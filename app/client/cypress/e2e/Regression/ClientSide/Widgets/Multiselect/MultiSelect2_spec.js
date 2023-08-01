@@ -17,6 +17,8 @@ describe("MultiSelect Widget Functionality", function () {
   });
 
   it("1. Selects value with invalid default value", () => {
+    _.propPane.ToggleJSMode("sourcedata");
+
     cy.openPropertyPane("multiselectwidgetv2");
     _.propPane.UpdatePropertyFieldValue(
       "Source Data",

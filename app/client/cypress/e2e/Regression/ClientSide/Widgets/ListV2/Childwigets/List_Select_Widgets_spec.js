@@ -21,6 +21,8 @@ describe("Select Widgets", function () {
       100,
     );
 
+    _.propPane.ToggleJSMode("sourcedata");
+
     _.propPane.UpdatePropertyFieldValue(
       "Source Data",
       `{{[{
@@ -49,6 +51,8 @@ describe("Select Widgets", function () {
     );
 
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT, 250, 300);
+
+    _.propPane.ToggleJSMode("sourcedata");
 
     _.propPane.UpdatePropertyFieldValue(
       "Source Data",

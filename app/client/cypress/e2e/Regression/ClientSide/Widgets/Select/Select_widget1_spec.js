@@ -20,6 +20,7 @@ describe("Select Widget Functionality", function () {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("selectwidget", { x: 300, y: 300 });
     cy.get(".t--widget-selectwidget").should("exist");
+    propPane.ToggleJSMode("sourcedata");
     cy.updateCodeInput(
       ".t--property-control-sourcedata",
       `[

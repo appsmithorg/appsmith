@@ -12,6 +12,7 @@ describe("MultiSelect Widget Functionality", function () {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.MULTISELECT);
     //should check that empty value is allowed in options", () => {
     cy.openPropertyPane("multiselectwidgetv2");
+    propPane.ToggleJSMode("sourcedata");
     cy.updateCodeInput(
       ".t--property-control-sourcedata",
       `[

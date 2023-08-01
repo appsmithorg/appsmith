@@ -20,6 +20,7 @@ describe("Select Widget Functionality", function () {
 
   it("should check that virtualization works well", () => {
     cy.openPropertyPane("selectwidget");
+    propPane.ToggleJSMode("sourcedata");
     cy.updateCodeInput(
       ".t--property-control-sourcedata",
       `[
