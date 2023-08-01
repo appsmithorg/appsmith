@@ -8,7 +8,8 @@ import {
 } from "../../../support/Objects/ObjectsCore";
 
 let dsName: any, jsonSpecies: any, offset: any, insertedRecordId: any;
-describe("excludeForAirgap", "Validate Airtable Ds", () => {
+//Skipping for regular regression since failing in CI, will be added to GSheet regression machine run.
+describe.skip("excludeForAirgap", "Validate Airtable Ds", () => {
   before("Create a new Airtable DS", () => {
     dataSources.CreateDataSource("Airtable", true, false);
     cy.get("@dsName").then(($dsName) => {
@@ -259,8 +260,7 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
     });
   });
 
-  //Skipping since Create records sometimes not giving results
-  it.skip("2. Create/Retrieve/Update/Delete records", () => {
+  it("2. Create/Retrieve/Update/Delete records", () => {
     let createReq = `[{"fields": {
       "Species_ID": "SF",
       "Genus": "Sigmodon",
@@ -380,6 +380,6 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
       action: "Delete",
       entityType: entityItems.Datasource,
     });
-    //assertHelper.AssertNetworkStatus("@deleteDatasource", 200);  //to uncomment after 2nd case is fixed
+    assertHelper.AssertNetworkStatus("@deleteDatasource", 200);
   });
 });
