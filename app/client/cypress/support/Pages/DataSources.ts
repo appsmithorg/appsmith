@@ -861,7 +861,7 @@ export class DataSources {
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
 
-    this.AssertDSActive(new RegExp("^" + datasourceName + "$", "g")) //This regex is to exact match the datasource name
+    this.AssertDSActive(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
       .scrollIntoView()
       .should("be.visible")
       .then(($element) => {
@@ -899,7 +899,7 @@ export class DataSources {
     if (toNavigateToActive) this.NavigateToActiveTab();
     cy.get(this._datasourceCard, { withinSubject: null })
       .find(this._activeDS)
-      .contains(new RegExp("^" + datasourceName + "$", "g")) //This regex is to exact match the datasource name
+      .contains(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
       .scrollIntoView()
       .should("be.visible")
       .closest(this._datasourceCard)
@@ -939,7 +939,7 @@ export class DataSources {
   ) {
     this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
-      .contains(new RegExp("^" + datasourceName + "$", "g")) //This regex is to exact match the datasource name
+      .contains(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
       .scrollIntoView()
       .should("be.visible")
       .click();
@@ -1770,7 +1770,7 @@ export class DataSources {
     this.agHelper.Sleep(500);
     this.agHelper.GetNClickByContains(
       this._globalSearchOptions,
-      new RegExp("^" + datasourceName + "$", "g"),
+      new RegExp("^" + datasourceName + "$"),
     );
     this.agHelper.WaitUntilEleAppear(this._createQuery);
     this.agHelper.GetNClick(this._createQuery);
