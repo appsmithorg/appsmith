@@ -135,4 +135,17 @@ export class GsheetHelper {
     this.agHelper.GetNClick(this.dataSources._multiSelectDropdown(ddName));
     this.agHelper.GetNClickByContains(this.dataSources._dropdownOption, option);
   }
+
+  public AddQueryFromGlobalSearch(datasourceName: string) {
+    this.agHelper.GetNClick(this.dataSources._globalSearchTrigger);
+    this.agHelper.Sleep(500);
+    this.agHelper.TypeText(this.dataSources._globalSearchInput, datasourceName);
+    this.agHelper.Sleep(500);
+    this.agHelper
+      .GetElement(this.dataSources._globalSearchOptions)
+      .contains(new RegExp("^" + datasourceName + "$", "g"))
+      .click({ force: true });
+    this.agHelper.WaitUntilEleAppear(this.dataSources._createQuery);
+    this.agHelper.GetNClick(this.dataSources._createQuery);
+  }
 }

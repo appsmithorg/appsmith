@@ -176,8 +176,7 @@ export class DataSources {
   };
   _queryDoc = ".t--datasource-documentation-link";
   _globalSearchModal = ".t--global-search-modal";
-  _globalSearchInput = (inputText: string) =>
-    "//input[@id='global-search'][@value='" + inputText + "']";
+  _globalSearchInput = ".t--global-search-input";
   _gsScopeDropdown =
     "[data-testid^='datasourceStorages.'][data-testid$='.datasourceConfiguration.authentication.scopeString']";
   _gsScopeOptions = ".ads-v2-select__dropdown .rc-select-item-option";
@@ -247,6 +246,8 @@ export class DataSources {
   private _datasourceStructureSearchInput = ".datasourceStructure-search input";
   _jsModeSortingControl = ".t--actionConfiguration\\.formData\\.sortBy\\.data";
   public _queryEditorCollapsibleIcon = ".collapsible-icon";
+  _globalSearchTrigger = ".t--global-search-modal-trigger";
+  _globalSearchOptions = ".t--searchHit";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -1760,5 +1761,18 @@ export class DataSources {
       .GetElement(this._jsModeSortingControl)
       .find("button[data-testid='t--sorting-add-field']")
       .click({ force: true });
+  }
+
+  public AddQueryFromGlobalSearch(datasourceName: string) {
+    this.agHelper.GetNClick(this._globalSearchTrigger);
+    this.agHelper.Sleep(500);
+    this.agHelper.TypeText(this._globalSearchInput, datasourceName);
+    this.agHelper.Sleep(500);
+    this.agHelper
+      .GetElement(this._globalSearchOptions)
+      .contains(new RegExp("^" + datasourceName + "$", "g"))
+      .click({ force: true });
+    this.agHelper.WaitUntilEleAppear(this._createQuery);
+    this.agHelper.GetNClick(this._createQuery);
   }
 }

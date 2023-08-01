@@ -10,6 +10,7 @@ import {
   entityExplorer,
   deployMode,
   locators,
+  draggableWidgets,
 } from "../../support/Objects/ObjectsCore";
 
 const workspaceName = "gsheet apps";
@@ -17,6 +18,16 @@ const dataSourceName = "gsheet";
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet";
 describe("GSheet Miscellaneous Tests", function () {
+  const columnHeaders = [
+    "uniq_id",
+    "japanese_name",
+    "currencies",
+    "specialChars",
+    "product_name",
+    "manufacturer",
+    "price",
+    "rowIndex",
+  ];
   before("Setup app and spreadsheet", function () {
     //Add a new app and an add new spreadsheet query
     //Setting up the spreadsheet name
@@ -68,13 +79,29 @@ describe("GSheet Miscellaneous Tests", function () {
     dataSources.ValidateNSelectDropdown("Spreadsheet", "", spreadSheetName);
     dataSources.ValidateNSelectDropdown("Sheet name", "", "Sheet1");
     dataSources.RunQueryNVerifyResponseViews(GSHEET_DATA.length);
+    dataSources.AssertQueryResponseHeaders(columnHeaders);
     dataSources.AssertQueryTableResponse(0, GSHEET_DATA[0].uniq_id);
     dataSources.AssertQueryTableResponse(1, "ホーンビィ 2014 カタログ"); // Asserting other language
     dataSources.AssertQueryTableResponse(2, "₹, $, €, ¥, £"); // Asserting different symbols
     dataSources.AssertQueryTableResponse(3, "!@#$%^&*"); // Asserting special chars
   });
 
-  it("3. Generate CRUD page from active datasource page and verify", () => {
+  it("3. Add query from global search and verify", () => {
+    gsheetHelper.AddQueryFromGlobalSearch(dataSourceName);
+    dataSources.ValidateNSelectDropdown("Operation", "Fetch Many");
+    dataSources.ValidateNSelectDropdown("Entity", "Sheet Row(s)");
+    agHelper.Sleep(500);
+    dataSources.ValidateNSelectDropdown("Spreadsheet", "", spreadSheetName);
+    dataSources.ValidateNSelectDropdown("Sheet name", "", "Sheet1");
+    dataSources.RunQueryNVerifyResponseViews(GSHEET_DATA.length);
+    dataSources.AssertQueryResponseHeaders(columnHeaders);
+    dataSources.AssertQueryTableResponse(0, GSHEET_DATA[0].uniq_id);
+    dataSources.AssertQueryTableResponse(1, "ホーンビィ 2014 カタログ"); // Asserting other language
+    dataSources.AssertQueryTableResponse(2, "₹, $, €, ¥, £"); // Asserting different symbols
+    dataSources.AssertQueryTableResponse(3, "!@#$%^&*"); // Asserting special chars
+  });
+
+  it("4. Generate CRUD page from active datasource page and verify", () => {
     // Navigating to active datasource page
     dataSources.NavigateFromActiveDS(dataSourceName, false, false);
 
@@ -96,7 +123,7 @@ describe("GSheet Miscellaneous Tests", function () {
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
     //deploy the app and verify the table data
-    deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE_V1));   
     const data = GSHEET_DATA.filter((item) => item.rowIndex === "0")[0];
     table.ReadTableRowColumnData(0, 0, "v1").then((cellData) => {
       expect(cellData).to.eq(data.uniq_id);
@@ -115,7 +142,7 @@ describe("GSheet Miscellaneous Tests", function () {
     });
 
     //Validating loaded JSON form
-    cy.xpath(locators._spanButton("Update")).then((selector) => {
+    agHelper.GetElement(locators._spanButton("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {
@@ -128,7 +155,7 @@ describe("GSheet Miscellaneous Tests", function () {
     table.WaitUntilTableLoad();
   });
 
-  it("4. Generate CRUD page from entity explorer and verify", () => {
+  it("5. Generate CRUD page from entity explorer and verify", () => {
     // Adding pafe with data from entity explorer
     entityExplorer.AddNewPage("Generate page with data");
 
@@ -153,7 +180,7 @@ describe("GSheet Miscellaneous Tests", function () {
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
     //deploy the app and verify the table data
-    deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE_V1));
     const data = GSHEET_DATA.filter((item) => item.rowIndex === "1")[0];
     table.ReadTableRowColumnData(1, 0, "v1").then((cellData) => {
       expect(cellData).to.eq(data.uniq_id);
@@ -172,7 +199,7 @@ describe("GSheet Miscellaneous Tests", function () {
     });
 
     //Validating loaded JSON form
-    cy.xpath(locators._spanButton("Update")).then((selector) => {
+    agHelper.GetElement(locators._spanButton("Update")).then((selector) => {
       cy.wrap(selector)
         .invoke("attr", "class")
         .then((classes) => {
@@ -195,7 +222,5 @@ describe("GSheet Miscellaneous Tests", function () {
     });
     homePage.NavigateToHome();
     homePage.DeleteApplication(appName);
-    deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
   });
 });
