@@ -1,7 +1,7 @@
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { set } from "lodash";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
-import { removeFunctions } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { removeFunctionsAndSerialzeBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 /**
  * This method loops through each entity object of dataTree and sets the entity config from prototype as object properties.
@@ -21,12 +21,14 @@ export function makeEntityConfigsAsObjProperties(
     newDataTree[entityName] = Object.assign({}, entity);
   }
   const dataTreeToReturn = sanitizeDataTree
-    ? JSON.parse(JSON.stringify(newDataTree))
+    ? removeFunctionsAndSerialzeBigInt(newDataTree)
     : newDataTree;
 
   if (!evalProps) return dataTreeToReturn;
 
-  const sanitizedEvalProps = removeFunctions(evalProps) as EvalProps;
+  const sanitizedEvalProps = removeFunctionsAndSerialzeBigInt(
+    evalProps,
+  ) as EvalProps;
 
   for (const [entityName, entityEvalProps] of Object.entries(
     sanitizedEvalProps,
