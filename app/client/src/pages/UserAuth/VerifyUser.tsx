@@ -24,7 +24,7 @@ const Body = styled.div`
 `;
 
 enum ErrorType {
-  ALREADY_VERIFIED = "AE-APP-4094",
+  ALREADY_VERIFIED = "AE-APP-4095",
   EXPIRED = "AE-APP-4028",
   UNKNOWN = "UNKNOWN",
 }
