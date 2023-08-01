@@ -241,12 +241,8 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
   });
 
   after("Verify Deletion of the datasource", () => {
-    entityExplorer.SelectEntityByName(dsName, "Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Delete",
-      entityType: entityItems.Datasource,
-    });
+    cy.intercept("DELETE", "/api/v1/datasources/*").as("deleteDatasource"); //Since intercept from before is not working
+    dataSources.DeleteDatasouceFromWinthinDS(dsName);
     //dataSources.StopNDeleteContainer(containerName); //commenting to check if MsSQL specific container deletion is causing issues
   });
 
