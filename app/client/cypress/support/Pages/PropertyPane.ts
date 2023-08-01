@@ -39,7 +39,7 @@ export class PropertyPane {
     "']//ancestor::div[@class= 'space-y-1 group']";
   private _jsonFieldConfigList =
     "//div[contains(@class, 't--property-control-fieldconfiguration group')]//div[contains(@class, 'content')]/div//input";
-  private _tableEditColumnButton = ".t--edit-column-btn";
+  _tableEditColumnButton = ".t--edit-column-btn";
   private _tableColumnSettings = (column: string) =>
     `[data-rbd-draggable-id='${column}'] ${this._tableEditColumnButton}`;
   private _sectionCollapse = (section: string) =>
@@ -128,6 +128,11 @@ export class PropertyPane {
   private _propertyControlColorPicker = (property: string) =>
     `.t--property-control-${property} .bp3-input-group input`;
   _propertyText = ".bp3-ui-text span";
+  _paneTitle = ".t--property-pane-title";
+  _segmentedControl = (value: string) =>
+    `.ads-v2-segmented-control-value-${value}`;
+  _addMenuItem = ".t--add-menu-item-btn";
+  _addColumnItem = ".t--add-column-btn";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
@@ -148,9 +153,12 @@ export class PropertyPane {
     this.assertHelper.AssertNetworkStatus("@updateLayout");
   }
 
-  public NavigateBackToPropertyPane() {
+  public NavigateBackToPropertyPane(assertElementVisible = true) {
     this.agHelper.GetNClick(this._goBackToProperty);
-    this.agHelper.AssertElementVisible(this._copyWidget);
+
+    if (assertElementVisible) {
+      this.agHelper.AssertElementVisible(this._copyWidget);
+    }
     //this.agHelper.AssertElementVisible(this._deleteWidget); //extra valisation, hence commenting!
   }
 
@@ -503,6 +511,10 @@ export class PropertyPane {
     );
     if (property)
       this.agHelper.AssertElementExist(this._propertyControl(property));
+  }
+
+  public AssertIfPropertyIsVisible(property: string) {
+    this.agHelper.AssertElementVisible(this._propertyControl(property));
   }
 
   public AddAction(property: string) {
