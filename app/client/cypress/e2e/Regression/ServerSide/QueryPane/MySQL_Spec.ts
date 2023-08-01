@@ -72,7 +72,7 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
       "File_Name",
       "Flag",
     ]);
-    dataSources.AddSuggesstedWidget(Widgets.Table);
+    dataSources.AddSuggestedWidget(Widgets.Table);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitUntilTableLoad(0, 0, "v2");
     deployMode.NavigateBacktoEditor();
