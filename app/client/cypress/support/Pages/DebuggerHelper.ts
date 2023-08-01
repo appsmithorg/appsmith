@@ -184,7 +184,12 @@ export class DebuggerHelper {
     this.agHelper.GetNClick(this.locators._debuggerMessage, index);
   }
 
-  ClicklogEntityLink(index?: number) {
+  ClicklogEntityLink(last = false, index?: number) {
+    if (last) {
+      this.agHelper.GetElement(this.locators._logEntityLink).last().click();
+      return;
+    }
+
     this.agHelper.GetNClick(this.locators._logEntityLink, index);
   }
 
