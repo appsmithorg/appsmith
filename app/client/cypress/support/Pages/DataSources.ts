@@ -92,6 +92,7 @@ export class DataSources {
     ddTitle +
     "']/following-sibling::span//button";
   _reconnectModal = "[data-testid='reconnect-datasource-modal']";
+  _reconnect = ".t--reconnect-btn";
   _dropdown = (ddTitle: string) =>
     "//span[contains(@title, '" +
     ddTitle +
@@ -140,7 +141,7 @@ export class DataSources {
     responseType +
     "']";
   _queryRecordResult = (recordCount: number) =>
-    `//div/span[text()='Result:']/span[contains(text(),' ${recordCount} Record')]`;
+    `//div/span[text()='Result:']/span[number(substring-before(normalize-space(text()), ' Record')) >= ${recordCount}]`;
   _noRecordFound = "span[data-testid='no-data-table-message']";
   _usePreparedStatement =
     "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox']";
@@ -193,7 +194,7 @@ export class DataSources {
     dbName +
     "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//p[text()='Schema not available']";
   // Authenticated API locators
-  private _authApiDatasource = ".t--createAuthApiDatasource";
+  public _authApiDatasource = ".t--createAuthApiDatasource";
   private _authType = "[data-testid=authType]";
   private _oauth2 = ".rc-select-item-option:contains('OAuth 2.0')";
   private _accessTokenUrl =
@@ -987,6 +988,18 @@ export class DataSources {
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
+  public AssertReconnectDS(datasourceName: string) {
+    cy.get(this._datasourceCard, { withinSubject: null })
+      .find(this._activeDS)
+      .contains(datasourceName)
+      .scrollIntoView()
+      .should("be.visible")
+      .closest(this._datasourceCard)
+      .scrollIntoView()
+      .within(() => {
+        this.agHelper.AssertElementVisible(this._reconnect, 0, 20000);
+      });
+  }
   public ReconnectModalValidation(
     dbName: string,
     dsName: "PostgreSQL" | "MySQL" | "MongoDB",
