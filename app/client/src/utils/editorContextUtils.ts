@@ -98,7 +98,6 @@ export function getPropertyControlFocusElement(
  * @param datasource Datasource
  * @param plugin Plugin
  * @param currentEnvironment string
- * @param authStatusToBeChecked AuthenticationStatus
  * @returns boolean
  */
 export function isDatasourceAuthorizedForQueryCreation(
