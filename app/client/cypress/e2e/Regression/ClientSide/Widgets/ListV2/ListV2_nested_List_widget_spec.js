@@ -4,9 +4,7 @@ import {
   assertHelper,
   entityExplorer,
   propPane,
-  draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
-import { AssertHelper } from "../../../../../support/Pages/AssertHelper";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
