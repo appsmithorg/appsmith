@@ -70,7 +70,7 @@ describe(
       multipleEnv.SwitchEnv(stagingEnv);
       agHelper.Sleep();
       apiPage.RunAPI();
-      dataSources.AddSuggesstedWidget(Widgets.Table);
+      dataSources.AddSuggestedWidget(Widgets.Table);
     });
 
     it("3. Check table response for both environments", function () {

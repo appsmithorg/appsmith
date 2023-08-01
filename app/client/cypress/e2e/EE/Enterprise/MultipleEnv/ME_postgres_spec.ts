@@ -84,7 +84,7 @@ describe(
       // Run and verify the response for the query
       dataSources.RunQueryNVerifyResponseViews(3);
 
-      dataSources.AddSuggesstedWidget(Widgets.Table);
+      dataSources.AddSuggestedWidget(Widgets.Table);
       // Create query on staging only DS
       agHelper.Sleep(2000);
       entityExplorer.AddNewPage("New blank page");
@@ -106,14 +106,14 @@ describe(
       agHelper.GetNClick(
         entityExplorer._entityNameInExplorer(meStagingOnlyQueryName),
       );
-      dataSources.AddSuggesstedWidget(Widgets.Table);
+      dataSources.AddSuggestedWidget(Widgets.Table);
     });
 
     it("3. Check table response for both environments", function () {
       // Check the records on the table
       cy.get(locators._tableRecordsContainer).should("contain", "3 Records");
       //Navigate to the table widget
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
+      //entityExplorer.SelectEntityByName("Table1", "Widgets");
       multipleEnv.SwitchEnv(prodEnv);
       cy.get(locators._tableRecordsContainer).should("contain", "0 Records");
       entityExplorer.SelectEntityByName("Page1", "Pages");

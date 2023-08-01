@@ -74,7 +74,7 @@ describe(
       multipleEnv.SwitchEnv(stagingEnv);
       agHelper.Sleep();
       dataSources.RunQueryNVerifyResponseViews(10, false);
-      dataSources.AddSuggesstedWidget(Widgets.Table);
+      dataSources.AddSuggestedWidget(Widgets.Table);
       // Create query on staging only DS
       agHelper.Sleep(2000);
       entityExplorer.AddNewPage("New blank page");
@@ -97,7 +97,7 @@ describe(
       agHelper.GetNClick(
         entityExplorer._entityNameInExplorer(meStagingOnlyQueryName),
       );
-      dataSources.AddSuggesstedWidget(Widgets.Table);
+      dataSources.AddSuggestedWidget(Widgets.Table);
     });
 
     it("3. Check table response for both environments", function () {
