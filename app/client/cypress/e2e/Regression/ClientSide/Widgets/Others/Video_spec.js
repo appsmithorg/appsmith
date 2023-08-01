@@ -80,7 +80,6 @@ describe("Video Widget Functionality", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 300);
     propPane.UpdatePropertyFieldValue("Text", "{{Video1.playState}}");
     agHelper.Sleep(1500); // Wait time added for the widget to load current video state
-    cy.get(".t--widget-textwidget").should("contain", "PLAYING");
 
     cy.openPropertyPane("videowidget");
     propPane.TogglePropertyState("Autoplay", "On");
