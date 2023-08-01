@@ -122,7 +122,7 @@ export function getAllSetterFunctions(
   dataTree: DataTree,
   configTree: ConfigTree,
 ) {
-  const asyncFunctionNameMap: Record<string, true> = {};
+  const entitiesSetterFunctions: Record<string, true> = {};
   const dataTreeEntries = Object.entries(dataTree);
   for (const [entityName, entity] of dataTreeEntries) {
     const entityConfig = configTree[entityName];
@@ -135,10 +135,10 @@ export function getAllSetterFunctions(
     if (isEmpty(entityMethodMap)) continue;
 
     for (const methodName of Object.keys(entityMethodMap)) {
-      asyncFunctionNameMap[`${entityName}.${methodName}`] = true;
+      entitiesSetterFunctions[`${entityName}.${methodName}`] = true;
     }
   }
-  return asyncFunctionNameMap;
+  return entitiesSetterFunctions;
 }
 
 export function getEntitySetterFunctions(
@@ -163,21 +163,21 @@ export const getAllAsyncFunctions = (
   dataTree: DataTree,
   configTree: ConfigTree,
 ) => {
-  let asyncFunctionNameMap: Record<string, true> = {};
+  let allAsyncFunctions: Record<string, true> = {};
   const dataTreeEntries = Object.entries(dataTree);
   for (const [entityName, entity] of dataTreeEntries) {
     for (const entityFn of entityFns) {
       if (!entityFn.qualifier(entity)) continue;
       const fullPath = `${entityFn.path || `${entityName}.${entityFn.name}`}`;
-      asyncFunctionNameMap[fullPath] = true;
+      allAsyncFunctions[fullPath] = true;
     }
   }
   const setterMethods = getAllSetterFunctions(dataTree, configTree);
-  asyncFunctionNameMap = { ...asyncFunctionNameMap, ...setterMethods };
+  allAsyncFunctions = { ...allAsyncFunctions, ...setterMethods };
   for (const platformFn of getPlatformFunctions(self.$cloudHosting)) {
-    asyncFunctionNameMap[platformFn.name] = true;
+    allAsyncFunctions[platformFn.name] = true;
   }
-  return asyncFunctionNameMap;
+  return allAsyncFunctions;
 };
 
 export const removeEntityFunctionsFromEvalContext = (
