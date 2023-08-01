@@ -926,7 +926,7 @@ export class DarkModeTheme implements ColorModeTheme {
     // Lightness of bdNegative is known, no additional checks like in bdNeutralHover
     color.oklch.l = color.oklch.l + 0.15;
 
-    if (color.oklch.c < 0.19) {
+    if (this.bdNegative.oklch.c < 0.19) {
       color.oklch.c = 0.19;
     }
 
@@ -970,7 +970,7 @@ export class DarkModeTheme implements ColorModeTheme {
       color.oklch.l -= 0.25;
     }
 
-    if (color.oklch.c < 0.19) {
+    if (this.bdWarning.oklch.c < 0.19) {
       color.oklch.c = 0.19;
     }
 
