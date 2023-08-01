@@ -1597,7 +1597,7 @@ export class DataSources {
     );
   }
 
-  public AddSuggesstedWidget(widget: Widgets) {
+  public AddSuggestedWidget(widget: Widgets) {
     switch (widget) {
       case Widgets.Dropdown:
         this.agHelper.GetNClick(this._suggestedWidget("SELECT_WIDGET"));
