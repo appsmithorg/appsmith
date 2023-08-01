@@ -42,7 +42,8 @@ export const WIDGET = {
   ICONBUTTON: "iconbuttonwidget",
   IMAGE: "imagewidget",
   STATBOX: "statboxwidget",
-  JSONFORM: "jsonformwidget"
+  JSONFORM: "jsonformwidget",
+  MENUBUTTON: "menubuttonwidget"
 } as const;
 
 // property pane element selector are maintained here
