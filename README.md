@@ -47,7 +47,7 @@ To build and run Appsmith in your local dev environment, see [Setup for local de
 - [Documentation](https://docs.appsmith.com?utm_source=github&utm_medium=organic&utm_campaign=readme)
 - [Tutorials](https://docs.appsmith.com/getting-started/tutorials)
 - [Videos](https://www.youtube.com/appsmith?utm_source=github&utm_medium=organic&utm_campaign=readme)
-- [Templates](https://docs.appsmith.com/getting-started/tutorials?utm_source=github&utm_medium=organic&utm_campaign=readme)
+- [Templates](https://www.appsmith.com/templates?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=support)
 
 ## Need Help?
 - [Discord](https://discord.gg/rBTTVJp)
