@@ -234,6 +234,7 @@ const ActionCreator = React.forwardRef(
       const hasAnEmptyBlock = Object.entries(actions).find(([, action]) =>
         isEmptyBlock(action),
       );
+
       if (hasAnEmptyBlock) {
         selectBlock(hasAnEmptyBlock[0]);
         const children = ref.current?.children || [];

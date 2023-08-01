@@ -67,17 +67,22 @@ export default function ActionTree(props: {
     props.actionBlock.actionType !== AppsmithFunction.none,
   );
 
+  const [callbacksExpanded, setCallbacksExpanded] = React.useState(false);
+
   useEffect(() => {
     setActionBlock(props.actionBlock);
+
+    if (props.actionBlock.actionType === AppsmithFunction.none) {
+      setCallbacksExpanded(true);
+    }
 
     setCanAddCallback(props.actionBlock.actionType !== AppsmithFunction.none);
   }, [props.actionBlock]);
 
-  const [callbacksExpanded, setCallbacksExpanded] = React.useState(true);
-
   const handleCardSelection = useCallback(() => {
     if (selectedBlockId === id) return;
     selectBlock(id);
+    setCallbacksExpanded(true);
   }, [id, selectedBlockId]);
 
   useEffect(() => {
