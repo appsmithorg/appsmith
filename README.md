@@ -29,39 +29,36 @@ Organizations build internal applications (also known as admin tools or internal
 ![Appsmith Canvas](/static/images/appsmith-editor.png)
 
 ## Installation
----
 There are two ways to start using Appsmith.
 
 - To quickly explore and use the platform, signup on [Appsmith Cloud](https://app.appsmith.com/).
 - To  install and manage Appsmith on your machine: 
+
+| Installation Methods                                                                                                            | Documentation                                                                                                                                                    |
 | ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)                   | [Docker](https://docs.appsmith.com/getting-started/setup/installation-guides/docker?utm_source=github&utm_medium=organic&utm_campaign=readme) (Recommended)       |
-| ![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white)       | [Kubernetes](https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes?utm_source=github&utm_medium=organic&utm_campaign=readme) (HA and Scalability) |
+| ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)                   | [Docker](https://docs.appsmith.com/getting-started/setup/installation-guides/docker?utm_source=github&utm_medium=organic&utm_campaign=readme) (*Recommended*)       |
+| ![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white)       | [Kubernetes](https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes?utm_source=github&utm_medium=organic&utm_campaign=readme) (*HA and Scalability*) |
 | ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)                     | [AWS AMI](https://docs.appsmith.com/getting-started/setup/installation-guides/aws-ami?utm_source=github&utm_medium=organic&utm_campaign=readme)           |
 
 
 For other deployment options, see the [Installation Guides](https://docs.appsmith.com/getting-started/setup/installation-guides?utm_source=github&utm_medium=organic&utm_campaign=readme) documentation.  
 
 ## Development
----
 To build and run Appsmith in your local dev environment, see [Setup for local development]((https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development)).
 
 ## Learning and Resources
----
 - [Documentation](https://docs.appsmith.com?utm_source=github&utm_medium=organic&utm_campaign=readme)
 - [Tutorials](https://docs.appsmith.com/getting-started/tutorials)
 - [Videos](https://www.youtube.com/appsmith?utm_source=github&utm_medium=organic&utm_campaign=readme)
 - [Templates](https://docs.appsmith.com/getting-started/tutorials?utm_source=github&utm_medium=organic&utm_campaign=readme)
 
 ## Need Help?
----
 - [Discord](https://discord.gg/rBTTVJp)
 - [Community Portal](https://community.appsmith.com/)
 - [support@appsmith.com](mailto:support@appsmith.com)
 
                                                                                                                 
 ## Contributing
----
 We ❤️ our contributors. We're committed to fostering an open, welcoming, and safe environment in the community.
 
 📕 We expect everyone participating in the community to abide by our [Code of Conduct](https://github.com/appsmithorg/appsmith/blob/release/CODE_OF_CONDUCT.md). Please read and follow it. <br>
@@ -71,7 +68,6 @@ We ❤️ our contributors. We're committed to fostering an open, welcoming, and
 Let's build great software together.
 
 ### Top Contributors
-
 [![Nikhil-Nandagopal](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/3897254?v=4&w=50&h=50&mask=circle)](https://github.com/Nikhil-Nandagopal)
 [![mohanarpit](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/458946?v=4&w=50&h=50&mask=circle)](https://github.com/mohanarpit)
 [![hetunandu](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/12022471?v=4&w=50&h=50&mask=circle)](https://github.com/hetunandu)
