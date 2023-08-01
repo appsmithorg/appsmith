@@ -40,6 +40,14 @@ export enum PluginName {
   SNOWFLAKE = "Snowflake",
   ARANGODB = "ArangoDB",
   REDSHIFT = "Redshift",
+  SMTP = "SMTP",
+  REST_API = "REST API",
+  REDIS = "Redis",
+  AIRTABLE = "Airtable",
+  TWILIO = "Twilio",
+  HUBSPOT = "HubSpot",
+  ELASTIC_SEARCH = "Elasticsearch",
+  GRAPHQL = "Authenticated GraphQL API",
 }
 
 export enum PaginationType {
@@ -231,3 +239,5 @@ export function getGraphQLPlugin(plugins: Plugin[]): Plugin | undefined {
 export function isGraphqlPlugin(plugin: Plugin | undefined) {
   return plugin?.packageName === PluginPackageName.GRAPHQL;
 }
+
+export const SCHEMA_SECTION_ID = "t--api-right-pane-schema";

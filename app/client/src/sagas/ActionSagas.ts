@@ -127,6 +127,8 @@ import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/Grap
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
+import { setAIPromptTriggered } from "utils/storage";
+import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
 
 export function* createDefaultActionPayload(
   pageId: string,
@@ -160,6 +162,17 @@ export function* createDefaultActionPayload(
       ? createNewQueryName(actions, pageId || "")
       : createNewApiName(actions, pageId || "");
 
+  const dsStructure: DatasourceStructure | undefined = yield select(
+    getDatasourceStructureById,
+    datasource?.id,
+  );
+
+  const defaultActionConfig: any = getDefaultTemplateActionConfig(
+    plugin,
+    dsStructure,
+    datasource?.isMock,
+  );
+
   return {
     name: newActionName,
     pageId,
@@ -176,7 +189,11 @@ export function* createDefaultActionPayload(
       isMock: !!datasource?.isMock,
     },
     actionConfiguration:
-      plugin?.type === PluginType.API ? defaultApiActionConfig : {},
+      plugin?.type === PluginType.API
+        ? defaultApiActionConfig
+        : !!defaultActionConfig
+        ? defaultActionConfig
+        : {},
   };
 }
 
@@ -942,6 +959,21 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       break;
     case SlashCommand.ASK_AI: {
       const context = get(actionPayload, "payload.args", {});
+
+      const noOfTimesAIPromptTriggered: number = yield select(
+        (state) => state.ai.noOfTimesAITriggered,
+      );
+
+      if (noOfTimesAIPromptTriggered < 5) {
+        const currentValue: number = yield setAIPromptTriggered();
+        yield put({
+          type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
+          payload: {
+            value: currentValue,
+          },
+        });
+      }
+
       yield put({
         type: ReduxActionTypes.TOGGLE_AI_WINDOW,
         payload: {

@@ -259,7 +259,7 @@ function* BindWidgetToDatasource(
 
       const updatedWidget: WidgetProps = yield select(getWidgetByID(widgetId));
 
-      const updates = getPropertyUpdatesForQueryBinding(
+      const { dynamicUpdates, modify } = getPropertyUpdatesForQueryBinding(
         queryBindingConfig,
         updatedWidget,
         action.payload,
@@ -270,8 +270,9 @@ function* BindWidgetToDatasource(
         payload: {
           widgetId,
           updates: {
-            modify: updates,
+            modify,
           },
+          dynamicUpdates,
         },
       });
 

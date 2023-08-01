@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import type { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
+
 import {
   EditorSize,
   EditorTheme,
@@ -56,6 +57,8 @@ export const EditorWrapper = styled.div<{
   codeEditorVisibleOverflow?: boolean;
   ctrlPressed: boolean;
   removeHoverAndFocusStyle?: boolean;
+  AIEnabled?: boolean;
+  mode: string;
 }>`
   // Bottom border was getting clipped
   .CodeMirror.cm-s-duotone-light.CodeMirror-wrap {

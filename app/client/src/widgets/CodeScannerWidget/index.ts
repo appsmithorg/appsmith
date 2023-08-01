@@ -6,11 +6,13 @@ import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Code Scanner",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.EXTERNAL],
   needsMeta: true,
   searchTags: [
     "barcode scanner",

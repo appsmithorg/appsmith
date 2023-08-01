@@ -24,7 +24,6 @@ import {
 
 import { getCurrentUser } from "selectors/usersSelectors";
 import history from "utils/history";
-import TourApp from "pages/Editor/GuidedTour/app.json";
 
 import {
   getHadReachedStep,
@@ -87,6 +86,7 @@ import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Util
 import type { StepState } from "reducers/uiReducers/onBoardingReducer";
 import { isUndefined } from "lodash";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { SIGNPOSTING_ANALYTICS_STEP_NAME } from "pages/Editor/FirstTimeUserOnboarding/constants";
 
 const GUIDED_TOUR_STORAGE_KEY = "GUIDED_TOUR_STORAGE_KEY";
 
@@ -119,6 +119,9 @@ function* createApplication() {
   }
 
   if (workspace) {
+    const TourAppPromise = import("pages/Editor/GuidedTour/app.json");
+    const TourApp: Awaited<typeof TourAppPromise> = yield TourAppPromise;
+
     const appFileObject = new File([JSON.stringify(TourApp)], "app.json", {
       type: "application/json",
     });
@@ -503,6 +506,9 @@ function* setSignpostingStepStateSaga(
   if (!isUndefined(readProps.read) && !readProps.read) {
     // Show tooltip after a small delay to not be abrupt
     yield delay(1000);
+    AnalyticsUtil.logEvent("SIGNPOSTING_STEP_COMPLETE", {
+      step_name: SIGNPOSTING_ANALYTICS_STEP_NAME[step],
+    });
     yield put(showSignpostingTooltip(true));
   }
 }

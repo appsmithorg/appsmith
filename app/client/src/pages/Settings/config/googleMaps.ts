@@ -1,6 +1,7 @@
 import { GOOGLE_MAPS_SETUP_DOC } from "constants/ThirdPartyConstants";
 import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import {
+  CategoryType,
   SettingCategories,
   SettingSubtype,
   SettingTypes,
@@ -9,9 +10,11 @@ import {
 export const config: AdminConfigType = {
   icon: "map-pin-2-line",
   type: SettingCategories.GOOGLE_MAPS,
+  categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.GROUP,
   title: "Google Maps",
   canSave: true,
+  needsRefresh: true,
   settings: [
     {
       id: "APPSMITH_GOOGLE_MAPS_READ_MORE",
@@ -21,7 +24,7 @@ export const config: AdminConfigType = {
       url: GOOGLE_MAPS_SETUP_DOC,
     },
     {
-      id: "APPSMITH_GOOGLE_MAPS_API_KEY",
+      id: "googleMapsKey",
       category: SettingCategories.GOOGLE_MAPS,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,

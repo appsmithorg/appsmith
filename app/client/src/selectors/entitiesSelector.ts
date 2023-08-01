@@ -44,6 +44,7 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { getSelectedWidgets } from "./ui";
+import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -118,8 +119,11 @@ export const getDatasourceFirstTableName = (
   return "";
 };
 
-export const getIsFetchingDatasourceStructure = (state: AppState): boolean => {
-  return state.entities.datasources.fetchingDatasourceStructure;
+export const getIsFetchingDatasourceStructure = (
+  state: AppState,
+  datasourceId: string,
+): boolean => {
+  return state.entities.datasources.fetchingDatasourceStructure[datasourceId];
 };
 
 export const getMockDatasources = (state: AppState): MockDatasource[] => {
@@ -221,6 +225,30 @@ export const getPluginNameFromId = (
 
   if (!plugin) return "";
   return plugin.name;
+};
+
+export const getPluginPackageNameFromId = (
+  state: AppState,
+  pluginId: string,
+): string => {
+  const plugin = state.entities.plugins.list.find(
+    (plugin) => plugin.id === pluginId,
+  );
+
+  if (!plugin) return "";
+  return plugin.packageName;
+};
+
+export const getPluginDatasourceComponentFromId = (
+  state: AppState,
+  pluginId: string,
+): string => {
+  const plugin = state.entities.plugins.list.find(
+    (plugin) => plugin.id === pluginId,
+  );
+
+  if (!plugin) return "";
+  return plugin.datasourceComponent;
 };
 
 export const getPluginTypeFromDatasourceId = (
@@ -486,6 +514,24 @@ export const getJSCollectionFromName = createSelector(
       }
     }
     return currentJSCollection;
+  },
+);
+export const getJSActionFromName = createSelector(
+  [
+    (state: AppState, jsCollectionName: string) =>
+      getJSCollectionFromName(state, jsCollectionName),
+    (_state: AppState, jsCollectionName: string, functionName: string) => ({
+      jsCollectionName,
+      functionName,
+    }),
+  ],
+  (JSCollectionData, { functionName }) => {
+    if (!JSCollectionData) return null;
+    const jsFunction = find(
+      JSCollectionData.config.actions,
+      (action) => action.name === functionName,
+    );
+    return jsFunction || null;
   },
 );
 
@@ -1165,3 +1211,36 @@ export const getPositionOfSelectedWidget = createSelector(
     return arr;
   },
 );
+const getOtherDatasourcesInWorkspace = (state: AppState): Datasource[] => {
+  const actions = getActions(state);
+  const allDatasources = getDatasources(state);
+  const datasourceIdsUsedInCurrentApplication = actions.reduce(
+    (acc, action: ActionData) => {
+      if (
+        isStoredDatasource(action.config.datasource) &&
+        action.config.datasource.id
+      ) {
+        acc.add(action.config.datasource.id);
+      }
+      return acc;
+    },
+    new Set(),
+  );
+  return allDatasources.filter(
+    (ds) =>
+      !datasourceIdsUsedInCurrentApplication.has(ds.id) &&
+      ds.id !== TEMP_DATASOURCE_ID,
+  );
+};
+
+//This function returns the datasources which are not used by actions but visible in the workspace
+export const getEntityExplorerDatasources = (state: AppState): Datasource[] => {
+  const datasourcesUsedInApplication =
+    getDatasourcesUsedInApplicationByActions(state);
+  const otherDatasourceInWorkspace = getOtherDatasourcesInWorkspace(state);
+  otherDatasourceInWorkspace.reverse();
+  return otherDatasourceInWorkspace.slice(
+    0,
+    MAX_DATASOURCE_SUGGESTIONS - datasourcesUsedInApplication.length,
+  );
+};

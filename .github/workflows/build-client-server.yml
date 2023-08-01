@@ -179,8 +179,8 @@ jobs:
 
   ci-test-limited-result:
     needs: [file-check, ci-test-limited]
-    # Only run if the ci-test-limited with matrices step is successful
-    if: needs.ci-test-limited.result != 'skipped'
+    # Only run if the file-check.runId == 0
+    if: always() && needs.file-check.outputs.runId == '0'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -215,7 +215,7 @@ jobs:
         if: needs.ci-test-limited.result != 'success'
         id: download_ci
         with:
-          name: failed-spec-ci
+          name: failed-spec-ci-${{github.run_attempt}}
           path: ~/failed_spec_ci
 
       # In case for any ci job failure, create combined failed spec
@@ -278,8 +278,8 @@ jobs:
 
   ci-test-limited-result-existing:
     needs: [file-check, ci-test-limited-existing-docker-image]
-    # Only run if the ci-test-limited with matrices step is successful
-    if: needs.ci-test-limited-existing-docker-image.result != 'skipped'
+    # Only run if the file-check.runId !=0
+    if: always() && needs.file-check.outputs.runId != '0'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -314,7 +314,7 @@ jobs:
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
         id: download_ci
         with:
-          name: failed-spec-ci
+          name: failed-spec-ci-${{github.run_attempt}}
           path: ~/failed_spec_ci
 
       # In case for any ci job failure, create combined failed spec

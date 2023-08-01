@@ -52,17 +52,17 @@ export function AccessControlUpgradePage() {
     ],
     targets: [
       <img
-        alt="Secure apps by the least privilege needed"
+        alt={createMessage(SECURITY_APPS_LEAST_PRIVILEGE)}
         key="secure-apps-least-privilege"
         src={SecureAppsLeastPrivilegeImage}
       />,
       <img
-        alt="Prevent accidental damage to data"
+        alt={createMessage(PREVENT_ACCIDENTAL_DAMAGE)}
         key="prevent-accidental-damage"
         src={PreventAccidentalDamageImage}
       />,
       <img
-        alt="Restrict public exposure of sensitive data"
+        alt={createMessage(RESTRICT_PUBLIC_EXPOSURE)}
         key="restrict-exposure-sensitive-data"
         src={RestrictPublicExposureImage}
       />,
