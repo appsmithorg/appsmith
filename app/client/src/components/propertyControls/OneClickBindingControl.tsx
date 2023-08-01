@@ -69,7 +69,8 @@ export default OneClickBindingControl;
 
 export type OneClickBindingControlProps = ControlProps & {
   controlConfig: {
-    aliases: string[];
+    aliases: { name: string; isSearcheable: boolean }[];
     searchableColumn: boolean;
+    sampleData: string;
   };
 };

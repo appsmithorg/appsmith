@@ -25,6 +25,7 @@ import static com.appsmith.external.helpers.PluginUtils.getTrimmedStringDataValu
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataAsString;
 import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
 import static com.appsmith.external.helpers.PluginUtils.validDataConfigurationPresentInFormData;
+import static com.external.constants.FieldName.QUERY_FORMAT;
 import static com.external.constants.FieldName.SHEET_NAME;
 import static com.external.constants.FieldName.SHEET_URL;
 import static com.external.constants.FieldName.TABLE_HEADER_INDEX;
@@ -100,6 +101,8 @@ public class MethodConfig {
     public MethodConfig(TriggerRequestDTO triggerRequestDTO) {
         final Map<String, Object> parameters = triggerRequestDTO.getParameters();
         switch (parameters.size()) {
+            case 4:
+                this.queryFormat = getValueSafelyFromFormDataAsString(parameters, QUERY_FORMAT);
             case 3:
             case 2:
                 this.tableHeaderIndex = getValueSafelyFromFormDataAsString(parameters, TABLE_HEADER_INDEX);

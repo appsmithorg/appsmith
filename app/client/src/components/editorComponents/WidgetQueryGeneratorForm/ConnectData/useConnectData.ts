@@ -14,7 +14,7 @@ import { useColumns } from "../WidgetSpecificControls/ColumnDropdown/useColumns"
 export function useConnectData() {
   const dispatch = useDispatch();
 
-  const { config, propertyName, widgetId } = useContext(
+  const { aliases, config, propertyName, widgetId } = useContext(
     WidgetQueryGeneratorFormContext,
   );
 
@@ -27,13 +27,23 @@ export function useConnectData() {
   );
 
   const onClick = () => {
+    const searchableColumn = (() => {
+      if (config.searchableColumn) {
+        return config.searchableColumn;
+      } else {
+        const alias = aliases?.find((d) => d.isSearcheable)?.name;
+
+        return alias && config.alias[alias];
+      }
+    })();
+
     const payload = {
       tableName: config.table,
       sheetName: config.sheet,
       datasourceId: config.datasource,
       widgetId: widgetId,
       tableHeaderIndex: config.tableHeaderIndex,
-      searchableColumn: config.searchableColumn,
+      searchableColumn,
       columns: columns,
       primaryColumn,
       connectionMode: config.datasourceConnectionMode,
