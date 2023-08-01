@@ -177,7 +177,7 @@ class ChartComponent extends React.Component<
     }
   };
 
-  echartsResizeNeeded = () => {
+  shouldResizeECharts = () => {
     return (
       this.echartsInstance?.getHeight() !=
         this.props.dimensions.componentHeight ||
@@ -194,14 +194,14 @@ class ChartComponent extends React.Component<
 
     const newConfiguration = this.getEChartsOptions();
     const needsNewConfig = !equal(newConfiguration, this.echartConfiguration);
-    const resizedNeeded = this.echartsResizeNeeded();
+    const resizedNeeded = this.shouldResizeECharts();
 
     if (needsNewConfig) {
       this.echartConfiguration = newConfiguration;
+      this.echartsInstance.off("click");
+      this.echartsInstance.on("click", this.dataClickCallback);
 
       try {
-        this.echartsInstance.off("click");
-        this.echartsInstance.on("click", this.dataClickCallback);
         this.echartsInstance.setOption(this.echartConfiguration, true);
 
         if (this.state.eChartsError) {
