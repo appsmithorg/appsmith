@@ -50,6 +50,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import type {
   Action,
   ActionViewMode,
+  ApiAction,
   ApiActionConfig,
   SlashCommandPayload,
 } from "entities/Action";
@@ -403,20 +404,24 @@ export function* fetchActionsForPageSaga(
   }
 }
 
-export function* updateActionSaga(
-  actionPayload: ReduxAction<{ id: string; action?: Action }>,
-) {
+export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   try {
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.UPDATE_ACTION_API,
       { actionid: actionPayload.payload.id },
     );
-    let action = actionPayload.payload.action;
-    if (!action) action = yield select(getAction, actionPayload.payload.id);
+
+    let action = yield select(getAction, actionPayload.payload.id);
     if (!action) throw new Error("Could not find action to update");
 
     if (isAPIAction(action)) {
-      action = transformRestAction(action);
+      // get api action object from redux form
+      const reduxFormAction: ApiAction = yield select(
+        getFormValues(API_EDITOR_FORM_NAME),
+      );
+      // run transformation on redux form action.
+      // the reason we do this is because the transformation should only be done on the raw action data from the redux form.
+      action = transformRestAction(reduxFormAction);
     }
 
     /* NOTE: This  is fix for a missing command config */
