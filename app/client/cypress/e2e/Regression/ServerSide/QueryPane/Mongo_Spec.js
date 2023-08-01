@@ -238,6 +238,7 @@ describe("Validate Mongo query commands", function () {
   it("6. Verify generation of NewPage from collection [Select] + Bug 12162", function () {
     //Verifying Select from UI
     cy.NavigateToDSGeneratePage(datasourceName);
+    agHelper.Sleep(3000); //giving some time for options to load
     cy.get(generatePage.selectTableDropdown).click();
     cy.get(generatePage.dropdownOption)
       //.first()
