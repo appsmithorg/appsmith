@@ -126,6 +126,7 @@ export const EditorWrapper = styled.div<{
               return "var(--ads-v2-color-border)";
           }
         }};
+      ${(props) => props.borderLess && "border: none;"}
 
       background: var(--ads-v2-color-bg);
       color: var(--ads-v2-color-fg);
@@ -388,13 +389,17 @@ export const EditorWrapper = styled.div<{
 
     &:hover {
       .CodeMirror.cm-s-duotone-light {
-        border-color: var(--ads-v2-color-border-emphasis);
+        border-color: ${(props) =>
+          props.borderLess ? "none" : "var(--ads-v2-color-border-emphasis)"};
       }
     }
 
     &:focus {
       .CodeMirror.cm-s-duotone-light {
-        border-color: var(--ads-v2-color-border-emphasis-plus);
+        border-color: ${(props) =>
+          props.borderLess
+            ? "none"
+            : "var(--ads-v2-color-border-emphasis-plus)"};
       }
     }
 
