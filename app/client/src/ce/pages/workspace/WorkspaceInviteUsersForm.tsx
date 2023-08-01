@@ -24,9 +24,9 @@ import {
   BUSINESS_EDITION_TEXT,
   INVITE_USER_RAMP_TEXT,
   CUSTOM_ROLES_RAMP_TEXT,
-  BUSINESS_TEXT,
   CUSTOM_ROLE_DISABLED_OPTION_TEXT,
   CUSTOM_ROLE_TEXT,
+  BUSINESS_TAG,
 } from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import {
@@ -309,7 +309,7 @@ export function CustomRolesRamp() {
             {createMessage(CUSTOM_ROLE_TEXT)}
           </Text>
           <Tag isClosable={false} size="md">
-            {createMessage(BUSINESS_TEXT)}
+            {createMessage(BUSINESS_TAG)}
           </Tag>
         </div>
         <Text kind="body-s">

@@ -1609,7 +1609,7 @@ public class GitServiceTest {
                         Mockito.any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
-                        eq(true),
+                        eq(false),
                         Mockito.anyString(),
                         Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetched"));
@@ -1642,6 +1642,14 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(new ApplicationJson()));
+        Mockito.when(gitExecutor.fetchRemote(
+                        Mockito.any(Path.class),
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        eq(false),
+                        Mockito.anyString(),
+                        Mockito.anyBoolean()))
+                .thenReturn(Mono.just("fetched"));
         Mockito.when(gitExecutor.pullApplication(
                         Mockito.any(Path.class),
                         Mockito.anyString(),
