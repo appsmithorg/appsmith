@@ -150,6 +150,9 @@ public class CreateDBTablePageSolutionTests {
     @Autowired
     ApplicationService applicationService;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
 
     @MockBean
@@ -171,7 +174,7 @@ public class CreateDBTablePageSolutionTests {
             workspace.setName("Create-DB-Table-Page-Org");
             testWorkspace = workspaceService.create(workspace).block();
             testDefaultEnvironmentId = workspaceService
-                    .getDefaultEnvironmentId(testWorkspace.getId())
+                    .getDefaultEnvironmentId(testWorkspace.getId(), environmentPermission.getExecutePermission())
                     .block();
         }
 

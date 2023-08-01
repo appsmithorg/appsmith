@@ -173,6 +173,9 @@ public class ApplicationForkingServiceTests {
     @Autowired
     private ImportExportApplicationService importExportApplicationService;
 
+    @Autowired
+    private EnvironmentPermission environmentPermission;
+
     @SneakyThrows
     @BeforeEach
     public void setup() {
@@ -189,8 +192,9 @@ public class ApplicationForkingServiceTests {
         sourceWorkspace = workspaceService.create(sourceWorkspace).block();
         sourceWorkspaceId = sourceWorkspace.getId();
 
-        sourceEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(sourceWorkspaceId).block();
+        sourceEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(sourceWorkspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         Application app1 = new Application();
         app1.setName("1 - public app");
@@ -602,7 +606,7 @@ public class ApplicationForkingServiceTests {
         Workspace createdSrcWorkspace = workspaceService.create(srcWorkspace).block();
 
         String createdSrcDefaultEnvironmentId = workspaceService
-                .getDefaultEnvironmentId(createdSrcWorkspace.getId())
+                .getDefaultEnvironmentId(createdSrcWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application srcApplication = new Application();
@@ -692,7 +696,7 @@ public class ApplicationForkingServiceTests {
         Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         String createdSrcDefaultEnvironmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application application = new Application();
@@ -758,7 +762,7 @@ public class ApplicationForkingServiceTests {
         Workspace createdSrcWorkspace = workspaceService.create(workspace).block();
 
         String createdSrcDefaultEnvironmentId = workspaceService
-                .getDefaultEnvironmentId(createdSrcWorkspace.getId())
+                .getDefaultEnvironmentId(createdSrcWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application application = new Application();
@@ -855,8 +859,9 @@ public class ApplicationForkingServiceTests {
         srcWorkspace.setName("delete-edit-mode-page-src-org");
         srcWorkspace = workspaceService.create(srcWorkspace).block();
 
-        String srcDefaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(srcWorkspace.getId()).block();
+        String srcDefaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(srcWorkspace.getId(), environmentPermission.getExecutePermission())
+                .block();
 
         Application application = new Application();
         application.setName("delete-edit-mode-page-app");
@@ -932,7 +937,7 @@ public class ApplicationForkingServiceTests {
         Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         String createdSrcDefaultEnvironmentId = workspaceService
-                .getDefaultEnvironmentId(createdWorkspace.getId())
+                .getDefaultEnvironmentId(createdWorkspace.getId(), environmentPermission.getExecutePermission())
                 .block();
 
         Application application = new Application();
@@ -1012,8 +1017,9 @@ public class ApplicationForkingServiceTests {
         srcWorkspace.setName("fork-internal-fields-src-org");
         srcWorkspace = workspaceService.create(srcWorkspace).block();
 
-        String createdSrcDefaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(srcWorkspace.getId()).block();
+        String createdSrcDefaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(srcWorkspace.getId(), environmentPermission.getExecutePermission())
+                .block();
 
         Application application = new Application();
         application.setName("fork-internal-fields-app");
@@ -1052,8 +1058,9 @@ public class ApplicationForkingServiceTests {
         srcWorkspace.setName("src-org");
         srcWorkspace = workspaceService.create(srcWorkspace).block();
 
-        String srcDefaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(srcWorkspace.getId()).block();
+        String srcDefaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(srcWorkspace.getId(), environmentPermission.getExecutePermission())
+                .block();
 
         Application application = new Application();
         application.setName("app1");
@@ -1117,7 +1124,7 @@ public class ApplicationForkingServiceTests {
         String targetWorkspaceId = forkApplicationSetupResponse.getT2();
 
         String srcDefaultEnvironmentId = workspaceService
-                .getDefaultEnvironmentId(srcApp.getWorkspaceId())
+                .getDefaultEnvironmentId(srcApp.getWorkspaceId(), environmentPermission.getExecutePermission())
                 .block();
 
         Mono<ApplicationImportDTO> resultMono = applicationForkingService
@@ -1146,7 +1153,7 @@ public class ApplicationForkingServiceTests {
         String targetWorkspaceId = forkApplicationSetupResponse.getT2();
 
         String srcDefaultEnvironmentId = workspaceService
-                .getDefaultEnvironmentId(srcApp.getWorkspaceId())
+                .getDefaultEnvironmentId(srcApp.getWorkspaceId(), environmentPermission.getExecutePermission())
                 .block();
 
         Mono<ApplicationImportDTO> resultMono = applicationForkingService
@@ -1175,7 +1182,7 @@ public class ApplicationForkingServiceTests {
         String targetWorkspaceId = forkApplicationSetupResponse.getT2();
 
         String srcDefaultEnvironmentId = workspaceService
-                .getDefaultEnvironmentId(srcApp.getWorkspaceId())
+                .getDefaultEnvironmentId(srcApp.getWorkspaceId(), environmentPermission.getExecutePermission())
                 .block();
 
         Mono<ApplicationImportDTO> resultMono = applicationForkingService

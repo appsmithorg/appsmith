@@ -47,7 +47,7 @@ export class Templates {
       this.agHelper.AssertElementVisible(
         this.locators._requestForTemplateBtn,
         0,
-        30000,
+        60000,
       ); //giving more time here for templates page to fully load, since there is no intercept validation for same
     });
   }
@@ -71,7 +71,7 @@ export class Templates {
       });
     }
     cy.intercept("GET", "/api/v1/app-templates/filters").as("fetchFilters");
-    this.agHelper.RefreshPage(false, "fetchFilters");
+    this.agHelper.RefreshPage("fetchFilters");
     this.agHelper.AssertElementVisible(this.locators._templateCard);
   }
 }

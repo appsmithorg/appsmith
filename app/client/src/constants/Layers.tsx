@@ -60,6 +60,9 @@ export const Layers = {
   manualUpgrade: Indices.Layer10,
 
   autoHeightWithLimitsOverlay: Indices.Layer3,
+
+  // Should be higher than header and portal layer
+  guidedTour: Indices.Layer10,
 };
 
 export const tailwindLayers = {

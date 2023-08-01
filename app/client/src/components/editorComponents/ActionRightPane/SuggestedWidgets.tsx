@@ -47,11 +47,14 @@ import textWidgetIconSvg from "../../../widgets/TextWidget/icon.svg";
 import listWidgetIconSvg from "../../../widgets/ListWidget/icon.svg";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import {
-  getFeatureFlagShownStatus,
+  getFeatureWalkthroughShown,
   isUserSignedUpFlagSet,
-  setFeatureFlagShownStatus,
+  setFeatureWalkthroughShown,
 } from "utils/storage";
 import { getCurrentUser } from "selectors/usersSelectors";
+import localStorage from "utils/localStorage";
+import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 
 const BINDING_GUIDE_GIF = `${ASSETS_CDN_URL}/binding.gif`;
 
@@ -222,6 +225,7 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
   },
 };
 
+//TODO(Balaji): Abstraction leak.
 function getWidgetProps(
   suggestedWidget: SuggestedWidget,
   widgetInfo: WidgetBindingInfo,
@@ -267,7 +271,9 @@ function getWidgetProps(
       return {
         type: suggestedWidget.type,
         props: {
-          [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
+          sourceData: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
+          optionValue: "value",
+          optionLabel: "label",
           defaultOptionValue: `{{
             {
               label: ${widgetName}.options[0].label,
@@ -275,7 +281,7 @@ function getWidgetProps(
             }
           }}`,
           dynamicBindingPathList: [
-            { key: widgetInfo.propertyName },
+            { key: "sourceData" },
             { key: "defaultOptionValue" },
           ],
         },
@@ -359,14 +365,15 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
     queryId?: string;
   }>();
 
-  const closeWalkthrough = async () => {
-    if (isWalkthroughOpened) {
-      popFeature && popFeature();
-      await setFeatureFlagShownStatus(FEATURE_FLAG.ab_ds_binding_enabled, true);
-    }
+  const closeWalkthrough = () => {
+    popFeature && popFeature("BINDING_WIDGET");
+    setFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.ab_ds_binding_enabled,
+      true,
+    );
   };
 
-  const addWidget = (
+  const addWidget = async (
     suggestedWidget: SuggestedWidget,
     widgetInfo: WidgetBindingInfo,
   ) => {
@@ -385,16 +392,25 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
     AnalyticsUtil.logEvent("SUGGESTED_WIDGET_CLICK", {
       widget: suggestedWidget.type,
       [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
-        FEATURE_FLAG.ab_ds_binding_enabled,
+        FEATURE_WALKTHROUGH_KEYS.ab_ds_binding_enabled,
       [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForQueryBinding,
       isWalkthroughOpened,
     });
 
-    closeWalkthrough();
+    const showStatus = await getFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.binding_widget,
+    );
+    // To enable setting the widget id for showing walkthrough once the widget is created in WidgetOperationSagas.tsx -> addSuggestedWidget function
+    if (!showStatus && isEnabledForQueryBinding) {
+      (payload.props as any).setWidgetIdForWalkthrough = "true";
+    }
+    if (isWalkthroughOpened) {
+      closeWalkthrough();
+    }
     dispatch(addSuggestedWidget(payload));
   };
 
-  const handleBindData = (widgetId: string) => {
+  const handleBindData = async (widgetId: string) => {
     dispatch(
       bindDataOnCanvas({
         queryId: (params.apiId || params.queryId) as string,
@@ -403,12 +419,24 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
       }),
     );
 
-    closeWalkthrough();
+    if (isEnabledForQueryBinding) {
+      const value = await getFeatureWalkthroughShown(
+        FEATURE_WALKTHROUGH_KEYS.binding_widget,
+      );
+      if (!value) {
+        localStorage.setItem(WIDGET_ID_SHOW_WALKTHROUGH, widgetId);
+      }
+    }
+
     dispatch(
       bindDataToWidget({
         widgetId: widgetId,
       }),
     );
+
+    if (isWalkthroughOpened) {
+      closeWalkthrough();
+    }
   };
 
   const isTableWidgetPresentOnCanvas = () => {
@@ -440,8 +468,8 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
   const isWidgetsPresentOnCanvas = Object.keys(canvasWidgets).length > 0;
 
   const checkAndShowWalkthrough = async () => {
-    const isFeatureWalkthroughShown = await getFeatureFlagShownStatus(
-      FEATURE_FLAG.ab_ds_binding_enabled,
+    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.ab_ds_binding_enabled,
     );
 
     const isNewUser = user && (await isUserSignedUpFlagSet(user.email));
@@ -452,14 +480,8 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
       pushFeature({
         targetId: BINDING_SECTION_ID,
         onDismiss: async () => {
-          AnalyticsUtil.logEvent("WALKTHROUGH_DISMISSED", {
-            [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
-              FEATURE_FLAG.ab_ds_binding_enabled,
-            [AB_TESTING_EVENT_KEYS.abTestingFlagValue]:
-              isEnabledForQueryBinding,
-          });
-          await setFeatureFlagShownStatus(
-            FEATURE_FLAG.ab_ds_binding_enabled,
+          await setFeatureWalkthroughShown(
+            FEATURE_WALKTHROUGH_KEYS.ab_ds_binding_enabled,
             true,
           );
         },
@@ -476,9 +498,10 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
         },
         eventParams: {
           [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
-            FEATURE_FLAG.ab_ds_binding_enabled,
+            FEATURE_WALKTHROUGH_KEYS.ab_ds_binding_enabled,
           [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForQueryBinding,
         },
+        delay: 5000,
       });
   };
 

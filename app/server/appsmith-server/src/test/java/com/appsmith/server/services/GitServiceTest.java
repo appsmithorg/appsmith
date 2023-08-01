@@ -46,6 +46,7 @@ import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -180,6 +181,9 @@ public class GitServiceTest {
     @Autowired
     private ThemeService themeService;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     @BeforeEach
     public void setup() throws IOException, GitAPIException {
 
@@ -194,8 +198,9 @@ public class GitServiceTest {
                         .create(toCreate, apiUser, Boolean.FALSE)
                         .block();
                 workspaceId = workspace.getId();
-                defaultEnvironmentId =
-                        workspaceService.getDefaultEnvironmentId(workspaceId).block();
+                defaultEnvironmentId = workspaceService
+                        .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                        .block();
             }
         }
 
@@ -1603,7 +1608,7 @@ public class GitServiceTest {
                         Mockito.any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
-                        eq(true),
+                        eq(false),
                         Mockito.anyString(),
                         Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetched"));
@@ -1636,6 +1641,14 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(new ApplicationJson()));
+        Mockito.when(gitExecutor.fetchRemote(
+                        Mockito.any(Path.class),
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        eq(false),
+                        Mockito.anyString(),
+                        Mockito.anyBoolean()))
+                .thenReturn(Mono.just("fetched"));
         Mockito.when(gitExecutor.pullApplication(
                         Mockito.any(Path.class),
                         Mockito.anyString(),
@@ -3554,8 +3567,9 @@ public class GitServiceTest {
         workspace.setName("gitImportOrg");
         final String testWorkspaceId =
                 workspaceService.create(workspace).map(Workspace::getId).block();
-        String environmentId =
-                workspaceService.getDefaultEnvironmentId(testWorkspaceId).block();
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(testWorkspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepo.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey(null).block();
@@ -3615,8 +3629,9 @@ public class GitServiceTest {
         workspace.setName("gitImportOrgCancelledMidway");
         final String testWorkspaceId =
                 workspaceService.create(workspace).map(Workspace::getId).block();
-        String environmentId =
-                workspaceService.getDefaultEnvironmentId(testWorkspaceId).block();
+        String environmentId = workspaceService
+                .getDefaultEnvironmentId(testWorkspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         GitConnectDTO gitConnectDTO =
                 getConnectRequest("git@github.com:test/testGitImportRepoCancelledMidway.git", testUserProfile);

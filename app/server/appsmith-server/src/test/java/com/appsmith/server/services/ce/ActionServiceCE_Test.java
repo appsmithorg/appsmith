@@ -50,6 +50,7 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -162,6 +163,9 @@ public class ActionServiceCE_Test {
     @Autowired
     DatasourceRepository datasourceRepository;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     Application testApp = null;
 
     PageDTO testPage = null;
@@ -192,8 +196,9 @@ public class ActionServiceCE_Test {
                     workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
 
-            defaultEnvironmentId =
-                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId = workspaceService
+                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                    .block();
         }
 
         if (testApp == null && testPage == null) {

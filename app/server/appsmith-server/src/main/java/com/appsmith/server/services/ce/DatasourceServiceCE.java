@@ -76,8 +76,6 @@ public interface DatasourceServiceCE {
 
     Mono<Datasource> archiveById(String id);
 
-    Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId);
-
     /**
      * If we are trying to get environment id with respect to a particular plugin,
      * we use this method to check out of scope plugins first
@@ -85,9 +83,14 @@ public interface DatasourceServiceCE {
      * @param workspaceId
      * @param environmentId
      * @param pluginId
+     * @param aclPermission
      * @return
      */
-    Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId, String pluginId);
+    Mono<String> getTrueEnvironmentId(
+            String workspaceId, String environmentId, String pluginId, AclPermission aclPermission);
+
+    Mono<String> getTrueEnvironmentId(
+            String workspaceId, String environmentId, String pluginId, AclPermission aclPermission, boolean isEmbedded);
 
     Datasource createDatasourceFromDatasourceStorage(DatasourceStorage datasourceStorage);
 }

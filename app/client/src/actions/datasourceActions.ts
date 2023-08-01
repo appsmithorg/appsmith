@@ -40,17 +40,22 @@ export const createTempDatasourceFromForm = (
 
 export const updateDatasource = (
   payload: Datasource,
+  currEditingEnvId: string,
   onSuccess?: ReduxAction<unknown>,
   onError?: ReduxAction<unknown>,
   isInsideReconnectModal?: boolean,
 ): ReduxActionWithCallbacks<
-  Datasource & { isInsideReconnectModal: boolean },
+  Datasource & { isInsideReconnectModal: boolean; currEditingEnvId?: string },
   unknown,
   unknown
 > => {
   return {
     type: ReduxActionTypes.UPDATE_DATASOURCE_INIT,
-    payload: { ...payload, isInsideReconnectModal: !!isInsideReconnectModal },
+    payload: {
+      ...payload,
+      isInsideReconnectModal: !!isInsideReconnectModal,
+      currEditingEnvId,
+    },
     onSuccess,
     onError,
   };
@@ -234,9 +239,21 @@ export const deleteDatasource = (
   };
 };
 
-export const setDatasourceViewMode = (payload: boolean) => {
+// sets viewMode flag along with clearing the datasource banner message
+export const setDatasourceViewMode = (payload: {
+  datasourceId: string;
+  viewMode: boolean;
+}) => {
   return {
     type: ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE,
+    payload,
+  };
+};
+
+// sets viewMode flag
+export const setDatasourceViewModeFlag = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE_FLAG,
     payload,
   };
 };
@@ -468,6 +485,10 @@ export const datasourceDiscardAction = (pluginId: string) => {
     },
   };
 };
+
+export const softRefreshDatasourceStructure = () => ({
+  type: ReduxActionTypes.SOFT_REFRESH_DATASOURCE_STRUCTURE,
+});
 
 export default {
   fetchDatasources,

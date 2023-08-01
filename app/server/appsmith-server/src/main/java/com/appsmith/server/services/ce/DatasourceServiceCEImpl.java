@@ -30,6 +30,7 @@ import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -79,6 +80,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     private final WorkspacePermission workspacePermission;
     private final DatasourceStorageService datasourceStorageService;
     private final AnalyticsService analyticsService;
+    private final EnvironmentPermission environmentPermission;
 
     @Autowired
     public DatasourceServiceCEImpl(
@@ -94,7 +96,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             DatasourceContextService datasourceContextService,
             DatasourcePermission datasourcePermission,
             WorkspacePermission workspacePermission,
-            DatasourceStorageService datasourceStorageService) {
+            DatasourceStorageService datasourceStorageService,
+            EnvironmentPermission environmentPermission) {
 
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -109,6 +112,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         this.datasourceStorageService = datasourceStorageService;
         this.analyticsService = analyticsService;
         this.repository = repository;
+        this.environmentPermission = environmentPermission;
     }
 
     @Override
@@ -220,7 +224,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .flatMap(datasourceStorageDTO -> this.getTrueEnvironmentId(
                                 savedDatasource.getWorkspaceId(),
                                 datasourceStorageDTO.getEnvironmentId(),
-                                savedDatasource.getPluginId())
+                                savedDatasource.getPluginId(),
+                                null)
                         .map(trueEnvironmentId -> {
                             datasourceStorageDTO.setEnvironmentId(trueEnvironmentId);
                             DatasourceStorage datasourceStorage =
@@ -315,7 +320,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)));
 
         Mono<String> trueEnvironmentIdMono = datasourceMonoCached.flatMap(datasource ->
-                getTrueEnvironmentId(datasource.getWorkspaceId(), environmentId, datasource.getPluginId()));
+                getTrueEnvironmentId(datasource.getWorkspaceId(), environmentId, datasource.getPluginId(), null));
 
         return datasourceMonoCached.zipWith(trueEnvironmentIdMono).flatMap(tuple2 -> {
             Datasource dbDatasource = tuple2.getT1();
@@ -429,7 +434,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             datasourceStorageMono = getTrueEnvironmentId(
                             datasourceStorage.getWorkspaceId(),
                             datasourceStorage.getEnvironmentId(),
-                            datasourceStorage.getPluginId())
+                            datasourceStorage.getPluginId(),
+                            null)
                     .map(trueEnvironmentId -> {
                         datasourceStorage.setEnvironmentId(trueEnvironmentId);
                         return datasourceStorage;
@@ -441,16 +447,19 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     .zipWhen(dbDatasource -> getTrueEnvironmentId(
                             dbDatasource.getWorkspaceId(),
                             datasourceStorage.getEnvironmentId(),
-                            dbDatasource.getPluginId()))
-                    .map(tuple2 -> {
+                            dbDatasource.getPluginId(),
+                            null))
+                    .flatMap(tuple2 -> {
                         Datasource datasource = tuple2.getT1();
                         String trueEnvironmentId = tuple2.getT2();
 
                         datasourceStorage.setEnvironmentId(trueEnvironmentId);
                         datasourceStorage.prepareTransientFields(datasource);
-                        return datasourceStorage;
+                        return Mono.zip(Mono.just(datasource), Mono.just(datasourceStorage));
                     })
-                    .flatMap(datasourceStorage1 -> {
+                    .flatMap(tuple2 -> {
+                        Datasource datasource = tuple2.getT1();
+                        DatasourceStorage datasourceStorage1 = tuple2.getT2();
                         DatasourceConfiguration datasourceConfiguration =
                                 datasourceStorage1.getDatasourceConfiguration();
                         if (datasourceConfiguration == null || datasourceConfiguration.getAuthentication() == null) {
@@ -471,7 +480,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         }
 
                         return datasourceStorageService
-                                .findStrictlyByDatasourceIdAndEnvironmentId(datasourceId, trueEnvironmentId)
+                                .findByDatasourceAndEnvironmentIdForExecution(datasource, trueEnvironmentId)
                                 .map(dbDatasourceStorage -> {
                                     copyNestedNonNullProperties(datasourceStorage, dbDatasourceStorage);
                                     return dbDatasourceStorage;
@@ -488,7 +497,11 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     protected Mono<DatasourceTestResult> verifyDatasourceAndTest(DatasourceStorage datasourceStorage) {
         return Mono.justOrEmpty(datasourceStorage)
                 .flatMap(datasourceStorageService::validateDatasourceConfiguration)
-                .flatMap(storage -> {
+                .zipWith(datasourceStorageService.getEnvironmentNameFromEnvironmentIdForAnalytics(
+                        datasourceStorage.getEnvironmentId()))
+                .flatMap(tuple2 -> {
+                    DatasourceStorage storage = tuple2.getT1();
+                    String environmentName = tuple2.getT2();
                     Mono<DatasourceTestResult> datasourceTestResultMono;
                     if (CollectionUtils.isEmpty(storage.getInvalids())) {
                         datasourceTestResultMono = testDatasourceViaPlugin(storage);
@@ -504,7 +517,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                                     AnalyticsEvents.DS_TEST_EVENT_FAILED,
                                                     datasourceStorage,
                                                     getAnalyticsPropertiesForTestEventStatus(
-                                                            datasourceStorage, datasourceTestResult))
+                                                            datasourceStorage, datasourceTestResult, environmentName))
                                             .thenReturn(datasourceTestResult);
 
                                 } else {
@@ -513,7 +526,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                                     AnalyticsEvents.DS_TEST_EVENT_SUCCESS,
                                                     datasourceStorage,
                                                     getAnalyticsPropertiesForTestEventStatus(
-                                                            datasourceStorage, datasourceTestResult))
+                                                            datasourceStorage, datasourceTestResult, environmentName))
                                             .thenReturn(datasourceTestResult);
                                 }
                             })
@@ -713,12 +726,18 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     @Override
-    public Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId) {
-        return Mono.just(FieldName.UNUSED_ENVIRONMENT_ID);
+    public Mono<String> getTrueEnvironmentId(
+            String workspaceId, String environmentId, String pluginId, AclPermission aclPermission) {
+        return this.getTrueEnvironmentId(workspaceId, environmentId, pluginId, aclPermission, false);
     }
 
     @Override
-    public Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId, String pluginId) {
+    public Mono<String> getTrueEnvironmentId(
+            String workspaceId,
+            String environmentId,
+            String pluginId,
+            AclPermission aclPermission,
+            boolean isEmbedded) {
         return Mono.just(FieldName.UNUSED_ENVIRONMENT_ID);
     }
 

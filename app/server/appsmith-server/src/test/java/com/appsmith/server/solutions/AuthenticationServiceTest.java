@@ -72,6 +72,9 @@ public class AuthenticationServiceTest {
     @Autowired
     WorkspaceService workspaceService;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_missingDatasource() {
@@ -94,8 +97,9 @@ public class AuthenticationServiceTest {
         assert testWorkspace != null;
         String workspaceId = testWorkspace.getId();
 
-        String defaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(workspaceId).block();
+        String defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
@@ -145,8 +149,9 @@ public class AuthenticationServiceTest {
         testWorkspace = workspaceService.create(testWorkspace).block();
         assert testWorkspace != null;
         String workspaceId = testWorkspace.getId();
-        String defaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(workspaceId).block();
+        String defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
