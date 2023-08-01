@@ -8,6 +8,8 @@ import {
   assertHelper,
   table,
   entityExplorer,
+  deployMode,
+  locators,
 } from "../../support/Objects/ObjectsCore";
 
 const workspaceName = "gsheet apps";
@@ -91,8 +93,10 @@ describe("GSheet Miscellaneous Tests", function () {
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
-    // Verify the table data
+    //deploy the app and verify the table data
+    deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
     const data = GSHEET_DATA.filter((item) => item.rowIndex === "0")[0];
     table.ReadTableRowColumnData(0, 0, "v1").then((cellData) => {
       expect(cellData).to.eq(data.uniq_id);
@@ -109,6 +113,19 @@ describe("GSheet Miscellaneous Tests", function () {
     table.ReadTableRowColumnData(0, 4, "v1").then((cellData) => {
       expect(cellData).to.eq(data.product_name);
     });
+
+    //Validating loaded JSON form
+    cy.xpath(locators._spanButton("Update")).then((selector) => {
+      cy.wrap(selector)
+        .invoke("attr", "class")
+        .then((classes) => {
+          expect(classes).not.contain("bp3-disabled");
+        });
+    });
+
+    dataSources.AssertJSONFormHeader(0, 13, "Id", "0");
+    deployMode.NavigateBacktoEditor();
+    table.WaitUntilTableLoad();
   });
 
   it("4. Generate CRUD page from entity explorer and verify", () => {
@@ -133,8 +150,10 @@ describe("GSheet Miscellaneous Tests", function () {
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
     agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
+    assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
-    // Verify the table data
+    //deploy the app and verify the table data
+    deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
     const data = GSHEET_DATA.filter((item) => item.rowIndex === "1")[0];
     table.ReadTableRowColumnData(1, 0, "v1").then((cellData) => {
       expect(cellData).to.eq(data.uniq_id);
@@ -151,6 +170,19 @@ describe("GSheet Miscellaneous Tests", function () {
     table.ReadTableRowColumnData(1, 5, "v1").then((cellData) => {
       expect(cellData).to.eq(data.manufacturer);
     });
+
+    //Validating loaded JSON form
+    cy.xpath(locators._spanButton("Update")).then((selector) => {
+      cy.wrap(selector)
+        .invoke("attr", "class")
+        .then((classes) => {
+          expect(classes).not.contain("bp3-disabled");
+        });
+    });
+
+    dataSources.AssertJSONFormHeader(0, 13, "Id", "0");
+    deployMode.NavigateBacktoEditor();
+    table.WaitUntilTableLoad();
   });
 
   after("Delete spreadsheet and app", function () {
@@ -163,5 +195,7 @@ describe("GSheet Miscellaneous Tests", function () {
     });
     homePage.NavigateToHome();
     homePage.DeleteApplication(appName);
+    deployMode.NavigateBacktoEditor();
+    table.WaitUntilTableLoad();
   });
 });
