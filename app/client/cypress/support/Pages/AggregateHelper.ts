@@ -400,11 +400,20 @@ export class AggregateHelper extends ReusableHelper {
     const locator = selector.includes("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    locator.waitUntil(($ele) => cy.wrap($ele).should("be.visible"), {
-      errorMsg: "Element did not appear even after 10 seconds",
-      timeout: 10000,
-      interval: 1000,
-    });
+    locator.waitUntil(
+      ($ele) =>
+        cy
+          .wrap($ele)
+          .should("exist")
+          .should("be.visible")
+          .its("length")
+          .should("be.gte", 1),
+      {
+        errorMsg: "Element did not appear even after 10 seconds",
+        timeout: 10000,
+        interval: 1000,
+      },
+    );
 
     //Below can be tried if above starts being flaky:
     // cy.waitUntil(() => cy.get(selector, { timeout: 50000 }).should("have.length.greaterThan", 0)
