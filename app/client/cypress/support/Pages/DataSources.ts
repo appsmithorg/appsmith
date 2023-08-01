@@ -1768,10 +1768,10 @@ export class DataSources {
     this.agHelper.Sleep(500);
     this.agHelper.TypeText(this._globalSearchInput, datasourceName);
     this.agHelper.Sleep(500);
-    this.agHelper
-      .GetElement(this._globalSearchOptions)
-      .contains(new RegExp("^" + datasourceName + "$", "g"))
-      .click({ force: true });
+    this.agHelper.GetNClickByContains(
+      this._globalSearchOptions,
+      new RegExp("^" + datasourceName + "$", "g"),
+    );
     this.agHelper.WaitUntilEleAppear(this._createQuery);
     this.agHelper.GetNClick(this._createQuery);
   }

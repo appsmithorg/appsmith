@@ -87,7 +87,7 @@ describe("GSheet Miscellaneous Tests", function () {
   });
 
   it("3. Add query from global search and verify", () => {
-    gsheetHelper.AddQueryFromGlobalSearch(dataSourceName);
+    dataSources.AddQueryFromGlobalSearch(dataSourceName);
     dataSources.ValidateNSelectDropdown("Operation", "Fetch Many");
     dataSources.ValidateNSelectDropdown("Entity", "Sheet Row(s)");
     agHelper.Sleep(500);
