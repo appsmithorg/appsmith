@@ -102,23 +102,19 @@ export function deriveHighlightsFromLayers(
       );
       if (disallowedWidgets.length) return [];
     }
-    const el = document.getElementById("layout-" + layoutId);
-    const rect = el?.getBoundingClientRect();
-    if (rect) {
-      const arr = getHighlightsForLayoutType({
-        layout: selectedLayout,
-        widgets,
-        widgetPositions,
-        canvasPositions,
-        canvasWidth: rect?.width || 0,
-        canvasId,
-        draggedWidgets,
-        isMobile,
-        offsetTop,
-        isParent: true,
-      });
-      return arr;
-    }
+    const arr = getHighlightsForLayoutType({
+      layout: selectedLayout,
+      widgets,
+      widgetPositions,
+      canvasPositions,
+      canvasWidth: widgetPositions[layoutId]?.width || 0,
+      canvasId,
+      draggedWidgets,
+      isMobile,
+      offsetTop,
+      isParent: true,
+    });
+    return arr;
   }
   for (const layer of layers) {
     /**
@@ -769,7 +765,6 @@ export function getHighlightsForLayoutType(data: {
           layoutProps: layout,
           widgets,
           widgetPositions,
-          rect: Row.getDOMRect(layout),
         }),
       );
       break;
@@ -778,7 +773,6 @@ export function getHighlightsForLayoutType(data: {
         layoutProps: layout,
         widgets,
         widgetPositions,
-        rect: Column.getDOMRect(layout),
       });
       break;
     case "ALIGNED_ROW": {

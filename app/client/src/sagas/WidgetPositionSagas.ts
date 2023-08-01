@@ -56,7 +56,6 @@ function* readAndUpdateWidgetPositions(
     const element = document.getElementById(getLayoutId(layoutId));
     if (element) {
       const rect = element.getBoundingClientRect();
-      console.log("#### layout rect", rect);
       widgetDimensions[layoutId] = {
         left: rect.left - left,
         top: rect.top - top,

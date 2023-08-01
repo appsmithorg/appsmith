@@ -67,59 +67,10 @@ const Column = (props: LayoutComponentProps) => {
   );
 };
 
-Column.getHeight = (
-  props: LayoutComponentProps,
-  widgets: CanvasWidgetsReduxState,
-  widgetPositions: WidgetPositions,
-) => {
-  const { layout, rendersWidgets } = props;
-  if (rendersWidgets) {
-    // TODO: Can this be stored in WidgetPositions?
-    let maxHeight = 0;
-    (layout as string[]).forEach((id: string) => {
-      const widget = widgets[id];
-      if (!widget) return;
-      const { height } = widgetPositions[id];
-      // TODO: compare top positions to account for flex wrap.
-      maxHeight = Math.max(maxHeight, height);
-    });
-    return maxHeight;
-  }
-  // TODO: Handle nested layouts.
-};
-
-Column.getWidth = (props: LayoutComponentProps): number => {
-  const { layoutId } = props;
-  const el = document.getElementById("layout-" + layoutId);
-  const rect: DOMRect | undefined = el?.getBoundingClientRect();
-  if (!rect) return 0;
-  return rect.width;
-};
-
-Column.getDOMRect = (props: LayoutComponentProps): DOMRect | undefined => {
-  const { layoutId } = props;
-  const el = document.getElementById("layout-" + layoutId);
-  const rect: DOMRect | undefined = el?.getBoundingClientRect();
-  const mainRect: DOMRect | undefined = document
-    .querySelector(".flex-container-0")
-    ?.getBoundingClientRect();
-  return {
-    top: rect && mainRect ? rect.top - mainRect.top : 0,
-    left: rect && mainRect ? rect.left - mainRect.left : 0,
-    bottom: rect && mainRect ? rect.bottom - mainRect.bottom : 0,
-    right: rect && mainRect ? rect.right - mainRect.right : 0,
-    width: rect?.width || 0,
-    height: rect?.height || 0,
-    x: rect && mainRect ? rect.x - mainRect.x : 0,
-    y: rect && mainRect ? rect.y - mainRect.y : 0,
-  } as DOMRect;
-};
-
 Column.deriveHighlights = (data: {
   layoutProps: LayoutComponentProps;
   widgets: CanvasWidgetsReduxState;
   widgetPositions: WidgetPositions;
-  rect: DOMRect | undefined;
 }): HighlightInfo[] => {
   return generateHighlightsForColumn(data);
 };

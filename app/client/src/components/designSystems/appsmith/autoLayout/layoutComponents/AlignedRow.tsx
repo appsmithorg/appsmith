@@ -68,36 +68,6 @@ const AlignedRow = (props: LayoutComponentProps) => {
   return <div />;
 };
 
-AlignedRow.getHeight = (
-  props: LayoutComponentProps,
-  widgets: CanvasWidgetsReduxState,
-  widgetPositions: WidgetPositions,
-) => {
-  if (props.rendersWidgets) {
-    const layout: string[][] = props.layout as string[][];
-    let maxHeight = 0;
-    for (const each of layout) {
-      const rowHeight = each.reduce((acc, id) => {
-        const widget = widgets[id];
-        if (!widget) return acc;
-        const { height } = widgetPositions[id];
-        return Math.max(acc, height);
-      }, 0);
-      maxHeight += rowHeight;
-    }
-    return maxHeight;
-  }
-  // TODO: Handle nested layouts.
-};
-
-AlignedRow.getWidth = (props: LayoutComponentProps): number => {
-  const { layoutId } = props;
-  const el = document.getElementById("layout-" + layoutId);
-  const rect: DOMRect | undefined = el?.getBoundingClientRect();
-  if (!rect) return 0;
-  return rect.width;
-};
-
 AlignedRow.deriveHighlights = (
   props: LayoutComponentProps,
   widgets: CanvasWidgetsReduxState,

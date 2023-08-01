@@ -119,7 +119,7 @@ export const CONFIG = {
                     ),
                     imageShape: "RECTANGLE",
                     maxZoomLevel: 1,
-                    image: "{{currentItem.img}}",
+                    image: "{{}}",
                     boxShadow: "none",
                     objectFit: "cover",
                     dynamicBindingPathList: [
