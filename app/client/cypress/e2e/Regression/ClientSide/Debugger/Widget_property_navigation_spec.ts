@@ -1,13 +1,13 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import OneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 
-describe("Widget property navigation", () => {
+describe("excludeForAirgap", "Widget property navigation", () => {
   it("Collapsed field navigation", () => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.AUDIO, 100, 200);
     _.propPane.EnterJSContext("animateloading", "{{test}}", true, false);
     _.debuggerHelper.AssertErrorCount(1);
     _.propPane.ToggleSection("general");
-    _.propPane.AssertIfPropertyIsNotVisible("animateloading");
+    _.agHelper.AssertElementAbsence("animateloading");
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink();
     _.propPane.AssertIfPropertyIsVisible("animateloading");
@@ -15,6 +15,7 @@ describe("Widget property navigation", () => {
     _.propPane.DeleteWidgetFromPropertyPane("Audio1");
     _.debuggerHelper.CloseBottomBar();
   });
+
   it("Navigation to a nested panel", () => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TAB, 100, 200);
     _.propPane.OpenTableColumnSettings("tab2");
