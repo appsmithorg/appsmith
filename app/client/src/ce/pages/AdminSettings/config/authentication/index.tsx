@@ -60,7 +60,7 @@ const FormAuth: AdminConfigType = {
           : "Allow all users to signup",
     },
     {
-      id: "APPSMITH_EMAIL_VERIFICATION_ENABLED",
+      id: "emailVerificationEnabled",
       category: SettingCategories.FORM_AUTH,
       controlType: SettingTypes.TOGGLE,
       label: "email verification",
