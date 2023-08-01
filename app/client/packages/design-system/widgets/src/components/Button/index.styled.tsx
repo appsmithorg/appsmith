@@ -79,6 +79,9 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
   min-inline-size: var(--sizing-8);
   position: relative;
   font-weight: 600;
+  border-width: 0;
+  border-style: solid;
+  font-family: inherit;
 
   &[data-icon-position="start"] *:not([data-hidden]) + *:not([data-hidden]) {
     margin-inline-start: var(--spacing-1);
