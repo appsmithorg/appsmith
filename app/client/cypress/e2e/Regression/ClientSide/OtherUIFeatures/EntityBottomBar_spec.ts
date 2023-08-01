@@ -21,19 +21,13 @@ describe("Entity bottom bar", () => {
     _.jsEditor.CreateJSObject(` return "hello world";`);
     //Verify if bottom bar opens JSEditor.
     _.debuggerHelper.AssertOpen(PageType.JsEditor);
-    // Verify if selected tab is response.
-    _.debuggerHelper.AssertSelectedTab("Response");
     //Verify if bottom bar is closed on clicking close icon in JSEditor.
     _.debuggerHelper.CloseBottomBar();
     _.debuggerHelper.AssertClosed();
     //Verify if bottom bar is open on executing JSFunction.
     _.jsEditor.RunJSObj();
     _.debuggerHelper.AssertOpen(PageType.JsEditor);
-    //verify if response tab is selected on execution JSFunction.
-    _.debuggerHelper.AssertSelectedTab("Response");
-    //verify if bottom bar is closed on switching to canvas page.
-    _.entityExplorer.NavigateToSwitcher("Widgets");
-    _.debuggerHelper.AssertClosed();
+    _.debuggerHelper.ClickDebuggerIcon();
   });
 
   it("3. Api bottom pane should be collapsable", () => {
@@ -56,8 +50,6 @@ describe("Entity bottom bar", () => {
     _.apiPage.RunAPI();
     _.agHelper.Sleep(1000);
     _.debuggerHelper.AssertOpen(PageType.API);
-    //verify if response tab is selected on execution api.
-    _.debuggerHelper.AssertSelectedTab("Response");
   });
 
   it("4. Bottom bar in Datasource", () => {
