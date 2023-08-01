@@ -1,7 +1,4 @@
-import React, { useEffect, useRef } from "react";
-import type { Meta, StoryObj } from "@storybook/react";
-
-import type { ButtonProps } from "@design-system/widgets";
+import React from "react";
 import {
   Button,
   BUTTON_VARIANTS,
@@ -9,6 +6,10 @@ import {
   Icon,
 } from "@design-system/widgets";
 import { importRemixIcon } from "design-system-old";
+import type { Meta, StoryObj } from "@storybook/react";
+
+import { StoryGrid } from "../../../helpers/StoryGrid";
+import { DataAttrWrapper } from "../../../helpers/DataAttrWrapper";
 
 const StarIcon = importRemixIcon(() => import("remixicon-react/StarFillIcon"));
 
@@ -24,24 +25,6 @@ export default meta;
 
 type Story = StoryObj<typeof Button>;
 
-type DataAttrWrapperProps = {
-  props: ButtonProps;
-  component: typeof Button;
-  attr: string;
-};
-
-const DataAttrWrapper = (props: DataAttrWrapperProps) => {
-  const { attr, component: Component, props: incomingProps } = props;
-
-  const ref = useRef<any>(null);
-
-  useEffect(() => {
-    if (attr && ref?.current) ref.current.setAttribute(attr, "");
-  }, [attr, ref.current]);
-
-  return <Component ref={ref} {...incomingProps} />;
-};
-
 const states = [
   "",
   "data-hovered",
@@ -50,52 +33,32 @@ const states = [
   "aria-disabled",
 ];
 
+const ICON = (
+  <Icon>
+    <StarIcon />
+  </Icon>
+);
+
 export const States: Story = {
   render: () => (
-    <div
-      style={{
-        display: "grid",
-        justifyContent: "center",
-        gap: "10px",
-        gridTemplateColumns: "repeat(5 , 1fr)",
-        flexWrap: "wrap",
-      }}
-    >
+    <StoryGrid>
       {variants.map((variant) =>
         semantics.map((color) =>
           states.map((state) => (
-            <DataAttrWrapper
-              attr={state}
-              component={Button}
-              key={`${variant}-${color}-${state}`}
-              props={{
-                variant: variant,
-                color: color,
-                children: `${variant} ${color} ${state}`,
-              }}
-            />
+            <DataAttrWrapper attr={state} key={`${variant}-${color}-${state}`}>
+              <Button
+                color={color}
+                variant={variant}
+              >{`${variant} ${color} ${state}`}</Button>
+            </DataAttrWrapper>
           )),
         ),
       )}
-      <Button
-        icon={
-          <Icon>
-            <StarIcon />
-          </Icon>
-        }
-      >
-        Button with Start Icon
-      </Button>
-      <Button
-        icon={
-          <Icon>
-            <StarIcon />
-          </Icon>
-        }
-        iconPosition="end"
-      >
+      <Button icon={ICON}>Button with Start Icon</Button>
+      <Button icon={ICON} iconPosition="end">
         Button with End Icon
       </Button>
-    </div>
+      <Button isLoading>Loading...</Button>
+    </StoryGrid>
   ),
 };
