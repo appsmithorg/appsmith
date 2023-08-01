@@ -43,7 +43,7 @@ jobs:
   #                                                                 }
   #                                                               )'
   #         #TODO Add mongo URI as secret
-            
+
   server-build:
     name: server-build
     uses: ./.github/workflows/server-build.yml
@@ -145,6 +145,8 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           repository: ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-dp
           tags: ${{ github.event.inputs.sub-domain-name }}
+          build-args: |
+            APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
     outputs:
       imageHash: ${{ github.event.inputs.sub-domain-name }}
 
