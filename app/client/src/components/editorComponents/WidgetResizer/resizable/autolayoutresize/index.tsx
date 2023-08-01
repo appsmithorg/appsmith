@@ -43,7 +43,6 @@ import {
   getWidgetMinMaxDimensionsInPixel,
 } from "utils/autoLayout/flexWidgetUtils";
 import type { MinMaxSize } from "utils/autoLayout/flexWidgetUtils";
-import type { AlignWidgetTypes } from "widgets/constants";
 
 export type AutoLayoutResizableProps = {
   mainCanvasWidth: number;
@@ -165,7 +164,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
     rightColumn: rightColumnMap,
     topRow: topRowMap,
   } = dimensionMap;
-  const { computedAlignment, layer, layerWidthInPixels } = useMemo(() => {
+  const { computedAlignment, layer } = useMemo(() => {
     const { widgetId } = props;
     const widget = allWidgets[widgetId];
     const layer = (() => {
@@ -182,39 +181,7 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
       const leftColumn = widget[leftColumnMap];
       return leftColumn > centerColumn ? "end" : "start";
     })();
-    const GapBetweenWidgets = 4;
-    const layerWidthInPixels = layer.children.reduce(
-      (
-        width: number,
-        eachWidget: {
-          id: string;
-          align: AlignWidgetTypes;
-        },
-      ) => {
-        const widget = allWidgets[eachWidget.id];
-        if (widget) {
-          const widgetWidth =
-            (props.isMobile
-              ? widget.mobileWidth || widget.width
-              : widget.width) || 0;
-          let widgetWithInPixels = widgetWidth * 0.01 * parentWidth;
-          const {
-            minWidth,
-          }: { [key in keyof MinMaxSize]: number | undefined } =
-            getWidgetMinMaxDimensionsInPixel(
-              { type: widget.type },
-              props.mainCanvasWidth || 1,
-            );
-          if (widgetWithInPixels < (minWidth || 0)) {
-            widgetWithInPixels = minWidth || 0;
-          }
-          width += widgetWithInPixels;
-        }
-        return width;
-      },
-      (layer.children.length - 1) * GapBetweenWidgets,
-    );
-    return { computedAlignment, layer, layerWidthInPixels };
+    return { computedAlignment, layer };
   }, [props, allWidgets, leftColumnMap]);
   const widget = allWidgets[props.widgetId];
   const widgetWidthInPixels = props.componentWidth * 0.01 * parentWidth;
@@ -248,28 +215,13 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
         // ToDo(Ashok): need to add limits
         const canVerticalMove = true,
           canHorizontalMove = true;
-        const hasReachedMaxWidthLimit = !(
-          layerWidthInPixels < parentWidth &&
-          layerWidthInPixels + rect.width <= parentWidth
-        );
         const isIncreasingWidth = newRect.width > 0;
-        const setMaxLimitAsWidth =
-          !props.isMobile && hasReachedMaxWidthLimit && isIncreasingWidth;
-        minWidthPercentage;
         const hasReachedMimWidthLimit =
           widgetWidthInPixels + rect.width <= (minWidth || 0);
         const setMinLimitAsWidth =
           !isIncreasingWidth && hasReachedMimWidthLimit;
         const minWidthDiff = Math.max(widgetWidthInPixels - (minWidth || 0), 0);
-        if (setMaxLimitAsWidth) {
-          const maxWidthDiff = parentWidth - layerWidthInPixels;
-          newRect = {
-            ...newRect,
-            width: maxWidthDiff,
-            x: maxWidthDiff,
-            X: maxWidthDiff,
-          };
-        } else if (setMinLimitAsWidth) {
+        if (setMinLimitAsWidth) {
           newRect = {
             ...newRect,
             width: -minWidthDiff,
