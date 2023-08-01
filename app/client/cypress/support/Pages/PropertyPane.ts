@@ -376,9 +376,11 @@ export class PropertyPane {
     let val: any;
     if (fieldName) {
       cy.xpath(this.locator._existingFieldValueByName(fieldName)).eq(0).click();
-      val = cy.get(fieldName).then(($field) => {
-        cy.wrap($field).find(".CodeMirror-code span").first().invoke("text");
-      });
+      val = this.agHelper
+        .GetElement(this.locator._existingFieldValueByName(fieldName))
+        .then(($field) => {
+          cy.wrap($field).find(".CodeMirror-code span").first().invoke("text");
+        });
     } else {
       this.agHelper.GetNClick(this.locator._codeMirrorCode);
       val = cy
