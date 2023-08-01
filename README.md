@@ -23,7 +23,9 @@ Organizations build internal applications (also known as admin tools or internal
 
 [See the features in action and check out use cases](https://www.appsmith.com/).
 
-<iframe width="560" height="315" src="https://www.youtube.com/watch?v=Dxe_NzdGzL4&utm_source=github&utm_medium=organic&utm_campaign=readme" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<figure>
+    <VideoEmbed host="youtube" videoId="v=Dxe_NzdGzL4&utm_source=github&utm_medium=organic&utm_campaign=readme"/> 
+</figure>
 
 ## Installation
 There are two ways to start using Appsmith.
