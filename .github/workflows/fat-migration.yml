@@ -124,7 +124,7 @@ jobs:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
         run: |
-          sudo /etc/init.d/ssh stop ;   
+          sudo /etc/init.d/ssh stop ;
           mkdir -p `pwd`/git-server/keys
           mkdir -p `pwd`/git-server/repos
           docker run --name test-event-driver -d -p 2222:22 -p 5001:5001 -p 3306:3306 \
@@ -134,7 +134,7 @@ jobs:
           docker run -d --name appsmith -p 80:80 -p 9001:9001 --add-host=host.docker.internal:host-gateway \
             -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
-            appsmith/appsmith-ce:release
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:release
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
