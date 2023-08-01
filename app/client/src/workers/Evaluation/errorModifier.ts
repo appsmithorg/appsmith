@@ -9,6 +9,7 @@ import {
 } from "workers/common/DataTreeEvaluator/utils";
 import { jsPropertiesState } from "./JSObject/jsPropertiesState";
 import { isEmpty } from "lodash";
+import { APP_MODE } from "entities/App";
 
 const FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE =
   "Found an action invocation during evaluation. Data fields cannot execute actions.";
@@ -18,11 +19,18 @@ class ErrorModifier {
   private errorNamesToScan = ["ReferenceError", "TypeError"];
   private asyncFunctionsNameMap: Record<string, true> = {};
   private asyncJSFunctionsNames: string[] = [];
+  private isDisabled = true;
+
+  init(appMode?: APP_MODE) {
+    this.isDisabled = appMode !== APP_MODE.EDIT;
+  }
+
   updateAsyncFunctions(
     dataTree: DataTree,
     configTree: ConfigTree,
     dependencyMap: DependencyMap,
   ) {
+    if (this.isDisabled) return;
     const allAsyncEntityFunctions = getAllAsyncFunctions(dataTree, configTree);
     const allAsyncJSFunctions = getAllAsyncJSFunctions(
       dataTree,
@@ -39,6 +47,7 @@ class ErrorModifier {
     errorCategory?: PropertyEvaluationErrorCategory;
   } {
     const errorMessage = getErrorMessage(error);
+    if (this.isDisabled) return { errorMessage };
     if (
       error instanceof FoundPromiseInSyncEvalError ||
       error instanceof ActionCalledInSyncFieldError
@@ -95,8 +104,8 @@ class ErrorModifier {
     errors: EvaluationError[],
     dependencyMap: DependencyMap,
   ) {
+    if (this.isDisabled) return errors;
     let updatedErrors = errors;
-
     if (isDataField(fullPropertyPath, configTree)) {
       const reachableAsyncJSFunctions = dependencyMap.getAllReachableNodes(
         fullPropertyPath,
