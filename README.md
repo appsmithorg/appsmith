@@ -1,11 +1,8 @@
-<br /><br />
-
 <p align="center">
 <a href="https://www.appsmith.com?utm_source=github&utm_medium=organic&utm_campaign=readme">
   <img src="static/appsmith_logo_white.png" alt="Appsmith Logo" width="350">
 </a>
 </p>
-<br />
 
 <p align="center">
 <a href="https://discord.gg/rBTTVJp">
@@ -37,14 +34,14 @@ There are two ways to start using Appsmith.
 | Installation Methods                                                                                                            | Documentation                                                                                                                                                    |
 | ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)                   | [Docker](https://docs.appsmith.com/getting-started/setup/installation-guides/docker?utm_source=github&utm_medium=organic&utm_campaign=readme) (*Recommended*)       |
-| ![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white)       | [Kubernetes](https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes?utm_source=github&utm_medium=organic&utm_campaign=readme) (*HA and Scalability*) |
+| ![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white)       | [Kubernetes](https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes?utm_source=github&utm_medium=organic&utm_campaign=readme) |
 | ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)                     | [AWS AMI](https://docs.appsmith.com/getting-started/setup/installation-guides/aws-ami?utm_source=github&utm_medium=organic&utm_campaign=readme)           |
 
 
 For other deployment options, see the [Installation Guides](https://docs.appsmith.com/getting-started/setup/installation-guides?utm_source=github&utm_medium=organic&utm_campaign=readme) documentation.  
 
 ## Development
-To build and run Appsmith in your local dev environment, see [Setup for local development]((https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development)).
+To build and run Appsmith in your local dev environment, see [Setup for local development]((https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development).
 
 ## Learning and Resources
 - [Documentation](https://docs.appsmith.com?utm_source=github&utm_medium=organic&utm_campaign=readme)
