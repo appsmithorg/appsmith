@@ -221,7 +221,17 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
         const setMinLimitAsWidth =
           !isIncreasingWidth && hasReachedMimWidthLimit;
         const minWidthDiff = Math.max(widgetWidthInPixels - (minWidth || 0), 0);
-        if (setMinLimitAsWidth) {
+        const setMaxLimitAsWidth =
+          widgetWidthInPixels + rect.width >= parentWidth;
+        if (setMaxLimitAsWidth) {
+          const maxMovementLimit = parentWidth - widgetWidthInPixels;
+          newRect = {
+            ...newRect,
+            width: maxMovementLimit,
+            x: maxMovementLimit,
+            X: maxMovementLimit,
+          };
+        } else if (setMinLimitAsWidth) {
           newRect = {
             ...newRect,
             width: -minWidthDiff,
