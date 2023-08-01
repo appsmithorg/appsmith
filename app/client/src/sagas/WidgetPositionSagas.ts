@@ -1,10 +1,14 @@
+/* eslint-disable no-console */
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsReducer";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
-import { getAutoWidgetId } from "utils/WidgetPositionsObserver/utils";
+import {
+  getAutoWidgetId,
+  getLayoutId,
+} from "utils/WidgetPositionsObserver/utils";
 
 function* readAndUpdateWidgetPositions(
   action: ReduxAction<{
@@ -12,9 +16,11 @@ function* readAndUpdateWidgetPositions(
       [widgetId: string]: boolean;
     };
     layersProcessQueue: { [canvasId: string]: number };
+    layoutsProcessQueue: { [key: string]: boolean };
   }>,
 ) {
-  const { layersProcessQueue, widgetsProcessQueue } = action.payload;
+  const { layersProcessQueue, layoutsProcessQueue, widgetsProcessQueue } =
+    action.payload;
 
   const affectedWidgetsFromLayers: {
     [widgetDOMId: string]: boolean;
@@ -23,6 +29,7 @@ function* readAndUpdateWidgetPositions(
     ...widgetsProcessQueue,
     ...affectedWidgetsFromLayers,
   };
+  const layoutsToProcess = { ...layoutsProcessQueue };
 
   const widgetDimensions: WidgetPositions = {};
 
@@ -37,6 +44,20 @@ function* readAndUpdateWidgetPositions(
     if (element) {
       const rect = element.getBoundingClientRect();
       widgetDimensions[widgetId] = {
+        left: rect.left - left,
+        top: rect.top - top,
+        height: rect.height,
+        width: rect.width,
+      };
+    }
+  }
+
+  for (const layoutId of Object.keys(layoutsToProcess)) {
+    const element = document.getElementById(getLayoutId(layoutId));
+    if (element) {
+      const rect = element.getBoundingClientRect();
+      console.log("#### layout rect", rect);
+      widgetDimensions[layoutId] = {
         left: rect.left - left,
         top: rect.top - top,
         height: rect.height,

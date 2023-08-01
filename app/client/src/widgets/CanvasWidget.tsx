@@ -185,7 +185,6 @@ class CanvasWidget extends ContainerWidget {
             this.props.isMobile,
             this.props.appPositioningType === AppPositioningTypes.AUTO,
           );
-          console.log("####", { item });
           return (
             <Comp
               childrenMap={map}

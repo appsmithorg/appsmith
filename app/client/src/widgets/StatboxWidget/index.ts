@@ -225,6 +225,7 @@ export const CONFIG = {
                 layoutStyle: {
                   columnGap: 4,
                   flexWrap: "wrap-reverse",
+                  padding: 4,
                 },
                 layoutType: "ROW",
                 layout: [
@@ -291,6 +292,7 @@ export const CONFIG = {
                     layoutStyle: {
                       rowGap: 12,
                       border: "1px dashed #979797",
+                      padding: 4,
                     },
                     layoutType: "COLUMN",
                     layout: [imageWidget.widgetId],
@@ -299,7 +301,6 @@ export const CONFIG = {
                 ],
               },
             ];
-            console.log("#### layout", { layout });
 
             //create properties to be updated
             return getWidgetBluePrintUpdates({

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
@@ -112,10 +113,12 @@ export const readWidgetPositions = (
     [widgetDOMId: string]: boolean;
   },
   layersProcessQueue: { [canvasId: string]: number },
+  layoutsProcessQueue: { [layoutId: string]: boolean },
 ) => {
+  console.log("####", { layoutsProcessQueue });
   return {
     type: ReduxActionTypes.READ_WIDGET_POSITIONS,
-    payload: { widgetsProcessQueue, layersProcessQueue },
+    payload: { widgetsProcessQueue, layersProcessQueue, layoutsProcessQueue },
   };
 };
 

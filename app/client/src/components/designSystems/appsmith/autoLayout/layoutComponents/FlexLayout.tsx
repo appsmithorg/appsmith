@@ -1,9 +1,12 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import type { CSSProperties, ReactNode } from "react";
+import { widgetPositionsObserver } from "utils/WidgetPositionsObserver";
+import { getLayoutId } from "utils/WidgetPositionsObserver/utils";
 
 interface FlexLayoutProps {
   alignSelf?: string;
   children: ReactNode;
+  canvasId: string;
   columnGap?: number;
   flexDirection: "row" | "column";
   flexGrow?: number;
@@ -12,7 +15,7 @@ interface FlexLayoutProps {
   flexWrap?: "nowrap" | "wrap" | "wrap-reverse";
   height?: number | string;
   justifyContent?: "flex-start" | "flex-end" | "center";
-  layoutId?: string;
+  layoutId: string;
   maxHeight?: string;
   minWidth?: string;
   minHeight?: string;
@@ -22,9 +25,24 @@ interface FlexLayoutProps {
   rowGap?: number;
   width?: string;
   border?: string;
+  padding?: string | number;
 }
 
 const FlexLayout = (props: FlexLayoutProps) => {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    widgetPositionsObserver.observeLayout(
+      getLayoutId(props.layoutId),
+      ref,
+      props.canvasId,
+      props.layoutId,
+    );
+
+    return () => {
+      widgetPositionsObserver.unObserveLayout(getLayoutId(props.layoutId));
+    };
+  }, []);
+
   const layoutStyle: CSSProperties = useMemo(() => {
     return {
       alignSelf: props.alignSelf || "start",
@@ -49,11 +67,11 @@ const FlexLayout = (props: FlexLayoutProps) => {
       rowGap: props.rowGap || 0,
       width: props.width,
       border: props.border || "none",
-      padding: 4,
+      padding: props.padding,
     };
   }, [props]);
   return (
-    <div id={`layout-${props.layoutId}`} style={layoutStyle}>
+    <div id={getLayoutId(props.layoutId)} ref={ref} style={layoutStyle}>
       {props.children}
     </div>
   );

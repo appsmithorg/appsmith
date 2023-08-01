@@ -1,6 +1,6 @@
 import _ from "lodash";
 import type { RefObject } from "react";
-import { AUTO_LAYER, AUTO_WIDGET } from "./utils";
+import { AUTO_LAYER, AUTO_WIDGET, LAYOUT } from "./utils";
 import store from "store";
 import { readWidgetPositions } from "actions/autoLayoutActions";
 
@@ -15,11 +15,19 @@ class WidgetPositionsObserver {
       layerIndex: number;
     };
   } = {};
+  private registeredLayouts: {
+    [layoutId: string]: {
+      ref: RefObject<HTMLDivElement>;
+      layoutId: string;
+      canvasId: string;
+    };
+  } = {};
 
   private widgetsProcessQueue: {
     [widgetId: string]: boolean;
   } = {};
   private layersProcessQueue: { [canvasId: string]: number } = {};
+  private layoutsProcessQueue: { [key: string]: boolean } = {};
 
   private debouncedProcessBatch = _.debounce(this.processWidgetBatch, 200);
 
@@ -32,6 +40,8 @@ class WidgetPositionsObserver {
             this.addWidgetToProcess(DOMId);
           } else if (DOMId.indexOf(AUTO_LAYER) > -1) {
             this.addLayerToProcess(DOMId);
+          } else if (DOMId.indexOf(LAYOUT) > -1) {
+            this.addLayoutToProcess(DOMId);
           }
         }
       }
@@ -82,6 +92,27 @@ class WidgetPositionsObserver {
     delete this.registeredLayers[layerId];
   }
 
+  public observeLayout(
+    layoutId: string,
+    ref: RefObject<HTMLDivElement>,
+    canvasId: string,
+    id: string,
+  ) {
+    if (ref?.current) {
+      this.registeredLayouts[layoutId] = { ref, canvasId, layoutId: id };
+      this.resizeObserver.observe(ref.current);
+    }
+  }
+
+  public unObserveLayout(layoutId: string) {
+    const element = this.registeredLayouts[layoutId]?.ref?.current;
+    if (element) {
+      this.resizeObserver.unobserve(element);
+    }
+
+    delete this.registeredLayouts[layoutId];
+  }
+
   private addWidgetToProcess(widgetDOMId: string) {
     if (this.registeredWidgets[widgetDOMId]) {
       const widgetId = this.registeredWidgets[widgetDOMId].id;
@@ -104,9 +135,19 @@ class WidgetPositionsObserver {
     }
   }
 
+  private addLayoutToProcess(layoutId: string) {
+    if (this.registeredLayouts[layoutId]) {
+      const id = this.registeredLayouts[layoutId].layoutId;
+      this.layoutsProcessQueue[id] = true;
+      this.debouncedProcessBatch();
+      // TODO: Add other affected layouts in canvas for processing.
+    }
+  }
+
   private clearProcessQueue() {
     this.widgetsProcessQueue = {};
     this.layersProcessQueue = {};
+    this.layoutsProcessQueue = {};
   }
 
   private processWidgetBatch() {
@@ -114,6 +155,7 @@ class WidgetPositionsObserver {
       readWidgetPositions(
         { ...this.widgetsProcessQueue },
         { ...this.layersProcessQueue },
+        { ...this.layoutsProcessQueue },
       ),
     );
     this.clearProcessQueue();

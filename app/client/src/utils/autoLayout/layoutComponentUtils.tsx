@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import React from "react";
 import AlignedRow from "components/designSystems/appsmith/autoLayout/layoutComponents/AlignedRow";
 import Column from "components/designSystems/appsmith/autoLayout/layoutComponents/Column";
 import Row from "components/designSystems/appsmith/autoLayout/layoutComponents/Row";
@@ -16,6 +17,24 @@ export function getLayoutComponent(type: string): any {
     ROW: Row,
   };
   return map[type];
+}
+
+export function renderLayouts(
+  layouts: LayoutComponentProps[],
+  childrenMap: { [key: string]: any } | undefined,
+  containerProps: any,
+) {
+  return layouts.map((item: LayoutComponentProps, index: number) => {
+    const Comp = getLayoutComponent(item.layoutType);
+    return (
+      <Comp
+        childrenMap={childrenMap}
+        containerProps={containerProps}
+        key={index}
+        {...item}
+      />
+    );
+  });
 }
 
 export function getLayoutFromId(
@@ -259,12 +278,19 @@ export function generateHighlightsForColumn(data: {
     let index = 0;
     for (const each of layout as LayoutComponentProps[]) {
       if (each.isDropTarget) continue;
+      console.log("#### horizontal", {
+        index,
+        offsetLeft,
+        offsetTop,
+        childHeight,
+        posY: offsetTop + childHeight + (index > 0 ? 12 : 0),
+      });
       highlights.push({
         ...base,
         index: index,
         rowIndex: index,
         posX: offsetLeft,
-        posY: offsetTop + childHeight + (index > 1 ? 12 : 0),
+        posY: offsetTop + childHeight + (index > 0 ? 12 : 0),
         width: (rect?.width || 0) - 4,
         height: 4,
       });
@@ -277,7 +303,7 @@ export function generateHighlightsForColumn(data: {
           widgets,
           widgetPositions,
           rect: layoutRect,
-          offsetTop: offsetTop + childHeight + (index > 1 ? 20 : 0), // rowGap (12) + padding (8)
+          offsetTop: offsetTop + childHeight + (index > 0 ? 12 : 0), // rowGap (12) + padding (8)
         }),
       );
       childHeight += layoutRect?.height || 0;
@@ -288,9 +314,16 @@ export function generateHighlightsForColumn(data: {
       index: index,
       rowIndex: index,
       posX: offsetLeft,
-      posY: offsetTop + childHeight + 8,
+      posY: offsetTop + childHeight,
       width: (rect?.width || 0) - 4,
       height: 4,
+    });
+    console.log("#### horizontal", {
+      index,
+      offsetLeft,
+      offsetTop,
+      childHeight,
+      posY: offsetTop + childHeight + (index > 0 ? 12 : 0),
     });
     return updateHorizontalDropZone(highlights);
   }

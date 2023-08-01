@@ -28,6 +28,7 @@ const AlignedRow = (props: LayoutComponentProps) => {
   if (rendersWidgets && childrenMap) {
     return (
       <FlexLayout
+        canvasId={props.containerProps?.widgetId || ""}
         flexDirection="row"
         layoutId={layoutId}
         {...(layoutStyle || {})}
