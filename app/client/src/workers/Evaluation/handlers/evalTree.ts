@@ -23,7 +23,7 @@ import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
 import { setEvalContext } from "../evaluate";
 import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
 import { errorModifier } from "../errorModifier";
-import { generateOptimisedUpdates } from "sagas/EvaluationsSagaUtils";
+import { generateOptimisedUpdates } from "../helpers";
 
 export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;

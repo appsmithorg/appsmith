@@ -14,7 +14,7 @@ import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActio
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import { setEvalContext } from "./evaluate";
-import { generateOptimisedUpdates } from "sagas/EvaluationsSagaUtils";
+import { generateOptimisedUpdates } from "./helpers";
 
 export function evalTreeWithChanges(
   updatedValuePaths: string[][],
