@@ -32,7 +32,6 @@
     "sourceMap": true,
     "baseUrl": "./src",
     "noFallthroughCasesInSwitch": true,
-    "types": ["node"],
     "importsNotUsedAsValues": "error"
   },
   "include": ["./src/**/*", "./packages"],
