@@ -16,6 +16,7 @@ import UserApi from "@appsmith/api/UserApi";
 import * as Sentry from "@sentry/react";
 import type { ApiResponse } from "api/ApiResponses";
 import { useResendEmailVerification } from "./helpers";
+import AnalyticsUtil from "../../utils/AnalyticsUtil";
 
 const Body = styled.div`
   display: flex;
@@ -56,6 +57,9 @@ const VerifyUser = (
             ErrorType.UNKNOWN;
           setLoading(false);
           setError(errorCode);
+          AnalyticsUtil.logEvent("EMAIL_VERIFICATION_FAILED", {
+            response: response.responseMeta,
+          });
           return;
         }
 
