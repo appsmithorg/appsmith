@@ -24,9 +24,10 @@ function TableOrSpreadsheetDropdown(props: Props) {
     show,
   } = useTableOrSpreadsheet();
 
-  // const onSave = (columns: any) => {
-  //   console.log(columns);
-  // };
+  // TODO : Add onSave function
+  const onSave = (columns: any) => {
+    return columns;
+  };
 
   if (show) {
     return (
