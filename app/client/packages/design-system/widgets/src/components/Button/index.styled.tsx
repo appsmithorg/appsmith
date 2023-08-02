@@ -67,13 +67,14 @@ export const buttonStyles = css<StyledButtonProps>`
 `;
 
 export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
-  cursor: pointer;
   outline: 0;
+  padding: 0;
+  border-width: 0;
+  cursor: pointer;
   border-radius: var(--border-radius-1);
   user-select: none;
   position: relative;
   font-weight: 600;
-  border-width: 0;
   border-style: solid;
   font-family: inherit;
 
