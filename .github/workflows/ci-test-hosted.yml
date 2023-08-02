@@ -446,7 +446,7 @@ jobs:
           SLACK_USERNAME: Github Scheduler
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_HOSTED }}
           MSG_MINIMAL: Ref,Event,Commit
-          SLACK_FOOTER: 'Appsmith scheduled runs'
+          SLACK_FOOTER: 'Appsmith CI runs'
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
