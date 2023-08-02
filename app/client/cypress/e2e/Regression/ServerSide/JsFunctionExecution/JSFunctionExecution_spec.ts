@@ -460,7 +460,7 @@ describe("JS Function Execution", function () {
     });
   });
 
-  it("9. Bug 13197: Verify converting async functions to sync resets all settings", () => {
+  it("9. Bug 13197: Verify converting async functions to sync doesn't reset all settings", () => {
     const asyncJSCode = `export default {
 name: "Appsmith",
 asyncToSync : async ()=>{
@@ -484,14 +484,14 @@ return "yes";`;
     // Switch to settings tab
     agHelper.GetNClick(jsEditor._settingsTab);
     // Enable all settings
-    jsEditor.EnableDisableAsyncFuncSettings("asyncToSync", true, true);
+    jsEditor.EnableDisableAsyncFuncSettings("asyncToSync", true, false);
 
     // Modify js object
     jsEditor.EditJSObj(syncJSCode, false);
 
     agHelper.RefreshPage();
     cy.wait("@jsCollections").then(({ response }) => {
-      expect(response?.body.data.actions[0].executeOnLoad).to.eq(false);
+      expect(response?.body.data.actions[0].executeOnLoad).to.eq(true);
       expect(response?.body.data.actions[0].confirmBeforeExecute).to.eq(false);
     });
     agHelper.ActionContextMenuWithInPane({
