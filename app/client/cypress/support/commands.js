@@ -2166,5 +2166,5 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
 });
 
 Cypress.Commands.add("skipSignposting", () => {
-  onboarding.closeIntroModal();
+  onboarding.skipSignposting();
 });
