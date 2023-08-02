@@ -53,24 +53,22 @@ export const Button = forwardRef(
     const { visuallyHiddenProps } = useVisuallyHidden();
 
     const renderChildren = () => {
-      if (isLoading) {
-        return (
-          <>
+      return (
+        <>
+          <span aria-hidden={isLoading ? true : undefined} data-content="">
+            {icon}
+            <Text lineClamp={1} textAlign="center">
+              {children}
+            </Text>
+          </span>
+
+          <span aria-hidden={!isLoading ? true : undefined} data-loader="">
             <HeadlessIcon>
               <Spinner />
             </HeadlessIcon>
             {/* TODO(pawan): How to make sure "Loading..." text is internationalized? */}
             <span {...visuallyHiddenProps}>Loading...</span>
-          </>
-        );
-      }
-
-      return (
-        <>
-          {icon}
-          <Text lineClamp={1} textAlign="center">
-            {children}
-          </Text>
+          </span>
         </>
       );
     };
@@ -93,7 +91,7 @@ export const Button = forwardRef(
         {...rest}
       >
         {renderChildren()}
-        <DragContainer data-hidden="" />
+        <DragContainer aria-hidden="true" />
       </StyledButton>
     );
   },

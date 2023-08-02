@@ -67,49 +67,62 @@ export const buttonStyles = css<StyledButtonProps>`
 `;
 
 export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
-  display: flex;
-  justify-content: center;
-  align-items: center;
   cursor: pointer;
   outline: 0;
-  padding: var(--spacing-2) var(--spacing-4);
-  block-size: var(--sizing-8);
   border-radius: var(--border-radius-1);
   user-select: none;
-  min-inline-size: var(--sizing-8);
   position: relative;
   font-weight: 600;
   border-width: 0;
   border-style: solid;
   font-family: inherit;
-
-  &[data-icon-position="start"] *:not([data-hidden]) + *:not([data-hidden]) {
-    margin-inline-start: var(--spacing-1);
-  }
-
-  &[data-icon-position="end"] *:not([data-hidden]) + *:not([data-hidden]) {
-    margin-inline-end: var(--spacing-1);
-  }
+  overflow: hidden;
 
   ${buttonStyles}
-
-  &[data-icon-position="end"] {
-    flex-direction: row-reverse;
-  }
-
-  /** Note: adding direct selector ">" here because blueprint also has data-icon attribute on their icons */
-  & > [data-icon] {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: var(--sizing-4);
-    width: var(--sizing-4);
-  }
 
   // Note: adding important here as ADS is overriding the color of blueprint icon globally
   // TODO(pawan): Remove this once ADS team removes the global override
   &[data-button] .bp3-icon {
     color: currentColor !important;
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * CONTENT
+  *-----------------------------------------------------------------------------
+  */
+  & [data-content] {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-2) var(--spacing-4);
+    min-inline-size: var(--sizing-8);
+    block-size: var(--sizing-8);
+  }
+
+  &[data-icon-position="start"] {
+    [data-content] *:not([data-hidden]) + *:not([data-hidden]) {
+      margin-inline-start: var(--spacing-1);
+    }
+  }
+
+  &[data-icon-position="end"] {
+    [data-content] *:not([data-hidden]) + *:not([data-hidden]) {
+      margin-inline-end: var(--spacing-1);
+    }
+  }
+
+  &[data-icon-position="end"] [data-content] {
+    flex-direction: row-reverse;
+  }
+
+  /** Note: adding direct selector ">" here because blueprint also has data-icon attribute on their icons */
+  & [data-content] > [data-icon] {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: var(--sizing-4);
+    width: var(--sizing-4);
   }
 
   /**
@@ -133,13 +146,28 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
 
   /**
   * ----------------------------------------------------------------------------
-  * LOADING
+  * LOADING AND LOADER
   *-----------------------------------------------------------------------------
   */
+
   &[data-loading] {
     cursor: default;
     /** adding opacity 1 here because we are lowering opacity for aria-disabled and when loading is true, aria-disabled is also true  */
     opacity: 1;
+  }
+
+  & [data-loader] {
+    display: none;
+  }
+
+  &[data-loading] [data-loader] {
+    display: block;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: inherit;
   }
 `;
 
