@@ -306,8 +306,8 @@ jobs:
           config-file: cypress_ci_hosted.config.ts
           group: "Chrome-Fat Container tests"
           spec: |
-            "cypress/e2e/GSheet/**/**/*"
-            "cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts"
+            cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts
+            cypress/e2e/GSheet/**/**/*
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
@@ -440,7 +440,7 @@ jobs:
         if: always()
         uses: rtCamp/action-slack-notify@v2
         env:
-          SLACK_CHANNEL: stabilizing-cypress
+          SLACK_CHANNEL: cypresspushworkflow
           SLACK_COLOR: ${{steps.slack_notification.outputs.slack_color}}
           SLACK_ICON_EMOJI: ':bell:'
           SLACK_MESSAGE: ${{steps.slack_notification.outputs.slack_message}}
