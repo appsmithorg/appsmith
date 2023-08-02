@@ -5,3 +5,5 @@
 #cypress/e2e/Regression/ClientSide/Widgets/Dropdown/Dropdown_onOptionChange_spec.js
 cypress/e2e/Regression/ClientSide/AdminSettings/Admin_settings_spec.js
 cypress/e2e/Regression/ClientSide/ExplorerTests/Admin_settings_2_spec.js
+cypress/e2e/Sanity/Datasources/AuthenticatedApiDatasource_spec.js
+cypress/e2e/Sanity/Datasources/RestApiOAuth2Validation_spec.ts
