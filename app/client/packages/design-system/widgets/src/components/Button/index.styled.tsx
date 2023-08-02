@@ -77,7 +77,6 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
   padding: 0;
   border-width: 0;
   cursor: pointer;
-  border-radius: var(--border-radius-1);
   user-select: none;
   position: relative;
   font-weight: 600;
@@ -105,6 +104,7 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
     block-size: var(--sizing-8);
     inline-size: max(var(--sizing-8), 100%);
     border-style: solid;
+    border-radius: var(--border-radius-1);
   }
 
   &[data-icon-position="start"] {
