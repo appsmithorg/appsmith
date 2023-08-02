@@ -16,15 +16,17 @@ export const buttonStyles = css<StyledButtonProps>`
   ${({ $color, $variant }) => {
     if ($variant === "filled") {
       return css`
-        background-color: var(--color-bg-${$color});
-        color: var(--color-fg-on-${$color});
-        border-color: transparent;
+        & [data-content] {
+          background-color: var(--color-bg-${$color});
+          color: var(--color-fg-on-${$color});
+          border-color: transparent;
+        }
 
-        &[data-hovered]:not([aria-disabled]) {
+        &[data-hovered]:not([aria-disabled]) [data-content] {
           background-color: var(--color-bg-${$color}-hover);
         }
 
-        &[data-active]:not([aria-disabled]) {
+        &[data-active]:not([aria-disabled]) [data-content] {
           background-color: var(--color-bg-${$color}-active);
         }
       `;
@@ -32,16 +34,18 @@ export const buttonStyles = css<StyledButtonProps>`
 
     if ($variant === "outlined") {
       return css`
-        background-color: transparent;
-        color: var(--color-fg-${$color});
-        border-color: var(--color-bd-${$color});
-        border-width: var(--border-width-1);
+        & [data-content] {
+          background-color: transparent;
+          color: var(--color-fg-${$color});
+          border-color: var(--color-bd-${$color});
+          border-width: var(--border-width-1);
+        }
 
-        &[data-hovered]:not([aria-disabled]) {
+        &[data-hovered]:not([aria-disabled]) [data-content] {
           background-color: var(--color-bg-${$color}-subtle-hover);
         }
 
-        &[data-active]:not([aria-disabled]) {
+        &[data-active]:not([aria-disabled]) [data-content] {
           background-color: var(--color-bg-${$color}-subtle-active);
         }
       `;
@@ -49,16 +53,18 @@ export const buttonStyles = css<StyledButtonProps>`
 
     if ($variant === "ghost") {
       return css`
-        background: transparent;
-        color: var(--color-fg-${$color});
-        border-color: transparent;
-        border-width: 0;
+        & [data-content] {
+          background: transparent;
+          color: var(--color-fg-${$color});
+          border-color: transparent;
+          border-width: 0;
+        }
 
-        &[data-hovered]:not([aria-disabled]) {
+        &[data-hovered]:not([aria-disabled]) [data-content] {
           background: var(--color-bg-${$color}-subtle-hover);
         }
 
-        &[data-active]:not([aria-disabled]) {
+        &[data-active]:not([aria-disabled]) [data-content] {
           background: var(--color-bg-${$color}-subtle-active);
         }
       `;
@@ -75,16 +81,16 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
   user-select: none;
   position: relative;
   font-weight: 600;
-  border-style: solid;
   font-family: inherit;
-
-  ${buttonStyles}
+  background: transparent;
 
   // Note: adding important here as ADS is overriding the color of blueprint icon globally
   // TODO(pawan): Remove this once ADS team removes the global override
   &[data-button] .bp3-icon {
     color: currentColor !important;
   }
+
+  ${buttonStyles}
 
   /**
   * ----------------------------------------------------------------------------
@@ -98,6 +104,7 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
     padding: var(--spacing-2) var(--spacing-4);
     block-size: var(--sizing-8);
     inline-size: max(var(--sizing-8), 100%);
+    border-style: solid;
   }
 
   &[data-icon-position="start"] {
