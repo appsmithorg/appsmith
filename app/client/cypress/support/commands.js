@@ -1138,6 +1138,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     req.continue((res) => {
       // This api should always be 200, for any case.
       expect(res.statusCode).to.be.equal(200);
+      if (res.statusCode !== 200) {
+        throw new Error("Product Alert api failure");
+      }
       // Mock empty product alerts response so that it does not interfere with tests
       res.send({
         responseMeta: {
