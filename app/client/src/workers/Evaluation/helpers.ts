@@ -91,7 +91,7 @@ const isLargeCollection = (val: any) => {
 };
 
 const normaliseEvalPath = (identicalEvalPathsPatches: any) =>
-  Object.keys(identicalEvalPathsPatches).reduce(
+  Object.keys(identicalEvalPathsPatches || {}).reduce(
     (acc: any, evalPath: string) => {
       //for object paths which have a "." in the object key like "a.['b.c']", we need to extract these
       // paths and break them to appropriate patch paths
@@ -227,7 +227,7 @@ const generateDiffUpdates = (
 export const generateOptimisedUpdates = (
   oldDataTree: any,
   dataTree: any,
-  identicalEvalPathsPatches: any,
+  identicalEvalPathsPatches?: any,
 ): any => {
   const ignoreLargeKeys = normaliseEvalPath(identicalEvalPathsPatches);
   const updates = generateDiffUpdates(oldDataTree, dataTree, ignoreLargeKeys);
