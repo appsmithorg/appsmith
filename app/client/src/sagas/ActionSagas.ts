@@ -90,7 +90,7 @@ import {
   ERROR_ACTION_MOVE_FAIL,
   ERROR_ACTION_RENAME_FAIL,
 } from "@appsmith/constants/messages";
-import { get, merge } from "lodash";
+import { get, isEmpty, merge } from "lodash";
 import {
   fixActionPayloadForMongoQuery,
   getConfigInitialValues,
@@ -416,12 +416,17 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
 
     if (isAPIAction(action)) {
       // get api action object from redux form
-      const reduxFormAction: ApiAction = yield select(
+      const reduxFormApiAction: ApiAction = yield select(
         getFormValues(API_EDITOR_FORM_NAME),
       );
+
       // run transformation on redux form action.
       // the reason we do this is because the transformation should only be done on the raw action data from the redux form.
-      action = transformRestAction(reduxFormAction);
+      // However sometimes when we attempt to save an API as a datasource, we update the Apiaction with the datasource information and the redux form data will not be available i.e. reduxFormApiAction = undefined
+      // In this scenario we can just default to the action object.
+      action = transformRestAction(
+        !isEmpty(reduxFormApiAction) ? reduxFormApiAction : action,
+      );
     }
 
     /* NOTE: This  is fix for a missing command config */
