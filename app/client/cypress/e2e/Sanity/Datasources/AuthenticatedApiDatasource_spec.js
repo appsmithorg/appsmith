@@ -45,8 +45,8 @@ describe("Authenticated API Datasource", function () {
     dataSources.CreateOAuthClient("authorization_code");
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      cy.get("@OAuthClientID").then((clientId: any) => {
-        cy.get("@OAuthClientSecret").then((clientSecret: any) => {
+      cy.get("@OAuthClientID").then((clientId) => {
+        cy.get("@OAuthClientSecret").then((clientSecret) => {
           dataSources.CreateOAuthDatasource(
             "TED_OAuth" + uid,
             "AuthCode",
