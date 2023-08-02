@@ -80,7 +80,7 @@ COPY ./deploy/docker/templates/nginx/* \
   templates/
 
 # Add bootstrapfile
-COPY ./deploy/docker/entrypoint.sh ./deploy/docker/scripts/* ./
+COPY ./deploy/docker/entrypoint.sh ./deploy/docker/scripts/* info.*json ./
 
 # Add util tools
 COPY ./deploy/docker/utils ./utils
