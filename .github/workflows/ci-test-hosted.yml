@@ -305,7 +305,9 @@ jobs:
           parallel: true
           config-file: cypress_ci_hosted.config.ts
           group: "Chrome-Fat Container tests"
-          spec: "cypress/e2e/GSheet/**/**/*"
+          spec: |
+            "cypress/e2e/GSheet/**/**/*"
+            "cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
@@ -415,7 +417,7 @@ jobs:
         if: always()
         run: |
           if [[ "${{steps.run_result.outputs.run_result }}" != "success"  &&  "${{steps.run_result.outputs.run_result }}" != "failedtest" ]]; then
-            echo "url=${{ steps.cypress_test.outputs.resultsUrl }}"" >> $GITHUB_OUTPUT
+            echo "url=${{ steps.cypress_test.outputs.resultsUrl }}" >> $GITHUB_OUTPUT
           elif [[ "${{steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
             echo "url=${{ steps.cypress_test_failedtest.outputs.resultsUrl }}" >> $GITHUB_OUTPUT
           fi
