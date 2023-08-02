@@ -80,4 +80,7 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
             AclPermission permission);
 
     Mono<Application> findByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission);
+
+    Flux<String> getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
+            String workspaceId, AclPermission permission, String permissionGroupId);
 }
