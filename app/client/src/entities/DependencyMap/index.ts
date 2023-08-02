@@ -246,4 +246,7 @@ export default class DependencyMap {
 
     return reachableNodes;
   }
+  get rawDependencies() {
+    return this.#dependencies;
+  }
 }

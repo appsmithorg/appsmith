@@ -76,19 +76,13 @@ export function createDependencyMap(
       dataTreeEvalRef.errors.push(...errors);
     }
 
-    if (isWidget(entity)) {
-      // only widgets have validation paths
-      const validationDependencies = getValidationDependencies(
-        entity,
-        entityName,
-        entityConfig as WidgetEntityConfig,
-      );
-      for (const path of Object.keys(validationDependencies)) {
-        validationDependencyMap.addDependency(
-          path,
-          validationDependencies[path],
-        );
-      }
+    const validationDependencies = getValidationDependencies(
+      entity,
+      entityName,
+      entityConfig as WidgetEntityConfig,
+    );
+    for (const path of Object.keys(validationDependencies)) {
+      validationDependencyMap.addDependency(path, validationDependencies[path]);
     }
   });
 

@@ -41,13 +41,13 @@ export class DependencyMapUtils {
   }
 
   static makeParentsDependOnChildren(dependencyMap: DependencyMap) {
-    const dependencies = dependencyMap.dependencies;
-    Object.entries(dependencies).forEach(([node, deps]) => {
+    const dependencies = dependencyMap.rawDependencies;
+    for (const [node, deps] of dependencies.entries()) {
       this.makeParentsDependOnChild(dependencyMap, node);
       deps.forEach((dep) => {
         this.makeParentsDependOnChild(dependencyMap, dep);
       });
-    });
+    }
     return dependencyMap;
   }
 
