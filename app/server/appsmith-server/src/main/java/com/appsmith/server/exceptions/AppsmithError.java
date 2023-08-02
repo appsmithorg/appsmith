@@ -1010,6 +1010,14 @@ public enum AppsmithError {
             "Api Key already exists",
             ErrorType.AUTHENTICATION_ERROR,
             null),
+    API_KEY_NOT_MAPPED(
+            403,
+            AppsmithErrorCode.API_KEY_NOT_MAPPED.getCode(),
+            "Api Key not mapped. It may have already been disabled.",
+            AppsmithErrorAction.DEFAULT,
+            "API Key not mapped.",
+            ErrorType.AUTHENTICATION_ERROR,
+            null),
     ;
 
     private final Integer httpErrorCode;
