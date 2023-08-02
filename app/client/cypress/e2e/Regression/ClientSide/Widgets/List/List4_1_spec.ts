@@ -128,7 +128,7 @@ describe("List Widget Functionality", function () {
     // Verify Action type and Message of List Item
     // Click on the onListItemClick action dropdown.
     // Write binding inside the Message code textarea
-    propPane.SelectPlatformFunction("onListItemClick", "Show alert");
+    propPane.SelectPlatformFunction("onListItemClick", "Show alert", true);
     agHelper.EnterActionValue("Message", "{{currentItem.first_name}}");
     deployMode.DeployApp();
     // Click on list first item

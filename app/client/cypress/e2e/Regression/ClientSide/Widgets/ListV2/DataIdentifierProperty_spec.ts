@@ -145,7 +145,7 @@ describe("List v2 - Data Identifier property", () => {
       0,
     );
     //
-    table.NavigateToPageUsingButtonFrList("next", 2);
+    table.NavigateToPageUsingButton_List("next", 2);
     agHelper.AssertText(
       `${locators._widgetByName("Text2")} ${propPane._propertyText}`,
       "text",

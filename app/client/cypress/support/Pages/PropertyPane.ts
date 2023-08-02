@@ -524,12 +524,13 @@ export class PropertyPane {
   public SelectPlatformFunction(
     eventName: string,
     dropdownValue: string,
-    force = true,
+    force = false,
+    index = 0,
   ) {
     this.AddAction(eventName);
     this.agHelper.GetNClick(
       this.locator._dropDownValue(dropdownValue),
-      0,
+      index,
       force,
     );
   }
