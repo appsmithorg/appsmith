@@ -1,5 +1,3 @@
-import testdata from "../../../fixtures/testdata.json";
-import datasource from "../../../locators/DatasourcesEditor.json";
 import {
   agHelper,
   assertHelper,
@@ -9,9 +7,9 @@ import {
   dataSources,
   tedTestConfig,
 } from "../../../support/Objects/ObjectsCore";
-let clientId, clientSecret;
 
 describe("Datasource form OAuth2 client credentials related tests", function () {
+  let clientId, clientSecret;
   it("1. Create an API with app url and save as Datasource for Client Credentials test", function () {
     dataSources.CreateOAuthClient("authorization_code");
     apiPage.CreateAndFillApi(
@@ -22,7 +20,7 @@ describe("Datasource form OAuth2 client credentials related tests", function () 
     agHelper.GetNClick(apiPage._saveAsDS);
 
     // Add Oauth details to datasource and save
-    agHelper.AssertElementEnabledDisabled(datasource.saveBtn, 0, false);
+    agHelper.AssertElementEnabledDisabled(dataSources._saveDs, 0, false);
     cy.get("@OAuthClientID").then((id) => {
       cy.get("@OAuthClientSecret").then((secret) => {
         clientId = id;
@@ -32,7 +30,7 @@ describe("Datasource form OAuth2 client credentials related tests", function () 
             .OAUth_AccessTokenUrl,
           clientId,
           clientSecret,
-          testdata.oauth2Scopes,
+          "profile",
         );
       });
     });
@@ -55,7 +53,7 @@ describe("Datasource form OAuth2 client credentials related tests", function () 
     );
     agHelper.GetNClick(apiPage._saveAsDS);
     //Add Oauth details to datasource and save
-    agHelper.AssertElementEnabledDisabled(datasource.saveBtn, 0, false);
+    agHelper.AssertElementEnabledDisabled(dataSources._saveDs, 0, false);
     dataSources.AddOAuth2AuthorizationCodeDetails(
       tedTestConfig.dsValues[tedTestConfig.defaultEnviorment]
         .OAUth_AccessTokenUrl,
