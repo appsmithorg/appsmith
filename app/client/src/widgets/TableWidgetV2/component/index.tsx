@@ -70,6 +70,7 @@ interface ReactTableComponentProps {
   triggerRowSelection: boolean;
   columnWidthMap?: { [key: string]: number };
   handleResizeColumn: (columnWidthMap: { [key: string]: number }) => void;
+  handleVerticalScrollVisibility: (isVisible: boolean) => void;
   handleReorderColumn: (columnOrder: string[]) => void;
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];
@@ -127,6 +128,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     handleColumnFreeze,
     handleReorderColumn,
     handleResizeColumn,
+    handleVerticalScrollVisibility,
     height,
     isAddRowInProgress,
     isLoading,
@@ -241,6 +243,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       handleColumnFreeze={handleColumnFreeze}
       handleReorderColumn={handleReorderColumn}
       handleResizeColumn={handleResizeColumn}
+      handleVerticalScrollVisibility={handleVerticalScrollVisibility}
       height={height}
       isAddRowInProgress={isAddRowInProgress}
       isLoading={isLoading}
@@ -291,6 +294,8 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.filters === next.filters &&
     prev.handleReorderColumn === next.handleReorderColumn &&
     prev.handleResizeColumn === next.handleResizeColumn &&
+    prev.handleVerticalScrollVisibility ===
+      next.handleVerticalScrollVisibility &&
     prev.height === next.height &&
     prev.isLoading === next.isLoading &&
     prev.isVisibleDownload === next.isVisibleDownload &&

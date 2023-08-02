@@ -1091,6 +1091,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           handleColumnFreeze={this.handleColumnFreeze}
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
+          handleVerticalScrollVisibility={this.handleVerticalScrollVisibility}
           height={componentHeight}
           isAddRowInProgress={this.props.isAddRowInProgress}
           isEditableCellsValid={this.props.isEditableCellsValid}
@@ -1333,6 +1334,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       //single action no need to batch
       this.props.updateWidgetMetaProperty("columnWidthMap", columnWidthMap);
     }
+  };
+
+  handleVerticalScrollVisibility = (isVisible: boolean) => {
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      super.updateWidgetProperty("yScrollVisibility", isVisible);
+    } else this.props.updateWidgetMetaProperty("yScrollVisibility", isVisible);
   };
 
   handleSearchTable = (searchKey: any) => {

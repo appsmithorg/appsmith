@@ -39,6 +39,8 @@ import StaticTable from "./StaticTable";
 import VirtualTable from "./VirtualTable";
 import fastdom from "fastdom";
 import { ConnectDataOverlay } from "./ConnectDataOverlay";
+import { useSelector } from "react-redux";
+import type { AppState } from "@appsmith/reducers";
 
 const SCROLL_BAR_OFFSET = 2;
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
@@ -75,6 +77,7 @@ export interface TableProps {
   editableCell: EditableCell;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   handleResizeColumn: (columnWidthMap: { [key: string]: number }) => void;
+  handleVerticalScrollVisibility: (isVisible: boolean) => void;
   handleReorderColumn: (columnOrder: string[]) => void;
   selectTableRow: (row: {
     original: Record<string, unknown>;
@@ -163,6 +166,9 @@ export type HeaderComponentProps = {
 const emptyArr: any = [];
 
 export function Table(props: TableProps) {
+  const isTableResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isResizing,
+  );
   const isResizingColumn = React.useRef(false);
   const handleResizeColumn = (columnWidths: Record<string, number>) => {
     const columnWidthMap = {
@@ -196,6 +202,16 @@ export function Table(props: TableProps) {
       }),
     [columns],
   );
+
+  const scrollBarRef = useRef<SimpleBar | null>(null);
+
+  const isVerticalScrollVisible = () => {
+    if (scrollBarRef.current) {
+      const scrollElement = scrollBarRef.current.getScrollElement();
+      return scrollElement.scrollHeight > scrollElement.clientHeight;
+    }
+    return false;
+  };
 
   const pageCount =
     props.serverSidePaginationEnabled && props.totalRecordsCount
@@ -244,6 +260,9 @@ export function Table(props: TableProps) {
       }, 0);
     }
   }
+  if (!isTableResizing) {
+    props.handleVerticalScrollVisibility(isVerticalScrollVisible());
+  }
   let startIndex = currentPageIndex * props.pageSize;
   let endIndex = startIndex + props.pageSize;
   if (props.serverSidePaginationEnabled) {
@@ -257,7 +276,6 @@ export function Table(props: TableProps) {
   const selectedRowIndices = props.selectedRowIndices || emptyArr;
   const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
-  const scrollBarRef = useRef<SimpleBar | null>(null);
   const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
   const rowSelectionState = React.useMemo(() => {
     // return : 0; no row selected | 1; all row selected | 2: some rows selected
