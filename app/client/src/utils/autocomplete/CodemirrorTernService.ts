@@ -399,6 +399,8 @@ class CodeMirrorTernService {
         selectedResultType: selected.type,
         isBestMatch:
           selectedResultIndex <= AutocompleteSorter.bestMatchEndIndex,
+        isExternalLibrary: selected.origin?.startsWith("LIB/"),
+        libraryNamespace: selected.origin?.split("/")[1],
       });
 
       const hasParenthesis = selected.text.endsWith("()");
