@@ -90,6 +90,8 @@ describe("License and Billing dashboard", function () {
       cy.interceptLicenseApi({
         licenseOrigin: "SELF_SERVE",
         licenseKey: "VALIxxxxxxxxx KEY",
+        licenseStatus: "ACTIVE",
+        licenseType: "PAID",
       });
       cy.reload();
       cy.wait(2000);
@@ -155,6 +157,8 @@ describe("License and Billing dashboard", function () {
       cy.interceptLicenseApi({
         licenseOrigin: "ENTERPRISE",
         licenseKey: "VALIxxxxxxxxx KEY",
+        licenseStatus: "ACTIVE",
+        licenseType: "PAID",
       });
       cy.reload();
       cy.wait(2000);

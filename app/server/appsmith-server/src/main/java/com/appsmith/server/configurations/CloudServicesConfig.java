@@ -21,4 +21,13 @@ public class CloudServicesConfig {
     public void setBaseUrl(@Value("${appsmith.cloud_services.base_url:}") String value) {
         baseUrl = StringUtils.isEmpty(value) ? "https://cs.appsmith.com" : value;
     }
+
+    @Value("${appsmith.cloud_services.signature_base_url}")
+    String baseUrlWithSignatureVerification;
+
+    public String getBaseUrlWithSignatureVerification() {
+        return StringUtils.isEmpty(this.baseUrlWithSignatureVerification)
+                ? this.getBaseUrl()
+                : this.baseUrlWithSignatureVerification;
+    }
 }
