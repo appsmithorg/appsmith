@@ -63,7 +63,6 @@ We ❤️ our contributors. We're committed to fostering an open, welcoming, and
 
 Let's build great software together.
 
-### Top Contributors
 [![Nikhil-Nandagopal](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/3897254?v=4&w=50&h=50&mask=circle)](https://github.com/Nikhil-Nandagopal)
 [![mohanarpit](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/458946?v=4&w=50&h=50&mask=circle)](https://github.com/mohanarpit)
 [![hetunandu](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/12022471?v=4&w=50&h=50&mask=circle)](https://github.com/hetunandu)
