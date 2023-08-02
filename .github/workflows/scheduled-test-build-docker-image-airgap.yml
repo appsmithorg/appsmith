@@ -86,7 +86,7 @@ jobs:
         with:
           path: |
             ~/cypress_url
-          key: ${{ github.run_id }}-dashboard-url-${{ github.run_number }}
+          key: ${{ github.run_id }}-dashboard-url-${{ github.run_attempt }}
           restore-keys: |
             ${{ github.run_id }}-dashboard-url
 
@@ -124,6 +124,8 @@ jobs:
           SLACK_TITLE: 'Result:'
           SLACK_USERNAME: Github Scheduler
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_AIRGAP }}
+          MSG_MINIMAL: Ref,Event,Commit
+          SLACK_FOOTER: 'Appsmith scheduled runs'
 
       # Deleting the existing dir's if any
       - name: Delete existing directories
@@ -211,7 +213,7 @@ jobs:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout the head commit of the branch
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v3
 
       - name: Download the react build artifact
