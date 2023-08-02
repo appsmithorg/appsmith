@@ -670,10 +670,10 @@ export const GENERATE_PAGE_ACTION_TITLE = () => "Generate page with data";
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from data";
 
 export const GEN_CRUD_SUCCESS_MESSAGE = () =>
-  "Hurray! Your application is ready for use.";
+  "Hurray! Your application is ready.";
 export const GEN_CRUD_INFO_DIALOG_TITLE = () => "How it works?";
 export const GEN_CRUD_INFO_DIALOG_SUBTITLE = () =>
-  "CRUD page is generated from selected datasource. You can use the form to modify data. Since all your data is already connected, you can add more queries and modify the bindings";
+  "A CRUD page is generated from the database. You can use this form to modify data.";
 export const GEN_CRUD_COLUMN_HEADER_TITLE = () => "Column headers fetched";
 export const GEN_CRUD_NO_COLUMNS = () => "No columns found";
 export const GEN_CRUD_DATASOURCE_DROPDOWN_LABEL = () => "Select datasource";
@@ -1359,7 +1359,7 @@ export const LIST_WIDGET_V2_TOTAL_RECORD_TOOLTIP = () =>
 // Add datasource
 export const GENERATE_APPLICATION_TITLE = () => "Generate page";
 export const GENERATE_APPLICATION_DESCRIPTION = () =>
-  "Quickly generate a page to perform CRUD operations on your database tables";
+  "Quickly generate a CRUD page for any database table.";
 export const DELETE_WORKSPACE_SUCCESSFUL = () =>
   "Workspace deleted successfully";
 // theming
@@ -1595,10 +1595,10 @@ export const SEARCH_USERS = (
 
 export const CREATE_PAGE = () => "New blank page";
 export const CANVAS_NEW_PAGE_CARD = () => "Create new page";
-export const GENERATE_PAGE = () => "Generate page from data table";
+export const GENERATE_PAGE = () => "Generate page from a data table";
 export const GENERATE_PAGE_DESCRIPTION = () =>
-  "Start app with a simple CRUD UI and customize it";
-export const ADD_PAGE_FROM_TEMPLATE = () => "Add page from template";
+  "Build a simple CRUD UI";
+export const ADD_PAGE_FROM_TEMPLATE = () => "Add page from a template";
 export const INVALID_URL = () =>
   "Please enter a valid URL, for example, https://example.com";
 export const SAVE_OR_DISCARD_DATASOURCE_WARNING = () =>
