@@ -7,12 +7,14 @@ import {
   entityExplorer,
   deployMode,
   propPane,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Rating widet testcases", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.RATING, 450, 200);
   });
+
   it("1. Validate Max rating and Default rating", () => {
     agHelper.GetElement(RATING_WIDGET.star_icon).should("have.length", 10);
     // assert error on decimal value in max rating
@@ -90,15 +92,83 @@ describe("Rating widet testcases", () => {
       "This value does not evaluate to type Array<string>",
     );
     propPane.UpdatePropertyFieldValue("Tooltips", '["Worse","Bad","Neutral"]');
+    // deploy app and check if able to click on stars
     deployMode.DeployApp(RATING_WIDGET.ratingwidget);
     agHelper.GetNClick(RATING_WIDGET.star_icon, 12, true, 0);
     agHelper
       .GetElement(RATING_WIDGET.star_icon_filled(100))
       .should("have.length", 7);
     deployMode.NavigateBacktoEditor();
+    agHelper.GetNClick(RATING_WIDGET.ratingwidget);
   });
 
-  it("3. Read data for tooltip from query", () => {
-    cy.log("");
+  it("3. Verify readonly, disabled and visibility of rating widget", () => {
+    // update max rating and default rating for new case
+    propPane.UpdatePropertyFieldValue("Max rating", "15");
+    propPane.UpdatePropertyFieldValue("Default rating", "3");
+    // turn visible off
+    agHelper.GetNClick(RATING_WIDGET.visible);
+    deployMode.DeployApp();
+    // assert rating widget is not present - since visbible is off
+    agHelper.AssertElementAbsence(RATING_WIDGET.ratingwidget);
+    deployMode.NavigateBacktoEditor();
+    agHelper.GetNClick(RATING_WIDGET.ratingwidget);
+    // turn visible on
+    agHelper.GetNClick(RATING_WIDGET.visible);
+    // make the widget read only
+    agHelper.GetNClick(RATING_WIDGET.readonly);
+    deployMode.DeployApp();
+    agHelper.AssertElementVisible(RATING_WIDGET.ratingwidget);
+    // assert even after clicking on stars, the stars are not changed since its read only
+    agHelper.GetNClick(RATING_WIDGET.star_icon, 12, true, 0);
+    agHelper
+      .GetElement(RATING_WIDGET.star_icon_filled(100))
+      .should("have.length", 3);
+    deployMode.NavigateBacktoEditor();
+    agHelper.GetNClick(RATING_WIDGET.ratingwidget);
+    agHelper.GetNClick(RATING_WIDGET.readonly);
+  });
+
+  it("4. check events - On change rating widget", () => {
+    propPane.UpdatePropertyFieldValue("Default rating", "1");
+    // set an alert on clicking ratings
+    propPane.SelectPlatformFunction("onChange", "Show alert");
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Message"),
+      "Thanks for rating us!",
+    );
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
+    // deploy app and click on stars and assert the alert
+    deployMode.DeployApp();
+    agHelper.GetNClick(RATING_WIDGET.star_icon, 4, true, 0);
+    agHelper.AssertText(locators._toastMsg, "text", "Thanks for rating us!");
+
+    deployMode.NavigateBacktoEditor();
+    agHelper.GetNClick(RATING_WIDGET.ratingwidget);
+    // open a modal on clicking ratings
+    propPane.CreateModal("Thanks for rating us!", "onChange");
+    // deploy app and click on stars and close the modal
+    deployMode.DeployApp();
+    agHelper.GetNClick(RATING_WIDGET.star_icon, 5, true, 0);
+
+    deployMode.NavigateBacktoEditor();
+    agHelper.GetNClick(RATING_WIDGET.ratingwidget);
+    agHelper.GetNClick(locators._buttonText("Close"), 0, true, 0);
+  });
+
+  it("5. Rename, Copy Delete - rating widget", () => {
+    // rename widget from property pane
+    propPane.RenameWidget("Rating1", "RateUs");
+    // copy widget from property pane and assert copied info
+    propPane.CopyWidgetFromPropertyPane("RateUs");
+    agHelper.AssertText(locators._toastMsg, "text", "Copied RateUs");
+    // copy widget using keyboard and   assert copied info
+    entityExplorer.CopyPasteWidget("RateUs");
+    agHelper.AssertText(locators._toastMsg, "text", "Copied RateUs");
+    agHelper.AssertText(locators.ratingWidgetName, "text", "RateUsCopy1");
+    // delete both widgets
+    propPane.DeleteWidgetFromPropertyPane("RateUsCopy");
+    propPane.DeleteWidgetFromPropertyPane("RateUs");
+    agHelper.AssertElementAbsence(RATING_WIDGET.ratingwidget);
   });
 });

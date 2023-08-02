@@ -92,6 +92,8 @@ export class CommonLocators {
   _responseTab = "[data-testid=t--tab-response]";
   _modal = ".t--modal-widget";
   _closeModal = "button:contains('Close')";
+  _buttonText = (btnText: string) =>
+    "//*[contains(@class, 'bp3-button-text') and text()='" + btnText + "']";
   _entityProperties = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
     entityNameinLeftSidebar +
@@ -264,6 +266,7 @@ export class CommonLocators {
   _adsV2Text = ".ads-v2-text";
   _svg = "svg";
   _imgWidgetInsideList = `//div[@data-testid='styledImage']//img`;
+  ratingWidgetName = ".t--draggable-ratewidget .t--widget-name";
 
   public ds_editor_env_filter = (envName: string) =>
     `[data-testid="t--ds-data-filter-${envName}"]`;
