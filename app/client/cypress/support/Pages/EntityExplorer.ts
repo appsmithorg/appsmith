@@ -406,16 +406,20 @@ export class EntityExplorer {
   }
 
   public PinUnpinEntityExplorer(pin = true) {
-    this.agHelper
-      .GetElement(this._entityExplorer)
-      .invoke("attr", "class")
-      .then(($classes) => {
-        if (pin && !$classes?.includes("fixed"))
-          this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
-        else if (!pin && $classes?.includes("fixed"))
-          this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
-        else this.agHelper.Sleep(200); //do nothing
-      });
+    cy.get("body").then(($ele) => {
+      if ($ele.find(this._pinEntityExplorer).length) {
+        this.agHelper
+          .GetElement(this._entityExplorer)
+          .invoke("attr", "class")
+          .then(($classes) => {
+            if (pin && !$classes?.includes("fixed"))
+              this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
+            else if (!pin && $classes?.includes("fixed"))
+              this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
+            else this.agHelper.Sleep(200); //do nothing
+          });
+      }
+    });
   }
 
   public RenameEntityFromExplorer(
