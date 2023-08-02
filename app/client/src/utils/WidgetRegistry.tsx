@@ -240,11 +240,19 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
    */
 ];
 
-export const registerWidgets = () => {
+export const registerWidgets = (overrides: Record<string, Record<string, unknown>) => {
   const start = performance.now();
   for (const widget of ALL_WIDGETS_AND_CONFIG) {
-    registerWidget(widget[0], widget[1] as WidgetConfiguration);
+    const newWidgetConfig = widget[1]
+    const widgetConfigOverrides = overrides[newWidgetConfig.type] ?? {}
+    
+    for (const overrideKey of Object.keys(widgetConfigOverrides)) {
+      newWidgetConfig[overrideKey] = widgetConfigOverrides[overrideKey]
+    }
+
+    registerWidget(widget[0], newWidgetConfig);
   }
 
   log.debug("Widget registration took: ", performance.now() - start, "ms");
 };
+
