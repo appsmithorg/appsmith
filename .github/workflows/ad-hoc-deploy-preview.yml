@@ -12,9 +12,9 @@ on:
         description: "Flag to skip Cypress tests"
         required: true
         default: "true"
-      uid:
-        description: "Unique ID to store the run data in the db"
-        required: false
+      id:
+        description: "Document ID for the workflow entry in the MongoDB ( This gets initialized by the ops api )"
+        required: true
       sub-domain-name:
         description: "Sub-domain for dp.appsmith.com to by used by this deploy preview (This will also be the image name and the k8s namespace identifier)"
         required: true
@@ -180,7 +180,7 @@ jobs:
       - name: Update workflow completed successfully
         if: success()
         run: |
-          curl --location --request PATCH 'localhost:5000/appsmith_deploy_workflow/${{github.event.inputs.uid}}' \
+          curl --location --request PATCH 'localhost:5000/appsmith_deploy_workflow/${{github.event.inputs.id}}' \
           --header 'Content-Type: application/json' \
           --header 'Authorization: Bearer ${{secrets.INTENRAL_OPS_API_TOKEN}}' \
           --data ' {
@@ -189,7 +189,7 @@ jobs:
       - name: Update workflow failure
         if: failure()
         run: |
-          curl --location --request PATCH 'localhost:5000/appsmith_deploy_workflow/${{github.event.inputs.uid}}' \
+          curl --location --request PATCH 'localhost:5000/appsmith_deploy_workflow/${{github.event.inputs.id}}' \
           --header 'Content-Type: application/json' \
           --header 'Authorization: Bearer ${{secrets.INTENRAL_OPS_API_TOKEN}}' \
           --data ' {
