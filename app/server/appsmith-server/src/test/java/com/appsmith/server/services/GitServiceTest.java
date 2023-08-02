@@ -45,6 +45,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -60,6 +61,7 @@ import org.assertj.core.api.Assertions;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
+import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -144,6 +146,9 @@ public class GitServiceTest {
     ApplicationService applicationService;
 
     @Autowired
+    ApplicationRepository applicationRepository;
+
+    @Autowired
     LayoutCollectionService layoutCollectionService;
 
     @Autowired
@@ -216,7 +221,7 @@ public class GitServiceTest {
         }
 
         gitConnectedApplication = createApplicationConnectedToGit("gitConnectedApplication", DEFAULT_BRANCH);
-
+        // applicationPermission = new ApplicationPermissionImpl();
         testUserProfile.setAuthorEmail("test@email.com");
         testUserProfile.setAuthorName("testUser");
         isSetupDone = true;
@@ -4091,6 +4096,76 @@ public class GitServiceTest {
 
         StepVerifier.create(gitService.getApplicationCountWithPrivateRepo(localWorkspaceId))
                 .assertNext(limit -> assertThat(limit).isEqualTo(3))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getUncommittedChanges_WhenApplicationLastUpdateAfterLastCommit_IsCleanFalse()
+            throws GitAPIException, IOException {
+        String randomId = UUID.randomUUID().toString();
+        String appname = "test-app-" + randomId, branch = "test-branch";
+        Application application = createApplicationConnectedToGit(appname, branch);
+
+        // create a new page to the app so that the last updated time is updated
+        PageDTO page = new PageDTO();
+        page.setName("Page" + randomId);
+        page.setApplicationId(application.getId());
+        applicationPageService.createPage(page).block();
+        // update the last edited time to avoid the buffer time calculation in GitSevice.getUncommittedChanges
+        application.setLastEditedAt(application.getLastEditedAt().plusSeconds(6));
+        applicationRepository.save(application).block();
+
+        StepVerifier.create(gitService.getUncommittedChanges(application.getId(), branch))
+                .assertNext(uncommittedChangesDTO -> {
+                    assertThat(uncommittedChangesDTO.isClean()).isFalse();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getUncommittedChanges_WhenApplicationNotUpdateAfterLastCommit_IsCleanTrue()
+            throws GitAPIException, IOException {
+        String randomId = UUID.randomUUID().toString();
+        String appname = "test-app-" + randomId, branch = "test-branch";
+        Application application = createApplicationConnectedToGit(appname, branch);
+        // application.setLastEditedAt(application.getGitApplicationMetadata().getLastCommittedAt().);
+        StepVerifier.create(gitService.getUncommittedChanges(application.getId(), branch))
+                .assertNext(uncommittedChangesDTO -> {
+                    assertThat(uncommittedChangesDTO.isClean()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void compareWithRemote_WhenSuccessful_ReturnsResponse() throws GitAPIException, IOException {
+        String randomId = UUID.randomUUID().toString();
+        String appname = "test-app-" + randomId, branch = "test-branch";
+        Application application = createApplicationConnectedToGit(appname, branch);
+        GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+        GitAuth gitAuth = gitData.getGitAuth();
+        Path repoSuffix =
+                Paths.get(application.getWorkspaceId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
+        Path repoPath = Paths.get("test", "git", "root", repoSuffix.toString());
+
+        BranchTrackingStatus branchTrackingStatus = Mockito.mock(BranchTrackingStatus.class);
+        Mockito.when(branchTrackingStatus.getAheadCount()).thenReturn(1);
+        Mockito.when(branchTrackingStatus.getBehindCount()).thenReturn(2);
+
+        Mockito.when(gitExecutor.createRepoPath(repoSuffix)).thenReturn(repoPath);
+        Mockito.when(gitExecutor.checkoutToBranch(repoSuffix, branch)).thenReturn(Mono.just(true));
+        Mockito.when(gitExecutor.fetchRemote(
+                        repoPath, gitAuth.getPublicKey(), gitAuth.getPrivateKey(), true, branch, false))
+                .thenReturn(Mono.just("success"));
+        Mockito.when(gitExecutor.getBranchTrackingStatus(repoPath, branch)).thenReturn(Mono.just(branchTrackingStatus));
+
+        StepVerifier.create(gitService.compareWithRemote(gitData.getDefaultApplicationId(), branch, false))
+                .assertNext(response -> {
+                    assertThat(response.getAheadCount()).isEqualTo(1);
+                    assertThat(response.getBehindCount()).isEqualTo(2);
+                })
                 .verifyComplete();
     }
 }

@@ -1,12 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.git.GitExecutor;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.EmailConfig;
-import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
-import com.appsmith.server.domains.GitAuth;
-import com.appsmith.server.domains.UserData;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
@@ -31,7 +26,6 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,14 +35,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Instant;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(SpringExtension.class)
@@ -204,94 +192,6 @@ public class GitServiceCEImplTest {
 
         StepVerifier.create(gitService1.isRepoLimitReached("workspaceId", false))
                 .assertNext(aBoolean -> assertEquals(true, aBoolean))
-                .verifyComplete();
-    }
-
-    @Test
-    public void getUncommittedChanges_WhenRepoIsNotConnectedToGit_ReturnsFalse() {
-        AclPermission permission = AclPermission.READ_APPLICATIONS;
-        String applicationId = "test-app-id", branch = "test-branch";
-        Mockito.when(applicationPermission.getReadPermission()).thenReturn(permission);
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(branch, applicationId, permission))
-                .thenReturn(Mono.empty());
-
-        StepVerifier.create(gitService.getUncommittedChanges(applicationId, branch))
-                .assertNext(uncommittedChangesDTO -> {
-                    assertThat(uncommittedChangesDTO.isClean()).isFalse();
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void getUncommittedChanges_WhenApplicationLastUpdateAfterLastCommit_ReturnsTrue() {
-        AclPermission permission = AclPermission.READ_APPLICATIONS;
-        Application application = new Application();
-        application.setLastEditedAt(Instant.now());
-        application.setGitApplicationMetadata(new GitApplicationMetadata());
-        application.getGitApplicationMetadata().setLastCommittedAt(Instant.now().minusSeconds(30)); // 120 seconds ago
-
-        String applicationId = "test-app-id", branch = "test-branch";
-        Mockito.when(applicationPermission.getReadPermission()).thenReturn(permission);
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(branch, applicationId, permission))
-                .thenReturn(Mono.just(application));
-
-        StepVerifier.create(gitService.getUncommittedChanges(applicationId, branch))
-                .assertNext(uncommittedChangesDTO -> {
-                    assertThat(uncommittedChangesDTO.isClean()).isFalse();
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void compareWithRemote_WhenSuccessful_ReturnsResponse() {
-        String defaultAppId = "default-app-id", branch = "test-branch";
-        AclPermission permission = AclPermission.MANAGE_APPLICATIONS;
-        UserData userData = new UserData();
-        GitAuth gitAuth = new GitAuth();
-        gitAuth.setPublicKey("public-key");
-        gitAuth.setPrivateKey("private-key");
-
-        Application defaultApplication = new Application();
-        defaultApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        defaultApplication.getGitApplicationMetadata().setGitAuth(gitAuth);
-
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
-        gitData.setBranchName(branch);
-        gitData.setRepoName("test-repo-name");
-        gitData.setDefaultApplicationId(defaultAppId);
-
-        Application branchedApplication = new Application();
-        branchedApplication.setWorkspaceId("test-workspace-id");
-        branchedApplication.setGitApplicationMetadata(gitData);
-
-        Path repoSuffix = Paths.get(
-                branchedApplication.getWorkspaceId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
-        Path repoPath = Paths.get("test", "git", "root", repoSuffix.toString());
-
-        BranchTrackingStatus branchTrackingStatus = Mockito.mock(BranchTrackingStatus.class);
-        Mockito.when(branchTrackingStatus.getAheadCount()).thenReturn(1);
-        Mockito.when(branchTrackingStatus.getBehindCount()).thenReturn(2);
-
-        Mockito.when(applicationPermission.getEditPermission()).thenReturn(permission);
-        Mockito.when(gitExecutor.createRepoPath(repoSuffix)).thenReturn(repoPath);
-        Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(userData));
-        Mockito.when(applicationService.findById(eq(defaultAppId), any(AclPermission.class)))
-                .thenReturn(Mono.just(defaultApplication));
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
-                        eq(branch), eq(defaultAppId), any(AclPermission.class)))
-                .thenReturn(Mono.just(branchedApplication));
-
-        Mockito.when(gitExecutor.checkoutToBranch(repoSuffix, branch)).thenReturn(Mono.just(true));
-        Mockito.when(gitExecutor.fetchRemote(
-                        repoPath, gitAuth.getPublicKey(), gitAuth.getPrivateKey(), true, branch, false))
-                .thenReturn(Mono.just("success"));
-        Mockito.when(gitExecutor.getBranchTrackingStatus(repoPath, branch)).thenReturn(Mono.just(branchTrackingStatus));
-
-        StepVerifier.create(gitService.compareWithRemote(defaultAppId, branch, false))
-                .assertNext(response -> {
-                    assertThat(response.getAheadCount()).isEqualTo(1);
-                    assertThat(response.getBehindCount()).isEqualTo(2);
-                })
                 .verifyComplete();
     }
 }

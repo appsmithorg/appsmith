@@ -3161,7 +3161,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .findByBranchNameAndDefaultApplicationId(
                         branchName, defaultApplicationId, applicationPermission.getReadPermission())
                 .map(application -> {
-                    Instant lastUpdateAt = application.getLastEditedAt();
+                    // after a commit, we update the application to set the last commit date
+                    // this will also update the application's last edited date
+                    // adding a 5 second buffer to account for the time taken to update the application
+                    Instant lastUpdateAt = application.getLastEditedAt().minusSeconds(5);
                     Instant lastCommittedAt =
                             application.getGitApplicationMetadata().getLastCommittedAt();
                     return lastCommittedAt != null && !lastUpdateAt.isAfter(lastCommittedAt);
