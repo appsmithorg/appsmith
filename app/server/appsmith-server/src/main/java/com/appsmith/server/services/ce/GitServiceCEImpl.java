@@ -1935,7 +1935,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     if (Boolean.TRUE.equals(isFileLock)) {
                         // Add file lock to avoid sending wrong info on the status
                         return redisUtils
-                                .addFileLock(gitApplicationMetadata.getDefaultApplicationId())
+                                addFileLock(gitApplicationMetadata.getDefaultApplicationId())
                                 .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY)
                                         .jitter(0.75)
                                         .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
