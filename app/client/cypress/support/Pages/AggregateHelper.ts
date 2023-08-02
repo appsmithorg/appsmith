@@ -786,7 +786,7 @@ export class AggregateHelper extends ReusableHelper {
 
   public GetNClickByContains(
     selector: string,
-    containsText: string,
+    containsText: string | RegExp,
     index = 0,
     force = true,
     waitTimeInterval = 500,
@@ -1073,6 +1073,7 @@ export class AggregateHelper extends ReusableHelper {
         input.focus();
         this.Sleep(200);
         input.setValue(value);
+        input.execCommand("goLineEnd");
         this.Sleep(200);
       });
     this.Sleep(500); //for value set to settle
