@@ -76,7 +76,6 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
   border-width: 0;
   border-style: solid;
   font-family: inherit;
-  overflow: hidden;
 
   ${buttonStyles}
 
@@ -96,8 +95,8 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
     justify-content: center;
     align-items: center;
     padding: var(--spacing-2) var(--spacing-4);
-    min-inline-size: var(--sizing-8);
     block-size: var(--sizing-8);
+    inline-size: max(var(--sizing-8), 100%);
   }
 
   &[data-icon-position="start"] {
@@ -168,6 +167,7 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
     justify-content: center;
     align-items: center;
     background-color: inherit;
+    border-radius: inherit;
   }
 `;
 
