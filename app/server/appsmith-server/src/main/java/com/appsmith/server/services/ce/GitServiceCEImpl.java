@@ -2659,7 +2659,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             branchedApplication.getWorkspaceId(),
                                             applicationJson,
                                             branchedApplication.getId(),
-                                            branchName));
+                                            branchName))
+                            // Update the last deployed status after the rebase
+                            .flatMap(application -> publishAndOrGetApplication(application.getId(), true));
                 })
                 .flatMap(application -> releaseFileLock(defaultApplicationId)
                         .then(this.addAnalyticsForGitOperation(
