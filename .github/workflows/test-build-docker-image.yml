@@ -20,7 +20,6 @@ jobs:
     secrets: inherit
     with:
       pr: 0
-      skip-tests: true
 
   client-build:
     name: client-build
@@ -137,8 +136,7 @@ jobs:
           fi
 
   package:
-    #needs: ci-test
-    needs: [build-docker-image]
+    needs: ci-test
     runs-on: ubuntu-latest
     # Set permissions since we're using OIDC token authentication between Depot and GitHub
     permissions:
