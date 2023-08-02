@@ -69,7 +69,7 @@ const FormAuth: AdminConfigType = {
       },
     },
     {
-      id: "APPSMITH_FORM_CALLOUT_BANNER",
+      id: "APPSMITH_FORM_DISABLED_BANNER",
       category: SettingCategories.FORM_AUTH,
       controlType: SettingTypes.LINK,
       label:
@@ -77,6 +77,15 @@ const FormAuth: AdminConfigType = {
       url: EMAIL_SETUP_DOC,
       calloutType: "warning",
       isVisible: () => !mailEnabled,
+    },
+    {
+      id: "APPSMITH_FORM_CALLOUT_BANNER",
+      category: SettingCategories.FORM_AUTH,
+      controlType: SettingTypes.LINK,
+      label:
+        "Please ensure that your SMTP settings are correctly configured to ensure that the verification emails can be delivered",
+      calloutType: "warning",
+      isVisible: () => mailEnabled,
     },
   ],
 };

@@ -67,7 +67,7 @@ const VerifyUser = (
       });
   }, [token, email]);
 
-  const resendVerificationLink = useResendEmailVerification(email);
+  const [resendVerificationLink, enabled] = useResendEmailVerification(email);
 
   if (loading) {
     return (
@@ -88,7 +88,9 @@ const VerifyUser = (
           </Callout>
         </Body>
         <Body>
-          <Button onClick={resendVerificationLink}>Send new link</Button>
+          <Button isDisabled={!enabled} onClick={resendVerificationLink}>
+            Send new link
+          </Button>
         </Body>
       </Container>
     );
