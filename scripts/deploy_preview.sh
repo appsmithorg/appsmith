@@ -68,7 +68,7 @@ helm upgrade -i $CHARTNAME appsmith/appsmith -n $NAMESPACE \
   --set image.pullSecrets=$SECRET --set redis.enabled=false --set mongodb.enabled=false --set ingress.enabled=true \
   --set "ingress.annotations.service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert=$AWS_RELEASE_CERT" \
   --set "ingress.hosts[0].host=$DOMAINNAME, ingress.hosts[0].paths[0].path=/, ingress.hosts[0].paths[0].pathType=Prefix" \
-  --set ingress.className="nginx" --set applicationConfig.APPSMITH_CLOUD_SERVICES_BASE_URL="https://release-cs.appsmith.com" \
+  --set ingress.className="nginx" \
   --set image.pullPolicy="Always" --set autoupdate.enabled="true" --set persistence.size=2Gi \
   --set applicationConfig.APPSMITH_SENTRY_DSN="https://abf15a075d1347969df44c746cca7eaa@o296332.ingest.sentry.io/1546547" \
   --set applicationConfig.APPSMITH_SENTRY_ENVIRONMENT="$NAMESPACE" \
