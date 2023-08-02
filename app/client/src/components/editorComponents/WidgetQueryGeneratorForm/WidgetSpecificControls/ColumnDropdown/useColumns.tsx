@@ -97,6 +97,22 @@ export function useColumns(alias: string) {
     }
   }, [columns, sheetColumns, config, selectedDatasourcePluginPackageName]);
 
+  const prepareColumns = (type: string) => {
+    switch (type) {
+      case "int4":
+      case "int2":
+        return "number";
+      case "varchar":
+      case "text":
+        return "string";
+      case "date":
+      case "timestamptz":
+        return "date";
+      default:
+        return "string";
+    }
+  };
+
   const columnList = useMemo(() => {
     if (
       selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
@@ -106,13 +122,15 @@ export function useColumns(alias: string) {
         return {
           name: column.value,
           type: "string",
+          isSelected: true,
         };
       });
     } else if (isArray(columns)) {
       return columns.map((column: any) => {
         return {
           name: column.name,
-          type: column.type,
+          type: prepareColumns(column.type),
+          isSelected: true,
         };
       });
     } else {

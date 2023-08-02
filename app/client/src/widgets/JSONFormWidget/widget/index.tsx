@@ -20,7 +20,7 @@ import {
 } from "./helper";
 import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
-import { convertSchemaItemToFormData } from "../helper";
+import { convertSchemaItemToFormData, getDefaultValues } from "../helper";
 import type {
   ButtonStyles,
   ChildStylesheet,
@@ -35,6 +35,7 @@ import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
+import { RenderModes } from "constants/WidgetConstants";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -147,23 +148,7 @@ class JSONFormWidget extends BaseWidget<
 
     if (queryConfig.create) {
       modify = {
-        sourceData: formConfig.columns.reduce((obj: any, curr: any) => {
-          obj[curr.name] = (() => {
-            switch (curr.type) {
-              case "int4":
-              case "int2":
-                return 1;
-              case "varchar":
-              case "text":
-                return "";
-              case "date":
-                return "01/01/1970";
-              default:
-                return "";
-            }
-          })();
-          return obj;
-        }, {}),
+        sourceData: getDefaultValues(formConfig),
         onSubmit: queryConfig.create.run,
       };
     }
@@ -606,6 +591,7 @@ class JSONFormWidget extends BaseWidget<
         getFormData={this.getFormData}
         isSubmitting={this.state.isSubmitting}
         isWidgetMounting={this.isWidgetMounting}
+        onConnectData={this.onConnectData}
         onFormValidityUpdate={this.onFormValidityUpdate}
         onSubmit={this.onSubmit}
         ref={this.formRef}
@@ -616,6 +602,11 @@ class JSONFormWidget extends BaseWidget<
         schema={this.props.schema}
         scrollContents={this.props.scrollContents}
         setMetaInternalFieldState={this.setMetaInternalFieldState}
+        showConnectDataOverlay={
+          this.props.sourceData &&
+          !Object.keys(this.props.sourceData).length &&
+          this.props.renderMode === RenderModes.CANVAS
+        }
         showReset={this.props.showReset}
         submitButtonLabel={this.props.submitButtonLabel}
         submitButtonStyles={this.props.submitButtonStyles}
@@ -632,6 +623,12 @@ class JSONFormWidget extends BaseWidget<
   static getWidgetType(): string {
     return "JSON_FORM_WIDGET";
   }
+
+  onConnectData = () => {
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      super.updateOneClickBindingOptionsVisibility(true);
+    }
+  };
 }
 
 export default JSONFormWidget;

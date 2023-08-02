@@ -360,3 +360,21 @@ export const countFields = (
 export const isEmpty = (value?: string | null): value is null | undefined => {
   return value === "" || isNil(value);
 };
+
+export const getDefaultValues = (formConfig: any) => {
+  const typeMappings: Record<string, unknown> = {
+    number: 1,
+    string: "",
+    date: new Date("1970-01-01"),
+  };
+
+  const convertedObject: Record<string, unknown> = formConfig.columns.reduce(
+    (obj: any, curr: any) => {
+      obj[curr.name] = typeMappings[curr.type];
+      return obj;
+    },
+    {},
+  );
+
+  return convertedObject;
+};

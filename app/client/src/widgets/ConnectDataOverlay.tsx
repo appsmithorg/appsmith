@@ -24,6 +24,9 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 10px;
+  height: 100%;
+  justify-content: center;
+  backdrop-filter: blur(1px);
 `;
 
 const Header = styled.div`

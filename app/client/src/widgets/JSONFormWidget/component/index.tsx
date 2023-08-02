@@ -15,6 +15,7 @@ import type { RenderMode } from "constants/WidgetConstants";
 import { RenderModes, TEXT_SIZES } from "constants/WidgetConstants";
 import type { Action, JSONFormWidgetState } from "../widget";
 import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
+import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
 
 type StyledContainerProps = {
   backgroundColor?: string;
@@ -35,6 +36,7 @@ export type JSONFormComponentProps<TValues = any> = {
   fixMessageHeight: boolean;
   isWidgetMounting: boolean;
   isSubmitting: boolean;
+  onConnectData: () => void;
   onFormValidityUpdate: (isValid: boolean) => void;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   registerResetObserver: (callback: () => void) => void;
@@ -55,6 +57,7 @@ export type JSONFormComponentProps<TValues = any> = {
   updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
   updateWidgetProperty: (propertyName: string, propertyValue: any) => void;
   widgetId: string;
+  showConnectDataOverlay?: boolean;
 };
 
 const StyledContainer = styled(WidgetStyleContainer)<StyledContainerProps>`
@@ -110,12 +113,14 @@ function JSONFormComponent<TValues>(
     getFormData,
     isSubmitting,
     isWidgetMounting,
+    onConnectData,
     onFormValidityUpdate,
     registerResetObserver,
     renderMode,
     resetButtonLabel,
     schema,
     setMetaInternalFieldState,
+    showConnectDataOverlay,
     submitButtonLabel,
     unregisterResetObserver,
     updateFormData,
@@ -188,6 +193,9 @@ function JSONFormComponent<TValues>(
       updateWidgetProperty={updateWidgetProperty}
     >
       <StyledContainer backgroundColor={backgroundColor} {...styleProps}>
+        {showConnectDataOverlay && (
+          <ConnectDataOverlay onConnectData={onConnectData} />
+        )}
         <Form
           backgroundColor={backgroundColor}
           disabledWhenInvalid={rest.disabledWhenInvalid}

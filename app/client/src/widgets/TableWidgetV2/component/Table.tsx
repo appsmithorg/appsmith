@@ -38,7 +38,7 @@ import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
 import StaticTable from "./StaticTable";
 import VirtualTable from "./VirtualTable";
 import fastdom from "fastdom";
-import { ConnectDataOverlay } from "./ConnectDataOverlay";
+import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
 
 const SCROLL_BAR_OFFSET = 2;
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
@@ -329,7 +329,6 @@ export function Table(props: TableProps) {
         borderRadius={props.borderRadius}
         borderWidth={props.borderWidth}
         boxShadow={props.boxShadow}
-        className={showConnectDataOverlay ? "blur" : ""}
         height={props.height}
         id={`table${props.widgetId}`}
         isAddRowInProgress={props.isAddRowInProgress}
