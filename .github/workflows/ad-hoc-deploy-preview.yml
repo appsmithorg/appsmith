@@ -26,7 +26,7 @@ jobs:
         run: |
           curl --location --request PATCH 'https://ops.appsmith.com/appsmith_deploy_workflow/${{github.event.inputs.uid}}' \
           --header 'Content-Type: application/json' \
-          --header 'Authorization: Bearer ${{secrets.INTENRAL_OPS_API_TOKEN}}' \
+          --oauth2-bearer '${{secrets.INTENRAL_OPS_API_TOKEN}}' \
           --data ' {
                   "status": "IN_PROGRESS",
                   "githubWorkflowId": ${{github.workflow.id}},
