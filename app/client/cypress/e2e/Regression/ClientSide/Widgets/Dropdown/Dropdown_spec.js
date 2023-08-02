@@ -17,7 +17,7 @@ describe("Dropdown Widget Functionality", function () {
 
   it("should check that empty value is allowed in options", () => {
     cy.openPropertyPane("selectwidget");
-    propPane.ToggleJSMode("sourcedata");
+    _.propPane.ToggleJSMode("sourcedata");
     cy.updateCodeInput(
       ".t--property-control-sourcedata",
       `[

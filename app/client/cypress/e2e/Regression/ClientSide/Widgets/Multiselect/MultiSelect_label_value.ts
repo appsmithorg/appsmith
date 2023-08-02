@@ -20,6 +20,8 @@ describe("Select Widget Functionality", function () {
     );
     _.agHelper.AssertElementExist(".t--widget-multiselectwidgetv2");
 
+    _.propPane.ToggleJSMode("sourcedata");
+
     _.propPane.UpdatePropertyFieldValue(
       "Source Data",
       `[
