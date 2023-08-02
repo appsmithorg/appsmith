@@ -22,7 +22,6 @@ on:
     branches: [release, master]
     paths:
       - "app/server/**"
-
 # Change the working directory for all the jobs in this workflow
 defaults:
   run:
