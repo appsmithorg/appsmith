@@ -783,15 +783,8 @@ export class Table {
     });
   }
 
-  public NavigateToSpecificPage(pageNumber: number) {
-    this.agHelper.GetNClick(`${this.locator._paginationItem(pageNumber)}`);
-    this.agHelper
-      .GetText(this.locator._listActivePage, "text")
-      .then(($newPageNo) => expect(Number($newPageNo)).to.eq(pageNumber));
-  }
-
   //This method is used to navigate forward using ">" button and backward "<"
-  public NavigateToPageUsingButton(movement: string, pageNumber: number) {
+  public NavigateToPageUsingButtonFrList(movement: string, pageNumber: number) {
     this.agHelper.GetNClick(this._listNavigation(movement), 0, true);
     this.agHelper.Sleep(2000);
     this.agHelper
