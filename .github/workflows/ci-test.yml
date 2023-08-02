@@ -525,7 +525,7 @@ jobs:
         with:
           path: |
             ~/cypress_url
-          key: ${{ github.run_id }}-dashboard-url-${{ github.run_number }}
+          key: ${{ github.run_id }}-dashboard-url-${{ github.run_attempt }}
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
