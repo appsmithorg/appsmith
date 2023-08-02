@@ -3,16 +3,19 @@ export class CommonLocators {
   _inputField = "input";
   _canvasViewport = "#canvas-viewport";
   _emptyPageTxt = ".bp3-heading";
-  _chevronUp = ".bp3-icon-chevron-up";
+  _chevronUp = "span[contains(@class, 'bp3-icon-chevron-up')]";
+  _chevronDown = "span[contains(@class, 'bp3-icon-chevron-down')]";
   _loading = "#loading";
   _animationSpnner = ".bp3-spinner-animation";
   _btnSpinner = ".ads-v2-spinner";
   _sidebar = ".t--sidebar";
   _queryName = ".t--action-name-edit-field span";
   _queryNameTxt = ".t--action-name-edit-field input";
+  _editIcon = ".t--action-name-edit-icon";
   _emptyCanvasCta = "[data-testid='canvas-ctas']";
   _dsName = ".t--edit-datasource-name span";
   _dsNameTxt = ".t--edit-datasource-name input";
+  _tableRecordsContainer = ".show-page-items";
   _widgetName = (widgetName: string) =>
     ".editable-text-container:contains('" +
     widgetName +
@@ -44,6 +47,7 @@ export class CommonLocators {
       uiName,
     )}`;
   _textWidget = ".t--draggable-textwidget .t--text-widget-container span";
+  _tableWidget = ".t--widget-tablewidgetv2";
   _inputWidget = ".t--draggable-inputwidgetv2 input";
   _publishButton = ".t--application-publish-btn";
   _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`;
@@ -251,11 +255,17 @@ export class CommonLocators {
   _appThemeCard = ".t--theme-card";
   _appNavigationSettings = "#t--navigation-settings-header";
   _appNavigationSettingsShowTitle = "#t--navigation-settings-application-title";
-  _switchGroupControl =
-    ".t--draggable-switchgroupwidget .bp3-control-indicator";
   _fontSelect = "fontsize .rc-select";
   _fontInput = "fontsize input";
   _pagination = ".rc-pagination";
   _controlOption = ".t--property-control-options";
   _canvasBody = "[data-testid='div-selection-0']";
+  _adsV2Content = ".ads-v2__content";
+  _adsV2CollapsibleHeader = ".ads-v2-collapsible__header";
+  _adsV2Text = ".ads-v2-text";
+  _svg = "svg";
+  _imgWidgetInsideList = `//div[@data-testid='styledImage']//img`;
+
+  public ds_editor_env_filter = (envName: string) =>
+    `[data-testid="t--ds-data-filter-${envName}"]`;
 }

@@ -133,6 +133,7 @@ export function useColumns(alias: string) {
           propertyName: propertyName,
           pluginType: config.datasourcePluginType,
           pluginName: config.datasourcePluginName,
+          connectionMode: config.datasourceConnectionMode,
         });
       }
     },

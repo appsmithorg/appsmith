@@ -11,8 +11,7 @@ let ee = ObjectsRegistry.EntityExplorer,
 
 describe("Entity explorer API pane related testcases", function () {
   it("1. Empty Message validation for Widgets/API/Queries", function () {
-    homePage.NavigateToHome();
-    homePage.CreateNewWorkspace("EmptyMsgCheck");
+    homePage.CreateNewWorkspace("EmptyMsgCheck", true);
     homePage.CreateAppInWorkspace("EmptyMsgCheck");
     ee.ExpandCollapseEntity("Widgets");
     agHelper.AssertElementVisible(

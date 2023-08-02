@@ -9,6 +9,7 @@ import type {
   DatasourceTable,
 } from "entities/Datasource";
 import type { ReactElement } from "react";
+import { useContext } from "react";
 import React, { memo, useEffect, useMemo, useState } from "react";
 import EntityPlaceholder from "../Entity/Placeholder";
 import DatasourceStructure from "./DatasourceStructure";
@@ -20,6 +21,11 @@ import type { AppState } from "@appsmith/reducers";
 import DatasourceStructureLoadingContainer from "./DatasourceStructureLoadingContainer";
 import DatasourceStructureNotFound from "./DatasourceStructureNotFound";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { PluginName } from "entities/Action";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { setFeatureWalkthroughShown } from "utils/storage";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { SCHEMA_SECTION_ID } from "entities/Action";
 
 type Props = {
   datasourceId: string;
@@ -36,6 +42,19 @@ export enum DatasourceStructureContext {
   // this does not exist yet, but in case it does in the future.
   API_EDITOR = "api-editor",
 }
+
+// leaving out DynamoDB and Firestore because they have a schema but not templates
+export const SCHEMALESS_PLUGINS: Array<string> = [
+  PluginName.SMTP,
+  PluginName.TWILIO,
+  PluginName.HUBSPOT,
+  PluginName.ELASTIC_SEARCH,
+  PluginName.AIRTABLE,
+  PluginName.GRAPHQL,
+  PluginName.REST_API,
+  PluginName.REDIS,
+  PluginName.GOOGLE_SHEETS,
+];
 
 const DatasourceStructureSearchContainer = styled.div`
   margin-bottom: 8px;
@@ -56,6 +75,35 @@ const Container = (props: Props) => {
     DatasourceStructureType | undefined
   >(props.datasourceStructure);
   const [hasSearchedOccured, setHasSearchedOccured] = useState(false);
+
+  const { isOpened: isWalkthroughOpened, popFeature } =
+    useContext(WalkthroughContext) || {};
+
+  const attachCloseWalkthrough =
+    props.context !== DatasourceStructureContext.EXPLORER &&
+    isWalkthroughOpened &&
+    !isLoading &&
+    !props.datasourceStructure?.tables?.length;
+
+  const closeWalkthrough = () => {
+    popFeature && popFeature("DATASOURCE_SCHEMA_CONTAINER");
+    setFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
+      true,
+    );
+  };
+
+  useEffect(() => {
+    const schemaContainer = document.querySelector(`#${SCHEMA_SECTION_ID}`);
+    if (schemaContainer && attachCloseWalkthrough) {
+      schemaContainer.addEventListener("click", closeWalkthrough);
+    }
+    return () => {
+      if (schemaContainer && attachCloseWalkthrough) {
+        schemaContainer.removeEventListener("click", closeWalkthrough);
+      }
+    };
+  }, [attachCloseWalkthrough]);
 
   useEffect(() => {
     if (datasourceStructure !== props.datasourceStructure) {

@@ -44,7 +44,10 @@ const verifyDefaultItem = () => {
 };
 
 function setUpDataSource() {
-  _.apiPage.CreateAndFillApi(_.tedTestConfig.mockApiUrl + "0");
+  _.apiPage.CreateAndFillApi(
+    _.tedTestConfig.dsValues[_.tedTestConfig.defaultEnviorment].mockApiUrl +
+      "0",
+  );
   cy.RunAPI();
   _.entityExplorer.SelectEntityByName("List1");
   cy.wait(200);

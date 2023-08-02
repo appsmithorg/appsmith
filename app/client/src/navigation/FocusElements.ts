@@ -29,8 +29,8 @@ import {
 } from "selectors/editorContextSelectors";
 import {
   getAllDatasourceCollapsibleState,
+  getDsViewModeValues,
   getSelectedWidgets,
-  isDatasourceInViewMode,
 } from "selectors/ui";
 
 import {
@@ -173,9 +173,9 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   [FocusEntity.DATASOURCE]: [
     {
       name: FocusElement.DatasourceViewMode,
-      selector: isDatasourceInViewMode,
+      selector: getDsViewModeValues,
       setter: setDatasourceViewMode,
-      defaultValue: true,
+      defaultValue: { datasourceId: "", viewMode: true },
     },
     {
       name: FocusElement.DatasourceAccordions,

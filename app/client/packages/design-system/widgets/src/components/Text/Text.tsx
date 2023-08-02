@@ -1,14 +1,34 @@
-import type { Ref } from "react";
+import { getTypographyClassName } from "@design-system/theming";
 import React, { forwardRef } from "react";
 import { StyledText } from "./index.styled";
-import { useThemeContext } from "@design-system/theming";
-import type { TypographyVariant, TypographyType } from "@design-system/theming";
+import classNames from "classnames";
+
+import type { Ref } from "react";
+import type {
+  TypographyVariant,
+  TypographyColor,
+} from "@design-system/theming";
 
 export interface TextProps {
-  variant?: TypographyVariant;
-  type?: TypographyType;
+  /** variant of the text
+   * @default body
+   */
+  variant?: keyof typeof TypographyVariant;
+  /** color of the text
+   * @default default — sets inherit via CSS;
+   */
+  color?: keyof typeof TypographyColor;
+  /** sets the weight (or boldness) of the font
+   * @default false
+   */
   isBold?: boolean;
+  /** sets the weight (or boldness) of the font
+   * @default false
+   */
   isItalic?: boolean;
+  /** Sets a font that is classified as italic.
+   * @default false
+   */
   textAlign?: "left" | "center" | "right";
   lineClamp?: number;
   className?: string;
@@ -20,28 +40,25 @@ export const Text = forwardRef(
     const {
       children,
       className,
+      color = "default",
       isBold = false,
       isItalic = false,
       lineClamp,
       textAlign = "left",
-      type = "default",
       variant = "body",
       ...rest
     } = props;
 
-    const theme = useThemeContext();
-
     return (
       <StyledText
-        className={className}
-        isBold={isBold}
-        isItalic={isItalic}
-        lineClamp={lineClamp}
+        $isBold={isBold}
+        $isItalic={isItalic}
+        $lineClamp={lineClamp}
+        $textAlign={textAlign}
+        $variant={variant}
+        className={classNames(className, getTypographyClassName(variant))}
+        color={color}
         ref={ref}
-        textAlign={textAlign}
-        type={type}
-        typography={theme?.typography}
-        variant={variant}
         {...rest}
       >
         <span>{children}</span>

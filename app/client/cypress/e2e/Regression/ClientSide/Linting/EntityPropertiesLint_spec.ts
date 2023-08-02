@@ -19,7 +19,9 @@ describe("Linting of entity properties", () => {
   it("1. Shows correct lint error when wrong Api property is binded", () => {
     const invalidProperty = "unknownProperty";
     // create Api1
-    apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl);
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+    );
     // Edit Button onclick property
     entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(

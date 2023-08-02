@@ -42,4 +42,6 @@ public interface DatasourceStorageServiceCE {
     DatasourceStorageDTO getDatasourceStorageDTOFromDatasource(Datasource datasource, String environmentId);
 
     DatasourceStorage getDatasourceStorageFromDatasource(Datasource datasource, String environmentId);
+
+    Mono<String> getEnvironmentNameFromEnvironmentIdForAnalytics(String environmentId);
 }

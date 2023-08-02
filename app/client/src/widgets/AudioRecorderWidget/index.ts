@@ -1,13 +1,14 @@
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
-
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Audio Recorder",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.EXTERNAL],
   needsMeta: true,
   searchTags: ["sound recorder", "voice recorder"],
   defaults: {

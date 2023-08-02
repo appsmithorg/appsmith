@@ -16,7 +16,10 @@ describe("Test curl import flow", function () {
     cy.NavigateToApiEditor();
     dataSources.NavigateToDSCreateNew();
     cy.get(ApiEditor.curlImage).click({ force: true });
-    cy.get("textarea").type("curl -X GET " + tedTestConfig.mockApiUrl);
+    cy.get("textarea").type(
+      "curl -X GET " +
+        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+    );
     cy.importCurl();
     cy.get("@curlImport").then((response) => {
       expect(response.response.body.responseMeta.success).to.eq(true);

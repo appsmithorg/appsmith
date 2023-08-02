@@ -12,11 +12,13 @@ describe("Create a query with a empty datasource, run, save the query", function
   it("1. Create a empty datasource", function () {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("PostgreSQL");
+    cy.get(dataSources._databaseName).type("admin1");
     dataSources.SaveDatasource();
 
     //Create a query for empty/incorrect datasource and validate
     dataSources.CreateQueryAfterDSSaved("select * from users limit 10");
     dataSources.RunQuery({ toValidateResponse: false });
+    cy.wait(500);
     cy.get("[data-testid=t--query-error]").contains(
       "[Missing endpoint., Missing username for authentication.]",
     );

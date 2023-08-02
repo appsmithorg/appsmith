@@ -1,5 +1,5 @@
 import { BaseQueryGenerator } from "../BaseQueryGenerator";
-import { format } from "sql-formatter";
+import { formatDialect, mysql } from "sql-formatter";
 import { QUERY_TYPE } from "../types";
 import type {
   WidgetQueryGenerationConfig,
@@ -8,6 +8,7 @@ import type {
 } from "../types";
 import { removeSpecialChars } from "utils/helpers";
 import without from "lodash/without";
+import { DatasourceConnectionMode } from "entities/Datasource";
 export default abstract class MySQL extends BaseQueryGenerator {
   private static buildSelect(
     widgetConfig: WidgetQueryGenerationConfig,
@@ -74,9 +75,9 @@ export default abstract class MySQL extends BaseQueryGenerator {
       );
 
     //formats sql string
-    const res = format(template, {
+    const res = formatDialect(template, {
       params,
-      language: "mysql",
+      dialect: mysql,
     });
 
     return {
@@ -193,11 +194,19 @@ export default abstract class MySQL extends BaseQueryGenerator {
       allBuildConfigs.push(this.buildSelect(widgetConfig, formConfig));
     }
 
-    if (widgetConfig.update && formConfig.primaryColumn) {
+    if (
+      widgetConfig.update &&
+      formConfig.primaryColumn &&
+      formConfig.connectionMode === DatasourceConnectionMode.READ_WRITE
+    ) {
       allBuildConfigs.push(this.buildUpdate(widgetConfig, formConfig));
     }
 
-    if (widgetConfig.create && formConfig.primaryColumn) {
+    if (
+      widgetConfig.create &&
+      formConfig.primaryColumn &&
+      formConfig.connectionMode === DatasourceConnectionMode.READ_WRITE
+    ) {
       allBuildConfigs.push(this.buildInsert(widgetConfig, formConfig));
     }
 
