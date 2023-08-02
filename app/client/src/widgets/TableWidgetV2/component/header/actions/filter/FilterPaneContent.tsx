@@ -160,7 +160,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
   };
 
   const clearFilters = useCallback(() => {
-    props.applyFilter(defaultFilters);
+    props.applyFilter([]);
   }, [props]);
 
   const columns: DropdownOption[] = props.columns
@@ -246,9 +246,6 @@ function TableFilterPaneContent(props: TableFilterProps) {
                     ...updatedFilters.slice(0, index),
                     ...updatedFilters.slice(index + 1),
                   ];
-                }
-                if (newFilters.length === 0) {
-                  newFilters.push({ ...DEFAULT_FILTER });
                 }
                 // removed filter directly update redux
                 // with redux update, useEffect will update local state too

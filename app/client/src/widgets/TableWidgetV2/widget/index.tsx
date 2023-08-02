@@ -829,7 +829,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           this.updateColumnProperties(newTableColumns, isTableDataModified);
         }
 
-        pushBatchMetaUpdates("filters", [DEFAULT_FILTER]);
+        pushBatchMetaUpdates("filters", []);
       }
     }
 
