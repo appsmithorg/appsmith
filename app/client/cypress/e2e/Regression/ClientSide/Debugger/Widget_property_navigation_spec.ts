@@ -159,7 +159,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     );
     _.agHelper.GetNClick(OneClickBindingLocator.searchableColumn);
     _.agHelper.GetNClick(
-      OneClickBindingLocator.searchableColumnDropdownOption(),
+      OneClickBindingLocator.columnDropdownOption("searchableColumn"),
     );
     _.agHelper.GetNClick(OneClickBindingLocator.connectData);
 

@@ -46,11 +46,11 @@ export default {
     '[data-testId="t--one-click-binding-column-searchableColumn"]',
   label: '[data-testId="t--one-click-binding-column-label"]',
   value: '[data-testId="t--one-click-binding-column-value"]',
-  columnDropdownOption: (column: string, value: string) =>
+  columnDropdownOption: (column: string, value?: string) =>
     `[data-testId='t--one-click-binding-column-${column}--column']${
       value ? `:contains(${value})` : ""
     }`,
-  columnSelectedOption: (column: string, value: string) =>
+  columnSelectedOption: (column: string, value?: string) =>
     `[data-testId="t--one-click-binding-column-${column}"] .rc-select-selection-item${
       value ? `:contains(${value})` : ""
     }`,
