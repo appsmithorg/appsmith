@@ -634,6 +634,8 @@ public class LayoutServiceTest {
                     monos.add(layoutActionService.createSingleAction(action, Boolean.FALSE));
 
                     // Create an async function for: Collection.anAsyncCollectionActionWithoutCall.data
+                    // This definition is the same as sync functions moving forward,
+                    // But we are retaining the test to make sure we consider the use case in the future as well
                     action = new ActionDTO();
                     action.setName("anAsyncCollectionActionWithoutCall");
                     action.setFullyQualifiedName("Collection.anAsyncCollectionActionWithoutCall");
@@ -674,6 +676,8 @@ public class LayoutServiceTest {
                     monos.add(layoutActionService.createSingleAction(action, Boolean.FALSE));
 
                     // Create an async function for: Collection.anAsyncCollectionActionWithCall()
+                    // This definition is the same as sync functions moving forward,
+                    // But we are retaining the test to make sure we consider the use case in the future as well
                     action = new ActionDTO();
                     action.setName("anAsyncCollectionActionWithCall");
                     action.setFullyQualifiedName("Collection.anAsyncCollectionActionWithCall");
@@ -864,12 +868,20 @@ public class LayoutServiceTest {
                     assertThat(layout.getId()).isNotNull();
                     assertThat(layout.getLayoutOnLoadActions()).hasSize(3);
 
-                    Set<String> firstSetPageLoadActions =
-                            Set.of("aGetAction", "hiddenAction1", "hiddenAction2", "hiddenAction4", "hiddenAction5");
+                    Set<String> firstSetPageLoadActions = Set.of(
+                            "aGetAction",
+                            "hiddenAction1",
+                            "hiddenAction2",
+                            "hiddenAction3",
+                            "hiddenAction4",
+                            "hiddenAction5",
+                            "hiddenAction6");
 
                     Set<String> secondSetPageLoadActions = Set.of("aPostAction");
 
-                    Set<String> thirdSetPageLoadActions = Set.of("Collection.anAsyncCollectionActionWithoutCall");
+                    Set<String> thirdSetPageLoadActions = Set.of(
+                            "Collection.anAsyncCollectionActionWithoutCall",
+                            "Collection.aSyncCollectionActionWithoutCall");
 
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream()
                                     .map(DslActionDTO::getName)
@@ -905,7 +917,7 @@ public class LayoutServiceTest {
         StepVerifier.create(actionDTOMono)
                 .assertNext(tuple -> {
                     assertThat(tuple.getT1().getExecuteOnLoad()).isTrue();
-                    assertThat(tuple.getT2().getExecuteOnLoad()).isNotEqualTo(Boolean.TRUE);
+                    assertThat(tuple.getT2().getExecuteOnLoad()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -1017,6 +1029,7 @@ public class LayoutServiceTest {
                             "aGetAction",
                             "hiddenAction1",
                             "hiddenAction2",
+                            "hiddenAction3",
                             "hiddenAction4",
                             "aPostAction",
                             "anotherPostAction");
@@ -1025,8 +1038,10 @@ public class LayoutServiceTest {
 
                     Set<String> thirdSetPageLoadActions = Set.of("aDBAction");
 
-                    Set<String> fourthSetPageLoadActions =
-                            Set.of("aPostActionWithAutoExec", "Collection.anAsyncCollectionActionWithoutCall");
+                    Set<String> fourthSetPageLoadActions = Set.of(
+                            "aPostActionWithAutoExec",
+                            "Collection.anAsyncCollectionActionWithoutCall",
+                            "Collection.aSyncCollectionActionWithoutCall");
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream()
                                     .map(DslActionDTO::getName)
                                     .collect(Collectors.toSet()))
@@ -1114,6 +1129,7 @@ public class LayoutServiceTest {
                             "aGetAction",
                             "hiddenAction1",
                             "hiddenAction2",
+                            "hiddenAction3",
                             "hiddenAction4",
                             "anIgnoredAction",
                             "aDBAction",
@@ -1126,8 +1142,10 @@ public class LayoutServiceTest {
 
                     Set<String> secondSetPageLoadActions = Set.of("aTableAction", "anotherDBAction");
 
-                    Set<String> thirdSetPageLoadActions =
-                            Set.of("aPostActionWithAutoExec", "Collection.anAsyncCollectionActionWithoutCall");
+                    Set<String> thirdSetPageLoadActions = Set.of(
+                            "aPostActionWithAutoExec",
+                            "Collection.anAsyncCollectionActionWithoutCall",
+                            "Collection.aSyncCollectionActionWithoutCall");
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream()
                                     .map(DslActionDTO::getName)
                                     .collect(Collectors.toSet()))

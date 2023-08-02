@@ -1124,9 +1124,6 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
 
                 // If the reference is to a sync JS function, discard it from the scheduling order
                 ActionDTO actionDTO = actionNameToActionMap.get(entity);
-                if (PluginType.JS.equals(actionDTO.getPluginType())) {
-                    isCandidateForPageLoad = FALSE;
-                }
 
                 if (!vertex.contains(validBinding)) {
                     isCandidateForPageLoad = FALSE;

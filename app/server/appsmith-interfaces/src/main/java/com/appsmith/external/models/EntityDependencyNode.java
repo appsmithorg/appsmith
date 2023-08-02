@@ -32,7 +32,7 @@ public class EntityDependencyNode {
             if (Boolean.TRUE.equals(this.isFunctionCall) && !this.validEntityName.equals(this.referenceString)) {
                 result = false;
             }
-            if (Boolean.FALSE.equals(this.isFunctionCall)
+            if ((Boolean.FALSE.equals(this.isFunctionCall) || this.isFunctionCall == null)
                     && !this.referenceString.startsWith(this.validEntityName + ".data")) {
                 result = false;
             }
