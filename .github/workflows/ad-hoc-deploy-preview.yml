@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Update workflow details
         run: |
-          curl --location --request PATCH 'localhost:5000/appsmith_deploy_workflow/${{github.event.inputs.uid}}' \
+          curl --location --request PATCH 'https://ops.appsmith.com/appsmith_deploy_workflow/${{github.event.inputs.uid}}' \
           --header 'Content-Type: application/json' \
           --header 'Authorization: Bearer ${{secrets.INTENRAL_OPS_API_TOKEN}}' \
           --data ' {
@@ -180,7 +180,7 @@ jobs:
       - name: Update workflow completed successfully
         if: success()
         run: |
-          curl --location --request PATCH 'localhost:5000/appsmith_deploy_workflow/${{github.event.inputs.id}}' \
+          curl --location --request PATCH 'https://ops.appsmith.com/appsmith_deploy_workflow/${{github.event.inputs.id}}' \
           --header 'Content-Type: application/json' \
           --header 'Authorization: Bearer ${{secrets.INTENRAL_OPS_API_TOKEN}}' \
           --data ' {
@@ -189,7 +189,7 @@ jobs:
       - name: Update workflow failure
         if: failure()
         run: |
-          curl --location --request PATCH 'localhost:5000/appsmith_deploy_workflow/${{github.event.inputs.id}}' \
+          curl --location --request PATCH 'https://ops.appsmith.com/appsmith_deploy_workflow/${{github.event.inputs.id}}' \
           --header 'Content-Type: application/json' \
           --header 'Authorization: Bearer ${{secrets.INTENRAL_OPS_API_TOKEN}}' \
           --data ' {
