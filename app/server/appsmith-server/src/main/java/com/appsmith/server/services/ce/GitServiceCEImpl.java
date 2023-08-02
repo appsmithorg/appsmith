@@ -1920,7 +1920,7 @@ public class GitServiceCEImpl implements GitServiceCE {
      * @return Mono of {@link BranchTrackingStatus}
      */
     @Override
-    public Mono<BranchTrackingStatus> compareWithRemote(
+    public Mono<BranchTrackingStatus> fetchRemoteChanges(
             String defaultApplicationId, String branchName, boolean isFileLock) {
         if (StringUtils.isEmptyOrNull(branchName)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
