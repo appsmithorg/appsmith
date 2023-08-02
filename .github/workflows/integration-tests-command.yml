@@ -117,7 +117,7 @@ jobs:
         with:
           path: |
             ~/cypress_url
-          key: ${{ github.run_id }}-dashboard-url-${{ github.run_number }}
+          key: ${{ github.run_id }}-dashboard-url-${{ github.run_attempt }}
           restore-keys: |
             ${{ github.run_id }}-dashboard-url
 
