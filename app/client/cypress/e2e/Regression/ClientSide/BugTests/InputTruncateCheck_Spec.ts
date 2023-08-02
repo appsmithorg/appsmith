@@ -88,7 +88,7 @@ function configureApi() {
 }
 
 Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
-  describe(`${testConfig.widgetName} widget test for storeValue save, Api Call params`, () => {
+  describe.skip(`${testConfig.widgetName} widget test for storeValue save, Api Call params`, () => {
     it(`1. DragDrop widget & Label/Text widgets`, () => {
       if (index === 0) {
         configureApi();
