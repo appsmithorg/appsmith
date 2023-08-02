@@ -205,13 +205,13 @@ public class GitControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/compare/remote/app/{defaultApplicationId}")
-    public Mono<ResponseDTO<BranchTrackingStatus>> compareWithRemote(
+    @GetMapping("/fetch/remote/app/{defaultApplicationId}")
+    public Mono<ResponseDTO<BranchTrackingStatus>> fetchRemoteChanges(
             @PathVariable String defaultApplicationId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug(
                 "Going to compare with remote for default application {}, branch {}", defaultApplicationId, branchName);
-        return service.compareWithRemote(defaultApplicationId, branchName, true)
+        return service.fetchRemoteChanges(defaultApplicationId, branchName, true)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 

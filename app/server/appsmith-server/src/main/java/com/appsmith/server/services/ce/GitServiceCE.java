@@ -82,7 +82,7 @@ public interface GitServiceCE {
 
     Mono<Boolean> isRepoLimitReached(String workspaceId, Boolean isClearCache);
 
-    Mono<BranchTrackingStatus> compareWithRemote(String defaultApplicationId, String branchName, boolean isFileLock);
+    Mono<BranchTrackingStatus> fetchRemoteChanges(String defaultApplicationId, String branchName, boolean isFileLock);
 
     Mono<UncommittedChangesDTO> getUncommittedChanges(String defaultApplicationId, String branchName);
 }

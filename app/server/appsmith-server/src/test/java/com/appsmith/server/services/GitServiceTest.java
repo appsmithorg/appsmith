@@ -4161,7 +4161,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just("success"));
         Mockito.when(gitExecutor.getBranchTrackingStatus(repoPath, branch)).thenReturn(Mono.just(branchTrackingStatus));
 
-        StepVerifier.create(gitService.compareWithRemote(gitData.getDefaultApplicationId(), branch, false))
+        StepVerifier.create(gitService.fetchRemoteChanges(gitData.getDefaultApplicationId(), branch, false))
                 .assertNext(response -> {
                     assertThat(response.getAheadCount()).isEqualTo(1);
                     assertThat(response.getBehindCount()).isEqualTo(2);
