@@ -515,8 +515,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
                     // Update the datasource policies without permission since the applications and datasources are at
                     // the same level in the hierarchy. A user may have permission to change view on application, but
-                    // may
-                    // not have explicit permissions on the datasource.
+                    // may not have explicit permissions on the datasource.
                     Mono<Void> updatedDatasourcesMono1 = policySolution
                             .updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(
                                     datasourceIds, datasourcePolicyMap, addViewAccess)

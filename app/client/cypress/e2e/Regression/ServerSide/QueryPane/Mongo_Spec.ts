@@ -287,7 +287,6 @@ describe("Validate Mongo Query Pane Validations", () => {
     );
 
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "AuthorNAwards",
     });
@@ -772,7 +771,6 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     agHelper.RenameWithInPane("InsertBirthNDeath");
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "BirthNDeath",
     });
