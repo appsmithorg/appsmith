@@ -95,6 +95,8 @@ import {
   onUpdateFilterSuccess,
 } from "@appsmith/utils/Environments";
 import type { CalloutKind } from "design-system";
+import { getEnvironments } from "@appsmith/selectors/environmentSelectors";
+import type { EnvironmentType } from "@appsmith/reducers/environmentReducer";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -130,6 +132,7 @@ interface ReduxStateProps {
   defaultKeyValueArrayConfig: Array<string>;
   initialValue: Datasource | ApiDatasourceForm | undefined;
   showDebugger: boolean;
+  environments: Array<EnvironmentType>;
 }
 
 const Form = styled.div`
@@ -469,7 +472,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     this.state.navigation();
     this.props.datasourceDiscardAction(this.props?.pluginId);
 
-    if (!this.props.viewMode) {
+    if (!this.props.viewMode && this.props.environments.length === 0) {
       this.props.setDatasourceViewMode({
         datasourceId: this.props.datasourceId,
         viewMode: true,
@@ -1034,6 +1037,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     defaultKeyValueArrayConfig,
     initialValue,
     showDebugger,
+    environments: getEnvironments(state),
   };
 };
 
