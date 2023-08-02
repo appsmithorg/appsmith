@@ -132,6 +132,7 @@ export class ApiPage {
       directInput: true,
       inputFieldName: "",
     });
+    //this.agHelper.GetNClick(this._resourceUrl);
     this.agHelper.Sleep();
     if (evaluatedValue) {
       this.agHelper.VerifyEvaluatedValue(evaluatedValue);
