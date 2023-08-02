@@ -1,4 +1,4 @@
-import testdata  from "../../../fixtures/testdata.json";
+import testdata from "../../../fixtures/testdata.json";
 import datasource from "../../../locators/DatasourcesEditor.json";
 import {
   agHelper,
@@ -7,55 +7,62 @@ import {
   entityItems,
   apiPage,
   dataSources,
+  tedTestConfig,
 } from "../../../support/Objects/ObjectsCore";
-let clientId, clientSecret
+let clientId, clientSecret;
 
 describe("Datasource form OAuth2 client credentials related tests", function () {
   it("1. Create an API with app url and save as Datasource for Client Credentials test", function () {
-    cy.fixture("datasources").then((datasourceFormData) => {
-      dataSources.CreateOAuthClient("authorization_code");
-      apiPage.CreateAndFillApi(datasourceFormData["OAuth_ApiUrl"] + "/api/echo/get?ASDSA=ASDSA", "TestOAuth");
-      agHelper.GetNClick(apiPage._saveAsDS);
+    dataSources.CreateOAuthClient("authorization_code");
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].OAuth_ApiUrl +
+        "/api/echo/get?ASDSA=ASDSA",
+      "TestOAuth",
+    );
+    agHelper.GetNClick(apiPage._saveAsDS);
 
-      // Add Oauth details to datasource and save
-      agHelper.AssertElementEnabledDisabled(datasource.saveBtn,0,false);
-      cy.get("@OAuthClientID").then((id) => {
-        cy.get("@OAuthClientSecret").then((secret) => {
-          clientId=id
-          clientSecret=secret
-          dataSources.AddOAuth2AuthorizationCodeDetails(
-            datasourceFormData["OAUth_AccessTokenUrl"],
-            clientId,
-            clientSecret,
-            testdata.oauth2Scopes,
-          );
-        });
+    // Add Oauth details to datasource and save
+    agHelper.AssertElementEnabledDisabled(datasource.saveBtn, 0, false);
+    cy.get("@OAuthClientID").then((id) => {
+      cy.get("@OAuthClientSecret").then((secret) => {
+        clientId = id;
+        clientSecret = secret;
+        dataSources.AddOAuth2AuthorizationCodeDetails(
+          tedTestConfig.dsValues[tedTestConfig.defaultEnviorment]
+            .OAUth_AccessTokenUrl,
+          clientId,
+          clientSecret,
+          testdata.oauth2Scopes,
+        );
       });
-      // since we are moving to different, it will show unsaved changes dialog
-      // save datasource and then proceed
-      dataSources.SaveDatasource();
-      agHelper.ValidateToastMessage("datasource created"); //verifying there is no error toast, Bug 14566
-      entityExplorer.SelectEntityByName("TestOAuth", "Queries/JS");
-      agHelper.ActionContextMenuWithInPane({
-        action: "Delete",
-        entityType: entityItems.Api,
-      });
+    });
+    // since we are moving to different, it will show unsaved changes dialog
+    // save datasource and then proceed
+    dataSources.SaveDatasource();
+    agHelper.ValidateToastMessage("datasource created"); //verifying there is no error toast, Bug 14566
+    entityExplorer.SelectEntityByName("TestOAuth", "Queries/JS");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Api,
     });
   });
 
   it("2. Create an API with app url and save as Datasource for Authorization code details test", function () {
-    cy.fixture("datasources").then((datasourceFormData) => {
-    apiPage.CreateAndFillApi(testdata.appUrl, "TestOAuth");
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].OAuth_ApiUrl +
+        "/api/echo/get?ASDSA=ASDSA",
+      "TestOAuth",
+    );
     agHelper.GetNClick(apiPage._saveAsDS);
     //Add Oauth details to datasource and save
-    agHelper.AssertElementEnabledDisabled(datasource.saveBtn,0,false);
+    agHelper.AssertElementEnabledDisabled(datasource.saveBtn, 0, false);
     dataSources.AddOAuth2AuthorizationCodeDetails(
-      datasourceFormData["OAUth_AccessTokenUrl"],
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment]
+        .OAUth_AccessTokenUrl,
       clientId,
       clientSecret,
-      datasourceFormData["OAuth_AuthUrl"],
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].OAuth_AuthUrl,
     );
-    })
   });
 
   it("3. Validate save and Authorise", function () {

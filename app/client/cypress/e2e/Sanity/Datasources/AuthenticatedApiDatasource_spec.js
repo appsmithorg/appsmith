@@ -44,21 +44,20 @@ describe("Authenticated API Datasource", function () {
   it("4. Bug: 18051 - Save and Authorise should return to datasource page in view mode and not new datasource page", () => {
     dataSources.CreateOAuthClient("authorization_code");
     agHelper.GenerateUUID();
-      cy.get("@guid").then((uid) => {
-        cy.get("@OAuthClientID").then((clientId: any) => {
-          cy.get("@OAuthClientSecret").then((clientSecret: any) => {
-            dataSources.CreateOAuthDatasource(
-              "TED_OAuth" + uid,
-              "AuthCode",
-              clientId,
-              clientSecret,
-            );
-      cy.wait(2000);
-      cy.reload();
-      agHelper.AssertElementVisible(dataSources._editButton);
-      dataSources.DeleteDatasouceFromActiveTab("TED_OAuth" + uid);
+    cy.get("@guid").then((uid) => {
+      cy.get("@OAuthClientID").then((clientId: any) => {
+        cy.get("@OAuthClientSecret").then((clientSecret: any) => {
+          dataSources.CreateOAuthDatasource(
+            "TED_OAuth" + uid,
+            "AuthCode",
+            clientId,
+            clientSecret,
+          );
+          agHelper.RefreshPage();
+          agHelper.AssertElementVisible(dataSources._editButton);
+          dataSources.DeleteDatasouceFromActiveTab("TED_OAuth" + uid);
+        });
+      });
     });
-  });
-});
   });
 });
