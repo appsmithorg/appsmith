@@ -123,7 +123,7 @@ describe("GSheet Miscellaneous Tests", function () {
     assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
     //deploy the app and verify the table data
-    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE_V1));   
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE_V1));
     const data = GSHEET_DATA.filter((item) => item.rowIndex === "0")[0];
     table.ReadTableRowColumnData(0, 0, "v1").then((cellData) => {
       expect(cellData).to.eq(data.uniq_id);
