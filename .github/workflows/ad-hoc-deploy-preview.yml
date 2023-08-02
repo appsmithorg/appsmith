@@ -24,13 +24,13 @@ jobs:
     steps:
       - name: Update workflow details
         run: |
-          curl --location --request PATCH 'https://ops.appsmith.com/appsmith_deploy_workflow/${{github.event.inputs.uid}}' \
+          curl --request PATCH 'https://ops.appsmith.com/appsmith_deploy_workflow/${{github.event.inputs.uid}}' \
           --header 'Content-Type: application/json' \
           --oauth2-bearer '${{secrets.INTENRAL_OPS_API_TOKEN}}' \
           --data ' {
                   "status": "IN_PROGRESS",
-                  "githubWorkflowId": ${{github.workflow.id}},
-                  "githubWorkflowHtmlUrl": ${{github.workflow.githubWorkflowHtmlUrl}},
+                  "githubWorkflowId": "${{github.workflow.id}}",
+                  "githubWorkflowHtmlUrl": "${{github.workflow.githubWorkflowHtmlUrl}}",
           }'
             
   server-build:
@@ -61,9 +61,6 @@ jobs:
     runs-on: ubuntu-latest
     if: success()
     steps:
-      - name: Set up Depot CLI
-        uses: depot/setup-action@v1
-
       # Check out merge commit
       - name: Checkout Branch
         uses: actions/checkout@v3
@@ -138,8 +135,6 @@ jobs:
 
     if: success()
     steps:
-      - name: Set up Depot CLI
-        uses: depot/setup-action@v1
       - name: Checkout PR
         uses: actions/checkout@v3
         with:
@@ -180,18 +175,18 @@ jobs:
       - name: Update workflow completed successfully
         if: success()
         run: |
-          curl --location --request PATCH 'https://ops.appsmith.com/appsmith_deploy_workflow/${{github.event.inputs.id}}' \
+          curl --request PATCH 'https://ops.appsmith.com/appsmith_deploy_workflow/${{github.event.inputs.id}}' \
           --header 'Content-Type: application/json' \
-          --header 'Authorization: Bearer ${{secrets.INTENRAL_OPS_API_TOKEN}}' \
+          --oauth2-bearer '${{secrets.INTENRAL_OPS_API_TOKEN}}'  \
           --data ' {
                   "status": "COMPLETED"
           }'
       - name: Update workflow failure
         if: failure()
         run: |
-          curl --location --request PATCH 'https://ops.appsmith.com/appsmith_deploy_workflow/${{github.event.inputs.id}}' \
+          curl --request PATCH 'https://ops.appsmith.com/appsmith_deploy_workflow/${{github.event.inputs.id}}' \
           --header 'Content-Type: application/json' \
-          --header 'Authorization: Bearer ${{secrets.INTENRAL_OPS_API_TOKEN}}' \
+          --oauth2-bearer '${{secrets.INTENRAL_OPS_API_TOKEN}}'  \
           --data ' {
                   "status": "FAILED"
           }'
