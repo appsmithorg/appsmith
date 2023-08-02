@@ -129,6 +129,9 @@ export const contentConfig = [
         helpText: "Input JSON sample for default form layout",
         label: "Source data",
         controlType: "ONE_CLICK_BINDING_CONTROL",
+        controlConfig: {
+          allowFieldConfigurations: true,
+        },
         isJSConvertible: true,
         placeholderText: '{ "name": "John", "age": 24 }',
         isBindProperty: true,

@@ -85,6 +85,7 @@ type Props = {
   aliases: { name: string; isSearcheable: boolean }[];
   searchableColumn: boolean;
   sampleData?: string;
+  allowFieldConfigurations?: boolean;
 };
 
 function WidgetQueryGeneratorForm(props: Props) {
@@ -94,6 +95,7 @@ function WidgetQueryGeneratorForm(props: Props) {
 
   const {
     aliases,
+    allowFieldConfigurations = false,
     errorMsg,
     expectedType,
     onUpdate,
@@ -232,7 +234,7 @@ function WidgetQueryGeneratorForm(props: Props) {
   return (
     <Wrapper>
       <WidgetQueryGeneratorFormContext.Provider value={contextValue}>
-        <CommonControls />
+        <CommonControls allowFieldConfig={allowFieldConfigurations} />
         <DatasourceSpecificControls />
         <WidgetSpecificControls
           aliases={props.aliases}

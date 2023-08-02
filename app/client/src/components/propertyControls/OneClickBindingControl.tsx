@@ -53,6 +53,9 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
     return (
       <WidgetQueryGeneratorForm
         aliases={this.props.controlConfig?.aliases}
+        allowFieldConfigurations={
+          this.props.controlConfig?.allowFieldConfigurations
+        }
         errorMsg={this.getErrorMessage()}
         expectedType={this.props.expected?.autocompleteDataType || ""}
         onUpdate={this.onUpdatePropertyValue}
@@ -73,5 +76,6 @@ export type OneClickBindingControlProps = ControlProps & {
     aliases: { name: string; isSearcheable: boolean }[];
     searchableColumn: boolean;
     sampleData: string;
+    allowFieldConfigurations: boolean;
   };
 };

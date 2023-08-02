@@ -1,13 +1,17 @@
-import React, { memo, useEffect, useState } from "react";
+import React, { memo } from "react";
 import { ErrorMessage, Label, LabelWrapper, SelectWrapper } from "../../styles";
 import { useTableOrSpreadsheet } from "./useTableOrSpreadsheet";
 import { Select, Option, Tooltip } from "design-system";
 import { DropdownOption } from "../DatasourceDropdown/DropdownOption";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 import { ColumnSelectorModal } from "../../ColumnSelectorModal";
-import { useColumns } from "../../WidgetSpecificControls/ColumnDropdown/useColumns";
 
-function TableOrSpreadsheetDropdown() {
+type Props = {
+  allowFieldConfig: boolean;
+};
+
+function TableOrSpreadsheetDropdown(props: Props) {
+  const { allowFieldConfig } = props;
   const {
     disabled,
     error,
@@ -20,16 +24,9 @@ function TableOrSpreadsheetDropdown() {
     show,
   } = useTableOrSpreadsheet();
 
-  const { columns } = useColumns("");
-  const [colData, setColData] = useState<any>([]);
-
-  useEffect(() => {
-    setColData(columns);
-  }, [columns]);
-
-  const onSave = (columns: any) => {
-    setColData(columns);
-  };
+  // const onSave = (columns: any) => {
+  //   console.log(columns);
+  // };
 
   if (show) {
     return (
@@ -38,9 +35,7 @@ function TableOrSpreadsheetDropdown() {
           <Tooltip content={labelText}>
             <Label>{label}</Label>
           </Tooltip>
-          {columns.length > 0 && (
-            <ColumnSelectorModal data={colData} onSave={onSave} />
-          )}
+          {allowFieldConfig && <ColumnSelectorModal onSave={onSave} />}
         </LabelWrapper>
         <Select
           data-testid="t--one-click-binding-table-selector"

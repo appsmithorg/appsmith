@@ -14,6 +14,7 @@ import { Table } from "design-system-old";
 import styled from "styled-components";
 import { uniqBy } from "lodash";
 import { klona } from "klona";
+import { useColumns } from "../WidgetSpecificControls/ColumnDropdown/useColumns";
 
 const StyledCheckbox = styled(Checkbox)`
   input {
@@ -46,7 +47,8 @@ const FlexWrapper = styled.div`
 `;
 
 export function ColumnSelectorModal(props: any) {
-  const { data, onSave } = props;
+  const { onSave } = props;
+  const { columns: data } = useColumns("");
   const [isModalOpen, setIsModalOpen] = useState(!!props.isOpen);
   const [updatedData, setUpdatedData] = useState<any>([]);
 
