@@ -1,4 +1,4 @@
-import { some } from "lodash";
+import { difference, some } from "lodash";
 import { isChildPropertyPath } from "utils/DynamicBindingUtils";
 
 export type TDependencies = Map<string, Set<string>>;
@@ -17,10 +17,12 @@ export default class DependencyMap {
     this.#invalidDependenciesInverse = new Map();
   }
 
+  // Returns all nodes in the graph
   get nodes() {
     return Object.fromEntries(this.#nodes);
   }
 
+  // Returns all edges in the graph
   get dependencies() {
     const deps: Record<string, string[]> = {};
     for (const [key, value] of this.#dependencies.entries()) {
@@ -61,23 +63,13 @@ export default class DependencyMap {
    * @param dependencies
    */
   public addDependency = (node: string, dependencies: string[]) => {
+    // Only add dependencies for nodes present in the graph
     if (!this.#nodes.has(node)) return;
     const validDependencies = new Set<string>();
     const invalidDependencies = new Set<string>();
 
-    const currentNodeDependencies =
-      this.#dependencies.get(node) || new Set<string>();
-
-    this.#invalidDependencies.get(node)?.forEach((invalidDep) => {
-      this.#invalidDependenciesInverse.get(invalidDep)?.delete(node);
-    });
-
-    for (const currentDependency of currentNodeDependencies) {
-      if (!dependencies.includes(currentDependency)) {
-        this.#dependenciesInverse.get(currentDependency)?.delete(node);
-      }
-    }
-
+    // Update the validDependencies and invalidDependencies
+    // Valid dependencies are dependencies present in this.#node, otherwise, they are invalid.
     for (const dependency of dependencies) {
       if (this.#nodes.has(dependency)) {
         validDependencies.add(dependency);
@@ -95,6 +87,42 @@ export default class DependencyMap {
         }
       }
     }
+
+    // Now that we have created a new set of dependencies, and invalid dependencies for the node,
+    // we need to remove the node from the inverse-dependencies of previous invalidDeps and validDeps, which have been removed.
+
+    const previousNodeDependencies =
+      this.#dependencies.get(node) || new Set<string>();
+    const newNodeDependencies = validDependencies;
+
+    // dependencies removed from path
+    const removedNodeDependencies = difference(
+      Array.from(previousNodeDependencies),
+      Array.from(newNodeDependencies),
+    );
+
+    // Remove node from the inverseDependencies of removed deps
+    for (const removedDependency of removedNodeDependencies) {
+      this.#dependenciesInverse.get(removedDependency)?.delete(node);
+    }
+
+    const previousNodeInvalidDependencies =
+      this.#invalidDependencies.get(node) || new Set<string>();
+    const newNodeInvalidDependencies = invalidDependencies;
+
+    // invalid dependencies removed from path
+    const removedNodeInvalidDependencies = difference(
+      Array.from(previousNodeInvalidDependencies),
+      Array.from(newNodeInvalidDependencies),
+    );
+
+    // Remove node from the inverseDependencies of removed invalidDeps
+    for (const removedInvalidDependency of removedNodeInvalidDependencies) {
+      this.#invalidDependenciesInverse
+        .get(removedInvalidDependency)
+        ?.delete(node);
+    }
+    // Now set the new deps and invalidDeps
     this.#dependencies.set(node, validDependencies);
     this.#invalidDependencies.set(node, invalidDependencies);
   };
@@ -175,10 +203,9 @@ export default class DependencyMap {
 
   removeNodes = (nodes: Record<string, true>) => {
     let didUpdateDependencies = false;
-    const keys = Object.keys(nodes);
-    for (const node of keys) {
+    for (const node of Object.keys(nodes)) {
       if (!this.#nodes.has(node)) continue;
-      // Node removed from the graph.
+      // Remove node from the graph.
       this.#nodes.delete(node);
       // Check the paths that consumed this node before it was removed.
       const nodesThatAlreadyDependedOnThis =
