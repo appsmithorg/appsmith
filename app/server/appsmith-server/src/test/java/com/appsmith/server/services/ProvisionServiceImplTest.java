@@ -1,7 +1,9 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.License;
@@ -40,9 +42,11 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import static com.appsmith.server.acl.AclPermission.DELETE_USERS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
@@ -100,6 +104,9 @@ class ProvisionServiceImplTest {
 
     @Autowired
     WebTestClient webTestClient;
+
+    @Autowired
+    EncryptionService encryptionService;
 
     private License defaultLicense;
 
@@ -159,9 +166,22 @@ class ProvisionServiceImplTest {
         PermissionGroup instanceAdminRole =
                 userUtils.getSuperAdminPermissionGroup().block();
         PermissionGroup provisioningRole = userUtils.getProvisioningRole().block();
-        String provisionToken = provisionService.generateProvisionToken().block();
+        String generatedProvisionToken =
+                provisionService.generateProvisionToken().block();
+        String provisioningUserId = Arrays.stream(encryptionService
+                        .decryptString(generatedProvisionToken)
+                        .split(FieldName.APIKEY_USERID_DELIMITER))
+                .toList()
+                .get(1);
+        String actualProvisioningToken = Arrays.stream(encryptionService
+                        .decryptString(generatedProvisionToken)
+                        .split(FieldName.APIKEY_USERID_DELIMITER))
+                .toList()
+                .get(0);
         String provisionTokenId = apiKeyRepository
-                .findByApiKey(provisionToken)
+                .getByUserIdWithoutPermission(provisioningUserId)
+                .filter(fetchedUserApiKey -> fetchedUserApiKey.getApiKey().equals(actualProvisioningToken))
+                .single()
                 .map(UserApiKey::getId)
                 .block();
 
@@ -488,9 +508,22 @@ class ProvisionServiceImplTest {
     void testDisconnectProvisioning_deleteProvisionedUsersAndGroups_checkProvisioningStatusAtEveryStep() {
         String testName = "testDisconnectProvisioning_keepProvisionedUsersAndGroups_checkProvisioningStatusAtEveryStep";
         setTenantLicenseAsEnterprise();
-        String provisionToken = provisionService.generateProvisionToken().block();
+        String generatedProvisionToken =
+                provisionService.generateProvisionToken().block();
+        String provisioningUserId = Arrays.stream(encryptionService
+                        .decryptString(generatedProvisionToken)
+                        .split(FieldName.APIKEY_USERID_DELIMITER))
+                .toList()
+                .get(1);
+        String actualProvisioningToken = Arrays.stream(encryptionService
+                        .decryptString(generatedProvisionToken)
+                        .split(FieldName.APIKEY_USERID_DELIMITER))
+                .toList()
+                .get(0);
         String provisionTokenId = apiKeyRepository
-                .findByApiKey(provisionToken)
+                .getByUserIdWithoutPermission(provisioningUserId)
+                .filter(fetchedUserApiKey -> fetchedUserApiKey.getApiKey().equals(actualProvisioningToken))
+                .single()
                 .map(UserApiKey::getId)
                 .block();
 
@@ -668,9 +701,22 @@ class ProvisionServiceImplTest {
         userUtils.makeSuperUser(List.of(apiUser, userTest)).block();
 
         // Create Provision Token
-        String provisionToken = provisionService.generateProvisionToken().block();
+        String generatedProvisionToken =
+                provisionService.generateProvisionToken().block();
+        String provisioningUserId = Arrays.stream(encryptionService
+                        .decryptString(generatedProvisionToken)
+                        .split(FieldName.APIKEY_USERID_DELIMITER))
+                .toList()
+                .get(1);
+        String actualProvisioningToken = Arrays.stream(encryptionService
+                        .decryptString(generatedProvisionToken)
+                        .split(FieldName.APIKEY_USERID_DELIMITER))
+                .toList()
+                .get(0);
         String provisionTokenId = apiKeyRepository
-                .findByApiKey(provisionToken)
+                .getByUserIdWithoutPermission(provisioningUserId)
+                .filter(fetchedUserApiKey -> fetchedUserApiKey.getApiKey().equals(actualProvisioningToken))
+                .single()
                 .map(UserApiKey::getId)
                 .block();
         // Remove userTest as a superuser to not allow it to perform Admin Actions.
@@ -991,5 +1037,14 @@ class ProvisionServiceImplTest {
         PermissionGroup appViewerRolePostInviteAndDeleteUser =
                 permissionGroupRepository.findById(appViewerRole.getId()).block();
         assertThat(appViewerRolePostInviteAndDeleteUser.getAssignedToUserIds()).doesNotContain(provisionedUser.getId());
+    }
+
+    @Test
+    public void testGeneratedTokenForSpecialCharacters() {
+        String mockMongoId = "64c8c209337f08023f96159c";
+        IntStream.range(0, 1000000).forEach(i -> {
+            String generatedToken = ApiKeyServiceImpl.generateToken(mockMongoId);
+            assertThat(generatedToken).doesNotContain(FieldName.APIKEY_USERID_DELIMITER);
+        });
     }
 }

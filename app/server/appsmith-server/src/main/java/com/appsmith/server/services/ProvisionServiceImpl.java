@@ -62,8 +62,11 @@ public class ProvisionServiceImpl implements ProvisionService {
         ApiKeyRequestDto apiKeyRequestDto =
                 ApiKeyRequestDto.builder().email(FieldName.PROVISIONING_USER).build();
 
+        // Archive all existing provisioning token.
+        // Then generate new provisioning token.
         return tenantUtils
                 .enterpriseUpgradeRequired()
+                .then(archiveProvisionToken())
                 .then(apiKeyService.generateApiKey(apiKeyRequestDto))
                 .flatMap(apiKey -> provisionUtils.updateStatus(INACTIVE, true).thenReturn(apiKey));
     }
@@ -121,9 +124,7 @@ public class ProvisionServiceImpl implements ProvisionService {
     }
 
     public Mono<Boolean> archiveProvisionToken() {
-        ApiKeyRequestDto apiKeyRequestDto =
-                ApiKeyRequestDto.builder().email(FieldName.PROVISIONING_USER).build();
-        return apiKeyService.archiveApiKey(apiKeyRequestDto);
+        return apiKeyService.archiveAllApiKeysForUser(FieldName.PROVISIONING_USER);
     }
 
     @Override
