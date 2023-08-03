@@ -19,6 +19,9 @@ describe("Text Field Property Control", () => {
     _.agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
   });
 
@@ -112,6 +115,9 @@ describe("Text Field Property Control", () => {
     _.agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("check");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Checkbox");

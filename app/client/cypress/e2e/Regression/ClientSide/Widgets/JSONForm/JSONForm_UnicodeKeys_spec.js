@@ -31,6 +31,9 @@ describe("JSON Form Widget Unicode keys", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(sourceData));
     cy.closePropertyPane();
 
@@ -85,6 +88,9 @@ describe("JSON Form Widget Unicode keys", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(modifiedSourceData));
     cy.closePropertyPane();
 
@@ -152,6 +158,9 @@ describe("JSON Form Widget Unicode keys", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(sourceData));
     cy.closePropertyPane();
 

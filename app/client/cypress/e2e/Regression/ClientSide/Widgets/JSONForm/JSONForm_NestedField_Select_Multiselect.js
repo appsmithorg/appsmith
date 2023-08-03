@@ -31,6 +31,9 @@ describe("JSONForm select field", () => {
     };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("object");
     cy.openFieldConfiguration("select", false);
@@ -91,6 +94,9 @@ describe("JSONForm select field", () => {
     };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("object");
     cy.openFieldConfiguration("multiselect", false);

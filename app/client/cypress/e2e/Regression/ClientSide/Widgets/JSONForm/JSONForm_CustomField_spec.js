@@ -46,6 +46,9 @@ describe("JSON Form Widget Custom Field", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.backFromPropertyPanel();
     cy.testJsontext("sourcedata", JSON.stringify(sourceData));
 

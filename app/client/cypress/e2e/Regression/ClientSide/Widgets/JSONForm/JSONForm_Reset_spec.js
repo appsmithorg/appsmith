@@ -5,6 +5,10 @@ const fieldPrefix = ".t--jsonformfield";
 describe("JSON Form reset", () => {
   before(() => {
     cy.addDsl(dslWithSchema);
+    cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
   });
 
   it("updates formData when field value changes", () => {

@@ -9,7 +9,9 @@ describe("JSON Form Widget Field Change", () => {
   });
   it("1. modifies field type text to number", () => {
     cy.openPropertyPane("jsonformwidget");
-
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.get(`${fieldPrefix}-name`).find("button").should("not.exist");
     cy.openFieldConfiguration("name");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Number Input");

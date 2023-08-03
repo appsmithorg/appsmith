@@ -19,6 +19,9 @@ describe("Text Field Property Control", () => {
     _.agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
   });
 
@@ -29,6 +32,9 @@ describe("Text Field Property Control", () => {
     _.agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("switch");
   });
@@ -71,6 +77,9 @@ describe("Text Field Property Control", () => {
     _.agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("state");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select/);
@@ -120,6 +129,9 @@ describe("Text Field Property Control", () => {
     _.agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("hobbies");
   });
@@ -187,6 +199,9 @@ describe("Text Field Property Control", () => {
     _.agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(sourceData));
     cy.openFieldConfiguration("radio");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Radio Group");

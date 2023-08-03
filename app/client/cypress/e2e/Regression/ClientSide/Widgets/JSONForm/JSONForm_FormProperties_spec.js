@@ -21,6 +21,10 @@ describe("JSON Form Widget Form Bindings", () => {
 
   before(() => {
     cy.addDsl(dslWithSchema);
+    cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
   });
 
   it("1. should have all the fields under field configuration", () => {

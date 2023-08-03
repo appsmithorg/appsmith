@@ -24,6 +24,9 @@ describe("Radio Group Field", () => {
     };
     _.agHelper.AddDsl("jsonFormDslWithoutSchema");
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("agree");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Checkbox/);
@@ -57,6 +60,9 @@ describe("Radio Group Field", () => {
     _.agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.closePropertyPane();
   });
@@ -85,6 +91,9 @@ describe("Radio Group Field", () => {
     _.agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.closePropertyPane();
   });

@@ -16,6 +16,10 @@ describe("JSON Form Widget Form Bindings", () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
     cy.addDsl(dslWithSchema);
+    cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
   });
 
   it("1. updates formData when field value changes", () => {

@@ -24,6 +24,9 @@ describe("JSONForm Select field - filterText update action trigger ", () => {
     };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("color");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select$/);
@@ -66,6 +69,9 @@ describe("JSONForm Select field - filterText update action trigger ", () => {
     };
     cy.addDsl(dslWithoutSchema);
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.closePropertyPane();
   });

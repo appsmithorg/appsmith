@@ -8,6 +8,10 @@ describe("JsonForm widget basis c usecases", function () {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("jsonformwidget", { x: 200, y: 200 });
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
+    cy.testJsontext("sourcedata", JSON.stringify(this.dataSet.defaultSource));
     cy.get(widgetsPage.jsonFormWidget).should("have.length", 1);
   });
 
