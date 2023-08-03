@@ -2,7 +2,7 @@
 # Params are in environment variables as PARAM_{SLUG}, e.g. PARAM_USER_ID
 
 # Configure the AWS & kubectl environment
-
+set -o xtrace
 mkdir ~/.aws; touch ~/.aws/config
 
 echo "[default]
@@ -24,7 +24,13 @@ echo "Cluster name: $cluster_name"
 echo "Pull Request Number: $PULL_REQUEST_NUMBER"
 echo "DP_EFS_ID: $DP_EFS_ID"
 
-sts_output=$(aws sts assume-role --role-arn env.AWS_ROLE_ARN --role-session-name ekscisession)
+echo "Create Access Point and Access Point ID"
+## Use DP-EFS and create ACCESS_POINT
+ACCESS_POINT=$(aws efs create-access-point --file-system-id $DP_EFS_ID --tags Key=Name,Value=ce$PULL_REQUEST_NUMBER)
+ACCESS_POINT_ID=$(echo $ACCESS_POINT | jq -r '.AccessPointId');
+
+echo "Assuming roles to access EKS cluster"
+sts_output=$(aws sts assume-role --role-arn "$AWS_ROLE_ARN" --role-session-name ekscisession)
 export AWS_ACCESS_KEY_ID=$(echo $sts_output | jq -r '.Credentials''.AccessKeyId');\
 export AWS_SECRET_ACCESS_KEY=$(echo $sts_output | jq -r '.Credentials''.SecretAccessKey');\
 export AWS_SESSION_TOKEN=$(echo $sts_output | jq -r '.Credentials''.SessionToken');
@@ -38,11 +44,6 @@ then
   aws efs delete-access-point --access-point-id $ACCESS_POINT_ID
 fi
 
-echo "Create Access Point and Access Point ID"
-## Use DP-EFS and create ACCESS_POINT
-ACCESS_POINT=$(aws efs create-access-point --file-system-id $DP_EFS_ID --tags Key=Name,Value=ce$PULL_REQUEST_NUMBER)
-ACCESS_POINT_ID=$(echo $ACCESS_POINT | jq -r '.AccessPointId');
-
 export NAMESPACE=ce"$PULL_REQUEST_NUMBER"
 export CHARTNAME=ce"$PULL_REQUEST_NUMBER"
 export SECRET=ce"$PULL_REQUEST_NUMBER"
@@ -50,7 +51,7 @@ export DBNAME=ce"$PULL_REQUEST_NUMBER"
 export DOMAINNAME=ce-"$PULL_REQUEST_NUMBER".dp.appsmith.com
 
 
-export HELMCHART="appsmith"
+export HELMCHART="appsmith-ee"
 export HELMCHART_URL="https://helm-ee.appsmith.com"
 export HELMCHART_VERSION="3.0.4"
 
@@ -72,11 +73,10 @@ kubectl create secret docker-registry $SECRET \
   --docker-password=$DOCKER_HUB_ACCESS_TOKEN -n $NAMESPACE
 
 echo "Add appsmith-ee to helm repo"
-AWS_REGION=us-east-2 helm repo add "$HELMCHART" "$HELMCHART_URL";
-helm repo update;
+helm repo add "$HELMCHART" "$HELMCHART_URL";
 
 echo "Deploy appsmith helm chart"
-helm upgrade -i $CHARTNAME appsmith-ee/$HELMCHART -n $NAMESPACE --create-namespace --recreate-pods \
+helm upgrade -i $CHARTNAME $HELMCHART/appsmith -n $NAMESPACE --create-namespace --recreate-pods \
   --set _image.repository=$DOCKER_HUB_ORGANIZATION/appsmith-dp --set _image.tag=$IMAGE_HASH \
   --set image.pullSecrets=$SECRET --set autoscaling.enabled=true --set autoscaling.minReplicas=1 \
   --set autoscaling.maxReplicas=1 --set redis.enabled=false --set postgresql.enabled=false --set mongodb.enabled=false --set ingress.enabled=true \

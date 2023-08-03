@@ -14,7 +14,7 @@ RUN apt-get update \
   && apt-get upgrade --yes \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
     supervisor curl cron nfs-common certbot nginx gnupg wget netcat openssh-client \
-    software-properties-common gettext \
+    software-properties-common gettext vim \
     python3-pip python3-requests python-setuptools git ca-certificates-java \
   && wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | apt-key add - \
   && echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list \
