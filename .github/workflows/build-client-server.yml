@@ -180,7 +180,7 @@ jobs:
   ci-test-limited-result:
     needs: [file-check, ci-test-limited]
     # Only run if the file-check.runId == 0
-    if: needs.file-check.outputs.runId == '0'
+    if: always() && needs.file-check.outputs.runId == '0'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -279,7 +279,7 @@ jobs:
   ci-test-limited-result-existing:
     needs: [file-check, ci-test-limited-existing-docker-image]
     # Only run if the file-check.runId !=0
-    if: needs.file-check.outputs.runId != '0'
+    if: always() && needs.file-check.outputs.runId != '0'
     runs-on: ubuntu-latest
     defaults:
       run:

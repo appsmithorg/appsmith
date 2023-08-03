@@ -420,9 +420,14 @@ export class PropertyPane {
     toVerifySave && this.agHelper.AssertAutoSave();
   }
 
-  public TypeTextIntoField(endp: string, value: string, removeText = true) {
+  public TypeTextIntoField(
+    endp: string,
+    value: string,
+    removeText = true,
+    toVerifySave = true,
+  ) {
     if (removeText) {
-      this.RemoveText(endp);
+      this.RemoveText(endp, toVerifySave);
     }
     this.agHelper
       .GetElement(this.locator._propertyInputField(endp))
