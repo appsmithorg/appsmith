@@ -1,4 +1,4 @@
-name: 'Build Storybook - UI Tests with Chromatic'
+name: 'Build Storybook - Docs with Chromatic'
 
 on:
   push:
@@ -41,11 +41,9 @@ jobs:
       - name: Publish to Chromatic
         id: chromatic-publish
         uses: chromaui/action@v1
-        env:
-          CHROMATIC: 1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          projectToken: ${{ secrets.STORYBOOK_PROJECT_TOKEN }}
           workingDir: ./app/client/packages/storybook
           exitOnceUploaded: true
           buildScriptName: "build"

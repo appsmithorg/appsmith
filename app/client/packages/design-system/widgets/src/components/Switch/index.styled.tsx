@@ -14,7 +14,7 @@ export const StyledSwitch = styled(HeadlessSwitch)<SwitchProps>`
     position: relative;
     width: var(--sizing-8);
     height: var(--sizing-4);
-    background-color: var(--color-bg-neutral);
+    background-color: var(--color-bd-neutral);
     border-radius: var(--knob-size);
     color: var(--color-bg);
     display: inline-flex;
@@ -36,7 +36,7 @@ export const StyledSwitch = styled(HeadlessSwitch)<SwitchProps>`
   }
 
   &[data-hovered]:not([data-disabled]) [data-icon] {
-    --checkbox-border-color: var(--color-bd-neutral-hover);
+    background-color: var(--color-bd-neutral-hover);
   }
 
   /**
