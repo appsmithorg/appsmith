@@ -33,16 +33,14 @@ if [[ -n "${RECREATE-}" ]]
 then
   kubectl delete ns $NAMESPACE || true
   mongosh "mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$DBNAME?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" --eval 'db.dropDatabase()'
-  ACCESS_POINT_ID=$(aws efs describe-access-points --file-system-id "$DP_EFS_ID" | jq -r '.AccessPoints[] | select(.Name=="'"$PULL_REQUEST_NUMBER"'") | .AccessPointId')
+  ACCESS_POINT_ID=$(aws efs describe-access-points --file-system-id "$APPSMITH_DP_EFS_ID" | jq -r '.AccessPoints[] | select(.Name=="'"ce$PULL_REQUEST_NUMBER"'") | .AccessPointId')
   aws efs delete-access-point --access-point-id $ACCESS_POINT_ID
 fi
 
 echo "Create Access Point and Access Point ID"
 ## Use DP-EFS and create ACCESS_POINT
-ACCESS_POINT=$(aws efs create-access-point --file-system-id $DP_EFS_ID --tags Key=Name,Value=ce$PULL_REQUEST_NUMBER)
-echo $ACCESS_POINT
+ACCESS_POINT=$(aws efs create-access-point --file-system-id $APPSMITH_DP_EFS_ID --tags Key=Name,Value=ce$PULL_REQUEST_NUMBER)
 export ACCESS_POINT_ID=$(echo $ACCESS_POINT | jq -r '.AccessPointId');
-echo $ACCESS_POINT_ID
 
 export NAMESPACE=ce"$PULL_REQUEST_NUMBER"
 export CHARTNAME=ce"$PULL_REQUEST_NUMBER"
@@ -51,8 +49,8 @@ export DBNAME=ce"$PULL_REQUEST_NUMBER"
 export DOMAINNAME=ce-"$PULL_REQUEST_NUMBER".dp.appsmith.com
 
 
-export HELMCHART="appsmith-ee"
-export HELMCHART_URL="http://helm-ee.appsmith.com"
+export HELMCHART="appsmith"
+export HELMCHART_URL="https://helm-ee.appsmith.com"
 export HELMCHART_VERSION="3.0.4"
 
 aws eks update-kubeconfig --region $region --name $cluster_name --profile eksci
@@ -73,7 +71,8 @@ kubectl create secret docker-registry $SECRET \
   --docker-password=$DOCKER_HUB_ACCESS_TOKEN -n $NAMESPACE
 
 echo "Add appsmith-ee to helm repo"
-AWS_REGION=us-east-2 helm repo add "$HELMCHART" "$HELMCHART_URL"
+AWS_REGION=us-east-2 helm repo add "$HELMCHART" "$HELMCHART_URL";
+helm repo update;
 
 echo "Deploy appsmith helm chart"
 helm upgrade -i $CHARTNAME appsmith-ee/$HELMCHART -n $NAMESPACE --create-namespace --recreate-pods \
