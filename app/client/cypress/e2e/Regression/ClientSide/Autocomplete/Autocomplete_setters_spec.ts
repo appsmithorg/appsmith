@@ -20,10 +20,10 @@ const jsObjectBody = `export default {
 
 describe("Autocomplete tests for setters", () => {
   before(() => {
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 400);
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.CHECKBOX, 200, 600);
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.SWITCH, 400, 200);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 100, 100);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 200);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.CHECKBOX, 300, 300);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.SWITCH, 400, 400);
   });
 
   it("1. Check if setters are present in autocomplete for widgets in JsObject", () => {
@@ -71,11 +71,11 @@ describe("Autocomplete tests for setters", () => {
 
     agHelper.GetElementsNAssertTextPresence(locators._hints, "setDisabled()");
     agHelper.GetElementsNAssertTextPresence(locators._hints, "setRequired()");
+    agHelper.Sleep(); //a bit for time for CI
   });
 
   it("2. Check if setters are present in autocomplete for widgets in property Pane", () => {
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 600);
-
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 500, 500);
     entityExplorer.SelectEntityByName("Button1");
     propPane.EnterJSContext("onClick", "{{Input1.set", true, false);
     agHelper.GetElementsNAssertTextPresence(locators._hints, "setDisabled()");

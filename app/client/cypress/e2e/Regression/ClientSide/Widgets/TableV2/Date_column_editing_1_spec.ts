@@ -179,11 +179,20 @@ describe("Table widget date column inline editing functionality", () => {
       .should("have.css", "border")
       .and("not.eq", "none")
       .and("not.eq", "1px solid rgb(255, 255, 255)");
-    agHelper.GetNClick(
-      `${table._dayPickerWeek}:nth-child(2) ${table._dayPickerFirstChild}`,
-    );
+
     agHelper
-      .GetText(`${table._tableRow1Child3} ${locators._inputField}`, "val")
-      .then(($textData) => expect($textData).to.eq("07/07/2023"));
+      .GetText(
+        `${table._dayPickerWeek}:nth-child(2) ${table._dayPickerFirstChild}`,
+      )
+      .then(($dayPickerFirstChild) => {
+        agHelper.GetNClick(
+          `${table._dayPickerWeek}:nth-child(2) ${table._dayPickerFirstChild}`,
+        );
+        agHelper
+          .GetText(`${table._tableRow1Child3} ${locators._inputField}`, "val")
+          .then(($textData: any) =>
+            expect($textData).contains($dayPickerFirstChild),
+          );
+      });
   });
 });
