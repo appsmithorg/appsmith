@@ -920,6 +920,10 @@ export const checkForOnClick = (e: React.MouseEvent<HTMLElement>) => {
     target &&
     target !== currentTarget
   ) {
+    /**
+     * NOTE: target.__reactProps$ returns undefined in cypress, therefore the below targetReactProps will be null.
+     * Due to this the traversed target element's react props such as onClick will get ignored.
+     **/
     const targetReactProps = findReactInstanceProps(target);
 
     const hasOnClickableEvent = Boolean(
