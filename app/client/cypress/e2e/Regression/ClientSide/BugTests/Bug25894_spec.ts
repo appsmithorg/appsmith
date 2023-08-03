@@ -1,11 +1,10 @@
-import { WIDGET } from "../../../../locators/WidgetLocators";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const { entityExplorer, propPane } = _;
 
 describe("Bug 25894 - Moustache brackets should be highlighted", () => {
   it("1. should show {{ }} in bold", () => {
-    entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
+    entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 200, 200);
 
     entityExplorer.SelectEntityByName("Button1", "Widgets");
 
