@@ -191,7 +191,10 @@ export class Table {
   _listNavigation = (move: string) =>
     "//button[@area-label='" + move + " page']";
   _listNextPage = ".rc-pagination-next";
-  _listActivePage = ".t--widget-listwidgetv2 .rc-pagination-item-active";
+  _listActivePage = (version: "v1" | "v2") =>
+    `.t--widget-listwidget${
+      version == "v1" ? "" : version
+    } .rc-pagination-item-active`;
   _paginationItem = (value: number) => `.rc-pagination-item-${value}`;
 
   public GetNumberOfRows() {
@@ -661,7 +664,9 @@ export class Table {
       force,
     );
     toSaveNewValue &&
-      this.agHelper.TypeText(this._editCellEditorInput, "{enter}", 0, true);
+      this.agHelper.TypeText(this._editCellEditorInput, "{enter}", {
+        parseSpecialCharSeq: true,
+      });
   }
 
   public DeleteColumn(colId: string) {
@@ -688,12 +693,12 @@ export class Table {
         .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
     } else if (tableVersion == "v2") {
       this.agHelper
-        .GetText(this._listActivePage, "text", index)
+        .GetText(this._listActivePage(tableVersion), "text", index)
         .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
       this.agHelper.GetNClick(this._listNextPage, index, true);
       this.agHelper.Sleep(1000);
       this.agHelper
-        .GetText(this._listActivePage, "text", index)
+        .GetText(this._listActivePage(tableVersion), "text", index)
         .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
     }
   }
@@ -740,7 +745,7 @@ export class Table {
         );
     } else if (tableVersion == "v2") {
       this.agHelper
-        .GetText(this._listActivePage, "text")
+        .GetText(this._listActivePage(tableVersion), "text")
         .then(($currentPageNo) => expect(Number($currentPageNo)).to.eq(pageNo));
 
       if (pageNo == 1)
@@ -788,18 +793,25 @@ export class Table {
   }
 
   //This method is used to navigate forward using ">" button and backward "<"
-  public NavigateToPageUsingButton_List(movement: string, pageNumber: number) {
+  public NavigateToPageUsingButton_List(
+    movement: string,
+    pageNumber: number,
+    version: "v1" | "v2" = "v2",
+  ) {
     this.agHelper.GetNClick(this._listNavigation(movement), 0, true);
     this.agHelper.Sleep(2000);
     this.agHelper
-      .GetText(this._listActivePage, "text")
+      .GetText(this._listActivePage(version), "text")
       .then(($newPageNo) => expect(Number($newPageNo)).to.eq(pageNumber));
   }
 
-  public NavigateToSpecificPage_List(pageNumber: number) {
+  public NavigateToSpecificPage_List(
+    pageNumber: number,
+    version: "v1" | "v2" = "v2",
+  ) {
     this.agHelper.GetNClick(`${this._paginationItem(pageNumber)}`);
     this.agHelper
-      .GetText(this._listActivePage, "text")
+      .GetText(this._listActivePage(version), "text")
       .then(($newPageNo) => expect(Number($newPageNo)).to.eq(pageNumber));
   }
 }

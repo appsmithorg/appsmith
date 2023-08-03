@@ -198,8 +198,7 @@ export class GitSync {
       this.agHelper.TypeText(
         this._branchSearchInput,
         `{selectall}` + `${branch + uid}` + `{enter}`,
-        0,
-        true,
+        { parseSpecialCharSeq: true },
       );
       this.agHelper.AssertElementExist(this.locator._btnSpinner);
       this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 70000); //Since page taking more time to laod in some cases
@@ -215,8 +214,7 @@ export class GitSync {
     this.agHelper.TypeText(
       this._branchSearchInput,
       `{selectall}` + `${branch}`,
-      0,
-      true,
+      { parseSpecialCharSeq: true },
     );
     cy.wait(1000);
     //cy.get(gitSyncLocators.branchListItem).contains(branch).click();
@@ -249,7 +247,7 @@ export class GitSync {
     this.agHelper.GetNClick(this.locator._publishButton);
     this.agHelper.AssertElementExist(this._bottomBarPull);
     //cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-    this.agHelper.TypeText(this._commitCommentInput, "Initial commit", 0, true);
+    this.agHelper.TypeText(this._commitCommentInput, "Initial commit");
     this.agHelper.GetNClick(this._commitButton);
     if (!assertFailure) {
       // check for commit success
