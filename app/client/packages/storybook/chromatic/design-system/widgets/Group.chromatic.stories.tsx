@@ -20,7 +20,7 @@ export default meta;
 
 type Story = StoryObj<typeof Switch>;
 
-export const States: Story = {
+export const Story: Story = {
   render: () => (
     <StoryGrid>
       <RadioGroup defaultValue="1">
@@ -41,3 +41,5 @@ export const States: Story = {
     </StoryGrid>
   ),
 };
+
+Story.storyName = "Group";

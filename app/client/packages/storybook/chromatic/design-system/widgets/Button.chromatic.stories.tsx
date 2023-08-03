@@ -39,7 +39,7 @@ const ICON = (
   </Icon>
 );
 
-export const States: Story = {
+export const Story: Story = {
   render: () => (
     <StoryGrid>
       {variants.map((variant) =>
@@ -62,3 +62,5 @@ export const States: Story = {
     </StoryGrid>
   ),
 };
+
+Story.storyName = "Button";

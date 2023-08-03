@@ -14,7 +14,8 @@ export default meta;
 
 type Story = StoryObj<typeof Text>;
 
-export const States: Story = {
+export const Story: Story = {
+  storyName: "Text",
   render: () => (
     <StoryGrid cols="4">
       <Text>
@@ -52,3 +53,5 @@ export const States: Story = {
     </StoryGrid>
   ),
 };
+
+Story.storyName = "Text";

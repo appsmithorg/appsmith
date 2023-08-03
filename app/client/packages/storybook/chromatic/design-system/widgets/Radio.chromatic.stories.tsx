@@ -16,7 +16,7 @@ type Story = StoryObj<typeof Radio>;
 
 const states = ["", "data-hovered", "data-focused", "data-disabled"];
 
-export const States: Story = {
+export const Story: Story = {
   render: () => (
     <StoryGrid>
       {states.map((state) => (
@@ -36,3 +36,5 @@ export const States: Story = {
     </StoryGrid>
   ),
 };
+
+Story.storyName = "Radio";

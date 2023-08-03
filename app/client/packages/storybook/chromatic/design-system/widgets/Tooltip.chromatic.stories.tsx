@@ -18,7 +18,7 @@ export default meta;
 
 type Story = StoryObj<typeof Tooltip>;
 
-export const States: Story = {
+export const Story: Story = {
   render: () => (
     <StoryGrid>
       <Tooltip open placement="left">
@@ -48,3 +48,5 @@ export const States: Story = {
     </StoryGrid>
   ),
 };
+
+Story.storyName = "Tooltip";
