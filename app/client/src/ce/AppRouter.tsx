@@ -45,7 +45,6 @@ import * as Sentry from "@sentry/react";
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import UserProfile from "pages/UserProfile";
 import { getCurrentUser } from "actions/authActions";
-import { getCurrentUserLoading } from "selectors/usersSelectors";
 import Setup from "pages/setup";
 import SettingsLoader from "pages/Settings/loader";
 import SignupSuccess from "pages/setup/SignupSuccess";
@@ -58,13 +57,9 @@ import {
 import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
-import {
-  getTenantPermissions,
-  isTenantLoading,
-} from "@appsmith/selectors/tenantSelectors";
+import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
-import { initCurrentPage } from "../actions/initActions";
 import Walkthrough from "components/featureWalkthrough";
 import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
 
@@ -145,37 +140,34 @@ function AppRouter(props: {
     getCurrentTenant,
     getCurrentUser,
     getFeatureFlags,
-    initCurrentPage,
   } = props;
-  const tenantIsLoading = useSelector(isTenantLoading);
-  const currentUserIsLoading = useSelector(getCurrentUserLoading);
 
   useEffect(() => {
     getCurrentUser();
     getFeatureFlags();
     getCurrentTenant();
-    initCurrentPage();
+    // initCurrentPage();
     fetchProductAlert();
   }, []);
 
   useBrandingTheme();
 
   // hide the top loader once the tenant is loaded
-  useEffect(() => {
-    if (tenantIsLoading === false && currentUserIsLoading === false) {
-      const loader = document.getElementById("loader") as HTMLDivElement;
-
-      if (loader) {
-        loader.style.width = "100vw";
-
-        setTimeout(() => {
-          loader.style.opacity = "0";
-        });
-      }
-    }
-  }, [tenantIsLoading, currentUserIsLoading]);
-
-  if (tenantIsLoading || currentUserIsLoading) return null;
+  // useEffect(() => {
+  //   if (tenantIsLoading === false && currentUserIsLoading === false) {
+  //     const loader = document.getElementById("loader") as HTMLDivElement;
+  //
+  //     if (loader) {
+  //       loader.style.width = "100vw";
+  //
+  //       setTimeout(() => {
+  //         loader.style.opacity = "0";
+  //       });
+  //     }
+  //   }
+  // }, [tenantIsLoading, currentUserIsLoading]);
+  //
+  // if (tenantIsLoading || currentUserIsLoading) return null;
 
   return (
     <Router history={history}>
@@ -209,7 +201,6 @@ const mapDispatchToProps = (dispatch: any) => ({
   getCurrentUser: () => dispatch(getCurrentUser()),
   getFeatureFlags: () => dispatch(fetchFeatureFlagsInit()),
   getCurrentTenant: () => dispatch(getCurrentTenant(false)),
-  initCurrentPage: () => dispatch(initCurrentPage()),
   fetchProductAlert: () => dispatch(fetchProductAlertInit()),
 });
 
