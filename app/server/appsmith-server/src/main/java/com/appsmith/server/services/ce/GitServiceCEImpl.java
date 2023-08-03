@@ -1782,10 +1782,40 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 return executionTimeLogging.measureTask(
                                         "checkoutBranch", checkoutBranch(defaultApplicationId, finalBranchName));
                             })
-                            .zipWhen(application -> executionTimeLogging.measureTask(
-                                    "getStatus->exportApplicationById",
-                                    importExportApplicationService.exportApplicationById(
-                                            application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)));
+                            .zipWhen(application -> {
+                                Path repoSuffix = Paths.get(
+                                        application.getWorkspaceId(),
+                                        gitApplicationMetadata.getDefaultApplicationId(),
+                                        gitApplicationMetadata.getRepoName());
+                                GitAuth gitAuth = gitApplicationMetadata.getGitAuth();
+
+                                // Create a Mono to fetch the status from remote
+                                Mono<String> fetchRemoteMono = executionTimeLogging.measureTask(
+                                        "getStatus->gitExecutor.fetchRemote",
+                                        gitExecutor
+                                                .fetchRemote(
+                                                        repoSuffix,
+                                                        gitAuth.getPublicKey(),
+                                                        gitAuth.getPrivateKey(),
+                                                        false,
+                                                        branchName,
+                                                        false)
+                                                .onErrorResume(error -> Mono.error(new AppsmithException(
+                                                        AppsmithError.GIT_GENERIC_ERROR, error.getMessage()))));
+
+                                Mono<ApplicationJson> exportAppMono = executionTimeLogging.measureTask(
+                                        "getStatus->exportApplicationById",
+                                        importExportApplicationService.exportApplicationById(
+                                                application.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
+
+                                return Mono.zip(exportAppMono, fetchRemoteMono) // zip will run them in parallel
+                                        .elapsed()
+                                        .map(objects -> {
+                                            log.debug("Time to fetch remote and export app: {} ms", objects.getT1());
+                                            // we need the applicationJson only
+                                            return objects.getT2().getT1();
+                                        });
+                            });
 
                     if (Boolean.TRUE.equals(isFileLock)) {
                         // Add file lock for the status API call to avoid sending wrong info on the status
@@ -1826,17 +1856,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     .cache());
 
                     try {
-                        return executionTimeLogging
-                                .measureTask(
-                                        "getStatus->gitExecutor.fetchRemote",
-                                        gitExecutor.fetchRemote(
-                                                tuple.getT1(),
-                                                tuple.getT2().getPublicKey(),
-                                                tuple.getT2().getPrivateKey(),
-                                                true,
-                                                branchName,
-                                                false))
-                                .then(branchedStatusMono)
+                        return branchedStatusMono
                                 // Remove any files which are copied by hard resetting the repo
                                 .then(executionTimeLogging.measureTask(
                                         "getStatus->gitExecutor.resetToLastCommit",
@@ -1854,6 +1874,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .onErrorResume(error -> Mono.error(new AppsmithException(
                                         AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage())));
                     } catch (GitAPIException | IOException e) {
+                        log.error("error occurred", e);
                         return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, e.getMessage()));
                     }
                 });
@@ -2061,13 +2082,35 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .flatMap(status -> this.getStatus(defaultApplicationId, sourceBranch, false))
                             .flatMap(srcBranchStatus -> {
                                 if (!Integer.valueOf(0).equals(srcBranchStatus.getBehindCount())) {
-                                    return Mono.error(Exceptions.propagate(new AppsmithException(
-                                            AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES,
-                                            srcBranchStatus.getBehindCount(),
-                                            sourceBranch)));
+                                    return addAnalyticsForGitOperation(
+                                                    AnalyticsEvents.GIT_MERGE_CHECK.getEventName(),
+                                                    application,
+                                                    AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES.name(),
+                                                    AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES.getMessage(
+                                                            srcBranchStatus.getBehindCount(), destinationBranch),
+                                                    application
+                                                            .getGitApplicationMetadata()
+                                                            .getIsRepoPrivate(),
+                                                    false,
+                                                    false)
+                                            .then(Mono.error(Exceptions.propagate(new AppsmithException(
+                                                    AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES,
+                                                    srcBranchStatus.getBehindCount(),
+                                                    sourceBranch))));
                                 } else if (!CollectionUtils.isNullOrEmpty(srcBranchStatus.getModified())) {
-                                    return Mono.error(Exceptions.propagate(new AppsmithException(
-                                            AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, sourceBranch)));
+                                    return addAnalyticsForGitOperation(
+                                                    AnalyticsEvents.GIT_MERGE_CHECK.getEventName(),
+                                                    application,
+                                                    AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES.name(),
+                                                    AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES.getMessage(
+                                                            destinationBranch),
+                                                    application
+                                                            .getGitApplicationMetadata()
+                                                            .getIsRepoPrivate(),
+                                                    false,
+                                                    false)
+                                            .then(Mono.error(Exceptions.propagate(new AppsmithException(
+                                                    AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, sourceBranch))));
                                 }
                                 return this.getStatus(defaultApplicationId, destinationBranch, false)
                                         .map(destBranchStatus -> {
@@ -2147,19 +2190,17 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                         ErrorReferenceDocUrl.GIT_MERGE_CONFLICT.getDocUrl());
                                                 return mergeStatus;
                                             })
-                                            .flatMap(mergeStatusDTO -> {
-                                                addAnalyticsForGitOperation(
-                                                        AnalyticsEvents.GIT_MERGE_CHECK.getEventName(),
-                                                        application,
-                                                        error.getClass().getName(),
-                                                        error.getMessage(),
-                                                        application
-                                                                .getGitApplicationMetadata()
-                                                                .getIsRepoPrivate(),
-                                                        false,
-                                                        false);
-                                                return Mono.just(mergeStatusDTO);
-                                            });
+                                            .flatMap(mergeStatusDTO -> addAnalyticsForGitOperation(
+                                                            AnalyticsEvents.GIT_MERGE_CHECK.getEventName(),
+                                                            application,
+                                                            error.getClass().getName(),
+                                                            error.getMessage(),
+                                                            application
+                                                                    .getGitApplicationMetadata()
+                                                                    .getIsRepoPrivate(),
+                                                            false,
+                                                            false)
+                                                    .map(application1 -> mergeStatusDTO));
                                 } catch (GitAPIException | IOException e) {
                                     log.error("Error while resetting to last commit", e);
                                     return Mono.error(new AppsmithException(
@@ -2638,7 +2679,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             branchedApplication.getWorkspaceId(),
                                             applicationJson,
                                             branchedApplication.getId(),
-                                            branchName));
+                                            branchName))
+                            // Update the last deployed status after the rebase
+                            .flatMap(application -> publishAndOrGetApplication(application.getId(), true));
                 })
                 .flatMap(application -> releaseFileLock(defaultApplicationId)
                         .then(this.addAnalyticsForGitOperation(

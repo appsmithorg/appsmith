@@ -227,9 +227,8 @@ export const EditorWrapper = styled.div<{
         color: #364252;
       }
 
-      .binding-brackets,
-      .CodeMirror-matchingbracket,
-      .binding-highlight {
+      .cm-binding-brackets,
+      .CodeMirror-matchingbracket {
         font-weight: 400;
       }
 
@@ -238,7 +237,7 @@ export const EditorWrapper = styled.div<{
         font-weight: 600;
       }
 
-      .binding-brackets {
+      .cm-binding-brackets {
         // letter-spacing: -1.8px;
         color: hsl(222, 70%, 77%);
       }
@@ -259,7 +258,7 @@ export const EditorWrapper = styled.div<{
       background: var(--ads-v2-color-bg-subtle);
     }
     .cm-s-duotone-light .CodeMirror-linenumber,
-    .binding-brackets {
+    .cm-binding-brackets {
       color: ${(props) =>
         props.editorTheme === EditorTheme.DARK
           ? props.theme.colors.bindingTextDark
