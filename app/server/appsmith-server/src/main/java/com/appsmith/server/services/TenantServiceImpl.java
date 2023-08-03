@@ -5,6 +5,7 @@ import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicenseOrigin;
+import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.QTenant;
@@ -19,6 +20,7 @@ import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.TenantServiceCEImpl;
 import com.appsmith.server.solutions.LicenseValidator;
 import jakarta.validation.Validator;
+import lombok.extern.slf4j.Slf4j;
 import org.pf4j.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -27,8 +29,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -42,6 +46,7 @@ import static com.appsmith.server.constants.CommonConstants.IN;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
+@Slf4j
 public class TenantServiceImpl extends TenantServiceCEImpl implements TenantService {
 
     private final LicenseValidator licenseValidator;
@@ -224,7 +229,13 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      * @return Mono of Tenant
      */
     private Mono<Tenant> checkTenantLicense(Tenant tenant) {
-        Mono<License> licenseMono = licenseValidator.licenseCheck(tenant);
+        Mono<License> licenseMono = licenseValidator.licenseCheck(tenant).onErrorResume(throwable -> {
+            Objects.requireNonNull(this.checkAndUpdateLicenseExpiryWithinInstance(tenant))
+                    .subscribeOn(Schedulers.boundedElastic())
+                    .subscribe();
+            log.debug("Error while validating license: {}", throwable.getMessage(), throwable);
+            return Mono.error(throwable);
+        });
         return licenseMono.map(license -> {
             // To prevent empty License object being saved in DB for license checks with empty license key
             if (!StringUtils.isNullOrEmpty(license.getKey())) {
@@ -287,5 +298,26 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      */
     private Set<LicenseOrigin> getEnterpriseLicenseOrigins() {
         return Set.of(LicenseOrigin.ENTERPRISE, LicenseOrigin.AIR_GAP);
+    }
+
+    private Mono<Tenant> checkAndUpdateLicenseExpiryWithinInstance(Tenant tenant) {
+        if (StringUtils.isNullOrEmpty(tenant.getId())) {
+            return Mono.just(tenant);
+        }
+        TenantConfiguration tenantConfiguration =
+                tenant.getTenantConfiguration() != null ? tenant.getTenantConfiguration() : new TenantConfiguration();
+
+        License license = tenantConfiguration.getLicense() != null ? tenantConfiguration.getLicense() : new License();
+
+        // TODO: Update the check from plain timestamp so that user should not be able to tamper the DB resource
+        if (license.getExpiry() == null || license.getExpiry().isBefore(Instant.now())) {
+            license.setActive(false);
+            license.setStatus(LicenseStatus.EXPIRED);
+            license.setPlan(LicensePlan.FREE);
+            tenantConfiguration.setLicense(license);
+            tenant.setTenantConfiguration(tenantConfiguration);
+            return this.save(tenant);
+        }
+        return Mono.just(tenant);
     }
 }

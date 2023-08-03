@@ -1022,19 +1022,29 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
 
     @Override
     protected List<Mono<Void>> updatePoliciesForIndependentDomains(
-            Application application, String permissionGroupId, Boolean addViewAccess) {
-        List<Mono<Void>> monos =
-                super.updatePoliciesForIndependentDomains(application, permissionGroupId, addViewAccess);
+            Application application,
+            String permissionGroupId,
+            Boolean addViewAccess,
+            Flux<String> otherApplicationsWithAccessFlux) {
+        List<Mono<Void>> monos = super.updatePoliciesForIndependentDomains(
+                application, permissionGroupId, addViewAccess, otherApplicationsWithAccessFlux);
 
         Map<String, Policy> environmentPolicyMap = policySolution.generatePolicyFromPermissionWithPermissionGroup(
                 AclPermission.EXECUTE_ENVIRONMENTS, permissionGroupId);
 
-        Mono<Void> environmentMono = policySolution
+        Mono<Void> updateEnvironmentMono = policySolution
                 .updateEnvironmentPoliciesByWorkspaceId(
                         application.getWorkspaceId(), environmentPolicyMap, addViewAccess)
                 .then();
 
-        monos.add(environmentMono);
+        Mono<Void> environmentsMono = otherApplicationsWithAccessFlux.count().flatMap(count -> {
+            if (count == 0) {
+                return updateEnvironmentMono;
+            }
+            return Mono.empty().then();
+        });
+
+        monos.add(environmentsMono);
 
         return monos;
     }

@@ -877,7 +877,7 @@ public enum AppsmithError {
     GIT_FILE_IN_USE(
             500,
             AppsmithErrorCode.GIT_FILE_IN_USE.getCode(),
-            "Your Git repo is in use by another member of your team. Usually, this takes a few seconds. Please try again a little later.",
+            "We were unable to place a lock on the file system to perform #commandName command. This error can occur when another operation is in progress. Please try again later.",
             AppsmithErrorAction.DEFAULT,
             "Git repo is locked",
             ErrorType.GIT_ACTION_EXECUTION_ERROR,
@@ -1008,6 +1008,14 @@ public enum AppsmithError {
             "Can't create a new API key. There already exists an API Key",
             AppsmithErrorAction.DEFAULT,
             "Api Key already exists",
+            ErrorType.AUTHENTICATION_ERROR,
+            null),
+    API_KEY_NOT_MAPPED(
+            403,
+            AppsmithErrorCode.API_KEY_NOT_MAPPED.getCode(),
+            "Api Key not mapped. It may have already been disabled.",
+            AppsmithErrorAction.DEFAULT,
+            "API Key not mapped.",
             ErrorType.AUTHENTICATION_ERROR,
             null),
     ;

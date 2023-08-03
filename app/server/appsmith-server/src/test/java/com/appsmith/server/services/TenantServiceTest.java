@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.appsmith.server.constants.ApiConstants.CLOUD_SERVICES_SIGNATURE;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -357,5 +358,20 @@ public class TenantServiceTest {
                 .isNullOrEmpty();
         Assertions.assertThat(userProfileDTO_shouldNotContainRolesAndGroupInfo.getGroups())
                 .isNullOrEmpty();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void updateTenantLicenseKey_invalidLicenseSignature_throwException() {
+
+        // Mock CS response to get invalid signature
+        Mockito.when(licenseValidator.licenseCheck(any()))
+                .thenThrow(new AppsmithException(AppsmithError.INVALID_PARAMETER, CLOUD_SERVICES_SIGNATURE));
+
+        StepVerifier.create(tenantService.updateTenantLicenseKey("invalid_signature_license_test"))
+                .expectErrorMatches(error -> error instanceof AppsmithException
+                        && error.getMessage()
+                                .equals(AppsmithError.INVALID_PARAMETER.getMessage(CLOUD_SERVICES_SIGNATURE)))
+                .verify();
     }
 }

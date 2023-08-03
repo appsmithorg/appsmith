@@ -73,7 +73,7 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
         tenantService
                 .checkAndUpdateDefaultTenantLicense()
                 .subscribeOn(Schedulers.boundedElastic())
-                .block();
+                .subscribe();
     }
 
     /**

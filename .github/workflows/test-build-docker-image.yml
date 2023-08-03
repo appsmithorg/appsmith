@@ -202,7 +202,7 @@ jobs:
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
             APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
           tags: |
-            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:release
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:release
 
   package-master:
     needs: ci-test
@@ -269,5 +269,5 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${{ github.sha }}
-            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:nightly
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:${{ github.sha }}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:nightly

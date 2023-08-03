@@ -1,6 +1,8 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserApiKey;
@@ -25,8 +27,9 @@ public class ApiKeyServiceImpl extends BaseService<ApiKeyRepository, UserApiKey,
 
     private final TenantService tenantService;
 
-    private final ApiKeyRepository userApiKeyRepository;
     private final UserRepository userRepository;
+
+    private final EncryptionService encryptionService;
 
     public ApiKeyServiceImpl(
             MongoConverter mongoConverter,
@@ -36,11 +39,12 @@ public class ApiKeyServiceImpl extends BaseService<ApiKeyRepository, UserApiKey,
             AnalyticsService analyticsService,
             TenantService tenantService,
             ApiKeyRepository repository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            EncryptionService encryptionService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.tenantService = tenantService;
-        this.userApiKeyRepository = repository;
         this.userRepository = userRepository;
+        this.encryptionService = encryptionService;
     }
 
     @Override
@@ -60,23 +64,23 @@ public class ApiKeyServiceImpl extends BaseService<ApiKeyRepository, UserApiKey,
                         .switchIfEmpty(Mono.error(
                                 new AppsmithException(AppsmithError.USER_NOT_FOUND, apiKeyRequestDto.getEmail()))))
                 .cache();
-        Mono<Boolean> archiveExistingUserApiKeyMono = userMono.flatMap(
-                        user -> userApiKeyRepository.getByUserIdWithoutPermission(user.getId()))
-                .flatMap(userApiKey -> userApiKeyRepository.archiveById(userApiKey.getId()))
-                .thenReturn(Boolean.TRUE);
-        return Mono.zip(archiveExistingUserApiKeyMono, userMono)
-                .flatMap(pair -> {
-                    User user = pair.getT2();
+        return userMono.flatMap(user -> {
+                    String generatedToken = generateToken(user.getId());
                     UserApiKey userApiKey = new UserApiKey();
                     userApiKey.setUserId(user.getId());
-                    userApiKey.setApiKey(generateToken(user.getId()));
-                    return userApiKeyRepository.save(userApiKey);
+                    userApiKey.setApiKey(generatedToken);
+                    // Generated token is encrypted and stored in DB.
+                    // Generated token is concatenated with UserId and returned.
+                    return repository
+                            .save(userApiKey)
+                            .thenReturn(concatenateKeyAndUserId(generatedToken, user.getId()));
                 })
-                .map(UserApiKey::getApiKey);
+                // Encrypt the concatenatedKeyAndUserId and then return it.
+                .map(encryptionService::encryptString);
     }
 
     @Override
-    public Mono<Boolean> archiveApiKey(ApiKeyRequestDto apiKeyRequestDto) {
+    public Mono<Boolean> archiveAllApiKeysForUser(String email) {
         /*
          * We want to restrict the API Key generation to Users who are associated with Instance Administrator Role.
          * Fetching the tenant with MANAGE_TENANT permission assures that.
@@ -88,21 +92,27 @@ public class ApiKeyServiceImpl extends BaseService<ApiKeyRepository, UserApiKey,
                 .cache();
         Mono<User> userMono = tenantMono
                 .then(userRepository
-                        .findByCaseInsensitiveEmail(apiKeyRequestDto.getEmail())
-                        .switchIfEmpty(Mono.error(
-                                new AppsmithException(AppsmithError.USER_NOT_FOUND, apiKeyRequestDto.getEmail()))))
+                        .findByCaseInsensitiveEmail(email)
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.USER_NOT_FOUND, email))))
                 .cache();
-        return userMono.flatMap(user -> userApiKeyRepository.getByUserIdWithoutPermission(user.getId()))
-                .flatMap(userApiKey -> userApiKeyRepository.archiveById(userApiKey.getId()))
+
+        // Archive all API Keys which exist for the User.
+        return userMono.flatMapMany(user -> repository.getByUserIdWithoutPermission(user.getId()))
+                .flatMap(userApiKey -> repository.archiveById(userApiKey.getId()))
+                .collectList()
                 .thenReturn(Boolean.TRUE);
     }
 
-    private String generateToken(String userId) {
+    public static String generateToken(String userId) {
         String seedValue = userId + Instant.now().toString();
         SecureRandom secureRandom = new SecureRandom(seedValue.getBytes());
         byte[] bytes = new byte[124];
         secureRandom.nextBytes(bytes);
         Base64.Encoder encoder = Base64.getUrlEncoder().withoutPadding();
         return encoder.encodeToString(bytes);
+    }
+
+    private String concatenateKeyAndUserId(String apiKey, String userId) {
+        return apiKey + FieldName.APIKEY_USERID_DELIMITER + userId;
     }
 }

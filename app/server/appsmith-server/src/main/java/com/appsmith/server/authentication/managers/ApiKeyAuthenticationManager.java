@@ -1,5 +1,7 @@
 package com.appsmith.server.authentication.managers;
 
+import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -15,7 +17,13 @@ public class ApiKeyAuthenticationManager implements ReactiveAuthenticationManage
         if (Objects.nonNull(authentication)) {
             String apiKey = (String) authentication.getCredentials();
             if (StringUtils.isNotEmpty(apiKey) && Objects.nonNull(authentication.getPrincipal())) {
-                authentication.setAuthenticated(true);
+                User user = (User) authentication.getPrincipal();
+                // Set the authenticated flag to true only when user email is not empty and the user is any user
+                // other than Anonymous User, because for all the unauthenticated requests, Appsmith defaults to
+                // Anonymous User.
+                if (StringUtils.isNotEmpty(user.getEmail()) && !FieldName.ANONYMOUS_USER.equals(user.getEmail())) {
+                    authentication.setAuthenticated(true);
+                }
             }
         }
         return Mono.just(authentication);
