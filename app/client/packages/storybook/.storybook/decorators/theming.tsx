@@ -1,5 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
+import isChromatic from "chromatic/isChromatic";
 import { ThemeProvider, useTheme } from "@design-system/theming";
 
 const StyledThemeProvider = styled(ThemeProvider)`
@@ -16,14 +17,17 @@ const StyledThemeProvider = styled(ThemeProvider)`
 export const theming = (Story, args) => {
   const { theme } = useTheme({
     seedColor: args.globals.accentColor,
-    colorMode: args.globals.colorMode,
+    colorMode: args.parameters.colorMode || args.globals.colorMode,
     borderRadius: args.globals.borderRadius,
     fontFamily: args.globals.fontFamily,
     rootUnitRatio: args.globals.rootUnitRatio,
   });
 
   return (
-    <StyledThemeProvider theme={theme}>
+    <StyledThemeProvider
+      className={isChromatic() ? "is-chromatic" : ""}
+      theme={theme}
+    >
       <Story />
     </StyledThemeProvider>
   );
