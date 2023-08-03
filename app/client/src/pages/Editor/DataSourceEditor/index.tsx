@@ -251,13 +251,11 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       this.props.switchDatasource(this.props.datasourceId);
     }
 
-    const urlObject = new URL(window.location.href);
-    const pluginId = urlObject?.searchParams.get("pluginId");
     // update block state when form becomes dirty/view mode is switched on
     if (
       prevProps.viewMode !== this.props.viewMode &&
       !this.props.viewMode &&
-      !!pluginId
+      !!this.props.pluginId
     ) {
       this.blockRoutes();
     }
@@ -312,7 +310,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         pluginId,
       });
     }
-    if (!this.props.viewMode && !!pluginId) {
+    if (!this.props.viewMode && !!this.props.pluginId) {
       this.blockRoutes();
     }
 
@@ -448,7 +446,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   }
 
   closeDialog() {
-    this.setState({ showDialog: false });
+    this.setState({ showDialog: false, switchFilterBlocked: false });
   }
 
   onSave() {
@@ -469,7 +467,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     this.state.navigation();
     this.props.datasourceDiscardAction(this.props?.pluginId);
 
-    if (!this.props.viewMode) {
+    if (!this.props.viewMode && !this.state.switchFilterBlocked) {
       this.props.setDatasourceViewMode({
         datasourceId: this.props.datasourceId,
         viewMode: true,
