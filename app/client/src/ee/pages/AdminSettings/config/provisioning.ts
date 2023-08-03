@@ -8,8 +8,12 @@ import {
 } from "@appsmith/pages/AdminSettings/config/types";
 import Provisioning from "../Provisioning";
 import { ScimProvisioning } from "../Provisioning/ScimProvisioning";
-import { isEnterprise } from "@appsmith/selectors/tenantSelectors";
+import {
+  isAirgapLicense,
+  isEnterprise,
+} from "@appsmith/selectors/tenantSelectors";
 import store from "store";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const ScimProvisioningConfig: AdminConfigType = {
   type: SettingCategories.SCIM_PROVISIONING,
@@ -23,7 +27,8 @@ const ScimProvisioningConfig: AdminConfigType = {
 
 export const config: AdminConfigType = {
   ...CE_config,
-  ...(isEnterprise(store.getState())
+  ...(isEnterprise(store.getState()) ||
+  (isAirgapped() && isAirgapLicense(store.getState()))
     ? {
         component: Provisioning,
         title: "Provisioning",

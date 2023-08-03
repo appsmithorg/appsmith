@@ -3,12 +3,11 @@ name: Scheduled Test Build Docker Image Airgap
 on:
   # This workflow will run everyday at 06:00 AM IST (12:30 AM UTC) on weekdays
   schedule:
-    - cron: '30 00 * * 1-5'
+    - cron: "30 00 * * 1-5"
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
 
 jobs:
-
   server-build:
     name: server-build
     uses: ./.github/workflows/server-build.yml
@@ -32,7 +31,7 @@ jobs:
       pr: 0
 
   build-docker-image:
-    needs: [ client-build-airgap, server-build, rts-build ]
+    needs: [client-build-airgap, server-build, rts-build]
     # Only run if the build step is successful
     if: success()
     name: build-docker-image
@@ -43,7 +42,7 @@ jobs:
       airgap-enabled: "true"
 
   perf-test:
-    needs: [ build-docker-image ]
+    needs: [build-docker-image]
     # Only run if the build step is successful
     if: success()
     name: perf-test
@@ -54,7 +53,7 @@ jobs:
       airgap-enabled: "true"
 
   ci-test:
-    needs: [ build-docker-image ]
+    needs: [build-docker-image]
     # Only run if the build step is successful
     if: success()
     name: ci-test
@@ -119,13 +118,13 @@ jobs:
         env:
           SLACK_CHANNEL: stabilizing-cypress
           SLACK_COLOR: ${{steps.slack_notification.outputs.slack_color}}
-          SLACK_ICON_EMOJI: ':bell:'
+          SLACK_ICON_EMOJI: ":bell:"
           SLACK_MESSAGE: ${{steps.slack_notification.outputs.slack_message}}
-          SLACK_TITLE: 'Result:'
+          SLACK_TITLE: "Result:"
           SLACK_USERNAME: Github Scheduler
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_AIRGAP }}
           MSG_MINIMAL: Ref,Event,Commit
-          SLACK_FOOTER: 'Appsmith scheduled runs'
+          SLACK_FOOTER: "Appsmith scheduled runs"
 
       # Deleting the existing dir's if any
       - name: Delete existing directories
@@ -247,20 +246,18 @@ jobs:
           rm app/client/packages/rts/dist/rts-dist.tar
 
       # Here, the github.ref_name gives us the branch name. Example: refs/heads/master => master
-      # The 'tag' variable is used to tag the docker image with that branch name.
       # The 'branch_basename' variable is used to tag the docker image with the branch name without the semantic prefix 'ci/','feat/' etc.. prefix.
       # We need both because with airgap we can manually trigger workflow from any branch (not just release branch) and we need to tag the docker image with the branch name.
       - name: Get the version to tag the Docker image
         id: vars
         run: |
-          echo tag=$(echo ${{github.ref_name}}) >> $GITHUB_OUTPUT
           echo branch_basename=$(basename ${{github.ref_name}}) >> $GITHUB_OUTPUT
 
       - name: Get the airgapped version tag to tag airgap docker image
         id: airgap_vars
         run: |
-          if [[ ${{steps.vars.outputs.tag}} == "ci/airgap-"* ]]; then
-            echo airgap_tag=$(echo "${{ steps.vars.outputs.tag }}" | cut -d'-' -f2-) >> $GITHUB_OUTPUT
+          if [[ "${{ github.ref_name }}" == "ci/airgap-"* ]]; then
+            echo airgap_tag=$(echo "${{ github.ref_name }}" | cut -d'-' -f2-) >> $GITHUB_OUTPUT
           fi
 
       - name: Set up Depot CLI
@@ -303,7 +300,7 @@ jobs:
 
       # assert if we have the version tag for airgap image
       - name: Build and push airgap tagged image to Docker Hub with latest and version tags
-        if: success() && ${{steps.airgap_vars.outputs.airgap_tag}} && github.event_name == 'workflow_dispatch'
+        if: success() && startsWith(github.ref_name, 'ci/airgap-') && github.event_name == 'workflow_dispatch'
         uses: depot/build-push-action@v1
         with:
           context: .
@@ -316,4 +313,3 @@ jobs:
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:${{steps.airgap_vars.outputs.airgap_tag}}
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:latest
-

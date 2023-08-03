@@ -88,6 +88,10 @@ export const isEnterprise = (state: AppState) =>
   state.tenant?.tenantConfiguration?.license?.origin ===
   LICENSE_ORIGIN.ENTERPRISE;
 
+export const isAirgapLicense = (state: AppState) =>
+  state.tenant?.tenantConfiguration?.license?.origin ===
+  LICENSE_ORIGIN.AIRGAPPED;
+
 /**
  * selects the tenant brand colors
  *
