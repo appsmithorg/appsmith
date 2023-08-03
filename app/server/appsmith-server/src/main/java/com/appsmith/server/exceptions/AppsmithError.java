@@ -915,6 +915,42 @@ public enum AppsmithError {
             "Invalid SMTP configuration",
             ErrorType.INTERNAL_ERROR,
             null),
+
+    USER_ALREADY_VERIFIED(
+            400,
+            AppsmithErrorCode.USER_EMAIL_ALREADY_VERIFIED.getCode(),
+            "This email has already been verified",
+            AppsmithErrorAction.DEFAULT,
+            "User email already verified",
+            ErrorType.BAD_REQUEST,
+            null),
+
+    EMAIL_VERIFICATION_TOKEN_EXPIRED(
+            498,
+            AppsmithErrorCode.EMAIL_VERIFICATION_TOKEN_EXPIRED.getCode(),
+            "Your email verification link has expired. Please re-trigger email verification",
+            AppsmithErrorAction.DEFAULT,
+            "Email verification token expired",
+            ErrorType.INTERNAL_ERROR,
+            null),
+
+    TENANT_EMAIL_VERIFICATION_NOT_ENABLED(
+            400,
+            AppsmithErrorCode.TENANT_EMAIL_VERIFICATION_NOT_ENABLED.getCode(),
+            "Email verification is not enabled. Please contact your admin",
+            AppsmithErrorAction.DEFAULT,
+            "Email verification not enabled",
+            ErrorType.BAD_REQUEST,
+            null),
+
+    INVALID_EMAIL_VERIFICATION(
+            400,
+            AppsmithErrorCode.INVALID_EMAIL_VERIFICATION.getCode(),
+            "Cannot find an outstanding email verification request for this email",
+            AppsmithErrorAction.DEFAULT,
+            "Invalid email verification request",
+            ErrorType.INTERNAL_ERROR,
+            null),
     ;
 
     private final Integer httpErrorCode;

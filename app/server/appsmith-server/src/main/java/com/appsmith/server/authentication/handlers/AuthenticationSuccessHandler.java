@@ -10,6 +10,7 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserIdentifierService;
 import com.appsmith.server.services.WorkspaceService;
@@ -36,7 +37,8 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
             ConfigService configService,
             FeatureFlagService featureFlagService,
             CommonConfig commonConfig,
-            UserIdentifierService userIdentifierService) {
+            UserIdentifierService userIdentifierService,
+            TenantService tenantService) {
 
         super(
                 examplesWorkspaceCloner,
@@ -52,6 +54,7 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
                 configService,
                 featureFlagService,
                 commonConfig,
-                userIdentifierService);
+                userIdentifierService,
+                tenantService);
     }
 }

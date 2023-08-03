@@ -5,6 +5,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.InviteUsersDTO;
+import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
@@ -227,5 +228,26 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
         return userDataService
                 .getFeatureFlagsForCurrentUser()
                 .map(map -> new ResponseDTO<>(HttpStatus.OK.value(), map, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/resendEmailVerification")
+    public Mono<ResponseDTO<Boolean>> resendEmailVerification(
+            @RequestBody ResendEmailVerificationDTO resendEmailVerificationDTO,
+            @RequestHeader("Origin") String originHeader) {
+        resendEmailVerificationDTO.setBaseUrl(originHeader);
+        // We shouldn't leak information on whether this operation was successful or not to the client. This can enable
+        // username scraping, where the response of this API can prove whether an email has an account or not.
+        return service.emailVerificationTokenGenerate(resendEmailVerificationDTO)
+                //                .defaultIfEmpty(true)
+                //                .onErrorReturn(true)
+                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/verifyEmailVerificationToken")
+    public Mono<ResponseDTO<Boolean>> verifyEmailVerificationToken(@RequestParam String token) {
+        return service.verifyEmailVerificationToken(token)
+                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 }

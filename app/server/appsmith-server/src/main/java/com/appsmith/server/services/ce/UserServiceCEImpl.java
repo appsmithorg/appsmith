@@ -8,6 +8,7 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.EmailVerificationToken;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.PermissionGroup;
@@ -18,6 +19,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.EmailTokenDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.Permission;
+import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
@@ -28,6 +30,7 @@ import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -83,6 +86,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final WorkspaceService workspaceService;
     private final SessionUserService sessionUserService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+
     private final PasswordEncoder passwordEncoder;
     private final EmailSender emailSender;
     private final ApplicationRepository applicationRepository;
@@ -102,6 +106,10 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
     public static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserTemplate.html";
     private static final Pattern ALLOWED_ACCENTED_CHARACTERS_PATTERN = Pattern.compile("^[\\p{L} 0-9 .\'\\-]+$");
+
+    private static final String EMAIL_VERIFICATION_CLIENT_URL_FORMAT = "%s/user/verifyEmail?token=%s&email=%s";
+    private static final String USER_EMAIL_VERIFICATION_EMAIL_TEMPLATE = "email/emailVerificationTemplate.html";
+    private final EmailVerificationTokenRepository emailVerificationTokenRepository;
 
     @Autowired
     public UserServiceCEImpl(
@@ -125,7 +133,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             UserDataService userDataService,
             TenantService tenantService,
             PermissionGroupService permissionGroupService,
-            UserUtils userUtils) {
+            UserUtils userUtils,
+            EmailVerificationTokenRepository emailVerificationTokenRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -142,6 +151,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.tenantService = tenantService;
         this.permissionGroupService = permissionGroupService;
         this.userUtils = userUtils;
+        this.emailVerificationTokenRepository = emailVerificationTokenRepository;
     }
 
     @Override
@@ -293,6 +303,14 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             if (resetToken.getFirstRequestTime() == null) {
                 resetToken.setFirstRequestTime(Instant.now());
             }
+        }
+    }
+
+    private void validateEmailVerificationToken(EmailVerificationToken emailVerificationToken) {
+        Duration duration = Duration.between(emailVerificationToken.getTokenGeneratedAt(), Instant.now());
+        long l = duration.toHours();
+        if (l > 48) { // the token has expired
+            throw new AppsmithException(AppsmithError.EMAIL_VERIFICATION_TOKEN_EXPIRED);
         }
     }
 
@@ -838,5 +856,104 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     @Override
     public Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params, String origin) {
         return Mono.just(params);
+    }
+
+    @Override
+    public Mono<Boolean> emailVerificationTokenGenerate(ResendEmailVerificationDTO resendEmailVerificationDTO) {
+        if (resendEmailVerificationDTO.getEmail() == null
+                || resendEmailVerificationDTO.getEmail().isBlank()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.EMAIL));
+        }
+
+        if (resendEmailVerificationDTO.getBaseUrl() == null
+                || resendEmailVerificationDTO.getBaseUrl().isBlank()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
+        }
+
+        String email = resendEmailVerificationDTO.getEmail();
+
+        // Create a random token to be sent out.
+        final String token = UUID.randomUUID().toString();
+
+        // Check if the user exists in our DB. If not, we will not send the email verification link to the user
+        return repository
+                .findByEmail(email)
+                .switchIfEmpty(repository.findByCaseInsensitiveEmail(email))
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
+                .flatMap(user -> {
+                    Mono<Boolean> emailVerificationEnabledMono = tenantService
+                            .getTenantConfiguration()
+                            .map(tenant -> {
+                                return tenant.getTenantConfiguration().getEmailVerificationEnabled();
+                            });
+
+                    if (user.getEmailVerified() == TRUE) {
+                        return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_VERIFIED));
+                    }
+                    // user found with the provided email address
+                    // Generate the email verification link for the user
+                    return emailVerificationEnabledMono
+                            .flatMap(emailVerificationEnabled -> {
+                                if (emailVerificationEnabled != TRUE) {
+                                    return Mono.error(
+                                            new AppsmithException(AppsmithError.TENANT_EMAIL_VERIFICATION_NOT_ENABLED));
+                                }
+                                return null;
+                            })
+                            .then(emailVerificationTokenRepository
+                                    .findByEmail(user.getEmail())
+                                    .switchIfEmpty(Mono.defer(() -> {
+                                        EmailVerificationToken emailVerificationToken = new EmailVerificationToken();
+                                        emailVerificationToken.setEmail(user.getEmail());
+                                        emailVerificationToken.setTokenGeneratedAt(Instant.now());
+                                        emailVerificationToken.setTokenHash(passwordEncoder.encode(token));
+                                        return Mono.just(emailVerificationToken);
+                                    })));
+                })
+                .flatMap(emailVerificationTokenRepository::save)
+                .flatMap(emailVerificationToken -> {
+                    log.debug("Email Verification Token: {} for email: {}", token, emailVerificationToken.getEmail());
+                    List<NameValuePair> nameValuePairs = new ArrayList<>(2);
+                    nameValuePairs.add(new BasicNameValuePair("email", emailVerificationToken.getEmail()));
+                    nameValuePairs.add(new BasicNameValuePair("token", token));
+                    String urlParams = URLEncodedUtils.format(nameValuePairs, StandardCharsets.UTF_8);
+                    String verificationUrl = String.format(
+                            EMAIL_VERIFICATION_CLIENT_URL_FORMAT,
+                            resendEmailVerificationDTO.getBaseUrl(),
+                            encryptionService.encryptString(urlParams));
+
+                    log.debug(
+                            "Email Verification url for email: {}: {}",
+                            emailVerificationToken.getEmail(),
+                            verificationUrl);
+
+                    Map<String, String> params = new HashMap<>();
+                    params.put("userFirstName", "test");
+                    params.put("resetUrl", verificationUrl);
+
+                    return updateTenantLogoInParams(params, resendEmailVerificationDTO.getBaseUrl())
+                            .flatMap(updatedParams -> emailSender.sendMail(
+                                    email,
+                                    "Verify your account",
+                                    USER_EMAIL_VERIFICATION_EMAIL_TEMPLATE,
+                                    updatedParams));
+                })
+                .thenReturn(true);
+    }
+
+    @Override
+    public Mono<Boolean> verifyEmailVerificationToken(String encryptedToken) {
+        EmailTokenDTO emailTokenDTO;
+        try {
+            emailTokenDTO = parseValueFromEncryptedToken(encryptedToken);
+        } catch (ArrayIndexOutOfBoundsException | IllegalStateException e) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
+        }
+
+        return emailVerificationTokenRepository
+                .findByEmail(emailTokenDTO.getEmail())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_EMAIL_VERIFICATION)))
+                .map(obj -> this.passwordEncoder.matches(emailTokenDTO.getToken(), obj.getTokenHash()));
     }
 }
