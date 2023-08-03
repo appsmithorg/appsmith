@@ -39,7 +39,7 @@ const ICON = (
   </Icon>
 );
 
-export const Story: Story = {
+export const LightMode: Story = {
   render: () => (
     <StoryGrid>
       {variants.map((variant) =>
@@ -63,4 +63,8 @@ export const Story: Story = {
   ),
 };
 
-Story.storyName = "Button";
+export const DarkMode: Story = Object.assign({}, LightMode);
+
+DarkMode.parameters = {
+  colorMode: "dark",
+};

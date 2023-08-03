@@ -14,7 +14,7 @@ export default meta;
 
 type Story = StoryObj<typeof Text>;
 
-export const Story: Story = {
+export const LightMode: Story = {
   storyName: "Text",
   render: () => (
     <StoryGrid cols="4">
@@ -54,4 +54,8 @@ export const Story: Story = {
   ),
 };
 
-Story.storyName = "Text";
+export const DarkMode: Story = Object.assign({}, LightMode);
+
+DarkMode.parameters = {
+  colorMode: "dark",
+};

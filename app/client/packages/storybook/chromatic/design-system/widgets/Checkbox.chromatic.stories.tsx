@@ -16,7 +16,7 @@ type Story = StoryObj<typeof Checkbox>;
 
 const states = ["", "data-hovered", "data-focused", "data-disabled"];
 
-export const Story: Story = {
+export const LightMode: Story = {
   render: () => (
     <StoryGrid>
       <Checkbox isIndeterminate>Indeterminate</Checkbox>
@@ -37,4 +37,8 @@ export const Story: Story = {
   ),
 };
 
-Story.storyName = "Checkbox";
+export const DarkMode: Story = Object.assign({}, LightMode);
+
+DarkMode.parameters = {
+  colorMode: "dark",
+};

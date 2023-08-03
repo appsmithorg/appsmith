@@ -20,7 +20,7 @@ export default meta;
 
 type Story = StoryObj<typeof Switch>;
 
-export const Story: Story = {
+export const LightMode: Story = {
   render: () => (
     <StoryGrid>
       <RadioGroup defaultValue="1">
@@ -40,6 +40,13 @@ export const Story: Story = {
       </SwitchGroup>
     </StoryGrid>
   ),
+  parameters: {
+    colorMode: "dark",
+  },
 };
 
-Story.storyName = "Group";
+export const DarkMode: Story = Object.assign({}, LightMode);
+
+DarkMode.parameters = {
+  colorMode: "dark",
+};

@@ -16,7 +16,7 @@ type Story = StoryObj<typeof Radio>;
 
 const states = ["", "data-hovered", "data-focused", "data-disabled"];
 
-export const Story: Story = {
+export const LightMode: Story = {
   render: () => (
     <StoryGrid>
       {states.map((state) => (
@@ -37,4 +37,8 @@ export const Story: Story = {
   ),
 };
 
-Story.storyName = "Radio";
+export const DarkMode: Story = Object.assign({}, LightMode);
+
+DarkMode.parameters = {
+  colorMode: "dark",
+};

@@ -16,7 +16,7 @@ type Story = StoryObj<typeof Switch>;
 
 const states = ["", "data-hovered", "data-focused", "data-disabled"];
 
-export const Story: Story = {
+export const LightMode: Story = {
   render: () => (
     <StoryGrid>
       {states.map((state) => (
@@ -33,4 +33,8 @@ export const Story: Story = {
   ),
 };
 
-Story.storyName = "Switch";
+export const DarkMode: Story = Object.assign({}, LightMode);
+
+DarkMode.parameters = {
+  colorMode: "dark",
+};

@@ -18,7 +18,7 @@ export default meta;
 
 type Story = StoryObj<typeof Tooltip>;
 
-export const Story: Story = {
+export const LightMode: Story = {
   render: () => (
     <StoryGrid>
       <Tooltip open placement="left">
@@ -49,4 +49,8 @@ export const Story: Story = {
   ),
 };
 
-Story.storyName = "Tooltip";
+export const DarkMode: Story = Object.assign({}, LightMode);
+
+DarkMode.parameters = {
+  colorMode: "dark",
+};
