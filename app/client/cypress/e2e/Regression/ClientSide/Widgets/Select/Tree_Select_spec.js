@@ -1,10 +1,10 @@
-const dsl = require("../../../../../fixtures/emptyDSL.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const explorer = require("../../../../../locators/explorerlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 
 describe("Tree Select Widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("emptyDSL");
   });
 
   it("1. Add new widget", () => {

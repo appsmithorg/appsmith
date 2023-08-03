@@ -7,9 +7,7 @@ describe("Number Slider spec", () => {
      * On the canvas we have a Number Slider
      * and a Text widget with binding {{NumberSlider1.value}}
      */
-    cy.fixture("numberSliderWidgetDsl").then((dsl: string) => {
-      _.agHelper.AddDsl(dsl);
-    });
+    _.agHelper.AddDsl("numberSliderWidgetDsl");
   });
 
   it("1. Validates Min. value", () => {
@@ -109,7 +107,7 @@ describe("Number Slider spec", () => {
     _.entityExplorer.SelectEntityByName("NumberSlider1", "Widgets");
 
     // Change the Step size to 10
-    _.propPane.UpdatePropertyFieldValue("Step size", "10");
+    _.propPane.UpdatePropertyFieldValue("Step size", "10", true, false);
 
     // Change the slider value
     _.agHelper

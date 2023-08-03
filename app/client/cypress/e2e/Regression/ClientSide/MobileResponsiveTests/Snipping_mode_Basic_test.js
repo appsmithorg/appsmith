@@ -19,12 +19,7 @@ describe("Add widget - Postgress DataSource", function () {
 
     _.autoLayout.ConvertToAutoLayoutAndVerify(false);
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click();
-    cy.wait(500);
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("select * from public.configs");
+    _.dataSources.EnterQuery("select * from public.configs");
     cy.WaitAutoSave();
     cy.runQuery();
     cy.get(queryEditor.suggestedTableWidget).click();

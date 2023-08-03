@@ -19,6 +19,11 @@ map \$http_x_forwarded_host \$origin_host {
   '' \$host;
 }
 
+map \$http_forwarded \$final_forwarded {
+  default '\$http_forwarded, host=\$host;proto=\$scheme';
+  '' '';
+}
+
 # redirect log to stdout for supervisor to capture
 access_log /dev/stdout;
 
@@ -67,7 +72,8 @@ server {
   }
 
   proxy_set_header X-Forwarded-Proto \$origin_scheme;
-  proxy_set_header X-Forwarded-Host  \$origin_host;
+  proxy_set_header X-Forwarded-Host \$origin_host;
+  proxy_set_header Forwarded \$final_forwarded;
 
   location / {
     try_files /loading.html \$uri /index.html =404;
@@ -79,20 +85,14 @@ server {
     access_log  off;
   }
 
-  location ~ ^/app/[^/]+/[^/]+/edit\b {
-    try_files /edit.html /index.html =404;
-  }
-
-  location /app/ {
-    try_files /view.html /index.html =404;
-  }
-
   # If the path has an extension at the end, then respond with 404 status if the file not found.
   location ~ ^/(?!supervisor/).*\.[a-z]+$ {
     try_files \$uri =404;
   }
 
   location /api {
+    proxy_read_timeout ${APPSMITH_SERVER_TIMEOUT:-60};
+    proxy_send_timeout ${APPSMITH_SERVER_TIMEOUT:-60};
     proxy_pass http://localhost:8080;
   }
 

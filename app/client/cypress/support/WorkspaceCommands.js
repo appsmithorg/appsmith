@@ -5,8 +5,12 @@
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import homePage from "../locators/HomePage";
-const generatePage = require("../locators/GeneratePage.json");
 import explorer from "../locators/explorerlocators";
+import { ObjectsRegistry } from "../support/Objects/Registry";
+
+const agHelper = ObjectsRegistry.AggregateHelper;
+const assertHelper = ObjectsRegistry.AssertHelper;
+
 export const initLocalstorage = () => {
   cy.window().then((window) => {
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
@@ -19,26 +23,6 @@ Cypress.Commands.add("createWorkspace", () => {
     .should("be.visible")
     .first()
     .click({ force: true });
-});
-
-Cypress.Commands.add("renameWorkspace", (workspaceName, newWorkspaceName) => {
-  cy.get(".t--applications-container")
-    .contains(workspaceName)
-    .closest(homePage.workspaceCompleteSection)
-    .scrollIntoView()
-    .find(homePage.optionsIcon)
-    .click({ force: true });
-  cy.get(homePage.renameWorkspaceInput)
-    .should("be.visible")
-    .type(newWorkspaceName.concat("{enter}"));
-  cy.wait(3000);
-  //cy.get(commonlocators.homeIcon).click({ force: true });
-  cy.wait("@updateWorkspace").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-  cy.contains(newWorkspaceName);
 });
 
 Cypress.Commands.add("navigateToWorkspaceSettings", (workspaceName) => {
@@ -268,6 +252,7 @@ Cypress.Commands.add("CreateAppForWorkspace", (workspaceName, appname) => {
     "response.body.responseMeta.status",
     200,
   );
+  agHelper.RemoveTooltip("Rename application");
 });
 
 Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
@@ -282,9 +267,18 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   //cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   //cy.reload();
-
+  cy.wait(4000);
   cy.get("#loading").should("not.exist");
+
+  assertHelper.AssertNetworkStatus("@getPage");
+  assertHelper.AssertNetworkStatus("@getLibraries");
+  assertHelper.AssertNetworkStatus("@getPlugins");
+
   cy.get("#sidebar").should("be.visible");
+  cy.wait("@getPluginForm") //replacing this since flaky in CI - to monitor
+    .its("response.body.responseMeta.status")
+    .should("eq", 200);
+
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
 
@@ -298,15 +292,14 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
     "response.body.responseMeta.status",
     200,
   );
-  // Remove tooltip on the Application Name element
-  cy.get(homePage.applicationName).realHover();
-  cy.get("body").realHover({ position: "topLeft" });
+  // Remove tooltip on the Application Name
+  agHelper.RemoveTooltip("Rename application");
 
   /* The server created app always has an old dsl so the layout will migrate
    * To avoid race conditions between that update layout and this one
    * we wait for that to finish before updating layout here
    */
-  cy.wait("@updateLayout");
+  //cy.wait("@updateLayout");
 });
 
 Cypress.Commands.add("renameEntity", (entityName, renamedEntity) => {
@@ -325,9 +318,9 @@ Cypress.Commands.add("leaveWorkspace", (newWorkspaceName) => {
     .contains("Leave Workspace")
     .click();
   cy.contains("Are you sure").click();
-  cy.wait("@leaveWorkspaceApiCall").then((httpResponse) => {
-    expect(httpResponse.status).to.equal(200);
-  });
+  cy.wait("@leaveWorkspaceApiCall")
+    .its("response.body.responseMeta.status")
+    .should("eq", 200);
   cy.get(homePage.toastMessage).should(
     "contain",
     "You have successfully left the workspace",

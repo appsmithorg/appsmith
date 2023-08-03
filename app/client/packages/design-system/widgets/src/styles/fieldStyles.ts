@@ -1,12 +1,7 @@
 import { css } from "styled-components";
 import type { LabelProps as HeadlessLabelProps } from "@design-system/headless";
 
-type FieldStylesProps = Pick<
-  HeadlessLabelProps,
-  "labelPosition" | "isEmphasized"
-> & {
-  labelWidth?: string;
-};
+type FieldStylesProps = Pick<HeadlessLabelProps, "isEmphasized" | "labelWidth">;
 
 // NOTE: these field styles are used in every input component that has a label
 // for e.g input, select, checkbox group, toggle group, radio group, etc
@@ -19,20 +14,11 @@ export const fieldStyles = css<FieldStylesProps>`
     &[data-position="side"] {
       flex-direction: row;
     }
-
-    &[data-disabled] {
-      cursor: not-allowed;
-      opacity: var(--opacity-disabled);
-
-      & > * {
-        pointer-events: none;
-      }
-    }
   }
 
   /**
   * ----------------------------------------------------------------------------
-  * LABEL
+  * FIELD LABEL
   *-----------------------------------------------------------------------------
   */
   & [data-field-label] {
@@ -45,9 +31,14 @@ export const fieldStyles = css<FieldStylesProps>`
 
     //  when the label is on the side, we need to make sure the label is aligned
     &[data-position="side"] {
-      min-height: calc(5 * var(--root-unit));
+      min-height: var(--sizing-5);
       width: ${({ labelWidth }) => labelWidth};
     }
+  }
+
+  &[data-disabled] [data-field-label] {
+    opacity: var(--opacity-disabled);
+    cursor: default;
   }
 
   /**
@@ -82,7 +73,23 @@ export const fieldStyles = css<FieldStylesProps>`
     flex-direction: column;
 
     &[data-orientation="horizontal"] {
+      gap: var(--spacing-4);
       flex-direction: row;
     }
+
+    &[data-disabled] [data-label] {
+      cursor: default;
+    }
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * FIELD WRAPPER
+  *-----------------------------------------------------------------------------
+  */
+  & [data-field-wrapper] {
+    gap: var(--spacing-3);
+    display: flex;
+    flex-direction: column;
   }
 `;

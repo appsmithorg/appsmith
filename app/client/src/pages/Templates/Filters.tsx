@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { Checkbox, Text } from "design-system";
 import { filterTemplates } from "actions/templateActions";
-import { createMessage, FILTERS } from "@appsmith/constants/messages";
 import {
   getFilterListSelector,
   getTemplateFilterSelector,
@@ -95,7 +94,8 @@ function FilterItem({ item, onSelect, selected }: FilterItemProps) {
       <Checkbox
         // backgroundColor={Colors.GREY_900}
         // className="filter"
-        defaultSelected={selected}
+        isSelected={selected}
+        name={item.label}
         onChange={onClick}
         value={item.label}
       >
@@ -197,9 +197,6 @@ function Filters() {
 
   return (
     <FilterMainContainer>
-      <StyledFilterCategory className={"title"} kind="heading-s" renderAs="h3">
-        {createMessage(FILTERS)}
-      </StyledFilterCategory>
       <FilterWrapper className="filter-wrapper">
         {Object.keys(filters).map((filter) => {
           return (

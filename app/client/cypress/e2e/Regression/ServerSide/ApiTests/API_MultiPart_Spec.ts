@@ -1,12 +1,13 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  jsEditor = ObjectsRegistry.JSEditor,
-  apiPage = ObjectsRegistry.ApiPage,
-  locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode,
-  propPane = ObjectsRegistry.PropertyPane;
+import {
+  agHelper,
+  jsEditor,
+  propPane,
+  deployMode,
+  apiPage,
+  entityItems,
+  entityExplorer,
+  locators,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Validate API request body panel", () => {
   beforeEach(() => {
@@ -27,7 +28,10 @@ describe("Validate API request body panel", () => {
     agHelper.AssertElementVisible(apiPage._bodyKey(0));
     agHelper.AssertElementVisible(apiPage._bodyTypeDropdown);
     agHelper.AssertElementVisible(apiPage._bodyValue(0));
-    agHelper.ActionContextMenuWithInPane("Delete");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Api,
+    });
   });
 
   it("2. Checks whether No body error message is shown when None API body content type is selected", function () {
@@ -35,7 +39,10 @@ describe("Validate API request body panel", () => {
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("NONE");
     cy.get(apiPage._noBodyMessageDiv).contains(apiPage._noBodyMessage);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Api,
+    });
   });
 
   it("3. Checks whether header content type is being changed when FORM_URLENCODED API body content type is selected", function () {
@@ -52,7 +59,10 @@ describe("Validate API request body panel", () => {
       key: "content-type",
       value: "application/x-www-form-urlencoded",
     });
-    agHelper.ActionContextMenuWithInPane("Delete");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Api,
+    });
   });
 
   it("4. Checks whether header content type is being changed when MULTIPART_FORM_DATA API body content type is selected", function () {
@@ -69,7 +79,10 @@ describe("Validate API request body panel", () => {
       key: "content-type",
       value: "multipart/form-data",
     });
-    agHelper.ActionContextMenuWithInPane("Delete");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Api,
+    });
   });
 
   it("5. Checks whether content type 'FORM_URLENCODED' is preserved when user selects None API body content type", function () {
@@ -78,7 +91,10 @@ describe("Validate API request body panel", () => {
     apiPage.SelectSubTab("FORM_URLENCODED");
     apiPage.SelectSubTab("NONE");
     apiPage.ValidateImportedHeaderParamsAbsence(true);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Api,
+    });
   });
 
   it("6. Checks whether content type 'MULTIPART_FORM_DATA' is preserved when user selects None API body content type", function () {
@@ -87,14 +103,15 @@ describe("Validate API request body panel", () => {
     apiPage.SelectSubTab("MULTIPART_FORM_DATA");
     apiPage.SelectSubTab("NONE");
     apiPage.ValidateImportedHeaderParamsAbsence(true);
-    agHelper.ActionContextMenuWithInPane("Delete");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Api,
+    });
   });
 
   it("7. Checks MultiPart form data for a File Type upload + Bug 12476", () => {
     const imageNameToUpload = "ConcreteHouse.jpg";
-    cy.fixture("multiPartFormDataDsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("multiPartFormDataDsl");
 
     apiPage.CreateAndFillApi(
       "https://api.cloudinary.com/v1_1/appsmithautomationcloud/image/upload?upload_preset=fbbhg4xu",
@@ -126,23 +143,23 @@ describe("Validate API request body panel", () => {
       },
     );
 
-    ee.SelectEntityByName("FilePicker1", "Widgets");
+    entityExplorer.SelectEntityByName("FilePicker1", "Widgets");
     propPane.EnterJSContext("onFilesSelected", `{{JSObject1.upload()}}`);
 
-    ee.SelectEntityByName("Image1");
+    entityExplorer.SelectEntityByName("Image1");
     propPane.UpdatePropertyFieldValue(
       "Image",
       "{{CloudinaryUploadApi.data.url}}",
     );
 
-    ee.SelectEntityByName("CloudinaryUploadApi", "Queries/JS");
+    entityExplorer.SelectEntityByName("CloudinaryUploadApi", "Queries/JS");
 
     apiPage.ToggleOnPageLoadRun(false); //Bug 12476
-    ee.SelectEntityByName("Page1");
-    deployMode.DeployApp(locator._spanButton("Select Files"));
+    entityExplorer.SelectEntityByName("Page1");
+    deployMode.DeployApp(locators._spanButton("Select Files"));
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute"); //validating Cloudinary api call
+    agHelper.AssertNetworkExecutionSuccess("@postExecute"); //validating Cloudinary api call
     agHelper.ValidateToastMessage("Image uploaded to Cloudinary successfully");
     agHelper.Sleep();
     cy.xpath(apiPage._imageSrc)
@@ -151,13 +168,13 @@ describe("Validate API request body panel", () => {
       .then(($src) => {
         expect($src).not.eq("https://assets.appsmith.com/widgets/default.png");
       });
-    agHelper.AssertElementVisible(locator._spanButton("Select Files")); //verifying if reset!
+    agHelper.AssertElementVisible(locators._spanButton("Select Files")); //verifying if reset!
     deployMode.NavigateBacktoEditor();
   });
 
   it("8. Checks MultiPart form data for a Array Type upload results in API error", () => {
     const imageNameToUpload = "AAAFlowerVase.jpeg";
-    ee.SelectEntityByName("CloudinaryUploadApi", "Queries/JS");
+    entityExplorer.SelectEntityByName("CloudinaryUploadApi", "Queries/JS");
     apiPage.EnterBodyFormData(
       "MULTIPART_FORM_DATA",
       "file",
@@ -165,16 +182,16 @@ describe("Validate API request body panel", () => {
       "Array",
       true,
     );
-    ee.SelectEntityByName("FilePicker1", "Widgets");
+    entityExplorer.SelectEntityByName("FilePicker1", "Widgets");
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute", false);
+    agHelper.AssertNetworkExecutionSuccess("@postExecute", false);
 
-    deployMode.DeployApp(locator._spanButton("Select Files"));
+    deployMode.DeployApp(locators._spanButton("Select Files"));
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute", false);
+    agHelper.AssertNetworkExecutionSuccess("@postExecute", false);
     agHelper.ValidateToastMessage("CloudinaryUploadApi failed to execute");
-    agHelper.AssertElementVisible(locator._spanButton("Select Files")); //verifying if reset in case of failure!
+    agHelper.AssertElementVisible(locators._spanButton("Select Files")); //verifying if reset in case of failure!
   });
 });

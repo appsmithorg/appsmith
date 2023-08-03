@@ -8,7 +8,7 @@ const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 describe("Widget Copy paste", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("WidgetCopyPaste");
   });
 
   it("1. When non Layout widget is selected, it should place below the widget selected", function () {
@@ -144,5 +144,23 @@ describe("Widget Copy paste", function () {
 
     //verify a pasted list widget
     cy.get(widgetsPage.listWidgetv2).should("have.length", 1);
+  });
+
+  it("8. Should not be able to copy/cut canvas widgets (i.e. Individual Tabs) of tabs widget", function () {
+    _.entityExplorer.AddNewPage("New blank page");
+
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TAB, 400, 200);
+
+    _.entityExplorer.SelectEntityByName("Tab 1", "Tabs1");
+
+    cy.get("body").type(`{${modifierKey}}{c}`);
+
+    _.agHelper.ValidateToastMessage("This selected widget cannot be copied.");
+
+    _.agHelper.WaitUntilAllToastsDisappear();
+
+    cy.get("body").type(`{${modifierKey}}{x}`);
+
+    _.agHelper.ValidateToastMessage("This selected widget cannot be cut.");
   });
 });

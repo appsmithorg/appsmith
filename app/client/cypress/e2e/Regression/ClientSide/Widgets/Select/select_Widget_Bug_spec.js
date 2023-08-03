@@ -1,12 +1,12 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/formSelectDsl.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Select Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("formSelectDsl");
   });
 
   it("Select Widget name update", function () {
@@ -21,7 +21,7 @@ describe("Select Widget Functionality", function () {
   it("should check that virtualization works well", () => {
     cy.openPropertyPane("selectwidget");
     cy.updateCodeInput(
-      ".t--property-control-options",
+      ".t--property-control-sourcedata",
       `[
         {
           "label": "RANDOM",
@@ -49,7 +49,17 @@ describe("Select Widget Functionality", function () {
         }
       ]`,
     );
-    cy.get(".t--property-control-options .t--codemirror-has-error").should(
+
+    _.propPane.ToggleJSMode("label");
+    cy.updateCodeInput(
+      ".t--property-control-wrapper.t--property-control-label",
+      `label`,
+    );
+
+    _.propPane.ToggleJSMode("value");
+    cy.updateCodeInput(".t--property-control-value", `value`);
+
+    cy.get(".t--property-control-value .t--codemirror-has-error").should(
       "not.exist",
     );
     // Changing the option to the last item
@@ -77,7 +87,7 @@ describe("Select Widget Functionality", function () {
       });
     // Add a longer list of item
     cy.updateCodeInput(
-      ".t--property-control-options",
+      ".t--property-control-sourcedata",
       `[
         {
           "label": "RANDOM",
@@ -154,7 +164,7 @@ describe("Select Widget Functionality", function () {
   it("should check that filtering works well", () => {
     cy.openPropertyPane("selectwidget");
     cy.updateCodeInput(
-      ".t--property-control-options",
+      ".t--property-control-sourcedata",
       `[
         {
           "label": "RANDOM",
@@ -182,7 +192,7 @@ describe("Select Widget Functionality", function () {
         }
       ]`,
     );
-    cy.get(".t--property-control-options .t--codemirror-has-error").should(
+    cy.get(".t--property-control-value .t--codemirror-has-error").should(
       "not.exist",
     );
     // Filtering the option
@@ -203,9 +213,9 @@ describe("Select Widget Functionality", function () {
     cy.get(widgetsPage.disable).scrollIntoView({ force: true });
     cy.get(widgetsPage.selectWidgetDisabled).click({ force: true });
     cy.get(".bp3-disabled").should("be.visible");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(".bp3-disabled").should("be.visible");
-    cy.goToEditFromPublish();
+    _.deployMode.NavigateBacktoEditor();
   });
 
   it("enable the widget and check in publish mode", function () {
@@ -223,7 +233,7 @@ describe("Select Widget Functionality", function () {
         "value": "RANDOM5"
       }`,
     );
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.get(".bp3-button.select-button")
       .eq(0)
       .should("be.visible")
@@ -232,12 +242,12 @@ describe("Select Widget Functionality", function () {
       "contain.text",
       "RANDOM5",
     );
-    cy.goToEditFromPublish();
+    _.deployMode.NavigateBacktoEditor();
   });
   it("should check that filtering works well using numeric labels", () => {
     cy.openPropertyPane("selectwidget");
     cy.updateCodeInput(
-      ".t--property-control-options",
+      ".t--property-control-sourcedata",
       `[
         {
           "label": 1,

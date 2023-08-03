@@ -13,7 +13,7 @@ describe("Validating Mobile View related usecases for Autoscroll", function () {
       cy.dragAndDropToCanvas("inputwidgetv2", { x: 450, y: 530 });
     }
     cy.get(".t--widget-inputwidgetv2").first().should("be.visible");
-    cy.PublishtheApp();
+    _.deployMode.DeployApp();
     cy.wait(2000);
     cy.get(".t--widget-inputwidgetv2")
       .invoke("css", "height")

@@ -7,6 +7,7 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
+import * as Sentry from "@sentry/react";
 import {
   clearActionResponse,
   executePluginActionError,
@@ -77,6 +78,7 @@ import {
   ERROR_PLUGIN_ACTION_EXECUTE,
   ACTION_EXECUTION_CANCELLED,
   ACTION_EXECUTION_FAILED,
+  SWITCH_ENVIRONMENT_SUCCESS,
 } from "@appsmith/constants/messages";
 import type {
   LayoutOnLoadActionErrors,
@@ -96,7 +98,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import * as log from "loglevel";
-import { EMPTY_RESPONSE } from "components/editorComponents/ApiResponseView";
+import { EMPTY_RESPONSE } from "components/editorComponents/emptyResponse";
 import type { AppState } from "@appsmith/reducers";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import { evaluateActionBindings } from "sagas/EvaluationsSaga";
@@ -111,6 +113,7 @@ import {
   QUERIES_EDITOR_BASE_PATH,
   QUERIES_EDITOR_ID_PATH,
   CURL_IMPORT_PAGE_PATH,
+  matchQueryBuilderPath,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import { APP_MODE } from "entities/App";
@@ -149,6 +152,12 @@ import type { ActionData } from "reducers/entityReducers/actionsReducer";
 import { handleStoreOperations } from "./StoreActionSaga";
 import { fetchPage } from "actions/pageActions";
 import type { Datasource } from "entities/Datasource";
+import { softRefreshDatasourceStructure } from "actions/datasourceActions";
+import {
+  getCurrentEnvName,
+  getCurrentEnvironment,
+} from "@appsmith/utils/Environments";
+import { changeQuery } from "actions/queryPaneActions";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -518,11 +527,14 @@ export default function* executePluginActionTriggerSaga(
     appId: currentApp.id,
     appMode: appMode,
     appName: currentApp.name,
+    environmentId: getCurrentEnvironment(),
+    environmentName: getCurrentEnvName(),
     isExampleApp: currentApp.appIsExample,
     pluginName: plugin?.name,
     datasourceId: datasourceId,
     isMock: !!datasource?.isMock,
     actionId: action?.id,
+    inputParams: Object.keys(params).length,
   });
   const pagination =
     eventType === EventType.ON_NEXT_PAGE
@@ -555,6 +567,7 @@ export default function* executePluginActionTriggerSaga(
           iconId: action.pluginId,
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
           text: `Execution failed with status ${payload.statusCode}`,
+          environmentName: getCurrentEnvName() || "",
           source: {
             type: ENTITY_TYPE.ACTION,
             name: action.name,
@@ -588,12 +601,15 @@ export default function* executePluginActionTriggerSaga(
       appId: currentApp.id,
       appMode: appMode,
       appName: currentApp.name,
+      environmentId: getCurrentEnvironment(),
+      environmentName: getCurrentEnvName(),
       isExampleApp: currentApp.appIsExample,
       pluginName: plugin?.name,
       datasourceId: datasourceId,
       isMock: !!datasource?.isMock,
       actionId: action?.id,
       ...payload.pluginErrorDetails,
+      inputParams: Object.keys(params).length,
     });
     if (onError) {
       throw new PluginTriggerFailureError(
@@ -614,11 +630,14 @@ export default function* executePluginActionTriggerSaga(
       appId: currentApp.id,
       appMode: appMode,
       appName: currentApp.name,
+      environmentId: getCurrentEnvironment(),
+      environmentName: getCurrentEnvName(),
       isExampleApp: currentApp.appIsExample,
       pluginName: plugin?.name,
       datasourceId: datasourceId,
       isMock: !!datasource?.isMock,
       actionId: action?.id,
+      inputParams: Object.keys(params).length,
     });
     AppsmithConsole.info({
       logType: LOG_TYPE.ACTION_EXECUTION_SUCCESS,
@@ -878,6 +897,7 @@ function* runActionSaga(
           id: actionId,
           iconId: actionObject.pluginId,
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+          environmentName: getCurrentEnvName() || "",
           text: `Execution failed${
             payload.statusCode ? ` with status ${payload.statusCode}` : ""
           }`,
@@ -913,6 +933,8 @@ function* runActionSaga(
     AnalyticsUtil.logEvent(failureEventName, {
       actionId,
       actionName: actionObject.name,
+      environmentId: getCurrentEnvironment(),
+      environmentName: getCurrentEnvName(),
       pageName: pageName,
       apiType: "INTERNAL",
       datasourceId: datasource?.id,
@@ -934,6 +956,8 @@ function* runActionSaga(
   AnalyticsUtil.logEvent(eventName, {
     actionId,
     actionName: actionObject.name,
+    environmentId: getCurrentEnvironment(),
+    environmentName: getCurrentEnvName(),
     pageName: pageName,
     responseTime: payload.duration,
     apiType: "INTERNAL",
@@ -966,11 +990,31 @@ function* runActionSaga(
 
 function* executeOnPageLoadJSAction(pageAction: PageAction) {
   const collectionId = pageAction.collectionId;
+  const pageId: string | undefined = yield select(getCurrentPageId);
+
   if (collectionId) {
     const collection: JSCollection = yield select(
       getJSCollection,
       collectionId,
     );
+
+    if (!collection) {
+      Sentry.captureException(
+        new Error(
+          "Collection present in layoutOnLoadActions but no collection exists ",
+        ),
+        {
+          extra: {
+            collectionId,
+            actionId: pageAction.id,
+            pageId,
+          },
+        },
+      );
+
+      return;
+    }
+
     const jsAction = collection.actions.find(
       (action) => action.id === pageAction.id,
     );
@@ -1041,11 +1085,14 @@ function* executePageLoadAction(pageAction: PageAction) {
       appId: currentApp.id,
       onPageLoad: true,
       appName: currentApp.name,
+      environmentId: getCurrentEnvironment(),
+      environmentName: getCurrentEnvName(),
       isExampleApp: currentApp.appIsExample,
       pluginName: plugin?.name,
       datasourceId: datasourceId,
       isMock: !!datasource?.isMock,
       actionId: pageAction?.id,
+      inputParams: 0,
     });
 
     let payload = EMPTY_RESPONSE;
@@ -1082,6 +1129,7 @@ function* executePageLoadAction(pageAction: PageAction) {
             id: pageAction.id,
             iconId: action.pluginId,
             logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+            environmentName: getCurrentEnvName() || "",
             text: `Execution failed with status ${payload.statusCode}`,
             source: {
               type: ENTITY_TYPE.ACTION,
@@ -1126,11 +1174,14 @@ function* executePageLoadAction(pageAction: PageAction) {
         appId: currentApp.id,
         onPageLoad: true,
         appName: currentApp.name,
+        environmentId: getCurrentEnvironment(),
+        environmentName: getCurrentEnvName(),
         isExampleApp: currentApp.appIsExample,
         pluginName: plugin?.name,
         datasourceId: datasourceId,
         isMock: !!datasource?.isMock,
         actionId: pageAction?.id,
+        inputParams: 0,
         ...payload.pluginErrorDetails,
       });
     } else {
@@ -1142,11 +1193,14 @@ function* executePageLoadAction(pageAction: PageAction) {
         appId: currentApp.id,
         onPageLoad: true,
         appName: currentApp.name,
+        environmentId: getCurrentEnvironment(),
+        environmentName: getCurrentEnvName(),
         isExampleApp: currentApp.appIsExample,
         pluginName: plugin?.name,
         datasourceId: datasourceId,
         isMock: !!datasource?.isMock,
         actionId: pageAction?.id,
+        inputParams: 0,
       });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
@@ -1462,6 +1516,19 @@ function* softRefreshActionsSaga() {
   yield call(clearTriggerActionResponse);
   //Rerun all the page load actions on the page
   yield call(executePageLoadActionsSaga);
+  try {
+    // we fork to prevent the call from blocking
+    yield put(softRefreshDatasourceStructure());
+  } catch (error) {}
+  //This will refresh the query editor with the latest datasource structure.
+  const isQueryPane = matchQueryBuilderPath(window.location.pathname);
+  //This is reuired only when the query editor is open.
+  if (isQueryPane) {
+    yield put(changeQuery(isQueryPane.params.queryId));
+  }
+  toast.show(createMessage(SWITCH_ENVIRONMENT_SUCCESS, getCurrentEnvName()), {
+    kind: "success",
+  });
 }
 
 export function* watchPluginActionExecutionSagas() {

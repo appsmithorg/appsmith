@@ -1,6 +1,12 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-
+import {
+  agHelper,
+  draggableWidgets,
+  entityExplorer,
+  locators,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
@@ -22,30 +28,6 @@ function deleteAllWidgetsInContainer() {
   cy.get(commonlocators.toastBody).each(($el) => {
     cy.wrap($el).click();
   });
-  cy.wait(1000);
-}
-
-function dragAndDropToWidget(widgetType) {
-  const selector = `.t--widget-card-draggable-${widgetType}`;
-  const destinationWidget = "containerwidget";
-  const x = 250;
-  const y = 50;
-  cy.wait(800);
-  cy.get(selector)
-    .scrollIntoView()
-    .trigger("dragstart", { force: true })
-    .trigger("mousemove", x, y, { force: true });
-  const selector2 = `.t--draggable-${destinationWidget}`;
-  cy.get(selector2)
-    .first()
-    .scrollIntoView()
-    .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-    .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-    .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
-}
-
-function validateToastExist() {
-  cy.validateToastMessage("ListWidget_Blue_0");
   cy.wait(1000);
 }
 
@@ -73,72 +55,70 @@ describe("List widget v2 onItemClick", () => {
       .first()
       .click({ force: true });
 
-    cy.validateToastMessage("ListWidget_Blue_0");
-    cy.waitUntil(() =>
-      cy.get(commonlocators.toastmsg).should("not.be.visible"),
-    );
+    agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
+
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
       .eq(1)
       .click({ force: true });
 
-    cy.validateToastMessage("ListWidget_Green_1");
-    cy.waitUntil(() =>
-      cy.get(commonlocators.toastmsg).should("not.be.visible"),
-    );
+    agHelper.WaitUntilToastDisappear("ListWidget_Green_1");
 
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
       .eq(2)
       .click({ force: true });
 
-    cy.validateToastMessage("ListWidget_Red_2");
-    cy.waitUntil(() =>
-      cy.get(commonlocators.toastmsg).should("not.be.visible"),
-    );
+    agHelper.WaitUntilToastDisappear("ListWidget_Red_2");
   });
 
   it("2. List widget V2 with onItemClick should be triggered when child widget without event is clicked", () => {
-    cy.get(widgetSelector("Image1")).first().click({ force: true });
-    validateToastExist();
+    //Select first row Image within list
+    agHelper.GetNClick(locators._imgWidgetInsideList, 0, true);
+    agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
 
-    cy.get(widgetSelector("Text1")).first().click({ force: true });
-    validateToastExist();
-
-    deleteAllWidgetsInContainer();
-
-    dragAndDropToWidget("inputwidgetv2");
-
-    cy.get(`${widgetSelector("Input1")} input`)
-      .first()
-      .click({ force: true });
-    validateToastDoestExist();
+    agHelper.GetNClickByContains(locators._textWidget, "Blue", 0, true);
+    agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
 
     deleteAllWidgetsInContainer();
 
-    dragAndDropToWidget("selectwidget");
+    entityExplorer.DragDropWidgetNVerify(
+      draggableWidgets.INPUT_V2,
+      250,
+      50,
+      draggableWidgets.CONTAINER,
+    );
 
-    cy.get(`${widgetSelector("Select1")} button`)
-      .first()
-      .click({ force: true });
-    validateToastDoestExist();
+    agHelper.GetNClick(`${locators._widgetByName("Input1")} input`, 0, true);
+    agHelper.AssertElementAbsence(locators._toastMsg);
 
     deleteAllWidgetsInContainer();
 
-    dragAndDropToWidget("buttonwidget");
-    cy.get(`${widgetSelector("Button1")} button`)
-      .first()
-      .click({ force: true });
-    validateToastExist();
-    cy.get(commonlocators.toastBody).first().click();
+    entityExplorer.DragDropWidgetNVerify(
+      draggableWidgets.SELECT,
+      250,
+      50,
+      draggableWidgets.CONTAINER,
+    );
 
-    cy.get(widgetsPage.toggleOnClick).click({ force: true });
-    cy.get(".t--property-control-onclick").then(($el) => {
-      cy.updateCodeInput($el, "{{clearStore()}}");
-    });
-    cy.wait(1000);
+    //This is clicking Select Widget
+    agHelper.ClickButton("Green", 0);
+    agHelper.AssertElementAbsence(locators._toastMsg);
 
-    cy.get(`${widgetSelector("Button1")} button`)
-      .first()
-      .click({ force: true });
-    validateToastDoestExist();
+    deleteAllWidgetsInContainer();
+
+    entityExplorer.DragDropWidgetNVerify(
+      draggableWidgets.BUTTON,
+      250,
+      50,
+      draggableWidgets.CONTAINER,
+    );
+
+    agHelper.ClickButton("Submit", 0);
+    agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
+
+    propPane.EnterJSContext("onClick", "{{clearStore()}}");
+    agHelper.Sleep(1000);
+
+    agHelper.ClickButton("Submit", 0);
+    agHelper.AssertElementAbsence(locators._toastMsg);
   });
 });

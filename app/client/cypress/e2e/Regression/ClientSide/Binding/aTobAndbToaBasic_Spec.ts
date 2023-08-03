@@ -1,54 +1,50 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-let dataSet: any;
-let agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  propPane = ObjectsRegistry.PropertyPane,
-  locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode;
+import {
+  assertHelper,
+  agHelper,
+  propPane,
+  locators,
+  deployMode,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Validate basic binding of Input widget to Input widget", () => {
   before(() => {
-    cy.fixture("inputBindingdsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
-
-    cy.fixture("testdata").then(function (data: any) {
-      dataSet = data;
-    });
+    agHelper.AddDsl("inputBindingdsl");
   });
 
   it("1. Input widget test with default value for atob method", () => {
-    ee.SelectEntityByName("Input1", "Widgets");
-    propPane.UpdatePropertyFieldValue(
-      "Default value",
-      dataSet.atobInput + "}}",
-    );
-    agHelper.ValidateNetworkStatus("@updateLayout");
-    cy.get(locator._inputWidget)
-      .first()
-      .invoke("attr", "value")
-      .should("equal", "A"); //Before mapping JSObject value of input
-    //Input widget test with default value for btoa method"
-    ee.SelectEntityByName("Input2");
-    propPane.UpdatePropertyFieldValue(
-      "Default value",
-      dataSet.btoaInput + "}}",
-    );
-    agHelper.ValidateNetworkStatus("@updateLayout");
-    cy.get(locator._inputWidget)
+    cy.fixture("testdata").then(function (dataSet: any) {
+      entityExplorer.SelectEntityByName("Input1", "Widgets");
+      propPane.UpdatePropertyFieldValue(
+        "Default value",
+        dataSet.atobInput + "}}",
+      );
+      assertHelper.AssertNetworkStatus("@updateLayout");
+      cy.get(locators._inputWidget)
+        .first()
+        .invoke("attr", "value")
+        .should("equal", "A"); //Before mapping JSObject value of input
+      //Input widget test with default value for btoa method"
+      entityExplorer.SelectEntityByName("Input2");
+      propPane.UpdatePropertyFieldValue(
+        "Default value",
+        dataSet.btoaInput + "}}",
+      );
+    });
+    assertHelper.AssertNetworkStatus("@updateLayout");
+    cy.get(locators._inputWidget)
       .last()
       .invoke("attr", "value")
       .should("equal", "QQ=="); //Before mapping JSObject value of input
   });
 
   it("2. Publish and validate the data displayed in input widgets value for aToB and bToa", function () {
-    deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"));
-    cy.get(locator._widgetInputSelector("inputwidgetv2"))
+    deployMode.DeployApp(locators._widgetInputSelector("inputwidgetv2"));
+    cy.get(locators._widgetInputSelector("inputwidgetv2"))
       .first()
       .invoke("attr", "value")
       .should("contain", "A");
-    cy.get(locator._widgetInputSelector("inputwidgetv2"))
+    cy.get(locators._widgetInputSelector("inputwidgetv2"))
       .last()
       .invoke("attr", "value")
       .should("contain", "QQ==");

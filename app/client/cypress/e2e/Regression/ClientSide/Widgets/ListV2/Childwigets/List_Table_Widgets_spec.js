@@ -1,21 +1,11 @@
-const dsl = require("../../../../../../fixtures/Listv2/Listv2WithTablewidget.json");
-const commonlocators = require("../../../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../../../locators/FormWidgets.json");
-import { ObjectsRegistry } from "../../../../../../support/Objects/Registry";
-const widgetLocators = require("../../../../../../locators/Widgets.json");
-
-let agHelper = ObjectsRegistry.AggregateHelper;
-
-const items = JSON.parse(dsl.dsl.children[0].listData);
+import * as _ from "../../../../../../support/Objects/ObjectsCore";
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
-const widgetSelectorByType = (name) => `.t--widget-${name}`;
-const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
 describe("Select Widgets", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("Listv2/Listv2WithTablewidget");
   });
   it("a. Validate the Values in Table widget", function () {
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)

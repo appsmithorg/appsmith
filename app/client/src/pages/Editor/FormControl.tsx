@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState } from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import type { ControlProps } from "components/formControls/BaseControl";
 import {
   getViewType,
@@ -19,9 +19,18 @@ import { QUERY_BODY_FIELDS } from "constants/QueryEditorConstants";
 import { convertObjectToQueryParams, getQueryParams } from "utils/URLUtils";
 import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import history from "utils/history";
-import TemplateMenu from "pages/Editor/QueryEditor/TemplateMenu";
-import { getAction } from "selectors/entitiesSelector";
+import {
+  getAction,
+  getDatasourceStructureById,
+  getPluginNameFromId,
+  getPluginTemplates,
+} from "selectors/entitiesSelector";
 import { get } from "lodash";
+import { SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE } from "constants/Datasource";
+import TemplateMenu from "./QueryEditor/TemplateMenu";
+import { SQL_DATASOURCES } from "../../constants/QueryEditorConstants";
+import { getCurrentEditingEnvID } from "@appsmith/utils/Environments";
+import type { Datasource, DatasourceStructure } from "entities/Datasource";
 
 export interface FormControlProps {
   config: ControlProps;
@@ -30,8 +39,8 @@ export interface FormControlProps {
 }
 
 function FormControl(props: FormControlProps) {
-  const formValues: Partial<Action> = useSelector((state: AppState) =>
-    getFormValues(props.formName)(state),
+  const formValues: Partial<Action | Datasource> = useSelector(
+    (state: AppState) => getFormValues(props.formName)(state),
   );
   const actionValues = useSelector((state: AppState) =>
     getAction(state, formValues?.id || ""),
@@ -43,7 +52,12 @@ function FormControl(props: FormControlProps) {
   const [convertFormToRaw, setConvertFormToRaw] = useState(false);
 
   const viewType = getViewType(formValues, props.config.configProperty);
-  const hidden = isHidden(formValues, props.config.hidden);
+  let formValueForEvaluatingHiddenObj = formValues;
+  if (!!formValues && formValues.hasOwnProperty("datasourceStorages")) {
+    formValueForEvaluatingHiddenObj = (formValues as Datasource)
+      .datasourceStorages[getCurrentEditingEnvID()];
+  }
+  const hidden = isHidden(formValueForEvaluatingHiddenObj, props.config.hidden);
   const configErrors: EvaluationError[] = useSelector(
     (state: AppState) =>
       getConfigErrors(state, {
@@ -51,6 +65,21 @@ function FormControl(props: FormControlProps) {
         formName: props.formName,
       }),
     shallowEqual,
+  );
+  const dsId =
+    ((formValues as Action)?.datasource as any)?.id ||
+    (formValues as Datasource)?.id;
+  const pluginTemplates: Record<string, any> = useSelector((state: AppState) =>
+    getPluginTemplates(state),
+  );
+  const dsStructure: DatasourceStructure | undefined = useSelector(
+    (state: AppState) => getDatasourceStructureById(state, dsId),
+  );
+
+  const pluginId: string = formValues?.pluginId || "";
+  const pluginTemplate = !!pluginId ? pluginTemplates[pluginId] : undefined;
+  const pluginName: string = useSelector((state: AppState) =>
+    getPluginNameFromId(state, pluginId),
   );
 
   // moving creation of template to the formControl layer, this way any formControl created can potentially have a template system.
@@ -61,7 +90,9 @@ function FormControl(props: FormControlProps) {
   );
 
   const showTemplate =
-    isNewQuery && formValues?.datasource?.pluginId && isQueryBodyField;
+    isNewQuery &&
+    (formValues as Action)?.datasource?.pluginId &&
+    isQueryBodyField;
 
   const updateQueryParams = () => {
     const params = getQueryParams();
@@ -103,16 +134,29 @@ function FormControl(props: FormControlProps) {
     }
   }
 
-  const createTemplate = (
-    template: string,
-    formName: string,
-    configProperty: string,
-  ) => {
-    updateQueryParams();
-    dispatch(
-      change(formName || QUERY_EDITOR_FORM_NAME, configProperty, template),
-    );
-  };
+  useEffect(() => {
+    // This adds default template like below to the SQL query editor, when no structure is present
+    // SELECT * FROM <<your_table_name>> LIMIT 10;
+    // -- Please enter a valid table name and hit RUN
+    if (
+      showTemplate &&
+      !convertFormToRaw &&
+      SQL_DATASOURCES.includes(pluginName) &&
+      !dsStructure
+    ) {
+      const defaultTemplate = !!pluginTemplate
+        ? pluginTemplate[SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE]
+        : "";
+      dispatch(
+        change(
+          props?.formName || QUERY_EDITOR_FORM_NAME,
+          props.config.configProperty,
+          defaultTemplate,
+        ),
+      );
+      updateQueryParams();
+    }
+  }, [showTemplate]);
 
   const FormControlRenderMethod = (config = props.config) => {
     return FormControlFactory.createControl(
@@ -130,6 +174,17 @@ function FormControl(props: FormControlProps) {
     viewTypes.push(...props.config.alternateViewTypes);
   }
 
+  const createTemplate = (
+    template: string,
+    formName: string,
+    configProperty: string,
+  ) => {
+    updateQueryParams();
+    dispatch(
+      change(formName || QUERY_EDITOR_FORM_NAME, configProperty, template),
+    );
+  };
+
   return useMemo(
     () =>
       !hidden ? (
@@ -146,7 +201,9 @@ function FormControl(props: FormControlProps) {
             className={`t--form-control-${props.config.controlType}`}
             data-replay-id={btoa(props.config.configProperty)}
           >
-            {showTemplate && !convertFormToRaw ? (
+            {showTemplate &&
+            !convertFormToRaw &&
+            !SQL_DATASOURCES.includes(pluginName) ? (
               <TemplateMenu
                 createTemplate={(templateString: string) =>
                   createTemplate(
@@ -155,7 +212,7 @@ function FormControl(props: FormControlProps) {
                     props?.config?.configProperty,
                   )
                 }
-                pluginId={formValues?.datasource?.pluginId || ""}
+                pluginId={(formValues as Action)?.datasource?.pluginId || ""}
               />
             ) : viewTypes.length > 0 && viewTypes.includes(ViewTypes.JSON) ? (
               <ToggleComponentToJson

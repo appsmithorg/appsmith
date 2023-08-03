@@ -9,6 +9,7 @@ const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 import { ObjectsRegistry } from "./Objects/Registry";
 
+let agHelper = ObjectsRegistry.AggregateHelper;
 let dataSources = ObjectsRegistry.DataSources;
 let apiPage = ObjectsRegistry.ApiPage;
 
@@ -109,6 +110,7 @@ Cypress.Commands.add(
   (apiName, baseurl, path, verb, error = false) => {
     cy.get(".ads-v2-tabs__list").contains("Logs").click();
     cy.get("[data-testid=t--debugger-search]").clear().type(apiName);
+    agHelper.PressEnter();
 
     if (!error) {
       cy.get(".object-key").last().contains("request").click();
@@ -342,11 +344,10 @@ Cypress.Commands.add("DeleteAPI", () => {
   cy.get(ApiEditor.ApiActionMenu).click({ multiple: true });
   cy.get(apiwidget.deleteAPI).first().click({ force: true });
   cy.get(apiwidget.deleteAPI).first().click({ force: true });
-  cy.wait("@deleteAction").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+
+  cy.wait("@deleteAction")
+    .its("response.body.responseMeta.status")
+    .should("eq", 200);
 });
 
 Cypress.Commands.add("NavigateToApiEditor", () => {
@@ -355,11 +356,10 @@ Cypress.Commands.add("NavigateToApiEditor", () => {
 
 Cypress.Commands.add("testCreateApiButton", () => {
   cy.get(ApiEditor.createBlankApiCard).click({ force: true });
-  cy.wait("@createNewApi").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+  cy.wait("@createNewApi");
+  cy.get("@createNewApi")
+    .its("response.body.responseMeta.status")
+    .should("eq", 201);
 });
 
 Cypress.Commands.add("createAndFillApi", (url, parameters) => {

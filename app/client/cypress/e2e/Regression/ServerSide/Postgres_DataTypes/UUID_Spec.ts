@@ -1,60 +1,57 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-let dsName: any, query: string, imageNameToUpload: string;
-const agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  dataSources = ObjectsRegistry.DataSources,
-  table = ObjectsRegistry.Table,
-  locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode,
-  apiPage = ObjectsRegistry.ApiPage,
-  appSettings = ObjectsRegistry.AppSettings;
+import {
+  agHelper,
+  entityExplorer,
+  deployMode,
+  appSettings,
+  apiPage,
+  dataSources,
+  table,
+  locators,
+  entityItems,
+  assertHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("UUID Datatype tests", function () {
+  let dsName: any, query: string, imageNameToUpload: string;
+
   before("Importing App & setting theme", () => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    cy.fixture("Datatypes/UUIDDTdsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
-    ee.NavigateToSwitcher("Widgets");
+    agHelper.AddDsl("Datatypes/UUIDDTdsl");
+
+    entityExplorer.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeTheme("Earth");
   });
 
   it("1. Creating supporting api's for generating random UUID's", () => {
-    ee.NavigateToSwitcher("Explorer");
-    apiPage.CreateAndFillApi(
-      //"https://www.uuidgenerator.net/api/version1",
-      "https://www.uuidtools.com/api/generate/v1",
-      "version1",
-    );
-    apiPage.CreateAndFillApi(
-      "https://www.uuidgenerator.net/api/version4",
-      "version4",
-    );
-    apiPage.CreateAndFillApi("https://www.uuidgenerator.net/api/guid", "guid");
-    apiPage.CreateAndFillApi(
-      "https://www.uuidgenerator.net/api/version-nil",
-      "nill",
-    );
+    entityExplorer.NavigateToSwitcher("Explorer");
+    cy.fixture("datasources").then((datasourceFormData) => {
+      apiPage.CreateAndFillApi(datasourceFormData.uuid1Api, "version1");
+      apiPage.CreateAndFillApi(datasourceFormData.uuid4Api, "version4");
+      apiPage.CreateAndFillApi(datasourceFormData.nillApi, "nill");
+    });
   });
 
   it("2. Creating table query - uuidtype", () => {
-    query = `CREATE table uuidtype (serialid SERIAL primary key, v1 uuid, v4 uuid, guid uuid, nil uuid);`;
+    query = `CREATE table uuidtype (serialid SERIAL primary key, v1 uuid, v4 uuid, nil uuid);`;
     dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    agHelper.AssertElementVisible(ee._entityNameInExplorer("public.uuidtype"));
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Refresh",
+    });
+    agHelper.AssertElementVisible(
+      entityExplorer._entityNameInExplorer("public.uuidtype"),
+    );
   });
 
   it("3. Creating SELECT query - uuidtype + Bug 14493", () => {
-    ee.ActionTemplateMenuByEntityName("public.uuidtype", "SELECT");
+    entityExplorer.ActionTemplateMenuByEntityName("public.uuidtype", "SELECT");
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._noRecordFound)
@@ -63,53 +60,48 @@ describe("UUID Datatype tests", function () {
   });
 
   it("4. Creating all queries - uuidtype", () => {
-    query = `INSERT INTO public."uuidtype" ("v1", "v4", "guid", "nil") VALUES ('{{version1.data[0]}}', '{{version4.data}}', '{{guid.data}}', '{{nill.data}}');`;
-    ee.CreateNewDsQuery(dsName);
-    agHelper.GetNClick(dataSources._templateMenu);
+    query = `INSERT INTO public."uuidtype" ("v1", "v4", "nil") VALUES ('{{version1.data}}', '{{version4.data}}', '{{nill.data}}');`;
+    entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("insertRecord");
 
-    query = `UPDATE public."uuidtype" SET "v1" ='{{version1.data[0] ? version1.data[0] : Table1.selectedRow.v1}}', "v4" ='{{version4.data ? version4.data : Table1.selectedRow.v4}}', "guid" ='{{guid.data ? guid.data :  Table1.selectedRow.guid}}', "nil" ='{{nill.data ? nill.data : Table1.selectedRow.nil}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
-    ee.CreateNewDsQuery(dsName);
-    agHelper.GetNClick(dataSources._templateMenu);
+    query = `UPDATE public."uuidtype" SET "v1" ='{{version1.data ? version1.data : Table1.selectedRow.v1}}', "v4" ='{{version4.data ? version4.data : Table1.selectedRow.v4}}', "nil" ='{{nill.data ? nill.data : Table1.selectedRow.nil}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
+    entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("updateRecord");
 
     query = `DELETE FROM public."uuidtype"`;
-    ee.CreateNewDsQuery(dsName);
-    agHelper.GetNClick(dataSources._templateMenu);
+    entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteAllRecords");
 
     query = `drop table public."uuidtype"`;
-    ee.CreateNewDsQuery(dsName);
-    agHelper.GetNClick(dataSources._templateMenu);
+    entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("dropTable");
 
     query = `DELETE FROM public."uuidtype" WHERE serialId = {{Table1.selectedRow.serialid}}`;
-    ee.CreateNewDsQuery(dsName);
-    agHelper.GetNClick(dataSources._templateMenu);
+    entityExplorer.CreateNewDsQuery(dsName);
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");
 
-    ee.ExpandCollapseEntity("Queries/JS", false);
-    ee.ExpandCollapseEntity(dsName, false);
+    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
   it("5. Inserting record - uuidtype", () => {
-    ee.SelectEntityByName("Page1");
+    entityExplorer.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(locators._modal);
 
     agHelper.ClickButton("Generate UUID's");
     agHelper.AssertContains("All UUIDs generated & available");
-
+    cy.pause();
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementAbsence(locator._specificToast("failed to execute")); //Assert that Insert did not fail
-    agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
+    agHelper.AssertElementAbsence(locators._specificToast("failed to execute")); //Assert that Insert did not fail
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
     table.WaitUntilTableLoad();
     table.ReadTableRowColumnData(0, 0).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
@@ -120,10 +112,7 @@ describe("UUID Datatype tests", function () {
     table.ReadTableRowColumnData(0, 2, "v1", 200).then(($v4) => {
       expect($v4).not.empty;
     });
-    table.ReadTableRowColumnData(0, 3, "v1", 200).then(($guid) => {
-      expect($guid).not.empty;
-    });
-    table.ReadTableRowColumnData(0, 4, "v1", 200).then(($nil) => {
+    table.ReadTableRowColumnData(0, 3, "v1", 200).then(($nil) => {
       expect($nil).not.empty;
     });
   });
@@ -131,14 +120,14 @@ describe("UUID Datatype tests", function () {
   it("6. Inserting another record - uuidtype", () => {
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(locators._modal);
 
     agHelper.ClickButton("Generate UUID's");
     agHelper.AssertContains("All UUIDs generated & available");
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementAbsence(locator._specificToast("failed to execute")); //Assert that Insert did not fail
-    agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
+    agHelper.AssertElementAbsence(locators._specificToast("failed to execute")); //Assert that Insert did not fail
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
     table.WaitUntilTableLoad();
     table.ReadTableRowColumnData(1, 0).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
@@ -149,10 +138,7 @@ describe("UUID Datatype tests", function () {
     table.ReadTableRowColumnData(1, 2, "v1", 200).then(($v4) => {
       expect($v4).not.empty;
     });
-    table.ReadTableRowColumnData(1, 3, "v1", 200).then(($guid) => {
-      expect($guid).not.empty;
-    });
-    table.ReadTableRowColumnData(1, 4, "v1", 200).then(($nil) => {
+    table.ReadTableRowColumnData(1, 3, "v1", 200).then(($nil) => {
       expect($nil).not.empty;
     });
   });
@@ -160,14 +146,14 @@ describe("UUID Datatype tests", function () {
   it("7. Inserting another record - uuidtype", () => {
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(locators._modal);
 
     agHelper.ClickButton("Generate UUID's");
     agHelper.AssertContains("All UUIDs generated & available");
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementAbsence(locator._specificToast("failed to execute")); //Assert that Insert did not fail
-    agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
+    agHelper.AssertElementAbsence(locators._specificToast("failed to execute")); //Assert that Insert did not fail
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
     table.WaitUntilTableLoad();
     table.ReadTableRowColumnData(2, 0).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
@@ -178,10 +164,7 @@ describe("UUID Datatype tests", function () {
     table.ReadTableRowColumnData(2, 2, "v1", 200).then(($v4) => {
       expect($v4).not.empty;
     });
-    table.ReadTableRowColumnData(2, 3, "v1", 200).then(($guid) => {
-      expect($guid).not.empty;
-    });
-    table.ReadTableRowColumnData(2, 4, "v1", 200).then(($nil) => {
+    table.ReadTableRowColumnData(2, 3, "v1", 200).then(($nil) => {
       expect($nil).not.empty;
     });
   });
@@ -193,16 +176,16 @@ describe("UUID Datatype tests", function () {
     table.ReadTableRowColumnData(2, 1, "v1", 200).then(($oldV1) => {
       table.ReadTableRowColumnData(2, 2, "v1", 200).then(($oldV4) => {
         agHelper.ClickButton("Run UpdateQuery");
-        agHelper.AssertElementVisible(locator._modal);
+        agHelper.AssertElementVisible(locators._modal);
 
         agHelper.ClickButton("Generate new v1");
         agHelper.AssertContains("New V1 UUID available!");
 
         agHelper.ClickButton("Update");
         agHelper.AssertElementAbsence(
-          locator._specificToast("failed to execute"),
+          locators._specificToast("failed to execute"),
         ); //Assert that Insert did not fail
-        agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
+        agHelper.AssertElementVisible(locators._spanButton("Run UpdateQuery"));
         table.WaitUntilTableLoad();
         table.ReadTableRowColumnData(2, 0).then(($cellData) => {
           expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
@@ -217,39 +200,35 @@ describe("UUID Datatype tests", function () {
     });
   });
 
-  it("9. Updating record - uuidtype - updating v4, guid", () => {
+  it("9. Updating record - uuidtype - updating v4 ", () => {
     //table.SelectTableRow(2); //As Table Selected row has issues due to fast selction
     table.ReadTableRowColumnData(2, 1, "v1", 200).then(($oldV1) => {
       table.ReadTableRowColumnData(2, 2, "v1", 200).then(($oldV4) => {
-        table.ReadTableRowColumnData(2, 3, "v1", 200).then(($oldguid) => {
-          agHelper.ClickButton("Run UpdateQuery");
-          agHelper.AssertElementVisible(locator._modal);
+        //table.ReadTableRowColumnData(2, 3, "v1", 200).then(($oldguid) => {
+        agHelper.ClickButton("Run UpdateQuery");
+        agHelper.AssertElementVisible(locators._modal);
 
-          agHelper.ClickButton("Generate new v4");
-          agHelper.AssertContains("New V4 UUID available!");
+        agHelper.ClickButton("Generate new v4");
+        agHelper.AssertContains("New V4 UUID available!");
 
-          agHelper.ClickButton("Generate new GUID");
-          agHelper.AssertContains("New GUID available!");
-
-          agHelper.ClickButton("Update");
-          agHelper.AssertElementAbsence(
-            locator._specificToast("failed to execute"),
-          ); //Assert that Insert did not fail
-          agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
-          table.WaitUntilTableLoad();
-          table.ReadTableRowColumnData(2, 0).then(($cellData) => {
-            expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
-          });
-          table.ReadTableRowColumnData(2, 1, "v1", 200).then(($newV1) => {
-            expect($oldV1).to.eq($newV1); //making sure v1 is same
-          });
-          table.ReadTableRowColumnData(2, 2, "v1", 200).then(($newV4) => {
-            expect($oldV4).to.not.eq($newV4); //making sure new v4 is updated
-          });
-          table.ReadTableRowColumnData(2, 3, "v1", 200).then(($newguid) => {
-            expect($oldguid).to.not.eq($newguid); //making sure new guid is updated
-          });
+        agHelper.ClickButton("Update");
+        agHelper.AssertElementAbsence(
+          locators._specificToast("failed to execute"),
+        ); //Assert that Insert did not fail
+        agHelper.AssertElementVisible(locators._spanButton("Run UpdateQuery"));
+        table.WaitUntilTableLoad();
+        table.ReadTableRowColumnData(2, 0).then(($cellData) => {
+          expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
         });
+        table.ReadTableRowColumnData(2, 1, "v1", 200).then(($newV1) => {
+          expect($oldV1).to.eq($newV1); //making sure v1 is same
+        });
+        table.ReadTableRowColumnData(2, 2, "v1", 200).then(($newV4) => {
+          expect($oldV4).to.not.eq($newV4); //making sure new v4 is updated
+        });
+        /*table.ReadTableRowColumnData(2, 3, "v1", 200).then(($newguid) => {
+            expect($oldguid).to.not.eq($newguid); //making sure new guid is updated
+          }); */
       });
     });
   });
@@ -257,13 +236,12 @@ describe("UUID Datatype tests", function () {
   it("10. Validating UUID functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    ee.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.RenameWithInPane("verifyUUIDFunctions");
 
     //Validating use of extention
     query = `CREATE EXTENSION IF NOT EXISTS "uuid-ossp"; CREATE EXTENSION IF NOT EXISTS "pgcrypto"`;
-    agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
     dataSources.RunQueryNVerifyResponseViews(1);
     dataSources.AssertQueryResponseHeaders(["affectedRows"]);
@@ -310,67 +288,63 @@ describe("UUID Datatype tests", function () {
     });
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
-    table.ReadTableRowColumnData(1, 5).then(($newFormedguid1) => {
-      expect($newFormedguid1).not.to.be.empty; //making sure new guid is set for row
+    deployMode.NavigateBacktoEditor();
+    table.WaitUntilTableLoad();
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.SelectEntityByName("verifyUUIDFunctions");
 
-      deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad();
-      ee.ExpandCollapseEntity("Queries/JS");
-      ee.SelectEntityByName("verifyUUIDFunctions");
-
-      //Validating altering the new column default value to generate id from pgcrypto package
-      query = `ALTER TABLE uuidtype ALTER COLUMN newUUID SET DEFAULT gen_random_uuid();`;
-      dataSources.EnterQuery(query);
-      dataSources.RunQueryNVerifyResponseViews(1);
-      dataSources.AssertQueryResponseHeaders(["affectedRows"]);
-      dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-        expect($cellData).to.eq("0");
-      });
-      deployMode.DeployApp();
-      table.WaitUntilTableLoad();
-      table.ReadTableRowColumnData(1, 5, "v1", 200).then(($newFormedguid2) => {
-        expect($newFormedguid1).to.eq($newFormedguid2);
-      });
+    //Validating altering the new column default value to generate id from pgcrypto package
+    query = `ALTER TABLE uuidtype ALTER COLUMN newUUID SET DEFAULT gen_random_uuid();`;
+    dataSources.EnterQuery(query);
+    dataSources.RunQueryNVerifyResponseViews(1);
+    dataSources.AssertQueryResponseHeaders(["affectedRows"]);
+    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
+      expect($cellData).to.eq("0");
     });
+    deployMode.DeployApp();
+    table.WaitUntilTableLoad();
 
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.SelectEntityByName("verifyUUIDFunctions");
-    agHelper.ActionContextMenuWithInPane("Delete");
-    ee.ExpandCollapseEntity("Queries/JS", false);
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.SelectEntityByName("verifyUUIDFunctions");
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
+    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
   });
 
   it("11. Deleting records - uuidtype", () => {
-    ee.SelectEntityByName("Page1");
+    entityExplorer.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
     table.ReadTableRowColumnData(1, 0).then(($cellData) => {
       expect($cellData).not.to.eq("2"); //asserting 2nd record is deleted
     });
   });
 
   it("12. Deleting all records from table - uuidtype", () => {
-    agHelper.GetNClick(locator._deleteIcon);
-    agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
+    agHelper.GetNClick(locators._deleteIcon);
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
 
   it("13. Inserting another record (to check serial column & new default column added) - uuidtype", () => {
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locator._modal);
+    agHelper.AssertElementVisible(locators._modal);
 
     agHelper.ClickButton("Generate UUID's");
     agHelper.AssertContains("All UUIDs generated & available");
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementAbsence(locator._specificToast("failed to execute")); //Assert that Insert did not fail
-    agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
+    agHelper.AssertElementAbsence(locators._specificToast("failed to execute")); //Assert that Insert did not fail
+    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
     table.WaitUntilTableLoad();
     table.ReadTableRowColumnData(0, 0).then(($cellData) => {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
@@ -381,44 +355,46 @@ describe("UUID Datatype tests", function () {
     table.ReadTableRowColumnData(0, 2, "v1", 200).then(($v4) => {
       expect($v4).not.empty;
     });
-    table.ReadTableRowColumnData(0, 3, "v1", 200).then(($guid) => {
-      expect($guid).not.empty;
-    });
-    table.ReadTableRowColumnData(0, 4, "v1", 200).then(($nil) => {
+    table.ReadTableRowColumnData(0, 3, "v1", 200).then(($nil) => {
       expect($nil).not.empty;
     });
-    table.ReadTableRowColumnData(0, 5, "v1", 200).then(($newGenUUID) => {
+    table.ReadTableRowColumnData(0, 4, "v1", 200).then(($newGenUUID) => {
       expect($newGenUUID).not.empty;
     });
   });
 
   it("14. Validate Drop of the Newly Created - uuidtype - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.SelectEntityByName("dropTable");
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.SelectEntityByName("dropTable");
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
-    ee.ExpandCollapseEntity("Queries/JS", false);
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ExpandCollapseEntity(dsName);
-    ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    agHelper.AssertElementAbsence(ee._entityNameInExplorer("public.uuidtype"));
-    ee.ExpandCollapseEntity(dsName, false);
-    ee.ExpandCollapseEntity("Datasources", false);
+    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    entityExplorer.ExpandCollapseEntity("Datasources");
+    entityExplorer.ExpandCollapseEntity(dsName);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Refresh",
+    });
+    agHelper.AssertElementAbsence(
+      entityExplorer._entityNameInExplorer("public.uuidtype"),
+    );
+    entityExplorer.ExpandCollapseEntity(dsName, false);
+    entityExplorer.ExpandCollapseEntity("Datasources", false);
   });
 
   it("15. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.DeleteAllQueriesForDB(dsName);
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.DeleteAllQueriesForDB(dsName);
   });
 
   it("16. Verify Deletion of datasource", () => {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
   });
 });

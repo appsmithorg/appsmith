@@ -10,7 +10,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("excludeForAirgap", "Fork a template to the current app", () => {
   before(() => {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       newWorkspaceName = interception.response.body.data.name;
@@ -32,12 +32,7 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
     );
     cy.wait(1000);
     cy.get(template.templateDialogBox).should("be.visible");
-    cy.xpath(
-      "//h1[text()='Slack Bot']/parent::div//button[contains(@class, 't--fork-template')]",
-    )
-      .scrollIntoView()
-      .wait(500)
-      .click();
+    cy.xpath("//h1[text()='Slack Bot']").scrollIntoView().wait(500).click();
     cy.get(template.templateViewForkButton).first().click();
     cy.waitUntil(() => cy.xpath("//span[text()='Setting up the template']"), {
       errorMsg: "Setting Templates did not finish even after 75 seconds",
@@ -83,7 +78,7 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
       // [Bug]: On forking a template the JS Objects are not cloned #17425
       cy.CheckAndUnfoldEntityItem("Queries/JS");
       cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
-      cy.NavigateToHome();
+      _.homePage.NavigateToHome();
       cy.get(homePage.searchInput).clear().type(newWorkspaceName);
       cy.wait(2000);
       cy.get(homePage.applicationCard).first().trigger("mouseover");

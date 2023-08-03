@@ -24,6 +24,7 @@ import type { DropdownOptionType } from "../../types";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getWidget } from "sagas/selectors";
+import type { DatasourceStructure } from "entities/Datasource";
 
 export function useTableOrSpreadsheet() {
   const dispatch = useDispatch();
@@ -34,8 +35,8 @@ export function useTableOrSpreadsheet() {
 
   const widget = useSelector((state: AppState) => getWidget(state, widgetId));
 
-  const datasourceStructure = useSelector(
-    getDatasourceStructureById(config.datasource),
+  const datasourceStructure: DatasourceStructure = useSelector((state) =>
+    getDatasourceStructureById(state, config.datasource),
   );
 
   const isDatasourceLoading = useSelector(getDatasourceLoading);
@@ -44,8 +45,8 @@ export function useTableOrSpreadsheet() {
 
   const isFetchingSpreadsheets = useSelector(getIsFetchingGsheetSpreadsheets);
 
-  const isFetchingDatasourceStructure = useSelector(
-    getIsFetchingDatasourceStructure,
+  const isFetchingDatasourceStructure = useSelector((state: AppState) =>
+    getIsFetchingDatasourceStructure(state, config.datasource),
   );
 
   const selectedDatasourcePluginPackageName = useSelector((state: AppState) =>
@@ -122,6 +123,7 @@ export function useTableOrSpreadsheet() {
         dataTableName: TableObj.value,
         pluginType: config.datasourcePluginType,
         pluginName: config.datasourcePluginName,
+        connectionMode: config.datasourceConnectionMode,
       });
     },
     [

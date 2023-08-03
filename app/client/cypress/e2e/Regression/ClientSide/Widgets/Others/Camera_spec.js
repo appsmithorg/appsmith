@@ -1,20 +1,15 @@
-const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
-const dsl = require("../../../../../fixtures/CameraDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Camera Widget", () => {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("CameraDsl");
   });
 
   beforeEach(() => {
     cy.openPropertyPane("camerawidget");
   });
 
-  afterEach(() => {
-    cy.goToEditFromPublish();
-  });
-
-  it("Check isDirty, onImageSave, imageBlobURL, imageDataURL", () => {
+  it("1. Check isDirty, onImageSave, imageBlobURL, imageDataURL", () => {
     const mainControlSelector =
       "//div[contains(@class, 't--widget-camerawidget')]//button";
 

@@ -1,9 +1,9 @@
-const dsl = require("../../../../../fixtures/tableNewDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe("Table Widget empty row color validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("tableNewDsl");
   });
 
   it("1. Validate cell background of columns", function () {

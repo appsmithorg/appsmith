@@ -32,7 +32,7 @@ public class Theme extends BaseDomain {
     @JsonView(Views.Public.class)
     private String applicationId;
 
-    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
+    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
     @Deprecated
     @JsonView(Views.Public.class)
     private String organizationId;
@@ -49,9 +49,9 @@ public class Theme extends BaseDomain {
     @JsonView(Views.Public.class)
     private Map<String, Object> stylesheet;
 
-    @JsonProperty("isSystemTheme")  // manually setting property name to make sure it's compatible with Gson
+    @JsonProperty("isSystemTheme") // manually setting property name to make sure it's compatible with Gson
     @JsonView({Views.Public.class})
-    private boolean isSystemTheme = false;  // should be false by default
+    private boolean isSystemTheme = false; // should be false by default
 
     @Data
     @AllArgsConstructor

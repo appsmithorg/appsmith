@@ -52,6 +52,7 @@ const Container = styled.div`
     ${getTypographyByKey("h5")};
     line-height: ${(props) => props.theme.smallHeaderHeight} !important;
     padding: 0 ${(props) => props.theme.spaces[2]}px;
+    height: ${(props) => props.theme.smallHeaderHeight} !important;
   }
   &&&& .${Classes.EDITABLE_TEXT_INPUT} {
     margin-right: 20px;
@@ -137,7 +138,10 @@ export function EditorAppName(props: EditorAppNameProps) {
         open={isPopoverOpen}
       >
         <MenuTrigger disabled={isEditing}>
-          <Container onClick={handleAppNameClick}>
+          <Container
+            data-testid="t--application-edit-menu-cta"
+            onClick={handleAppNameClick}
+          >
             <EditableAppName
               className={props.className}
               defaultSavingState={defaultSavingState}

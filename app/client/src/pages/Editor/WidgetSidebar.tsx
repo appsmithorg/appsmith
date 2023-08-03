@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import { getWidgetCards } from "selectors/editorSelectors";
 import { SearchInput } from "design-system";
-
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import { debounce } from "lodash";
 import {
@@ -12,6 +11,7 @@ import {
 } from "@appsmith/constants/messages";
 import Fuse from "fuse.js";
 import type { WidgetCardProps } from "widgets/BaseWidget";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
@@ -37,7 +37,15 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
     return new Fuse(cards, options);
   }, [cards]);
 
+  const sendWidgetSearchAnalytics = debounce((value: string) => {
+    if (value !== "") {
+      AnalyticsUtil.logEvent("WIDGET_SEARCH", { value });
+    }
+  }, 1000);
+
   const filterCards = (keyword: string) => {
+    sendWidgetSearchAnalytics(keyword);
+
     if (keyword.trim().length > 0) {
       const searchResult = fuse.search(keyword);
       setFilteredCards(searchResult as WidgetCardProps[]);

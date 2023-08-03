@@ -1,18 +1,15 @@
-const dsl = require("../../../../../fixtures/inputMaxCharDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
-
 describe("Input Widget Max Char Functionality", function () {
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-    cy.addDsl(dsl);
+    _.agHelper.RestoreLocalStorageCache();
+    _.agHelper.AddDsl("inputMaxCharDsl");
   });
 
   it("Text Input maxChar shows error if defaultText longer", () => {

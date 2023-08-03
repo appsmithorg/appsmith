@@ -3,6 +3,7 @@ import { ObjectsRegistry } from "../Objects/Registry";
 export class DeployMode {
   private locator = ObjectsRegistry.CommonLocators;
   private agHelper = ObjectsRegistry.AggregateHelper;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   _jsonFieldName = (fieldName: string) => `//p[text()='${fieldName}']`;
   _jsonFormFieldByName = (fieldName: string, input = true) =>
@@ -14,6 +15,13 @@ export class DeployMode {
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='radiogroup-container']//input`;
   _jsonFormDatepickerFieldByName = (fieldName: string) =>
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='datepicker-container']//input`;
+  _jsonFormNumberFieldByName = (
+    fieldName: string,
+    direction: "up" | "down" = "up",
+  ) =>
+    `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='input-container']// ${
+      direction == "up" ? this.locator._chevronUp : this.locator._chevronDown
+    }`;
   _jsonSelectDropdown = "button.select-button";
   private _jsonFormMultiSelectByName = (fieldName: string) =>
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='multiselect-container']//div[contains(@class, 'rc-select-show-arrow')]`;
@@ -23,29 +31,41 @@ export class DeployMode {
   private _backtoHome =
     ".t--app-viewer-navigation-header .t--app-viewer-back-to-apps-button";
   private _homeAppsmithImage = "a.t--appsmith-logo";
+  public envInfoModal = `[data-testid="t--env-info-modal"]`;
+  public envInfoModalDismissCheckbox = `[data-testid="t--env-info-dismiss-checkbox"]`;
+  public envInfoModalDeployButton = `[data-testid="t--env-info-modal-deploy-button"]`;
 
   //refering PublishtheApp from command.js
   public DeployApp(
-    eleToCheckInDeployPage: string = this.locator._backToEditor,
+    eleToCheckInDeployPage?: string,
     toCheckFailureToast = true,
+    toValidateSavedState = true,
     addDebugFlag = true,
+    assertEnvInfoModal?: "present" | "absent",
+    dismissModal = false,
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
+
     // Wait before publish
-    this.agHelper.Sleep(2000); //wait for elements settle!
-    this.agHelper.AssertAutoSave();
+    this.agHelper.Sleep(3000); //wait for elements settle!
+    toValidateSavedState && this.agHelper.AssertAutoSave();
     // Stubbing window.open to open in the same tab
-    cy.window().then((window) => {
-      cy.stub(window, "open").callsFake((url) => {
-        const updatedUrl = `${Cypress.config().baseUrl + url.substring(1)}`;
-        window.location.href = `${updatedUrl}${
-          addDebugFlag
-            ? (updatedUrl.indexOf("?") > -1 ? "&" : "?") + "debug=true"
-            : ""
-        }`;
-      });
-    });
-    cy.get(this.locator._publishButton).click();
+    this.assertHelper.AssertDocumentReady();
+    this.StubbingDeployPage(addDebugFlag);
+    this.agHelper.ClickButton("Deploy");
+    if (!!assertEnvInfoModal && assertEnvInfoModal === "present") {
+      this.agHelper.WaitUntilEleAppear(this.envInfoModal);
+      this.agHelper.AssertElementExist(this.envInfoModal);
+      if (dismissModal) {
+        this.agHelper.CheckUncheck(this.envInfoModalDismissCheckbox);
+      }
+    } else {
+      this.agHelper.AssertElementAbsence(this.envInfoModal);
+    }
+    this.agHelper.GetNClickIfPresent(this.envInfoModalDeployButton);
+    this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //to make sure we have started navigation from Edit page
+    //cy.get("@windowDeployStub").should("be.calledOnce");
+    this.assertHelper.AssertDocumentReady();
     cy.log("Pagename: " + localStorage.getItem("PageName"));
 
     //Below url check throwing error - hence commenting!
@@ -54,30 +74,93 @@ export class DeployMode {
     //   .should("not.contain", "edit");
     //cy.wait('@publishApp').wait('@publishApp') //waitng for 2 calls to complete
 
-    this.agHelper.WaitUntilEleAppear(eleToCheckInDeployPage);
+    this.agHelper.WaitUntilEleAppear(
+      eleToCheckInDeployPage ?? this.locator._backToEditor,
+    );
     localStorage.setItem("inDeployedMode", "true");
     toCheckFailureToast &&
       this.agHelper.AssertElementAbsence(
         this.locator._specificToast("has failed"),
       ); //Validating bug - 14141 + 14252
     this.agHelper.Sleep(2000); //for Depoy page to settle!
+    // });
   }
 
   // Stubbing window.open to open in the same tab
   public StubbingWindow() {
-    cy.window().then((window: any) => {
-      cy.stub(window, "open").callsFake((url) => {
-        window.location.href = url;
-        window.location.target = "_self";
-      });
+    cy.window({ timeout: 60000 }).then((window: any) => {
+      cy.stub(window, "open")
+        .as("windowStub")
+        .callsFake((url) => {
+          window.location.href = url;
+          window.location.target = "_self";
+        });
     });
   }
 
+  public StubbingDeployPage(addDebugFlag = true) {
+    // cy.window({ timeout: 60000 }).then((window) => {
+    //   cy.stub(window, "open")
+    //     .as("windowDeployStub")
+    //     .callsFake((url) => {
+    //       const updatedUrl = `${Cypress.config().baseUrl + url.substring(1)}`;
+    //       window.location.href = `${updatedUrl}${
+    //         addDebugFlag
+    //           ? (updatedUrl.indexOf("?") > -1 ? "&" : "?") + "debug=true"
+    //           : ""
+    //       }`;
+    //     });
+    // });
+
+    // //this.StubbingWindow();
+    let updatedUrl = "";
+    cy.window({ timeout: 60000 }).then((window) => {
+      const originalOpen = window.open; // Save a reference to the original window.open function
+      window.open = (url: any) => {
+        updatedUrl = `${Cypress.config().baseUrl + url.substring(1)}`;
+        originalOpen.call(
+          window,
+          `${updatedUrl}${
+            addDebugFlag
+              ? (updatedUrl.indexOf("?") > -1 ? "&" : "?") + "debug=true"
+              : ""
+          }`,
+          "_self",
+        ); // Call the original window.open function
+        //cy.wrap(originalOpen).as("windowDeployStub");  //this is not working! to check later
+        return null;
+      };
+    });
+  }
+
+  public StubWindowNAssert(
+    selector: string,
+    expectedUrl: string,
+    networkCall: string,
+  ) {
+    this.StubbingWindow();
+    this.agHelper.GetNClick(selector, 0, false, 4000); //timeout new url to settle loading
+    cy.get("@windowStub").should("be.calledOnce");
+    cy.url().should("contain", expectedUrl);
+    this.assertHelper.AssertDocumentReady();
+    cy.window({ timeout: 60000 }).then((win) => {
+      win.history.back();
+    });
+    this.assertHelper.AssertNetworkStatus("@" + networkCall);
+    this.assertHelper.AssertDocumentReady();
+  }
+
   public NavigateBacktoEditor() {
-    cy.get(this.locator._backToEditor).click({ force: true });
+    this.assertHelper.AssertDocumentReady();
+    this.agHelper.GetNClick(this.locator._backToEditor, 0, true);
     this.agHelper.Sleep(2000);
     localStorage.setItem("inDeployedMode", "false");
-    this.agHelper.AssertElementVisible(this.locator._dropHere); //Assert if canvas is visible after Navigating back!
+    this.agHelper.AssertElementAbsence(
+      this.locator._specificToast("There was an unexpcted error"),
+    ); //Assert that is not error toast in Edit mode when navigating back from Deploy mode
+    this.assertHelper.AssertDocumentReady();
+    this.assertHelper.AssertNetworkStatus("@getWorkspace");
+    this.agHelper.AssertElementVisible(this.locator._editPage); //Assert if canvas is visible after Navigating back!
   }
 
   public NavigateToHomeDirectly() {
@@ -86,7 +169,14 @@ export class DeployMode {
     this.agHelper.AssertElementVisible(this._homeAppsmithImage);
   }
 
-  public EnterJSONInputValue(fieldName: string, value: string, index = 0) {
+  public EnterJSONInputValue(
+    fieldName: string,
+    value: string,
+    index = 0,
+    clearField = false,
+  ) {
+    if (clearField) this.ClearJSONFieldValue(fieldName, index);
+
     cy.xpath(this._jsonFormFieldByName(fieldName))
       .eq(index)
       .click()

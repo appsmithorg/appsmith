@@ -1,18 +1,21 @@
 export class CommonLocators {
   _body = "body";
+  _inputField = "input";
   _canvasViewport = "#canvas-viewport";
   _emptyPageTxt = ".bp3-heading";
-  _chevronUp = ".bp3-icon-chevron-up";
+  _chevronUp = "span[contains(@class, 'bp3-icon-chevron-up')]";
+  _chevronDown = "span[contains(@class, 'bp3-icon-chevron-down')]";
   _loading = "#loading";
-  _spinner = ".ads-v2-spinner";
   _animationSpnner = ".bp3-spinner-animation";
-  _runBtnSpinner = ".ads-v2-spinner";
+  _btnSpinner = ".ads-v2-spinner";
   _sidebar = ".t--sidebar";
   _queryName = ".t--action-name-edit-field span";
   _queryNameTxt = ".t--action-name-edit-field input";
+  _editIcon = ".t--action-name-edit-icon";
   _emptyCanvasCta = "[data-testid='canvas-ctas']";
   _dsName = ".t--edit-datasource-name span";
   _dsNameTxt = ".t--edit-datasource-name input";
+  _tableRecordsContainer = ".show-page-items";
   _widgetName = (widgetName: string) =>
     ".editable-text-container:contains('" +
     widgetName +
@@ -29,7 +32,22 @@ export class CommonLocators {
   _codeEditorTarget = "div.CodeEditorTarget";
   _entityExplorersearch = "#entity-explorer-search";
   _propertyControl = ".t--property-control-";
+  _propertyControlTextArea = (uiName: string) =>
+    this._propertyControl +
+    uiName.replace(/ +/g, "").toLowerCase() +
+    " " +
+    this._codeMirrorTextArea;
+  _propertyControlInput = (uiName: string) =>
+    this._propertyControl +
+    uiName.replace(/ +/g, "").toLowerCase() +
+    " " +
+    this._inputField;
+  _propertyInputField = (uiName: string) =>
+    `${this._propertyControlTextArea(uiName)}, ${this._propertyControlInput(
+      uiName,
+    )}`;
   _textWidget = ".t--draggable-textwidget .t--text-widget-container span";
+  _tableWidget = ".t--widget-tablewidgetv2";
   _inputWidget = ".t--draggable-inputwidgetv2 input";
   _publishButton = ".t--application-publish-btn";
   _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`;
@@ -37,6 +55,8 @@ export class CommonLocators {
   _widgetInputSelector = (widgetType: string) =>
     this._widgetInDeployed(widgetType) + " input";
   _textWidgetInDeployed = this._widgetInDeployed("textwidget") + " span";
+  _textWidgetStyleInDeployed =
+    this._widgetInDeployed("textwidget") + " .bp3-ui-text";
   _inputWidgetv1InDeployed = this._widgetInDeployed("inputwidget") + " input";
   _textAreainputWidgetv1InDeployed =
     this._widgetInDeployed("inputwidget") + " textarea";
@@ -57,13 +77,14 @@ export class CommonLocators {
     item +
     "']/parent::div[@role='menuitem'] | //div[text()='" +
     item +
-    "']/ancestor::div[@role='menuitem']| //span[text()='" +
+    "']/ancestor::div[@role='menuitem'] | //span[text()='" +
     item +
     "']/ancestor::div[@role='menuitem']";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
   _visibleTextSpan = (spanText: string) => `//span[text()="` + spanText + `"]`;
   _openWidget = ".widgets .t--entity-add-btn";
   _dropHere = ".t--drop-target";
+  _editPage = "[data-testid=onboarding-tasks-datasource-text], .t--drop-target";
   _crossBtn = "span.cancel-icon";
   _createNew = ".t--entity-add-btn.group.files button";
   _uploadFiles = "div.uppy-Dashboard-AddFiles input";
@@ -104,7 +125,7 @@ export class CommonLocators {
     `.t--widget-card-draggable-${widgetType}`;
   _propertyToggleValue = (controlToToggle: string) =>
     "//div[contains(@class, 't--property-control-" +
-    controlToToggle +
+    controlToToggle.replace(/ +/g, "").toLowerCase() +
     "')]//input[@type='checkbox']/parent::label";
   _openNavigationTab = (tabToOpen: string) =>
     `//span[text()='${tabToOpen}']/ancestor::div`;
@@ -135,6 +156,9 @@ export class CommonLocators {
   _evaluatedValuePopDragHandler = ".drag-handle-block";
   _evaluatedErrorMessage =
     ".t--CodeEditor-evaluatedValue .t--evaluatedPopup-error";
+  _evalPopup = ".evaluated-value-popup";
+  _checkboxGroupOptions = (option: string) =>
+    "//div[contains(text(),'" + option + "')]/parent::label/input";
   _multiSelectOptions = (option: string) =>
     "div[title='" + option + "'] input[type='checkbox']";
   _divWithClass = (className: string) =>
@@ -175,6 +199,7 @@ export class CommonLocators {
   _cancelActionExecution = ".t--cancel-action-button";
   _widgetPane = "[data-testid='widget-sidebar-scrollable-wrapper']";
   _sliderThumb = '[data-testid="slider-thumb"]';
+  _optionsJsToggle = ".t--property-control-options .t--js-toggle";
   _bottomPaneCollapseIcon = ".t--tabs-collapse-icon";
   _dropDownMultiTreeValue = (dropdownOption: string) =>
     "//span[@class='rc-tree-select-tree-title']/parent::span[@title='" +
@@ -202,6 +227,7 @@ export class CommonLocators {
   _ds_uppy_upload_btn = ".uppy-StatusBar-actionBtn--upload";
 
   _goBack = this._visibleTextSpan("Back") + "/parent::a";
+  _learnMore = this._visibleTextSpan("Learn more") + "/parent::a";
   _resizeHandles = {
     left: "t--resizable-handle-LEFT",
     right: "t--resizable-handle-RIGHT",
@@ -215,8 +241,31 @@ export class CommonLocators {
     `//button[contains(@class, 't--open-dropdown-${value}')]`;
   _fixedLayout = "#t--layout-conversion-cta:contains('fixed')";
   _forkAppToWorkspaceBtn = ".t--fork-app-to-workspace-button";
+  _errorToolTip = ".bp3-popover-content";
   _selectedWidget = "div[data-testid='t--selected']";
   _appsmithWidget = (widgetId: string) => `.appsmith_widget_${widgetId}`;
   _selectionCanvas = (canvasId: string) => `#div-selection-${canvasId}`;
   _sqlKeyword = ".cm-m-sql.cm-keyword";
+  _appLeveltooltip = (toolTip: string) => `span:contains('${toolTip}')`;
+  _appEditMenu = "[data-testid='t--application-edit-menu']";
+  _appEditMenuBtn = "[data-testid='t--application-edit-menu-cta']";
+  _appEditMenuSettings = "[data-testid='t--application-edit-menu-settings']";
+  _appThemeSettings = "#t--theme-settings-header";
+  _appChangeThemeBtn = ".t--change-theme-btn";
+  _appThemeCard = ".t--theme-card";
+  _appNavigationSettings = "#t--navigation-settings-header";
+  _appNavigationSettingsShowTitle = "#t--navigation-settings-application-title";
+  _fontSelect = "fontsize .rc-select";
+  _fontInput = "fontsize input";
+  _pagination = ".rc-pagination";
+  _controlOption = ".t--property-control-options";
+  _canvasBody = "[data-testid='div-selection-0']";
+  _adsV2Content = ".ads-v2__content";
+  _adsV2CollapsibleHeader = ".ads-v2-collapsible__header";
+  _adsV2Text = ".ads-v2-text";
+  _svg = "svg";
+  _imgWidgetInsideList = `//div[@data-testid='styledImage']//img`;
+
+  public ds_editor_env_filter = (envName: string) =>
+    `[data-testid="t--ds-data-filter-${envName}"]`;
 }

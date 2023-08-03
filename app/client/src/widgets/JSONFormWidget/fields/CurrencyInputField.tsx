@@ -1,6 +1,4 @@
 import * as Sentry from "@sentry/react";
-import _ from "lodash";
-import moment from "moment";
 import React, { useCallback, useContext, useMemo, useState } from "react";
 
 import type { BaseInputComponentProps } from "./BaseInputField";
@@ -135,7 +133,7 @@ function CurrencyInputField({
         Sentry.captureException(e);
       }
 
-      const value = derived.value({ text }, moment, _);
+      const value = derived.value({ text });
 
       return {
         text,

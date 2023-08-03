@@ -1,13 +1,13 @@
-const dsl = require("../../../../../../fixtures/Listv2/ListWithModalStatCheckboxAndRadio.json");
 const commonlocators = require("../../../../../../locators/commonlocators.json");
+import * as _ from "../../../../../../support/Objects/ObjectsCore";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
 describe("Modal, Radio, Checkbox widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("Listv2/ListWithModalStatCheckboxAndRadio");
   });
-  it("a. CurrentView Works in modal", function () {
+  it("1. CurrentView Works in modal", function () {
     cy.get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)
       .first()
       .should("have.text", "");
@@ -16,7 +16,8 @@ describe("Modal, Radio, Checkbox widget", function () {
 
     cy.get(`${widgetSelector("Input1")} textarea`)
       .first()
-      .type("Leo Messi", { force: true });
+      .type("Leo Messi", { force: true })
+      .wait(1000);
 
     cy.get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)
       .first()
@@ -32,9 +33,10 @@ describe("Modal, Radio, Checkbox widget", function () {
       .should("have.text", "Leo Messi");
 
     cy.get(`${widgetSelector("IconButton2")} button`).click({ force: true });
-    cy.wait(5000);
+    cy.wait(2000);
   });
-  it("b. Radio And Checkbox connected to modal", function () {
+
+  it("2. Radio And Checkbox connected to modal", function () {
     cy.get(`${widgetSelector("RadioGroup1")} [type="radio"]`).check("N", {
       force: true,
     });

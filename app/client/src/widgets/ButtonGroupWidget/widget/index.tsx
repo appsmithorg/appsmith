@@ -4,7 +4,7 @@ import type { ButtonPlacement, ButtonVariant } from "components/constants";
 import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { get } from "lodash";
 import React from "react";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -577,6 +577,21 @@ class ButtonGroupWidget extends BaseWidget<
     }
   };
 
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+      },
+    };
+  }
+
   getPageView() {
     const { componentWidth } = this.getComponentDimensions();
     const minPopoverWidth = MinimumPopupRows * this.props.parentColumnSpace;
@@ -586,9 +601,11 @@ class ButtonGroupWidget extends BaseWidget<
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         buttonClickHandler={this.handleClick}
+        buttonMinWidth={this.isAutoLayoutMode ? 120 : undefined}
         buttonVariant={this.props.buttonVariant}
         groupButtons={this.props.groupButtons}
         isDisabled={this.props.isDisabled}
+        minHeight={this.isAutoLayoutMode ? this.props.minHeight : undefined}
         minPopoverWidth={minPopoverWidth}
         orientation={this.props.orientation}
         renderMode={this.props.renderMode}

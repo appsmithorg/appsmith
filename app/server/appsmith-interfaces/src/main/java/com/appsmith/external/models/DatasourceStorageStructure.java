@@ -22,5 +22,4 @@ public class DatasourceStorageStructure extends BaseDomain {
 
     @JsonView(Views.Internal.class)
     private DatasourceStructure structure;
-
 }

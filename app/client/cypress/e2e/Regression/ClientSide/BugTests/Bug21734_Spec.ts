@@ -8,6 +8,8 @@ describe("Bug 21734: On exiting from the Datasources page without saving changes
   it("1. Navigating from intermediary datasource to new page", function () {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("Mongo");
+    // Have to fill form since modal won't show for empty ds
+    dataSources.FillMongoDSForm();
 
     ee.AddNewPage();
 
@@ -19,14 +21,16 @@ describe("Bug 21734: On exiting from the Datasources page without saving changes
     cy.get(dataSources._datasourceModalDoNotSave).click();
 
     ee.SelectEntityByName("Page1");
-    agHelper.ValidateURL("page1");
+    agHelper.AssertURL("page1");
 
     ee.SelectEntityByName("Page2");
-    agHelper.ValidateURL("page2");
+    agHelper.AssertURL("page2");
   });
   it("2. Navigating from intermediary datasource to an existing page", function () {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("PostgreSQL");
+    // Have to fill form since modal won't show for empty ds
+    dataSources.FillPostgresDSForm();
 
     ee.SelectEntityByName("Page1");
     agHelper.AssertContains(
@@ -35,9 +39,9 @@ describe("Bug 21734: On exiting from the Datasources page without saving changes
       dataSources._datasourceModalDoNotSave,
     );
     cy.get(dataSources._datasourceModalDoNotSave).click();
-    agHelper.ValidateURL("page1");
+    agHelper.AssertURL("page1");
 
     ee.SelectEntityByName("Page2");
-    agHelper.ValidateURL("page2");
+    agHelper.AssertURL("page2");
   });
 });

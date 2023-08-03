@@ -63,28 +63,27 @@ describe("Switch datasource", function () {
 
   it("4. By switching datasources execute a query with both the datasources", function () {
     cy.NavigateToActiveDSQueryPane(postgresDatasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true });
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("select * from public.users limit 10");
     cy.wait(3000);
     cy.runQuery();
-    cy.wait("@saveAction").should(
-      "have.nested.property",
-      "response.body.data.isValid",
-      true,
-    );
+
+    // Update Action API is not being called after run, we dont need this validation here
+    // cy.wait("@saveAction").should(
+    //   "have.nested.property",
+    //   "response.body.data.isValid",
+    //   true,
+    // );
     cy.get(".rc-select-show-arrow").click();
     cy.contains(".rc-select-item-option-content", postgresDatasourceNameSecond)
       .click()
       .wait(1000);
     cy.runQuery();
-    cy.wait("@saveAction").should(
-      "have.nested.property",
-      "response.body.data.isValid",
-      true,
-    );
+
+    // Update Action API is not being called after run, we dont need this validation here
+    // cy.wait("@saveAction").should(
+    //   "have.nested.property",
+    //   "response.body.data.isValid",
+    //   true,
+    // );
   });
 
   it("5. Confirm mongo datasource is not present in the switch datasources dropdown", function () {

@@ -1,6 +1,10 @@
-import homePage from "../../../../locators/HomePage";
+import homePageLocators from "../../../../locators/HomePage";
 const explorer = require("../../../../locators/explorerlocators.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  assertHelper,
+  entityExplorer,
+  homePage,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Slug URLs", () => {
   let applicationName;
@@ -27,13 +31,8 @@ describe("Slug URLs", () => {
   it("2. Checks if application slug updates on the URL when application name changes", () => {
     cy.generateUUID().then((appName) => {
       applicationName = appName;
-      cy.AppSetupForRename();
-      cy.get(homePage.applicationName).type(`${appName}` + "{enter}");
-      cy.wait("@updateApplication").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
+      homePage.RenameApplication(applicationName);
+      assertHelper.AssertNetworkStatus("updateApplication");
       cy.location("pathname").then((pathname) => {
         const pageId = pathname.split("/")[3]?.split("-").pop();
         expect(pathname).to.be.equal(`/app/${appName}/page1-${pageId}/edit`);
@@ -42,7 +41,10 @@ describe("Slug URLs", () => {
   });
 
   it("3. Checks if page slug updates on the URL when page name changes", () => {
-    _.entityExplorer.ActionContextMenuByEntityName("Page1", "Edit name");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "Page1",
+      action: "Edit name",
+    });
     cy.get(explorer.editEntity).last().type("Page renamed", { force: true });
     cy.get("body").click(0, 0, { force: true });
     cy.wait("@updatePage").should(
@@ -64,8 +66,8 @@ describe("Slug URLs", () => {
     }).then((response) => {
       const application = response.body.data;
       expect(application.applicationVersion).to.equal(1);
-      cy.NavigateToHome();
-      cy.reload();
+      homePage.NavigateToHome();
+      //agHelper.RefreshPage("getReleaseItems");
 
       cy.SearchApp(applicationName);
 
@@ -94,10 +96,12 @@ describe("Slug URLs", () => {
             `{{appsmith.URL.pathname}}`,
           );
 
-          cy.get(".t--draggable-textwidget .bp3-ui-text").should(
-            "contain.text",
-            `/applications/${application.id}/pages/${currentPageId}/edit`,
-          );
+          cy.get(".t--draggable-textwidget .bp3-ui-text")
+            .should(
+              "contain.text",
+              `/applications/${application.id}/pages/${currentPageId}/edit`,
+            )
+            .wait(2000);
 
           cy.get(".t--upgrade").click({ force: true });
 

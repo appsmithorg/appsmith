@@ -6,10 +6,10 @@ require("cypress-file-upload");
 import gitSyncLocators from "../locators/gitSyncLocators";
 import homePage from "../locators/HomePage";
 import { ObjectsRegistry } from "../support/Objects/Registry";
-import datasourceFormData from "../fixtures/datasources.json";
 
 let gitSync = ObjectsRegistry.GitSync,
-  agHelper = ObjectsRegistry.AggregateHelper;
+  agHelper = ObjectsRegistry.AggregateHelper,
+  tedTestConfig = ObjectsRegistry.TEDTestConfigs;
 
 const commonLocators = require("../locators/commonlocators.json");
 const GITHUB_API_BASE = "https://api.github.com";
@@ -18,7 +18,7 @@ Cypress.Commands.add("revokeAccessGit", (appName) => {
   cy.xpath("//span[text()= `${appName}`]").parent().next().click();
   cy.get(gitSyncLocators.disconnectAppNameInput).type(appName);
   cy.get(gitSyncLocators.disconnectButton).click();
-  cy.route("POST", "api/v1/git/disconnect/app/*").as("disconnect");
+  cy.intercept("POST", "api/v1/git/disconnect/app/*").as("disconnect");
   cy.get(gitSyncLocators.disconnectButton).click();
   cy.wait("@disconnect").should(
     "have.nested.property",
@@ -128,8 +128,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("latestDeployPreview", () => {
-  cy.server();
-  cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
+  cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
   // Wait before publish
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
@@ -146,7 +145,7 @@ Cypress.Commands.add("latestDeployPreview", () => {
   cy.wait(2000); // wait for modal to load
   cy.xpath("//span[text()='Latest deployed preview']").click();
   cy.log("pagename: " + localStorage.getItem("PageName"));
-  cy.wait(2000); //wait time for page to load!
+  cy.wait(5000); //wait time for page to load!
 });
 
 Cypress.Commands.add("createGitBranch", (branch) => {
@@ -342,7 +341,7 @@ Cypress.Commands.add(
     );
     cy.get(gitSyncLocators.gitRepoInput).type(
       //`git@github.com:${owner}/${repo}.git`,
-      `${datasourceFormData["GITEA_API_URL_TED"]}/${repo}.git`,
+      `${tedTestConfig.GITEA_API_URL_TED}/${repo}.git`,
     );
     cy.get(gitSyncLocators.generateDeployKeyBtn).click();
     cy.wait(`@generateKey-${repo}`).then((result) => {
@@ -365,7 +364,7 @@ Cypress.Commands.add(
 
       cy.request({
         method: "POST",
-        url: `${datasourceFormData["GITEA_API_BASE_TED"]}:${datasourceFormData["GITEA_API_PORT_TED"]}/api/v1/repos/Cypress/${repo}/keys`,
+        url: `${tedTestConfig.GITEA_API_BASE_TED}:${tedTestConfig.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys`,
         headers: {
           Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
         },
@@ -475,7 +474,7 @@ Cypress.Commands.add(
 
           cy.request({
             method: "POST",
-            url: `${datasourceFormData["GITEA_API_BASE_TED"]}:${datasourceFormData["GITEA_API_PORT_TED"]}/api/v1/repos/Cypress/${repo}/keys`,
+            url: `${tedTestConfig.GITEA_API_BASE_TED}:${tedTestConfig.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys`,
             headers: {
               Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
             },

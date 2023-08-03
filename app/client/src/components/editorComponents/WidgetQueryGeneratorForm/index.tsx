@@ -5,11 +5,9 @@ import { noop, set } from "lodash";
 import { CommonControls } from "./CommonControls";
 import { ConnectData } from "./ConnectData";
 import { DatasourceSpecificControls } from "./DatasourceSpecificControls";
-import { GlobalStyles, Wrapper } from "./styles";
+import { Wrapper } from "./styles";
 import WidgetSpecificControls from "./WidgetSpecificControls";
 import { useDispatch, useSelector } from "react-redux";
-import { executeCommandAction } from "actions/apiPaneActions";
-import { SlashCommand } from "entities/Action";
 import {
   getisOneClickBindingConnectingForWidget,
   getIsOneClickBindingOptionsVisibility,
@@ -30,16 +28,17 @@ type WidgetQueryGeneratorFormContextType = {
     tableHeaderIndex: number;
     datasourcePluginType: string;
     datasourcePluginName: string;
+    datasourceConnectionMode: string;
   };
   updateConfig: (
     property: string | Record<string, unknown>,
     value?: unknown,
   ) => void;
-  addSnippet: () => void;
   addBinding: (binding?: string, makeDynamicPropertyPath?: boolean) => void;
   isSourceOpen: boolean;
   onSourceClose: () => void;
   errorMsg: string;
+  expectedType: string;
 };
 
 const DEFAULT_CONFIG_VALUE = {
@@ -51,12 +50,12 @@ const DEFAULT_CONFIG_VALUE = {
   tableHeaderIndex: 1,
   datasourcePluginType: "",
   datasourcePluginName: "",
+  datasourceConnectionMode: "",
 };
 
 const DEFAULT_CONTEXT_VALUE = {
   config: DEFAULT_CONFIG_VALUE,
   updateConfig: noop,
-  addSnippet: noop,
   addBinding: noop,
   widgetId: "",
   propertyValue: "",
@@ -64,6 +63,7 @@ const DEFAULT_CONTEXT_VALUE = {
   onSourceClose: noop,
   errorMsg: "",
   propertyName: "",
+  expectedType: "",
 };
 
 export const WidgetQueryGeneratorFormContext =
@@ -74,11 +74,10 @@ export const WidgetQueryGeneratorFormContext =
 type Props = {
   propertyPath: string;
   propertyValue: string;
-  expectedType?: string;
-  entityId: string;
   onUpdate: (snippet?: string, makeDynamicPropertyPath?: boolean) => void;
   widgetId: string;
   errorMsg: string;
+  expectedType: string;
 };
 
 function WidgetQueryGeneratorForm(props: Props) {
@@ -87,7 +86,6 @@ function WidgetQueryGeneratorForm(props: Props) {
   const [pristine, setPristine] = useState(true);
 
   const {
-    entityId,
     errorMsg,
     expectedType,
     onUpdate,
@@ -145,6 +143,7 @@ function WidgetQueryGeneratorForm(props: Props) {
           set(draftConfig, "alias", {});
           set(draftConfig, "datasourcePluginType", "");
           set(draftConfig, "datasourcePluginName", "");
+          set(draftConfig, "datasourceConnectionMode", "");
         }
 
         if (
@@ -177,23 +176,6 @@ function WidgetQueryGeneratorForm(props: Props) {
     );
   };
 
-  const addSnippet = useCallback(() => {
-    dispatch(
-      executeCommandAction({
-        actionType: SlashCommand.NEW_SNIPPET,
-        args: {
-          entityType: "widget",
-          expectedType: expectedType || "Array",
-          entityId: entityId,
-          propertyPath: propertyPath,
-        },
-        callback: (snippet: string) => {
-          onUpdate(snippet, true);
-        },
-      }),
-    );
-  }, [propertyPath, entityId, expectedType, onUpdate]);
-
   const addBinding = useCallback(
     (binding?: string, makeDynamicPropertyPath?: boolean) => {
       onUpdate(binding, makeDynamicPropertyPath);
@@ -207,7 +189,6 @@ function WidgetQueryGeneratorForm(props: Props) {
         ...config,
       },
       updateConfig,
-      addSnippet,
       addBinding,
       propertyValue,
       widgetId,
@@ -215,11 +196,11 @@ function WidgetQueryGeneratorForm(props: Props) {
       onSourceClose,
       errorMsg,
       propertyName: propertyPath,
+      expectedType,
     };
   }, [
     config,
     updateConfig,
-    addSnippet,
     addBinding,
     propertyValue,
     widgetId,
@@ -237,7 +218,6 @@ function WidgetQueryGeneratorForm(props: Props) {
 
   return (
     <Wrapper>
-      <GlobalStyles />
       <WidgetQueryGeneratorFormContext.Provider value={contextValue}>
         <CommonControls />
         <DatasourceSpecificControls />

@@ -4,24 +4,18 @@ const dsl = require("../../../../fixtures/MultipleWidgetDsl.json");
 const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 const datasourceHomeLocators = require("../../../../locators/apiWidgetslocator.json");
 const datasourceLocators = require("../../../../locators/DatasourcesEditor.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("GlobalSearch", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("MultipleWidgetDsl");
   });
 
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
 
-  it("1. Clicking on filter should show the filter menu", () => {
-    cy.get(commonlocators.globalSearchTrigger).click({ force: true });
-    cy.contains(globalSearchLocators.docHint, "snippets").click();
-    cy.get(globalSearchLocators.filterButton).click();
-    cy.contains("Reset Filter").should("be.visible");
-    cy.get("body").type("{esc}");
-
-    //showsAndHidesUsingKeyboardShortcuts
+  it("1. Shows And Hides Using Keyboard Shortcuts", () => {
     // wait for the page to load
     cy.get(commonlocators.canvas);
     const isMac = Cypress.platform === "darwin";

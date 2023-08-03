@@ -1,13 +1,12 @@
 /// <reference types="Cypress" />
 
-const dsl = require("../../../../fixtures/formInputTableDsl.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the table widget and input Widget", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("formInputTableDsl");
   });
 
   it("1. Input widget test with default value from table widget", function () {

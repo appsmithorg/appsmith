@@ -25,15 +25,17 @@ import {
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
-import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
+import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
 import {
   AUTOLAYOUT_RESIZER_WIDTH_BUFFER,
   useDynamicAppLayout,
 } from "utils/hooks/useDynamicAppLayout";
 import Canvas from "../Canvas";
-import { CanvasResizer } from "widgets/CanvasResizer";
 import type { AppState } from "@appsmith/reducers";
+import { CanvasResizer } from "widgets/CanvasResizer";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
 
 type CanvasContainerProps = {
   isPreviewMode: boolean;
@@ -117,9 +119,10 @@ function CanvasContainer(props: CanvasContainerProps) {
     pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
-
+  const showAnonymousDataPopup = useSelector(getIsAnonymousDataPopupVisible);
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
+  const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
 
   useEffect(() => {
     return () => {
@@ -182,18 +185,23 @@ function CanvasContainer(props: CanvasContainerProps) {
         $isAutoLayout={isAutoLayout}
         background={
           isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
-            ? selectedTheme.properties.colors.backgroundColor
+            ? isWDSV2Enabled
+              ? "var(--bg-color)"
+              : selectedTheme.properties.colors.backgroundColor
             : "initial"
         }
         className={classNames({
           [`${getCanvasClassName()} scrollbar-thin`]: true,
           "mt-0": shouldShowSnapShotBanner || !shouldHaveTopMargin,
-          "mt-4": !shouldShowSnapShotBanner && showCanvasTopSection,
+          "mt-4":
+            !shouldShowSnapShotBanner &&
+            (showCanvasTopSection || showAnonymousDataPopup),
           "mt-8":
             !shouldShowSnapShotBanner &&
             shouldHaveTopMargin &&
             !showCanvasTopSection &&
-            !isPreviewingNavigation,
+            !isPreviewingNavigation &&
+            !showAnonymousDataPopup,
           "mt-24": shouldShowSnapShotBanner,
         })}
         id={"canvas-viewport"}
@@ -209,10 +217,12 @@ function CanvasContainer(props: CanvasContainerProps) {
           pointerEvents: isAutoCanvasResizing ? "none" : "auto",
         }}
       >
-        <WidgetGlobaStyles
-          fontFamily={selectedTheme.properties.fontFamily.appFont}
-          primaryColor={selectedTheme.properties.colors.primaryColor}
-        />
+        {!isWDSV2Enabled && (
+          <WidgetGlobaStyles
+            fontFamily={selectedTheme.properties.fontFamily.appFont}
+            primaryColor={selectedTheme.properties.colors.primaryColor}
+          />
+        )}
         {isAppThemeChanging && (
           <div className="fixed top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-white/70 z-[2]">
             <Spinner size="md" />

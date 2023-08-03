@@ -13,6 +13,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
+  WIDGET_ID_SHOW_WALKTHROUGH,
 } from "constants/WidgetConstants";
 import log from "loglevel";
 import type { WidgetResize } from "actions/pageActions";
@@ -44,6 +45,8 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertToString } from "utils/AppsmithUtils";
 import type {
+  BatchUpdateDynamicPropertyUpdates,
+  BatchUpdateWidgetDynamicPropertyPayload,
   DeleteWidgetPropertyPayload,
   SetWidgetDynamicPropertyPayload,
   UpdateWidgetPropertyPayload,
@@ -179,6 +182,7 @@ import {
   FlexLayerAlignment,
   LayoutDirection,
 } from "utils/autoLayout/constants";
+import localStorage from "utils/localStorage";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -480,21 +484,21 @@ export function removeDynamicBindingProperties(
   }
 }
 
-export function* setWidgetDynamicPropertySaga(
-  action: ReduxAction<SetWidgetDynamicPropertyPayload>,
+export function* handleUpdateWidgetDynamicProperty(
+  widget: WidgetProps,
+  update: BatchUpdateDynamicPropertyUpdates,
 ) {
   const {
     isDynamic,
     propertyPath,
     shouldRejectDynamicBindingPathList = true,
-    widgetId,
-  } = action.payload;
-  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
-  let widget = cloneDeep({ ...stateWidget });
-  const propertyValue = _.get(widget, propertyPath);
+    skipValidation = false,
+  } = update;
 
+  const propertyValue = _.get(widget, propertyPath);
   let dynamicPropertyPathList = getWidgetDynamicPropertyPathList(widget);
   let dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
+
   if (isDynamic) {
     const keyExists =
       dynamicPropertyPathList.findIndex((path) => path.key === propertyPath) >
@@ -517,18 +521,71 @@ export function* setWidgetDynamicPropertySaga(
       );
     }
 
-    const { parsed } = yield call(
-      validateProperty,
-      propertyPath,
-      propertyValue,
-      widget,
-    );
+    /*
+     * We need to run the validation function to parse the value present in the
+     * js mode to use that in the non js mode.
+     *  - if the value is valid to be used on non js mode, we will use the same value
+     *  - if the value is invalid to be used on non js mode, we will use the default value
+     *    returned by the validation function.
+     *
+     * Sometimes (eg: in one click binding control) we don't want to do validation and retain the
+     * same value while switching from js to non js mode. use `skipValidation` flag to turn off validation.
+     */
 
-    widget = set(widget, propertyPath, parsed);
+    if (!skipValidation) {
+      const { parsed } = yield call(
+        validateProperty,
+        propertyPath,
+        propertyValue,
+        widget,
+      );
+
+      widget = set(widget, propertyPath, parsed);
+    }
   }
-
   widget.dynamicPropertyPathList = dynamicPropertyPathList;
   widget.dynamicBindingPathList = dynamicBindingPathList;
+  return widget;
+}
+
+export function* batchUpdateWidgetDynamicPropertySaga(
+  action: ReduxAction<BatchUpdateWidgetDynamicPropertyPayload>,
+) {
+  const { updates, widgetId } = action.payload;
+  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
+  let widget = cloneDeep({ ...stateWidget });
+
+  for (const update of updates) {
+    widget = yield call(handleUpdateWidgetDynamicProperty, widget, update);
+  }
+
+  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const widgets = { ...stateWidgets, [widgetId]: widget };
+  // Save the layout
+  yield put(updateAndSaveLayout(widgets));
+}
+
+export function* setWidgetDynamicPropertySaga(
+  action: ReduxAction<SetWidgetDynamicPropertyPayload>,
+) {
+  const {
+    isDynamic,
+    propertyPath,
+    shouldRejectDynamicBindingPathList = true,
+    skipValidation = false,
+    widgetId,
+  } = action.payload;
+  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
+  let widget = cloneDeep({ ...stateWidget });
+  const update = {
+    isDynamic,
+    propertyPath,
+    shouldRejectDynamicBindingPathList,
+    skipValidation,
+  };
+
+  widget = yield call(handleUpdateWidgetDynamicProperty, widget, update);
+
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
 
@@ -942,7 +999,12 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   }
 
   const allAllowedToCopy = selectedWidgets.some((each) => {
-    return allWidgets[each] && !allWidgets[each].disallowCopy;
+    //should not allow canvas widgets to be copied
+    return (
+      allWidgets[each] &&
+      !allWidgets[each].disallowCopy &&
+      allWidgets[each].type !== "CANVAS_WIDGET"
+    );
   });
 
   if (!allAllowedToCopy) {
@@ -1896,7 +1958,12 @@ function* cutWidgetSaga() {
   }
 
   const allAllowedToCut = selectedWidgets.some((each) => {
-    return allWidgets[each] && !allWidgets[each].disallowCopy;
+    //should not allow canvas widgets to be cut
+    return (
+      allWidgets[each] &&
+      !allWidgets[each].disallowCopy &&
+      allWidgets[each].type !== "CANVAS_WIDGET"
+    );
   });
 
   if (!allAllowedToCut) {
@@ -1952,7 +2019,11 @@ function* cutWidgetSaga() {
 }
 
 function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
+  const isSetWidgetIdForWalkthrough = !!(
+    action.payload.props.setWidgetIdForWalkthrough === "true"
+  );
   const widgetConfig = action.payload;
+  delete widgetConfig.props?.setWidgetIdForWalkthrough;
 
   if (!widgetConfig.type) return;
 
@@ -2013,6 +2084,10 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
     }
 
     yield take(ReduxActionTypes.UPDATE_LAYOUT);
+
+    if (isSetWidgetIdForWalkthrough) {
+      localStorage.setItem(WIDGET_ID_SHOW_WALKTHROUGH, newWidget.newWidgetId);
+    }
 
     yield put(
       selectWidgetInitAction(SelectionRequestType.One, [newWidget.newWidgetId]),
@@ -2085,6 +2160,10 @@ export default function* widgetOperationSagas() {
     takeEvery(
       ReduxActionTypes.SET_WIDGET_DYNAMIC_PROPERTY,
       setWidgetDynamicPropertySaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.BATCH_SET_WIDGET_DYNAMIC_PROPERTY,
+      batchUpdateWidgetDynamicPropertySaga,
     ),
     takeEvery(
       ReduxActionTypes.RESET_CHILDREN_WIDGET_META,

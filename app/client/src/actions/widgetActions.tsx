@@ -8,6 +8,12 @@ import type { BatchAction } from "actions/batchActions";
 import { batchAction } from "actions/batchActions";
 import type { WidgetProps } from "widgets/BaseWidget";
 
+export const widgetInitialisationSuccess = () => {
+  return {
+    type: ReduxActionTypes.WIDGET_INIT_SUCCESS,
+  };
+};
+
 export const executeTrigger = (
   payload: ExecuteTriggerPayload,
 ): BatchAction<ExecuteTriggerPayload> =>

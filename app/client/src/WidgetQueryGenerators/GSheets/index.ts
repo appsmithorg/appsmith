@@ -7,6 +7,8 @@ import type {
   GSheetsFormData,
   ActionConfigurationGSheets,
 } from "WidgetQueryGenerators/types";
+import { removeSpecialChars } from "utils/helpers";
+import { DatasourceConnectionMode } from "entities/Datasource";
 
 enum COMMAND_TYPES {
   "FIND" = "FETCH_MANY",
@@ -51,10 +53,10 @@ export default abstract class GSheets extends BaseQueryGenerator {
   ) {
     const { select } = widgetConfig;
 
-    if (select) {
+    if (select && formConfig.sheetName) {
       return {
         type: QUERY_TYPE.SELECT,
-        name: "Find_query",
+        name: `Find_${removeSpecialChars(formConfig.sheetName)}`,
         formData: {
           where: {
             data: {
@@ -109,10 +111,10 @@ export default abstract class GSheets extends BaseQueryGenerator {
   ) {
     const { select } = widgetConfig;
 
-    if (select) {
+    if (select && formConfig.sheetName) {
       return {
         type: QUERY_TYPE.TOTAL_RECORD,
-        name: "Total_record_query",
+        name: `Total_record_${removeSpecialChars(formConfig.sheetName)}`,
         formData: {
           where: {
             data: {
@@ -147,10 +149,10 @@ export default abstract class GSheets extends BaseQueryGenerator {
   ): Record<string, object | string> | undefined {
     const { update } = widgetConfig;
 
-    if (update) {
+    if (update && formConfig.sheetName) {
       return {
         type: QUERY_TYPE.UPDATE,
-        name: "Update_query",
+        name: `Update_${removeSpecialChars(formConfig.sheetName)}`,
         formData: {
           rowObjects: {
             data: `{{${update.value}}}`,
@@ -177,10 +179,10 @@ export default abstract class GSheets extends BaseQueryGenerator {
   ) {
     const { create } = widgetConfig;
 
-    if (create) {
+    if (create && formConfig.sheetName) {
       return {
         type: QUERY_TYPE.CREATE,
-        name: "Insert_query",
+        name: `Insert_${removeSpecialChars(formConfig.sheetName)}`,
         formData: {
           rowObjects: {
             data: `{{${create.value}}}`,
@@ -253,7 +255,10 @@ export default abstract class GSheets extends BaseQueryGenerator {
         ),
       );
     }
-    if (widgetConfig.update) {
+    if (
+      widgetConfig.update &&
+      formConfig.connectionMode === DatasourceConnectionMode.READ_WRITE
+    ) {
       configs.push(
         this.createPayload(
           initialValues,
@@ -262,7 +267,10 @@ export default abstract class GSheets extends BaseQueryGenerator {
         ),
       );
     }
-    if (widgetConfig.create) {
+    if (
+      widgetConfig.create &&
+      formConfig.connectionMode === DatasourceConnectionMode.READ_WRITE
+    ) {
       configs.push(
         this.createPayload(
           initialValues,

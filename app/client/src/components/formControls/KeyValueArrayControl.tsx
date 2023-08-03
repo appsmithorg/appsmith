@@ -13,7 +13,7 @@ import DynamicTextField from "components/editorComponents/form/fields/DynamicTex
 import type { InputProps } from "design-system";
 import { setDefaultKeyValPairFlag } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
-import { Button, Input } from "design-system";
+import { Button, Icon, Input, Text, Tooltip } from "design-system";
 export interface KeyValueArrayControlProps extends ControlProps {
   name: string;
   label: string;
@@ -22,6 +22,11 @@ export interface KeyValueArrayControlProps extends ControlProps {
   actionConfig?: any;
   extraData?: ControlData[];
   isRequired?: boolean;
+  showHeader?: boolean;
+  headerTooltips?: {
+    key?: string;
+    value?: string;
+  };
 }
 
 const FormRowWithLabel = styled.div`
@@ -52,6 +57,29 @@ const StyledButton = styled(Button)`
   margin-left: 5px;
 `;
 const AddMoreButton = styled(Button)``;
+
+const FlexContainer = styled.div`
+  display: flex;
+  align-items: center;
+  width: calc(100% - 30px);
+  margin-bottom: 8px;
+
+  .key-value {
+    line-height: 1;
+    flex: 1;
+    display: flex;
+    align-items: center;
+
+    .ads-v2-icon {
+      cursor: pointer;
+      margin-left: 8px;
+    }
+
+    label:first-child {
+      font-weight: normal;
+    }
+  }
+`;
 
 function KeyValueRow(
   props: KeyValueArrayControlProps & WrappedFieldArrayProps,
@@ -108,6 +136,48 @@ function KeyValueRow(
 
   return typeof props.fields.getAll() === "object" ? (
     <>
+      {props.showHeader && (
+        <FlexContainer>
+          <div className="key-value">
+            <Text kind="body-m" renderAs="label">
+              Key
+            </Text>
+            {props.headerTooltips && (
+              <Tooltip
+                content={props.headerTooltips.key}
+                placement="right"
+                trigger="hover"
+              >
+                <Icon
+                  className={"help-icon"}
+                  color="var(--ads-v2-color-fg)"
+                  name="question-line"
+                  size="md"
+                />
+              </Tooltip>
+            )}
+          </div>
+          <div className="key-value">
+            <Text kind="body-m" renderAs="label">
+              Value
+            </Text>
+            {props.headerTooltips && (
+              <Tooltip
+                content={props.headerTooltips.value}
+                placement="right"
+                trigger="hover"
+              >
+                <Icon
+                  className={"help-icon"}
+                  color="var(--ads-v2-color-fg)"
+                  name="question-line"
+                  size="md"
+                />
+              </Tooltip>
+            )}
+          </div>
+        </FlexContainer>
+      )}
       {props.fields.map((field: any, index: number) => {
         let keyTextFieldName = `${field}.key`;
         let valueTextFieldName = `${field}.value`;
@@ -132,8 +202,8 @@ function KeyValueRow(
                   defaultValue: extraData[0]?.initialValue,
                   isKeyFieldValid: isKeyFieldValid,
                   placeholder: props.extraData
-                    ? props.extraData[1]?.placeholderText
-                    : "",
+                    ? props.extraData[0]?.placeholderText
+                    : `Key ${index + 1}`,
                   isRequired: extraData[0]?.isRequired,
                   name: keyTextFieldName,
                 }}
@@ -153,7 +223,7 @@ function KeyValueRow(
                       defaultValue: extraData[1]?.initialValue,
                       placeholder: props.extraData
                         ? props.extraData[1]?.placeholderText
-                        : "",
+                        : `Value ${index + 1}`,
                       name: valueTextFieldName,
                       isRequired: extraData[1]?.isRequired,
                     }}

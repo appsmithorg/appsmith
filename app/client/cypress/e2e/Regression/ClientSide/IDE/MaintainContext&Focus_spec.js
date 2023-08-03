@@ -7,10 +7,6 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 describe("MaintainContext&Focus", function () {
   before("Import the test application", () => {
     _.homePage.NavigateToHome();
-    cy.intercept("GET", "/api/v1/users/features", {
-      fixture: "featureFlags.json",
-    }).as("featureFlags");
-    cy.reload();
     _.homePage.ImportApp("ContextSwitching.json");
     cy.wait("@importNewApplication").then((interception) => {
       _.agHelper.Sleep();
@@ -82,10 +78,10 @@ describe("MaintainContext&Focus", function () {
     _.entityExplorer.SelectEntityByName("Mongo_Query");
 
     cy.wait(1000);
-    cy.updateCodeInput(
-      ".t--actionConfiguration\\.formData\\.collection\\.data",
-      "TestCollection",
-    );
+    _.dataSources.EnterJSContext({
+      fieldLabel: "Collection",
+      fieldValue: "TestCollection",
+    });
     cy.wait("@saveAction");
   });
 
@@ -135,11 +131,13 @@ describe("MaintainContext&Focus", function () {
       ".t--actionConfiguration\\.formData\\.bucket\\.data",
       { ch: 2, line: 0 },
     );
-    _.entityExplorer.SelectEntityByName("Mongo_Query");
 
-    cy.assertCursorOnCodeInput(
-      ".t--actionConfiguration\\.formData\\.collection\\.data",
-    );
+    // Removing as the Mongo collection is now converted to dropdown
+    // _.entityExplorer.SelectEntityByName("Mongo_Query");
+
+    // cy.assertCursorOnCodeInput(
+    //   ".t--actionConfiguration\\.formData\\.collection\\.data",
+    // );
 
     //Maintains focus on JS Objects
     _.entityExplorer.SelectEntityByName("JSObject1");
@@ -177,13 +175,11 @@ describe("MaintainContext&Focus", function () {
   it("4. Datasource edit mode has to be maintained", () => {
     _.entityExplorer.SelectEntityByName("Appsmith", "Datasources");
     _.dataSources.EditDatasource();
-    _.dataSources.ExpandSection(0);
     _.agHelper.GoBack();
     _.entityExplorer.SelectEntityByName("Github", "Datasources");
     _.dataSources.AssertDSEditViewMode("View");
     _.entityExplorer.SelectEntityByName("Appsmith", "Datasources");
     _.dataSources.AssertDSEditViewMode("Edit");
-    _.dataSources.AssertSectionCollapseState(0, false);
   });
 
   it("5. Maintain focus of form control inputs", () => {

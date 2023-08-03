@@ -1,31 +1,28 @@
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
-const agHelper = ObjectsRegistry.AggregateHelper,
-  table = ObjectsRegistry.Table;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("16108 - Verify Table URL column bugs", function () {
   before(() => {
-    cy.fixture("tableV2WithUrlColumnDsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("tableV2WithUrlColumnDsl");
   });
 
   it("Verify click on URL column with display text takes to the correct link", function () {
-    table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
+    _.deployMode.DeployApp();
+
+    _.table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
       expect($cellData).to.eq("Profile pic");
     });
 
-    table.ReadTableRowColumnData(3, 0, "v2").then(($cellData) => {
+    _.table.ReadTableRowColumnData(3, 0, "v2").then(($cellData) => {
       expect($cellData).to.eq("Profile pic");
     });
 
-    table.AssertURLColumnNavigation(
+    _.table.AssertURLColumnNavigation(
       0,
       0,
       "https://randomuser.me/api/portraits/med/women/39.jpg",
       "v2",
     );
-    table.AssertURLColumnNavigation(
+    _.table.AssertURLColumnNavigation(
       3,
       0,
       "https://randomuser.me/api/portraits/med/men/52.jpg",

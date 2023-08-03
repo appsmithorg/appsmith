@@ -1,5 +1,5 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const dsl = require("../../../../../fixtures/multiSelectedRowUpdationDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 /*
 Selected row stays selected after data updation
@@ -7,7 +7,7 @@ if the primary column value isn't updated.
 */
 describe("Table Widget row multi select validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("multiSelectedRowUpdationDsl");
   });
 
   it("Test multi select column shows when enableMultirowselection is true", function () {

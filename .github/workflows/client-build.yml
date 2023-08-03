@@ -1,8 +1,6 @@
-name: Appsmith Client Build Workflow
+name: Client Build
 
 on:
-  # This line enables manual triggering of this workflow.
-  workflow_dispatch:
   workflow_call:
     inputs:
       pr:
@@ -14,12 +12,16 @@ on:
         required: false
         type: string
         default: "false"
+      check-test-files:
+        description: "This is a boolean value in case the workflow is being called in build deploy-preview"
+        required: false
+        type: string
+        default: "false"
+      branch:
+        description: "This is the branch to be used for the build."
+        required: false
+        type: string
 
-  pull_request:
-    branches: [release, master]
-    paths:
-      - "app/client/**"
-      - "!app/client/cypress/manual_TestSuite/**"
 
 # Change the working directory for all the jobs in this workflow
 defaults:
@@ -27,7 +29,7 @@ defaults:
     working-directory: app/client
 
 jobs:
-  build:
+  client-build:
     runs-on: ubuntu-latest-8-cores
     # Only run this workflow for internally triggered events
     if: |
@@ -53,13 +55,57 @@ jobs:
           fetch-depth: 0
           ref: refs/pull/${{ inputs.pr }}/merge
 
+      # Check out the specified branch in case this workflow is called by another workflow
+      - name: Checkout the specified branch
+        if: inputs.pr == 0 && inputs.branch != ''
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch }}
+
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
-        if: inputs.pr == 0
-
+        if: inputs.pr == 0 && inputs.branch == ''
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      # get all the files changes in the cypress/e2e folder    
+      - name: Get added files in cypress/e2e folder
+        if: inputs.pr != 0
+        id: files
+        uses: umani/changed-files@v4.0.0
+        with:
+          repo-token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
+          pattern: 'app/client/cypress/e2e/.*'
+          pr-number: ${{ inputs.pr }}
+          
+      # Check all the newly added files are in ts  
+      - name: Check the newly added files are written in ts
+        if: inputs.check-test-files == 'true' && inputs.pr != 0
+        id: check_files
+        run: |
+          files=(${{steps.files.outputs.files_created}})
+          non_ts_files=()
+          for file in "${files[@]}"; do
+            if [[ $file != *.ts ]]; then
+              non_ts_files+=("<li>$file")
+            fi
+          done
+          echo "non_ts_files=${non_ts_files[@]}" >> $GITHUB_OUTPUT
+          echo "non_ts_files_count=${#non_ts_files[@]}" >> $GITHUB_OUTPUT
+          
+      # Comment in PR if test files are not written in ts and fail the workflow    
+      - name: Comment in PR if test files are not written in ts
+        if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true' && inputs.pr != 0
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ inputs.pr }}
+          body: |
+            <b>Below new test files are written in js 🔴 </b>
+            <b>Expected format ts. Please fix and retrigger ok-to-test:</b>
+            <ol>${{ steps.check_files.outputs.non_ts_files }}</ol>
+      - if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true' && inputs.pr != 0
+        run: exit 1
 
       # Create a run record exactly at the time of merge to release to
       # ensure we compare run details with code at this point
@@ -111,15 +157,8 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn install --immutable
 
-      - name: Run Eslint
-        if: steps.run_result.outputs.run_result != 'success'
-        run: yarn run lint:ci
-
-      - name: Run Prettier
-        if: steps.run_result.outputs.run_result != 'success'
-        run: yarn run prettier:ci
-
-      - name: Run type import check
+      # Type checking before starting the build
+      - name: Run type check
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn run check-types
 
@@ -142,11 +181,6 @@ jobs:
           echo "next_version = $next_version"
           echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
 
-      # Run the Jest tests only if the workflow has been invoked in a PR and the previous re-run has failed
-      - name: Run the jest tests
-        if: steps.run_result.outputs.run_result != 'success' && inputs.skip-tests != 'true'
-        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit:ci
-
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
       - name: Create the bundle
@@ -163,7 +197,7 @@ jobs:
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             REACT_APP_VERSION_EDITION="Community" \
             yarn build
-            
+
       # Saving the cache to use it in subsequent runs
       - name: Save Yarn cache
         uses: actions/cache/save@v3

@@ -1,4 +1,3 @@
-const dsl = require("../../../../../fixtures/ModalDsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgets = require("../../../../../locators/Widgets.json");
@@ -11,7 +10,7 @@ describe("Modal Widget Functionality", function () {
 
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("ModalDsl");
   });
 
   it("1. Add new Modal", () => {
@@ -90,9 +89,13 @@ describe("Modal Widget Functionality", function () {
 
     cy.get(explorer.addWidget).click();
     //add an additional modal widget and a container widget
-    _.entityExplorer.DragDropWidgetNVerify("modalwidget", 300, 300);
-    cy.get(widgets.modalCloseButton).click({ force: true });
-    cy.dragAndDropToCanvas("containerwidget", { x: 300, y: 300 });
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.MODAL, 300, 300);
+    cy.get(widgets.modalCloseButton).click({ force: true }).wait(200);
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.CONTAINER,
+      300,
+      300,
+    );
     _.entityExplorer.NavigateToSwitcher("Explorer");
     cy.get(".t--entity-name").contains("Widgets").click();
 

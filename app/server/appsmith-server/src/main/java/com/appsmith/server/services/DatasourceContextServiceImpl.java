@@ -11,13 +11,20 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class DatasourceContextServiceImpl extends DatasourceContextServiceCEImpl implements DatasourceContextService {
 
-    public DatasourceContextServiceImpl(@Lazy DatasourceService datasourceService,
-                                        DatasourceStorageService datasourceStorageService,
-                                        PluginService pluginService,
-                                        PluginExecutorHelper pluginExecutorHelper,
-                                        ConfigService configService,
-                                        DatasourcePermission datasourcePermission) {
+    public DatasourceContextServiceImpl(
+            @Lazy DatasourceService datasourceService,
+            DatasourceStorageService datasourceStorageService,
+            PluginService pluginService,
+            PluginExecutorHelper pluginExecutorHelper,
+            ConfigService configService,
+            DatasourcePermission datasourcePermission) {
 
-        super(datasourceService, datasourceStorageService, pluginService, pluginExecutorHelper, configService, datasourcePermission);
+        super(
+                datasourceService,
+                datasourceStorageService,
+                pluginService,
+                pluginExecutorHelper,
+                configService,
+                datasourcePermission);
     }
 }

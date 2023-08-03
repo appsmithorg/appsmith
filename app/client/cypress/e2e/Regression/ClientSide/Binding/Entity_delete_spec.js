@@ -1,9 +1,9 @@
-const dsl = require("../../../../fixtures/SimpleBinding.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the multiple widgets and validating default data", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("SimpleBinding");
   });
 
   it("1. Checks if delete will remove bindings", function () {

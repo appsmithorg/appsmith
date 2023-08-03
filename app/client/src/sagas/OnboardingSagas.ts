@@ -14,6 +14,7 @@ import {
 } from "redux-saga/effects";
 import {
   getFirstTimeUserOnboardingApplicationIds,
+  getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown,
   removeAllFirstTimeUserOnboardingApplicationIds,
   removeFirstTimeUserOnboardingApplicationId,
   setEnableStartSignposting,
@@ -23,12 +24,12 @@ import {
 
 import { getCurrentUser } from "selectors/usersSelectors";
 import history from "utils/history";
-import TourApp from "pages/Editor/GuidedTour/app.json";
 
 import {
   getHadReachedStep,
   getOnboardingWorkspaces,
   getQueryAction,
+  getSignpostingStepStateByStep,
   getTableWidget,
 } from "selectors/onboardingSelectors";
 import type { Workspaces } from "@appsmith/constants/workspaceConstants";
@@ -39,6 +40,9 @@ import {
   loadGuidedTour,
   removeFirstTimeUserOnboardingApplicationId as removeFirstTimeUserOnboardingApplicationIdAction,
   setCurrentStep,
+  setSignpostingOverlay,
+  showSignpostingTooltip,
+  signpostingStepUpdate,
   toggleLoader,
 } from "actions/onboardingActions";
 import {
@@ -77,13 +81,12 @@ import { builderURL, queryEditorIdURL } from "RouteBuilder";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 import type { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import { sessionStorage } from "utils/localStorage";
-import store from "store";
-import {
-  createMessage,
-  ONBOARDING_SKIPPED_FIRST_TIME_USER,
-} from "@appsmith/constants/messages";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { toast } from "design-system";
+import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
+import type { StepState } from "reducers/uiReducers/onBoardingReducer";
+import { isUndefined } from "lodash";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { SIGNPOSTING_ANALYTICS_STEP_NAME } from "pages/Editor/FirstTimeUserOnboarding/constants";
 
 const GUIDED_TOUR_STORAGE_KEY = "GUIDED_TOUR_STORAGE_KEY";
 
@@ -116,6 +119,9 @@ function* createApplication() {
   }
 
   if (workspace) {
+    const TourAppPromise = import("pages/Editor/GuidedTour/app.json");
+    const TourApp: Awaited<typeof TourAppPromise> = yield TourAppPromise;
+
     const appFileObject = new File([JSON.stringify(TourApp)], "app.json", {
       type: "application/json",
     });
@@ -416,25 +422,6 @@ function* endFirstTimeUserOnboardingSaga() {
       firstTimeUserExperienceAppId,
     ),
   );
-  toast.show(createMessage(ONBOARDING_SKIPPED_FIRST_TIME_USER), {
-    kind: "success",
-    action: {
-      text: "undo",
-      effect: () => {
-        store.dispatch({
-          type: ReduxActionTypes.UNDO_END_FIRST_TIME_USER_ONBOARDING,
-          payload: firstTimeUserExperienceAppId,
-        });
-      },
-    },
-  });
-}
-
-function* undoEndFirstTimeUserOnboardingSaga(action: ReduxAction<string>) {
-  yield put({
-    type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
-    payload: action.payload,
-  });
 }
 
 function* firstTimeUserOnboardingInitSaga(
@@ -445,15 +432,39 @@ function* firstTimeUserOnboardingInitSaga(
     type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
     payload: action.payload.applicationId,
   });
-  yield put({
-    type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
-    payload: true,
-  });
   history.replace(
     builderURL({
       pageId: action.payload.pageId,
     }),
   );
+
+  const isEditorInitialised: boolean = yield select(getIsEditorInitialized);
+  if (!isEditorInitialised) {
+    yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
+  }
+
+  let showOverlay = true;
+
+  // We don't want to show the signposting overlay when we intend to show the
+  // telemetry callout
+  const currentUser: User | undefined = yield select(getCurrentUser);
+  if (currentUser?.isSuperUser && !isAirgapped()) {
+    const isAnonymousDataPopupAlreadyOpen: unknown = yield call(
+      getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown,
+    );
+    if (!isAnonymousDataPopupAlreadyOpen) {
+      showOverlay = false;
+    }
+  }
+
+  yield put(setSignpostingOverlay(showOverlay));
+  // Show the modal once the editor is loaded. The delay is to grab user attention back once the editor
+  yield delay(1000);
+  yield put({
+    type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
+    payload: true,
+  });
+  AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_FIRST_TIME_OPEN");
 }
 
 function* setFirstTimeUserOnboardingCompleteSaga(action: ReduxAction<boolean>) {
@@ -465,6 +476,41 @@ function* setFirstTimeUserOnboardingCompleteSaga(action: ReduxAction<boolean>) {
 function* disableStartFirstTimeUserOnboardingSaga() {
   yield call(removeAllFirstTimeUserOnboardingApplicationIds);
   yield call(setEnableStartSignposting, false);
+}
+
+function* setSignpostingStepStateSaga(
+  action: ReduxAction<{ step: SIGNPOSTING_STEP; completed: boolean }>,
+) {
+  const { completed, step } = action.payload;
+  const stepState: StepState | undefined = yield select(
+    getSignpostingStepStateByStep,
+    step,
+  );
+
+  // No changes to update so we ignore
+  if (stepState && stepState.completed === completed) return;
+
+  const readProps = completed
+    ? {
+        read: false,
+      }
+    : {};
+  yield put(
+    signpostingStepUpdate({
+      ...action.payload,
+      ...readProps,
+    }),
+  );
+
+  // Show tooltip when a step is completed
+  if (!isUndefined(readProps.read) && !readProps.read) {
+    // Show tooltip after a small delay to not be abrupt
+    yield delay(1000);
+    AnalyticsUtil.logEvent("SIGNPOSTING_STEP_COMPLETE", {
+      step_name: SIGNPOSTING_ANALYTICS_STEP_NAME[step],
+    });
+    yield put(showSignpostingTooltip(true));
+  }
 }
 
 export default function* onboardingActionSagas() {
@@ -501,10 +547,6 @@ export default function* onboardingActionSagas() {
       endFirstTimeUserOnboardingSaga,
     ),
     takeLatest(
-      ReduxActionTypes.UNDO_END_FIRST_TIME_USER_ONBOARDING,
-      undoEndFirstTimeUserOnboardingSaga,
-    ),
-    takeLatest(
       ReduxActionTypes.FIRST_TIME_USER_ONBOARDING_INIT,
       firstTimeUserOnboardingInitSaga,
     ),
@@ -515,6 +557,10 @@ export default function* onboardingActionSagas() {
     takeLatest(
       ReduxActionTypes.DISABLE_START_SIGNPOSTING,
       disableStartFirstTimeUserOnboardingSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.SIGNPOSTING_STEP_UPDATE_INIT,
+      setSignpostingStepStateSaga,
     ),
   ]);
 }

@@ -1,7 +1,8 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { agHelper, templates } from "../../../../support/Objects/ObjectsCore";
 
 describe("excludeForAirgap", "Templates page", () => {
   it("1. Templates tab should have no impact of 'allowPageImport:true'", () => {
+    agHelper.RefreshPage(); //is important for below intercept to go thru!
     cy.fixture("Templates/AllowPageImportTemplates.json").then((data) => {
       cy.intercept(
         {
@@ -13,18 +14,18 @@ describe("excludeForAirgap", "Templates page", () => {
           body: data,
         },
       ).as("fetchAllTemplates");
-      cy.visit("/templates");
-      cy.wait("@fetchAllTemplates").should(({ request, response }) => {
+      templates.SwitchToTemplatesTab();
+      cy.wait("@fetchAllTemplates").then(({ request, response }) => {
         if (response) {
           // in the fixture data we are sending some tempaltes with `allowPageImport: false`
-          _.templates
+          templates
             .GetTemplatesCardsList()
             .should("have.length", response.body.data.length);
 
           const templatesFilteredForAllowPageImport = response.body.data.filter(
             (card: any) => !!card.allowPageImport,
           );
-          _.templates
+          templates
             .GetTemplatesCardsList()
             .should(
               "not.have.length",

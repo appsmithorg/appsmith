@@ -1,4 +1,4 @@
-const dsl = require("../../../../../fixtures/emptyDSL.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
@@ -11,17 +11,17 @@ const defaultValue = `
 
 describe("Select Widget Functionality", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("emptyDSL");
   });
   beforeEach(() => {
-    cy.wait(7000);
+    cy.wait(2000);
   });
   it("Add new Select widget", () => {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("selectwidget", { x: 300, y: 300 });
     cy.get(".t--widget-selectwidget").should("exist");
     cy.updateCodeInput(
-      ".t--property-control-options",
+      ".t--property-control-sourcedata",
       `[
         {
           "label": "Blue",
@@ -37,6 +37,16 @@ describe("Select Widget Functionality", function () {
         }
       ]`,
     );
+
+    _.propPane.ToggleJSMode("label");
+    cy.updateCodeInput(
+      ".t--property-control-wrapper.t--property-control-label",
+      `label`,
+    );
+
+    _.propPane.ToggleJSMode("value");
+    cy.updateCodeInput(".t--property-control-value", `value`);
+
     cy.updateCodeInput(
       ".t--property-control-defaultselectedvalue",
       defaultValue,

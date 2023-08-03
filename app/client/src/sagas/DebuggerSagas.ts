@@ -28,6 +28,7 @@ import {
   getAction,
   getPlugin,
   getJSCollection,
+  getAppMode,
 } from "selectors/entitiesSelector";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
@@ -62,6 +63,10 @@ import {
   isAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
+import {
+  getCurrentEnvName,
+  getCurrentEnvironment,
+} from "@appsmith/utils/Environments";
 
 // Saga to format action request values to be shown in the debugger
 function* formatActionRequestSaga(
@@ -451,6 +456,7 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
   const currentDebuggerErrors: Record<string, Log> = yield select(
     getDebuggerErrors,
   );
+  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   yield put(debuggerLogInit(errorLogs));
   const validErrorLogs = errorLogs.filter((log) => log.source && log.id);
   if (isEmpty(validErrorLogs)) return;
@@ -475,6 +481,7 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
           ...analyticsPayload,
           eventName: "DEBUGGER_NEW_ERROR",
           errorMessages,
+          appMode,
         },
       });
 
@@ -487,11 +494,14 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
               type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
               payload: {
                 ...analyticsPayload,
+                environmentId: getCurrentEnvironment(),
+                environmentName: getCurrentEnvName(),
                 eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
                 errorId: errorLog.id + "_" + errorLog.timestamp,
                 errorMessage: errorMessage.message,
                 errorType: errorMessage.type,
                 errorSubType: errorMessage.subType,
+                appMode,
               },
             }),
           ),
@@ -516,11 +526,14 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
               type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
               payload: {
                 ...analyticsPayload,
+                environmentId: getCurrentEnvironment(),
+                environmentName: getCurrentEnvName(),
                 eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
                 errorId: errorLog.id + "_" + errorLog.timestamp,
                 errorMessage: updatedErrorMessage.message,
                 errorType: updatedErrorMessage.type,
                 errorSubType: updatedErrorMessage.subType,
+                appMode,
               },
             });
           }
@@ -542,6 +555,8 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
               type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
               payload: {
                 ...analyticsPayload,
+                environmentId: getCurrentEnvironment(),
+                environmentName: getCurrentEnvName(),
                 eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
                 errorId:
                   currentDebuggerErrors[id].id +
@@ -550,6 +565,7 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
                 errorMessage: existingErrorMessage.message,
                 errorType: existingErrorMessage.type,
                 errorSubType: existingErrorMessage.subType,
+                appMode,
               },
             });
           }
@@ -566,6 +582,7 @@ function* deleteDebuggerErrorLogsSaga(
   const currentDebuggerErrors: Record<string, Log> = yield select(
     getDebuggerErrors,
   );
+  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   const existingErrorPayloads = payload.filter((item) =>
     currentDebuggerErrors.hasOwnProperty(item.id),
   );
@@ -596,6 +613,7 @@ function* deleteDebuggerErrorLogsSaga(
         ...analyticsPayload,
         eventName: "DEBUGGER_RESOLVED_ERROR",
         errorMessages,
+        appMode,
       },
     });
 
@@ -607,11 +625,14 @@ function* deleteDebuggerErrorLogsSaga(
             type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
             payload: {
               ...analyticsPayload,
+              environmentId: getCurrentEnvironment(),
+              environmentName: getCurrentEnvName(),
               eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
               errorId: error.id + "_" + error.timestamp,
               errorMessage: errorMessage.message,
               errorType: errorMessage.type,
               errorSubType: errorMessage.subType,
+              appMode,
             },
           });
         }),

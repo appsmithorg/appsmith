@@ -13,6 +13,7 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { defaultBrandingConfig as CE_defaultBrandingConfig } from "@appsmith/reducers/tenantReducer";
 import { toast } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 // On CE we don't expose tenant config so this shouldn't make any API calls and should just return necessary permissions for the user
 export function* fetchCurrentTenantConfigSaga() {
@@ -46,6 +47,13 @@ export function* updateTenantConfigSaga(
   action: ReduxAction<UpdateTenantConfigRequest>,
 ) {
   try {
+    const { appVersion } = getAppsmithConfigs();
+    const settings = action.payload.tenantConfiguration;
+    const hasSingleSessionUserSetting = settings.hasOwnProperty(
+      "singleSessionPerUserEnabled",
+    );
+    const hasShowRolesAndGroupsSetting =
+      settings.hasOwnProperty("showRolesAndGroups");
     const response: ApiResponse = yield call(
       TenantApi.updateTenantConfig,
       action.payload,
@@ -54,6 +62,21 @@ export function* updateTenantConfigSaga(
 
     if (isValidResponse) {
       const payload = response.data as any;
+
+      if (hasSingleSessionUserSetting || hasShowRolesAndGroupsSetting) {
+        AnalyticsUtil.logEvent("GENERAL_SETTINGS_UPDATE", {
+          version: appVersion.id,
+          ...(hasSingleSessionUserSetting
+            ? { session_limit_enabled: settings["singleSessionPerUserEnabled"] }
+            : {}),
+          ...(hasShowRolesAndGroupsSetting
+            ? {
+                programmatic_access_control_enabled:
+                  settings["showRolesAndGroups"],
+              }
+            : {}),
+        });
+      }
 
       // If the tenant config is not present, we need to set the default config
       yield put({
@@ -71,6 +94,10 @@ export function* updateTenantConfigSaga(
         toast.show("Successfully saved", {
           kind: "success",
         });
+      }
+
+      if (action.payload.needsRefresh) {
+        location.reload();
       }
     }
   } catch (error) {

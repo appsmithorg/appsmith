@@ -1,0 +1,128 @@
+# This is a comment.
+# Each line is a file pattern followed by one or more owners.
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# WDS team
+app/client/packages/design-system/* @appsmithorg/wds
+app/client/packages/storybook/* @appsmithorg/wds
+
+app/client/.husky @KelvinOm
+app/client/.yarn @KelvinOm
+app/client/.editorconfig @KelvinOm
+app/client/.eslintrc.base.json @KelvinOm
+app/client/.eslintrc.js @KelvinOm
+app/client/.gitignore @KelvinOm
+app/client/.lintstagedrc @KelvinOm
+app/client/.nvmrc @KelvinOm
+app/client/.prettierignore @KelvinOm
+app/client/.prettierrc @KelvinOm
+app/client/.yarnrc.yml @KelvinOm
+app/client/jest.config.js @KelvinOm
+app/client/package.json @KelvinOm
+app/client/tsconfig.json @KelvinOm
+app/client/tsconfig.path.json @KelvinOm
+
+# App viewers pod
+app/client/src/widgets/* @appsmithorg/app-viewers
+app/client/src/components/propertyControls/* @appsmithorg/app-viewers
+app/client/src/sagas/OneClickBindingSaga.ts @sbalaji1192 @berzerkeer
+app/client/src/WidgetQueryGenerators/* @sbalaji1192 @berzerkeer
+app/client/src/components/editorComponents/WidgetQueryGeneratorForm/* @sbalaji1192 @berzerkeer
+app/client/src/pages/AppViewer/* @appsmithorg/app-viewers
+app/client/src/pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/* @dhruvikn
+app/client/src/ce/pages/AppViewer/NavigationLogo.tsx @dhruvikn
+app/client/src/ce/pages/Editor/NavigationSettings/LogoInput.tsx @dhruvikn
+app/client/src/ee/pages/AppViewer/NavigationLogo.tsx @dhruvikn
+app/client/src/ee/pages/Editor/NavigationSettings/LogoInput.tsx @dhruvikn
+
+# New Developers Pod
+app/client/src/ce/entities/FeatureFlag.ts @hetunandu
+app/client/src/ee/entities/FeatureFlag.ts @hetunandu
+app/server/appsmith-server/src/main/resources/features/init-flags.xml @hetunandu
+app/server/appsmith-server/src/main/java/com/appsmith/server/featureflags/* @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/UserIdentifierService.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/UserIdentifierServiceImpl.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/UserIdentifierServiceCE.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/UserIdentifierServiceCEImpl.java @nilanshbansal
+app/server/appsmith-server/src/test/java/com/appsmith/server/services/ce/UserIdentifierServiceCEImplTest.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/CacheableFeatureFlagHelper.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/CacheableFeatureFlagHelperImpl.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/CacheableFeatureFlagHelperCE.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/CacheableFeatureFlagHelperCEImpl.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/FeatureFlagServiceCE.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/FeatureFlagServiceCEImpl.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/FeatureFlagService.java @nilanshbansal
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/FeatureFlagServiceImpl.java @nilanshbansal
+app/server/appsmith-server/src/test/java/com/appsmith/server/services/FeatureFlagServiceTest.java @nilanshbansal
+
+# UI Builders Pod
+app/client/generators/* @appsmithorg/ui-builders
+app/client/src/actions/autoHeightActions.ts @appsmithorg/ui-builders
+app/client/src/actions/autoLayoutActions.ts @appsmithorg/ui-builders
+app/client/src/actions/canvasSelectionActions.ts @appsmithorg/ui-builders
+app/client/src/actions/reflowActions.ts @appsmithorg/ui-builders
+app/client/src/actions/widgetSelectionActions.ts @appsmithorg/ui-builders
+app/client/src/components/autoHeight/* @appsmithorg/ui-builders
+app/client/src/components/autoHeightOverlay/* @appsmithorg/ui-builders
+app/client/src/components/designSystems/appsmith/PositionedContainer.tsx @appsmithorg/ui-builders
+app/client/src/components/editorComponents/DraggableComponent.tsx @appsmithorg/ui-builders
+app/client/src/components/editorComponents/ResizableComponent.tsx @appsmithorg/ui-builders
+app/client/src/components/editorComponents/ResizableUtils.ts @appsmithorg/ui-builders
+app/client/src/components/editorComponents/ResizeStyledComponents.tsx @appsmithorg/ui-builders
+app/client/src/components/editorComponents/WidgetNameComponent/* @appsmithorg/ui-builders
+app/client/src/components/propertyControls/* @appsmithorg/ui-builders
+app/client/src/normalizers/CanvasWidgetsNormalizer.tsx @appsmithorg/ui-builders
+app/client/src/pages/Editor/Canvas.tsx @appsmithorg/ui-builders
+app/client/src/pages/Editor/CanvasLayoutConversion/* @appsmithorg/ui-builders
+app/client/src/pages/Editor/PropertyPane/* @appsmithorg/ui-builders
+app/client/src/pages/Editor/WidgetsMultiSelectBox.tsx @appsmithorg/ui-builders
+app/client/src/pages/common/CanvasArenas/* @appsmithorg/ui-builders
+app/client/src/reducers/entityReducers/autoHeightReducers/* @appsmithorg/ui-builders
+app/client/src/reducers/entityReducers/canvasWidgetsReducer.ts @appsmithorg/ui-builders
+app/client/src/reducers/entityReducers/widgetConfigReducer.ts @appsmithorg/ui-builders
+app/client/src/reflow/* @appsmithorg/ui-builders
+app/client/src/resizable/* @appsmithorg/ui-builders
+app/client/src/sagas/AutoLayoutUpdateSagas.tsx @appsmithorg/ui-builders
+app/client/src/sagas/CanvasSagas/* @appsmithorg/ui-builders
+app/client/src/sagas/ReplaySaga.ts @appsmithorg/ui-builders
+app/client/src/sagas/SnapshotSagas.ts @appsmithorg/ui-builders
+app/client/src/sagas/WidgetAdditionSagas.ts @appsmithorg/ui-builders
+app/client/src/sagas/WidgetBlueprintSagas.ts @appsmithorg/ui-builders
+app/client/src/sagas/WidgetDeletionSagas.ts @appsmithorg/ui-builders
+app/client/src/sagas/WidgetOperationSagas.tsx @appsmithorg/ui-builders
+app/client/src/sagas/WidgetOperationUtils.ts @appsmithorg/ui-builders
+app/client/src/sagas/WidgetSelectUtils.ts @appsmithorg/ui-builders
+app/client/src/sagas/WidgetSelectionSagas.ts @appsmithorg/ui-builders
+app/client/src/sagas/autoHeightSagas/* @appsmithorg/ui-builders
+app/client/src/sagas/layoutConversionSagas.ts @appsmithorg/ui-builders
+app/client/src/selectors/autoHeightSelectors.ts @appsmithorg/ui-builders
+app/client/src/selectors/autoLayoutSelectors.tsx @appsmithorg/ui-builders
+app/client/src/selectors/canvasSelectors.ts @appsmithorg/ui-builders
+app/client/src/selectors/widgetSelectors.ts @appsmithorg/ui-builders
+app/client/src/utils/DSLConversions/* @appsmithorg/ui-builders
+app/client/src/utils/autoHeight/* @appsmithorg/ui-builders
+app/client/src/utils/autoLayout/* @appsmithorg/ui-builders
+app/client/src/utils/hooks/autoHeightUIHooks.ts @appsmithorg/ui-builders
+app/client/src/utils/hooks/useAllowEditorDragToSelect.ts @appsmithorg/ui-builders
+app/client/src/utils/hooks/useClickToSelectWidget.tsx @appsmithorg/ui-builders
+app/client/src/utils/hooks/useDynamicAppLayout.tsx @appsmithorg/ui-builders
+app/client/src/utils/hooks/usePositionedContainerZIndex.ts @appsmithorg/ui-builders
+app/client/src/utils/hooks/useReflow.ts @appsmithorg/ui-builders
+app/client/src/utils/hooks/useWidgetSelection.ts @appsmithorg/ui-builders
+app/client/src/widgets/BaseWidget.tsx @appsmithorg/ui-builders
+app/client/src/widgets/CanvasResizer.tsx @appsmithorg/ui-builders
+app/client/src/widgets/CanvasWidget.tsx @appsmithorg/ui-builders
+app/client/src/widgets/ContainerWidget/* @appsmithorg/ui-builders
+app/client/src/widgets/MetaHOC.tsx @appsmithorg/ui-builders
+app/client/src/widgets/withWidgetProps.tsx @appsmithorg/ui-builders
+
+# Git Pod
+app/server/appsmith-git/* @AnaghHegde
+app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/ce/ImportExportApplicationServiceCEImpl.java @AnaghHegde @nayan-rafiq
+app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/ce/ImportExportApplicationServiceCE.java @AnaghHegde @nayan-rafiq
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/GitServiceCEImpl.java @AnaghHegde @nayan-rafiq
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/GitServiceCE.java @AnaghHegde @nayan-rafiq
+app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitCloudServicesUtils.java @AnaghHegde @nayan-rafiq
+app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitDeployKeyGenerator.java @AnaghHegde @nayan-rafiq
+app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitFileUtils.java @AnaghHegde @nayan-rafiq
+app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitUtils.java @AnaghHegde @nayan-rafiq

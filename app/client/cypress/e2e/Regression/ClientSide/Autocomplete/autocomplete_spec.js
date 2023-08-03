@@ -1,11 +1,14 @@
-const dsl = require("../../../../fixtures/autocomp.json");
 const dynamicInputLocators = require("../../../../locators/DynamicInput.json");
-import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
+import {
+  entityExplorer,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic input autocomplete", () => {
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl("autocomp");
   });
+
   it("1. Opens autocomplete for bindings", () => {
     entityExplorer.SelectEntityByName("Aditya");
     entityExplorer.SelectEntityByName("Button2", "TestModal");

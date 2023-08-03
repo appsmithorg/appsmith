@@ -1,9 +1,6 @@
-const dsl = require("../../../../../fixtures/ModalDsl.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgets = require("../../../../../locators/Widgets.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Modal focus", function () {
   const someInputText = "some text";
@@ -19,16 +16,18 @@ describe("Modal focus", function () {
       `{{showModal('Modal1')}}`,
     );
     //add modal
-    ee.SelectEntityByName("Modal1", "Widgets");
+    _.entityExplorer.SelectEntityByName("Modal1", "Widgets");
     cy.get(widgets.modalWidget).should("exist");
 
     cy.get(explorer.addWidget).click();
 
     cy.wait(500);
     //drag input field into modal
-    cy.get(".t--widget-card-draggable-inputwidgetv2").trigger("dragstart", {
-      force: true,
-    });
+    cy.get(".t--widget-card-draggable-inputwidgetv2")
+      .first()
+      .trigger("dragstart", {
+        force: true,
+      });
 
     cy.get(widgets.modalWidget)
       .scrollIntoView()
@@ -38,12 +37,12 @@ describe("Modal focus", function () {
   }
 
   after(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   before(() => {
-    agHelper.RestoreLocalStorageCache();
-    cy.addDsl(dsl);
+    _.agHelper.RestoreLocalStorageCache();
+    _.agHelper.AddDsl("ModalDsl");
   });
 
   it("1. Should focus on the input field when autofocus for the input field is enabled", () => {

@@ -1,17 +1,10 @@
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
-
-let dataSources = ObjectsRegistry.DataSources,
-  agHelper = ObjectsRegistry.AggregateHelper;
+import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe(
   "excludeForAirgap",
   "Google Sheets datasource test cases",
   function () {
     it("1. Create Google Sheets datasource", function () {
-      cy.intercept("GET", "/api/v1/users/features", {
-        fixture: "featureFlags.json",
-      }).as("featureFlags");
-      cy.reload();
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("Google Sheets");
       VerifyFunctionDropdown([

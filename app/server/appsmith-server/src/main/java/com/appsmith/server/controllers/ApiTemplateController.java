@@ -15,5 +15,4 @@ public class ApiTemplateController extends ApiTemplateControllerCE {
     public ApiTemplateController(ApiTemplateService service) {
         super(service);
     }
-
 }

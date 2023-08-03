@@ -1,9 +1,18 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  dataSources,
+  entityItems,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 
-let dsName: any, books: any;
 describe("Validate Elasticsearch DS", () => {
+  let dsName: any,
+    books: any,
+    containerName = "elasticsearch1";
+
   before("Create a new ElasticSearch DS", () => {
-    _.dataSources.CreateDataSource("Elasticsearch");
+    dataSources.StartContainerNVerify("Elasticsearch", containerName, 45000);
+    dataSources.CreateDataSource("Elasticsearch");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
@@ -23,37 +32,37 @@ describe("Validate Elasticsearch DS", () => {
     { "title": "To Kill a Mockingbird", "author": "Harper Lee", "genre": ["Classic Literature", "Coming-of-Age"], "rating": 4.5, "published_date": "1960-07-11", "description": "To Kill a Mockingbird is a novel by Harper Lee, published in 1960. It is a coming-of-age story about a young girl named Scout Finch in a fictional town in Alabama during the Great Depression. The novel is renowned for its warmth and humor, despite dealing with serious issues of rape and racial inequality." }
     { "index": {"_index": "books", "_id": "3"}}
     { "title": "The Hitchhiker's Guide to the Galaxy", "author": "Douglas Adams", "genre": ["Science Fiction", "Comedy"], "rating": 4.4, "published_date": "1979-10-12", "description": "The Hitchhiker's Guide to the Galaxy is a comedy science fiction series created by Douglas Adams. It follows the misadventures of hapless human Arthur Dent and his alien friend Ford Prefect as they travel through space and time." }`;
-    _.dataSources.CreateQueryAfterDSSaved();
+    dataSources.CreateQueryAfterDSSaved();
 
     //POST - single record
-    _.dataSources.ValidateNSelectDropdown("Method", "GET", "POST");
+    dataSources.ValidateNSelectDropdown("Method", "GET", "POST");
 
-    _.agHelper.EnterValue("/books/_doc/1", {
+    agHelper.EnterValue("/books/_doc/1", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Path",
     });
 
-    _.agHelper.EnterValue(singleBook, {
+    agHelper.EnterValue(singleBook, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Body",
     });
 
-    _.dataSources.RunQuery();
+    dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       books = JSON.parse(JSON.stringify(resObj.response.body.data.body.result));
       expect(books).to.eq("created");
     });
 
     //GET - single record
-    _.dataSources.ValidateNSelectDropdown("Method", "POST", "GET");
-    _.agHelper.EnterValue("", {
+    dataSources.ValidateNSelectDropdown("Method", "POST", "GET");
+    agHelper.EnterValue("", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Body",
     });
-    _.dataSources.RunQuery();
+    dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       books = JSON.parse(
         JSON.stringify(resObj.response.body.data.body._source.title),
@@ -62,27 +71,27 @@ describe("Validate Elasticsearch DS", () => {
     });
 
     //POST - bulk record
-    _.dataSources.ValidateNSelectDropdown("Method", "GET", "POST");
+    dataSources.ValidateNSelectDropdown("Method", "GET", "POST");
 
-    _.agHelper.EnterValue("/_bulk", {
+    agHelper.EnterValue("/_bulk", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Path",
     });
 
     //Not able to use below since, we need to enter new line at end
-    // _.agHelper.EnterValue(bulkBooks, {
+    // agHelper.EnterValue(bulkBooks, {
     //   propFieldName: "",
     //   directInput: false,
     //   inputFieldName: "Body",
     // });
 
-    _.agHelper.TypeIntoTextArea(_.dataSources._bodyCodeMirror, bulkBooks);
+    agHelper.TypeIntoTextArea(dataSources._bodyCodeMirror, bulkBooks);
 
-    _.agHelper.PressEnter();
+    agHelper.PressEnter();
 
-    _.agHelper.Sleep();
-    _.dataSources.RunQuery();
+    agHelper.Sleep();
+    dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       expect(
         JSON.parse(
@@ -97,19 +106,19 @@ describe("Validate Elasticsearch DS", () => {
     });
 
     //GET - All inserted record
-    _.dataSources.ValidateNSelectDropdown("Method", "POST", "GET");
-    _.agHelper.EnterValue("", {
+    dataSources.ValidateNSelectDropdown("Method", "POST", "GET");
+    agHelper.EnterValue("", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Body",
     });
 
-    _.agHelper.EnterValue("/books/_search", {
+    agHelper.EnterValue("/books/_search", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Path",
     });
-    _.dataSources.RunQuery();
+    dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       books = JSON.parse(
         JSON.stringify(resObj.response.body.data.body.hits.total.value),
@@ -119,20 +128,20 @@ describe("Validate Elasticsearch DS", () => {
 
     //PUT - update
     let updateBook = `{ "title": "Pride and Prejudice", "author": "Jane Austen", "genre": ["Romance", "Classic Literature"], "rating": 4.5, "published_date": "1813-01-28", "description": "Pride and Prejudice is a romantic novel by Jane Austen, first published in 1813. The story follows the main character Elizabeth Bennet as she deals with issues of manners, upbringing, morality, education, and marriage in the society of the landed gentry of the British Regency." }`;
-    _.dataSources.ValidateNSelectDropdown("Method", "GET", "PUT");
+    dataSources.ValidateNSelectDropdown("Method", "GET", "PUT");
 
-    _.agHelper.EnterValue("/books/_doc/1", {
+    agHelper.EnterValue("/books/_doc/1", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Path",
     });
 
-    _.agHelper.EnterValue(updateBook, {
+    agHelper.EnterValue(updateBook, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Body",
     });
-    _.dataSources.RunQuery();
+    dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {
       books = JSON.parse(JSON.stringify(resObj.response.body.data.body.result));
@@ -140,13 +149,13 @@ describe("Validate Elasticsearch DS", () => {
     });
 
     //GET - single record - after update
-    _.dataSources.ValidateNSelectDropdown("Method", "PUT", "GET");
-    _.agHelper.EnterValue("", {
+    dataSources.ValidateNSelectDropdown("Method", "PUT", "GET");
+    agHelper.EnterValue("", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Body",
     });
-    _.dataSources.RunQuery();
+    dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       books = JSON.parse(
         JSON.stringify(resObj.response.body.data.body._source.title),
@@ -155,14 +164,14 @@ describe("Validate Elasticsearch DS", () => {
     });
 
     //DELETE - single record
-    _.dataSources.ValidateNSelectDropdown("Method", "GET", "DELETE");
+    dataSources.ValidateNSelectDropdown("Method", "GET", "DELETE");
 
-    _.agHelper.EnterValue("/books/_doc/1", {
+    agHelper.EnterValue("/books/_doc/1", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Path",
     });
-    _.dataSources.RunQuery();
+    dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {
       books = JSON.parse(JSON.stringify(resObj.response.body.data.body.result));
@@ -170,12 +179,12 @@ describe("Validate Elasticsearch DS", () => {
     });
 
     //DELETE - all records
-    _.agHelper.EnterValue("/_all", {
+    agHelper.EnterValue("/_all", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Path",
     });
-    _.dataSources.RunQuery();
+    dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {
       books = JSON.parse(
@@ -186,13 +195,16 @@ describe("Validate Elasticsearch DS", () => {
   });
 
   after("Delete the query & datasource", () => {
-    _.agHelper.ActionContextMenuWithInPane("Delete");
-    _.entityExplorer.SelectEntityByName(dsName, "Datasources");
-    _.entityExplorer.ActionContextMenuByEntityName(
-      dsName,
-      "Delete",
-      "Are you sure?",
-    );
-    _.agHelper.ValidateNetworkStatus("@deleteDatasource", 200);
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
+    entityExplorer.SelectEntityByName(dsName, "Datasources");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: dsName,
+      action: "Delete",
+      entityType: entityItems.Datasource,
+    });
+    dataSources.StopNDeleteContainer(containerName);
   });
 });

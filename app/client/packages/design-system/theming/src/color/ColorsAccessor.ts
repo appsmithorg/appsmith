@@ -11,6 +11,18 @@ export class ColorsAccessor {
     return this;
   }
 
+  get lightness() {
+    return this.color.oklch.l;
+  }
+
+  get chroma() {
+    return this.color.oklch.c;
+  }
+
+  get hue() {
+    return this.color.oklch.h;
+  }
+
   /* Lightness */
   get isVeryDark() {
     return this.color.oklch.l < 0.3;
@@ -25,17 +37,9 @@ export class ColorsAccessor {
     return this.color.oklch.c < 0.04;
   }
 
-  get isColorful() {
-    return this.color.oklch.c > 0.136;
-  }
-
   /* Hue */
   get isCold() {
     return this.color.oklch.h >= 120 && this.color.oklch.h <= 300;
-  }
-
-  get isBlue() {
-    return this.color.oklch.h >= 230 && this.color.oklch.h <= 270;
   }
 
   get isGreen() {
@@ -47,18 +51,6 @@ export class ColorsAccessor {
   }
 
   get isRed() {
-    return this.color.oklch.h >= 29 && this.color.oklch.h <= 50;
-  }
-
-  get lightness() {
-    return this.color.oklch.l;
-  }
-
-  get chroma() {
-    return this.color.oklch.c;
-  }
-
-  get hue() {
-    return this.color.oklch.h;
+    return this.color.oklch.h >= 5 && this.color.oklch.h <= 49;
   }
 }

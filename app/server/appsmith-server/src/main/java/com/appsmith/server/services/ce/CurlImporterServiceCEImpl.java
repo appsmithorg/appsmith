@@ -20,19 +20,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
 
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -67,8 +64,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
             NewPageService newPageService,
             ResponseUtils responseUtils,
             ObjectMapper objectMapper,
-            PagePermission pagePermission
-    ) {
+            PagePermission pagePermission) {
         this.pluginService = pluginService;
         this.layoutActionService = layoutActionService;
         this.newPageService = newPageService;
@@ -78,7 +74,8 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
     }
 
     @Override
-    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String workspaceId, String branchName) {
+    public Mono<ActionDTO> importAction(
+            Object input, String pageId, String name, String workspaceId, String branchName) {
         ActionDTO action;
 
         try {
@@ -94,7 +91,8 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
             return Mono.error(new AppsmithException(AppsmithError.INVALID_CURL_COMMAND));
         }
 
-        Mono<NewPage> pageMono = newPageService.findByBranchNameAndDefaultPageId(branchName, pageId, pagePermission.getActionCreatePermission());
+        Mono<NewPage> pageMono = newPageService.findByBranchNameAndDefaultPageId(
+                branchName, pageId, pagePermission.getActionCreatePermission());
 
         // Set the default values for datasource (plugin, name) and then create the action
         // with embedded datasource
@@ -163,7 +161,8 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
             if (isDollarSubshellPossible) {
                 if (currentChar == '(') {
-                    throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Please do not try to invoke a subshell in the cURL");
+                    throw new AppsmithException(
+                            AppsmithError.GENERIC_BAD_REQUEST, "Please do not try to invoke a subshell in the cURL");
                 }
             }
 
@@ -178,7 +177,8 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                     isDollarSubshellPossible = true;
 
                 } else if (currentChar == '`' && quote != '\'') {
-                    throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Please do not try to invoke a subshell in the cURL");
+                    throw new AppsmithException(
+                            AppsmithError.GENERIC_BAD_REQUEST, "Please do not try to invoke a subshell in the cURL");
 
                 } else if (currentChar == '\\' && quote != '\'') {
                     isEscaped = true;
@@ -188,7 +188,6 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
                 } else {
                     currentToken.append(currentChar);
-
                 }
 
             } else {
@@ -205,7 +204,8 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                     isDollarSubshellPossible = true;
 
                 } else if (currentChar == '`') {
-                    throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Please do not try to invoke a subshell in the cURL");
+                    throw new AppsmithException(
+                            AppsmithError.GENERIC_BAD_REQUEST, "Please do not try to invoke a subshell in the cURL");
 
                 } else if (currentChar == '\\') {
                     // This is a backslash that will escape the next character.
@@ -228,11 +228,8 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
                 } else {
                     currentToken.append(currentChar);
-
                 }
-
             }
-
         }
 
         if (currentToken.length() > 0) {
@@ -253,9 +250,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         final List<String> normalizedTokens = new ArrayList<>();
 
         for (String token : tokens) {
-            if ("-d".equals(token)
-                    || "--data-ascii".equals(token)
-                    || "--data-raw".equals(token)) {
+            if ("-d".equals(token) || "--data-ascii".equals(token) || "--data-raw".equals(token)) {
                 normalizedTokens.add(ARG_DATA);
 
             } else if (token.startsWith("-d")) {
@@ -301,9 +296,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                 // We skip the `--url` argument since it's superfluous and URLs are directly sniffed out of the argument
                 // list. The `--url` argument holds no special significance in cURL.
                 normalizedTokens.add(token);
-
             }
-
         }
 
         return normalizedTokens;
@@ -356,14 +349,15 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                 }
                 if ("content-type".equalsIgnoreCase(parts[0])) {
                     contentType = parts[1];
-                    // part[0] is already set to content-type, however, it might not have consistent casing. hence resetting it to a HTTP standard.
+                    // part[0] is already set to content-type, however, it might not have consistent casing. hence
+                    // resetting it to a HTTP standard.
                     parts[0] = HttpHeaders.CONTENT_TYPE;
-                    //Setting the apiContentType to the content-type detected in the header with the key word content-type.
+                    // Setting the apiContentType to the content-type detected in the header with the key word
+                    // content-type.
                     // required for RestAPI calls with GET method having body.
                     actionConfiguration.setFormData(Map.of(API_CONTENT_TYPE_KEY, contentType));
                 }
                 headers.add(new Property(parts[0], parts[1]));
-
 
             } else if (ARG_DATA.equals(state)) {
                 // The `token` is next to `--data`.
@@ -371,7 +365,8 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
             } else if ("--data-urlencode".equals(state)) {
                 // The `token` is next to `--data-urlencode`.
-                // ignore the '=' at the start as the curl document says https://curl.se/docs/manpage.html#--data-urlencode
+                // ignore the '=' at the start as the curl document says
+                // https://curl.se/docs/manpage.html#--data-urlencode
                 if (token.startsWith("=")) {
                     dataParts.add(token.substring(1));
                 } else {
@@ -389,9 +384,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
             } else if (ARG_USER.equals(state)) {
                 // The `token` is next to `--user`.
                 headers.add(new Property(
-                        "Authorization",
-                        "Basic " + Base64.getEncoder().encodeToString(token.getBytes())
-                ));
+                        "Authorization", "Basic " + Base64.getEncoder().encodeToString(token.getBytes())));
 
             } else if (ARG_USER_AGENT.equals(state)) {
                 // The `token` is next to `--user-agent`.
@@ -414,14 +407,14 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
             if (isStateProcessed) {
                 state = null;
             }
-
         }
 
         if (contentType == null) {
             contentType = guessTheContentType(dataParts, formParts);
             if (contentType != null) {
                 headers.add(new Property(HttpHeaders.CONTENT_TYPE, contentType));
-                // Setting the apiContentType to the content type detected by guessing the elements from  -f/ --form flag or -d/ --data flag
+                // Setting the apiContentType to the content type detected by guessing the elements from  -f/ --form
+                // flag or -d/ --data flag
                 // required for RestAPI calls with GET method having body.
                 actionConfiguration.setFormData(Map.of(API_CONTENT_TYPE_KEY, contentType));
             }
@@ -440,7 +433,6 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
             } else {
                 actionConfiguration.setBody(StringUtils.join(dataParts, '&'));
-
             }
         }
         if (!formParts.isEmpty()) {
@@ -505,25 +497,38 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         log.debug("cURL import URL: '{}', path: '{}' baseUrl: '{}'", url, path, base);
 
         // Extract query params.
-        URI uri = url.toURI();
-        List<NameValuePair> params = URLEncodedUtils.parse(uri, StandardCharsets.UTF_8);
         final ActionConfiguration actionConfiguration = action.getActionConfiguration();
-        List<Property> queryParameters = actionConfiguration.getQueryParameters();
-
-        if (queryParameters == null) {
-            queryParameters = new ArrayList<>();
-            actionConfiguration.setQueryParameters(queryParameters);
-        }
-
-        for (NameValuePair param : params) {
-            queryParameters.add(new Property(param.getName(), param.getValue()));
-        }
+        List<Property> queryParameters = actionConfiguration.getQueryParameters() == null
+                ? new ArrayList<>()
+                : actionConfiguration.getQueryParameters();
+        queryParameters.addAll(getQueryParams(url));
+        actionConfiguration.setQueryParameters(queryParameters);
 
         // Set the URL without the query params & the path.
         action.getDatasource().getDatasourceConfiguration().setUrl(base);
 
         // Set the path in actionConfiguration.
         actionConfiguration.setPath(path);
+    }
+
+    private List<Property> getQueryParams(URL url) {
+        List<Property> queryParamsList = new ArrayList<>();
+        String queryParamsString = url.getQuery();
+
+        /**
+         * Attempt to extract query params only if the query params string is non-empty, and it has at least one key
+         * value pair.
+         */
+        if (!isBlank(queryParamsString) && queryParamsString.contains("=")) {
+            Arrays.stream(queryParamsString.split("&")).forEach(queryParam -> {
+                String[] paramMap = queryParam.split("=", 2);
+                if (paramMap.length > 1) {
+                    queryParamsList.add(new Property(paramMap[0], paramMap[1]));
+                }
+            });
+        }
+
+        return queryParamsList;
     }
 
     private String getPort(URL url) {

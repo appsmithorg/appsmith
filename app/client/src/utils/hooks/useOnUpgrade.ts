@@ -4,9 +4,9 @@ import { PRICING_PAGE_URL } from "constants/ThirdPartyConstants";
 import type { EventName } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { pricingPageUrlSource } from "@appsmith/utils/licenseHelpers";
 
 type Props = {
-  intercomMessage?: string;
   logEventName?: EventName;
   logEventData?: any;
 };
@@ -22,7 +22,11 @@ const useOnUpgrade = (props: Props) => {
       logEventData,
     );
     window.open(
-      PRICING_PAGE_URL(appsmithConfigs.pricingUrl, "CE", instanceId),
+      PRICING_PAGE_URL(
+        appsmithConfigs.pricingUrl,
+        pricingPageUrlSource,
+        instanceId,
+      ),
       "_blank",
     );
   };

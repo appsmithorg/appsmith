@@ -1,8 +1,8 @@
-const dsl = require("../../../../../fixtures/formHasChangesDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Form Widget", () => {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("formHasChangesDsl");
   });
 
   it("Check hasChanges meta property", () => {

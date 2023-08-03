@@ -1,12 +1,12 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 const color = "rgb(151, 0, 0)";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
-    cy.addDsl(dsl);
+    _.agHelper.AddDsl("tableV2NewDsl");
   });
 
   it("1. Table widget V2 with with modal popup", function () {
@@ -17,7 +17,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       widgetsPage.tableWidgetV2,
       widgetsPage.widgetNameSpan,
     );
-    //cy.createModal("Modal", this.data.ModalName);
+    //cy.createModal("Modal", this.dataSet.ModalName);
     cy.createModal("Modal", "onRowSelected");
     cy.isSelectRow(1);
     cy.get(".bp3-overlay-backdrop").click({ force: true });
@@ -78,7 +78,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.readTableV2dataPublish("2", "2").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Tobias Funke");
-      cy.reload();
+      _.agHelper.RefreshPage();
       cy.wait(3000);
       cy.readTableV2dataPublish("2", "2").then((tabDataNew) => {
         expect(tabDataNew).to.be.equal("Tobias Funke");
