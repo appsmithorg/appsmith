@@ -7,13 +7,14 @@ import type {
 import FlexLayout from "./FlexLayout";
 import "../styles.css";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import {
-  FlexLayerAlignment,
-  LayoutDirection,
-} from "utils/autoLayout/constants";
-import { updateVerticalDropZoneAndHeight } from "utils/autoLayout/layoutComponentUtils";
+import { LayoutDirection } from "utils/autoLayout/constants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsReducer";
+import {
+  getVerticalHighlightsForAlignedRow,
+  getWidgetRowHeight,
+} from "utils/autoLayout/layoutComponentHighlightUtils";
+import { getLayoutComponent } from "utils/autoLayout/layoutComponentUtils";
 
 const AlignedRow = (props: LayoutComponentProps) => {
   const {
@@ -30,6 +31,7 @@ const AlignedRow = (props: LayoutComponentProps) => {
       <FlexLayout
         canvasId={props.containerProps?.widgetId || ""}
         flexDirection="row"
+        isDropTarget={isDropTarget}
         layoutId={layoutId}
         {...(layoutStyle || {})}
       >
@@ -68,42 +70,15 @@ const AlignedRow = (props: LayoutComponentProps) => {
   return <div />;
 };
 
-AlignedRow.deriveHighlights = (
-  props: LayoutComponentProps,
-  widgets: CanvasWidgetsReduxState,
-  widgetPositions: WidgetPositions,
-  width: number,
-): HighlightInfo[] => {
-  const { layout, layoutId, rendersWidgets } = props;
-  if (rendersWidgets) {
-    const highlights: HighlightInfo[] = [];
-    if (!layout?.length) return [];
-    let maxHeight = 0;
-    for (const [index, id] of (layout as string[]).entries()) {
-      const widget = widgets[id];
-      if (!widget) continue;
-      const { height, left, top } = widgetPositions[id];
-      maxHeight = Math.max(maxHeight, height);
-      highlights.push({
-        alignment: FlexLayerAlignment.Start,
-        isNewLayer: false,
-        index,
-        layerIndex: 0,
-        rowIndex: index,
-        posX: Math.min(left, 2),
-        posY: top,
-        width: 4,
-        height: height,
-        isVertical: true,
-        canvasId: props.containerProps?.widgetId || "0",
-        dropZone: {},
-        layoutId,
-      });
-    }
-    return updateVerticalDropZoneAndHeight(highlights, maxHeight, width);
-  }
-  // TODO: Handle nested layouts.
-  return [];
+AlignedRow.deriveHighlights = (data: {
+  layoutProps: LayoutComponentProps;
+  widgets: CanvasWidgetsReduxState;
+  widgetPositions: WidgetPositions;
+  canvasWidth?: number;
+  parentLayout?: string;
+  offsetTop?: number;
+}): HighlightInfo[] => {
+  return getVerticalHighlightsForAlignedRow(data);
 };
 
 AlignedRow.addChild = (
@@ -121,6 +96,49 @@ AlignedRow.removeChild = (
 ): string[] | LayoutComponentProps[] => {
   const layout: any = props.layout;
   return [...layout.slice(0, index), ...layout.slice(index + 1)];
+};
+
+AlignedRow.getHeight = (
+  layoutProps: LayoutComponentProps,
+  widgetPositions: WidgetPositions,
+): number => {
+  const { layout, layoutId, layoutStyle, rendersWidgets } = layoutProps;
+  // If layout positions are being tracked, return the current value.
+  if (widgetPositions[layoutId]) return widgetPositions[layoutId].height;
+
+  // Calculate height from styles
+  const layoutHeight = layoutStyle
+    ? Math.max(
+        parseInt(layoutStyle?.height?.toString() || "0"),
+        parseInt(layoutStyle?.minHeight?.toString() || "0"),
+      )
+    : 0;
+  // If layout has no children, return the calculated css height.
+  if (!layout.length) return layoutHeight;
+  // Calculate height from children.
+  if (rendersWidgets) {
+    // Children are widgets
+    const widgetHeight: number = getWidgetRowHeight(
+      {
+        ...layoutProps,
+        layout: (layout as string[][]).reduce(
+          (acc, curr) => [...acc, ...curr],
+          [],
+        ),
+      },
+      widgetPositions,
+    ).totalHeight;
+    return Math.max(widgetHeight, layoutHeight);
+  } else {
+    // renders layouts
+    return (layout as LayoutComponentProps[]).reduce((acc, curr) => {
+      // TODO: account for wrapping.
+      const Comp = getLayoutComponent(curr.layoutType);
+      if (!Comp) return acc;
+      const height = Comp.getHeight(curr, widgetPositions);
+      return Math.max(acc, height);
+    }, 0);
+  }
 };
 
 export default AlignedRow;

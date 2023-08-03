@@ -7,6 +7,7 @@ import type {
 import FlexLayout from "./FlexLayout";
 import {
   generateHighlightsForColumn,
+  getLayoutComponent,
   renderLayouts,
 } from "utils/autoLayout/layoutComponentUtils";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
@@ -39,6 +40,7 @@ const Column = (props: LayoutComponentProps) => {
     <FlexLayout
       canvasId={props.containerProps?.widgetId || ""}
       flexDirection="column"
+      isDropTarget={isDropTarget}
       layoutId={layoutId}
       {...(layoutStyle || {})}
     >
@@ -71,6 +73,7 @@ Column.deriveHighlights = (data: {
   layoutProps: LayoutComponentProps;
   widgets: CanvasWidgetsReduxState;
   widgetPositions: WidgetPositions;
+  parentLayout?: string;
 }): HighlightInfo[] => {
   return generateHighlightsForColumn(data);
 };
@@ -96,6 +99,48 @@ Column.removeChild = (
     ...props,
     layout: [...layout.slice(0, index), ...layout.slice(index + 1)],
   };
+};
+
+Column.getHeight = (
+  layoutProps: LayoutComponentProps,
+  widgetPositions: WidgetPositions,
+): number => {
+  const { layout, layoutId, layoutStyle, rendersWidgets } = layoutProps;
+  // If layout positions are being tracked, return the current value.
+  if (widgetPositions[layoutId]) return widgetPositions[layoutId].height;
+
+  // Calculate height from styles
+  const layoutHeight = layoutStyle
+    ? Math.max(
+        parseInt(layoutStyle?.height?.toString() || "0"),
+        parseInt(layoutStyle?.minHeight?.toString() || "0"),
+      )
+    : 0;
+  // If layout has no children, return the calculated css height.
+  if (!layout.length) return layoutHeight;
+
+  if (rendersWidgets) {
+    // Children are widgets
+    const widgetHeight: number = (layout as string[]).reduce(
+      (acc: number, curr: string) => {
+        const widget = widgetPositions[curr];
+        if (widget) return acc + widget.height;
+        return acc;
+      },
+      0,
+    );
+    return Math.max(widgetHeight, layoutHeight);
+  } else {
+    // renders layouts
+    return (layout as LayoutComponentProps[]).reduce((acc, curr) => {
+      const Comp = getLayoutComponent(curr.layoutType);
+      if (Comp) {
+        const height = Comp.getHeight(curr, widgetPositions);
+        return acc + height;
+      }
+      return acc;
+    }, 0);
+  }
 };
 
 export default Column;

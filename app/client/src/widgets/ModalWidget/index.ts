@@ -24,6 +24,7 @@ import {
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import WidgetFactory from "utils/WidgetFactory";
+import { generateReactKey } from "utils/generators";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -322,14 +323,15 @@ export const CONFIG = {
 
             const layout: LayoutComponentProps[] = [
               {
-                layoutId: "1",
+                layoutId: generateReactKey(),
                 layoutStyle: {
                   rowGap: 12,
+                  padding: 4,
                 },
                 layoutType: "COLUMN",
                 layout: [
                   {
-                    layoutId: "2",
+                    layoutId: generateReactKey(),
                     layoutStyle: {
                       alignSelf: "stretch",
                       columnGap: 4,
@@ -337,7 +339,7 @@ export const CONFIG = {
                     layoutType: "ROW", // HEADER3 titleChildren: [], icons: [],
                     layout: [
                       {
-                        layoutId: "3",
+                        layoutId: generateReactKey(),
                         layoutStyle: {
                           columnGap: 4,
                           flexGrow: 1,
@@ -350,7 +352,7 @@ export const CONFIG = {
                         rendersWidgets: true,
                       },
                       {
-                        layoutId: "4",
+                        layoutId: generateReactKey(),
                         layoutStyle: {
                           columnGap: 4,
                           minWidth: "30px",
@@ -365,7 +367,7 @@ export const CONFIG = {
                     ],
                   },
                   {
-                    layoutId: "5",
+                    layoutId: generateReactKey(),
                     layoutStyle: {
                       alignSelf: "stretch",
                       columnGap: 4,
@@ -377,7 +379,7 @@ export const CONFIG = {
                     layoutType: "ROW", // MAIN
                     layout: [
                       {
-                        layoutId: "6",
+                        layoutId: generateReactKey(),
                         layoutStyle: {
                           minWidth: "220px",
                           rowGap: 12,
@@ -388,8 +390,7 @@ export const CONFIG = {
                         isDropTarget: true,
                         layout: [
                           {
-                            isDropTarget: true,
-                            layoutId: "7",
+                            layoutId: generateReactKey(),
                             layoutStyle: {
                               alignSelf: "stretch",
                               columnGap: 4,
@@ -397,33 +398,11 @@ export const CONFIG = {
                               border: "1px dashed #979797",
                             },
                             layoutType: "ALIGNED_ROW",
-                            layout: [[], [buttonWidget3.widgetId], []],
-                            rendersWidgets: true,
-                          },
-                        ],
-                      },
-                      {
-                        layoutId: "9",
-                        layoutStyle: {
-                          flexGrow: 1,
-                          minWidth: "220px",
-                          rowGap: 12,
-                          border: "1px dashed #979797",
-                        },
-                        layoutType: "COLUMN",
-                        isDropTarget: true,
-                        layout: [
-                          {
-                            isDropTarget: true,
-                            layoutId: "10",
-                            layoutStyle: {
-                              alignSelf: "stretch",
-                              columnGap: 4,
-                              rowGap: 12,
-                              border: "1px dashed #979797",
-                            },
-                            layoutType: "ALIGNED_ROW",
-                            layout: [[], [], [buttonWidget4.widgetId]],
+                            layout: [
+                              [],
+                              [buttonWidget3.widgetId],
+                              [buttonWidget4.widgetId],
+                            ],
                             rendersWidgets: true,
                           },
                         ],
@@ -432,7 +411,7 @@ export const CONFIG = {
                   },
                   {
                     isDropTarget: true,
-                    layoutId: "8",
+                    layoutId: generateReactKey(),
                     layoutStyle: {
                       alignSelf: "stretch",
                       border: "1px dashed #979797",

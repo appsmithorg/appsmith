@@ -225,7 +225,6 @@ export const CONFIG = {
                 layoutStyle: {
                   columnGap: 4,
                   flexWrap: "wrap-reverse",
-                  padding: 4,
                 },
                 layoutType: "ROW",
                 layout: [
@@ -248,6 +247,7 @@ export const CONFIG = {
                       rowGap: 12,
                       flexGrow: 2,
                       border: "1px dashed #979797",
+                      padding: 4,
                     },
                     layoutType: "COLUMN",
                     layout: [

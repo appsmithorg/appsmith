@@ -6,16 +6,18 @@ import type {
 } from "utils/autoLayout/autoLayoutTypes";
 import FlexLayout from "./FlexLayout";
 import {
-  generateHighlightsForRow,
+  getLayoutComponent,
   renderLayouts,
 } from "utils/autoLayout/layoutComponentUtils";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import {
-  FlexLayerAlignment,
-  LayoutDirection,
-} from "utils/autoLayout/constants";
+import { LayoutDirection } from "utils/autoLayout/constants";
+import type { FlexLayerAlignment } from "utils/autoLayout/constants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsReducer";
+import {
+  getVerticalHighlights,
+  getWidgetRowHeight,
+} from "utils/autoLayout/layoutComponentHighlightUtils";
 
 const Row = (props: LayoutComponentProps) => {
   const {
@@ -43,6 +45,7 @@ const Row = (props: LayoutComponentProps) => {
     <FlexLayout
       canvasId={props.containerProps?.widgetId || ""}
       flexDirection="row"
+      isDropTarget={isDropTarget}
       layoutId={layoutId}
       {...(layoutStyle || {})}
     >
@@ -76,11 +79,11 @@ Row.deriveHighlights = (data: {
   widgets: CanvasWidgetsReduxState;
   widgetPositions: WidgetPositions;
   alignment?: FlexLayerAlignment;
+  canvasWidth?: number;
+  canvasHeight?: number;
+  parentLayout?: string;
 }): HighlightInfo[] => {
-  return generateHighlightsForRow({
-    ...data,
-    alignment: data?.alignment || FlexLayerAlignment.Start,
-  });
+  return getVerticalHighlights({ ...data, alignment: data?.alignment });
 };
 
 Row.addChild = (
@@ -104,6 +107,43 @@ Row.removeChild = (
     ...props,
     layout: [...layout.slice(0, index), ...layout.slice(index + 1)],
   };
+};
+
+Row.getHeight = (
+  layoutProps: LayoutComponentProps,
+  widgetPositions: WidgetPositions,
+): number => {
+  const { layout, layoutId, layoutStyle, rendersWidgets } = layoutProps;
+  // If layout positions are being tracked, return the current value.
+  if (widgetPositions[layoutId]) return widgetPositions[layoutId].height;
+
+  // Calculate height from styles
+  const layoutHeight = layoutStyle
+    ? Math.max(
+        parseInt(layoutStyle?.height?.toString() || "0"),
+        parseInt(layoutStyle?.minHeight?.toString() || "0"),
+      )
+    : 0;
+  // If layout has no children, return the calculated css height.
+  if (!layout.length) return layoutHeight;
+  // Calculate height from children.
+  if (rendersWidgets) {
+    // Children are widgets
+    const widgetHeight: number = getWidgetRowHeight(
+      layoutProps,
+      widgetPositions,
+    ).totalHeight;
+    return Math.max(widgetHeight, layoutHeight);
+  } else {
+    // renders layouts
+    return (layout as LayoutComponentProps[]).reduce((acc, curr) => {
+      // TODO: account for wrapping.
+      const Comp = getLayoutComponent(curr.layoutType);
+      if (!Comp) return acc;
+      const height = Comp.getHeight(curr, widgetPositions);
+      return Math.max(acc, height);
+    }, 0);
+  }
 };
 
 export default Row;

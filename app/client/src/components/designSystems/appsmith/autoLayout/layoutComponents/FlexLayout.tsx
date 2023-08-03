@@ -16,30 +16,33 @@ interface FlexLayoutProps {
   height?: number | string;
   justifyContent?: "flex-start" | "flex-end" | "center";
   layoutId: string;
-  maxHeight?: string;
-  minWidth?: string;
-  minHeight?: string;
+  maxHeight?: string | number;
+  minWidth?: string | number;
+  minHeight?: string | number;
   overflowX?: "visible" | "hidden" | "scroll" | "auto";
   overflow?: "visible" | "hidden" | "scroll" | "auto";
   position?: "absolute" | "relative" | "static" | "sticky";
   rowGap?: number;
-  width?: string;
+  width?: string | number;
   border?: string;
   padding?: string | number;
+  isDropTarget?: boolean;
 }
 
 const FlexLayout = (props: FlexLayoutProps) => {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    widgetPositionsObserver.observeLayout(
-      getLayoutId(props.layoutId),
-      ref,
-      props.canvasId,
-      props.layoutId,
-    );
+    if (props.isDropTarget)
+      widgetPositionsObserver.observeLayout(
+        getLayoutId(props.layoutId),
+        ref,
+        props.canvasId,
+        props.layoutId,
+      );
 
     return () => {
-      widgetPositionsObserver.unObserveLayout(getLayoutId(props.layoutId));
+      props.isDropTarget &&
+        widgetPositionsObserver.unObserveLayout(getLayoutId(props.layoutId));
     };
   }, []);
 

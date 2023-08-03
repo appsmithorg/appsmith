@@ -27,6 +27,7 @@ import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsRed
 import { getLayoutFromId } from "./layoutComponentUtils";
 import Row from "components/designSystems/appsmith/autoLayout/layoutComponents/Row";
 import Column from "components/designSystems/appsmith/autoLayout/layoutComponents/Column";
+import AlignedRow from "components/designSystems/appsmith/autoLayout/layoutComponents/AlignedRow";
 
 function getWrappedAlignmentInfo(
   arr: AlignmentInfo[],
@@ -737,26 +738,9 @@ export function getHighlightsForLayoutType(data: {
   isMobile: boolean;
 }): HighlightInfo[] {
   if (!data.layout) return [];
-  const {
-    canvasId,
-    canvasPositions,
-    canvasWidth,
-    draggedWidgets,
-    isMobile,
-    isParent,
-    layout,
-    offsetTop,
-    widgetPositions,
-    widgets,
-  } = data;
+  const { isParent, layout, widgetPositions, widgets } = data;
   const highlights: HighlightInfo[] = [];
-  const {
-    isDropTarget,
-    layout: children,
-    // layoutId,
-    layoutType,
-    // rendersWidgets,
-  } = layout;
+  const { isDropTarget, layoutId, layoutType } = layout;
   if (isDropTarget && !isParent) return [];
   switch (layoutType) {
     case "ROW":
@@ -765,56 +749,55 @@ export function getHighlightsForLayoutType(data: {
           layoutProps: layout,
           widgets,
           widgetPositions,
+          parentLayout: layoutId,
         }),
       );
       break;
     case "COLUMN":
-      return Column.deriveHighlights({
-        layoutProps: layout,
-        widgets,
-        widgetPositions,
-      });
+      highlights.push(
+        ...Column.deriveHighlights({
+          layoutProps: layout,
+          widgets,
+          widgetPositions,
+          parentLayout: layoutId,
+        }),
+      );
       break;
     case "ALIGNED_ROW": {
-      const payload = generateVerticalHighlights({
-        widgets,
-        widgetPositions,
-        canvasPositions,
-        canvasWidth, // calculate width
-        layer: getFlexLayerFromAlignedRow(children as string[][]),
-        childCount: 0,
-        layerIndex: 0,
-        offsetTop,
-        canvasId,
-        draggedWidgets,
-        isMobile,
-      });
-      highlights.push(...payload.highlights);
+      highlights.push(
+        ...AlignedRow.deriveHighlights({
+          layoutProps: layout,
+          widgets,
+          widgetPositions,
+          parentLayout: layoutId,
+        }),
+      );
       break;
     }
     default:
       break;
   }
+  console.log("@@@@", { highlights });
   return highlights;
 }
 
-function getFlexLayerFromRow(
-  row: string[],
-  alignment: FlexLayerAlignment,
-): FlexLayer {
-  const layer: FlexLayer = { children: [] };
-  for (const child of row) {
-    layer.children.push({ id: child, align: alignment });
-  }
-  return layer;
-}
+// function getFlexLayerFromRow(
+//   row: string[],
+//   alignment: FlexLayerAlignment,
+// ): FlexLayer {
+//   const layer: FlexLayer = { children: [] };
+//   for (const child of row) {
+//     layer.children.push({ id: child, align: alignment });
+//   }
+//   return layer;
+// }
 
-function getFlexLayerFromAlignedRow(row: string[][]): FlexLayer {
-  return {
-    children: [
-      ...getFlexLayerFromRow(row[0], FlexLayerAlignment.Start).children,
-      ...getFlexLayerFromRow(row[1], FlexLayerAlignment.Center).children,
-      ...getFlexLayerFromRow(row[2], FlexLayerAlignment.End).children,
-    ],
-  };
-}
+// function getFlexLayerFromAlignedRow(row: string[][]): FlexLayer {
+//   return {
+//     children: [
+//       ...getFlexLayerFromRow(row[0], FlexLayerAlignment.Start).children,
+//       ...getFlexLayerFromRow(row[1], FlexLayerAlignment.Center).children,
+//       ...getFlexLayerFromRow(row[2], FlexLayerAlignment.End).children,
+//     ],
+//   };
+// }
