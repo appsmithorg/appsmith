@@ -5,6 +5,7 @@ body,
   width: 100%;
 }
 
+/** we are stopping  animation for all elements for chromatic so that our snapshopts are consistent */
 .is-chromatic * {
   animation: none !important;
 }
