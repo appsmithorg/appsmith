@@ -310,7 +310,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         pluginId,
       });
     }
-    if (!this.props.viewMode) {
+    if (!this.props.viewMode && !!this.props.pluginId) {
       this.blockRoutes();
     }
 
