@@ -3,7 +3,8 @@ export class CommonLocators {
   _inputField = "input";
   _canvasViewport = "#canvas-viewport";
   _emptyPageTxt = ".bp3-heading";
-  _chevronUp = ".bp3-icon-chevron-up";
+  _chevronUp = "span[contains(@class, 'bp3-icon-chevron-up')]";
+  _chevronDown = "span[contains(@class, 'bp3-icon-chevron-down')]";
   _loading = "#loading";
   _animationSpnner = ".bp3-spinner-animation";
   _btnSpinner = ".ads-v2-spinner";
@@ -263,6 +264,7 @@ export class CommonLocators {
   _adsV2CollapsibleHeader = ".ads-v2-collapsible__header";
   _adsV2Text = ".ads-v2-text";
   _svg = "svg";
+  _imgWidgetInsideList = `//div[@data-testid='styledImage']//img`;
 
   public ds_editor_env_filter = (envName: string) =>
     `[data-testid="t--ds-data-filter-${envName}"]`;

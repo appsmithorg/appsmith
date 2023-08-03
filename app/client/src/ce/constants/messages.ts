@@ -169,7 +169,6 @@ export const INVITE_USER_RAMP_TEXT = () =>
   "Users will have access to all applications in the workspace. For application-level access, try out our ";
 export const CUSTOM_ROLES_RAMP_TEXT = () =>
   "To build and assign custom roles, try out our ";
-export const BUSINESS_TEXT = () => "Business";
 export const CUSTOM_ROLE_TEXT = () => "Custom role";
 export const CUSTOM_ROLE_DISABLED_OPTION_TEXT = () =>
   "Can access specific applications or only certain pages and queries within an application";
@@ -1339,6 +1338,9 @@ export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
 export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
   "Search for controls, labels etc";
 export const EXPLORER_BETA_ENTITY = () => "BETA";
+export const BINDING_WIDGET_WALKTHROUGH_TITLE = () => "Widget properties";
+export const BINDING_WIDGET_WALKTHROUGH_DESC = () =>
+  `We’ve set the table data property for you. You can change it at anytime. The properties pane is a central hub for configuring widgets, allowing you to easily modify settings.`;
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";
@@ -1870,9 +1872,9 @@ export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
 
 //Datasource environment
 export const START_SWITCH_ENVIRONMENT = (environment: string) =>
-  `...Switching your environment to ${environment}, and running all associated pageload actions`;
+  `Switching your environment to ${environment}, and running all associated pageload actions`;
 export const SWITCH_ENVIRONMENT_SUCCESS = (environment: string) =>
-  `...Environment switched to ${environment} successfully`;
+  `Environment switched to ${environment}`;
 
 export const TEST_DATASOURCE_SUCCESS = (
   datasourceName: string,
@@ -1885,3 +1887,10 @@ export const TEST_DATASOURCE_SUCCESS = (
 
 export const TEST_DATASOURCE_ERROR = () =>
   "Test failed, couldn't establish a connection";
+
+// Camera widget
+export const DEFAULT_CAMERA_LABEL = () => "Default mobile camera";
+export const DEFAULT_CAMERA_LABEL_DESCRIPTION = () =>
+  "Default choice for mobile users. Not applicable for other devices";
+export const FRONT_CAMERA_LABEL = () => "Front (Selfie)";
+export const BACK_CAMERA_LABEL = () => "Back (Rear)";

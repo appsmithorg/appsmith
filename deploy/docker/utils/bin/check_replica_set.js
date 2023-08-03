@@ -1,4 +1,4 @@
-const { MongoClient } = require("mongodb");
+const { MongoClient, MongoServerError} = require("mongodb");
 const { preprocessMongoDBURI } = require("./utils");
 
 async function exec() {
@@ -30,7 +30,11 @@ async function checkReplicaSet(client) {
         .watch()
         .on("change", (change) => console.log(change))
         .on("error", (err) => {
-          console.error("Error even from changeStream", err);
+          if (err instanceof MongoServerError && err.toString() == "MongoServerError: The $changeStream stage is only supported on replica sets") {
+            console.log("Replica set not enabled");
+          } else {
+            console.error("Error even from changeStream", err);
+          }
           resolve(false);
         });
 

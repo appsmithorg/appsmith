@@ -1,7 +1,7 @@
 import React from "react";
 import { Text, Link, Button, Icon, Tag } from "design-system";
 import {
-  BUSINESS_TEXT,
+  BUSINESS_TAG,
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
@@ -60,7 +60,7 @@ export function PrivateEmbedRampModal() {
               {createMessage(IN_APP_EMBED_SETTING.privateAppsText)}
             </Text>
             <Tag className="ml-1 mt-0.5" isClosable={false}>
-              {createMessage(BUSINESS_TEXT)}
+              {createMessage(BUSINESS_TAG)}
             </Tag>
           </div>
           <Text
