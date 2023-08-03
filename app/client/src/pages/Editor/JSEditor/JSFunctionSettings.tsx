@@ -72,9 +72,8 @@ const SettingColumn = styled.div<{ grow?: boolean; isHeading?: boolean }>`
 `;
 
 const JSFunctionSettingsWrapper = styled.div`
-  display: flex;
   height: 100%;
-  overflow: auto;
+  overflow: hidden;
 `;
 
 const SettingsContainer = styled.div`
@@ -94,12 +93,13 @@ const SettingsContainer = styled.div`
 
 const SettingsRowWrapper = styled.div`
   border-radius: var(--ads-v2-border-radius);
+  height: 100%;
   overflow: hidden;
 `;
 const SettingsHeaderWrapper = styled.div``;
 const SettingsBodyWrapper = styled.div`
-  height: 100%;
   overflow: auto;
+  max-height: calc(100% - 48px);
 `;
 
 function SettingsHeading({ grow, hasInfo, info, text }: SettingsHeadingProps) {
