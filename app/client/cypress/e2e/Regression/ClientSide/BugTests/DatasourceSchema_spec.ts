@@ -115,4 +115,22 @@ describe("Datasource form related tests", function () {
     dataSources.CreateQueryAfterDSSaved();
     dataSources.VerifySchemaAbsenceInQueryEditor();
   });
+
+  it("6. Verify schema searching works for datasources with empty columns for example S3.", () => {
+    featureFlagIntercept(
+      {
+        ab_ds_schema_enabled: true,
+      },
+      false,
+    );
+    agHelper.RefreshPage();
+    dataSources.CreateDataSource("S3", true, false);
+    dataSources.CreateQueryAfterDSSaved();
+    dataSources.VerifyTableSchemaOnQueryEditor("appsmith-hris");
+    dataSources.FilterAndVerifyDatasourceSchemaBySearch(
+      "appsmith-hris",
+      true,
+      "table",
+    );
+  });
 });
