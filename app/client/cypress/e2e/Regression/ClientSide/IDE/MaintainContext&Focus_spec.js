@@ -5,7 +5,7 @@ import {
   dataSources,
   entityExplorer,
   homePage,
-  locators
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
@@ -23,8 +23,7 @@ describe("MaintainContext&Focus", function () {
         cy.get("body").then(($ele) => {
           if ($ele.find(reconnectDatasourceModal.SkipToAppBtn))
             agHelper.GetNClick(reconnectDatasourceModal.SkipToAppBtn, 0, true);
-          else
-          agHelper.GetNClick(homePage._importSuccessModalGotit, 0, true);
+          else agHelper.GetNClick(homePage._importSuccessModalGotit, 0, true);
           agHelper.Sleep(2000);
         });
       } else {
