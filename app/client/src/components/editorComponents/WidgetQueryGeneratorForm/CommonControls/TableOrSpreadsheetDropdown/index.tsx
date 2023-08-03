@@ -24,11 +24,6 @@ function TableOrSpreadsheetDropdown(props: Props) {
     show,
   } = useTableOrSpreadsheet();
 
-  // TODO : Add onSave function
-  const onSave = (columns: any) => {
-    return columns;
-  };
-
   if (show) {
     return (
       <SelectWrapper className="space-y-2">
@@ -36,7 +31,7 @@ function TableOrSpreadsheetDropdown(props: Props) {
           <Tooltip content={labelText}>
             <Label>{label}</Label>
           </Tooltip>
-          {allowFieldConfig && <ColumnSelectorModal onSave={onSave} />}
+          {allowFieldConfig && <ColumnSelectorModal />}
         </LabelWrapper>
         <Select
           data-testid="t--one-click-binding-table-selector"

@@ -29,6 +29,7 @@ type WidgetQueryGeneratorFormContextType = {
     datasourcePluginType: string;
     datasourcePluginName: string;
     datasourceConnectionMode: string;
+    selectedColumnNames?: string[];
   };
   updateConfig: (
     property: string | Record<string, unknown>,

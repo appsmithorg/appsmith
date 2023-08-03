@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -15,8 +15,7 @@ import styled from "styled-components";
 import { uniqBy } from "lodash";
 import { klona } from "klona";
 import { useColumns } from "../WidgetSpecificControls/ColumnDropdown/useColumns";
-import { useDispatch } from "react-redux";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { WidgetQueryGeneratorFormContext } from "..";
 
 const StyledCheckbox = styled(Checkbox)`
   input {
@@ -48,30 +47,23 @@ const FlexWrapper = styled.div`
   gap: 4px;
 `;
 
-export function ColumnSelectorModal(props: any) {
-  const { onSave } = props;
+export function ColumnSelectorModal() {
   const { columns: data } = useColumns("");
-  const [isModalOpen, setIsModalOpen] = useState(!!props.isOpen);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [updatedData, setUpdatedData] = useState<any>([]);
 
-  const dispatch = useDispatch();
+  const { updateConfig } = useContext(WidgetQueryGeneratorFormContext);
 
   useEffect(() => {
     const clonedData = klona(data);
     setUpdatedData([...clonedData]);
   }, [data]);
 
-  useEffect(() => {
-    setIsOpen(!!props.isOpen);
-  }, [props.isOpen]);
-
   const setIsOpen = (isOpen: boolean) => {
     setIsModalOpen(isOpen);
-    props.onOpenOrClose && props.onOpenOrClose(isOpen);
   };
 
   const onOpenChange = (isOpen: boolean) => {
-    props?.onClose?.();
     setIsOpen(isOpen);
   };
 
@@ -89,12 +81,11 @@ export function ColumnSelectorModal(props: any) {
   };
 
   const handleSave = () => {
-    onSave(updatedData);
+    const selectedColumnNames = updatedData
+      .filter((col: any) => col.isSelected)
+      .map((col: any) => col.name);
+    updateConfig("selectedColumnNames", selectedColumnNames);
     setIsOpen(false);
-    dispatch({
-      type: ReduxActionTypes.SET_SELECTED_COLUMNS,
-      payload: updatedData,
-    });
   };
 
   const columns = [

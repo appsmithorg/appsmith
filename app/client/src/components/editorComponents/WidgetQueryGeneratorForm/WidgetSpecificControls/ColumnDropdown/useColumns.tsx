@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
+import React from "react";
 import type { AppState } from "@appsmith/reducers";
 import { Icon } from "design-system";
 import { PluginPackageName } from "entities/Action";
 import { get, isArray } from "lodash";
 import { ALLOWED_SEARCH_DATATYPE } from "pages/Editor/GeneratePage/components/constants";
 import { useCallback, useContext, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   getGsheetsColumns,
   getIsFetchingGsheetsColumns,
@@ -17,13 +17,9 @@ import {
 } from "selectors/entitiesSelector";
 import { WidgetQueryGeneratorFormContext } from "../..";
 import { DropdownOption as Option } from "../../CommonControls/DatasourceDropdown/DropdownOption";
-import {
-  getOneClickBindingSelectedColumns,
-  getisOneClickBindingConnectingForWidget,
-} from "selectors/oneClickBindingSelectors";
+import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getWidget } from "sagas/selectors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export function useColumns(alias: string) {
   const { config, propertyName, updateConfig, widgetId } = useContext(
@@ -34,21 +30,8 @@ export function useColumns(alias: string) {
 
   const isLoading = useSelector(getIsFetchingGsheetsColumns);
 
-  const allColumns = useSelector(
+  const columns = useSelector(
     getDatasourceTableColumns(config.datasource, config.table),
-  );
-
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch({
-      type: ReduxActionTypes.SET_SELECTED_COLUMNS,
-      payload: allColumns,
-    });
-  }, [allColumns]);
-
-  const columns = useSelector((state: AppState) =>
-    getOneClickBindingSelectedColumns(state),
   );
 
   const sheetColumns = useSelector(
@@ -135,24 +118,28 @@ export function useColumns(alias: string) {
       selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
       isArray(sheetColumns?.value)
     ) {
-      return sheetColumns.value.map((column: any) => {
+      const columns = sheetColumns.value.map((column: any) => {
         return {
           name: column.value,
           type: "string",
           isSelected: true,
         };
       });
+      return { columns, selectedColumnNames: config.selectedColumnNames };
     } else if (isArray(columns)) {
-      return columns.map((column: any) => {
+      const allColumns = columns.map((column: any) => {
         return {
           name: column.name,
           type: prepareColumns(column.type),
-          isSelected:
-            column?.isSelected === undefined ? true : column?.isSelected,
+          isSelected: column?.isSelected === undefined || column?.isSelected,
         };
       });
+      return {
+        columns: allColumns,
+        selectedColumnNames: config.selectedColumnNames,
+      };
     } else {
-      return [];
+      return { columns: [], selectedColumnNames: undefined };
     }
   }, [columns, sheetColumns, config, selectedDatasourcePluginPackageName]);
 
@@ -211,7 +198,8 @@ export function useColumns(alias: string) {
         !!config.sheet) &&
       !!config.table,
     primaryColumn,
-    columns: columnList,
+    columns: columnList.columns,
+    selectedColumnNames: columnList.selectedColumnNames,
     disabled: isConnecting,
     onClear,
   };
