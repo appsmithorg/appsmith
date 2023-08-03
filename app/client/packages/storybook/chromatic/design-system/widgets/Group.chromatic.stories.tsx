@@ -40,9 +40,6 @@ export const LightMode: Story = {
       </SwitchGroup>
     </StoryGrid>
   ),
-  parameters: {
-    colorMode: "dark",
-  },
 };
 
 export const DarkMode: Story = Object.assign({}, LightMode);
