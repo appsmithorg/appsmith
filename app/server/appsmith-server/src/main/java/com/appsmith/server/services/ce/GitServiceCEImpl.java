@@ -71,6 +71,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
+import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DuplicateKeyException;
@@ -1746,6 +1747,10 @@ public class GitServiceCEImpl implements GitServiceCE {
         return Mono.create(sink -> branchMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
+    private Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName, boolean isFileLock) {
+        return getStatus(defaultApplicationId, branchName, isFileLock, true);
+    }
+
     /**
      * Get the status of the mentioned branch
      *
@@ -1755,7 +1760,8 @@ public class GitServiceCEImpl implements GitServiceCE {
      *                             Only for the direct hits from the client the locking will be added
      * @return Map of json file names which are added, modified, conflicting, removed and the working tree if this is clean
      */
-    private Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName, boolean isFileLock) {
+    private Mono<GitStatusDTO> getStatus(
+            String defaultApplicationId, String branchName, boolean isFileLock, boolean compareRemote) {
 
         if (StringUtils.isEmptyOrNull(branchName)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
@@ -1790,18 +1796,23 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 GitAuth gitAuth = gitApplicationMetadata.getGitAuth();
 
                                 // Create a Mono to fetch the status from remote
-                                Mono<String> fetchRemoteMono = executionTimeLogging.measureTask(
-                                        "getStatus->gitExecutor.fetchRemote",
-                                        gitExecutor
-                                                .fetchRemote(
-                                                        repoSuffix,
-                                                        gitAuth.getPublicKey(),
-                                                        gitAuth.getPrivateKey(),
-                                                        false,
-                                                        branchName,
-                                                        false)
-                                                .onErrorResume(error -> Mono.error(new AppsmithException(
-                                                        AppsmithError.GIT_GENERIC_ERROR, error.getMessage()))));
+                                Mono<String> fetchRemoteMono;
+                                if (compareRemote) {
+                                    fetchRemoteMono = executionTimeLogging.measureTask(
+                                            "getStatus->gitExecutor.fetchRemote",
+                                            gitExecutor
+                                                    .fetchRemote(
+                                                            repoSuffix,
+                                                            gitAuth.getPublicKey(),
+                                                            gitAuth.getPrivateKey(),
+                                                            false,
+                                                            branchName,
+                                                            false)
+                                                    .onErrorResume(error -> Mono.error(new AppsmithException(
+                                                            AppsmithError.GIT_GENERIC_ERROR, error.getMessage()))));
+                                } else {
+                                    fetchRemoteMono = Mono.just("ignored");
+                                }
 
                                 Mono<ApplicationJson> exportAppMono = executionTimeLogging.measureTask(
                                         "getStatus->exportApplicationById",
@@ -1873,6 +1884,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 })
                                 .onErrorResume(error -> Mono.error(new AppsmithException(
                                         AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage())));
+
                     } catch (GitAPIException | IOException e) {
                         log.error("error occurred", e);
                         return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, e.getMessage()));
@@ -1890,8 +1902,96 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     @Override
-    public Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName) {
-        return getStatus(defaultApplicationId, branchName, true);
+    public Mono<GitStatusDTO> getStatus(String defaultApplicationId, boolean compareRemote, String branchName) {
+        return getStatus(defaultApplicationId, branchName, true, compareRemote);
+    }
+
+    /**
+     * This method is responsible to compare the current branch with the remote branch.
+     * Comparing means finding two numbers - how many commits ahead and behind the local branch is.
+     * It'll do the following things -
+     * 1. Checkout (if required) to the branch to make sure we are comparing the right branch
+     * 2. Run a git fetch command to fetch the latest changes from the remote
+     *
+     * @param defaultApplicationId Default application id
+     * @param branchName name of the branch to compare with remote
+     * @param isFileLock whether to add file lock or not
+     * @return Mono of {@link BranchTrackingStatus}
+     */
+    @Override
+    public Mono<BranchTrackingStatus> fetchRemoteChanges(
+            String defaultApplicationId, String branchName, boolean isFileLock) {
+        if (StringUtils.isEmptyOrNull(branchName)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
+        }
+        final String finalBranchName = branchName.replaceFirst("origin/", "");
+
+        Mono<BranchTrackingStatus> statusMono = getGitApplicationMetadata(defaultApplicationId)
+                .flatMap(gitApplicationMetadata -> {
+                    Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId(
+                            finalBranchName, defaultApplicationId, applicationPermission.getEditPermission());
+
+                    if (Boolean.TRUE.equals(isFileLock)) {
+                        // Add file lock to avoid sending wrong info on the status
+                        return redisUtils
+                                .addFileLock(gitApplicationMetadata.getDefaultApplicationId())
+                                .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY)
+                                        .jitter(0.75)
+                                        .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                                            throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
+                                        }))
+                                .then(Mono.zip(Mono.just(gitApplicationMetadata), applicationMono));
+                    }
+                    return Mono.zip(Mono.just(gitApplicationMetadata), applicationMono);
+                })
+                .flatMap(tuple -> {
+                    GitApplicationMetadata defaultApplicationMetadata = tuple.getT1();
+                    Application application = tuple.getT2();
+                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    gitData.setGitAuth(defaultApplicationMetadata.getGitAuth());
+                    Path repoSuffix = Paths.get(
+                            application.getWorkspaceId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
+                    Path repoPath = gitExecutor.createRepoPath(repoSuffix);
+
+                    Mono<Boolean> checkoutBranchMono = gitExecutor.checkoutToBranch(repoSuffix, finalBranchName);
+                    Mono<String> fetchRemoteMono = gitExecutor.fetchRemote(
+                            repoPath,
+                            gitData.getGitAuth().getPublicKey(),
+                            gitData.getGitAuth().getPrivateKey(),
+                            true,
+                            finalBranchName,
+                            false);
+                    Mono<BranchTrackingStatus> branchedStatusMono =
+                            gitExecutor.getBranchTrackingStatus(repoPath, finalBranchName);
+
+                    return checkoutBranchMono
+                            .then(fetchRemoteMono)
+                            .then(branchedStatusMono)
+                            .flatMap(branchTrackingStatus -> {
+                                if (Boolean.TRUE.equals(isFileLock)) {
+                                    return releaseFileLock(defaultApplicationId).thenReturn(branchTrackingStatus);
+                                }
+                                return Mono.just(branchTrackingStatus);
+                            })
+                            .onErrorResume(error -> {
+                                if (Boolean.TRUE.equals(isFileLock)) {
+                                    return releaseFileLock(defaultApplicationId)
+                                            .then(Mono.error(new AppsmithException(
+                                                    AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage())));
+                                }
+                                return Mono.error(new AppsmithException(
+                                        AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage()));
+                            });
+                });
+
+        return Mono.create(sink -> {
+            statusMono
+                    .map(t -> {
+                        log.debug("Time take, {}\n", executionTimeLogging.print());
+                        return t;
+                    })
+                    .subscribe(sink::success, sink::error, null, sink.currentContext());
+        });
     }
 
     @Override

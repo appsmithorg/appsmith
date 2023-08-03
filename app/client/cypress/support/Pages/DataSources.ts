@@ -209,8 +209,8 @@ export class DataSources {
   private _grantType = "[data-testid='authentication.grantType']";
   private _authorizationURL =
     "[data-testid='authentication.authorizationUrl'] input";
-  private _consent = '[name="confirm"]';
-  private _consentSubmit = "//button[text()='Submit']";
+  _consent = '[name="confirm"]';
+  _consentSubmit = "//button[text()='Submit']";
   public _datasourceModalSave = ".t--datasource-modal-save";
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
   public _cancelEditDatasourceButton = ".t--cancel-edit-datasource";
