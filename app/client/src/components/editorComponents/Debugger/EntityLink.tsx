@@ -37,7 +37,13 @@ function ActionLink(props: EntityLinkProps) {
         entityType: actionType,
       });
     }
-  }, [action]);
+  }, [
+    action,
+    props.propertyPath,
+    props.errorType,
+    props.errorSubType,
+    props.appsmithErrorCode,
+  ]);
 
   return (
     <DebuggerEntityLink

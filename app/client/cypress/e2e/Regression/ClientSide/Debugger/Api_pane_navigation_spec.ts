@@ -1,7 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
 
-describe("Api pane navigation", () => {
+describe("excludeForAirgap", "Api pane navigation", () => {
   it("Navigation to Grapql pagination field", () => {
     _.apiPage.CreateGraphqlApi("Api1");
     _.apiPage.SelectPaneTab("Pagination");
