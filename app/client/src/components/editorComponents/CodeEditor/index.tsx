@@ -62,7 +62,6 @@ import {
   IconContainer,
   PEEK_STYLE_PERSIST_CLASS,
 } from "components/editorComponents/CodeEditor/styledComponents";
-import { bindingMarker } from "components/editorComponents/CodeEditor/MarkHelpers/bindingMarker";
 import {
   entityMarker,
   NAVIGATE_TO_ATTRIBUTE,
@@ -274,7 +273,7 @@ const getEditorIdentifier = (props: EditorProps): string => {
 
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
-    marking: [bindingMarker, entityMarker],
+    marking: [entityMarker],
     hinting: [bindingHint, commandsHelper, sqlHint.hinter],
     lineCommentString: "//",
   };

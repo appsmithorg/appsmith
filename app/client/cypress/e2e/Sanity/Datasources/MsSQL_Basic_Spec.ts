@@ -134,7 +134,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     dataSources.CreateQueryFromOverlay(dsName, query, "selectSimpsons"); //Creating query from EE overlay
     dataSources.RunQueryNVerifyResponseViews(10); //Could be 99 in CI, to check aft init load script is working
 
-    dataSources.AddSuggesstedWidget(Widgets.Table);
+    dataSources.AddSuggestedWidget(Widgets.Table);
     agHelper.GetNClick(propPane._deleteWidget);
 
     entityExplorer.SelectEntityByName("selectSimpsons", "Queries/JS");
@@ -241,12 +241,8 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
   });
 
   after("Verify Deletion of the datasource", () => {
-    entityExplorer.SelectEntityByName(dsName, "Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Delete",
-      entityType: entityItems.Datasource,
-    });
+    cy.intercept("DELETE", "/api/v1/datasources/*").as("deleteDatasource"); //Since intercept from before is not working
+    dataSources.DeleteDatasouceFromWinthinDS(dsName);
     //dataSources.StopNDeleteContainer(containerName); //commenting to check if MsSQL specific container deletion is causing issues
   });
 

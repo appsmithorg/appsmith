@@ -1,6 +1,11 @@
 import type { ChartComponentProps } from ".";
 import type { AllChartData } from "../constants";
-import { LabelOrientation, type ChartData, XAxisCategory } from "../constants";
+import {
+  LabelOrientation,
+  type ChartData,
+  XAxisCategory,
+  messages,
+} from "../constants";
 
 import { Colors } from "constants/Colors";
 
@@ -8,16 +13,21 @@ export class EChartsConfigurationBuilder {
   fontFamily: string | undefined;
 
   #seriesConfigurationForPieChart(seriesID: string, seriesData: ChartData) {
+    let seriesName = messages.Undefined;
+    if (seriesData.seriesName && seriesData.seriesName.length > 0) {
+      seriesName = seriesData.seriesName;
+    }
+
     const config = {
       type: "pie",
       radius: "40%",
       center: ["50%", "55%"],
-      name: seriesData.seriesName ?? "null",
+      name: seriesName,
       label: {
         show: true,
         fontFamily: this.fontFamily,
         color: Colors.DOVE_GRAY2,
-        formatter: `{b}: {@${seriesData.seriesName}} ({d}%)`,
+        formatter: `{b} : {d}%`,
       },
       encode: {
         itemName: XAxisCategory,
@@ -47,9 +57,14 @@ export class EChartsConfigurationBuilder {
         color = props.primaryColor;
       }
 
+      let seriesName = messages.Undefined;
+      if (seriesData.seriesName && seriesData.seriesName.length > 0) {
+        seriesName = seriesData.seriesName;
+      }
+
       let config: Record<string, unknown> = {
         label: { show: true, position: "top" },
-        name: seriesData.seriesName ?? "",
+        name: seriesName,
         itemStyle: { color: color },
       };
 

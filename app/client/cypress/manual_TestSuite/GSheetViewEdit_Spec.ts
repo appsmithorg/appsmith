@@ -5,7 +5,7 @@ import {
   entityExplorer,
   homePage,
   table,
-} from "../../support/Objects/ObjectsCore";
+} from "../support/Objects/ObjectsCore";
 
 describe.skip("Authorized GSheet - in Edit & view mode", function () {
   it("Open already created GSheet in View mode, navigate back to Edit mode, Validate dropdown values", () => {

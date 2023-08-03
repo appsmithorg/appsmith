@@ -50,7 +50,7 @@ describe("GSheet-widget binding", function () {
     dataSources.RunQueryNVerifyResponseViews(10);
 
     // Adding suggested widgets and verify
-    dataSources.AddSuggesstedWidget(Widgets.Table);
+    dataSources.AddSuggestedWidget(Widgets.Table);
     table.ReadTableRowColumnData(0, 0, "v2").then((cellData) => {
       expect(cellData).to.eq("eac7efa5dbd3d667f26eb3d3ab504464");
     });

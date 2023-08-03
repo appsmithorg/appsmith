@@ -5,12 +5,14 @@ import {
   jsEditor,
   propPane,
   apiPage,
-} from "../../../../../support/Objects/ObjectsCore";
+  draggableWidgets,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("UI to Code", () => {
   before(() => {
-    agHelper.AddDsl("buttondsl");
-    apiPage.CreateApi("Api1", "GET");
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
+    entityExplorer.NavigateToSwitcher("Explorer");
+    apiPage.CreateApi();
     apiPage.CreateApi("Api2", "POST");
   });
 
@@ -364,18 +366,18 @@ describe("UI to Code", () => {
 
     // Edit the success callback of the nested Api2.run
     propPane.SelectActionByTitleAndValue("Execute a query", "Api2.run");
-    cy.get(
-      jsEditor._lineinPropertyPaneJsEditor(
-        2,
-        propPane._actionSelectorFieldContentByLabel("Params"),
-      ),
-    ).type("val: 1");
+    agHelper.EnterActionValue(
+      "Params",
+      `{{{
+        val: 1
+      }}}`,
+    );
 
     agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
     propPane.ValidateJSFieldValue(
       "onClick",
-      `{{Api1.run().then(() => {  Api2.run({    val: 1    // "key": "value",  }).then(() => {    showAlert("Hello");  }).catch(() => {    showAlert("World");  });});}}`,
+      `{{Api1.run().then(() => {  Api2.run({    val: 1  }).then(() => {    showAlert("Hello");  }).catch(() => {    showAlert("World");  });});}}`,
     );
   });
 
@@ -405,13 +407,13 @@ describe("UI to Code", () => {
 
   it("9. correctly configures a setInterval action", () => {
     propPane.SelectPlatformFunction("onClick", "Set interval");
-
-    cy.get(
-      jsEditor._lineinPropertyPaneJsEditor(
-        2,
-        propPane._actionSelectorFieldContentByLabel("Callback function"),
-      ),
-    ).type("{enter}showAlert('Hello'){enter}//");
+    agHelper.EnterActionValue(
+      "Callback function",
+      `{{() => {
+        // add code here
+        showAlert('Hello')
+      }}}`,
+    );
 
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Id"),
@@ -421,7 +423,7 @@ describe("UI to Code", () => {
 
     propPane.ValidateJSFieldValue(
       "onClick",
-      `{{setInterval(() => {  // add c  showAlert(\'Hello\');  // ode here}, 5000, \'interval-id\');}}`,
+      `{{setInterval(() => {  // add code here  showAlert('Hello');}, 5000, 'interval-id');}}`,
     );
   });
 });
