@@ -7,7 +7,10 @@ import type {
 import FlexLayout from "./FlexLayout";
 import "../styles.css";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import { LayoutDirection } from "utils/autoLayout/constants";
+import {
+  FlexLayerAlignment,
+  LayoutDirection,
+} from "utils/autoLayout/constants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsReducer";
 import {
@@ -84,10 +87,28 @@ AlignedRow.deriveHighlights = (data: {
 AlignedRow.addChild = (
   props: LayoutComponentProps,
   children: string[] | LayoutComponentProps[],
-  index: number,
-): string[] | LayoutComponentProps[] => {
-  const layout: any = props.layout;
-  return [...layout.slice(0, index), ...children, ...layout.slice(index)];
+  highlight: HighlightInfo,
+): LayoutComponentProps => {
+  const layout: string[][] = props.layout as string[][];
+  const { alignment, rowIndex: index } = highlight;
+  const map: { [key: string]: number } = {
+    [FlexLayerAlignment.Start]: 0,
+    [FlexLayerAlignment.Center]: 1,
+    [FlexLayerAlignment.End]: 2,
+  };
+  const alignmentIndex = map[alignment];
+  const alignmentRow = layout[alignmentIndex];
+  const updatedAlignmentRow = [
+    ...alignmentRow.slice(0, index),
+    ...children,
+    ...alignmentRow.slice(index),
+  ];
+  const updatedLayout = [
+    ...layout.slice(0, index),
+    ...updatedAlignmentRow,
+    ...layout.slice(index),
+  ];
+  return { ...props, layout: updatedLayout } as LayoutComponentProps;
 };
 
 AlignedRow.removeChild = (

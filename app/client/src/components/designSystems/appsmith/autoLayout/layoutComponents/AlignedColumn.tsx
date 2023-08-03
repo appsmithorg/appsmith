@@ -15,7 +15,7 @@ import { LayoutDirection } from "utils/autoLayout/constants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsReducer";
 
-const Column = (props: LayoutComponentProps) => {
+const AlignedColumn = (props: LayoutComponentProps) => {
   const {
     childrenMap,
     isDropTarget,
@@ -69,16 +69,16 @@ const Column = (props: LayoutComponentProps) => {
   );
 };
 
-Column.deriveHighlights = (data: {
+AlignedColumn.deriveHighlights = (data: {
   layoutProps: LayoutComponentProps;
   widgets: CanvasWidgetsReduxState;
   widgetPositions: WidgetPositions;
   parentLayout?: string;
 }): HighlightInfo[] => {
-  return generateHighlightsForColumn(data);
+  return generateHighlightsForColumn({ ...data, isAligned: true });
 };
 
-Column.addChild = (
+AlignedColumn.addChild = (
   props: LayoutComponentProps,
   children: string[] | LayoutComponentProps[],
   highlight: HighlightInfo,
@@ -91,7 +91,7 @@ Column.addChild = (
   };
 };
 
-Column.removeChild = (
+AlignedColumn.removeChild = (
   props: LayoutComponentProps,
   index: number,
 ): LayoutComponentProps => {
@@ -102,7 +102,7 @@ Column.removeChild = (
   };
 };
 
-Column.getHeight = (
+AlignedColumn.getHeight = (
   layoutProps: LayoutComponentProps,
   widgetPositions: WidgetPositions,
 ): number => {
@@ -144,4 +144,4 @@ Column.getHeight = (
   }
 };
 
-export default Column;
+export default AlignedColumn;

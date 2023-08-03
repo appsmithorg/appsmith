@@ -379,23 +379,37 @@ export const CONFIG = {
                     layoutType: "ROW", // MAIN
                     layout: [
                       {
+                        childTemplate: {
+                          canBeDeleted: true,
+                          insertChild: true,
+                          layoutId: "",
+                          layoutType: "ALIGNED_ROW",
+                          layoutStyle: {
+                            alignSelf: "stretch",
+                            columnGap: 4,
+                            rowGap: 12,
+                          },
+                          layout: [[], [], []],
+                          rendersWidgets: true,
+                        },
+                        isDropTarget: true,
                         layoutId: generateReactKey(),
                         layoutStyle: {
                           minWidth: "220px",
+                          minHeight: 40,
                           rowGap: 12,
                           flexGrow: 3,
                           border: "1px dashed #979797",
                         },
-                        layoutType: "COLUMN",
-                        isDropTarget: true,
+                        layoutType: "ALIGNED_COLUMN",
                         layout: [
                           {
+                            canBeDeleted: true,
                             layoutId: generateReactKey(),
                             layoutStyle: {
                               alignSelf: "stretch",
                               columnGap: 4,
                               rowGap: 12,
-                              border: "1px dashed #979797",
                             },
                             layoutType: "ALIGNED_ROW",
                             layout: [

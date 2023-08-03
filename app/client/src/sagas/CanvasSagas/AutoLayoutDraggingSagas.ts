@@ -117,8 +117,6 @@ function* addWidgetAndReorderSaga(
       parentId,
     );
 
-    console.log("#### drop", { dropPayload, widgetsAfterLayoutUpdation });
-
     yield put(updateAndSaveLayout(widgetsAfterLayoutUpdation));
     log.debug(
       "Auto-layout : add new widget took",
@@ -145,27 +143,26 @@ function addToLayout(
   const canvas = widgets[parentId];
   const parentLayout: LayoutComponentProps[] = canvas.layout;
   if (!parentLayout) return widgets;
-  const { layoutId, rowIndex } = highlight;
+  const { layoutId } = highlight;
   const layout: LayoutComponentProps | null = getLayoutFromId(
     parentLayout,
     layoutId,
   );
   if (!layout) return widgets;
   const Comp = getLayoutComponent(layout.layoutType);
-  console.log("#### template", { template: layout.childTemplate });
   let newWidgets: string[] | LayoutComponentProps[] = movedWidgets;
   if (highlight.isNewLayer && layout.childTemplate) {
     const childLayout: LayoutComponentProps = addWidgetToTemplate(
       layout.childTemplate,
       movedWidgets,
+      highlight.alignment,
     );
-    console.log("#### child layout", childLayout);
     newWidgets = [childLayout];
   }
   const updatedLayout: LayoutComponentProps = Comp.addChild(
     layout,
     newWidgets,
-    rowIndex,
+    highlight,
   );
   return {
     ...widgets,

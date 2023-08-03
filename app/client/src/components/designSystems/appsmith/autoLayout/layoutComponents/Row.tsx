@@ -89,9 +89,10 @@ Row.deriveHighlights = (data: {
 Row.addChild = (
   props: LayoutComponentProps,
   children: string[] | LayoutComponentProps[],
-  index: number,
+  highlight: HighlightInfo,
 ): LayoutComponentProps => {
   const layout: any = props.layout;
+  const { rowIndex: index } = highlight;
   return {
     ...props,
     layout: [...layout.slice(0, index), ...children, ...layout.slice(index)],

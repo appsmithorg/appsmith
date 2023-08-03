@@ -184,7 +184,7 @@ export const getLayerInformation = (widgetId: string) =>
         return leftColumn > centerColumn ? "end" : "start";
       })();
       const GapBetweenWidgets = 4;
-      const layerWidthInPixelsWithoutCurrWidget = layer.children.reduce(
+      const layerWidthInPixelsWithoutCurrWidget = layer?.children?.reduce(
         (
           width: number,
           eachWidget: {

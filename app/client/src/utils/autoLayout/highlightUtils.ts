@@ -28,6 +28,7 @@ import { getLayoutFromId } from "./layoutComponentUtils";
 import Row from "components/designSystems/appsmith/autoLayout/layoutComponents/Row";
 import Column from "components/designSystems/appsmith/autoLayout/layoutComponents/Column";
 import AlignedRow from "components/designSystems/appsmith/autoLayout/layoutComponents/AlignedRow";
+import AlignedColumn from "components/designSystems/appsmith/autoLayout/layoutComponents/AlignedColumn";
 
 function getWrappedAlignmentInfo(
   arr: AlignmentInfo[],
@@ -766,6 +767,17 @@ export function getHighlightsForLayoutType(data: {
     case "ALIGNED_ROW": {
       highlights.push(
         ...AlignedRow.deriveHighlights({
+          layoutProps: layout,
+          widgets,
+          widgetPositions,
+          parentLayout: layoutId,
+        }),
+      );
+      break;
+    }
+    case "ALIGNED_COLUMN": {
+      highlights.push(
+        ...AlignedColumn.deriveHighlights({
           layoutProps: layout,
           widgets,
           widgetPositions,

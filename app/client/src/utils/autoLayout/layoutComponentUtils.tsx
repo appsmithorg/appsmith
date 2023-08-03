@@ -9,9 +9,11 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsReducer";
 import { FlexLayerAlignment } from "./constants";
 import { generateReactKey } from "utils/generators";
+import AlignedColumn from "components/designSystems/appsmith/autoLayout/layoutComponents/AlignedColumn";
 
 export function getLayoutComponent(type: string): any {
   const map: { [id: string]: any } = {
+    ALIGNED_COLUMN: AlignedColumn,
     ALIGNED_ROW: AlignedRow,
     COLUMN: Column,
     ROW: Row,
@@ -118,8 +120,10 @@ export function generateHighlightsForColumn(data: {
   widgets: CanvasWidgetsReduxState;
   widgetPositions: WidgetPositions;
   parentLayout?: string;
+  isAligned?: boolean;
 }): HighlightInfo[] {
-  const { layoutProps, parentLayout, widgetPositions, widgets } = data;
+  const { isAligned, layoutProps, parentLayout, widgetPositions, widgets } =
+    data;
   const { isDropTarget, layout, layoutId, layoutStyle, rendersWidgets } =
     layoutProps;
   const base = {
@@ -136,67 +140,88 @@ export function generateHighlightsForColumn(data: {
   const padding = parseInt(layoutStyle?.padding?.toString() || "0");
   const offsetTop = isDropTarget ? padding : layoutPositions.top; // TODO: Account for padding here.
   const offsetLeft = 2;
+  // TODO: abstract this method into a simpler re-usable implementation.
   if (rendersWidgets) {
     const highlights: HighlightInfo[] = [];
     if (!layout?.length)
-      return [
-        {
+      return generateHorizontalHighlights({
+        highlight: {
           ...base,
           index: 0,
           rowIndex: 0,
-          posX: 2, // TODO: remove hard coding.
+          posX: offsetLeft, // TODO: remove hard coding.
           posY: offsetTop,
           width: (layoutPositions.width || 0) - 4,
           height: 4,
+          dropZone: {
+            top: 10000,
+            bottom: 10000,
+          },
         },
-      ];
+        layoutWidth: (layoutPositions.width || 0) - 4,
+        isAligned,
+      });
     let index = 0;
+    let lastChildHeight = -1;
     for (const id of layout as string[]) {
       const widget = widgets[id];
       if (!widget) continue;
-      const { top } = widgetPositions[id];
-      highlights.push({
-        ...base,
-        index,
-        rowIndex: index,
-        posX: offsetLeft,
-        posY: Math.max(top - layoutPositions.top, 2),
-        width: (layoutPositions?.width || 0) - 4,
-        height: 4,
-      });
+      const { height, top } = widgetPositions[id];
+      highlights.push(
+        ...generateHorizontalHighlights({
+          highlight: {
+            ...base,
+            index,
+            rowIndex: index,
+            posX: offsetLeft,
+            posY: Math.max(top - layoutPositions.top, 2),
+            width: (layoutPositions?.width || 0) - 4,
+            height: 4,
+            dropZone: {
+              top: lastChildHeight === -1 ? 10000 : lastChildHeight / 2,
+              bottom: height / 2,
+            },
+          },
+          layoutWidth: (layoutPositions.width || 0) - 4,
+          isAligned,
+        }),
+      );
       index += 1;
+      lastChildHeight = height;
     }
     // Add a final highlight after the last widget.
     const { height, top } =
       widgetPositions[(layout as string[])[layout.length - 1]];
-    highlights.push({
-      ...base,
-      index: layout.length,
-      rowIndex: layout.length,
-      posX: offsetLeft,
-      posY: top + height - layoutPositions.top,
-      width: (layoutPositions?.width || 0) - 4,
-      height: 4,
-    });
-    return updateHorizontalDropZone(highlights);
+    highlights.push(
+      ...generateHorizontalHighlights({
+        highlight: {
+          ...base,
+          index: layout.length,
+          rowIndex: layout.length,
+          posX: offsetLeft,
+          posY: top + height - layoutPositions.top,
+          width: (layoutPositions?.width || 0) - 4,
+          height: 4,
+          dropZone: {
+            top: height / 2,
+            bottom: 10000,
+          },
+        },
+        layoutWidth: (layoutPositions.width || 0) - 4,
+        isAligned,
+      }),
+    );
+    return highlights;
   } else {
     const highlights: HighlightInfo[] = [];
     let index = 0;
     const rowGap = 12;
     let posY = offsetTop;
+    let lastChildHeight = -1;
     for (const each of layout as LayoutComponentProps[]) {
       if (each.isDropTarget) continue;
       const layoutComp = getLayoutComponent(each.layoutType);
       if (!layoutComp) continue;
-      highlights.push({
-        ...base,
-        index: index,
-        rowIndex: index,
-        posX: offsetLeft,
-        posY: posY,
-        width: (layoutPositions?.width || 0) - 4,
-        height: 4,
-      });
       const arr = layoutComp.deriveHighlights({
         layoutProps: each,
         widgets,
@@ -205,60 +230,107 @@ export function generateHighlightsForColumn(data: {
         canvasWidth: layoutPositions.width,
         parentLayout,
       });
-      posY += rowGap + layoutComp.getHeight(each, widgetPositions);
+      const childHeight = layoutComp.getHeight(each, widgetPositions);
+      highlights.push(
+        ...generateHorizontalHighlights({
+          highlight: {
+            ...base,
+            index: index,
+            rowIndex: index,
+            posX: offsetLeft,
+            posY: posY,
+            width: (layoutPositions?.width || 0) - 4,
+            height: 4,
+            dropZone: {
+              top: lastChildHeight === -1 ? 10000 : lastChildHeight / 2,
+              bottom: childHeight / 2,
+            },
+          },
+          layoutWidth: (layoutPositions.width || 0) - 4,
+          isAligned,
+        }),
+      );
       highlights.push(...arr);
+      posY += rowGap + childHeight;
       index += 1;
+      lastChildHeight = childHeight;
     }
-    highlights.push({
-      ...base,
-      index: index,
-      rowIndex: index,
-      posX: offsetLeft,
-      posY: Math.min(posY, offsetTop + layoutPositions.height - 4 - padding),
-      width: (layoutPositions?.width || 0) - 4,
-      height: 4,
-    });
-    return updateHorizontalDropZone(highlights);
+    highlights.push(
+      ...generateHorizontalHighlights({
+        highlight: {
+          ...base,
+          index: index,
+          rowIndex: index,
+          posX: offsetLeft,
+          posY: Math.min(
+            posY,
+            offsetTop + layoutPositions.height - 4 - padding,
+          ),
+          width: (layoutPositions?.width || 0) - 4,
+          height: 4,
+          dropZone: {
+            top: lastChildHeight === -1 ? 10000 : lastChildHeight / 2,
+            bottom: 10000,
+          },
+        },
+        layoutWidth: (layoutPositions.width || 0) - 4,
+        isAligned,
+      }),
+    );
+    return highlights;
   }
 }
 
-// TODO: handle case of aligned horizontal highlights.
-export function updateHorizontalDropZone(
-  highlights: HighlightInfo[],
-): HighlightInfo[] {
-  const arr: { index: number; highlight: HighlightInfo }[] = [];
-  highlights.forEach((each: HighlightInfo, index: number) => {
-    if (!each.isVertical) {
-      arr.push({ index, highlight: each });
-    }
-  });
-  arr.forEach((each, index: number) => {
-    const curr: HighlightInfo = each.highlight;
-    const prev: HighlightInfo | undefined = arr[index - 1]?.highlight;
-    const next: HighlightInfo | undefined = arr[index + 1]?.highlight;
-    const dropZone = {
-      top: prev ? (curr.posY - prev.posY) / 2 : curr.posY,
-      bottom: next ? (next.posY - curr.posY) / 2 : 10000,
-    };
-    highlights[each.index] = {
-      ...highlights[each.index],
-      dropZone,
-    };
-  });
-  return highlights;
+function generateHorizontalHighlights(data: {
+  highlight: HighlightInfo;
+  layoutWidth: number;
+  isAligned?: boolean;
+}): HighlightInfo[] {
+  const { highlight, isAligned, layoutWidth } = data;
+  if (!isAligned) return [highlight];
+  const width = (layoutWidth - 4) / 3;
+  return [
+    { ...highlight, alignment: FlexLayerAlignment.Start, width },
+    {
+      ...highlight,
+      alignment: FlexLayerAlignment.Center,
+      posX: highlight.posX + width,
+      width,
+    },
+    {
+      ...highlight,
+      alignment: FlexLayerAlignment.End,
+      posX: highlight.posX + 2 * width,
+      width,
+    },
+  ];
 }
 
 export function addWidgetToTemplate(
   template: LayoutComponentProps,
   children: string[] | LayoutComponentProps[],
+  alignment: FlexLayerAlignment = FlexLayerAlignment.Start,
 ): LayoutComponentProps {
-  const obj: LayoutComponentProps = {
+  let obj: LayoutComponentProps = {
     ...template,
-    layout: [],
     layoutId: generateReactKey(),
   };
-  if (template.insertChild) obj.layout = children;
-  else if (template.layout?.length) {
+  if (template.insertChild) {
+    if (!obj.layout.length)
+      obj = {
+        ...obj,
+        layout: [...obj.layout, ...children],
+      } as LayoutComponentProps;
+    else {
+      const index = getAlignmentIndex(alignment);
+      const layout = [...(obj.layout as string[][])];
+      layout[index] = [...layout[index], ...(children as string[])];
+      obj = {
+        ...obj,
+        layout,
+      } as LayoutComponentProps;
+    }
+  } else if (template.layout?.length) {
     obj.layout = (template.layout as LayoutComponentProps[]).map((each) =>
       addWidgetToTemplate(each, children),
     );
@@ -315,4 +387,13 @@ export function deleteWidgetFromLayout(
       ),
     },
   };
+}
+
+export function getAlignmentIndex(alignment: FlexLayerAlignment): number {
+  const map: { [key: string]: number } = {
+    [FlexLayerAlignment.Start]: 0,
+    [FlexLayerAlignment.Center]: 1,
+    [FlexLayerAlignment.End]: 2,
+  };
+  return map[alignment];
 }

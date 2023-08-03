@@ -34,7 +34,7 @@ export function getVerticalHighlights(data: {
     widgetPositions,
     widgets,
   } = data;
-  console.log("####", { data });
+
   const highlights: HighlightInfo[] = [];
   if (!layoutProps) return highlights;
   const { isDropTarget, layout, layoutId, layoutStyle, rendersWidgets } =
@@ -65,7 +65,7 @@ export function getVerticalHighlights(data: {
         parseInt(layoutStyle?.height?.toString() || "0"),
         parseInt(layoutStyle?.minHeight?.toString() || "0"),
       );
-  console.log("####", { parentLeft, layoutWidth, layoutHeight });
+
   /**
    * If layout is empty, return a starting highlight.
    * - If the layout is empty and it exists, it must have a specified height / minHeight.
@@ -79,7 +79,7 @@ export function getVerticalHighlights(data: {
         startPoint !== undefined
           ? startPoint
           : getEmptyRowStartPositions(alignment, layoutWidth),
-      posY: 2,
+      posY: offsetTop,
       rowIndex: 0,
     });
     return avoidDropZone
@@ -132,15 +132,6 @@ export function getVerticalHighlights(data: {
         posY: arrPosY[wrappedRowIndex],
         rowIndex: index,
       });
-      console.log("####", {
-        left,
-        parentLeft,
-        minPosX,
-        posX: left - parentLeft,
-        arrPosY,
-        offsetTop,
-        maxHeight,
-      });
     });
 
     const lastWidget =
@@ -154,7 +145,6 @@ export function getVerticalHighlights(data: {
       posY: arrPosY[wrappedRowIndex],
       rowIndex: highlights.length,
     });
-    console.log("####", { highlights });
   } else {
     // TODO: add highlights here.
     for (const each of layout as LayoutComponentProps[]) {
@@ -170,7 +160,6 @@ export function getVerticalHighlights(data: {
       );
     }
   }
-  console.log("!!!!", { highlights });
   return avoidDropZone
     ? highlights
     : updateVerticalDropZoneAndHeight(highlights, layoutWidth);
@@ -289,7 +278,6 @@ export function getVerticalHighlightsForAlignedRow(data: {
       }
     }
   }
-  console.log("!!!!", { highlights });
   return updateVerticalDropZoneAndHeight(highlights, layoutWidth);
 }
 
@@ -328,7 +316,7 @@ function getEmptyRowStartPositions(
   const map: { [key: string]: (width: number) => number } = {
     [FlexLayerAlignment.Start]: () => DEFAULT_HIGHLIGHT_SIZE / 2,
     [FlexLayerAlignment.Center]: (width) => width / 2,
-    [FlexLayerAlignment.End]: (width) => width - DEFAULT_HIGHLIGHT_SIZE,
+    [FlexLayerAlignment.End]: (width) => width - DEFAULT_HIGHLIGHT_SIZE - 2,
   };
   return map[alignment](width);
 }
