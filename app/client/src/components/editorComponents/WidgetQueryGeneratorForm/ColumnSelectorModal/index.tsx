@@ -15,6 +15,8 @@ import styled from "styled-components";
 import { uniqBy } from "lodash";
 import { klona } from "klona";
 import { useColumns } from "../WidgetSpecificControls/ColumnDropdown/useColumns";
+import { useDispatch } from "react-redux";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 const StyledCheckbox = styled(Checkbox)`
   input {
@@ -52,6 +54,8 @@ export function ColumnSelectorModal(props: any) {
   const [isModalOpen, setIsModalOpen] = useState(!!props.isOpen);
   const [updatedData, setUpdatedData] = useState<any>([]);
 
+  const dispatch = useDispatch();
+
   useEffect(() => {
     const clonedData = klona(data);
     setUpdatedData([...clonedData]);
@@ -87,6 +91,10 @@ export function ColumnSelectorModal(props: any) {
   const handleSave = () => {
     onSave(updatedData);
     setIsOpen(false);
+    dispatch({
+      type: ReduxActionTypes.SET_SELECTED_COLUMNS,
+      payload: updatedData,
+    });
   };
 
   const columns = [

@@ -7,12 +7,14 @@ const initialState: OneClickBindingState = {
   isConnecting: false,
   config: null,
   showOptions: false,
+  selectedColumns: [],
 };
 
 export interface OneClickBindingState {
   isConnecting: boolean;
   config: WidgetQueryGenerationFormConfig | null;
   showOptions: boolean;
+  selectedColumns: string[];
 }
 
 const oneClickBindingReducer = createReducer(initialState, {
@@ -33,6 +35,7 @@ const oneClickBindingReducer = createReducer(initialState, {
       ...state,
       isConnecting: false,
       config: null,
+      selectedColumns: [],
     };
   },
   [ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE_ERROR]: (
@@ -42,6 +45,7 @@ const oneClickBindingReducer = createReducer(initialState, {
       ...state,
       isConnecting: false,
       config: null,
+      selectedColumns: [],
     };
   },
   [ReduxActionTypes.SET_ONE_CLICK_BINDING_OPTIONS_VISIBILITY]: (
@@ -51,6 +55,15 @@ const oneClickBindingReducer = createReducer(initialState, {
     return {
       ...state,
       showOptions: action.payload,
+    };
+  },
+  [ReduxActionTypes.SET_SELECTED_COLUMNS]: (
+    state: OneClickBindingState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      selectedColumns: action.payload,
     };
   },
 });

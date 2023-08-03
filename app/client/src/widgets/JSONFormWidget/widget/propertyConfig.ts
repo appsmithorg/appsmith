@@ -4,7 +4,7 @@ import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
 import type { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+// import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import type { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import type { JSONFormWidgetProps } from ".";
@@ -136,17 +136,17 @@ export const contentConfig = [
         placeholderText: '{ "name": "John", "age": 24 }',
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.FUNCTION,
-          params: {
-            fn: sourceDataValidationFn,
-            expected: {
-              type: "JSON",
-              example: `{ "name": "John Doe", "age": 29 }`,
-              autocompleteDataType: AutocompleteDataType.OBJECT,
-            },
-          },
-        },
+        // validation: {
+        //   type: ValidationTypes.FUNCTION,
+        //   params: {
+        //     fn: sourceDataValidationFn,
+        //     expected: {
+        //       type: "JSON",
+        //       example: `{ "name": "John Doe", "age": 29 }`,
+        //       autocompleteDataType: AutocompleteDataType.OBJECT,
+        //     },
+        //   },
+        // },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
