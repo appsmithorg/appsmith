@@ -19,7 +19,6 @@ import com.appsmith.server.dtos.GitDocsDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.dtos.ce.UncommittedChangesDTO;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.services.GitService;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -212,19 +211,6 @@ public class GitControllerCE {
         log.debug(
                 "Going to compare with remote for default application {}, branch {}", defaultApplicationId, branchName);
         return service.fetchRemoteChanges(defaultApplicationId, branchName, true)
-                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
-    }
-
-    @JsonView(Views.Public.class)
-    @GetMapping("/change-status/app/{defaultApplicationId}")
-    public Mono<ResponseDTO<UncommittedChangesDTO>> getUncommittedChanges(
-            @PathVariable String defaultApplicationId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug(
-                "Going to get uncommitted changes for default application {}, branch {}",
-                defaultApplicationId,
-                branchName);
-        return service.getUncommittedChanges(defaultApplicationId, branchName)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 

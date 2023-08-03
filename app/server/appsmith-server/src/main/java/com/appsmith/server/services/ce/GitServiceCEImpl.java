@@ -33,7 +33,6 @@ import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDocsDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
-import com.appsmith.server.dtos.ce.UncommittedChangesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
@@ -3152,28 +3151,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                         }
                         return Boolean.TRUE;
                     });
-                });
-    }
-
-    @Override
-    public Mono<UncommittedChangesDTO> getUncommittedChanges(String defaultApplicationId, String branchName) {
-        return applicationService
-                .findByBranchNameAndDefaultApplicationId(
-                        branchName, defaultApplicationId, applicationPermission.getReadPermission())
-                .map(application -> {
-                    // after a commit, we update the application to set the last commit date
-                    // this will also update the application's last edited date
-                    // adding a 5 second buffer to account for the time taken to update the application
-                    Instant lastUpdateAt = application.getLastEditedAt().minusSeconds(5);
-                    Instant lastCommittedAt =
-                            application.getGitApplicationMetadata().getLastCommittedAt();
-                    return lastCommittedAt != null && !lastUpdateAt.isAfter(lastCommittedAt);
-                })
-                .defaultIfEmpty(false)
-                .map(isClean -> {
-                    UncommittedChangesDTO uncommittedChangesDTO = new UncommittedChangesDTO();
-                    uncommittedChangesDTO.setClean(isClean);
-                    return uncommittedChangesDTO;
                 });
     }
 }

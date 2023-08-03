@@ -4101,46 +4101,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void getUncommittedChanges_WhenApplicationLastUpdateAfterLastCommit_IsCleanFalse()
-            throws GitAPIException, IOException {
-        String randomId = UUID.randomUUID().toString();
-        String appname = "test-app-" + randomId, branch = "test-branch";
-        Application application = createApplicationConnectedToGit(appname, branch);
-
-        // create a new page to the app so that the last updated time is updated
-        PageDTO page = new PageDTO();
-        page.setName("Page" + randomId);
-        page.setApplicationId(application.getId());
-        applicationPageService.createPage(page).block();
-        // update the last edited time to avoid the buffer time calculation in GitSevice.getUncommittedChanges
-        application.setLastEditedAt(application.getLastEditedAt().plusSeconds(6));
-        applicationRepository.save(application).block();
-
-        StepVerifier.create(gitService.getUncommittedChanges(application.getId(), branch))
-                .assertNext(uncommittedChangesDTO -> {
-                    assertThat(uncommittedChangesDTO.isClean()).isFalse();
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void getUncommittedChanges_WhenApplicationNotUpdateAfterLastCommit_IsCleanTrue()
-            throws GitAPIException, IOException {
-        String randomId = UUID.randomUUID().toString();
-        String appname = "test-app-" + randomId, branch = "test-branch";
-        Application application = createApplicationConnectedToGit(appname, branch);
-        // application.setLastEditedAt(application.getGitApplicationMetadata().getLastCommittedAt().);
-        StepVerifier.create(gitService.getUncommittedChanges(application.getId(), branch))
-                .assertNext(uncommittedChangesDTO -> {
-                    assertThat(uncommittedChangesDTO.isClean()).isTrue();
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void compareWithRemote_WhenSuccessful_ReturnsResponse() throws GitAPIException, IOException {
+    public void fetchFromRemote_WhenSuccessful_ReturnsResponse() throws GitAPIException, IOException {
         String randomId = UUID.randomUUID().toString();
         String appname = "test-app-" + randomId, branch = "test-branch";
         Application application = createApplicationConnectedToGit(appname, branch);
