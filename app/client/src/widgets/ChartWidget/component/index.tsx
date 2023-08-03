@@ -177,19 +177,12 @@ class ChartComponent extends React.Component<
     }
   };
 
-  resizeEchartsIfNeeded = () => {
-    if (this.echartsInstance) {
-      if (
-        this.echartsInstance.getHeight() !=
-          this.props.dimensions.componentHeight ||
-        this.echartsInstance.getWidth() != this.props.dimensions.componentWidth
-      ) {
-        this.echartsInstance.resize({
-          width: this.props.dimensions.componentWidth,
-          height: this.props.dimensions.componentHeight,
-        });
-      }
-    }
+  shouldResizeECharts = () => {
+    return (
+      this.echartsInstance?.getHeight() !=
+        this.props.dimensions.componentHeight ||
+      this.echartsInstance?.getWidth() != this.props.dimensions.componentWidth
+    );
   };
 
   renderECharts = () => {
@@ -200,33 +193,31 @@ class ChartComponent extends React.Component<
     }
 
     const newConfiguration = this.getEChartsOptions();
-    let needsNewConfig = true;
+    const needsNewConfig = !equal(newConfiguration, this.echartConfiguration);
+    const resizedNeeded = this.shouldResizeECharts();
 
-    if (
-      this.state.eChartsError &&
-      equal(newConfiguration, this.echartConfiguration)
-    ) {
-      // this check is required if chartError is present and the code shouldn't calculate the same error again
-      needsNewConfig = false;
-    } else {
+    if (needsNewConfig) {
       this.echartConfiguration = newConfiguration;
-    }
-
-    try {
       this.echartsInstance.off("click");
       this.echartsInstance.on("click", this.dataClickCallback);
 
-      if (needsNewConfig) {
+      try {
         this.echartsInstance.setOption(this.echartConfiguration, true);
+
         if (this.state.eChartsError) {
           this.setState({ eChartsError: undefined });
         }
+      } catch (error) {
+        this.disposeECharts();
+        this.setState({ eChartsError: error as Error });
       }
+    }
 
-      this.resizeEchartsIfNeeded();
-    } catch (error) {
-      this.disposeECharts();
-      this.setState({ eChartsError: error as Error });
+    if (resizedNeeded) {
+      this.echartsInstance.resize({
+        width: this.props.dimensions.componentWidth,
+        height: this.props.dimensions.componentHeight,
+      });
     }
   };
 

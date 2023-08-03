@@ -486,7 +486,7 @@ describe("EChartsConfigurationBuilder", () => {
             show: true,
             fontFamily: "fontfamily",
             color: Colors.DOVE_GRAY2,
-            formatter: "{b}: {@series1} ({d}%)",
+            formatter: "{b} : {d}%",
           },
         },
       ];
@@ -495,6 +495,42 @@ describe("EChartsConfigurationBuilder", () => {
         seriesID1: chartData1,
       });
       expect(output.series).toStrictEqual(expectedConfig.series);
+    });
+
+    it("6.8 chooses a default series name for the legend if series name prop is empty", () => {
+      const props = JSON.parse(JSON.stringify(defaultProps));
+      const chartDataParams = JSON.parse(JSON.stringify(chartData));
+      chartDataParams.seriesID1.seriesName = "";
+
+      let output = builder.prepareEChartConfig(props, chartDataParams);
+      let firstSeriesName = (output.series as any[])[0].name;
+      expect(firstSeriesName).toEqual("Undefined");
+
+      chartDataParams.seriesID1.seriesName = undefined;
+      output = builder.prepareEChartConfig(props, chartDataParams);
+      firstSeriesName = (output.series as any[])[0].name;
+      expect(firstSeriesName).toEqual("Undefined");
+    });
+
+    it("6.9 PIE-CHART chooses a default series name for the legend if series name prop is empty", () => {
+      const props = JSON.parse(JSON.stringify(defaultProps));
+      props.chartType = "PIE_CHART";
+
+      const chartDataParams = JSON.parse(JSON.stringify(chartData1));
+      chartDataParams.seriesName = "";
+
+      let output = builder.prepareEChartConfig(props, {
+        seriesID1: chartDataParams,
+      });
+      let firstSeriesName = (output.series as any[])[0].name;
+      expect(firstSeriesName).toEqual("Undefined");
+
+      chartDataParams.seriesName = undefined;
+      output = builder.prepareEChartConfig(props, {
+        seriesID1: chartDataParams,
+      });
+      firstSeriesName = (output.series as any[])[0].name;
+      expect(firstSeriesName).toEqual("Undefined");
     });
   });
 

@@ -10,10 +10,25 @@ import type {
 } from "@design-system/theming";
 
 export interface TextProps {
+  /** variant of the text
+   * @default body
+   */
   variant?: keyof typeof TypographyVariant;
+  /** color of the text
+   * @default default — sets inherit via CSS;
+   */
   color?: keyof typeof TypographyColor;
+  /** sets the weight (or boldness) of the font
+   * @default false
+   */
   isBold?: boolean;
+  /** sets the weight (or boldness) of the font
+   * @default false
+   */
   isItalic?: boolean;
+  /** Sets a font that is classified as italic.
+   * @default false
+   */
   textAlign?: "left" | "center" | "right";
   lineClamp?: number;
   className?: string;
