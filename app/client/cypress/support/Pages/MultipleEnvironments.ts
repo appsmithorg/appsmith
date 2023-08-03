@@ -1,4 +1,4 @@
-import { dataSources } from "../Objects/ObjectsCore";
+import { agHelper, dataSources } from "../Objects/ObjectsCore";
 import { ObjectsRegistry } from "../Objects/Registry";
 
 export class MultipleEnvironments {
@@ -39,6 +39,7 @@ export class MultipleEnvironments {
           );
         }
       });
+    agHelper.Sleep(3000); // adding wait for page to load
   }
 
   public SwitchEnvInDSEditor(

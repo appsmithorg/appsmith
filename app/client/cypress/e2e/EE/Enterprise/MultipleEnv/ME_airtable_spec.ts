@@ -122,7 +122,13 @@ describe(
       // Need to remove the previous user preference for the callout
       window.localStorage.removeItem("userPreferenceDismissEnvCallout");
       agHelper.Sleep();
-      deployMode.DeployApp(undefined, true, true, true, "present");
+      deployMode.DeployApp(
+        locators._widgetInDeployed(draggableWidgets.TABLE),
+        true,
+        true,
+        true,
+        "present",
+      );
       featureFlagIntercept({ release_datasource_environments_enabled: true });
       // Check for env switcher
       agHelper.AssertElementExist(multipleEnv.env_switcher);
