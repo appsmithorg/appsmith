@@ -16,17 +16,15 @@ export const buttonStyles = css<StyledButtonProps>`
   ${({ $color, $variant }) => {
     if ($variant === "filled") {
       return css`
-        & [data-content] {
-          background-color: var(--color-bg-${$color});
-          color: var(--color-fg-on-${$color});
-          border-color: transparent;
-        }
+        background-color: var(--color-bg-${$color});
+        color: var(--color-fg-on-${$color});
+        border-color: transparent;
 
-        &[data-hovered]:not([aria-disabled]) [data-content] {
+        &[data-hovered]:not([aria-disabled]) {
           background-color: var(--color-bg-${$color}-hover);
         }
 
-        &[data-active]:not([aria-disabled]) [data-content] {
+        &[data-active]:not([aria-disabled]) {
           background-color: var(--color-bg-${$color}-active);
         }
       `;
@@ -34,18 +32,15 @@ export const buttonStyles = css<StyledButtonProps>`
 
     if ($variant === "outlined") {
       return css`
-        & [data-content] {
-          background-color: transparent;
-          color: var(--color-fg-${$color});
-          border-color: var(--color-bd-${$color});
-          border-width: var(--border-width-1);
-        }
+        background-color: transparent;
+        color: var(--color-fg-${$color});
+        border-color: var(--color-bd-${$color});
 
-        &[data-hovered]:not([aria-disabled]) [data-content] {
+        &[data-hovered]:not([aria-disabled]) {
           background-color: var(--color-bg-${$color}-subtle-hover);
         }
 
-        &[data-active]:not([aria-disabled]) [data-content] {
+        &[data-active]:not([aria-disabled]) {
           background-color: var(--color-bg-${$color}-subtle-active);
         }
       `;
@@ -53,18 +48,15 @@ export const buttonStyles = css<StyledButtonProps>`
 
     if ($variant === "ghost") {
       return css`
-        & [data-content] {
-          background: transparent;
-          color: var(--color-fg-${$color});
-          border-color: transparent;
-          border-width: 0;
-        }
+        background: transparent;
+        color: var(--color-fg-${$color});
+        border-color: transparent;
 
-        &[data-hovered]:not([aria-disabled]) [data-content] {
+        &[data-hovered]:not([aria-disabled]) {
           background: var(--color-bg-${$color}-subtle-hover);
         }
 
-        &[data-active]:not([aria-disabled]) [data-content] {
+        &[data-active]:not([aria-disabled]) {
           background: var(--color-bg-${$color}-subtle-active);
         }
       `;
@@ -73,15 +65,21 @@ export const buttonStyles = css<StyledButtonProps>`
 `;
 
 export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   outline: 0;
-  padding: 0;
-  border-width: 0;
   cursor: pointer;
   user-select: none;
   position: relative;
   font-weight: 600;
   font-family: inherit;
-  background: transparent;
+  border-style: solid;
+  border-width: var(--border-width-1);
+  padding-inline: var(--spacing-4);
+  block-size: var(--sizing-8);
+  min-inline-size: var(--sizing-8);
+  border-radius: var(--border-radius-1);
 
   // Note: adding important here as ADS is overriding the color of blueprint icon globally
   // TODO(pawan): Remove this once ADS team removes the global override
@@ -100,11 +98,6 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: var(--spacing-2) var(--spacing-4);
-    block-size: var(--sizing-8);
-    inline-size: max(var(--sizing-8), 100%);
-    border-style: solid;
-    border-radius: var(--border-radius-1);
   }
 
   &[data-icon-position="start"] {
@@ -163,6 +156,10 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
     opacity: 1;
   }
 
+  &[data-loading] [data-content] {
+    visibility: hidden;
+  }
+
   & [data-loader] {
     display: none;
   }
@@ -174,7 +171,6 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: inherit;
     border-radius: inherit;
   }
 `;
