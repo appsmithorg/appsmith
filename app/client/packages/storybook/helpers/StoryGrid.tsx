@@ -1,13 +1,21 @@
 import React from "react";
 
-export function StoryGrid(props: any) {
+type StoryGrid = {
+  cols?: number | string;
+  children: React.ReactNode;
+  gap?: string;
+};
+
+export function StoryGrid(props: StoryGrid) {
+  const { cols = 5, gap = "10px" } = props;
+
   return (
     <div
       style={{
         display: "grid",
         justifyContent: "center",
-        gap: "10px",
-        gridTemplateColumns: "repeat(5 , 1fr)",
+        gap: gap,
+        gridTemplateColumns: `repeat(${cols} , 1fr)`,
         flexWrap: "wrap",
       }}
     >

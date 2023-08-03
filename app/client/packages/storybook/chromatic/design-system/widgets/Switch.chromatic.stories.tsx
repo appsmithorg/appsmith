@@ -14,18 +14,21 @@ export default meta;
 
 type Story = StoryObj<typeof Switch>;
 
+const states = ["", "data-hovered", "data-focused", "data-disabled"];
+
 export const States: Story = {
   render: () => (
     <StoryGrid>
-      <Switch>Default</Switch>
-      <Switch defaultSelected> Checked</Switch>
-      <Switch isDisabled>Disabled</Switch>
-      <Switch defaultSelected isDisabled>
-        Checked Disabled
-      </Switch>
-      <DataAttrWrapper attr="data-hovered">
-        <Switch defaultSelected>Hovered</Switch>
-      </DataAttrWrapper>
+      {states.map((state) => (
+        <>
+          <DataAttrWrapper attr={state} key={state}>
+            <Switch>unchecked {state}</Switch>
+          </DataAttrWrapper>
+          <DataAttrWrapper attr={state} key={state}>
+            <Switch defaultSelected>checked {state}</Switch>
+          </DataAttrWrapper>
+        </>
+      ))}
     </StoryGrid>
   ),
 };

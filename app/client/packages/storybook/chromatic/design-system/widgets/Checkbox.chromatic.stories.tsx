@@ -14,19 +14,25 @@ export default meta;
 
 type Story = StoryObj<typeof Checkbox>;
 
+const states = ["", "data-hovered", "data-focused", "data-disabled"];
+
 export const States: Story = {
   render: () => (
     <StoryGrid>
-      <Checkbox>Default</Checkbox>
-      <Checkbox defaultSelected> Checked</Checkbox>
       <Checkbox isIndeterminate>Indeterminate</Checkbox>
-      <Checkbox isDisabled>Disabled</Checkbox>
-      <Checkbox defaultSelected isDisabled>
-        Checked Disabled
+      {states.map((state) => (
+        <>
+          <DataAttrWrapper attr={state} key={state}>
+            <Checkbox>unchecked {state}</Checkbox>
+          </DataAttrWrapper>
+          <DataAttrWrapper attr={state} key={state}>
+            <Checkbox defaultSelected>checked {state}</Checkbox>
+          </DataAttrWrapper>
+        </>
+      ))}
+      <Checkbox defaultSelected isReadOnly isRequired>
+        Readonly
       </Checkbox>
-      <DataAttrWrapper attr="data-hovered">
-        <Checkbox defaultSelected>Hovered</Checkbox>
-      </DataAttrWrapper>
     </StoryGrid>
   ),
 };

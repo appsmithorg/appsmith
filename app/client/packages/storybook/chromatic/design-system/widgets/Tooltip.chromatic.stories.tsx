@@ -7,6 +7,7 @@ import {
   TooltipContent,
   TooltipRoot as Tooltip,
 } from "@design-system/widgets";
+import { StoryGrid } from "../../../helpers/StoryGrid";
 
 const meta: Meta<typeof Tooltip> = {
   component: Tooltip,
@@ -19,11 +20,31 @@ type Story = StoryObj<typeof Tooltip>;
 
 export const States: Story = {
   render: () => (
-    <Tooltip open>
-      <TooltipTrigger>
-        <Button>Button</Button>
-      </TooltipTrigger>
-      <TooltipContent>This is a tooltip</TooltipContent>
-    </Tooltip>
+    <StoryGrid>
+      <Tooltip open placement="left">
+        <TooltipTrigger>
+          <Button>Button</Button>
+        </TooltipTrigger>
+        <TooltipContent>This is a tooltip</TooltipContent>
+      </Tooltip>
+      <Tooltip open placement="top">
+        <TooltipTrigger>
+          <Button>Button</Button>
+        </TooltipTrigger>
+        <TooltipContent>This is a tooltip</TooltipContent>
+      </Tooltip>
+      <Tooltip open placement="bottom">
+        <TooltipTrigger>
+          <Button>Button</Button>
+        </TooltipTrigger>
+        <TooltipContent>This is a tooltip</TooltipContent>
+      </Tooltip>
+      <Tooltip open placement="right">
+        <TooltipTrigger>
+          <Button>Button</Button>
+        </TooltipTrigger>
+        <TooltipContent>This is a tooltip</TooltipContent>
+      </Tooltip>
+    </StoryGrid>
   ),
 };

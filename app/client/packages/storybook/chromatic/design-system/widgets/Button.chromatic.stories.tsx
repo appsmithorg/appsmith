@@ -14,7 +14,7 @@ import { DataAttrWrapper } from "../../../helpers/DataAttrWrapper";
 const StarIcon = importRemixIcon(() => import("remixicon-react/StarFillIcon"));
 
 const variants = Object.values(BUTTON_VARIANTS);
-const semantics = Object.values(BUTTON_COLORS);
+const colors = Object.values(BUTTON_COLORS);
 
 const meta: Meta<typeof Button> = {
   component: Button,
@@ -43,7 +43,7 @@ export const States: Story = {
   render: () => (
     <StoryGrid>
       {variants.map((variant) =>
-        semantics.map((color) =>
+        colors.map((color) =>
           states.map((state) => (
             <DataAttrWrapper attr={state} key={`${variant}-${color}-${state}`}>
               <Button
