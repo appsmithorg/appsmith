@@ -36,9 +36,10 @@ then
   ACCESS_POINT_ID=$(aws efs describe-access-points --file-system-id "$DP_EFS_ID" | jq -r '.AccessPoints[] | select(.Name=="'"$PULL_REQUEST_NUMBER"'") | .AccessPointId')
   aws efs delete-access-point --access-point-id $ACCESS_POINT_ID
 fi
+echo "Create Access Point and Access Point ID"
 
 ## Use DP-EFS and create ACCESS_POINT
-ACCESS_POINT=$(aws efs create-access-point --file-system-id $DP_EFS_ID --tags Key=Name,Value=$PULL_REQUEST_NUMBER)
+ACCESS_POINT=$(aws efs create-access-point --file-system-id $DP_EFS_ID --tags Key=Name,Value=ce$PULL_REQUEST_NUMBER)
 ACCESS_POINT_ID=$(echo $ACCESS_POINT | jq -r '.AccessPointId')
 
 export NAMESPACE=ce"$PULL_REQUEST_NUMBER"
@@ -70,7 +71,7 @@ kubectl create secret docker-registry $SECRET \
   --docker-password=$DOCKER_HUB_ACCESS_TOKEN -n $NAMESPACE
 
 echo "Add appsmith-ee to helm repo"
-helm repo add "$HELMCHART" "$HELMCHART_URL"
+AWS_REGION=us-east-2 helm repo add "$HELMCHART" "$HELMCHART_URL"
 
 echo "Deploy appsmith helm chart"
 helm upgrade -i $CHARTNAME appsmith-ee/$HELMCHART -n $NAMESPACE --create-namespace --recreate-pods \
