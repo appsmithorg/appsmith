@@ -400,11 +400,20 @@ export class AggregateHelper extends ReusableHelper {
     const locator = selector.includes("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    locator.waitUntil(($ele) => cy.wrap($ele).should("be.visible"), {
-      errorMsg: "Element did not appear even after 10 seconds",
-      timeout: 10000,
-      interval: 1000,
-    });
+    locator.waitUntil(
+      ($ele) =>
+        cy
+          .wrap($ele)
+          .should("exist")
+          .should("be.visible")
+          .its("length")
+          .should("be.gte", 1),
+      {
+        errorMsg: "Element did not appear even after 10 seconds",
+        timeout: 10000,
+        interval: 1000,
+      },
+    );
 
     //Below can be tried if above starts being flaky:
     // cy.waitUntil(() => cy.get(selector, { timeout: 50000 }).should("have.length.greaterThan", 0)
@@ -668,7 +677,7 @@ export class AggregateHelper extends ReusableHelper {
     force = false,
     waitTimeInterval = 500,
   ) {
-    return this.ScrollIntoView(selector, index)
+    return (this.ScrollIntoView(selector, index) as any)
       .realHover()
       .click({ force: force })
       .wait(waitTimeInterval);
@@ -682,7 +691,7 @@ export class AggregateHelper extends ReusableHelper {
   ) {
     let chain = this.ScrollIntoView(selector, index);
     if (realTouch) {
-      chain = chain
+      chain = (chain as any)
         .realTouch({ position: "center" })
         .realHover({ pointer: "mouse" });
     }
@@ -752,10 +761,36 @@ export class AggregateHelper extends ReusableHelper {
   public TypeText(
     selector: string,
     value: string,
-    index = 0,
-    parseSpecialCharSeq = false,
+    indexOrOptions:
+      | number
+      | Partial<{
+          index: number;
+          parseSpecialCharSeq: boolean;
+          shouldFocus: boolean;
+        }> = 0,
   ) {
-    return this.GetElement(selector).eq(index).focus().wait(100).type(value, {
+    let index: number;
+    let shouldFocus = true;
+    let parseSpecialCharSeq = false;
+
+    if (typeof indexOrOptions === "number") {
+      index = indexOrOptions;
+    } else {
+      index = indexOrOptions.index || 0;
+      parseSpecialCharSeq = indexOrOptions.parseSpecialCharSeq || false;
+      shouldFocus =
+        indexOrOptions.shouldFocus !== undefined
+          ? indexOrOptions.shouldFocus
+          : true;
+    }
+
+    const element = this.GetElement(selector).eq(index);
+
+    if (shouldFocus) {
+      element.focus();
+    }
+
+    return element.wait(100).type(value, {
       parseSpecialCharSequences: parseSpecialCharSeq,
       delay: 5,
       force: true,
@@ -777,7 +812,7 @@ export class AggregateHelper extends ReusableHelper {
 
   public GetNClickByContains(
     selector: string,
-    containsText: string,
+    containsText: string | RegExp,
     index = 0,
     force = true,
     waitTimeInterval = 500,
@@ -1064,6 +1099,7 @@ export class AggregateHelper extends ReusableHelper {
         input.focus();
         this.Sleep(200);
         input.setValue(value);
+        input.execCommand("goLineEnd");
         this.Sleep(200);
       });
     this.Sleep(500); //for value set to settle
@@ -1161,10 +1197,12 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   DragEvaluatedValuePopUp(x: number, y: number) {
-    cy.get(this.locator._evaluatedCurrentValue)
-      .first()
-      .should("be.visible")
-      .realHover({ pointer: "mouse" });
+    (
+      cy
+        .get(this.locator._evaluatedCurrentValue)
+        .first()
+        .should("be.visible") as any
+    ).realHover({ pointer: "mouse" });
     cy.get(this.locator._evaluatedValuePopDragHandler)
       .trigger("mousedown", { which: 1 })
       .trigger("mousemove", { clientX: x, clientY: y })
@@ -1316,6 +1354,17 @@ export class AggregateHelper extends ReusableHelper {
       .eq(index)
       .scrollIntoView()
       .should("be.visible");
+  }
+
+  public AssertElementNotVisible(
+    selector: ElementType,
+    index = 0,
+    timeout = 20000,
+  ) {
+    return this.GetElement(selector, timeout)
+      .eq(index)
+      .scrollIntoView()
+      .should("not.be.visible");
   }
 
   public CheckForErrorToast(error: string) {
@@ -1533,10 +1582,4 @@ export class AggregateHelper extends ReusableHelper {
   //     }
   //     return items;
   //   }, { timeout: 5000 });
-
-  public AssertTooltip(tooltipText: string) {
-    cy.get(".rc-tooltip-inner").should(($x) => {
-      expect($x).contain(tooltipText);
-    });
-  }
 }

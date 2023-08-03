@@ -38,6 +38,7 @@ export type EventName =
   | "SWITCH_DATASOURCE"
   | "LOGIN_CLICK"
   | "SIGNUP_CLICK"
+  | "SIGNUP_REACHED"
   | "PAGE_VIEW"
   | "ADD_COMPONENT"
   | "DELETE_COMPONENT"
