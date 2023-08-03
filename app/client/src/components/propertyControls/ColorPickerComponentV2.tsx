@@ -21,12 +21,15 @@ import {
   getThemePropertyBinding,
 } from "constants/ThemeConstants";
 import { getWidgets } from "sagas/selectors";
-import { extractColorsFromString } from "utils/helpers";
+import { extractColorsFromString, isValidColor } from "utils/helpers";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
 import { getBrandColors } from "@appsmith/selectors/tenantSelectors";
-import validateColor from "validate-color";
+import {
+  createMessage,
+  FULL_COLOR_PICKER_LABEL,
+} from "@appsmith/constants/messages";
 
 const FocusTrap = require("focus-trap-react");
 
@@ -47,6 +50,7 @@ interface ColorPickerProps {
   isOpen?: boolean;
   placeholderText?: string;
   portalContainer?: HTMLElement;
+  onPopupClosed?: () => void;
 }
 
 /**
@@ -136,10 +140,9 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
   const themeColors = useSelector(getSelectedAppThemeProperties).colors;
   const brandColors = useSelector(getBrandColors);
   const widgets = useSelector(getWidgets);
-  const DSLStringified = JSON.stringify(widgets);
   const applicationColors = useMemo(() => {
     return extractColorsFromString(widgets);
-  }, [DSLStringified]);
+  }, []);
   const {
     changeColor,
     color,
@@ -325,7 +328,7 @@ interface LeftIconProps {
 }
 
 function LeftIcon(props: LeftIconProps) {
-  return validateColor(props.color) ? (
+  return isValidColor(props.color) ? (
     <ColorIcon
       className="rounded-full cursor-pointer"
       color={props.color}
@@ -360,6 +363,7 @@ const ColorPickerComponent = React.forwardRef(
     const [color, setColor] = React.useState(
       props.evaluatedColorValue || props.color,
     );
+
     const [isFullColorPicker, setFullColorPicker] = React.useState(false);
 
     const debouncedOnChange = React.useCallback(
@@ -526,7 +530,7 @@ const ColorPickerComponent = React.forwardRef(
 
     const handleChangeColor = (event: React.ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
-      if (validateColor(value)) {
+      if (isValidColor(value)) {
         debouncedOnChange(value, true);
       }
       setColor(value);
@@ -542,6 +546,15 @@ const ColorPickerComponent = React.forwardRef(
 
     const handleInputClick = () => {
       isClick.current = true;
+
+      if (isFullColorPicker && isOpen) {
+        setIsOpen(false);
+      }
+    };
+
+    const handleFullColorPickerClick = (value: boolean) => {
+      setFullColorPicker(value);
+      setIsOpen(false);
     };
 
     const handleOnInteraction = (nextOpenState: boolean) => {
@@ -567,13 +580,14 @@ const ColorPickerComponent = React.forwardRef(
           isOpen={isOpen}
           minimal
           modifiers={POPOVER_MODFIER}
+          onClosed={props.onPopupClosed}
           onInteraction={handleOnInteraction}
           popoverClassName="color-picker-input"
           portalContainer={props.portalContainer}
         >
           <StyledInputGroup
             $isFullColorPicker={isFullColorPicker}
-            $isValid={validateColor(color)}
+            $isValid={isValidColor(color)}
             autoFocus={props.autoFocus}
             data-testid="t--color-picker-input"
             inputRef={inputGroupRef}
@@ -602,9 +616,9 @@ const ColorPickerComponent = React.forwardRef(
         <div className="mt-2">
           <Switch
             isSelected={isFullColorPicker}
-            onChange={(value) => setFullColorPicker(value)}
+            onChange={handleFullColorPickerClick}
           >
-            Full color picker
+            {createMessage(FULL_COLOR_PICKER_LABEL)}
           </Switch>
         </div>
       </div>

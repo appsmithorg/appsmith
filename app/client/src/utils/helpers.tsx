@@ -767,17 +767,25 @@ export function getLogToSentryFromResponse(response?: ApiResponse) {
 export function extractColorsFromString(widgets: CanvasWidgetsReduxState) {
   const colors = new Set();
 
-  Object.keys(widgets).forEach((widgetKey) => {
-    Object.keys(widgets[widgetKey]).forEach((key) => {
-      if (
-        isString(widgets[widgetKey][key]) &&
-        validateColor(widgets[widgetKey][key])
-      ) {
-        colors.add(widgets[widgetKey][key]);
+  Object.values(widgets).forEach((widget) => {
+    Object.values(widget).forEach((widgetProp) => {
+      if (isString(widgetProp) && validateColor(widgetProp)) {
+        colors.add(widgetProp);
       }
     });
   });
+
   return Array.from(colors) as Array<string>;
+}
+
+/**
+ * validate color string
+ *
+ * @returns {boolean} true if string is valid color or includes url
+ * @param color
+ */
+export function isValidColor(color: string) {
+  return color?.includes("url") || validateColor(color);
 }
 
 /*
