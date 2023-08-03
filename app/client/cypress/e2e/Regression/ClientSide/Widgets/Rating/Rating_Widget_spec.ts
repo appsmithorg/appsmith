@@ -16,7 +16,7 @@ describe("Rating widet testcases", () => {
   });
 
   it("1. Validate Max rating and Default rating", () => {
-    agHelper.GetElement(RATING_WIDGET.star_icon).should("have.length", 10);
+    agHelper.AssertElementLength(RATING_WIDGET.star_icon, 10);
     // assert error on decimal value in max rating
     propPane.UpdatePropertyFieldValue("Max rating", "1.5");
     agHelper.VerifyEvaluatedErrorMessage("Value should be a positive integer");
@@ -38,36 +38,28 @@ describe("Rating widet testcases", () => {
     );
     // assert no error on using parse int function in max rating
     propPane.UpdatePropertyFieldValue("Max rating", "{{parseInt(1)}}");
-    agHelper.GetElement(RATING_WIDGET.star_icon).should("have.length", 2);
+    agHelper.AssertElementLength(RATING_WIDGET.star_icon, 2);
     propPane.UpdatePropertyFieldValue("Max rating", "{{parseInt(2.5)}}");
-    agHelper.GetElement(RATING_WIDGET.star_icon).should("have.length", 4);
+    agHelper.AssertElementLength(RATING_WIDGET.star_icon, 4);
     // assert the no. of stars on increasing max rating value to 10
     propPane.UpdatePropertyFieldValue("Max rating", "10");
-    agHelper.GetElement(RATING_WIDGET.star_icon).should("have.length", 20);
+    agHelper.AssertElementLength(RATING_WIDGET.star_icon, 20);
     // assert default no. of stars rated
-    agHelper
-      .GetElement(RATING_WIDGET.star_icon_filled(100))
-      .should("have.length", 3);
+    agHelper.AssertElementLength(RATING_WIDGET.star_icon_filled(100), 3);
     // change default no. of stars and assert the same
     propPane.UpdatePropertyFieldValue("Default rating", "5");
-    agHelper
-      .GetElement(RATING_WIDGET.star_icon_filled(100))
-      .should("have.length", 5);
+    agHelper.AssertElementLength(RATING_WIDGET.star_icon_filled(100), 5);
     // change default no. of stars to decimal value and assert error
     propPane.UpdatePropertyFieldValue("Default rating", "7.5");
     agHelper.VerifyEvaluatedErrorMessage(
       "This value can be a decimal only if 'Allow half' is true",
     );
     // turn on allow half stars and assert to be able to fill decimal value
-    agHelper.GetNClick(RATING_WIDGET.allowhalfstars);
+    propPane.TogglePropertyState("Allow half stars", "On");
     propPane.UpdatePropertyFieldValue("Default rating", "7.9");
-    agHelper
-      .GetElement(RATING_WIDGET.star_icon_filled(100))
-      .should("have.length", 7);
-    agHelper
-      .GetElement(RATING_WIDGET.star_icon_filled(90))
-      .should("have.length", 1);
-    agHelper.GetNClick(RATING_WIDGET.allowhalfstars);
+    agHelper.AssertElementLength(RATING_WIDGET.star_icon_filled(100), 7);
+    agHelper.AssertElementLength(RATING_WIDGET.star_icon_filled(90), 1);
+
     // turn off allow half stars and assert to not be able to fill decimal value
     propPane.EnterJSContext("Allow half stars", "false");
     propPane.UpdatePropertyFieldValue("Default rating", "1.1");
@@ -93,11 +85,9 @@ describe("Rating widet testcases", () => {
     );
     propPane.UpdatePropertyFieldValue("Tooltips", '["Worse","Bad","Neutral"]');
     // deploy app and check if able to click on stars
-    deployMode.DeployApp(RATING_WIDGET.ratingwidget);
+    deployMode.DeployApp();
     agHelper.GetNClick(RATING_WIDGET.star_icon, 12, true, 0);
-    agHelper
-      .GetElement(RATING_WIDGET.star_icon_filled(100))
-      .should("have.length", 7);
+    agHelper.AssertElementLength(RATING_WIDGET.star_icon_filled(100), 7);
     deployMode.NavigateBacktoEditor();
     agHelper.GetNClick(RATING_WIDGET.ratingwidget);
   });
@@ -107,26 +97,25 @@ describe("Rating widet testcases", () => {
     propPane.UpdatePropertyFieldValue("Max rating", "15");
     propPane.UpdatePropertyFieldValue("Default rating", "3");
     // turn visible off
-    agHelper.GetNClick(RATING_WIDGET.visible);
+    propPane.TogglePropertyState("Visible", "Off");
     deployMode.DeployApp();
     // assert rating widget is not present - since visbible is off
     agHelper.AssertElementAbsence(RATING_WIDGET.ratingwidget);
     deployMode.NavigateBacktoEditor();
     agHelper.GetNClick(RATING_WIDGET.ratingwidget);
     // turn visible on
-    agHelper.GetNClick(RATING_WIDGET.visible);
+    propPane.TogglePropertyState("Visible", "On");
     // make the widget read only
-    agHelper.GetNClick(RATING_WIDGET.readonly);
+    propPane.TogglePropertyState("Read only", "On");
     deployMode.DeployApp();
     agHelper.AssertElementVisible(RATING_WIDGET.ratingwidget);
     // assert even after clicking on stars, the stars are not changed since its read only
     agHelper.GetNClick(RATING_WIDGET.star_icon, 12, true, 0);
-    agHelper
-      .GetElement(RATING_WIDGET.star_icon_filled(100))
-      .should("have.length", 3);
+    agHelper.AssertElementLength(RATING_WIDGET.star_icon_filled(100), 3);
+
     deployMode.NavigateBacktoEditor();
     agHelper.GetNClick(RATING_WIDGET.ratingwidget);
-    agHelper.GetNClick(RATING_WIDGET.readonly);
+    propPane.TogglePropertyState("Read only", "Off");
   });
 
   it("4. check events - On change rating widget", () => {
