@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Primary
 public class TestServiceImpl extends TestServiceEEImpl implements TestService {
-    public TestServiceImpl(AnalyticsService analyticsService) {
-        super(analyticsService);
+    public TestServiceImpl(AnalyticsService analyticsService, FeatureFlagService featureFlagService) {
+        super(analyticsService, featureFlagService);
     }
 }
