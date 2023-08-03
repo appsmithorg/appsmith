@@ -67,9 +67,6 @@ function changeFieldType(fieldName, fieldType) {
 
 function addCustomField(fieldType) {
   cy.openPropertyPane("jsonformwidget");
-  cy.get(".t--property-control-sourcedata")
-    .find(".t--js-toggle")
-    .click({ force: true });
   cy.backFromPropertyPanel();
 
   // Add new field

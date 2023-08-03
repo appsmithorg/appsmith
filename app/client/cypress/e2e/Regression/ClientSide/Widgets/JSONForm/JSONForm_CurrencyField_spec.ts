@@ -9,9 +9,16 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Modal Widget background color spec", () => {
+  const schema = {
+    name: "John",
+    date_of_birth: "20/02/1990",
+    employee_id: 1001,
+  };
+
   before(() => {
     // Add a JSON form widget and change field type of one of the fields
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 300, 100);
+    propPane.EnterJSContext("sourcedata", JSON.stringify(schema), true, false);
     propPane.ChangeJsonFormFieldType("Employee Id", "Currency Input");
   });
 
