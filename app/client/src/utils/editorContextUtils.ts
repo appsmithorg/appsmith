@@ -128,14 +128,16 @@ export function isDatasourceAuthorizedForQueryCreation(
     datasourceStorage,
     "datasourceConfiguration.authentication.authenticationType",
   );
-  const authStatus = get(
-    datasourceStorage,
-    "datasourceConfiguration.authentication.authenticationStatus",
-  ) as AuthenticationStatus;
 
-  if (isGoogleSheetPlugin && !!authStatus) {
+  if (isGoogleSheetPlugin) {
+    const authStatus = get(
+      datasourceStorage,
+      "datasourceConfiguration.authentication.authenticationStatus",
+    ) as AuthenticationStatus;
     const isAuthorized =
-      authType === AuthType.OAUTH2 && validStatusArr.includes(authStatus);
+      authType === AuthType.OAUTH2 &&
+      !!authStatus &&
+      validStatusArr.includes(authStatus);
     return isAuthorized;
   }
 
