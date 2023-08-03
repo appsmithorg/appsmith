@@ -15,6 +15,13 @@ export class DeployMode {
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='radiogroup-container']//input`;
   _jsonFormDatepickerFieldByName = (fieldName: string) =>
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='datepicker-container']//input`;
+  _jsonFormNumberFieldByName = (
+    fieldName: string,
+    direction: "up" | "down" = "up",
+  ) =>
+    `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='input-container']// ${
+      direction == "up" ? this.locator._chevronUp : this.locator._chevronDown
+    }`;
   _jsonSelectDropdown = "button.select-button";
   private _jsonFormMultiSelectByName = (fieldName: string) =>
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='multiselect-container']//div[contains(@class, 'rc-select-show-arrow')]`;
@@ -30,11 +37,11 @@ export class DeployMode {
 
   //refering PublishtheApp from command.js
   public DeployApp(
-    eleToCheckInDeployPage: string = this.locator._backToEditor,
+    eleToCheckInDeployPage?: string,
     toCheckFailureToast = true,
     toValidateSavedState = true,
     addDebugFlag = true,
-    assertEnvInfoModal: "present" | "absent",
+    assertEnvInfoModal?: "present" | "absent",
     dismissModal = false,
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
@@ -67,7 +74,9 @@ export class DeployMode {
     //   .should("not.contain", "edit");
     //cy.wait('@publishApp').wait('@publishApp') //waitng for 2 calls to complete
 
-    this.agHelper.WaitUntilEleAppear(eleToCheckInDeployPage);
+    this.agHelper.WaitUntilEleAppear(
+      eleToCheckInDeployPage ?? this.locator._backToEditor,
+    );
     localStorage.setItem("inDeployedMode", "true");
     toCheckFailureToast &&
       this.agHelper.AssertElementAbsence(

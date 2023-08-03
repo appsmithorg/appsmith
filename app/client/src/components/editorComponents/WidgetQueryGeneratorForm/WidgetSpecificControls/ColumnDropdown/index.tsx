@@ -6,6 +6,7 @@ import { ErrorMessage, Label, SelectWrapper } from "../../styles";
 import { useColumns } from "./useColumns";
 
 type Props = {
+  id: string;
   alias: string;
   label: string;
   onSelect: () => void;
@@ -29,7 +30,7 @@ function ColumnDropdown(props: Props) {
         <Label>{props.label}</Label>
         <Select
           allowClear
-          data-testId={`t--one-click-binding-column-${props.alias}`}
+          data-testId={`t--one-click-binding-column-${props.id}`}
           dropdownStyle={{
             minWidth: "350px",
             maxHeight: "300px",
@@ -51,7 +52,7 @@ function ColumnDropdown(props: Props) {
           {options.map((option) => {
             return (
               <Option
-                data-testId={`t--one-click-binding-column-${props.alias}--column`}
+                data-testId={`t--one-click-binding-column-${props.id}--column`}
                 key={option.id}
                 value={option.value}
               >

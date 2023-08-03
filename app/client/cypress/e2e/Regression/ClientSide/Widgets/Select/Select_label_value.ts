@@ -16,6 +16,8 @@ describe("Select Widget Functionality", function () {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT, 450, 200);
     _.agHelper.AssertElementExist(".t--widget-selectwidget");
 
+    _.propPane.ToggleJSMode("sourcedata");
+
     _.propPane.UpdatePropertyFieldValue(
       "Source Data",
       `[

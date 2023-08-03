@@ -17,6 +17,7 @@ describe("MultiSelect Widget Functionality", function () {
   });
   it("1. Add new multiselect widget", () => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.MULTISELECT);
+    _.propPane.ToggleJSMode("sourcedata");
     _.propPane.UpdatePropertyFieldValue(
       "Source Data",
       `[
