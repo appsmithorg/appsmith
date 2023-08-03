@@ -119,10 +119,6 @@ public class GitServiceTest {
     private static final String GIT_CONFIG_ERROR =
             "Unable to find the git configuration, please configure your application "
                     + "with git to use version control service";
-
-    @Autowired
-    private ApplicationRepository applicationRepository;
-
     private static String workspaceId;
     private static String defaultEnvironmentId;
     private static Application gitConnectedApplication = new Application();
