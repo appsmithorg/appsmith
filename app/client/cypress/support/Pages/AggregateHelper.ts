@@ -143,9 +143,9 @@ export class AggregateHelper extends ReusableHelper {
     //cy.intercept("POST", "/api/v1/users/invite", (req) => { req.headers["origin"] = "Cypress";}).as("mockPostInvite");
   }
 
-  public AssertErrorTooltip(expectedError: string) {
-    this.GetText(this.locator._errorToolTip, "text").then(($error) =>
-      expect($error).to.eq(expectedError),
+  public AssertPopoverTooltip(expectedText: string) {
+    this.GetText(this.locator._popoverToolTip, "text").then(($tooltiptxt) =>
+      expect($tooltiptxt).to.eq(expectedText),
     );
   }
 
@@ -1533,10 +1533,4 @@ export class AggregateHelper extends ReusableHelper {
   //     }
   //     return items;
   //   }, { timeout: 5000 });
-
-  public AssertTooltip(tooltipText: string) {
-    cy.get(".rc-tooltip-inner").should(($x) => {
-      expect($x).contain(tooltipText);
-    });
-  }
 }

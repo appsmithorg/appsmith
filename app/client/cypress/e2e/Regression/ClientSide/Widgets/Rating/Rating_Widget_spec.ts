@@ -88,6 +88,8 @@ describe("Rating widet testcases", () => {
     deployMode.DeployApp();
     agHelper.GetNClick(RATING_WIDGET.star_icon, 12, true, 0);
     agHelper.AssertElementLength(RATING_WIDGET.star_icon_filled(100), 7);
+    agHelper.HoverElement(RATING_WIDGET.star_icon, 4);
+    agHelper.AssertPopoverTooltip("Neutral"); // assert tooltip on hovering
     deployMode.NavigateBacktoEditor();
     agHelper.GetNClick(RATING_WIDGET.ratingwidget);
   });
