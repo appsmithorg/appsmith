@@ -469,7 +469,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     this.state.navigation();
     this.props.datasourceDiscardAction(this.props?.pluginId);
 
-    if (!this.props.viewMode && this.state.switchFilterBlocked) {
+    if (!this.props.viewMode && !this.state.switchFilterBlocked) {
       this.props.setDatasourceViewMode({
         datasourceId: this.props.datasourceId,
         viewMode: true,
