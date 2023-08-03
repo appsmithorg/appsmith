@@ -26,7 +26,7 @@ public class TestServiceCEImpl implements TestService {
     }
 
     @Override
-    public String ce_ee_same_diff_method() {
-        return "ce_ee_same_diff_method_calling_from_ce_class";
+    public Mono<String> ce_ee_same_diff_method() {
+        return Mono.just("ce_ee_same_diff_method_calling_from_ce_class");
     }
 }
