@@ -116,6 +116,10 @@ const Container = (props: Props) => {
     const list: string[] = [];
 
     props.datasourceStructure.tables.map((table) => {
+      // if the column is empty push the table name alone.
+      if (table.columns.length === 0) {
+        list.push(`${table.name}~`);
+      }
       table.columns.forEach((column) => {
         list.push(`${table.name}~${column.name}`);
       });
@@ -139,7 +143,7 @@ const Container = (props: Props) => {
     flatStructure.forEach((structure) => {
       const segments = structure.split("~");
       // if the value is present in the columns, add the column and its parent table.
-      if (segments[1].toLowerCase().includes(value)) {
+      if (!!segments[1] && segments[1].toLowerCase().includes(value)) {
         tables.add(segments[0]);
         columns.add(segments[1]);
         return;
