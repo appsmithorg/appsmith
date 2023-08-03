@@ -131,7 +131,6 @@ function AppRouter(props: {
   getCurrentUser: () => void;
   getFeatureFlags: () => void;
   getCurrentTenant: () => void;
-  initCurrentPage: () => void;
   fetchProductAlert: () => void;
   safeCrashCode?: ERROR_CODES;
 }) {
@@ -146,7 +145,6 @@ function AppRouter(props: {
     getCurrentUser();
     getFeatureFlags();
     getCurrentTenant();
-    // initCurrentPage();
     fetchProductAlert();
   }, []);
 
