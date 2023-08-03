@@ -172,7 +172,7 @@ export default function Group({
                 return (
                   <div
                     className={classNames({
-                      "t--read-more-link": true,
+                      "t--read-more-link mb-2": true,
                       hide:
                         setting.isHidden ||
                         (setting.isVisible &&
@@ -183,22 +183,26 @@ export default function Group({
                   >
                     <Callout
                       kind={setting?.calloutType || "info"}
-                      links={[
-                        {
-                          children: createMessage(LEARN_MORE),
-                          ...(setting.url && { to: setting.url }),
-                          ...(setting.action && {
-                            onClick: (e: any) => {
-                              if (setting.action) {
-                                e.preventDefault();
-                                setting.action(
-                                  calloutDispatch,
-                                ) as unknown as React.MouseEventHandler<HTMLElement>;
-                              }
-                            },
-                          }),
-                        },
-                      ]}
+                      links={
+                        setting.url
+                          ? [
+                              {
+                                children: createMessage(LEARN_MORE),
+                                ...(setting.url && { to: setting.url }),
+                                ...(setting.action && {
+                                  onClick: (e: any) => {
+                                    if (setting.action) {
+                                      e.preventDefault();
+                                      setting.action(
+                                        calloutDispatch,
+                                      ) as unknown as React.MouseEventHandler<HTMLElement>;
+                                    }
+                                  },
+                                }),
+                              },
+                            ]
+                          : []
+                      }
                     >
                       {setting.label || ""}
                     </Callout>

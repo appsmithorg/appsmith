@@ -16,6 +16,7 @@ import UserApi from "@appsmith/api/UserApi";
 import * as Sentry from "@sentry/react";
 import type { ApiResponse } from "api/ApiResponses";
 import { useResendEmailVerification } from "./helpers";
+import AnalyticsUtil from "../../utils/AnalyticsUtil";
 
 const Body = styled.div`
   display: flex;
@@ -24,7 +25,7 @@ const Body = styled.div`
 `;
 
 enum ErrorType {
-  ALREADY_VERIFIED = "AE-APP-4094",
+  ALREADY_VERIFIED = "AE-APP-4095",
   EXPIRED = "AE-APP-4028",
   UNKNOWN = "UNKNOWN",
 }
@@ -56,6 +57,9 @@ const VerifyUser = (
             ErrorType.UNKNOWN;
           setLoading(false);
           setError(errorCode);
+          AnalyticsUtil.logEvent("EMAIL_VERIFICATION_FAILED", {
+            response: response.responseMeta,
+          });
           return;
         }
 
@@ -67,7 +71,7 @@ const VerifyUser = (
       });
   }, [token, email]);
 
-  const resendVerificationLink = useResendEmailVerification(email);
+  const [resendVerificationLink, enabled] = useResendEmailVerification(email);
 
   if (loading) {
     return (
@@ -88,7 +92,9 @@ const VerifyUser = (
           </Callout>
         </Body>
         <Body>
-          <Button onClick={resendVerificationLink}>Send new link</Button>
+          <Button isDisabled={!enabled} onClick={resendVerificationLink}>
+            Send new link
+          </Button>
         </Body>
       </Container>
     );

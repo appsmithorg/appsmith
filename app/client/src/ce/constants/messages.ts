@@ -1246,6 +1246,9 @@ export const TEST_EMAIL_SUCCESS = (email: string) => () =>
   `Test email sent, please check the inbox of ${email}`;
 export const TEST_EMAIL_SUCCESS_TROUBLESHOOT = () => "Troubleshoot";
 export const TEST_EMAIL_FAILURE = () => "Sending test email failed";
+
+export const ADMIN_SETTINGS_EMAIL_WARNING = () =>
+  "Please ensure that the SMTP server is correctly configured. This will be used to send emails about forgot password and email verification";
 export const DISCONNECT_AUTH_ERROR = () =>
   "Cannot disconnect the only connected authentication method.";
 export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";

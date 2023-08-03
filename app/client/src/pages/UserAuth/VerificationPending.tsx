@@ -9,7 +9,7 @@ import {
   VERIFICATION_PENDING_TITLE,
 } from "@appsmith/constants/messages";
 import type { RouteComponentProps } from "react-router-dom";
-import { Link, Text } from "design-system";
+import { Button, Callout, Link, Text } from "design-system";
 import styled from "styled-components";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { useResendEmailVerification } from "./helpers";
@@ -27,7 +27,8 @@ const VerificationPending = (props: RouteComponentProps<{ email: string }>) => {
   const queryParams = new URLSearchParams(props.location.search);
   const email = queryParams.get("email");
 
-  const resendVerificationLink = useResendEmailVerification(email);
+  const [resendVerificationLink, enabled, clicks] =
+    useResendEmailVerification(email);
 
   return (
     <Container title={createMessage(VERIFICATION_PENDING_TITLE)}>
@@ -43,10 +44,20 @@ const VerificationPending = (props: RouteComponentProps<{ email: string }>) => {
         <Text kind="body-m">
           {createMessage(VERIFICATION_PENDING_NO_EMAIL)}
         </Text>
-        <Link kind="primary" onClick={resendVerificationLink}>
-          {createMessage(VERIFICATION_PENDING_RESEND_LINK)}
-        </Link>
       </Body>
+      <Button
+        isDisabled={!enabled}
+        kind="primary"
+        onClick={resendVerificationLink}
+      >
+        {createMessage(VERIFICATION_PENDING_RESEND_LINK)}
+      </Button>
+      {clicks > 1 ? (
+        <Callout kind="warning">
+          Still having trouble with the email? Reach out to the instance admin,
+          and they can help you get started
+        </Callout>
+      ) : null}
     </Container>
   );
 };

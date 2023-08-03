@@ -28,7 +28,7 @@ describe("Email verification", () => {
             responseMeta: {
               success: false,
               error: {
-                code: "AE-APP-4094",
+                code: "AE-APP-4095",
               },
             },
           });

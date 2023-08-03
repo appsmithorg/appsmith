@@ -341,7 +341,9 @@ export type EventName =
   | DATASOURCE_SCHEMA_EVENTS
   | VERSION_UPDATE_EVENTS
   | "SW_REGISTRATION_SUCCESS"
-  | "SW_REGISTRATION_FAILED";
+  | "SW_REGISTRATION_FAILED"
+  | "EMAIL_VERIFICATION_SETTING_UPDATE"
+  | "EMAIL_VERIFICATION_FAILED";
 
 export type DATASOURCE_SCHEMA_EVENTS =
   | "DATASOURCE_SCHEMA_SEARCH"
@@ -570,6 +572,7 @@ class AnalyticsUtil {
           name: userData.name,
           userId: userId,
           source: "cloud",
+          emailVerified: userData.emailVerified,
         };
         AnalyticsUtil.user = userData;
         log.debug("Identify User " + userId);

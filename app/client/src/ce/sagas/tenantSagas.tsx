@@ -54,6 +54,11 @@ export function* updateTenantConfigSaga(
     );
     const hasShowRolesAndGroupsSetting =
       settings.hasOwnProperty("showRolesAndGroups");
+
+    const hasEmailVerificationSetting = settings.hasOwnProperty(
+      "emailVerificationEnabled",
+    );
+
     const response: ApiResponse = yield call(
       TenantApi.updateTenantConfig,
       action.payload,
@@ -75,6 +80,12 @@ export function* updateTenantConfigSaga(
                   settings["showRolesAndGroups"],
               }
             : {}),
+        });
+      }
+
+      if (hasEmailVerificationSetting) {
+        AnalyticsUtil.logEvent("EMAIL_VERIFICATION_SETTING_UPDATE", {
+          enabled: settings["emailVerificationEnabled"],
         });
       }
 
