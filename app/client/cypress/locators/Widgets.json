@@ -201,5 +201,8 @@
   "filepickerwidgetv2CloseModalBtn": "button.uppy-Dashboard-close",
   "codescannerwidget": ".t--widget-codescannerwidget",
   "widgetNameSpan": ".t--widget-propertypane-toggle > .t--widget-name",
-  "listWidgetv2": ".t--widget-listwidgetv2"
+  "listWidgetv2": ".t--widget-listwidgetv2",
+  "progressWidget":".t--widget-progresswidget",
+  "circularProgressWidget":"[data-value='circular']",
+  "linearProgressWidget": "[data-value='linear']"
 }
