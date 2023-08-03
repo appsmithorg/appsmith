@@ -1137,7 +1137,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/product-alert/alert", (req) => {
     req.continue((res) => {
       // This api should always be 200, for any case.
-      cy.log(`Product alert response code: ${res.statusCode}`);
+      // cy.log(`Product alert response code: ${res.statusCode}`);
       // expect(res.statusCode).to.be.equal(200);
       // Mock empty product alerts response so that it does not interfere with tests
       res.send(200, {
