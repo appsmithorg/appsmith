@@ -97,12 +97,15 @@ export function getPropertyControlFocusElement(
  * - authentication type is oauth2 and authorized status success and is a Google Sheet Plugin
  * @param datasource Datasource
  * @param plugin Plugin
+ * @param currentEnvironment string
+ * @param validStatusArr Array<AuthenticationStatus>
  * @returns boolean
  */
 export function isDatasourceAuthorizedForQueryCreation(
   datasource: Datasource,
   plugin: Plugin,
   currentEnvironment = getCurrentEnvironment(),
+  validStatusArr: Array<AuthenticationStatus> = [AuthenticationStatus.SUCCESS],
 ): boolean {
   if (!datasource || !datasource.hasOwnProperty("datasourceStorages"))
     return false;
@@ -125,14 +128,14 @@ export function isDatasourceAuthorizedForQueryCreation(
     datasourceStorage,
     "datasourceConfiguration.authentication.authenticationType",
   );
+  const authStatus = get(
+    datasourceStorage,
+    "datasourceConfiguration.authentication.authenticationStatus",
+  ) as AuthenticationStatus;
 
-  if (isGoogleSheetPlugin) {
+  if (isGoogleSheetPlugin && !!authStatus) {
     const isAuthorized =
-      authType === AuthType.OAUTH2 &&
-      get(
-        datasourceStorage,
-        "datasourceConfiguration.authentication.authenticationStatus",
-      ) === AuthenticationStatus.SUCCESS;
+      authType === AuthType.OAUTH2 && validStatusArr.includes(authStatus);
     return isAuthorized;
   }
 
