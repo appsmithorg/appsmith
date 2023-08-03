@@ -12,7 +12,7 @@ import {
 
 describe("Rating widet testcases", () => {
   before(() => {
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.RATING, 450, 200);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.RATING);
   });
 
   it("1. Validate Max rating and Default rating", () => {
