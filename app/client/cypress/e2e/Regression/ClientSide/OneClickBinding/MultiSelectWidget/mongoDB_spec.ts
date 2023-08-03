@@ -78,22 +78,20 @@ describe("Table widget one click binding feature", () => {
 
     agHelper.Sleep(2000);
 
-    cy.get(formWidgetsPage.multiSelectWidget)
-      .find(".rc-select-selector")
-      .click({
-        force: true,
-      });
-
-    cy.get(formWidgetsPage.multiselectwidgetv2)
-      .find(".rc-select-selection-search-input")
+    cy.get(formWidgetsPage.multiselectWidgetv2search)
       .first()
       .focus({ force: true } as any)
-      .type("I Care a Lot", { force: true });
+      .type("Haunting", { force: true });
 
     assertHelper.AssertNetworkStatus("@postExecute");
 
     agHelper.Sleep(2000);
 
-    cy.get(".rc-select-item").contains("I Care a Lot").should("exist");
+    cy.get(
+      ".rc-select-item-option:contains('The Haunting of Hill House')",
+    ).should("have.length", 1);
+    cy.get(".rc-select-item")
+      .contains("The Haunting of Hill House")
+      .should("exist");
   });
 });
