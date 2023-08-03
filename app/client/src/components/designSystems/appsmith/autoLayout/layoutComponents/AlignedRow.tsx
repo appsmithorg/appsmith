@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import type {
   HighlightInfo,
   LayoutComponentProps,
@@ -18,6 +18,7 @@ import {
   getWidgetRowHeight,
 } from "utils/autoLayout/layoutComponentHighlightUtils";
 import { getLayoutComponent } from "utils/autoLayout/layoutComponentUtils";
+import { getIsFillWidgetFromType } from "utils/autoLayout/flexLayerUtils";
 
 const AlignedRow = (props: LayoutComponentProps) => {
   const {
@@ -29,6 +30,51 @@ const AlignedRow = (props: LayoutComponentProps) => {
     layoutType,
     rendersWidgets,
   } = props;
+
+  const [hasFillWidget, setHasFillWidget] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (rendersWidgets && childrenMap) {
+      const layout: string[][] = props.layout as string[][];
+      setHasFillWidget(
+        layout.reduce((acc, curr) => {
+          return (
+            acc ||
+            curr.some((id) => {
+              return getIsFillWidgetFromType(
+                (childrenMap[id] as JSX.Element).props?.type,
+              );
+            })
+          );
+        }, false),
+      );
+    }
+  }, [layout]);
+
+  const renderChildren = () => {
+    if (!childrenMap) return null;
+    if (hasFillWidget) {
+      return (
+        [
+          ...(layout[0] as string[]),
+          ...(layout[1] as string[]),
+          ...(layout[2] as string[]),
+        ] as string[]
+      ).map((id: string) => childrenMap[id]);
+    }
+    return [
+      <div className="alignment start-alignment" key={0}>
+        {(layout[0] as string[]).map((id: string) => childrenMap[id])}
+      </div>,
+      <div className="alignment center-alignment" key={1}>
+        {(layout[1] as string[]).map((id: string) => childrenMap[id])}
+      </div>,
+      <div className="alignment end-alignment" key={2}>
+        {(layout[2] as string[]).map((id: string) => childrenMap[id])}
+      </div>,
+    ];
+  };
+
   if (rendersWidgets && childrenMap) {
     return (
       <FlexLayout
@@ -58,15 +104,7 @@ const AlignedRow = (props: LayoutComponentProps) => {
             widgetName={props.containerProps.widgetName}
           />
         ) : null}
-        <div className="alignment start-alignment">
-          {(layout[0] as string[]).map((id: string) => childrenMap[id])}
-        </div>
-        <div className="alignment center-alignment">
-          {(layout[1] as string[]).map((id: string) => childrenMap[id])}
-        </div>
-        <div className="alignment end-alignment">
-          {(layout[2] as string[]).map((id: string) => childrenMap[id])}
-        </div>
+        {renderChildren()}
       </FlexLayout>
     );
   }
