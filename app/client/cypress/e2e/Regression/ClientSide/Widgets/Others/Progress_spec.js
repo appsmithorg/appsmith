@@ -175,7 +175,6 @@ describe("Progress Widget", function () {
     );
     propPane.UpdatePropertyFieldValue("Progress", "101");
     agHelper.VerifyEvaluatedErrorMessage("Maximum allowed value: 100");
-
     // set input entered in text widget to progress
     propPane.UpdatePropertyFieldValue("Progress", "{{Input1.text}}");
     deployMode.DeployApp();
