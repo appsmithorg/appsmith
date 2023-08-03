@@ -22,6 +22,7 @@ export cluster_name=uat-cluster
 echo "Region: $region"
 echo "Cluster name: $cluster_name"
 echo "Pull Request Number: $PULL_REQUEST_NUMBER"
+echo "DP_EFS_ID: $DP_EFS_ID"
 
 sts_output=$(aws sts assume-role --role-arn env.AWS_ROLE_ARN --role-session-name ekscisession)
 export AWS_ACCESS_KEY_ID=$(echo $sts_output | jq -r '.Credentials''.AccessKeyId');\
@@ -33,14 +34,14 @@ if [[ -n "${RECREATE-}" ]]
 then
   kubectl delete ns $NAMESPACE || true
   mongosh "mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$DBNAME?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" --eval 'db.dropDatabase()'
-  ACCESS_POINT_ID=$(aws efs describe-access-points --file-system-id "$APPSMITH_DP_EFS_ID" | jq -r '.AccessPoints[] | select(.Name=="'"ce$PULL_REQUEST_NUMBER"'") | .AccessPointId')
+  ACCESS_POINT_ID=$(aws efs describe-access-points --file-system-id "$DP_EFS_ID" | jq -r '.AccessPoints[] | select(.Name=="'"ce$PULL_REQUEST_NUMBER"'") | .AccessPointId')
   aws efs delete-access-point --access-point-id $ACCESS_POINT_ID
 fi
 
 echo "Create Access Point and Access Point ID"
 ## Use DP-EFS and create ACCESS_POINT
-ACCESS_POINT=$(aws efs create-access-point --file-system-id $APPSMITH_DP_EFS_ID --tags Key=Name,Value=ce$PULL_REQUEST_NUMBER)
-export ACCESS_POINT_ID=$(echo $ACCESS_POINT | jq -r '.AccessPointId');
+ACCESS_POINT=$(aws efs create-access-point --file-system-id $DP_EFS_ID --tags Key=Name,Value=ce$PULL_REQUEST_NUMBER)
+ACCESS_POINT_ID=$(echo $ACCESS_POINT | jq -r '.AccessPointId');
 
 export NAMESPACE=ce"$PULL_REQUEST_NUMBER"
 export CHARTNAME=ce"$PULL_REQUEST_NUMBER"
