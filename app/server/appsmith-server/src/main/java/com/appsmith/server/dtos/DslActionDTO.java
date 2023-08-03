@@ -23,6 +23,9 @@ public class DslActionDTO {
     @JsonView(Views.Internal.class)
     String defaultActionId;
 
+    @JsonView(Views.Public.class)
+    String moduleInstanceId;
+
     @JsonView(Views.Internal.class)
     String defaultCollectionId;
 

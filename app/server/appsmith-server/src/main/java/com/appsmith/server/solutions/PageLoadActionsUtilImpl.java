@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.repositories.ModuleRepository;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.solutions.ce.PageLoadActionsUtilCEImpl;
@@ -14,7 +15,8 @@ public class PageLoadActionsUtilImpl extends PageLoadActionsUtilCEImpl implement
     public PageLoadActionsUtilImpl(NewActionService newActionService,
                                    AstService astService,
                                    ActionPermission actionPermission,
-                                   ObjectMapper objectMapper) {
-        super(newActionService, astService, actionPermission, objectMapper);
+                                   ObjectMapper objectMapper,
+                                   ModuleRepository moduleRepository) {
+        super(newActionService, astService, actionPermission, objectMapper, moduleRepository);
     }
 }

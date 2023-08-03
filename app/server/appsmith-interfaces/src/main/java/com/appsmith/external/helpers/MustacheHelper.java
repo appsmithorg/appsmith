@@ -1,9 +1,6 @@
 package com.appsmith.external.helpers;
 
-import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.EntityDependencyNode;
-import com.appsmith.external.models.EntityReferenceType;
-import com.appsmith.external.models.MustacheBindingToken;
+import com.appsmith.external.models.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.BeanWrapper;
@@ -67,8 +64,9 @@ public class MustacheHelper {
 
     // Possible types of entity references that we want to be filtering
     // from the global identifiers found in a dynamic binding
-    public static final int ACTION_ENTITY_REFERENCES = 0b01;
-    public static final int WIDGET_ENTITY_REFERENCES = 0b10;
+    public static final int ACTION_ENTITY_REFERENCES = 0b001;
+    public static final int WIDGET_ENTITY_REFERENCES = 0b010;
+    public static final int MODULE_ENTITY_REFERENCES = 0b100;
 
 
     /**
@@ -359,6 +357,10 @@ public class MustacheHelper {
                 if ((types & ACTION_ENTITY_REFERENCES) == ACTION_ENTITY_REFERENCES) {
                     totalParents.addAll(MustacheHelper.getPossibleActions(reference));
                 }
+                if ((types & MODULE_ENTITY_REFERENCES) == MODULE_ENTITY_REFERENCES) {
+                    totalParents.addAll(MustacheHelper.getPossibleModuleActions(reference));
+                }
+
                 if ((types & WIDGET_ENTITY_REFERENCES) == WIDGET_ENTITY_REFERENCES) {
                     totalParents.addAll(MustacheHelper.getPossibleWidgets(reference));
                 }
@@ -390,7 +392,7 @@ public class MustacheHelper {
         if (subStrings.length < 1) {
             return dependencyNodes;
         } else {
-            EntityDependencyNode entityDependencyNode = new EntityDependencyNode(EntityReferenceType.WIDGET, subStrings[0], reference, null, null, null);
+            EntityDependencyNode entityDependencyNode = new EntityDependencyNode(EntityReferenceType.WIDGET, subStrings[0], reference, null, null, null, null);
             dependencyNodes.add(entityDependencyNode);
         }
 
@@ -429,19 +431,19 @@ public class MustacheHelper {
         if (subStrings.length == 2) {
             // This could qualify if it is a sync JS function call, even if it is called `JsObject1.data()`
             // For sync JS actions, the entire reference could be a function call
-            EntityDependencyNode entityDependencyNode = new EntityDependencyNode(EntityReferenceType.JSACTION, key, reference, false, true, null);
+            EntityDependencyNode entityDependencyNode = new EntityDependencyNode(EntityReferenceType.JSACTION, key, reference, false, true, null, null);
             dependencyNodes.add(entityDependencyNode);
             if ("data".equals(subStrings[1])) {
                 // This means it is a valid API/query reference
                 // For queries and APIs, the first word is the action name
-                EntityDependencyNode actionEntityDependencyNode = new EntityDependencyNode(EntityReferenceType.ACTION, subStrings[0], reference, false, false, null);
+                EntityDependencyNode actionEntityDependencyNode = new EntityDependencyNode(EntityReferenceType.ACTION, subStrings[0], reference, false, false, null, null);
                 dependencyNodes.add(actionEntityDependencyNode);
             }
         } else if (subStrings.length > 2) {
             if ("data".equals(subStrings[1])) {
                 // This means it is a valid API/query reference
                 // For queries and APIs, the first word is the action name
-                EntityDependencyNode actionEntityDependencyNode = new EntityDependencyNode(EntityReferenceType.ACTION, subStrings[0], reference, false, false, null);
+                EntityDependencyNode actionEntityDependencyNode = new EntityDependencyNode(EntityReferenceType.ACTION, subStrings[0], reference, false, false, null, null);
                 dependencyNodes.add(actionEntityDependencyNode);
             }
             if ("data".equals(subStrings[2])) {
@@ -449,7 +451,48 @@ public class MustacheHelper {
                 // the collection name and the individual action name
                 // We don't know if this is a run for sync or async JS action at this point,
                 // since both would be valid
-                EntityDependencyNode entityDependencyNode = new EntityDependencyNode(EntityReferenceType.JSACTION, subStrings[0] + "." + subStrings[1], reference, null, false, null);
+                EntityDependencyNode entityDependencyNode = new EntityDependencyNode(EntityReferenceType.JSACTION, subStrings[0] + "." + subStrings[1], reference, null, false, null, null);
+                dependencyNodes.add(entityDependencyNode);
+            }
+        }
+        return dependencyNodes;
+    }
+
+    public static Set<EntityDependencyNode> getPossibleModuleActions(String reference) {
+        Set<EntityDependencyNode> dependencyNodes = new HashSet<>();
+        String key = reference.trim();
+
+
+        String[] subStrings = nestedPathTokenSplitter.split(key);
+
+        if (subStrings.length < 1) {
+            return dependencyNodes;
+        }
+
+        if (subStrings.length == 2) {
+            // This could qualify if it is a sync JS function call, even if it is called `JsObject1.data()`
+            // For sync JS actions, the entire reference could be a function call
+            EntityDependencyNode entityDependencyNode = new EntityDependencyNode(EntityReferenceType.JSACTION, key, reference, false, true, null, null);
+            dependencyNodes.add(entityDependencyNode);
+            if ("data".equals(subStrings[1])) {
+                // This means it is a valid API/query reference
+                // For queries and APIs, the first word is the action name
+                EntityDependencyNode actionEntityDependencyNode = new EntityDependencyNode(EntityReferenceType.QUERY_MODULE, subStrings[0], reference, false, false, null, null);
+                dependencyNodes.add(actionEntityDependencyNode);
+            }
+        } else if (subStrings.length > 2) {
+            if ("data".equals(subStrings[1])) {
+                // This means it is a valid API/query reference
+                // For queries and APIs, the first word is the action name
+                EntityDependencyNode actionEntityDependencyNode = new EntityDependencyNode(EntityReferenceType.QUERY_MODULE, subStrings[0], reference, false, false, null, null);
+                dependencyNodes.add(actionEntityDependencyNode);
+            }
+            if ("data".equals(subStrings[2])) {
+                // For JS actions, the first two words are the action name since action name consists of
+                // the collection name and the individual action name
+                // We don't know if this is a run for sync or async JS action at this point,
+                // since both would be valid
+                EntityDependencyNode entityDependencyNode = new EntityDependencyNode(EntityReferenceType.JSACTION, subStrings[0] + "." + subStrings[1], reference, null, false, null, null);
                 dependencyNodes.add(entityDependencyNode);
             }
         }

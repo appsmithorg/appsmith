@@ -31,48 +31,6 @@ public class ModuleServiceCEImpl extends BaseService<ModuleRepository, Module, S
 
     @Override
     public Mono<ModuleDTO> createModule(ModuleDTO moduleDTO) {
-        Module module = new Module();
-
-        ActionDTO actionDTO = new ActionDTO();
-        actionDTO.setName(moduleDTO.getName());
-        actionDTO.setActionConfiguration(moduleDTO.getActionConfiguration());
-        actionDTO.setDatasource(moduleDTO.getDatasource());
-
-
-        NewAction moduleAction = new NewAction();
-        moduleAction.setPluginId(moduleDTO.getPluginId());
-        moduleAction.setPluginType(moduleDTO.getPluginType());
-        moduleAction.setWorkspaceId(moduleDTO.getWorkspaceId());
-        moduleAction.setUnpublishedAction(actionDTO);
-
-        Policy policy = new Policy();
-        policy.setPermission(AclPermission.EXECUTE_ACTIONS.getValue());
-        policy.setPermissionGroups(
-                Set.of(
-                        "642e731932cef56b966a9c99",
-                        "642e731932cef56b966a9c98"
-                )
-        );
-
-        moduleAction.setPolicies(Set.of(policy));
-
-
-        module.setPackageId(moduleDTO.getPackageId());
-        module.setWorkspaceId(moduleDTO.getWorkspaceId());
-
-
-        return moduleRepository.save(module)
-                .flatMap(savedModule -> {
-                    moduleAction.setModuleId(savedModule.getId());
-                    return Mono.just(moduleAction);
-                }).flatMap(mAction -> {
-                    return newActionService.save(mAction)
-                            .flatMap(savedAction-> {
-                                module.setPublicActionId(savedAction.getId());
-                                moduleDTO.setId(module.getId());
-                                moduleDTO.setPublicActionId(moduleAction.getId());
-                                return moduleRepository.save(module).thenReturn(moduleDTO);
-                            });
-                });
+        return Mono.empty();
     }
 }

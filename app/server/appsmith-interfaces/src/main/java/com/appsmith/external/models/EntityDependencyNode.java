@@ -16,6 +16,7 @@ public class EntityDependencyNode {
     Boolean isAsync;
     Boolean isFunctionCall;
     ActionDTO actionDTO;
+    ModuleDTO moduleDTO;
 
     public boolean isValidDynamicBinding() {
         boolean result = true;
@@ -45,6 +46,10 @@ public class EntityDependencyNode {
 
             // TODO: This one feels a little hacky. Should we introduce another property that handles whether the node is coming from a binding or i
             if (this.isAsync == null && !this.referenceString.startsWith(this.validEntityName + ".data")) {
+                result = false;
+            }
+        } else if (EntityReferenceType.QUERY_MODULE.equals(this.entityReferenceType)) {
+            if (!this.referenceString.startsWith(this.validEntityName + ".data")) {
                 result = false;
             }
         }
