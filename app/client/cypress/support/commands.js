@@ -1137,8 +1137,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/product-alert/alert", (req) => {
     req.continue((res) => {
       // This api should always be 200, for any case.
-      // cy.log(`Product alert response code: ${res.statusCode}`);
-      // expect(res.statusCode).to.be.equal(200);
+      expect(res.statusCode).to.be.equal(200);
       // Mock empty product alerts response so that it does not interfere with tests
       res.send(200, {
         responseMeta: {
@@ -1382,6 +1381,7 @@ Cypress.Commands.add("createSuperUser", () => {
       expect(interception.request.body).contains("signupForNewsletter=true");
     });
   }
+  cy.wait("@getWorkspace");
 
   cy.LogOut();
   cy.wait(2000);
