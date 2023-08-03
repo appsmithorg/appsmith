@@ -5,6 +5,7 @@ import {
   dataSources,
   entityExplorer,
   homePage,
+  locators
 } from "../../../../support/Objects/ObjectsCore";
 
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
