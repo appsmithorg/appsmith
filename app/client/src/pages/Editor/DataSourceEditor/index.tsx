@@ -446,7 +446,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   }
 
   closeDialog() {
-    this.setState({ showDialog: false });
+    this.setState({ showDialog: false, switchFilterBlocked: false });
   }
 
   onSave() {
