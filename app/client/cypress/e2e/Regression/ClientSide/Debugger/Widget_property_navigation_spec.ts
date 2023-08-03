@@ -78,10 +78,21 @@ describe("excludeForAirgap", "Widget property navigation", () => {
   });
 
   it("JSONForm widget error navigation", () => {
+    const schema = {
+      name: "John",
+      date_of_birth: "20/02/1990",
+      employee_id: 1001,
+    };
     _.entityExplorer.DragDropWidgetNVerify(
       _.draggableWidgets.JSONFORM,
       100,
       200,
+    );
+    _.propPane.EnterJSContext(
+      "sourcedata",
+      JSON.stringify(schema),
+      true,
+      false,
     );
     _.propPane.OpenTableColumnSettings("date_of_birth");
 
