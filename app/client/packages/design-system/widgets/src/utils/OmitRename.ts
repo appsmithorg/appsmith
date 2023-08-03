@@ -3,7 +3,5 @@ export type OmitRename<
   TOmitKeys extends keyof TObj,
   TSymbol extends string = "$",
 > = {
-  [K in keyof TObj as K extends TOmitKeys
-    ? never
-    : `${TSymbol}${string & K}`]: TObj[K];
-} & Omit<TObj, TOmitKeys>;
+  [K in keyof Omit<TObj, TOmitKeys> as `${TSymbol}${string & K}`]: TObj[K];
+} & Pick<TObj, TOmitKeys>;

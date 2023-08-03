@@ -5,28 +5,33 @@ import type {
 import React, { forwardRef } from "react";
 import { Icon as HeadlessIcon } from "@design-system/headless";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
-
 import { Text } from "../Text";
 import { Spinner } from "../Spinner";
+import type {
+  BUTTON_COLORS,
+  BUTTON_VARIANTS,
+  BUTTON_ICON_POSITIONS,
+} from "./types";
 import { DragContainer, StyledButton } from "./index.styled";
 
 export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
   /** variant of the button
-   *
-   * @default "filled"
+   * @default filled
    */
-  variant?: "filled" | "outlined" | "ghost";
-  /** Color tone of the button */
-  color?: "accent" | "neutral" | "positive" | "negative" | "warning";
-  /** When true, makes the button occupy all the space available */
-  isFitContainer?: boolean;
+  variant?: (typeof BUTTON_VARIANTS)[keyof typeof BUTTON_VARIANTS];
+  /** Color tone of the button
+   * @default accent
+   */
+  color?: (typeof BUTTON_COLORS)[keyof typeof BUTTON_COLORS];
   /** Indicates the loading state of the button */
   isLoading?: boolean;
   /** Icon to be used in the button of the button */
   icon?: React.ReactNode;
-  /** Indicates the position of icon of the button */
-  iconPosition?: "start" | "end";
-  /** Makes the button visually and functionally disabled but focusable */
+  /** Indicates the position of icon of the button
+   * @default accent
+   */
+  iconPosition?: (typeof BUTTON_ICON_POSITIONS)[keyof typeof BUTTON_ICON_POSITIONS];
+  /** Makes the button visually and functionaly disabled but focusable */
   visuallyDisabled?: boolean;
 }
 
@@ -38,7 +43,6 @@ export const Button = forwardRef(
       color = "accent",
       icon,
       iconPosition = "start",
-      isFitContainer = false,
       isLoading,
       // eslint-disable-next-line -- TODO add onKeyUp when the bug is fixed https://github.com/adobe/react-spectrum/issues/4350
       onKeyUp,
@@ -64,7 +68,9 @@ export const Button = forwardRef(
       return (
         <>
           {icon}
-          <Text lineClamp={1}>{children}</Text>
+          <Text lineClamp={1} textAlign="center">
+            {children}
+          </Text>
         </>
       );
     };
@@ -78,8 +84,8 @@ export const Button = forwardRef(
           visuallyDisabled || isLoading || props.isDisabled ? true : undefined
         }
         data-button=""
-        data-fit-container={isFitContainer ? "" : undefined}
-        data-icon-position={iconPosition === "start" ? undefined : "end"}
+        data-color={color}
+        data-icon-position={iconPosition === "start" ? "start" : "end"}
         data-loading={isLoading ? "" : undefined}
         data-variant={variant}
         draggable

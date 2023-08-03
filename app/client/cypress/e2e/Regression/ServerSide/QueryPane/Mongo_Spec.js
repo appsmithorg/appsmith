@@ -83,7 +83,6 @@ describe("Validate Mongo query commands", function () {
     );
 
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "listingAndReviews",
     });
@@ -153,7 +152,6 @@ describe("Validate Mongo query commands", function () {
       "Count",
     );
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "listingAndReviews",
     });
@@ -182,7 +180,6 @@ describe("Validate Mongo query commands", function () {
       "Distinct",
     );
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "listingAndReviews",
     });
@@ -215,7 +212,6 @@ describe("Validate Mongo query commands", function () {
       "Aggregate",
     );
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "listingAndReviews",
     });
@@ -411,7 +407,6 @@ describe("Validate Mongo query commands", function () {
     {"_id":3, "Från" :"Olivia" , "Frõ" :"Active",   "Leverantör":"De Bolster", "Frö":"Sallad - Oakleaf 'Red Salad Bowl'"}]`;
 
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "NonAsciiTest",
     });

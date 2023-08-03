@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
  */
 @Slf4j
-public class RowsGetMethod implements ExecutionMethod, TemplateMethod {
+public class RowsGetMethod implements ExecutionMethod, TemplateMethod, TriggerMethod {
 
     ObjectMapper objectMapper;
     FilterDataService filterDataService;
@@ -191,6 +191,22 @@ public class RowsGetMethod implements ExecutionMethod, TemplateMethod {
         }
 
         return preFilteringResponse;
+    }
+
+    @Override
+    public boolean validateTriggerMethodRequest(MethodConfig methodConfig) {
+        return this.validateExecutionMethodRequest(methodConfig);
+    }
+
+    @Override
+    public WebClient.RequestHeadersSpec<?> getTriggerClient(WebClient webClient, MethodConfig methodConfig) {
+        return this.getExecutionClient(webClient, methodConfig);
+    }
+
+    @Override
+    public JsonNode transformTriggerResponse(
+            JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
+        return this.transformExecutionResponse(response, methodConfig, userAuthorizedSheetIds);
     }
 
     private Set<String> sanitizeHeaders(ArrayNode headers, int valueSize) {

@@ -85,25 +85,12 @@ describe(" Nested List Widgets ", function () {
         y: 100,
       },
     );
-    propPane.RemoveText("Text");
+    propPane.TypeTextIntoField("Text", "{{level_1.currentView.");
 
-    cy.get(".t--property-control-text .CodeMirror textarea").type(
-      "{{level_1.currentView.",
-      {
-        force: true,
-      },
-    );
     checkAutosuggestion("Text1", "Object");
     checkAutosuggestion("List1Copy", "Object");
 
-    propPane.RemoveText("Text", false);
-
-    cy.get(".t--property-control-text .CodeMirror textarea").type(
-      "{{level_1.currentView.List1Copy.",
-      {
-        force: true,
-      },
-    );
+    propPane.TypeTextIntoField("Text", "{{level_1.currentView.List1Copy.");
     checkAutosuggestion("backgroundColor", "String");
     checkAutosuggestion("itemSpacing", "Number");
     checkAutosuggestion("isVisible", "Boolean");
@@ -123,10 +110,7 @@ describe(" Nested List Widgets ", function () {
       cy.wrap($el).should("not.have.text", "triggeredItemView");
     });
 
-    cy.get(".CodeMirror-hints")
-      .contains("pageNo")
-      .first()
-      .click({ force: true });
+    agHelper.GetNClickByContains(".CodeMirror-hints", "pageNo", 0, true);
 
     cy.get(`${widgetSelector("Text2")} .bp3-ui-text span`).should(
       "have.text",

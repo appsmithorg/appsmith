@@ -2,6 +2,7 @@ import { Colors } from "constants/Colors";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { RateWidgetProps } from "./widget";
+import type { SnipingModeProperty, PropertyUpdates } from "widgets/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
@@ -74,6 +75,19 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
     setterConfig: Widget.getSetterConfig(),
+  },
+  methods: {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
+      return [
+        {
+          propertyPath: "onRateChanged",
+          propertyValue: propValueMap.run,
+          isDynamicPropertyPath: true,
+        },
+      ];
+    },
   },
 };
 
