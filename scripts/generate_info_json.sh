@@ -37,6 +37,8 @@ jq -n \
   --arg githubRef "$git_ref" \
   --arg gitNearestTag "$git_tag" \
   --arg githubRunUrl "${github_run_url-}" \
+  --arg gitUserName "$(git config user.name)" \
+  --arg gitUserEmail "$(git config user.email)" \
   --arg date "$(date -u -Iseconds)" \
   --argjson isCI "${CI:-false}" \
   '$ARGS.named' | tee "$(git rev-parse --show-toplevel)/info.json"
