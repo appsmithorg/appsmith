@@ -39,7 +39,7 @@ fi
 
 ## Use DP-EFS and create ACCESS_POINT
 ACCESS_POINT=$(aws efs create-access-point --file-system-id $DP_EFS_ID --tags Key=Name,Value=$PULL_REQUEST_NUMBER)
-ACCESS_POINT_ID=$(echo $ACCESS_POINT | jq '.AccessPointId' | tr -d '"')
+ACCESS_POINT_ID=$(echo $ACCESS_POINT | jq -r '.AccessPointId')
 
 export NAMESPACE=ce"$PULL_REQUEST_NUMBER"
 export CHARTNAME=ce"$PULL_REQUEST_NUMBER"
@@ -70,7 +70,7 @@ kubectl create secret docker-registry $SECRET \
   --docker-password=$DOCKER_HUB_ACCESS_TOKEN -n $NAMESPACE
 
 echo "Add appsmith-ee to helm repo"
-AWS_REGION=us-east-2 helm repo add $HELMCHART $HELMCHART_URL
+helm repo add "$HELMCHART" "$HELMCHART_URL"
 
 echo "Deploy appsmith helm chart"
 helm upgrade -i $CHARTNAME appsmith-ee/$HELMCHART -n $NAMESPACE --create-namespace --recreate-pods \
