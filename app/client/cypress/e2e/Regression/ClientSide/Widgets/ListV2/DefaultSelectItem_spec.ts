@@ -14,35 +14,29 @@ const dsl = require("../../../../../fixtures/Listv2/ListV2_Reset_dsl.json");
 const items = dsl.dsl.children[4]?.listData;
 const verifyDefaultItem = () => {
   agHelper.Sleep(1000);
-  cy.waitUntil(() =>
-    agHelper
-      .GetElement(
-        `${locators._widgetByName("SelectedItemView")} ${
-          propPane._propertyText
-        }`,
-      )
-      .then((val) => {
-        const data = JSON.parse(val.text());
-        cy.waitUntil(() => cy.wrap(data?.Text11?.text).should("equal", "4"));
-      }),
-  );
 
   agHelper
-    .GetElement(
-      `${locators._widgetByName("SelectedItem")} ${propPane._propertyText}`,
+    .GetText(
+      `${locators._widgetByName("SelectedItemView")} ${propPane._propertyText}`,
     )
-    .then((val) => {
-      const data = JSON.parse(val.text());
-      cy.wrap(data?.id).should("deep.equal", 4);
+    .then((val: any) => {
+      cy.wrap(JSON.parse(val)?.Text11?.text).should("equal", "4");
     });
 
   agHelper
-    .GetElement(
+    .GetText(
+      `${locators._widgetByName("SelectedItem")} ${propPane._propertyText}`,
+    )
+    .then((val: any) => {
+      cy.wrap(JSON.parse(val)?.id).should("deep.equal", 4);
+    });
+
+  agHelper
+    .GetText(
       `${locators._widgetByName("SelectedItemKey")} ${propPane._propertyText}`,
     )
-    .then((val) => {
-      const data = JSON.parse(val.text());
-      cy.wrap(data).should("deep.equal", 4);
+    .then((val: any) => {
+      cy.wrap(JSON.parse(val)).should("deep.equal", 4);
     });
 };
 
@@ -179,11 +173,7 @@ describe("List widget v2 Reset List widget and Refresh Data", () => {
 
   it("2. Reset List Widget", () => {
     // Select a new List Item on another page
-    agHelper.GetNClick(
-      `${locators._widgetByName("List1")} ${locators._paginationItem(1)}`,
-      0,
-      true,
-    );
+    table.NavigateToSpecificPage_List(1);
 
     table.AssertPageNumber_List(1, false, "v2");
 
@@ -195,22 +185,15 @@ describe("List widget v2 Reset List widget and Refresh Data", () => {
 
     agHelper.Sleep(400);
 
-    cy.waitUntil(() =>
-      agHelper
-        .GetElement(
-          `${locators._widgetByName("SelectedItem")} ${propPane._propertyText}`,
-        )
-        .then((val) => {
-          const data = JSON.parse(val.text());
-          cy.wrap(data?.id).should("deep.equal", 1);
-        }),
-    );
+    agHelper
+      .GetText(
+        `${locators._widgetByName("SelectedItem")} ${propPane._propertyText}`,
+      )
+      .then((val: any) => {
+        cy.wrap(JSON.parse(val)?.id).should("equal", 1);
+      });
 
-    agHelper.GetNClick(
-      `${locators._widgetByName("ResetWidget")} button`,
-      0,
-      true,
-    );
+    agHelper.ClickButton("Reset List Widget");
 
     table.AssertPageNumber_List(2, false, "v2");
 
@@ -228,22 +211,14 @@ describe("List widget v2 Reset List widget and Refresh Data", () => {
     verifyDefaultItem();
 
     //Move to another page and verify the value is cached.
-    agHelper.GetNClick(
-      `${locators._widgetByName("List1")} ${locators._paginationItem(4)}`,
-      0,
-      true,
-    );
+    table.NavigateToSpecificPage_List(4);
 
     table.AssertPageNumber_List(4, false, "v2");
 
     verifyDefaultItem();
 
     // Refresh Data and see the Default Item remains the same
-    agHelper.GetNClick(
-      `${locators._widgetByName("RefreshData")} button`,
-      0,
-      true,
-    );
+    agHelper.ClickButton("Refresh Data");
 
     cy.waitUntil(() =>
       agHelper.AssertElementLength(
@@ -264,17 +239,8 @@ describe("List widget v2 Reset List widget and Refresh Data", () => {
       0,
       true,
     );
-
+    agHelper.ClickButton("Reset List Widget");
     agHelper.Sleep(500);
-
-    agHelper.GetNClick(
-      `${locators._widgetByName("ResetWidget")} button`,
-      0,
-      true,
-    );
-
-    agHelper.Sleep(500);
-
     verifyDefaultItem();
   });
 });

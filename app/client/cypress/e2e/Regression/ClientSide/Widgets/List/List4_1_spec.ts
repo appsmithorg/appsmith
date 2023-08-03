@@ -5,6 +5,7 @@ import {
   propPane,
   deployMode,
   draggableWidgets,
+  table,
 } from "../../../../../support/Objects/ObjectsCore";
 const dsl = require("../../../../../fixtures/listdsl.json");
 
@@ -144,7 +145,7 @@ describe("List Widget Functionality", function () {
 
   it("7. it checks pagination", function () {
     // clicking on second pagination button
-    agHelper.GetNClick(`${locators._paginationItem(2)}`);
+    table.NavigateToSpecificPage_List(2);
 
     // now we are on the second page which shows first the 3rd item in the list
     agHelper.GetNAssertElementText(

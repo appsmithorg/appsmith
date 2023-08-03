@@ -43,9 +43,8 @@ describe("List v2 - Data Identifier property", () => {
     agHelper.AddDsl("Listv2/simpleList");
 
     entityExplorer.SelectEntityByName("List1");
-
-    agHelper.GetNAssertContains(
-      `${locators._propertyControl}dataidentifier`,
+    propPane.AssertPropertiesDropDownCurrentValue(
+      "Data Identifier",
       "Please select an option",
     );
 
@@ -68,10 +67,10 @@ describe("List v2 - Data Identifier property", () => {
 
   it("3. enabling the JS mode, it should prefill with currentItem", () => {
     propPane.ToggleJSMode("Data Identifier", true);
-    agHelper
-      .GetElement(locators._existingFieldTextByName("Data Identifier"))
-      .find(".CodeMirror .CodeMirror-code")
-      .contains(`{{ currentItem["id"] }}`);
+    propPane.ValidatePropertyFieldValue(
+      "Data Identifier",
+      `{{ currentItem["id"] }}`,
+    );
   });
 
   it("4. when given composite key, should produce a valid array", () => {
@@ -96,7 +95,8 @@ describe("List v2 - Data Identifier property", () => {
       locators._widgetInCanvas(draggableWidgets.CONTAINER),
       2,
     );
-    agHelper.GetNClickByContains(`${locators._pagination} a`, "2", 0, true);
+    //pagination should work
+    table.NavigateToSpecificPage_List(2);
     agHelper.AssertElementLength(
       locators._widgetInCanvas(draggableWidgets.CONTAINER),
       2,
@@ -119,15 +119,7 @@ describe("List v2 - Data Identifier property", () => {
     );
   });
 
-  it("7. pagination should work for non unique data identifier", () => {
-    agHelper.GetNClickByContains(`${locators._pagination} a`, "2", 0, true);
-    agHelper.AssertElementLength(
-      locators._widgetInCanvas(draggableWidgets.CONTAINER),
-      2,
-    );
-  });
-
-  it("8. Widgets get displayed when PrimaryKey doesn't exist - SSP", () => {
+  it("7. Widgets get displayed when PrimaryKey doesn't exist - SSP", () => {
     agHelper.AddDsl("Listv2/ListV2WithNullPrimaryKey");
     apiPage.CreateAndFillApi(
       "https://api.punkapi.com/v2/beers?page={{List1.pageNo}}&per_page={{List1.pageSize}}",
@@ -135,36 +127,30 @@ describe("List v2 - Data Identifier property", () => {
     );
     apiPage.RunAPI(false);
     entityExplorer.ExpandCollapseEntity("List1");
-    entityExplorer.ExpandCollapseEntity("Container1");
-    entityExplorer.SelectEntityByName("Text2");
+    entityExplorer.SelectEntityByName("Text2", "Container1");
     propPane.UpdatePropertyFieldValue("Text", "{{currentIndex}}");
     agHelper.AssertText(
       `${locators._widgetByName("Text2")} ${propPane._propertyText}`,
       "text",
       "0",
-      0,
     );
-    //
     table.NavigateToPageUsingButton_List("next", 2);
     agHelper.AssertText(
       `${locators._widgetByName("Text2")} ${propPane._propertyText}`,
       "text",
       "0",
-      0,
     );
   });
 
-  it("9. Widgets get displayed when PrimaryKey doesn't exist - Client-Side Pagination", () => {
+  it("8. Widgets get displayed when PrimaryKey doesn't exist - Client-Side Pagination", () => {
     entityExplorer.ExpandCollapseEntity("List2");
-    entityExplorer.ExpandCollapseEntity("Container2");
-    entityExplorer.SelectEntityByName("Text4");
+    entityExplorer.SelectEntityByName("Text4", "Container2");
     propPane.UpdatePropertyFieldValue("Text", "{{currentIndex}}");
 
     agHelper.AssertText(
       `${locators._widgetByName("Text4")} ${propPane._propertyText}`,
       "text",
       "0",
-      0,
     );
 
     table.NavigateToNextPage_List("v2", 1);
@@ -172,7 +158,6 @@ describe("List v2 - Data Identifier property", () => {
       `${locators._widgetByName("Text4")} ${propPane._propertyText}`,
       "text",
       "1",
-      0,
     );
 
     table.NavigateToNextPage_List("v2", 1);
@@ -181,11 +166,10 @@ describe("List v2 - Data Identifier property", () => {
       `${locators._widgetByName("Text4")} ${propPane._propertyText}`,
       "text",
       "2",
-      0,
     );
   });
 
-  it("10. Non unique data identifier should throw error- (data type issue)", () => {
+  it("9. Non unique data identifier should throw error- (data type issue)", () => {
     entityExplorer.SelectEntityByName("List2");
     propPane.UpdatePropertyFieldValue("Items", JSON.stringify(data));
     // clicking on the data identifier dropdown

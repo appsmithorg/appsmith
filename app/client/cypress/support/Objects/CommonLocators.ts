@@ -261,18 +261,13 @@ export class CommonLocators {
   _controlOption = ".t--property-control-options";
   _canvasBody = "[data-testid='div-selection-0']";
   _itemContainerWidget = ".t--widget-containerwidget div.style-container";
-  _paginationButton = ".rc-pagination-item";
-  _firstChild = ":first-child";
   _adsV2Content = ".ads-v2__content";
   _adsV2CollapsibleHeader = ".ads-v2-collapsible__header";
   _adsV2Text = ".ads-v2-text";
   _svg = "svg";
   _imgWidgetInsideList = `//div[@data-testid='styledImage']//img`;
   _containerWidget = "[type='CONTAINER_WIDGET']";
-  _listActivePage = ".t--widget-listwidgetv2 .rc-pagination-item-active";
-  _paginationItem = (value: number) => `.rc-pagination-item-${value}`;
   _evaluatedValue = ".t-property-evaluated-value";
-  _selectSearch = ".rc-select-selection-search";
   public ds_editor_env_filter = (envName: string) =>
     `[data-testid="t--ds-data-filter-${envName}"]`;
   _textWidgetContaioner = ".t--text-widget-container span";

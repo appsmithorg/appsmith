@@ -10,7 +10,6 @@ import {
 describe("List widget V2 PropertyPane", () => {
   it("1. Validate isVisible", () => {
     entityExplorer.DragDropWidgetNVerify("listwidgetv2", 300, 300);
-    entityExplorer.SelectEntityByName("List1");
     propPane.TogglePropertyState("Visible", "Off");
     deployMode.DeployApp();
     agHelper.AssertElementAbsence(
@@ -21,8 +20,7 @@ describe("List widget V2 PropertyPane", () => {
     entityExplorer.SelectEntityByName("List1");
     //Check the disableed checkbox and Validate
     propPane.TogglePropertyState("Visible", "On");
-    deployMode.DeployApp();
-    agHelper.Sleep(2000); //for the deployed page to load fully
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.LIST_V2));
     agHelper.AssertElementVisible(
       locators._widgetInDeployed(draggableWidgets.LIST_V2),
     );
@@ -39,6 +37,7 @@ describe("List widget V2 PropertyPane", () => {
     propPane.ToggleJSMode("Visible", true);
     propPane.UpdatePropertyFieldValue("Visible", "false");
     deployMode.DeployApp();
+    agHelper.Sleep();
     agHelper.AssertElementAbsence(
       locators._widgetInDeployed(draggableWidgets.LIST_V2),
     );

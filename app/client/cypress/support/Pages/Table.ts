@@ -191,6 +191,8 @@ export class Table {
   _listNavigation = (move: string) =>
     "//button[@area-label='" + move + " page']";
   _listNextPage = ".rc-pagination-next";
+  _listActivePage = ".t--widget-listwidgetv2 .rc-pagination-item-active";
+  _paginationItem = (value: number) => `.rc-pagination-item-${value}`;
 
   public GetNumberOfRows() {
     return this.agHelper.GetElement(this._tr).its("length");
@@ -686,12 +688,12 @@ export class Table {
         .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
     } else if (tableVersion == "v2") {
       this.agHelper
-        .GetText(this.locator._listActivePage, "text", index)
+        .GetText(this._listActivePage, "text", index)
         .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
       this.agHelper.GetNClick(this._listNextPage, index, true);
       this.agHelper.Sleep(1000);
       this.agHelper
-        .GetText(this.locator._listActivePage, "text", index)
+        .GetText(this._listActivePage, "text", index)
         .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
     }
   }
@@ -719,30 +721,32 @@ export class Table {
         .then(($currentPageNo) => expect(Number($currentPageNo)).to.eq(pageNo));
 
       if (pageNo == 1)
-        cy.get(this._liPreviousPage).should(
-          "have.attr",
+        this.agHelper.AssertAttribute(
+          this._liPreviousPage,
           "aria-disabled",
           "true",
         );
-
       if (checkNoNextPage)
-        cy.get(this._listNextPage).should("have.attr", "aria-disabled", "true");
+        this.agHelper.AssertAttribute(
+          this._listNextPage,
+          "aria-disabled",
+          "true",
+        );
       else
-        cy.get(this._listNextPage).should(
-          "have.attr",
+        this.agHelper.AssertAttribute(
+          this._listNextPage,
           "aria-disabled",
           "false",
         );
     } else if (tableVersion == "v2") {
       this.agHelper
-        .GetText(this.locator._listActivePage, "text")
+        .GetText(this._listActivePage, "text")
         .then(($currentPageNo) => expect(Number($currentPageNo)).to.eq(pageNo));
 
       if (pageNo == 1)
-        cy.get(this._listPreviousPage).should(
-          "have.class",
-          "rc-pagination-disabled",
-        );
+        this.agHelper
+          .GetElement(this._listPreviousPage)
+          .should("have.class", "rc-pagination-disabled");
 
       if (checkNoNextPage)
         this.agHelper
@@ -788,14 +792,14 @@ export class Table {
     this.agHelper.GetNClick(this._listNavigation(movement), 0, true);
     this.agHelper.Sleep(2000);
     this.agHelper
-      .GetText(this.locator._listActivePage, "text")
+      .GetText(this._listActivePage, "text")
       .then(($newPageNo) => expect(Number($newPageNo)).to.eq(pageNumber));
   }
 
   public NavigateToSpecificPage_List(pageNumber: number) {
-    this.agHelper.GetNClick(`${this.locator._paginationItem(pageNumber)}`);
+    this.agHelper.GetNClick(`${this._paginationItem(pageNumber)}`);
     this.agHelper
-      .GetText(this.locator._listActivePage, "text")
+      .GetText(this._listActivePage, "text")
       .then(($newPageNo) => expect(Number($newPageNo)).to.eq(pageNumber));
   }
 }
