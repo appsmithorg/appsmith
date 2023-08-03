@@ -21,10 +21,6 @@ describe("JSON Form Widget Form Bindings", () => {
 
   before(() => {
     cy.addDsl(dslWithSchema);
-    // cy.openPropertyPane("jsonformwidget");
-    // cy.get(".t--property-control-sourcedata")
-    //   .find(".t--js-toggle")
-    //   .click({ force: true });
   });
 
   it("1. should have all the fields under field configuration", () => {
@@ -126,12 +122,12 @@ describe("JSON Form Widget Form Bindings", () => {
     };
 
     cy.openPropertyPane("textwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
     cy.testJsontext("text", "{{JSONForm1.isValid}}");
 
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
 
     // make name field required
@@ -153,12 +149,12 @@ describe("JSON Form Widget Form Bindings", () => {
     };
 
     cy.openPropertyPane("textwidget");
-    cy.get(".t--property-control-sourcedata")
-      .find(".t--js-toggle")
-      .click({ force: true });
     cy.testJsontext("text", "{{JSONForm1.isValid}}");
 
     cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-sourcedata")
+      .find(".t--js-toggle")
+      .click({ force: true });
     cy.testJsontext("sourcedata", JSON.stringify(schema));
 
     // make name field required
