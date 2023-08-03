@@ -420,13 +420,24 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
         getFormValues(API_EDITOR_FORM_NAME),
       );
 
-      // run transformation on redux form action.
+      // run transformation on redux form action's headers, bodyformData and queryParameters.
       // the reason we do this is because the transformation should only be done on the raw action data from the redux form.
       // However sometimes when we attempt to save an API as a datasource, we update the Apiaction with the datasource information and the redux form data will not be available i.e. reduxFormApiAction = undefined
-      // In this scenario we can just default to the action object.
-      action = transformRestAction(
-        !isEmpty(reduxFormApiAction) ? reduxFormApiAction : action,
-      );
+      // In this scenario we can just default to the action object - (skip the if block below).
+      if (!isEmpty(reduxFormApiAction)) {
+        action = {
+          ...action,
+          actionConfiguration: {
+            ...action.actionConfiguration,
+            headers: reduxFormApiAction.actionConfiguration.headers,
+            bodyFormData: reduxFormApiAction.actionConfiguration.bodyFormData,
+            queryParameters:
+              reduxFormApiAction.actionConfiguration.queryParameters,
+          },
+        };
+      }
+
+      action = transformRestAction(action);
     }
 
     /* NOTE: This  is fix for a missing command config */
