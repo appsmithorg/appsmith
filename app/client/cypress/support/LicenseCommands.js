@@ -8,7 +8,7 @@ Cypress.Commands.add("validateLicense", () => {
   if (!Cypress.env("AIRGAPPED")) {
     cy.get(LicenseLocators.licenseCheckPageSubHeaderText).should(
       "have.text",
-      "Kindly choose one of the following option to get started",
+      "We need a license key to start or verify a subscription.",
     );
   } else {
     cy.get(LicenseLocators.licenseCheckPageSubHeaderText).should("not.exist");
@@ -24,18 +24,17 @@ Cypress.Commands.add("validateLicense", () => {
   });
 
   if (!Cypress.env("AIRGAPPED")) {
-    cy.get(LicenseLocators.getTrialLicenseCard).within(() => {
-      cy.get(LicenseLocators.getTrialLicenseLabel).should(
-        "have.text",
-        "If you do not have a license key, please visit our customer portal to start trial or buy a subscription",
-      );
-      cy.get(LicenseLocators.getTrialLicenseBtn).should(
-        "have.text",
-        "Visit customer portal",
-      );
+    cy.get(LicenseLocators.licenseCheckForm).within(() => {
+      cy.contains(
+        "If you already have a license, please enter the key to continue",
+      ).should("exist");
     });
+    cy.get(LicenseLocators.getTrialLicenseBtn).should(
+      "have.text",
+      "Visit customer portal",
+    );
   } else {
-    cy.get(LicenseLocators.getTrialLicenseCard).should("not.exist");
+    cy.get(LicenseLocators.getTrialLicenseBtn).should("not.exist");
   }
   cy.get(LicenseLocators.licenseFormInput).type("INVALID-LICENSE-KEY");
   cy.get(LicenseLocators.activeInstanceBtn).click();

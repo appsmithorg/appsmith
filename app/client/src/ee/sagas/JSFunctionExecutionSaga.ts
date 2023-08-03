@@ -2,21 +2,46 @@ export * from "ce/sagas/JSFunctionExecutionSaga";
 
 import { logActionExecutionForAudit } from "actions/jsActionActions";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { put, select } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import { getCurrentPageName } from "selectors/editorSelectors";
 import {
   getJSCollectionFromName,
   getJSActionFromJSCollection,
 } from "selectors/entitiesSelector";
 import type { TMessage } from "utils/MessageUtil";
-import { get, set } from "lodash";
+import { get, set, uniq } from "lodash";
+import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
+import type { TriggerSource } from "constants/AppsmithActionConstants/ActionConstants";
+import { logJSActionExecution } from "@appsmith/sagas/analyticsSaga";
 
-export function* logJSFunctionExecution(message: TMessage<any>) {
+export function* logJSFunctionExecution(
+  message: TMessage<{
+    data: {
+      jsFnFullName: string;
+      isSuccess: boolean;
+      triggerMeta: {
+        source: TriggerSource;
+        triggerPropertyName: string | undefined;
+        triggerKind: TriggerKind | undefined;
+      };
+    }[];
+  }>,
+) {
   const { body } = message;
-  const { data: paths } = body;
+  const { data: executionData } = body;
   const funcLogged = {};
 
-  for (const fullPath of paths) {
+  const triggerExecutionData = executionData.filter(
+    (execData) =>
+      execData.triggerMeta.triggerKind === TriggerKind.EVENT_EXECUTION,
+  );
+  yield call(logJSActionExecution, triggerExecutionData);
+
+  const allExecutedFunctions = uniq(
+    executionData.map((execData) => execData.jsFnFullName),
+  );
+
+  for (const fullPath of allExecutedFunctions) {
     const { entityName: JSObjectName, propertyPath: functionName } =
       getEntityNameAndPropertyPath(fullPath);
 

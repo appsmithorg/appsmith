@@ -62,7 +62,8 @@ public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl impleme
         List<Criteria> criteriaList = new ArrayList<>();
         Criteria tenantIdCriteria = where(fieldName(QUser.user.tenantId)).is(defaultTenantId);
         criteriaList.add(tenantIdCriteria);
-        List<String> includedFields = List.of(fieldName(QUser.user.email), fieldName(QUser.user.isProvisioned));
+        List<String> includedFields = List.of(
+                fieldName(QUser.user.email), fieldName(QUser.user.isProvisioned), fieldName(QUser.user.policies));
         List<Criteria> criteriaListFromFilters = getCriteriaListFromFilters(filters);
         criteriaList.addAll(criteriaListFromFilters);
         return queryAll(criteriaList, Optional.of(includedFields), aclPermission, Optional.empty(), NO_RECORD_LIMIT);

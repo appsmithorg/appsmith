@@ -674,11 +674,20 @@ export class AggregateHelper extends ReusableHelper {
       .wait(waitTimeInterval);
   }
 
-  public HoverElement(selector: string, index = 0, waitTimeInterval = 100) {
-    return (
-      this.ScrollIntoView(selector, index)
+  public HoverElement(
+    selector: string,
+    index = 0,
+    realTouch = true,
+    waitTimeInterval = 100,
+  ) {
+    let chain = this.ScrollIntoView(selector, index);
+    if (realTouch) {
+      chain = chain
         .realTouch({ position: "center" })
-        .realHover({ pointer: "mouse" })
+        .realHover({ pointer: "mouse" });
+    }
+    return (
+      chain
         //.trigger("mousemove", { eventConstructor: "MouseEvent" })
         .wait(waitTimeInterval)
     );
@@ -1055,6 +1064,7 @@ export class AggregateHelper extends ReusableHelper {
         input.focus();
         this.Sleep(200);
         input.setValue(value);
+        input.execCommand("goLineEnd");
         this.Sleep(200);
       });
     this.Sleep(500); //for value set to settle
@@ -1524,4 +1534,10 @@ export class AggregateHelper extends ReusableHelper {
   //     }
   //     return items;
   //   }, { timeout: 5000 });
+
+  public AssertTooltip(tooltipText: string) {
+    cy.get(".rc-tooltip-inner").should(($x) => {
+      expect($x).contain(tooltipText);
+    });
+  }
 }

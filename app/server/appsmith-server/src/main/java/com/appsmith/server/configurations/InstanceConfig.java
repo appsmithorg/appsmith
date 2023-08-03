@@ -29,7 +29,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
         Mono<Void> registrationAndRtsCheckMono = configService
                 .getByName(Appsmith.APPSMITH_REGISTERED)
                 .filter(config -> Boolean.TRUE.equals(config.getConfig().get("value")))
-                .switchIfEmpty(instanceConfigHelper.registerInstance())
+                .switchIfEmpty(Mono.defer(() -> instanceConfigHelper.registerInstance()))
                 .onErrorResume(errorSignal -> {
                     log.debug("Instance registration failed with error: \n{}", errorSignal.getMessage());
                     return Mono.empty();

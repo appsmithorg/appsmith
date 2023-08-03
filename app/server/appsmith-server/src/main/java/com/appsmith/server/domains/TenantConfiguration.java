@@ -4,7 +4,7 @@ import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.ce.TenantConfigurationCE;
-import com.appsmith.server.migrations.db.Migration104EECreateDefaultLogoAsset;
+import com.appsmith.server.migrations.db.Migration009EE01CreateDefaultLogoAsset;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -32,7 +32,7 @@ public class TenantConfiguration extends TenantConfigurationCE {
     /**
      * As we are using the logo in email templates, if we are updating the logo anytime in future to make it compatible
      * with airgapped instance please write a migration to have local reference.
-     * Sample migration {@link Migration104EECreateDefaultLogoAsset}
+     * Sample migration {@link Migration009EE01CreateDefaultLogoAsset}
      */
     @JsonProperty(value = "APPSMITH_BRAND_LOGO", access = JsonProperty.Access.WRITE_ONLY)
     String whiteLabelLogo;

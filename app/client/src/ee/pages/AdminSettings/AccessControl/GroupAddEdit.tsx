@@ -51,6 +51,7 @@ import {
 } from "@appsmith/selectors/aclSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
+import type { MenuItemProps } from "design-system";
 import {
   Button,
   Menu,
@@ -462,7 +463,7 @@ export function GroupAddEdit(props: GroupEditProps) {
     setSelectedTab(value);
   };
 
-  const menuItems: any[] = [
+  const menuItems: MenuItemProps[] = [
     canManageGroup && {
       className: "rename-menu-item",
       icon: "pencil-line",
@@ -482,7 +483,7 @@ export function GroupAddEdit(props: GroupEditProps) {
       text: createMessage(ACL_DELETE),
       label: "delete",
     },
-  ].filter(Boolean);
+  ].filter(Boolean) as MenuItemProps[];
 
   return (
     <div className="scrollable-wrapper" data-testid="t--user-edit-wrapper">

@@ -1,8 +1,8 @@
 import styled, { css } from "styled-components";
 import { Button as HeadlessButton } from "@design-system/headless";
-import type { PickRename } from "../../utils";
 
 import type { ButtonProps } from "./Button";
+import type { PickRename } from "../../utils";
 
 type StyledButtonProps = PickRename<
   ButtonProps,
@@ -73,16 +73,22 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
   cursor: pointer;
   outline: 0;
   padding: var(--spacing-2) var(--spacing-4);
+  block-size: var(--sizing-8);
   border-radius: var(--border-radius-1);
   user-select: none;
-  height: var(--sizing-8);
-  min-width: var(--sizing-8);
-  text-align: center;
+  min-inline-size: var(--sizing-8);
   position: relative;
   font-weight: 600;
+  border-width: 0;
+  border-style: solid;
+  font-family: inherit;
 
-  & *:not([data-hidden]) + *:not([data-hidden]) {
-    margin: 0 var(--spacing-1);
+  &[data-icon-position="start"] *:not([data-hidden]) + *:not([data-hidden]) {
+    margin-inline-start: var(--spacing-1);
+  }
+
+  &[data-icon-position="end"] *:not([data-hidden]) + *:not([data-hidden]) {
+    margin-inline-end: var(--spacing-1);
   }
 
   ${buttonStyles}
@@ -96,8 +102,14 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
     display: flex;
     justify-content: center;
     align-items: center;
-    height: var(--sizing-5);
-    width: var(--sizing-5);
+    height: var(--sizing-4);
+    width: var(--sizing-4);
+  }
+
+  // Note: adding important here as ADS is overriding the color of blueprint icon globally
+  // TODO(pawan): Remove this once ADS team removes the global override
+  &[data-button] .bp3-icon {
+    color: currentColor !important;
   }
 
   /**

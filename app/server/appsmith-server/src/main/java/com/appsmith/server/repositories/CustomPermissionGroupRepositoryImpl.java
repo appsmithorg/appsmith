@@ -140,4 +140,20 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
                 List.of(assignedToGroupIdCriteria, defaultApplicationIdsCriteria, defaultDomainTypeCriteria),
                 aclPermission);
     }
+
+    @Override
+    public Flux<PermissionGroup> findAllByAssignedToUserIds(
+            Set<String> userIds, Optional<List<String>> listIncludeFields, Optional<AclPermission> aclPermission) {
+        Criteria criteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
+                .in(userIds);
+        return queryAll(List.of(criteria), listIncludeFields, aclPermission, Optional.empty(), NO_RECORD_LIMIT);
+    }
+
+    @Override
+    public Flux<PermissionGroup> findAllByAssignedToGroupIds(
+            Set<String> groupIds, Optional<List<String>> listIncludeFields, Optional<AclPermission> aclPermission) {
+        Criteria criteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds))
+                .in(groupIds);
+        return queryAll(List.of(criteria), listIncludeFields, aclPermission, Optional.empty(), NO_RECORD_LIMIT);
+    }
 }

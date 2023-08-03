@@ -570,18 +570,23 @@ public class UserAndAccessManagementServiceTest {
         user1.setPassword(testName);
         User createdUser1 = userService.userCreate(user1, false).block();
 
-        // user group creation
+        // user groups creation
         UserGroup userGroup = new UserGroup();
         String name = "Test Group : addUsersToGroupValid";
         String description = "Test Group Description : addUsersToGroupValid";
         userGroup.setName(name);
         userGroup.setDescription(description);
+        UserGroupDTO group1 = userGroupService.createGroup(userGroup).block();
 
-        UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
+        UserGroup userGroupProvisionedTrue = new UserGroup();
+        userGroupProvisionedTrue.setName(testName + "_provisionedTrue");
+        userGroupProvisionedTrue.setIsProvisioned(Boolean.TRUE);
+        UserGroupDTO group2 =
+                userGroupService.createGroup(userGroupProvisionedTrue).block();
 
         // invite users to groups
         UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
-        inviteUsersToGroupDTO.setGroupIds(Set.of(createdGroup.getId()));
+        inviteUsersToGroupDTO.setGroupIds(Set.of(group1.getId(), group2.getId()));
         inviteUsersToGroupDTO.setUsernames(Set.of(user1.getUsername()));
         userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin").block();
 
@@ -607,11 +612,22 @@ public class UserAndAccessManagementServiceTest {
         StepVerifier.create(userAndAccessManagementService.getUserById(createdUser1.getId()))
                 .assertNext(user -> {
                     assertThat(user.getGroups()).isNotNull();
-                    assertThat(user.getGroups().size()).isEqualTo(1);
+                    assertThat(user.getGroups().size()).isEqualTo(2);
                     assertThat(user.getGroups().get(0).getUserPermissions().size() > 0)
                             .isTrue();
                     assertThat(user.getRoles().size()).isEqualTo(2);
                     // check if the user has the permission group
+                    UserGroupCompactDTO userGroupCompactDTOGroupOne = user.getGroups().stream()
+                            .filter(pg -> pg.getId().equals(group1.getId()))
+                            .findFirst()
+                            .get();
+                    UserGroupCompactDTO userGroupCompactDTOGroupTwo = user.getGroups().stream()
+                            .filter(pg -> pg.getId().equals(group2.getId()))
+                            .findFirst()
+                            .get();
+                    assertThat(userGroupCompactDTOGroupOne.isProvisioned()).isFalse();
+                    assertThat(userGroupCompactDTOGroupTwo.isProvisioned()).isTrue();
+
                     PermissionGroupInfoDTO permissionGroupInfoDTO = user.getRoles().stream()
                             .filter(pg -> pg.getId().equals(createdPermissionGroup.getId()))
                             .findFirst()

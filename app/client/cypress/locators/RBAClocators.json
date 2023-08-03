@@ -57,5 +57,6 @@
   "optionAdministrator": "//span[text()='Administrator']",
   "searchHighlight": ".search-highlight",
   "dropdownOption": ".rc-select-item-option-content",
-  "appMoreIcon": "[data-testid=t--application-card-context-menu]"
+  "appMoreIcon": "[data-testid=t--application-card-context-menu]",
+  "addUsersButton":"//button//*[text()='Add users']"
 }

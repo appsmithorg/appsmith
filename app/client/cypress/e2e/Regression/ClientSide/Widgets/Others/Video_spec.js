@@ -4,6 +4,7 @@ import {
   agHelper,
   entityExplorer,
   draggableWidgets,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Video Widget Functionality", function () {
@@ -70,27 +71,32 @@ describe("Video Widget Functionality", function () {
   });
 
   it("4. Checks if video widget is reset on button click", function () {
-    cy.testCodeMirror(testdata.videoUrl2);
+    propPane.UpdatePropertyFieldValue("URL", testdata.videoUrl2);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
 
     cy.selectResetWidget("onClick");
     cy.selectWidgetForReset("Video1");
 
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 300);
-
-    cy.updateCodeInput(".t--property-control-text", `{{Video1.playState}}`);
+    propPane.UpdatePropertyFieldValue("Text", "{{Video1.playState}}");
+    agHelper.Sleep(1500); // Wait time added for the widget to load current video state
 
     cy.openPropertyPane("videowidget");
-    cy.get(widgetsPage.autoPlay).click({ force: true });
-    // Wait time added, allowing a second to pass between playing and pausing the widget, before it is reset to zero
-    cy.wait(1000);
-    cy.get(widgetsPage.autoPlay).click({ force: true });
-    cy.get(widgetsPage.widgetBtn).click({ force: true });
+    propPane.TogglePropertyState("Autoplay", "On");
+    agHelper.Sleep(1500); // Wait time added for the widget to load current video state
+    cy.get(".t--widget-textwidget").should("contain", "ENDED");
+
+    propPane.TogglePropertyState("Autoplay", "Off");
+    agHelper.Sleep(1500); // Wait time added, allowing a second to pass between playing and pausing the widget, before it is reset to zero
+    cy.get(".t--widget-textwidget").should("contain", "PAUSED");
+
+    agHelper.ClickButton("Submit");
     cy.wait(1000);
     cy.get(`${widgetsPage.videoWidget} video`).then(($video) => {
       const video = $video.get(0);
       expect(video.currentTime).to.equal(0);
     });
+    agHelper.Sleep(1500); // Wait time added for the widget to load current video state
     cy.get(".t--widget-textwidget").should("contain", "NOT_STARTED");
   });
 

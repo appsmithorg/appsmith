@@ -126,6 +126,7 @@ export const EnvDeployInfoModal = () => {
       <Footer>
         <CheckboxContainer>
           <Checkbox
+            data-testid="t--env-info-dismiss-checkbox"
             isSelected={preferenceChecked}
             onChange={(isSelected: boolean) => setPreferenceChecked(isSelected)}
           >

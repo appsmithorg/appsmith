@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,9 @@ public class UserGroupCompactDTO {
     String name;
 
     Set<String> userPermissions;
+
+    @JsonProperty("isProvisioned")
+    boolean isProvisioned;
 
     public UserGroupCompactDTO(String id, String name) {
         this.id = id;

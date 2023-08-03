@@ -47,6 +47,7 @@ export class DataSources {
   }; //Container KeyValuePair
 
   private _dsCreateNewTab = "[data-testid=t--tab-CREATE_NEW]";
+  private _dsReviewSection = "[data-testid='t--ds-review-section']";
   private _addNewDataSource = ".t--entity-add-btn.datasources button";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
@@ -91,6 +92,7 @@ export class DataSources {
     ddTitle +
     "']/following-sibling::span//button";
   _reconnectModal = "[data-testid='reconnect-datasource-modal']";
+  _reconnect = ".t--reconnect-btn";
   _dropdown = (ddTitle: string) =>
     "//span[contains(@title, '" +
     ddTitle +
@@ -180,7 +182,6 @@ export class DataSources {
   _gsScopeOptions = ".ads-v2-select__dropdown .rc-select-item-option";
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
-  _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
   private _suggestedWidget = (widgetType: string) =>
@@ -193,7 +194,7 @@ export class DataSources {
     dbName +
     "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//p[text()='Schema not available']";
   // Authenticated API locators
-  private _authApiDatasource = ".t--createAuthApiDatasource";
+  public _authApiDatasource = ".t--createAuthApiDatasource";
   private _authType = "[data-testid=authType]";
   private _oauth2 = ".rc-select-item-option:contains('OAuth 2.0')";
   private _accessTokenUrl =
@@ -215,8 +216,10 @@ export class DataSources {
   public _cancelEditDatasourceButton = ".t--cancel-edit-datasource";
   public _urlInputControl = "input[name='url']";
   public _mongoCollectionPath = "t--actionConfiguration.formData.collection";
-  private _getJSONswitchLocator = (fieldLocator: string) =>
-    `[data-testid='${fieldLocator}.data-JS']`;
+  _getJSONswitchLocator = (fieldName: string) =>
+    "//p[contains(text(),'" +
+    fieldName +
+    "')]/ancestor::div[@class='form-config-top']//button";
   _nestedWhereClauseKey = (index: number) =>
     ".t--actionConfiguration\\.formData\\.where\\.data\\.children\\[" +
     index +
@@ -231,12 +234,17 @@ export class DataSources {
   _bodyCodeMirror = "//div[contains(@class, 't--actionConfiguration.body')]";
   private _reconnectModalDSToolTip = ".t--ds-list .t--ds-list-title";
   private _reconnectModalDSToopTipIcon = ".t--ds-list .ads-v2-icon";
+  _multiSelectDropdown = (ddName: string) =>
+    "//p[contains(text(),'" +
+    ddName +
+    "')]/ancestor::div[@class='form-config-top']/following-sibling::div//div[contains(@class, 'rc-select-multiple')]";
   private _datasourceTableSchemaInQueryEditor =
     ".datasourceStructure-query-editor";
   private _datasourceSchemaRefreshBtn = ".datasourceStructure-refresh";
   private _datasourceStructureHeader = ".datasourceStructure-header";
   private _datasourceColumnSchemaInQueryEditor = ".t--datasource-column";
   private _datasourceStructureSearchInput = ".datasourceStructure-search input";
+  _jsModeSortingControl = ".t--actionConfiguration\\.formData\\.sortBy\\.data";
   public _queryEditorCollapsibleIcon = ".collapsible-icon";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
@@ -434,6 +442,20 @@ export class DataSources {
         : password,
     );
     this.ValidateNSelectDropdown("SSL mode", "Default");
+  }
+
+  public ValidatePostgresDSForm(
+    environment = this.tedTestConfig.defaultEnviorment,
+  ) {
+    const databaseName =
+      this.tedTestConfig.dsValues[environment].postgres_databaseName;
+    this.agHelper.AssertContains(databaseName, "exist", this._dsReviewSection);
+  }
+
+  public ValidateMongoForm(environment = this.tedTestConfig.defaultEnviorment) {
+    const databaseName =
+      this.tedTestConfig.dsValues[environment].mongo_databaseName;
+    this.agHelper.AssertContains(this._dsReviewSection, databaseName);
   }
 
   public FillOracleDSForm(
@@ -902,6 +924,18 @@ export class DataSources {
     }
   }
 
+  public CreateQueryForDS(datasourceName: string, query = "", queryName = "") {
+    this.NavigateToActiveTab();
+    cy.get(this._datasourceCard)
+      .contains(datasourceName)
+      .scrollIntoView()
+      .should("be.visible")
+      .click();
+    this.agHelper.Sleep(); //for the Datasource page to open
+    this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, true, 200);
+    this.CreateQueryAfterDSSaved(query, queryName);
+  }
+
   DeleteQuery(queryName: string) {
     this.ee.ExpandCollapseEntity("Queries/JS");
     this.ee.ActionContextMenuByEntityName({
@@ -929,6 +963,17 @@ export class DataSources {
     }
   }
 
+  public ValidateReviewModeConfig(
+    dsName: "PostgreSQL" | "MongoDB",
+    environment = this.tedTestConfig.defaultEnviorment,
+  ) {
+    if (dsName === "PostgreSQL") {
+      this.ValidatePostgresDSForm(environment);
+    } else if (dsName === "MongoDB") {
+      this.ValidateMongoForm(environment);
+    }
+  }
+
   public ReconnectSingleDSNAssert(
     dbName: string,
     dsName: "PostgreSQL" | "MySQL" | "MongoDB",
@@ -943,6 +988,18 @@ export class DataSources {
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
+  public AssertReconnectDS(datasourceName: string) {
+    cy.get(this._datasourceCard, { withinSubject: null })
+      .find(this._activeDS)
+      .contains(datasourceName)
+      .scrollIntoView()
+      .should("be.visible")
+      .closest(this._datasourceCard)
+      .scrollIntoView()
+      .within(() => {
+        this.agHelper.AssertElementVisible(this._reconnect, 0, 20000);
+      });
+  }
   public ReconnectModalValidation(
     dbName: string,
     dsName: "PostgreSQL" | "MySQL" | "MongoDB",
@@ -1265,7 +1322,6 @@ export class DataSources {
     schema: string,
     isUpdate = false,
   ) {
-    cy.intercept("GET", this._getStructureReq).as("getDSStructure");
     if (isUpdate) {
       this.UpdateDatasource();
     } else {
@@ -1275,7 +1331,7 @@ export class DataSources {
       entityNameinLeftSidebar: dataSourceName,
       action: "Refresh",
     });
-    cy.wait("@getDSStructure").then(() => {
+    cy.wait("@getDatasourceStructure").then(() => {
       cy.get(".bp3-collapse-body").contains(schema);
     });
   }
@@ -1572,21 +1628,19 @@ export class DataSources {
 
   public EnterJSContext({
     fieldLabel,
-    fieldProperty,
     fieldValue,
   }: {
-    fieldProperty: string;
     fieldValue: string;
     fieldLabel: string;
   }) {
     this.agHelper.Sleep();
     this.agHelper
-      .GetElement(this._getJSONswitchLocator(fieldProperty))
+      .GetElement(this._getJSONswitchLocator(fieldLabel))
       .invoke("attr", "data-selected")
       .then(($state: any) => {
         if (!$state.includes("true"))
           this.agHelper.GetNClick(
-            this._getJSONswitchLocator(fieldProperty),
+            this._getJSONswitchLocator(fieldLabel),
             0,
             true,
           );
@@ -1657,5 +1711,41 @@ export class DataSources {
           ); // Container did not start properly within the timeout
       });
     });
+  }
+
+  public EnterSortByValues(sortBy: string, option: string, index = 0) {
+    this.agHelper
+      .GetElement(this._jsModeSortingControl)
+      .eq(0)
+      .children()
+      .eq(index)
+      .then((ele) => {
+        cy.wrap(ele)
+          .children()
+          .eq(0)
+          .find("textarea")
+          .type(sortBy, { force: true });
+        cy.wrap(ele).children().eq(1).find("input").click();
+      });
+    this.agHelper.GetNClickByContains(this._dropdownOption, option);
+  }
+
+  public ClearSortByOption(index = 0) {
+    this.agHelper.Sleep(500);
+    this.agHelper
+      .GetElement(this._jsModeSortingControl)
+      .eq(0)
+      .children()
+      .eq(index)
+      .find(`button[data-testid='t--sorting-delete-[${index}]']`)
+      .click({ force: true });
+    this.agHelper.Sleep(500);
+  }
+
+  public AddNewSortByParameter() {
+    this.agHelper
+      .GetElement(this._jsModeSortingControl)
+      .find("button[data-testid='t--sorting-add-field']")
+      .click({ force: true });
   }
 }

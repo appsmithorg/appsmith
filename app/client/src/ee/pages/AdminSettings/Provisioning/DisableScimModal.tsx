@@ -13,14 +13,12 @@ import {
   Text,
 } from "design-system";
 import styled from "styled-components";
-import SyncedResourcesInfo from "./SyncedResourcesInfo";
 import {
-  KEEP_RESOURCES_CALLOUT_ON_MODAL,
-  REMOVE_RESOURCES_CALLOUT_ON_MODAL,
   CONNECTION_INACTIVE_CALLOUT_ON_MODAL,
   createMessage,
   DISABLE_SCIM_MODAL_BUTTON,
   DISABLE_SCIM_MODAL_CONFIRMATION,
+  DISABLE_SCIM_WARNING,
   KEEP_PROVISIONED_RESOURCES,
   RADIO_GROUP_HEADING,
   REMOVE_PROVISIONED_RESOURCES,
@@ -33,33 +31,39 @@ import { disconnectProvisioning } from "@appsmith/actions/provisioningActions";
 import { useDispatch } from "react-redux";
 import { StyledAsterisk } from "pages/Settings/FormGroup/Common";
 import { useHistory } from "react-router";
+import ResourceLinks from "./ResourceLinks";
 
 const StyledRadioGroup = styled(RadioGroup)`
   gap: var(--ads-v2-spaces-3);
   margin-top: var(--ads-v2-spaces-3);
 `;
 
-const StyledCheckbox = styled(Checkbox)`
-  margin-top: var(--ads-v2-spaces-5);
+const SpacedContainer = styled.div`
+  margin-bottom: var(--ads-v2-spaces-5);
 `;
 
-const Container = styled.div`
+const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: var(--ads-v2-spaces-5);
 `;
 
-const Connected = styled.div`
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--ads-v2-color-border);
-  margin-bottom: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
 const Heading = styled.div`
   display: flex;
+`;
+
+const StyledCallout = styled(Callout)`
+  a {
+    display: inline;
+
+    span {
+      display: inline;
+
+      svg {
+        display: inline;
+      }
+    }
+  }
 `;
 
 const DisableScimModal = (props: DisableScimModalProps) => {
@@ -69,10 +73,10 @@ const DisableScimModal = (props: DisableScimModalProps) => {
   const dispatch = useDispatch();
   const history = useHistory();
   const { isModalOpen, provisioningDetails, setIsModalOpen } = props;
-  const { provisionedGroups, provisionedUsers, provisionStatus } =
-    provisioningDetails;
-  const showFinalScreen =
-    nextScreen || (provisionedUsers === 0 && provisionedGroups === 0);
+  const { provisionedGroups, provisionedUsers } = provisioningDetails;
+  const isProvisionedResourcesZero =
+    provisionedUsers === 0 && provisionedGroups === 0;
+  const showFinalScreen = nextScreen || isProvisionedResourcesZero;
 
   useEffect(() => {
     setSelectedOption("");
@@ -97,22 +101,21 @@ const DisableScimModal = (props: DisableScimModalProps) => {
       <ModalContent style={{ width: "640px" }}>
         <ModalHeader>{createMessage(DISABLE_SCIM_MODAL_TITLE)}</ModalHeader>
         <ModalBody>
-          {provisionedUsers === 0 && provisionedGroups === 0 && (
-            <Container>
+          {isProvisionedResourcesZero ? (
+            <SpacedContainer>
               <Callout kind={"warning"}>
                 {createMessage(CONNECTION_INACTIVE_CALLOUT_ON_MODAL)}
               </Callout>
-            </Container>
-          )}
-          {provisionStatus === "active" && (
-            <>
-              <Connected>
-                <SyncedResourcesInfo
-                  provisioningDetails={provisioningDetails}
-                />
-              </Connected>
+            </SpacedContainer>
+          ) : (
+            <SpacedContainer>
               {!nextScreen ? (
                 <>
+                  <SpacedContainer>
+                    <Callout kind="warning">
+                      {createMessage(DISABLE_SCIM_WARNING)}
+                    </Callout>
+                  </SpacedContainer>
                   <Heading>
                     <Text>{createMessage(RADIO_GROUP_HEADING)}</Text>&nbsp;
                     <StyledAsterisk renderAs="span">*</StyledAsterisk>
@@ -130,37 +133,43 @@ const DisableScimModal = (props: DisableScimModalProps) => {
                   </StyledRadioGroup>
                 </>
               ) : selectedOption === "keep" ? (
-                <Container data-testid="keep-resources-callout">
-                  <Callout kind={"warning"}>
-                    {createMessage(KEEP_RESOURCES_CALLOUT_ON_MODAL)}
-                  </Callout>
+                <Wrapper data-testid="keep-resources-callout">
+                  <StyledCallout kind={"warning"}>
+                    <Text>You have chosen to retain</Text>&nbsp;
+                    <ResourceLinks
+                      provisionedGroups={provisionedGroups}
+                      provisionedUsers={provisionedUsers}
+                    />
+                    <Text>in Appsmith via this connection.</Text>
+                  </StyledCallout>
                   <Text>{createMessage(KEEP_RESOURCES_SUB_TEXT_ON_MODAL)}</Text>
-                </Container>
+                </Wrapper>
               ) : (
-                <Container data-testid="remove-resources-callout">
-                  <Callout kind={"warning"}>
-                    {createMessage(
-                      REMOVE_RESOURCES_CALLOUT_ON_MODAL,
-                      provisionedGroups,
-                      provisionedUsers,
-                    )}
-                  </Callout>
+                <Wrapper data-testid="remove-resources-callout">
+                  <StyledCallout kind={"warning"}>
+                    <Text>You have chosen to remove</Text>&nbsp;
+                    <ResourceLinks
+                      provisionedGroups={provisionedGroups}
+                      provisionedUsers={provisionedUsers}
+                    />
+                    <Text>in Appsmith via this connection.</Text>
+                  </StyledCallout>
                   <Text>
                     {createMessage(REMOVE_RESOURCES_SUB_TEXT_ON_MODAL)}
                   </Text>
-                </Container>
+                </Wrapper>
               )}
-            </>
+            </SpacedContainer>
           )}
           {showFinalScreen && (
-            <StyledCheckbox
+            <Checkbox
               onChange={(isSelected: boolean) =>
                 setConfirmationCheck(isSelected)
               }
               value="confirm"
             >
               {createMessage(DISABLE_SCIM_MODAL_CONFIRMATION)}
-            </StyledCheckbox>
+            </Checkbox>
           )}
         </ModalBody>
         <ModalFooter>

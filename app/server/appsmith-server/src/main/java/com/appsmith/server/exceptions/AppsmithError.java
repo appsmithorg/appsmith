@@ -731,7 +731,7 @@ public enum AppsmithError {
             ErrorType.GIT_CONFIGURATION_ERROR,
             null),
     GIT_GENERIC_ERROR(
-            504,
+            400,
             AppsmithErrorCode.GIT_GENERIC_ERROR.getCode(),
             "Git command execution error: {0}",
             AppsmithErrorAction.DEFAULT,
@@ -1008,6 +1008,14 @@ public enum AppsmithError {
             "Can't create a new API key. There already exists an API Key",
             AppsmithErrorAction.DEFAULT,
             "Api Key already exists",
+            ErrorType.AUTHENTICATION_ERROR,
+            null),
+    API_KEY_NOT_MAPPED(
+            403,
+            AppsmithErrorCode.API_KEY_NOT_MAPPED.getCode(),
+            "Api Key not mapped. It may have already been disabled.",
+            AppsmithErrorAction.DEFAULT,
+            "API Key not mapped.",
             ErrorType.AUTHENTICATION_ERROR,
             null),
     ;

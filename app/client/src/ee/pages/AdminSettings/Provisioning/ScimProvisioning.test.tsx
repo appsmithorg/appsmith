@@ -169,6 +169,10 @@ describe("ScimProvisioning", () => {
     expect(reconfigureApiKeyButton).toBeInTheDocument();
     expect(apiKeyField).not.toBeInTheDocument();
     await fireEvent.click(reconfigureApiKeyButton);
+    const modal = screen.queryByRole("dialog");
+    expect(modal).toBeTruthy();
+    const confirmButton = screen.getByTestId("t--confirm-reconfigure-api-key");
+    await fireEvent.click(confirmButton);
     apiKeyField = await screen.queryByTestId("scim-api-key");
     expect(apiKeyField).toBeInTheDocument();
     expect(apiKeyField?.getElementsByTagName("input")?.[0]).toHaveValue(
@@ -176,7 +180,7 @@ describe("ScimProvisioning", () => {
     );
   });
 
-  it("should dispatch the generateProvisioningApiKey action when the Regenerate API Key button is clicked", async () => {
+  it("should dispatch the fetchProvisioningStatus action when the Regenerate API Key button is clicked", async () => {
     renderComponent();
 
     // Click the Regenerate API Key button
@@ -186,7 +190,7 @@ describe("ScimProvisioning", () => {
 
     // Assert that the dispatch function was called with the expected action
     expect(mockDispatch).toHaveBeenCalledWith({
-      type: ReduxActionTypes.GENERATE_PROVISIONING_API_KEY,
+      type: ReduxActionTypes.FETCH_PROVISIONING_STATUS,
     });
   });
 });

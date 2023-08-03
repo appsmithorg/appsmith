@@ -12,6 +12,7 @@ import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
 import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
+import com.appsmith.server.dtos.UserGroupUpdateDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -37,6 +38,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -1199,6 +1201,50 @@ public class UserGroupServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void testIsProvisionedOnUsersIsSetTrueWhenReturningGroups() {
+        String testName = "testIsProvisionedOnUsersIsSetTrueWhenReturningGroups";
+        User user1 = new User();
+        user1.setEmail(testName + "user1@appsmith.com");
+        ProvisionResourceDto provisionedUser1 =
+                userService.createProvisionUser(user1).block();
+
+        User newUser = new User();
+        newUser.setEmail(testName + "user2@appsmith.com");
+        newUser.setPassword("password");
+        User user2 = userService.create(newUser).block();
+
+        UserGroup userGroup_provisioningFalse = new UserGroup();
+        userGroup_provisioningFalse.setName(testName + "_provisionedFalseGroup");
+        UserGroupDTO userGroupDTOProvisionedFalse =
+                userGroupService.createGroup(userGroup_provisioningFalse).block();
+
+        UsersForGroupDTO addUsersForGroupDTO = new UsersForGroupDTO();
+        addUsersForGroupDTO.setGroupIds(Set.of(userGroupDTOProvisionedFalse.getId()));
+        addUsersForGroupDTO.setUserIds(List.of(provisionedUser1.getResource().getId(), user2.getId()));
+
+        UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
+        inviteUsersToGroupDTO.setUsernames(Set.of(user1.getUsername(), user2.getUsername()));
+        inviteUsersToGroupDTO.setGroupIds(Set.of(userGroupDTOProvisionedFalse.getId()));
+        userGroupService.inviteUsers(inviteUsersToGroupDTO, null).block();
+        UserGroupDTO userGroup = userGroupService
+                .getGroupById(userGroup_provisioningFalse.getId())
+                .block();
+
+        assertThat(userGroup.getUsers()).hasSize(2);
+        UserCompactDTO uc1 = userGroup.getUsers().stream()
+                .filter(ug -> ug.getId().equals(provisionedUser1.getResource().getId()))
+                .findFirst()
+                .get();
+        UserCompactDTO uc2 = userGroup.getUsers().stream()
+                .filter(ug -> ug.getId().equals(user2.getId()))
+                .findFirst()
+                .get();
+        assertThat(uc1.isProvisioned()).isTrue();
+        assertThat(uc2.isProvisioned()).isFalse();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void testGetAllUserGroupsWithParams_shouldReturnCorrectResults() {
         String testName = "testGetAllUserGroupsWithParams_shouldReturnCorrectResults";
 
@@ -1258,5 +1304,68 @@ public class UserGroupServiceTest {
                         .filter(group -> group.getId().equals(userGroupDTOProvisionedTrue.getId()))
                         .toList();
         assertThat(provisionedTrueUserGroupInProvisionedNotBooleanCallList).hasSize(1);
+    }
+
+    @Test
+    @WithUserDetails(value = "provisioningUser")
+    public void testUpdateGroups_sendNullUserInUpdate() {
+        String testName = "testUpdateGroups_sendNullUserInUpdate";
+        User user1 = new User();
+        user1.setEmail(testName + "_provisioned_user1@appsmith.com");
+        ProvisionResourceDto provisionedUser1 =
+                userService.createProvisionUser(user1).block();
+
+        UserGroup userGroup_provisioning = new UserGroup();
+        userGroup_provisioning.setName(testName + "_provisionedGroup");
+        ProvisionResourceDto provisionedUserGroup =
+                userGroupService.createProvisionGroup(userGroup_provisioning).block();
+
+        UsersForGroupDTO addUsersForGroupDTO = new UsersForGroupDTO();
+        addUsersForGroupDTO.setGroupIds(
+                Set.of(provisionedUserGroup.getResource().getId()));
+        addUsersForGroupDTO.setUserIds(List.of(provisionedUser1.getResource().getId()));
+
+        userGroupService.addUsersToProvisionGroup(addUsersForGroupDTO).block();
+
+        ProvisionResourceDto provisionedUserGroupPostInviting = userGroupService
+                .getProvisionGroup(provisionedUserGroup.getResource().getId())
+                .block();
+        UserGroup provisionedUserGroupResourcePostInviting = (UserGroup) provisionedUserGroupPostInviting.getResource();
+        assertThat(provisionedUserGroupResourcePostInviting.getUsers())
+                .containsExactlyInAnyOrder(provisionedUser1.getResource().getId());
+
+        UserGroupUpdateDTO userGroupUpdateDTO1 = new UserGroupUpdateDTO();
+        userGroupUpdateDTO1.setName(testName + "_provisionedGroup" + "_updated1");
+        ProvisionResourceDto provisionedUserGroupPostUpdate1 = userGroupService
+                .updateProvisionGroup(provisionedUserGroupResourcePostInviting.getId(), userGroupUpdateDTO1)
+                .block();
+        UserGroup provisionedUserGroupResourcePostUpdate1 = (UserGroup) provisionedUserGroupPostUpdate1.getResource();
+        assertThat(provisionedUserGroupResourcePostUpdate1.getName())
+                .isEqualTo(testName + "_provisionedGroup" + "_updated1");
+        assertThat(provisionedUserGroupResourcePostUpdate1.getUsers())
+                .containsExactlyInAnyOrder(provisionedUser1.getResource().getId());
+
+        UserGroupUpdateDTO userGroupUpdateDTO2 = new UserGroupUpdateDTO();
+        userGroupUpdateDTO2.setName(testName + "_provisionedGroup" + "_updated2");
+        userGroupUpdateDTO2.setUsers(null);
+        ProvisionResourceDto provisionedUserGroupPostUpdate2 = userGroupService
+                .updateProvisionGroup(provisionedUserGroupResourcePostInviting.getId(), userGroupUpdateDTO2)
+                .block();
+        UserGroup provisionedUserGroupResourcePostUpdate2 = (UserGroup) provisionedUserGroupPostUpdate2.getResource();
+        assertThat(provisionedUserGroupResourcePostUpdate2.getName())
+                .isEqualTo(testName + "_provisionedGroup" + "_updated2");
+        assertThat(provisionedUserGroupResourcePostUpdate2.getUsers())
+                .containsExactlyInAnyOrder(provisionedUser1.getResource().getId());
+
+        UserGroupUpdateDTO userGroupUpdateDTO3 = new UserGroupUpdateDTO();
+        userGroupUpdateDTO2.setName(testName + "_provisionedGroup" + "_updated3");
+        userGroupUpdateDTO3.setUsers(new HashSet<>());
+        ProvisionResourceDto provisionedUserGroupPostUpdate3 = userGroupService
+                .updateProvisionGroup(provisionedUserGroupResourcePostInviting.getId(), userGroupUpdateDTO3)
+                .block();
+        UserGroup provisionedUserGroupResourcePostUpdate3 = (UserGroup) provisionedUserGroupPostUpdate3.getResource();
+        assertThat(provisionedUserGroupResourcePostUpdate3.getName())
+                .isEqualTo(testName + "_provisionedGroup" + "_updated2");
+        assertThat(provisionedUserGroupResourcePostUpdate3.getUsers()).isEmpty();
     }
 }

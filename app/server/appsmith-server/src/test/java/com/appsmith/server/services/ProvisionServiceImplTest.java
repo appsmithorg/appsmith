@@ -1,7 +1,9 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.License;
@@ -10,7 +12,9 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserApiKey;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.DisconnectProvisioningDto;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ProvisionResourceDto;
 import com.appsmith.server.dtos.ProvisionStatusDTO;
 import com.appsmith.server.enums.ProvisionStatus;
@@ -18,8 +22,10 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.ApiKeyRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.solutions.UserAndAccessManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,14 +42,17 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import static com.appsmith.server.acl.AclPermission.DELETE_USERS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
+import static com.appsmith.server.constants.ce.FieldNameCE.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -61,6 +70,9 @@ class ProvisionServiceImplTest {
     UserGroupService userGroupService;
 
     @Autowired
+    UserAndAccessManagementService userAndAccessManagementService;
+
+    @Autowired
     PermissionGroupService permissionGroupService;
 
     @Autowired
@@ -70,10 +82,16 @@ class ProvisionServiceImplTest {
     TenantService tenantService;
 
     @Autowired
+    WorkspaceService workspaceService;
+
+    @Autowired
     PolicyGenerator policyGenerator;
 
     @Autowired
     ApiKeyRepository apiKeyRepository;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -86,6 +104,9 @@ class ProvisionServiceImplTest {
 
     @Autowired
     WebTestClient webTestClient;
+
+    @Autowired
+    EncryptionService encryptionService;
 
     private License defaultLicense;
 
@@ -145,9 +166,22 @@ class ProvisionServiceImplTest {
         PermissionGroup instanceAdminRole =
                 userUtils.getSuperAdminPermissionGroup().block();
         PermissionGroup provisioningRole = userUtils.getProvisioningRole().block();
-        String provisionToken = provisionService.generateProvisionToken().block();
+        String generatedProvisionToken =
+                provisionService.generateProvisionToken().block();
+        String provisioningUserId = Arrays.stream(encryptionService
+                        .decryptString(generatedProvisionToken)
+                        .split(FieldName.APIKEY_USERID_DELIMITER))
+                .toList()
+                .get(1);
+        String actualProvisioningToken = Arrays.stream(encryptionService
+                        .decryptString(generatedProvisionToken)
+                        .split(FieldName.APIKEY_USERID_DELIMITER))
+                .toList()
+                .get(0);
         String provisionTokenId = apiKeyRepository
-                .findByApiKey(provisionToken)
+                .getByUserIdWithoutPermission(provisioningUserId)
+                .filter(fetchedUserApiKey -> fetchedUserApiKey.getApiKey().equals(actualProvisioningToken))
+                .single()
                 .map(UserApiKey::getId)
                 .block();
 
@@ -405,12 +439,91 @@ class ProvisionServiceImplTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    void testDisconnectProvisioning_checkProvisioningStatusAtEveryStep_AfterReprovisionKey() {
+        String testName = "testDisconnectProvisioning_checkProvisioningStatusAtEveryStep_AfterReprovisionKey";
+        setTenantLicenseAsEnterprise();
+        provisionService.generateProvisionToken().block();
+
+        ProvisionStatusDTO provisionStatusAfterGeneratingProvisionToken =
+                provisionService.getProvisionStatus().block();
+
+        assertThat(provisionStatusAfterGeneratingProvisionToken).isNotNull();
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getProvisionStatus())
+                .isEqualTo(ProvisionStatus.INACTIVE.getValue());
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getConfiguredStatus())
+                .isTrue();
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getLastUpdatedAt())
+                .isNull();
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getProvisionedUsers())
+                .isZero();
+        assertThat(provisionStatusAfterGeneratingProvisionToken.getProvisionedGroups())
+                .isZero();
+
+        Instant timeBeforeProvisioningUser1 = Instant.now();
+        Tenant tenant = tenantService.getDefaultTenant().block();
+        User user1 = new User();
+        user1.setEmail(testName + "_provisionedUser1");
+        ProvisionResourceDto provisionedUser1 =
+                userService.createProvisionUser(user1).block();
+        Optional<Policy> optionalResetPasswordPolicy1 = provisionedUser1.getResource().getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(RESET_PASSWORD_USERS.getValue()))
+                .findFirst();
+        assertThat(optionalResetPasswordPolicy1.isPresent()).isTrue();
+        assertThat(optionalResetPasswordPolicy1.get().getPermissionGroups()).hasSize(1);
+
+        ProvisionStatusDTO provisionStatusAfterProvisioningUser1 =
+                provisionService.getProvisionStatus().block();
+
+        assertThat(provisionStatusAfterProvisioningUser1).isNotNull();
+        assertThat(provisionStatusAfterProvisioningUser1.getProvisionStatus())
+                .isEqualTo(ProvisionStatus.ACTIVE.getValue());
+        assertThat(provisionStatusAfterProvisioningUser1.getLastUpdatedAt()).isNotNull();
+        assertThat(Instant.parse(provisionStatusAfterProvisioningUser1.getLastUpdatedAt()))
+                .isAfter(timeBeforeProvisioningUser1);
+        assertThat(Instant.parse(provisionStatusAfterProvisioningUser1.getLastUpdatedAt()))
+                .isBefore(Instant.now());
+        assertThat(provisionStatusAfterProvisioningUser1.getProvisionedUsers()).isEqualTo(1);
+        assertThat(provisionStatusAfterProvisioningUser1.getProvisionedGroups()).isZero();
+
+        provisionService.generateProvisionToken().block();
+
+        ProvisionStatusDTO provisionStatusAfterReGeneratingProvisionToken =
+                provisionService.getProvisionStatus().block();
+
+        assertThat(provisionStatusAfterReGeneratingProvisionToken).isNotNull();
+        assertThat(provisionStatusAfterReGeneratingProvisionToken.getProvisionStatus())
+                .isEqualTo(ProvisionStatus.INACTIVE.getValue());
+        assertThat(provisionStatusAfterReGeneratingProvisionToken.getConfiguredStatus())
+                .isTrue();
+        assertThat(provisionStatusAfterReGeneratingProvisionToken.getLastUpdatedAt())
+                .isNotNull();
+        assertThat(provisionStatusAfterReGeneratingProvisionToken.getProvisionedUsers())
+                .isEqualTo(1);
+        assertThat(provisionStatusAfterReGeneratingProvisionToken.getProvisionedGroups())
+                .isZero();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     void testDisconnectProvisioning_deleteProvisionedUsersAndGroups_checkProvisioningStatusAtEveryStep() {
         String testName = "testDisconnectProvisioning_keepProvisionedUsersAndGroups_checkProvisioningStatusAtEveryStep";
         setTenantLicenseAsEnterprise();
-        String provisionToken = provisionService.generateProvisionToken().block();
+        String generatedProvisionToken =
+                provisionService.generateProvisionToken().block();
+        String provisioningUserId = Arrays.stream(encryptionService
+                        .decryptString(generatedProvisionToken)
+                        .split(FieldName.APIKEY_USERID_DELIMITER))
+                .toList()
+                .get(1);
+        String actualProvisioningToken = Arrays.stream(encryptionService
+                        .decryptString(generatedProvisionToken)
+                        .split(FieldName.APIKEY_USERID_DELIMITER))
+                .toList()
+                .get(0);
         String provisionTokenId = apiKeyRepository
-                .findByApiKey(provisionToken)
+                .getByUserIdWithoutPermission(provisioningUserId)
+                .filter(fetchedUserApiKey -> fetchedUserApiKey.getApiKey().equals(actualProvisioningToken))
+                .single()
                 .map(UserApiKey::getId)
                 .block();
 
@@ -588,9 +701,22 @@ class ProvisionServiceImplTest {
         userUtils.makeSuperUser(List.of(apiUser, userTest)).block();
 
         // Create Provision Token
-        String provisionToken = provisionService.generateProvisionToken().block();
+        String generatedProvisionToken =
+                provisionService.generateProvisionToken().block();
+        String provisioningUserId = Arrays.stream(encryptionService
+                        .decryptString(generatedProvisionToken)
+                        .split(FieldName.APIKEY_USERID_DELIMITER))
+                .toList()
+                .get(1);
+        String actualProvisioningToken = Arrays.stream(encryptionService
+                        .decryptString(generatedProvisionToken)
+                        .split(FieldName.APIKEY_USERID_DELIMITER))
+                .toList()
+                .get(0);
         String provisionTokenId = apiKeyRepository
-                .findByApiKey(provisionToken)
+                .getByUserIdWithoutPermission(provisioningUserId)
+                .filter(fetchedUserApiKey -> fetchedUserApiKey.getApiKey().equals(actualProvisioningToken))
+                .single()
                 .map(UserApiKey::getId)
                 .block();
         // Remove userTest as a superuser to not allow it to perform Admin Actions.
@@ -845,5 +971,80 @@ class ProvisionServiceImplTest {
         setTenantLicenseAsAirGapped();
         String provisionToken = provisionService.generateProvisionToken().block();
         assertThat(provisionToken).isNotBlank();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            createProvisionUser_assignWorkspaceRoles_deleteProvisioningUser_workspaceRolesShouldNotContainProvisionedUser() {
+        String testName =
+                "createProvisionUser_assignWorkspaceRoles_deleteProvisioningUser_workspaceRolesShouldNotContainProvisionedUser";
+        setTenantLicenseAsEnterprise();
+        String provisionToken = provisionService.generateProvisionToken().block();
+        assertThat(provisionToken).isNotNull();
+
+        Workspace workspace = new Workspace();
+        workspace.setName(testName + "_workspace");
+
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        String createUserBody = "{\"email\": \"" + testName + "@_provisionedUser@appsmith.com" + "\"}";
+
+        // Rest call using provision token to create provision user
+        webTestClient
+                .post()
+                .uri(Url.PROVISION_USER_URL)
+                .header("x-appsmith-key", provisionToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(createUserBody))
+                .exchange()
+                .expectStatus()
+                .isEqualTo(200);
+
+        User provisionedUser = userRepository
+                .findByCaseInsensitiveEmail(testName + "@_provisionedUser@appsmith.com")
+                .block();
+
+        List<PermissionGroup> defaultRoles = permissionGroupService
+                .findAllByIds(createdWorkspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
+
+        PermissionGroup appViewerRole = defaultRoles.stream()
+                .filter(role -> role.getName().startsWith(VIEWER))
+                .findAny()
+                .get();
+
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setUsernames(List.of(testName + "@_provisionedUser@appsmith.com"));
+        inviteUsersDTO.setPermissionGroupId(appViewerRole.getId());
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "test").block();
+
+        PermissionGroup appViewerRolePostInvite =
+                permissionGroupRepository.findById(appViewerRole.getId()).block();
+        assertThat(appViewerRolePostInvite.getAssignedToUserIds()).contains(provisionedUser.getId());
+
+        // Rest call using provision token to delete provision user
+        webTestClient
+                .delete()
+                .uri(Url.PROVISION_USER_URL + "/" + provisionedUser.getId())
+                .header("x-appsmith-key", provisionToken)
+                .header("X-Requested-By", "Appsmith")
+                .exchange()
+                .expectStatus()
+                .isEqualTo(200);
+
+        PermissionGroup appViewerRolePostInviteAndDeleteUser =
+                permissionGroupRepository.findById(appViewerRole.getId()).block();
+        assertThat(appViewerRolePostInviteAndDeleteUser.getAssignedToUserIds()).doesNotContain(provisionedUser.getId());
+    }
+
+    @Test
+    public void testGeneratedTokenForSpecialCharacters() {
+        String mockMongoId = "64c8c209337f08023f96159c";
+        IntStream.range(0, 1000000).forEach(i -> {
+            String generatedToken = ApiKeyServiceImpl.generateToken(mockMongoId);
+            assertThat(generatedToken).doesNotContain(FieldName.APIKEY_USERID_DELIMITER);
+        });
     }
 }

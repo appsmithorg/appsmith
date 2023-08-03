@@ -141,8 +141,9 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .getDefaultTenantId()
                 .flatMap(tenantId -> tenantService.findById(tenantId, TENANT_READ_ALL_USERS))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
-                .flatMapMany(tenant ->
-                        userRepository.getAllUserObjectsWithEmail(tenant.getId(), queryParams, Optional.of(READ_USERS)))
+                .flatMapMany(tenant -> userRepository
+                        .getAllUserObjectsWithEmail(tenant.getId(), queryParams, Optional.of(READ_USERS))
+                        .flatMap(userRepository::setUserPermissionsInObject))
                 .flatMap(this::addGroupsAndRolesForUser)
                 .sort(AppsmithComparators.managementUserComparator())
                 .collectList()
@@ -211,7 +212,12 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                     List<PermissionGroupInfoDTO> rolesInfo = tuple.getT1();
                     List<UserGroupCompactDTO> groupsInfo = tuple.getT2();
                     return new UserForManagementDTO(
-                            user.getId(), user.getUsername(), groupsInfo, rolesInfo, user.getIsProvisioned());
+                            user.getId(),
+                            user.getUsername(),
+                            groupsInfo,
+                            rolesInfo,
+                            user.getIsProvisioned(),
+                            user.getUserPermissions());
                 });
     }
 
@@ -224,7 +230,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .flatMap(tenant -> userRepository.findById(userId))
                 .flatMap(user -> {
                     Mono<Set<String>> permissionGroupIdsMono = permissionGroupService
-                            .findAllByAssignedToUsersIn(Set.of(user.getId()))
+                            .findAllByAssignedToUserIdsInWithoutPermission(Set.of(user.getId()))
                             .map(PermissionGroup::getId)
                             .collect(Collectors.toSet());
                     Mono<Set<String>> groupIdsMono = userGroupService
@@ -400,9 +406,9 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         Set<String> userIds = users.stream().map(User::getId).collect(Collectors.toSet());
         Set<String> groupIds = groups.stream().map(UserGroup::getId).collect(Collectors.toSet());
         Flux<PermissionGroup> allRolesByAssignedToUsersInFlux =
-                permissionGroupService.findAllByAssignedToUsersIn(userIds);
+                permissionGroupService.findAllByAssignedToUserIdsInWithoutPermission(userIds);
         Flux<PermissionGroup> allRolesByAssignedToGroupIdsInFlux =
-                permissionGroupService.findAllByAssignedToGroupIdsIn(groupIds);
+                permissionGroupService.findAllByAssignedToGroupIdsInWithoutPermission(groupIds);
 
         Mono<List<PermissionGroup>> allInterestingRolesMono = Flux.merge(
                         allRolesByAssignedToGroupIdsInFlux, allRolesByAssignedToUsersInFlux)

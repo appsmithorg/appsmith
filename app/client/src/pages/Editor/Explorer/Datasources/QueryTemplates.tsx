@@ -21,14 +21,14 @@ import { MenuItem } from "design-system";
 import type { Plugin } from "api/PluginApi";
 import { DatasourceStructureContext } from "./DatasourceStructureContainer";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { setFeatureFlagShownStatus } from "utils/storage";
+import { setFeatureWalkthroughShown } from "utils/storage";
 import styled from "styled-components";
 import { change, getFormValues } from "redux-form";
 import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import { diff } from "deep-diff";
 import { UndoRedoToastContext, showUndoRedoToast } from "utils/replayHelpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 
 type QueryTemplatesProps = {
   templates: QueryTemplate[];
@@ -110,8 +110,11 @@ export function QueryTemplates(props: QueryTemplatesProps) {
       );
 
       if (isWalkthroughOpened) {
-        popFeature && popFeature();
-        setFeatureFlagShownStatus(FEATURE_FLAG.ab_ds_schema_enabled, true);
+        popFeature && popFeature("SCHEMA_QUERY_CREATE");
+        setFeatureWalkthroughShown(
+          FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
+          true,
+        );
       }
 
       history.push(
@@ -170,8 +173,11 @@ export function QueryTemplates(props: QueryTemplatesProps) {
       });
 
       if (isWalkthroughOpened) {
-        popFeature && popFeature();
-        setFeatureFlagShownStatus(FEATURE_FLAG.ab_ds_schema_enabled, true);
+        popFeature && popFeature("SCHEMA_QUERY_UPDATE");
+        setFeatureWalkthroughShown(
+          FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
+          true,
+        );
       }
 
       showUndoRedoToast(

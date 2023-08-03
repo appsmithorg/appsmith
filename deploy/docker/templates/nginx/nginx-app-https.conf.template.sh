@@ -25,6 +25,11 @@ map \$http_x_forwarded_host \$origin_host {
   '' \$host;
 }
 
+map \$http_forwarded \$final_forwarded {
+  default '\$http_forwarded, host=\$host;proto=\$scheme';
+  '' '';
+}
+
 # redirect log to stdout for supervisor to capture
 access_log /dev/stdout;
 
@@ -80,6 +85,7 @@ server {
 
   proxy_set_header X-Forwarded-Proto \$origin_scheme;
   proxy_set_header X-Forwarded-Host \$origin_host;
+  proxy_set_header Forwarded \$final_forwarded;
 
   client_max_body_size 150m;
 

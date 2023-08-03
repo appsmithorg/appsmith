@@ -184,7 +184,7 @@ describe("<UserListing />", () => {
     const deleteOption = queryAllByTestId("t--delete-menu-item");
     const editOption = queryAllByTestId("t--edit-menu-item");
 
-    expect(deleteOption).toHaveLength(1);
+    expect(deleteOption).toHaveLength(0);
     expect(editOption).toHaveLength(1);
   });
   it("should not display more option if the user doesn't have edit and delete permissions", () => {

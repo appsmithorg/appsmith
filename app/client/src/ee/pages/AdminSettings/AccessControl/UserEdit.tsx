@@ -25,7 +25,10 @@ import {
   updateGroupsInUser,
   updateRolesInUser,
 } from "@appsmith/actions/aclActions";
-import { getAclIsEditing } from "@appsmith/selectors/aclSelectors";
+import {
+  getAclIsEditing,
+  getUserPermissions,
+} from "@appsmith/selectors/aclSelectors";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import {
   Button,
@@ -39,6 +42,10 @@ import {
   Text,
 } from "design-system";
 import { AvatarComponent } from "pages/common/AvatarComponent";
+import {
+  PERMISSION_TYPE,
+  isPermitted,
+} from "@appsmith/utils/permissionHelpers";
 
 const Header = styled.div`
   display: flex;
@@ -103,6 +110,12 @@ export function UserEdit(props: UserEditProps) {
   const { searchPlaceholder, selectedUser } = props;
 
   const isEditing = useSelector(getAclIsEditing);
+  const userPermissions = useSelector(getUserPermissions);
+
+  const canDeleteUser = isPermitted(
+    userPermissions,
+    PERMISSION_TYPE.DELETE_USERS,
+  );
 
   useEffect(() => {
     if (searchValue) {
@@ -351,7 +364,7 @@ export function UserEdit(props: UserEditProps) {
   ];
 
   const menuItems: MenuItemProps[] = [
-    {
+    canDeleteUser && {
       label: "delete",
       className: "delete-menu-item",
       icon: "delete-bin-line",
@@ -360,7 +373,7 @@ export function UserEdit(props: UserEditProps) {
       },
       text: createMessage(ACL_DELETE),
     },
-  ];
+  ].filter(Boolean) as MenuItemProps[];
 
   const [selectedTab, setSelectedTab] = useState<string>(tabs[0].key);
 

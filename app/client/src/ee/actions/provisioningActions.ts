@@ -4,8 +4,9 @@ export const fetchProvisioningStatus = () => ({
   type: ReduxActionTypes.FETCH_PROVISIONING_STATUS,
 });
 
-export const generateProvisioningApiKey = () => ({
+export const generateProvisioningApiKey = (configuredStatus: boolean) => ({
   type: ReduxActionTypes.GENERATE_PROVISIONING_API_KEY,
+  payload: { configuredStatus },
 });
 
 export const disconnectProvisioning = (

@@ -8,6 +8,7 @@ import com.appsmith.server.dtos.ProvisionResourceDto;
 import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
+import com.appsmith.server.dtos.UserGroupUpdateDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
@@ -41,7 +42,7 @@ public interface UserGroupService extends CrudService<UserGroup, String> {
 
     Mono<Boolean> bulkRemoveUserFromGroupsWithoutPermission(User user, Set<String> groupIds);
 
-    Mono<ProvisionResourceDto> updateProvisionGroup(String id, UserGroup resource);
+    Mono<ProvisionResourceDto> updateProvisionGroup(String id, UserGroupUpdateDTO resource);
 
     Mono<ProvisionResourceDto> getProvisionGroup(String groupId);
 

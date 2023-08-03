@@ -5,9 +5,10 @@ import com.appsmith.server.domains.UserApiKey;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
+import java.util.Optional;
 
 public class CustomApiKeyRepositoryImpl extends BaseAppsmithRepositoryImpl<UserApiKey>
         implements CustomApiKeyRepository {
@@ -19,9 +20,9 @@ public class CustomApiKeyRepositoryImpl extends BaseAppsmithRepositoryImpl<UserA
     }
 
     @Override
-    public Mono<UserApiKey> getByUserIdWithoutPermission(String userId) {
+    public Flux<UserApiKey> getByUserIdWithoutPermission(String userId) {
         Criteria criteriaUserId =
                 Criteria.where(fieldName(QUserApiKey.userApiKey.userId)).is(userId);
-        return queryOne(List.of(criteriaUserId, notDeleted()));
+        return queryAll(List.of(criteriaUserId), Optional.empty());
     }
 }

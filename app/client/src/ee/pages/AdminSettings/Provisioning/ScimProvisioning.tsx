@@ -2,18 +2,32 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import styled from "styled-components";
-import { Button, Callout, Icon, Link, Text, Tooltip } from "design-system";
+import {
+  Button,
+  Callout,
+  Icon,
+  Link,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Spinner,
+  Text,
+  Tooltip,
+} from "design-system";
 import { BackButton } from "components/utils/helperComponents";
 import {
   BottomSpace,
   HeaderWrapper,
+  LoaderContainer,
   SettingsFormWrapper,
   SettingsHeader,
   SettingsSubHeader,
   Wrapper,
 } from "pages/Settings/components";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
-import { GOOGLE_SIGNUP_SETUP_DOC } from "constants/ThirdPartyConstants";
+import { PROVISIONING_SETUP_DOC } from "constants/ThirdPartyConstants";
 import CopyUrlForm from "pages/Settings/FormGroup/CopyUrlForm";
 import { getProvisioningDetails } from "@appsmith/selectors/provisioningSelectors";
 import {
@@ -33,13 +47,17 @@ import {
   LAST_SYNC_MESSAGE,
   OPEN_DOCUMENTATION,
   RECONFIGURE_API_KEY,
+  RECONFIGURE_API_KEY_MODAL_CANCEL_BUTTON,
+  RECONFIGURE_API_KEY_MODAL_CONTENT,
+  RECONFIGURE_API_KEY_MODAL_SUBMIT_BUTTON,
+  RECONFIGURE_API_KEY_MODAL_TITLE,
   SCIM_API_ENDPOINT,
   SCIM_API_ENDPOINT_HELP_TEXT,
   SCIM_CALLOUT_HEADING,
   SCIM_CALLOUT_LIST,
 } from "@appsmith/constants/messages";
-import SyncedResourcesInfo from "./SyncedResourcesInfo";
 import { howMuchTimeBeforeText } from "utils/helpers";
+import ResourceLinks from "./ResourceLinks";
 
 const StyledSettingsHeader = styled(SettingsHeader)`
   display: flex;
@@ -101,6 +119,10 @@ const StyledCallout = styled(Callout)`
   top: -8px;
 `;
 
+const Container = styled.div`
+  display: flex;
+`;
+
 const CalloutContent = () => {
   return (
     <>
@@ -146,7 +168,13 @@ const ScimConnectionContent = (props: ScimProps) => {
         <Text color="var(--ads-v2-color-fg-muted)" data-testid="last-sync-info">
           {createMessage(LAST_SYNC_MESSAGE, howMuchTimeBefore)}
         </Text>
-        <SyncedResourcesInfo provisioningDetails={provisioningDetails} />
+        <Container data-testid="synced-resources-info">
+          <ResourceLinks
+            provisionedGroups={provisioningDetails.provisionedGroups}
+            provisionedUsers={provisioningDetails.provisionedUsers}
+          />
+          <Text>are linked to your IDP</Text>
+        </Container>
       </ConnectionInfo>
       <Button
         UNSAFE_height="36px"
@@ -175,6 +203,8 @@ function getSettingDetail(category: string, subCategory: string) {
 
 export const ScimProvisioning = () => {
   const [isButtonClicked, setIsButtonClicked] = useState(false);
+  const [showReconfigureApiKeyModal, setShowReconfigureApiKeyModal] =
+    useState(false);
   const provisioningDetails = useSelector(getProvisioningDetails);
   const { apiKey, configuredStatus = false, isLoading } = provisioningDetails;
   const params = useParams() as any;
@@ -191,11 +221,16 @@ export const ScimProvisioning = () => {
 
   const generateApiKey = () => {
     setIsButtonClicked(true);
-    dispatch(generateProvisioningApiKey());
-    if (configuredStatus) {
-      dispatch(fetchProvisioningStatus());
-    }
+    dispatch(generateProvisioningApiKey(configuredStatus));
   };
+
+  if (isLoading.provisionStatus) {
+    return (
+      <LoaderContainer>
+        <Spinner size="lg" />
+      </LoaderContainer>
+    );
+  }
 
   return (
     <Wrapper>
@@ -217,7 +252,7 @@ export const ScimProvisioning = () => {
                 <Link
                   endIcon="book-line"
                   target="_blank"
-                  to={GOOGLE_SIGNUP_SETUP_DOC}
+                  to={PROVISIONING_SETUP_DOC}
                 >
                   {""}
                 </Link>
@@ -247,7 +282,7 @@ export const ScimProvisioning = () => {
                 links={[
                   {
                     children: createMessage(OPEN_DOCUMENTATION),
-                    to: GOOGLE_SIGNUP_SETUP_DOC,
+                    to: PROVISIONING_SETUP_DOC,
                     startIcon: "book-line",
                   },
                 ]}
@@ -285,12 +320,52 @@ export const ScimProvisioning = () => {
                   UNSAFE_height="36px"
                   isLoading={isLoading.apiKey}
                   kind="secondary"
-                  onClick={generateApiKey}
+                  onClick={() =>
+                    configuredStatus
+                      ? setShowReconfigureApiKeyModal(true)
+                      : generateApiKey()
+                  }
                 >
                   {configuredStatus
                     ? createMessage(RECONFIGURE_API_KEY)
                     : createMessage(GENERATE_API_KEY)}
                 </Button>
+                <Modal
+                  onOpenChange={(isOpen) =>
+                    showReconfigureApiKeyModal &&
+                    setShowReconfigureApiKeyModal(isOpen)
+                  }
+                  open={showReconfigureApiKeyModal}
+                >
+                  <ModalContent style={{ width: "640px" }}>
+                    <ModalHeader>
+                      {createMessage(RECONFIGURE_API_KEY_MODAL_TITLE)}
+                    </ModalHeader>
+                    <ModalBody>
+                      <Text>
+                        {createMessage(RECONFIGURE_API_KEY_MODAL_CONTENT)}
+                      </Text>
+                    </ModalBody>
+                    <ModalFooter>
+                      <Button
+                        UNSAFE_height="36px"
+                        data-testid="t--cancel-reconfigure-api-key"
+                        kind="secondary"
+                        onClick={() => setShowReconfigureApiKeyModal(false)}
+                      >
+                        {createMessage(RECONFIGURE_API_KEY_MODAL_CANCEL_BUTTON)}
+                      </Button>
+                      <Button
+                        UNSAFE_height="36px"
+                        data-testid="t--confirm-reconfigure-api-key"
+                        kind="primary"
+                        onClick={generateApiKey}
+                      >
+                        {createMessage(RECONFIGURE_API_KEY_MODAL_SUBMIT_BUTTON)}
+                      </Button>
+                    </ModalFooter>
+                  </ModalContent>
+                </Modal>
               </>
             )}
           </APIKeyContent>
