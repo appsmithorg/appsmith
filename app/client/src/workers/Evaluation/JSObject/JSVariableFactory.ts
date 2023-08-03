@@ -2,17 +2,6 @@ import { PatchType } from "./JSVariableUpdates";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import type { JSActionEntity } from "entities/DataTree/types";
 import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
-import { updateEvalTreeValueFromContext } from ".";
-
-function updateEvalTreeHandler(jsObjectName: string, varName: string) {
-  ExecutionMetaData.setExecutionMetaData({
-    enableJSVarUpdateTracking: false,
-  });
-  updateEvalTreeValueFromContext([jsObjectName, varName]);
-  ExecutionMetaData.setExecutionMetaData({
-    enableJSVarUpdateTracking: true,
-  });
-}
 
 class JSFactory {
   static create(
@@ -29,11 +18,6 @@ class JSFactory {
         enumerable: true,
         configurable: true,
         get() {
-          if (
-            !ExecutionMetaData.getExecutionMetaData().enableJSVarUpdateTracking
-          )
-            return variable;
-          updateEvalTreeHandler(jsObjectName, varName);
           TriggerEmitter.emit(BatchKey.process_js_variable_updates, {
             path: `${jsObjectName}.${varName}`,
             method: PatchType.GET,
@@ -41,11 +25,6 @@ class JSFactory {
           return variable;
         },
         set(value) {
-          if (
-            !ExecutionMetaData.getExecutionMetaData().enableJSVarUpdateTracking
-          )
-            return;
-          updateEvalTreeHandler(jsObjectName, varName);
           TriggerEmitter.emit(BatchKey.process_js_variable_updates, {
             path: `${jsObjectName}.${varName}`,
             method: PatchType.SET,

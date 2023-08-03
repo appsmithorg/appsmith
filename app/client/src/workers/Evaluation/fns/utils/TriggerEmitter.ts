@@ -6,6 +6,7 @@ import type {
   UpdatedPathsMap,
 } from "workers/Evaluation/JSObject/JSVariableUpdates";
 import { applyJSVariableUpdatesToEvalTree } from "workers/Evaluation/JSObject/JSVariableUpdates";
+import ExecutionMetaData from "./ExecutionMetaData";
 import { get } from "lodash";
 import { getType } from "utils/TypeHelpers";
 import type { JSVarMutatedEvents } from "workers/Evaluation/types";
@@ -158,7 +159,7 @@ TriggerEmitter.on(
   jsVariableMutationEventHandler,
 );
 
-export const jsVariableUpdatesHandler = priorityBatchedActionHandler<Patch>(
+const jsVariableUpdatesHandler = priorityBatchedActionHandler<Patch>(
   (batchedData) => {
     const updatesMap: UpdatedPathsMap = {};
     for (const patch of batchedData) {
@@ -173,9 +174,16 @@ export const jsVariableUpdatesHandler = priorityBatchedActionHandler<Patch>(
   },
 );
 
+export const jsVariableUpdatesHandlerWrapper = (patch: Patch) => {
+  if (!ExecutionMetaData.getExecutionMetaData().enableJSVarUpdateTracking)
+    return;
+
+  jsVariableUpdatesHandler(patch);
+};
+
 TriggerEmitter.on(
   BatchKey.process_js_variable_updates,
-  jsVariableUpdatesHandler,
+  jsVariableUpdatesHandlerWrapper,
 );
 
 export const fnInvokeLogHandler = deferredBatchedActionHandler<{

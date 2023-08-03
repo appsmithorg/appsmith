@@ -2,7 +2,7 @@ import JSFactory from "../JSVariableFactory";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import type { JSActionEntity } from "entities/DataTree/types";
 import TriggerEmitter, {
-  jsVariableUpdatesHandler,
+  jsVariableUpdatesHandlerWrapper,
 } from "workers/Evaluation/fns/utils/TriggerEmitter";
 
 const applyJSVariableUpdatesToEvalTreeMock = jest.fn();
@@ -18,7 +18,10 @@ jest.mock("../../../../utils/MessageUtil.ts", () => ({
   sendMessage: jest.fn(),
 }));
 
-TriggerEmitter.on("process_js_variable_updates", jsVariableUpdatesHandler);
+TriggerEmitter.on(
+  "process_js_variable_updates",
+  jsVariableUpdatesHandlerWrapper,
+);
 
 describe("JSVariableFactory", () => {
   it("trigger setters with JSVariableUpdates enabled", async () => {
