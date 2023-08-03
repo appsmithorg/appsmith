@@ -488,12 +488,8 @@ return "yes";`;
 
     // Modify js object
     jsEditor.EditJSObj(syncJSCode, false);
-
     agHelper.RefreshPage();
-    cy.wait("@jsCollections").then(({ response }) => {
-      expect(response?.body.data.actions[0].executeOnLoad).to.eq(true);
-      expect(response?.body.data.actions[0].confirmBeforeExecute).to.eq(false);
-    });
+    jsEditor.VerifyAsyncFuncSettings("asyncToSync", true, false);
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.JSObject,
