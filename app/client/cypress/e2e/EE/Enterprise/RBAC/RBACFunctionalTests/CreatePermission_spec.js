@@ -352,7 +352,9 @@ describe("Create Permission flow ", function () {
     });
     cy.SaveAndRunAPI();
     //TODO: Update the error message once updated from the server.
-    agHelper.ValidateToastMessage("Unable to find environmentid unused_env");
+    agHelper.ValidateToastMessage(
+      "You do not have access to this environment. Please contact your workspace administrator to gain access",
+    );
   });
 
   it("7. Omnibar : Action creation", function () {

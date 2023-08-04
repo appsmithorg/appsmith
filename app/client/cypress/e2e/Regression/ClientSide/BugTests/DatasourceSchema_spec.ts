@@ -25,7 +25,7 @@ describe("Datasource form related tests", function () {
       dataSources.CreatePlugIn("PostgreSQL");
       agHelper.RenameWithInPane(dataSourceName, false);
       dataSources.FillPostgresDSForm(
-        "production",
+        "Production",
         false,
         "docker",
         "wrongPassword",

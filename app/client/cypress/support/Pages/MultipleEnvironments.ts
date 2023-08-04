@@ -35,7 +35,9 @@ export class MultipleEnvironments {
           this.agHelper.GetNClick(this.env_switcher_dropdown_opt(targetEnv));
           this.agHelper.Sleep();
           this.agHelper.AssertElementExist(
-            this.locator._specificToast(`Environment switched to ${targetEnv}`),
+            this.locator._specificToast(
+              `Environment switched to ${targetEnv.toLowerCase()}`,
+            ),
           );
         }
       });

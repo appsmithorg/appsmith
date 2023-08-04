@@ -1018,6 +1018,14 @@ public enum AppsmithError {
             "API Key not mapped.",
             ErrorType.AUTHENTICATION_ERROR,
             null),
+    ACL_NO_ACCESS_ERROR(
+            401,
+            AppsmithErrorCode.ACL_NO_ACCESS_ERROR.getCode(),
+            "You do not have access to this {0}. Please contact your {1} administrator to gain access",
+            AppsmithErrorAction.DEFAULT,
+            "No resource available for access",
+            ErrorType.INTERNAL_ERROR,
+            null),
     ;
 
     private final Integer httpErrorCode;
