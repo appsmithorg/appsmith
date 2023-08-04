@@ -67,7 +67,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -330,15 +329,6 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                 .filter(table1 -> StringUtils.contains(table1.getName(), templateTableRef))
                                 .findAny()
                                 .orElse(null);
-
-                        if (templateTable == null) {
-                            Optional<Table> templateTableOptional =
-                                    templateStructure.getTables().stream().findAny();
-                            if (templateTableOptional.isPresent()) {
-                                templateTable = templateTableOptional.get();
-                                templateTable.setName(templateTableRef);
-                            }
-                        }
 
                         Table table = getTable(datasourceStructure, tableName);
                         if (table == null) {

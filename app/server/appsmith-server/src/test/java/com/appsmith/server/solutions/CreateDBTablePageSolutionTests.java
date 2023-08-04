@@ -1158,7 +1158,7 @@ public class CreateDBTablePageSolutionTests {
                                             .toString()
                                             .replaceAll(specialCharactersRegex, ""))
                                     .isEqualTo(
-                                            "{ \n{{data_table.sortOrder.column || 'col1'}}: {{data_table.sortOrder.order == \"desc\" ? -1 : 1}}}"
+                                            "{ \n{{data_table.sortOrder.column || 'field2'}}: {{data_table.sortOrder.order == \"desc\" ? -1 : 1}}}"
                                                     .replaceAll(specialCharactersRegex, ""));
 
                             assertThat(((Map<String, Object>) find.get("limit"))
