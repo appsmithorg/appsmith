@@ -309,13 +309,12 @@ export const updateDependencyMap = ({
 
   if (didUpdateDependencyMap) {
     DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
-    dataTreeEvalRef.sortedDependencies = dataTreeEvalRef.sortDependencies(
-      dependencyMap.dependencies,
-    );
+    dataTreeEvalRef.sortedDependencies =
+      dataTreeEvalRef.sortDependencies(dependencyMap);
   }
   if (didUpdateValidationDependencyMap) {
     dataTreeEvalRef.sortedValidationDependencies =
-      dataTreeEvalRef.sortDependencies(validationDependencyMap.dependencies);
+      dataTreeEvalRef.sortDependencies(validationDependencyMap);
   }
 
   /** We need this in order clear out the paths that could have errors when a property is deleted */

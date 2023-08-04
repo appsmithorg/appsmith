@@ -268,9 +268,9 @@ export default class DataTreeEvaluator {
     this.inverseValidationDependencies = inverseValidationDependencies;
 
     const sortDependenciesStartTime = performance.now();
-    this.sortedDependencies = this.sortDependencies(this.dependencies);
+    this.sortedDependencies = this.sortDependencies(this.dependencyMap);
     this.sortedValidationDependencies = this.sortDependencies(
-      this.validationDependencies,
+      this.validationDependencyMap,
     );
     const sortDependenciesEndTime = performance.now();
 
@@ -1176,10 +1176,10 @@ export default class DataTreeEvaluator {
   }
 
   sortDependencies(
-    dependencies: Record<string, string[]>,
+    dependencyMap: DependencyMap,
     diffs?: (DataTreeDiff | DataTreeDiff[])[],
   ): Array<string> {
-    const result = DependencyMapUtils.sortDependencies(dependencies);
+    const result = DependencyMapUtils.sortDependencies(dependencyMap);
     if (result.success) {
       return result.sortedDependencies;
     } else {
@@ -1195,6 +1195,7 @@ export default class DataTreeEvaluator {
       } else if (entity && isJSAction(entity)) {
         entityType = entity.ENTITY_TYPE;
       }
+      const dependencies = dependencyMap.dependencies;
       this.errors.push({
         type: EvalErrorTypes.CYCLICAL_DEPENDENCY_ERROR,
         message: "Cyclic dependency found while evaluating.",
