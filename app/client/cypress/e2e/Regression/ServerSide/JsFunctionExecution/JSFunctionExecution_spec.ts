@@ -11,42 +11,50 @@ import {
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
+interface IFunctionSettingData {
+  name: string;
+  onPageLoad: boolean;
+  confirmBeforeExecute: boolean;
+  // uses the "async" keyword
+  isMarkedAsync: boolean;
+}
+
 let onPageLoadAndConfirmExecuteFunctionsLength: number,
-  getJSObject: any,
+  getJSObject: (data: IFunctionSettingData[]) => string,
   functionsLength: number,
   jsObj: string;
 
 describe("JS Function Execution", function () {
-  interface IFunctionSettingData {
-    name: string;
-    onPageLoad: boolean;
-    confirmBeforeExecute: boolean;
-  }
   const FUNCTIONS_SETTINGS_DEFAULT_DATA: IFunctionSettingData[] = [
     {
       name: "getId",
       onPageLoad: true,
       confirmBeforeExecute: false,
+      isMarkedAsync: true,
     },
     {
       name: "zip",
       onPageLoad: true,
       confirmBeforeExecute: true,
+      isMarkedAsync: false,
     },
     {
       name: "base",
       onPageLoad: false,
       confirmBeforeExecute: false,
+      isMarkedAsync: true,
     },
     {
       name: "assert",
       onPageLoad: false,
       confirmBeforeExecute: false,
+      isMarkedAsync: false,
     },
     {
       name: "test",
       onPageLoad: true,
       confirmBeforeExecute: true,
+      isMarkedAsync: true,
     },
   ];
 
@@ -348,16 +356,23 @@ describe("JS Function Execution", function () {
       let JS_OBJECT_BODY = `export default`;
       for (let i = 0; i < functionsLength; i++) {
         const functionName = data[i].name;
+        const isMarkedAsync = data[i].isMarkedAsync;
         JS_OBJECT_BODY +=
           i === 0
             ? `{
-              ${functionName}: async ()=>"${functionName}",`
+              ${functionName}: ${
+                isMarkedAsync ? "async" : ""
+              } ()=>"${functionName}",`
             : i === functionsLength - 1
             ? `
-            ${functionName}: async ()=>"${functionName}",
+            ${functionName}: ${
+                isMarkedAsync ? "async" : ""
+              } ()=>"${functionName}",
           }`
             : `
-            ${functionName}: async ()=> "${functionName}",`;
+            ${functionName}: ${
+                isMarkedAsync ? "async" : ""
+              } ()=> "${functionName}",`;
       }
       return JS_OBJECT_BODY;
     };
@@ -409,26 +424,31 @@ describe("JS Function Execution", function () {
         name: "newGetId",
         onPageLoad: true,
         confirmBeforeExecute: false,
+        isMarkedAsync: false,
       },
       {
         name: "zip1",
         onPageLoad: true,
         confirmBeforeExecute: true,
+        isMarkedAsync: true,
       },
       {
         name: "base",
         onPageLoad: false,
         confirmBeforeExecute: false,
+        isMarkedAsync: true,
       },
       {
         name: "newAssert",
         onPageLoad: true,
         confirmBeforeExecute: false,
+        isMarkedAsync: false,
       },
       {
         name: "test",
         onPageLoad: true,
         confirmBeforeExecute: true,
+        isMarkedAsync: true,
       },
     ];
 
