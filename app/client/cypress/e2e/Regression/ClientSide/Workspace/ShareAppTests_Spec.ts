@@ -10,9 +10,7 @@ import {
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 
 describe("Create new workspace and share with a user", function () {
-  let workspaceId: string | number | RegExp;
-  let appid: string;
-  let currentUrl: any;
+  let workspaceId: string, appid: string, currentUrl: any;
 
   it("1. Create workspace and then share with a user from Application share option within application", function () {
     homePage.NavigateToHome();
