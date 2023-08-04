@@ -344,10 +344,11 @@ export const CONFIG = {
                           columnGap: 4,
                           flexGrow: 1,
                           border: "1px dashed #979797",
+                          minHeight: 40,
                         },
                         layoutType: "ROW",
                         isDropTarget: true,
-                        // widgetsAllowed: ["1D"],
+                        widgetsAllowed: ["TEXT_WIDGET"],
                         layout: [textWidget.widgetId],
                         rendersWidgets: true,
                       },
@@ -357,6 +358,7 @@ export const CONFIG = {
                           columnGap: 4,
                           minWidth: "30px",
                           border: "1px dashed #979797",
+                          minHeight: 40,
                         },
                         layoutType: "ROW",
                         isDropTarget: true,
@@ -429,6 +431,7 @@ export const CONFIG = {
                     layoutStyle: {
                       alignSelf: "stretch",
                       border: "1px dashed #979797",
+                      minHeight: 40,
                     },
                     layoutType: "ALIGNED_ROW",
                     layout: [
