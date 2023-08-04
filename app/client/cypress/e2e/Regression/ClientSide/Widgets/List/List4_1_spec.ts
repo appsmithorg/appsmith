@@ -165,7 +165,7 @@ describe("List Widget Functionality", function () {
 
   it("8. ListWidget-Copy & Delete Verification", function () {
     //Copy Chart and verify all properties
-    propPane.CopyPasteWidgetFromExplorer("List1");
+    propPane.CopyPasteWidgetFromPropertyPane("List1");
     propPane.DeleteWidgetFromPropertyPane("List1Copy");
     deployMode.DeployApp();
     // Verify the copied list widget is deleted
