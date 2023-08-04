@@ -135,17 +135,14 @@ AlignedRow.addChild = (
     [FlexLayerAlignment.End]: 2,
   };
   const alignmentIndex = map[alignment];
-  const alignmentRow = layout[alignmentIndex];
-  const updatedAlignmentRow = [
+  const alignmentRow: string[] = layout[alignmentIndex];
+  const updatedAlignmentRow: string[] = [
     ...alignmentRow.slice(0, index),
     ...children,
     ...alignmentRow.slice(index),
-  ];
-  const updatedLayout = [
-    ...layout.slice(0, index),
-    ...updatedAlignmentRow,
-    ...layout.slice(index),
-  ];
+  ] as string[];
+  const updatedLayout = [...layout];
+  updatedLayout[alignmentIndex] = updatedAlignmentRow as string[];
   return { ...props, layout: updatedLayout } as LayoutComponentProps;
 };
 
