@@ -558,7 +558,7 @@ const ColorPickerComponent = React.forwardRef(
     };
 
     const handleOnInteraction = (nextOpenState: boolean) => {
-      if (isFullColorPicker) return;
+      if (isFullColorPicker && !isOpen) return;
 
       if (isOpen !== nextOpenState) {
         if (isClick.current) setIsOpen(true);
