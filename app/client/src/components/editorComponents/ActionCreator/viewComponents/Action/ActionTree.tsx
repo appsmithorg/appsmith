@@ -11,6 +11,7 @@ import ActionCard from "./ActionCard";
 import ActionSelector from "./ActionSelector";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getActionTypeLabel } from "../ActionBlockTree/utils";
+import classNames from "classnames";
 
 const CallbackBlockContainer = styled.div<{
   isSelected: boolean;
@@ -58,7 +59,7 @@ export default function ActionTree(props: {
   const { error, success } = actionBlock;
   const { blocks: successBlocks } = success;
   const { blocks: errorBlocks } = error;
-  const [isOpen, open] = React.useState(true);
+  const [isOpen, open] = React.useState(false);
 
   const { selectBlock, selectedBlockId } =
     React.useContext(ActionCreatorContext);
@@ -77,23 +78,25 @@ export default function ActionTree(props: {
     }
 
     setCanAddCallback(props.actionBlock.actionType !== AppsmithFunction.none);
-  }, [props.actionBlock]);
+  }, [
+    props.actionBlock,
+    setCallbacksExpanded,
+    setCanAddCallback,
+    setActionBlock,
+  ]);
 
   const handleCardSelection = useCallback(() => {
     if (selectedBlockId === id) return;
     selectBlock(id);
     setCallbacksExpanded(true);
-  }, [id, selectedBlockId]);
+  }, [id, selectedBlockId, setCallbacksExpanded, selectBlock]);
 
   useEffect(() => {
     open(selectedBlockId === id);
   }, [selectedBlockId, id]);
 
   const handleAddSuccessBlock = useCallback(() => {
-    if (!canAddCallback) {
-      return;
-    }
-
+    if (!canAddCallback) return;
     const {
       success: { blocks },
     } = actionBlock;
@@ -109,13 +112,10 @@ export default function ActionTree(props: {
     });
     setActionBlock(newActionBlock);
     selectBlock(`${id}_success_${blocks.length}`);
-  }, [actionBlock]);
+  }, [actionBlock, canAddCallback]);
 
   const handleAddErrorBlock = useCallback(() => {
-    if (!canAddCallback) {
-      return;
-    }
-
+    if (!canAddCallback) return;
     const {
       error: { blocks },
     } = actionBlock;
@@ -131,7 +131,7 @@ export default function ActionTree(props: {
     });
     setActionBlock(newActionBlock);
     selectBlock(`${id}_failure_${blocks.length}`);
-  }, [actionBlock]);
+  }, [actionBlock, canAddCallback]);
 
   const actionsCount =
     successBlocks.filter(
@@ -214,9 +214,10 @@ export default function ActionTree(props: {
       {callbacksExpanded && areCallbacksApplicable ? (
         <TreeStructure>
           <ul
-            className={`tree flex flex-col gap-0 ${
-              canAddCallback ? "" : "opacity-60"
-            }`}
+            className={classNames(
+              "tree flex flex-col gap-0",
+              !canAddCallback && "opacity-60",
+            )}
           >
             {callbackBlocks.map(
               ({

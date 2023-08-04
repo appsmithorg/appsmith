@@ -1,5 +1,4 @@
 import { Popover2 } from "@blueprintjs/popover2";
-import styled from "styled-components";
 import { isModalOpenSelector } from "components/editorComponents/GlobalSearch";
 import type { TreeDropdownOption } from "design-system-old";
 import { Text, Button } from "design-system";
@@ -17,11 +16,6 @@ import {
 } from "../../helpers";
 import type { TActionBlock } from "../../types";
 import { getCodeFromMoustache, getSelectedFieldFromValue } from "../../utils";
-
-const ActionText = styled(Text)`
-  height: fit-content;
-  margin-top: 5px;
-`;
 
 export default function ActionSelector(props: {
   action: TActionBlock;
@@ -140,14 +134,13 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
       className="flex flex-col w-full action-selector-popup t--action-selector-popup"
       ref={ref}
     >
-      <div className="flex mb-2 w-full justify-between px-2 mt-2">
+      <div className="flex mb-2 w-full justify-between px-3 mt-3 items-center">
         <Text className="mt-2" kind="heading-xs">
           {isChainedAction ? "Configure action" : label}
         </Text>
-
-        <div>
+        <div className="flex flex-row gap-1">
           <Button
-            className="t--delete cursor-pointer mr-1"
+            className="t--delete cursor-pointer"
             isIconButton
             kind="tertiary"
             onClick={() => {
@@ -165,7 +158,6 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
             size="sm"
             startIcon="delete-bin-line"
           />
-
           <Button
             className="t--close"
             isIconButton
@@ -177,10 +169,8 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
         </div>
       </div>
 
-      <div className="flex w-full justify-between px-3 mb-[4px]">
-        <ActionText kind="body-s" renderAs="p">
-          Action
-        </ActionText>
+      <div className="flex w-full justify-between px-3 mb-[4px] text-sm">
+        Action
       </div>
 
       <div className="p-3 pt-0">
