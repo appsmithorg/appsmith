@@ -13,7 +13,6 @@ export const FEATURE_FLAG = {
   ab_ds_schema_enabled: "ab_ds_schema_enabled",
   ab_ds_binding_enabled: "ab_ds_binding_enabled",
   ab_gsheet_schema_enabled: "ab_gsheet_schema_enabled",
-  release_scim_provisioning_enabled: "release_scim_provisioning_enabled",
   ab_wds_enabled: "ab_wds_enabled",
   release_widgetdiscovery_enabled: "release_widgetdiscovery_enabled",
 } as const;
@@ -33,7 +32,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_ds_schema_enabled: false,
   ab_ds_binding_enabled: false,
   ab_gsheet_schema_enabled: false,
-  release_scim_provisioning_enabled: false,
   ab_wds_enabled: false,
   release_widgetdiscovery_enabled: false,
 };
