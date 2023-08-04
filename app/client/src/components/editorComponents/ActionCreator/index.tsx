@@ -265,7 +265,7 @@ const ActionCreator = React.forwardRef(
     `;
 
     if (isEmpty(actions)) {
-      return <EmptyState className="">No action</EmptyState>;
+      return <EmptyState className="mt-1">No action</EmptyState>;
     }
 
     return (
