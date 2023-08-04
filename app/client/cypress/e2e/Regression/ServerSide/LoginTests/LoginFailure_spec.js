@@ -1,4 +1,8 @@
-import { deployMode } from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  deployMode,
+  homePage,
+} from "../../../../support/Objects/ObjectsCore";
 const loginPage = require("../../../../locators/LoginPage.json");
 
 describe("Login failure", function () {
@@ -9,8 +13,8 @@ describe("Login failure", function () {
       .then((location) => {
         cy.LogOutUser();
         appUrl = location.href.split("?")[0];
-        cy.visit(appUrl, { timeout: 60000 });
-        cy.get(loginPage.username).should("be.visible");
+        agHelper.VisitNAssert(appUrl, "signUpLogin");
+        agHelper.AssertElementVisible(homePage._username);
       })
       .then(() => cy.GetUrlQueryParams())
       .then((queryParams) => {
