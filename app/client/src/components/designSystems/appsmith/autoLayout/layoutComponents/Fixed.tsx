@@ -13,9 +13,8 @@ import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getCanvasClassName } from "utils/generators";
 
 const Fixed = (props: LayoutComponentProps) => {
-  const { childrenMap, containerProps, layout, layoutType } = props;
+  const { childrenMap, containerProps, layoutType } = props;
   if (!containerProps) return null;
-  console.log("####", { layout, childrenMap });
   const renderAsContainerComponent = () => {
     return (
       <ContainerComponent {...containerProps}>
