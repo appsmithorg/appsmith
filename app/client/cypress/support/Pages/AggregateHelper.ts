@@ -1099,6 +1099,7 @@ export class AggregateHelper extends ReusableHelper {
         input.focus();
         this.Sleep(200);
         input.setValue(value);
+        this.Sleep(200);
         input.execCommand("goLineEnd");
         this.Sleep(200);
       });

@@ -135,6 +135,8 @@ export class PropertyPane {
     `.ads-v2-segmented-control-value-${value}`;
   _addMenuItem = ".t--add-menu-item-btn";
   _addColumnItem = ".t--add-column-btn";
+  _widgetToVerifyText = (widgetName: string) =>
+    `${this.locator._widgetByName(widgetName)} ${this._propertyText}`;
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
