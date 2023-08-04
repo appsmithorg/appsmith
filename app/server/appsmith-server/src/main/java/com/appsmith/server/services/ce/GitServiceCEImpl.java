@@ -1898,28 +1898,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         GitStatusDTO gitStatusDTO = objects.getT2().getT1();
                         User currentUser = objects.getT2().getT2();
                         Application app = objects.getT2().getT3();
-
-                        final Map<String, Object> data = Map.of(
-                                FieldName.FLOW_NAME,
-                                AnalyticsEvents.GIT_STATUS.getEventName(),
-                                FieldName.APPLICATION_ID,
-                                defaultApplicationId,
-                                "appId",
-                                defaultApplicationId,
-                                FieldName.BRANCH_NAME,
-                                branchName,
-                                "organizationId",
-                                app.getWorkspaceId(),
-                                "repoUrl",
-                                app.getGitApplicationMetadata().getRemoteUrl(),
-                                "executionTime",
-                                elapsedTime);
-                        return analyticsService
-                                .sendEvent(
-                                        AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(),
-                                        currentUser.getUsername(),
-                                        data)
-                                .thenReturn(gitStatusDTO);
+                        return sendAnalyticsEvent(elapsedTime, gitStatusDTO, currentUser, app);
                     })
                     .map(t -> {
                         log.debug("Time take, {}\n", executionTimeLogging.print());
@@ -1927,6 +1906,28 @@ public class GitServiceCEImpl implements GitServiceCE {
                     })
                     .subscribe(sink::success, sink::error, null, sink.currentContext());
         });
+    }
+
+    private Mono<GitStatusDTO> sendAnalyticsEvent(
+            Long elapsedTime, GitStatusDTO gitStatusDTO, User currentUser, Application app) {
+        final Map<String, Object> data = Map.of(
+                FieldName.FLOW_NAME,
+                AnalyticsEvents.GIT_STATUS.getEventName(),
+                FieldName.APPLICATION_ID,
+                app.getGitApplicationMetadata().getDefaultApplicationId(),
+                "appId",
+                app.getGitApplicationMetadata().getDefaultApplicationId(),
+                FieldName.BRANCH_NAME,
+                app.getGitApplicationMetadata().getBranchName(),
+                "organizationId",
+                app.getWorkspaceId(),
+                "repoUrl",
+                app.getGitApplicationMetadata().getRemoteUrl(),
+                "executionTime",
+                elapsedTime);
+        return analyticsService
+                .sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), currentUser.getUsername(), data)
+                .thenReturn(gitStatusDTO);
     }
 
     @Override
