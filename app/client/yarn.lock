@@ -9575,7 +9575,6 @@ __metadata:
     smartlook-client: ^8.0.0
     socket.io-client: ^4.5.4
     sql-formatter: 12.2.0
-    storybook: 7.2.1
     styled-components: ^5.3.6
     tern: ^0.21.0
     tinycolor2: ^1.4.2
@@ -26766,7 +26765,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"storybook@npm:7.2.1, storybook@npm:^7.1.1":
+"storybook@npm:^7.1.1":
   version: 7.2.1
   resolution: "storybook@npm:7.2.1"
   dependencies:
