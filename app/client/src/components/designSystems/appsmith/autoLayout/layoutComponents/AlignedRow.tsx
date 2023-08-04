@@ -42,7 +42,7 @@ const AlignedRow = (props: LayoutComponentProps) => {
             acc ||
             curr.some((id) => {
               return getIsFillWidgetFromType(
-                (childrenMap[id] as JSX.Element).props?.type,
+                (childrenMap[id] as JSX.Element)?.props?.type,
               );
             })
           );

@@ -136,15 +136,17 @@ export function getVerticalHighlights(data: {
 
     const lastWidget =
       widgetPositions[filteredChildren[filteredChildren.length - 1]];
-    const { left, width } = lastWidget;
-    highlights.push({
-      ...base,
-      height: maxHeight[wrappedRowIndex][0],
-      index: highlights.length,
-      posX: Math.min(left + width - parentLeft, maxPosX),
-      posY: arrPosY[wrappedRowIndex],
-      rowIndex: highlights.length,
-    });
+    if (lastWidget) {
+      const { left, width } = lastWidget;
+      highlights.push({
+        ...base,
+        height: maxHeight[wrappedRowIndex][0],
+        index: highlights.length,
+        posX: Math.min(left + width - parentLeft, maxPosX),
+        posY: arrPosY[wrappedRowIndex],
+        rowIndex: highlights.length,
+      });
+    }
   } else {
     // TODO: add highlights here.
     for (const each of layout as LayoutComponentProps[]) {
