@@ -34,9 +34,9 @@ export const getUserRoleInWorkspace = () => {
   const state = store.getState();
   const { currentUser } = state?.ui?.users;
   const isSuperUser = currentUser?.isSuperUser;
+  if (isSuperUser) return RAMP_FOR_ROLES.SUPER_USER;
   const workspaceUsers = state?.ui?.workspaces?.workspaceUsers;
   if (workspaceUsers?.length) {
-    if (isSuperUser) return RAMP_FOR_ROLES.SUPER_USER;
     const workspaceUser = workspaceUsers.find(
       (user: any) => user?.username === currentUser?.username,
     );

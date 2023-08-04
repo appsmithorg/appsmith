@@ -16,20 +16,7 @@ describe("getUserRoleInWorkspace", () => {
         users: {
           currentUser: {
             isSuperUser: true,
-            username: "testuser",
           },
-        },
-        workspaces: {
-          workspaceUsers: [
-            {
-              username: "testuser",
-              roles: [
-                {
-                  name: `some-role`,
-                },
-              ],
-            },
-          ],
         },
       },
     };
