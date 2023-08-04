@@ -616,6 +616,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                       {isGoogleSheetSchemaAvailable && (
                         <GoogleSheetSchema
                           datasourceId={datasourceId}
+                          key={datasourceId}
                           pluginId={plugin?.id}
                         />
                       )}
