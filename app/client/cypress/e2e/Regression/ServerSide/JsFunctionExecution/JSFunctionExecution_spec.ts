@@ -69,7 +69,7 @@ describe("JS Function Execution", function () {
       data.sort((a, b) => a.name.localeCompare(b.name));
     cy.get(jsEditor._asyncJSFunctionSettings).then(function ($lis) {
       const asyncFunctionLength = $lis.length;
-      // Assert number of async functions
+      // Assert number of functions
       expect(asyncFunctionLength).to.equal(functionsLength);
       Object.values(sortFunctions(data)).forEach((functionSetting, idx) => {
         // Assert alphabetical order
@@ -333,7 +333,7 @@ describe("JS Function Execution", function () {
       shouldCreateNewJSObj: true,
       prettify: false,
     });
-    // change async function name and test that cyclic dependency is not created
+    // change function name and test that cyclic dependency is not created
     jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction1, false);
     agHelper.AssertContains("Cyclic dependency", "not.exist");
     jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction2, false);
@@ -344,7 +344,7 @@ describe("JS Function Execution", function () {
     });
   });
 
-  it("7. Maintains order of async functions in settings tab alphabetically at all times", function () {
+  it("7. Maintains order of functions in settings tab alphabetically at all times", function () {
     functionsLength = FUNCTIONS_SETTINGS_DEFAULT_DATA.length;
     // Number of functions set to run on page load and should also confirm before execute
     onPageLoadAndConfirmExecuteFunctionsLength =
