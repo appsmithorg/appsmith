@@ -164,7 +164,7 @@ export class PropertyPane {
     //this.agHelper.AssertElementVisible(this._deleteWidget); //extra valisation, hence commenting!
   }
 
-  public CopyWidgetFromPropertyPane(widgetName: string) {
+  public CopyPasteWidgetFromExplorer(widgetName: string) {
     this.entityExplorer.SelectEntityByName(widgetName, "Widgets");
     this.agHelper.GetNClick(this._copyWidget);
     this.agHelper.Sleep(200);

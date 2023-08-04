@@ -151,7 +151,7 @@ describe("Rating widet testcases", () => {
     // rename widget from property pane
     propPane.RenameWidget("Rating1", "RateUs");
     // copy widget from property pane and assert copied info
-    propPane.CopyWidgetFromPropertyPane("RateUs");
+    propPane.CopyPasteWidgetFromExplorer("RateUs");
     agHelper.ValidateToastMessage("Copied RateUs");
     // copy widget using keyboard and   assert copied info
     entityExplorer.CopyPasteWidget("RateUs");
