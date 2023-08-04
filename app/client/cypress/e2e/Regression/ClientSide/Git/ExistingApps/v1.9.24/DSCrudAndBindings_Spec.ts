@@ -65,7 +65,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
     );
     agHelper.AssertContains(/[0-9] quer(y|ies) modified/, "not.exist");
 
-    // Commented out until issue with messaging is fixed for this app
+    // Commented out due to #25739 - to be fixed by dev later
     // agHelper.GetNAssertElementText(
     //   gitSync._gitStatusChanges,
     //   "datasource modified",
