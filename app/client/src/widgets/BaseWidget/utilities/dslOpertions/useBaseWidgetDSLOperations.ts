@@ -2,7 +2,23 @@ import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { useContext } from "react";
 
-export const useBaseWidgetDSLOperations = (props: { widgetId: string }) => {
+export interface BaseWidgetDSLOperations {
+  updateWidget: (
+    operationName: string,
+    widgetId: string,
+    widgetProperties: any,
+  ) => void;
+  deleteWidgetProperty: (propertyPaths: string[]) => void;
+  batchUpdateWidgetProperty: (
+    updates: BatchPropertyUpdatePayload,
+    shouldReplay?: boolean,
+  ) => void;
+  updateWidgetProperty(propertyName: string, propertyValue: any): void;
+}
+
+export const useBaseWidgetDSLOperations = (props: {
+  widgetId: string;
+}): BaseWidgetDSLOperations => {
   const { updateWidget, deleteWidgetProperty, batchUpdateWidgetProperty } =
     useContext(EditorContext);
   return {

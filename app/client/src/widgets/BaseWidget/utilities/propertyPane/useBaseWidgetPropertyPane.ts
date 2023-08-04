@@ -1,6 +1,18 @@
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 
-export const useBaseWidgetPropertyPane = () => {
+export interface BaseWidgetPropertyPane {
+  getPropertyPaneConfig: (
+    propertyPaneConfig?: PropertyPaneConfig[],
+  ) => PropertyPaneConfig[];
+  getPropertyPaneContentConfig: (
+    contentPropertyPaneConfig?: PropertyPaneConfig[],
+  ) => PropertyPaneConfig[];
+  getPropertyPaneStyleConfig: (
+    stylePropertyPaneConfig?: PropertyPaneConfig[],
+  ) => PropertyPaneConfig[];
+}
+
+export const useBaseWidgetPropertyPane = (): BaseWidgetPropertyPane => {
   const getPropertyPaneConfig = (
     propertyPaneConfig: PropertyPaneConfig[] = [],
   ) => {

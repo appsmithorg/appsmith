@@ -1,11 +1,9 @@
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { useBaseWidget } from "./useBaseWidget";
+import withWidgetProps from "widgets/withWidgetProps";
+import { useBaseWidgetRender } from "./useBaseWidgetRender";
 export interface BaseWidgetProps extends WidgetProps, WidgetState {}
 
-export const withBaseWidget = (
-  props: BaseWidgetProps,
-  wigdet: (widgetData: any) => JSX.Element,
-) => {
-  const baseWidgetUtilityProps = useBaseWidget(props);
-  const appsmithWidgetRender = 
+export const withBaseWidgetHOC = (Widget: (widgetData: any) => JSX.Element) => {
+  const appsmithWidgetRender = useBaseWidgetRender();
+  return appsmithWidgetRender(Widget);
 };

@@ -1,6 +1,12 @@
 import type { AutocompletionDefinitions } from "widgets/constants";
 
-export const useBaseWidgetAutoComplete = () => {
+export interface BaseWidgetAutoComplete {
+  getAutocompleteDefinitions: (
+    autoCompleteDefinitions?: AutocompletionDefinitions,
+  ) => AutocompletionDefinitions;
+}
+
+export const useBaseWidgetAutoComplete = (): BaseWidgetAutoComplete => {
   const getAutocompleteDefinitions = (
     autoCompleteDefinitions: AutocompletionDefinitions = {},
   ) => {
