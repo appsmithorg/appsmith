@@ -46,6 +46,30 @@ describe("parseExcelData", () => {
       expect(output.headers).toEqual(expectedHeaders);
     });
 
+    it("includes headers for empty values", () => {
+      const data: RawSheetData = [["r0c0"], ["r1c1", "r1c1", , "r1c3"]];
+      const expectedHeaders = [
+        {
+          Header: "A",
+          accessor: "A",
+        },
+        {
+          Header: "B",
+          accessor: "B",
+        },
+        {
+          Header: "C",
+          accessor: "C",
+        },
+        {
+          Header: "D",
+          accessor: "D",
+        },
+      ];
+      const output = parseExcelData(data);
+      expect(output.headers).toEqual(expectedHeaders);
+    });
+
     it("calculates double letter headers if number of items in data is more than 26", () => {
       const lastRowData = [["r26c0", "r26c1"]];
       let data: RawSheetData = [
@@ -105,6 +129,18 @@ describe("parseExcelData", () => {
       const output = parseExcelData(data);
       expect(output.body).toEqual(expectedBody);
     });
+
+    it("includes empty values into excel data format", () => {
+      const data = [["r0c0"], ["r1c0", "r1c1"], ["r2c0", "r2c1", , "r2c3"]];
+      const expectedBody = [
+        { A: "r0c0" },
+        { A: "r1c0", B: "r1c1" },
+        { A: "r2c0", B: "r2c1", C: undefined, D: "r2c3" },
+      ];
+
+      const output = parseExcelData(data);
+      expect(output.body).toEqual(expectedBody);
+    });
   });
 
   describe("Output", () => {
@@ -132,6 +168,56 @@ describe("parseExcelData", () => {
         body: [
           { A: "r0c0", B: "r0c1", C: "r0c2" },
           { A: "r1c0", B: "r1c1", C: "r1c2" },
+        ],
+      };
+
+      const output = parseExcelData(data);
+      expect(output).toEqual(expectedOutput);
+    });
+
+    it("returns correctly parsed header and body together for empty values", () => {
+      const data: RawSheetData = [
+        ["r0c0", "r0c1", "r0c2"],
+        ["r1c0", "r1c1", "r1c2", , , "r1c5"],
+      ];
+      const expectedOutput: ExcelData = {
+        headers: [
+          {
+            Header: "A",
+            accessor: "A",
+          },
+          {
+            Header: "B",
+            accessor: "B",
+          },
+          {
+            Header: "C",
+            accessor: "C",
+          },
+          {
+            Header: "D",
+            accessor: "D",
+          },
+          {
+            Header: "E",
+            accessor: "E",
+          },
+          {
+            Header: "F",
+            accessor: "F",
+          },
+        ],
+
+        body: [
+          { A: "r0c0", B: "r0c1", C: "r0c2" },
+          {
+            A: "r1c0",
+            B: "r1c1",
+            C: "r1c2",
+            D: undefined,
+            E: undefined,
+            F: "r1c5",
+          },
         ],
       };
 

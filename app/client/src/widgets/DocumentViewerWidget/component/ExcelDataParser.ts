@@ -1,6 +1,7 @@
 import _ from "lodash";
 
-export type RawSheetData = unknown[][];
+export type RawRowData = unknown[];
+export type RawSheetData = RawRowData[];
 
 // key is column name, value is cell value
 export type RowData = Record<string, unknown>;
@@ -57,10 +58,10 @@ export const parseExcelData = (rawData: RawSheetData): ExcelData => {
   const body: RowData[] = [];
   const headers: HeaderCell[] = [];
 
-  rawData.forEach((row) => {
+  for (const row of rawData) {
     const currRow: RowData = {};
 
-    row.forEach((dataValue, index) => {
+    for (const [index, dataValue] of row.entries()) {
       const columnLabel: string = numberToExcelHeader(index);
 
       // process header
@@ -76,10 +77,10 @@ export const parseExcelData = (rawData: RawSheetData): ExcelData => {
       }
 
       currRow[columnLabel] = cellValue;
-    });
+    }
 
     body.push(currRow);
-  });
+  }
   return {
     headers: headers,
     body: body,
