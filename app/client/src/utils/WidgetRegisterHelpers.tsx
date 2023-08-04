@@ -10,7 +10,6 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { memoize } from "lodash";
 import type { WidgetConfiguration } from "widgets/constants";
 import withMeta from "widgets/MetaHOC";
-import withWidgetProps from "widgets/withWidgetProps";
 import { generateReactKey } from "./generators";
 import type { RegisteredWidgetFeatures } from "./WidgetFeatures";
 import {
@@ -18,6 +17,7 @@ import {
   WidgetFeatureProps,
 } from "./WidgetFeatures";
 import { withLazyRender } from "widgets/withLazyRender";
+import { withBaseWidgetHOC } from "../widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
 const generateWidget = memoize(function getWidgetComponent(
   Widget: typeof BaseWidget,
@@ -27,7 +27,7 @@ const generateWidget = memoize(function getWidgetComponent(
   let widget = needsMeta ? withMeta(Widget) : Widget;
 
   //@ts-expect-error: type mismatch
-  widget = withWidgetProps(widget);
+  widget = withBaseWidgetHOC(widget);
 
   //@ts-expect-error: type mismatch
   widget = eagerRender ? widget : withLazyRender(widget);
