@@ -13,6 +13,7 @@ const BusinessTag = ({
   return (
     <Tag
       className={`business-tag ${classes}`}
+      data-testid="t--business-tag"
       isClosable={false}
       // kind="premium"
       {...(size && { size })}

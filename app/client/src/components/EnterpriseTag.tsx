@@ -12,7 +12,8 @@ const EnterpriseTag = ({
 }) => {
   return (
     <Tag
-      className={`business-tag ${classes}`}
+      className={`enterprise-tag ${classes}`}
+      data-testid="t--enterprise-tag"
       isClosable={false}
       // kind="special"
       {...(size && { size })}
