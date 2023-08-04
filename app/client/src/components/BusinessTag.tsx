@@ -1,5 +1,5 @@
 import React from "react";
-import type { TagSize } from "design-system";
+import type { TagSizes } from "design-system";
 import { Tag } from "design-system";
 import { BUSINESS_TAG, createMessage } from "@appsmith/constants/messages";
 
@@ -8,7 +8,7 @@ const BusinessTag = ({
   size,
 }: {
   classes?: string;
-  size?: TagSize;
+  size?: TagSizes;
 }) => {
   return (
     <Tag
