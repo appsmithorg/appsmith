@@ -268,7 +268,6 @@ export class CommonLocators {
   _adsV2Text = ".ads-v2-text";
   _svg = "svg";
   _imgWidgetInsideList = `//div[@data-testid='styledImage']//img`;
-  ratingWidgetName = ".t--draggable-ratewidget .t--widget-name";
   _containerWidget = "[type='CONTAINER_WIDGET']";
   _evaluatedValue = ".t-property-evaluated-value";
   public ds_editor_env_filter = (envName: string) =>

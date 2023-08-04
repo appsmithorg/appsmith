@@ -132,7 +132,7 @@ describe("Rating widet testcases", () => {
     // deploy app and click on stars and assert the alert
     deployMode.DeployApp();
     agHelper.GetNClick(RATING_WIDGET.star_icon, 4, true, 0);
-    agHelper.AssertText(locators._toastMsg, "text", "Thanks for rating us!");
+    agHelper.ValidateToastMessage("Thanks for rating us!");
 
     deployMode.NavigateBacktoEditor();
     agHelper.GetNClick(RATING_WIDGET.ratingwidget);
@@ -144,7 +144,7 @@ describe("Rating widet testcases", () => {
 
     deployMode.NavigateBacktoEditor();
     agHelper.GetNClick(RATING_WIDGET.ratingwidget);
-    agHelper.GetNClick(locators._buttonText("Close"), 0, true, 0);
+    agHelper.ClickButton("Close");
   });
 
   it("5. Rename, Copy Delete - rating widget", () => {
@@ -152,11 +152,11 @@ describe("Rating widet testcases", () => {
     propPane.RenameWidget("Rating1", "RateUs");
     // copy widget from property pane and assert copied info
     propPane.CopyWidgetFromPropertyPane("RateUs");
-    agHelper.AssertText(locators._toastMsg, "text", "Copied RateUs");
+    agHelper.ValidateToastMessage("Copied RateUs");
     // copy widget using keyboard and   assert copied info
     entityExplorer.CopyPasteWidget("RateUs");
-    agHelper.AssertText(locators._toastMsg, "text", "Copied RateUs");
-    agHelper.AssertText(locators.ratingWidgetName, "text", "RateUsCopy1");
+    agHelper.ValidateToastMessage("Copied RateUs");
+    agHelper.AssertText(RATING_WIDGET.ratingWidgetName, "text", "RateUsCopy1");
     // delete both widgets
     propPane.DeleteWidgetFromPropertyPane("RateUsCopy");
     propPane.DeleteWidgetFromPropertyPane("RateUs");
