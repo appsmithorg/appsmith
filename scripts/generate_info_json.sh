@@ -34,11 +34,9 @@ jq -n \
   --arg commitSha "$commit_sha" \
   --arg commitUrl "$base_url/commit/$commit_sha" \
   --arg gitRef "$git_ref" \
-  --arg githubRef "$git_ref" \
+  --arg githubRef "${GITHUB_REF-}" \
   --arg gitNearestTag "$git_tag" \
   --arg githubRunUrl "${github_run_url-}" \
-  --arg gitUserName "$(git config user.name)" \
-  --arg gitUserEmail "$(git config user.email)" \
   --arg date "$(date -u -Iseconds)" \
   --argjson isCI "${CI:-false}" \
   '$ARGS.named' | tee "$(git rev-parse --show-toplevel)/info.json"

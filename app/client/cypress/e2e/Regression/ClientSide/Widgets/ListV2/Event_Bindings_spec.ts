@@ -41,7 +41,9 @@ describe("Listv2 - Event bindings spec", () => {
 
     // click the button on inner list 1st row.
     agHelper.ClickButton("Submit");
-    agHelper.ValidateToastMessage("Blue _ 001 _ 0 _ outer input _ inner input");
+    agHelper.WaitUntilToastDisappear(
+      "Blue _ 001 _ 0 _ outer input _ inner input",
+    );
   });
 
   it("2. nested list - inner widget should get updated values of currentView and level_1", () => {
