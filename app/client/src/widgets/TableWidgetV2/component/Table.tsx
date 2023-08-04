@@ -320,7 +320,10 @@ export function Table(props: TableProps) {
   return (
     <>
       {showConnectDataOverlay && (
-        <ConnectDataOverlay onConnectData={props.onConnectData} />
+        <ConnectDataOverlay
+          message="Connect your data or use sample data to display table"
+          onConnectData={props.onConnectData}
+        />
       )}
       <TableWrapper
         accentColor={props.accentColor}

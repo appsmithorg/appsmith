@@ -170,18 +170,22 @@ function JSONFormComponent<TValues>(
         </InfoMessage>
       );
     }
-    if (isSchemaEmpty) {
+    if (showConnectDataOverlay || isSchemaEmpty) {
       return (
-        <InfoMessage fixHeight={fixMessageHeight}>
-          Connect data or paste JSON to add items to this form.
-        </InfoMessage>
+        <div style={{ height: "200px" }}>
+          <ConnectDataOverlay
+            message="Connect data or use a JSON Scheme to generate a form"
+            onConnectData={onConnectData}
+          />
+        </div>
       );
     }
 
     return renderRootField();
   })();
 
-  const hideFooter = fieldLimitExceeded || isSchemaEmpty;
+  const hideFooter =
+    fieldLimitExceeded || (isSchemaEmpty && !showConnectDataOverlay);
 
   return (
     <FormContextProvider
@@ -193,9 +197,6 @@ function JSONFormComponent<TValues>(
       updateWidgetProperty={updateWidgetProperty}
     >
       <StyledContainer backgroundColor={backgroundColor} {...styleProps}>
-        {showConnectDataOverlay && (
-          <ConnectDataOverlay onConnectData={onConnectData} />
-        )}
         <Form
           backgroundColor={backgroundColor}
           disabledWhenInvalid={rest.disabledWhenInvalid}
