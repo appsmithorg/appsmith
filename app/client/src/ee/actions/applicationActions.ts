@@ -1,1 +1,1 @@
-export * from "ce/actions/workspaceActions";
+export * from "ce/actions/applicationActions";

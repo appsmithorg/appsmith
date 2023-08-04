@@ -24,3 +24,8 @@ export const clearEvaluatedActionSelectorField = (id: string) => ({
   type: ReduxActionTypes.CLEAR_EVALUATED_ACTION_SELECTOR_FIELD,
   payload: id,
 });
+
+export const clearEvaluatedActionSelectorField2 = (id: string) => ({
+  type: ReduxActionTypes.CLEAR_EVALUATED_ACTION_SELECTOR_FIELD,
+  payload: id,
+});
