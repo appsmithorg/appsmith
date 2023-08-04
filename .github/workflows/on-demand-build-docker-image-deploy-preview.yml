@@ -138,10 +138,12 @@ jobs:
 
       - name: Set the client build path env vars
         run: |
-          if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
+          if [[ '${{ github.event.client_payload.slash_command.args.named.airgap-enabled }}' == 'true' ]]; then
+           echo 'airgap_enabled=true' >> "$GITHUB_ENV"
            echo 'client_build_name=client-build-airgap' >> "$GITHUB_ENV"
            echo 'client_build_path=app/client/build_airgap/' >> "$GITHUB_ENV"
           else
+           echo 'airgap-enabled=false' >> "$GITHUB_ENV"
            echo 'client_build_name=client-build' >> "$GITHUB_ENV"
            echo 'client_build_path=app/client/build/' >> "$GITHUB_ENV"
            fi
@@ -155,7 +157,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ${{ env.client_build_name }}
-          path: app/client
+          path: ${{ env.client_build_path }}
 
       - name: Unpack the client build artifact
         if: steps.run_result.outputs.run_result != 'success'
@@ -204,6 +206,8 @@ jobs:
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-dp:${{ vars.EDITION }}-${{ github.event.client_payload.pull_request.number }}
           build-args: |
             APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
+            APPSMTITH_AIRGAP_ENABLED=${{env.airgap_enabled}}
+            APPSMITH_CLIENT_BUILD_PATH=${{env.client_build_path}}
 
     outputs:
       imageHash: ${{ vars.EDITION }}-${{ github.event.client_payload.pull_request.number }}
