@@ -24,7 +24,7 @@ export interface SwitchProps
 
 export type SwitchRef = FocusableRef<HTMLLabelElement>;
 
-export const Switch = forwardRef((props: SwitchProps, ref: SwitchRef) => {
+const _Switch = (props: SwitchProps, ref: SwitchRef) => {
   const {
     autoFocus,
     children,
@@ -87,4 +87,6 @@ export const Switch = forwardRef((props: SwitchProps, ref: SwitchRef) => {
       {children}
     </label>
   );
-});
+};
+
+export const Switch = forwardRef(_Switch);

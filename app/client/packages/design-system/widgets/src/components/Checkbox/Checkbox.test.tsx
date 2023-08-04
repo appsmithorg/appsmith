@@ -7,7 +7,7 @@ import userEvent from "@testing-library/user-event";
 import { Checkbox } from "./Checkbox";
 
 // Adapted from remixicon-react/EmotionHappyLineIcon (https://github.com/Remix-Design/RemixIcon/blob/f88a51b6402562c6c2465f61a3e845115992e4c6/icons/User%20%26%20Faces/emotion-happy-line.svg)
-const EmotionHappyLineIcon = ({ ...props }: Record<string, any>) => {
+const EmotionHappyLineIcon = ({ ...props }: Record<string, string>) => {
   return (
     <svg
       fill="currentColor"

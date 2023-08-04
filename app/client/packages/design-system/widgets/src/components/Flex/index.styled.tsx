@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import type { StyledFlexProps } from "./types";
+import type { Responsive, StyledFlexProps } from "./types";
 
 export const StyledFlex = styled.div<StyledFlexProps>`
   ${({ $wrap }) => {
@@ -140,9 +140,12 @@ export const StyledFlex = styled.div<StyledFlexProps>`
   }}
 `;
 
+// the value and returned callback value can be of any type in accordance with component props
 const containerDimensionStyles = (
   cssProp: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   callback?: (value: any) => void,
 ) => {
   if (value == null) return;
@@ -169,7 +172,21 @@ const containerDimensionStyles = (
   return `${cssProp}: ${callback ? callback(value) : value};`;
 };
 
-const flexAlignValue = (value: any) => {
+const flexAlignValue = (
+  value: Responsive<
+    | "start"
+    | "end"
+    | "center"
+    | "stretch"
+    | "self-start"
+    | "self-end"
+    | "baseline"
+    | "first baseline"
+    | "last baseline"
+    | "safe center"
+    | "unsafe center"
+  >,
+) => {
   if (value === "start") {
     return "flex-start";
   }
@@ -181,7 +198,9 @@ const flexAlignValue = (value: any) => {
   return value;
 };
 
-const flexWrapValue = (value: any) => {
+const flexWrapValue = (
+  value: Responsive<boolean | "wrap" | "nowrap" | "wrap-reverse">,
+) => {
   if (typeof value === "boolean") {
     return value ? "wrap" : "nowrap";
   }
@@ -189,7 +208,7 @@ const flexWrapValue = (value: any) => {
   return value;
 };
 
-const cssVarValue = (value: any) => {
+const cssVarValue = (value: string) => {
   if (value == null) return;
 
   if (value.includes("spacing") || value.includes("sizing")) {
@@ -199,7 +218,7 @@ const cssVarValue = (value: any) => {
   return value;
 };
 
-const hiddenValue = (value?: any) => {
+const hiddenValue = (value: boolean) => {
   return value ? "none" : "flex";
 };
 

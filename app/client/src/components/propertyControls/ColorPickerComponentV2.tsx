@@ -26,12 +26,11 @@ import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
 import { getBrandColors } from "@appsmith/selectors/tenantSelectors";
+import FocusTrap from "focus-trap-react";
 import {
   createMessage,
   FULL_COLOR_PICKER_LABEL,
 } from "@appsmith/constants/messages";
-
-const FocusTrap = require("focus-trap-react");
 
 const MAX_COLS = 10;
 
