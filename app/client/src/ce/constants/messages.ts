@@ -1759,6 +1759,8 @@ export const GSHEETS_GENERATE_PAGE_BUTTON = () => "Generate page";
 export const GSHEETS_ERR_FETCHING_PREVIEW_DATA = () =>
   "Some problem occured while fetching data";
 export const GSHEETS_FETCHING_PREVIEW_DATA = () => "Loading data";
+export const GSHEETS_SCHEMA_NO_DATA = () =>
+  "No data records to show or the table header begins with an index other than 1";
 
 //Layout Conversion flow
 export const CONVERT = () => "Convert layout";

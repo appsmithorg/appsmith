@@ -26,10 +26,11 @@ import {
   GSHEETS_ERR_FETCHING_PREVIEW_DATA,
   GSHEETS_FETCHING_PREVIEW_DATA,
   GSHEETS_GENERATE_PAGE_BUTTON,
+  GSHEETS_SCHEMA_NO_DATA,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
-const LoadingWrapper = styled.div`
+const MessageWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -42,7 +43,7 @@ const TableWrapper = styled.div`
     width: fit-content;
   }
 
-  && > ${LoadingWrapper} {
+  && > ${MessageWrapper} {
     width: 100%;
   }
   && > div > div {
@@ -198,7 +199,7 @@ function GoogleSheetSchema(props: Props) {
 
   // Set current sheet data
   useEffect(() => {
-    if (sheetData?.length > 0) {
+    if (sheetData) {
       // Getting the top 12 rows as for experimentation we need to keep this number fixed for preview
       AnalyticsUtil.logEvent("GSHEET_PREVIEW_DATA_SHOWN", {
         datasourceId: props.datasourceId,
@@ -340,19 +341,23 @@ function GoogleSheetSchema(props: Props) {
       </SelectContainer>
       <TableWrapper>
         {isLoading ? (
-          <LoadingWrapper>
+          <MessageWrapper>
             <Spinner size="md" />
             <Text style={{ marginLeft: "8px" }}>
               {createMessage(GSHEETS_FETCHING_PREVIEW_DATA)}
             </Text>
-          </LoadingWrapper>
+          </MessageWrapper>
         ) : isError ? (
           <Text color="var(--ads-color-red-500)">
             {createMessage(GSHEETS_ERR_FETCHING_PREVIEW_DATA)}
           </Text>
-        ) : currentSheetData ? (
+        ) : currentSheetData?.length > 0 ? (
           <Table data={currentSheetData} />
-        ) : null}
+        ) : (
+          <MessageWrapper>
+            <Text>{createMessage(GSHEETS_SCHEMA_NO_DATA)}</Text>
+          </MessageWrapper>
+        )}
       </TableWrapper>
     </>
   );
