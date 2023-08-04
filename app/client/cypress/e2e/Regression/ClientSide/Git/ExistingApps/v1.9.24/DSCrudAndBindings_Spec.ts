@@ -37,7 +37,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
     homePage.AssertNCloseImport();
   });
 
-  it("1. Validate merge status", () => {
+  it("1. Validate merge status + Bug23822", () => {
     entityExplorer.AssertEntityPresenceInExplorer("ListingAndReviews");
     //Wait for the app to settle
     agHelper.Sleep(3000);
@@ -56,12 +56,32 @@ describe("Import and validate older app (app created in older versions of Appsmi
     );
     agHelper.GetNAssertElementText(
       gitSync._gitStatusChanges,
+      "Application settings modified",
+      "not.contain.text",
+    );
+    agHelper.GetNAssertElementText(
+      gitSync._gitStatusChanges,
+      "Theme modified",
+      "not.contain.text",
+    );
+    agHelper.GetNAssertElementText(
+      gitSync._gitStatusChanges,
       "queries modified",
       "not.contain.text",
     );
     agHelper.GetNAssertElementText(
       gitSync._gitStatusChanges,
       "datasource modified",
+      "not.contain.text",
+    );
+    agHelper.GetNAssertElementText(
+      gitSync._gitStatusChanges,
+      "JS Object modified",
+      "not.contain.text",
+    );
+    agHelper.GetNAssertElementText(
+      gitSync._gitStatusChanges,
+      "library modified",
       "not.contain.text",
     );
     agHelper.GetNAssertElementText(
