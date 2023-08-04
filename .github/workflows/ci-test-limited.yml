@@ -62,6 +62,12 @@ jobs:
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
 
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
       # Check out merge commit
       - name: Fork based /ok-to-test checkout
         if: inputs.pr != 0
@@ -182,7 +188,7 @@ jobs:
         run: |
           mkdir -p cicontainerlocal/stacks/configuration/
 
-      - name: Run Appsmith & TED docker image
+      - name: Run Appsmith, CS & TED docker image
         if: steps.run_result.outputs.run_result != 'success'
         env:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
@@ -230,6 +236,7 @@ jobs:
             -e APPSMITH_DISABLE_TELEMETRY=true \
             -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
+            -e APPSMITH_CLOUD_SERVICES_SIGNATURE_BASE_URL=http://host.docker.internal:8090 \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             ${{ env.docker_container_name }}
 
