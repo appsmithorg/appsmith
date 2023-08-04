@@ -330,6 +330,10 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                 .findAny()
                                 .orElse(null);
 
+                        if (templateTable == null) {
+                            log.info("template table is null");
+                        }
+
                         Table table = getTable(datasourceStructure, tableName);
                         if (table == null) {
                             return Mono.error(new AppsmithException(
