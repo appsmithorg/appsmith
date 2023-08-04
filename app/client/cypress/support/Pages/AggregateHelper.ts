@@ -1441,6 +1441,7 @@ export class AggregateHelper extends ReusableHelper {
 
   public AssertURL(url: string) {
     cy.url().should("include", url);
+    this.Sleep(); //settle time for new url!
   }
 
   public ScrollTo(
