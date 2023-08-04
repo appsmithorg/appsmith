@@ -19,7 +19,7 @@
 
 ---
 
-Organizations build internal applications such as dashboards, database GUIs, admin panels, approval apps, customer support dashboards, and more to help their teams perform day-to-day operations. Appsmith is an open-source tool that enables the rapid development of these internal apps. Read more on our [website](https://appsmith.com?utm_source=github&utm_medium=organic&utm_campaign=readme).
+Organizations build internal applications such as dashboards, database GUIs, admin panels, approval apps, customer support dashboards, and more to help their teams perform day-to-day operations. Appsmith is an open-source tool that enables the rapid development of these internal apps. Read more on our [website](https://www.appsmith.com?utm_source=github&utm_medium=organic&utm_campaign=readme).
   
 [![Appsmith in 100 secs](/static/images/appsmith-in-100-seconds.png)](https://www.youtube.com/watch?v=Dxe_NzdGzL4&utm_source=github&utm_medium=organic&utm_campaign=readme/?target=_blank) 
 
@@ -27,7 +27,7 @@ Organizations build internal applications such as dashboards, database GUIs, adm
 ## Installation
 There are two ways to start using Appsmith:
 
-- Signup on [Appsmith Cloud](https://app.appsmith.com/).
+- Signup on [Appsmith Cloud](https://app.appsmith.com/?utm_source=github&utm_medium=organic&utm_campaign=readme).
 - Install Appsmith on your machine. See the installation guides below. 
 
 | Installation Methods                                                                                                            | Documentation                                                                                                                                                    |
@@ -44,13 +44,13 @@ To build and run Appsmith in your local dev environment, see [Setup for local de
 
 ## Learning Resources
 - [Documentation](https://docs.appsmith.com?utm_source=github&utm_medium=organic&utm_campaign=readme)
-- [Tutorials](https://docs.appsmith.com/getting-started/tutorials)
+- [Tutorials](https://docs.appsmith.com/getting-started/tutorials?utm_source=github&utm_medium=organic&utm_campaign=readme)
 - [Videos](https://www.youtube.com/appsmith?utm_source=github&utm_medium=organic&utm_campaign=readme)
 - [Templates](https://www.appsmith.com/templates?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=support)
 
 ## Need Help?
-- [Discord](https://discord.gg/rBTTVJp)
-- [Community Portal](https://community.appsmith.com/)
+- [Discord](https://discord.gg/rBTTVJp?utm_source=github&utm_medium=organic&utm_campaign=readme)
+- [Community Portal](https://community.appsmith.com/?utm_source=github&utm_medium=organic&utm_campaign=readme)
 - [support@appsmith.com](mailto:support@appsmith.com)
 
                                                                                                                 
