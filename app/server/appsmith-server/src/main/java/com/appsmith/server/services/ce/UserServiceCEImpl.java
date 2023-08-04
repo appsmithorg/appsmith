@@ -69,6 +69,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -876,43 +877,37 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         final String token = UUID.randomUUID().toString();
 
         // Check if the user exists in our DB. If not, we will not send the email verification link to the user
-        return repository
-                .findByEmail(email)
-                .switchIfEmpty(repository.findByCaseInsensitiveEmail(email))
+        Mono<User> userMono = repository.findByEmail(email).cache();
+        return userMono.switchIfEmpty(repository.findByCaseInsensitiveEmail(email))
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
                 .flatMap(user -> {
-                    Mono<Boolean> emailVerificationEnabledMono = tenantService
-                            .getTenantConfiguration()
-                            .map(tenant -> {
-                                return tenant.getTenantConfiguration().getEmailVerificationEnabled();
-                            });
-
-                    if (user.getEmailVerified() == TRUE) {
+                    if (TRUE.equals(user.getEmailVerified())) {
                         return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_VERIFIED));
                     }
-                    // user found with the provided email address
-                    // Generate the email verification link for the user
-                    return emailVerificationEnabledMono
-                            .flatMap(emailVerificationEnabled -> {
-                                if (emailVerificationEnabled != TRUE) {
-                                    return Mono.error(
-                                            new AppsmithException(AppsmithError.TENANT_EMAIL_VERIFICATION_NOT_ENABLED));
-                                }
-                                return null;
-                            })
-                            .then(emailVerificationTokenRepository
-                                    .findByEmail(user.getEmail())
-                                    .switchIfEmpty(Mono.defer(() -> {
-                                        EmailVerificationToken emailVerificationToken = new EmailVerificationToken();
-                                        emailVerificationToken.setEmail(user.getEmail());
-                                        emailVerificationToken.setTokenGeneratedAt(Instant.now());
-                                        emailVerificationToken.setTokenHash(passwordEncoder.encode(token));
-                                        return Mono.just(emailVerificationToken);
-                                    })));
+                    return tenantService.getTenantConfiguration().flatMap(tenant -> {
+                        Boolean emailVerificationEnabled =
+                                tenant.getTenantConfiguration().getEmailVerificationEnabled();
+                        if (!TRUE.equals(emailVerificationEnabled)) {
+                            return Mono.error(
+                                    new AppsmithException(AppsmithError.TENANT_EMAIL_VERIFICATION_NOT_ENABLED));
+                        }
+                        return emailVerificationTokenRepository
+                                .findByEmail(user.getEmail())
+                                .switchIfEmpty(Mono.defer(() -> {
+                                    EmailVerificationToken emailVerificationToken = new EmailVerificationToken();
+                                    emailVerificationToken.setEmail(user.getEmail());
+                                    emailVerificationToken.setTokenGeneratedAt(Instant.now());
+                                    emailVerificationToken.setTokenHash(passwordEncoder.encode(token));
+                                    return Mono.just(emailVerificationToken);
+                                }));
+                    });
                 })
                 .flatMap(emailVerificationTokenRepository::save)
-                .flatMap(emailVerificationToken -> {
+                .zipWith(userMono)
+                .flatMap(tuple -> {
+                    EmailVerificationToken emailVerificationToken = tuple.getT1();
+                    User user = tuple.getT2();
                     log.debug("Email Verification Token: {} for email: {}", token, emailVerificationToken.getEmail());
                     List<NameValuePair> nameValuePairs = new ArrayList<>(2);
                     nameValuePairs.add(new BasicNameValuePair("email", emailVerificationToken.getEmail()));
@@ -929,7 +924,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             verificationUrl);
 
                     Map<String, String> params = new HashMap<>();
-                    params.put("userFirstName", "test");
+                    params.put("userFirstName", user.getName());
                     params.put("resetUrl", verificationUrl);
 
                     return updateTenantLogoInParams(params, resendEmailVerificationDTO.getBaseUrl())
@@ -955,9 +950,10 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .findByEmail(parsedEmailTokenDTO.getEmail())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_EMAIL_VERIFICATION)))
                 .flatMap(obj -> {
-                    if (obj.getEmail() != requestEmailTokenDTO.getEmail()) {
+                    if (!Objects.equals(obj.getEmail(), requestEmailTokenDTO.getEmail())) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_EMAIL_VERIFICATION));
                     }
+                    validateEmailVerificationToken(obj);
                     return Mono.just(obj);
                 })
                 .map(obj -> this.passwordEncoder.matches(parsedEmailTokenDTO.getToken(), obj.getTokenHash()))
