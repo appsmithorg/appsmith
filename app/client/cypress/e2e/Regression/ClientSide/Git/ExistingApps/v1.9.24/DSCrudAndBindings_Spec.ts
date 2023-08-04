@@ -63,7 +63,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
       "Theme modified",
       "not.contain.text",
     );
-    agHelper.AssertContains(/[0-9] Quer(y|ies) modified/, "not.exist");
+    agHelper.AssertContains(/[0-9] quer(y|ies) modified/, "not.exist");
 
     // Commented out until issue with messaging is fixed for this app
     // agHelper.GetNAssertElementText(
