@@ -218,10 +218,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     assertHelper.AssertNetworkStatus("@postExecute");
 
     agHelper.Sleep(500);
-
-    agHelper.ClearTextField(table._searchInput);
-
-    agHelper.TypeText(table._searchInput, "Westworld");
+    agHelper.ClearNType(table._searchInput, "Westworld");
 
     assertHelper.AssertNetworkStatus("@postExecute");
 
@@ -229,9 +226,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
 
     agHelper.AssertElementExist(table._bodyCell("Westworld"));
 
-    agHelper.ClearTextField(table._searchInput);
-
-    agHelper.TypeText(table._searchInput, "Expanse");
+    agHelper.ClearNType(table._searchInput, "Expanse");
 
     assertHelper.AssertNetworkStatus("@postExecute");
 

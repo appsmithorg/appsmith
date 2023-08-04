@@ -491,8 +491,7 @@ export class PropertyPane {
   }
 
   public Search(query: string) {
-    this.agHelper.ClearTextField(this._propertyPaneSearchInput);
-    this.agHelper.TypeText(this._propertyPaneSearchInput, query);
+    this.agHelper.ClearNType(this._propertyPaneSearchInput, query);
     this.agHelper.Sleep();
   }
 

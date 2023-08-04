@@ -432,7 +432,7 @@ export class DataSources {
       this.tedTestConfig.dsValues[environment].postgres_port.toString(),
     );
     this.agHelper.UpdateInputValue(this._host, hostAddress);
-    cy.get(this._databaseName).clear().type(databaseName);
+    this.agHelper.ClearNType(this._databaseName, databaseName);
     cy.get(this._username).type(
       username == ""
         ? this.tedTestConfig.dsValues[environment].postgres_username
@@ -502,9 +502,10 @@ export class DataSources {
       this._port,
       this.tedTestConfig.dsValues[environment].mongo_port.toString(),
     );
-    cy.get(this._databaseName)
-      .clear()
-      .type(this.tedTestConfig.dsValues[environment].mongo_databaseName);
+    this.agHelper.ClearNType(
+      this._databaseName,
+      this.tedTestConfig.dsValues[environment].mongo_databaseName,
+    );
   }
 
   public FillMySqlDSForm(
@@ -523,7 +524,7 @@ export class DataSources {
       this._port,
       this.tedTestConfig.dsValues[environment].mysql_port.toString(),
     );
-    cy.get(this._databaseName).clear().type(databaseName);
+    this.agHelper.ClearNType(this._databaseName, databaseName);
     this.agHelper.UpdateInputValue(
       this._username,
       this.tedTestConfig.dsValues[environment].mysql_username,

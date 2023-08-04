@@ -758,6 +758,11 @@ export class AggregateHelper extends ReusableHelper {
     this.GetElement(selector).clear();
   }
 
+  public ClearNType(selector: string, totype: string) {
+    this.ClearTextField(selector);
+    this.TypeText(selector, totype);
+  }
+
   public TypeText(
     selector: string,
     value: string,
