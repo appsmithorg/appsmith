@@ -131,6 +131,8 @@ describe("Slug URLs", () => {
                 `/app/${application.slug}/${currentPage.slug}-${currentPage.id}/edit`,
               );
             });
+
+            homePage.Signout(true);
           });
         });
       });
@@ -139,7 +141,6 @@ describe("Slug URLs", () => {
 
   it("5. Checks redirect url", () => {
     cy.url().then((url) => {
-      cy.LogOut();
       cy.visit(url + "?embed=true&a=b");
       //cy.wait(6000);
       cy.location().should((loc) => {
