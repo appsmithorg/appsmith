@@ -31,89 +31,78 @@ Switch Group is a group of checkboxes that can be selected together.
 
 # Orientation
 
-<Canvas>
-  <Story
-    args={{
-      orientation: "vertical",
-    }}
-    name="Orientation - Vertical"
-  >
-    {Template.bind({})}
-  </Story>
-  <Story
-    args={{
-      orientation: "horizontal",
-    }}
-    name="Orientation - Horizontal"
-  >
-    {Template.bind({})}
-  </Story>
-</Canvas>
+<Story
+  args={{
+    orientation: "vertical",
+  }}
+  name="Orientation - Vertical"
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  args={{
+    orientation: "horizontal",
+  }}
+  name="Orientation - Horizontal"
+>
+  {Template.bind({})}
+</Story>
 
 # Emphasized
 
-<Canvas>
-  <Story
-    args={{
-      isEmphasized: true,
-    }}
-    name="Is Emphasised"
-  >
-    {Template.bind({})}
-  </Story>
-</Canvas>
+<Story
+  args={{
+    isEmphasized: true,
+  }}
+  name="Is Emphasised"
+>
+  {Template.bind({})}
+</Story>
 
 # Label Position and Alignment
 
-<Canvas>
-  <Story
-    args={{
-      labelPosition: "side",
-      labelWidth: "100px",
-      errorMessage: "This is a description",
-    }}
-    name="Label Position - Side"
-  >
-    {Template.bind({})}
-  </Story>
-</Canvas>
+<Story
+  args={{
+    labelPosition: "side",
+    labelWidth: "100px",
+    errorMessage: "This is a description",
+  }}
+  name="Label Position - Side"
+>
+  {Template.bind({})}
+</Story>
 
 # Is Disabled
 
-<Canvas>
-  <Story
-    args={{
-      isDisabled: true,
-    }}
-    name="Is Disabled"
-  >
-    {Template.bind({})}
-  </Story>
-</Canvas>
+<Story
+  args={{
+    isDisabled: true,
+  }}
+  name="Is Disabled"
+>
+  {Template.bind({})}
+</Story>
 
 # Is Required
 
-<Canvas>
-  <Story
-    args={{
-      isRequired: true,
-    }}
-    name="Is Required"
-  >
-    {Template.bind({})}
-  </Story>
-</Canvas>
+<Story
+  args={{
+    isRequired: true,
+  }}
+  name="Is Required"
+>
+  {Template.bind({})}
+</Story>
 
 # Invalid State
 
-<Canvas>
-  <Story
-    args={{
-      validationState: "invalid",
-      errorMessage: "This is a error message",
-    }}
-    name="Invalid State"
-  >
-    {Template.bind({})}
-  </Story>
-</Canvas>
+<Story
+  args={{
+    validationState: "invalid",
+    errorMessage: "This is a error message",
+  }}
+  name="Invalid State"
+>
+  {Template.bind({})}
+</Story>
