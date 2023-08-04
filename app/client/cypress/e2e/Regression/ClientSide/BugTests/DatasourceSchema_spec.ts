@@ -72,11 +72,7 @@ describe("Datasource form related tests", function () {
       dataSources.VerifyTableSchemaOnQueryEditor("public.users");
       entityExplorer.ExpandCollapseEntity("public.users");
       dataSources.VerifyColumnSchemaOnQueryEditor("id");
-      dataSources.FilterAndVerifyDatasourceSchemaBySearch(
-        "gender",
-        true,
-        "column",
-      );
+      dataSources.FilterAndVerifyDatasourceSchemaBySearch("gender", "column");
     },
   );
 
@@ -126,10 +122,8 @@ describe("Datasource form related tests", function () {
     agHelper.RefreshPage();
     dataSources.CreateDataSource("S3", true, false);
     dataSources.CreateQueryAfterDSSaved();
-    dataSources.VerifyTableSchemaOnQueryEditor("appsmith-hris");
     dataSources.FilterAndVerifyDatasourceSchemaBySearch(
       "appsmith-hris",
-      true,
       "table",
     );
   });
