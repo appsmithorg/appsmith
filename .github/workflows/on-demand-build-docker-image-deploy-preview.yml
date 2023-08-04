@@ -208,6 +208,7 @@ jobs:
             APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
             APPSMTITH_AIRGAP_ENABLED=${{env.airgap_enabled}}
             APPSMITH_CLIENT_BUILD_PATH=${{env.client_build_path}}
+            KEYGEN_LICENSE_VERIFICATION_KEY=${{ secrets.KEYGEN_LICENSE_VERIFICATION_KEY_RELEASE }}
 
     outputs:
       imageHash: ${{ vars.EDITION }}-${{ github.event.client_payload.pull_request.number }}
