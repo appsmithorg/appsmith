@@ -2,6 +2,7 @@ import { get } from "lodash";
 import {
   all,
   call,
+  delay,
   put,
   race,
   select,
@@ -101,39 +102,30 @@ export function* waitForWidgetConfigBuild() {
 
 export function* reportSWStatus() {
   const mode: APP_MODE = yield select(getAppMode);
+  const startTime = Date.now();
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker
-      .getRegistrations()
-      .then((registrations) => {
-        if (registrations.length === 0) {
-          return AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
-            message: "Service worker not found",
-            mode,
-          });
-        }
-        const activeRegistrations = registrations.filter(
-          (registration) => registration.active,
-        );
-        if (activeRegistrations.length === 0) {
-          return AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
-            message: "Service worker is not active",
-            mode,
-          });
-        }
-        AnalyticsUtil.logEvent("SW_REGISTRATION_SUCCESS", {
-          message: "Service worker is active",
-          mode,
-        });
-      })
-      .catch(() => {
-        AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
-          message: "Failed to retrieve SW registrations",
-          mode,
-        });
+    const result: { success: any; failed: any } = yield race({
+      success: navigator.serviceWorker.ready.then((reg) => ({
+        reg,
+        timeTaken: Date.now() - startTime,
+      })),
+      failed: delay(20000),
+    });
+    if (result.success) {
+      AnalyticsUtil.logEvent("SW_REGISTRATION_SUCCESS", {
+        message: "Service worker is active",
+        mode,
+        timeTaken: result.success.timeTaken,
       });
+    } else {
+      AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
+        message: "Service worker is not active in 20s",
+        mode,
+      });
+    }
   } else {
     AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
-      message: "SW is not supported",
+      message: "Service worker is not supported",
       mode,
     });
   }

@@ -761,10 +761,36 @@ export class AggregateHelper extends ReusableHelper {
   public TypeText(
     selector: string,
     value: string,
-    index = 0,
-    parseSpecialCharSeq = false,
+    indexOrOptions:
+      | number
+      | Partial<{
+          index: number;
+          parseSpecialCharSeq: boolean;
+          shouldFocus: boolean;
+        }> = 0,
   ) {
-    return this.GetElement(selector).eq(index).focus().wait(100).type(value, {
+    let index: number;
+    let shouldFocus = true;
+    let parseSpecialCharSeq = false;
+
+    if (typeof indexOrOptions === "number") {
+      index = indexOrOptions;
+    } else {
+      index = indexOrOptions.index || 0;
+      parseSpecialCharSeq = indexOrOptions.parseSpecialCharSeq || false;
+      shouldFocus =
+        indexOrOptions.shouldFocus !== undefined
+          ? indexOrOptions.shouldFocus
+          : true;
+    }
+
+    const element = this.GetElement(selector).eq(index);
+
+    if (shouldFocus) {
+      element.focus();
+    }
+
+    return element.wait(100).type(value, {
       parseSpecialCharSequences: parseSpecialCharSeq,
       delay: 5,
       force: true,
@@ -1073,6 +1099,7 @@ export class AggregateHelper extends ReusableHelper {
         input.focus();
         this.Sleep(200);
         input.setValue(value);
+        input.execCommand("goLineEnd");
         this.Sleep(200);
       });
     this.Sleep(500); //for value set to settle

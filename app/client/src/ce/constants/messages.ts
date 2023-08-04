@@ -1878,9 +1878,9 @@ export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
 
 //Datasource environment
 export const START_SWITCH_ENVIRONMENT = (environment: string) =>
-  `...Switching your environment to ${environment}, and running all associated pageload actions`;
+  `Switching your environment to ${environment}, and running all associated pageload actions`;
 export const SWITCH_ENVIRONMENT_SUCCESS = (environment: string) =>
-  `...Environment switched to ${environment} successfully`;
+  `Environment switched to ${environment}`;
 
 export const TEST_DATASOURCE_SUCCESS = (
   datasourceName: string,
