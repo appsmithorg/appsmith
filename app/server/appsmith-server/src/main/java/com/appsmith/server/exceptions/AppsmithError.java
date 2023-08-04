@@ -1026,6 +1026,14 @@ public enum AppsmithError {
             "No resource available for access",
             ErrorType.INTERNAL_ERROR,
             null),
+    UNCONFIGURED_DATASOURCE_STORAGE(
+            412,
+            AppsmithErrorCode.DATASOURCE_STORAGE_NOT_CONFIGURED.getCode(),
+            "{0} does not have a valid {1} configuration",
+            AppsmithErrorAction.DEFAULT,
+            "Datasource not configured for the given environment",
+            ErrorType.INTERNAL_ERROR,
+            null),
     ;
 
     private final Integer httpErrorCode;

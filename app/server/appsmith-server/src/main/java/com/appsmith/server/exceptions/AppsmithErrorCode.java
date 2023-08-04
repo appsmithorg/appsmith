@@ -129,7 +129,9 @@ public enum AppsmithErrorCode {
     SAML_CONFIGURATION_FAILURE("AE-SML-4000", "SAML configuration failed"),
     SAML_ALREADY_CONFIGURED("AE-SML-4009", "SAML already configured"),
     MIGRATION_FAILED("AE-APP-5043", "Migration failed"),
-    ACL_NO_ACCESS_ERROR("AE-ACL-4009", "User doesn't have access to essential resource");
+    ACL_NO_ACCESS_ERROR("AE-ACL-4009", "User doesn't have access to essential resource"),
+    DATASOURCE_STORAGE_NOT_CONFIGURED("AE-APP-4041", "Datasource not configured"),
+    ;
     private final String code;
     private final String description;
 
