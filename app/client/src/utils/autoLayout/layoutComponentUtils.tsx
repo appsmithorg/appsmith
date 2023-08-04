@@ -10,12 +10,14 @@ import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsRed
 import { FlexLayerAlignment } from "./constants";
 import { generateReactKey } from "utils/generators";
 import AlignedColumn from "components/designSystems/appsmith/autoLayout/layoutComponents/AlignedColumn";
+import Fixed from "components/designSystems/appsmith/autoLayout/layoutComponents/Fixed";
 
 export function getLayoutComponent(type: string): any {
   const map: { [id: string]: any } = {
     ALIGNED_COLUMN: AlignedColumn,
     ALIGNED_ROW: AlignedRow,
     COLUMN: Column,
+    FIXED: Fixed,
     ROW: Row,
   };
   return map[type];
@@ -388,6 +390,39 @@ export function deleteWidgetFromLayout(
     },
   };
 }
+
+// function isAlignedRowEmpty(layout: string[][]): boolean {
+//   for (const each of layout) {
+//     if (each.length) return false;
+//   }
+//   return true;
+// }
+
+// function removeDeletableLayouts(
+//   layout: LayoutComponentProps[],
+// ): LayoutComponentProps[] {
+//   return layout.filter((each) => {
+//     if (
+//       each.canBeDeleted &&
+//       (!each.layout.length || !isAlignedRowEmpty(each.layout as string[][]))
+//     )
+//       return false;
+//     if (each.layout?.length && containsLayout(each.layout)) {
+//       each.layout = removeDeletableLayouts(
+//         each.layout as LayoutComponentProps[],
+//       );
+//       return (each.layout as LayoutComponentProps[]).length;
+//     }
+//     return true;
+//   });
+// }
+
+// function containsLayout(layout: any[]): boolean {
+//   for (const each of layout) {
+//     if (typeof each[0] === "string" || Array.isArray(each[0])) return false;
+//   }
+//   return true;
+// }
 
 export function getAlignmentIndex(alignment: FlexLayerAlignment): number {
   const map: { [key: string]: number } = {

@@ -61,6 +61,7 @@ class CanvasWidget extends ContainerWidget {
   }
 
   renderAsDropTarget() {
+    if (this.props.layout) return this.renderLayoutPreset();
     const canvasProps = this.getCanvasProps();
     const { snapColumnSpace } = this.getSnapSpaces();
     return (
@@ -144,7 +145,7 @@ class CanvasWidget extends ContainerWidget {
           </>
         )}
         {this.props.useAutoLayout
-          ? this.renderFlexCanvas()
+          ? this.renderLayoutPreset()
           : this.renderFixedCanvas(props)}
       </ContainerComponent>
     );
@@ -164,7 +165,7 @@ class CanvasWidget extends ContainerWidget {
     );
   }
 
-  renderFlexCanvas() {
+  renderLayoutPreset() {
     const layout: LayoutComponentProps[] = this.props
       .layout as LayoutComponentProps[];
     if (!layout) return this.renderFlexBoxCanvas();
@@ -249,7 +250,7 @@ class CanvasWidget extends ContainerWidget {
 
   getCanvasView() {
     if (this.props.appPositioningType === AppPositioningTypes.AUTO) {
-      if (this.props.layout) return this.renderFlexCanvas();
+      if (this.props.layout) return this.renderLayoutPreset();
       return (
         <AutoLayoutDropTarget widgetId={this.props.widgetId}>
           {this.renderAsContainerComponent(this.getCanvasProps())}
