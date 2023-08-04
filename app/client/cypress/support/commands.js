@@ -1135,19 +1135,23 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   featureFlagIntercept({}, false);
 
   cy.intercept("GET", "/api/v1/product-alert/alert", (req) => {
-    req.continue((res) => {
-      // This api should always be 200, for any case.
-      expect(res.statusCode).to.be.equal(200);
-      // Mock empty product alerts response so that it does not interfere with tests
-      res.send(200, {
-        responseMeta: {
-          status: 200,
-          success: true,
-        },
-        data: {},
-        errorDisplay: "",
+    try {
+      req.continue((res) => {
+        // This api should always be 200, for any case.
+        expect(res.statusCode).to.be.equal(200);
+        // Mock empty product alerts response so that it does not interfere with tests
+        res.send(200, {
+          responseMeta: {
+            status: 200,
+            success: true,
+          },
+          data: {},
+          errorDisplay: "",
+        });
       });
-    });
+    } catch (e) {
+      console.error(e);
+    }
   }).as("productAlert");
 });
 
