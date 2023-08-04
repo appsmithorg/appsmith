@@ -943,17 +943,29 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     @Override
-    public Mono<Boolean> verifyEmailVerificationToken(String encryptedToken) {
-        EmailTokenDTO emailTokenDTO;
+    public Mono<Boolean> verifyEmailVerificationToken(EmailTokenDTO requestEmailTokenDTO) {
+        EmailTokenDTO parsedEmailTokenDTO;
         try {
-            emailTokenDTO = parseValueFromEncryptedToken(encryptedToken);
+            parsedEmailTokenDTO = parseValueFromEncryptedToken(requestEmailTokenDTO.getToken());
         } catch (ArrayIndexOutOfBoundsException | IllegalStateException e) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
         }
 
         return emailVerificationTokenRepository
-                .findByEmail(emailTokenDTO.getEmail())
+                .findByEmail(parsedEmailTokenDTO.getEmail())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_EMAIL_VERIFICATION)))
-                .map(obj -> this.passwordEncoder.matches(emailTokenDTO.getToken(), obj.getTokenHash()));
+                .flatMap(obj -> {
+                    if (obj.getEmail() != requestEmailTokenDTO.getEmail()) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_EMAIL_VERIFICATION));
+                    }
+                    return Mono.just(obj);
+                })
+                .map(obj -> this.passwordEncoder.matches(parsedEmailTokenDTO.getToken(), obj.getTokenHash()))
+                .flatMap(tokenMatched -> {
+                    if (!tokenMatched) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_EMAIL_VERIFICATION));
+                    }
+                    return Mono.just(tokenMatched);
+                });
     }
 }

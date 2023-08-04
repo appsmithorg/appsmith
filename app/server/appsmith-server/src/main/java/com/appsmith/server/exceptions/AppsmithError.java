@@ -946,7 +946,7 @@ public enum AppsmithError {
     INVALID_EMAIL_VERIFICATION(
             400,
             AppsmithErrorCode.INVALID_EMAIL_VERIFICATION.getCode(),
-            "Cannot find an outstanding email verification request for this email",
+            "Invalid Email verification request",
             AppsmithErrorAction.DEFAULT,
             "Invalid email verification request",
             ErrorType.INTERNAL_ERROR,

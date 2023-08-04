@@ -4,6 +4,7 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.EmailTokenDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
@@ -245,9 +246,9 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/verifyEmailVerificationToken")
-    public Mono<ResponseDTO<Boolean>> verifyEmailVerificationToken(@RequestParam String token) {
-        return service.verifyEmailVerificationToken(token)
+    @PostMapping("/verifyEmailVerificationToken")
+    public Mono<ResponseDTO<Boolean>> verifyEmailVerificationToken(@RequestBody EmailTokenDTO emailTokenDTO) {
+        return service.verifyEmailVerificationToken(emailTokenDTO)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 }
