@@ -29,7 +29,7 @@ Cypress.Commands.add("fillSamlForm", (type) => {
     );
     cy.get(samlForm.metadataXML).type(Cypress.env("OAUTH_SAML_METADATA_XML"));
     cy.get(samlForm.saveBtn).click({ force: true });
-  } else if (type === "IDP") {
+  } else if (type === "IdP") {
     cy.get(samlForm.redirectURL).should(
       "have.value",
       Cypress.env("OAUTH_SAML_REDIRECT_URL"),
