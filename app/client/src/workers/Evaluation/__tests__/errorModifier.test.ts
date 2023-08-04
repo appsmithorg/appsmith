@@ -1,6 +1,7 @@
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { errorModifier } from "../errorModifier";
 import DependencyMap from "entities/DependencyMap";
+import { APP_MODE } from "entities/App";
 
 describe("Test error modifier", () => {
   const dataTree = {
@@ -123,6 +124,7 @@ describe("Test error modifier", () => {
 
   beforeAll(() => {
     const dependencyMap = new DependencyMap();
+    errorModifier.init(APP_MODE.EDIT);
     errorModifier.updateAsyncFunctions(dataTree, {}, dependencyMap);
   });
 
