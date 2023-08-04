@@ -157,7 +157,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ${{ env.client_build_name }}
-          path: ${{ env.client_build_path }}
+          path: app/client
 
       - name: Unpack the client build artifact
         if: steps.run_result.outputs.run_result != 'success'
