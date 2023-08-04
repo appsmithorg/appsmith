@@ -38,7 +38,6 @@ server {
   gzip on;
   gzip_types *;
 
-
   root /opt/appsmith/editor;
   index index.html;
   error_page 404 /;
