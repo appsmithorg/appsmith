@@ -31,7 +31,7 @@ export class GitSync {
     branch +
     "']";
   _checkMergeability = "//span[contains(text(), 'Checking mergeability')]";
-  private _branchListItem = "[data-testid=t--branch-list-item]";
+  public _branchListItem = "[data-testid=t--branch-list-item]";
   public _bottomBarMergeButton = ".t--bottom-bar-merge";
   public _mergeBranchDropdownDestination =
     ".t--merge-branch-dropdown-destination";
@@ -43,6 +43,7 @@ export class GitSync {
   public _discardChanges = ".t--discard-button";
   public _discardCallout = "[data-testid='t--discard-callout']";
   public _gitStatusChanges = "[data-testid='t--git-change-statuses']";
+  private _gitSyncBranches = ".t--sync-branches";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -188,6 +189,19 @@ export class GitSync {
     });
   }
 
+  public CreateRemoteBranch(repo: string, branchName: string) {
+    cy.request({
+      method: "POST",
+      url: `${this.tedTestConfig.GITEA_API_BASE_TED}:${this.tedTestConfig.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/branches`,
+      headers: {
+        Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
+      },
+      body: {
+        new_branch_name: branchName,
+      },
+    });
+  }
+
   CreateGitBranch(branch = "br", toUseNewGuid = false) {
     if (toUseNewGuid) this.agHelper.GenerateUUID();
     this.agHelper.AssertElementExist(this._bottomBarCommit);
@@ -208,17 +222,42 @@ export class GitSync {
     });
   }
 
-  SwitchGitBranch(branch: string, expectError?: false) {
+  SwitchGitBranch(branch: string, expectError = false, refreshList = false) {
     this.agHelper.AssertElementExist(this._bottomBarPull);
     this.agHelper.GetNClick(this._branchButton);
+    if (refreshList) {
+      this.agHelper.GetNClick(this._gitSyncBranches);
+    }
     this.agHelper.TypeText(
       this._branchSearchInput,
       `{selectall}` + `${branch}`,
       { parseSpecialCharSeq: true },
     );
     cy.wait(1000);
+
+    // this slows down the checkout api by 1 sec
+    cy.intercept(
+      {
+        method: "GET",
+        url: "/api/v1/git/checkout-branch/app/**",
+      },
+      (req) => {
+        return new Promise((resolve) => {
+          setTimeout(() => resolve(req.continue()), 1000);
+        });
+      },
+    ).as("gitCheckoutAPI");
+
     //cy.get(gitSyncLocators.branchListItem).contains(branch).click();
     this.agHelper.GetNClickByContains(this._branchListItem, branch);
+
+    // checks if the spinner exists
+    cy.get(`div${this._branchListItem} ${this.locator._btnSpinner}`, {
+      timeout: 500,
+    }).should("exist");
+
+    cy.wait("@gitCheckoutAPI");
+
     if (!expectError) {
       // increasing timeout to reduce flakyness
       cy.get(this.locator._btnSpinner, { timeout: 45000 }).should("exist");
