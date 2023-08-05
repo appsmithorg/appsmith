@@ -82,7 +82,7 @@ describe("In-app embed settings", () => {
     agHelper.RefreshPage();
     embedSettings.OpenEmbedSettings();
     embedSettings.TogglePublicAccess(true);
-    embedSettings.ToggleShowNavigationBar("On");
+    //ShowNavigationBar is toggled on here
     agHelper.GetNAssertElementText(
       embedSettings.locators._snippet,
       "embed=true",
