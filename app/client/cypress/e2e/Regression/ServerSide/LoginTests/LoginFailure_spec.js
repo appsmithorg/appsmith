@@ -2,13 +2,14 @@ import {
   agHelper,
   deployMode,
   homePage,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 const loginPage = require("../../../../locators/LoginPage.json");
 
 describe("Login failure", function () {
   it("1. Preserves redirectUrl param on login failure", function () {
     let appUrl;
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._emptyPageTxt);
     cy.location()
       .then((location) => {
         cy.LogOutUser();
