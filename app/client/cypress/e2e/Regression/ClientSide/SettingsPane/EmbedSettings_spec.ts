@@ -10,7 +10,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 describe("In-app embed settings", () => {
   function ValidateSyncWithInviteModal(showNavigationBar: "true" | "false") {
     embedSettings.OpenEmbedSettings();
-    embedSettings.ToggleShowNavigationBar("true");
+    embedSettings.ToggleShowNavigationBar("On");
     inviteModal.OpenShareModal();
     inviteModal.SelectEmbedTab();
     const assertion =
@@ -64,8 +64,8 @@ describe("In-app embed settings", () => {
     appSettings.ClosePane();
 
     //Check embed preview show/hides navigation bar according to setting
-    inviteModal.ValidatePreviewEmbed("true");
-    inviteModal.ValidatePreviewEmbed("false");
+    inviteModal.ValidatePreviewEmbed("On");
+    inviteModal.ValidatePreviewEmbed("Off");
 
     //Check Show/Hides Navigation bar syncs between AppSettings Pane Embed tab & Share modal
     ValidateSyncWithInviteModal("true");
@@ -82,13 +82,13 @@ describe("In-app embed settings", () => {
     agHelper.RefreshPage();
     embedSettings.OpenEmbedSettings();
     embedSettings.TogglePublicAccess(true);
-    embedSettings.ToggleShowNavigationBar("true");
+    embedSettings.ToggleShowNavigationBar("On");
     agHelper.GetNAssertElementText(
       embedSettings.locators._snippet,
       "embed=true",
       "not.contain.text",
     );
-    embedSettings.ToggleShowNavigationBar("false");
+    embedSettings.ToggleShowNavigationBar("Off");
     agHelper.GetNAssertElementText(
       embedSettings.locators._snippet,
       "embed=true",
@@ -105,13 +105,13 @@ describe("In-app embed settings", () => {
 
     embedSettings.OpenEmbedSettings();
     embedSettings.TogglePublicAccess(true);
-    embedSettings.ToggleShowNavigationBar("true");
+    embedSettings.ToggleShowNavigationBar("On");
     agHelper.GetNAssertElementText(
       embedSettings.locators._snippet,
       "navbar=true",
       "contain.text",
     );
-    embedSettings.ToggleShowNavigationBar("false");
+    embedSettings.ToggleShowNavigationBar("Off");
     agHelper.GetNAssertElementText(
       embedSettings.locators._snippet,
       "navbar=true",

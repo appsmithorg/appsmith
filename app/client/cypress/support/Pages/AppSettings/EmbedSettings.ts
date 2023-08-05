@@ -1,9 +1,11 @@
+import { propPane } from "../../Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../Objects/Registry";
 
 export class EmbedSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private appSettings = ObjectsRegistry.AppSettings;
   private assertHelper = ObjectsRegistry.AssertHelper;
+  private propPane = ObjectsRegistry.PropertyPane;
 
   public locators = {
     _getDimensionInput: (prefix: string) => `.t--${prefix}-dimension input`,
@@ -42,14 +44,12 @@ export class EmbedSettings {
     );
   }
 
-  public ToggleShowNavigationBar(check: "true" | "false" = "true") {
-    const input = this.agHelper.GetElement(this.locators._showNavigationBar);
-    input.invoke("attr", "checked").then((value) => {
-      if (value !== check) {
-        this.agHelper.GetNClick(this.locators._showNavigationBar);
-        this.assertHelper.AssertNetworkStatus("@updateApplication");
-      }
-    });
+  public ToggleShowNavigationBar(toggle: "On" | "Off" = "On") {
+    this.propPane.TogglePropertyState(
+      "Show navigation bar",
+      toggle,
+      "updateApplication",
+    );
   }
 
   public ToggleMarkForkable(check: "true" | "false" = "true") {

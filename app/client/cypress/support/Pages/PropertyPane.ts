@@ -54,7 +54,9 @@ export class PropertyPane {
   _propertyToggle = (controlToToggle: string) =>
     ".t--property-control-" +
     controlToToggle.replace(/ +/g, "").toLowerCase() +
-    " input[type='checkbox']";
+    " input[type='checkbox'], label:contains('" +
+    controlToToggle +
+    "') input[type='checkbox']";
   _colorPickerV2Popover = ".t--colorpicker-v2-popover";
   _colorPickerV2Color = ".t--colorpicker-v2-color";
   _colorInput = (option: string) =>
@@ -220,18 +222,21 @@ export class PropertyPane {
   public TogglePropertyState(
     propertyName: string,
     toggle: "On" | "Off" = "On",
+    networkCall = "updateLayout",
   ) {
     if (toggle == "On") {
-      cy.get(this._propertyToggle(propertyName))
+      this.agHelper
+        .GetElement(this._propertyToggle(propertyName))
         .check({ force: true })
         .should("be.checked");
     } else {
-      cy.get(this._propertyToggle(propertyName))
+      this.agHelper
+        .GetElement(this._propertyToggle(propertyName))
         .uncheck({ force: true })
         .should("not.be.checked");
     }
     this.agHelper.AssertAutoSave();
-    this.assertHelper.AssertNetworkStatus("updateLayout");
+    this.assertHelper.AssertNetworkStatus(networkCall);
   }
 
   public MoveToTab(tab: "Content" | "Style") {

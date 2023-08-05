@@ -77,10 +77,10 @@ export class InviteModal {
     cy.wait(4000);
   }
 
-  public ValidatePreviewEmbed(toShowNavBar: "true" | "false" = "true") {
+  public ValidatePreviewEmbed(toggle: "On" | "Off" = "On") {
     this.OpenShareModal();
     this.SelectEmbedTab();
-    this.embedSettings.ToggleShowNavigationBar(toShowNavBar);
+    this.embedSettings.ToggleShowNavigationBar(toggle);
     cy.get(this.locators._previewEmbed).invoke("removeAttr", "target").click();
     this.agHelper.AssertElementAbsence(this.commonLocators._backToEditor);
     cy.go("back");
