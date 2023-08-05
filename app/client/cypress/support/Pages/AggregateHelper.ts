@@ -991,6 +991,7 @@ export class AggregateHelper extends ReusableHelper {
   ) {
     if (entityType != EntityItems.Widget)
       this.GetNClick(this.locator._contextMenuItem("Are you sure?"));
+    this.Sleep(1000);
     toAssertAction && this.assertHelper.AssertDelete(entityType);
   }
 
