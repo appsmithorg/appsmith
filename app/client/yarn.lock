@@ -7147,7 +7147,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/hoist-non-react-statics@npm:^3.3.0, @types/hoist-non-react-statics@npm:^3.3.1":
+"@types/hoist-non-react-statics@npm:^3.3.0":
   version: 3.3.1
   resolution: "@types/hoist-non-react-statics@npm:3.3.1"
   dependencies:
@@ -7804,13 +7804,6 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: dfd9f31079e44ad5922c142564e8cfc43c8ed61dafd4f22ab3862dd76971398a6063b4e8e89a047607e7a0ff0914a0e4b16a51ff2fc9b73c4196744666762685
-  languageName: node
-  linkType: hard
-
-"@types/shallowequal@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@types/shallowequal@npm:1.1.1"
-  checksum: ed724c42d61b42e52306dfeb8c1af913a97f616a2098831a3f0801db3d391f00470dfe47f76fb213a087e4277dbf80857098aa2e56acb700f156befe06f6431f
   languageName: node
   linkType: hard
 
@@ -9391,7 +9384,6 @@ __metadata:
     react-beautiful-dnd: ^12.2.0
     react-custom-scrollbars: ^4.2.1
     react-device-detect: ^2.2.2
-    react-dnd: ^9.3.4
     react-dnd-html5-backend: ^9.3.4
     react-dnd-touch-backend: ^9.4.0
     react-documents: ^1.0.4
@@ -23977,22 +23969,6 @@ __metadata:
     dnd-core: ^9.5.1
     invariant: ^2.2.4
   checksum: b47c086d250e96350a6d76079976dbcf4e4dc66e0019ddee9913072e70a60dc99365ebe3f860878d5e06da4b2661b2867f0a385979feeb709dd2322362783b78
-  languageName: node
-  linkType: hard
-
-"react-dnd@npm:^9.3.4":
-  version: 9.5.1
-  resolution: "react-dnd@npm:9.5.1"
-  dependencies:
-    "@types/hoist-non-react-statics": ^3.3.1
-    "@types/shallowequal": ^1.1.1
-    dnd-core: ^9.5.1
-    hoist-non-react-statics: ^3.3.0
-    shallowequal: ^1.1.0
-  peerDependencies:
-    react: ">= 16.8"
-    react-dom: ">= 16.8"
-  checksum: 05bb3acdc3cd64f79182a6f51c1e8a13bbc02939ee3ac28cd0f98eab4b861819467284fd39e11d37ce75a061a397a755f945cd23ba5e5ff10d805be895eb36d6
   languageName: node
   linkType: hard
 

@@ -262,11 +262,11 @@ function TableFilterPaneContent(props: TableFilterProps) {
           <ButtonWrapper>
             <Button
               borderRadius={props.borderRadius}
-              buttonColor={props.accentColor}
               buttonVariant={ButtonVariantTypes.TERTIARY}
               className="t--add-filter-btn"
               icon={<AddIcon className="w-5 h-5" color={props.accentColor} />}
               onClick={addFilter}
+              primaryColor={props.accentColor}
               text="Add Filter"
             />
             <ButtonActionsWrapper>

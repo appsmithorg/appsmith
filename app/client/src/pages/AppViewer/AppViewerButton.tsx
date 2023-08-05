@@ -13,7 +13,7 @@ import { getTypographyByKey } from "design-system-old";
 
 const StyledButton = styled(Button)<{
   primaryColor: string;
-  navColorStyle: NavigationSetting["colorStyle"];
+  navColorStyle?: NavigationSetting["colorStyle"];
   varient?: ButtonVariant;
   insideSidebar?: boolean;
   isMinimal?: boolean;
