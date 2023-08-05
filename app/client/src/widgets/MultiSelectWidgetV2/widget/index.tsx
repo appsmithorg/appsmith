@@ -119,9 +119,11 @@ class MultiSelectWidget extends BaseWidget<
                 {
                   name: "label",
                   isSearcheable: true,
+                  isRequired: true,
                 },
                 {
                   name: "value",
+                  isRequired: true,
                 },
               ],
               sampleData: JSON.stringify(
