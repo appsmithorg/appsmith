@@ -1,10 +1,11 @@
 import React from "react";
 import ColumnDropdown from "./ColumnDropdown";
 import { noop } from "lodash";
+import type { Alias } from "../types";
 
 type Props = {
   hasSearchableColumn?: boolean;
-  aliases?: { name: string; isSearcheable: boolean }[];
+  aliases?: Alias[];
 };
 
 export default function WidgetSpecificControls(props: Props) {

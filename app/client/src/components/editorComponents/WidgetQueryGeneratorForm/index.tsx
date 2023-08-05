@@ -14,6 +14,7 @@ import {
   getOneClickBindingConfigForWidget,
 } from "selectors/oneClickBindingSelectors";
 import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
+import type { Alias } from "./types";
 
 type WidgetQueryGeneratorFormContextType = {
   widgetId: string;
@@ -40,7 +41,7 @@ type WidgetQueryGeneratorFormContextType = {
   errorMsg: string;
   expectedType: string;
   sampleData: string;
-  aliases: { name: string; isSearcheable: boolean }[];
+  aliases: Alias[];
 };
 
 const DEFAULT_CONFIG_VALUE = {
@@ -82,7 +83,7 @@ type Props = {
   widgetId: string;
   errorMsg: string;
   expectedType: string;
-  aliases: { name: string; isSearcheable: boolean }[];
+  aliases: Alias[];
   searchableColumn: boolean;
   sampleData: string;
 };

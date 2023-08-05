@@ -361,6 +361,13 @@ export function useDatasource(searchText: string) {
         onSelect: () => {
           addBinding(sampleData, false);
 
+          updateConfig({
+            datasource: "",
+            datasourcePluginType: "",
+            datasourcePluginName: "",
+            datasourceConnectionMode: "",
+          });
+
           AnalyticsUtil.logEvent("BIND_OTHER_ACTIONS", {
             widgetName: widget.widgetName,
             widgetType: widget.type,
@@ -472,7 +479,7 @@ export function useDatasource(searchText: string) {
       sampleData ===
       (typeof propertyValue === "string"
         ? propertyValue
-        : JSON.stringify(propertyValue))
+        : JSON.stringify(propertyValue, null, 2))
     ) {
       source = otherOptions.find((option) => option.value === "Sample data");
     } else if (propertyValue) {
