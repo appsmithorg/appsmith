@@ -1,7 +1,9 @@
-import type { CSSProperties } from "styled-components";
+import type CSS from "csstype";
 import styled from "styled-components";
 import React from "react";
 import { importSvg } from "design-system-old";
+
+type CSSProperties = CSS.Properties<string | number>;
 
 const CheckmarkSvg = importSvg(() => import("assets/svg/checkmark.svg"));
 

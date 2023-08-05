@@ -1,12 +1,11 @@
 import React, {
   Component,
   useCallback,
-  useContext,
   useEffect,
   useRef,
   useState,
 } from "react";
-import styled, { ThemeContext } from "styled-components";
+import styled, { useTheme } from "styled-components";
 import { connect, useDispatch, useSelector } from "react-redux";
 import MediaQuery from "react-responsive";
 import { useLocation } from "react-router-dom";
@@ -516,7 +515,7 @@ export const ApplicationsWrapper = styled.div<{ isMobile: boolean }>`
 export function ApplicationsSection(props: any) {
   const enableImportExport = true;
   const dispatch = useDispatch();
-  const theme = useContext(ThemeContext);
+  const theme = useTheme();
   const isSavingWorkspaceInfo = useSelector(getIsSavingWorkspaceInfo);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const userWorkspaces = useSelector(getUserApplicationsWorkspacesList);

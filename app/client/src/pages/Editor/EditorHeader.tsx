@@ -5,6 +5,7 @@ import { APPLICATIONS_URL } from "constants/routes";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
+import type { LinkProps } from "react-router-dom";
 import { Link } from "react-router-dom";
 import {
   getCurrentApplicationId,
@@ -146,7 +147,7 @@ const HeaderSection = styled.div`
   }
 `;
 
-const AppsmithLink = styled((props) => {
+const AppsmithLink = styled((props: LinkProps) => {
   // we are removing non input related props before passing them in the components
   // eslint-disable @typescript-eslint/no-unused-vars
   return <Link {...props} />;
@@ -358,7 +359,7 @@ export function EditorHeader() {
                 size="md"
               >
                 <div
-                  className="t--pin-entity-explorer group relative"
+                  className="relative t--pin-entity-explorer group"
                   onMouseEnter={onMenuHover}
                 >
                   <Icon

@@ -25,7 +25,7 @@ import type { Action, PaginationType, RapidApiAction } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
 import { getApiName } from "selectors/formSelectors";
 import Spinner from "components/editorComponents/Spinner";
-import type { CSSProperties } from "styled-components";
+import type { CSSProperties } from "types";
 import styled from "styled-components";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { changeApi } from "actions/apiPaneActions";

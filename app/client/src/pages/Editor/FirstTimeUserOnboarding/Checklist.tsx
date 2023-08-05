@@ -340,7 +340,7 @@ function CheckListItem(props: {
           </div>
         </Tooltip>
       </ListItem>
-      <StyledDivider className="mt-0.5" />
+      <StyledDivider className="mt-0.5" orientation="horizontal" />
     </div>
   );
 }
@@ -418,7 +418,7 @@ export default function OnboardingChecklist() {
     return (
       <>
         <div
-          className="flex justify-between pb-3 items-center"
+          className="flex items-center justify-between pb-3"
           data-testid="checklist-completion-banner"
         >
           <Text
@@ -440,7 +440,7 @@ export default function OnboardingChecklist() {
         <Text color="var(--ads-v2-color-bg-brand-secondary)" kind="heading-xs">
           {createMessage(SIGNPOSTING_SUCCESS_POPUP.subtitle)}
         </Text>
-        <StyledDivider className="mt-4" />
+        <StyledDivider className="mt-4" orientation="horizontal" />
       </>
     );
   }
@@ -448,7 +448,7 @@ export default function OnboardingChecklist() {
   return (
     <>
       <div className="flex-1">
-        <div className="flex justify-between pb-3 items-center">
+        <div className="flex items-center justify-between pb-3">
           <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-m">
             {createMessage(ONBOARDING_CHECKLIST_HEADER)}
           </Text>
@@ -476,7 +476,7 @@ export default function OnboardingChecklist() {
           </Text>
           <Text>steps complete</Text>
         </div>
-        <StyledDivider className="mt-1" />
+        <StyledDivider className="mt-1" orientation="horizontal" />
       </div>
       <div
         className="overflow-auto min-h-[60px]"

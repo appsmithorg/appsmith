@@ -15,14 +15,6 @@ export const AuthContainer = styled.section`
   overflow: auto;
 `;
 
-export const AuthCardContainer = styled.div`
-  display: flex;
-  flex-grow: 1;
-  flex-direction: column;
-  justify-content: center;
-  padding: ${(props) => props.theme.authCard.padding}px 0;
-`;
-
 export const AuthCard = styled(Card)`
   display: flex;
   flex-direction: column;

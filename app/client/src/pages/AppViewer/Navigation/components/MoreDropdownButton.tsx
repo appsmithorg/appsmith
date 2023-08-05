@@ -77,7 +77,7 @@ const MoreDropdownButton = ({
               primaryColor={primaryColor}
             />
 
-            <Icon className="page-icon ml-2" name="expand-more" size="large" />
+            <Icon className="ml-2 page-icon" name="expand-more" size="large" />
           </>
         )}
       </StyleMoreDropdownButton>

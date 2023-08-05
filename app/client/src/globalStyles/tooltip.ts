@@ -1,12 +1,9 @@
 import { createGlobalStyle } from "styled-components";
-import type { Theme } from "constants/DefaultTheme";
 import { Classes } from "@blueprintjs/core";
 
 export const GLOBAL_STYLE_TOOLTIP_CLASSNAME = "ads-global-tooltip";
 
-export const TooltipStyles = createGlobalStyle<{
-  theme: Theme;
-}>`
+export const TooltipStyles = createGlobalStyle`
   .${Classes.PORTAL} .${Classes.TOOLTIP}.${GLOBAL_STYLE_TOOLTIP_CLASSNAME}, .${Classes.TOOLTIP}.${GLOBAL_STYLE_TOOLTIP_CLASSNAME} {
     max-width: 350px;
       overflow-wrap: anywhere;

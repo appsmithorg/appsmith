@@ -42,7 +42,7 @@ import { checkInputTypeText } from "../utils";
  * All generic logic like max characters for phone numbers should be 10, should go in the widget
  */
 
-const InputComponentWrapper = styled((props) => (
+const InputComponentWrapper = styled((props: any) => (
   <ControlGroup
     {..._.omit(props, [
       "hasError",
@@ -70,7 +70,7 @@ const InputComponentWrapper = styled((props) => (
   disabled?: boolean;
   inputType: InputType;
   compactMode: boolean;
-  labelPosition: LabelPosition;
+  labelPosition?: LabelPosition;
   borderRadius?: string;
   boxShadow?: string;
   accentColor?: string;
@@ -85,13 +85,15 @@ const InputComponentWrapper = styled((props) => (
     background: ${(props) =>
       props.disabled ? "var(--wds-color-bg-disabled)" : "white"};
 
-    span, input, textarea {
+    span,
+    input,
+    textarea {
       background: ${(props) =>
         props.disabled ? "var(--wds-color-bg-disabled)" : Colors.WHITE};
-        color: ${(props) =>
-          props.disabled
-            ? "var(--wds-color-text-disabled)"
-            : "var(--wds-color-text)"};
+      color: ${(props) =>
+        props.disabled
+          ? "var(--wds-color-text-disabled)"
+          : "var(--wds-color-text)"};
     }
 
     > {
@@ -154,7 +156,7 @@ const InputComponentWrapper = styled((props) => (
           return hasError
             ? `${Colors.DANGER_SOLID} !important;`
             : `${Colors.GREY_3};`;
-        }}
+        }};
 
         ${(props) =>
           props.numeric &&
@@ -163,6 +165,7 @@ const InputComponentWrapper = styled((props) => (
           border-bottom-right-radius: 0px;
           ${props.hasError ? "" : "border-right-width: 0px;"}
         `}
+
         &:active {
           border-color: ${({ hasError }) =>
             hasError ? Colors.DANGER_SOLID : Colors.HIT_GRAY};
@@ -176,8 +179,12 @@ const InputComponentWrapper = styled((props) => (
       box-shadow: none !important;
     }
 
-    .currency-type-filter .bp3-popover-open button
-    .country-type-filter .bp3-popover-open button {
+    .currency-type-filter
+      .bp3-popover-open
+      button
+      .country-type-filter
+      .bp3-popover-open
+      button {
       border: 0px solid !important;
       box-shadow: none !important;
       background: ${Colors.GREY_3};
@@ -186,10 +193,10 @@ const InputComponentWrapper = styled((props) => (
     textarea {
       background: ${(props) =>
         props.disabled ? "var(--wds-color-bg-disabled)" : Colors.WHITE};
-        color: ${(props) =>
-          props.disabled
-            ? "var(--wds-color-text-disabled)"
-            : "var(--wds-color-text)"};
+      color: ${(props) =>
+        props.disabled
+          ? "var(--wds-color-text-disabled)"
+          : "var(--wds-color-text)"};
     }
 
     .${Classes.INPUT} {
@@ -285,28 +292,30 @@ const InputComponentWrapper = styled((props) => (
     .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
     }
-    align-items: ${({ compactMode, inputType, labelPosition }) => {
-      if (!labelPosition && !checkInputTypeText(inputType)) {
-        return "center";
-      }
-      if (labelPosition === LabelPosition.Top) {
-        return "flex-start";
-      }
-      if (compactMode) {
-        return "center";
-      }
-      if (labelPosition === LabelPosition.Left) {
-        if (inputType === InputTypes.TEXT) {
+    & {
+      align-items: ${({ compactMode, inputType, labelPosition }) => {
+        if (!labelPosition && !checkInputTypeText(inputType)) {
           return "center";
-        } else if (inputType === InputTypes.MULTI_LINE_TEXT) {
+        }
+        if (labelPosition === LabelPosition.Top) {
           return "flex-start";
         }
-        return "center";
-      }
-      return "flex-start";
-    }};
+        if (compactMode) {
+          return "center";
+        }
+        if (labelPosition === LabelPosition.Left) {
+          if (inputType === InputTypes.TEXT) {
+            return "center";
+          } else if (inputType === InputTypes.MULTI_LINE_TEXT) {
+            return "flex-start";
+          }
+          return "center";
+        }
+        return "flex-start";
+      }};
 
-    height: ${({ isMultiLine }) => (isMultiLine ? "100%" : "auto")};
+      height: ${({ isMultiLine }) => (isMultiLine ? "100%" : "auto")};
+    }
   }
 `;
 

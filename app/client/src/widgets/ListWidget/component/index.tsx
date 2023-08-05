@@ -1,9 +1,7 @@
 import styled from "styled-components";
-import type { RefObject, ReactNode } from "react";
+import type { ReactNode } from "react";
 import React, { useMemo } from "react";
 
-import type { ListWidgetProps } from "../constants";
-import type { WidgetProps } from "widgets/BaseWidget";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 
 interface ListComponentProps {
@@ -27,11 +25,7 @@ const GridContainer = styled.div<ListComponentProps>`
   border-radius: ${({ borderRadius }) => borderRadius};
 `;
 
-const ScrollableCanvasWrapper = styled.div<
-  ListWidgetProps<WidgetProps> & {
-    ref: RefObject<HTMLDivElement>;
-  }
->`
+const ScrollableCanvasWrapper = styled.div`
   width: 100%;
   height: 100%;
 `;

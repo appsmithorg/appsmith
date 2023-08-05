@@ -98,7 +98,7 @@ const getCustomBorderColor = (
     : "none";
 };
 
-const StyledButton = styled((props) => (
+const StyledButton = styled((props: IButtonProps) => (
   <Button
     {..._.omit(props, [
       "prevButtonStyle",
@@ -280,6 +280,7 @@ type ButtonStyleProps = {
   prevButtonStyle?: ButtonStyleType;
   buttonVariant?: ButtonVariant;
   boxShadow?: string;
+  boxShadowColor?: string;
   borderRadius?: ButtonBorderRadius;
   iconName?: IconName;
   iconAlign?: Alignment;

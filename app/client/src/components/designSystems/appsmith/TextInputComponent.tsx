@@ -13,9 +13,9 @@ import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const TextInput = styled(({ hasError, ...rest }) => (
-  <InputGroup {...rest} />
-))<{ hasError: boolean }>`
+export const TextInput = styled(({ ...rest }) => <InputGroup {...rest} />)<{
+  hasError: boolean;
+}>`
   flex: 1;
   & input {
     box-shadow: none;

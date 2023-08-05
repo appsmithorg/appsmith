@@ -454,11 +454,11 @@ const ButtonStyles = css<ButtonProps>`
   }
 `;
 
-export const StyledButton = styled("button")`
+export const StyledButton = styled("button")<ButtonProps>`
   ${ButtonStyles}
 `;
 
-const StyledLinkButton = styled("a")`
+const StyledLinkButton = styled("a")<ButtonProps>`
   ${ButtonStyles}
 `;
 

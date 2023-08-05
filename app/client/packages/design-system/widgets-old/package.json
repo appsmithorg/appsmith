@@ -40,7 +40,7 @@
     "react-toastify": "^5.5.0",
     "redux-form": "8.2.6",
     "remixicon-react": "^1.0.0",
-    "styled-components": "5.3.6",
+    "styled-components": "6.0.7",
     "tinycolor2": "^1.4.2"
   },
   "eslintConfig": {

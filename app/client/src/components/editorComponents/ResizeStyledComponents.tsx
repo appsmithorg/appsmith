@@ -83,12 +83,14 @@ export const EdgeHandleStyles = css<{
   }
 `;
 
-export const VerticalHandleStyles = css<{
+type HandleStyles = {
   showAsBorder: boolean;
   showLightBorder: boolean;
   disableDot: boolean;
   isHovered: boolean;
-}>`
+};
+
+export const VerticalHandleStyles = css<HandleStyles>`
   ${EdgeHandleStyles}
   ${(props) =>
     props.showAsBorder || props.disableDot ? "" : VerticalResizeIndicators}
@@ -125,23 +127,23 @@ export const HorizontalHandleStyles = css<{
   }
 `;
 
-export const LeftHandleStyles = styled.div`
+export const LeftHandleStyles = styled.div<HandleStyles>`
   ${VerticalHandleStyles}
   left: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 1.5}px;
 `;
 
-export const RightHandleStyles = styled.div`
+export const RightHandleStyles = styled.div<HandleStyles>`
   ${VerticalHandleStyles};
   right: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 3.5}px;
   height: calc(100% + ${2 * WIDGET_PADDING}px);
 `;
 
-export const TopHandleStyles = styled.div`
+export const TopHandleStyles = styled.div<HandleStyles>`
   ${HorizontalHandleStyles};
   top: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 1.5}px;
 `;
 
-export const BottomHandleStyles = styled.div`
+export const BottomHandleStyles = styled.div<HandleStyles>`
   ${HorizontalHandleStyles};
   bottom: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 3.5}px;
 `;

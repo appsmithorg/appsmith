@@ -7,7 +7,7 @@ import type { ComponentProps } from "widgets/BaseComponent";
 import type { RenderMode } from "constants/WidgetConstants";
 import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
 import _ from "lodash";
-import type { ButtonBorderRadius, ButtonVariant } from "components/constants";
+import type { ButtonVariant } from "components/constants";
 import { ButtonVariantTypes } from "components/constants";
 import {
   getCustomBackgroundColor,
@@ -17,7 +17,6 @@ import {
 } from "widgets/WidgetUtils";
 import Interweave from "interweave";
 import { Popover2 } from "@blueprintjs/popover2";
-import type { ThemeProp } from "widgets/constants";
 
 const ToolTipWrapper = styled.div`
   height: 100%;
@@ -95,10 +94,10 @@ const IconButtonContainer = styled.div<IconButtonContainerProps>`
 `;
 
 export interface ButtonStyleProps {
-  borderRadius?: ButtonBorderRadius;
+  borderRadius?: string;
   boxShadow?: string;
-  buttonColor: string;
-  buttonVariant?: ButtonVariant;
+  buttonColor?: string;
+  buttonVariant: ButtonVariant;
   dimension?: number;
   hasOnClickAction?: boolean;
   compactMode?: string;
@@ -106,7 +105,7 @@ export interface ButtonStyleProps {
   minHeight?: number;
 }
 
-export const StyledButton = styled((props) => (
+export const StyledButton = styled((props: any) => (
   <Button
     {..._.omit(props, [
       "buttonVariant",
@@ -118,7 +117,7 @@ export const StyledButton = styled((props) => (
       "compactMode",
     ])}
   />
-))<ThemeProp & ButtonStyleProps>`
+))<ButtonStyleProps>`
   background-image: none !important;
   height: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
   width: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
@@ -237,9 +236,9 @@ export const StyledButton = styled((props) => (
 export interface IconButtonComponentProps extends ComponentProps {
   iconName?: IconName;
   buttonColor?: string;
-  buttonVariant: ButtonVariant;
-  borderRadius: string;
-  boxShadow: string;
+  buttonVariant?: ButtonVariant;
+  borderRadius?: string;
+  boxShadow?: string;
   isDisabled: boolean;
   isVisible: boolean;
   hasOnClickAction: boolean;
@@ -293,11 +292,12 @@ function IconButtonComponent(props: IconButtonComponentProps) {
       onClick={hasOnClick ? onClick : undefined}
       renderMode={renderMode}
     >
+      x
       <StyledButton
         borderRadius={borderRadius}
         boxShadow={boxShadow}
         buttonColor={buttonColor}
-        buttonVariant={_.trim(buttonVariant)}
+        buttonVariant={_.trim(buttonVariant) as ButtonVariant}
         dimension={dimension}
         disabled={isDisabled}
         hasOnClickAction={hasOnClickAction}

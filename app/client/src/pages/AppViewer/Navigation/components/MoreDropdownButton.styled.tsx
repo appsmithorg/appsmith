@@ -14,6 +14,7 @@ export const StyleMoreDropdownButton = styled(Button)<{
   borderRadius: string;
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
+  children?: React.ReactNode;
 }>`
   display: flex;
   align-items: center;

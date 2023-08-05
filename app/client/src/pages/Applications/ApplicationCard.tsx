@@ -2,11 +2,10 @@ import React, {
   useEffect,
   useState,
   useRef,
-  useContext,
   useCallback,
   useMemo,
 } from "react";
-import styled, { ThemeContext } from "styled-components";
+import styled, { useTheme } from "styled-components";
 import type { HTMLDivProps, ICardProps } from "@blueprintjs/core";
 import { Card, Classes } from "@blueprintjs/core";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
@@ -70,7 +69,7 @@ const { cloudHosting } = getAppsmithConfigs();
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
-  showOverlay: boolean;
+  showOverlay?: boolean;
   isMenuOpen: boolean;
 };
 
@@ -172,7 +171,6 @@ const Wrapper = styled(
   }
   .bp3-card {
     border-radius: var(--ads-v2-border-radius);
-  }
   }
 
   ${({ isMobile }) =>
@@ -352,12 +350,12 @@ type ModifiedMenuItemProps = MenuItemProps & {
 
 export function ApplicationCard(props: ApplicationCardProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
-  const theme = useContext(ThemeContext);
+  const theme = useTheme();
   const isSavingName = useSelector(getIsSavingAppName);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const initialsAndColorCode = getInitialsAndColorCode(
     props.application.name,
-    theme.colors.appCardColors,
+    theme?.colors?.appCardColors,
   );
   let initials = initialsAndColorCode[0];
   const [showOverlay, setShowOverlay] = useState(false);
@@ -765,7 +763,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
           // Set overlay false on outside click.
           !isMenuOpen && setShowOverlay(false);
         }}
-        showOverlay={showOverlay}
+        // showOverlay={showOverlay}
       >
         <Wrapper
           backgroundColor={selectedColor}

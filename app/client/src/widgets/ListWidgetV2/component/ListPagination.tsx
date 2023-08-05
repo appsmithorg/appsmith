@@ -317,15 +317,16 @@ const paginatorCss = css<StyledPaginationProps>`
   .rc-pagination-item {
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
-    color:  var(--wds-color-text) !important;
-    border-color:  transparent !important;
+    color: var(--wds-color-text) !important;
+    border-color: transparent !important;
   }
 
-  .rc-pagination-prev .rc-pagination-item-link, .rc-pagination-next .rc-pagination-item-link  {
+  .rc-pagination-prev .rc-pagination-item-link,
+  .rc-pagination-next .rc-pagination-item-link {
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
-    border-color:  transparent !important;
-    color:  var(--wds-color-text) !important;
+    border-color: transparent !important;
+    color: var(--wds-color-text) !important;
 
     &:hover {
       background-color: var(--wds-color-bg-hover) !important;
@@ -361,6 +362,7 @@ const paginatorCss = css<StyledPaginationProps>`
         color: white !important;
       }
     }
+  }
 `;
 
 const StyledPagination = styled(Pagination)<StyledPaginationProps>`
@@ -406,7 +408,7 @@ function ListPagination(props: ListPaginationProps) {
   );
 }
 
-const PaginationWrapper = styled.ul`
+const PaginationWrapper = styled.ul<StyledPaginationProps>`
   ${paginatorCss}
   pointer-events: "all";
   opacity: "1";

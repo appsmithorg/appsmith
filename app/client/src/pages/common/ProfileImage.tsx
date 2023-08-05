@@ -1,6 +1,6 @@
-import React, { useContext } from "react";
+import React from "react";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
-import styled, { ThemeContext } from "styled-components";
+import styled, { useTheme } from "styled-components";
 import { Colors } from "constants/Colors";
 import { Avatar } from "design-system";
 
@@ -34,7 +34,7 @@ export default function ProfileImage(props: {
   size?: string;
   source?: string;
 }) {
-  const theme = useContext(ThemeContext);
+  const theme = useTheme();
 
   const initialsAndColorCode = getInitialsAndColorCode(
     props.commonName || props.userName,

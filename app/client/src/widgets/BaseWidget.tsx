@@ -43,7 +43,7 @@ import type {
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import shallowequal from "shallowequal";
-import type { CSSProperties } from "styled-components";
+import type { CSSProperties } from "types";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";

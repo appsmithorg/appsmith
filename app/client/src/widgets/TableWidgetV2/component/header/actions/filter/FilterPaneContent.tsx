@@ -267,24 +267,23 @@ function TableFilterPaneContent(props: TableFilterProps) {
               className="t--add-filter-btn"
               icon={<AddIcon className="w-5 h-5" color={props.accentColor} />}
               onClick={addFilter}
-              size="small"
               text="Add Filter"
             />
             <ButtonActionsWrapper>
               <Button
                 borderRadius={props.borderRadius}
-                buttonColor={props.accentColor}
                 buttonVariant={ButtonVariantTypes.SECONDARY}
                 className="t--clear-all-filter-btn"
                 onClick={clearFilters}
+                primaryColor={props.accentColor}
                 text="CLEAR ALL"
               />
               <Button
                 borderRadius={props.borderRadius}
-                buttonColor={props.accentColor}
                 buttonVariant={ButtonVariantTypes.PRIMARY}
                 className="t--apply-filter-btn"
                 onClick={applyFilter}
+                primaryColor={props.accentColor}
                 text="APPLY"
               />
             </ButtonActionsWrapper>

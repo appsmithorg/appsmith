@@ -51,7 +51,7 @@ import { checkInputTypeText } from "widgets/BaseInputWidget/utils";
  * All generic logic like max characters for phone numbers should be 10, should go in the widget
  */
 
-const InputComponentWrapper = styled((props) => (
+const InputComponentWrapper = styled((props: any) => (
   <ControlGroup
     {..._.omit(props, [
       "hasError",
@@ -73,6 +73,8 @@ const InputComponentWrapper = styled((props) => (
   allowCurrencyChange?: boolean;
   disabled?: boolean;
   inputType: InputType;
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
 }>`
   ${labelLayoutStyles}
 
@@ -116,7 +118,7 @@ const InputComponentWrapper = styled((props) => (
       box-shadow: none;
       border: 1px solid;
       border-color: ${({ hasError }) =>
-        hasError ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
+        hasError ? `${Colors.DANGER_SOLID} !important` : `${Colors.GREY_3}`};
       border-radius: 0;
       height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
       width: 100%;

@@ -33,7 +33,6 @@ import {
 } from "widgets/WidgetUtils";
 import { DragContainer } from "./DragContainer";
 import { buttonHoverActiveStyles } from "./utils";
-import type { ThemeProp } from "widgets/constants";
 import { toast } from "design-system";
 
 const RecaptchaWrapper = styled.div`
@@ -65,7 +64,7 @@ const TooltipStyles = createGlobalStyle`
   }
 `;
 
-const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
+const buttonBaseStyle = css<ButtonStyleProps>`
   height: 100%;
   background-image: none !important;
   font-weight: ${(props) => props.theme.fontWeights[2]};
@@ -146,7 +145,7 @@ const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
       : ""}
 `;
 
-export const StyledButton = styled((props) => (
+export const StyledButton = styled((props: IButtonProps & ButtonStyleProps) => (
   <Button
     {..._.omit(props, [
       "borderRadius",
@@ -156,7 +155,7 @@ export const StyledButton = styled((props) => (
       "buttonVariant",
     ])}
   />
-))<ThemeProp & ButtonStyleProps>`
+))<ButtonStyleProps>`
   ${buttonBaseStyle}
 `;
 

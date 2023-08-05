@@ -5,7 +5,6 @@ import { Spring } from "react-spring";
 import { useDrag } from "react-use-gesture";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { getWrapperStyle, ResizeWrapper } from "resizable/common";
-import type { StyledComponent } from "styled-components";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -28,7 +27,7 @@ type ResizableHandleProps = {
   isHovered: boolean;
   disableDot: boolean;
   dragCallback: (x: number, y: number) => void;
-  component: StyledComponent<"div", Record<string, unknown>>;
+  component: React.ComponentType<Record<string, unknown>>;
   onStart: () => void;
   onStop: () => void;
   snapGrid: {
@@ -69,14 +68,14 @@ function ResizableHandle(props: ResizableHandleProps) {
 type ResizableProps = {
   allowResize: boolean;
   handles: {
-    left?: StyledComponent<"div", Record<string, unknown>>;
-    top?: StyledComponent<"div", Record<string, unknown>>;
-    bottom?: StyledComponent<"div", Record<string, unknown>>;
-    right?: StyledComponent<"div", Record<string, unknown>>;
-    bottomRight?: StyledComponent<"div", Record<string, unknown>>;
-    topLeft?: StyledComponent<"div", Record<string, unknown>>;
-    topRight?: StyledComponent<"div", Record<string, unknown>>;
-    bottomLeft?: StyledComponent<"div", Record<string, unknown>>;
+    left?: React.ComponentType<Record<string, unknown>>;
+    top?: React.ComponentType<Record<string, unknown>>;
+    bottom?: React.ComponentType<Record<string, unknown>>;
+    right?: React.ComponentType<Record<string, unknown>>;
+    bottomRight?: React.ComponentType<Record<string, unknown>>;
+    topLeft?: React.ComponentType<Record<string, unknown>>;
+    topRight?: React.ComponentType<Record<string, unknown>>;
+    bottomLeft?: React.ComponentType<Record<string, unknown>>;
   };
   componentWidth: number;
   componentHeight: number;
