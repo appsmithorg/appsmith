@@ -754,8 +754,9 @@ export class AggregateHelper extends ReusableHelper {
     }
   }
 
-  public ClearTextField(selector: string) {
-    this.GetElement(selector).clear();
+  public ClearTextField(selector: string, force = false) {
+    this.GetElement(selector).clear({ force });
+    this.Sleep(500); //for text to clear for CI runs
   }
 
   public ClearNType(selector: string, totype: string) {
