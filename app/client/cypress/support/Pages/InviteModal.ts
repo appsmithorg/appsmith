@@ -82,6 +82,7 @@ export class InviteModal {
     this.SelectEmbedTab();
     this.embedSettings.ToggleShowNavigationBar(toggle);
     cy.get(this.locators._previewEmbed).invoke("removeAttr", "target").click();
+    this.agHelper.Sleep(3000); //for page to load
     this.agHelper.AssertElementAbsence(this.commonLocators._backToEditor);
     cy.go("back");
   }
