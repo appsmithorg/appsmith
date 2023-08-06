@@ -184,8 +184,7 @@ function JSONFormComponent<TValues>(
     return renderRootField();
   })();
 
-  const hideFooter =
-    fieldLimitExceeded || (isSchemaEmpty && !showConnectDataOverlay);
+  const hideFooter = fieldLimitExceeded && !showConnectDataOverlay;
 
   return (
     <FormContextProvider
