@@ -2,10 +2,36 @@
 
 set -o nounset
 
-CUSTOM_DOMAIN="$1"
+CUSTOM_DOMAIN="${1-}"
 
-if [[ -z $CUSTOM_DOMAIN ]]; then
+# Check exist certificate with given custom domain
+# Heroku not support for custom domain, only generate HTTP config if deploying on Heroku
+use_https=false
+if [[ -n $CUSTOM_DOMAIN ]] && [[ -z ${DYNO-} ]]; then
+  use_https=true
+  if ! [[ -e "/etc/letsencrypt/live/$CUSTOM_DOMAIN" ]]; then
+    source "/opt/appsmith/init_ssl_cert.sh"
+    if ! init_ssl_cert "$CUSTOM_DOMAIN"; then
+      echo "Status code from init_ssl_cert is $?"
+      use_https=false
+    fi
+  fi
+
+elif [[ -z $CUSTOM_DOMAIN ]]; then
   CUSTOM_DOMAIN=_
+
+fi
+
+if $use_https; then
+  # By default, container will use the auto-generate certificate by Let's Encrypt
+  SSL_CERT_PATH="/etc/letsencrypt/live/$CUSTOM_DOMAIN/fullchain.pem"
+  SSL_KEY_PATH="/etc/letsencrypt/live/$CUSTOM_DOMAIN/privkey.pem"
+
+  # In case of existing custom certificate, container will use them to configure SSL
+  if [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] && [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
+    SSL_CERT_PATH="/appsmith-stacks/ssl/fullchain.pem"
+    SSL_KEY_PATH="/appsmith-stacks/ssl/privkey.pem"
+  fi
 fi
 
 cat <<EOF
@@ -24,19 +50,43 @@ map \$http_forwarded \$final_forwarded {
   '' '';
 }
 
-# redirect log to stdout for supervisor to capture
+# Redirect logs to stdout/stderr for supervisor to capture them.
 access_log /dev/stdout;
+error_log stderr info;
+
+daemon off;
+server_tokens off;
 
 server {
+
+$(
+if $use_https; then
+  echo "
+  listen 80;
+  server_name _;
+  return 301 https://\$host\$request_uri;
+}
+
+server {
+  listen 443 ssl http2;
+  ssl_certificate $SSL_CERT_PATH;
+  ssl_certificate_key $SSL_KEY_PATH;
+  include /appsmith-stacks/data/certificate/conf/options-ssl-nginx.conf;
+  ssl_dhparam /appsmith-stacks/data/certificate/conf/ssl-dhparams.pem;
+"
+else
+  echo "
   listen ${PORT:-80} default_server;
-  server_name $CUSTOM_DOMAIN;
+"
+fi
+)
+
+  server_name _;
 
   client_max_body_size 150m;
 
   gzip on;
   gzip_types *;
-
-  server_tokens off;
 
   root /opt/appsmith/editor;
   index index.html;
@@ -54,10 +104,10 @@ server {
   }
 
   location /supervisor/ {
-    proxy_http_version 1.1;
-    proxy_buffering     off;
+    proxy_http_version       1.1;
+    proxy_buffering          off;
     proxy_max_temp_file_size 0;
-    proxy_redirect     off;
+    proxy_redirect           off;
 
     proxy_set_header  Host              \$http_host/supervisor/;
     proxy_set_header  X-Forwarded-For   \$proxy_add_x_forwarded_for;

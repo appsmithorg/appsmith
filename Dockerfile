@@ -71,7 +71,7 @@ COPY ./app/client/build editor/
 COPY ./app/client/packages/rts/package.json ./app/client/packages/rts/dist rts/
 
 # Nginx, MongoDB and PostgreSQL data config template - Configuration layer
-COPY ./deploy/docker/templates/nginx/* \
+COPY ./deploy/docker/templates/nginx-app.conf.sh \
   ./deploy/docker/templates/docker.env.sh \
   ./deploy/docker/templates/mockdb_postgres.sql \
   ./deploy/docker/templates/users_postgres.sql \

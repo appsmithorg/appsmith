@@ -5,11 +5,7 @@ set -o nounset
 set -o pipefail
 set -o xtrace
 
-http_conf="/opt/appsmith/templates/nginx-app-http.conf.template.sh"
-https_conf="/opt/appsmith/templates/nginx-app-https.conf.template.sh"
 ssl_conf_path="/appsmith-stacks/data/certificate/conf"
-
-APP_TEMPLATE="$http_conf"
 
 mkdir -pv "$ssl_conf_path"
 
@@ -55,20 +51,7 @@ if [[ -z "${APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX-}" ]]; then
   export APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX="true"
 fi
 
-# Check exist certificate with given custom domain
-# Heroku not support for custom domain, only generate HTTP config if deploying on Heroku
-if [[ -n ${APPSMITH_CUSTOM_DOMAIN-} ]] && [[ -z ${DYNO-} ]]; then
-  APP_TEMPLATE="$https_conf"
-  if ! [[ -e "/etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN" ]]; then
-    source "/opt/appsmith/init_ssl_cert.sh"
-    if ! init_ssl_cert "$APPSMITH_CUSTOM_DOMAIN"; then
-      echo "Status code from init_ssl_cert is $?"
-      APP_TEMPLATE="$http_conf"
-    fi
-  fi
-fi
-
-bash "$APP_TEMPLATE" "${APPSMITH_CUSTOM_DOMAIN-}" > /etc/nginx/sites-available/default
+/opt/appsmith/templates/nginx-app.conf.sh "${APPSMITH_CUSTOM_DOMAIN-}" > /etc/nginx/sites-available/default
 
 apply-env-vars() {
   original="$1"
@@ -91,4 +74,4 @@ apply-env-vars() {
 
 apply-env-vars /opt/appsmith/index.html.original /opt/appsmith/editor/index.html
 
-exec nginx -g "daemon off;error_log stderr info;"
+exec nginx
