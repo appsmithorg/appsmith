@@ -210,28 +210,20 @@ function Table(props: TableProps) {
   const tableBodyRef = React.useRef<HTMLElement>();
 
   const data = React.useMemo(() => {
-    const emptyString = "";
     /* Check for length greater than 0 of rows returned from the query for mappings keys */
     if (!!props.data && isArray(props.data) && props.data.length > 0) {
-      const keys = Object.keys(props.data[0]);
-      keys.forEach((key) => {
-        if (key === emptyString) {
-          const value = props.data[0][key];
-          delete props.data[0][key];
-          props.data[0][uniqueId()] = value;
-        }
-      });
-
       return props.data;
     }
 
     return [];
   }, [props.data]);
+
   const columns = React.useMemo(() => {
     if (data.length) {
       return Object.keys(data[0]).map((key: any) => {
+        const uniqueKey = uniqueId();
         return {
-          Header: key,
+          Header: key === "" ? uniqueKey : key,
           accessor: key,
           Cell: renderCell,
         };
