@@ -26,7 +26,6 @@ import {
   VIEWER_PATH,
   VIEWER_PATH_DEPRECATED,
   WORKSPACE_URL,
-  ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
 } from "constants/routes";
 import WorkspaceLoader from "pages/workspace/loader";
 import ApplicationListLoader from "pages/Applications/loader";
@@ -49,6 +48,9 @@ import SettingsLoader from "pages/Settings/loader";
 import SignupSuccess from "pages/setup/SignupSuccess";
 import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
+import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
+import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
+import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import RouteChangeListener from "RouteChangeListener";
 import Walkthrough from "components/featureWalkthrough";
 import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
@@ -59,6 +61,8 @@ export const SentryRoute = Sentry.withSentryRouting(Route);
 export const loadingIndicator = <PageLoadingBar />;
 
 export function Routes() {
+  const user = useSelector(getCurrentUserSelector);
+  const tenantPermissions = useSelector(getTenantPermissions);
   return (
     <Switch>
       <SentryRoute component={LandingScreen} exact path={BASE_URL} />
@@ -79,7 +83,14 @@ export function Routes() {
       <Redirect
         exact
         from={ADMIN_SETTINGS_PATH}
-        to={ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH}
+        to={
+          !user
+            ? ADMIN_SETTINGS_PATH
+            : getDefaultAdminSettingsPath({
+                isSuperUser: user?.isSuperUser || false,
+                tenantPermissions,
+              })
+        }
       />
       <SentryRoute
         component={SettingsLoader}

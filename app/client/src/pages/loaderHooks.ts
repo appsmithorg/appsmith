@@ -25,9 +25,13 @@ export const useFirstRouteLoad = () => {
   useBrandingTheme();
 
   // hide the top loader once the tenant is loaded
+  // Show app only after tenant is loaded (concerns theming and licence check)
   useEffect(() => {
     if (tenantIsLoading === false && currentUserIsLoading === false) {
       const loader = document.getElementById("loader") as HTMLDivElement;
+      const appLoadBlock = document.getElementById(
+        "app-load-bock",
+      ) as HTMLDivElement;
 
       if (loader) {
         loader.style.width = "100vw";
@@ -35,6 +39,9 @@ export const useFirstRouteLoad = () => {
         setTimeout(() => {
           loader.style.opacity = "0";
         });
+      }
+      if (appLoadBlock) {
+        appLoadBlock.style.opacity = "1";
       }
     }
   }, [tenantIsLoading, currentUserIsLoading]);
