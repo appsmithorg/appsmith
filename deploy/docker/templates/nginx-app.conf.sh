@@ -52,9 +52,7 @@ map \$http_forwarded \$final_forwarded {
 
 # Redirect logs to stdout/stderr for supervisor to capture them.
 access_log /dev/stdout;
-error_log stderr info;
 
-daemon off;
 server_tokens off;
 
 server {

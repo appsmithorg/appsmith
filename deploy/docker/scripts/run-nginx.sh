@@ -74,4 +74,4 @@ apply-env-vars() {
 
 apply-env-vars /opt/appsmith/index.html.original /opt/appsmith/editor/index.html
 
-exec nginx
+exec nginx -g "daemon off;error_log stderr info;"
