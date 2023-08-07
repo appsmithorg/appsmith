@@ -190,13 +190,13 @@ describe("List Widget Functionality", function () {
     agHelper.AssertCSS(
       locators._listWidget,
       "background-color",
-      "rgb(126, 34, 206)",
+      "rgb(219, 234, 254)",
     );
     // Verify List Item Background Color
     agHelper.AssertCSS(
       locators._itemContainerWidget,
       "background-color",
-      "rgb(126, 34, 206)",
+      "rgb(219, 234, 254)",
     );
     deployMode.NavigateBacktoEditor();
   });
