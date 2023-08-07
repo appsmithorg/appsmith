@@ -1,4 +1,3 @@
-const explorer = require("../../../../../locators/explorerlocators.json");
 const widgets = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
@@ -9,7 +8,6 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 import { progressWidgetProgress } from "../../../../../locators/WidgetLocators";
-import { faker } from "@faker-js/faker";
 
 describe("Progress Widget", function () {
   before(() => {
