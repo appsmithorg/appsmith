@@ -61,7 +61,7 @@ $(
 if $use_https; then
   echo "
   listen 80;
-  server_name _;
+  server_name $CUSTOM_DOMAIN;
   return 301 https://\$host\$request_uri;
 }
 
