@@ -32,7 +32,7 @@ interface RunQueryParams {
 export class DataSources {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private table = ObjectsRegistry.Table;
-  private ee = ObjectsRegistry.EntityExplorer;
+  private entityExplorer = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
   private apiPage = ObjectsRegistry.ApiPage;
   private tedTestConfig = ObjectsRegistry.TEDTestConfigs;
@@ -107,7 +107,8 @@ export class DataSources {
   _selectDatasourceDropdown = "[data-testid=t--datasource-dropdown]";
   _selectTableDropdown =
     "[data-testid=t--table-dropdown] .rc-select-selection-item";
-  _selectSheetNameDropdown = "[data-testid=t--sheetName-dropdown]";
+  _selectSheetNameDropdown =
+    "[data-testid=t--sheetName-dropdown] .rc-select-selector";
   _selectTableHeaderIndexInput = "[data-testid=t--tableHeaderIndex]";
   _dropdownOption = ".rc-select-item-option-content";
   _generatePageBtn = "[data-testid=t--generate-page-form-submit]";
@@ -175,8 +176,7 @@ export class DataSources {
   };
   _queryDoc = ".t--datasource-documentation-link";
   _globalSearchModal = ".t--global-search-modal";
-  _globalSearchInput = (inputText: string) =>
-    "//input[@id='global-search'][@value='" + inputText + "']";
+  _globalSearchInput = ".t--global-search-input";
   _gsScopeDropdown =
     "[data-testid^='datasourceStorages.'][data-testid$='.datasourceConfiguration.authentication.scopeString']";
   _gsScopeOptions = ".ads-v2-select__dropdown .rc-select-item-option";
@@ -209,8 +209,8 @@ export class DataSources {
   private _grantType = "[data-testid='authentication.grantType']";
   private _authorizationURL =
     "[data-testid='authentication.authorizationUrl'] input";
-  private _consent = '[name="confirm"]';
-  private _consentSubmit = "//button[text()='Submit']";
+  _consent = '[name="confirm"]';
+  _consentSubmit = "//button[text()='Submit']";
   public _datasourceModalSave = ".t--datasource-modal-save";
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
   public _cancelEditDatasourceButton = ".t--cancel-edit-datasource";
@@ -238,14 +238,16 @@ export class DataSources {
     "//p[contains(text(),'" +
     ddName +
     "')]/ancestor::div[@class='form-config-top']/following-sibling::div//div[contains(@class, 'rc-select-multiple')]";
-  private _datasourceTableSchemaInQueryEditor =
-    ".datasourceStructure-query-editor";
+  private _datasourceTableSchemaInQueryEditor = (schemaName: string) =>
+    `//div[contains(@class, 'datasourceStructure-query-editor')]//div[contains(@class, 't--entity-name')][text()='${schemaName}']`;
   private _datasourceSchemaRefreshBtn = ".datasourceStructure-refresh";
   private _datasourceStructureHeader = ".datasourceStructure-header";
   private _datasourceColumnSchemaInQueryEditor = ".t--datasource-column";
   private _datasourceStructureSearchInput = ".datasourceStructure-search input";
   _jsModeSortingControl = ".t--actionConfiguration\\.formData\\.sortBy\\.data";
   public _queryEditorCollapsibleIcon = ".collapsible-icon";
+  _globalSearchTrigger = ".t--global-search-modal-trigger";
+  _globalSearchOptions = ".t--searchHit";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -253,7 +255,7 @@ export class DataSources {
   }
 
   public GeneratePageWithDB(datasourceName: any, tableName: string) {
-    this.ee.AddNewPage("Generate page with data");
+    this.entityExplorer.AddNewPage("Generate page with data");
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClickByContains(
       this.locator._dropdownText,
@@ -269,7 +271,7 @@ export class DataSources {
   }
 
   public GeneratePageWithMockDB() {
-    this.ee.AddNewPage("Generate page with data");
+    this.entityExplorer.AddNewPage("Generate page with data");
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClickByContains(
       this._dropdownOption,
@@ -392,7 +394,7 @@ export class DataSources {
   }
 
   public NavigateToDSCreateNew() {
-    this.ee.HoverOnEntityItem("Datasources");
+    this.entityExplorer.HoverOnEntityItem("Datasources");
     Cypress._.times(2, () => {
       this.agHelper.GetNClick(this._addNewDataSource, 0, true);
       this.agHelper.Sleep();
@@ -814,8 +816,8 @@ export class DataSources {
     dsName: string,
     expectedRes: number | number[] = 200,
   ) {
-    this.ee.SelectEntityByName(dsName, "Datasources");
-    this.ee.ActionContextMenuByEntityName({
+    this.entityExplorer.SelectEntityByName(dsName, "Datasources");
+    this.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: dsName,
       action: "Delete",
       entityType: EntityItems.Datasource,
@@ -849,13 +851,17 @@ export class DataSources {
     });
   }
 
-  public NavigateFromActiveDS(datasourceName: string, createQuery: boolean) {
+  public NavigateFromActiveDS(
+    datasourceName: string,
+    createQuery: boolean,
+    validateTableDropdown = true,
+  ) {
     const btnLocator =
       createQuery == true
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
 
-    this.AssertDSActive(datasourceName)
+    this.AssertDSActive(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
       .scrollIntoView()
       .should("be.visible")
       .then(($element) => {
@@ -872,15 +878,16 @@ export class DataSources {
         0,
         20000,
       );
-    !createQuery &&
+    validateTableDropdown &&
+      !createQuery &&
       this.assertHelper.AssertNetworkStatus("@getDatasourceStructure", 200); //Making sure table dropdown is populated
   }
 
-  public AssertDSActive(dsName: string) {
-    this.ee.NavigateToSwitcher("Explorer", 0, true);
-    this.ee.ExpandCollapseEntity("Datasources", false);
-    //this.ee.SelectEntityByName(datasourceName, "Datasources");
-    //this.ee.ExpandCollapseEntity(datasourceName, false);
+  public AssertDSActive(dsName: string | RegExp) {
+    this.entityExplorer.NavigateToSwitcher("Explorer", 0, true);
+    this.entityExplorer.ExpandCollapseEntity("Datasources", false);
+    //this.entityExplorer.SelectEntityByName(datasourceName, "Datasources");
+    //this.entityExplorer.ExpandCollapseEntity(datasourceName, false);
     this.NavigateToActiveTab();
     return this.agHelper.GetNAssertContains(this._datasourceCard, dsName);
   }
@@ -892,7 +899,7 @@ export class DataSources {
     if (toNavigateToActive) this.NavigateToActiveTab();
     cy.get(this._datasourceCard, { withinSubject: null })
       .find(this._activeDS)
-      .contains(datasourceName)
+      .contains(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
       .scrollIntoView()
       .should("be.visible")
       .closest(this._datasourceCard)
@@ -924,21 +931,28 @@ export class DataSources {
     }
   }
 
-  public CreateQueryForDS(datasourceName: string, query = "", queryName = "") {
+  public CreateQueryForDS(
+    datasourceName: string,
+    query = "",
+    queryName = "",
+    cancelEditDs = true,
+  ) {
     this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
-      .contains(datasourceName)
+      .contains(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
       .scrollIntoView()
       .should("be.visible")
       .click();
     this.agHelper.Sleep(); //for the Datasource page to open
-    this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, true, 200);
+    if (cancelEditDs) {
+      this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, true, 200);
+    }
     this.CreateQueryAfterDSSaved(query, queryName);
   }
 
   DeleteQuery(queryName: string) {
-    this.ee.ExpandCollapseEntity("Queries/JS");
-    this.ee.ActionContextMenuByEntityName({
+    this.entityExplorer.ExpandCollapseEntity("Queries/JS");
+    this.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: queryName,
       action: "Delete",
       entityType: EntityItems.Query,
@@ -1231,7 +1245,7 @@ export class DataSources {
     sleep = 500,
   ) {
     this.agHelper.RemoveEvaluatedPopUp(); //to close the evaluated pop-up
-    this.ee.CreateNewDsQuery(dsName);
+    this.entityExplorer.CreateNewDsQuery(dsName);
     if (query) {
       this.EnterQuery(query, sleep);
     }
@@ -1327,7 +1341,7 @@ export class DataSources {
     } else {
       this.SaveDatasource();
     }
-    this.ee.ActionContextMenuByEntityName({
+    this.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: dataSourceName,
       action: "Refresh",
     });
@@ -1337,9 +1351,9 @@ export class DataSources {
   }
 
   public VerifyTableSchemaOnQueryEditor(schema: string) {
-    this.agHelper
-      .GetElement(this._datasourceTableSchemaInQueryEditor)
-      .contains(schema);
+    this.agHelper.AssertElementVisible(
+      this._datasourceTableSchemaInQueryEditor(schema),
+    );
   }
 
   public VerifySchemaAbsenceInQueryEditor() {
@@ -1367,17 +1381,15 @@ export class DataSources {
 
   public FilterAndVerifyDatasourceSchemaBySearch(
     search: string,
-    verifySearch = false,
-    filterBy: "table" | "column" = "column",
+    filterBy?: "table" | "column",
   ) {
+    this.agHelper.Sleep(2500); //for query editor to load
     this.agHelper.TypeText(this._datasourceStructureSearchInput, search);
-
-    if (verifySearch) {
-      if (filterBy === "column") {
-        this.VerifyColumnSchemaOnQueryEditor(search);
-      } else {
-        this.VerifyTableSchemaOnQueryEditor(search);
-      }
+    this.agHelper.Sleep(); //for search result to load
+    if (filterBy === "column") {
+      this.VerifyColumnSchemaOnQueryEditor(search);
+    } else if (filterBy === "table") {
+      this.VerifyTableSchemaOnQueryEditor(search);
     }
   }
 
@@ -1597,7 +1609,7 @@ export class DataSources {
     );
   }
 
-  public AddSuggesstedWidget(widget: Widgets) {
+  public AddSuggestedWidget(widget: Widgets) {
     switch (widget) {
       case Widgets.Dropdown:
         this.agHelper.GetNClick(this._suggestedWidget("SELECT_WIDGET"));
@@ -1747,5 +1759,18 @@ export class DataSources {
       .GetElement(this._jsModeSortingControl)
       .find("button[data-testid='t--sorting-add-field']")
       .click({ force: true });
+  }
+
+  public AddQueryFromGlobalSearch(datasourceName: string) {
+    this.agHelper.GetNClick(this._globalSearchTrigger);
+    this.agHelper.Sleep(500);
+    this.agHelper.TypeText(this._globalSearchInput, datasourceName);
+    this.agHelper.Sleep(500);
+    this.agHelper.GetNClickByContains(
+      this._globalSearchOptions,
+      new RegExp("^" + datasourceName + "$"),
+    );
+    this.agHelper.WaitUntilEleAppear(this._createQuery);
+    this.agHelper.GetNClick(this._createQuery);
   }
 }
