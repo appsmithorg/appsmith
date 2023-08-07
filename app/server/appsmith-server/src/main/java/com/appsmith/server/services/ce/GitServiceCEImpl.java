@@ -24,6 +24,7 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitDeployKeys;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationImportDTO;
@@ -1575,7 +1576,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)));
     }
-
     /**
      * Method to pull application json files from remote repo, make a commit with the changes present in local DB and
      * make a system commit to remote repo
@@ -1767,22 +1767,21 @@ public class GitServiceCEImpl implements GitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
         }
         final String finalBranchName = branchName.replaceFirst("origin/", "");
+        Mono<Application> branchedAppMono = applicationService
+                .findByBranchNameAndDefaultApplicationId(
+                        finalBranchName, defaultApplicationId, applicationPermission.getEditPermission())
+                .cache();
 
         /*
            1. Copy resources from DB to local repo
            2. Fetch the current status from local repo
         */
-
+        Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
         Mono<GitStatusDTO> statusMono = executionTimeLogging
                 .measureTask("getGitApplicationMetadata", getGitApplicationMetadata(defaultApplicationId))
                 .flatMap(gitApplicationMetadata -> {
                     Mono<Tuple2<Application, ApplicationJson>> applicationJsonTuple = executionTimeLogging
-                            .measureTask(
-                                    "findByBranchNameAndDefaultApplicationId",
-                                    applicationService.findByBranchNameAndDefaultApplicationId(
-                                            finalBranchName,
-                                            defaultApplicationId,
-                                            applicationPermission.getEditPermission()))
+                            .measureTask("findByBranchNameAndDefaultApplicationId", branchedAppMono)
                             .onErrorResume(error -> {
                                 // if the branch does not exist in local, checkout remote branch
                                 return executionTimeLogging.measureTask(
@@ -1892,13 +1891,43 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
 
         return Mono.create(sink -> {
-            statusMono
+            Mono.zip(statusMono, currUserMono, branchedAppMono)
+                    .elapsed()
+                    .flatMap(objects -> {
+                        Long elapsedTime = objects.getT1();
+                        GitStatusDTO gitStatusDTO = objects.getT2().getT1();
+                        User currentUser = objects.getT2().getT2();
+                        Application app = objects.getT2().getT3();
+                        return sendAnalyticsEvent(elapsedTime, gitStatusDTO, currentUser, app);
+                    })
                     .map(t -> {
                         log.debug("Time take, {}\n", executionTimeLogging.print());
                         return t;
                     })
                     .subscribe(sink::success, sink::error, null, sink.currentContext());
         });
+    }
+
+    private Mono<GitStatusDTO> sendAnalyticsEvent(
+            Long elapsedTime, GitStatusDTO gitStatusDTO, User currentUser, Application app) {
+        final Map<String, Object> data = Map.of(
+                FieldName.FLOW_NAME,
+                AnalyticsEvents.GIT_STATUS.getEventName(),
+                FieldName.APPLICATION_ID,
+                app.getGitApplicationMetadata().getDefaultApplicationId(),
+                "appId",
+                app.getGitApplicationMetadata().getDefaultApplicationId(),
+                FieldName.BRANCH_NAME,
+                app.getGitApplicationMetadata().getBranchName(),
+                "organizationId",
+                app.getWorkspaceId(),
+                "repoUrl",
+                app.getGitApplicationMetadata().getRemoteUrl(),
+                "executionTime",
+                elapsedTime);
+        return analyticsService
+                .sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), currentUser.getUsername(), data)
+                .thenReturn(gitStatusDTO);
     }
 
     @Override
