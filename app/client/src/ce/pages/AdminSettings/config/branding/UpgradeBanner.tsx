@@ -1,10 +1,9 @@
 import React from "react";
-import { Button, Tag } from "design-system";
+import { Button } from "design-system";
 import { ContentBox } from "pages/Settings/components";
 import {
   ADMIN_BRANDING_SETTINGS_SUBTITLE,
   ADMIN_BRANDING_SETTINGS_TITLE,
-  BUSINESS_TAG,
   createMessage,
 } from "@appsmith/constants/messages";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
@@ -13,6 +12,7 @@ import {
   SettingsSubHeader,
 } from "@appsmith/pages/AdminSettings/config/authentication/AuthPage";
 import styled from "styled-components";
+import BusinessTag from "components/BusinessTag";
 
 const StyledSettingsSubHeader = styled(SettingsSubHeader)`
   margin: 0;
@@ -27,9 +27,7 @@ const UpgradeBanner = () => {
     <div className="pb-4 pr-7">
       <ContentBox className="flex items-center justify-between p-6 border upgrade-banner">
         <main>
-          <Tag className="business-tag" isClosable={false}>
-            {createMessage(BUSINESS_TAG)}
-          </Tag>
+          <BusinessTag />
           <SettingsHeader
             className="mt-1"
             color="var(--ads-v2-color-fg-emphasis-plus)"
