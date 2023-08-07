@@ -34,8 +34,7 @@ import { rgbaMigrationConstantV56 } from "./constants";
 import type { ContainerWidgetProps } from "./ContainerWidget/widget";
 import type { SchemaItem } from "./JSONFormWidget/constants";
 import { WIDGET_COMPONENT_BOUNDARY_CLASS } from "constants/componentClassNameConstants";
-
-const punycode = require("punycode/");
+import punycode from "punycode";
 
 type SanitizeOptions = {
   existingKeys?: string[];
@@ -920,6 +919,10 @@ export const checkForOnClick = (e: React.MouseEvent<HTMLElement>) => {
     target &&
     target !== currentTarget
   ) {
+    /**
+     * NOTE: target.__reactProps$ returns undefined in cypress, therefore the below targetReactProps will be null.
+     * Due to this the traversed target element's react props such as onClick will get ignored.
+     **/
     const targetReactProps = findReactInstanceProps(target);
 
     const hasOnClickableEvent = Boolean(
