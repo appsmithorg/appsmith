@@ -40,8 +40,10 @@ export const LOGIN_SUBMIT_PATH = "login";
 export const SIGNUP_SUBMIT_PATH = "users";
 export const SUPER_USER_SUBMIT_PATH = `${SIGNUP_SUBMIT_PATH}/super`;
 
-export const getExportAppAPIRoute = (applicationId: string) =>
-  `/api/v1/applications/export/${applicationId}`;
-
+export const getExportAppAPIRoute = (applicationId: string) => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const branch = urlParams.get("branch");
+  return `/api/v1/applications/export/${applicationId}?branchName=${branch}`;
+};
 export const getSnapShotAPIRoute = (applicationId: string) =>
   `/v1/applications/snapshot/${applicationId}`;
