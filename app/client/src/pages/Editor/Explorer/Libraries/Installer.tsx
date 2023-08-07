@@ -1,23 +1,17 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import {
   Button,
   Icon,
   toast,
   Text,
-  Input,
   Link,
   Spinner,
-  Divider,
   Avatar,
   Callout,
   Tooltip,
+  Input,
+  Divider,
 } from "design-system";
 import {
   createMessage,
@@ -27,7 +21,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   selectInstallationStatus,
   selectInstalledLibraries,
-  selectIsInstallerOpen,
   selectIsLibraryInstalled,
   selectQueuedLibraries,
   selectStatusForURL,
@@ -35,125 +28,16 @@ import {
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import type { AppState } from "@appsmith/reducers";
-import {
-  clearInstalls,
-  installLibraryInit,
-  toggleInstaller,
-} from "actions/JSLibraryActions";
+import { installLibraryInit } from "actions/JSLibraryActions";
 import classNames from "classnames";
 import type { TJSLibrary } from "workers/common/JSLibrary";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 
 const openDoc = (e: React.MouseEvent, url: string) => {
   e.preventDefault();
   e.stopPropagation();
   window.open(url, "_blank");
 };
-
-const Wrapper = styled.div<{ left: number }>`
-  display: flex;
-  height: auto;
-  width: 400px;
-  max-height: 80vh;
-  flex-direction: column;
-  padding: 0 20px 4px 22px;
-  position: absolute;
-  background: white;
-  z-index: 25;
-  left: ${(props) => props.left}px;
-  bottom: 15px;
-  border-radius: var(--ads-v2-border-radius);
-  border-color: var(--ads-v2-color-border);
-  box-shadow: var(--ads-v2-shadow-popovers);
-  .installation-header {
-    padding: 20px 0 0;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-  .search-body {
-    display: flex;
-    padding-right: 4px;
-    padding-left: 2px;
-    flex-direction: column;
-    .search-area {
-      margin-bottom: 16px;
-      .left-icon {
-        margin-left: 14px;
-        .cs-icon {
-          margin-right: 0;
-        }
-      }
-      .bp3-form-group {
-        margin: 0;
-        .remixicon-icon {
-          cursor: initial;
-        }
-      }
-      .bp3-label {
-        font-size: 12px;
-      }
-      display: flex;
-      flex-direction: column;
-      .search-bar {
-        margin-bottom: 8px;
-      }
-    }
-    .search-CTA {
-      margin-bottom: 16px;
-      display: flex;
-      flex-direction: column;
-      a {
-        display: inline-block;
-        > span {
-          font-size: inherit;
-        }
-        /* font-size: 12px; */
-      }
-    }
-    .search-results {
-      .library-card {
-        gap: 8px;
-        padding: 8px 0;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        border-bottom: 1px solid var(--ads-v2-color-border);
-        .description {
-          overflow: hidden;
-          text-overflow: ellipsis;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          font-size: 12px;
-          line-clamp: 2;
-          font-weight: 400;
-          -webkit-box-orient: vertical;
-        }
-        img {
-          cursor: initial;
-        }
-      }
-      .library-card.no-border {
-        border-bottom: none;
-      }
-    }
-    .divider {
-      margin: 0 0 16px 0;
-    }
-    .download {
-      cursor: pointer;
-    }
-    .library-name {
-      /* font-family: var(--font-family); */
-      color: var(--ads-v2-color-fg-emphasis-plus);
-      font-size: var(--ads-v2-font-size-6);
-      font-weight: var(--ads-v2-h4-font-weight);
-      letter-spacing: var(--ads-v2-h4-letter-spacing);
-    }
-  }
-`;
 
 const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
   border-top: ${(props) =>
@@ -294,7 +178,7 @@ function ProgressTracker({
   );
 }
 
-function InstallationProgress() {
+export function InstallationProgress() {
   const installStatusMap = useSelector(selectInstallationStatus);
   const urls = Object.keys(installStatusMap).filter(
     (url) => !recommendedLibraries.find((lib) => lib.url === url),
@@ -315,46 +199,20 @@ function InstallationProgress() {
   );
 }
 
-const EXT_LINK = {
+export const EXT_LINK = {
   learnMore:
     "https://docs.appsmith.com/core-concepts/writing-code/ext-libraries",
   reportIssue: "https://github.com/appsmithorg/appsmith/issues/19037",
   jsDelivr: "https://www.jsdelivr.com/",
 };
 
-export function Installer(props: { left: number }) {
-  const { left } = props;
+export function Installer() {
   const [URL, setURL] = useState("");
   const [isValid, setIsValid] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const dispatch = useDispatch();
   const installedLibraries = useSelector(selectInstalledLibraries);
   const queuedLibraries = useSelector(selectQueuedLibraries);
-  const isOpen = useSelector(selectIsInstallerOpen);
-  const installerRef = useRef<HTMLDivElement>(null);
-
-  const closeInstaller = useCallback(() => {
-    setURL("");
-    dispatch(clearInstalls());
-    dispatch(toggleInstaller(false));
-  }, []);
-
-  const handleOutsideClick = useCallback((e: MouseEvent) => {
-    const paths = e.composedPath();
-    if (
-      installerRef &&
-      installerRef.current &&
-      !paths?.includes(installerRef.current)
-    )
-      closeInstaller();
-  }, []);
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleOutsideClick);
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-    };
-  }, [isOpen]);
 
   const updateURL = useCallback((value: string) => {
     setURL(value);
@@ -406,101 +264,78 @@ export function Installer(props: { left: number }) {
     [URL, installedLibraries, queuedLibraries],
   );
 
-  return !isOpen ? null : (
-    <Wrapper
-      className={`bp3-popover ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
-      left={left}
-      ref={installerRef}
-    >
-      <div className="installation-header">
-        <Text kind="heading-m">
-          {createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
-        </Text>
-        <Button
-          className="t--close-installer"
-          isIconButton
-          kind="tertiary"
-          onClick={closeInstaller}
+  return (
+    <div className="overflow-auto">
+      <div
+        className="flex flex-row gap-2 justify-between items-end"
+        data-testid="t--library-container"
+      >
+        <Input
+          data-testid="library-url"
+          errorMessage={errorMessage}
+          isValid={isValid}
+          label={"Library URL"}
+          labelPosition="top"
+          onChange={updateURL}
+          placeholder="https://cdn.jsdelivr.net/npm/example@1.1.1/example.min.js"
           size="md"
-          startIcon="close-line"
+          startIcon="link-2"
+          type="text"
         />
+        <Button
+          className="mb-[22px]"
+          data-testid="install-library-btn"
+          isDisabled={!(URL && isValid)}
+          isLoading={queuedLibraries.length > 0}
+          onClick={() => installLibrary()}
+          size="md"
+          startIcon="download"
+        >
+          Install
+        </Button>
       </div>
-      <div className="search-body overflow-auto">
-        <div className="search-area t--library-container">
-          <div className="flex flex-row gap-2 justify-between items-end">
-            <div className="w-full h-[83px]">
-              <Input
-                data-testid="library-url"
-                errorMessage={errorMessage}
-                isValid={isValid}
-                label={"Library URL"}
-                labelPosition="top"
-                onChange={updateURL}
-                placeholder="https://cdn.jsdelivr.net/npm/example@1.1.1/example.min.js"
-                size="md"
-                startIcon="link-2"
-                type="text"
-              />
-            </div>
-
-            <Button
-              className="mb-[22px]"
-              data-testid="install-library-btn"
-              isDisabled={!(URL && isValid)}
-              isLoading={queuedLibraries.length > 0}
-              onClick={() => installLibrary()}
-              size="md"
-              startIcon="download"
-            >
-              Install
-            </Button>
-          </div>
-        </div>
-        <div className="search-CTA mb-3 text-xs">
-          <span>
-            Explore libraries on{" "}
-            <Link
-              kind="primary"
-              onClick={(e) => openDoc(e, EXT_LINK.jsDelivr)}
-              to="#"
-            >
-              jsDelivr
-            </Link>
-            {". "}
-            {createMessage(customJSLibraryMessages.LEARN_MORE_DESC)}{" "}
-            <Link
-              kind="primary"
-              onClick={(e) => openDoc(e, EXT_LINK.learnMore)}
-              to="#"
-            >
-              here
-            </Link>
-            {"."}
-          </span>
-        </div>
-        <Divider className="divider" />
-        <InstallationProgress />
-        <div className="pb-2 sticky top-0 z-2 bg-white">
-          <Text kind="heading-xs">
-            {createMessage(customJSLibraryMessages.REC_LIBRARY)}
-          </Text>
-        </div>
-        <div className="search-results">
-          {recommendedLibraries.map((lib, idx) => (
-            <LibraryCard
-              isLastCard={idx === recommendedLibraries.length - 1}
-              key={`${idx}_${lib.name}`}
-              lib={lib}
-              onClick={() => installLibrary(lib)}
-            />
-          ))}
-        </div>
+      <div className="mb-3 text-xs">
+        <span>
+          Explore libraries on{" "}
+          <Link
+            kind="primary"
+            onClick={(e) => openDoc(e, EXT_LINK.jsDelivr)}
+            to="#"
+          >
+            jsDelivr
+          </Link>
+          {". "}
+          {createMessage(customJSLibraryMessages.LEARN_MORE_DESC)}{" "}
+          <Link
+            kind="primary"
+            onClick={(e) => openDoc(e, EXT_LINK.learnMore)}
+            to="#"
+          >
+            here
+          </Link>
+          {"."}
+        </span>
       </div>
-    </Wrapper>
+      <Divider className="divider" />
+      <InstallationProgress />
+      <div className="pb-2 sticky top-0 z-2 bg-white">
+        <Text kind="heading-xs">
+          {createMessage(customJSLibraryMessages.REC_LIBRARY)}
+        </Text>
+      </div>
+      {recommendedLibraries.map((lib, idx) => (
+        <LibraryCard
+          isLastCard={idx === recommendedLibraries.length - 1}
+          key={`${idx}_${lib.name}`}
+          lib={lib}
+          onClick={() => installLibrary(lib)}
+        />
+      ))}
+    </div>
   );
 }
 
-function LibraryCard({
+export function LibraryCard({
   isLastCard,
   lib,
   onClick,

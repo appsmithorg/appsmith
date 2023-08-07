@@ -1,7 +1,18 @@
 import type { MutableRefObject } from "react";
 import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
-import { Button, Icon, Spinner, toast, Tooltip } from "design-system";
+import {
+  Button,
+  Icon,
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
+  Spinner,
+  toast,
+  Tooltip,
+} from "design-system";
 import Entity, { AddButtonWrapper, EntityClassNames } from "../Entity";
 import {
   createMessage,
@@ -30,6 +41,7 @@ import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import recommendedLibraries from "./recommendedLibraries";
 import { useTransition, animated } from "react-spring";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { Installer } from "./Installer";
 
 const docsURLMap = recommendedLibraries.reduce((acc, lib) => {
   acc[lib.url] = lib.docsURL;
@@ -299,21 +311,33 @@ function JSDependencies() {
     <Entity
       className={"group libraries"}
       customAddButton={
-        <Tooltip
-          content={createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
-          isDisabled={isOpen}
-          placement="right"
-          {...(isOpen ? { visible: false } : {})}
-        >
-          <AddButtonWrapper>
-            <EntityAddButton
-              className={`${
-                EntityClassNames.ADD_BUTTON
-              } group libraries h-100 ${isOpen ? "selected" : ""}`}
-              onClick={openInstaller}
-            />
-          </AddButtonWrapper>
-        </Tooltip>
+        <Popover>
+          <Tooltip
+            content={createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
+            isDisabled={isOpen}
+            placement="right"
+            {...(isOpen ? { visible: false } : {})}
+          >
+            <PopoverTrigger>
+              <AddButtonWrapper>
+                <EntityAddButton
+                  className={`${
+                    EntityClassNames.ADD_BUTTON
+                  } group libraries h-100 ${isOpen ? "selected" : ""}`}
+                  onClick={openInstaller}
+                />
+              </AddButtonWrapper>
+            </PopoverTrigger>
+          </Tooltip>
+          <PopoverContent>
+            <PopoverHeader isClosable>
+              {createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
+            </PopoverHeader>
+            <PopoverBody>
+              <Installer />
+            </PopoverBody>
+          </PopoverContent>
+        </Popover>
       }
       entityId={pageId + "_library_section"}
       icon={null}

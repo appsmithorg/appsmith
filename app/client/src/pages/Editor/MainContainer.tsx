@@ -13,7 +13,6 @@ import {
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
 import { previewModeSelector } from "selectors/editorSelectors";
-import { Installer } from "pages/Editor/Explorer/Libraries/Installer";
 import { getExplorerWidth } from "selectors/explorerSelector";
 import WidgetsEditor from "./WidgetsEditor";
 import EditorsRouter from "./routes";
@@ -95,7 +94,6 @@ function MainContainer() {
         </div>
       </Container>
       <BottomBar viewMode={isPreviewMode} />
-      <Installer left={sidebarWidth} />
     </>
   );
 }
