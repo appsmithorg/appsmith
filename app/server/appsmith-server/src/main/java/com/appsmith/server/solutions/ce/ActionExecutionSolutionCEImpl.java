@@ -530,7 +530,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     } else {
                         // For embedded datasource, we are simply relying on datasource configuration property
                         datasourceStorageMono = Mono.just(
-                                datasourceStorageService.getDatasourceStorageFromDatasource(datasource, environmentId));
+                                datasourceStorageService.createDatasourceStorageFromDatasource(datasource, environmentId));
                     }
 
                     return datasourceStorageMono
