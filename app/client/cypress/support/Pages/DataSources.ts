@@ -812,7 +812,7 @@ export class DataSources {
     toNavigateToDSInfoPage = true,
   ) {
     toNavigateToDSInfoPage &&
-      this.agHelper.GetNClick(this._contextMenuDSReviewPage);
+      this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, true, 200);
     this.agHelper.GetNClick(this._contextMenuDSReviewPage);
     this.agHelper.GetNClick(this._contextMenuDelete);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
