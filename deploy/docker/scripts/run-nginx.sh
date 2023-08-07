@@ -51,7 +51,7 @@ if [[ -z "${APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX-}" ]]; then
   export APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX="true"
 fi
 
-bash /opt/appsmith/templates/nginx/nginx-app.conf.sh "${APPSMITH_CUSTOM_DOMAIN-}" > /etc/nginx/sites-available/default
+bash /opt/appsmith/templates/nginx-app.conf.sh "${APPSMITH_CUSTOM_DOMAIN-}" > /etc/nginx/sites-available/default
 
 apply-env-vars() {
   original="$1"
