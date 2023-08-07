@@ -266,10 +266,7 @@ export function Installer() {
 
   return (
     <div className="overflow-auto">
-      <div
-        className="flex flex-row gap-2 justify-between items-end"
-        data-testid="t--library-container"
-      >
+      <div className="flex flex-row gap-2 justify-between items-end">
         <Input
           data-testid="library-url"
           errorMessage={errorMessage}
