@@ -34,3 +34,7 @@ export const useHtmlPageTitle = () => {
 
   return instanceName ?? "Applications";
 };
+
+export const isCEMode = () => {
+  return false;
+};
