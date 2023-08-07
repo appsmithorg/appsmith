@@ -2,35 +2,35 @@
 
 set -o nounset
 
-CUSTOM_DOMAIN="${1-}"
+custom_domain="${1-}"
 
 # Check exist certificate with given custom domain
 # Heroku not support for custom domain, only generate HTTP config if deploying on Heroku
 use_https=false
-if [[ -n $CUSTOM_DOMAIN ]] && [[ -z ${DYNO-} ]]; then
+if [[ -n $custom_domain ]] && [[ -z ${DYNO-} ]]; then
   use_https=true
-  if ! [[ -e "/etc/letsencrypt/live/$CUSTOM_DOMAIN" ]]; then
+  if ! [[ -e "/etc/letsencrypt/live/$custom_domain" ]]; then
     source "/opt/appsmith/init_ssl_cert.sh"
-    if ! init_ssl_cert "$CUSTOM_DOMAIN"; then
+    if ! init_ssl_cert "$custom_domain"; then
       echo "Status code from init_ssl_cert is $?"
       use_https=false
     fi
   fi
 
-elif [[ -z $CUSTOM_DOMAIN ]]; then
-  CUSTOM_DOMAIN=_
+elif [[ -z $custom_domain ]]; then
+  custom_domain=_
 
 fi
 
 if $use_https; then
   # By default, container will use the auto-generate certificate by Let's Encrypt
-  SSL_CERT_PATH="/etc/letsencrypt/live/$CUSTOM_DOMAIN/fullchain.pem"
-  SSL_KEY_PATH="/etc/letsencrypt/live/$CUSTOM_DOMAIN/privkey.pem"
+  ssl_cert_path="/etc/letsencrypt/live/$custom_domain/fullchain.pem"
+  ssl_key_path="/etc/letsencrypt/live/$custom_domain/privkey.pem"
 
   # In case of existing custom certificate, container will use them to configure SSL
   if [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] && [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
-    SSL_CERT_PATH="/appsmith-stacks/ssl/fullchain.pem"
-    SSL_KEY_PATH="/appsmith-stacks/ssl/privkey.pem"
+    ssl_cert_path="/appsmith-stacks/ssl/fullchain.pem"
+    ssl_key_path="/appsmith-stacks/ssl/privkey.pem"
   fi
 fi
 
@@ -67,8 +67,8 @@ if $use_https; then
 
 server {
   listen 443 ssl http2;
-  ssl_certificate $SSL_CERT_PATH;
-  ssl_certificate_key $SSL_KEY_PATH;
+  ssl_certificate $ssl_cert_path;
+  ssl_certificate_key $ssl_key_path;
   include /appsmith-stacks/data/certificate/conf/options-ssl-nginx.conf;
   ssl_dhparam /appsmith-stacks/data/certificate/conf/ssl-dhparams.pem;
 "
