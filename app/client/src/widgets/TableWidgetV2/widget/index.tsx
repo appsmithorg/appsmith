@@ -1077,6 +1077,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           borderColor={this.props.borderColor}
           borderRadius={this.props.borderRadius}
           borderWidth={this.props.borderWidth}
+          bottomRow={this.props.bottomRow}
           boxShadow={this.props.boxShadow}
           canFreezeColumn={this.props.canFreezeColumn}
           columnWidthMap={this.props.columnWidthMap}
@@ -1091,7 +1092,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           handleColumnFreeze={this.handleColumnFreeze}
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
-          handleVerticalScrollVisibility={this.handleVerticalScrollVisibility}
           height={componentHeight}
           isAddRowInProgress={this.props.isAddRowInProgress}
           isEditableCellsValid={this.props.isEditableCellsValid}
@@ -1101,6 +1101,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           isVisibleFilters={isVisibleFilters}
           isVisiblePagination={isVisiblePagination}
           isVisibleSearch={isVisibleSearch}
+          leftColumn={this.props.leftColumn}
           multiRowSelection={
             this.props.multiRowSelection && !this.props.isAddRowInProgress
           }
@@ -1117,6 +1118,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           }
           prevPageClick={this.handlePrevPageClick}
           primaryColumnId={this.props.primaryColumnId}
+          rightColumn={this.props.rightColumn}
           searchKey={this.props.searchText}
           searchTableData={this.handleSearchTable}
           selectAllRow={this.handleAllRowSelect}
@@ -1134,6 +1136,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           }
           sortTableColumn={this.handleColumnSorting}
           tableData={finalTableData}
+          topRow={this.props.topRow}
           totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
           unSelectAllRow={this.unSelectAllRow}
@@ -1334,12 +1337,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       //single action no need to batch
       this.props.updateWidgetMetaProperty("columnWidthMap", columnWidthMap);
     }
-  };
-
-  handleVerticalScrollVisibility = (isVisible: boolean) => {
-    if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty("yScrollVisibility", isVisible);
-    } else this.props.updateWidgetMetaProperty("yScrollVisibility", isVisible);
   };
 
   handleSearchTable = (searchKey: any) => {

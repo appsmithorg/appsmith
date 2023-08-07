@@ -105,7 +105,6 @@ export interface TableWidgetProps
   isAddRowInProgress: boolean;
   newRow: Record<string, unknown>;
   firstEditableColumnIdByOrder: string;
-  yScrollVisibility?: boolean;
 }
 
 export enum TableVariantTypes {
