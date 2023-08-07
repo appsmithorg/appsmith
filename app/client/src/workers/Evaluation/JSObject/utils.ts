@@ -69,7 +69,6 @@ export const updateJSCollectionInUnEvalTree = (
           );
 
           set(modifiedUnEvalTree, `${entityName}.${action.name}.data`, data);
-          set(oldConfig.meta?.[action.name], `isAsync`, action.isAsync);
         }
       } else {
         const reactivePaths = oldConfig.reactivePaths;
@@ -88,7 +87,6 @@ export const updateJSCollectionInUnEvalTree = (
         const meta = oldConfig.meta;
         meta[action.name] = {
           arguments: action.arguments,
-          isAsync: action.isAsync,
           confirmBeforeExecute: false,
         };
 

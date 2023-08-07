@@ -165,7 +165,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       // validate the input field value still remains as the saved value
       _.agHelper.ValidateFieldInputValue(
         _.dataSources._host,
-        _.tedTestConfig.dsValues.staging.mongo_host,
+        _.tedTestConfig.dsValues.Staging.mongo_host,
       );
 
       _.dataSources.DeleteDatasouceFromActiveTab(dsName);

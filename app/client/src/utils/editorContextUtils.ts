@@ -97,6 +97,7 @@ export function getPropertyControlFocusElement(
  * - authentication type is oauth2 and authorized status success and is a Google Sheet Plugin
  * @param datasource Datasource
  * @param plugin Plugin
+ * @param currentEnvironment string
  * @returns boolean
  */
 export function isDatasourceAuthorizedForQueryCreation(
