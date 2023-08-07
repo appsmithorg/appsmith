@@ -14,7 +14,7 @@ describe("Login failure", function () {
       .then((location) => {
         cy.LogOutUser();
         appUrl = location.href.split("?")[0];
-        agHelper.VisitNAssert(appUrl, "signUpLogin");
+        agHelper.VisitNAssert(appUrl, "signUpLogin", 10000);
         agHelper.AssertElementVisible(homePage._username);
       })
       .then(() => cy.GetUrlQueryParams())

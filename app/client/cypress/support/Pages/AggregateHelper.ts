@@ -1550,9 +1550,9 @@ export class AggregateHelper extends ReusableHelper {
     });
   }
 
-  public VisitNAssert(url: string, apiToValidate = "") {
+  public VisitNAssert(url: string, apiToValidate = "", waitTime = 4000) {
     cy.visit(url, { timeout: 60000 });
-    this.Sleep(5000); //for new url to settle
+    this.Sleep(waitTime); //for new url to settle
     if (apiToValidate.includes("getReleaseItems") && Cypress.env("AIRGAPPED")) {
       this.Sleep(2000);
     } else
