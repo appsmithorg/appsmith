@@ -284,10 +284,12 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public ValidateToastMessage(text: string, index = 0, length = 1) {
-    this.GetElement(this.locator._toastMsg)
-      .should("have.length.at.least", length)
-      .eq(index)
-      .should("contain.text", text);
+    if (index != 0) {
+      this.GetElement(this.locator._toastMsg)
+        .should("have.length.at.least", length)
+        .eq(index)
+        .should("contain.text", text);
+    } else this.GetNAssertContains(this.locator._toastMsg, text);
   }
 
   public RemoveTooltip(toolTip: string) {

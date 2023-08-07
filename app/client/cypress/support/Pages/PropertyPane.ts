@@ -1,4 +1,3 @@
-import { assertHelper } from "../Objects/ObjectsCore";
 import { ObjectsRegistry } from "../Objects/Registry";
 
 type filedTypeValues =
@@ -97,7 +96,10 @@ export class PropertyPane {
   _selectPropDropdown = (ddName: string) =>
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
-    "')]//input[@class='rc-select-selection-search-input']";
+    "')] | //p[text()='" +
+    ddName +
+    "']/ancestor::div[@class='form-config-top']/following-sibling::div" +
+    "//input[@class='rc-select-selection-search-input']";
   _selectPropDropdownValue = (ddName: string) =>
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
