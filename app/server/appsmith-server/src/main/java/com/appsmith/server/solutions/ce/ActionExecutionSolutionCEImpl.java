@@ -1010,7 +1010,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             DATASOURCE_CREATED_AT_SHORTNAME,
                             dsCreatedAt,
                             ENVIRONMENT_NAME_SHORTNAME,
-                            ObjectUtils.defaultIfNull(datasourceStorage.getIsMock(), ENVIRONMENT_NAME_DEFAULT)));
+                            ObjectUtils.defaultIfNull(environmentName, ENVIRONMENT_NAME_DEFAULT)));
 
                     // Add the error message in case of erroneous execution
                     if (FALSE.equals(actionExecutionResult.getIsExecutionSuccess())) {

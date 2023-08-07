@@ -1,4 +1,3 @@
-import { useContext } from "react";
 import type {
   MouseEventHandler,
   PropsWithChildren,
@@ -18,7 +17,6 @@ import { useSelector } from "react-redux";
 import { getCurrentAppPositioningType } from "selectors/editorSelectors";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 
 const StyledContainerComponent = styled.div<
   Omit<ContainerWrapperProps, "widgetId">
@@ -61,8 +59,6 @@ function ContainerComponentWrapper(
 ) {
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
   const appPositioningType = useSelector(getCurrentAppPositioningType);
-  const { isOpened: isWalkthroughOpened, popFeature } =
-    useContext(WalkthroughContext) || {};
 
   useEffect(() => {
     if (!props.shouldScrollContents) {
@@ -121,17 +117,6 @@ function ContainerComponentWrapper(
     [props.onClickCapture],
   );
 
-  const closeWalkthrough = () => {
-    if (isWalkthroughOpened && popFeature) {
-      popFeature("WIDGET_CONTAINER");
-    }
-  };
-
-  const onClickHandler = (event: any) => {
-    closeWalkthrough();
-    if (props.onClick) props.onClick(event);
-  };
-
   return (
     <StyledContainerComponent
       // Before you remove: generateClassName is used for bounding the resizables within this canvas
@@ -148,7 +133,7 @@ function ContainerComponentWrapper(
       }`}
       data-widgetId={props.widgetId}
       dropDisabled={props.dropDisabled}
-      onClick={onClickHandler}
+      onClick={props.onClick}
       onClickCapture={props.onClickCapture}
       onMouseOver={onMouseOver}
       ref={containerRef}

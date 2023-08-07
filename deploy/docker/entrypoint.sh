@@ -138,10 +138,6 @@ unset_unused_variables() {
     unset APPSMITH_RECAPTCHA_SECRET_KEY
     unset APPSMITH_RECAPTCHA_ENABLED
   fi
-
-  if [[ -z "${APPSMITH_CLOUD_SERVICES_BASE_URL-}" ]]; then
-    unset APPSMITH_CLOUD_SERVICES_BASE_URL
-  fi
 }
 
 check_mongodb_uri() {

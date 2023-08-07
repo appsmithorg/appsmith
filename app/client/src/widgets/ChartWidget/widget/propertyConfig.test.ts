@@ -107,4 +107,13 @@ describe("Validate Chart Widget's property config", () => {
       expect(result).toBeFalsy();
     });
   });
+
+  it("validates the datasource field is required in customFusionChartConfig", () => {
+    const customFusionChartConfig: any = get(config, "[0].children.[1]");
+    const dataSourceValidations =
+      customFusionChartConfig.validation.params.allowedKeys[1];
+
+    expect(dataSourceValidations.params.required).toEqual(true);
+    expect(dataSourceValidations.params.ignoreCase).toEqual(false);
+  });
 });
