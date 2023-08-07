@@ -9589,6 +9589,7 @@ __metadata:
     unescape-js: ^1.1.4
     url-search-params-polyfill: ^8.0.0
     uuid: ^9.0.0
+    validate-color: ^2.2.4
     webfontloader: ^1.6.28
     webpack-merge: ^5.8.0
     webpack-retry-chunk-load-plugin: ^3.1.1
@@ -28931,6 +28932,13 @@ __metadata:
   version: 4.0.0
   resolution: "v8flags@npm:4.0.0"
   checksum: 4ed88f2bfae92ffdfe83c20ce42b4075b6487a87e29ee3165efb7baf5ffac346ce02c1e07c539498db1b014bb56ceb3ef2ccf07b83005edea2bb967b37f5fb77
+  languageName: node
+  linkType: hard
+
+"validate-color@npm:^2.2.4":
+  version: 2.2.4
+  resolution: "validate-color@npm:2.2.4"
+  checksum: ac9109e6347797300fd0a0b08d623acaf3cc295cc2077b9041119582c632eb56dc78e94b8f7f929754508974a8a0b63d296995106a20b237b3be5e89ff2c80f1
   languageName: node
   linkType: hard
 

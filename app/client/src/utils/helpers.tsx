@@ -35,6 +35,7 @@ import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getContainerIdForCanvas } from "sagas/WidgetOperationUtils";
 import scrollIntoView from "scroll-into-view-if-needed";
+import validateColor from "validate-color";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -757,26 +758,34 @@ export function getLogToSentryFromResponse(response?: ApiResponse) {
   return response && response?.responseMeta?.status >= 500;
 }
 
-const BLACKLIST_COLORS = ["#ffffff"];
-const HEX_REGEX = /#[0-9a-fA-F]{6}/gi;
-const RGB_REGEX = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)/gi;
-
 /**
  * extract colors from string
  *
- * @param text
  * @returns
+ * @param widgets
  */
-export function extractColorsFromString(text: string) {
+export function extractColorsFromString(widgets: CanvasWidgetsReduxState) {
   const colors = new Set();
 
-  [...(text.match(RGB_REGEX) || []), ...(text.match(HEX_REGEX) || [])]
-    .filter((d) => BLACKLIST_COLORS.indexOf(d.toLowerCase()) === -1)
-    .forEach((color) => {
-      colors.add(color.toLowerCase());
+  Object.values(widgets).forEach((widget) => {
+    Object.values(widget).forEach((widgetProp) => {
+      if (isString(widgetProp) && validateColor(widgetProp)) {
+        colors.add(widgetProp);
+      }
     });
+  });
 
   return Array.from(colors) as Array<string>;
+}
+
+/**
+ * validate color string
+ *
+ * @returns {boolean} true if string is valid color or includes url
+ * @param color
+ */
+export function isValidColor(color: string) {
+  return color?.includes("url") || validateColor(color);
 }
 
 /*
