@@ -10,7 +10,7 @@ describe("Validate Empty DS error messages", () => {
   let dataSourceName: string;
 
   afterEach("Delete DS", () => {
-    dataSources.DeleteDSDirectly();
+    dataSources.DeleteDSDirectly(200, false);
   });
 
   it("1. Postgress connection errors", () => {

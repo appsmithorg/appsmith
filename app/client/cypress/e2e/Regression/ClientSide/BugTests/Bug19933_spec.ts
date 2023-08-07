@@ -28,7 +28,6 @@ describe("Bug 19933: Authenticated API DS in case of OAuth2, should have save an
       0,
       false,
     );
-    agHelper.GetNClick(dataSources._cancelEditDatasourceButton);
     dataSources.DeleteDSDirectly();
   });
 });

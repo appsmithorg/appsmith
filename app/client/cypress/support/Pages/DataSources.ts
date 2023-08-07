@@ -809,7 +809,10 @@ export class DataSources {
 
   public DeleteDSDirectly(
     expectedRes: number | number[] = 200 || 409 || [200 | 409],
+    toNavigateToDSInfoPage = true,
   ) {
+    toNavigateToDSInfoPage &&
+      this.agHelper.GetNClick(this._contextMenuDSReviewPage);
     this.agHelper.GetNClick(this._contextMenuDSReviewPage);
     this.agHelper.GetNClick(this._contextMenuDelete);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
