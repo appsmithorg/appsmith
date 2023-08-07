@@ -28,23 +28,23 @@ describe("Table Widget empty row color validation", function () {
       "1",
       "0",
       "background-color",
-      "rgb(99, 102, 241)",
+      "rgb(185, 28, 28)",
     );
     // Verify the cell background color of second column
     cy.readTabledataValidateCSS(
       "1",
       "1",
       "background-color",
-      "rgb(30, 58, 138)",
+      "rgb(113, 113, 122)",
     );
     //Test 2. Validate empty row background
     // first cell of first row should be transparent
     cy.get(
       ".t--widget-tablewidget .tbody div[data-testid='empty-row-0-cell-0']",
-    ).should("have.css", "background-color", "rgb(99, 102, 241)");
+    ).should("have.css", "background-color", "rgb(185, 28, 28)");
     // second cell of first row should be transparent
     cy.get(
       ".t--widget-tablewidget .tbody div[data-testid='empty-row-0-cell-1']",
-    ).should("have.css", "background-color", "rgb(30, 58, 138)");
+    ).should("have.css", "background-color", "rgb(113, 113, 122)");
   });
 });
