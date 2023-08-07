@@ -36,6 +36,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(SpringExtension.class)
@@ -154,10 +155,10 @@ public class GitServiceCEImplTest {
 
         doReturn(Mono.just(3))
                 .when(gitCloudServicesUtils)
-                .getPrivateRepoLimitForOrg(Mockito.any(String.class), Mockito.any(Boolean.class));
+                .getPrivateRepoLimitForOrg(any(String.class), any(Boolean.class));
 
         GitServiceCE gitService1 = Mockito.spy(gitService);
-        doReturn(Mono.just(1L)).when(gitService1).getApplicationCountWithPrivateRepo(Mockito.any(String.class));
+        doReturn(Mono.just(1L)).when(gitService1).getApplicationCountWithPrivateRepo(any(String.class));
 
         StepVerifier.create(gitService1.isRepoLimitReached("workspaceId", false))
                 .assertNext(aBoolean -> assertEquals(false, aBoolean))
@@ -168,10 +169,10 @@ public class GitServiceCEImplTest {
     public void isRepoLimitReached_connectedAppCountIsSameAsLimit_Success() {
         doReturn(Mono.just(3))
                 .when(gitCloudServicesUtils)
-                .getPrivateRepoLimitForOrg(Mockito.any(String.class), Mockito.any(Boolean.class));
+                .getPrivateRepoLimitForOrg(any(String.class), any(Boolean.class));
 
         GitServiceCE gitService1 = Mockito.spy(gitService);
-        doReturn(Mono.just(3L)).when(gitService1).getApplicationCountWithPrivateRepo(Mockito.any(String.class));
+        doReturn(Mono.just(3L)).when(gitService1).getApplicationCountWithPrivateRepo(any(String.class));
 
         StepVerifier.create(gitService1.isRepoLimitReached("workspaceId", true))
                 .assertNext(aBoolean -> assertEquals(true, aBoolean))
@@ -184,10 +185,10 @@ public class GitServiceCEImplTest {
     public void isRepoLimitReached_connectedAppCountIsMoreThanLimit_Success() {
         doReturn(Mono.just(3))
                 .when(gitCloudServicesUtils)
-                .getPrivateRepoLimitForOrg(Mockito.any(String.class), Mockito.any(Boolean.class));
+                .getPrivateRepoLimitForOrg(any(String.class), any(Boolean.class));
 
         GitServiceCE gitService1 = Mockito.spy(gitService);
-        doReturn(Mono.just(4L)).when(gitService1).getApplicationCountWithPrivateRepo(Mockito.any(String.class));
+        doReturn(Mono.just(4L)).when(gitService1).getApplicationCountWithPrivateRepo(any(String.class));
 
         StepVerifier.create(gitService1.isRepoLimitReached("workspaceId", false))
                 .assertNext(aBoolean -> assertEquals(true, aBoolean))

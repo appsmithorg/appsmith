@@ -3,7 +3,8 @@ export class CommonLocators {
   _inputField = "input";
   _canvasViewport = "#canvas-viewport";
   _emptyPageTxt = ".bp3-heading";
-  _chevronUp = ".bp3-icon-chevron-up";
+  _chevronUp = "span[contains(@class, 'bp3-icon-chevron-up')]";
+  _chevronDown = "span[contains(@class, 'bp3-icon-chevron-down')]";
   _loading = "#loading";
   _animationSpnner = ".bp3-spinner-animation";
   _btnSpinner = ".ads-v2-spinner";
@@ -259,11 +260,15 @@ export class CommonLocators {
   _pagination = ".rc-pagination";
   _controlOption = ".t--property-control-options";
   _canvasBody = "[data-testid='div-selection-0']";
+  _itemContainerWidget = ".t--widget-containerwidget div.style-container";
   _adsV2Content = ".ads-v2__content";
   _adsV2CollapsibleHeader = ".ads-v2-collapsible__header";
   _adsV2Text = ".ads-v2-text";
   _svg = "svg";
-
+  _imgWidgetInsideList = `//div[@data-testid='styledImage']//img`;
+  _containerWidget = "[type='CONTAINER_WIDGET']";
+  _evaluatedValue = ".t-property-evaluated-value";
   public ds_editor_env_filter = (envName: string) =>
     `[data-testid="t--ds-data-filter-${envName}"]`;
+  _textWidgetContaioner = ".t--text-widget-container span";
 }

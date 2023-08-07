@@ -649,4 +649,31 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     public Flux<T> queryMany(List<Criteria> criteria) {
         return mongoOperations.find(getQuery(criteria), genericDomain);
     }
+
+    public Flux<T> queryAllWithoutPermissions(
+            List<Criteria> criterias, List<String> includeFields, Sort sort, int limit) {
+        final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
+        Query query = new Query();
+        if (!CollectionUtils.isEmpty(includeFields)) {
+            for (String includeField : includeFields) {
+                query.fields().include(includeField);
+            }
+        }
+
+        if (limit != NO_RECORD_LIMIT) {
+            query.limit(limit);
+        }
+        Criteria andCriteria = new Criteria();
+
+        criteriaList.add(notDeleted());
+
+        andCriteria.andOperator(criteriaList.toArray(new Criteria[0]));
+
+        query.addCriteria(andCriteria);
+        if (sort != null) {
+            query.with(sort);
+        }
+
+        return mongoOperations.query(this.genericDomain).matching(query).all().map(obj -> obj);
+    }
 }
