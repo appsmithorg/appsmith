@@ -78,7 +78,7 @@ export function ToggleComponent({ setting }: SettingComponentProps) {
           setting.label,
           setting.isDisabled ? setting.isDisabled(settings) : false,
         )}
-        name={setting.name}
+        name={setting.name || setting.id}
       />
     </StyledFieldToggleGroup>
   );

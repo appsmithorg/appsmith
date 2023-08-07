@@ -132,7 +132,7 @@ export const config: AdminConfigType = {
           });
       },
       controlType: SettingTypes.BUTTON,
-      isDisabled: (settings: Record<string, any>) => {
+      isDisabled: (settings?) => {
         return (
           !settings ||
           !settings["APPSMITH_MAIL_HOST"] ||

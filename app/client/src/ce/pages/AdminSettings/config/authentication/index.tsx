@@ -64,7 +64,14 @@ const FormAuth: AdminConfigType = {
       category: SettingCategories.FORM_AUTH,
       controlType: SettingTypes.TOGGLE,
       label: "email verification",
-      isDisabled: () => {
+      isDisabled: (settings) => {
+        // Disabled when mail is not enabled, unless setting already enabled then enabled
+        if (!settings) {
+          return true;
+        }
+        if (settings.emailVerificationEnabled) {
+          return false;
+        }
         return !mailEnabled;
       },
     },
@@ -76,7 +83,16 @@ const FormAuth: AdminConfigType = {
         "To enable email verification for form login, you must enable SMTP server from email settings",
       url: EMAIL_SETUP_DOC,
       calloutType: "warning",
-      isVisible: () => !mailEnabled,
+      isVisible: (settings) => {
+        // Visible when mail is disabled, unless setting already enabled then visible
+        if (!settings) {
+          return false;
+        }
+        if (settings.emailVerificationEnabled) {
+          return false;
+        }
+        return !mailEnabled;
+      },
     },
     {
       id: "APPSMITH_FORM_CALLOUT_BANNER",
@@ -85,7 +101,31 @@ const FormAuth: AdminConfigType = {
       label:
         "Please ensure that your SMTP settings are correctly configured to ensure that the verification emails can be delivered",
       calloutType: "warning",
-      isVisible: () => mailEnabled,
+      isVisible: (settings) => {
+        // Visible when mail is enabled and setting is true
+        if (!settings) {
+          return false;
+        }
+        return !(!settings.emailVerificationEnabled && !mailEnabled);
+      },
+    },
+    {
+      id: "APPSMITH_FORM_ERROR_BANNER",
+      category: SettingCategories.FORM_AUTH,
+      controlType: SettingTypes.LINK,
+      label:
+        "Valid SMTP settings not found. Signup with email verification will not work without SMTP configuration",
+      calloutType: "error",
+      isVisible: (settings) => {
+        // Visible when mail is disabled but settings is true
+        if (!settings) {
+          return false;
+        }
+        if (!mailEnabled && settings.emailVerificationEnabled) {
+          return true;
+        }
+        return false;
+      },
     },
   ],
 };
