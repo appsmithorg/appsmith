@@ -8,6 +8,11 @@ import {
 
 describe("Validate Empty DS error messages", () => {
   let dataSourceName: string;
+
+  afterEach("Delete DS", () => {
+    dataSources.DeleteDSDirectly();
+  });
+
   it("1. Postgress connection errors", () => {
     dataSources.NavigateToDSCreateNew();
     agHelper.GenerateUUID();
@@ -65,7 +70,6 @@ describe("Validate Empty DS error messages", () => {
         "host.docker.internal",
         "fakeapi",
       ]);
-      dataSources.DeleteDSDirectly();
     });
   });
 
@@ -124,7 +128,103 @@ describe("Validate Empty DS error messages", () => {
         "host.docker.internal",
         "fakeapi",
       ]);
-      dataSources.DeleteDSDirectly();
+    });
+  });
+
+  it("3. Mongo connection errors", () => {
+    dataSources.NavigateToDSCreateNew();
+    agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      dataSources.CreatePlugIn("MongoDB");
+      dataSourceName = "MongoDB" + " " + uid;
+      agHelper.RenameWithInPane(dataSourceName, false);
+
+      dataSources.TestDatasource(false);
+      agHelper.ValidateToastMessage("Missing endpoint(s)");
+      dataSources.ValidateNSelectDropdown(
+        "Use mongo connection string URI",
+        "No",
+        "Yes",
+      );
+      dataSources.TestDatasource(false);
+      agHelper.ValidateToastMessage(
+        "'Mongo Connection string URI' field is empty. Please edit the 'Mongo Connection URI' field to provide a connection uri to connect with.",
+      );
+      agHelper.UpdateInputValue(
+        locators._inputFieldByName("Connection string URI") + "//input",
+        tedTestConfig.mongo_uri(tedTestConfig.defaultEnviorment),
+      );
+      dataSources.TestDatasource();
+      dataSources.ValidateNSelectDropdown(
+        "Use mongo connection string URI",
+        "Yes",
+        "No",
+      );
+      agHelper.GetNClick(locators._visibleTextSpan("Read only"));
+      propPane.AssertPropertiesDropDownValues("Connection type", [
+        "Direct connection",
+        "Replica set",
+      ]);
+      dataSources.ValidateNSelectDropdown(
+        "Connection type",
+        "Direct connection",
+        "Replica set",
+      );
+      dataSources.TestDatasource(false);
+      agHelper.ValidateToastMessage("Missing endpoint(s)");
+      agHelper.UpdateInputValue(
+        dataSources._host,
+        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mongo_host,
+      );
+      agHelper.UpdateInputValue(
+        dataSources._port,
+        tedTestConfig.dsValues[
+          tedTestConfig.defaultEnviorment
+        ].mongo_port.toString(),
+      );
+      dataSources.TestDatasource(false);
+      agHelper.ValidateToastMessage(
+        "REPLICA_SET connections should not be given a port. If you are trying to specify all the shards, please add more than one.",
+      );
+      propPane.AssertPropertiesDropDownValues("Authentication type", [
+        "SCRAM-SHA-1",
+        "SCRAM-SHA-256",
+        "MONGODB-CR",
+      ]);
+      agHelper.ClearTextField(dataSources._databaseName);
+      dataSources.TestDatasource(false);
+      agHelper.ValidateToastMessage(
+        "Authentication database name is invalid, no database found with this name.",
+      );
+      dataSources.ValidateNSelectDropdown(
+        "Connection type",
+        "Replica set",
+        "Direct connection",
+      );
+      agHelper.ClearNType(
+        dataSources._databaseName,
+        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment]
+          .mongo_databaseName,
+      );
+      dataSources.ValidateNSelectDropdown(
+        "Authentication type",
+        "SCRAM-SHA-1",
+        "MONGODB-CR",
+      );
+      propPane.AssertPropertiesDropDownValues("SSL mode", [
+        "Default",
+        "Enabled",
+        "Disabled",
+      ]);
+      dataSources.ValidateNSelectDropdown("SSL mode", "Default", "Disabled");
+      dataSources.TestSaveDatasource();
+      dataSources.AssertDataSourceInfo([
+        "No",
+        "READ_ONLY",
+        "Direct connection",
+        "host.docker.internal",
+        "28017",
+      ]);
     });
   });
 });

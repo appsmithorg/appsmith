@@ -1480,7 +1480,6 @@ export class DataSources {
   public FillMongoDatasourceFormWithURI(
     environment = this.tedTestConfig.defaultEnviorment,
   ) {
-    const uri = this.tedTestConfig.mongo_uri(environment);
     this.ValidateNSelectDropdown(
       "Use mongo connection string URI",
       "No",
@@ -1488,7 +1487,7 @@ export class DataSources {
     );
     this.agHelper.UpdateInputValue(
       this.locator._inputFieldByName("Connection string URI") + "//input",
-      uri,
+      this.tedTestConfig.mongo_uri(environment),
     );
   }
 
