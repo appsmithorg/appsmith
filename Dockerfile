@@ -94,7 +94,7 @@ COPY ./deploy/docker/templates/supervisord/ templates/supervisord/
 COPY ./deploy/docker/templates/cron.d /etc/cron.d/
 RUN chmod 0644 /etc/cron.d/*
 
-RUN chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh
+RUN chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh templates/nginx-app.conf.sh
 
 # Disable setuid/setgid bits for the files inside container.
 RUN find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true
