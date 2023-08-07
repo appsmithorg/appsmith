@@ -236,7 +236,7 @@ export class PropertyPane {
         .should("not.be.checked");
     }
     this.agHelper.AssertAutoSave();
-    this.assertHelper.AssertNetworkStatus(networkCall);
+    networkCall && this.assertHelper.AssertNetworkStatus(networkCall);
   }
 
   public MoveToTab(tab: "Content" | "Style") {

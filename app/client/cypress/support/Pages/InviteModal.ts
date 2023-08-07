@@ -5,7 +5,7 @@ import { ObjectsRegistry } from "../Objects/Registry";
 export class InviteModal {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private embedSettings = ObjectsRegistry.EmbedSettings;
-  private deployPage = ObjectsRegistry.DeployMode;
+  private deployMode = ObjectsRegistry.DeployMode;
   private commonLocators = ObjectsRegistry.CommonLocators;
 
   public locators = {
@@ -80,10 +80,17 @@ export class InviteModal {
   public ValidatePreviewEmbed(toggle: "On" | "Off" = "On") {
     this.OpenShareModal();
     this.SelectEmbedTab();
-    this.embedSettings.ToggleShowNavigationBar(toggle);
+    this.embedSettings.ToggleShowNavigationBar(
+      toggle,
+      toggle == "On" ? false : true,
+    );
     cy.get(this.locators._previewEmbed).invoke("removeAttr", "target").click();
     this.agHelper.Sleep(3000); //for page to load
-    this.agHelper.AssertElementAbsence(this.commonLocators._backToEditor);
-    cy.go("back");
+    if (toggle == "On") {
+      this.deployMode.NavigateBacktoEditor(); //Also verifies that navigation bar is present
+    } else if (toggle == "Off") {
+      this.agHelper.AssertElementAbsence(this.commonLocators._backToEditor);
+      cy.go("back");
+    }
   }
 }

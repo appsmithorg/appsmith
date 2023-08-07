@@ -8,13 +8,13 @@ import {
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("In-app embed settings", () => {
-  function ValidateSyncWithInviteModal(showNavigationBar: "true" | "false") {
+  function ValidateSyncWithInviteModal(showNavigationBar: "On" | "Off") {
     embedSettings.OpenEmbedSettings();
-    embedSettings.ToggleShowNavigationBar("On");
+    embedSettings.ToggleShowNavigationBar(showNavigationBar);
     inviteModal.OpenShareModal();
     inviteModal.SelectEmbedTab();
     const assertion =
-      showNavigationBar === "true" ? "be.checked" : "not.be.checked";
+      showNavigationBar === "On" ? "be.checked" : "not.be.checked";
     agHelper
       .GetElement(embedSettings.locators._showNavigationBar)
       .should(assertion);
@@ -68,8 +68,8 @@ describe("In-app embed settings", () => {
     inviteModal.ValidatePreviewEmbed("Off");
 
     //Check Show/Hides Navigation bar syncs between AppSettings Pane Embed tab & Share modal
-    ValidateSyncWithInviteModal("true");
-    ValidateSyncWithInviteModal("false");
+    ValidateSyncWithInviteModal("On");
+    ValidateSyncWithInviteModal("Off");
   });
 
   it("5. [Feature flag release_embed_hide_share_settings_enabled=false] Changing the show navigation bar setting in the App settings pane should update the embed URL with embed parameter", () => {
@@ -82,7 +82,7 @@ describe("In-app embed settings", () => {
     agHelper.RefreshPage();
     embedSettings.OpenEmbedSettings();
     embedSettings.TogglePublicAccess(true);
-    //ShowNavigationBar is toggled on here
+    embedSettings.ToggleShowNavigationBar("On");
     agHelper.GetNAssertElementText(
       embedSettings.locators._snippet,
       "embed=true",

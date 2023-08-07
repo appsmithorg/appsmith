@@ -44,11 +44,14 @@ export class EmbedSettings {
     );
   }
 
-  public ToggleShowNavigationBar(toggle: "On" | "Off" = "On") {
+  public ToggleShowNavigationBar(
+    toggle: "On" | "Off" = "On",
+    toCheckNetwork = true,
+  ) {
     this.propPane.TogglePropertyState(
       "Show navigation bar",
       toggle,
-      "updateApplication",
+      toCheckNetwork == true ? "updateApplication" : "",
     );
   }
 
