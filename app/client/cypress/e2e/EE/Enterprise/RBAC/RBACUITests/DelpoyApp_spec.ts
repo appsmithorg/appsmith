@@ -116,7 +116,7 @@ describe("User deploying an app with and without edit permission for a page", fu
     adminSettings.NavigateToAdminSettings();
     rbacHelper.ModifyPermissions(
       permissionAtPageLevel,
-      workspaceName,
+      appName,
       "Export",
       true,
     );

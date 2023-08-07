@@ -159,6 +159,7 @@ export class RBACHelper {
       "data-checked",
       (!Select).toString(),
     );
+    this.agHelper.WaitUntilEleAppear(this.checkbox(entityName, Action));
     this.agHelper.GetNClick(this.checkbox(entityName, Action));
     this.agHelper.GetNClick(RBAC.saveButton);
     this.assertHelper.AssertNetworkStatus("@saveRole", 200);
