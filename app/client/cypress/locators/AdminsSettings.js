@@ -33,4 +33,5 @@ export default {
   upgrageLeftPane: "[data-testid='t--enterprise-settings-category-item-be']",
   brandingSubmitButton: ".t--settings-branding-submit-button",
   businessTag: "[data-testid='t--business-tag']",
+  enterpriseTag: "[data-testid='t--enterprise-tag']",
 };
