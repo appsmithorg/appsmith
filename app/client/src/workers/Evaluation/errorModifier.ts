@@ -2,6 +2,14 @@ import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { getAllAsyncFunctions } from "@appsmith/workers/Evaluation/Actions";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorCategory } from "utils/DynamicBindingUtils";
+import type DependencyMap from "entities/DependencyMap";
+import {
+  getAllAsyncJSFunctions,
+  isDataField,
+} from "workers/common/DataTreeEvaluator/utils";
+import { jsPropertiesState } from "./JSObject/jsPropertiesState";
+import { isEmpty } from "lodash";
+import { APP_MODE } from "entities/App";
 
 const FOUND_ASYNC_IN_SYNC_EVAL_MESSAGE =
   "Found an action invocation during evaluation. Data fields cannot execute actions.";
@@ -9,12 +17,29 @@ const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
   "Found a reference to {{actionName}} during evaluation. Data fields cannot execute framework actions. Please remove any direct/indirect references to {{actionName}} and try again.";
 class ErrorModifier {
   private errorNamesToScan = ["ReferenceError", "TypeError"];
-  // Note all regex below groups the async function name
-
   private asyncFunctionsNameMap: Record<string, true> = {};
+  private asyncJSFunctionsNames: string[] = [];
+  private isDisabled = true;
 
-  updateAsyncFunctions(dataTree: DataTree, configTree: ConfigTree) {
-    this.asyncFunctionsNameMap = getAllAsyncFunctions(dataTree, configTree);
+  init(appMode?: APP_MODE) {
+    this.isDisabled = appMode !== APP_MODE.EDIT;
+  }
+
+  updateAsyncFunctions(
+    dataTree: DataTree,
+    configTree: ConfigTree,
+    dependencyMap: DependencyMap,
+  ) {
+    if (this.isDisabled) return;
+    const allAsyncEntityFunctions = getAllAsyncFunctions(dataTree, configTree);
+    const allAsyncJSFunctions = getAllAsyncJSFunctions(
+      dataTree,
+      jsPropertiesState.getMap(),
+      dependencyMap,
+      Object.keys(allAsyncEntityFunctions),
+    );
+    this.asyncFunctionsNameMap = allAsyncEntityFunctions;
+    this.asyncJSFunctionsNames = allAsyncJSFunctions;
   }
 
   run(error: Error): {
@@ -22,6 +47,7 @@ class ErrorModifier {
     errorCategory?: PropertyEvaluationErrorCategory;
   } {
     const errorMessage = getErrorMessage(error);
+    if (this.isDisabled) return { errorMessage };
     if (
       error instanceof FoundPromiseInSyncEvalError ||
       error instanceof ActionCalledInSyncFieldError
@@ -71,6 +97,28 @@ class ErrorModifier {
       }
       return error;
     });
+  }
+  addRootcauseToAsyncInvocationErrors(
+    fullPropertyPath: string,
+    configTree: ConfigTree,
+    errors: EvaluationError[],
+    dependencyMap: DependencyMap,
+  ) {
+    if (this.isDisabled) return errors;
+    let updatedErrors = errors;
+    if (isDataField(fullPropertyPath, configTree)) {
+      const reachableAsyncJSFunctions = dependencyMap.getAllReachableNodes(
+        fullPropertyPath,
+        this.asyncJSFunctionsNames,
+      );
+
+      if (!isEmpty(reachableAsyncJSFunctions))
+        updatedErrors = errorModifier.setAsyncInvocationErrorsRootcause(
+          errors,
+          reachableAsyncJSFunctions[0],
+        );
+    }
+    return updatedErrors;
   }
 }
 
