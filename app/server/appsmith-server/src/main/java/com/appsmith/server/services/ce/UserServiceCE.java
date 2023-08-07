@@ -54,5 +54,5 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<Boolean> emailVerificationTokenGenerate(ResendEmailVerificationDTO resendEmailVerificationDTO);
 
-    Mono<Boolean> verifyEmailVerificationToken(EmailTokenDTO emailTokenDTO);
+    Mono<Void> verifyEmailVerificationToken(EmailTokenDTO emailTokenDTO, ServerWebExchange exchange);
 }
