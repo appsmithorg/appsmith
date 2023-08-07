@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 import { get, isEqual, isNil, map, memoize, omit } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import type { Datasource } from "entities/Datasource";
@@ -83,6 +84,16 @@ import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DSEditorWrapper } from "../DataSourceEditor";
 import type { DatasourceFilterState } from "../DataSourceEditor";
 import { getQueryParams } from "utils/URLUtils";
+import GoogleSheetSchema from "./GoogleSheetSchema";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+
+const ViewModeContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+`;
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -114,6 +125,7 @@ interface StateProps extends JSONtoFormProps {
   scopeValue?: string;
   requiredFields: Record<string, ControlProps>;
   configDetails: Record<string, string>;
+  isEnabledForGSheetSchema: boolean;
   isPluginAuthFailed: boolean;
 }
 interface DatasourceFormFunctions {
@@ -471,6 +483,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       gsheetToken,
       hiddenHeader,
       isDeleting,
+      isEnabledForGSheetSchema,
       isInsideReconnectModal,
       isPluginAuthFailed,
       isPluginAuthorized,
@@ -506,6 +519,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       !isPluginAuthorized &&
       authErrorMessage == GSHEET_AUTHORIZATION_ERROR;
 
+    const isGoogleSheetSchemaAvailable =
+      isGoogleSheetPlugin && isPluginAuthorized && isEnabledForGSheetSchema;
+
     return (
       <>
         {!hiddenHeader && (
@@ -517,6 +533,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             datasourceId={datasourceId}
             isDeleting={isDeleting}
             isNewDatasource={createFlow}
+            isNewQuerySecondaryButton={!!isGoogleSheetSchemaAvailable}
             isPluginAuthorized={isPluginAuthorized}
             pluginImage={pluginImage}
             pluginName={plugin?.name || ""}
@@ -576,28 +593,37 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                     </>
                   )}
                   {viewMode && !isInsideReconnectModal && (
-                    <ViewModeWrapper>
-                      {datasource &&
-                      isGoogleSheetPlugin &&
-                      isPluginAuthFailed ? (
-                        <AuthMessage
-                          actionType={ActionType.AUTHORIZE}
-                          datasource={datasource}
-                          description={authErrorMessage}
-                          isInViewMode
-                          pageId={pageId}
+                    <ViewModeContainer>
+                      <ViewModeWrapper>
+                        {datasource &&
+                        isGoogleSheetPlugin &&
+                        isPluginAuthFailed ? (
+                          <AuthMessage
+                            actionType={ActionType.AUTHORIZE}
+                            datasource={datasource}
+                            description={authErrorMessage}
+                            isInViewMode
+                            pageId={pageId}
+                          />
+                        ) : null}
+                        {!isNil(formConfig) &&
+                        !isNil(datasource) &&
+                        !hideDatasourceSection ? (
+                          <DatasourceInformation
+                            config={formConfig[0]}
+                            datasource={datasource}
+                            viewMode={viewMode}
+                          />
+                        ) : undefined}
+                      </ViewModeWrapper>
+                      {isGoogleSheetSchemaAvailable && (
+                        <GoogleSheetSchema
+                          datasourceId={datasourceId}
+                          key={datasourceId}
+                          pluginId={plugin?.id}
                         />
-                      ) : null}
-                      {!isNil(formConfig) &&
-                      !isNil(datasource) &&
-                      !hideDatasourceSection ? (
-                        <DatasourceInformation
-                          config={formConfig[0]}
-                          datasource={datasource}
-                          viewMode={viewMode}
-                        />
-                      ) : undefined}
-                    </ViewModeWrapper>
+                      )}
+                    </ViewModeContainer>
                   )}
                 </Form>
                 {/* Render datasource form call-to-actions */}
@@ -669,6 +695,12 @@ const mapStateToProps = (state: AppState, props: any) => {
     state,
   ) as Datasource;
 
+  // A/B feature flag for gsheet schema.
+  const isEnabledForGSheetSchema = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.ab_gsheet_schema_enabled,
+  );
+
   // get scopeValue to be shown in analytical events
   const scopeValue = getDatasourceScopeValue(
     state,
@@ -713,6 +745,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     viewMode = viewModeFromURLParams === "true";
   }
 
+  // Returning false to isPluginAuthorized if there exists no plugin or formdata.
   const isPluginAuthorized =
     !!plugin && !!formData
       ? isDatasourceAuthorizedForQueryCreation(
@@ -720,7 +753,7 @@ const mapStateToProps = (state: AppState, props: any) => {
           plugin,
           getCurrentEditingEnvID(),
         )
-      : true;
+      : false;
 
   // Auth could fail because of either:
   // Failure to give permissions / Failure to select files / Failure on server
@@ -773,6 +806,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     gsheetProjectID,
     showDebugger,
     scopeValue,
+    isEnabledForGSheetSchema,
     isPluginAuthFailed,
   };
 };

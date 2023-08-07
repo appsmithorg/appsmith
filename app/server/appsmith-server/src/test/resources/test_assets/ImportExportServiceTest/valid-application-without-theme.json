@@ -555,8 +555,7 @@
           "paginationType": "NONE",
           "encodeParamsToggle": true,
           "body": "() => {\n\t\t//write code here\n\t\treturn \"Hi\"\n\t}",
-          "jsArguments": [],
-          "isAsync": false
+          "jsArguments": []
         },
         "executeOnLoad": false,
         "isValid": true,

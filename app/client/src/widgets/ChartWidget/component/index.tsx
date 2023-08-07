@@ -251,6 +251,7 @@ class ChartComponent extends React.Component<
       this.props.chartType == "CUSTOM_FUSION_CHART" &&
       this.state.chartType != "CUSTOM_FUSION_CHART"
     ) {
+      this.echartConfiguration = {};
       this.setState({
         eChartsError: undefined,
         chartType: "CUSTOM_FUSION_CHART",
