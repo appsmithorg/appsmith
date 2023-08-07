@@ -84,7 +84,6 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.helpers.RedirectHelper.REDIRECT_URL_QUERY_PARAM;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
@@ -993,13 +992,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_EMAIL_VERIFICATION));
                     }
                     Mono<User> userMono = repository.findByEmail(parsedEmailTokenDTO.getEmail());
-                    return Mono.zip(userMono, sessionMono, securityContextMono, Mono.just(tokenMatched));
+                    return Mono.zip(userMono, sessionMono, securityContextMono);
                 })
                 .flatMap(tuple -> {
                     User user = tuple.getT1();
                     final WebSession session = tuple.getT2();
                     final SecurityContext securityContext = tuple.getT3();
-                    Boolean tokenMatched = tuple.getT4();
                     // Setting session cookie
                     Authentication authentication =
                             new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
@@ -1007,10 +1005,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     session.getAttributes().put(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME, securityContext);
 
                     final WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, EMPTY_WEB_FILTER_CHAIN);
-                    MultiValueMap<String, String> queryParams =
-                            exchange.getRequest().getQueryParams();
-                    String redirectQueryParamValue = queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
-                    return redirectHelper.handleRedirect(webFilterExchange, null, true);
+                    return redirectHelper.handleRedirect(webFilterExchange, null, false);
                 });
     }
 }
