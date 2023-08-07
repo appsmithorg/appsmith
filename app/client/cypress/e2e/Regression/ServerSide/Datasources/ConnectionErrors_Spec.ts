@@ -23,10 +23,10 @@ describe("Validate Empty DS error messages", () => {
 
       dataSources.TestDatasource(false);
       agHelper.ValidateToastMessage("Missing endpoint.");
-      agHelper.ValidateToastMessage("Missing username for authentication.", 1);
+      agHelper.ValidateToastMessage("Missing username for authentication.");
       agHelper.ClearTextField(dataSources._databaseName);
       dataSources.TestDatasource(false);
-      agHelper.ValidateToastMessage("Missing database name.", 2);
+      agHelper.ValidateToastMessage("Missing database name.");
       agHelper.WaitUntilAllToastsDisappear();
       agHelper.UpdateInputValue(
         dataSources._host,
@@ -48,7 +48,6 @@ describe("Validate Empty DS error messages", () => {
       );
       agHelper.ValidateToastMessage(
         "Failed to initialize pool: The server requested password-based authentication, but no password was provided by plugin null",
-        1,
       );
       agHelper.GetNClick(locators._visibleTextSpan("Read only"));
       propPane.AssertPropertiesDropDownValues("SSL mode", [
