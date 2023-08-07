@@ -99,7 +99,7 @@ describe("ScimProvisioning", () => {
     expect(screen.queryByRole("heading", { level: 2 })).not.toBeInTheDocument();
   });
 
-  it("should render the connetion active status when configured", async () => {
+  it("should render the connection active status when configured", async () => {
     renderComponent();
 
     // Assert that the connected status is displayed
@@ -119,7 +119,7 @@ describe("ScimProvisioning", () => {
     expect(modal).toBeTruthy();
   });
 
-  it("should render the connetion inactive status when configured but connection is yet to be established", async () => {
+  it("should render the connection inactive status when configured but connection is yet to be established", async () => {
     renderComponent({
       ...reduxState,
       provisioning: {
