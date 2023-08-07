@@ -143,7 +143,7 @@ jobs:
            echo 'client_build_name=client-build-airgap' >> "$GITHUB_ENV"
            echo 'client_build_path=app/client/build_airgap/' >> "$GITHUB_ENV"
           else
-           echo 'airgap-enabled=false' >> "$GITHUB_ENV"
+           echo 'airgap_enabled=false' >> "$GITHUB_ENV"
            echo 'client_build_name=client-build' >> "$GITHUB_ENV"
            echo 'client_build_path=app/client/build/' >> "$GITHUB_ENV"
            fi
