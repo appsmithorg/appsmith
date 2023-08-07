@@ -15,6 +15,7 @@ export interface CodeScannerWidgetProps extends WidgetProps {
   iconAlign?: Alignment;
   placement?: ButtonPlacement;
   scannerLayout: ScannerLayout;
+  defaultCamera: string;
 }
 
 export enum ScannerLayout {
