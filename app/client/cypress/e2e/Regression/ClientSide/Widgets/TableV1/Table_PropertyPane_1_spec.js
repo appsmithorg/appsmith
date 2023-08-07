@@ -171,12 +171,12 @@ describe("Table Widget property pane feature validation", function () {
   it("6. Test to validate text color and text background", function () {
     cy.openPropertyPane("tablewidget");
 
-    // Changing text color to rgb(126, 34, 206) and validate
+    // Changing text color to rgb(219, 234, 254) and validate
     cy.selectColor("textcolor");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(5000);
     cy.wait("@updateLayout");
-    cy.readTabledataValidateCSS("1", "0", "color", "rgb(126, 34, 206)");
+    cy.readTabledataValidateCSS("1", "0", "color", "rgb(219, 234, 254)");
 
     // Changing text color to PURPLE and validate using JS
     cy.get(widgetsPage.toggleJsColor).click({ force: true });
@@ -185,13 +185,13 @@ describe("Table Widget property pane feature validation", function () {
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
     cy.get(commonlocators.editPropBackButton).click();
-    // Changing Cell backgroud color to rgb(126, 34, 206) and validate
+    // Changing Cell backgroud color to rgb(219, 234, 254) and validate
     cy.selectColor("cellbackgroundcolor");
     cy.readTabledataValidateCSS(
       "0",
       "0",
       "background",
-      "rgb(126, 34, 206) none repeat scroll 0% 0% / auto padding-box border-box",
+      "rgb(219, 234, 254) none repeat scroll 0% 0% / auto padding-box border-box",
       true,
     );
     // Changing Cell backgroud color to PURPLE and validate using JS

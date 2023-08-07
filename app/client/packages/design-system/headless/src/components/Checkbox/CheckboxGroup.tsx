@@ -18,40 +18,40 @@ export interface CheckboxGroupProps
   labelWidth?: LabelProps["labelWidth"];
 }
 
-export const CheckboxGroup = forwardRef(
-  (props: CheckboxGroupProps, ref: CheckboxGroupRef) => {
-    const { children, className, isDisabled, orientation = "vertical" } = props;
-    const domRef = useDOMRef(ref);
-    const state = useCheckboxGroupState(props);
-    const { descriptionProps, errorMessageProps, groupProps, labelProps } =
-      useCheckboxGroup(props, state);
+const _CheckboxGroup = (props: CheckboxGroupProps, ref: CheckboxGroupRef) => {
+  const { children, className, isDisabled, orientation = "vertical" } = props;
+  const domRef = useDOMRef(ref);
+  const state = useCheckboxGroupState(props);
+  const { descriptionProps, errorMessageProps, groupProps, labelProps } =
+    useCheckboxGroup(props, state);
 
-    return (
-      <Field
-        {...props}
-        descriptionProps={descriptionProps}
-        errorMessageProps={errorMessageProps}
-        includeNecessityIndicatorInAccessibilityName
-        labelProps={labelProps}
-        ref={domRef}
-        wrapperClassName={className}
+  return (
+    <Field
+      {...props}
+      descriptionProps={descriptionProps}
+      errorMessageProps={errorMessageProps}
+      includeNecessityIndicatorInAccessibilityName
+      labelProps={labelProps}
+      ref={domRef}
+      wrapperClassName={className}
+    >
+      <div
+        {...groupProps}
+        data-disabled={props.isDisabled ? "" : undefined}
+        data-field-group=""
+        data-orientation={orientation}
       >
-        <div
-          {...groupProps}
-          data-disabled={props.isDisabled ? "" : undefined}
-          data-field-group=""
-          data-orientation={orientation}
+        <CheckboxGroupContext.Provider
+          value={{
+            state,
+            isDisabled,
+          }}
         >
-          <CheckboxGroupContext.Provider
-            value={{
-              state,
-              isDisabled,
-            }}
-          >
-            {children}
-          </CheckboxGroupContext.Provider>
-        </div>
-      </Field>
-    );
-  },
-);
+          {children}
+        </CheckboxGroupContext.Provider>
+      </div>
+    </Field>
+  );
+};
+
+export const CheckboxGroup = forwardRef(_CheckboxGroup);
