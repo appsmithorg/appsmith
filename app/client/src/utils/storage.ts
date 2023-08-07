@@ -28,6 +28,7 @@ export const STORAGE_KEYS: {
   FEATURE_WALKTHROUGH: "FEATURE_WALKTHROUGH",
   USER_SIGN_UP: "USER_SIGN_UP",
   VERSION_UPDATE_STATE: "VERSION_UPDATE_STATE",
+  AI_RECENT_QUERIES: "AI_RECENT_QUERIES",
 };
 
 const store = localforage.createInstance({
@@ -212,6 +213,94 @@ export const getEnableStartSignposting = async () => {
   } catch (error) {
     log.error("An error occurred while fetching ENABLE_START_SIGNPOSTING");
     log.error(error);
+  }
+};
+
+export const setAIRecentQuery = async (
+  applicationId: string,
+  query: string,
+  type: string,
+) => {
+  try {
+    const recentQueries: {
+      [applicationId: string]: {
+        [task: string]: string[];
+      };
+    } | null = await store.getItem(STORAGE_KEYS.AI_RECENT_QUERIES);
+
+    const applicationRecentQueries = recentQueries
+      ? recentQueries[applicationId]
+      : null;
+
+    if (!recentQueries || !applicationRecentQueries) {
+      await store.setItem(STORAGE_KEYS.AI_RECENT_QUERIES, {
+        ...(recentQueries || {}),
+        [applicationId]: {
+          [type]: [query],
+        },
+      });
+      return;
+    }
+
+    if (!applicationRecentQueries[type]) {
+      await store.setItem(STORAGE_KEYS.AI_RECENT_QUERIES, {
+        ...recentQueries,
+        [applicationId]: {
+          ...applicationRecentQueries,
+          [type]: [query],
+        },
+      });
+      return;
+    }
+
+    const applicationTypeQueries = applicationRecentQueries[type];
+
+    if (applicationTypeQueries.includes(query)) {
+      return;
+    }
+
+    if (applicationTypeQueries.length >= 5) {
+      applicationTypeQueries.pop();
+    }
+
+    await store.setItem(STORAGE_KEYS.AI_RECENT_QUERIES, {
+      ...recentQueries,
+      [applicationId]: {
+        ...applicationRecentQueries,
+        [type]: [query, ...applicationTypeQueries],
+      },
+    });
+  } catch (error) {
+    log.error("An error occurred while setting AI_RECENT_QUERIES");
+    log.error(error);
+  }
+};
+
+export const getApplicationAIRecentQueriesByType = async (
+  applicationId: string,
+  type: string,
+) => {
+  const defaultRecentQueries: string[] = [];
+
+  try {
+    const recentQueries: {
+      [applicationId: string]: {
+        [task: string]: string[];
+      };
+    } | null = await store.getItem(STORAGE_KEYS.AI_RECENT_QUERIES);
+
+    if (
+      !recentQueries ||
+      !recentQueries[applicationId] ||
+      !recentQueries[applicationId][type]
+    )
+      return defaultRecentQueries;
+
+    return recentQueries[applicationId][type];
+  } catch (error) {
+    log.error("An error occurred while fetching AI_RECENT_QUERIES");
+    log.error(error);
+    return defaultRecentQueries;
   }
 };
 
