@@ -1368,4 +1368,241 @@ public class UserGroupServiceTest {
                 .isEqualTo(testName + "_provisionedGroup" + "_updated2");
         assertThat(provisionedUserGroupResourcePostUpdate3.getUsers()).isEmpty();
     }
+
+    @Test
+    @WithUserDetails(value = "provisioningUser")
+    public void testUpdateProvisionGroup_updateName() {
+        String testName = "testUpdateProvisionGroup_updateName";
+
+        User user1 = new User();
+        user1.setEmail(testName + "_provisioned_user1@appsmith.com");
+        ProvisionResourceDto provisionedUser1 =
+                userService.createProvisionUser(user1).block();
+
+        User user2 = new User();
+        user2.setEmail(testName + "_provisioned_user2@appsmith.com");
+        ProvisionResourceDto provisionedUser2 =
+                userService.createProvisionUser(user2).block();
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName + "_provisionedGroup");
+        ProvisionResourceDto provisionedUserGroup =
+                userGroupService.createProvisionGroup(userGroup).block();
+
+        UsersForGroupDTO addUsersForGroupDTO = new UsersForGroupDTO();
+        addUsersForGroupDTO.setGroupIds(
+                Set.of(provisionedUserGroup.getResource().getId()));
+        addUsersForGroupDTO.setUserIds(List.of(
+                provisionedUser1.getResource().getId(),
+                provisionedUser2.getResource().getId()));
+
+        userGroupService.addUsersToProvisionGroup(addUsersForGroupDTO).block();
+
+        UserGroupUpdateDTO userGroupUpdateDTO = new UserGroupUpdateDTO();
+        userGroupUpdateDTO.setName(testName + "_provisionedGroup" + "_updated");
+
+        ProvisionResourceDto updatedProvisionedUserGroup = userGroupService
+                .updateProvisionGroup(provisionedUserGroup.getResource().getId(), userGroupUpdateDTO)
+                .block();
+        UserGroup updatedUserGroup = (UserGroup) updatedProvisionedUserGroup.getResource();
+
+        assertThat(updatedUserGroup.getName()).isEqualTo(testName + "_provisionedGroup" + "_updated");
+        assertThat(updatedUserGroup.getUsers())
+                .containsExactlyInAnyOrder(
+                        provisionedUser1.getResource().getId(),
+                        provisionedUser2.getResource().getId());
+    }
+
+    @Test
+    @WithUserDetails(value = "provisioningUser")
+    public void testUpdateProvisionGroup_updateUserListWithOneMoreUser() {
+        String testName = "testUpdateProvisionGroup_updateUserListWithOneMoreUser";
+
+        User user1 = new User();
+        user1.setEmail(testName + "_provisioned_user1@appsmith.com");
+        ProvisionResourceDto provisionedUser1 =
+                userService.createProvisionUser(user1).block();
+
+        User user2 = new User();
+        user2.setEmail(testName + "_provisioned_user2@appsmith.com");
+        ProvisionResourceDto provisionedUser2 =
+                userService.createProvisionUser(user2).block();
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName + "_provisionedGroup");
+        ProvisionResourceDto provisionedUserGroup =
+                userGroupService.createProvisionGroup(userGroup).block();
+
+        UsersForGroupDTO addUsersForGroupDTO = new UsersForGroupDTO();
+        addUsersForGroupDTO.setGroupIds(
+                Set.of(provisionedUserGroup.getResource().getId()));
+        addUsersForGroupDTO.setUserIds(List.of(provisionedUser1.getResource().getId()));
+
+        userGroupService.addUsersToProvisionGroup(addUsersForGroupDTO).block();
+
+        UserGroupUpdateDTO userGroupUpdateDTO = new UserGroupUpdateDTO();
+        userGroupUpdateDTO.setUsers(Set.of(
+                provisionedUser1.getResource().getId(),
+                provisionedUser2.getResource().getId()));
+
+        ProvisionResourceDto updatedProvisionedUserGroup = userGroupService
+                .updateProvisionGroup(provisionedUserGroup.getResource().getId(), userGroupUpdateDTO)
+                .block();
+        UserGroup updatedUserGroup = (UserGroup) updatedProvisionedUserGroup.getResource();
+
+        assertThat(updatedUserGroup.getName()).isEqualTo(testName + "_provisionedGroup");
+        assertThat(updatedUserGroup.getUsers())
+                .containsExactlyInAnyOrder(
+                        provisionedUser1.getResource().getId(),
+                        provisionedUser2.getResource().getId());
+    }
+
+    @Test
+    @WithUserDetails(value = "provisioningUser")
+    public void testUpdateProvisionGroup_updateUserListWithOneLessUser() {
+        String testName = "testUpdateProvisionGroup_updateUserListWithOneLessUser";
+
+        User user1 = new User();
+        user1.setEmail(testName + "_provisioned_user1@appsmith.com");
+        ProvisionResourceDto provisionedUser1 =
+                userService.createProvisionUser(user1).block();
+
+        User user2 = new User();
+        user2.setEmail(testName + "_provisioned_user2@appsmith.com");
+        ProvisionResourceDto provisionedUser2 =
+                userService.createProvisionUser(user2).block();
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName + "_provisionedGroup");
+        ProvisionResourceDto provisionedUserGroup =
+                userGroupService.createProvisionGroup(userGroup).block();
+
+        UsersForGroupDTO addUsersForGroupDTO = new UsersForGroupDTO();
+        addUsersForGroupDTO.setGroupIds(
+                Set.of(provisionedUserGroup.getResource().getId()));
+        addUsersForGroupDTO.setUserIds(List.of(
+                provisionedUser1.getResource().getId(),
+                provisionedUser2.getResource().getId()));
+
+        userGroupService.addUsersToProvisionGroup(addUsersForGroupDTO).block();
+
+        UserGroupUpdateDTO userGroupUpdateDTO = new UserGroupUpdateDTO();
+        userGroupUpdateDTO.setUsers(Set.of(provisionedUser1.getResource().getId()));
+
+        ProvisionResourceDto updatedProvisionedUserGroup = userGroupService
+                .updateProvisionGroup(provisionedUserGroup.getResource().getId(), userGroupUpdateDTO)
+                .block();
+        UserGroup updatedUserGroup = (UserGroup) updatedProvisionedUserGroup.getResource();
+
+        assertThat(updatedUserGroup.getName()).isEqualTo(testName + "_provisionedGroup");
+        assertThat(updatedUserGroup.getUsers())
+                .containsExactlyInAnyOrder(provisionedUser1.getResource().getId());
+    }
+
+    @Test
+    @WithUserDetails(value = "provisioningUser")
+    public void testUpdateProvisionGroup_updateUserListWithCompletelyDifferentList() {
+        String testName = "testUpdateProvisionGroup_updateUserListWithCompletelyDifferentList";
+
+        User user1 = new User();
+        user1.setEmail(testName + "_provisioned_user1@appsmith.com");
+        ProvisionResourceDto provisionedUser1 =
+                userService.createProvisionUser(user1).block();
+
+        User user2 = new User();
+        user2.setEmail(testName + "_provisioned_user2@appsmith.com");
+        ProvisionResourceDto provisionedUser2 =
+                userService.createProvisionUser(user2).block();
+
+        User user3 = new User();
+        user3.setEmail(testName + "_provisioned_user3@appsmith.com");
+        ProvisionResourceDto provisionedUser3 =
+                userService.createProvisionUser(user3).block();
+
+        User user4 = new User();
+        user4.setEmail(testName + "_provisioned_user4@appsmith.com");
+        ProvisionResourceDto provisionedUser4 =
+                userService.createProvisionUser(user4).block();
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName + "_provisionedGroup");
+        ProvisionResourceDto provisionedUserGroup =
+                userGroupService.createProvisionGroup(userGroup).block();
+
+        UsersForGroupDTO addUsersForGroupDTO = new UsersForGroupDTO();
+        addUsersForGroupDTO.setGroupIds(
+                Set.of(provisionedUserGroup.getResource().getId()));
+        addUsersForGroupDTO.setUserIds(List.of(
+                provisionedUser1.getResource().getId(),
+                provisionedUser2.getResource().getId()));
+
+        userGroupService.addUsersToProvisionGroup(addUsersForGroupDTO).block();
+
+        UserGroupUpdateDTO userGroupUpdateDTO = new UserGroupUpdateDTO();
+        userGroupUpdateDTO.setUsers(Set.of(
+                provisionedUser3.getResource().getId(),
+                provisionedUser4.getResource().getId()));
+
+        ProvisionResourceDto updatedProvisionedUserGroup = userGroupService
+                .updateProvisionGroup(provisionedUserGroup.getResource().getId(), userGroupUpdateDTO)
+                .block();
+        UserGroup updatedUserGroup = (UserGroup) updatedProvisionedUserGroup.getResource();
+
+        assertThat(updatedUserGroup.getName()).isEqualTo(testName + "_provisionedGroup");
+        assertThat(updatedUserGroup.getUsers())
+                .containsExactlyInAnyOrder(
+                        provisionedUser3.getResource().getId(),
+                        provisionedUser4.getResource().getId());
+    }
+
+    @Test
+    @WithUserDetails(value = "provisioningUser")
+    public void testUpdateProvisionGroup_updateUserListWithOneDifferentUser() {
+        String testName = "testUpdateProvisionGroup_updateUserListWithOneDifferentUser";
+
+        User user1 = new User();
+        user1.setEmail(testName + "_provisioned_user1@appsmith.com");
+        ProvisionResourceDto provisionedUser1 =
+                userService.createProvisionUser(user1).block();
+
+        User user2 = new User();
+        user2.setEmail(testName + "_provisioned_user2@appsmith.com");
+        ProvisionResourceDto provisionedUser2 =
+                userService.createProvisionUser(user2).block();
+
+        User user3 = new User();
+        user3.setEmail(testName + "_provisioned_user3@appsmith.com");
+        ProvisionResourceDto provisionedUser3 =
+                userService.createProvisionUser(user3).block();
+
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName(testName + "_provisionedGroup");
+        ProvisionResourceDto provisionedUserGroup =
+                userGroupService.createProvisionGroup(userGroup).block();
+
+        UsersForGroupDTO addUsersForGroupDTO = new UsersForGroupDTO();
+        addUsersForGroupDTO.setGroupIds(
+                Set.of(provisionedUserGroup.getResource().getId()));
+        addUsersForGroupDTO.setUserIds(List.of(
+                provisionedUser1.getResource().getId(),
+                provisionedUser2.getResource().getId()));
+
+        userGroupService.addUsersToProvisionGroup(addUsersForGroupDTO).block();
+
+        UserGroupUpdateDTO userGroupUpdateDTO = new UserGroupUpdateDTO();
+        userGroupUpdateDTO.setUsers(Set.of(
+                provisionedUser3.getResource().getId(),
+                provisionedUser1.getResource().getId()));
+
+        ProvisionResourceDto updatedProvisionedUserGroup = userGroupService
+                .updateProvisionGroup(provisionedUserGroup.getResource().getId(), userGroupUpdateDTO)
+                .block();
+        UserGroup updatedUserGroup = (UserGroup) updatedProvisionedUserGroup.getResource();
+
+        assertThat(updatedUserGroup.getName()).isEqualTo(testName + "_provisionedGroup");
+        assertThat(updatedUserGroup.getUsers())
+                .containsExactlyInAnyOrder(
+                        provisionedUser3.getResource().getId(),
+                        provisionedUser1.getResource().getId());
+    }
 }

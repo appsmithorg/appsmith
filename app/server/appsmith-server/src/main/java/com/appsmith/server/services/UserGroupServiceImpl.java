@@ -45,10 +45,12 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -76,7 +78,6 @@ import static com.appsmith.server.constants.QueryParams.START_INDEX;
 import static com.appsmith.server.constants.ce.FieldNameCE.CLOUD_HOSTED_EXTRA_PROPS;
 import static com.appsmith.server.dtos.UsersForGroupDTO.validate;
 import static com.appsmith.server.enums.ProvisionResourceType.GROUP;
-import static com.appsmith.server.helpers.CollectionUtils.findSymmetricDiff;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -562,24 +563,34 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "update user groups")))
                 .flatMap(userGroup -> {
-                    userGroup.setName(resource.getName());
-                    userGroup.setDescription(resource.getDescription());
+                    Tuple2<Boolean, Mono<Long>> updateUserGroupNameAndDescriptionPair =
+                            checkAndUpdateNameAndDescriptionForUserGroup(resource, userGroup);
+                    Tuple2<Boolean, Mono<Long>> inviteUsersToUserGroupPair =
+                            checkAndInviteUsersToUserGroup(resource, userGroup);
+                    Tuple2<Boolean, Mono<Long>> removeUsersFromUserGroupPair =
+                            checkAndRemoveUsersFromUserGroup(resource, userGroup);
+                    Mono<UserGroup> updatedUserGroupMono = Mono.just(userGroup);
 
-                    // Update members of group only when the request contains a non-null list of user ids
-                    Mono<Long> updateCacheForUserIdsMono = Mono.just(1L);
-                    if (Objects.nonNull(resource.getUsers())) {
-                        List<String> updateCacheForUserIds =
-                                findSymmetricDiff(resource.getUsers(), userGroup.getUsers()).stream()
-                                        .toList();
-                        userGroup.setUsers(resource.getUsers());
-                        permissionGroupService
-                                .cleanPermissionGroupCacheForUsers(updateCacheForUserIds)
-                                .thenReturn(1L);
+                    // This boolean condition will check whether the userGroup was updated or not
+                    // and then based on that get the updatedUserGroup from the repository
+                    boolean updatedNameOrDescription = updateUserGroupNameAndDescriptionPair.getT1();
+                    boolean invitedUsersToGroup = inviteUsersToUserGroupPair.getT1();
+                    boolean removedUsersFromGroup = removeUsersFromUserGroupPair.getT1();
+                    if (updatedNameOrDescription || invitedUsersToGroup || removedUsersFromGroup) {
+                        updatedUserGroupMono = repository.findById(id);
                     }
-                    Mono<UserGroup> updateUserGroupMono =
-                            super.update(id, userGroup).cache();
-                    return Mono.zip(updateUserGroupMono, updateCacheForUserIdsMono)
-                            .then(updateUserGroupMono);
+
+                    // Cannot invoke the Publishers from inviteUsersToUserGroupPair & removeUsersFromUserGroupPair in
+                    // parallel because both of them will update the same field "users" in the same document, and this
+                    // could lead to a race condition.
+                    Mono<Long> inviteUsersToUserGroupMono = inviteUsersToUserGroupPair.getT2();
+                    Mono<Long> removeUsersFromUserGroupMono = removeUsersFromUserGroupPair.getT2();
+                    Mono<Long> updateUserGroupNameAndDescriptionMono = updateUserGroupNameAndDescriptionPair.getT2();
+                    Mono<Long> usersInvitedAndThenRemoved =
+                            inviteUsersToUserGroupMono.then(removeUsersFromUserGroupMono);
+
+                    return Mono.zip(updateUserGroupNameAndDescriptionMono, usersInvitedAndThenRemoved)
+                            .then(updatedUserGroupMono);
                 })
                 .flatMap(this::updateProvisioningStatus)
                 .map(this::getProvisionResourceDto);
@@ -764,5 +775,106 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
 
             return super.create(userGroupWithPolicy);
         });
+    }
+
+    /**
+     * The method cross-checks the resource which contains the update information against the actual existingUserGroup.
+     * If the name or description haven't been renamed, then it doesn't actually update the existingUserGroup, else
+     * it will update the existingUserGroup with the updated received in resource.
+     * @param resource
+     * @param existingUserGroup
+     * @return
+     */
+    private Tuple2<Boolean, Mono<Long>> checkAndUpdateNameAndDescriptionForUserGroup(
+            UserGroupUpdateDTO resource, UserGroup existingUserGroup) {
+        Mono<Long> updateUserGroupNameAndDescriptionMono = Mono.just(1L);
+        boolean willUpdateGroupNameAndDescription = false;
+        if (Objects.nonNull(resource.getName()) || Objects.nonNull(resource.getDescription())) {
+            boolean groupNameUpdated =
+                    Objects.nonNull(resource.getName()) && !resource.getName().equals(existingUserGroup.getName());
+            boolean groupDescriptionUpdated = Objects.nonNull(resource.getDescription())
+                    && !resource.getDescription().equals(existingUserGroup.getDescription());
+
+            if (groupNameUpdated) {
+                existingUserGroup.setName(resource.getName());
+            }
+
+            if (groupDescriptionUpdated) {
+                existingUserGroup.setDescription(resource.getDescription());
+            }
+
+            if (groupNameUpdated || groupDescriptionUpdated) {
+                updateUserGroupNameAndDescriptionMono = super.update(existingUserGroup.getId(), existingUserGroup)
+                        .thenReturn(1L);
+                willUpdateGroupNameAndDescription = true;
+            }
+        }
+        return Tuples.of(willUpdateGroupNameAndDescription, updateUserGroupNameAndDescriptionMono);
+    }
+
+    /**
+     * The method cross-checks the resource which contains the update information against the actual existingUserGroup.
+     * If there are no new users who have been invited, then we don't invoke the `addUsersToProvisionGroup` method, else
+     * we invite the new users to the existingUserGroup.
+     * @param resource
+     * @param userGroup
+     * @return
+     */
+    private Tuple2<Boolean, Mono<Long>> checkAndInviteUsersToUserGroup(
+            UserGroupUpdateDTO resource, UserGroup userGroup) {
+        Mono<Long> inviteUsersToUserGroupMono = Mono.just(1L);
+        boolean willInviteUsersToUserGroup = false;
+
+        if (Objects.nonNull(resource.getUsers())) {
+            Set<String> requestedUsersInGroup = new HashSet<>(resource.getUsers());
+            Set<String> currentUsersInGroup = new HashSet<>(userGroup.getUsers());
+
+            Set<String> usersToInviteToGroup = new HashSet<>(requestedUsersInGroup);
+            usersToInviteToGroup.removeAll(currentUsersInGroup);
+
+            if (!usersToInviteToGroup.isEmpty()) {
+                UsersForGroupDTO inviteUsersToProvisionGroupDTO = new UsersForGroupDTO();
+                inviteUsersToProvisionGroupDTO.setGroupIds(Set.of(userGroup.getId()));
+                inviteUsersToProvisionGroupDTO.setUserIds(
+                        usersToInviteToGroup.stream().toList());
+                inviteUsersToUserGroupMono =
+                        addUsersToProvisionGroup(inviteUsersToProvisionGroupDTO).thenReturn(1L);
+                willInviteUsersToUserGroup = true;
+            }
+        }
+        return Tuples.of(willInviteUsersToUserGroup, inviteUsersToUserGroupMono);
+    }
+
+    /**
+     * The method cross-checks the resource which contains the update information against the actual existingUserGroup.
+     * If there are no users who have been removed, then we don't invoke the `removeUsersFromProvisionGroup` method, else
+     * we remove  new users from the existingUserGroup.
+     * @param resource
+     * @param userGroup
+     * @return
+     */
+    private Tuple2<Boolean, Mono<Long>> checkAndRemoveUsersFromUserGroup(
+            UserGroupUpdateDTO resource, UserGroup userGroup) {
+        Mono<Long> removeUsersFromUserGroupMono = Mono.just(1L);
+        boolean willRemoveUsersFromUserGroup = false;
+
+        if (Objects.nonNull(resource.getUsers())) {
+            Set<String> requestedUsersInGroup = new HashSet<>(resource.getUsers());
+            Set<String> currentUsersInGroup = new HashSet<>(userGroup.getUsers());
+
+            Set<String> usersToRemoveFromGroup = new HashSet<>(currentUsersInGroup);
+            usersToRemoveFromGroup.removeAll(requestedUsersInGroup);
+
+            if (!usersToRemoveFromGroup.isEmpty()) {
+                UsersForGroupDTO removeUsersFromProvisionGroupDTO = new UsersForGroupDTO();
+                removeUsersFromProvisionGroupDTO.setGroupIds(Set.of(userGroup.getId()));
+                removeUsersFromProvisionGroupDTO.setUserIds(
+                        usersToRemoveFromGroup.stream().toList());
+                removeUsersFromUserGroupMono = removeUsersFromProvisionGroup(removeUsersFromProvisionGroupDTO)
+                        .thenReturn(1L);
+                willRemoveUsersFromUserGroup = true;
+            }
+        }
+        return Tuples.of(willRemoveUsersFromUserGroup, removeUsersFromUserGroupMono);
     }
 }
