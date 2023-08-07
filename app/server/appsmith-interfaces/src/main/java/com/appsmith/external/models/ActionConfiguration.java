@@ -83,7 +83,10 @@ public class ActionConfiguration implements AppsmithDomain {
     // Body, the raw class data, is shared with API type actions
     // Represents the values that need to be
     List<JSValue> jsArguments;
+    // This property is being retained right now so that Git does not see commit changes, do not use
+    @Deprecated(forRemoval = true)
     Boolean isAsync;
+
     Boolean isValid;
 
     /*

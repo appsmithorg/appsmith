@@ -142,7 +142,7 @@ export function* updateDataTreeHandler(
     isNewWidgetAdded,
     jsUpdates,
     logs,
-    pathsToClearErrorsFor,
+    removedPaths,
     staleMetaIds,
     undefinedEvalValuesMap,
     unEvalUpdates,
@@ -190,7 +190,7 @@ export function* updateDataTreeHandler(
     evaluationOrder,
     reValidatedPaths,
     configTree,
-    pathsToClearErrorsFor,
+    removedPaths,
   );
 
   if (appMode !== APP_MODE.PUBLISHED) {
@@ -219,6 +219,7 @@ export function* updateDataTreeHandler(
       jsData,
     );
   }
+
   yield put(setDependencyMap(dependencies));
   if (postEvalActionsToDispatch && postEvalActionsToDispatch.length) {
     yield call(postEvalActionDispatcher, postEvalActionsToDispatch);
@@ -255,12 +256,12 @@ export function* evaluateTreeSaga(
   const theme: ReturnType<typeof getSelectedAppTheme> = yield select(
     getSelectedAppTheme,
   );
-  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   const toPrintConfigTree = unEvalAndConfigTree.configTree;
   log.debug({ unevalTree, configTree: toPrintConfigTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
+  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
 
   const evalTreeRequestData: EvalTreeRequestData = {
     unevalTree: unEvalAndConfigTree,

@@ -503,8 +503,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Text to be copied to clipboard"),
       "line1{enter}line2{enter}line3",
-      0,
-      true,
+      { parseSpecialCharSeq: true },
     );
     propPane.ToggleJSMode("onClick");
     propPane.ValidatePropertyFieldValue(
