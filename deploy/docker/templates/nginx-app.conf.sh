@@ -50,7 +50,7 @@ map \$http_forwarded \$final_forwarded {
   '' '';
 }
 
-# Redirect logs to stdout/stderr for supervisor to capture them.
+# redirect log to stdout for supervisor to capture
 access_log /dev/stdout;
 
 server_tokens off;
