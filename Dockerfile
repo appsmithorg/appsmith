@@ -71,7 +71,7 @@ COPY ./app/client/build editor/
 COPY ./app/client/packages/rts/package.json ./app/client/packages/rts/dist rts/
 
 # Nginx, MongoDB and PostgreSQL data config template - Configuration layer
-COPY ./deploy/docker/templates/nginx-app.conf.sh \
+COPY ./deploy/docker/templates/nginx/* \
   ./deploy/docker/templates/docker.env.sh \
   ./deploy/docker/templates/mockdb_postgres.sql \
   ./deploy/docker/templates/users_postgres.sql \
@@ -94,7 +94,7 @@ COPY ./deploy/docker/templates/supervisord/ templates/supervisord/
 COPY ./deploy/docker/templates/cron.d /etc/cron.d/
 RUN chmod 0644 /etc/cron.d/*
 
-RUN chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh templates/nginx-app.conf.sh
+RUN chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh
 
 # Disable setuid/setgid bits for the files inside container.
 RUN find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true
