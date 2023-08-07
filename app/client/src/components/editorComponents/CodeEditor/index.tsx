@@ -236,7 +236,6 @@ export type EditorProps = EditorStyleProps &
     isRawView?: boolean;
     isJSObject?: boolean;
     jsObjectName?: string;
-    containerHeight?: number;
     // Custom gutter
     customGutter?: CodeEditorGutter;
 
@@ -543,14 +542,6 @@ class CodeEditor extends Component<Props, State> {
   componentDidUpdate(prevProps: Props): void {
     const identifierHasChanged =
       getEditorIdentifier(this.props) !== getEditorIdentifier(prevProps);
-    if (
-      prevProps.containerHeight &&
-      this.props.containerHeight &&
-      prevProps.containerHeight < this.props.containerHeight
-    ) {
-      //Refresh editor when the container height is increased.
-      this.debounceEditorRefresh();
-    }
 
     const entityInformation = this.getEntityInformation();
     const isWidgetType = entityInformation.entityType === ENTITY_TYPE.WIDGET;
