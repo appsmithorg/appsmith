@@ -43,7 +43,6 @@ describe("generateDataTreeJSAction", () => {
               encodeParamsToggle: true,
               body: "async () => {\n\t\t//use async-await or promises\n\t}",
               jsArguments: [],
-              isAsync: true,
             },
             executeOnLoad: false,
             dynamicBindingPathList: [
@@ -91,7 +90,6 @@ describe("generateDataTreeJSAction", () => {
               encodeParamsToggle: true,
               body: "() => {\n\t\t//write code here\n\t}",
               jsArguments: [],
-              isAsync: false,
             },
             executeOnLoad: false,
             clientSideExecution: true,
@@ -157,12 +155,10 @@ describe("generateDataTreeJSAction", () => {
       meta: {
         myFun2: {
           arguments: [],
-          isAsync: true,
           confirmBeforeExecute: false,
         },
         myFun1: {
           arguments: [],
-          isAsync: false,
           confirmBeforeExecute: false,
         },
       },
@@ -246,7 +242,6 @@ describe("generateDataTreeJSAction", () => {
               encodeParamsToggle: true,
               body: "async () => {\n\t\t//use async-await or promises\n\t}",
               jsArguments: [],
-              isAsync: true,
             },
             executeOnLoad: false,
             dynamicBindingPathList: [
@@ -294,7 +289,6 @@ describe("generateDataTreeJSAction", () => {
               encodeParamsToggle: true,
               body: "() => {\n\t\t//write code here\n\t}",
               jsArguments: [],
-              isAsync: false,
             },
             executeOnLoad: false,
             clientSideExecution: true,
@@ -358,12 +352,10 @@ describe("generateDataTreeJSAction", () => {
       meta: {
         myFun2: {
           arguments: [],
-          isAsync: true,
           confirmBeforeExecute: false,
         },
         myFun1: {
           arguments: [],
-          isAsync: false,
           confirmBeforeExecute: false,
         },
       },

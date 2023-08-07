@@ -96,7 +96,54 @@ describe("Chart Widget", () => {
     expect(fusionContainer).toBeInTheDocument();
   });
 
-  it("2. adds a click event when user adds a click callback", async () => {
+  it("2. successfully switches sequence of basic chart/custom fusion chart/basic chart", async () => {
+    // First render with Area Chart
+    let props = JSON.parse(JSON.stringify(defaultProps));
+    props.chartType = "AREA_CHART";
+
+    const { container, getByText, rerender } = render(
+      <ChartComponent {...props} />,
+    );
+
+    let xAxisLabel = getByText("xaxisname");
+    expect(xAxisLabel).toBeInTheDocument();
+
+    let echartsContainer = container.querySelector("#widgetIDechart-container");
+    expect(echartsContainer).toBeInTheDocument();
+
+    let fusionContainer = container.querySelector(
+      "#widgetIDcustom-fusion-chart-container",
+    );
+    expect(fusionContainer).not.toBeInTheDocument();
+
+    // Second render with fusion charts
+    props = JSON.parse(JSON.stringify(defaultProps));
+    props.chartType = "CUSTOM_FUSION_CHART";
+
+    rerender(<ChartComponent {...props} />);
+
+    echartsContainer = container.querySelector("#widgetIDechart-container");
+    expect(echartsContainer).not.toBeInTheDocument();
+
+    fusionContainer = container.querySelector(
+      "#widgetIDcustom-fusion-chart-container",
+    );
+    expect(fusionContainer).toBeInTheDocument();
+
+    // Third render with Area charts again.
+    props = JSON.parse(JSON.stringify(defaultProps));
+    props.chartType = "AREA_CHART";
+
+    rerender(<ChartComponent {...props} />);
+
+    xAxisLabel = getByText("xaxisname");
+    expect(xAxisLabel).toBeInTheDocument();
+
+    echartsContainer = container.querySelector("#widgetIDechart-container");
+    expect(echartsContainer).toBeInTheDocument();
+  });
+
+  it("3. adds a click event when user adds a click callback", async () => {
     const mockCallback = jest.fn();
     const props = { ...defaultProps };
     props.onDataPointClick = (point) => {
