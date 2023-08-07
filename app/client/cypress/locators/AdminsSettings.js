@@ -33,4 +33,5 @@ export default {
   provisioning: ".t--settings-category-provisioning",
   upgrageLeftPane: "[data-testid='t--enterprise-settings-category-item-be']",
   businessTag: "[data-testid='t--business-tag']",
+  enterpriseTag: "[data-testid='t--enterprise-tag']",
 };
