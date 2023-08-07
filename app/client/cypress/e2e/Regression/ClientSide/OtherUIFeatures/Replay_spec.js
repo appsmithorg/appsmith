@@ -174,7 +174,7 @@ describe("Undo/Redo functionality", function () {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
-    cy.readTextDataValidateCSS("color", "rgb(126, 34, 206)");
+    cy.readTextDataValidateCSS("color", "rgb(219, 234, 254)");
     cy.get("body").click({ force: true }).type(`{${modifierKey}}z`);
     entityExplorer.NavigateToSwitcher("Explorer");
     entityExplorer.SelectEntityByName("Text1");
@@ -191,7 +191,7 @@ describe("Undo/Redo functionality", function () {
     cy.get(widgetsPage.textColor)
       .first()
       .invoke("attr", "value")
-      .should("contain", "#7e22ce");
+      .should("contain", "#dbeafe");
   });
 
   it("8. checks undo/redo for option control for radio button", function () {
