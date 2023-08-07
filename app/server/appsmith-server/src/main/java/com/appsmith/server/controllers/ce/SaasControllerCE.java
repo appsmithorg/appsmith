@@ -43,13 +43,7 @@ public class SaasControllerCE {
                 "Going to retrieve token request URL for datasource with id: {} and page id: {}", datasourceId, pageId);
         return authenticationService
                 .getAppsmithToken(
-                        datasourceId,
-                        environmentId,
-                        pageId,
-                        branchName,
-                        serverWebExchange.getRequest(),
-                        importForGit,
-                        Boolean.TRUE)
+                        datasourceId, environmentId, pageId, branchName, serverWebExchange.getRequest(), importForGit)
                 .map(token -> new ResponseDTO<>(HttpStatus.OK.value(), token, null));
     }
 
@@ -63,7 +57,7 @@ public class SaasControllerCE {
 
         log.debug("Received callback for an OAuth2 authorization request");
         return authenticationService
-                .getAccessTokenFromCloud(datasourceId, environmentId, appsmithToken, Boolean.TRUE)
+                .getAccessTokenFromCloud(datasourceId, environmentId, appsmithToken)
                 .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));
     }
 }
