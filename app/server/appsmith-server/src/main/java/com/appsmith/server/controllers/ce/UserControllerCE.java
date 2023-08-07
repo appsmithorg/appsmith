@@ -247,8 +247,9 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
 
     @JsonView(Views.Public.class)
     @PostMapping("/verifyEmailVerificationToken")
-    public Mono<ResponseDTO<Boolean>> verifyEmailVerificationToken(@RequestBody EmailTokenDTO emailTokenDTO) {
-        return service.verifyEmailVerificationToken(emailTokenDTO)
+    public Mono<ResponseDTO<Void>> verifyEmailVerificationToken(
+            @RequestBody EmailTokenDTO emailTokenDTO, ServerWebExchange exchange) {
+        return service.verifyEmailVerificationToken(emailTokenDTO, exchange)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 }

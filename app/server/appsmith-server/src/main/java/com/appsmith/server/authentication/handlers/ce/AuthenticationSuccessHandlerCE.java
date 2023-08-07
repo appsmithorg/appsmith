@@ -85,136 +85,121 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             boolean isFromSignup,
             String defaultWorkspaceId) {
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
+        Mono<Void> redirectionMono;
+        User user = (User) authentication.getPrincipal();
 
-        Mono<Boolean> emailVerificationEnabledMono = tenantService
-                .getTenantConfiguration()
-                .map(tenant -> {
-                    return tenant.getTenantConfiguration().getEmailVerificationEnabled();
-                });
-
-        return emailVerificationEnabledMono.flatMap(emailVerificationEnabled -> {
-            Mono<Void> redirectionMono;
-            User user = (User) authentication.getPrincipal();
-            boolean isFromSignupCopy = isFromSignup;
-
-            if (authentication instanceof OAuth2AuthenticationToken) {
-                // In case of OAuth2 based authentication, there is no way to identify if this was a user signup (new
-                // user
-                // creation) or if this was a login (existing user). What we do here to identify this, is an
-                // approximation.
-                // If and when we find a better way to do identify this, let's please move away from this approximation.
-                // If the user object was created within the last 5 seconds, we treat it as a new user.
-                isFromSignupCopy = user.getCreatedAt().isAfter(Instant.now().minusSeconds(5));
-                // If user has previously signed up using password and now using OAuth as a sign in method we are
-                // removing
-                // form login method henceforth. This step is taken to avoid any security vulnerability in the login
-                // flow
-                // as we are not verifying the user emails at first sign up. In future if we implement the email
-                // verification this can be eliminated safely
-                if (user.getPassword() != null) {
-                    user.setPassword(null);
-                    user.setSource(LoginSource.fromString(
-                            ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId()));
-                    // Update the user in separate thread
-                    userRepository
-                            .save(user)
-                            .subscribeOn(Schedulers.boundedElastic())
-                            .subscribe();
-                }
-
-                if (isFromSignupCopy) {
-                    boolean finalIsFromSignup = isFromSignupCopy;
-                    redirectionMono = workspaceService
-                            .isCreateWorkspaceAllowed(Boolean.TRUE)
-                            .elapsed()
-                            .map(pair -> {
-                                log.debug(
-                                        "AuthenticationSuccessHandlerCE::Time taken to check if workspace creation allowed: {} ms",
-                                        pair.getT1());
-                                return pair.getT2();
-                            })
-                            .flatMap(isCreateWorkspaceAllowed -> {
-                                if (isCreateWorkspaceAllowed) {
-                                    return createDefaultApplication(defaultWorkspaceId, authentication)
-                                            .elapsed()
-                                            .map(pair -> {
-                                                log.debug(
-                                                        "AuthenticationSuccessHandlerCE::Time taken to create default application: {} ms",
-                                                        pair.getT1());
-                                                return pair.getT2();
-                                            })
-                                            .flatMap(defaultApplication -> handleOAuth2Redirect(
-                                                    webFilterExchange, defaultApplication, finalIsFromSignup));
-                                }
-                                return handleOAuth2Redirect(webFilterExchange, null, finalIsFromSignup);
-                            });
-                } else {
-                    redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignupCopy);
-                }
-            } else {
-                boolean finalIsFromSignup = isFromSignupCopy;
-                if (createDefaultApplication && isFromSignupCopy) {
-                    redirectionMono = createDefaultApplication(defaultWorkspaceId, authentication)
-                            .elapsed()
-                            .map(pair -> {
-                                log.debug(
-                                        "AuthenticationSuccessHandlerCE::Time taken to create default application: {} ms",
-                                        pair.getT1());
-                                return pair.getT2();
-                            })
-                            .flatMap(defaultApplication ->
-                                    redirectHelper.handleRedirect(webFilterExchange, defaultApplication, true));
-                } else {
-                    redirectionMono = redirectHelper.handleRedirect(webFilterExchange, null, finalIsFromSignup);
-                }
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            // In case of OAuth2 based authentication, there is no way to identify if this was a user signup (new user
+            // creation) or if this was a login (existing user). What we do here to identify this, is an approximation.
+            // If and when we find a better way to do identify this, let's please move away from this approximation.
+            // If the user object was created within the last 5 seconds, we treat it as a new user.
+            isFromSignup = user.getCreatedAt().isAfter(Instant.now().minusSeconds(5));
+            // If user has previously signed up using password and now using OAuth as a sign in method we are removing
+            // form login method henceforth. This step is taken to avoid any security vulnerability in the login flow
+            // as we are not verifying the user emails at first sign up. In future if we implement the email
+            // verification this can be eliminated safely
+            if (user.getPassword() != null) {
+                user.setPassword(null);
+                user.setSource(LoginSource.fromString(
+                        ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId()));
+                // Update the user in separate thread
+                userRepository
+                        .save(user)
+                        .subscribeOn(Schedulers.boundedElastic())
+                        .subscribe();
             }
-            final boolean isFromSignupFinal = isFromSignupCopy;
-            return sessionUserService
-                    .getCurrentUser()
-                    .flatMap(currentUser -> {
-                        List<Mono<?>> monos = new ArrayList<>();
-                        monos.add(userDataService.ensureViewedCurrentVersionReleaseNotes(currentUser));
+            if (isFromSignup) {
+                boolean finalIsFromSignup = isFromSignup;
+                redirectionMono = workspaceService
+                        .isCreateWorkspaceAllowed(Boolean.TRUE)
+                        .elapsed()
+                        .map(pair -> {
+                            log.debug(
+                                    "AuthenticationSuccessHandlerCE::Time taken to check if workspace creation allowed: {} ms",
+                                    pair.getT1());
+                            return pair.getT2();
+                        })
+                        .flatMap(isCreateWorkspaceAllowed -> {
+                            if (isCreateWorkspaceAllowed) {
+                                return createDefaultApplication(defaultWorkspaceId, authentication)
+                                        .elapsed()
+                                        .map(pair -> {
+                                            log.debug(
+                                                    "AuthenticationSuccessHandlerCE::Time taken to create default application: {} ms",
+                                                    pair.getT1());
+                                            return pair.getT2();
+                                        })
+                                        .flatMap(defaultApplication -> handleOAuth2Redirect(
+                                                webFilterExchange, defaultApplication, finalIsFromSignup));
+                            }
+                            return handleOAuth2Redirect(webFilterExchange, null, finalIsFromSignup);
+                        });
+            } else {
+                redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignup);
+            }
+        } else {
+            boolean finalIsFromSignup = isFromSignup;
+            if (createDefaultApplication && isFromSignup) {
+                redirectionMono = createDefaultApplication(defaultWorkspaceId, authentication)
+                        .elapsed()
+                        .map(pair -> {
+                            log.debug(
+                                    "AuthenticationSuccessHandlerCE::Time taken to create default application: {} ms",
+                                    pair.getT1());
+                            return pair.getT2();
+                        })
+                        .flatMap(defaultApplication ->
+                                redirectHelper.handleRedirect(webFilterExchange, defaultApplication, true));
+            } else {
+                redirectionMono = redirectHelper.handleRedirect(webFilterExchange, null, finalIsFromSignup);
+            }
+        }
 
-                        String modeOfLogin = FieldName.FORM_LOGIN;
+        final boolean isFromSignupFinal = isFromSignup;
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(currentUser -> {
+                    List<Mono<?>> monos = new ArrayList<>();
+                    monos.add(userDataService.ensureViewedCurrentVersionReleaseNotes(currentUser));
+
+                    String modeOfLogin = FieldName.FORM_LOGIN;
+                    if (authentication instanceof OAuth2AuthenticationToken) {
+                        modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+                    }
+
+                    if (isFromSignupFinal) {
+                        final String inviteToken = currentUser.getInviteToken();
+                        final boolean isFromInvite = inviteToken != null;
+
+                        // This should hold the role of the user, e.g., `App Viewer`, `Developer`, etc.
+                        final String invitedAs =
+                                inviteToken == null ? "" : inviteToken.split(":", 2)[0];
+
+                        modeOfLogin = "FormSignUp";
                         if (authentication instanceof OAuth2AuthenticationToken) {
                             modeOfLogin =
                                     ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
                         }
 
-                        if (isFromSignupFinal) {
-                            final String inviteToken = currentUser.getInviteToken();
-                            final boolean isFromInvite = inviteToken != null;
-
-                            // This should hold the role of the user, e.g., `App Viewer`, `Developer`, etc.
-                            final String invitedAs =
-                                    inviteToken == null ? "" : inviteToken.split(":", 2)[0];
-
-                            modeOfLogin = "FormSignUp";
-                            if (authentication instanceof OAuth2AuthenticationToken) {
-                                modeOfLogin = ((OAuth2AuthenticationToken) authentication)
-                                        .getAuthorizedClientRegistrationId();
-                            }
-
-                            monos.add(analyticsService.sendObjectEvent(
-                                    AnalyticsEvents.FIRST_LOGIN,
-                                    currentUser,
-                                    Map.of(
-                                            "isFromInvite",
-                                            isFromInvite,
-                                            "invitedAs",
-                                            invitedAs,
-                                            FieldName.MODE_OF_LOGIN,
-                                            modeOfLogin)));
-                            monos.add(examplesWorkspaceCloner.forkExamplesWorkspace());
-                        }
-
                         monos.add(analyticsService.sendObjectEvent(
-                                AnalyticsEvents.LOGIN, currentUser, Map.of(FieldName.MODE_OF_LOGIN, modeOfLogin)));
+                                AnalyticsEvents.FIRST_LOGIN,
+                                currentUser,
+                                Map.of(
+                                        "isFromInvite",
+                                        isFromInvite,
+                                        "invitedAs",
+                                        invitedAs,
+                                        FieldName.MODE_OF_LOGIN,
+                                        modeOfLogin)));
+                        monos.add(examplesWorkspaceCloner.forkExamplesWorkspace());
+                    }
 
-                        return Mono.whenDelayError(monos);
-                    })
-                    .then(redirectionMono);
-        });
+                    monos.add(analyticsService.sendObjectEvent(
+                            AnalyticsEvents.LOGIN, currentUser, Map.of(FieldName.MODE_OF_LOGIN, modeOfLogin)));
+
+                    return Mono.whenDelayError(monos);
+                })
+                .then(redirectionMono);
     }
 
     protected Mono<Application> createDefaultApplication(String defaultWorkspaceId, Authentication authentication) {
