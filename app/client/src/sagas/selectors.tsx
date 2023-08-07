@@ -126,7 +126,7 @@ export const currentPageId = (state: AppState) => {
 };
 
 export const getExistingActionNames = createSelector(
-  getActions,
+  (state: AppState) => state.entities.actions,
   currentPageId,
   (actions: ActionData[], pageId?: string) => {
     return _.compact(

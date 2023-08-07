@@ -26,9 +26,11 @@ import "../WidgetQueryGenerators";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import "WidgetQueryGenerators";
 import { getWidgetByID } from "./selectors";
-import type { WidgetQueryGenerationFormConfig } from "WidgetQueryGenerators/types";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
 import { QUERY_TYPE } from "WidgetQueryGenerators/types";
-import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { ApiResponse } from "api/ApiResponses";
 import type { ActionCreateUpdateResponse } from "api/ActionAPI";
@@ -39,6 +41,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { fetchActions, runAction } from "actions/pluginActionActions";
 import { Toaster, Variant } from "design-system-old";
+import WidgetFactory from "WidgetProvider/factory";
 
 export function* createActionsForOneClickBindingSaga(
   payload: Partial<Action> & { eventData: unknown; pluginId: string },
@@ -112,7 +115,7 @@ function* BindWidgetToDatasource(
       widget.type,
     );
 
-    const widgetQueryGenerationConfig = getQueryGenerationConfig(widget);
+    const widgetQueryGenerationConfig = getQueryGenerationConfig?.(widget);
 
     const widgetQueryGenerator = WidgetQueryGeneratorRegistry.get(
       plugin.packageName,
@@ -212,7 +215,7 @@ function* BindWidgetToDatasource(
 
       const createdQueryNames = createdActions.map((d) => d.name);
 
-      const queryBindingConfig: Record<string, unknown> = {};
+      const queryBindingConfig: WidgetQueryConfig = {};
 
       if (createdQueryNames.includes(queryNameMap[QUERY_TYPE.SELECT])) {
         queryBindingConfig[QUERY_TYPE.SELECT] = {
@@ -263,11 +266,12 @@ function* BindWidgetToDatasource(
 
       const updatedWidget: WidgetProps = yield select(getWidgetByID(widgetId));
 
-      const { dynamicUpdates, modify } = getPropertyUpdatesForQueryBinding(
-        queryBindingConfig,
-        updatedWidget,
-        action.payload,
-      );
+      const { dynamicUpdates, modify } =
+        getPropertyUpdatesForQueryBinding?.(
+          queryBindingConfig,
+          updatedWidget,
+          action.payload,
+        ) || {};
 
       yield put({
         type: ReduxActionTypes.BATCH_UPDATE_WIDGET_PROPERTY,

@@ -44,7 +44,7 @@ import {
   getCanvasWidgets,
   getJSCollections,
 } from "selectors/entitiesSelector";
-import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
+import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import {
   buildChildWidgetTree,
   buildFlattenedChildCanvasWidgets,
@@ -53,10 +53,10 @@ import {
 } from "utils/widgetRenderUtils";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
-import type { CanvasWidgetStructure } from "widgets/constants";
+import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { nestDSL } from "@shared/dsl";
 import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";

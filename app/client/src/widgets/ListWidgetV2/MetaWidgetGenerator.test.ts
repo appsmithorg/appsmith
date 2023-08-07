@@ -3,22 +3,17 @@ import { klona } from "klona";
 
 import type { ConstructorProps, GeneratorOptions } from "./MetaWidgetGenerator";
 import MetaWidgetGenerator from "./MetaWidgetGenerator";
-import type { FlattenedWidgetProps } from "widgets/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { nestedListInput, simpleListInput } from "./testData";
 import { RenderModes } from "constants/WidgetConstants";
 import { ButtonFactory } from "test/factories/Widgets/ButtonFactory";
 import type { LevelData } from "./widget";
-
-import { registerWidget } from "utils/WidgetRegisterHelpers";
-import ImageWidget, { CONFIG as ImageWidgetConfig } from "widgets/ImageWidget";
-import TextWidget, { CONFIG as TextWidgetConfig } from "widgets/TextWidget";
-import ListWidget, { CONFIG as ListWidgetConfig } from "widgets/ListWidgetV2";
-import CanvasWidget, {
-  CONFIG as CanvasWidgetConfig,
-} from "widgets/CanvasWidget";
-import ContainerWidget, {
-  CONFIG as ContainerWidgetConfig,
-} from "widgets/ContainerWidget";
+import ImageWidget from "widgets/ImageWidget";
+import TextWidget from "widgets/TextWidget";
+import ListWidget from "widgets/ListWidgetV2";
+import CanvasWidget from "widgets/CanvasWidget";
+import ContainerWidget from "widgets/ContainerWidget";
+import WidgetFactory from "WidgetProvider/factory";
 
 type Validator = {
   widgetType: string;
@@ -232,11 +227,13 @@ const validateMetaWidgetType = (
 };
 
 beforeAll(() => {
-  registerWidget(ImageWidget, ImageWidgetConfig);
-  registerWidget(TextWidget, TextWidgetConfig);
-  registerWidget(ListWidget, ListWidgetConfig);
-  registerWidget(CanvasWidget, CanvasWidgetConfig);
-  registerWidget(ContainerWidget, ContainerWidgetConfig);
+  WidgetFactory.initialize([
+    ImageWidget,
+    TextWidget,
+    ListWidget,
+    CanvasWidget,
+    ContainerWidget,
+  ]);
 });
 
 describe("#generate", () => {

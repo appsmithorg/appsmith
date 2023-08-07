@@ -4,7 +4,7 @@ import memoize from "micro-memoize";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetEntityConfig, WidgetEntity } from "./dataTreeFactory";
 import { ENTITY_TYPE } from "./dataTreeFactory";
 import type {

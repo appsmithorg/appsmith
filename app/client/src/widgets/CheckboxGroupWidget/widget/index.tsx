@@ -12,10 +12,10 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { compact, xor } from "lodash";
 import { default as React } from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { GRID_DENSITY_MIGRATION_V1 } from "WidgetProvider/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
@@ -23,8 +23,11 @@ import {
 import CheckboxGroupComponent from "../component";
 import type { OptionProps, SelectAllState } from "../constants";
 import { SelectAllStates } from "../constants";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import IconSVG from "../icon.svg";
+
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -59,6 +62,80 @@ class CheckboxGroupWidget extends BaseWidget<
   CheckboxGroupWidgetProps,
   WidgetState
 > {
+  static type = "CHECKBOX_GROUP_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Checkbox Group",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.TOGGLES],
+      needsMeta: true,
+    };
+  }
+
+  static getDefaults() {
+    return {
+      rows: 6,
+      columns: 23,
+      animateLoading: true,
+      labelTextSize: "0.875rem",
+      options: [
+        { label: "Blue", value: "BLUE" },
+        { label: "Green", value: "GREEN" },
+        { label: "Red", value: "RED" },
+      ],
+      defaultSelectedValues: ["BLUE"],
+      isDisabled: false,
+      isInline: true,
+      isRequired: false,
+      isVisible: true,
+      labelText: "Label",
+      labelPosition: LabelPosition.Top,
+      labelAlignment: Alignment.LEFT,
+      labelWidth: 5,
+      widgetName: "CheckboxGroup",
+      version: 2,
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 3,
+        active: true,
+      },
+    };
+  }
+
+  static getAutolayoutConfif() {
+    return {
+      defaults: {
+        columns: 14,
+        rows: 7,
+      },
+      disabledPropsDefaults: {
+        labelPosition: LabelPosition.Top,
+      },
+      autoDimension: {
+        height: true,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "240px",
+              minHeight: "70px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
@@ -589,10 +666,6 @@ class CheckboxGroupWidget extends BaseWidget<
         widgetId={this.props.widgetId}
       />
     );
-  }
-
-  static getWidgetType(): WidgetType {
-    return "CHECKBOX_GROUP_WIDGET";
   }
 
   private handleCheckboxChange = (value: string) => {

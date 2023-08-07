@@ -1,5 +1,5 @@
 import { Positioning, ResponsiveBehavior } from "utils/autoLayout/constants";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import {
   fitChildWidgetsIntoLayers,
   getAutoCanvasWidget,

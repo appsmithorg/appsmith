@@ -1,3 +1,6 @@
+/*
+ * TODO: (Balaji) Move all the types to different file
+ */
 import { IconNames } from "@blueprintjs/icons";
 import type { Theme } from "constants/DefaultTheme";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
@@ -12,9 +15,9 @@ import type {
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
-import type { WidgetProps } from "./BaseWidget";
+import type { WidgetProps } from "../widgets/BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
 import type {
@@ -48,23 +51,26 @@ export type AutoLayoutConfig = {
   disabledPropsDefaults?: Partial<WidgetProps>;
 };
 
-export interface WidgetConfiguration {
-  autoLayout?: AutoLayoutConfig;
-  type: string;
+export interface WidgetBaseConfiguration {
   name: string;
   iconSVG?: string;
-  defaults: Partial<WidgetProps> & WidgetConfigProps;
   hideCard?: boolean;
   eagerRender?: boolean;
   isDeprecated?: boolean;
   replacement?: string;
   isCanvas?: boolean;
   needsMeta?: boolean;
-  features?: WidgetFeatures;
-  canvasHeightOffset?: (props: WidgetProps) => number;
   searchTags?: string[];
   tags?: WidgetTags[];
   needsHeightForContent?: boolean;
+}
+
+export type WidgetDefaultProps = Partial<WidgetProps> & WidgetConfigProps;
+
+export interface WidgetConfiguration extends WidgetBaseConfiguration {
+  autoLayout?: AutoLayoutConfig;
+  defaults: WidgetDefaultProps;
+  features?: WidgetFeatures;
   properties: {
     config?: PropertyPaneConfig[];
     contentConfig?: PropertyPaneConfig[];
@@ -87,24 +93,28 @@ export type PropertyUpdates = {
   shouldDeleteProperty?: boolean; // Deletes the property, propertyValue is ignored
 };
 
-export type WidgetMethods =
-  | GetQueryGenerationConfig
-  | GetPropertyUpdatesForQueryBinding
-  | getSnipingModeUpdates;
+export type WidgetMethods = {
+  getQueryGenerationConfig?: GetQueryGenerationConfig;
+  getPropertyUpdatesForQueryBinding?: GetPropertyUpdatesForQueryBinding;
+  getSnipingModeUpdates?: GetSnipingModeUpdates;
+  getCanvasHeightOffset?: GetCanvasHeightOffset;
+};
 
-type GetQueryGenerationConfig = (
+export type GetQueryGenerationConfig = (
   widgetProps: WidgetProps,
 ) => WidgetQueryGenerationConfig;
 
-type GetPropertyUpdatesForQueryBinding = (
+export type GetPropertyUpdatesForQueryBinding = (
   queryConfig: WidgetQueryConfig,
   widget: WidgetProps,
   formConfig: WidgetQueryGenerationFormConfig,
 ) => Record<string, unknown>;
 
-type getSnipingModeUpdates = (
+export type GetSnipingModeUpdates = (
   propValueMap: Record<"data" | "run", string>,
 ) => Array<PropertyUpdates>;
+
+export type GetCanvasHeightOffset = (widgetProps: WidgetProps) => number;
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;
 

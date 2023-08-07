@@ -13,14 +13,13 @@ import {
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 
-import { registerWidget } from "utils/WidgetRegisterHelpers";
-import InputWidget, {
-  CONFIG as InputWidgetConfig,
-} from "widgets/InputWidgetV2";
+import InputWidget from "widgets/InputWidgetV2";
+import WidgetFactory from "WidgetProvider/factory";
 
 describe("dataTreeTypeDefCreator", () => {
   it("creates the right def for a widget", () => {
-    registerWidget(InputWidget, InputWidgetConfig);
+    WidgetFactory.initialize([InputWidget]);
+
     const dataTreeEntity: WidgetEntity = {
       widgetId: "yolo",
       widgetName: "Input1",

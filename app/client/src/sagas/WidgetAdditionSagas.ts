@@ -28,13 +28,13 @@ import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { generateReactKey } from "utils/generators";
 import type { WidgetProps } from "widgets/BaseWidget";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import omit from "lodash/omit";
 import produce from "immer";
 import {
   GRID_DENSITY_MIGRATION_V1,
   BlueprintOperationTypes,
-} from "widgets/constants";
+} from "WidgetProvider/constants";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";

@@ -13,7 +13,12 @@ import { ButtonVariantTypes } from "components/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import IconButtonComponent from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "widgets/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import { ICON_BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import IconSVG from "../icon.svg";
+
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
@@ -31,6 +36,60 @@ export interface IconButtonWidgetProps extends WidgetProps {
 }
 
 class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
+  static type = "ICON_BUTTON_WIDGET";
+
+  static getConfig() {
+    return {
+      name: "Icon button",
+      iconSVG: IconSVG,
+      tags: [WIDGET_TAGS.BUTTONS],
+      searchTags: ["click", "submit"],
+    };
+  }
+
+  static getDefaults() {
+    return {
+      iconName: IconNames.PLUS,
+      buttonVariant: ButtonVariantTypes.PRIMARY,
+      isDisabled: false,
+      isVisible: true,
+      rows: 4,
+      columns: 4,
+      widgetName: "IconButton",
+      version: 1,
+      animateLoading: true,
+      responsiveBehavior: ResponsiveBehavior.Hug,
+      minWidth: ICON_BUTTON_MIN_WIDTH,
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      defaults: {
+        rows: 4,
+        columns: 2.21,
+      },
+      autoDimension: {
+        width: true,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "40px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        horizontal: true,
+        vertical: true,
+      },
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -281,10 +340,6 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
       "!url": "https://docs.appsmith.com/widget-reference/icon-button",
       isVisible: DefaultAutocompleteDefinitions.isVisible,
     };
-  }
-
-  static getWidgetType(): WidgetType {
-    return "ICON_BUTTON_WIDGET";
   }
 
   handleClick = () => {

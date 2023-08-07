@@ -22,7 +22,7 @@ import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { toast } from "design-system";
-import type { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "WidgetProvider/constants";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;

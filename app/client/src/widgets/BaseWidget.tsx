@@ -32,7 +32,7 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { get, isFunction, memoize } from "lodash";
 import type { Context, ReactNode, RefObject } from "react";
 import React, { Component } from "react";
@@ -57,8 +57,15 @@ import type {
   WidgetDynamicPathListProps,
 } from "utils/DynamicBindingUtils";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
-import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import type { CanvasWidgetStructure, FlattenedWidgetProps } from "./constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type {
+  AutoLayoutConfig,
+  CanvasWidgetStructure,
+  FlattenedWidgetProps,
+  WidgetBaseConfiguration,
+  WidgetDefaultProps,
+  WidgetMethods,
+} from "../WidgetProvider/constants";
 import Skeleton from "./Skeleton";
 import {
   getWidgetMaxAutoHeight,
@@ -68,11 +75,12 @@ import {
   shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
 import AutoLayoutDimensionObserver from "components/designSystems/appsmith/autoLayout/AutoLayoutDimensionObeserver";
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import WidgetComponentBoundary from "components/editorComponents/WidgetComponentBoundary";
-import type { AutocompletionDefinitions } from "./constants";
+import type { AutocompletionDefinitions } from "../WidgetProvider/constants";
 import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import type { WidgetFeatures } from "utils/WidgetFeatures";
 
 /***
  * BaseWidget
@@ -96,6 +104,34 @@ abstract class BaseWidget<
 > extends Component<T, K> {
   static contextType = EditorContext;
   context!: React.ContextType<Context<EditorContextType<TCache>>>;
+
+  static type = "BASE_WIDGET";
+
+  static getDefaults(): WidgetDefaultProps {
+    return {} as WidgetDefaultProps;
+  }
+
+  static getConfig(): WidgetBaseConfiguration {
+    return {
+      name: "baseWidget",
+    };
+  }
+
+  static getFeatures(): WidgetFeatures | null {
+    return null;
+  }
+
+  static getMethods(): WidgetMethods {
+    return {};
+  }
+
+  static getAutoLayoutConfig(): AutoLayoutConfig | null {
+    return null;
+  }
+
+  static getSetterConfig(): SetterConfig | null {
+    return null;
+  }
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
     return [];
@@ -143,15 +179,6 @@ abstract class BaseWidget<
   static getLoadingProperties(): Array<RegExp> | undefined {
     return;
   }
-
-  /**
-   *  Widget abstraction to register the widget type
-   *  ```javascript
-   *   getWidgetType() {
-   *     return "MY_AWESOME_WIDGET",
-   *   }
-   *  ```
-   */
 
   /**
    *  Widgets can execute actions using this `executeAction` method.

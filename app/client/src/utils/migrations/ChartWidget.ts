@@ -1,5 +1,5 @@
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import type { ChartWidgetProps } from "widgets/ChartWidget/widget";
 import { LabelOrientation } from "widgets/ChartWidget/constants";
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";

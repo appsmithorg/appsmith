@@ -1,8 +1,8 @@
-import type { DSLWidget } from "widgets/constants";
 import {
   migrateChartWidgetLabelOrientationStaggerOption,
   migrateAddShowHideDataPointLabels,
 } from "./ChartWidget";
+import type { DSLWidget } from "WidgetProvider/constants";
 import type { ChartWidgetProps } from "widgets/ChartWidget/widget";
 import { LabelOrientation } from "widgets/ChartWidget/constants";
 

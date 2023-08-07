@@ -5,7 +5,7 @@ import {
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 
 const SelectTypeWidgets = ["SELECT_WIDGET", "MULTI_SELECT_WIDGET_V2"];
 

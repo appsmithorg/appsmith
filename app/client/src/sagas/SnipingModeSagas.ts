@@ -15,7 +15,7 @@ import {
   SNIPING_SELECT_WIDGET_AGAIN,
 } from "@appsmith/constants/messages";
 
-import WidgetFactory from "utils/WidgetFactory";
+import WidgetFactory from "WidgetProvider/factory";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { setSnipingMode } from "actions/propertyPaneActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
@@ -27,7 +27,7 @@ import {
 } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import type { PropertyUpdates } from "widgets/constants";
+import type { PropertyUpdates } from "WidgetProvider/constants";
 
 export function* bindDataToWidgetSaga(
   action: ReduxAction<{

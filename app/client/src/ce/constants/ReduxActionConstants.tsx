@@ -17,7 +17,7 @@ import type {
   AppLayoutConfig,
   AppPositioningTypeConfig,
 } from "reducers/entityReducers/pageListReducer";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",

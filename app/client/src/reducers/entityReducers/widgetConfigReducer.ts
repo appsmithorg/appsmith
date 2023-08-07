@@ -33,7 +33,6 @@ export interface WidgetConfig
   key: string;
   isCanvas?: boolean;
   needsMeta?: boolean;
-  canvasHeightOffset?: (props: WidgetProps) => number;
   features?: WidgetFeatures;
 }
 

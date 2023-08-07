@@ -36,15 +36,13 @@ import {
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-import TableWidget, { CONFIG as TableWidgetConfig } from "widgets/TableWidget";
-import InputWidget, {
-  CONFIG as InputWidgetV2Config,
-} from "widgets/InputWidgetV2";
-import { registerWidget } from "utils/WidgetRegisterHelpers";
-import type { WidgetConfiguration } from "widgets/constants";
+import TableWidget from "widgets/TableWidget";
+import InputWidget from "widgets/InputWidgetV2";
+import type { WidgetConfiguration } from "WidgetProvider/constants";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { Severity } from "entities/AppsmithConsole";
 import { PluginType } from "entities/Action";
+import WidgetFactory from "WidgetProvider/factory";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.
@@ -597,11 +595,7 @@ describe("4. translateDiffEvent", () => {
 
 describe("5. overrideWidgetProperties", () => {
   beforeAll(() => {
-    registerWidget(TableWidget, TableWidgetConfig);
-    registerWidget(
-      InputWidget,
-      InputWidgetV2Config as unknown as WidgetConfiguration,
-    );
+    WidgetFactory.initialize([TableWidget, InputWidget]);
   });
 
   describe("1. Input widget ", () => {
@@ -610,7 +604,7 @@ describe("5. overrideWidgetProperties", () => {
     beforeAll(() => {
       const inputWidgetDataTree = generateDataTreeWidget(
         {
-          type: InputWidget.getWidgetType(),
+          type: InputWidget.type,
           widgetId: "egwwwfgab",
           widgetName: "Input1",
           children: [],
@@ -696,7 +690,7 @@ describe("5. overrideWidgetProperties", () => {
     beforeAll(() => {
       const tableWidgetDataTree = generateDataTreeWidget(
         {
-          type: TableWidget.getWidgetType(),
+          type: TableWidget.type,
           widgetId: "random",
           widgetName: "Table1",
           children: [],

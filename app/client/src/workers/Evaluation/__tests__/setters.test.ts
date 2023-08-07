@@ -4,7 +4,7 @@ import TableWidget from "widgets/TableWidgetV2/widget";
 import { CONFIG } from "widgets/TableWidgetV2/index";
 import { RenderModes } from "constants/WidgetConstants";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
-import { registerWidget } from "utils/WidgetRegisterHelpers";
+import { registerWidget } from "WidgetProvider/factory/WidgetRegisterHelpers";
 import { createEvaluationContext } from "../evaluate";
 
 registerWidget(TableWidget, CONFIG);
@@ -13,7 +13,7 @@ const evalTree: DataTree = {};
 const configTree: ConfigTree = {};
 
 const tableWidgetDataTree = generateDataTreeWidget({
-  type: TableWidget.getWidgetType(),
+  type: TableWidget.type,
   widgetId: "random",
   widgetName: "Table1",
   children: [],

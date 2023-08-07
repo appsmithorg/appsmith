@@ -1,7 +1,8 @@
-import { registerWidgets } from "../WidgetRegistry";
 import PropertyControlRegistry from "../PropertyControlRegistry";
+import WidgetFactory from "WidgetProvider/factory";
+import Widgets from "widgets";
 
 export const editorInitializer = async () => {
-  registerWidgets();
+  WidgetFactory.initialize(Widgets);
   PropertyControlRegistry.registerPropertyControlBuilders();
 };

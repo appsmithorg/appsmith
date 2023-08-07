@@ -16,7 +16,7 @@ import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import moment from "moment";
 import { isDynamicValue } from "./DynamicBindingUtils";
 import type { ApiResponse } from "api/ApiResponses";
-import type { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import * as Sentry from "@sentry/react";
 import { matchPath } from "react-router";
 import {
