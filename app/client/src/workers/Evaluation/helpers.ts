@@ -1,7 +1,17 @@
+import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal";
 import { get, isNumber, isObject } from "lodash";
 
+export interface DiffReferenceState {
+  kind: "referenceState";
+  path: any[];
+  referencePath: string;
+}
+export type DiffWithReferenceState =
+  | Diff<DataTree, DataTree>
+  | DiffReferenceState;
 // Finds the first index which is a duplicate value
 // Returns -1 if there are no duplicates
 // Returns the index of the first duplicate entry it finds
@@ -122,7 +132,7 @@ const generateMissingSetPathsUpdates = (
   ignoreLargeKeys: any,
   ignoreLargeKeysHasBeenAttached: any,
   dataTree: any,
-) =>
+): DiffWithReferenceState[] =>
   Object.keys(ignoreLargeKeys)
     .filter((evalPath) => !ignoreLargeKeysHasBeenAttached.has(evalPath))
     .map((evalPath) => {
@@ -158,10 +168,10 @@ const generateDiffUpdates = (
   oldDataTree: any,
   dataTree: any,
   ignoreLargeKeys: any,
-) => {
-  const attachDirectly: any = [];
+): DiffWithReferenceState[] => {
+  const attachDirectly: DiffWithReferenceState[] = [];
   const ignoreLargeKeysHasBeenAttached = new Set();
-  const attachLater: any = [];
+  const attachLater: DiffWithReferenceState[] = [];
   const updates =
     diff(oldDataTree, dataTree, (path, key) => {
       if (!path.length || key === "__evaluation__") return false;
@@ -199,12 +209,13 @@ const generateDiffUpdates = (
       //if either of values are large just directly attach it don't have to generate very granular updates
 
       if ((!isLhsLarge && isRhsLarge) || (isLhsLarge && !isRhsLarge)) {
-        attachDirectly.push({ path: segmentedPath, rhs });
+        attachDirectly.push({ kind: "N", path: segmentedPath, rhs });
         return true;
       }
 
       //if the values are different attach the update directly
-      !equal(lhs, rhs) && attachDirectly.push({ path: segmentedPath, rhs });
+      !equal(lhs, rhs) &&
+        attachDirectly.push({ kind: "N", path: segmentedPath, rhs });
 
       //ignore diff on this node
       return true;
@@ -217,7 +228,7 @@ const generateDiffUpdates = (
   );
 
   const largeDataSetUpdates = [
-    ...attachDirectly.map((val: any) => ({ kind: "N", ...val })),
+    ...attachDirectly,
     ...missingSetPaths,
     ...attachLater,
   ];
@@ -228,7 +239,7 @@ export const generateOptimisedUpdates = (
   oldDataTree: any,
   dataTree: any,
   identicalEvalPathsPatches?: any,
-): any => {
+): DiffWithReferenceState[] => {
   const ignoreLargeKeys = normaliseEvalPath(identicalEvalPathsPatches);
   const updates = generateDiffUpdates(oldDataTree, dataTree, ignoreLargeKeys);
   return updates;

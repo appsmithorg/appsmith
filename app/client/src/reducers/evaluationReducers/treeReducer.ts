@@ -6,6 +6,7 @@ import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { createImmerReducer } from "utils/ReducerUtils";
 import * as Sentry from "@sentry/react";
 import { get } from "lodash";
+import type { DiffWithReferenceState } from "workers/Evaluation/helpers";
 
 export type EvaluatedTreeState = DataTree;
 
@@ -16,7 +17,7 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
     state: EvaluatedTreeState,
     action: ReduxAction<{
       dataTree: DataTree;
-      updates: any[];
+      updates: DiffWithReferenceState[];
       removedPaths: [string];
     }>,
   ) => {
