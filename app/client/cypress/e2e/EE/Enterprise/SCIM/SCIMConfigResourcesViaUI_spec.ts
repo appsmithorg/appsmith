@@ -44,30 +44,111 @@ describe("SCIM Provisioning", function () {
   });
 
   // Upgrade page for Business edition
-  it.skip("1. Go to admin settings and check provisioning should show upgrade page for business edition", function () {
-    provisioning.UpdateLicenseKey();
-    agHelper.Sleep(4000);
-    agHelper.VisitNAssert("/settings/general", "getEnvVariables");
-    // click provisioning tab
-    agHelper.GetNClick(adminsSettings.provisioning);
-    agHelper.AssertURL("/settings/provisioning");
-    cy.get(adminsSettings.provisioning).within(() => {
-      cy.get(adminsSettings.businessTag)
-        .should("exist")
-        .should("contain", "Enterprise");
-    });
-    deployMode.StubWindowNAssert(
-      adminsSettings.upgrade,
-      "https://www.appsmith.com/pricing?source=BE",
-      "getEnvVariables",
-    );
-    cy.wait(2000);
-  });
+  it.skip(
+    "excludeForAirgap",
+    "1. Go to admin settings and check provisioning should show upgrade page for business edition",
+    function () {
+      provisioning.UpdateLicenseKey();
+      agHelper.Sleep(4000);
+      agHelper.VisitNAssert("/settings/general", "getEnvVariables");
+      // click provisioning tab
+      agHelper.GetNClick(adminsSettings.provisioning);
+      agHelper.AssertURL("/settings/provisioning");
+      cy.get(adminsSettings.provisioning).within(() => {
+        cy.get(adminsSettings.businessTag)
+          .should("exist")
+          .should("contain", "Enterprise");
+      });
+      deployMode.StubWindowNAssert(
+        adminsSettings.upgrade,
+        "https://www.appsmith.com/pricing?source=BE",
+        "getEnvVariables",
+      );
+      cy.wait(2000);
+    },
+  );
 
   // Configuring SCIM to test Remove resources flow
-  it("2. Go to admin settings and configure SCIM", function () {
-    // provisioning.UpdateLicenseKey("enterprise");
-    provisioning.UpdateLicenseKey();
+  it(
+    "excludeForAirgap",
+    "2. Go to admin settings and configure SCIM",
+    function () {
+      // provisioning.UpdateLicenseKey("enterprise");
+      provisioning.UpdateLicenseKey();
+      agHelper.Sleep(4000);
+      agHelper.VisitNAssert("/settings/general", "getEnvVariables");
+      // click provisioning tab
+      agHelper.GetNClick(provisioning.locators.provisioningCategory);
+      agHelper.AssertURL("/settings/provisioning");
+      agHelper.WaitUntilEleAppear(provisioning.locators.pageHeader);
+      agHelper.GetNAssertElementText(
+        provisioning.locators.pageHeader,
+        "User provisioning & Group sync",
+      );
+      agHelper.AssertElementLength(provisioning.locators.methodCard, 1);
+      agHelper.GetNAssertElementText(
+        provisioning.locators.cardTitle,
+        "System for Cross-domain Identity Management",
+      );
+      agHelper.GetNAssertElementText(
+        provisioning.locators.configureButton,
+        "Configure",
+      );
+      agHelper.GetNClick(provisioning.locators.configureButton);
+      agHelper.AssertURL("/settings/provisioning/scim");
+
+      cy.get(provisioning.locators.inputScimApiEndpoint)
+        .invoke("val")
+        .then((value: any) => {
+          scimEndpointUrl = value;
+        });
+
+      // agHelper.GetNClick(provisioning.locators.inputScimApiEndpoint);
+      // agHelper.WaitUntilToastDisappear("SCIM API endpoint copied to clipboard");
+
+      // cy.window()
+      //   .its("navigator.clipboard")
+      //   .invoke("readText")
+      //   .then((text) => {
+      //     cy.wrap(text).as("scimEndpointUrl");
+      //   });
+
+      // cy.get("@scimEndpointUrl").then((url) => {
+      // scimEndpointUrl = url.toString();
+      // agHelper.ValidateFieldInputValue(
+      //   provisioning.locators.inputScimApiEndpoint,
+      //   scimEndpointUrl,
+      // );
+      // });
+
+      agHelper.GetElementsNAssertTextPresence(
+        provisioning.locators.generateApiKeyButton,
+        "Generate API key",
+      );
+      agHelper.GetNClick(provisioning.locators.generateApiKeyButton);
+      cy.get(provisioning.locators.inputScimApiKey)
+        .invoke("val")
+        .then((value: any) => {
+          apiKey = value;
+        });
+      // agHelper.GetNClick(provisioning.locators.inputScimApiKey);
+      // agHelper.WaitUntilToastDisappear(
+      //   "API key to setup SCIM copied to clipboard",
+      // );
+      // cy.window()
+      //   .its("navigator.clipboard")
+      //   .invoke("readText")
+      //   .then((text) => {
+      //     cy.wrap(text).as("apiKey");
+      //   });
+
+      // cy.get("@apiKey").then((key) => {
+      //   apiKey = key;
+      // });
+    },
+  );
+
+  it("airgap", "2. Go to admin settings and configure SCIM", function () {
     agHelper.Sleep(4000);
     agHelper.VisitNAssert("/settings/general", "getEnvVariables");
     // click provisioning tab
