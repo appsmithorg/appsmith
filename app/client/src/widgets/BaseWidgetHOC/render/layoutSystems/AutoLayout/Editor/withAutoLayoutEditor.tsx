@@ -22,9 +22,11 @@ export const withAutoLayoutEditor = (
       componentWidth,
       autoDimensionConfig,
     };
+    //Canvas_Onion
     if (props.type === "CANVAS_WIDGET") {
       return <Widget {...widgetEditorProps} />;
     }
+    //Widget Onion
     return (
       <FlexComponentLayer {...widgetEditorProps}>
         <SnipeableComponent {...widgetEditorProps}>
