@@ -55,12 +55,11 @@ describe("Contains all UI tests for JS libraries", () => {
       <BrowserRouter>
         <Provider store={store}>
           <ThemeProvider theme={lightTheme}>
-            <Installer left={250} />
+            <Installer />
           </ThemeProvider>
         </Provider>
       </BrowserRouter>,
     );
-    expect(screen.getByText("Add JS libraries")).toBeDefined();
     expect(screen.getByText("Recommended libraries")).toBeDefined();
     expect(screen.getByTestId("library-url")).toBeDefined();
     expect(screen.getByTestId("install-library-btn")).toBeDisabled();
@@ -71,7 +70,7 @@ describe("Contains all UI tests for JS libraries", () => {
       <BrowserRouter>
         <Provider store={store}>
           <ThemeProvider theme={lightTheme}>
-            <Installer left={250} />
+            <Installer />
           </ThemeProvider>
         </Provider>
       </BrowserRouter>,
@@ -90,7 +89,7 @@ describe("Contains all UI tests for JS libraries", () => {
       <BrowserRouter>
         <Provider store={store}>
           <ThemeProvider theme={lightTheme}>
-            <Installer left={250} />
+            <Installer />
           </ThemeProvider>
         </Provider>
       </BrowserRouter>,
@@ -125,7 +124,7 @@ describe("Contains all UI tests for JS libraries", () => {
       <BrowserRouter>
         <Provider store={store}>
           <ThemeProvider theme={lightTheme}>
-            <Installer left={250} />
+            <Installer />
           </ThemeProvider>
         </Provider>
       </BrowserRouter>,
