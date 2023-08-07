@@ -290,6 +290,7 @@ class CodeEditor extends Component<Props, State> {
   currentLineNumber: number | null = null;
   AIEnabled = false;
   private multiplexConfig?: MultiplexingModeConfig;
+  private resizeObserver;
 
   constructor(props: Props) {
     super(props);
@@ -323,6 +324,11 @@ class CodeEditor extends Component<Props, State> {
     this.AIEnabled =
       isAIEnabled(this.props.featureFlags, this.props.mode) &&
       Boolean(this.props.AIAssisted);
+
+    // refresh editor on resize which prevents issue #23796
+    this.resizeObserver = new ResizeObserver(() => {
+      this.debounceEditorRefresh();
+    });
   }
 
   componentDidMount(): void {
@@ -486,6 +492,10 @@ class CodeEditor extends Component<Props, State> {
     }
     window.addEventListener("keydown", this.handleKeydown);
     window.addEventListener("keyup", this.handleKeyUp);
+
+    if (this.codeEditorTarget.current) {
+      this.resizeObserver.observe(this.codeEditorTarget.current);
+    }
   }
 
   handleSlashCommandSelection = (...args: any) => {
@@ -830,6 +840,8 @@ class CodeEditor extends Component<Props, State> {
   };
 
   componentWillUnmount() {
+    this.resizeObserver.disconnect();
+
     // if the highlighted element exists, remove the event listeners to prevent memory leaks
     if (this.highlightedUrlElement) {
       removeEventFromHighlightedElement(this.highlightedUrlElement, [
