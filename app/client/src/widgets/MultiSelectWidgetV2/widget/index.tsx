@@ -119,12 +119,22 @@ class MultiSelectWidget extends BaseWidget<
                 {
                   name: "label",
                   isSearcheable: true,
+                  isRequired: true,
                 },
                 {
                   name: "value",
+                  isRequired: true,
                 },
               ],
-              sampleData: `[{"name":"Blue","code":"BLUE"},{"name":"Green","code":"GREEN"},{"name":"Red","code":"RED"}]`,
+              sampleData: JSON.stringify(
+                [
+                  { name: "Blue", code: "BLUE" },
+                  { name: "Green", code: "GREEN" },
+                  { name: "Red", code: "RED" },
+                ],
+                null,
+                2,
+              ),
             },
             isJSConvertible: true,
             placeholderText: '[{ "label": "Option1", "value": "Option2" }]',
@@ -145,9 +155,10 @@ class MultiSelectWidget extends BaseWidget<
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
-            helpText: "Sets the label of the option",
+            helpText:
+              "Choose or set a field from source data as the display label",
             propertyName: "optionLabel",
-            label: "Label",
+            label: "Label key",
             controlType: "DROP_DOWN",
             customJSControl: "WRAPPED_CODE_EDITOR",
             controlConfig: {
@@ -177,9 +188,9 @@ class MultiSelectWidget extends BaseWidget<
             additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
           },
           {
-            helpText: "Sets the value of the option",
+            helpText: "Choose or set a field from source data as the value",
             propertyName: "optionValue",
-            label: "Value",
+            label: "Value key",
             controlType: "DROP_DOWN",
             customJSControl: "WRAPPED_CODE_EDITOR",
             controlConfig: {

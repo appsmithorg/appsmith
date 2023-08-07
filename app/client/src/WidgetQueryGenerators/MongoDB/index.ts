@@ -62,7 +62,7 @@ export default abstract class MongoDB extends BaseQueryGenerator {
       if (formConfig.searchableColumn) {
         queryPayload.formData.find.query = {
           data: formConfig.searchableColumn
-            ? `{{{ ${formConfig.searchableColumn}: {$regex: ${select["where"]}} }}}`
+            ? `{{{ ${formConfig.searchableColumn}: {$regex: ${select["where"]}, '$options' : 'i'} }}}`
             : "",
         };
 

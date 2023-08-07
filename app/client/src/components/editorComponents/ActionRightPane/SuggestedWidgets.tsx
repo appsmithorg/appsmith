@@ -284,6 +284,7 @@ function getWidgetProps(
             { key: "sourceData" },
             { key: "defaultOptionValue" },
           ],
+          dynamicPropertyPathList: [{ key: "sourceData" }],
         },
       };
     case "TEXT_WIDGET":

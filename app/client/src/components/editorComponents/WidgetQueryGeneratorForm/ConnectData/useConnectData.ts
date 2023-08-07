@@ -1,7 +1,7 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
 import { PluginPackageName } from "entities/Action";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
 import { getPluginPackageFromDatasourceId } from "selectors/entitiesSelector";
@@ -84,10 +84,17 @@ export function useConnectData() {
 
   const show = !!config.datasource;
 
-  const disabled =
-    !config.table ||
-    (selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
-      !isValidGsheetConfig(config));
+  const disabled = useMemo(() => {
+    return (
+      !config.table ||
+      (selectedDatasourcePluginPackageName ===
+        PluginPackageName.GOOGLE_SHEETS &&
+        !isValidGsheetConfig(config)) ||
+      aliases?.some((alias) => {
+        return alias.isRequired && !config.alias[alias.name];
+      })
+    );
+  }, [config, aliases]);
 
   return {
     show,
