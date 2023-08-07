@@ -135,6 +135,14 @@ export class PropertyPane {
     `.ads-v2-segmented-control-value-${value}`;
   _addMenuItem = ".t--add-menu-item-btn";
   _addColumnItem = ".t--add-column-btn";
+  _placeholderName = "[placeholder='Name']";
+  _placeholderValue = "[placeholder='Value']";
+  _sliderMark = ".slider-mark";
+  _optionsDeleteButton = "[orientation='HORIZONTAL'] .ads-v2-button";
+  _styleSize = (size: string) => `.ads-v2-segmented-control-value-${size}`;
+  _themeColor =
+    "//h3[text()='Theme Colors']//..//div[contains(@class, 't--colorpicker-v2-color')]";
+  _fillColor = ".t--colorpicker-v2-popover .rounded-full";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
