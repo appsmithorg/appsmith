@@ -11,6 +11,7 @@ import type { JSONFormWidgetProps } from ".";
 import { ROOT_SCHEMA_KEY } from "../constants";
 import { ComputedSchemaStatus, computeSchema } from "./helper";
 import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 const MAX_NESTING_LEVEL = 5;
 
 const panelConfig = generatePanelPropertyConfig(MAX_NESTING_LEVEL);
@@ -136,17 +137,17 @@ export const contentConfig = [
         placeholderText: '{ "name": "John", "age": 24 }',
         isBindProperty: true,
         isTriggerProperty: false,
-        // validation: {
-        //   type: ValidationTypes.FUNCTION,
-        //   params: {
-        //     fn: sourceDataValidationFn,
-        //     expected: {
-        //       type: "JSON",
-        //       example: `{ "name": "John Doe", "age": 29 }`,
-        //       autocompleteDataType: AutocompleteDataType.OBJECT,
-        //     },
-        //   },
-        // },
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: sourceDataValidationFn,
+            expected: {
+              type: "JSON",
+              example: `{ "name": "John Doe", "age": 29 }`,
+              autocompleteDataType: AutocompleteDataType.OBJECT,
+            },
+          },
+        },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
