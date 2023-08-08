@@ -36,14 +36,14 @@ describe("MultiSelect Widget Functionality", function () {
       ]`,
     );
 
-    _.propPane.ToggleJSMode("label");
+    _.propPane.ToggleJSMode("labelkey");
     cy.updateCodeInput(
-      ".t--property-control-wrapper.t--property-control-label",
+      ".t--property-control-wrapper.t--property-control-labelkey",
       `label`,
     );
 
-    _.propPane.ToggleJSMode("value");
-    cy.updateCodeInput(".t--property-control-value", `value`);
+    _.propPane.ToggleJSMode("valuekey");
+    cy.updateCodeInput(".t--property-control-valuekey", `value`);
 
     _.propPane.UpdatePropertyFieldValue(
       "Default selected values",

@@ -321,6 +321,7 @@ export class EntityExplorer {
       this.locator._entityExplorersearch,
       widgetType.split("widget")[0].trim(),
     );
+    this.agHelper.Sleep(500);
     cy.get(this.locator._widgetPageIcon(widgetType))
       .first()
       .trigger("dragstart", { force: true })

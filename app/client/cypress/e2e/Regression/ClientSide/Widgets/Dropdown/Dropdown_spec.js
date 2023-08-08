@@ -36,16 +36,16 @@ describe("Dropdown Widget Functionality", function () {
       ]`,
     );
 
-    _.propPane.ToggleJSMode("label");
+    _.propPane.ToggleJSMode("label key");
     cy.updateCodeInput(
-      ".t--property-control-wrapper.t--property-control-label",
+      ".t--property-control-wrapper.t--property-control-labelkey",
       `label`,
     );
 
-    _.propPane.ToggleJSMode("value");
-    cy.updateCodeInput(".t--property-control-value", `value`);
+    _.propPane.ToggleJSMode("value key");
+    cy.updateCodeInput(".t--property-control-valuekey", `value`);
 
-    cy.get(".t--property-control-value .t--codemirror-has-error").should(
+    cy.get(".t--property-control-valuekey .t--codemirror-has-error").should(
       "not.exist",
     );
   });
@@ -69,7 +69,7 @@ describe("Dropdown Widget Functionality", function () {
         }
       ]`,
     );
-    cy.get(".t--property-control-value .t--codemirror-has-error").should(
+    cy.get(".t--property-control-valuekey .t--codemirror-has-error").should(
       "exist",
     );
   });
@@ -92,9 +92,7 @@ describe("Dropdown Widget Functionality", function () {
         }]`,
     );
     cy.updateCodeInput(".t--property-control-defaultselectedvalue", "BLUE");
-    cy.get(".t--property-control-value .t--codemirror-has-error").should(
-      "not.exist",
-    );
+    cy.get(".t--property-key .t--codemirror-has-error").should("not.exist");
     cy.get(
       ".t--property-control-defaultselectedvalue .t--codemirror-has-error",
     ).should("not.exist");

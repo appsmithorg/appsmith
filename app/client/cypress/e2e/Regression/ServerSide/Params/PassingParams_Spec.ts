@@ -24,14 +24,14 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
       `[\n  {\n    \"label\": \"7\",\n    \"value\": \"7\"\n  },\n  {\n    \"label\": \"8\",\n    \"value\": \"8\"\n  },\n  {\n    \"label\": \"9\",\n    \"value\": \"9\"\n  }\n]`,
     );
 
-    propPane.ToggleJSMode("label");
+    propPane.ToggleJSMode("labelkey");
     (cy as any).updateCodeInput(
-      ".t--property-control-wrapper.t--property-control-label",
+      ".t--property-control-wrapper.t--property-control-labelkey",
       `label`,
     );
 
-    propPane.ToggleJSMode("value");
-    (cy as any).updateCodeInput(".t--property-control-value", `value`);
+    propPane.ToggleJSMode("valuekey");
+    (cy as any).updateCodeInput(".t--property-control-valuekey", `value`);
 
     propPane.UpdatePropertyFieldValue(
       "Default selected value",

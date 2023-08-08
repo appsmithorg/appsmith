@@ -81,10 +81,7 @@ describe.skip("Table widget one click binding feature", () => {
     assertHelper.AssertNetworkStatus("@postExecute");
 
     agHelper.Sleep(500);
-
-    agHelper.ClearTextField(table._searchInput);
-
-    agHelper.TypeText(table._searchInput, "Bindings");
+    agHelper.ClearNType(table._searchInput, "Bindings");
 
     assertHelper.AssertNetworkStatus("@postExecute");
 
@@ -92,9 +89,7 @@ describe.skip("Table widget one click binding feature", () => {
 
     agHelper.AssertElementExist(table._bodyCell("Bindings"));
 
-    agHelper.ClearTextField(table._searchInput);
-
-    agHelper.TypeText(table._searchInput, "One Click Config");
+    agHelper.ClearNType(table._searchInput, "One Click Config");
 
     assertHelper.AssertNetworkStatus("@postExecute");
 
