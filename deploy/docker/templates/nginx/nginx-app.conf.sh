@@ -3,11 +3,7 @@
 set -o nounset
 
 use_https="$1"
-custom_domain="$2"
-
-if [[ -z $custom_domain ]]; then
-  custom_domain=_
-fi
+custom_domain="${2:-_}"
 
 if [[ $use_https == 1 ]]; then
   # By default, container will use the auto-generate certificate by Let's Encrypt
