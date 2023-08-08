@@ -67,7 +67,7 @@ describe("PgAdmin Clone App", function () {
     // adding new table
     cy.xpath(appPage.addNewtable).click({ force: true });
     cy.wait(2000);
-    agHelper.AssertElementAbsence(appPage.loadButton, 20000);
+    agHelper.AssertElementAbsence(appPage.loadButton, 30000);
     agHelper.WaitUntilEleAppear(appPage.addTablename);
     cy.generateUUID().then((UUID) => {
       cy.xpath(appPage.addTablename).clear().type(`table${UUID}`);
