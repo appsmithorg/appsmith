@@ -7,14 +7,12 @@ import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.helpers.ce.ExecutionTimeLogging;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ce.GitServiceCEImpl;
-import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
-import com.appsmith.server.solutions.PagePermission;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
@@ -44,11 +42,9 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
             PluginService pluginService,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
-            PagePermission pagePermission,
-            ActionPermission actionPermission,
             WorkspaceService workspaceService,
             RedisUtils redisUtils,
-            ExecutionTimeLogging executionTimeLogging) {
+            ObservationRegistry observationRegistry) {
 
         super(
                 userService,
@@ -71,10 +67,8 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                 pluginService,
                 datasourcePermission,
                 applicationPermission,
-                pagePermission,
-                actionPermission,
                 workspaceService,
                 redisUtils,
-                executionTimeLogging);
+                observationRegistry);
     }
 }
