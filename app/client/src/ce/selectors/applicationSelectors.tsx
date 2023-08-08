@@ -120,8 +120,7 @@ export const getUserApplicationsWorkspacesList = createSelector(
 
 export const getIsFetchingApplications = createSelector(
   getApplicationsState,
-  (applications: ApplicationsReduxState): boolean =>
-    applications.isFetchingApplications,
+  (applications: ApplicationsReduxState) => applications.isFetchingApplications,
 );
 
 export const getIsChangingViewAccess = createSelector(

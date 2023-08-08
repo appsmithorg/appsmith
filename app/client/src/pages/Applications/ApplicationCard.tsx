@@ -763,7 +763,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
           // Set overlay false on outside click.
           !isMenuOpen && setShowOverlay(false);
         }}
-        // showOverlay={showOverlay}
+        showOverlay={showOverlay}
       >
         <Wrapper
           backgroundColor={selectedColor}

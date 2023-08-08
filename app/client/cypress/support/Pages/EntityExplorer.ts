@@ -101,8 +101,8 @@ export class EntityExplorer {
       | "Queries/JS"
       | "Datasources"
       | "Pages"
-      | ""
-      | string = "",
+      // eslint-disable-next-line @typescript-eslint/ban-types
+      | (string & {}),
     ctrlKey = false,
   ) {
     this.NavigateToSwitcher("Explorer");

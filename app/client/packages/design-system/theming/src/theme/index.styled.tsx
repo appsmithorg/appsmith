@@ -9,7 +9,7 @@ type StyledProviderProps = PickRename<
     typography: "$typography";
     fontFamily: "$fontFamily";
   }
->;
+> & { theme: any };
 
 export const StyledProvider = styled.div<StyledProviderProps>`
   ${({ $fontFamily, $typography, theme }) => {

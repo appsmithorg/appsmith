@@ -135,14 +135,14 @@ const HeaderSection = styled.div`
   flex: 1;
   overflow: visible;
   align-items: center;
-  :nth-child(1) {
+  &:nth-child(1) {
     justify-content: flex-start;
     max-width: 30%;
   }
-  :nth-child(2) {
+  &:nth-child(2) {
     justify-content: center;
   }
-  :nth-child(3) {
+  &:nth-child(3) {
     justify-content: flex-end;
   }
 `;
