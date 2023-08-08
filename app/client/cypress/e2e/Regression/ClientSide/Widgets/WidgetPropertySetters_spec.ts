@@ -186,7 +186,7 @@ describe("Linting warning for setter methods", function () {
 
     agHelper.HoverElement(locators._lintErrorElement);
     agHelper.AssertContains(
-      "Direct mutation of widget properties aren't supported. Use Button1.setVisibility(value) setter method instead.",
+      "Direct mutation of widget properties aren't supported. Use Button1.setVisibility(value) instead.",
     );
 
     //Add myFun1 to onClick
