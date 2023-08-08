@@ -6,6 +6,7 @@ const utils = require('./utils');
 const Constants = require('./constants');
 const logger = require('./logger');
 const mailer = require('./mailer');
+const tty = require('tty');
 const readlineSync = require('readline-sync');
 
 const command_args = process.argv.slice(3);
@@ -31,7 +32,7 @@ async function run() {
     checkAvailableBackupSpace(availSpaceInBytes);
 
     let keysToRemove = 'all'
-    if (!command_args.includes('--non-interactive')){
+    if (!command_args.includes('--non-interactive') && (tty.isatty(process.stdout.fd))){
       encryptionPassword = getEncryptionPasswordFromUser();
       if (encryptionPassword == -1){
         throw new Error('Backup process aborted because a valid enctyption password could not be obtained from the user');
