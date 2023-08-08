@@ -1153,6 +1153,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
       });
     } catch (e) {
       console.error(e);
+      return true;
     }
   }).as("productAlert");
 });
