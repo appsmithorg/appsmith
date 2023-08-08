@@ -104,6 +104,9 @@ public class OfflineLicenseValidatorImpl extends BaseLicenseValidatorImpl implem
                     } else {
                         license.setStatus(LicenseStatus.EXPIRED);
                     }
+                    if (licenseDataset.getTenantFeatures() != null) {
+                        license.setTenantFeatures(licenseDataset.getTenantFeatures());
+                    }
                     return license;
                 }
             }
