@@ -40,7 +40,7 @@ describe("MultiSelect Widget Functionality", function () {
     _.propPane.ToggleJSMode("valuekey");
     cy.updateCodeInput(".t--property-control-valuekey", `value`);
 
-    cy.get(".t--property-control-value .t--codemirror-has-error").should(
+    cy.get(".t--property-control-valuekey .t--codemirror-has-error").should(
       "not.exist",
     );
   });
@@ -64,7 +64,7 @@ describe("MultiSelect Widget Functionality", function () {
         }
       ]`,
     );
-    cy.get(".t--property-control-value .t--codemirror-has-error").should(
+    cy.get(".t--property-control-valuekey .t--codemirror-has-error").should(
       "exist",
     );
   });
@@ -97,7 +97,7 @@ describe("MultiSelect Widget Functionality", function () {
         }
       ]`,
     );
-    cy.get(".t--property-control-value .t--codemirror-has-error").should(
+    cy.get(".t--property-control-valuekey .t--codemirror-has-error").should(
       "not.exist",
     );
     cy.get(
@@ -136,7 +136,7 @@ describe("MultiSelect Widget Functionality", function () {
       "RED"
     ]`,
     );
-    cy.get(".t--property-control-value .t--codemirror-has-error").should(
+    cy.get(".t--property-control-valuekey .t--codemirror-has-error").should(
       "not.exist",
     );
     cy.get(
