@@ -3,8 +3,8 @@ import {
   deployMode,
   homePage,
   locators,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
-const loginPage = require("../../../../locators/LoginPage.json");
 
 describe("Login failure", function () {
   it("1. Preserves redirectUrl param on login failure", function () {
@@ -14,7 +14,10 @@ describe("Login failure", function () {
       .then((location) => {
         cy.LogOutUser();
         appUrl = location.href.split("?")[0];
-        agHelper.VisitNAssert(appUrl, "productAlert", 8000);
+        cy.window({ timeout: 60000 }).then((win) => {
+          win.location.href = appUrl;
+        });
+        assertHelper.AssertNetworkStatus("signUpLogin");
         agHelper.AssertElementVisible(homePage._username);
       })
       .then(() => cy.GetUrlQueryParams())
