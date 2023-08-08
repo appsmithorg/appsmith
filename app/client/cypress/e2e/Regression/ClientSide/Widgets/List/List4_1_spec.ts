@@ -165,7 +165,7 @@ describe("List Widget Functionality", function () {
 
   it("8. ListWidget-Copy & Delete Verification", function () {
     //Copy Chart and verify all properties
-    propPane.CopyWidgetFromPropertyPane("List1");
+    propPane.CopyPasteWidgetFromPropertyPane("List1");
     propPane.DeleteWidgetFromPropertyPane("List1Copy");
     deployMode.DeployApp();
     // Verify the copied list widget is deleted
@@ -190,13 +190,13 @@ describe("List Widget Functionality", function () {
     agHelper.AssertCSS(
       locators._listWidget,
       "background-color",
-      "rgb(126, 34, 206)",
+      "rgb(219, 234, 254)",
     );
     // Verify List Item Background Color
     agHelper.AssertCSS(
       locators._itemContainerWidget,
       "background-color",
-      "rgb(126, 34, 206)",
+      "rgb(219, 234, 254)",
     );
     deployMode.NavigateBacktoEditor();
   });

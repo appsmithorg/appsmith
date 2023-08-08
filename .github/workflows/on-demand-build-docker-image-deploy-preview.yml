@@ -165,7 +165,10 @@ jobs:
           rm app/client/packages/rts/dist/rts-dist.tar
 
       - name: Generate info.json
-        run: scripts/generate_info_json.sh
+        run: |
+          if [[ -f scripts/generate_info_json.sh ]]; then
+            scripts/generate_info_json.sh
+          fi
 
       - name: Login to DockerHub
         uses: docker/login-action@v1
