@@ -2,27 +2,14 @@
 
 set -o nounset
 
-custom_domain="${1-}"
+use_https="$1"
+custom_domain="$2"
 
-# Check exist certificate with given custom domain
-# Heroku not support for custom domain, only generate HTTP config if deploying on Heroku
-use_https=false
-if [[ -n $custom_domain ]] && [[ -z ${DYNO-} ]]; then
-  use_https=true
-  if ! [[ -e "/etc/letsencrypt/live/$custom_domain" ]]; then
-    source "/opt/appsmith/init_ssl_cert.sh"
-    if ! init_ssl_cert "$custom_domain"; then
-      echo "Status code from init_ssl_cert is $?"
-      use_https=false
-    fi
-  fi
-
-elif [[ -z $custom_domain ]]; then
+if [[ -z $custom_domain ]]; then
   custom_domain=_
-
 fi
 
-if $use_https; then
+if [[ $use_https == 1 ]]; then
   # By default, container will use the auto-generate certificate by Let's Encrypt
   ssl_cert_path="/etc/letsencrypt/live/$custom_domain/fullchain.pem"
   ssl_key_path="/etc/letsencrypt/live/$custom_domain/privkey.pem"
@@ -58,10 +45,10 @@ server_tokens off;
 server {
 
 $(
-if $use_https; then
+if [[ $use_https == 1 ]]; then
   echo "
   listen 80;
-  server_name $CUSTOM_DOMAIN;
+  server_name $custom_domain;
   return 301 https://\$host\$request_uri;
 }
 

@@ -51,7 +51,21 @@ if [[ -z "${APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX-}" ]]; then
   export APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX="true"
 fi
 
-bash /opt/appsmith/templates/nginx-app.conf.sh "${APPSMITH_CUSTOM_DOMAIN-}" > /etc/nginx/sites-available/default
+# Check exist certificate with given custom domain
+# Heroku not support for custom domain, only generate HTTP config if deploying on Heroku
+use_https=0
+if [[ -n ${APPSMITH_CUSTOM_DOMAIN-} ]] && [[ -z ${DYNO-} ]]; then
+  use_https=1
+  if ! [[ -e "/etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN" ]]; then
+    source "/opt/appsmith/init_ssl_cert.sh"
+    if ! init_ssl_cert "$APPSMITH_CUSTOM_DOMAIN"; then
+      echo "Status code from init_ssl_cert is $?"
+      use_https=0
+    fi
+  fi
+fi
+
+bash /opt/appsmith/templates/nginx-app.conf.sh "$use_https" "${APPSMITH_CUSTOM_DOMAIN-}" > /etc/nginx/sites-available/default
 
 apply-env-vars() {
   original="$1"
