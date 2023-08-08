@@ -14,7 +14,7 @@ describe("Container Widget Functionality", function () {
 
   it("1. ListWidget-Copy & Delete Verification", function () {
     //Copy Chart and verify all properties
-    _.propPane.CopyWidgetFromPropertyPane("List1");
+    _.propPane.CopyPasteWidgetFromPropertyPane("List1");
     _.propPane.DeleteWidgetFromPropertyPane("List1Copy");
     _.deployMode.DeployApp();
     // Verify the copied list widget is deleted

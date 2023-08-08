@@ -1,16 +1,24 @@
-import { deployMode } from "../../../../support/Objects/ObjectsCore";
-const loginPage = require("../../../../locators/LoginPage.json");
+import {
+  agHelper,
+  deployMode,
+  homePage,
+  locators,
+  assertHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Login failure", function () {
   it("1. Preserves redirectUrl param on login failure", function () {
     let appUrl;
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._emptyPageTxt);
     cy.location()
       .then((location) => {
-        cy.LogOutUser();
         appUrl = location.href.split("?")[0];
-        cy.visit(appUrl, { timeout: 60000 });
-        cy.get(loginPage.username).should("be.visible");
+        cy.LogOutUser();
+        cy.window({ timeout: 60000 }).then((win) => {
+          win.location.href = appUrl;
+        });
+        assertHelper.AssertNetworkStatus("signUpLogin");
+        agHelper.AssertElementVisible(homePage._username);
       })
       .then(() => cy.GetUrlQueryParams())
       .then((queryParams) => {
