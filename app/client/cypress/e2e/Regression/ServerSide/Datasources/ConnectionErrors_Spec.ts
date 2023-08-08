@@ -226,4 +226,22 @@ describe("Validate Empty DS error messages", () => {
       ]);
     });
   });
+
+  it("4. Redis connection errors", () => {
+    dataSources.NavigateToDSCreateNew();
+    agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      dataSources.CreatePlugIn("Redis");
+      dataSourceName = "Redis" + " " + uid;
+      agHelper.RenameWithInPane(dataSourceName, false);
+
+      dataSources.TestDatasource(false);
+      agHelper.ValidateToastMessage(
+        "Could not find host address. Please edit the 'Host address' field to provide the desired endpoint.",
+      );
+      dataSources.FillRedisDSForm();
+      dataSources.TestSaveDatasource();
+      dataSources.AssertDataSourceInfo(["host.docker.internal", "6379"]);
+    });
+  });
 });
