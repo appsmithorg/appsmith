@@ -3,7 +3,6 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.EmailTokenDTO;
 import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
@@ -54,5 +53,5 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<Boolean> emailVerificationTokenGenerate(ResendEmailVerificationDTO resendEmailVerificationDTO);
 
-    Mono<Void> verifyEmailVerificationToken(EmailTokenDTO emailTokenDTO, ServerWebExchange exchange);
+    Mono<Void> verifyEmailVerificationToken(Map<String, String> params, ServerWebExchange exchange);
 }

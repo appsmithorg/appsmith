@@ -962,10 +962,20 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     @Override
-    public Mono<Void> verifyEmailVerificationToken(EmailTokenDTO requestEmailTokenDTO, ServerWebExchange exchange) {
+    public Mono<Void> verifyEmailVerificationToken(Map<String, String> params, ServerWebExchange exchange) {
         EmailTokenDTO parsedEmailTokenDTO;
+        String requestEmail = params.get("email");
+        String requestedToken = params.get("token");
+
+        if (requestEmail == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.EMAIL));
+        }
+        if (requestedToken == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
+        }
+
         try {
-            parsedEmailTokenDTO = parseValueFromEncryptedToken(requestEmailTokenDTO.getToken());
+            parsedEmailTokenDTO = parseValueFromEncryptedToken(requestedToken);
         } catch (ArrayIndexOutOfBoundsException | IllegalStateException | IllegalArgumentException e) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
         }
@@ -977,7 +987,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .findByEmail(parsedEmailTokenDTO.getEmail())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_EMAIL_VERIFICATION)))
                 .flatMap(obj -> {
-                    if (!Objects.equals(obj.getEmail(), requestEmailTokenDTO.getEmail())) {
+                    if (!Objects.equals(obj.getEmail(), requestEmail)) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_EMAIL_VERIFICATION));
                     }
                     if (FALSE.equals(isEmailVerificationTokenValid(obj))) {

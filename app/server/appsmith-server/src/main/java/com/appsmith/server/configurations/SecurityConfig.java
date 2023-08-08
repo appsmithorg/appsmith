@@ -185,7 +185,7 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CUSTOM_JS_LIB_URL + "/*/view"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/resendEmailVerification"),
                         ServerWebExchangeMatchers.pathMatchers(
-                                HttpMethod.POST, USER_URL + "/verifyEmailVerificationToken"))
+                                HttpMethod.GET, USER_URL + "/verifyEmailVerificationToken"))
                 .permitAll()
                 .pathMatchers("/public/**", "/oauth2/**", "/actuator/**")
                 .permitAll()
