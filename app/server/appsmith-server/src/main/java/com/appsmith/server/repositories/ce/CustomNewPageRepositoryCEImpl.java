@@ -4,15 +4,19 @@ import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QLayout;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -30,11 +34,15 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewPage>
         implements CustomNewPageRepositoryCE {
 
+    private final MongoTemplate mongoTemplate;
+
     public CustomNewPageRepositoryCEImpl(
             ReactiveMongoOperations mongoOperations,
             MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
+            CacheableRepositoryHelper cacheableRepositoryHelper,
+            MongoTemplate mongoTemplate) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+        this.mongoTemplate = mongoTemplate;
     }
 
     @Override
@@ -251,14 +259,25 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<UpdateResult> publishPages(Collection<String> pageIds, AclPermission permission) {
+    public Mono<Collection<Object>> publishPages(Collection<String> pageIds, AclPermission permission) {
         Criteria applicationIdCriteria = where(fieldName(QNewPage.newPage.id)).in(pageIds);
+        AggregationOperation matchAggregation = Aggregation.match(applicationIdCriteria);
+        AggregationOperation wholeProjection = Aggregation.project(PermissionGroup.class);
+        AggregationOperation addFieldsOperation = Aggregation.addFields()
+                .addField(fieldName(QNewPage.newPage.publishedPage))
+                .withValueOf(Fields.field(fieldName(QNewPage.newPage.unpublishedPage)))
+                .build();
         // using aggregation update instead of regular update here
         // it's required to set a field to a value of another field from the same domain
-        AggregationUpdate aggregationUpdate = AggregationUpdate.update()
-                .set(fieldName(QNewPage.newPage.publishedPage))
-                .toValue("$" + fieldName(QNewPage.newPage.unpublishedPage));
-
-        return updateByCriteria(List.of(applicationIdCriteria), aggregationUpdate, permission);
+        //        AggregationUpdate aggregationUpdate = AggregationUpdate.update()
+        //                .set(fieldName(QNewPage.newPage.publishedPage))
+        //                .toValue("$" + fieldName(QNewPage.newPage.unpublishedPage));
+        //
+        //        return updateByCriteria(List.of(applicationIdCriteria), aggregationUpdate, permission);
+        Aggregation combinedAggregation =
+                Aggregation.newAggregation(matchAggregation, wholeProjection, addFieldsOperation);
+        AggregationResults<PermissionGroup> updatedResults =
+                mongoTemplate.aggregate(combinedAggregation, PermissionGroup.class, PermissionGroup.class);
+        return Mono.just((Collection) mongoTemplate.insertAll(updatedResults.getMappedResults()));
     }
 }

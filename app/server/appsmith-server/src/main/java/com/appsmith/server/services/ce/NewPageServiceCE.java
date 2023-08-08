@@ -7,7 +7,6 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.services.CrudService;
-import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -93,5 +92,5 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Flux<NewPage> findPageSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission);
 
-    Mono<UpdateResult> publishPages(Collection<String> pageIds, AclPermission permission);
+    Mono<Collection<Object>> publishPages(Collection<String> pageIds, AclPermission permission);
 }
