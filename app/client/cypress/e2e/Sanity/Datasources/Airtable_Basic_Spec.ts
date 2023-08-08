@@ -8,7 +8,7 @@ import {
 } from "../../../support/Objects/ObjectsCore";
 
 let dsName: any, jsonSpecies: any, offset: any, insertedRecordId: any;
-describe.skip("excludeForAirgap", "Validate Airtable Ds", () => {
+describe("excludeForAirgap", "Validate Airtable Ds", () => {
   before("Create a new Airtable DS", () => {
     dataSources.CreateDataSource("Airtable", true, false);
     cy.get("@dsName").then(($dsName) => {

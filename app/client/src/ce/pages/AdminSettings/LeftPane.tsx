@@ -9,16 +9,12 @@ import {
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { useParams } from "react-router";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Icon, Tag, Text } from "design-system";
+import { Icon, Text } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import {
-  BUSINESS_TAG,
-  ENTERPRISE_TAG,
-  createMessage,
-} from "@appsmith/constants/messages";
+import BusinessTag from "components/BusinessTag";
+import EnterpriseTag from "components/EnterpriseTag";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) => props.theme.sidebarWidth};
@@ -160,13 +156,8 @@ export function Categories({
                 config?.icon && <Icon name={config?.icon} size="md" />
               )}
               <SettingName active={active}>{config.title}</SettingName>
-              {config?.needsUpgrade && (
-                <Tag isClosable={false}>
-                  {createMessage(
-                    config?.isEnterprise ? ENTERPRISE_TAG : BUSINESS_TAG,
-                  )}
-                </Tag>
-              )}
+              {config?.needsUpgrade &&
+                (config?.isEnterprise ? <EnterpriseTag /> : <BusinessTag />)}
             </StyledLink>
             {showSubCategory && (
               <Categories
@@ -190,16 +181,9 @@ export default function LeftPane() {
   const { category, selected: subCategory } = useParams() as any;
   const user = useSelector(getCurrentUser);
   const isSuperUser = user?.isSuperUser;
-  const featureFlags = useSelector(selectFeatureFlags);
 
   const filteredAclCategories = aclCategories
     ?.map((category) => {
-      if (
-        category.slug === "provisioning" &&
-        !featureFlags.release_scim_provisioning_enabled
-      ) {
-        return null;
-      }
       return category;
     })
     .filter(Boolean) as Category[];

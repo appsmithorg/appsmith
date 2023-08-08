@@ -31,7 +31,7 @@ export const CONFIG = {
     minWidth: FILL_WIDGET_MIN_WIDTH,
     chartData: {
       [generateReactKey()]: {
-        seriesName: "Sales",
+        seriesName: "2023",
         data: [
           {
             x: "Product1",

@@ -1,7 +1,6 @@
 import React from "react";
-import { Text, Link, Button, Icon, Tag } from "design-system";
+import { Text, Link, Button, Icon } from "design-system";
 import {
-  BUSINESS_TEXT,
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
@@ -16,6 +15,7 @@ import {
 } from "utils/ProductRamps/RampsControlList";
 import { useSelector } from "react-redux";
 import { getRampLink, showProductRamps } from "selectors/rampSelectors";
+import BusinessTag from "components/BusinessTag";
 
 function PrivateEmbeddingContent(props: {
   userAppPermissions: any[];
@@ -59,9 +59,7 @@ export function PrivateEmbedRampModal() {
             <Text kind="body-m">
               {createMessage(IN_APP_EMBED_SETTING.privateAppsText)}
             </Text>
-            <Tag className="ml-1 mt-0.5" isClosable={false}>
-              {createMessage(BUSINESS_TEXT)}
-            </Tag>
+            <BusinessTag classes="ml-1 mt-0.5" />
           </div>
           <Text
             className="w-7/10 block"
