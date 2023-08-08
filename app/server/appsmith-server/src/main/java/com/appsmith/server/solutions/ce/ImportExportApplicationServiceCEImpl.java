@@ -1878,7 +1878,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .then(applicationMono)
                             .flatMap(application -> {
                                 log.info("Imported application with id {}", application.getId());
-                                return applicationService.update(application.getId(), application);
+                                // Need to update the application object with updated pages and publishedPages
+                                Application updateApplication = new Application();
+                                updateApplication.setPages(application.getPages());
+                                updateApplication.setPublishedPages(application.getPublishedPages());
+                                return applicationService.update(application.getId(), updateApplication);
                             })
                             .onErrorResume(throwable -> {
                                 String errorMessage = ImportExportUtils.getErrorMessage(throwable);
@@ -2298,7 +2302,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .switchIfEmpty(Mono.just(
                                     datasourceService.createDatasourceFromDatasourceStorage(datasourceStorage)))
                             .flatMap(datasourceService::createWithoutPermissions);
-                }));
+                }))
+                .onErrorResume(throwable -> {
+                    log.error("failed to import datasource", throwable);
+                    return Mono.error(throwable);
+                });
     }
 
     /**
