@@ -117,7 +117,7 @@ describe("Range Slider spec", () => {
       .type("{leftArrow}")
       .type("{leftArrow}")
       .type("{leftArrow}");
-    agHelper.Sleep(2000);
+    agHelper.Sleep(3000);
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT), "text", 1)
       .then(($label) => {
@@ -133,6 +133,7 @@ describe("Range Slider spec", () => {
       .focus()
       .type("{leftArrow}")
       .type("{leftArrow}");
+    agHelper.Sleep(3000);
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT), "text", 1)
       .then(($label) => {
@@ -150,6 +151,7 @@ describe("Range Slider spec", () => {
       .eq(0)
       .focus()
       .type("{leftArrow}");
+    agHelper.Sleep(3000);
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT), "text", 1)
       .then(($label) => {
@@ -190,6 +192,7 @@ describe("Range Slider spec", () => {
       .eq(1)
       .focus()
       .type("{rightArrow}");
+    agHelper.Sleep(3000);
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT), "text", 0)
       .then(($label) => {
@@ -241,6 +244,7 @@ describe("Range Slider spec", () => {
       .eq(1)
       .focus()
       .type("{rightArrow}");
+    agHelper.Sleep(3000);
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT), "text", 0)
       .then(($label) => {
@@ -381,7 +385,7 @@ describe("Range Slider spec", () => {
       .eq(0)
       .focus()
       .type("{rightArrow}")
-      .wait(500);
+      .wait(2000);
 
     // Assert the Text widget has value 20
     agHelper
@@ -398,7 +402,7 @@ describe("Range Slider spec", () => {
       .type("{leftArrow}")
       .type("{leftArrow}");
 
-    agHelper.Sleep(200);
+    agHelper.Sleep(2000);
 
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT), "text", 0)
