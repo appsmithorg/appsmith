@@ -54,4 +54,10 @@ export default {
     `[data-testId="t--one-click-binding-column-${column}"] .rc-select-selection-item${
       value ? `:contains(${value})` : ""
     }`,
+  columnSelectorModalTrigger: '[data-testid="t--edit-fields-button"]',
+  columnSelectorModal: '[data-testid="t--column-selector-modal"]',
+  columnselectorModalSaveBtn: '[data-testid="t--edit-fields-save-btn"]',
+  columnselectorModalCancelBtn: '[data-testid="t--edit-fields-cancel-btn"]',
+  columnSelectorField: (columnName: string) =>
+    `[data-column-id="t--edit-field-${columnName}"]`,
 };

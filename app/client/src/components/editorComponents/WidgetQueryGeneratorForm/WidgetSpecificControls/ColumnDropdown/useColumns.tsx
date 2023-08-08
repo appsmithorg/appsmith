@@ -93,13 +93,18 @@ export function useColumns(alias: string) {
     switch (type) {
       case "int4":
       case "int2":
+      case "Integer":
+      case "Double":
         return "number";
       case "varchar":
       case "text":
+      case "String":
         return "string";
       case "date":
       case "timestamptz":
         return "date";
+      case "Array":
+        return "array";
       default:
         return "string";
     }

@@ -366,6 +366,7 @@ export const getDefaultValues = (formConfig: any) => {
     number: 1,
     string: "",
     date: new Date("1970-01-01"),
+    array: [],
   };
 
   const convertedObject: Record<string, unknown> = formConfig.columns.reduce(

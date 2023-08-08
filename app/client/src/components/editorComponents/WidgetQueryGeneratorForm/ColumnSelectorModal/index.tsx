@@ -97,6 +97,7 @@ export function ColumnSelectorModal() {
         return (
           <FlexWrapper>
             <StyledCheckbox
+              data-column-id={`t--edit-field-${row.original.name}`}
               isSelected={row.original.isSelected}
               onChange={() => handleSelect(row.original)}
             />
@@ -106,14 +107,15 @@ export function ColumnSelectorModal() {
       },
     },
     {
-      Header: "Type column type",
+      Header: "Column type",
       accessor: "type",
     },
   ];
 
   return (
-    <>
+    <div data-testid="t--column-selector-modal">
       <EditFieldsButton
+        data-testid="t--edit-fields-button"
         kind="tertiary"
         onClick={() => setIsOpen(true)}
         startIcon="edit-2-line"
@@ -134,15 +136,24 @@ export function ColumnSelectorModal() {
             <Table columns={columns} data={updatedData || []} />
           </StyledModalBody>
           <ModalFooter>
-            <Button kind="secondary" onClick={onCancel} size="md">
+            <Button
+              data-testid="t--edit-fields-cancel-btn"
+              kind="secondary"
+              onClick={onCancel}
+              size="md"
+            >
               Cancel
             </Button>
-            <Button onClick={handleSave} size="md">
+            <Button
+              data-testid="t--edit-fields-save-btn"
+              onClick={handleSave}
+              size="md"
+            >
               Save changes
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </>
+    </div>
   );
 }
