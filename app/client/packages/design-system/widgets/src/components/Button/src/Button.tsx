@@ -1,9 +1,12 @@
 import type {
-  ButtonProps as HeadlessButtonProps,
   ButtonRef as HeadlessButtonRef,
+  ButtonProps as HeadlessButtonProps,
 } from "@design-system/headless";
 import React, { forwardRef } from "react";
-import { Icon as HeadlessIcon } from "@design-system/headless";
+import {
+  Icon as HeadlessIcon,
+  Button as HeadlessButton,
+} from "@design-system/headless";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
 
 import type {
@@ -11,9 +14,9 @@ import type {
   BUTTON_VARIANTS,
   BUTTON_ICON_POSITIONS,
 } from "./types";
-import { Text } from "../../Text";
-import { Spinner } from "../../Spinner";
-import { DragContainer, StyledButton } from "./index.styled";
+import { Text } from "../Text";
+import { Spinner } from "../Spinner";
+import styles from "./styles.module.css";
 
 export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
   /** variant of the button
@@ -41,67 +44,66 @@ export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
   loadingText?: string;
 }
 
-const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
-  props = useVisuallyDisabled(props);
-  const {
-    children,
-    color = "accent",
-    icon,
-    iconPosition = "start",
-    isLoading,
-    loadingText = "Loading...",
-    // eslint-disable-next-line -- TODO add onKeyUp when the bug is fixed https://github.com/adobe/react-spectrum/issues/4350
-    onKeyUp,
-    variant = "filled",
-    visuallyDisabled,
-    ...rest
-  } = props;
-  const { visuallyHiddenProps } = useVisuallyHidden();
+export const Button = forwardRef(
+  (props: ButtonProps, ref: HeadlessButtonRef) => {
+    props = useVisuallyDisabled(props);
+    const {
+      children,
+      color = "accent",
+      icon,
+      iconPosition = "start",
+      isLoading,
+      loadingText = "Loading...",
+      // eslint-disable-next-line -- TODO add onKeyUp when the bug is fixed https://github.com/adobe/react-spectrum/issues/4350
+      onKeyUp,
+      variant = "filled",
+      visuallyDisabled,
+      ...rest
+    } = props;
+    const { visuallyHiddenProps } = useVisuallyHidden();
 
-  const renderChildren = () => {
+    const renderChildren = () => {
+      return (
+        <>
+          <span aria-hidden={isLoading ? true : undefined} data-content="">
+            {icon}
+            <Text lineClamp={1} textAlign="center">
+              {children}
+            </Text>
+          </span>
+
+          <span aria-hidden={!isLoading ? true : undefined} data-loader="">
+            <HeadlessIcon>
+              <Spinner />
+            </HeadlessIcon>
+            <span {...visuallyHiddenProps}>{loadingText}</span>
+          </span>
+        </>
+      );
+    };
+
     return (
-      <>
-        <span aria-hidden={isLoading ? true : undefined} data-content="">
-          {icon}
-          <Text fontWeight={600} lineClamp={1} textAlign="center">
-            {children}
-          </Text>
-        </span>
-
-        <span aria-hidden={!isLoading ? true : undefined} data-loader="">
-          <HeadlessIcon>
-            <Spinner />
-          </HeadlessIcon>
-          <span {...visuallyHiddenProps}>{loadingText}</span>
-        </span>
-      </>
+      <HeadlessButton
+        aria-busy={isLoading ? true : undefined}
+        aria-disabled={
+          visuallyDisabled || isLoading || props.isDisabled ? true : undefined
+        }
+        className={styles.button}
+        data-button=""
+        data-color={color}
+        data-icon-position={iconPosition === "start" ? "start" : "end"}
+        data-loading={isLoading ? "" : undefined}
+        data-variant={variant}
+        draggable
+        ref={ref}
+        {...rest}
+      >
+        {renderChildren()}
+        <span aria-hidden="true" className={styles.dragContainer} />
+      </HeadlessButton>
     );
-  };
-
-  return (
-    <StyledButton
-      $color={color}
-      $variant={variant}
-      aria-busy={isLoading ? true : undefined}
-      aria-disabled={
-        visuallyDisabled || isLoading || props.isDisabled ? true : undefined
-      }
-      data-button=""
-      data-color={color}
-      data-icon-position={iconPosition === "start" ? "start" : "end"}
-      data-loading={isLoading ? "" : undefined}
-      data-variant={variant}
-      draggable
-      ref={ref}
-      {...rest}
-    >
-      {renderChildren()}
-      <DragContainer aria-hidden="true" />
-    </StyledButton>
-  );
-};
-
-export const Button = forwardRef(_Button);
+  },
+);
 
 /**
  * This hook is used to disable all click/press events on a button
