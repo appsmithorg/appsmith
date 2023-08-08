@@ -3,8 +3,10 @@ import type { EnvTypes, RampSection, SupportedRampsType } from "./RampTypes";
 import {
   CUSTOM_ROLES,
   INVITE_USER_TO_APP,
+  MULTIPLE_ENV,
   RAMP_FOR_ROLES,
   RAMP_NAME,
+  RampFeature,
 } from "./RampsControlList";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import store from "store";
@@ -14,14 +16,18 @@ const { cloudHosting, pricingUrl } = getAppsmithConfigs();
 export const PRODUCT_RAMPS_LIST: { [key: string]: SupportedRampsType } = {
   [RAMP_NAME.INVITE_USER_TO_APP]: INVITE_USER_TO_APP,
   [RAMP_NAME.CUSTOM_ROLES]: CUSTOM_ROLES,
+  [RAMP_NAME.MULTIPLE_ENV]: MULTIPLE_ENV,
 };
 
-export const getRampLink = (section: RampSection) => {
+export const getRampLink = (
+  section: RampSection,
+  feature: RampFeature = RampFeature.Gac,
+) => {
   const state = store.getState();
   const instanceId = state?.tenant?.instanceId;
   const source = cloudHosting ? "cloud" : "CE";
   const RAMP_LINK_TO = PRICING_PAGE_URL(pricingUrl, source, instanceId);
-  return `${RAMP_LINK_TO}&feature=GAC&section=${section}`;
+  return `${RAMP_LINK_TO}&feature=${feature}&section=${section}`;
 };
 
 export const getUserRoleInWorkspace = () => {
@@ -40,7 +46,7 @@ export const getUserRoleInWorkspace = () => {
         return role.trim();
       }
     }
-  }
+  } else return RAMP_FOR_ROLES.APP_VIEWER;
 };
 
 export const showProductRamps = (rampName: string) => {
