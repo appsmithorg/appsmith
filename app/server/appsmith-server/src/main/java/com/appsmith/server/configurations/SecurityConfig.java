@@ -152,7 +152,7 @@ public class SecurityConfig {
                 .disable()
                 .addFilterAt(new CSRFFilter(), SecurityWebFiltersOrder.CSRF)
                 // Default security headers configuration from
-                // https://docs.spring.io/spring-security/site/docs/5.0.x/reference/html/headers.html.
+                // https://docs.spring.io/spring-security/site/docs/5.0.x/reference/html/headers.html
                 .headers()
                 .contentTypeOptions()
                 .disable()
