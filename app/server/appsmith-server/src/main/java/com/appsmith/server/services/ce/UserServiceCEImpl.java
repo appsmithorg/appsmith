@@ -982,6 +982,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         Mono<WebSession> sessionMono = exchange.getSession();
         Mono<SecurityContext> securityContextMono = ReactiveSecurityContextHolder.getContext();
+        Mono<User> userMono =
+                repository.findByEmail(parsedEmailTokenDTO.getEmail()).cache();
 
         return emailVerificationTokenRepository
                 .findByEmail(parsedEmailTokenDTO.getEmail())
@@ -991,17 +993,23 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_EMAIL_VERIFICATION));
                     }
                     if (FALSE.equals(isEmailVerificationTokenValid(obj))) {
-                        throw new AppsmithException(AppsmithError.EMAIL_VERIFICATION_TOKEN_EXPIRED);
+                        return Mono.error(new AppsmithException(AppsmithError.EMAIL_VERIFICATION_TOKEN_EXPIRED));
                     }
-
-                    return Mono.just(obj);
+                    return Mono.zip(userMono, Mono.just(obj));
                 })
-                .map(obj -> this.passwordEncoder.matches(parsedEmailTokenDTO.getToken(), obj.getTokenHash()))
+                .flatMap(tuple -> {
+                    User user = tuple.getT1();
+                    EmailVerificationToken emailVerificationToken = tuple.getT2();
+                    if (TRUE.equals(user.getEmailVerified())) {
+                        return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_VERIFIED));
+                    }
+                    return Mono.just(this.passwordEncoder.matches(
+                            parsedEmailTokenDTO.getToken(), emailVerificationToken.getTokenHash()));
+                })
                 .flatMap(tokenMatched -> {
                     if (!tokenMatched) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_EMAIL_VERIFICATION));
                     }
-                    Mono<User> userMono = repository.findByEmail(parsedEmailTokenDTO.getEmail());
                     return Mono.zip(userMono, sessionMono, securityContextMono);
                 })
                 .flatMap(tuple -> {
@@ -1015,7 +1023,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     session.getAttributes().put(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME, securityContext);
 
                     final WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, EMPTY_WEB_FILTER_CHAIN);
-                    return redirectHelper.handleRedirect(webFilterExchange, null, false);
+                    user.setEmailVerified(TRUE);
+                    return repository.save(user).then(redirectHelper.handleRedirect(webFilterExchange, null, false));
                 });
     }
 }
