@@ -121,7 +121,7 @@ export class PropertyPane {
   _autoHeightLimitMin_div =
     "[data-testid='t--auto-height-overlay-handles-min'] div";
   _autoHeightLimitMax = "[data-testid='t--auto-height-overlay-handles-max']";
-  _labelContains = (value: string) => `label:Contains('${value}')`;
+  public _labelContains = (value: string) => `label:Contains('${value}')`;
   _showColumnButton = ".t--show-column-btn";
   _propertyPaneHeightLabel =
     ".t--property-pane-section-general .t--property-control-label:contains('Height')";
