@@ -50,6 +50,7 @@ const DragBlock = styled.div`
 export interface TableFilterPaneProps {
   widgetId: string;
   columns: ReactTableColumnProps[];
+  featureFlag: boolean | undefined;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
   accentColor: string;

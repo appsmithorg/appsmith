@@ -145,6 +145,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   memoisedAddNewRow: addNewRowToTable;
   memoiseGetColumnsWithLocalStorage: (localStorage: any) => getColumns;
   memoiseTransformDataWithEditableCell: transformDataWithEditableCell;
+  featureFlag: boolean | undefined = BaseWidget.getFeatureFlag("TEST_FLAG");
 
   static getQueryGenerationConfig(widget: WidgetProps) {
     return {

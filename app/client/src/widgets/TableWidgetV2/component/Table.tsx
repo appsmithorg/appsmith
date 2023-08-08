@@ -126,6 +126,7 @@ export interface TableProps {
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
+  featureFlag: boolean | undefined;
 }
 
 const defaultColumn = {
@@ -376,6 +377,7 @@ export function Table(props: TableProps) {
                   delimiter={props.delimiter}
                   disableAddNewRow={!!props.editableCell?.column}
                   disabledAddNewRowSave={props.disabledAddNewRowSave}
+                  featureFlag={props.featureFlag}
                   filters={props.filters}
                   isAddRowInProgress={props.isAddRowInProgress}
                   isVisibleDownload={props.isVisibleDownload}

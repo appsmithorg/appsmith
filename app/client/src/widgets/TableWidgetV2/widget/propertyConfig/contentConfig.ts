@@ -6,6 +6,7 @@ import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import Widget from "../index";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { InlineEditingSaveOptions } from "widgets/TableWidgetV2/constants";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
@@ -237,6 +238,8 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
         defaultValue: false,
+        hidden: () => Widget.getFeatureFlag("TEST_FLAG"),
+        // hidden: () => Widget.getFeatureFlag(),
       },
       {
         propertyName: "onTableFilterUpdate",

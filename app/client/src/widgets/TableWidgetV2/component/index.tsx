@@ -104,6 +104,7 @@ interface ReactTableComponentProps {
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
+  featureFlag: boolean | undefined;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -123,6 +124,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     disableDrag,
     editableCell,
     editMode,
+    featureFlag,
     filters,
     handleColumnFreeze,
     handleReorderColumn,
@@ -237,6 +239,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       editMode={editMode}
       editableCell={editableCell}
       enableDrag={memoziedEnableDrag}
+      featureFlag={featureFlag}
       filters={filters}
       handleColumnFreeze={handleColumnFreeze}
       handleReorderColumn={handleReorderColumn}
