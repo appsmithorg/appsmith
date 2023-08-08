@@ -109,7 +109,8 @@ describe("Number Slider spec", () => {
     agHelper
       .GetElement(locators._sliderThumb)
       .focus()
-      .type("{leftArrow}{leftArrow}");
+      .type("{leftArrow}")
+      .type("{leftArrow}");
     agHelper.Sleep(2000);
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT), "text")

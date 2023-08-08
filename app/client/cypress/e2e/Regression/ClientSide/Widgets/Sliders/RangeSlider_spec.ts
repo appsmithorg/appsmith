@@ -114,7 +114,9 @@ describe("Range Slider spec", () => {
       .GetElement(locators._sliderThumb)
       .eq(0)
       .focus()
-      .type("{leftArrow}{leftArrow}{leftArrow}");
+      .type("{leftArrow}")
+      .type("{leftArrow}")
+      .type("{leftArrow}");
     agHelper.Sleep(2000);
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT), "text", 1)
@@ -129,7 +131,8 @@ describe("Range Slider spec", () => {
       .GetElement(locators._sliderThumb)
       .eq(0)
       .focus()
-      .type("{leftArrow}{leftArrow}");
+      .type("{leftArrow}")
+      .type("{leftArrow}");
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT), "text", 1)
       .then(($label) => {
