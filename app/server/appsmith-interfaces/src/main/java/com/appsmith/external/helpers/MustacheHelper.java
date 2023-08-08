@@ -407,7 +407,7 @@ public class MustacheHelper {
             return dependencyNodes;
         } else {
             EntityDependencyNode entityDependencyNode =
-                    new EntityDependencyNode(EntityReferenceType.WIDGET, subStrings[0], reference, null, null, null);
+                    new EntityDependencyNode(EntityReferenceType.WIDGET, subStrings[0], reference, null, null);
             dependencyNodes.add(entityDependencyNode);
         }
 
@@ -446,21 +446,21 @@ public class MustacheHelper {
             // This could qualify if it is a sync JS function call, even if it is called `JsObject1.data()`
             // For sync JS actions, the entire reference could be a function call
             EntityDependencyNode entityDependencyNode =
-                    new EntityDependencyNode(EntityReferenceType.JSACTION, key, reference, false, true, null);
+                    new EntityDependencyNode(EntityReferenceType.JSACTION, key, reference, false, null);
             dependencyNodes.add(entityDependencyNode);
             if ("data".equals(subStrings[1])) {
                 // This means it is a valid API/query reference
                 // For queries and APIs, the first word is the action name
-                EntityDependencyNode actionEntityDependencyNode = new EntityDependencyNode(
-                        EntityReferenceType.ACTION, subStrings[0], reference, false, false, null);
+                EntityDependencyNode actionEntityDependencyNode =
+                        new EntityDependencyNode(EntityReferenceType.ACTION, subStrings[0], reference, false, null);
                 dependencyNodes.add(actionEntityDependencyNode);
             }
         } else if (subStrings.length > 2) {
             if ("data".equals(subStrings[1])) {
                 // This means it is a valid API/query reference
                 // For queries and APIs, the first word is the action name
-                EntityDependencyNode actionEntityDependencyNode = new EntityDependencyNode(
-                        EntityReferenceType.ACTION, subStrings[0], reference, false, false, null);
+                EntityDependencyNode actionEntityDependencyNode =
+                        new EntityDependencyNode(EntityReferenceType.ACTION, subStrings[0], reference, false, null);
                 dependencyNodes.add(actionEntityDependencyNode);
             }
             if ("data".equals(subStrings[2])) {
@@ -469,12 +469,7 @@ public class MustacheHelper {
                 // We don't know if this is a run for sync or async JS action at this point,
                 // since both would be valid
                 EntityDependencyNode entityDependencyNode = new EntityDependencyNode(
-                        EntityReferenceType.JSACTION,
-                        subStrings[0] + "." + subStrings[1],
-                        reference,
-                        null,
-                        false,
-                        null);
+                        EntityReferenceType.JSACTION, subStrings[0] + "." + subStrings[1], reference, null, null);
                 dependencyNodes.add(entityDependencyNode);
             }
         }

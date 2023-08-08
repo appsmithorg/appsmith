@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { forwardRef } from "react";
 import { useMergeRefs } from "@floating-ui/react";
 
 import { useTooltipContext } from "./TooltipContext";
@@ -6,13 +6,14 @@ import { useTooltipContext } from "./TooltipContext";
 export type TooltipTriggerRef = React.Ref<HTMLElement>;
 export type TooltipTriggerProps = React.HTMLProps<HTMLElement>;
 
-export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
+const _TooltipTrigger = (
   props: TooltipTriggerProps,
   propRef: TooltipTriggerRef,
-) {
+) => {
   const { children, ...rest } = props;
   const context = useTooltipContext();
-  const childrenRef = (children as any).ref;
+  // @ts-expect-error we don't which type children will be
+  const childrenRef = (children as unknown).ref;
   const ref = useMergeRefs([context.refs.setReference, propRef, childrenRef]);
 
   if (React.isValidElement(children)) {
@@ -31,4 +32,6 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   }
 
   return null;
-});
+};
+
+export const TooltipTrigger = forwardRef(_TooltipTrigger);

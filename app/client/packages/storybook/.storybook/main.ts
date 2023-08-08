@@ -1,5 +1,6 @@
 import { dirname, join } from "path";
-const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
+import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
+
 async function webpackConfig(config) {
   config.module.rules.push({
     test: /\.(js|jsx|ts|tsx)$/,
@@ -17,11 +18,20 @@ async function webpackConfig(config) {
   config.resolve.plugins.push(new TsconfigPathsPlugin());
   return config;
 }
-module.exports = {
-  stories: [
+
+function getStories() {
+  if (process.env.CHROMATIC) {
+    return ["../chromatic/**/*.chromatic.stories.@(js|jsx|ts|tsx)"];
+  }
+
+  return [
     "../stories/**/*.stories.mdx",
     "../stories/**/*.stories.@(js|jsx|ts|tsx)",
-  ],
+  ];
+}
+
+module.exports = {
+  stories: getStories(),
   addons: [
     getAbsolutePath("@storybook/addon-viewport"),
     getAbsolutePath("@storybook/addon-docs"),

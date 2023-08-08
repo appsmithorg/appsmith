@@ -99,7 +99,9 @@ export class PropertyPane {
   _selectPropDropdownValue = (ddName: string) =>
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
-    "')]//input[@class='rc-select-selection-search-input']/parent::span/following-sibling::span//span";
+    "')]//input[@class='rc-select-selection-search-input']/parent::span/following-sibling::span//span | //div[contains(@class, 't--property-control-" +
+    ddName.replace(/ +/g, "").toLowerCase() +
+    "')]//input[@class='rc-select-selection-search-input']/parent::span/following-sibling::span";
   private _createModalButton = ".t--create-modal-btn";
   _pageName = (option: string) => "//a/div[text()='" + option + "']";
   private isMac = Cypress.platform === "darwin";
@@ -125,6 +127,9 @@ export class PropertyPane {
   _addOptionProperty = ".t--property-control-options-add";
   _optionContent = ".rc-select-item-option-content";
   _dropdownOptionSpan = ".t--dropdown-option span";
+  private _propertyControlColorPicker = (property: string) =>
+    `.t--property-control-${property} .bp3-input-group input`;
+  _propertyText = ".bp3-ui-text span";
   _paneTitle = ".t--property-pane-title";
   _segmentedControl = (value: string) =>
     `.ads-v2-segmented-control-value-${value}`;
@@ -522,9 +527,18 @@ export class PropertyPane {
     this.agHelper.GetNClick(this._addAction(property), 0, true);
   }
 
-  public SelectPlatformFunction(eventName: string, dropdownValue: string) {
+  public SelectPlatformFunction(
+    eventName: string,
+    dropdownValue: string,
+    force = false,
+    index = 0,
+  ) {
     this.AddAction(eventName);
-    this.agHelper.GetNClick(this.locator._dropDownValue(dropdownValue));
+    this.agHelper.GetNClick(
+      this.locator._dropDownValue(dropdownValue),
+      index,
+      force,
+    );
   }
 
   public SelectActionByTitleAndValue(title: string, value: string) {
@@ -576,5 +590,10 @@ export class PropertyPane {
 
   public GetSelectedItemText(property: string) {
     return this.agHelper.GetText(this._propPaneSelectedItem(property));
+  }
+
+  public SelectColorFromColorPicker(property: string, colorOffset: number) {
+    this.agHelper.GetNClick(this._propertyControlColorPicker(property));
+    this.agHelper.GetNClick(this._colorPickerV2Color, colorOffset, true);
   }
 }

@@ -21,8 +21,8 @@ import type {
 import { clearAllIntervals } from "../fns/overrides/interval";
 import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
 import { setEvalContext } from "../evaluate";
-import { asyncJsFunctionInDataFields } from "../JSObject/asyncJSFunctionBoundToDataField";
 import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
+import { errorModifier } from "../errorModifier";
 
 export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
@@ -43,7 +43,7 @@ export default function (request: EvalWorkerSyncRequest) {
   let evalMetaUpdates: EvalMetaUpdates = [];
   let configTree: ConfigTree = {};
   let staleMetaIds: string[] = [];
-  let pathsToClearErrorsFor: any[] = [];
+  let removedPaths: Array<{ entityId: string; fullpath: string }> = [];
   let isNewWidgetAdded = false;
 
   const {
@@ -64,9 +64,9 @@ export default function (request: EvalWorkerSyncRequest) {
   try {
     if (!dataTreeEvaluator) {
       isCreateFirstTree = true;
-      asyncJsFunctionInDataFields.initialize(appMode);
       replayMap = replayMap || {};
       replayMap[CANVAS] = new ReplayCanvas({ widgets, theme });
+      errorModifier.init(appMode);
       dataTreeEvaluator = new DataTreeEvaluator(
         widgetTypeConfigMap,
         allActionValidationConfig,
@@ -142,7 +142,7 @@ export default function (request: EvalWorkerSyncRequest) {
       evalOrder = setupUpdateTreeResponse.evalOrder;
       jsUpdates = setupUpdateTreeResponse.jsUpdates;
       unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
-      pathsToClearErrorsFor = setupUpdateTreeResponse.pathsToClearErrorsFor;
+      removedPaths = setupUpdateTreeResponse.removedPaths;
       isNewWidgetAdded = setupUpdateTreeResponse.isNewWidgetAdded;
 
       nonDynamicFieldValidationOrder =
@@ -174,7 +174,7 @@ export default function (request: EvalWorkerSyncRequest) {
       );
       staleMetaIds = updateResponse.staleMetaIds;
     }
-    dependencies = dataTreeEvaluator.inverseDependencyMap;
+    dependencies = dataTreeEvaluator.inverseDependencies;
     errors = dataTreeEvaluator.errors;
     dataTreeEvaluator.clearErrors();
     logs = dataTreeEvaluator.logs;
@@ -223,7 +223,7 @@ export default function (request: EvalWorkerSyncRequest) {
     isCreateFirstTree,
     configTree,
     staleMetaIds,
-    pathsToClearErrorsFor,
+    removedPaths,
     isNewWidgetAdded,
     undefinedEvalValuesMap: dataTreeEvaluator?.undefinedEvalValuesMap || {},
     jsVarsCreatedEvent,
