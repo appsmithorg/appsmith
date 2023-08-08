@@ -120,7 +120,7 @@ describe("Chart Widget Functionality around custom chart feature", function () {
     cy.wait(1000);
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("Container3");
-    _.propPane.CopyWidgetFromPropertyPane("Test");
+    _.propPane.CopyPasteWidgetFromPropertyPane("Test");
     _.deployMode.DeployApp();
     //Chart-Delete Verification"
     _.deployMode.NavigateBacktoEditor();
