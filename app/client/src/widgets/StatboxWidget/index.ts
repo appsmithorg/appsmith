@@ -14,10 +14,7 @@ import type { FlattenedWidgetProps } from "widgets/constants";
 import { BlueprintOperationTypes } from "widgets/constants";
 import get from "lodash/get";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type {
-  FlexLayer,
-  LayoutComponentProps,
-} from "utils/autoLayout/autoLayoutTypes";
+import type { FlexLayer, LayoutPreset } from "utils/autoLayout/autoLayoutTypes";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
@@ -219,88 +216,101 @@ export const CONFIG = {
               },
             ];
 
-            const layout: LayoutComponentProps[] = [
-              {
-                layoutId: generateReactKey(),
-                layoutStyle: {
-                  columnGap: 4,
-                  flexWrap: "wrap-reverse",
-                },
-                layoutType: "ROW",
-                layout: [
-                  {
-                    isDropTarget: true,
-                    childTemplate: {
-                      layoutId: "",
-                      layoutStyle: {
-                        columnGap: 4,
-                        alignSelf: "stretch",
-                      },
-                      layoutType: "ROW",
-                      layout: [],
-                      insertChild: true,
-                      rendersWidgets: true,
-                      canBeDeleted: true,
-                    },
-                    layoutId: generateReactKey(),
-                    layoutStyle: {
-                      rowGap: 12,
-                      flexGrow: 2,
-                      border: "1px dashed #979797",
-                      padding: 4,
-                    },
-                    layoutType: "COLUMN",
-                    layout: [
-                      {
-                        layoutId: generateReactKey(),
-                        layoutStyle: {
-                          columnGap: 4,
-                          alignSelf: "stretch",
-                        },
-                        layoutType: "ROW",
-                        layout: [textWidgets[0].widgetId],
-                        rendersWidgets: true,
-                        canBeDeleted: true,
-                      },
-                      {
-                        layoutId: generateReactKey(),
-                        layoutStyle: {
-                          columnGap: 4,
-                          alignSelf: "stretch",
-                        },
-                        layoutType: "ROW",
-                        layout: [textWidgets[1].widgetId],
-                        rendersWidgets: true,
-                        canBeDeleted: true,
-                      },
-                      {
-                        layoutId: generateReactKey(),
-                        layoutStyle: {
-                          columnGap: 4,
-                          alignSelf: "stretch",
-                        },
-                        layoutType: "ROW",
-                        layout: [textWidgets[2].widgetId],
-                        rendersWidgets: true,
-                        canBeDeleted: true,
-                      },
-                    ],
-                  },
-                  {
-                    isDropTarget: true,
-                    layoutId: generateReactKey(),
-                    layoutStyle: {
-                      rowGap: 12,
-                      border: "1px dashed #979797",
-                      padding: 4,
-                    },
-                    layoutType: "COLUMN",
-                    layout: [imageWidget.widgetId],
-                    rendersWidgets: true,
-                  },
+            // const layout: LayoutComponentProps[] = [
+            //   {
+            //     layoutId: generateReactKey(),
+            //     layoutStyle: {
+            //       columnGap: 4,
+            //       flexWrap: "wrap-reverse",
+            //     },
+            //     layoutType: "ROW",
+            //     layout: [
+            //       {
+            //         isDropTarget: true,
+            //         childTemplate: {
+            //           layoutId: "",
+            //           layoutStyle: {
+            //             columnGap: 4,
+            //             alignSelf: "stretch",
+            //           },
+            //           layoutType: "ROW",
+            //           layout: [],
+            //           insertChild: true,
+            //           rendersWidgets: true,
+            //           canBeDeleted: true,
+            //         },
+            //         layoutId: generateReactKey(),
+            //         layoutStyle: {
+            //           rowGap: 12,
+            //           flexGrow: 2,
+            //           border: "1px dashed #979797",
+            //           padding: 4,
+            //         },
+            //         layoutType: "COLUMN",
+            //         layout: [
+            //           {
+            //             layoutId: generateReactKey(),
+            //             layoutStyle: {
+            //               columnGap: 4,
+            //               alignSelf: "stretch",
+            //             },
+            //             layoutType: "ROW",
+            //             layout: [textWidgets[0].widgetId],
+            //             rendersWidgets: true,
+            //             canBeDeleted: true,
+            //           },
+            //           {
+            //             layoutId: generateReactKey(),
+            //             layoutStyle: {
+            //               columnGap: 4,
+            //               alignSelf: "stretch",
+            //             },
+            //             layoutType: "ROW",
+            //             layout: [textWidgets[1].widgetId],
+            //             rendersWidgets: true,
+            //             canBeDeleted: true,
+            //           },
+            //           {
+            //             layoutId: generateReactKey(),
+            //             layoutStyle: {
+            //               columnGap: 4,
+            //               alignSelf: "stretch",
+            //             },
+            //             layoutType: "ROW",
+            //             layout: [textWidgets[2].widgetId],
+            //             rendersWidgets: true,
+            //             canBeDeleted: true,
+            //           },
+            //         ],
+            //       },
+            //       {
+            //         isDropTarget: true,
+            //         layoutId: generateReactKey(),
+            //         layoutStyle: {
+            //           rowGap: 12,
+            //           border: "1px dashed #979797",
+            //           padding: 4,
+            //         },
+            //         layoutType: "COLUMN",
+            //         layout: [imageWidget.widgetId],
+            //         rendersWidgets: true,
+            //       },
+            //     ],
+            //   },
+            // ];
+
+            const preset: LayoutPreset = {
+              layoutId: generateReactKey(),
+              presetType: "STATBOX",
+              children: [
+                [
+                  textWidgets[0].widgetId,
+                  textWidgets[1].widgetId,
+                  textWidgets[2].widgetId,
                 ],
-              },
-            ];
+                [imageWidget.widgetId],
+              ],
+            };
 
             //create properties to be updated
             return getWidgetBluePrintUpdates({
@@ -309,7 +319,8 @@ export const CONFIG = {
               },
               [canvasWidget.widgetId]: {
                 flexLayers,
-                layout,
+                // layout,
+                preset,
                 useAutoLayout: true,
                 positioning: Positioning.Vertical,
               },

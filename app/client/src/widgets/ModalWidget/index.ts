@@ -12,10 +12,7 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { get } from "lodash";
-import type {
-  FlexLayer,
-  LayoutComponentProps,
-} from "utils/autoLayout/autoLayoutTypes";
+import type { FlexLayer, LayoutPreset } from "utils/autoLayout/autoLayoutTypes";
 import {
   FlexLayerAlignment,
   Positioning,
@@ -321,129 +318,140 @@ export const CONFIG = {
              * HEADER 3 (ROW, BOX5)
              */
 
-            const layout: LayoutComponentProps[] = [
-              {
-                layoutId: generateReactKey(),
-                layoutStyle: {
-                  rowGap: 12,
-                  padding: 4,
-                },
-                layoutType: "COLUMN",
-                layout: [
-                  {
-                    layoutId: generateReactKey(),
-                    layoutStyle: {
-                      alignSelf: "stretch",
-                      columnGap: 4,
-                    },
-                    layoutType: "ROW", // HEADER3 titleChildren: [], icons: [],
-                    layout: [
-                      {
-                        layoutId: generateReactKey(),
-                        layoutStyle: {
-                          columnGap: 4,
-                          flexGrow: 1,
-                          border: "1px dashed #979797",
-                          minHeight: 40,
-                        },
-                        layoutType: "ROW",
-                        isDropTarget: true,
-                        widgetsAllowed: ["TEXT_WIDGET"],
-                        layout: [textWidget.widgetId],
-                        rendersWidgets: true,
-                      },
-                      {
-                        layoutId: generateReactKey(),
-                        layoutStyle: {
-                          columnGap: 4,
-                          minWidth: "30px",
-                          border: "1px dashed #979797",
-                          minHeight: 40,
-                        },
-                        layoutType: "ROW",
-                        isDropTarget: true,
-                        widgetsAllowed: ["ICON_BUTTON_WIDGET"],
-                        layout: [iconWidget.widgetId],
-                        rendersWidgets: true,
-                      },
-                    ],
-                  },
-                  {
-                    layoutId: generateReactKey(),
-                    layoutStyle: {
-                      alignSelf: "stretch",
-                      columnGap: 4,
-                      flexWrap: "wrap",
-                      height: "auto",
-                      maxHeight: "300px",
-                      overflow: "auto",
-                    },
-                    layoutType: "ROW", // MAIN
-                    layout: [
-                      {
-                        childTemplate: {
-                          canBeDeleted: true,
-                          insertChild: true,
-                          layoutId: "",
-                          layoutType: "ALIGNED_ROW",
-                          layoutStyle: {
-                            alignSelf: "stretch",
-                            columnGap: 4,
-                            rowGap: 12,
-                          },
-                          layout: [[], [], []],
-                          rendersWidgets: true,
-                        },
-                        isDropTarget: true,
-                        layoutId: generateReactKey(),
-                        layoutStyle: {
-                          minWidth: "220px",
-                          minHeight: 40,
-                          rowGap: 12,
-                          flexGrow: 3,
-                          border: "1px dashed #979797",
-                        },
-                        layoutType: "ALIGNED_COLUMN",
-                        layout: [
-                          {
-                            canBeDeleted: true,
-                            layoutId: generateReactKey(),
-                            layoutStyle: {
-                              alignSelf: "stretch",
-                              columnGap: 4,
-                              rowGap: 12,
-                            },
-                            layoutType: "ALIGNED_ROW",
-                            layout: [
-                              [],
-                              [buttonWidget3.widgetId],
-                              [buttonWidget4.widgetId],
-                            ],
-                            rendersWidgets: true,
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                  {
-                    isDropTarget: true,
-                    layoutId: generateReactKey(),
-                    layoutStyle: {
-                      alignSelf: "stretch",
-                      border: "1px dashed #979797",
-                      minHeight: 40,
-                    },
-                    layoutType: "ALIGNED_ROW",
-                    layout: [
-                      [],
-                      [],
-                      [buttonWidget1.widgetId, buttonWidget2.widgetId],
-                    ],
-                    rendersWidgets: true,
-                  },
-                ],
-              },
-            ];
+            // const layout: LayoutComponentProps[] = [
+            //   {
+            //     layoutId: generateReactKey(),
+            //     layoutStyle: {
+            //       rowGap: 12,
+            //       padding: 4,
+            //     },
+            //     layoutType: "COLUMN",
+            //     layout: [
+            //       {
+            //         layoutId: generateReactKey(),
+            //         layoutStyle: {
+            //           alignSelf: "stretch",
+            //           columnGap: 4,
+            //         },
+            //         layoutType: "ROW", // HEADER3 titleChildren: [], icons: [],
+            //         layout: [
+            //           {
+            //             layoutId: generateReactKey(),
+            //             layoutStyle: {
+            //               columnGap: 4,
+            //               flexGrow: 1,
+            //               border: "1px dashed #979797",
+            //               minHeight: 40,
+            //             },
+            //             layoutType: "ROW",
+            //             isDropTarget: true,
+            //             widgetsAllowed: ["TEXT_WIDGET"],
+            //             layout: [textWidget.widgetId],
+            //             rendersWidgets: true,
+            //           },
+            //           {
+            //             layoutId: generateReactKey(),
+            //             layoutStyle: {
+            //               columnGap: 4,
+            //               minWidth: "30px",
+            //               border: "1px dashed #979797",
+            //               minHeight: 40,
+            //             },
+            //             layoutType: "ROW",
+            //             isDropTarget: true,
+            //             widgetsAllowed: ["ICON_BUTTON_WIDGET"],
+            //             layout: [iconWidget.widgetId],
+            //             rendersWidgets: true,
+            //           },
+            //         ],
+            //       },
+            //       {
+            //         layoutId: generateReactKey(),
+            //         layoutStyle: {
+            //           alignSelf: "stretch",
+            //           columnGap: 4,
+            //           flexWrap: "wrap",
+            //           height: "auto",
+            //           maxHeight: "300px",
+            //           overflow: "auto",
+            //         },
+            //         layoutType: "ROW", // MAIN
+            //         layout: [
+            //           {
+            //             childTemplate: {
+            //               canBeDeleted: true,
+            //               insertChild: true,
+            //               layoutId: "",
+            //               layoutType: "ALIGNED_ROW",
+            //               layoutStyle: {
+            //                 alignSelf: "stretch",
+            //                 columnGap: 4,
+            //                 rowGap: 12,
+            //               },
+            //               layout: [[], [], []], //string[][]
+            //               rendersWidgets: true,
+            //             },
+            //             isDropTarget: true,
+            //             layoutId: generateReactKey(),
+            //             layoutStyle: {
+            //               minWidth: "220px",
+            //               minHeight: 40,
+            //               rowGap: 12,
+            //               flexGrow: 3,
+            //               border: "1px dashed #979797",
+            //             },
+            //             layoutType: "ALIGNED_COLUMN",
+            //             layout: [
+            //               {
+            //                 canBeDeleted: true,
+            //                 layoutId: generateReactKey(),
+            //                 layoutStyle: {
+            //                   alignSelf: "stretch",
+            //                   columnGap: 4,
+            //                   rowGap: 12,
+            //                 },
+            //                 layoutType: "ALIGNED_ROW",
+            //                 layout: [
+            //                   [],
+            //                   [buttonWidget3.widgetId],
+            //                   [buttonWidget4.widgetId],
+            //                 ],
+            //                 rendersWidgets: true,
+            //               },
+            //             ],
+            //           },
+            //         ],
+            //       },
+            //       {
+            //         isDropTarget: true,
+            //         layoutId: generateReactKey(),
+            //         layoutStyle: {
+            //           alignSelf: "stretch",
+            //           border: "1px dashed #979797",
+            //           minHeight: 40,
+            //         },
+            //         layoutType: "ALIGNED_ROW",
+            //         layout: [
+            //           [],
+            //           [],
+            //           [buttonWidget1.widgetId, buttonWidget2.widgetId],
+            //         ],
+            //         rendersWidgets: true,
+            //       },
+            //     ],
+            //   },
+            // ];
+
+            const preset: LayoutPreset = {
+              layoutId: generateReactKey(),
+              presetType: "MODAL",
+              children: [
+                [textWidget.widgetId],
+                [iconWidget.widgetId],
+                [[[], [buttonWidget3.widgetId], [buttonWidget4.widgetId]]],
+                [[], [], [buttonWidget1.widgetId, buttonWidget2.widgetId]],
+              ],
+            };
 
             //Add widget specific property Defaults, for autoLayout widget
             const { disabledPropsDefaults } =
@@ -458,7 +466,8 @@ export const CONFIG = {
               },
               [canvasWidget.widgetId]: {
                 flexLayers,
-                layout,
+                // layout,
+                preset,
                 useAutoLayout: true,
                 positioning: Positioning.Vertical,
                 bottomRow: 100,

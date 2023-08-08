@@ -93,20 +93,42 @@ export interface Row extends PositionsAlignmentInfo {
  */
 
 export interface LayoutComponentProps {
-  layoutId: string;
-  layoutStyle?: { [key: string]: string | number | number[] | string[] };
-  layoutType: string;
-  layout: LayoutComponentProps[] | string[] | string[][];
-  isDropTarget?: boolean;
-  rendersWidgets?: boolean;
-  widgetsAllowed?: string[];
+  canBeDeleted?: boolean;
   childTemplate?: LayoutComponentProps;
   insertChild?: boolean;
-  canBeDeleted?: boolean;
+  isDropTarget?: boolean;
+  layout: LayoutComponentProps[] | string[] | string[][];
+  layoutId: string;
+  layoutStyle?: { [key: string]: any };
+  layoutType: string;
+  parentId?: string;
+  rendersWidgets?: boolean;
+  widgetsAllowed?: string[];
 
   childrenMap?: { [id: string]: JSX.Element | ReactNode };
   containerProps?: ContainerWidgetProps<WidgetProps> & {
     snapRows: number;
     snapSpaces: any;
   };
+}
+export interface LayoutPreset {
+  children: (string | string[] | string[][] | LayoutComponentProps)[][];
+  layout?: string[];
+  layoutId: string;
+  presetType: string;
+
+  childrenMap?: { [id: string]: JSX.Element | ReactNode };
+  containerProps?: ContainerWidgetProps<WidgetProps> & {
+    snapRows: number;
+    snapSpaces: any;
+  };
+}
+
+export interface LayoutConfig {
+  role: "layout" | "preset";
+  config: LayoutComponentProps | LayoutPreset;
+}
+
+export interface LayoutConfigurations {
+  [layoutId: string]: LayoutConfig;
 }

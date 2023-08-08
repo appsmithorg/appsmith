@@ -29,6 +29,7 @@ import { getLayoutComponent } from "utils/autoLayout/layoutComponentUtils";
 import { isArray } from "lodash";
 import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { AutoLayoutDropTarget } from "components/editorComponents/AutoLayoutDropTarget";
+import { getLayoutPreset } from "utils/autoLayout/layoutCondensationUtils";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -57,6 +58,7 @@ class CanvasWidget extends ContainerWidget {
       minHeight: this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX,
       shouldScrollContents: false,
       layout: this.props.layout || [],
+      preset: this.props.preset,
     };
   }
 
@@ -166,9 +168,12 @@ class CanvasWidget extends ContainerWidget {
   }
 
   renderLayoutPreset() {
-    const layout: LayoutComponentProps[] = this.props
-      .layout as LayoutComponentProps[];
-    if (!layout) return this.renderFlexBoxCanvas();
+    const snapRows = getCanvasSnapRows(
+      this.props.bottomRow,
+      this.props.mobileBottomRow,
+      this.props.isMobile,
+      this.props.appPositioningType === AppPositioningTypes.AUTO,
+    );
     const map: { [key: string]: any } = {};
     const arr = this.renderChildren();
     if (isArray(arr)) {
@@ -176,16 +181,29 @@ class CanvasWidget extends ContainerWidget {
         map[(child as JSX.Element).props?.widgetId] = child;
       }
     }
+    console.log("####", { preset: this.props.preset });
+    if (this.props.preset) {
+      const Comp = getLayoutPreset(this.props.preset.presetType);
+      return (
+        <Comp
+          {...this.props.preset}
+          childrenMap={map}
+          containerProps={{
+            ...this.getCanvasProps(),
+            snapRows,
+            snapSpaces: this.getSnapSpaces(),
+          }}
+        />
+      );
+    }
+    const layout: LayoutComponentProps[] = this.props
+      .layout as LayoutComponentProps[];
+    if (!layout) return this.renderFlexBoxCanvas();
     return (
       <>
         {layout.map((item: LayoutComponentProps, index: number) => {
           const Comp = getLayoutComponent(item.layoutType);
-          const snapRows = getCanvasSnapRows(
-            this.props.bottomRow,
-            this.props.mobileBottomRow,
-            this.props.isMobile,
-            this.props.appPositioningType === AppPositioningTypes.AUTO,
-          );
+
           return (
             <Comp
               childrenMap={map}

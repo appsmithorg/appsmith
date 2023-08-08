@@ -78,6 +78,7 @@ import type { layoutConversionReduxState } from "reducers/uiReducers/layoutConve
 import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsReducer";
 import type { AutoLayoutCanvasWidthState } from "reducers/uiReducers/autoLayoutCanvasWidthReducer";
 import type { OneClickBindingState } from "reducers/uiReducers/oneClickBindingReducer";
+import type { LayoutConfigurations } from "utils/autoLayout/autoLayoutTypes";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -144,6 +145,7 @@ export interface AppState {
     oneClickBinding: OneClickBindingState;
   };
   entities: {
+    [x: string]: any;
     canvasWidgetsStructure: CanvasWidgetStructure;
     canvasWidgets: CanvasWidgetsReduxState;
     metaWidgets: MetaWidgetsReduxState;
@@ -158,6 +160,7 @@ export interface AppState {
     autoHeightLayoutTree: AutoHeightLayoutTreeReduxState;
     canvasLevels: CanvasLevelsReduxState;
     widgetPositions: WidgetPositions;
+    layoutConfig: LayoutConfigurations;
   };
   evaluations: {
     tree: EvaluatedTreeState;

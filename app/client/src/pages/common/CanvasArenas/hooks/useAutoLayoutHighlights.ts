@@ -6,7 +6,11 @@ import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 import { getHighlightPayload } from "utils/autoLayout/highlightSelectionUtils";
-import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
+import type {
+  HighlightInfo,
+  LayoutComponentProps,
+  LayoutConfigurations,
+} from "utils/autoLayout/autoLayoutTypes";
 import { useRef } from "react";
 import { getIsAutoLayoutMobileBreakPoint } from "selectors/editorSelectors";
 import { GridDefaults } from "constants/WidgetConstants";
@@ -38,6 +42,9 @@ export const useAutoLayoutHighlights = ({
   const allWidgets = useSelector(getWidgets);
   const widgetPositions = useSelector(
     (state: AppState) => state.entities.widgetPositions,
+  );
+  const layoutConfig: LayoutConfigurations = useSelector(
+    (state: AppState) => state.entities.layoutConfig,
   );
   const isMobile = useSelector(getIsAutoLayoutMobileBreakPoint);
   const highlights = useRef<HighlightInfo[]>([]);
@@ -105,7 +112,6 @@ export const useAutoLayoutHighlights = ({
       left = currLeft - mainLeft;
       top = currTop - mainTop;
     }
-
     if (
       useAutoLayout &&
       isDragging &&
@@ -128,6 +134,9 @@ export const useAutoLayoutHighlights = ({
         isMobile,
         currentLayoutId,
         draggedWidgetTypes,
+        layoutConfig && layoutId
+          ? (layoutConfig[layoutId].config as LayoutComponentProps)
+          : null,
       );
     }
     // console.log("#### highlights", highlights.current);
@@ -183,6 +192,9 @@ export const useAutoLayoutHighlights = ({
         isMobile,
         currentLayoutId,
         draggedWidgetTypes,
+        layoutConfig && currentLayoutId
+          ? (layoutConfig[currentLayoutId].config as LayoutComponentProps)
+          : null,
       );
     }
 

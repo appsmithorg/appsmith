@@ -733,6 +733,7 @@ export const useCanvasDragging = (
         };
 
         const onDragEnter = (e: any) => {
+          console.log("#### drag enter", { e });
           onDragOver(e);
         };
 

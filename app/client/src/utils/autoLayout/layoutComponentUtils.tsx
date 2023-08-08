@@ -56,8 +56,6 @@ export function getLayoutFromId(
   return null;
 }
 
-// export function getLayoutDataType(layout: string | string[])
-
 export function updateLayoutById(
   parentLayout: LayoutComponentProps,
   updatedLayout: LayoutComponentProps,
@@ -77,6 +75,10 @@ export function updateLayoutById(
   currentLayout = { ...currentLayout, layout };
   return currentLayout;
 }
+
+/**
+ * HIGHLIGHT Utils
+ */
 
 export function updateVerticalDropZoneAndHeight(
   highlights: HighlightInfo[],

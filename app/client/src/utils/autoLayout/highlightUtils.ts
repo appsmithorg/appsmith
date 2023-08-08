@@ -24,7 +24,6 @@ import type {
   LayoutComponentProps,
 } from "./autoLayoutTypes";
 import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsReducer";
-import { getLayoutFromId } from "./layoutComponentUtils";
 import Row from "components/designSystems/appsmith/autoLayout/layoutComponents/Row";
 import Column from "components/designSystems/appsmith/autoLayout/layoutComponents/Column";
 import AlignedRow from "components/designSystems/appsmith/autoLayout/layoutComponents/AlignedRow";
@@ -82,14 +81,13 @@ export function deriveHighlightsFromLayers(
   isMobile = false,
   layoutId?: string,
   draggedWidgetTypes?: string[],
+  selectedLayout?: LayoutComponentProps | null,
 ): HighlightInfo[] {
   const widgets = { ...allWidgets };
   const canvas = widgets[canvasId];
   if (!canvas) return [];
 
   const layers: FlexLayer[] = canvas.flexLayers || [];
-  const layout: LayoutComponentProps[] = canvas.layout || [];
-  const selectedLayout = getLayoutFromId(layout, layoutId || "");
   let highlights: HighlightInfo[] = [];
   let childCount = 0;
   let layerIndex = 0;
@@ -97,7 +95,8 @@ export function deriveHighlightsFromLayers(
   const rowGap = isMobile ? MOBILE_ROW_GAP : ROW_GAP;
 
   let offsetTop = FLEXBOX_PADDING; // used to calculate distance of a highlight from parents's top.
-  if (layoutId) {
+  console.log("####", layoutId, selectedLayout);
+  if (layoutId && selectedLayout && selectedLayout !== null) {
     if (selectedLayout?.widgetsAllowed?.length && draggedWidgetTypes) {
       const disallowedWidgets = draggedWidgetTypes.filter(
         (each: string) => selectedLayout.widgetsAllowed?.indexOf(each) === -1,
@@ -116,6 +115,7 @@ export function deriveHighlightsFromLayers(
       offsetTop,
       isParent: true,
     });
+    console.log("#### arr", arr);
     return arr;
   }
   for (const layer of layers) {
