@@ -15,6 +15,27 @@ async function webpackConfig(config) {
       },
     },
   });
+
+  config.module.rules.push({
+    test: /\.css$/,
+    use: [
+      {
+        loader: "postcss-loader",
+        options: {
+          postcssOptions: {
+            plugins: [
+              require("postcss-at-rules-variables"),
+              require("postcss-conditionals"),
+              require("postcss-for"),
+              require("postcss-import"),
+              require("postcss-each"),
+            ],
+          },
+        },
+      },
+    ],
+  });
+
   config.resolve.plugins.push(new TsconfigPathsPlugin());
   return config;
 }
@@ -41,7 +62,6 @@ module.exports = {
     getAbsolutePath("@storybook/addon-measure"),
     getAbsolutePath("@storybook/addon-outline"),
     getAbsolutePath("@storybook/preset-create-react-app"),
-    "./addons/theming/manager.ts",
   ],
   framework: {
     name: getAbsolutePath("@storybook/react-webpack5"),
