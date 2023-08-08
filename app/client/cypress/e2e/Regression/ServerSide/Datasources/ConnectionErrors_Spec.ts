@@ -246,4 +246,61 @@ describe("Validate Empty DS error messages", () => {
   });
 
   //MSsql error connections verified in MsSQL_Basic_Spec
+
+  it("5. S3 connection errors", () => {
+    //Open bug
+    dataSources.NavigateToDSCreateNew();
+    agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      dataSources.CreatePlugIn("S3");
+      dataSourceName = "S3" + " " + uid;
+      agHelper.RenameWithInPane(dataSourceName, false);
+
+      dataSources.TestDatasource(false);
+      agHelper.ValidateToastMessage(
+        "Mandatory parameter 'Secret key' is empty. Did you forget to edit the 'Secret key' field in the datasource creation form ? You need to fill it with your AWS Secret Key.",
+      );
+      agHelper.ValidateToastMessage(
+        "Mandatory parameter 'Access key' is empty. Did you forget to edit the 'Access key' field in the datasource creation form ? You need to fill it with your AWS Access Key.",
+      );
+      propPane.AssertPropertiesDropDownValues("S3 service provider", [
+        "Amazon S3",
+        "Upcloud",
+        "Digital Ocean spaces",
+        "Wasabi",
+        "DreamObjects",
+        "MinIO",
+        "Other",
+      ]);
+      // Below is commented due to bug
+      // dataSources.ValidateNSelectDropdown(
+      //   "S3 service provider",
+      //   "Amazon S3",
+      //   "Upcloud",
+      // );
+      // dataSources.TestDatasource(false);
+      // agHelper.ValidateToastMessage(
+      //   "Mandatory parameter 'Secret key' is empty. Did you forget to edit the 'Secret key' field in the datasource creation form ? You need to fill it with your AWS Secret Key.",
+      // );
+      // agHelper.ValidateToastMessage(
+      //   "Mandatory parameter 'Access key' is empty. Did you forget to edit the 'Access key' field in the datasource creation form ? You need to fill it with your AWS Access Key.",
+      // );
+      // agHelper.ValidateToastMessage(
+      //   "Required parameter 'Endpoint URL' is empty. Did you forget to edit the 'Endpoint URL' field in the datasource creation form ? You need to fill it with the endpoint URL of your S3 instance.",
+      // );
+      // dataSources.ValidateNSelectDropdown(
+      //   "S3 service provider",
+      //   "Upcloud",
+      //   "Amazon S3",
+      // );
+      dataSources.FillS3DSForm();
+      dataSources.TestSaveDatasource();
+      dataSources.AssertDataSourceInfo([
+        "S3 service provider",
+        "Amazon S3",
+        "Access key",
+        "AKIAVWHAAGIQCDT3C345",
+      ]);
+    });
+  });
 });
