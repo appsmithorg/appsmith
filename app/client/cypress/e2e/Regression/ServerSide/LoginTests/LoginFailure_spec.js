@@ -14,9 +14,11 @@ describe("Login failure", function () {
       .then((location) => {
         appUrl = location.href.split("?")[0];
         cy.LogOutUser();
+        agHelper.AssertElementVisible(homePage._username); //check if user is logged out & then try to visit app url
         cy.window({ timeout: 60000 }).then((win) => {
           win.location.href = appUrl;
         });
+        agHelper.Sleep(2000); //for page redirect to complete
         assertHelper.AssertNetworkStatus("signUpLogin");
         agHelper.AssertElementVisible(homePage._username);
       })
