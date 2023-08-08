@@ -1904,3 +1904,10 @@ export const BACK_CAMERA_LABEL = () => "Back (Rear)";
 
 // Color picker
 export const FULL_COLOR_PICKER_LABEL = () => "Full color picker";
+
+// Column selector modal
+export const EDIT_FIELDS = () => "Edit fields";
+export const FIELDS_CONFIGURATION = () => "Fields Configuration";
+export const SAVE_CHANGES = () => "Save changes";
+export const COLUMN_TYPE = () => "Column type";
+export const COLUMN_NAME = () => "Column name";

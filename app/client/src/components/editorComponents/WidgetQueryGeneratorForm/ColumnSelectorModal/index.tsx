@@ -16,6 +16,15 @@ import { uniqBy } from "lodash";
 import { klona } from "klona";
 import { useColumns } from "../WidgetSpecificControls/ColumnDropdown/useColumns";
 import { WidgetQueryGeneratorFormContext } from "..";
+import {
+  CANCEL_DIALOG,
+  COLUMN_NAME,
+  COLUMN_TYPE,
+  EDIT_FIELDS,
+  FIELDS_CONFIGURATION,
+  SAVE_CHANGES,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const StyledCheckbox = styled(Checkbox)`
   input {
@@ -90,7 +99,7 @@ export function ColumnSelectorModal() {
 
   const columns = [
     {
-      Header: "Column name",
+      Header: createMessage(COLUMN_NAME),
       accessor: "name",
       Cell: function (cellProps: any) {
         const { row } = cellProps;
@@ -107,7 +116,7 @@ export function ColumnSelectorModal() {
       },
     },
     {
-      Header: "Column type",
+      Header: createMessage(COLUMN_TYPE),
       accessor: "type",
     },
   ];
@@ -120,7 +129,7 @@ export function ColumnSelectorModal() {
         onClick={() => setIsOpen(true)}
         startIcon="edit-2-line"
       >
-        Edit fields
+        {createMessage(EDIT_FIELDS)}
       </EditFieldsButton>
       <Modal
         onOpenChange={(isOpen) => isModalOpen && onOpenChange(isOpen)}
@@ -129,7 +138,7 @@ export function ColumnSelectorModal() {
         <ModalContent style={{ width: "640px" }}>
           <ModalHeader>
             <Text kind="heading-m" renderAs="h1">
-              Fields Configuration
+              {createMessage(FIELDS_CONFIGURATION)}
             </Text>
           </ModalHeader>
           <StyledModalBody>
@@ -142,14 +151,14 @@ export function ColumnSelectorModal() {
               onClick={onCancel}
               size="md"
             >
-              Cancel
+              {createMessage(CANCEL_DIALOG)}
             </Button>
             <Button
               data-testid="t--edit-fields-save-btn"
               onClick={handleSave}
               size="md"
             >
-              Save changes
+              {createMessage(SAVE_CHANGES)}
             </Button>
           </ModalFooter>
         </ModalContent>
