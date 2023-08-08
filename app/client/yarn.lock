@@ -9331,7 +9331,6 @@ __metadata:
     fast-xml-parser: ^3.17.5
     fastdom: ^1.0.11
     focus-trap-react: ^8.9.2
-    fork-ts-checker-webpack-plugin: ^8.0.0
     fuse.js: ^3.4.5
     fusioncharts: ^3.18.0
     fusionmaps: ^3.18.0
