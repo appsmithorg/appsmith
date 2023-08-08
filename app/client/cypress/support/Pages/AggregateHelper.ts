@@ -1363,20 +1363,8 @@ export class AggregateHelper extends ReusableHelper {
     return this.GetElement(selector, timeout)
       .eq(index)
       .scrollIntoView()
-      .should("exist")
-      .wait(200)
       .should("be.visible");
-  }
-
-  public AssertElementNotVisible(
-    selector: ElementType,
-    index = 0,
-    timeout = 20000,
-  ) {
-    return this.GetElement(selector, timeout)
-      .eq(index)
-      .scrollIntoView()
-      .should("not.be.visible");
+    //return this.ScrollIntoView(selector, index, timeout).should("be.visible");//to find out why this is failing.
   }
 
   public CheckForErrorToast(error: string) {
