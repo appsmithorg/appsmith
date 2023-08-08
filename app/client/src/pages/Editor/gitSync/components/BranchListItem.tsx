@@ -8,6 +8,14 @@ import { Tooltip, Text, Spinner } from "design-system";
 import { isEllipsisActive } from "utils/helpers";
 import { useSelector } from "react-redux";
 import { getBranchSwitchingDetails } from "selectors/gitSyncSelectors";
+import styled from "styled-components";
+
+const OptionsContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+`;
 
 export function BranchListItem({
   active,
@@ -64,18 +72,20 @@ export function BranchListItem({
             {branch}
           </Text>
           {isDefault && <DefaultTag />}
-          {switchingToBranch === branch && isSwitchingBranch && (
-            <Spinner size="md" />
-          )}
         </span>
       </Tooltip>
-      {(hover || isMoreMenuOpen) && (
-        <BranchMoreMenu
-          branchName={branch}
-          open={isMoreMenuOpen}
-          setOpen={setIsMoreMenuOpen}
-        />
-      )}
+      <OptionsContainer>
+        {switchingToBranch === branch && isSwitchingBranch && (
+          <Spinner size="md" />
+        )}
+        {(hover || isMoreMenuOpen) && (
+          <BranchMoreMenu
+            branchName={branch}
+            open={isMoreMenuOpen}
+            setOpen={setIsMoreMenuOpen}
+          />
+        )}
+      </OptionsContainer>
     </BranchListItemContainer>
   );
 }

@@ -40,6 +40,7 @@ const onboarding = ObjectsRegistry.Onboarding;
 const apiPage = ObjectsRegistry.ApiPage;
 const deployMode = ObjectsRegistry.DeployMode;
 const entityExplorer = ObjectsRegistry.EntityExplorer;
+const assertHelper = ObjectsRegistry.AssertHelper;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -224,7 +225,7 @@ Cypress.Commands.add("GetUrlQueryParams", () => {
 Cypress.Commands.add("LogOutUser", () => {
   cy.wait(1000); //waiting for window to load
   cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
-  cy.wait("@postLogout");
+  assertHelper.AssertNetworkStatus("@postLogout", 200);
 });
 
 Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
