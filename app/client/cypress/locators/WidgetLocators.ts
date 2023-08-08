@@ -26,7 +26,6 @@ export const WIDGET = {
   CHART: "chartwidget",
   AUDIO: "audiowidget",
   AUDIORECORDER: "audiorecorderwidget",
-  PHONEINPUT: "phoneinputwidget",
   CAMERA: "camerawidget",
   FILEPICKER: "filepickerwidgetv2",
   DOCUMENT_VIEWER: "documentviewerwidget",
@@ -42,7 +41,8 @@ export const WIDGET = {
   ICONBUTTON: "iconbuttonwidget",
   IMAGE: "imagewidget",
   STATBOX: "statboxwidget",
-  JSONFORM: "jsonformwidget"
+  JSONFORM: "jsonformwidget",
+  MENUBUTTON: "menubuttonwidget",
 } as const;
 
 // property pane element selector are maintained here
@@ -66,3 +66,8 @@ export const getWidgetInputSelector = (widget: ValueOf<typeof WIDGET>) =>
   `.t--widget-${widget} input`;
 
 export const modalWidgetSelector = ".t--modal-widget";
+
+// export data-testid with user input 
+export const progressWidgetProgress = (input: any) => `[data-testid='${input}']`
+
+

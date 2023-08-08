@@ -1,4 +1,7 @@
 {
   "extends": ["../../.eslintrc.base.json"],
-  "ignorePatterns": ["dist"]
+  "ignorePatterns": ["dist"],
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "off"
+  }
 }

@@ -184,7 +184,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
     dataSources.ValidateNSelectDropdown("Collection", "", "mongomart");
     dataSources.RunQuery({ toValidateResponse: false });
-    dataSources.AddSuggesstedWidget(Widgets.Table);
+    dataSources.AddSuggestedWidget(Widgets.Table);
     table.ReadTableRowColumnData(0, 3, "v2").then((cellData) => {
       expect(cellData).to.eq("1");
     });
