@@ -12,16 +12,12 @@ import { progressWidgetProgress } from "../../../../../locators/WidgetLocators";
 describe("Progress Widget", function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.PROGRESS);
-  });
-
-  it("Add a new Progress widget and text widget", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 200);
-    cy.openPropertyPane("textwidget");
-    cy.updateCodeInput(".t--property-control-text", "");
+    propPane.UpdatePropertyFieldValue("Text", "");
   });
 
   // Linear progress
-  it("Property: isIndeterminate, Toggle infinite loading", function () {
+  it("1. Property: isIndeterminate, Toggle infinite loading", function () {
     cy.openPropertyPane("progresswidget");
     // enable infinite loading
     cy.togglebar(".t--property-control-infiniteloading input[type='checkbox']");
@@ -36,7 +32,7 @@ describe("Progress Widget", function () {
     // show determinate linear progress
     cy.get("[data-testid='50']").should("exist");
   });
-  it("Property: value, Change progress value", function () {
+  it("2.Property: value, Change progress value", function () {
     cy.updateCodeInput(".t--property-control-progress", "60");
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -46,7 +42,7 @@ describe("Progress Widget", function () {
     // pass 60
     cy.get("[data-testid='60']").should("exist");
   });
-  it("Property: showResult, Toggle show result", function () {
+  it("3. Property: showResult, Toggle show result", function () {
     // enable show result
     cy.togglebar(".t--property-control-showresult input[type='checkbox']");
     // show label
@@ -58,7 +54,7 @@ describe("Progress Widget", function () {
     // does not show any label
     cy.get("[data-testid='60']").first().next().should("not.exist");
   });
-  it("Property: steps, Change steps", function () {
+  it("4. Property: steps, Change steps", function () {
     cy.updateCodeInput(".t--property-control-numberofsteps", "2");
     // show progress with steps
     cy.get("[data-testid='step']").should("have.length", 2);
@@ -68,12 +64,12 @@ describe("Progress Widget", function () {
   });
 
   // Circular progress
-  it("Property: type, Change type to Circular", function () {
+  it("5. Property: type, Change type to Circular", function () {
     // Switch to circular mode
     cy.get("[data-value='circular']").click({ force: true });
     cy.get("[data-testid='circular']").should("exist");
   });
-  it("Property: isIndeterminate, Toggle infinite loading", function () {
+  it("6. Property: isIndeterminate, Toggle infinite loading", function () {
     cy.openPropertyPane("progresswidget");
     // enable infinite loading
     cy.togglebar(".t--property-control-infiniteloading input[type='checkbox']");
@@ -91,7 +87,7 @@ describe("Progress Widget", function () {
       200,
     );
   });
-  it("Property: value, Change progress value", function () {
+  it("7. Property: value, Change progress value", function () {
     cy.updateCodeInput(".t--property-control-progress", "50");
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -101,7 +97,7 @@ describe("Progress Widget", function () {
     // The path element with 50 should exist
     cy.get("[data-testvalue='50']").should("exist");
   });
-  it("Property: showResult, Toggle show result", function () {
+  it("8. Property: showResult, Toggle show result", function () {
     // enable show result
     cy.togglebar(".t--property-control-showresult input[type='checkbox']");
     // show label
@@ -113,7 +109,7 @@ describe("Progress Widget", function () {
     // does not show any label
     cy.get("[data-testid='circular-label']").should("not.exist");
   });
-  it("Property: steps, Change steps", function () {
+  it("9. Property: steps, Change steps", function () {
     cy.updateCodeInput(".t--property-control-numberofsteps", "2");
     // show circular progress with steps
     cy.get("[data-testid='separator']").should("have.length", 2);
@@ -121,7 +117,7 @@ describe("Progress Widget", function () {
     // does not show progress with steps
     cy.get("[data-testid='separator']").should("not.exist");
   });
-  it("Property: counterClockwise,Change counterclockwise", function () {
+  it("10. Property: counterClockwise,Change counterclockwise", function () {
     // enable counterclockwise
     cy.togglebar(
       ".t--property-control-counterclockwise input[type='checkbox']",
@@ -140,7 +136,7 @@ describe("Progress Widget", function () {
       .should("not.match", /-/);
   });
 
-  it("The binding property, progress should be exposed for an auto suggestion", function () {
+  it("11. The binding property, progress should be exposed for an auto suggestion", function () {
     cy.openPropertyPane("textwidget");
     cy.get(".t--property-control-text .CodeMirror textarea").type(
       "{{Progress1.",
@@ -149,7 +145,7 @@ describe("Progress Widget", function () {
     cy.get("ul.CodeMirror-hints").contains("progress").should("exist");
   });
 
-  it("Check Progress, Number of steps, Counterclockwise, Show result disabled on infite looping enablement", function () {
+  it("12. Check Progress, Number of steps, Counterclockwise, Show result disabled on infite looping enablement", function () {
     //  on enabling infite loading assert the absence of elements
     agHelper.GetNClick(widgets.progressWidget);
     propPane.TogglePropertyState("Infinite loading", "On");
@@ -160,7 +156,7 @@ describe("Progress Widget", function () {
     propPane.TogglePropertyState("Infinite loading", "Off");
   });
 
-  it("Check binding in Progress ", function () {
+  it("13. Check binding in Progress ", function () {
     agHelper.GetNClick(widgets.linearProgressWidget);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 600, 100);
     agHelper.GetNClick(widgets.progressWidget);
@@ -184,7 +180,7 @@ describe("Progress Widget", function () {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("Check progress widget visibility based on visible state - Deploy mode", function () {
+  it("14. Check progress widget visibility based on visible state - Deploy mode", function () {
     agHelper.GetNClick(widgets.progressWidget);
     propPane.TogglePropertyState("Visible", "Off");
     deployMode.DeployApp();
