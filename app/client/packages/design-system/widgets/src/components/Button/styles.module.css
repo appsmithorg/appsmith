@@ -1,3 +1,4 @@
+<<<<<<<< HEAD:app/client/packages/design-system/widgets/src/components/Button/src/index.styled.tsx
 import styled, { css } from "styled-components";
 import { Button as HeadlessButton } from "@design-system/headless";
 
@@ -65,6 +66,9 @@ export const buttonStyles = css<StyledButtonProps>`
 `;
 
 export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
+========
+.button {
+>>>>>>>> 5ef74ebeba (try css modules in button component):app/client/packages/design-system/widgets/src/components/Button/styles.module.css
   display: flex;
   justify-content: center;
   align-items: center;
@@ -80,13 +84,55 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
   min-inline-size: var(--sizing-8);
   border-radius: var(--border-radius-1);
 
-  // Note: adding important here as ADS is overriding the color of blueprint icon globally
-  // TODO(pawan): Remove this once ADS team removes the global override
+  @each $color in accent, neutral, negative, warning, positive {
+    &[data-variant="filled"][data-color="$(color)"] {
+      background-color: var(--color-bg-$(color));
+      color: var(--color-fg-on-$(color));
+      border-color: transparent;
+
+      &[data-hovered]:not([aria-disabled]) {
+        background-color: var(--color-bg-$(color)-hover);
+      }
+
+      &[data-active]:not([aria-disabled]) {
+        background-color: var(--color-bg-$(color)-active);
+      }
+    }
+
+    &[data-variant="outlined"][data-color="$(color)"] {
+      background-color: transparent;
+      color: var(--color-fg-$(color));
+      border-color: var(--color-bd-$(color));
+
+      &[data-hovered]:not([aria-disabled]) {
+        background-color: var(--color-bg-$(color)-subtle-hover);
+      }
+
+      &[data-active]:not([aria-disabled]) {
+        background-color: var(--color-bg-$(color)-subtle-active);
+      }
+    }
+
+    &[data-variant="ghost"][data-color="$(color)"] {
+      background: transparent;
+      color: var(--color-fg-$(color));
+      border-color: transparent;
+
+      &[data-hovered]:not([aria-disabled]) {
+        background: var(--color-bg-$(color)-subtle-hover);
+      }
+
+      &[data-active]:not([aria-disabled]) {
+        background: var(--color-bg-$(color)-subtle-active);
+      }
+    }
+  }
+
+  /* Note: adding important here as ADS is overriding the color of blueprint icon globally */
+  /* TODO(pawan): Remove this once ADS team removes the global override */
   &[data-button] .bp3-icon {
     color: currentColor !important;
   }
-
-  ${buttonStyles}
 
   /**
   * ----------------------------------------------------------------------------
@@ -170,7 +216,7 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
     align-items: center;
     border-radius: inherit;
   }
-`;
+}
 
 /**
  * We have this Bug in Firefox where we are unable to drag
@@ -178,7 +224,7 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
  *
  * We found a solution here - https://stackoverflow.com/a/43888410
  */
-export const DragContainer = styled.div`
+.dragContainer {
   &:after {
     content: "";
     top: 0;
@@ -187,4 +233,4 @@ export const DragContainer = styled.div`
     bottom: 0;
     position: absolute;
   }
-`;
+}
