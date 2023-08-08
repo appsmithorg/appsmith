@@ -213,6 +213,11 @@ const PlaceholderButton = styled.div`
   color: ${Colors.GRAY};
 `;
 
+const OuterContainer = styled.div`
+  padding: 4px 16px;
+  height: 100%;
+`;
+
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
   const isInGuidedTour = useSelector(inGuidedTour);
@@ -231,7 +236,7 @@ function ConnectGitPlaceholder() {
   const isGitConnectionEnabled = !isInGuidedTour;
 
   return (
-    <Container>
+    <OuterContainer>
       <Tooltip content={tooltipContent} isDisabled={!isTooltipEnabled}>
         <Container style={{ marginLeft: 0, cursor: "pointer" }}>
           <StyledIcon
@@ -261,7 +266,7 @@ function ConnectGitPlaceholder() {
           )}
         </Container>
       </Tooltip>
-    </Container>
+    </OuterContainer>
   );
 }
 

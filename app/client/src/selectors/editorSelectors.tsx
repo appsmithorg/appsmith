@@ -341,16 +341,16 @@ export const getWidgetCards = createSelector(
   (_state) => selectFeatureFlagCheck(_state, FEATURE_FLAG.ab_wds_enabled),
   (widgetConfigs, isAutoLayout, isWDSEnabled) => {
     const cards = Object.values(widgetConfigs.config).filter((config) => {
-      if (isAirgapped()) {
-        return config.widgetName !== "Map" && !config.hideCard;
-      }
-
       // if wds_vs is not enabled, hide all wds_v2 widgets
       if (
         Object.values(WDS_V2_WIDGET_MAP).includes(config.type) &&
         isWDSEnabled === false
       ) {
         return false;
+      }
+
+      if (isAirgapped()) {
+        return config.widgetName !== "Map" && !config.hideCard;
       }
 
       // if wds is enabled, only show the wds_v2 widgets
