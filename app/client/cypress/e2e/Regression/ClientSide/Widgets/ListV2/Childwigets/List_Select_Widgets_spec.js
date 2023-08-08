@@ -31,14 +31,14 @@ describe("Select Widgets", function () {
   }]}}`,
     );
 
-    _.propPane.ToggleJSMode("label");
+    _.propPane.ToggleJSMode("label key");
     cy.updateCodeInput(
-      ".t--property-control-wrapper.t--property-control-label",
+      ".t--property-control-wrapper.t--property-control-labelkey",
       `label`,
     );
 
-    _.propPane.ToggleJSMode("value");
-    cy.updateCodeInput(".t--property-control-value", `value`);
+    _.propPane.ToggleJSMode("value key");
+    cy.updateCodeInput(".t--property-control-valuekey", `value`);
 
     _.propPane.UpdatePropertyFieldValue(
       "Default selected values",
@@ -62,14 +62,14 @@ describe("Select Widgets", function () {
     }]}}`,
     );
 
-    _.propPane.ToggleJSMode("label");
+    _.propPane.ToggleJSMode("label key");
     cy.updateCodeInput(
-      ".t--property-control-wrapper.t--property-control-label",
+      ".t--property-control-wrapper.t--property-control-labelkey",
       `label`,
     );
 
-    _.propPane.ToggleJSMode("value");
-    cy.updateCodeInput(".t--property-control-value", `value`);
+    _.propPane.ToggleJSMode("value key");
+    cy.updateCodeInput(".t--property-control-valuekey", `value`);
 
     _.propPane.UpdatePropertyFieldValue(
       "Default selected value",
