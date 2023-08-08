@@ -9,6 +9,7 @@ type StyledProviderProps = PickRename<
     typography: "$typography";
     fontFamily: "$fontFamily";
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 > & { theme: any };
 
 export const StyledProvider = styled.div<StyledProviderProps>`

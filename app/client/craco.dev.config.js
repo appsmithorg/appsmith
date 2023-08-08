@@ -21,7 +21,7 @@ module.exports = merge(common, {
       )
       .forEach((plugin) => {
         plugin.options.typescript = plugin.options.typescript || {};
-        plugin.options.typescript.memoryLimit = 4096;
+        plugin.options.typescript.memoryLimit = 12096;
       });
 
     return common.config;
