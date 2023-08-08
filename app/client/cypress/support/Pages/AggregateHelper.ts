@@ -284,10 +284,12 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public ValidateToastMessage(text: string, index = 0, length = 1) {
-    this.GetElement(this.locator._toastMsg)
-      .should("have.length.at.least", length)
-      .eq(index)
-      .should("contain.text", text);
+    if (index != 0) {
+      this.GetElement(this.locator._toastMsg)
+        .should("have.length.at.least", length)
+        .eq(index)
+        .should("contain.text", text);
+    } else this.GetNAssertContains(this.locator._toastMsg, text);
   }
 
   public RemoveTooltip(toolTip: string) {
@@ -754,8 +756,14 @@ export class AggregateHelper extends ReusableHelper {
     }
   }
 
-  public ClearTextField(selector: string) {
-    this.GetElement(selector).clear();
+  public ClearTextField(selector: string, force = false) {
+    this.GetElement(selector).clear({ force });
+    this.Sleep(500); //for text to clear for CI runs
+  }
+
+  public ClearNType(selector: string, totype: string) {
+    this.ClearTextField(selector);
+    this.TypeText(selector, totype);
   }
 
   public TypeText(
@@ -985,6 +993,7 @@ export class AggregateHelper extends ReusableHelper {
   ) {
     if (entityType != EntityItems.Widget)
       this.GetNClick(this.locator._contextMenuItem("Are you sure?"));
+    this.Sleep(1000);
     toAssertAction && this.assertHelper.AssertDelete(entityType);
   }
 
@@ -1099,6 +1108,7 @@ export class AggregateHelper extends ReusableHelper {
         input.focus();
         this.Sleep(200);
         input.setValue(value);
+        this.Sleep(200);
         input.execCommand("goLineEnd");
         this.Sleep(200);
       });
@@ -1440,6 +1450,7 @@ export class AggregateHelper extends ReusableHelper {
 
   public AssertURL(url: string) {
     cy.url().should("include", url);
+    this.Sleep(); //settle time for new url!
   }
 
   public ScrollTo(
@@ -1539,8 +1550,9 @@ export class AggregateHelper extends ReusableHelper {
     });
   }
 
-  public VisitNAssert(url: string, apiToValidate = "") {
+  public VisitNAssert(url: string, apiToValidate = "", waitTime = 4000) {
     cy.visit(url, { timeout: 60000 });
+    this.Sleep(waitTime); //for new url to settle
     if (apiToValidate.includes("getReleaseItems") && Cypress.env("AIRGAPPED")) {
       this.Sleep(2000);
     } else

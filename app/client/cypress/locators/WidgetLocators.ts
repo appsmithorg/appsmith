@@ -26,7 +26,6 @@ export const WIDGET = {
   CHART: "chartwidget",
   AUDIO: "audiowidget",
   AUDIORECORDER: "audiorecorderwidget",
-  PHONEINPUT: "phoneinputwidget",
   CAMERA: "camerawidget",
   FILEPICKER: "filepickerwidgetv2",
   DOCUMENT_VIEWER: "documentviewerwidget",
@@ -43,7 +42,7 @@ export const WIDGET = {
   IMAGE: "imagewidget",
   STATBOX: "statboxwidget",
   JSONFORM: "jsonformwidget",
-  MENUBUTTON: "menubuttonwidget"
+  MENUBUTTON: "menubuttonwidget",
 } as const;
 
 // property pane element selector are maintained here
