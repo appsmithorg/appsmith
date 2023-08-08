@@ -12,8 +12,8 @@ describe("Login failure", function () {
     deployMode.DeployApp(locators._emptyPageTxt);
     cy.location()
       .then((location) => {
-        cy.LogOutUser();
         appUrl = location.href.split("?")[0];
+        cy.LogOutUser();
         cy.window({ timeout: 60000 }).then((win) => {
           win.location.href = appUrl;
         });
