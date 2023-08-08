@@ -53,7 +53,7 @@ describe("Switch widget testcases", () => {
     agHelper.GetNClick(locators._backToEditor);
   });
 
-  it("2. Validate general properties - Visible", () => {
+  it("2. Validate general properties - Visible via JS", () => {
     entityExplorer.SelectEntityByName("Switch1");
     propPane.EnterJSContext("Default state", "true");
     propPane.EnterJSContext(
@@ -94,6 +94,45 @@ describe("Switch widget testcases", () => {
     agHelper.GetNClick(locators._backToEditor);
   });
 
+  it("4. Validate error texts", () => {
+    entityExplorer.SelectEntityByName("Switch1");
+    propPane.EnterJSContext("Default state", "90");
+    agHelper.VerifyEvaluatedErrorMessage(
+      "This value does not evaluate to type boolean",
+    );
+    propPane.EnterJSContext("Default state", "TRUE");
+    agHelper.VerifyEvaluatedErrorMessage(
+      "This value does not evaluate to type boolean",
+    );
+    propPane.EnterJSContext("Visible", "0");
+    agHelper.VerifyEvaluatedErrorMessage(
+      "This value does not evaluate to type boolean",
+    );
+    propPane.EnterJSContext("Visible", "FALSE");
+    agHelper.VerifyEvaluatedErrorMessage(
+      "This value does not evaluate to type boolean",
+    );
+    propPane.EnterJSContext("Disabled", "{{Status1.value}}");
+    agHelper.VerifyEvaluatedErrorMessage("Status1 is not defined");
+  });
+
+  it("5. validate on change - via JS", () => {
+    entityExplorer.SelectEntityByName("Switch1");
+    propPane.EnterJSContext("Default state", "false");
+    propPane.EnterJSContext("Visible", "true");
+    propPane.EnterJSContext("Disabled", "false");
+    propPane.EnterJSContext(
+      "onChange",
+      "{{showAlert('Switch action perfomed')}}",
+    );
+    agHelper.GetNClick(widgets.switch);
+    agHelper.ValidateToastMessage("Switch action perfomed");
+    deployMode.DeployApp();
+    agHelper.GetNClick(widgets.switch);
+    agHelper.ValidateToastMessage("Switch action perfomed");
+  });
+
+  // based on the dropdown value set the switch widget is disabled or enabled
   function testSwitchDisabled(dropdownValue: string): void {
     agHelper.GetNClick(commonloc.selectButton);
     agHelper.GetNClickByContains(widgets.dropdownMenuItem, dropdownValue);
