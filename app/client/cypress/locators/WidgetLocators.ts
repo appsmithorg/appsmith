@@ -66,3 +66,8 @@ export const getWidgetInputSelector = (widget: ValueOf<typeof WIDGET>) =>
   `.t--widget-${widget} input`;
 
 export const modalWidgetSelector = ".t--modal-widget";
+
+// export data-testid with user input 
+export const progressWidgetProgress = (input: any) => `[data-testid='${input}']`
+
+
