@@ -74,7 +74,13 @@ function JSCollectionLink(props: EntityLinkProps) {
         });
       }
     }
-  }, [props.id, props.propertyPath]);
+  }, [
+    props.id,
+    props.propertyPath,
+    props.errorType,
+    props.errorSubType,
+    props.appsmithErrorCode,
+  ]);
   return (
     <DebuggerEntityLink
       entityType={props.type}
