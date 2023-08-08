@@ -328,20 +328,16 @@ export function Table(props: TableProps) {
         }
       });
     }
+  }, [props.isAddRowInProgress]);
 
+  useEffect(() => {
     AnalyticsUtil.logEvent("TABLE_VERTICAL_SCROLL", {
       widgetName: props.widgetName,
       widgetId: props.widgetId,
       pageSize: props.pageSize,
       yScrollVisibility: isVerticalScrollVisible(),
     });
-  }, [
-    props.isAddRowInProgress,
-    props.bottomRow,
-    props.topRow,
-    props.leftColumn,
-    props.rightColumn,
-  ]);
+  }, [props.bottomRow, props.topRow, props.leftColumn, props.rightColumn]);
 
   return (
     <>
