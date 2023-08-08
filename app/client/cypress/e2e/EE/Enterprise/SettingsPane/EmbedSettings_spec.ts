@@ -37,7 +37,7 @@ describe("In-app embed settings", () => {
   it("1. Validate embed URL based on SSO method chosen when navigation bar is hidden on Invite Modal", () => {
     _.inviteModal.OpenShareModal();
     _.inviteModal.SelectEmbedTab();
-    _.embedSettings.ToggleShowNavigationBar("true");
+    _.embedSettings.ToggleShowNavigationBar("On");
 
     cy.get(_.inviteModal.locatorsEE._docLink).should(
       "have.attr",
@@ -60,7 +60,7 @@ describe("In-app embed settings", () => {
   it("2. Validate embed URL based on SSO method chosen when navigation bar is not hidden on Invite Modal", () => {
     _.inviteModal.OpenShareModal();
     _.inviteModal.SelectEmbedTab();
-    _.embedSettings.ToggleShowNavigationBar("false");
+    _.embedSettings.ToggleShowNavigationBar("Off");
 
     _.agHelper.GetNClick(_.inviteModal.locatorsEE._inputOIDC);
     ValidateSnippetUrl(_.embedSettings.locators._snippet, "oidc", false, true);
@@ -81,7 +81,7 @@ describe("In-app embed settings", () => {
 
   it("3. Validate embed URL based on SSO method chosen when navigation bar is hidden on App Settings", () => {
     _.embedSettings.OpenEmbedSettings();
-    _.embedSettings.ToggleShowNavigationBar("true");
+    _.embedSettings.ToggleShowNavigationBar("On");
 
     cy.get(_.inviteModal.locatorsEE._docLink).should(
       "have.attr",
@@ -103,7 +103,7 @@ describe("In-app embed settings", () => {
 
   it("4. Validate embed URL based on SSO method chosen when navigation bar is not hidden on App Settings", () => {
     _.embedSettings.OpenEmbedSettings();
-    _.embedSettings.ToggleShowNavigationBar("false");
+    _.embedSettings.ToggleShowNavigationBar("Off");
 
     _.agHelper.GetNClick(_.inviteModal.locatorsEE._inputOIDC);
     ValidateSnippetUrl(_.embedSettings.locators._snippet, "oidc", false);
