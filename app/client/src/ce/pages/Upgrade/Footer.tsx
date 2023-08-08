@@ -64,7 +64,7 @@ export function FooterComponent(props: FooterProps) {
         </div>
       </div>
       <div className="right">
-        <Button onClick={onClick} size="md">
+        <Button data-testid="t--button-upgrade" onClick={onClick} size="md">
           {createMessage(UPGRADE)}
         </Button>
       </div>
