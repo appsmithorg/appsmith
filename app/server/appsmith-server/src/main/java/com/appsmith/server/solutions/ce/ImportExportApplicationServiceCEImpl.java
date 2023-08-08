@@ -957,6 +957,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private Mono<Map<String, String>> importDatasources(
             ApplicationJson importedDoc,
             Mono<List<Datasource>> existingDatasourceMono,
+            Flux<Datasource> existingDatasourcesFlux,
             Workspace workspace,
             Mono<Map<String, String>> pluginMapMno,
             ImportApplicationPermissionProvider permissionProvider) {
@@ -1045,7 +1046,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 }
 
                                 return createUniqueDatasourceIfNotPresent(
-                                        existingDatasources,
+                                        existingDatasourcesFlux,
                                         datasourceStorage,
                                         workspace,
                                         environmentId,
@@ -1380,9 +1381,20 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             String branchName,
             ImportApplicationPermissionProvider permissionProvider) {
         List<NewAction> importedNewActionList = importedDoc.getActionList();
-        Mono<List<Datasource>> existingDatasourceMono = getExistingDatasourceMono(applicationId, workspace.getId());
-        Mono<Map<String, String>> datasourceMapMono =
-                importDatasources(importedDoc, existingDatasourceMono, workspace, pluginMapMno, permissionProvider);
+
+        final Flux<Datasource> existingDatasourceFlux = datasourceService
+                .getAllByWorkspaceIdWithStorages(workspace.getId(), Optional.empty())
+                .cache();
+
+        Mono<List<Datasource>> existingDatasourceMono =
+                getExistingDatasourceMono(applicationId, existingDatasourceFlux);
+        Mono<Map<String, String>> datasourceMapMono = importDatasources(
+                importedDoc,
+                existingDatasourceMono,
+                existingDatasourceFlux,
+                workspace,
+                pluginMapMno,
+                permissionProvider);
 
         Mono<List<NewAction>> importedNewActionMono = Mono.just(importedNewActionList);
         if (appendToApp) {
@@ -1696,15 +1708,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 });
     }
 
-    private Mono<List<Datasource>> getExistingDatasourceMono(String applicationId, String workspaceId) {
+    private Mono<List<Datasource>> getExistingDatasourceMono(String applicationId, Flux<Datasource> datasourceFlux) {
         Mono<List<Datasource>> existingDatasourceMono;
         // Check if the request is to hydrate the application to DB for particular branch
         // Application id will be present for GIT sync
         if (!StringUtils.isEmpty(applicationId)) {
             // No need to hydrate the datasource as we expect user will configure the datasource
-            existingDatasourceMono = datasourceService
-                    .getAllByWorkspaceIdWithStorages(workspaceId, Optional.empty())
-                    .collectList();
+            existingDatasourceMono = datasourceFlux.collectList();
         } else {
             existingDatasourceMono = Mono.just(new ArrayList<>());
         }
@@ -2248,7 +2258,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * @return already present or brand new datasource depending upon the equality check
      */
     private Mono<Datasource> createUniqueDatasourceIfNotPresent(
-            List<Datasource> existingDatasources,
+            Flux<Datasource> existingDatasources,
             DatasourceStorage datasourceStorage,
             Workspace workspace,
             String environmentId,
@@ -2265,7 +2275,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             datasourceConfig.getAuthentication().setAuthenticationType(null);
         }
 
-        return Flux.fromIterable(existingDatasources)
+        return existingDatasources
                 // For git import exclude datasource configuration
                 .filter(ds -> ds.getName().equals(datasourceStorage.getName())
                         && datasourceStorage.getPluginId().equals(ds.getPluginId()))
