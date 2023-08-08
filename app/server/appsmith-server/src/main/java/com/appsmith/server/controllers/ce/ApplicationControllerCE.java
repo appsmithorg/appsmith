@@ -204,7 +204,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     @JsonView(Views.Public.class)
     @GetMapping("/export/{id}")
     public Mono<ResponseEntity<Object>> getApplicationFile(
-            @PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @PathVariable String id, @RequestParam(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to export application with id: {}, branch: {}", id, branchName);
 
         return importExportApplicationService.getApplicationFile(id, branchName).map(fetchedResource -> {
