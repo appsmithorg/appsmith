@@ -1363,6 +1363,8 @@ export class AggregateHelper extends ReusableHelper {
     return this.GetElement(selector, timeout)
       .eq(index)
       .scrollIntoView()
+      .should("exist")
+      .wait(200)
       .should("be.visible");
   }
 
