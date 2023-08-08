@@ -19,6 +19,7 @@ export const scimGateway: ScimGateway = new ScimGateway();
 scimGateway.authPassThroughAllowed = true;
 export const pluginName = "plugin-scim";
 export const configFile = "../config/plugin-scim.json";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 export const config: any = require(configFile).endpoint;
 const _serviceClient: any = {};
 

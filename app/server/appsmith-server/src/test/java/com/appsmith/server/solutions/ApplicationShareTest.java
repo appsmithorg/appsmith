@@ -29,6 +29,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -200,6 +201,9 @@ public class ApplicationShareTest {
     @Autowired
     EnvironmentPermission environmentPermission;
 
+    @Autowired
+    ActionCollectionRepository actionCollectionRepository;
+
     User apiUser = null;
     User testUser = null;
 
@@ -302,6 +306,18 @@ public class ApplicationShareTest {
         ActionDTO createdActionBlock =
                 layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testActionCollection");
+        actionCollectionDTO.setApplicationId(createdApplication.getId());
+        actionCollectionDTO.setWorkspaceId(createdWorkspace.getId());
+        actionCollectionDTO.setPageId(
+                createdApplication.getPages().stream().findAny().get().getDefaultPageId());
+        actionCollectionDTO.setPluginId(pluginId);
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        ActionCollectionDTO createdActionCollectionDTO =
+                layoutCollectionService.createCollection(actionCollectionDTO).block();
+
         PermissionGroup devApplicationRole = applicationService
                 .createDefaultRole(createdApplication, APPLICATION_DEVELOPER)
                 .block();
@@ -353,6 +369,10 @@ public class ApplicationShareTest {
                 .getPolicies();
         Set<Policy> newActionPolicies =
                 newActionRepository.findById(createdActionBlock.getId()).block().getPolicies();
+        Set<Policy> actionCollectionPolicies = actionCollectionRepository
+                .findById(createdActionCollectionDTO.getId())
+                .block()
+                .getPolicies();
         Set<Policy> systemThemePolicies =
                 themeRepository.findById(systemTheme.getId()).block().getPolicies();
         Set<Policy> applicationThemePolicies =
@@ -433,6 +453,21 @@ public class ApplicationShareTest {
         });
 
         newActionPolicies.forEach(policy -> {
+            if (policy.getPermission().equals(MANAGE_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(DELETE_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(READ_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(EXECUTE_ACTIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+            }
+        });
+
+        actionCollectionPolicies.forEach(policy -> {
             if (policy.getPermission().equals(MANAGE_ACTIONS.getValue())) {
                 assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
             }

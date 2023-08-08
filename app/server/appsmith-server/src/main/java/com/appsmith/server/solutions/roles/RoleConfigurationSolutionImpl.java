@@ -1060,17 +1060,17 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                                 toBeAddedPermissions.getOrDefault(NewAction.class.getSimpleName(), List.of()));
                         toBeRemovedPermissionsForEntities.put(
                                 newAction.getId(),
-                                toBeRemovedPermissions.getOrDefault(NewPage.class.getSimpleName(), List.of()));
+                                toBeRemovedPermissions.getOrDefault(NewAction.class.getSimpleName(), List.of()));
                     });
 
                     actionCollections.forEach(actionCollection -> {
                         entityIdEntityClassMap.put(actionCollection.getId(), ActionCollection.class);
                         toBeAddedPermissionsForEntities.put(
                                 actionCollection.getId(),
-                                toBeAddedPermissions.getOrDefault(ActionCollection.class.getSimpleName(), List.of()));
+                                toBeAddedPermissions.getOrDefault(NewAction.class.getSimpleName(), List.of()));
                         toBeRemovedPermissionsForEntities.put(
                                 actionCollection.getId(),
-                                toBeRemovedPermissions.getOrDefault(ActionCollection.class.getSimpleName(), List.of()));
+                                toBeRemovedPermissions.getOrDefault(NewAction.class.getSimpleName(), List.of()));
                     });
 
                     return bulkUpdateEntityPoliciesForApplicationRole(

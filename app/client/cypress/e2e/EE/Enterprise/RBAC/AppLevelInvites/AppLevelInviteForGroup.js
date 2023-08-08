@@ -4,6 +4,8 @@ import {
   homePage,
   dataSources,
   onboarding,
+  jsEditor,
+  deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
 import homePageLocators from "../../../../../locators/HomePage";
 import auditLogslocators from "../../../../../locators/AuditLogsLocators";
@@ -44,8 +46,19 @@ describe("Create new workspace and invite group & validate all roles", () => {
       homePage.NavigateToHome();
       homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
       homePage.CreateAppInWorkspace(workspaceId, appid);
+      const jsObjectBody = `export default {
+        myVar1: [],
+      }`;
+      const jsObjectCreationOptions = {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      };
+      jsEditor.CreateJSObject(jsObjectBody, jsObjectCreationOptions);
       homePage.NavigateToHome();
       homePage.CreateAppInWorkspace(workspaceId, appid + "Internal Apps");
+      jsEditor.CreateJSObject(jsObjectBody, jsObjectCreationOptions);
     });
     homePage.LogOutviaAPI();
   });
@@ -205,6 +218,9 @@ describe("Create new workspace and invite group & validate all roles", () => {
     );
     agHelper.GetNClick(".t--entity-name:contains('Postgres')");
     cy.get(dataSources._createQuery).should("not.have.attr", "disabled");
+    agHelper.Sleep(2000);
+    deployMode.DeployApp();
+    deployMode.NavigateBacktoEditor();
     agHelper.Sleep(2000);
     agHelper.ClickButton("Share");
     agHelper.Sleep();
