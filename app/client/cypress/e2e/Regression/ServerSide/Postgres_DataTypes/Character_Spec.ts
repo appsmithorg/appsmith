@@ -13,9 +13,7 @@ describe("Character Datatype tests", function () {
   let dsName: any, query: string;
 
   before("Create Postgress DS", () => {
-    cy.fixture("Datatypes/CharacterDTdsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Datatypes/CharacterDTdsl");
     appSettings.OpenPaneAndChangeTheme("Pacific");
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {

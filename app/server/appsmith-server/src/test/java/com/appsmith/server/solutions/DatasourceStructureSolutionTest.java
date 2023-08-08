@@ -1,6 +1,5 @@
 package com.appsmith.server.solutions;
 
-
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -85,6 +84,9 @@ public class DatasourceStructureSolutionTest {
     @SpyBean
     DatasourceStructureSolution datasourceStructureSolution;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     String workspaceId;
 
     String defaultEnvironmentId;
@@ -99,9 +101,12 @@ public class DatasourceStructureSolutionTest {
         toCreate.setName("DatasourceServiceTest");
 
         if (!StringUtils.hasLength(workspaceId)) {
-            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+            Workspace workspace =
+                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId = workspaceService
+                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                    .block();
         }
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
@@ -124,7 +129,7 @@ public class DatasourceStructureSolutionTest {
     }
 
     private DatasourceStorageDTO generateSampleDatasourceStorageDTO() {
-        DatasourceConfiguration datasourceConfiguration =  new DatasourceConfiguration();
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         Endpoint endpoint = new Endpoint("https://sample.endpoint", 5432L);
         DBAuth dbAuth = new DBAuth();
         dbAuth.setPassword("password");
@@ -142,28 +147,28 @@ public class DatasourceStructureSolutionTest {
 
     private DatasourceStructure generateDatasourceStructureObject() {
         DatasourceStructure.Column[] table1Columns = {
-                new DatasourceStructure.Column("_id1", "ObjectId", null, true),
-                new DatasourceStructure.Column("age1", "Integer", null, false),
-                new DatasourceStructure.Column("dob1", "Date", null, false),
-                new DatasourceStructure.Column("gender1", "String", null, false),
-                new DatasourceStructure.Column("luckyNumber1", "Long", null, false),
-                new DatasourceStructure.Column("name1", "String", null, false),
-                new DatasourceStructure.Column("netWorth1", "BigDecimal", null, false),
-                new DatasourceStructure.Column("updatedByCommand1", "Object", null, false),
+            new DatasourceStructure.Column("_id1", "ObjectId", null, true),
+            new DatasourceStructure.Column("age1", "Integer", null, false),
+            new DatasourceStructure.Column("dob1", "Date", null, false),
+            new DatasourceStructure.Column("gender1", "String", null, false),
+            new DatasourceStructure.Column("luckyNumber1", "Long", null, false),
+            new DatasourceStructure.Column("name1", "String", null, false),
+            new DatasourceStructure.Column("netWorth1", "BigDecimal", null, false),
+            new DatasourceStructure.Column("updatedByCommand1", "Object", null, false),
         };
 
         DatasourceStructure.Table table1 =
                 new DatasourceStructure.Table(TABLE, null, "Table1", List.of(table1Columns), null, null);
 
         DatasourceStructure.Column[] table2Columns = {
-                new DatasourceStructure.Column("_id2", "ObjectId", null, true),
-                new DatasourceStructure.Column("age2", "Integer", null, false),
-                new DatasourceStructure.Column("dob2", "Date", null, false),
-                new DatasourceStructure.Column("gender2", "String", null, false),
-                new DatasourceStructure.Column("luckyNumber2", "Long", null, false),
-                new DatasourceStructure.Column("name2", "String", null, false),
-                new DatasourceStructure.Column("netWorth2", "BigDecimal", null, false),
-                new DatasourceStructure.Column("updatedByCommand2", "Object", null, false),
+            new DatasourceStructure.Column("_id2", "ObjectId", null, true),
+            new DatasourceStructure.Column("age2", "Integer", null, false),
+            new DatasourceStructure.Column("dob2", "Date", null, false),
+            new DatasourceStructure.Column("gender2", "String", null, false),
+            new DatasourceStructure.Column("luckyNumber2", "Long", null, false),
+            new DatasourceStructure.Column("name2", "String", null, false),
+            new DatasourceStructure.Column("netWorth2", "BigDecimal", null, false),
+            new DatasourceStructure.Column("updatedByCommand2", "Object", null, false),
         };
 
         DatasourceStructure.Table table2 =
@@ -176,37 +181,40 @@ public class DatasourceStructureSolutionTest {
     @WithUserDetails(value = "api_user")
     public void verifyGenerateNewStructureWhenNotPresent() {
         doReturn(Mono.just(generateDatasourceStructureObject()))
-                .when(datasourceContextService).retryOnce(any(), any());
+                .when(datasourceContextService)
+                .retryOnce(any(), any());
 
         Mono<DatasourceStructure> datasourceStructureMono =
                 datasourceStructureSolution.getStructure(datasourceId, Boolean.FALSE, defaultEnvironmentId);
 
-       StepVerifier
-               .create(datasourceStructureMono)
-               .assertNext(datasourceStructure -> {
-                   assertThat(datasourceStructure.getTables().size()).isEqualTo(2);
-                   assertThat(datasourceStructure.getTables().get(0).getName()).isEqualTo("Table1");
-                   assertThat(datasourceStructure.getTables().get(1).getName()).isEqualTo("Table2");
-               })
-               .verifyComplete();
+        StepVerifier.create(datasourceStructureMono)
+                .assertNext(datasourceStructure -> {
+                    assertThat(datasourceStructure.getTables().size()).isEqualTo(2);
+                    assertThat(datasourceStructure.getTables().get(0).getName()).isEqualTo("Table1");
+                    assertThat(datasourceStructure.getTables().get(1).getName()).isEqualTo("Table2");
+                })
+                .verifyComplete();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void verifyUseCachedStructureWhenStructurePresent() {
         doReturn(Mono.just(generateDatasourceStructureObject()))
-                .when(datasourceContextService).retryOnce(any(), any());
+                .when(datasourceContextService)
+                .retryOnce(any(), any());
 
-        datasourceStructureSolution.getStructure(datasourceId, Boolean.TRUE, defaultEnvironmentId).block();
+        datasourceStructureSolution
+                .getStructure(datasourceId, Boolean.TRUE, defaultEnvironmentId)
+                .block();
 
         doReturn(Mono.just(new DatasourceStructure()))
-                .when(datasourceContextService).retryOnce(any(), any());
+                .when(datasourceContextService)
+                .retryOnce(any(), any());
 
         Mono<DatasourceStructure> datasourceStructureMono =
                 datasourceStructureSolution.getStructure(datasourceId, Boolean.FALSE, defaultEnvironmentId);
 
-        StepVerifier
-                .create(datasourceStructureMono)
+        StepVerifier.create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
                     assertThat(datasourceStructure.getTables().size()).isEqualTo(2);
                     assertThat(datasourceStructure.getTables().get(0).getName()).isEqualTo("Table1");
@@ -219,18 +227,21 @@ public class DatasourceStructureSolutionTest {
     @WithUserDetails(value = "api_user")
     public void verifyUseNewStructureWhenIgnoreCacheSetTrue() {
         doReturn(Mono.just(new DatasourceStructure()))
-                .when(datasourceContextService).retryOnce(any(), any());
+                .when(datasourceContextService)
+                .retryOnce(any(), any());
 
-        datasourceStructureSolution.getStructure(datasourceId, Boolean.TRUE, defaultEnvironmentId).block();
+        datasourceStructureSolution
+                .getStructure(datasourceId, Boolean.TRUE, defaultEnvironmentId)
+                .block();
 
         doReturn(Mono.just(generateDatasourceStructureObject()))
-                .when(datasourceContextService).retryOnce(any(), any());
+                .when(datasourceContextService)
+                .retryOnce(any(), any());
 
         Mono<DatasourceStructure> datasourceStructureMono =
                 datasourceStructureSolution.getStructure(datasourceId, Boolean.TRUE, defaultEnvironmentId);
 
-        StepVerifier
-                .create(datasourceStructureMono)
+        StepVerifier.create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
                     assertThat(datasourceStructure.getTables().size()).isEqualTo(2);
                     assertThat(datasourceStructure.getTables().get(0).getName()).isEqualTo("Table1");
@@ -243,15 +254,17 @@ public class DatasourceStructureSolutionTest {
     @WithUserDetails(value = "api_user")
     public void verifyDatasourceStorageStructureGettingSaved() {
         doReturn(Mono.just(generateDatasourceStructureObject()))
-                .when(datasourceContextService).retryOnce(any(), any());
+                .when(datasourceContextService)
+                .retryOnce(any(), any());
 
-        datasourceStructureSolution.getStructure(datasourceId, Boolean.TRUE, defaultEnvironmentId).block();
+        datasourceStructureSolution
+                .getStructure(datasourceId, Boolean.TRUE, defaultEnvironmentId)
+                .block();
 
         Mono<DatasourceStorageStructure> datasourceStorageStructureMono =
                 datasourceStructureService.getByDatasourceIdAndEnvironmentId(datasourceId, defaultEnvironmentId);
 
-        StepVerifier
-                .create(datasourceStorageStructureMono)
+        StepVerifier.create(datasourceStorageStructureMono)
                 .assertNext(datasourceStorageStructure -> {
                     assertThat(datasourceStorageStructure.getDatasourceId()).isEqualTo(datasourceId);
                     assertThat(datasourceStorageStructure.getEnvironmentId()).isEqualTo(defaultEnvironmentId);
@@ -268,13 +281,13 @@ public class DatasourceStructureSolutionTest {
     @WithUserDetails(value = "api_user")
     public void verifyCaseWhereNoEnvironmentProvided() {
         doReturn(Mono.just(generateDatasourceStructureObject()))
-                .when(datasourceContextService).retryOnce(any(), any());
+                .when(datasourceContextService)
+                .retryOnce(any(), any());
 
         Mono<DatasourceStructure> datasourceStructureMono =
                 datasourceStructureSolution.getStructure(datasourceId, Boolean.FALSE, null);
 
-        StepVerifier
-                .create(datasourceStructureMono)
+        StepVerifier.create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
                     assertThat(datasourceStructure.getTables().size()).isEqualTo(2);
                     assertThat(datasourceStructure.getTables().get(0).getName()).isEqualTo("Table1");
@@ -287,21 +300,24 @@ public class DatasourceStructureSolutionTest {
     @WithUserDetails(value = "api_user")
     public void verifyUseCachedStructureWhenStructurePresentWithNoEnvironment() {
         doReturn(Mono.just(generateDatasourceStructureObject()))
-                .when(datasourceContextService).retryOnce(any(), any());
+                .when(datasourceContextService)
+                .retryOnce(any(), any());
 
         // Null defaults to default environment
-        datasourceStructureSolution.getStructure(datasourceId, Boolean.TRUE, null).block();
+        datasourceStructureSolution
+                .getStructure(datasourceId, Boolean.TRUE, null)
+                .block();
 
         doReturn(Mono.just(new DatasourceStructure()))
-                .when(datasourceContextService).retryOnce(any(), any());
+                .when(datasourceContextService)
+                .retryOnce(any(), any());
 
         // Null defaults to default environment
         // will work as expected
         Mono<DatasourceStructure> datasourceStructureMono =
                 datasourceStructureSolution.getStructure(datasourceId, Boolean.FALSE, null);
 
-        StepVerifier
-                .create(datasourceStructureMono)
+        StepVerifier.create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
                     assertThat(datasourceStructure.getTables().size()).isEqualTo(2);
                     assertThat(datasourceStructure.getTables().get(0).getName()).isEqualTo("Table1");
@@ -319,7 +335,7 @@ public class DatasourceStructureSolutionTest {
         oAuth2.setClientId("clientId");
         oAuth2.setClientSecret("clientSecret");
 
-        DatasourceConfiguration datasourceConfiguration =  new DatasourceConfiguration();
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("https://mock.codes");
         datasourceConfiguration.setAuthentication(oAuth2);
 
@@ -337,8 +353,7 @@ public class DatasourceStructureSolutionTest {
         Mono<DatasourceStructure> datasourceStructureMono =
                 datasourceStructureSolution.getStructure(savedDatasource.getId(), Boolean.FALSE, null);
 
-        StepVerifier
-                .create(datasourceStructureMono)
+        StepVerifier.create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
                     assertThat(datasourceStructure.getTables()).isNull();
                     assertThat(datasourceStructure.getError()).isNull();
@@ -350,20 +365,22 @@ public class DatasourceStructureSolutionTest {
     @WithUserDetails(value = "api_user")
     public void verifyDatasourceStorageStructureEntriesWithTwoEnvironmentId() {
         doReturn(Mono.just(generateDatasourceStructureObject()))
-                .when(datasourceContextService).retryOnce(any(), any());
+                .when(datasourceContextService)
+                .retryOnce(any(), any());
 
         // creating an entry with environmentId as randomId and then
-        datasourceStructureService.
-                saveStructure(datasourceId, "randomId", generateDatasourceStructureObject())
+        datasourceStructureService
+                .saveStructure(datasourceId, "randomId", generateDatasourceStructureObject())
                 .block();
 
-        datasourceStructureSolution.getStructure(datasourceId, Boolean.FALSE, defaultEnvironmentId).block();
+        datasourceStructureSolution
+                .getStructure(datasourceId, Boolean.FALSE, defaultEnvironmentId)
+                .block();
 
         Mono<DatasourceStorageStructure> datasourceStorageStructureMono =
                 datasourceStructureService.getByDatasourceIdAndEnvironmentId(datasourceId, defaultEnvironmentId);
 
-        StepVerifier
-                .create(datasourceStorageStructureMono)
+        StepVerifier.create(datasourceStorageStructureMono)
                 .assertNext(datasourceStorageStructure -> {
                     assertThat(datasourceStorageStructure.getDatasourceId()).isEqualTo(datasourceId);
                     assertThat(datasourceStorageStructure.getEnvironmentId()).isEqualTo(defaultEnvironmentId);
@@ -373,8 +390,7 @@ public class DatasourceStructureSolutionTest {
         Mono<DatasourceStorageStructure> datasourceStorageStructureMonoWithRandomEnvironmentId =
                 datasourceStructureService.getByDatasourceIdAndEnvironmentId(datasourceId, "randomId");
 
-        StepVerifier
-                .create(datasourceStorageStructureMonoWithRandomEnvironmentId)
+        StepVerifier.create(datasourceStorageStructureMonoWithRandomEnvironmentId)
                 .assertNext(datasourceStorageStructure -> {
                     assertThat(datasourceStorageStructure.getDatasourceId()).isEqualTo(datasourceId);
                     assertThat(datasourceStorageStructure.getEnvironmentId()).isEqualTo("randomId");
@@ -386,25 +402,25 @@ public class DatasourceStructureSolutionTest {
     @WithUserDetails(value = "api_user")
     public void verifyDuplicateKeyErrorOnSave() {
         doReturn(Mono.just(generateDatasourceStructureObject()))
-                .when(datasourceContextService).retryOnce(any(), any());
+                .when(datasourceContextService)
+                .retryOnce(any(), any());
 
-        datasourceStructureSolution.getStructure(datasourceId, Boolean.FALSE, defaultEnvironmentId).block();
+        datasourceStructureSolution
+                .getStructure(datasourceId, Boolean.FALSE, defaultEnvironmentId)
+                .block();
 
         DatasourceStorageStructure datasourceStorageStructure = new DatasourceStorageStructure();
         datasourceStorageStructure.setDatasourceId(datasourceId);
         datasourceStorageStructure.setEnvironmentId(defaultEnvironmentId);
         datasourceStorageStructure.setStructure(new DatasourceStructure());
 
-        Mono<DatasourceStorageStructure>  datasourceStorageStructureMono =
+        Mono<DatasourceStorageStructure> datasourceStorageStructureMono =
                 datasourceStructureService.save(datasourceStorageStructure);
 
-        StepVerifier
-                .create(datasourceStorageStructureMono)
-                .verifyErrorSatisfies(error ->  {
-                    assertThat(error).isInstanceOf(DuplicateKeyException.class);
-                });
+        StepVerifier.create(datasourceStorageStructureMono).verifyErrorSatisfies(error -> {
+            assertThat(error).isInstanceOf(DuplicateKeyException.class);
+        });
     }
-
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -412,23 +428,22 @@ public class DatasourceStructureSolutionTest {
         DatasourceStorage datasourceStorage = new DatasourceStorage();
         datasourceStorage.setDatasourceId(datasourceId);
         datasourceStorage.setEnvironmentId(defaultEnvironmentId);
+        datasourceStorage.setDatasourceConfiguration(new DatasourceConfiguration());
         datasourceStorage.setInvalids(new HashSet<>());
         datasourceStorage.getInvalids().add("random invalid");
 
         doReturn(Mono.just(datasourceStorage))
-                .when(datasourceStorageService).findByDatasourceAndEnvironmentId(any(), any());
+                .when(datasourceStorageService)
+                .findByDatasourceAndEnvironmentId(any(), any());
 
         Mono<DatasourceStructure> datasourceStructureMono =
                 datasourceStructureSolution.getStructure(datasourceId, Boolean.FALSE, defaultEnvironmentId);
 
-        StepVerifier
-                .create(datasourceStructureMono)
+        StepVerifier.create(datasourceStructureMono)
                 .assertNext(datasourceStructure -> {
                     assertThat(datasourceStructure.getTables()).isNull();
                     assertThat(datasourceStructure.getError()).isNull();
                 })
                 .verifyComplete();
-
     }
-
 }

@@ -1,21 +1,19 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const testdata = require("../../../../../fixtures/testdata.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  draggableWidgets,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("Video Widget Functionality", function () {
   before(() => {
-    cy.fixture("videoWidgetDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("videoWidgetDsl");
   });
 
   it("1. Video Widget play functionality validation", function () {
     cy.openPropertyPane("videowidget");
-    cy.widgetText(
-      "Video1",
-      widgetsPage.videoWidget,
-      widgetsPage.widgetNameSpan,
-    );
     cy.getAlert("onPlay", "Play success");
     cy.get(widgetsPage.autoPlay).click();
     cy.wait("@updateLayout").should(
@@ -73,32 +71,32 @@ describe("Video Widget Functionality", function () {
   });
 
   it("4. Checks if video widget is reset on button click", function () {
-    cy.testCodeMirror(testdata.videoUrl2);
-    cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
-    cy.openPropertyPane("buttonwidget");
-    cy.widgetText(
-      "Button1",
-      widgetsPage.buttonWidget,
-      widgetsPage.widgetNameSpan,
-    );
+    propPane.UpdatePropertyFieldValue("URL", testdata.videoUrl2);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
+
     cy.selectResetWidget("onClick");
     cy.selectWidgetForReset("Video1");
 
-    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
-    cy.openPropertyPane("textwidget");
-    cy.updateCodeInput(".t--property-control-text", `{{Video1.playState}}`);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 300);
+    propPane.UpdatePropertyFieldValue("Text", "{{Video1.playState}}");
+    agHelper.Sleep(1500); // Wait time added for the widget to load current video state
 
     cy.openPropertyPane("videowidget");
-    cy.get(widgetsPage.autoPlay).click({ force: true });
-    // Wait time added, allowing a second to pass between playing and pausing the widget, before it is reset to zero
-    cy.wait(1000);
-    cy.get(widgetsPage.autoPlay).click({ force: true });
-    cy.get(widgetsPage.widgetBtn).click({ force: true });
+    propPane.TogglePropertyState("Autoplay", "On");
+    agHelper.Sleep(1500); // Wait time added for the widget to load current video state
+    cy.get(".t--widget-textwidget").should("contain", "ENDED");
+
+    propPane.TogglePropertyState("Autoplay", "Off");
+    agHelper.Sleep(1500); // Wait time added, allowing a second to pass between playing and pausing the widget, before it is reset to zero
+    cy.get(".t--widget-textwidget").should("contain", "PAUSED");
+
+    agHelper.ClickButton("Submit");
     cy.wait(1000);
     cy.get(`${widgetsPage.videoWidget} video`).then(($video) => {
       const video = $video.get(0);
       expect(video.currentTime).to.equal(0);
     });
+    agHelper.Sleep(1500); // Wait time added for the widget to load current video state
     cy.get(".t--widget-textwidget").should("contain", "NOT_STARTED");
   });
 

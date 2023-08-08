@@ -35,8 +35,12 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { addBranchParam } from "constants/routes";
 import type { APP_MODE } from "entities/App";
-import { call, put, select } from "redux-saga/effects";
-import { failFastApiCalls } from "sagas/InitSagas";
+import { call, put, select, spawn } from "redux-saga/effects";
+import {
+  failFastApiCalls,
+  reportSWStatus,
+  waitForWidgetConfigBuild,
+} from "sagas/InitSagas";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -58,6 +62,8 @@ import {
 } from "@appsmith/sagas/userSagas";
 import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { getAIPromptTriggered } from "utils/storage";
+import { trackOpenEditorTabs } from "../../utils/editor/browserTabsTracking";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -147,37 +153,25 @@ export default class AppEditorEngine extends AppEngine {
 
   private *loadPluginsAndDatasources() {
     const isAirgappedInstance = isAirgapped();
-    const initActions: ReduxAction<unknown>[] = [
-      fetchPlugins(),
-      fetchDatasources(),
-    ];
-
-    if (!isAirgappedInstance) {
-      initActions.push(fetchMockDatasources() as ReduxAction<{ type: string }>);
-    }
-    initActions.push(fetchPageDSLs() as ReduxAction<{ type: string }>);
+    const initActions = [fetchPlugins(), fetchDatasources(), fetchPageDSLs()];
 
     const successActions = [
       ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
       ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
-      ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
       ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS,
-    ].filter((action) =>
-      !isAirgappedInstance
-        ? true
-        : action !== ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
-    );
+    ];
 
     const errorActions = [
       ReduxActionErrorTypes.FETCH_PLUGINS_ERROR,
       ReduxActionErrorTypes.FETCH_DATASOURCES_ERROR,
-      ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR,
       ReduxActionErrorTypes.POPULATE_PAGEDSLS_ERROR,
-    ].filter((action) =>
-      !isAirgappedInstance
-        ? true
-        : action !== ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR,
-    );
+    ];
+
+    if (!isAirgappedInstance) {
+      initActions.push(fetchMockDatasources() as ReduxAction<{ type: string }>);
+      successActions.push(ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS);
+      errorActions.push(ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR);
+    }
 
     const initActionCalls: boolean = yield call(
       failFastApiCalls,
@@ -213,10 +207,18 @@ export default class AppEditorEngine extends AppEngine {
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
     );
+
+    const [isAnotherEditorTabOpen, currentTabs] = yield call(
+      trackOpenEditorTabs,
+      currentApplication.id,
+    );
+
     if (currentApplication) {
       AnalyticsUtil.logEvent("EDITOR_OPEN", {
         appId: currentApplication.id,
         appName: currentApplication.name,
+        isAnotherEditorTabOpen,
+        currentTabs,
       });
     }
     yield put(loadGuidedTourInit());
@@ -226,6 +228,19 @@ export default class AppEditorEngine extends AppEngine {
         payload: [],
       });
     }
+
+    const noOfTimesAIPromptTriggered: number = yield getAIPromptTriggered();
+
+    yield put({
+      type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
+      payload: {
+        value: noOfTimesAIPromptTriggered,
+      },
+    });
+
+    yield call(waitForWidgetConfigBuild);
+    yield spawn(reportSWStatus);
+
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });

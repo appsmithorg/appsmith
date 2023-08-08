@@ -1,18 +1,11 @@
-import Uppy from "@uppy/core";
-import Dashboard from "@uppy/dashboard";
-import GoogleDrive from "@uppy/google-drive";
-import OneDrive from "@uppy/onedrive";
-import Url from "@uppy/url";
+import type Dashboard from "@uppy/dashboard";
+import type { Uppy } from "@uppy/core";
 import type { UppyFile } from "@uppy/utils";
-import Webcam from "@uppy/webcam";
-import CloseIcon from "assets/icons/ads/cross.svg";
-import UpIcon from "assets/icons/ads/up-arrow.svg";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Colors } from "constants/Colors";
 import type { WidgetType } from "constants/WidgetConstants";
 import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { klona } from "klona";
 import _, { findIndex } from "lodash";
@@ -20,9 +13,9 @@ import log from "loglevel";
 
 import React from "react";
 import shallowequal from "shallowequal";
-import { createGlobalStyle } from "styled-components";
 import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { importUppy, isUppyLoaded } from "utils/importUppy";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import FilePickerComponent from "../component";
@@ -30,178 +23,12 @@ import FileDataTypes from "../constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import parseFileData from "./FileParser";
+import { FilePickerGlobalStyles } from "./index.styled";
 
 const CSV_ARRAY_LABEL = "Array of Objects (CSV, XLS(X), JSON, TSV)";
 
 const ARRAY_CSV_HELPER_TEXT = `All non CSV, XLS(X), JSON or TSV filetypes will have an empty value. \n Large files used in widgets directly might slow down the app.`;
 
-const FilePickerGlobalStyles = createGlobalStyle<{
-  borderRadius?: string;
-}>`
-
-  /* Sets the font-family to theming font-family of the upload modal */
-  .uppy-Root {
-    font-family: var(--wds-font-family);
-  }
-
-  /*********************************************************/
-  /* Set the new dropHint upload icon */
-  .uppy-Dashboard-dropFilesHereHint {
-    background-image: none;
-    border-radius: ${({ borderRadius }) => borderRadius};
-  }
-
-  .uppy-Dashboard-dropFilesHereHint::before {
-    border: 2.5px solid var(--wds-accent-color);
-    width: 60px;
-    height: 60px;
-    border-radius: ${({ borderRadius }) => borderRadius};
-    display: inline-block;
-    content: ' ';
-    position: absolute;
-    top: 43%;
-  }
-
-  .uppy-Dashboard-dropFilesHereHint::after {
-    display: inline-block;
-    content: ' ';
-    position: absolute;
-    top: 46%;
-    width: 30px;
-    height: 30px;
-
-    -webkit-mask-image: url(${UpIcon});
-    -webkit-mask-repeat: no-repeat;
-    -webkit-mask-position: center;
-    -webkit-mask-size: 30px;
-    background: var(--wds-accent-color);
-  }
-  /*********************************************************/
-
-  /*********************************************************/
-  /* Set the styles for the upload button */
-  .uppy-StatusBar-actionBtn--upload {
-    background-color: var(--wds-accent-color) !important;
-    border-radius: ${({ borderRadius }) => borderRadius};
-  }
-
-  .uppy-Dashboard-Item-action--remove {
-
-    /* Sets the border radius of the button when it is focused */
-    &:focus {
-      border-radius: ${({ borderRadius }) =>
-        borderRadius === "0.375rem" ? "0.25rem" : borderRadius} !important;
-    }
-
-    .uppy-c-icon {
-      & path:first-child {
-      /* Sets the black background of remove file button hidden */
-        visibility: hidden;
-      }
-
-      & path:last-child {
-      /* Sets the cross mark color of remove file button */
-        fill: #858282;
-      }
-
-      background-color: #FFFFFF;
-      box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.06), 0px 1px 3px rgba(0, 0, 0, 0.1);
-
-      & {
-      /* Sets the black background of remove file button hidden*/
-        border-radius: ${({ borderRadius }) =>
-          borderRadius === "0.375rem" ? "0.25rem" : borderRadius};
-      }
-    }
-  }
-  /*********************************************************/
-
-  /*********************************************************/
-  /* Sets the back cancel button color to match theming primary color */
-  .uppy-DashboardContent-back {
-    color: var(--wds-accent-color);
-
-    &:hover {
-      color: var(--wds-accent-color);
-      background-color: ${Colors.ATHENS_GRAY};
-    }
-  }
-  /*********************************************************/
-
-  /*********************************************************/
-  /* Sets the style according to reskinning for x button at the top right corner of the modal */
-  .uppy-Dashboard-close {
-    background-color: white;
-    width: 32px;
-    height: 32px;
-    text-align: center;
-    top: -33px;
-    border-radius: ${({ borderRadius }) => borderRadius};
-
-      & span {
-        font-size: 0;
-      }
-
-      & span::after {
-        content: ' ';
-        -webkit-mask-image: url(${CloseIcon});
-        -webkit-mask-repeat: no-repeat;
-        -webkit-mask-position: center;
-        -webkit-mask-size: 20px;
-        background: #858282;
-        position: absolute;
-        top: 32%;
-        left: 32%;
-        width: 12px;
-        height: 12px;
-      }
-    }
-  }
-  /*********************************************************/
-
-
-  /*********************************************************/
-  /* Sets the border radius of the upload modal */
-  .uppy-Dashboard-inner, .uppy-Dashboard-innerWrap {
-    border-radius: ${({ borderRadius }) => borderRadius} !important;
-  }
-
-  .uppy-Dashboard-AddFiles {
-    border-radius: ${({ borderRadius }) => borderRadius} !important;
-  }
-  /*********************************************************/
-
-  /*********************************************************/
-  /* Sets the error message style according to reskinning*/
-  .uppy-Informer {
-    bottom: 82px;
-    & p[role="alert"] {
-      border-radius: ${({ borderRadius }) => borderRadius};
-      background-color: transparent;
-      color: #D91921;
-      border: 1px solid #D91921;
-    }
-  }
-  /*********************************************************/
-
-  /*********************************************************/
-  /* Style the + add more files button on top right corner of the upload modal */
-  .uppy-DashboardContent-addMore {
-    color: var(--wds-accent-color);
-    font-weight: 400;
-    &:hover {
-      background-color: ${Colors.ATHENS_GRAY};
-      color: var(--wds-accent-color);
-    }
-
-    & svg {
-      fill: var(--wds-accent-color) !important;
-    }
-  }
-  /*********************************************************/
-
-}
-`;
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
   FilePickerWidgetState
@@ -212,8 +39,9 @@ class FilePickerWidget extends BaseWidget<
     super(props);
     this.isWidgetUnmounting = false;
     this.state = {
-      isLoading: false,
-      uppy: this.initializeUppy(),
+      areFilesLoading: false,
+      isWaitingForUppyToLoad: false,
+      isUppyModalOpen: false,
     };
   }
 
@@ -532,10 +360,12 @@ class FilePickerWidget extends BaseWidget<
   }
 
   /**
-   * if uppy is not initialized before, initialize it
-   * else setState of uppy instance
+   * Import and initialize the Uppy instance. We use memoize() to ensure that
+   * once we initialize the instance, we keep returning the initialized one.
    */
-  initializeUppy = () => {
+  loadAndInitUppyOnce = _.memoize(async () => {
+    const { Uppy } = await importUppy();
+
     const uppyState = {
       id: this.props.widgetId,
       autoProceed: false,
@@ -556,13 +386,18 @@ class FilePickerWidget extends BaseWidget<
       },
     };
 
-    return Uppy(uppyState);
-  };
+    const uppy = Uppy(uppyState);
+
+    await this.initializeUppyEventListeners(uppy);
+    await this.initializeSelectedFiles(uppy);
+
+    return uppy;
+  });
 
   /**
    * set states on the uppy instance with new values
    */
-  reinitializeUppy = (props: FilePickerWidgetProps) => {
+  reinitializeUppy = async (props: FilePickerWidgetProps) => {
     const uppyState = {
       id: props.widgetId,
       autoProceed: false,
@@ -581,14 +416,18 @@ class FilePickerWidget extends BaseWidget<
       },
     };
 
-    this.state.uppy.setOptions(uppyState);
+    const uppy = await this.loadAndInitUppyOnce();
+    uppy.setOptions(uppyState);
   };
 
   /**
    * add all uppy events listeners needed
    */
-  initializeUppyEventListeners = () => {
-    this.state.uppy
+  initializeUppyEventListeners = async (uppy: Uppy) => {
+    const { Dashboard, GoogleDrive, OneDrive, Url, Webcam } =
+      await importUppy();
+
+    uppy
       .use(Dashboard, {
         target: "body",
         metaFields: [],
@@ -609,11 +448,15 @@ class FilePickerWidget extends BaseWidget<
         disablePageScrollWhenModalOpen: true,
         proudlyDisplayPoweredByUppy: false,
         onRequestCloseModal: () => {
-          const plugin = this.state.uppy.getPlugin("Dashboard");
+          const plugin = uppy.getPlugin("Dashboard") as Dashboard;
 
           if (plugin) {
             plugin.closeModal();
           }
+
+          this.setState({
+            isUppyModalOpen: false,
+          });
         },
         locale: {
           strings: {
@@ -628,7 +471,7 @@ class FilePickerWidget extends BaseWidget<
       });
 
     if (location.protocol === "https:") {
-      this.state.uppy.use(Webcam, {
+      uppy.use(Webcam, {
         onBeforeSnapshot: () => Promise.resolve(),
         countdown: false,
         mirror: true,
@@ -637,7 +480,7 @@ class FilePickerWidget extends BaseWidget<
       });
     }
 
-    this.state.uppy.on("file-removed", (file: UppyFile, reason: any) => {
+    uppy.on("file-removed", (file: UppyFile, reason: any) => {
       /**
        * The below line will not update the selectedFiles meta prop when cancel-all event is triggered.
        * cancel-all event occurs when close or reset function of uppy is executed.
@@ -651,7 +494,7 @@ class FilePickerWidget extends BaseWidget<
          * Once the file is removed we update the selectedFiles
          * with the current files present in the uppy's internal state
          */
-        const updatedFiles = this.state.uppy
+        const updatedFiles = uppy
           .getFiles()
           .map((currentFile: UppyFile, index: number) => ({
             type: currentFile.type,
@@ -674,7 +517,7 @@ class FilePickerWidget extends BaseWidget<
       }
     });
 
-    this.state.uppy.on("files-added", (files: UppyFile[]) => {
+    uppy.on("files-added", (files: UppyFile[]) => {
       // Deep cloning the selectedFiles
       const selectedFiles = this.props.selectedFiles
         ? klona(this.props.selectedFiles)
@@ -730,7 +573,7 @@ class FilePickerWidget extends BaseWidget<
       });
     });
 
-    this.state.uppy.on("upload", () => {
+    uppy.on("upload", () => {
       this.onFilesSelected();
     });
   };
@@ -751,29 +594,31 @@ class FilePickerWidget extends BaseWidget<
         },
       });
 
-      this.setState({ isLoading: true });
+      this.setState({ areFilesLoading: true });
     }
   };
 
   handleActionComplete = () => {
-    this.setState({ isLoading: false });
+    this.setState({ areFilesLoading: false });
   };
 
-  componentDidUpdate(prevProps: FilePickerWidgetProps) {
+  async componentDidUpdate(prevProps: FilePickerWidgetProps) {
     super.componentDidUpdate(prevProps);
+
     const { selectedFiles: previousSelectedFiles = [] } = prevProps;
     const { selectedFiles = [] } = this.props;
     if (previousSelectedFiles.length && selectedFiles.length === 0) {
-      this.state.uppy.reset();
+      (await this.loadAndInitUppyOnce()).reset();
     } else if (
       !shallowequal(prevProps.allowedFileTypes, this.props.allowedFileTypes) ||
       prevProps.maxNumFiles !== this.props.maxNumFiles ||
       prevProps.maxFileSize !== this.props.maxFileSize
     ) {
-      this.reinitializeUppy(this.props);
+      await this.reinitializeUppy(this.props);
     }
     this.clearFilesFromMemory(prevProps.selectedFiles);
   }
+
   // Reclaim the memory used by blobs.
   clearFilesFromMemory(previousFiles: any[] = []) {
     const { selectedFiles: newFiles = [] } = this.props;
@@ -788,13 +633,13 @@ class FilePickerWidget extends BaseWidget<
     });
   }
 
-  initializeSelectedFiles() {
+  async initializeSelectedFiles(uppy: Uppy) {
     /**
      * Since on unMount the uppy instance closes and it's internal state is lost along with the files present in it.
      * Below we add the files again to the uppy instance so that the files are retained.
      */
     this.props.selectedFiles?.forEach((fileItem: any) => {
-      this.state.uppy.addFile({
+      uppy.addFile({
         name: fileItem.name,
         type: fileItem.type,
         data: new Blob([fileItem.data]),
@@ -806,12 +651,11 @@ class FilePickerWidget extends BaseWidget<
     });
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     super.componentDidMount();
 
     try {
-      this.initializeUppyEventListeners();
-      this.initializeSelectedFiles();
+      await this.loadAndInitUppyOnce();
     } catch (e) {
       log.debug("Error in initializing uppy");
     }
@@ -819,7 +663,24 @@ class FilePickerWidget extends BaseWidget<
 
   componentWillUnmount() {
     this.isWidgetUnmounting = true;
-    this.state.uppy.close();
+    this.loadAndInitUppyOnce().then((uppy) => {
+      uppy.close();
+    });
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+      },
+    };
   }
 
   getPageView() {
@@ -831,13 +692,39 @@ class FilePickerWidget extends BaseWidget<
           buttonColor={this.props.buttonColor}
           files={this.props.selectedFiles || []}
           isDisabled={this.props.isDisabled}
-          isLoading={this.props.isLoading || this.state.isLoading}
+          isLoading={
+            this.props.isLoading ||
+            this.state.areFilesLoading ||
+            this.state.isWaitingForUppyToLoad
+          }
           key={this.props.widgetId}
           label={this.props.label}
-          uppy={this.state.uppy}
+          maxWidth={this.props.maxWidth}
+          minHeight={this.props.minHeight}
+          minWidth={this.props.minWidth}
+          openModal={async () => {
+            // If Uppy is still loading, show a spinner to indicate that handling the click
+            // will take some time.
+            //
+            // Copying the `isUppyLoaded` value because `isUppyLoaded` *will* always be true
+            // by the time `await this.initUppyInstanceOnce()` resolves.
+            const isUppyLoadedByThisPoint = isUppyLoaded;
+
+            if (!isUppyLoadedByThisPoint)
+              this.setState({ isWaitingForUppyToLoad: true });
+            const uppy = await this.loadAndInitUppyOnce();
+            if (!isUppyLoadedByThisPoint)
+              this.setState({ isWaitingForUppyToLoad: false });
+
+            const dashboardPlugin = uppy.getPlugin("Dashboard") as Dashboard;
+            dashboardPlugin.openModal();
+            this.setState({ isUppyModalOpen: true });
+          }}
+          shouldFitContent={this.isAutoLayoutMode}
           widgetId={this.props.widgetId}
         />
-        {this.state.uppy && this.state.uppy.getID() === this.props.widgetId && (
+
+        {this.state.isUppyModalOpen && (
           <FilePickerGlobalStyles borderRadius={this.props.borderRadius} />
         )}
       </>
@@ -850,8 +737,9 @@ class FilePickerWidget extends BaseWidget<
 }
 
 interface FilePickerWidgetState extends WidgetState {
-  isLoading: boolean;
-  uppy: any;
+  areFilesLoading: boolean;
+  isWaitingForUppyToLoad: boolean;
+  isUppyModalOpen: boolean;
 }
 
 interface FilePickerWidgetProps extends WidgetProps {

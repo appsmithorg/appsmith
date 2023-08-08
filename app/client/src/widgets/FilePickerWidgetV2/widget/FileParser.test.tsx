@@ -1,7 +1,7 @@
 import FileDataTypes from "../constants";
 import parseFileData from "./FileParser";
 import fs from "fs";
-const path = require("path");
+import path from "path";
 
 describe("File parser formats differenty file types correctly", () => {
   it("parses csv file correclty", async () => {
@@ -35,6 +35,51 @@ describe("File parser formats differenty file types correctly", () => {
         Boolean: "FALSE",
         Empty: "",
         Date: "2022-09-15",
+      },
+    ];
+    expect(result).toStrictEqual(expectedResult);
+  });
+
+  it("parses csv file correclty with dynamic bindig - Infer data types", async () => {
+    const fixturePath = path.resolve(
+      __dirname,
+      "../../../../cypress/fixtures/Test_csv.csv",
+    );
+    const fileData = fs.readFileSync(fixturePath);
+    const blob = new Blob([fileData]);
+
+    const result = await parseFileData(
+      blob,
+      FileDataTypes.Array,
+      "text/csv",
+      "csv",
+      true,
+    );
+
+    const dateString = "2022-09-15";
+    const date = new Date(dateString);
+
+    const timezoneOffset = date.getTimezoneOffset();
+    const offsetMilliseconds = timezoneOffset * 60 * 1000;
+
+    const convertedDate = new Date(date.getTime() + offsetMilliseconds);
+
+    const expectedResult = [
+      {
+        "Data Id": "hsa-miR-942-5p",
+        String: "Blue",
+        Number: 23.788,
+        Boolean: true,
+        Empty: "",
+        Date: "Wednesday, 20 January 1999",
+      },
+      {
+        "Data Id": "hsa-miR-943",
+        String: "Black",
+        Number: 1000,
+        Boolean: false,
+        Empty: "",
+        Date: convertedDate,
       },
     ];
     expect(result).toStrictEqual(expectedResult);

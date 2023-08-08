@@ -157,6 +157,7 @@ function DatasourceCard(props: DatasourceCardProps) {
         <RenderDatasourceInformation
           config={currentFormConfig[0]}
           datasource={datasource}
+          showOnlyCurrentEnv
         />
       ) : undefined}
     </Wrapper>

@@ -38,12 +38,13 @@ type Props = DatasourceDBEditorProps &
 
 export const Form = styled.form<{
   showFilterComponent: boolean;
+  viewMode: boolean;
 }>`
   display: flex;
   flex-direction: column;
-  height: ${({ theme }) => `calc(100% - ${theme.backBanner})`};
+  ${(props) =>
+    !props.viewMode && `height: ${`calc(100% - ${props?.theme.backBanner})`};`}
   overflow-y: scroll;
-  flex: 8 8 80%;
   padding-bottom: 20px;
   margin-left: ${(props) => (props.showFilterComponent ? "24px" : "0px")};
 `;
@@ -90,6 +91,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
           e.preventDefault();
         }}
         showFilterComponent={showFilterComponent}
+        viewMode={viewMode}
       >
         {messages &&
           messages.map((msg, i) => {
@@ -129,7 +131,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
           </>
         )}
         {viewMode && (
-          <ViewModeWrapper>
+          <ViewModeWrapper data-testid="t--ds-review-section">
             {!_.isNil(formConfig) && !_.isNil(datasource) ? (
               <DatasourceInformation
                 config={formConfig[0]}

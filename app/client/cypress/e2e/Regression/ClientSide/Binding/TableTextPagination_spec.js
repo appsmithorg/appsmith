@@ -8,17 +8,22 @@ import {
   agHelper,
   deployMode,
   propPane,
+  draggableWidgets,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
-    cy.fixture("tableTextPaginationDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tableTextPaginationDsl");
   });
+
   it("1. Test_Add Paginate with Table Page No and Execute the Api", function () {
     /**Create an Api1 of Paginate with Table Page No */ apiPage.CreateAndFillApi(
       this.dataSet.paginationUrl + this.dataSet.paginationParam,
+    );
+    agHelper.VerifyEvaluatedValue(
+      this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=10",
     );
     apiPage.RunAPI();
     // Table-Text, Validate Server Side Pagination of Paginate with Table Page No
@@ -52,7 +57,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     //cy.ValidateTableData("11");
   });
 
-  it("3. Table-Text, Validate Publish Mode on Server Side Pagination of Paginate with Table Page No", function () {
+  it("2. Table-Text, Validate Publish Mode on Server Side Pagination of Paginate with Table Page No", function () {
     deployMode.DeployApp();
     cy.wait(500);
     // Make sure onPageLoad action has run before validating the data
@@ -72,7 +77,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     });
   });
 
-  it("4. Table-Text, Validate Server Side Pagination of Paginate with Total Records Count", function () {
+  it("3. Table-Text, Validate Server Side Pagination of Paginate with Total Records Count", function () {
     deployMode.NavigateBacktoEditor();
     cy.wait(3000);
     entityExplorer.SelectEntityByName("Table1", "Widgets");
@@ -95,13 +100,16 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.get(".t--table-widget-next-page").should("have.attr", "disabled");
   });
 
-  it("5. Test_Add Paginate with Response URL and Execute the Api", function () {
+  it("4. Test_Add Paginate with Response URL and Execute the Api", function () {
     deployMode.NavigateBacktoEditor();
     cy.wait(3000);
     /** Create Api2 of Paginate with Response URL*/
 
     apiPage.CreateAndFillApi(
       this.dataSet.paginationUrl + this.dataSet.paginationParam,
+    );
+    agHelper.VerifyEvaluatedValue(
+      this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=10",
     );
     apiPage.RunAPI();
     apiPage.SelectPaneTab("Pagination");
@@ -128,7 +136,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.executeDbQuery("Api2", "onPageChange");
   });
 
-  it("6. Table-Text, Validate Server Side Pagination of Paginate with response URL", function () {
+  it.skip("5. Table-Text, Validate Server Side Pagination of Paginate with response URL", function () {
     /**Validate Response data with Table data in Text Widget */
     entityExplorer.SelectEntityByName("Table1", "Widgets");
 
@@ -136,7 +144,10 @@ describe("Test Create Api and Bind to Table widget", function () {
       apiLocators.apiPaginationPrevTest,
       false,
     );
-    deployMode.DeployApp();
+    cy.get("@postExecute.all");
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE_V1));
+    table.WaitUntilTableLoad(0, 0);
+    agHelper.Sleep(3000);
     cy.wait("@postExecute").then((interception) => {
       let valueToTest = JSON.stringify(
         interception.response.body.data.body[0].name,

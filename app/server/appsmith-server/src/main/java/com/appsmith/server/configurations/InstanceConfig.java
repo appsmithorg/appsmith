@@ -23,13 +23,13 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     private final InstanceConfigHelper instanceConfigHelper;
 
-
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
 
-        Mono<Void> registrationAndRtsCheckMono = configService.getByName(Appsmith.APPSMITH_REGISTERED)
+        Mono<Void> registrationAndRtsCheckMono = configService
+                .getByName(Appsmith.APPSMITH_REGISTERED)
                 .filter(config -> Boolean.TRUE.equals(config.getConfig().get("value")))
-                .switchIfEmpty(instanceConfigHelper.registerInstance())
+                .switchIfEmpty(Mono.defer(() -> instanceConfigHelper.registerInstance()))
                 .onErrorResume(errorSignal -> {
                     log.debug("Instance registration failed with error: \n{}", errorSignal.getMessage());
                     return Mono.empty();
@@ -37,7 +37,9 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 .then(instanceConfigHelper.performRtsHealthCheck())
                 .doFinally(ignored -> instanceConfigHelper.printReady());
 
-        Mono<?> startupProcess = instanceConfigHelper.checkInstanceSchemaVersion()
+        Mono<?> startupProcess = instanceConfigHelper
+                .checkMongoDBVersion()
+                .flatMap(ignored -> instanceConfigHelper.checkInstanceSchemaVersion())
                 .flatMap(signal -> registrationAndRtsCheckMono)
                 // Prefill the server cache with anonymous user permission group ids.
                 .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache())
@@ -55,5 +57,4 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
     public boolean getIsRtsAccessible() {
         return instanceConfigHelper.getIsRtsAccessible();
     }
-
 }

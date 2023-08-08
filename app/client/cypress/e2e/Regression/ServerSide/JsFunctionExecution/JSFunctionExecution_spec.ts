@@ -11,49 +11,55 @@ import {
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
+interface IFunctionSettingData {
+  name: string;
+  onPageLoad: boolean;
+  confirmBeforeExecute: boolean;
+  // uses the "async" keyword
+  isMarkedAsync: boolean;
+}
+
 let onPageLoadAndConfirmExecuteFunctionsLength: number,
-  getJSObject: any,
+  getJSObject: (data: IFunctionSettingData[]) => string,
   functionsLength: number,
   jsObj: string;
 
 describe("JS Function Execution", function () {
-  interface IFunctionSettingData {
-    name: string;
-    onPageLoad: boolean;
-    confirmBeforeExecute: boolean;
-  }
   const FUNCTIONS_SETTINGS_DEFAULT_DATA: IFunctionSettingData[] = [
     {
       name: "getId",
       onPageLoad: true,
       confirmBeforeExecute: false,
+      isMarkedAsync: true,
     },
     {
       name: "zip",
       onPageLoad: true,
       confirmBeforeExecute: true,
+      isMarkedAsync: false,
     },
     {
       name: "base",
       onPageLoad: false,
       confirmBeforeExecute: false,
+      isMarkedAsync: true,
     },
     {
       name: "assert",
       onPageLoad: false,
       confirmBeforeExecute: false,
+      isMarkedAsync: false,
     },
     {
       name: "test",
       onPageLoad: true,
       confirmBeforeExecute: true,
+      isMarkedAsync: true,
     },
   ];
 
   before(() => {
-    cy.fixture("tablev1NewDsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tablev1NewDsl");
     entityExplorer.NavigateToSwitcher("Explorer");
   });
 
@@ -63,7 +69,7 @@ describe("JS Function Execution", function () {
       data.sort((a, b) => a.name.localeCompare(b.name));
     cy.get(jsEditor._asyncJSFunctionSettings).then(function ($lis) {
       const asyncFunctionLength = $lis.length;
-      // Assert number of async functions
+      // Assert number of functions
       expect(asyncFunctionLength).to.equal(functionsLength);
       Object.values(sortFunctions(data)).forEach((functionSetting, idx) => {
         // Assert alphabetical order
@@ -327,7 +333,7 @@ describe("JS Function Execution", function () {
       shouldCreateNewJSObj: true,
       prettify: false,
     });
-    // change async function name and test that cyclic dependency is not created
+    // change function name and test that cyclic dependency is not created
     jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction1, false);
     agHelper.AssertContains("Cyclic dependency", "not.exist");
     jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction2, false);
@@ -338,7 +344,7 @@ describe("JS Function Execution", function () {
     });
   });
 
-  it("7. Maintains order of async functions in settings tab alphabetically at all times", function () {
+  it("7. Maintains order of functions in settings tab alphabetically at all times", function () {
     functionsLength = FUNCTIONS_SETTINGS_DEFAULT_DATA.length;
     // Number of functions set to run on page load and should also confirm before execute
     onPageLoadAndConfirmExecuteFunctionsLength =
@@ -350,16 +356,23 @@ describe("JS Function Execution", function () {
       let JS_OBJECT_BODY = `export default`;
       for (let i = 0; i < functionsLength; i++) {
         const functionName = data[i].name;
+        const isMarkedAsync = data[i].isMarkedAsync;
         JS_OBJECT_BODY +=
           i === 0
             ? `{
-              ${functionName}: async ()=>"${functionName}",`
+              ${functionName}: ${
+                isMarkedAsync ? "async" : ""
+              } ()=>"${functionName}",`
             : i === functionsLength - 1
             ? `
-            ${functionName}: async ()=>"${functionName}",
+            ${functionName}: ${
+                isMarkedAsync ? "async" : ""
+              } ()=>"${functionName}",
           }`
             : `
-            ${functionName}: async ()=> "${functionName}",`;
+            ${functionName}: ${
+                isMarkedAsync ? "async" : ""
+              } ()=> "${functionName}",`;
       }
       return JS_OBJECT_BODY;
     };
@@ -411,26 +424,31 @@ describe("JS Function Execution", function () {
         name: "newGetId",
         onPageLoad: true,
         confirmBeforeExecute: false,
+        isMarkedAsync: false,
       },
       {
         name: "zip1",
         onPageLoad: true,
         confirmBeforeExecute: true,
+        isMarkedAsync: true,
       },
       {
         name: "base",
         onPageLoad: false,
         confirmBeforeExecute: false,
+        isMarkedAsync: true,
       },
       {
         name: "newAssert",
         onPageLoad: true,
         confirmBeforeExecute: false,
+        isMarkedAsync: false,
       },
       {
         name: "test",
         onPageLoad: true,
         confirmBeforeExecute: true,
+        isMarkedAsync: true,
       },
     ];
 
@@ -462,7 +480,7 @@ describe("JS Function Execution", function () {
     });
   });
 
-  it("9. Bug 13197: Verify converting async functions to sync resets all settings", () => {
+  it("9. Bug 13197: Verify converting async functions to sync doesn't reset all settings", () => {
     const asyncJSCode = `export default {
 name: "Appsmith",
 asyncToSync : async ()=>{
@@ -486,16 +504,12 @@ return "yes";`;
     // Switch to settings tab
     agHelper.GetNClick(jsEditor._settingsTab);
     // Enable all settings
-    jsEditor.EnableDisableAsyncFuncSettings("asyncToSync", true, true);
+    jsEditor.EnableDisableAsyncFuncSettings("asyncToSync", true, false);
 
     // Modify js object
     jsEditor.EditJSObj(syncJSCode, false);
-
     agHelper.RefreshPage();
-    cy.wait("@jsCollections").then(({ response }) => {
-      expect(response?.body.data.actions[0].executeOnLoad).to.eq(false);
-      expect(response?.body.data.actions[0].confirmBeforeExecute).to.eq(false);
-    });
+    jsEditor.VerifyAsyncFuncSettings("asyncToSync", true, false);
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.JSObject,

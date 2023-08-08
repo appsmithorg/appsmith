@@ -186,14 +186,19 @@ describe("FirstTimeUserOnboarding", function () {
   );
 
   it("3. onboarding flow - should check directly opening widget pane", function () {
-    cy.get(OnboardingLocator.checklistDatasourceBtn).should("be.visible");
+    agHelper.AssertElementVisible(OnboardingLocator.checklistDatasourceBtn);
     agHelper.GetNClick(OnboardingLocator.introModalCloseBtn);
     entityExplorer.NavigateToSwitcher("Widgets");
-    cy.get(OnboardingLocator.widgetSidebar).should("be.visible");
-    cy.get(OnboardingLocator.dropTarget).should("be.visible");
+    agHelper.AssertElementVisible(OnboardingLocator.widgetSidebar);
+    agHelper.AssertElementVisible(OnboardingLocator.dropTarget);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);
-    cy.reload();
-    agHelper.RefreshPage(true, "getPage");
+    agHelper.RefreshPage("getPage");
+    agHelper.AssertElementEnabledDisabled(
+      debuggerHelper.locators._helpButton,
+      0,
+      false,
+    );
+    agHelper.Sleep(500);
     agHelper.GetNClick(debuggerHelper.locators._helpButton);
     agHelper.AssertElementVisible(OnboardingLocator.introModal);
     agHelper.AssertElementVisible(OnboardingLocator.textWidgetName);
@@ -204,7 +209,13 @@ describe("FirstTimeUserOnboarding", function () {
     agHelper.GetNClick(OnboardingLocator.introModalCloseBtn);
     homePage.NavigateToHome();
     homePage.CreateNewApplication(false);
-    agHelper.AssertElementExist(locators._dropHere);
+    agHelper.AssertElementVisible(locators._dropHere);
+    agHelper.AssertElementEnabledDisabled(
+      debuggerHelper.locators._helpButton,
+      0,
+      false,
+    );
+    agHelper.Sleep(500);
     agHelper.GetNClick(debuggerHelper.locators._helpButton);
     agHelper.AssertElementVisible(OnboardingLocator.checklistDatasourceBtn);
   });
@@ -217,6 +228,12 @@ describe("FirstTimeUserOnboarding", function () {
     homePage.CreateNewApplication(false);
 
     agHelper.AssertElementExist(locators._dropHere);
+    agHelper.AssertElementEnabledDisabled(
+      debuggerHelper.locators._helpButton,
+      0,
+      false,
+    );
+    agHelper.Sleep(1500);
     agHelper.GetNClick(debuggerHelper.locators._helpButton);
     agHelper.AssertElementAbsence(OnboardingLocator.introModal);
   });

@@ -1,68 +1,376 @@
 name: Build Client, Server & Run only Cypress
 
 on:
+  repository_dispatch:
+    types: [ci-test-limit-command]
   # This workflow can be triggered manually from the GitHub Actions page
   workflow_dispatch:
     inputs:
       previous_run_id:
-        description: 'Run id to download the docker image artifact:'
+        description: "Run id to download the docker image artifact:"
         required: false
         type: string
         default: "0"
 
 jobs:
+  file-check:
+    runs-on: ubuntu-latest
+    # Set job outputs to values from filter step
+    outputs:
+      non_ts_files: ${{ steps.check_files.outputs.non_ts_files }}
+      non_ts_files_count: ${{ steps.check_files.outputs.non_ts_files_count }}
+      pr: ${{steps.args.outputs.pr}}
+      runId: ${{steps.args.outputs.runId}}
+      matrix_count: ${{steps.matrix.outputs.matrix_count}}
+    steps:
+      - name: Checkout the head commit of the branch
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set matrix jobs
+        id: matrix
+        run: |
+          if [[ ${{github.event_name}} == 'repository_dispatch' ]]; then
+            echo "matrix_count=[0, 1, 2]" >> $GITHUB_OUTPUT
+          else
+            echo "matrix_count=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get the PR number if workflow is triggered manually
+        id: fetch_pr
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          res=`curl -s -H "Authorization: Bearer ${{ secrets.APPSMITH_CI_TEST_PAT}}" https://api.github.com/repos/${{ github.repository }}/pulls?head=appsmithorg:${{ github.ref_name }}`
+          response_length=`echo "$res" | jq -r 'length'`
+          if [[ $response_length -ne 0 ]]; then
+            pr_number=`echo $res | jq -r '.[0] | .number'`
+            echo "pr=$pr_number" >> $GITHUB_OUTPUT
+          else
+            echo "pr=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set args
+        id: args
+        run: |
+          if [[ ${{github.event_name}} == 'repository_dispatch' ]]; then
+            echo "pr=${{ github.event.client_payload.pull_request.number }}" >> $GITHUB_OUTPUT
+            checkArg=`echo '${{toJSON(github.event.client_payload.slash_command.args.named)}}' | jq 'has("runId")'`
+            if [[ $checkArg == 'true' ]]; then
+              echo "runId=${{ github.event.client_payload.slash_command.args.named.runId }}" >> $GITHUB_OUTPUT
+            else
+              echo "runId=0" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "runId=${{ inputs.previous_run_id }}" >> $GITHUB_OUTPUT
+            echo "pr=${{ steps.fetch_pr.outputs.pr }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get the diff from base branch
+        continue-on-error: true
+        id: files
+        run: |
+          git fetch origin release
+          git diff --name-only --diff-filter=A remotes/origin/release...${{ github.ref_name }} -- 'app/client/cypress/e2e' > diff
+          echo "files_added=$(cat diff)" >> $GITHUB_OUTPUT
+          cat diff
+
+      - name: Check the newly added files are written in ts
+        id: check_files
+        run: |
+          files=(${{steps.files.outputs.files_added}})
+          non_ts_files=()
+          for file in "${files[@]}"; do
+            if [[ $file != *.ts ]]; then
+              non_ts_files+=("<li> $file")
+            fi
+          done
+          echo "non_ts_files=${non_ts_files[@]}" >> $GITHUB_OUTPUT
+          echo "non_ts_files_count=${#non_ts_files[@]}" >> $GITHUB_OUTPUT
+
+      - name: Print the files
+        if: steps.check_files.outputs.non_ts_files_count != 0 && steps.args.outputs.pr == '0'
+        run: |
+          echo "${{ steps.check_files.outputs.non_ts_files }}"
+
+      - name: Comment the filenames if PR is there
+        if: steps.check_files.outputs.non_ts_files_count != 0 && steps.args.outputs.pr != '0'
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ fromJson(steps.args.outputs.pr) }}
+          body: |
+            <b>Below new test files are written in js 🔴 </b>
+            <b>Expected format ts. Please fix and retrigger ci-test-limit:</b>
+            <ol>${{ steps.check_files.outputs.non_ts_files }}</ol>
+      - if: steps.check_files.outputs.non_ts_files_count != 0
+        run: exit 1
+
+      - name: Add a comment on the PR with link to workflow run
+        if: success() && steps.args.outputs.pr != '0'
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ fromJson(steps.args.outputs.pr) }}
+          body: |
+            Tests running at: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+            Workflow: `ci-test-limited`.
+            PR: ${{ fromJson(steps.args.outputs.pr) }}.
+
   server-build:
     name: server-build
-    if: inputs.previous_run_id == '0'
+    needs: [file-check]
+    if: success() && needs.file-check.outputs.runId == '0'
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
-      pr: 0
+      pr: ${{fromJson(needs.file-check.outputs.pr)}}
       skip-tests: "true"
 
   client-build:
     name: client-build
-    if: inputs.previous_run_id == '0'
+    needs: [file-check]
+    if: success() && needs.file-check.outputs.runId == '0'
     uses: ./.github/workflows/client-build.yml
     secrets: inherit
     with:
-      pr: 0
+      pr: ${{fromJson(needs.file-check.outputs.pr)}}
       skip-tests: "true"
 
   rts-build:
     name: rts-build
-    if: inputs.previous_run_id == '0'
+    needs: [file-check]
+    if: success() && needs.file-check.outputs.runId == '0'
     uses: ./.github/workflows/rts-build.yml
     secrets: inherit
     with:
-      pr: 0
-      
+      pr: ${{fromJson(needs.file-check.outputs.pr)}}
+
   build-docker-image:
-    needs: [ client-build, server-build, rts-build ]
+    needs: [file-check, client-build, server-build, rts-build]
     # Only run if the build step is successful
-    if: success() && inputs.previous_run_id == '0'
+    if: success() && needs.file-check.outputs.runId == '0'
     name: build-docker-image
     uses: ./.github/workflows/build-docker-image.yml
     secrets: inherit
     with:
-      pr: 0
+      pr: ${{fromJson(needs.file-check.outputs.pr)}}
 
   ci-test-limited:
-    needs: [ build-docker-image ]
+    needs: [file-check, build-docker-image]
     # Only run if the build step is successful
-    if: success() && inputs.previous_run_id == '0'
+    if: success() && needs.file-check.outputs.runId == '0'
     name: ci-test-limited
     uses: ./.github/workflows/ci-test-limited.yml
     secrets: inherit
     with:
-      pr: 0
+      pr: ${{fromJson(needs.file-check.outputs.pr)}}
+      matrix: ${{needs.file-check.outputs.matrix_count}}
 
   ci-test-limited-existing-docker-image:
+    needs: [file-check]
     # Only run if the previous run-id is provided
-    if: inputs.previous_run_id != '0'
+    if: success() && needs.file-check.outputs.runId != '0'
     name: ci-test-limited-existing-image
     uses: ./.github/workflows/ci-test-limited.yml
     secrets: inherit
     with:
-      pr: 0
-      previous-workflow-run-id: ${{ fromJson(inputs.previous_run_id) }}
+      pr: ${{fromJson(needs.file-check.outputs.pr)}}
+      previous-workflow-run-id: ${{ fromJson(needs.file-check.outputs.runId) }}
+      matrix: ${{ needs.file-check.outputs.matrix_count }}
+
+  ci-test-limited-result:
+    needs: [file-check, ci-test-limited]
+    # Only run if the file-check.runId == 0
+    if: always() && needs.file-check.outputs.runId == '0'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # Deleting the existing dir's if any
+      - name: Delete existing directories
+        if: needs.ci-test-limited.result != 'success'
+        run: |
+          rm -f ~/failed_spec_ci
+          rm -f ~/combined_failed_spec_ci
+
+      # Force store previous cypress dashboard url from cache
+      - name: Store the previous cypress dashboard url
+        if: success()
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/cypress_url
+          key: ${{ github.run_id }}-dashboard-url-${{ github.run_attempt }}
+          restore-keys: |
+            ${{ github.run_id }}-dashboard-url
+
+      - name: Print cypress dashboard url
+        id: dashboard_url
+        run: |
+          cypress_url=$(cat ~/cypress_url)
+          echo "dashboard_url=$cypress_url" >> $GITHUB_OUTPUT
+
+      # Download failed_spec list for all jobs
+      - uses: actions/download-artifact@v3
+        if: needs.ci-test-limited.result != 'success'
+        id: download_ci
+        with:
+          name: failed-spec-ci-${{github.run_attempt}}
+          path: ~/failed_spec_ci
+
+      # In case for any ci job failure, create combined failed spec
+      - name: "combine all specs for CI"
+        if: needs.ci-test-limited.result != 'success'
+        run: |
+          echo "Debugging: failed specs in ~/failed_spec_ci/failed_spec_ci*"
+          cat ~/failed_spec_ci/failed_spec_ci*
+          cat ~/failed_spec_ci/failed_spec_ci* | sort -u >> ~/combined_failed_spec_ci
+
+      # Upload combined failed CI spec list to a file
+      # This is done for debugging.
+      - name: upload combined failed spec
+        if: needs.ci-test-limited.result != 'success'
+        uses: actions/upload-artifact@v3
+        with:
+          name: combined_failed_spec_ci
+          path: ~/combined_failed_spec_ci
+
+      - name: Get Latest flaky Tests
+        shell: bash
+        run: |
+          curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures
+
+      # Verify CI test failures against known failures
+      - name: Verify CI test failures against known failures
+        if: needs.ci-test-limited.result != 'success'
+        shell: bash
+        run: |
+          new_failed_spec_env="<ol>$(comm -1 -3 <(sort ~/knownfailures) <(sort -u ~/combined_failed_spec_ci) | sed 's/|cypress|cypress/\n/g' | sed 's/^/<li>/')</ol>"
+          echo "$new_failed_spec_env"
+          echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
+          echo "$new_failed_spec_env" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Add a comment on the PR with new CI failures
+        if: needs.ci-test-limited.result != 'success' && needs.file-check.outputs.pr != '0'
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
+          body: |
+            Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+            Cypress dashboard: <a href="${{ steps.dashboard_url.outputs.dashboard_url }}" target="_blank"> Click here!</a>
+            The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
+            To know the list of identified flaky tests - <a href="https://app.appsmith.com/applications/613868bedd7786286ddd4a6a/pages/63ec710e8e503f763651791a" target="_blank">Refer here</a>
+
+      - name: Add a comment on the PR when ci-test-limited is success
+        if: needs.ci-test-limited.result == 'success' && needs.file-check.outputs.pr != '0'
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
+          body: |
+            Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+            Cypress dashboard url: <a href="${{ steps.dashboard_url.outputs.dashboard_url }}" target="_blank">Click here!</a>
+            All cypress tests have passed 🎉🎉🎉
+
+      - name: Check ci-test-limited set status
+        if: needs.ci-test-limited.result != 'success'
+        run: exit 1
+
+  ci-test-limited-result-existing:
+    needs: [file-check, ci-test-limited-existing-docker-image]
+    # Only run if the file-check.runId !=0
+    if: always() && needs.file-check.outputs.runId != '0'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # Deleting the existing dir's if any
+      - name: Delete existing directories
+        if: needs.ci-test-limited-existing-docker-image.result != 'success'
+        run: |
+          rm -f ~/failed_spec_ci
+          rm -f ~/combined_failed_spec_ci
+
+      # Force store previous cypress dashboard url from cache
+      - name: Store the previous cypress dashboard url
+        if: success()
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/cypress_url
+          key: ${{ github.run_id }}-dashboard-url-${{ github.run_attempt }}
+          restore-keys: |
+            ${{ github.run_id }}-dashboard-url
+
+      - name: Print cypress dashboard url
+        id: dashboard_url
+        run: |
+          cypress_url=$(cat ~/cypress_url)
+          echo "dashboard_url=$cypress_url" >> $GITHUB_OUTPUT
+
+      # Download failed_spec list for all jobs
+      - uses: actions/download-artifact@v3
+        if: needs.ci-test-limited-existing-docker-image.result != 'success'
+        id: download_ci
+        with:
+          name: failed-spec-ci-${{github.run_attempt}}
+          path: ~/failed_spec_ci
+
+      # In case for any ci job failure, create combined failed spec
+      - name: "combine all specs for CI"
+        if: needs.ci-test-limited-existing-docker-image.result != 'success'
+        run: |
+          echo "Debugging: failed specs in ~/failed_spec_ci/failed_spec_ci*"
+          cat ~/failed_spec_ci/failed_spec_ci*
+          cat ~/failed_spec_ci/failed_spec_ci* | sort -u >> ~/combined_failed_spec_ci
+
+      # Upload combined failed CI spec list to a file
+      # This is done for debugging.
+      - name: upload combined failed spec
+        if: needs.ci-test-limited-existing-docker-image.result != 'success'
+        uses: actions/upload-artifact@v3
+        with:
+          name: combined_failed_spec_ci
+          path: ~/combined_failed_spec_ci
+
+      - name: Get Latest flaky Tests
+        shell: bash
+        run: |
+          curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures
+
+      # Verify CI test failures against known failures
+      - name: Verify CI test failures against known failures
+        if: needs.ci-test-limited-existing-docker-image.result != 'success'
+        shell: bash
+        run: |
+          new_failed_spec_env="<ol>$(comm -1 -3 <(sort ~/knownfailures) <(sort -u ~/combined_failed_spec_ci) | sed 's/|cypress|cypress/\n/g' | sed 's/^/<li>/')</ol>"
+          echo "$new_failed_spec_env"
+          echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
+          echo "$new_failed_spec_env" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Add a comment on the PR with new CI failures
+        if: needs.ci-test-limited-existing-docker-image.result != 'success' && needs.file-check.outputs.pr != '0'
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
+          body: |
+            Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+            Cypress dashboard: <a href="${{ steps.dashboard_url.outputs.dashboard_url }}" target="_blank"> Click here!</a>
+            The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
+            To know the list of identified flaky tests - <a href="https://app.appsmith.com/applications/613868bedd7786286ddd4a6a/pages/63ec710e8e503f763651791a" target="_blank">Refer here</a>
+
+      - name: Add a comment on the PR when ci-test-limited-existing-docker-image is success
+        if: needs.ci-test-limited-existing-docker-image.result == 'success' && needs.file-check.outputs.pr != '0'
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
+          body: |
+            Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+            Cypress dashboard url: <a href="${{ steps.dashboard_url.outputs.dashboard_url }}" target="_blank">Click here!</a>
+            All cypress tests have passed 🎉🎉🎉
+
+      - name: Check ci-test-limited-existing-docker-image set status
+        if: needs.ci-test-limited-existing-docker-image.result != 'success'
+        run: exit 1

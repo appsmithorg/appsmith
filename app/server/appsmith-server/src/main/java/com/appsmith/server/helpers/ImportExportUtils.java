@@ -2,12 +2,15 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.domains.Application;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.mongodb.MongoTransactionException;
 import org.springframework.transaction.TransactionException;
 
 import java.util.Map;
+
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
 @Slf4j
 public class ImportExportUtils {
@@ -23,8 +26,8 @@ public class ImportExportUtils {
         // TODO provide actionable insights for different error messages generated from import-export flow
         // Filter out transactional error as these are cryptic and don't provide much info on the error
         return throwable instanceof TransactionException
-                || throwable instanceof MongoTransactionException
-                || throwable instanceof InvalidDataAccessApiUsageException
+                        || throwable instanceof MongoTransactionException
+                        || throwable instanceof InvalidDataAccessApiUsageException
                 ? ""
                 : "Error: " + throwable.getMessage();
     }
@@ -38,11 +41,12 @@ public class ImportExportUtils {
      * @param workspaceId   workspace in which the application supposed to be imported
      * @return
      */
-    public static String sanitizeDatasourceInActionDTO(ActionDTO actionDTO,
-                                                 Map<String, String> datasourceMap,
-                                                 Map<String, String> pluginMap,
-                                                 String workspaceId,
-                                                 boolean isExporting) {
+    public static String sanitizeDatasourceInActionDTO(
+            ActionDTO actionDTO,
+            Map<String, String> datasourceMap,
+            Map<String, String> pluginMap,
+            String workspaceId,
+            boolean isExporting) {
 
         if (actionDTO != null && actionDTO.getDatasource() != null) {
 
@@ -51,7 +55,7 @@ public class ImportExportUtils {
                 ds.setUpdatedAt(null);
             }
             if (ds.getId() != null) {
-                //Mapping ds name in id field
+                // Mapping ds name in id field
                 ds.setId(datasourceMap.get(ds.getId()));
                 ds.setWorkspaceId(null);
                 if (ds.getPluginId() != null) {
@@ -68,5 +72,47 @@ public class ImportExportUtils {
         }
 
         return "";
+    }
+
+    public static void setPropertiesToExistingApplication(
+            Application importedApplication, Application existingApplication) {
+        importedApplication.setId(existingApplication.getId());
+        // For the existing application we don't need to default
+        // value of the flag
+        // The isPublic flag has a default value as false and this
+        // would be confusing to user
+        // when it is reset to false during importing where the
+        // application already is present in DB
+        importedApplication.setIsPublic(null);
+        importedApplication.setPolicies(null);
+        // These properties are not present in the application when it is created, hence the initial commit
+        // to git doesn't contain these keys and if we want to discard the changes, the function
+        // copyNestedNonNullProperties ignore these properties and the changes are not discarded
+        if (importedApplication.getUnpublishedApplicationDetail() == null) {
+            existingApplication.setUnpublishedApplicationDetail(null);
+        }
+        if (importedApplication.getPublishedApplicationDetail() == null) {
+            existingApplication.setPublishedApplicationDetail(null);
+        }
+        if (importedApplication.getPublishedAppLayout() == null) {
+            existingApplication.setPublishedAppLayout(null);
+        }
+        if (importedApplication.getUnpublishedAppLayout() == null) {
+            existingApplication.setUnpublishedAppLayout(null);
+        }
+
+        copyNestedNonNullProperties(importedApplication, existingApplication);
+    }
+
+    /**
+     * This method sets the published mode properties in the imported application.
+     * When a user imports an application from the git repository, since the git only stores the unpublished version,
+     * the current deployed version in the newly imported app is not updated. This function sets the initial deployed
+     * version to the same as the edit mode one.
+     * @param importedApplication
+     */
+    public static void setPublishedApplicationProperties(Application importedApplication) {
+        importedApplication.setPublishedApplicationDetail(importedApplication.getUnpublishedApplicationDetail());
+        importedApplication.setPublishedAppLayout(importedApplication.getUnpublishedAppLayout());
     }
 }

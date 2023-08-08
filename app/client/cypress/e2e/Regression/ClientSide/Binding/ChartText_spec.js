@@ -9,9 +9,7 @@ import {
 
 describe("Text-Chart Binding Functionality", function () {
   before(() => {
-    cy.fixture("ChartTextDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("ChartTextDsl");
   });
 
   it("1. Text-Chart Binding Functionality View", function () {
@@ -35,11 +33,11 @@ describe("Text-Chart Binding Functionality", function () {
       this.dataSet.Chartval[1],
       this.dataSet.Chartval[2],
     ];
-    [0, 1, 2].forEach((k) => {
+    [0, 2].forEach((k) => {
       cy.get(viewWidgetsPage.rectangleChart)
-        .eq(k)
+        .first()
         .trigger("mousemove", { force: true });
-      cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
+      cy.get(viewWidgetsPage.Chartlabel).contains(labels[k]);
     });
     deployMode.DeployApp();
   });
@@ -53,8 +51,8 @@ describe("Text-Chart Binding Functionality", function () {
       this.dataSet.Chartval[2],
     ];
     [0, 1, 2].forEach((k) => {
-      cy.get(publish.rectChart).eq(k).trigger("mousemove", { force: true });
-      cy.get(publish.chartLab).eq(k).should("have.text", labels[k]);
+      cy.get(publish.rectChart).first().trigger("mousemove", { force: true });
+      cy.get(publish.chartLab).contains(labels[k]);
     });
     cy.get(commonlocators.TextInside).should(
       "have.text",

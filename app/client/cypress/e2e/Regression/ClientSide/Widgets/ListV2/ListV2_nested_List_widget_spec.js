@@ -1,5 +1,10 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import { agHelper } from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  assertHelper,
+  entityExplorer,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
@@ -25,9 +30,7 @@ describe(" Nested List Widgets ", function () {
   });
 
   it("1. Pasting - should show toast when nesting is greater than 3", function () {
-    cy.fixture("Listv2/copy_paste_listv2_dsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Listv2/copy_paste_listv2_dsl");
     cy.openPropertyPaneByWidgetName("List1", "listwidgetv2");
     // Copy List1
     cy.get(widgetsPage.copyWidget).click({ force: true });
@@ -75,9 +78,8 @@ describe(" Nested List Widgets ", function () {
         y: 50,
       },
     );
-    cy.openPropertyPane("textwidget");
-
-    cy.updateCodeInput(".t--property-control-text", `{{currentItem.name}}`);
+    entityExplorer.SelectEntityByName("Text1");
+    propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}");
 
     cy.dragAndDropToWidgetBySelector(
       "textwidget",
@@ -87,25 +89,12 @@ describe(" Nested List Widgets ", function () {
         y: 100,
       },
     );
-    cy.testJsontextclear("text");
+    propPane.TypeTextIntoField("Text", "{{level_1.currentView.");
 
-    cy.get(".t--property-control-text .CodeMirror textarea").type(
-      "{{level_1.currentView.",
-      {
-        force: true,
-      },
-    );
     checkAutosuggestion("Text1", "Object");
     checkAutosuggestion("List1Copy", "Object");
 
-    cy.testJsontextclear("text");
-
-    cy.get(".t--property-control-text .CodeMirror textarea").type(
-      "{{level_1.currentView.List1Copy.",
-      {
-        force: true,
-      },
-    );
+    propPane.TypeTextIntoField("Text", "{{level_1.currentView.List1Copy.");
     checkAutosuggestion("backgroundColor", "String");
     checkAutosuggestion("itemSpacing", "Number");
     checkAutosuggestion("isVisible", "Boolean");
@@ -125,11 +114,8 @@ describe(" Nested List Widgets ", function () {
       cy.wrap($el).should("not.have.text", "triggeredItemView");
     });
 
-    cy.get(".CodeMirror-hints")
-      .contains("pageNo")
-      .first()
-      .click({ force: true });
-
+    agHelper.GetNClickByContains(".CodeMirror-hints", "pageNo", 0, true);
+    assertHelper.AssertNetworkStatus("updateLayout");
     cy.get(`${widgetSelector("Text2")} .bp3-ui-text span`).should(
       "have.text",
       "1",
@@ -137,10 +123,8 @@ describe(" Nested List Widgets ", function () {
   });
 
   it("3. Accessing CurrentView, SelectedItemView and TriggeredItemView from Sibling List widget", () => {
-    cy.fixture("Listv2/ListV2_nested_sibling_listwidget_dsl").then((val) => {
-      agHelper.AddDsl(val);
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("Listv2/ListV2_nested_sibling_listwidget_dsl");
+    agHelper.AddDsl("Listv2/ListV2_nested_sibling_listwidget_dsl");
 
     cy.waitUntil(() =>
       cy
@@ -153,7 +137,7 @@ describe(" Nested List Widgets ", function () {
     );
 
     cy.openPropertyPaneByWidgetName("Text4", "textwidget");
-    cy.testJsontextclear("text");
+    propPane.RemoveText("Text");
     cy.get(".t--property-control-text .CodeMirror textarea").type(
       "{{level_1.currentView.List3.currentItemsView",
       {
@@ -167,7 +151,7 @@ describe(" Nested List Widgets ", function () {
 
     cy.openPropertyPaneByWidgetName("Text4", "textwidget");
 
-    cy.testJsontextclear("text");
+    propPane.RemoveText("Text");
     cy.get(".t--property-control-text .CodeMirror textarea").type(
       "{{level_1.currentView.List2.currentItemsView",
       {
@@ -181,7 +165,7 @@ describe(" Nested List Widgets ", function () {
       .should("be.empty");
 
     cy.openPropertyPaneByWidgetName("Text5", "textwidget");
-    cy.testJsontextclear("text");
+    propPane.RemoveText("Text");
 
     cy.get(".t--property-control-text .CodeMirror textarea").type(
       "{{List1.selectedItemView.List2.currentItemsView",

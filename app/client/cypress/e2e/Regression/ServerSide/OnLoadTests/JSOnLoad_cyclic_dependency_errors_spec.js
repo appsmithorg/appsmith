@@ -28,9 +28,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
   before(() => {
     //appId = localStorage.getItem("applicationId");
     //cy.log("appID:" + appId);
-    cy.fixture("inputdsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("inputdsl");
   });
 
   it(
@@ -38,8 +36,8 @@ describe("Cyclic Dependency Informational Error Messages", function () {
     "1. Create Users Sample DB Query & Simulate cyclic depedency",
     () => {
       //Step1 : Create Mock Users DB
-      dataSources.CreateMockDB("Users").then((dbName) => {
-        dataSources.CreateQueryFromActiveTab(dbName, true);
+      dataSources.CreateMockDB("Users").then(() => {
+        dataSources.CreateQueryAfterDSSaved();
         dataSources.ToggleUsePreparedStatement(false);
         dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
       });

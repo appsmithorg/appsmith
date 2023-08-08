@@ -4,7 +4,6 @@ import type { Server, Def } from "tern";
 import type { Hint, Hints } from "codemirror";
 import type CodeMirror from "codemirror";
 import {
-  getDynamicBindings,
   getDynamicStringSegments,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
@@ -204,6 +203,8 @@ class CodeMirrorTernService {
     const cursor = cm.getCursor();
     const { extraChars } = this.getFocusedDocValueAndPos(doc);
 
+    const query = this.getQueryForAutocomplete(cm);
+
     let completions: Completion[] = [];
     let after = "";
     const { end, start } = data;
@@ -309,13 +310,14 @@ class CodeMirrorTernService {
       list: completions,
       selectedHint: indexToBeSelected,
       lineValue,
+      query: this.getQueryForAutocomplete(cm),
     };
     let tooltip: HTMLElement | undefined = undefined;
     const CodeMirror = getCodeMirrorNamespaceFromEditor(cm);
 
     CodeMirror.on(obj, "shown", () => {
       AnalyticsUtil.logEvent("AUTO_COMPLETE_SHOW", {
-        query: getDynamicBindings(lineValue)?.jsSnippets[0],
+        query,
         numberOfResults: completions.filter(
           (completion) => !completion.isHeader,
         ).length,
@@ -380,19 +382,25 @@ class CodeMirrorTernService {
     // When a function is picked, move the cursor between the parenthesis
     const CodeMirror = getCodeMirrorNamespaceFromEditor(cm);
     CodeMirror.on(hints, "pick", (selected: CommandsCompletion) => {
+      const hintsWithoutHeaders = hints.list.filter(
+        (h: Record<string, unknown>) => h.isHeader !== true,
+      );
+
       const selectedResultIndex = findIndex(
-        hints.list,
+        hintsWithoutHeaders,
         (item: Record<string, unknown>) =>
           item.displayText === selected.displayText,
       );
 
       AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
         selectedResult: selected.text,
-        query: getDynamicBindings(hints.lineValue)?.jsSnippets[0],
+        query: hints.query,
         selectedResultIndex,
         selectedResultType: selected.type,
         isBestMatch:
           selectedResultIndex <= AutocompleteSorter.bestMatchEndIndex,
+        isExternalLibrary: selected.origin?.startsWith("LIB/"),
+        libraryNamespace: selected.origin?.split("/")[1],
       });
 
       const hasParenthesis = selected.text.endsWith("()");
@@ -613,6 +621,7 @@ class CodeMirrorTernService {
     value: string;
     end: { line: number; ch: number };
     extraChars: number;
+    isSingleDynamicValue?: boolean;
   } {
     const cursor = doc.doc.getCursor("end");
     const value = this.docValue(doc);
@@ -628,6 +637,7 @@ class CodeMirrorTernService {
           ch: cursor.ch,
         },
         extraChars,
+        isSingleDynamicValue: isDynamicValue(value),
       };
     }
 
@@ -885,6 +895,29 @@ class CodeMirrorTernService {
 
   setEntityInformation(entityInformation: FieldEntityInformation) {
     this.fieldEntityInformation = entityInformation;
+  }
+
+  getQueryForAutocomplete(cm: CodeMirror.Editor) {
+    const doc = this.findDoc(cm.getDoc());
+    const lineValue = this.lineValue(doc);
+    const { end, extraChars, isSingleDynamicValue } =
+      this.getFocusedDocValueAndPos(doc);
+    let extraCharsInString = extraChars;
+    const endOfString = end.ch + extraChars;
+
+    if (isSingleDynamicValue) {
+      extraCharsInString += 2;
+    }
+
+    const stringFromEndCh = lineValue.substring(
+      extraCharsInString,
+      endOfString,
+    );
+
+    const splitBySpace = stringFromEndCh.split(" ");
+    const query = splitBySpace[splitBySpace.length - 1];
+
+    return query;
   }
 }
 

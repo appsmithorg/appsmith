@@ -13,9 +13,7 @@ let dsName: any, jsName: any;
 
 describe("JSObjects OnLoad Actions tests", function () {
   before(() => {
-    cy.fixture("tablev1NewDsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("tablev1NewDsl");
     entityExplorer.NavigateToSwitcher("Explorer");
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
@@ -93,7 +91,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     table.WaitForTableEmpty();
     agHelper.WaitUntilAllToastsDisappear();
 
-    agHelper.RefreshPage(true, "viewPage");
+    agHelper.RefreshPage("viewPage");
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation dialog"));
     agHelper.AssertElementVisible(
       jsEditor._dialogBody((jsName as string) + ".getEmployee"),

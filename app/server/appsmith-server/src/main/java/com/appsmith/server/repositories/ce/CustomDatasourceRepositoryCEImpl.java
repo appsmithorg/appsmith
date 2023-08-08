@@ -18,37 +18,47 @@ import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Datasource> implements CustomDatasourceRepositoryCE {
+public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Datasource>
+        implements CustomDatasourceRepositoryCE {
 
-    public CustomDatasourceRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomDatasourceRepositoryCEImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
     @Override
     @Deprecated
     public Flux<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {
-        Criteria workspaceIdCriteria = where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
+        Criteria workspaceIdCriteria =
+                where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
         return queryAll(List.of(workspaceIdCriteria), permission, Sort.by(fieldName(QDatasource.datasource.name)));
     }
 
     @Override
     public Flux<Datasource> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission) {
-        Criteria workspaceIdCriteria = where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
-        return queryAll(List.of(workspaceIdCriteria), permission, Optional.of(Sort.by(fieldName(QDatasource.datasource.name))));
+        Criteria workspaceIdCriteria =
+                where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
+        return queryAll(
+                List.of(workspaceIdCriteria), permission, Optional.of(Sort.by(fieldName(QDatasource.datasource.name))));
     }
 
     @Override
     @Deprecated
     public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission) {
         Criteria nameCriteria = where(fieldName(QDatasource.datasource.name)).is(name);
-        Criteria workspaceIdCriteria = where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
+        Criteria workspaceIdCriteria =
+                where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
         return queryOne(List.of(nameCriteria, workspaceIdCriteria), aclPermission);
     }
 
     @Override
-    public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> aclPermission) {
+    public Mono<Datasource> findByNameAndWorkspaceId(
+            String name, String workspaceId, Optional<AclPermission> aclPermission) {
         Criteria nameCriteria = where(fieldName(QDatasource.datasource.name)).is(name);
-        Criteria workspaceIdCriteria = where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
+        Criteria workspaceIdCriteria =
+                where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
         return queryOne(List.of(nameCriteria, workspaceIdCriteria), null, aclPermission);
     }
 

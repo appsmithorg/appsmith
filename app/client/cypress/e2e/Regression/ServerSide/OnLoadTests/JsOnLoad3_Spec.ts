@@ -23,9 +23,7 @@ describe("JSObjects OnLoad Actions tests", function () {
 
   it("1. Tc 60, 1912 - Verify JSObj calling API - OnPageLoad calls & Confirmation No then Yes!", () => {
     entityExplorer.SelectEntityByName("Page1");
-    cy.fixture("JSApiOnLoadDsl").then((val: any) => {
-      agHelper.AddDsl(val, locators._widgetInCanvas("imagewidget"));
-    });
+    agHelper.AddDsl("JSApiOnLoadDsl", locators._widgetInCanvas("imagewidget"));
     entityExplorer.NavigateToSwitcher("Explorer");
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
@@ -139,7 +137,7 @@ describe("JSObjects OnLoad Actions tests", function () {
 
       agHelper.AssertElementAbsence(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is NO, dependent API confirmation should not appear
 
-      agHelper.RefreshPage(true, "viewPage");
+      agHelper.RefreshPage("viewPage");
       // agHelper.AssertElementVisible(
       //   jsEditor._dialogBody((jsName as string) + ".callTrump"),
       // );
@@ -307,12 +305,13 @@ describe("JSObjects OnLoad Actions tests", function () {
 
       entityExplorer.SelectEntityByName("Select1", "Widgets");
       propPane.UpdatePropertyFieldValue(
-        "Options",
+        "Source Data",
         `{{ getCitiesList.data.map((row) => {
         return { label: row.city, value: row.city }
      })
   }}`,
       );
+
       agHelper.ValidateToastMessage(
         "[getCitiesList] will be executed automatically on page load",
       );

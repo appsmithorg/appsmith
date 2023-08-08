@@ -24,7 +24,6 @@ import {
   BUSINESS_EDITION_TEXT,
   INVITE_USER_RAMP_TEXT,
   CUSTOM_ROLES_RAMP_TEXT,
-  BUSINESS_TEXT,
   CUSTOM_ROLE_DISABLED_OPTION_TEXT,
   CUSTOM_ROLE_TEXT,
 } from "@appsmith/constants/messages";
@@ -47,7 +46,6 @@ import {
   Option,
   Tooltip,
   toast,
-  Tag,
   Link,
 } from "design-system";
 import { getInitialsFromName } from "utils/AppsmithUtils";
@@ -62,6 +60,7 @@ import { importSvg } from "design-system-old";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
 import { getRampLink, showProductRamps } from "utils/ProductRamps";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
+import BusinessTag from "components/BusinessTag";
 
 const NoEmailConfigImage = importSvg(
   () => import("assets/images/email-not-configured.svg"),
@@ -308,9 +307,7 @@ export function CustomRolesRamp() {
           <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-xs">
             {createMessage(CUSTOM_ROLE_TEXT)}
           </Text>
-          <Tag isClosable={false} size="md">
-            {createMessage(BUSINESS_TEXT)}
-          </Tag>
+          <BusinessTag size="md" />
         </div>
         <Text kind="body-s">
           {createMessage(CUSTOM_ROLE_DISABLED_OPTION_TEXT)}

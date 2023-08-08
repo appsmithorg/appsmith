@@ -95,7 +95,7 @@ export function getEntityNameAndPropertyPath(fullPath: string): {
   return { entityName, propertyPath };
 }
 
-function translateCollectionDiffs(
+export function translateCollectionDiffs(
   propertyPath: string,
   data: unknown,
   event: DataTreeDiffEvent,
@@ -189,7 +189,10 @@ export const translateDiffEventToDataTreeDiffEvent = (
       if (rhsChange || lhsChange) {
         result = [
           {
-            event: DataTreeDiffEvent.EDIT,
+            event:
+              difference.lhs === undefined
+                ? DataTreeDiffEvent.NEW
+                : DataTreeDiffEvent.EDIT,
             payload: {
               propertyPath,
               value: difference.rhs,
@@ -664,31 +667,31 @@ export const isDynamicLeaf = (
 };
 
 export const addWidgetPropertyDependencies = ({
-  entity,
-  entityName,
+  widgetConfig,
+  widgetName,
 }: {
-  entity: WidgetEntityConfig;
-  entityName: string;
+  widgetConfig: WidgetEntityConfig;
+  widgetName: string;
 }) => {
   const dependencies: DependencyMap = {};
 
-  Object.entries(entity.propertyOverrideDependency).forEach(
+  Object.entries(widgetConfig.propertyOverrideDependency).forEach(
     ([overriddenPropertyKey, overridingPropertyKeyMap]) => {
       const existingDependenciesSet = new Set(
-        dependencies[`${entityName}.${overriddenPropertyKey}`] || [],
+        dependencies[`${widgetName}.${overriddenPropertyKey}`] || [],
       );
       // add meta dependency
       overridingPropertyKeyMap.META &&
         existingDependenciesSet.add(
-          `${entityName}.${overridingPropertyKeyMap.META}`,
+          `${widgetName}.${overridingPropertyKeyMap.META}`,
         );
       // add default dependency
       overridingPropertyKeyMap.DEFAULT &&
         existingDependenciesSet.add(
-          `${entityName}.${overridingPropertyKeyMap.DEFAULT}`,
+          `${widgetName}.${overridingPropertyKeyMap.DEFAULT}`,
         );
 
-      dependencies[`${entityName}.${overriddenPropertyKey}`] = [
+      dependencies[`${widgetName}.${overriddenPropertyKey}`] = [
         ...existingDependenciesSet,
       ];
     },
@@ -783,6 +786,8 @@ export const overrideWidgetProperties = (params: {
   evalMetaUpdates: EvalMetaUpdates;
   fullPropertyPath: string;
   isNewWidget: boolean;
+  shouldUpdateGlobalContext?: boolean;
+  overriddenProperties?: string[];
 }) => {
   const {
     configTree,
@@ -791,7 +796,9 @@ export const overrideWidgetProperties = (params: {
     evalMetaUpdates,
     fullPropertyPath,
     isNewWidget,
+    overriddenProperties,
     propertyPath,
+    shouldUpdateGlobalContext,
     value,
   } = params;
   const clonedValue = klona(value);
@@ -813,9 +820,14 @@ export const overrideWidgetProperties = (params: {
       if (pathsNotToOverride.includes(overriddenPropertyPath)) return;
       _.set(
         currentTree,
-        [entity.widgetName, ...overriddenPropertyPathArray],
+        [entityName, ...overriddenPropertyPathArray],
         clonedValue,
       );
+
+      if (shouldUpdateGlobalContext) {
+        _.set(self, [entityName, ...overriddenPropertyPathArray], clonedValue);
+      }
+      overriddenProperties?.push(overriddenPropertyPath);
       // evalMetaUpdates has all updates from property which overrides meta values.
       if (
         propertyPath.split(".")[0] !== "meta" &&
@@ -844,9 +856,13 @@ export const overrideWidgetProperties = (params: {
         const propertyPathArray = propertyPath.split(".");
         _.set(
           currentTree,
-          [entity.widgetName, ...propertyPathArray],
+          [entityName, ...propertyPathArray],
           clonedDefaultValue,
         );
+
+        if (shouldUpdateGlobalContext) {
+          _.set(self, [entityName, ...propertyPathArray], clonedDefaultValue);
+        }
 
         return {
           overwriteParsedValue: true,

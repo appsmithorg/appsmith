@@ -1,17 +1,9 @@
 import type { JSPropertyPosition, TParsedJSProperty } from "@shared/ast";
 import { isJSFunctionProperty } from "@shared/ast";
-import { diff } from "deep-diff";
-import { klona } from "klona/full";
-import { set, union } from "lodash";
+import { set } from "lodash";
 
 class JsPropertiesState {
   private jsPropertiesState: TJSPropertiesState = {};
-  private oldJsPropertiesState: TJSPropertiesState = {};
-  private updatedProperties: string[] = [];
-
-  startUpdate() {
-    this.oldJsPropertiesState = klona(this.jsPropertiesState);
-  }
 
   delete(jsObjectName: string) {
     delete this.jsPropertiesState[`${jsObjectName}`];
@@ -38,26 +30,9 @@ class JsPropertiesState {
       }
     }
   }
-  stopUpdate() {
-    const difference = diff(this.oldJsPropertiesState, this.jsPropertiesState);
-    let updatedJSProperties: string[] = [];
-    if (difference) {
-      updatedJSProperties = difference.reduce(
-        (updatedProperties, currentDiff) => {
-          if (!currentDiff.path) return updatedProperties;
-          const updatedProperty = currentDiff.path.slice(0, 2).join(".");
-          return union(updatedProperties, [updatedProperty]);
-        },
-        [] as string[],
-      );
-    }
-    this.updatedProperties = updatedJSProperties;
-  }
+
   getMap() {
     return this.jsPropertiesState;
-  }
-  getUpdatedJSProperties() {
-    return this.updatedProperties;
   }
 }
 

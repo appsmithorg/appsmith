@@ -86,9 +86,7 @@ const listData = [
 
 describe("List widget V2 page number and page size", () => {
   before(() => {
-    cy.fixture("listv2PaginationDsl").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("listv2PaginationDsl");
   });
 
   beforeEach(() => {
@@ -163,9 +161,8 @@ describe("List widget V2 page number and page size", () => {
       cy.addDsl(dslWithServerSide);
       // Open Datasource editor
       cy.wait(2000);
-      _.dataSources.CreateMockDB("Users").then((dbName) => {
-        _.dataSources.CreateQueryFromActiveTab(dbName, true);
-
+      _.dataSources.CreateMockDB("Users").then(() => {
+        _.dataSources.CreateQueryAfterDSSaved();
         _.dataSources.ToggleUsePreparedStatement(false);
       });
       // writing query to get the schema

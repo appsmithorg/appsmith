@@ -3,9 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("MultiSelect Widget Functionality", function () {
   before(() => {
-    cy.fixture("emptyDSL").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("emptyDSL");
   });
   beforeEach(() => {
     cy.wait(3000);
@@ -15,7 +13,7 @@ describe("MultiSelect Widget Functionality", function () {
     //should check that empty value is allowed in options", () => {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.updateCodeInput(
-      ".t--property-control-options",
+      ".t--property-control-sourcedata",
       `[
         {
           "label": "Blue",
@@ -31,7 +29,17 @@ describe("MultiSelect Widget Functionality", function () {
         }
       ]`,
     );
-    cy.get(".t--property-control-options .t--codemirror-has-error").should(
+
+    _.propPane.ToggleJSMode("label");
+    cy.updateCodeInput(
+      ".t--property-control-wrapper.t--property-control-label",
+      `label`,
+    );
+
+    _.propPane.ToggleJSMode("value");
+    cy.updateCodeInput(".t--property-control-value", `value`);
+
+    cy.get(".t--property-control-value .t--codemirror-has-error").should(
       "not.exist",
     );
   });
@@ -39,7 +47,7 @@ describe("MultiSelect Widget Functionality", function () {
   it("2. should check that more that one empty value is not allowed in options", () => {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.updateCodeInput(
-      ".t--property-control-options",
+      ".t--property-control-sourcedata",
       `[
         {
           "label": "Blue",
@@ -55,7 +63,7 @@ describe("MultiSelect Widget Functionality", function () {
         }
       ]`,
     );
-    cy.get(".t--property-control-options .t--codemirror-has-error").should(
+    cy.get(".t--property-control-value .t--codemirror-has-error").should(
       "exist",
     );
   });
@@ -63,7 +71,7 @@ describe("MultiSelect Widget Functionality", function () {
   it("3. should check that Objects can be added to multiselect Widget default value", () => {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.updateCodeInput(
-      ".t--property-control-options",
+      ".t--property-control-sourcedata",
       `[
         {
           "label": "Blue",
@@ -88,7 +96,7 @@ describe("MultiSelect Widget Functionality", function () {
         }
       ]`,
     );
-    cy.get(".t--property-control-options .t--codemirror-has-error").should(
+    cy.get(".t--property-control-value .t--codemirror-has-error").should(
       "not.exist",
     );
     cy.get(
@@ -104,7 +112,7 @@ describe("MultiSelect Widget Functionality", function () {
   it("4. should display the right label", () => {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.updateCodeInput(
-      ".t--property-control-options",
+      ".t--property-control-sourcedata",
       `[
         {
           "label": "Blue",
@@ -127,7 +135,7 @@ describe("MultiSelect Widget Functionality", function () {
       "RED"
     ]`,
     );
-    cy.get(".t--property-control-options .t--codemirror-has-error").should(
+    cy.get(".t--property-control-value .t--codemirror-has-error").should(
       "not.exist",
     );
     cy.get(

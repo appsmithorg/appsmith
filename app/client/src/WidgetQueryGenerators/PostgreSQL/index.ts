@@ -1,12 +1,14 @@
 import { BaseQueryGenerator } from "../BaseQueryGenerator";
-import { format } from "sql-formatter";
+import { formatDialect, postgresql } from "sql-formatter";
 import { QUERY_TYPE } from "../types";
 import type {
   WidgetQueryGenerationConfig,
   WidgetQueryGenerationFormConfig,
-  ActionConfigurationPostgreSQL,
+  ActionConfigurationSQL,
 } from "../types";
 import { removeSpecialChars } from "utils/helpers";
+import { without } from "lodash";
+import { DatasourceConnectionMode } from "entities/Datasource";
 export default abstract class PostgreSQL extends BaseQueryGenerator {
   private static buildSelect(
     widgetConfig: WidgetQueryGenerationConfig,
@@ -82,9 +84,9 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
         { template: "", params: {} },
       );
     //formats sql string
-    const res = format(template, {
+    const res = formatDialect(template, {
       params,
-      language: "postgresql",
+      dialect: postgresql,
     });
 
     return {
@@ -113,11 +115,13 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
 
     const { value, where } = update;
 
+    const columns = without(formConfig.columns, formConfig.primaryColumn);
+
     return {
       type: QUERY_TYPE.UPDATE,
       name: `Update_${removeSpecialChars(formConfig.tableName)}`,
       payload: {
-        body: `UPDATE ${formConfig.tableName} SET ${formConfig.columns
+        body: `UPDATE ${formConfig.tableName} SET ${columns
           .map((column) => `"${column}"= '{{${value}.${column}}}'`)
           .join(", ")} WHERE "${formConfig.primaryColumn}"= {{${where}.${
           formConfig.primaryColumn
@@ -141,13 +145,15 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
       return;
     }
 
+    const columns = without(formConfig.columns, formConfig.primaryColumn);
+
     return {
       type: QUERY_TYPE.CREATE,
       name: `Insert_${removeSpecialChars(formConfig.tableName)}`,
       payload: {
-        body: `INSERT INTO ${formConfig.tableName} (${formConfig.columns.map(
+        body: `INSERT INTO ${formConfig.tableName} (${columns.map(
           (a) => `"${a}"`,
-        )}) VALUES (${formConfig.columns
+        )}) VALUES (${columns
           .map((d) => `'{{${create.value}.${d}}}'`)
           .toString()})`,
       },
@@ -190,18 +196,26 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
   public static build(
     widgetConfig: WidgetQueryGenerationConfig,
     formConfig: WidgetQueryGenerationFormConfig,
-    pluginInitalValues: { actionConfiguration: ActionConfigurationPostgreSQL },
+    pluginInitalValues: { actionConfiguration: ActionConfigurationSQL },
   ) {
     const allBuildConfigs = [];
     if (widgetConfig.select) {
       allBuildConfigs.push(this.buildSelect(widgetConfig, formConfig));
     }
 
-    if (widgetConfig.update && formConfig.primaryColumn) {
+    if (
+      widgetConfig.update &&
+      formConfig.primaryColumn &&
+      formConfig.connectionMode === DatasourceConnectionMode.READ_WRITE
+    ) {
       allBuildConfigs.push(this.buildUpdate(widgetConfig, formConfig));
     }
 
-    if (widgetConfig.create && formConfig.primaryColumn) {
+    if (
+      widgetConfig.create &&
+      formConfig.primaryColumn &&
+      formConfig.connectionMode === DatasourceConnectionMode.READ_WRITE
+    ) {
       allBuildConfigs.push(this.buildInsert(widgetConfig, formConfig));
     }
 

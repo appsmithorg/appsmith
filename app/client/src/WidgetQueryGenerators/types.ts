@@ -13,6 +13,7 @@ export type WidgetQueryGenerationFormConfig = {
   searchableColumn: string;
   columns: string[];
   primaryColumn: string;
+  connectionMode: string;
 } & GsheetConfig;
 
 export type WidgetQueryGenerationConfig = {
@@ -60,7 +61,7 @@ export type ActionConfigurationMongoDB = {
   formData: MongoDBFormData;
 };
 
-export type ActionConfigurationPostgreSQL = {
+export type ActionConfigurationSQL = {
   pluginSpecifiedTemplates: Array<object>;
 };
 

@@ -11,9 +11,7 @@ const widgetSelectorByType = (name) => `.t--widget-${name}`;
 
 describe("Select Widgets", function () {
   before(() => {
-    cy.fixture("Listv2/simpleLargeListv2").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("Listv2/simpleLargeListv2");
   });
 
   it("1. Select Widgets default value", function () {
@@ -24,12 +22,21 @@ describe("Select Widgets", function () {
     );
 
     _.propPane.UpdatePropertyFieldValue(
-      "Options",
+      "Source Data",
       `{{[{
       label: currentItem.name,
       value: currentItem.id
   }]}}`,
     );
+
+    _.propPane.ToggleJSMode("label");
+    cy.updateCodeInput(
+      ".t--property-control-wrapper.t--property-control-label",
+      `label`,
+    );
+
+    _.propPane.ToggleJSMode("value");
+    cy.updateCodeInput(".t--property-control-value", `value`);
 
     _.propPane.UpdatePropertyFieldValue(
       "Default selected values",
@@ -44,12 +51,21 @@ describe("Select Widgets", function () {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT, 250, 300);
 
     _.propPane.UpdatePropertyFieldValue(
-      "Options",
+      "Source Data",
       `{{[{
         label: currentItem.name,
         value: currentItem.id
     }]}}`,
     );
+
+    _.propPane.ToggleJSMode("label");
+    cy.updateCodeInput(
+      ".t--property-control-wrapper.t--property-control-label",
+      `label`,
+    );
+
+    _.propPane.ToggleJSMode("value");
+    cy.updateCodeInput(".t--property-control-value", `value`);
 
     _.propPane.UpdatePropertyFieldValue(
       "Default selected value",

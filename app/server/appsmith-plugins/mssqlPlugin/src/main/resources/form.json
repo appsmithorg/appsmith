@@ -8,16 +8,16 @@
           "label": "Connection mode",
           "configProperty": "datasourceConfiguration.connection.mode",
           "controlType": "SEGMENTED_CONTROL",
-          "isRequired": true,
           "initialValue": "READ_WRITE",
           "options": [
-            {
-              "label": "Read only",
-              "value": "READ_ONLY"
-            },
+
             {
               "label": "Read / Write",
               "value": "READ_WRITE"
+            },
+            {
+              "label": "Read only",
+              "value": "READ_ONLY"
             }
           ]
         },
@@ -37,7 +37,7 @@
               "configProperty": "datasourceConfiguration.endpoints[*].port",
               "dataType": "NUMBER",
               "controlType": "KEYVALUE_ARRAY",
-              "placeholderText": "1443"
+              "placeholderText": "1433"
             }
           ]
         },

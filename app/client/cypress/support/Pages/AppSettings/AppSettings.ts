@@ -27,6 +27,39 @@ export class AppSettings {
     _getPageSettingsHeader: (pageName: string) =>
       `#t--page-settings-${pageName}`,
     _updateStatus: ".ads-v2-icon.rotate",
+    _header: ".t--app-viewer-navigation-header",
+    _topStacked: ".t--app-viewer-navigation-top-stacked",
+    _applicationName: ".t--app-viewer-application-name",
+    _shareButton: ".t--app-viewer-share-button",
+    _modal: "div[role=dialog]",
+    _modalClose: "div[role=dialog] button[aria-label='Close']",
+    _canvas: ".t--canvas-artboard",
+    _userProfileDropdownMenu: ".ads-v2-menu",
+    _navigationPreview: ".t--navigation-preview",
+    _navStyleOptions: {
+      _stacked:
+        ".t--navigation-settings-navStyle .ads-v2-segmented-control-value-stacked",
+      _inline:
+        ".t--navigation-settings-navStyle .ads-v2-segmented-control-value-inline",
+    },
+    _colorStyleOptions: {
+      _light:
+        ".t--navigation-settings-colorStyle .ads-v2-segmented-control-value-light",
+      _theme:
+        ".t--navigation-settings-colorStyle .ads-v2-segmented-control-value-theme",
+    },
+    _topInline: ".t--app-viewer-navigation-top-inline",
+    _sidebarCollapseButton: ".t--app-viewer-navigation-sidebar-collapse",
+    _topStackedScrollableContainer:
+      ".t--app-viewer-navigation-top-stacked .hidden-scrollbar",
+    _topInlineMoreButton: ".t--app-viewer-navigation-top-inline-more-button",
+    _topInlineMoreDropdown:
+      ".t--app-viewer-navigation-top-inline-more-dropdown",
+    _topInlineMoreDropdownItem:
+      ".t--app-viewer-navigation-top-inline-more-dropdown-item",
+    _scrollArrows: ".scroll-arrows",
+    _getActivePage: (pageName: string) =>
+      `//span[contains(text(),"${pageName}")]//ancestor::a[contains(@class,'is-active')]`,
   };
 
   public errorMessageSelector = (fieldId: string) => {

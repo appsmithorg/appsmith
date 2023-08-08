@@ -13,6 +13,9 @@ const baseNoRestrictedImports =
 const eslintConfig = {
   extends: ["./.eslintrc.base.json"],
   rules: {
+    "@typescript-eslint/no-explicit-any": "off",
+    "react/display-name": "off",
+    "react/prop-types": "off",
     // `no-restricted-imports` is disabled, as recommended in https://typescript-eslint.io/rules/no-restricted-imports/.
     // Please use @typescript-eslint/no-restricted-imports below instead.
     "no-restricted-imports": "off",
@@ -35,6 +38,12 @@ const eslintConfig = {
             // Allow type imports as they don’t lead to bundling the dependency
             allowTypeImports: true,
           },
+          {
+            name: "sql-formatter",
+            importNames: ["format"],
+            message:
+              "Reason: Instead of `import { format }` (which bundles all formatting dialects), please import only dialects you need (e.g. `import { formatDialect, postgresql }`. See https://github.com/sql-formatter-org/sql-formatter/issues/452",
+          },
         ],
         patterns: [
           ...(baseNoRestrictedImports.patterns ?? []),
@@ -45,10 +54,10 @@ const eslintConfig = {
         ],
       },
     ],
-    // Annoyingly, the `no-restricted-imports` rule doesn’t allow to restrict imports of
-    // `editorComponents/CodeEditor` but not `editorComponents/CodeEditor/*`: https://stackoverflow.com/q/64995811/1192426
-    // So we’re using `no-restricted-syntax` instead.
     "no-restricted-syntax": [
+      // Annoyingly, the `no-restricted-imports` rule doesn’t allow to restrict imports of
+      // `editorComponents/CodeEditor` but not `editorComponents/CodeEditor/*`: https://stackoverflow.com/q/64995811/1192426
+      // So we’re using `no-restricted-syntax` instead.
       "error",
       {
         // Match all
@@ -60,6 +69,20 @@ const eslintConfig = {
           "ImportDeclaration[importKind!='type'][source.value=/editorComponents\\u002FCodeEditor(\\u002Findex)?$/]",
         message:
           "Please don’t import CodeEditor directly – this will cause it to be bundled in the main chunk. Instead, use the LazyCodeEditor component.",
+      },
+      // Annoyingly, no-restricted-imports follows the gitignore exclude syntax,
+      // so there’s no way to exclude all @uppy/* but not @uppy/*/*.css imports:
+      // https://github.com/eslint/eslint/issues/16927
+      {
+        // Match all
+        //   - `import` statements
+        //   - that are not `import type` statements – we allow type imports as they don’t lead to bundling the dependency
+        //   - that import `@uppy/*` unless the `*` part ends with `.css`
+        // Note: using `\\u002F` instead of `/` due to https://eslint.org/docs/latest/extend/selectors#known-issues
+        selector:
+          "ImportDeclaration[importKind!='type'][source.value=/^@uppy\\u002F(?!.*.css$)/]",
+        message:
+          "Please don’t import Uppy directly. End users rarely use Uppy (e.g. only when they need to upload a file) – but Uppy bundles ~200 kB of JS. Please import it lazily instead.",
       },
     ],
   },

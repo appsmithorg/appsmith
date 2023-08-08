@@ -62,7 +62,10 @@ describe("Table V2 sort & filter using display text functionality", () => {
     propPane.UpdatePropertyFieldValue(
       "Display text",
       "{{['X','Y','Z'][currentIndex]}}",
+      true,
+      false,
     );
+    agHelper.RemoveEvaluatedPopUp();
     table.OpenNFilterTable("name", "contains", "Y");
     table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
       expect($cellData).to.eq("Y");
@@ -86,6 +89,8 @@ describe("Table V2 sort & filter using display text functionality", () => {
     propPane.UpdatePropertyFieldValue(
       "Display text",
       "{{['X','Y','Z'][currentIndex]}}",
+      true,
+      false,
     );
     table.SortColumn("name", "ascending");
     table.ReadTableRowColumnData(0, 0, "v2").then((data) => {

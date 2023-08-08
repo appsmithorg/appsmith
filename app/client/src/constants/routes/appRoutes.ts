@@ -1,6 +1,7 @@
 // Leaving this require here. The path-to-regexp module has a commonJS version and an ESM one.
 // We are loading the correct one with the typings with our compilerOptions property "moduleResolution" set to "node". Ref: https://stackoverflow.com/questions/59013618/unable-to-find-module-path-to-regexp
 // All solutions from closed issues on their repo have been tried. Ref: https://github.com/pillarjs/path-to-regexp/issues/193
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { match } = require("path-to-regexp");
 
 export const BUILDER_VIEWER_PATH_PREFIX = "/app/";
@@ -34,6 +35,7 @@ export const JS_COLLECTION_EDITOR_PATH = `/jsObjects`;
 export const JS_COLLECTION_ID_PATH = `${JS_COLLECTION_EDITOR_PATH}/:collectionId`;
 export const CURL_IMPORT_PAGE_PATH = `/api/curl/curl-import`;
 export const DATA_SOURCES_EDITOR_ID_PATH = `/datasource/:datasourceId`;
+export const SAAS_GSHEET_EDITOR_ID_PATH = `/saas/google-sheets-plugin/datasources/:datasourceId`;
 export const PROVIDER_TEMPLATE_PATH = `/provider/:providerId`;
 export const GEN_TEMPLATE_URL = "generate-page";
 export const GENERATE_TEMPLATE_PATH = `/${GEN_TEMPLATE_URL}`;
@@ -50,9 +52,17 @@ export const VIEWER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId`;
 
 export const matchApiBasePath = match(API_EDITOR_BASE_PATH);
 export const matchApiPath = match(API_EDITOR_ID_PATH);
-export const matchDatasourcePath = match(DATA_SOURCES_EDITOR_ID_PATH);
+export const matchDatasourcePath = match(
+  `${BUILDER_PATH}${DATA_SOURCES_EDITOR_ID_PATH}`,
+);
+export const matchSAASGsheetsPath = match(
+  `${BUILDER_PATH}${SAAS_GSHEET_EDITOR_ID_PATH}`,
+);
 export const matchQueryBasePath = match(QUERIES_EDITOR_BASE_PATH);
 export const matchQueryPath = match(QUERIES_EDITOR_ID_PATH);
+export const matchQueryBuilderPath = match(
+  BUILDER_PATH + QUERIES_EDITOR_ID_PATH,
+);
 export const matchBuilderPath = (
   pathName: string,
   options?: { end?: boolean },

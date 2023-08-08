@@ -15,18 +15,14 @@ describe("Page Load tests", () => {
   });
 
   before(() => {
-    cy.fixture("PageLoadDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("PageLoadDsl");
     cy.CreatePage();
     cy.get("h2").contains("Drag and drop a widget here");
   });
 
   it("1. Published page loads correctly", () => {
     //add page within page
-    cy.fixture("PageLoadDsl").then((val) => {
-      agHelper.AddDsl(val);
-    });
+    agHelper.AddDsl("PageLoadDsl");
     // Update the text to be asserted later
     cy.openPropertyPane("textwidget");
     cy.testCodeMirror("This is Page 2");
@@ -47,7 +43,7 @@ describe("Page Load tests", () => {
       "This is Page 2",
     );
     // Test after reload
-    agHelper.RefreshPage(true, "viewPage");
+    agHelper.RefreshPage("viewPage");
     // Assert active page tab
     cy.get(".t--page-switch-tab")
       .contains("Page2")

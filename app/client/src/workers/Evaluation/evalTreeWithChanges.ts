@@ -15,8 +15,12 @@ import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import { setEvalContext } from "./evaluate";
 
-export function evalTreeWithChanges(updatedValuePaths: string[][]) {
+export function evalTreeWithChanges(
+  updatedValuePaths: string[][],
+  metaUpdates: EvalMetaUpdates = [],
+) {
   let evalOrder: string[] = [];
+  let reValidatedPaths: string[] = [];
   let jsUpdates: Record<string, JSUpdate> = {};
   let unEvalUpdates: DataTreeDiff[] = [];
   let nonDynamicFieldValidationOrder: string[] = [];
@@ -25,9 +29,9 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
   const errors: EvalError[] = [];
   const logs: any[] = [];
   const dependencies: DependencyMap = {};
-  let evalMetaUpdates: EvalMetaUpdates = [];
+  let evalMetaUpdates: EvalMetaUpdates = [...metaUpdates];
   let staleMetaIds: string[] = [];
-  const pathsToClearErrorsFor: any[] = [];
+  const removedPaths: Array<{ entityId: string; fullpath: string }> = [];
   let unevalTree: UnEvalTree = {};
   let configTree: ConfigTree = {};
 
@@ -48,8 +52,11 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
       unEvalUpdates,
     );
 
+    reValidatedPaths = updateResponse.reValidatedPaths;
+
     setEvalContext({
-      dataTree: dataTreeEvaluator.evalTree,
+      dataTree: dataTreeEvaluator.getEvalTree(),
+      configTree: dataTreeEvaluator.getConfigTree(),
       isDataField: false,
       isTriggerBased: true,
     });
@@ -57,9 +64,9 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
     dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
       evalProps: dataTreeEvaluator.evalProps,
     });
-    evalMetaUpdates = JSON.parse(
-      JSON.stringify(updateResponse.evalMetaUpdates),
-    );
+
+    evalMetaUpdates = [...evalMetaUpdates, ...updateResponse.evalMetaUpdates];
+
     staleMetaIds = updateResponse.staleMetaIds;
     unevalTree = dataTreeEvaluator.getOldUnevalTree();
     configTree = dataTreeEvaluator.oldConfigTree;
@@ -71,13 +78,14 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
     errors,
     evalMetaUpdates,
     evaluationOrder: evalOrder,
+    reValidatedPaths,
     jsUpdates,
     logs,
     unEvalUpdates,
     isCreateFirstTree,
     configTree,
     staleMetaIds,
-    pathsToClearErrorsFor,
+    removedPaths,
     isNewWidgetAdded: false,
     undefinedEvalValuesMap: dataTreeEvaluator?.undefinedEvalValuesMap || {},
     jsVarsCreatedEvent: [],

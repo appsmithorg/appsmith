@@ -1,9 +1,9 @@
 package com.appsmith.caching.model;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This is a CacheStats class that is used to store the stats of a cache.

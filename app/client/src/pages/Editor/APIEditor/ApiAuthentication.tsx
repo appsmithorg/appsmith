@@ -1,5 +1,5 @@
 import React from "react";
-import type { Datasource, EmbeddedRestDatasource } from "entities/Datasource";
+import type { EmbeddedRestDatasource } from "entities/Datasource";
 import { get, merge } from "lodash";
 import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
@@ -20,8 +20,9 @@ import {
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { Icon, Text } from "design-system";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 interface ReduxStateProps {
-  datasource: EmbeddedRestDatasource | Datasource;
+  datasource: EmbeddedRestDatasource;
 }
 
 const AuthContainer = styled.div`
@@ -128,17 +129,28 @@ function ApiAuthentication(props: Props): JSX.Element {
 const mapStateToProps = (state: AppState, ownProps: any): ReduxStateProps => {
   const apiFormValueSelector = formValueSelector(ownProps.formName);
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
-  let datasourceMerged = datasourceFromAction;
+  const currentEnvironment = getCurrentEnvironment();
+  let datasourceMerged: EmbeddedRestDatasource = datasourceFromAction;
   if (datasourceFromAction && "id" in datasourceFromAction) {
     const datasourceFromDataSourceList = state.entities.datasources.list.find(
       (d) => d.id === datasourceFromAction.id,
     );
     if (datasourceFromDataSourceList) {
-      datasourceMerged = merge(
-        {},
-        datasourceFromAction,
-        datasourceFromDataSourceList,
-      );
+      const { datasourceStorages } = datasourceFromDataSourceList;
+      let dsObjectToMerge = {};
+      // in case the datasource is not configured for the current environment, we just merge with empty object
+      if (datasourceStorages.hasOwnProperty(currentEnvironment)) {
+        dsObjectToMerge = datasourceStorages[currentEnvironment];
+      }
+      datasourceMerged = merge({}, datasourceFromAction, dsObjectToMerge);
+
+      // update the id in object to datasourceId, this is because the value in id post merge is the id of the datasource storage
+      // and not of the datasource.
+      datasourceMerged.id = datasourceFromDataSourceList.id;
+
+      // Adding user permissions for datasource from datasourceFromDataSourceList
+      datasourceMerged.userPermissions =
+        datasourceFromDataSourceList.userPermissions || [];
     }
   }
 

@@ -10,9 +10,7 @@ const defaultValue = `[
 
 describe("MultiSelect Widget Functionality", function () {
   before(() => {
-    cy.fixture("emptyDSL").then((val) => {
-      _.agHelper.AddDsl(val);
-    });
+    _.agHelper.AddDsl("emptyDSL");
   });
   beforeEach(() => {
     cy.wait(3000);
@@ -20,7 +18,7 @@ describe("MultiSelect Widget Functionality", function () {
   it("1. Add new multiselect widget", () => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.MULTISELECT);
     _.propPane.UpdatePropertyFieldValue(
-      "Options",
+      "Source Data",
       `[
         {
           "label": "Blue",
@@ -36,6 +34,16 @@ describe("MultiSelect Widget Functionality", function () {
         }
       ]`,
     );
+
+    _.propPane.ToggleJSMode("label");
+    cy.updateCodeInput(
+      ".t--property-control-wrapper.t--property-control-label",
+      `label`,
+    );
+
+    _.propPane.ToggleJSMode("value");
+    cy.updateCodeInput(".t--property-control-value", `value`);
+
     _.propPane.UpdatePropertyFieldValue(
       "Default selected values",
       defaultValue,

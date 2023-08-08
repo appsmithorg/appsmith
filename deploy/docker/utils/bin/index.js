@@ -6,7 +6,6 @@ const export_db = require("./export_db.js");
 const import_db = require("./import_db.js");
 const migrate = require("./migrate.js");
 const check_replica_set = require("./check_replica_set.js");
-const estimate_billing = require("./estimate_billing.js");
 const version = require("./version.js");
 const mongo_shell_utils = require("./mongo_shell_utils.js");
 
@@ -50,10 +49,6 @@ if (["backup", "restore"].includes(command)) {
   return;
 }
 
-if (["estimate-billing", "estimate_billing"].includes(command)) {
-  estimate_billing.run(process.argv.slice(3));
-  return;
-}
 if (["appsmith-version", "appsmith_version", "version"].includes(command)) {
   version.exec();
   return;

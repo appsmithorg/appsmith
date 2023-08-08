@@ -36,10 +36,9 @@ export interface EvalTreeRequestData {
   allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
   };
-  requiresLinting: boolean;
   forceEvaluation: boolean;
   metaWidgets: MetaWidgetsReduxState;
-  appMode: APP_MODE | undefined;
+  appMode?: APP_MODE;
 }
 
 export interface EvalTreeResponseData {
@@ -48,13 +47,14 @@ export interface EvalTreeResponseData {
   errors: EvalError[];
   evalMetaUpdates: EvalMetaUpdates;
   evaluationOrder: string[];
+  reValidatedPaths: string[];
   jsUpdates: Record<string, JSUpdate>;
   logs: unknown[];
   unEvalUpdates: DataTreeDiff[];
   isCreateFirstTree: boolean;
   configTree: ConfigTree;
   staleMetaIds: string[];
-  pathsToClearErrorsFor: any[];
+  removedPaths: Array<{ entityId: string; fullpath: string }>;
   isNewWidgetAdded: boolean;
   undefinedEvalValuesMap: Record<string, boolean>;
   jsVarsCreatedEvent?: { path: string; type: string }[];

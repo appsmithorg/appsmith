@@ -50,7 +50,7 @@ const PopoverStyles = createGlobalStyle<{
     margin-bottom: 8px !important;
     border-radius: ${({ borderRadius }) =>
       borderRadius >= THEMEING_TEXT_SIZES.lg ? `0.375rem` : borderRadius};
-    overflow-y: scroll;
+    overflow-y: auto;
     max-height: 384px;
   }
 
@@ -59,7 +59,7 @@ const PopoverStyles = createGlobalStyle<{
     border-radius: 0;
   }
 
-  & > .${Classes.POPOVER2_TARGET} {
+  .menu-button-popover-target {
     height: 100%;
   }
 
@@ -294,10 +294,14 @@ export interface PopoverTargetButtonProps {
   buttonVariant?: ButtonVariant;
   iconName?: IconName;
   iconAlign?: Alignment;
+  shouldFitContent: boolean;
   isDisabled?: boolean;
   label?: string;
   placement?: ButtonPlacement;
   renderMode?: RenderMode;
+  maxWidth?: number;
+  minWidth?: number;
+  minHeight?: number;
 }
 
 function PopoverTargetButton(props: PopoverTargetButtonProps) {
@@ -310,8 +314,12 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
     iconName,
     isDisabled,
     label,
+    maxWidth,
+    minHeight,
+    minWidth,
     placement,
     renderMode,
+    shouldFitContent,
   } = props;
 
   const isRightAlign = iconAlign === Alignment.RIGHT;
@@ -321,7 +329,11 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
       buttonColor={buttonColor}
       buttonVariant={buttonVariant}
       disabled={isDisabled}
+      maxWidth={maxWidth}
+      minHeight={minHeight}
+      minWidth={minWidth}
       renderMode={renderMode}
+      shouldFitContent={shouldFitContent}
     >
       <BaseButton
         alignText={getAlignText(isRightAlign, iconName)}
@@ -351,14 +363,18 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     isCompact,
     isDisabled,
     label,
+    maxWidth,
     menuColor,
     menuDropDownWidth,
     menuItems,
     menuItemsSource,
     menuVariant,
+    minHeight,
+    minWidth,
     onItemClicked,
     placement,
     renderMode,
+    shouldFitContent,
     sourceData,
     widgetId,
     width,
@@ -373,6 +389,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
         parentWidth={width - WidgetContainerDiff}
       />
       <Popover2
+        className="menu-button-popover-target"
         content={
           <PopoverContent
             backgroundColor={menuColor}
@@ -401,8 +418,12 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
           iconName={iconName}
           isDisabled={isDisabled}
           label={label}
+          maxWidth={maxWidth}
+          minHeight={minHeight}
+          minWidth={minWidth}
           placement={placement}
           renderMode={renderMode}
+          shouldFitContent={shouldFitContent}
         />
       </Popover2>
     </>
