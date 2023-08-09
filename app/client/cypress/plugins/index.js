@@ -65,6 +65,7 @@ module.exports = (on, config) => {
       launchOptions.args.push("--window-size=1400,1100");
       launchOptions.args.push("--use-fake-ui-for-media-stream");
       launchOptions.args.push("--use-fake-device-for-media-stream");
+      //Stream default video source for camera & code scanner
       launchOptions.args.push(`--use-file-for-fake-video-capture=${video}`);
       return launchOptions;
     }
@@ -160,6 +161,10 @@ module.exports = (on, config) => {
       console.log(message);
       return null;
     },
+
+    /*
+    Change video source for for camera & code scanner 
+    */
     changeVideoSource(videoSource) {
       console.log("TASK - Changing video source to", videoSource);
       const webcamPath = path.join(
@@ -181,6 +186,10 @@ module.exports = (on, config) => {
 
       return null;
     },
+
+    /*
+   Reset video source to default
+   */
     resetVideoSource() {
       console.log("TASK - Resetting video source");
       const webcamPath = path.join(

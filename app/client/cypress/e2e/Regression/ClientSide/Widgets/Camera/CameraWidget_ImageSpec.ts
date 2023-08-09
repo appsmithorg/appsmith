@@ -40,6 +40,9 @@ describe("Camera widget - Image test", () => {
     propPane.EnterJSContext("Visible", "", false);
     propPane.ToggleJSMode("Visible", false);
     propPane.TogglePropertyState("Visible", "On");
+    agHelper.AssertElementVisible(
+      locators._widgetInCanvas(draggableWidgets.CAMERA),
+    );
   });
 
   it("3. Verify Disabled property of image mode in camera widget", () => {
@@ -55,6 +58,9 @@ describe("Camera widget - Image test", () => {
     propPane.EnterJSContext("Disabled", "", false);
     propPane.ToggleJSMode("Disabled", false);
     propPane.TogglePropertyState("Disabled", "Off");
+    agHelper
+      .GetElement(widgetLocators.cameraWidgetScreen)
+      .should("not.have.attr", "disabled");
   });
 
   it("4. Verify Mirrored property of image mode in camera widget", () => {
@@ -98,25 +104,39 @@ describe("Camera widget - Image test", () => {
 
   it("6. Test image capture , preview, save, refresh, download & icons in each stage", () => {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
+
+    //Validate camera screen & icons
     agHelper.AssertElementVisible(widgetLocators.cameraImageVideoOnOffBtn);
     agHelper.AssertElementVisible(widgetLocators.cameraImageVideoDropdown);
     agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
       .matchImageSnapshot("cameraImageScreen");
+
+    //Capture image
     agHelper.GetNClick(widgetLocators.cameraCaptureBtn);
     agHelper.AssertElementVisible(widgetLocators.cameraSaveBtn);
     agHelper.AssertElementVisible(widgetLocators.cameraImageDiscardBtn);
+
+    //Validate image in preview screen
     agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
       .matchImageSnapshot("cameraImagePreviewScreen");
+
+    //Save image
     agHelper.GetNClick(widgetLocators.cameraSaveBtn);
     agHelper.AssertElementVisible(widgetLocators.cameraRefreshBtn);
+
+    //Validate image in refresh screen
     agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
       .matchImageSnapshot("cameraImageSavedScreen");
+
+    //Refresh image
     agHelper.GetNClick(widgetLocators.cameraRefreshBtn);
     agHelper.AssertElementVisible(widgetLocators.cameraCaptureBtn);
     agHelper.ValidateToastMessage("Captured successfully!");
+
+    //Validate image download OnImageCapture event
     agHelper.DownloadDataNVerifyFile("image.png");
   });
 

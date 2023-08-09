@@ -15,6 +15,8 @@ describe("Code scanner widget tests", () => {
     agHelper
       .GetElement(propPane._mode("Always on"))
       .should("have.attr", "data-selected", "true");
+
+    //Visible property - JS convertible
     agHelper.AssertExistingToggleState("Visible", "true");
     propPane.EnterJSContext("Visible", "{{(55>45)?false:true}}", true, true);
     propPane.ToggleJSMode("Visible", false);
@@ -28,6 +30,7 @@ describe("Code scanner widget tests", () => {
     propPane.ToggleJSMode("Visible", false);
     propPane.TogglePropertyState("Visible", "On");
 
+    //Disabled property - JS convertible
     agHelper.AssertExistingToggleState("Disabled", "false");
     propPane.ToggleJSMode("Disabled", true);
     propPane.EnterJSContext("Disabled", "{{(45>55)?false:true}}", true, true);
@@ -42,6 +45,7 @@ describe("Code scanner widget tests", () => {
     propPane.ToggleJSMode("Disabled", false);
     propPane.TogglePropertyState("Disabled", "Off");
 
+    //Animate loading property - JS convertible
     agHelper.AssertExistingToggleState("animateloading", "true");
     propPane.ToggleJSMode("animateloading", true);
     propPane.EnterJSContext(
@@ -64,6 +68,7 @@ describe("Code scanner widget tests", () => {
       "b) Open the Code Scanner modal and Scan a QR using fake webcam video.\n" +
       "c) Verify that the scanned data is correctly displayed on the app's screen",
     () => {
+      //Add an action in onCodeDetected event
       entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 300, 500);
       propPane.TypeTextIntoField("Text", "{{CodeScanner1.value}}");
       entityExplorer.SelectEntityByName("CodeScanner1");
@@ -75,9 +80,13 @@ describe("Code scanner widget tests", () => {
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.CODESCANNER),
       );
+
+      //Open the Code Scanner modal and Scan a QR using fake webcam video
       cy.task("changeVideoSource", "qrCodeVideo.y4m");
       agHelper.RefreshPage("viewPage");
       agHelper.ValidateToastMessage("Code scanned successfully!");
+
+      //Verify that the scanned data is correctly displayed on the app's screen
       agHelper.AssertText(
         locators._widgetInDeployed(draggableWidgets.TEXT),
         "text",
@@ -91,6 +100,8 @@ describe("Code scanner widget tests", () => {
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("CodeScanner1");
     agHelper.GetNClick(propPane._mode("Click to scan"));
+
+    //Visible property - JS convertible
     agHelper.AssertExistingToggleState("Visible", "true");
     propPane.EnterJSContext("Visible", "{{(55>45)?false:true}}", true, true);
     propPane.ToggleJSMode("Visible", false);
@@ -104,6 +115,7 @@ describe("Code scanner widget tests", () => {
     propPane.ToggleJSMode("Visible", false);
     propPane.TogglePropertyState("Visible", "On");
 
+    //Disabled property - JS convertible
     agHelper.AssertExistingToggleState("Disabled", "false");
     propPane.ToggleJSMode("Disabled", true);
     propPane.EnterJSContext("Disabled", "{{(45>55)?false:true}}", true, true);
@@ -120,6 +132,7 @@ describe("Code scanner widget tests", () => {
     propPane.ToggleJSMode("Disabled", false);
     propPane.TogglePropertyState("Disabled", "Off");
 
+    //Animate loading property - JS convertible
     agHelper.AssertExistingToggleState("animateloading", "true");
     propPane.ToggleJSMode("animateloading", true);
     propPane.EnterJSContext(
@@ -135,6 +148,7 @@ describe("Code scanner widget tests", () => {
     propPane.EnterJSContext("Animate loading", "", false, true);
     propPane.ToggleJSMode("animateloading", false);
 
+    // Text & tooltip properties
     agHelper.AssertElementVisible(widgetLocators.codeScannerScanButton);
     propPane.UpdatePropertyFieldValue("Text", "Scan Code");
     propPane.UpdatePropertyFieldValue("Tooltip", "Code scanner tooltip");
@@ -156,6 +170,8 @@ describe("Code scanner widget tests", () => {
     () => {
       deployMode.NavigateBacktoEditor();
       entityExplorer.SelectEntityByName("CodeScanner1");
+
+      //Modify action in onCodeDetected event
       propPane.EnterJSContext("onCodeDetected", "");
       propPane.EnterJSContext(
         "onCodeDetected",
@@ -164,12 +180,16 @@ describe("Code scanner widget tests", () => {
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.CODESCANNER),
       );
+
+      //Open the Code Scanner modal and Scan a QR using fake webcam video
       cy.task("changeVideoSource", "qrCodeVideo.y4m");
       agHelper.RefreshPage("viewPage");
       agHelper.AssertElementVisible(widgetLocators.codeScannerNewScanButton);
       agHelper.GetNClick(widgetLocators.codeScannerNewScanButton, 0, true);
       agHelper.AssertElementVisible(widgetLocators.codeScannerModal);
       agHelper.ValidateToastMessage("Code scanned using click to scan mode!");
+
+      //Verify that the scanned data is correctly displayed on the app's screen
       agHelper.AssertElementAbsence(widgetLocators.codeScannerModal);
       agHelper.AssertText(
         locators._widgetInDeployed(draggableWidgets.TEXT),

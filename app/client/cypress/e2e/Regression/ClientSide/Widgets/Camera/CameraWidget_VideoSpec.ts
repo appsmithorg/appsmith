@@ -1,4 +1,4 @@
-import widgetLocators from "../../../../../locators/Widgets.json");
+import widgetLocators from "../../../../../locators/Widgets.json";
 import {
   agHelper,
   deployMode,
@@ -26,9 +26,12 @@ describe("Camera widget - Video test", () => {
     );
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Camera1");
-    propPane.EnterJSContext("Visible","",false)
+    propPane.EnterJSContext("Visible", "", false);
     propPane.ToggleJSMode("Visible", false);
     propPane.TogglePropertyState("Visible", "On");
+    agHelper.AssertElementVisible(
+      locators._widgetInCanvas(draggableWidgets.CAMERA),
+    );
   });
 
   it("2. Verify Disabled property of video mode in camera widget", () => {
@@ -37,13 +40,16 @@ describe("Camera widget - Video test", () => {
     propPane.EnterJSContext("Disabled", "{{(45>55)?false:true}}", true, true);
     deployMode.DeployApp();
     agHelper
-    .GetElement(widgetLocators.cameraWidgetScreen)
-    .should("have.attr", "disabled");
+      .GetElement(widgetLocators.cameraWidgetScreen)
+      .should("have.attr", "disabled");
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Camera1");
-    propPane.EnterJSContext("Disabled","",false)
+    propPane.EnterJSContext("Disabled", "", false);
     propPane.ToggleJSMode("Disabled", false);
     propPane.TogglePropertyState("Disabled", "Off");
+    agHelper
+      .GetElement(widgetLocators.cameraWidgetScreen)
+      .should("not.have.attr", "disabled");
   });
 
   it("3. Verify Mirrored property of video mode in camera widget", () => {
@@ -56,7 +62,7 @@ describe("Camera widget - Video test", () => {
       .matchImageSnapshot("cameraVideoMirroredScreen");
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Camera1");
-    propPane.EnterJSContext("Mirrored","",false)
+    propPane.EnterJSContext("Mirrored", "", false);
     propPane.ToggleJSMode("Mirrored", false);
     propPane.TogglePropertyState("Mirrored", "On");
   });
@@ -82,6 +88,8 @@ describe("Camera widget - Video test", () => {
 
   it("5. Test video capture , preview, save, refresh, download & icons in each stage", () => {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
+
+    //Validate camera screen & icons
     agHelper.AssertElementVisible(widgetLocators.cameraMicrophoneBtn);
     agHelper.AssertElementVisible(widgetLocators.cameraMicrophoneDropdown);
     agHelper.AssertElementVisible(widgetLocators.cameraVideoOnOffBtn);
@@ -89,23 +97,37 @@ describe("Camera widget - Video test", () => {
     agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
       .matchImageSnapshot("cameraVideoScreen");
+
+    //Start video recording
     agHelper.GetNClick(widgetLocators.cameraCaptureBtn);
     agHelper.Sleep(2000);
+
+    //Stop recording
     agHelper.GetNClick(widgetLocators.cameraStopRecordingBtn);
     agHelper.AssertElementVisible(widgetLocators.cameraSaveBtn);
     agHelper.AssertElementVisible(widgetLocators.cameraVideodiscardBtn);
     agHelper.AssertElementVisible(widgetLocators.cameraVideoPlayBtn);
+
+    //Validate video in preview screen
     agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
       .matchImageSnapshot("cameraVideoPreviewScreen");
+
+    //Save video
     agHelper.GetNClick(widgetLocators.cameraSaveBtn);
+
+    //Validate video in refresh screen
     agHelper.AssertElementVisible(widgetLocators.cameraRefreshBtn);
     agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
       .matchImageSnapshot("cameraVideoSavedScreen");
+
+    //Refresh video
     agHelper.GetNClick(widgetLocators.cameraRefreshBtn);
     agHelper.AssertElementVisible(widgetLocators.cameraCaptureBtn);
     agHelper.ValidateToastMessage("Captured successfully!");
+
+    //Validate video download OnVideoSave event
     agHelper.DownloadDataNVerifyFile("video.mp4");
   });
 
@@ -149,10 +171,14 @@ describe("Camera widget - Video test", () => {
     agHelper.Sleep(5000);
     agHelper.GetElement(widgetLocators.cameraVideo, 1).should(($el) => {
       const attrValue = $el[0].webkitAudioDecodedByteCount;
+
+      //Threshold greater than 30000 shows that the audio is playing
       expect(attrValue).be.greaterThan(30000);
     });
     agHelper.GetElement(widgetLocators.cameraVideo, 1).should(($el) => {
       const attrValue = $el[0].webkitVideoDecodedByteCount;
+
+      //Threshold less than 10000 shows that the video is not playing
       expect(attrValue).be.lessThan(10000);
     });
   });
@@ -174,10 +200,14 @@ describe("Camera widget - Video test", () => {
     agHelper.Sleep(5000);
     agHelper.GetElement(widgetLocators.cameraVideo, 1).should(($el) => {
       const attrValue = $el[0].webkitAudioDecodedByteCount;
+
+      //Threshold less than 1000 shows that the audio is not playing
       expect(attrValue).be.lessThan(1000);
     });
     agHelper.GetElement(widgetLocators.cameraVideo, 1).should(($el) => {
       const attrValue = $el[0].webkitVideoDecodedByteCount;
+
+      //Threshold greater than 30000 shows that the video is playing
       expect(attrValue).be.greaterThan(30000);
     });
   });
@@ -198,10 +228,14 @@ describe("Camera widget - Video test", () => {
     agHelper.Sleep(5000);
     agHelper.GetElement(widgetLocators.cameraVideo, 1).should(($el) => {
       const attrValue = $el[0].webkitAudioDecodedByteCount;
+
+      //Threshold less than 30000 shows that the audio is playing
       expect(attrValue).be.greaterThan(30000);
     });
     agHelper.GetElement(widgetLocators.cameraVideo, 1).should(($el) => {
       const attrValue = $el[0].webkitVideoDecodedByteCount;
+
+      //Threshold less than 30000 shows that the video is playing
       expect(attrValue).be.greaterThan(30000);
     });
   });
