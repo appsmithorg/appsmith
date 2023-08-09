@@ -1082,7 +1082,11 @@ export class AggregateHelper extends ReusableHelper {
     });
   }
 
-  public UpdateCodeInput(selector: string, value: string) {
+  public UpdateCodeInput(
+    selector: string,
+    value: string,
+    apiOrQuery: "api" | "query" = "api",
+  ) {
     this.EnableAllCodeEditors();
 
     const isXPathSelector =
@@ -1105,18 +1109,27 @@ export class AggregateHelper extends ReusableHelper {
       .first()
       .then((ins) => {
         const input = (ins[0] as any).CodeMirror as CodeMirror.Editor;
-        setTimeout(() => {
-          input.focus();
+        if (apiOrQuery === "api") {
           setTimeout(() => {
-            input.setValue(value);
+            input.focus();
             setTimeout(() => {
-              // Move cursor to the end of the line
-              input.execCommand("goLineEnd");
+              input.setValue(value);
+              setTimeout(() => {
+                // Move cursor to the end of the line
+                input.execCommand("goLineEnd");
+              }, 300);
             }, 300);
           }, 300);
-        }, 300);
+        } else {
+          input.focus();
+          this.Sleep(200);
+          input.setValue(value);
+          this.Sleep(200);
+          input.execCommand("goLineEnd");
+          this.Sleep(200);
+        }
       });
-    this.Sleep(500); //for value set to settle fully for CI runs
+    this.Sleep(500); //for value set to settle
   }
 
   public UpdateInput(selector: string, value: string, force = false) {

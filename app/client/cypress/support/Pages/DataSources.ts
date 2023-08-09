@@ -1143,7 +1143,11 @@ export class DataSources {
   }
 
   public EnterQuery(query: string, sleep = 500) {
-    this.agHelper.UpdateCodeInput(this.locator._codeEditorTarget, query);
+    this.agHelper.UpdateCodeInput(
+      this.locator._codeEditorTarget,
+      query,
+      "query",
+    );
     this.agHelper.AssertAutoSave();
     this.agHelper.Sleep(sleep); //waiting a bit before proceeding!
     cy.wait("@saveAction");
