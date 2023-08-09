@@ -2,11 +2,11 @@ package com.appsmith.server.migrations;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.InvisibleActionFields;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.helpers.CollectionUtils;
@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
@@ -191,7 +192,7 @@ public class MigrationHelperMethods {
         }
 
         userIds.forEach(userId -> {
-            Query query = new Query(new Criteria(FieldName.ID).is(userId));
+            Query query = new Query(new Criteria(fieldName(QUser.user.id)).is(userId));
             User user = mongoTemplate.findOne(query, User.class);
             if (user != null) {
                 // blocking call for cache eviction to ensure its subscribed immediately before proceeding further.
