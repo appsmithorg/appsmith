@@ -55,6 +55,7 @@ if [[ $use_https == 1 ]]; then
 
 server {
   listen 443 ssl http2;
+  server_name _;
   ssl_certificate $ssl_cert_path;
   ssl_certificate_key $ssl_key_path;
   include /appsmith-stacks/data/certificate/conf/options-ssl-nginx.conf;
@@ -63,11 +64,10 @@ server {
 else
   echo "
   listen ${PORT:-80} default_server;
+  server_name $custom_domain;
 "
 fi
 )
-
-  server_name _;
 
   client_max_body_size 150m;
 
