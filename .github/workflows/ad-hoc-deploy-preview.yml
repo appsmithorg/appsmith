@@ -30,7 +30,7 @@ jobs:
           --data ' {
                   "status": "IN_PROGRESS",
                   "githubWorkflowId": "${{github.workflow.id}}",
-                  "githubWorkflowHtmlUrl": "${{github.workflow.githubWorkflowHtmlUrl}}",
+                  "githubWorkflowHtmlUrl": "${{github.workflow.githubWorkflowHtmlUrl}}"
           }'
             
   server-build:

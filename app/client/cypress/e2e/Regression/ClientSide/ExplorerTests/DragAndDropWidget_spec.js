@@ -29,7 +29,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function () {
     cy.selectColor("backgroundcolor");
     cy.get(formWidgetsPage.formD)
       .should("have.css", "background-color")
-      .and("eq", "rgb(126, 34, 206)");
+      .and("eq", "rgb(219, 234, 254)");
     /**
      * @param{toggleButton Css} Assert to be checked
      */
