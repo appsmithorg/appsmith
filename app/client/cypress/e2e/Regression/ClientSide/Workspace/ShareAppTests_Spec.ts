@@ -126,6 +126,6 @@ describe("Create new workspace and share with a user", function () {
     // visit the app as anonymous user and validate redirection to login page
     agHelper.VisitNAssert(currentUrl);
     assertHelper.AssertNetworkStatus("@getPagesForViewApp", 404);
-    agHelper.AssertElementVisible("Sign in to your account");
+    agHelper.AssertContains("Sign in to your account", "be.visible");
   });
 });
