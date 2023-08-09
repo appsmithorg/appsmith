@@ -1054,6 +1054,7 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
         collectionId: collectionId,
         isExecuteJSFunc: true,
       };
+
       yield call(handleExecuteJSFunctionSaga, data);
     }
   }

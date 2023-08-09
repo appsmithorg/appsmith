@@ -86,6 +86,7 @@ import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { toast } from "design-system";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
 
 const CONSOLE_DOT_LOG_INVOCATION_REGEX =
   /console.log[.call | .apply]*\s*\(.*?\)/gm;
@@ -388,7 +389,14 @@ export function* handleExecuteJSFunctionSaga(data: {
     // open response tab in debugger on runnning or page load js action.
     if (window.location.pathname.includes(collectionId)) {
       yield put(showDebugger(true));
-      yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+
+      const debuggerSelectedTab = yield select(getDebuggerSelectedTab);
+
+      yield put(
+        setDebuggerSelectedTab(
+          debuggerSelectedTab || DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+        ),
+      );
     }
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
@@ -482,6 +490,7 @@ export function* handleStartExecuteJSFunctionSaga(
       action.actionConfiguration?.body?.match(CONSOLE_DOT_LOG_INVOCATION_REGEX)
         ?.length || 0,
   });
+
   yield call(handleExecuteJSFunctionSaga, {
     collectionName: collectionName,
     action: action,
