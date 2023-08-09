@@ -68,21 +68,15 @@ describe("Audio Recorder functionality tests", () => {
     propPane.TogglePropertyState("Visible", "On");
     // verify recorder is disabled
     propPane.TogglePropertyState("Disabled", "On");
-    agHelper.AssertElementEnabledDisabled(
-      "//button[@status='PERMISSION_PROMPT']",
-    );
+    agHelper.AssertElementEnabledDisabled(locators._recorderPrompt);
     deployMode.DeployApp();
     agHelper.Sleep(2000);
-    agHelper.AssertElementEnabledDisabled(
-      "//button[@status='PERMISSION_PROMPT']",
-    );
+    agHelper.AssertElementEnabledDisabled(locators._recorderPrompt);
     deployMode.NavigateBacktoEditor();
     // verify in preview mode
     agHelper.GetNClick(locators._enterPreviewMode);
     //verify widget is disabled
-    agHelper.AssertElementEnabledDisabled(
-      "//button[@status='PERMISSION_PROMPT']",
-    );
+    agHelper.AssertElementEnabledDisabled(locators._recorderPrompt);
     //Exit preview mode
     agHelper.GetNClick(locators._exitPreviewMode);
   });
@@ -99,49 +93,50 @@ describe("Audio Recorder functionality tests", () => {
     agHelper.ValidateToastMessage("Recording Started");
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.Sleep(2000); //for recorder to record
-    agHelper.GetNClick(".bp3-minimal");
+    agHelper.GetNClick(locators._recorderStop);
     agHelper.ValidateToastMessage("Recording Completed");
     // verify in deploy mode
     deployMode.DeployApp();
     agHelper.Sleep(2000);
-    cy.xpath("//button[@status='PERMISSION_PROMPT']").click();
-    cy.xpath("//button[@status='DEFAULT']").click();
+    //cy.xpath("//button[@status='PERMISSION_PROMPT']").click();
+    agHelper.GetNClick(locators._recorderPrompt);
+    agHelper.GetNClick(locators._recorderStart);
 
     agHelper.ValidateToastMessage("Recording Started");
     agHelper.WaitUntilAllToastsDisappear();
-    agHelper.GetNClick(".bp3-minimal");
+    agHelper.GetNClick(locators._recorderStop);
     agHelper.ValidateToastMessage("Recording Completed");
     agHelper.WaitUntilAllToastsDisappear();
     deployMode.NavigateBacktoEditor();
     // verify in preview mode
     agHelper.GetNClick(locators._enterPreviewMode);
-    cy.xpath("//button[@status='PERMISSION_PROMPT']").click();
-    cy.xpath("//button[@status='DEFAULT']").click();
+    agHelper.GetNClick(locators._recorderPrompt);
+    agHelper.GetNClick(locators._recorderStart);
     agHelper.ValidateToastMessage("Recording Started");
     agHelper.WaitUntilAllToastsDisappear();
-    agHelper.GetNClick(".bp3-minimal");
+    agHelper.GetNClick(locators._recorderStop);
     agHelper.ValidateToastMessage("Recording Completed");
     //Exit preview mode
     agHelper.GetNClick(locators._exitPreviewMode);
   });
 
-  it("Verify style tab's proprties", () => {
+  it("Verify Style tab's properties", () => {
     entityExplorer.SelectEntityByName("AudioRecorder1", "Widgets");
     propPane.MoveToTab("Style");
     propPane.EnterJSContext("Button color", "#FFC13D");
     agHelper.Sleep(1000);
     propPane.SelectColorFromColorPicker("iconcolor", -15);
-    cy.xpath("//button[@status='COMPLETE']").should(
+    cy.xpath(locators._recorderComplete).should(
       "have.css",
       "background-color",
       "rgb(255, 193, 61)",
     );
     propPane.EnterJSContext("Box shadow", "Small");
-    cy.xpath("//button[@status='COMPLETE']")
+    cy.xpath(locators._recorderComplete)
       .should("have.css", "box-shadow")
       .and("not.eq", "none");
     propPane.EnterJSContext("Border radius", "none");
-    cy.xpath("//button[@status='COMPLETE']")
+    cy.xpath(locators._recorderComplete)
       .should("have.css", "border-radius")
       .and("eq", "3px");
   });
