@@ -154,10 +154,7 @@ describe("Code scanner widget tests", () => {
       "b) Open the Code Scanner modal and Scan a QR using fake webcam video.\n" +
       "c) Verify that the scanned data is correctly displayed on the app's screen",
     () => {
-      // deployMode.NavigateBacktoEditor();
-      agHelper.VisitNAssert(
-        "http://localhost/app/05b5b4e9/page1-64d392bc4dc2916368b2edd4/edit/widgets/4qohopfpe0",
-      );
+      deployMode.NavigateBacktoEditor();
       entityExplorer.SelectEntityByName("CodeScanner1");
       propPane.EnterJSContext("onCodeDetected", "");
       propPane.EnterJSContext(

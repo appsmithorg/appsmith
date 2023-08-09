@@ -35,12 +35,12 @@ module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
 
-  // cypressLogToOutput.install(on, (type, event) => {
-  //   if (event.level === "error" || event.type === "error") {
-  //     return true;
-  //   }
-  //   return false;
-  // });
+  cypressLogToOutput.install(on, (type, event) => {
+    if (event.level === "error" || event.type === "error") {
+      return true;
+    }
+    return false;
+  });
 
   on("file:preprocessor", tagify(config));
   addMatchImageSnapshotPlugin(on, config);
