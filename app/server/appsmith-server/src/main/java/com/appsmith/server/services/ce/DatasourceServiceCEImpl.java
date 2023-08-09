@@ -78,7 +78,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     private final DatasourceContextService datasourceContextService;
     private final DatasourcePermission datasourcePermission;
     private final WorkspacePermission workspacePermission;
-    private final DatasourceStorageService datasourceStorageService;
+    protected final DatasourceStorageService datasourceStorageService;
     private final AnalyticsService analyticsService;
     private final EnvironmentPermission environmentPermission;
 
