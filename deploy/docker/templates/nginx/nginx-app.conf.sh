@@ -17,6 +17,11 @@ if [[ $use_https == 1 ]]; then
   fi
 fi
 
+additional_downstream_headers='
+# https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
+add_header X-Content-Type-Options "nosniff";
+'
+
 cat <<EOF
 map \$http_x_forwarded_proto \$origin_scheme {
   default \$http_x_forwarded_proto;
@@ -76,6 +81,8 @@ fi
   # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
   add_header Content-Security-Policy "frame-ancestors ${APPSMITH_ALLOWED_FRAME_ANCESTORS-'self' *}";
 
+  $additional_downstream_headers
+
   location /.well-known/acme-challenge/ {
     root /appsmith-stacks/data/certificate/certbot;
   }
@@ -113,6 +120,7 @@ fi
   location ~ ^/static/(js|css|media)\b {
     # Files in these folders are hashed, so we can set a long cache time.
     add_header Cache-Control "max-age=31104000, immutable";  # 360 days
+    $additional_downstream_headers
     access_log  off;
   }
 
