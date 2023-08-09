@@ -1105,14 +1105,18 @@ export class AggregateHelper extends ReusableHelper {
       .first()
       .then((ins) => {
         const input = (ins[0] as any).CodeMirror as CodeMirror.Editor;
-        input.focus();
-        this.Sleep(200);
-        input.setValue(value);
-        this.Sleep(200);
-        input.execCommand("goLineEnd");
-        this.Sleep(200);
+        setTimeout(() => {
+          input.focus();
+          setTimeout(() => {
+            input.setValue(value);
+            setTimeout(() => {
+              // Move cursor to the end of the line
+              input.execCommand("goLineEnd");
+            }, 200);
+          }, 200);
+        }, 200);
       });
-    this.Sleep(500); //for value set to settle
+    this.Sleep(500); //for value set to settle fully for CI runs
   }
 
   public UpdateInput(selector: string, value: string, force = false) {

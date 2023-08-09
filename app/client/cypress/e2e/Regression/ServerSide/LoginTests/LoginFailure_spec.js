@@ -14,7 +14,7 @@ describe("Login failure", function () {
     cy.url()
       .then((url) => {
         urlWithoutQueryParams = url.split("?")[0];
-        cy.LogOutUser();
+        homePage.LogOutviaAPI();
         agHelper.AssertElementVisible(homePage._username); //check if user is logged out & then try to visit app url
         agHelper.VisitNAssert(urlWithoutQueryParams);
         agHelper.Sleep(3000); //for page redirect to complete
