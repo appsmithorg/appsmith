@@ -2,7 +2,7 @@ import type { ReactNode, CSSProperties } from "react";
 import type { OmitRename } from "../../utils";
 import type { SizingDimension, SpacingDimension } from "./dimensions";
 
-type Responsive<T> =
+export type Responsive<T> =
   | T
   | {
       base?: T;

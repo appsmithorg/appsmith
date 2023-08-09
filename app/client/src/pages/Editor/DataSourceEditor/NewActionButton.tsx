@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { Datasource } from "entities/Datasource";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import { noop } from "utils/AppsmithUtils";
 import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
@@ -24,9 +24,10 @@ type NewActionButtonProps = {
   eventFrom?: string; // this is to track from where the new action is being generated
   pluginType?: string;
   style?: any;
+  isNewQuerySecondaryButton?: boolean;
 };
 function NewActionButton(props: NewActionButtonProps) {
-  const { datasource, disabled, pluginType } = props;
+  const { datasource, disabled, isNewQuerySecondaryButton, pluginType } = props;
   const [isSelected, setIsSelected] = useState(false);
 
   const dispatch = useDispatch();
@@ -72,6 +73,7 @@ function NewActionButton(props: NewActionButtonProps) {
       className="t--create-query"
       isDisabled={!!disabled}
       isLoading={isSelected || props.isLoading}
+      kind={isNewQuerySecondaryButton ? "secondary" : "primary"}
       onClick={disabled ? noop : createQueryAction}
       size="md"
       startIcon="plus"

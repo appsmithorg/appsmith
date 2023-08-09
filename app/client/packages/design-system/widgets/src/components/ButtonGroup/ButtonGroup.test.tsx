@@ -28,7 +28,7 @@ describe("@design-system/widgets/Button Group", () => {
   it("should support custom props", () => {
     const { container } = renderComponent({
       "data-testid": "button-group",
-    } as any);
+    } as ButtonGroupProps);
 
     const buttonGroup = container.querySelector("div") as HTMLElement;
     expect(buttonGroup).toHaveAttribute("data-testid", "button-group");

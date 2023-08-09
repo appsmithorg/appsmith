@@ -418,7 +418,6 @@ public class LayoutServiceTest {
                     action.setFullyQualifiedName("Collection.anAsyncCollectionActionWithoutCall");
                     final ActionConfiguration ac1 = new ActionConfiguration();
                     ac1.setBody("hiddenAction1.data");
-                    ac1.setIsAsync(true);
                     action.setActionConfiguration(ac1);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
@@ -437,7 +436,6 @@ public class LayoutServiceTest {
                     action.setFullyQualifiedName("Collection.aSyncCollectionActionWithoutCall");
                     final ActionConfiguration ac2 = new ActionConfiguration();
                     ac2.setBody("hiddenAction2.data");
-                    ac2.setIsAsync(false);
                     action.setActionConfiguration(ac2);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
@@ -457,7 +455,6 @@ public class LayoutServiceTest {
                     action.setDynamicBindingPathList(List.of(new Property("body", null)));
                     final ActionConfiguration ac3 = new ActionConfiguration();
                     ac3.setBody("hiddenAction3.data");
-                    ac3.setIsAsync(true);
                     action.setActionConfiguration(ac3);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
@@ -476,7 +473,6 @@ public class LayoutServiceTest {
                     action.setFullyQualifiedName("Collection.aSyncCollectionActionWithCall");
                     final ActionConfiguration ac4 = new ActionConfiguration();
                     ac4.setBody("hiddenAction4.data");
-                    ac4.setIsAsync(false);
                     action.setActionConfiguration(ac4);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
@@ -638,13 +634,14 @@ public class LayoutServiceTest {
                     monos.add(layoutActionService.createSingleAction(action, Boolean.FALSE));
 
                     // Create an async function for: Collection.anAsyncCollectionActionWithoutCall.data
+                    // This definition is the same as sync functions moving forward,
+                    // But we are retaining the test to make sure we consider the use case in the future as well
                     action = new ActionDTO();
                     action.setName("anAsyncCollectionActionWithoutCall");
                     action.setFullyQualifiedName("Collection.anAsyncCollectionActionWithoutCall");
                     action.setDynamicBindingPathList(List.of(new Property("body", null)));
                     final ActionConfiguration ac1 = new ActionConfiguration();
                     ac1.setBody("hiddenAction1.data");
-                    ac1.setIsAsync(true);
                     action.setActionConfiguration(ac1);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
@@ -665,7 +662,6 @@ public class LayoutServiceTest {
                     action.setDynamicBindingPathList(List.of(new Property("body", null)));
                     final ActionConfiguration ac2 = new ActionConfiguration();
                     ac2.setBody("hiddenAction2.data");
-                    ac2.setIsAsync(false);
                     action.setActionConfiguration(ac2);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
@@ -680,13 +676,14 @@ public class LayoutServiceTest {
                     monos.add(layoutActionService.createSingleAction(action, Boolean.FALSE));
 
                     // Create an async function for: Collection.anAsyncCollectionActionWithCall()
+                    // This definition is the same as sync functions moving forward,
+                    // But we are retaining the test to make sure we consider the use case in the future as well
                     action = new ActionDTO();
                     action.setName("anAsyncCollectionActionWithCall");
                     action.setFullyQualifiedName("Collection.anAsyncCollectionActionWithCall");
                     action.setDynamicBindingPathList(List.of(new Property("body", null)));
                     final ActionConfiguration ac3 = new ActionConfiguration();
                     ac3.setBody("hiddenAction3.data");
-                    ac3.setIsAsync(true);
                     action.setActionConfiguration(ac3);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
@@ -706,7 +703,6 @@ public class LayoutServiceTest {
                     action.setFullyQualifiedName("Collection.aSyncCollectionActionWithCall");
                     final ActionConfiguration ac4 = new ActionConfiguration();
                     ac4.setBody("hiddenAction4.data");
-                    ac4.setIsAsync(false);
                     action.setActionConfiguration(ac4);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
@@ -726,7 +722,6 @@ public class LayoutServiceTest {
                     action.setFullyQualifiedName("Collection.data");
                     final ActionConfiguration ac5 = new ActionConfiguration();
                     ac5.setBody("hiddenAction5.data");
-                    ac5.setIsAsync(false);
                     action.setActionConfiguration(ac5);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
@@ -746,7 +741,6 @@ public class LayoutServiceTest {
                     action.setFullyQualifiedName("Collection2.data");
                     final ActionConfiguration ac6 = new ActionConfiguration();
                     ac6.setBody("hiddenAction6.data");
-                    ac6.setIsAsync(true);
                     action.setActionConfiguration(ac6);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
@@ -874,12 +868,20 @@ public class LayoutServiceTest {
                     assertThat(layout.getId()).isNotNull();
                     assertThat(layout.getLayoutOnLoadActions()).hasSize(3);
 
-                    Set<String> firstSetPageLoadActions =
-                            Set.of("aGetAction", "hiddenAction1", "hiddenAction2", "hiddenAction4", "hiddenAction5");
+                    Set<String> firstSetPageLoadActions = Set.of(
+                            "aGetAction",
+                            "hiddenAction1",
+                            "hiddenAction2",
+                            "hiddenAction3",
+                            "hiddenAction4",
+                            "hiddenAction5",
+                            "hiddenAction6");
 
                     Set<String> secondSetPageLoadActions = Set.of("aPostAction");
 
-                    Set<String> thirdSetPageLoadActions = Set.of("Collection.anAsyncCollectionActionWithoutCall");
+                    Set<String> thirdSetPageLoadActions = Set.of(
+                            "Collection.anAsyncCollectionActionWithoutCall",
+                            "Collection.aSyncCollectionActionWithoutCall");
 
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream()
                                     .map(DslActionDTO::getName)
@@ -915,7 +917,7 @@ public class LayoutServiceTest {
         StepVerifier.create(actionDTOMono)
                 .assertNext(tuple -> {
                     assertThat(tuple.getT1().getExecuteOnLoad()).isTrue();
-                    assertThat(tuple.getT2().getExecuteOnLoad()).isNotEqualTo(Boolean.TRUE);
+                    assertThat(tuple.getT2().getExecuteOnLoad()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -1027,6 +1029,7 @@ public class LayoutServiceTest {
                             "aGetAction",
                             "hiddenAction1",
                             "hiddenAction2",
+                            "hiddenAction3",
                             "hiddenAction4",
                             "aPostAction",
                             "anotherPostAction");
@@ -1035,8 +1038,10 @@ public class LayoutServiceTest {
 
                     Set<String> thirdSetPageLoadActions = Set.of("aDBAction");
 
-                    Set<String> fourthSetPageLoadActions =
-                            Set.of("aPostActionWithAutoExec", "Collection.anAsyncCollectionActionWithoutCall");
+                    Set<String> fourthSetPageLoadActions = Set.of(
+                            "aPostActionWithAutoExec",
+                            "Collection.anAsyncCollectionActionWithoutCall",
+                            "Collection.aSyncCollectionActionWithoutCall");
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream()
                                     .map(DslActionDTO::getName)
                                     .collect(Collectors.toSet()))
@@ -1124,6 +1129,7 @@ public class LayoutServiceTest {
                             "aGetAction",
                             "hiddenAction1",
                             "hiddenAction2",
+                            "hiddenAction3",
                             "hiddenAction4",
                             "anIgnoredAction",
                             "aDBAction",
@@ -1136,8 +1142,10 @@ public class LayoutServiceTest {
 
                     Set<String> secondSetPageLoadActions = Set.of("aTableAction", "anotherDBAction");
 
-                    Set<String> thirdSetPageLoadActions =
-                            Set.of("aPostActionWithAutoExec", "Collection.anAsyncCollectionActionWithoutCall");
+                    Set<String> thirdSetPageLoadActions = Set.of(
+                            "aPostActionWithAutoExec",
+                            "Collection.anAsyncCollectionActionWithoutCall",
+                            "Collection.aSyncCollectionActionWithoutCall");
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream()
                                     .map(DslActionDTO::getName)
                                     .collect(Collectors.toSet()))

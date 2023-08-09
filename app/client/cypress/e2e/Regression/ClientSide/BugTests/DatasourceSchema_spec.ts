@@ -25,7 +25,7 @@ describe("Datasource form related tests", function () {
       dataSources.CreatePlugIn("PostgreSQL");
       agHelper.RenameWithInPane(dataSourceName, false);
       dataSources.FillPostgresDSForm(
-        "production",
+        "Production",
         false,
         "docker",
         "wrongPassword",
@@ -72,11 +72,7 @@ describe("Datasource form related tests", function () {
       dataSources.VerifyTableSchemaOnQueryEditor("public.users");
       entityExplorer.ExpandCollapseEntity("public.users");
       dataSources.VerifyColumnSchemaOnQueryEditor("id");
-      dataSources.FilterAndVerifyDatasourceSchemaBySearch(
-        "gender",
-        true,
-        "column",
-      );
+      dataSources.FilterAndVerifyDatasourceSchemaBySearch("gender", "column");
     },
   );
 
@@ -114,5 +110,21 @@ describe("Datasource form related tests", function () {
     dataSources.CreateDataSource("Redis", true, false);
     dataSources.CreateQueryAfterDSSaved();
     dataSources.VerifySchemaAbsenceInQueryEditor();
+  });
+
+  it("6. Verify schema searching works for datasources with empty columns for example S3.", () => {
+    featureFlagIntercept(
+      {
+        ab_ds_schema_enabled: true,
+      },
+      false,
+    );
+    agHelper.RefreshPage();
+    dataSources.CreateDataSource("S3", true, false);
+    dataSources.CreateQueryAfterDSSaved();
+    dataSources.FilterAndVerifyDatasourceSchemaBySearch(
+      "appsmith-hris",
+      "table",
+    );
   });
 });

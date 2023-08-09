@@ -66,7 +66,7 @@ import {
   extractClientDefinedErrorMetadata,
   validateResponse,
 } from "sagas/ErrorSagas";
-import type { EventName } from "utils/AnalyticsUtil";
+import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
@@ -392,7 +392,7 @@ function* evaluateActionParams(
   // Add keys values to formData for the multipart submission
   for (let i = 0; i < bindings.length; i++) {
     const key = bindings[i];
-    let value = values[i];
+    let value = isArray(values) && values[i];
 
     let useBlobMaps = false;
     // Maintain a blob map to resolve blob urls of large files
@@ -1054,6 +1054,7 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
         collectionId: collectionId,
         isExecuteJSFunc: true,
       };
+
       yield call(handleExecuteJSFunctionSaga, data);
     }
   }
