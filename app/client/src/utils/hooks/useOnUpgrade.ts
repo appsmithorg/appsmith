@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { PRICING_PAGE_URL } from "constants/ThirdPartyConstants";
-import type { EventName } from "utils/AnalyticsUtil";
+import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { pricingPageUrlSource } from "@appsmith/utils/licenseHelpers";

@@ -121,7 +121,6 @@ describe("Table widget v2: tableData change test", function () {
     agHelper.EnterActionValue("Value", "0");
 
     // add a success callback
-    agHelper.GetNClick(propPane._actionCallbacks);
     agHelper.GetNClick(propPane._actionAddCallback("success"));
     agHelper.GetNClick(locators._dropDownValue("Show alert"));
     agHelper.EnterActionValue("Message", "table data 1 set");
@@ -133,7 +132,6 @@ describe("Table widget v2: tableData change test", function () {
     agHelper.EnterActionValue("Value", "1");
 
     // add a success callback
-    agHelper.GetNClick(propPane._actionCallbacks);
     agHelper.GetNClick(propPane._actionAddCallback("success"));
     agHelper.GetNClick(locators._dropDownValue("Show alert"));
     agHelper.EnterActionValue("Message", "table data 2 set");
