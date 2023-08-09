@@ -147,7 +147,10 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     );
     _.agHelper.GetNClick(OneClickBindingLocator.searchableColumn);
     _.agHelper.GetNClick(
-      OneClickBindingLocator.columnDropdownOption("searchableColumn"),
+      OneClickBindingLocator.columnDropdownOption(
+        "searchableColumn",
+        "imdb_id",
+      ),
     );
     _.agHelper.GetNClick(OneClickBindingLocator.connectData);
 
