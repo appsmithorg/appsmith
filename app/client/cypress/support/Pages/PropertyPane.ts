@@ -1,4 +1,3 @@
-import { assertHelper } from "../Objects/ObjectsCore";
 import { ObjectsRegistry } from "../Objects/Registry";
 
 type filedTypeValues =
@@ -56,7 +55,9 @@ export class PropertyPane {
   _propertyToggle = (controlToToggle: string) =>
     ".t--property-control-" +
     controlToToggle.replace(/ +/g, "").toLowerCase() +
-    " input[type='checkbox']";
+    " input[type='checkbox'], label:contains('" +
+    controlToToggle +
+    "') input[type='checkbox']";
   _colorPickerV2Popover = ".t--colorpicker-v2-popover";
   _colorPickerV2Color = ".t--colorpicker-v2-color";
   _colorInput = (option: string) =>
@@ -97,7 +98,10 @@ export class PropertyPane {
   _selectPropDropdown = (ddName: string) =>
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
-    "')]//input[@class='rc-select-selection-search-input']";
+    "')]//input[@class='rc-select-selection-search-input'] | //p[text()='" +
+    ddName +
+    "']/ancestor::div[@class='form-config-top']/following-sibling::div" +
+    "//input[@class='rc-select-selection-search-input']";
   _selectPropDropdownValue = (ddName: string) =>
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
@@ -119,7 +123,7 @@ export class PropertyPane {
   _autoHeightLimitMin_div =
     "[data-testid='t--auto-height-overlay-handles-min'] div";
   _autoHeightLimitMax = "[data-testid='t--auto-height-overlay-handles-max']";
-  _labelContains = (value: string) => `label:Contains('${value}')`;
+  public _labelContains = (value: string) => `label:Contains('${value}')`;
   _showColumnButton = ".t--show-column-btn";
   _propertyPaneHeightLabel =
     ".t--property-pane-section-general .t--property-control-label:contains('Height')";
@@ -137,6 +141,8 @@ export class PropertyPane {
     `.ads-v2-segmented-control-value-${value}`;
   _addMenuItem = ".t--add-menu-item-btn";
   _addColumnItem = ".t--add-column-btn";
+  _widgetToVerifyText = (widgetName: string) =>
+    `${this.locator._widgetByName(widgetName)} ${this._propertyText}`;
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
@@ -166,7 +172,7 @@ export class PropertyPane {
     //this.agHelper.AssertElementVisible(this._deleteWidget); //extra valisation, hence commenting!
   }
 
-  public CopyWidgetFromPropertyPane(widgetName: string) {
+  public CopyPasteWidgetFromPropertyPane(widgetName: string) {
     this.entityExplorer.SelectEntityByName(widgetName, "Widgets");
     this.agHelper.GetNClick(this._copyWidget);
     this.agHelper.Sleep(200);
@@ -220,18 +226,21 @@ export class PropertyPane {
   public TogglePropertyState(
     propertyName: string,
     toggle: "On" | "Off" = "On",
+    networkCall = "updateLayout",
   ) {
     if (toggle == "On") {
-      cy.get(this._propertyToggle(propertyName))
+      this.agHelper
+        .GetElement(this._propertyToggle(propertyName))
         .check({ force: true })
         .should("be.checked");
     } else {
-      cy.get(this._propertyToggle(propertyName))
+      this.agHelper
+        .GetElement(this._propertyToggle(propertyName))
         .uncheck({ force: true })
         .should("not.be.checked");
     }
     this.agHelper.AssertAutoSave();
-    this.assertHelper.AssertNetworkStatus("updateLayout");
+    networkCall && this.assertHelper.AssertNetworkStatus(networkCall);
   }
 
   public MoveToTab(tab: "Content" | "Style") {
@@ -491,8 +500,7 @@ export class PropertyPane {
   }
 
   public Search(query: string) {
-    this.agHelper.ClearTextField(this._propertyPaneSearchInput);
-    this.agHelper.TypeText(this._propertyPaneSearchInput, query);
+    this.agHelper.ClearNType(this._propertyPaneSearchInput, query);
     this.agHelper.Sleep();
   }
 

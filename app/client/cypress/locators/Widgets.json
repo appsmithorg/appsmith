@@ -201,6 +201,9 @@
   "codescannerwidget": ".t--widget-codescannerwidget",
   "widgetNameSpan": ".t--widget-propertypane-toggle > .t--widget-name",
   "listWidgetv2": ".t--widget-listwidgetv2",
+  "progressWidget":".t--widget-progresswidget",
+  "circularProgressWidget":"[data-value='circular']",
+  "linearProgressWidget": "[data-value='linear']",
   "cameraErrorText" : ".error-text:contains('Permission denied')",
   "cameraVideo": "video",
   "cameraWidgetScreen" : "div.fullscreen > div",
@@ -218,6 +221,4 @@
   "cameraVideoDropdown": "//div[@class='fullscreen']/div[2]/div/div[1]/span[2]/button",
   "cameraVideoPlayBtn":"//div[@class='fullscreen']/div[2]/div/div[2]/button[2]",
   "cameraVideodiscardBtn":"//div[@class='fullscreen']/div[2]/div/div[2]/button[3]"
-
-
 }
