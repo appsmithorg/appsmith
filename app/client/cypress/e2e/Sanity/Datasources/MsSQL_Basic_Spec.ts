@@ -134,7 +134,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     dataSources.CreateQueryFromOverlay(dsName, query, "selectSimpsons"); //Creating query from EE overlay
     dataSources.RunQueryNVerifyResponseViews(10); //Could be 99 in CI, to check aft init load script is working
 
-    dataSources.AddSuggesstedWidget(Widgets.Table);
+    dataSources.AddSuggestedWidget(Widgets.Table);
     agHelper.GetNClick(propPane._deleteWidget);
 
     entityExplorer.SelectEntityByName("selectSimpsons", "Queries/JS");

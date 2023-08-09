@@ -153,7 +153,9 @@ const ScimConnectionContent = (props: ScimProps) => {
               name="cloud"
               size="md"
             />
-            <Text kind="heading-s">{createMessage(CONNECTION_ACTIVE)}</Text>
+            <Text data-testid="t--connection-status" kind="heading-s">
+              {createMessage(CONNECTION_ACTIVE)}
+            </Text>
           </ConnectionStatus>
         ) : (
           <ConnectionStatus>
@@ -162,22 +164,28 @@ const ScimConnectionContent = (props: ScimProps) => {
               name="cloud-off-line"
               size="md"
             />
-            <Text kind="heading-s">{createMessage(CONNECTION_INACTIVE)}</Text>
+            <Text data-testid="t--connection-status" kind="heading-s">
+              {createMessage(CONNECTION_INACTIVE)}
+            </Text>
           </ConnectionStatus>
         )}
-        <Text color="var(--ads-v2-color-fg-muted)" data-testid="last-sync-info">
+        <Text
+          color="var(--ads-v2-color-fg-muted)"
+          data-testid="t--last-sync-info"
+        >
           {createMessage(LAST_SYNC_MESSAGE, howMuchTimeBefore)}
         </Text>
-        <Container data-testid="synced-resources-info">
+        <Container data-testid="t--synced-resources-info">
           <ResourceLinks
             provisionedGroups={provisioningDetails.provisionedGroups}
             provisionedUsers={provisioningDetails.provisionedUsers}
           />
-          <Text>are linked to your IDP</Text>
+          <Text>are linked to your IdP</Text>
         </Container>
       </ConnectionInfo>
       <Button
         UNSAFE_height="36px"
+        data-testid="t--disable-scim-btn"
         isLoading={provisioningDetails.isLoading.disconnectProvisioning}
         kind="error"
         onClick={() => setIsModalOpen(true)}
@@ -250,6 +258,7 @@ export const ScimProvisioning = () => {
             >
               <span>
                 <Link
+                  data-testid="scim-setup-doc-link"
                   endIcon="book-line"
                   target="_blank"
                   to={PROVISIONING_SETUP_DOC}
@@ -318,6 +327,7 @@ export const ScimProvisioning = () => {
                 <Text>{createMessage(API_KEY_TO_SETUP_SCIM)}</Text>
                 <Button
                   UNSAFE_height="36px"
+                  data-testid="t--generate-api-key"
                   isLoading={isLoading.apiKey}
                   kind="secondary"
                   onClick={() =>

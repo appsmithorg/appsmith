@@ -23,7 +23,7 @@
   "addUsers": "[data-testid=t--add-users-button]",
   "delete": ".delete-menu-item",
   "deleteConfirmation": "//span[text()='Are you sure?']",
-  "editGroups": ".edit-menu-item",
+  "edit": ".edit-menu-item",
   "editRole": "[data-testid='t--roles-cell']",
   "cloneRole": ".clone-menu-item",
   "othersTab": "[data-testid='t--tab-Others']",
@@ -58,5 +58,11 @@
   "searchHighlight": ".search-highlight",
   "dropdownOption": ".rc-select-item-option-content",
   "appMoreIcon": "[data-testid=t--application-card-context-menu]",
-  "addUsersButton":"//button//*[text()='Add users']"
+  "addUsersButton": "//button//*[text()='Add users']",
+  "provisionedIcon": "[data-tesid=t--provisioned-resource]",
+  "userName": "[data-testid=t--user-edit-userInfo] [kind=heading-m]",
+  "groupMembers": "[data-testid=t--user-row]",
+  "menuItems": ".ads-v2-menu__menu-item",
+  "renameMenuItem": "[data-testid=t--rename-menu-item]",
+  "editDescMenuItem": "[data-testid=t--rename-desc-menu-item]"
 }

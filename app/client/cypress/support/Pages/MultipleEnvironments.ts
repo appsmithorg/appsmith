@@ -1,4 +1,4 @@
-import { dataSources } from "../Objects/ObjectsCore";
+import { agHelper, dataSources } from "../Objects/ObjectsCore";
 import { ObjectsRegistry } from "../Objects/Registry";
 
 export class MultipleEnvironments {
@@ -35,10 +35,13 @@ export class MultipleEnvironments {
           this.agHelper.GetNClick(this.env_switcher_dropdown_opt(targetEnv));
           this.agHelper.Sleep();
           this.agHelper.AssertElementExist(
-            this.locator._specificToast(`Environment switched to ${targetEnv}`),
+            this.locator._specificToast(
+              `Environment switched to ${targetEnv.toLowerCase()}`,
+            ),
           );
         }
       });
+    agHelper.Sleep(3000); // adding wait for page to load
   }
 
   public SwitchEnvInDSEditor(

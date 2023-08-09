@@ -410,7 +410,8 @@ public class ActionExecutionOOSPluginsTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertThat(result).isNotNull();
-                    assertThat(result.getStatusCode()).isEqualTo(AppsmithErrorCode.NO_RESOURCE_FOUND.getCode());
+                    assertThat(result.getStatusCode())
+                            .isEqualTo(AppsmithErrorCode.DATASOURCE_STORAGE_NOT_CONFIGURED.getCode());
                 })
                 .verifyComplete();
     }

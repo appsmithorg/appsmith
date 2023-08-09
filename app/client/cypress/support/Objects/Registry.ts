@@ -28,7 +28,6 @@ import { AssertHelper } from "../Pages/AssertHelper";
 import { ReusableHelper } from "./ReusableHelper";
 import { Tabs } from "../Pages/Tabs";
 import { GsheetHelper } from "../Pages/GSheetHelper";
-
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
   static get AggregateHelper(): AggregateHelper {

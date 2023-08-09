@@ -8,6 +8,7 @@ import {
   tedTestConfig,
   assertHelper,
   table,
+  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
@@ -74,7 +75,7 @@ describe(
       multipleEnv.SwitchEnv(stagingEnv);
       agHelper.Sleep();
       dataSources.RunQueryNVerifyResponseViews(10, false);
-      dataSources.AddSuggesstedWidget(Widgets.Table);
+      dataSources.AddSuggestedWidget(Widgets.Table);
       // Create query on staging only DS
       agHelper.Sleep(2000);
       entityExplorer.AddNewPage("New blank page");
@@ -97,14 +98,14 @@ describe(
       agHelper.GetNClick(
         entityExplorer._entityNameInExplorer(meStagingOnlyQueryName),
       );
-      dataSources.AddSuggesstedWidget(Widgets.Table);
+      dataSources.AddSuggestedWidget(Widgets.Table);
+      assertHelper.AssertNetworkStatus("@updateLayout", 200);
+      agHelper.Sleep();
     });
 
     it("3. Check table response for both environments", function () {
       // Check the records on the table with only staging configured
       cy.get(locators._tableRecordsContainer).should("contain", "10 Records");
-      //Navigate to the table widget
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
       multipleEnv.SwitchEnv(prodEnv);
       cy.get(locators._tableRecordsContainer).should("contain", "0 Records");
       entityExplorer.SelectEntityByName("Page1", "Pages");
@@ -134,7 +135,13 @@ describe(
       // Need to remove the previous user preference for the callout
       window.localStorage.removeItem("userPreferenceDismissEnvCallout");
       agHelper.Sleep();
-      deployMode.DeployApp(undefined, true, true, true, "present");
+      deployMode.DeployApp(
+        locators._widgetInDeployed(draggableWidgets.TABLE_V1),
+        true,
+        true,
+        true,
+        "present",
+      );
       featureFlagIntercept({ release_datasource_environments_enabled: true });
       // Check for env switcher
       agHelper.AssertElementExist(multipleEnv.env_switcher);

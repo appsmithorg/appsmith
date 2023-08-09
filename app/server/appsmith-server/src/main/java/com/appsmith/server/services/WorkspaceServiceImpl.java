@@ -151,13 +151,20 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
     @Override
     public Mono<String> verifyEnvironmentIdByWorkspaceId(
             String workspaceId, String environmentId, AclPermission aclPermission) {
+
+        Mono<String> environmentNameMono = environmentService
+                .findById(environmentId)
+                .map(Environment::getName)
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_ACCESS_ERROR, FieldName.ENVIRONMENT, FieldName.WORKSPACE)));
+
         return environmentService
                 .findByWorkspaceId(workspaceId, aclPermission)
                 .filter(environment -> environment.getId().equals(environmentId))
                 .next()
                 .map(Environment::getId)
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.NO_RESOURCE_FOUND, FieldName.ENVIRONMENT_ID, environmentId)));
+                .switchIfEmpty(Mono.defer(() -> environmentNameMono.flatMap(name -> Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ENVIRONMENT, name)))));
     }
 
     @Override

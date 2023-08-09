@@ -174,7 +174,7 @@ const DisableScimModal = (props: DisableScimModalProps) => {
         </ModalBody>
         <ModalFooter>
           <Button
-            className="t--role-modal-save"
+            data-testid="t--disable-scim-config-button"
             {...(showFinalScreen ? {} : { endIcon: "arrow-right-line" })}
             isDisabled={
               showFinalScreen

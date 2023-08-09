@@ -35,6 +35,18 @@ public class SamlConfigurationServiceImpl implements SamlConfigurationService {
             // Delete the realm to delete all existing configuration and then update the environment with SAML disabled.
             return keycloakIntegrationService
                     .deleteRealm()
+                    // TODO : Remove the check here and instead move it to deleteRealm() method to return success if the
+                    // realm already exists.
+                    .onErrorResume(AppsmithException.class, error -> {
+                        if (error instanceof AppsmithException
+                                && error.getAppErrorCode()
+                                        .equals(AppsmithError.SAML_CONFIGURATION_FAILURE.getAppErrorCode())) {
+                            // Looks like the realm was already deleted. Let's continue.
+                            Mono.just(TRUE);
+                        }
+
+                        return Mono.error(error);
+                    })
                     .then(envManager.applyChanges(Map.of(APPSMITH_SSO_SAML_ENABLED.toString(), "false")));
         }
 

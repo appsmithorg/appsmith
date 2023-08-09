@@ -1,6 +1,9 @@
 package com.appsmith.external.dtos;
 
+import com.appsmith.external.helpers.EnvironmentNameCaseStrategy;
 import com.appsmith.external.models.Environment;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,7 +20,11 @@ import java.util.Set;
 public class EnvironmentDTO {
 
     String id;
+
+    @JsonDeserialize(using = EnvironmentNameCaseStrategy.SelectiveLowerCaseNamingStrategy.class)
+    @JsonSerialize(using = EnvironmentNameCaseStrategy.PascalCaseNamingStrategy.class)
     String name;
+
     String workspaceId;
     Boolean isDefault;
 

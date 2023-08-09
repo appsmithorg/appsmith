@@ -204,20 +204,18 @@ jobs:
           rm app/client/packages/rts/dist/rts-dist.tar
 
       # Here, the github.ref_name gives us the branch name. Example: refs/heads/master => master
-      # The 'tag' variable is used to tag the docker image with that branch name.
       # The 'branch_basename' variable is used to tag the docker image with the branch name without the semantic prefix 'ci/','feat/' etc.. prefix.
       # We need both because with airgap we can manually trigger workflow from any branch (not just release branch) and we need to tag the docker image with the branch name.
       - name: Get the version to tag the Docker image
         id: vars
         run: |
-          echo tag=$(echo ${{github.ref_name}}) >> $GITHUB_OUTPUT
           echo branch_basename=$(basename ${{github.ref_name}}) >> $GITHUB_OUTPUT
 
       - name: Get the airgapped version tag to tag airgap docker image
         id: airgap_vars
         run: |
-          if [[ ${{steps.vars.outputs.tag}} == "ci/airgap-"* ]]; then
-            echo airgap_tag=$(echo "${{ steps.vars.outputs.tag }}" | cut -d'-' -f2-) >> $GITHUB_OUTPUT
+          if [[ "${{ github.ref_name }}" == "ci/airgap-"* ]]; then
+            echo airgap_tag=$(echo "${{ github.ref_name }}" | cut -d'-' -f2-) >> $GITHUB_OUTPUT
           fi
 
       - name: Set up Depot CLI
@@ -260,7 +258,7 @@ jobs:
 
       # assert if we have the version tag for airgap image
       - name: Build and push airgap tagged image to Docker Hub with latest and version tags
-        if: success() && ${{steps.airgap_vars.outputs.airgap_tag}} && github.event_name == 'workflow_dispatch'
+        if: success() && startsWith(github.ref_name, 'ci/airgap-') && github.event_name == 'workflow_dispatch'
         uses: depot/build-push-action@v1
         with:
           context: .

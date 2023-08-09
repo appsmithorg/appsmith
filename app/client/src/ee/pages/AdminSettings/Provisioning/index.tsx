@@ -106,7 +106,7 @@ export function ActionButton({
     <ButtonWrapper>
       <Button
         className={`t--settings-sub-category-${method.category}`}
-        data-testid="btn-scim-configure"
+        data-testid="t--btn-scim-configure"
         kind={"secondary"}
         onClick={() => onClickHandler(method)}
         size="md"
@@ -131,6 +131,7 @@ export const Provisioning = () => {
         <HeaderWrapper>
           <SettingsHeader
             color="var(--ads-v2-color-fg-emphasis-plus)"
+            data-testid="t--provisioning-header"
             kind="heading-l"
             renderAs="h1"
           >
@@ -148,7 +149,7 @@ export const Provisioning = () => {
           provisioningMethods.map((method) => {
             return (
               <div key={method.id}>
-                <MethodCard data-testid="method-card">
+                <MethodCard data-testid="t--method-card">
                   {method.icon ? (
                     <Icon name={method.icon} size="lg" />
                   ) : (
@@ -157,10 +158,11 @@ export const Provisioning = () => {
                   <MethodDetailsWrapper>
                     <MethodTitle
                       color="var(--ads-v2-color-fg)"
+                      data-testid="t--method-title"
                       kind="heading-s"
                       renderAs="p"
                     >
-                      {method.label}&nbsp;
+                      {method.label}
                     </MethodTitle>
                     <MethodDets
                       color="var(--ads-v2-color-fg)"

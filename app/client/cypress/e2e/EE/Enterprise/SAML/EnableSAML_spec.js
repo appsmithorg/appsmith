@@ -194,7 +194,7 @@ describe("SSO with SAML test functionality", function () {
     cy.get(enterpriseSettings.loginWithSAML).should("not.exist");
   });
 
-  it("5. Go to admin settings and enable SAML via IDP data", function () {
+  it("5. Go to admin settings and enable SAML via IdP data", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(".admin-settings-menu-option").should("be.visible");
@@ -220,7 +220,7 @@ describe("SSO with SAML test functionality", function () {
     cy.get(enterpriseSettings.samlIdpTab).should("be.visible");
     cy.get(enterpriseSettings.samlIdpTab).click();
     // fill saml form
-    cy.fillSamlForm("IDP");
+    cy.fillSamlForm("IdP");
     cy.wait(2000);
     // assert server is restarting
     cy.get(adminSettings.restartNotice).should("be.visible");

@@ -177,6 +177,8 @@ jobs:
             appsmith/test-event-driver:latest
           docker run --name cloud-services -d -p 8000:80 -p 8090:8090 \
             --privileged --pid=host --ipc=host --add-host=host.docker.internal:host-gateway\
+            -e KEYGEN_API_URL=http://host.docker.internal:5001 \
+            -e KEYGEN_BYPASS_SIGNATURE_VERIFICATION=true \
             -e APPSMITH_CLOUD_SERVICES_MONGODB_URI=mongodb://host.docker.internal:27017 \
             -e APPSMITH_CLOUD_SERVICES_MONGODB_DATABASE=cs \
             -e APPSMITH_CLOUD_SERVICES_MONGODB_AUTH_DATABASE=admin \
@@ -205,7 +207,7 @@ jobs:
           cd cicontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
             -v "$PWD/stacks:/appsmith-stacks" \
-            -e APPSMITH_LICENSE_KEY="$APPSMITH_LICENSE_KEY" \
+            -e APPSMITH_LICENSE_KEY="VALID-LICENSE-KEY" \
             -e APPSMITH_DISABLE_TELEMETRY=true \
             -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
@@ -344,6 +346,8 @@ jobs:
         run: |
           if [[ ${{ github.event_name }} == 'schedule' ]]; then
             echo "COMMIT_INFO_MESSAGE=Scheduled run for Airgap" >> $GITHUB_ENV
+          elif [[ ${{ github.event_name }} == 'workflow_dispatch' && ${{ inputs.airgap-enabled }} == 'true' ]]; then
+            echo "COMMIT_INFO_MESSAGE=Workflow run for Airgap" >> $GITHUB_ENV
           elif [[ ${{ inputs.pr }} -ne 0 ]]; then
             echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
           else
@@ -562,7 +566,7 @@ jobs:
         with:
           path: |
             ~/cypress_url
-          key: ${{ github.run_id }}-dashboard-url-${{ github.run_number }}
+          key: ${{ github.run_id }}-dashboard-url-${{ github.run_attempt }}
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
