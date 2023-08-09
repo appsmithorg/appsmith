@@ -73,6 +73,18 @@ describe("emptyChartData", () => {
       props.chartData.seriesID1 = { data: [] };
       expect(emptyChartData(props)).toEqual(false);
     });
+
+    it("returns true if chart data isn't present", () => {
+      const props = JSON.parse(JSON.stringify(defaultProps));
+      props.chartType = "LINE_CHART";
+      props.chartData = null;
+      expect(emptyChartData(props)).toEqual(true);
+
+      props.chartData = {
+        seriesID1: {},
+      };
+      expect(emptyChartData(props)).toEqual(true);
+    });
   });
 
   describe("when chart type is custom fusion charts", () => {

@@ -57,7 +57,7 @@ import log from "loglevel";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import {
   createMessage,
   ERROR_ACTION_RENAME_FAIL,
