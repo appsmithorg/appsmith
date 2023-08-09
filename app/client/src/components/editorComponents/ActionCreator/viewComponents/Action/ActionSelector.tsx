@@ -169,7 +169,7 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
         </div>
       </div>
 
-      <div className="flex w-full justify-between px-3 mb-[4px] text-sm">
+      <div className="flex w-full justify-between px-3 mb-[4px] text-xs">
         Action
       </div>
 
