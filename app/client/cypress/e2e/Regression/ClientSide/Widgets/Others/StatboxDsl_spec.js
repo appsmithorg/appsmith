@@ -5,6 +5,7 @@ import {
   entityExplorer,
   propPane,
   apiPage,
+  tedTestConfig,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Statbox Widget", function () {
@@ -45,13 +46,11 @@ describe("Statbox Widget", function () {
   });
 
   it("3. Bind datasource to statbox", () => {
-    apiPage.CreateAndFillApi(
-      data.userApi + "/mock-api?records=20&page=4&size=3",
-      "MockApi",
-    );
+    apiPage.CreateAndFillApi(tedTestConfig.paginationUrl(), "MockApi");
     apiPage.RunAPI();
     // binding datasource to text widget in statbox
     entityExplorer.SelectEntityByName("Text1", "Statbox1");
     propPane.UpdatePropertyFieldValue("Text", "{{MockApi.data[0].id}}");
+    agHelper.AssertText(propPane._widgetToVerifyText("Text1"), "text", "10"); //it will always be 10 due to pagination url setting
   });
 });
