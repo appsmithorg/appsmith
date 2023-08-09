@@ -136,7 +136,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
     _.propPane.UpdatePropertyFieldValue("Default Date", "2020-02-01");
     _.propPane.UpdatePropertyFieldValue("Max Date", "2020-02-10");
 
-    _.agHelper.AssertErrorTooltip("Date out of range");
+    _.agHelper.AssertPopoverTooltip("Date out of range");
   });
 
   it("7. Check isDirty meta property", function () {
