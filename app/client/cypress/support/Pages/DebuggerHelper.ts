@@ -142,7 +142,7 @@ export class DebuggerHelper {
   }
 
   DebuggerLogsFilter(text: string) {
-    this.agHelper.RemoveCharsNType(this.locators._debuggerFilter, -1, text);
+    this.agHelper.SelectAllAndType(this.locators._debuggerFilter, text);
   }
 
   LogStateContains(text: string, index?: number) {
