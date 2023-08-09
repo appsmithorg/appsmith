@@ -37,10 +37,12 @@ public class UserIdentifierServiceCEImpl implements UserIdentifierServiceCE {
 
     @Override
     public String getEmailDomain(String email) {
-        int atIndex = email.indexOf('@');
         String emailDomain = null;
-        if (atIndex > 0) {
-            emailDomain = email.substring(atIndex + 1).toLowerCase();
+        if (email != null) {
+            int atIndex = email.indexOf('@');
+            if (atIndex > 0) {
+                emailDomain = email.substring(atIndex + 1).toLowerCase();
+            }
         }
         return emailDomain;
     }
