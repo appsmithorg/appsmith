@@ -289,4 +289,33 @@ public class ApplicationSnapshotServiceUnitTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void test() {
+        Mono<Integer> mono = Mono.just(1)
+                .map(s -> {
+                    System.out.println("s at line 296: " + s);
+                    if (s == 1) {
+                        throw new RuntimeException("equal to 1");
+                    }
+                    return s;
+                })
+                .onErrorResume(e -> {
+                    System.out.println("error at integer mono on Error resume");
+                    return Mono.error(e);
+                });
+
+        Mono<String> mono1 = Mono.just("1");
+
+        Mono<String> finalMono = mono.then(mono1)
+                .map(s -> {
+                    System.out.println("s at line 300: " + s);
+                    return s;
+                })
+                .onErrorResume(e -> {
+                    System.out.println("error at final mono on error resume ");
+                    return Mono.error(e);
+                });
+        finalMono.subscribe();
+    }
 }
