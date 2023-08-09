@@ -24,15 +24,19 @@ export default function WidgetSpecificControls(props: Props) {
   }
 
   if (props.aliases?.length) {
-    aliases = props.aliases.map(({ name }) => (
-      <ColumnDropdown
-        alias={`alias.${name}`}
-        id={name}
-        key={name}
-        label={name.slice(0, 1).toUpperCase() + name.slice(1)}
-        onSelect={noop}
-      />
-    ));
+    aliases = props.aliases.map(({ name }) => {
+      const label = name.slice(0, 1).toUpperCase() + name.slice(1);
+
+      return (
+        <ColumnDropdown
+          alias={`alias.${name}`}
+          id={name}
+          key={name}
+          label={label}
+          onSelect={noop}
+        />
+      );
+    });
   }
 
   return (
