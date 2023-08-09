@@ -13,7 +13,7 @@ import {
   getRecentDatasourceIds,
 } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import history from "utils/history";
 import type { ActionOperation } from "./utils";
 import {
