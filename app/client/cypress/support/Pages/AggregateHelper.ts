@@ -735,6 +735,10 @@ export class AggregateHelper extends ReusableHelper {
     this.GetNClick(this.locator._goBack);
   }
 
+  public SelectAllAndType(selector: string, text: string) {
+    this.GetElement(selector).type("{selectall}" + text);
+  }
+
   public SelectNRemoveLineText(selector: string) {
     this.GetElement(selector).type(this.selectLine);
     return this.GetElement(selector).type(this.removeLine);
