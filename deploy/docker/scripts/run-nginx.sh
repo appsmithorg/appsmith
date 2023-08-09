@@ -5,11 +5,7 @@ set -o nounset
 set -o pipefail
 set -o xtrace
 
-http_conf="/opt/appsmith/templates/nginx-app-http.conf.template.sh"
-https_conf="/opt/appsmith/templates/nginx-app-https.conf.template.sh"
 ssl_conf_path="/appsmith-stacks/data/certificate/conf"
-
-APP_TEMPLATE="$http_conf"
 
 mkdir -pv "$ssl_conf_path"
 
@@ -57,18 +53,19 @@ fi
 
 # Check exist certificate with given custom domain
 # Heroku not support for custom domain, only generate HTTP config if deploying on Heroku
+use_https=0
 if [[ -n ${APPSMITH_CUSTOM_DOMAIN-} ]] && [[ -z ${DYNO-} ]]; then
-  APP_TEMPLATE="$https_conf"
+  use_https=1
   if ! [[ -e "/etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN" ]]; then
     source "/opt/appsmith/init_ssl_cert.sh"
     if ! init_ssl_cert "$APPSMITH_CUSTOM_DOMAIN"; then
       echo "Status code from init_ssl_cert is $?"
-      APP_TEMPLATE="$http_conf"
+      use_https=0
     fi
   fi
 fi
 
-bash "$APP_TEMPLATE" "${APPSMITH_CUSTOM_DOMAIN-}" > /etc/nginx/sites-available/default
+bash /opt/appsmith/templates/nginx-app.conf.sh "$use_https" "${APPSMITH_CUSTOM_DOMAIN-}" > /etc/nginx/sites-available/default
 
 apply-env-vars() {
   original="$1"
