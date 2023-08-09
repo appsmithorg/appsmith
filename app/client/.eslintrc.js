@@ -13,6 +13,9 @@ const baseNoRestrictedImports =
 const eslintConfig = {
   extends: ["./.eslintrc.base.json"],
   rules: {
+    "@typescript-eslint/no-explicit-any": "off",
+    "react/display-name": "off",
+    "react/prop-types": "off",
     // `no-restricted-imports` is disabled, as recommended in https://typescript-eslint.io/rules/no-restricted-imports/.
     // Please use @typescript-eslint/no-restricted-imports below instead.
     "no-restricted-imports": "off",

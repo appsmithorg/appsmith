@@ -14,6 +14,7 @@ import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDocsDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
+import org.eclipse.jgit.lib.BranchTrackingStatus;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -56,7 +57,7 @@ public interface GitServiceCE {
 
     Mono<GitApplicationMetadata> getGitApplicationMetadata(String defaultApplicationId);
 
-    Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName);
+    Mono<GitStatusDTO> getStatus(String defaultApplicationId, boolean compareRemote, String branchName);
 
     Mono<MergeStatusDTO> mergeBranch(String applicationId, GitMergeDTO gitMergeDTO);
 
@@ -79,4 +80,6 @@ public interface GitServiceCE {
     Mono<Long> getApplicationCountWithPrivateRepo(String workspaceId);
 
     Mono<Boolean> isRepoLimitReached(String workspaceId, Boolean isClearCache);
+
+    Mono<BranchTrackingStatus> fetchRemoteChanges(String defaultApplicationId, String branchName, boolean isFileLock);
 }

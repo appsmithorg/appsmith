@@ -1,1 +1,1 @@
-export * from "../../ce/sagas/analyticsSaga";
+export * from "ce/sagas/analyticsSaga";
