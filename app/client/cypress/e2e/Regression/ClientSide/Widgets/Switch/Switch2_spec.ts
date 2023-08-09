@@ -4,6 +4,7 @@ import {
   entityExplorer,
   deployMode,
   propPane,
+  table,
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
@@ -135,7 +136,7 @@ describe("Switch widget testcases", () => {
   // based on the dropdown value set the switch widget is disabled or enabled
   function testSwitchDisabled(dropdownValue: string): void {
     agHelper.GetNClick(commonloc.selectButton);
-    agHelper.GetNClickByContains(widgets.dropdownMenuItem, dropdownValue);
+    agHelper.GetNClickByContains(table._selectMenuItem, dropdownValue);
     if (dropdownValue == "yes") {
       agHelper.AssertElementClassContainsDisabled(widgets.switchWidgetInactive);
     } else {
@@ -146,7 +147,7 @@ describe("Switch widget testcases", () => {
   function testSwitchVisbility(visibilityValue: string): void {
     // In the select widget set the given value and assert switch widget is visible or not based on it
     agHelper.GetNClick(commonloc.selectButton);
-    agHelper.GetNClickByContains(widgets.dropdownMenuItem, visibilityValue);
+    agHelper.GetNClickByContains(table._selectMenuItem, visibilityValue);
     if (visibilityValue == "yes") {
       agHelper.AssertElementExist(widgets.switchWidget);
     } else {
@@ -157,7 +158,7 @@ describe("Switch widget testcases", () => {
   function testSwitchDefaultState(dropdownValue: string): void {
     // In the select widget set no and assert switch is off
     agHelper.GetNClick(commonloc.selectButton);
-    agHelper.GetNClickByContains(widgets.dropdownMenuItem, dropdownValue);
+    agHelper.GetNClickByContains(table._selectMenuItem, dropdownValue);
     if (dropdownValue == "yes") {
       agHelper.AssertElementExist(widgets.switchWidgetActive);
       agHelper.AssertElementAbsence(widgets.switchWidgetInactive);

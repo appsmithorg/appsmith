@@ -202,7 +202,6 @@
   "codescannerwidget": ".t--widget-codescannerwidget",
   "widgetNameSpan": ".t--widget-propertypane-toggle > .t--widget-name",
   "listWidgetv2": ".t--widget-listwidgetv2",
-  "dropdownMenuItem":".menu-item-text",
   "progressWidget":".t--widget-progresswidget",
   "circularProgressWidget":"[data-value='circular']",
   "linearProgressWidget": "[data-value='linear']"
