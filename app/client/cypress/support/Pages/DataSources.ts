@@ -879,12 +879,7 @@ export class DataSources {
           });
       });
     this.agHelper.Sleep(3000); //for the CreateQuery/GeneratePage page to load
-    createQuery &&
-      this.agHelper.AssertElementVisibility(
-        this.locator._spanButton("Run"),
-        0,
-        20000,
-      );
+    createQuery && this.AssertRunButtonVisibility();
     validateTableDropdown &&
       !createQuery &&
       this.assertHelper.AssertNetworkStatus("@getDatasourceStructure", 200); //Making sure table dropdown is populated
@@ -916,26 +911,27 @@ export class DataSources {
       });
     this.agHelper.Sleep(2000); //for the CreateQuery
     //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);//throwing 404 in CI sometimes
-    this.agHelper.AssertElementVisibility(
-      this.locator._spanButton("Run"),
-      0,
-      20000,
-    );
+    this.AssertRunButtonVisibility();
   }
 
   CreateQueryAfterDSSaved(query = "", queryName = "") {
     this.agHelper.GetNClick(this._createQuery);
     //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
-    this.agHelper.AssertElementVisibility(
-      this.locator._spanButton("Run"),
-      0,
-      20000,
-    );
+    this.AssertRunButtonVisibility();
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
       this.EnterQuery(query);
       this.AssertRunButtonDisability(false);
     }
+  }
+
+  private AssertRunButtonVisibility() {
+    this.agHelper.AssertElementVisibility(
+      this.locator._spanButton("Run"),
+      true,
+      0,
+      20000,
+    );
   }
 
   public CreateQueryForDS(
