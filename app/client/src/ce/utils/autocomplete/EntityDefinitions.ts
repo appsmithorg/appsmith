@@ -49,7 +49,7 @@ export const entityDefinitions = {
     return {
       "!doc":
         "Actions allow you to connect your widgets to your backend data in a secure manner.",
-      "!url": "https://docs.appsmith.com/v/v1.2.1/framework-reference/run",
+      "!url": "https://docs.appsmith.com/reference/appsmith-framework/query-object#run",
       isLoading: "bool",
       data,
       responseMeta: {
