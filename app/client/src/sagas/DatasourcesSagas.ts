@@ -596,7 +596,8 @@ function* redirectAuthorizationCodeSaga(
   const isImport: string = yield select(getWorkspaceIdForImport);
 
   if (pluginType === PluginType.API) {
-    window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code`;
+    //window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code`;
+    yield OAuthApi.redirectUrl(datasourceId, pageId);
   } else {
     try {
       // Get an "appsmith token" from the server
@@ -2003,6 +2004,14 @@ export function* watchDatasourcesSagas() {
     takeEvery(
       ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
       handleFetchDatasourceStructureOnLoad,
+    ),
+    takeEvery(
+      ReduxActionTypes.SOFT_REFRESH_DATASOURCE_STRUCTURE,
+      handleFetchDatasourceStructureOnLoad,
+    ),
+    takeEvery(
+      ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE,
+      setDatasourceViewModeSaga,
     ),
     takeEvery(
       ReduxActionTypes.SOFT_REFRESH_DATASOURCE_STRUCTURE,
