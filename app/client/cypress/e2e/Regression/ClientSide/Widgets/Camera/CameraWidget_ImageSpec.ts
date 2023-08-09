@@ -1,5 +1,4 @@
-const widgetLocators = require("../../../../../locators/Widgets.json");
-const path = require("path");
+import widgetLocators from "../../../../../locators/Widgets.json";
 import {
   agHelper,
   deployMode,
@@ -9,7 +8,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Camera widget test", () => {
+describe("Camera widget - Image test", () => {
   it("1. Check camera intialization & modes", () => {
     entityExplorer.DragNDropWidget(draggableWidgets.CAMERA);
     agHelper
@@ -31,38 +30,37 @@ describe("Camera widget test", () => {
   it("2. Verify Visible property of image mode in camera widget", () => {
     agHelper.AssertExistingToggleState("Visible", "true");
     propPane.ToggleJSMode("Visible", true);
-    propPane.EnterJSContext("Visible", "false", true, true);
-    propPane.ToggleJSMode("Visible", false);
+    propPane.EnterJSContext("Visible", "{{(55>45)?false:true}}", true, true);
     deployMode.DeployApp();
     agHelper.AssertElementAbsence(
-      locators._widgetInCanvas(draggableWidgets.CAMERA),
+      locators._widgetInDeployed(draggableWidgets.CAMERA),
     );
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Camera1");
+    propPane.EnterJSContext("Visible", "", false);
+    propPane.ToggleJSMode("Visible", false);
     propPane.TogglePropertyState("Visible", "On");
   });
 
   it("3. Verify Disabled property of image mode in camera widget", () => {
     agHelper.AssertExistingToggleState("Disabled", "false");
     propPane.ToggleJSMode("Disabled", true);
-    propPane.EnterJSContext("Disabled", "true", true, true);
-    propPane.ToggleJSMode("Disabled", false);
+    propPane.EnterJSContext("Disabled", "{{(45>55)?false:true}}", true, true);
+    deployMode.DeployApp();
     agHelper
       .GetElement(widgetLocators.cameraWidgetScreen)
       .should("have.attr", "disabled");
-    deployMode.DeployApp();
-    agHelper.AssertElementAbsence(
-      locators._widgetInCanvas(draggableWidgets.CAMERA),
-    );
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Camera1");
+    propPane.EnterJSContext("Disabled", "", false);
+    propPane.ToggleJSMode("Disabled", false);
     propPane.TogglePropertyState("Disabled", "Off");
   });
 
   it("4. Verify Mirrored property of image mode in camera widget", () => {
     agHelper.AssertExistingToggleState("Mirrored", "true");
     propPane.ToggleJSMode("Mirrored", true);
-    propPane.EnterJSContext("Mirrored", "false", true, true);
+    propPane.EnterJSContext("Mirrored", "{{(55>45)?false:true}}", true, true);
     propPane.ToggleJSMode("Mirrored", false);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
     agHelper
@@ -74,6 +72,8 @@ describe("Camera widget test", () => {
       });
     deployMode.NavigateBacktoEditor();
     entityExplorer.SelectEntityByName("Camera1");
+    propPane.EnterJSContext("Mirrored", "", false);
+    propPane.ToggleJSMode("Mirrored", false);
     propPane.TogglePropertyState("Mirrored", "On");
   });
 

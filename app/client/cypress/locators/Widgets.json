@@ -220,5 +220,11 @@
   "cameraVideoOnOffBtn": "//div[@class='fullscreen']/div[2]/div/div[1]/button[2]",
   "cameraVideoDropdown": "//div[@class='fullscreen']/div[2]/div/div[1]/span[2]/button",
   "cameraVideoPlayBtn":"//div[@class='fullscreen']/div[2]/div/div[2]/button[2]",
-  "cameraVideodiscardBtn":"//div[@class='fullscreen']/div[2]/div/div[2]/button[3]"
+  "cameraVideodiscardBtn":"//div[@class='fullscreen']/div[2]/div/div[2]/button[3]",
+  "codeScannerScreen" : "div.code-scanner-camera-container > div",
+  "codeScannerVideo": "video",
+  "codeScannerScanButton":"//*[text()='Scan a QR/Barcode']/parent::button",
+  "codeScannerNewScanButton":"//*[text()='Scan Code']/parent::button",
+  "codeScannerClose":".code-scanner-close",
+  "codeScannerModal": ".code-scanner-content"
 }

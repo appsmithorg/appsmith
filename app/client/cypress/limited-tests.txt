@@ -4,3 +4,4 @@
 # To run only limited tests - give the spec names in below format:
 cypress/e2e/Regression/ClientSide/Widgets/Camera/CameraWidget_ImageSpec.ts
 cypress/e2e/Regression/ClientSide/Widgets/Camera/CameraWidget_VideoSpec.ts
+cypress/e2e/Regression/ClientSide/Widgets/CodeScanner/CodeScanner_2_spec.ts
