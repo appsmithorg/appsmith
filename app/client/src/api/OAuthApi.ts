@@ -31,22 +31,8 @@ class OAuthApi extends Api {
   static redirectUrl(
     datasourceId: string,
     pageId: string,
-    // currentEditingEnvironemntId: string,
   ): AxiosPromise<ApiResponse<Datasource>> {
-    return Api.get(
-      `v1/datasources/${datasourceId}/pages/${pageId}/code`,
-      null,
-      {
-        // transformRequest: (data: any, headers: any) => {
-        //   delete headers["Environmentid"];
-        //   headers["Environmentid"] = currentEditingEnvironemntId;
-        //   return data;
-        // },
-        // headers: {
-        //   Environmentid: currentEditingEnvironemntId,
-        // },
-      },
-    );
+    return Api.get(`v1/datasources/${datasourceId}/pages/${pageId}/code`);
   }
 }
 
