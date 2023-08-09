@@ -283,8 +283,8 @@ describe("Import and validate older app (app created in older versions of Appsmi
 
   after(() => {
     gitSync.DeleteDeployKey(appRepoName, keyId);
-    deployMode.NavigateToHomeDirectly();
     agHelper.WaitUntilAllToastsDisappear();
+    deployMode.NavigateToHomeDirectly();
     homePage.DeleteApplication(appName);
     homePage.DeleteWorkspace(workspaceName);
   });
