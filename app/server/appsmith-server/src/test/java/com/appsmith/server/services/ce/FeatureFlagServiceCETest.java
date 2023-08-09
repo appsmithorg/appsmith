@@ -1,10 +1,12 @@
-package com.appsmith.server.services;
+package com.appsmith.server.services.ce;
 
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ce.FeaturesResponseDTO;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.services.CacheableFeatureFlagHelper;
+import com.appsmith.server.services.FeatureFlagService;
 import lombok.extern.slf4j.Slf4j;
 import org.ff4j.FF4j;
 import org.ff4j.conf.XmlParser;
@@ -36,7 +38,7 @@ import static org.mockito.Mockito.doReturn;
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-public class FeatureFlagServiceTest {
+public class FeatureFlagServiceCETest {
     @Autowired
     FeatureFlagService featureFlagService;
 
