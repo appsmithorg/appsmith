@@ -33,6 +33,11 @@ export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
   iconPosition?: (typeof BUTTON_ICON_POSITIONS)[keyof typeof BUTTON_ICON_POSITIONS];
   /** Makes the button visually and functionaly disabled but focusable */
   visuallyDisabled?: boolean;
+  /** Indicates the loading text that will be used by screen readers
+   * when the button is in loading state
+   * @default Loading...
+   */
+  loadingText?: string;
 }
 
 export const Button = forwardRef(
@@ -44,6 +49,7 @@ export const Button = forwardRef(
       icon,
       iconPosition = "start",
       isLoading,
+      loadingText = "Loading...",
       // eslint-disable-next-line -- TODO add onKeyUp when the bug is fixed https://github.com/adobe/react-spectrum/issues/4350
       onKeyUp,
       variant = "filled",
@@ -53,24 +59,21 @@ export const Button = forwardRef(
     const { visuallyHiddenProps } = useVisuallyHidden();
 
     const renderChildren = () => {
-      if (isLoading) {
-        return (
-          <>
+      return (
+        <>
+          <span aria-hidden={isLoading ? true : undefined} data-content="">
+            {icon}
+            <Text lineClamp={1} textAlign="center">
+              {children}
+            </Text>
+          </span>
+
+          <span aria-hidden={!isLoading ? true : undefined} data-loader="">
             <HeadlessIcon>
               <Spinner />
             </HeadlessIcon>
-            {/* TODO(pawan): How to make sure "Loading..." text is internationalized? */}
-            <span {...visuallyHiddenProps}>Loading...</span>
-          </>
-        );
-      }
-
-      return (
-        <>
-          {icon}
-          <Text lineClamp={1} textAlign="center">
-            {children}
-          </Text>
+            <span {...visuallyHiddenProps}>{loadingText}</span>
+          </span>
         </>
       );
     };
@@ -93,7 +96,7 @@ export const Button = forwardRef(
         {...rest}
       >
         {renderChildren()}
-        <DragContainer data-hidden="" />
+        <DragContainer aria-hidden="true" />
       </StyledButton>
     );
   },

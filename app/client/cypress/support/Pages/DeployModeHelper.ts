@@ -37,11 +37,11 @@ export class DeployMode {
 
   //refering PublishtheApp from command.js
   public DeployApp(
-    eleToCheckInDeployPage: string = this.locator._backToEditor,
+    eleToCheckInDeployPage?: string,
     toCheckFailureToast = true,
     toValidateSavedState = true,
     addDebugFlag = true,
-    assertEnvInfoModal: "present" | "absent",
+    assertEnvInfoModal?: "present" | "absent",
     dismissModal = false,
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
@@ -74,7 +74,9 @@ export class DeployMode {
     //   .should("not.contain", "edit");
     //cy.wait('@publishApp').wait('@publishApp') //waitng for 2 calls to complete
 
-    this.agHelper.WaitUntilEleAppear(eleToCheckInDeployPage);
+    this.agHelper.WaitUntilEleAppear(
+      eleToCheckInDeployPage ?? this.locator._backToEditor,
+    );
     localStorage.setItem("inDeployedMode", "true");
     toCheckFailureToast &&
       this.agHelper.AssertElementAbsence(
