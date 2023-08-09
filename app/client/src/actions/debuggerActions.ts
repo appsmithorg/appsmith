@@ -80,6 +80,14 @@ export const setDebuggerSelectedTab = (selectedTab: string) => {
   };
 };
 
+// set the selected filter in the debugger.
+export const setDebuggerSelectedFilter = (selectedFilter: string) => {
+  return {
+    type: ReduxActionTypes.SET_DEBUGGER_SELECTED_FILTER,
+    selectedFilter,
+  };
+};
+
 // set the height of the response pane in the debugger.
 export const setResponsePaneHeight = (height: number) => {
   return {
