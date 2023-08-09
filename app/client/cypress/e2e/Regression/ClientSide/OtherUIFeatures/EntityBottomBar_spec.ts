@@ -1,5 +1,4 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
-const OnboardingLocator = require("../../../../locators/FirstTimeUserOnboarding.json");
 import { PageType } from "../../../../support/Pages/DebuggerHelper";
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 
@@ -21,13 +20,19 @@ describe("Entity bottom bar", () => {
     _.jsEditor.CreateJSObject(` return "hello world";`);
     //Verify if bottom bar opens JSEditor.
     _.debuggerHelper.AssertOpen(PageType.JsEditor);
+    // Verify if selected tab is response.
+    _.debuggerHelper.AssertSelectedTab("Response");
     //Verify if bottom bar is closed on clicking close icon in JSEditor.
     _.debuggerHelper.CloseBottomBar();
     _.debuggerHelper.AssertClosed();
     //Verify if bottom bar is open on executing JSFunction.
     _.jsEditor.RunJSObj();
     _.debuggerHelper.AssertOpen(PageType.JsEditor);
-    _.debuggerHelper.ClickDebuggerIcon();
+    //verify if response tab is selected on execution JSFunction.
+    _.debuggerHelper.AssertSelectedTab("Response");
+    //verify if bottom bar is closed on switching to canvas page.
+    _.entityExplorer.NavigateToSwitcher("Widgets");
+    _.debuggerHelper.AssertSelectedTab("Errors");
   });
 
   it("3. Api bottom pane should be collapsable", () => {
