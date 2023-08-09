@@ -24,11 +24,16 @@ async function webpackConfig(config) {
         options: {
           postcssOptions: {
             plugins: [
+              require("postcss-nesting"),
+              require("postcss-import"),
               require("postcss-at-rules-variables"),
               require("postcss-conditionals"),
               require("postcss-for"),
-              require("postcss-import"),
               require("postcss-each"),
+              require("postcss-url"),
+              require("cssnano")({
+                preset: "default",
+              }),
             ],
           },
         },
