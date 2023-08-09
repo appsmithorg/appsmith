@@ -31,7 +31,7 @@ export const emptyChartData = (props: ChartWidgetProps) => {
     }
   } else {
     for (const seriesID in props.chartData) {
-      if (props.chartData[seriesID].data.length > 0) {
+      if (props.chartData[seriesID].data?.length > 0) {
         return false;
       }
     }
