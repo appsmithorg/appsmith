@@ -1,7 +1,7 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { ENTITY_TYPE, Log, Message } from "entities/AppsmithConsole";
 import type { DebuggerContext } from "reducers/uiReducers/debuggerReducer";
-import type { EventName } from "utils/AnalyticsUtil";
+import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
 
 export interface LogDebuggerErrorAnalyticsPayload {
   entityName: string;

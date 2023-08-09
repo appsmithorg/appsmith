@@ -25,6 +25,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchProvisioningStatus } from "@appsmith/actions/provisioningActions";
 import { getProvisioningDetails } from "@appsmith/selectors/provisioningSelectors";
 import type { MethodType } from "./types";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const ScimCallout: MethodType = {
   id: "APPSMITH_SCIM_PROVISIONING",
@@ -94,6 +95,10 @@ export function ActionButton({
   const history = useHistory();
 
   const onClickHandler = (method: MethodType) => {
+    if (!connected) {
+      AnalyticsUtil.logEvent("SCIM_CONFIGURE_CLICKED");
+    }
+
     history.push(
       adminSettingsCategoryUrl({
         category: SettingCategories.PROVISIONING,

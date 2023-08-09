@@ -1,8 +1,11 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
 import CopyUrlForm from "./CopyUrlForm";
+import copy from "copy-to-clipboard";
 
 let container: any = null;
+
+jest.mock("copy-to-clipboard");
 
 const values = {
   helpText: "some helper text",
@@ -42,6 +45,9 @@ describe("Redirect URL Form", () => {
     expect(inputEl?.hasAttribute("disabled"));
     const copyIcon = screen.getByTestId("redirectUrl-copy-icon");
     expect(copyIcon).toBeDefined();
-    copyIcon.click();
+    copyIcon?.click();
+    expect(copy).toHaveBeenCalledWith(value);
+    inputEl?.click();
+    expect(copy).toHaveBeenCalledWith(value);
   });
 });

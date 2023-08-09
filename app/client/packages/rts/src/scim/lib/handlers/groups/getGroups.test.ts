@@ -202,6 +202,65 @@ describe("getGroups", () => {
     );
   });
 
+  it("should return an array of groups filtered by userId", async () => {
+    // Set up the test data
+    const baseEntity = "your-base-entity";
+    const getObj = {
+      attribute: "members.value",
+      operator: "eq",
+      value: "user1",
+    };
+    const attributes = ["id", "displayName", "members"];
+    const ctx = {};
+
+    (doRequest as jest.Mock).mockResolvedValue({
+      body: {
+        responseMeta: {
+          success: true,
+        },
+        data: {
+          content: [
+            {
+              resource: {
+                id: "1",
+                name: "group1",
+                description: "Group 1",
+                users: ["user1"],
+              },
+              metadata: {},
+            },
+          ],
+          total: 1,
+        },
+      },
+    });
+    // Call the function and await the result
+    const result = await getGroups(baseEntity, getObj, attributes, ctx);
+
+    // Check the returned result
+    expect(result).toEqual({
+      Resources: [
+        {
+          id: "1",
+          displayName: "group1",
+          description: "Group 1",
+          members: [{ value: "user1", type: "User" }],
+          meta: {},
+        },
+      ],
+      totalResults: 1,
+    });
+
+    // Verify that 'doRequest' was called with the correct arguments
+    expect(doRequest).toHaveBeenCalledWith(
+      baseEntity,
+      "GET",
+      "/groups?userId=user1",
+      null,
+      ctx,
+    );
+  });
+
   it("should handle error responses", async () => {
     // Set up the test data
     const baseEntity = "your-base-entity";

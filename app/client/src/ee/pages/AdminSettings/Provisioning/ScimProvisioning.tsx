@@ -58,6 +58,7 @@ import {
 } from "@appsmith/constants/messages";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import ResourceLinks from "./ResourceLinks";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledSettingsHeader = styled(SettingsHeader)`
   display: flex;
@@ -119,10 +120,6 @@ const StyledCallout = styled(Callout)`
   top: -8px;
 `;
 
-const Container = styled.div`
-  display: flex;
-`;
-
 const CalloutContent = () => {
   return (
     <>
@@ -142,6 +139,11 @@ const ScimConnectionContent = (props: ScimProps) => {
   const howMuchTimeBefore = provisioningDetails.lastUpdatedAt
     ? howMuchTimeBeforeText(provisioningDetails.lastUpdatedAt)
     : "";
+
+  const onDisableClick = () => {
+    setIsModalOpen(true);
+    AnalyticsUtil.logEvent("SCIM_DISABLE_CLICKED");
+  };
 
   return (
     <Connected>
@@ -175,20 +177,21 @@ const ScimConnectionContent = (props: ScimProps) => {
         >
           {createMessage(LAST_SYNC_MESSAGE, howMuchTimeBefore)}
         </Text>
-        <Container data-testid="t--synced-resources-info">
+        <div data-testid="t--synced-resources-info">
           <ResourceLinks
+            origin="SCIM"
             provisionedGroups={provisioningDetails.provisionedGroups}
             provisionedUsers={provisioningDetails.provisionedUsers}
           />
           <Text>are linked to your IdP</Text>
-        </Container>
+        </div>
       </ConnectionInfo>
       <Button
         UNSAFE_height="36px"
         data-testid="t--disable-scim-btn"
         isLoading={provisioningDetails.isLoading.disconnectProvisioning}
         kind="error"
-        onClick={() => setIsModalOpen(true)}
+        onClick={onDisableClick}
       >
         {createMessage(DISABLE_SCIM)}
       </Button>
@@ -228,8 +231,22 @@ export const ScimProvisioning = () => {
   }, [configuredStatus]);
 
   const generateApiKey = () => {
+    if (!configuredStatus) {
+      AnalyticsUtil.logEvent("SCIM_GENERATE_KEY_CLICKED");
+    }
+
     setIsButtonClicked(true);
     dispatch(generateProvisioningApiKey(configuredStatus));
+  };
+
+  const openReconfigureApiKeyModal = () => {
+    setShowReconfigureApiKeyModal(true);
+    AnalyticsUtil.logEvent("SCIM_RECONFIGURE_KEY_CLICKED");
+  };
+
+  const confirmReconfigureApiKey = () => {
+    generateApiKey();
+    AnalyticsUtil.logEvent("SCIM_RECONFIGURE_KEY_CONFIRMED");
   };
 
   if (isLoading.provisionStatus) {
@@ -332,7 +349,7 @@ export const ScimProvisioning = () => {
                   kind="secondary"
                   onClick={() =>
                     configuredStatus
-                      ? setShowReconfigureApiKeyModal(true)
+                      ? openReconfigureApiKeyModal()
                       : generateApiKey()
                   }
                 >
@@ -369,7 +386,7 @@ export const ScimProvisioning = () => {
                         UNSAFE_height="36px"
                         data-testid="t--confirm-reconfigure-api-key"
                         kind="primary"
-                        onClick={generateApiKey}
+                        onClick={confirmReconfigureApiKey}
                       >
                         {createMessage(RECONFIGURE_API_KEY_MODAL_SUBMIT_BUTTON)}
                       </Button>
