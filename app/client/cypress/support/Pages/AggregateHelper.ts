@@ -1544,7 +1544,7 @@ export class AggregateHelper extends ReusableHelper {
     });
   }
 
-  public VisitNAssert(url: string, apiToValidate = "", waitTime = 4000) {
+  public VisitNAssert(url: string, apiToValidate = "", waitTime = 3000) {
     cy.visit(url, { timeout: 60000 });
     // cy.window({ timeout: 60000 }).then((win) => {
     //   win.location.href = url;

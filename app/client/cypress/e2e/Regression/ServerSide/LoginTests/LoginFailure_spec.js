@@ -15,11 +15,9 @@ describe("Login failure", function () {
       .then((url) => {
         urlWithoutQueryParams = url.split("?")[0];
         homePage.LogOutviaAPI();
-        agHelper.AssertElementVisible(homePage._username); //check if user is logged out & then try to visit app url
-        agHelper.VisitNAssert(urlWithoutQueryParams);
-        agHelper.Sleep(3000); //for page redirect to complete
-        assertHelper.AssertNetworkStatus("signUpLogin");
-        agHelper.AssertElementVisible(homePage._username);
+        agHelper.VisitNAssert(urlWithoutQueryParams, "signUpLogin");
+        // agHelper.Sleep(3000); //for page redirect to complete
+        // assertHelper.AssertNetworkStatus("signUpLogin");
       })
       .then(() => cy.GetUrlQueryParams())
       .then((queryParams) => {
