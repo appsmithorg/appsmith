@@ -4,14 +4,27 @@ import {
   encodedXlsxDoc,
   encodedXlsDoc,
 } from "../../../../../fixtures/exampleEncodedDocs";
+const ppt = "https://ssz.sgp1.digitaloceanspaces.com/3ZEO2582C29EA0KKK2/ppt-on-population-pptxafa26c44-208f-46a3-89cc-8a5c020b6863.pptx"
+const pngImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb8umIiCU_K6ac-xS-ni4y6SP7XAd8C7Ms3Q&usqp=CAU"
+const jpgImage = "https://img.freepik.com/free-photo/beautiful-scenery-summit-mount-everest-covered-with-snow-white-clouds_181624-21317.jpg?w=1380&t=st=1691154236~exp=1691154836~hmac=35ce7f92dd16711c69509a0edbb23cedb34e49f960f560c77174994b6d5705a0"
+const pdf = "https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf"
+
 const ee = ObjectsRegistry.EntityExplorer,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode,
-  propPane = ObjectsRegistry.PropertyPane;
+  propPane = ObjectsRegistry.PropertyPane,
+  agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("DocumentViewer Widget Functionality", () => {
   it("1. Add new DocumentViewer and verify in canvas", () => {
+    ee.DragDropWidgetNVerify("filepickerwidgetv2", 400, 900);
     ee.DragDropWidgetNVerify("documentviewerwidget", 300, 300);
+    agHelper.AssertElementVisible(
+      propPane._propertyPanePropertyControl("data", "documentlink"),
+    );
+    agHelper.AssertElementVisible(
+      propPane._propertyPanePropertyControl("general", "visible"),
+    );
   });
 
   it("2. Modify visibility & Publish app & verify", () => {
@@ -34,6 +47,19 @@ describe("DocumentViewer Widget Functionality", () => {
   });
 
   it("4. Should show a word document correctly", () => {
+    // Verify when user uploads file
+    const fixturePath = "cypress/fixtures/testDoc.docx";
+    agHelper.GetNClick(locator._widgetInDeployed("filepicker1"));
+    agHelper.GetElement(locator._ds_uppy_fileInput).first().selectFile(fixturePath, {
+      force: true,
+    });
+    agHelper.GetNClick(locator._uploadBtn);
+
+    ee.SelectEntityByName("DocumentViewer1", "Widgets");
+    propPane.UpdatePropertyFieldValue("Document link", "{{FilePicker1.files[0].data}}");
+    agHelper.AssertContains("This is an essay");
+
+    // Verify by entering link
     ee.SelectEntityByName("DocumentViewer1", "Widgets");
     propPane.UpdatePropertyFieldValue("Document link", encodedWordDoc);
     deployMode.DeployApp();
@@ -44,6 +70,7 @@ describe("DocumentViewer Widget Functionality", () => {
     );
     deployMode.NavigateBacktoEditor();
   });
+
   it("5. Should show an errored state when a malformed docx input is provided", () => {
     ee.SelectEntityByName("DocumentViewer1", "Widgets");
     const someGarbageString = "+dsds";
@@ -65,6 +92,7 @@ describe("DocumentViewer Widget Functionality", () => {
     );
     deployMode.NavigateBacktoEditor();
   });
+
   it("6. Should show a xlsx/xls document correctly and should be able to render different documents without having to add the widget again", () => {
     ee.SelectEntityByName("DocumentViewer1", "Widgets");
     propPane.UpdatePropertyFieldValue("Document link", encodedXlsxDoc);
@@ -93,6 +121,7 @@ describe("DocumentViewer Widget Functionality", () => {
     );
     deployMode.NavigateBacktoEditor();
   });
+
   it("7. Should show an errored state when a malformed xlsx input is provided", () => {
     ee.SelectEntityByName("DocumentViewer1", "Widgets");
     // previously the document contains the number "456"
@@ -114,4 +143,77 @@ describe("DocumentViewer Widget Functionality", () => {
     );
     deployMode.NavigateBacktoEditor();
   });
+
+  it("8. Verify ppt file upload and ppt link", () => {
+    // Verify when user uploads from local files
+    const fixturePath = "cypress/fixtures/test.ppt";
+    agHelper.GetNClick(locator._widgetInDeployed("filepicker1"));
+    agHelper.GetElement(locator._ds_uppy_fileInput).first().selectFile(fixturePath, {
+      force: true,
+    });
+    agHelper.GetNClick(locator._uploadBtn);
+
+    ee.SelectEntityByName("DocumentViewer1", "Widgets");
+    propPane.UpdatePropertyFieldValue("Document link", "{{FilePicker1.files[0].data}}");
+    agHelper.AssertContains("Current file type is not supported");
+
+    // Verify by entering link
+    propPane.UpdatePropertyFieldValue("Document link", ppt);
+    deployMode.DeployApp();
+    agHelper.AssertElementExist(locator._widgetInDeployed("documentviewerwidget"));
+    agHelper.AssertContains("Current file type is not supported", "not.exist");
+    deployMode.NavigateBacktoEditor();
+  })
+
+  it("9. Should not show an image file", () => {
+    // Verify when user uploads from local files
+    const fixturePath = "cypress/fixtures/AAAFlowerVase.jpeg";
+    agHelper.GetNClick(locator._widgetInDeployed("filepicker1"));
+    agHelper.GetElement(locator._ds_uppy_fileInput).first().selectFile(fixturePath, {
+      force: true,
+    });
+    agHelper.GetNClick(locator._uploadBtn);
+
+    ee.SelectEntityByName("DocumentViewer1", "Widgets");
+    propPane.UpdatePropertyFieldValue("Document link", "{{FilePicker1.files[0].data}}");
+    agHelper.AssertContains("Current file type is not supported");
+  })
+
+  it("10. Should show an png image file", () => {
+    propPane.UpdatePropertyFieldValue("Document link", pngImage);
+    deployMode.DeployApp();
+    agHelper.AssertElementExist(locator._widgetInDeployed("documentviewerwidget"));
+    agHelper.AssertContains("Current file type is not supported", "not.exist");
+    deployMode.NavigateBacktoEditor();
+  })
+
+  it("11. Should not show an jpg image file", () => {
+    ee.SelectEntityByName("DocumentViewer1", "Widgets");
+    propPane.UpdatePropertyFieldValue("Document link", jpgImage);
+    deployMode.DeployApp();
+    agHelper.AssertContains("Current file type is not supported");
+    deployMode.NavigateBacktoEditor();
+  })
+
+  it("12. Should show a pdf file", () => {
+    // Verify when user uploads a file
+    const fixturePath = "cypress/fixtures/sample-pdf-file.pdf";
+    agHelper.GetNClick(locator._widgetInDeployed("filepicker1"));
+    agHelper.GetElement(locator._ds_uppy_fileInput).first().selectFile(fixturePath, {
+      force: true,
+    });
+    agHelper.GetNClick(locator._uploadBtn);
+
+    ee.SelectEntityByName("DocumentViewer1", "Widgets");
+    propPane.UpdatePropertyFieldValue("Document link", "{{FilePicker1.files[0].data}}");
+    agHelper.AssertElementExist(locator._widgetInDeployed("documentviewerwidget"));
+    agHelper.AssertContains("Current file type is not supported", "not.exist");
+
+    // Verify pdf link
+    propPane.UpdatePropertyFieldValue("Document link", pdf);
+    deployMode.DeployApp();
+    agHelper.AssertElementExist(locator._widgetInDeployed("documentviewerwidget"));
+    agHelper.AssertContains("Current file type is not supported", "not.exist");
+    deployMode.NavigateBacktoEditor();
+  })
 });
