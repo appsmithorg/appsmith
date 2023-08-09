@@ -34,4 +34,14 @@ public class UserIdentifierServiceCEImpl implements UserIdentifierServiceCE {
     public String hash(String value) {
         return value == null ? "" : DigestUtils.sha256Hex(value);
     }
+
+    @Override
+    public String getEmailDomain(String email) {
+        int atIndex = email.indexOf('@');
+        String emailDomain = null;
+        if (atIndex > 0) {
+            emailDomain = email.substring(atIndex + 1).toLowerCase();
+        }
+        return emailDomain;
+    }
 }
