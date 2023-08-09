@@ -131,6 +131,7 @@ export class ApiPage {
       propFieldName: this._resourceUrl,
       directInput: true,
       inputFieldName: "",
+      apiOrQuery: "api",
     });
     //this.agHelper.GetNClick(this._resourceUrl);
     this.agHelper.Sleep();

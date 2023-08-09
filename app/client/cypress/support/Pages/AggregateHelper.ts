@@ -26,6 +26,7 @@ export interface IEnterValue {
   propFieldName: string;
   directInput: boolean;
   inputFieldName: string;
+  apiOrQuery?: "api" | "query";
 }
 
 const DEFAULT_ENTERVALUE_OPTIONS = {
@@ -1044,9 +1045,9 @@ export class AggregateHelper extends ReusableHelper {
     valueToEnter: string,
     options: IEnterValue = DEFAULT_ENTERVALUE_OPTIONS,
   ) {
-    const { directInput, inputFieldName, propFieldName } = options;
+    const { apiOrQuery, directInput, inputFieldName, propFieldName } = options;
     if (propFieldName && directInput && !inputFieldName) {
-      this.UpdateCodeInput(propFieldName, valueToEnter);
+      this.UpdateCodeInput(propFieldName, valueToEnter, apiOrQuery);
     } else if (inputFieldName && !propFieldName && !directInput) {
       this.UpdateCodeInput(
         this.locator._inputFieldByName(inputFieldName),
@@ -1089,7 +1090,7 @@ export class AggregateHelper extends ReusableHelper {
   public UpdateCodeInput(
     selector: string,
     value: string,
-    apiOrQuery: "api" | "query" = "api",
+    apiOrQuery: "api" | "query" = "query",
   ) {
     this.EnableAllCodeEditors();
 
