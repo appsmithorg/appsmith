@@ -4,9 +4,7 @@ import {
   EditorModes,
   type TEditorModes,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
-const { cloudHosting } = getAppsmithConfigs();
 export const APPSMITH_AI = "Appsmith AI";
 
 export function isAIEnabled(ff: FeatureFlags, mode: TEditorModes) {
@@ -16,5 +14,5 @@ export function isAIEnabled(ff: FeatureFlags, mode: TEditorModes) {
   } else if (mode === EditorModes.JAVASCRIPT) {
     featureFlagValue = ff.ask_ai_js;
   }
-  return Boolean(cloudHosting && featureFlagValue);
+  return featureFlagValue;
 }
