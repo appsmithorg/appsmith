@@ -80,7 +80,7 @@ import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { toast } from "design-system";
