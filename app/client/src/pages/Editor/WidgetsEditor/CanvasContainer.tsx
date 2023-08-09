@@ -36,7 +36,6 @@ import type { AppState } from "@appsmith/reducers";
 import { CanvasResizer } from "widgets/CanvasResizer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
-import OverlayCanvasContainer from "./OverlayCanvas";
 
 type CanvasContainerProps = {
   isPreviewMode: boolean;
@@ -240,18 +239,11 @@ function CanvasContainer(props: CanvasContainerProps) {
         {node}
       </Container>
       {isAutoLayout && (
-        <>
-          <CanvasResizer
-            heightWithTopMargin={heightWithTopMargin}
-            isPageInitiated={!isPageInitializing && !!widgetsStructure}
-            shouldHaveTopMargin={shouldHaveTopMargin}
-          />
-          <OverlayCanvasContainer
-            canvasWidth={canvasWidth}
-            containerRef={props.containerRef}
-            parentRef={ref}
-          />
-        </>
+        <CanvasResizer
+          heightWithTopMargin={heightWithTopMargin}
+          isPageInitiated={!isPageInitializing && !!widgetsStructure}
+          shouldHaveTopMargin={shouldHaveTopMargin}
+        />
       )}
     </>
   );
