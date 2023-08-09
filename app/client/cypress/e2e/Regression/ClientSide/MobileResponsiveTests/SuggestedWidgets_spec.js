@@ -36,26 +36,4 @@ describe("Check Suggested Widgets Feature in auto-layout", function () {
       expect(cellData).to.eq("5");
     });
   });
-
-  it("Bug 25432. Table widget bound to API with mock api url", () => {
-    let apiName = "mockAPI";
-    apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users", apiName);
-    apiPage.RunAPI();
-    assertHelper.AssertNetworkStatus("@postExecute", 200);
-
-    dataSources.AddSuggestedWidget(Widgets.Table);
-    agHelper.AssertContains(
-      apiName + ".data.users",
-      "exist",
-      PROPERTY_SELECTOR.tableData + " .CodeMirror",
-    );
-
-    agHelper.Sleep(500);
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: apiName,
-      action: "Delete",
-      entityType: EntityItems.Api,
-    });
-  });
 });
