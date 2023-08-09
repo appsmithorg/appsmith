@@ -19,8 +19,8 @@ export type brandColorsKeys =
 
 export type Inputs = {
   brandColors: Record<brandColorsKeys, string>;
-  APPSMITH_BRAND_LOGO: string;
-  APPSMITH_BRAND_FAVICON: string;
+  brandLogoUrl: string;
+  brandFaviconUrl: string;
 };
 
 type BrandingPageProps = {
@@ -30,11 +30,11 @@ type BrandingPageProps = {
 function BrandingPage(props: BrandingPageProps) {
   const { category } = props;
   const { needsUpgrade = true } = category;
-  const tentantConfig = useSelector(getTenantConfig);
+  const tenantConfig = useSelector(getTenantConfig);
   const defaultValues = {
-    brandColors: tentantConfig.brandColors,
-    APPSMITH_BRAND_LOGO: tentantConfig.brandLogoUrl,
-    APPSMITH_BRAND_FAVICON: tentantConfig.brandFaviconUrl,
+    brandColors: tenantConfig.brandColors,
+    brandLogoUrl: tenantConfig.brandLogoUrl,
+    brandFaviconUrl: tenantConfig.brandFaviconUrl,
   };
   const {
     control,
@@ -56,11 +56,11 @@ function BrandingPage(props: BrandingPageProps) {
    */
   useEffect(() => {
     reset({
-      brandColors: tentantConfig.brandColors,
-      APPSMITH_BRAND_LOGO: tentantConfig.brandLogoUrl,
-      APPSMITH_BRAND_FAVICON: tentantConfig.brandFaviconUrl,
+      brandColors: tenantConfig.brandColors,
+      brandLogoUrl: tenantConfig.brandLogoUrl,
+      brandFaviconUrl: tenantConfig.brandFaviconUrl,
     });
-  }, [tentantConfig, reset]);
+  }, [tenantConfig, reset]);
 
   watch();
 
@@ -81,8 +81,8 @@ function BrandingPage(props: BrandingPageProps) {
         />
         <div className="flex-grow">
           <Previews
-            favicon={getAssetUrl(values.APPSMITH_BRAND_FAVICON)}
-            logo={getAssetUrl(values.APPSMITH_BRAND_LOGO)}
+            favicon={getAssetUrl(values.brandFaviconUrl)}
+            logo={getAssetUrl(values.brandLogoUrl)}
             shades={values.brandColors}
           />
         </div>
