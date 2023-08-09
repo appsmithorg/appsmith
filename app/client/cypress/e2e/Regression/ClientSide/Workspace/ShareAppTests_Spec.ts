@@ -119,7 +119,7 @@ describe("Create new workspace and share with a user", function () {
       Cypress.env("TESTUSERNAME2"),
       Cypress.env("TESTPASSWORD2"),
     );
-    agHelper.Sleep();
+    agHelper.Sleep(); //for CI
     agHelper.VisitNAssert(currentUrl);
     assertHelper.AssertNetworkStatus("@getPagesForViewApp", 404);
     homePage.LogOutviaAPI();

@@ -298,6 +298,8 @@ export class HomePage {
       headers: {
         "X-Requested-By": "Appsmith",
       },
+    }).then((response) => {
+      expect(response.status).equal(200); //Verifying logout is success
     });
     this.agHelper.Sleep(2000); //for logout to complete - CI!
   }
