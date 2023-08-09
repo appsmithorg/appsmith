@@ -5,6 +5,7 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 import {
   agHelper,
   deployMode,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Tab widget test", function () {
@@ -144,7 +145,7 @@ describe("Tab widget test", function () {
   });
 
   it("8. Tab Widget Functionality To Check Default Tab selected After Selected Tab Delete", function () {
-    cy.testJsontext("defaulttab", "Tab 1");
+    propPane.UpdatePropertyFieldValue("Default tab","Tab 1")
     cy.tabVerify(3, "Tab3-for-testing-scroll-navigation-controls");
     cy.get(Layoutpage.tabWidget)
       .contains("Tab3-for-testing-scroll-navigation-controls")
