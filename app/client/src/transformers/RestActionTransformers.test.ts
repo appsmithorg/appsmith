@@ -367,4 +367,115 @@ describe("Api action transformer", () => {
     const result5 = extractApiUrlPath(path5);
     expect(result5).toEqual(output5);
   });
+
+  it("Sets the correct body for xxx-form-encoded-data display type", () => {
+    const input = {
+      ...BASE_ACTION,
+      actionConfiguration: {
+        ...BASE_ACTION.actionConfiguration,
+        httpMethod: "POST",
+        headers: [
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
+          },
+        ],
+        bodyFormData: [
+          {
+            key: "hey",
+            value: "ho",
+            editable: true,
+            mandatory: false,
+            description: "I been tryin to do it right",
+            type: "",
+          },
+        ],
+      },
+    };
+    const output = {
+      ...BASE_ACTION,
+      actionConfiguration: {
+        ...BASE_ACTION.actionConfiguration,
+        httpMethod: "POST",
+        headers: [
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
+          },
+        ],
+        body: "",
+        bodyFormData: [
+          {
+            key: "hey",
+            value: "ho",
+            editable: true,
+            mandatory: false,
+            description: "I been tryin to do it right",
+            type: "",
+          },
+        ],
+      },
+    };
+    const result = transformRestAction(input);
+    expect(result).toEqual(output);
+  });
+
+  it("Sets the correct body for custom/raw display type", () => {
+    const input = {
+      ...BASE_ACTION,
+      actionConfiguration: {
+        ...BASE_ACTION.actionConfiguration,
+        headers: [{ key: "content-type", value: "text/html" }],
+        httpMethod: "POST",
+        body: "raw body",
+      },
+    };
+    const output = {
+      ...BASE_ACTION,
+      actionConfiguration: {
+        ...BASE_ACTION.actionConfiguration,
+        headers: [{ key: "content-type", value: "text/html" }],
+        httpMethod: "POST",
+        body: "raw body",
+      },
+    };
+    const result = transformRestAction(input);
+    expect(result).toEqual(output);
+  });
+
+  it("filters out any HTML tags from action", () => {
+    const input: ApiAction = {
+      ...BASE_ACTION,
+      actionConfiguration: {
+        ...BASE_ACTION.actionConfiguration,
+        httpMethod: "GET",
+        headers: [
+          {
+            key: `<img src=x onerror='alert("this runs")'>Hello</img>`,
+            value: "world",
+          },
+        ],
+        body: "",
+      },
+    };
+
+    // output object should not include the second bodyFormData object
+    // as its key, value and type are empty
+    const output: ApiAction = {
+      ...BASE_ACTION,
+      actionConfiguration: {
+        ...BASE_ACTION.actionConfiguration,
+        httpMethod: "GET",
+        headers: [
+          {
+            key: "Hello",
+            value: "world",
+          },
+        ],
+        body: "",
+      },
+    };
+    const result = transformRestAction(input);
+    expect(result).toEqual(output);
+  });
 });

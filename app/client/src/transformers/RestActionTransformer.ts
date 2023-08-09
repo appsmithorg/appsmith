@@ -2,7 +2,7 @@ import {
   HTTP_METHOD,
   CONTENT_TYPE_HEADER_KEY,
 } from "constants/ApiEditorConstants/CommonApiConstants";
-import type { ApiAction } from "entities/Action";
+import type { ApiAction, BodyFormData, Property } from "entities/Action";
 import isEmpty from "lodash/isEmpty";
 import isString from "lodash/isString";
 import cloneDeep from "lodash/cloneDeep";
@@ -10,6 +10,8 @@ import {
   getDynamicStringSegments,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
+import { filterXSS } from "xss";
+import { isArray } from "lodash";
 
 export const transformRestAction = (data: ApiAction): ApiAction => {
   let action = cloneDeep(data);
@@ -76,6 +78,16 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
     };
   }
 
+  action.actionConfiguration.bodyFormData = filterXSSVulnerabilities(
+    action.actionConfiguration.bodyFormData,
+  ) as BodyFormData[];
+  action.actionConfiguration.headers = filterXSSVulnerabilities(
+    action.actionConfiguration.headers,
+  ) as Property[];
+  action.actionConfiguration.queryParameters = filterXSSVulnerabilities(
+    action.actionConfiguration.queryParameters,
+  ) as Property[];
+
   action.actionConfiguration.bodyFormData = removeEmptyPairs(
     action.actionConfiguration.bodyFormData,
   );
@@ -98,6 +110,40 @@ function removeEmptyPairs(keyValueArray: any) {
       (!isEmpty(data.key) || !isEmpty(data.value) || !isEmpty(data.type)),
   );
 }
+
+const filterXSSVulnerabilities = (
+  value: string | BodyFormData[] | Property[] | undefined,
+): string | BodyFormData[] | Property[] | undefined => {
+  if (isString(value)) {
+    return filterXss(value);
+  }
+
+  if (isArray(value)) {
+    return value.map((val: Property | BodyFormData) => {
+      const key = filterXss(val.key);
+      const value = filterXss(val?.value || "");
+
+      // allow keys like "type" to pass through.
+      return { ...val, key, value };
+    });
+  }
+
+  return value;
+};
+
+// the default option filters out any HTML Tags but keeps any plain text within them e.g <p>Hello</p> ---> Hello
+export const DEFAULT_FILTER_XSS_OPTIONS = {
+  whiteList: {},
+  stripIgnoreTag: true,
+  stripIgnoreTagBody: ["script"],
+};
+
+export const filterXss = (
+  source: string,
+  customOptions = DEFAULT_FILTER_XSS_OPTIONS,
+) => {
+  return filterXSS(source, customOptions);
+};
 
 // This function extracts the appropriate paths regardless of whatever expressions exist within the dynamic bindings.
 
