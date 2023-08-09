@@ -184,7 +184,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                       renderAs="p"
                     >
                       {method.label}&nbsp;
-                      {method.isEnabled && <BusinessTag />}
+                      {!method.isEnabled && <BusinessTag />}
                       {method.isConnected && (
                         <Tooltip
                           content={createMessage(
