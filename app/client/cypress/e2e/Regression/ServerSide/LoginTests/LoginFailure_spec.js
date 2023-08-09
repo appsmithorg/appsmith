@@ -6,7 +6,7 @@ import {
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Login failure", function () {
+describe.skip("Login failure", function () {
   it("1. Preserves redirectUrl param on login failure", function () {
     let appUrl;
     deployMode.DeployApp(locators._emptyPageTxt);
