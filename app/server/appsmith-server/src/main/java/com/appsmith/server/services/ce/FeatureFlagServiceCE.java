@@ -41,13 +41,13 @@ public interface FeatureFlagServiceCE {
      * To get all features of the tenant from Cloud Services and store them locally
      * @return Mono of Void
      */
-    Mono<Void> getAllRemoteFeaturesForTenant();
+    Mono<Void> getAllRemoteFeaturesForTenant(String tenantId);
 
     /**
      * To get all features of the current tenant.
      * @return Mono of Map
      */
-    Mono<Map<String, Boolean>> getCurrentTenantFeatures();
+    Mono<Map<String, Boolean>> getCurrentTenantFeatures(String tenantId);
 
     /**
      * To force update all features of the current tenant.

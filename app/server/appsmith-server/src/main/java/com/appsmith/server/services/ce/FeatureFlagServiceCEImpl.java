@@ -29,8 +29,6 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     private final FF4j ff4j;
 
-    private final TenantService tenantService;
-
     private final ConfigService configService;
 
     private final CloudServicesConfig cloudServicesConfig;
@@ -54,7 +52,6 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
             CacheableFeatureFlagHelper cacheableFeatureFlagHelper) {
         this.sessionUserService = sessionUserService;
         this.ff4j = ff4j;
-        this.tenantService = tenantService;
         this.configService = configService;
         this.cloudServicesConfig = cloudServicesConfig;
         this.userIdentifierService = userIdentifierService;
@@ -140,20 +137,16 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
      * To get all features of the tenant from Cloud Services and store them locally
      * @return Mono of Void
      */
-    public Mono<Void> getAllRemoteFeaturesForTenant() {
-        return tenantService
-                .getDefaultTenantId()
-                .flatMap(defaultTenantId -> {
-                    return cacheableFeatureFlagHelper
-                            .fetchCachedTenantNewFeatures(defaultTenantId)
-                            .flatMap(cachedFeatures -> {
-                                if (cachedFeatures.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
-                                        < this.tenantFeaturesCacheTimeMin) {
-                                    return Mono.just(cachedFeatures);
-                                } else {
-                                    return this.forceUpdateTenantFeatures(defaultTenantId);
-                                }
-                            });
+    public Mono<Void> getAllRemoteFeaturesForTenant(String tenantId) {
+        return cacheableFeatureFlagHelper
+                .fetchCachedTenantNewFeatures(tenantId)
+                .flatMap(cachedFeatures -> {
+                    if (cachedFeatures.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
+                            < this.tenantFeaturesCacheTimeMin) {
+                        return Mono.just(cachedFeatures);
+                    } else {
+                        return this.forceUpdateTenantFeatures(tenantId);
+                    }
                 })
                 .then();
     }
@@ -175,11 +168,8 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
      * To get all features of the current tenant.
      * @return Mono of Map
      */
-    public Mono<Map<String, Boolean>> getCurrentTenantFeatures() {
-        return tenantService
-                .getDefaultTenantId()
-                // TODO: Update to call fetchCachedTenantCurrentFeatures once default value storing is complete
-                .flatMap(defaultTenantId -> cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(defaultTenantId))
-                .map(cachedFeatures -> cachedFeatures.getFeatures());
+    public Mono<Map<String, Boolean>> getCurrentTenantFeatures(String tenantId) {
+        // TODO: Update to call fetchCachedTenantCurrentFeatures once default value storing is complete
+        return cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(tenantId).map(CachedFeatures::getFeatures);
     }
 }
