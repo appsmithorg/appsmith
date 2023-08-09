@@ -1133,19 +1133,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/git/discard/app/*").as("discardChanges");
   cy.intercept("GET", "/api/v1/libraries/*").as("getLibraries");
   featureFlagIntercept({}, false);
-
-  // cy.intercept("GET", "/api/v1/product-alert/alert", (req) => {
-  //   try {
-  //     req.continue((res) => {
-  //       handleProductAlertRequest(res);
-  //     });
-  //   } catch (e) {
-  //     req.continue((res) => {
-  //       handleProductAlertRequest(res);
-  //     });
-  //   }
-  // }).as("productAlert");
-
   cy.intercept(
     {
       method: "GET",
@@ -1172,21 +1159,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     },
   ).as("productAlert");
 });
-
-function handleProductAlertRequest(res) {
-  // This API should always return a 200 status, for any case.
-  expect(res.statusCode).to.equal(200);
-
-  // Mock an empty product alerts response to prevent interference with tests
-  res.send({
-    responseMeta: {
-      status: 200,
-      success: true,
-    },
-    data: {},
-    errorDisplay: "",
-  });
-}
 
 Cypress.Commands.add("startErrorRoutes", () => {
   cy.intercept("POST", "/api/v1/actions/execute", { statusCode: 500 }).as(
