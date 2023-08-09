@@ -251,10 +251,13 @@ describe("Create new workspace and invite user & validate all roles", () => {
     _.agHelper.AssertElementAbsence(HomePage.manageUsers);
     _.agHelper.GetNClick(HomePage.editModeInviteModalCloseBtn);
     _.homePage.NavigateToHome();
+    _.homePage.FilterApplication(appid, workspaceId, false);
     _.agHelper.AssertElementAbsence(_.homePage._appHoverIcon("edit"));
     _.agHelper.AssertElementAbsence(_.homePage._shareWorkspace(workspaceId));
     _.agHelper.AssertElementAbsence(HomePage.optionsIcon);
-    cy.get(HomePage.searchInput).type(appid + "Internal Apps");
+    cy.get(HomePage.searchInput)
+      .clear()
+      .type(appid + "Internal Apps");
     _.agHelper.Sleep(2000);
     cy.get(HomePage.appsContainer).should("not.contain", workspaceId);
     _.agHelper.AssertElementAbsence(".t--workspace-section");
