@@ -28,7 +28,7 @@ describe("Debugger logs", function () {
     );
     _.agHelper.RefreshPage();
     // Wait for the debugger icon to be visible
-    _.agHelper.AssertElementVisible(".t--debugger-count");
+    _.agHelper.AssertElementVisibility(".t--debugger-count");
     _.debuggerHelper.ClickDebuggerIcon();
     _.agHelper.GetNClick(_.jsEditor._logsTab);
     _.debuggerHelper.DoesConsoleLogExist(logString);
@@ -299,13 +299,13 @@ describe("Debugger logs", function () {
     _.propPane.SelectPlatformFunction("onClick", "Set interval");
     _.agHelper.EnterActionValue(
       "Callback function",
-      `{{() => { 
+      `{{() => {
         try {
           Test.run();
         } catch (e) {
           clearInterval('myInterval');
           throw e;
-        } 
+        }
       }
       }}`,
     );
