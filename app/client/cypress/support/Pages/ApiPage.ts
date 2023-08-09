@@ -76,6 +76,7 @@ export class ApiPage {
     `.t--auto-generated-${key}-info`;
   private _createQuery = ".t--create-query";
   public _editorDS = ".t--datasource-editor";
+  public _addMoreHeaderFieldButton = ".t--addApiHeader";
 
   CreateApi(
     apiName = "",
@@ -291,10 +292,13 @@ export class ApiPage {
     this.agHelper.ValidateCodeEditorContent(this._paramValue(0), param.value);
   }
 
-  ValidateHeaderParams(header: { key: string; value: string }) {
+  ValidateHeaderParams(header: { key: string; value: string }, index = 0) {
     this.SelectPaneTab("Headers");
-    this.agHelper.ValidateCodeEditorContent(this._headerKey(0), header.key);
-    this.agHelper.ValidateCodeEditorContent(this._headerValue(0), header.value);
+    this.agHelper.ValidateCodeEditorContent(this._headerKey(index), header.key);
+    this.agHelper.ValidateCodeEditorContent(
+      this._headerValue(index),
+      header.value,
+    );
   }
 
   ValidateImportedHeaderParams(

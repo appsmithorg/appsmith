@@ -80,6 +80,7 @@ function ThemeColorControl(props: ThemeColorControlProps) {
             color={userDefinedColors[selectedColor]}
             isOpen={autoFocus}
             key={selectedColor}
+            onPopupClosed={() => setAutoFocus(false)}
             portalContainer={
               document.getElementById("app-settings-portal") || undefined
             }
