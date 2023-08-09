@@ -1480,11 +1480,11 @@ public class ApplicationServiceCETest {
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
-
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();
