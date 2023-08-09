@@ -145,10 +145,10 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                 .flatMap(defaultTenantId -> {
                     return cacheableFeatureFlagHelper
                             .fetchCachedTenantNewFeatures(defaultTenantId)
-                            .map(cachedFeatures -> {
+                            .flatMap(cachedFeatures -> {
                                 if (cachedFeatures.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
                                         < this.tenantFeaturesCacheTimeMin) {
-                                    return cachedFeatures;
+                                    return Mono.just(cachedFeatures);
                                 } else {
                                     return cacheableFeatureFlagHelper
                                             .evictCachedTenantNewFeatures(defaultTenantId)

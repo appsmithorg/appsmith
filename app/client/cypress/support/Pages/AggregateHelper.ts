@@ -143,9 +143,9 @@ export class AggregateHelper extends ReusableHelper {
     //cy.intercept("POST", "/api/v1/users/invite", (req) => { req.headers["origin"] = "Cypress";}).as("mockPostInvite");
   }
 
-  public AssertErrorTooltip(expectedError: string) {
-    this.GetText(this.locator._errorToolTip, "text").then(($error) =>
-      expect($error).to.eq(expectedError),
+  public AssertPopoverTooltip(expectedText: string) {
+    this.GetText(this.locator._popoverToolTip, "text").then(($tooltiptxt) =>
+      expect($tooltiptxt).to.eq(expectedText),
     );
   }
 
@@ -284,10 +284,12 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public ValidateToastMessage(text: string, index = 0, length = 1) {
-    this.GetElement(this.locator._toastMsg)
-      .should("have.length.at.least", length)
-      .eq(index)
-      .should("contain.text", text);
+    if (index != 0) {
+      this.GetElement(this.locator._toastMsg)
+        .should("have.length.at.least", length)
+        .eq(index)
+        .should("contain.text", text);
+    } else this.GetNAssertContains(this.locator._toastMsg, text);
   }
 
   public RemoveTooltip(toolTip: string) {
@@ -754,17 +756,49 @@ export class AggregateHelper extends ReusableHelper {
     }
   }
 
-  public ClearTextField(selector: string) {
-    this.GetElement(selector).clear();
+  public ClearTextField(selector: string, force = false) {
+    this.GetElement(selector).clear({ force });
+    this.Sleep(500); //for text to clear for CI runs
+  }
+
+  public ClearNType(selector: string, totype: string) {
+    this.ClearTextField(selector);
+    this.TypeText(selector, totype);
   }
 
   public TypeText(
     selector: string,
     value: string,
-    index = 0,
-    parseSpecialCharSeq = false,
+    indexOrOptions:
+      | number
+      | Partial<{
+          index: number;
+          parseSpecialCharSeq: boolean;
+          shouldFocus: boolean;
+        }> = 0,
   ) {
-    return this.GetElement(selector).eq(index).focus().wait(100).type(value, {
+    let index: number;
+    let shouldFocus = true;
+    let parseSpecialCharSeq = false;
+
+    if (typeof indexOrOptions === "number") {
+      index = indexOrOptions;
+    } else {
+      index = indexOrOptions.index || 0;
+      parseSpecialCharSeq = indexOrOptions.parseSpecialCharSeq || false;
+      shouldFocus =
+        indexOrOptions.shouldFocus !== undefined
+          ? indexOrOptions.shouldFocus
+          : true;
+    }
+
+    const element = this.GetElement(selector).eq(index);
+
+    if (shouldFocus) {
+      element.focus();
+    }
+
+    return element.wait(100).type(value, {
       parseSpecialCharSequences: parseSpecialCharSeq,
       delay: 5,
       force: true,
@@ -959,6 +993,7 @@ export class AggregateHelper extends ReusableHelper {
   ) {
     if (entityType != EntityItems.Widget)
       this.GetNClick(this.locator._contextMenuItem("Are you sure?"));
+    this.Sleep(1000);
     toAssertAction && this.assertHelper.AssertDelete(entityType);
   }
 
@@ -1073,6 +1108,7 @@ export class AggregateHelper extends ReusableHelper {
         input.focus();
         this.Sleep(200);
         input.setValue(value);
+        this.Sleep(200);
         input.execCommand("goLineEnd");
         this.Sleep(200);
       });
@@ -1328,17 +1364,7 @@ export class AggregateHelper extends ReusableHelper {
       .eq(index)
       .scrollIntoView()
       .should("be.visible");
-  }
-
-  public AssertElementNotVisible(
-    selector: ElementType,
-    index = 0,
-    timeout = 20000,
-  ) {
-    return this.GetElement(selector, timeout)
-      .eq(index)
-      .scrollIntoView()
-      .should("not.be.visible");
+    //return this.ScrollIntoView(selector, index, timeout).should("be.visible");//to find out why this is failing.
   }
 
   public CheckForErrorToast(error: string) {
@@ -1414,6 +1440,7 @@ export class AggregateHelper extends ReusableHelper {
 
   public AssertURL(url: string) {
     cy.url().should("include", url);
+    this.Sleep(); //settle time for new url!
   }
 
   public ScrollTo(
@@ -1513,8 +1540,9 @@ export class AggregateHelper extends ReusableHelper {
     });
   }
 
-  public VisitNAssert(url: string, apiToValidate = "") {
+  public VisitNAssert(url: string, apiToValidate = "", waitTime = 4000) {
     cy.visit(url, { timeout: 60000 });
+    this.Sleep(waitTime); //for new url to settle
     if (apiToValidate.includes("getReleaseItems") && Cypress.env("AIRGAPPED")) {
       this.Sleep(2000);
     } else

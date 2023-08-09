@@ -87,6 +87,8 @@ export const contentConfig = [
                 type: ValidationTypes.OBJECT,
                 name: "dataSource",
                 params: {
+                  required: true,
+                  ignoreCase: false,
                   allowedKeys: [
                     {
                       name: "chart",

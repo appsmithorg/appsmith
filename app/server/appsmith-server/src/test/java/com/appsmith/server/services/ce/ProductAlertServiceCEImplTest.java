@@ -65,9 +65,24 @@ public class ProductAlertServiceCEImplTest {
     }
 
     @Test
-    public void getSingleApplicableMessage_cloudInstance_success() {
+    public void getSingleApplicableMessage_cloudInstance_precutOffDate() {
         ProductAlertServiceCE productAlertServiceCE = new ProductAlertServiceCEImpl(mapper, commonConfig);
         Mockito.when(commonConfig.isCloudHosting()).thenReturn(true);
+        Mockito.when(commonConfig.getCurrentTimeInstantEpochMilli()).thenReturn(1691127900000L);
+        Mono<List<ProductAlertResponseDTO>> productAlertResponseDTOMono =
+                productAlertServiceCE.getSingleApplicableMessage();
+        StepVerifier.create(productAlertResponseDTOMono)
+                .assertNext(productAlertResponseDTOs -> {
+                    assertThat(productAlertResponseDTOs.get(0).getMessageId()).isEqualTo(messages[2].getMessageId());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getSingleApplicableMessage_cloudInstance_postcutOffDate() {
+        ProductAlertServiceCE productAlertServiceCE = new ProductAlertServiceCEImpl(mapper, commonConfig);
+        Mockito.when(commonConfig.isCloudHosting()).thenReturn(true);
+        Mockito.when(commonConfig.getCurrentTimeInstantEpochMilli()).thenReturn(1691473500000L);
         Mono<List<ProductAlertResponseDTO>> productAlertResponseDTOMono =
                 productAlertServiceCE.getSingleApplicableMessage();
         StepVerifier.create(productAlertResponseDTOMono)
