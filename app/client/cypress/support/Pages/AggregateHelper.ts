@@ -176,7 +176,7 @@ export class AggregateHelper extends ReusableHelper {
       .should("have.value", renameVal)
       .blur();
     this.PressEnter();
-    this.AssertElementVisible(this.locator._editIcon);
+    this.AssertElementVisibility(this.locator._editIcon);
     this.Sleep(300); //allow lil more time for new name to settle
   }
 
@@ -1359,15 +1359,16 @@ export class AggregateHelper extends ReusableHelper {
     return this.GetElement(selector).should("not.be.focused");
   }
 
-  public AssertElementVisible(
+  public AssertElementVisibility(
     selector: ElementType,
+    visibility = true,
     index = 0,
     timeout = 20000,
   ) {
     return this.GetElement(selector, timeout)
       .eq(index)
       .scrollIntoView()
-      .should("be.visible");
+      .should(visibility == true ? "be.visible" : "not.be.visible");
     //return this.ScrollIntoView(selector, index, timeout).should("be.visible");//to find out why this is failing.
   }
 

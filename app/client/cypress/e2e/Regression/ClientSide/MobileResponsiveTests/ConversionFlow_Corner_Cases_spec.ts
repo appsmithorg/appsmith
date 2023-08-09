@@ -63,7 +63,7 @@ describe("Handle Cases while conversion", () => {
     "5. #23367 when app imports pages from a template, it should convert without any errors before refreshing the page after load",
     () => {
       entityExplorer.AddNewPage("Add page from template");
-      agHelper.AssertElementVisible(template.templateDialogBox);
+      agHelper.AssertElementVisibility(template.templateDialogBox);
       agHelper.GetNClick(template.marketingDashboard);
       cy.wait(10000); // for templates page to load fully
       agHelper.GetNClick(template.selectCheckbox);
