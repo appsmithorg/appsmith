@@ -151,6 +151,16 @@ public class SecurityConfig {
                 .csrf()
                 .disable()
                 .addFilterAt(new CSRFFilter(), SecurityWebFiltersOrder.CSRF)
+                // Default security headers configuration from
+                // https://docs.spring.io/spring-security/site/docs/5.0.x/reference/html/headers.html
+                .headers()
+                // Disabled here because add it in NGINX instead.
+                .contentTypeOptions()
+                .disable()
+                // Disabled because we use CSP's `frame-ancestors` instead.
+                .frameOptions()
+                .disable()
+                .and()
                 .anonymous()
                 .principal(createAnonymousUser())
                 .and()

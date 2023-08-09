@@ -1,7 +1,7 @@
 {
   "dropdownChevronLeft": ".t--close-editor",
   "addNewtable": "//span[text()='New Table']",
-  "inputValues":"//div[@class='bp3-input-group']",
+  "inputValues": "//div[@class='bp3-input-group']",
   "addTablename": "(//div[@class='bp3-input-group']//input)[2]",
   "addColumn": "//span[text()='Add Column']/parent::button/parent::div",
   "addColumnName": "div[data-testid='input-container']",
@@ -23,6 +23,7 @@
   "addtoCart": "//span[@class='bp3-button-text' and text()='Submit']",
   "deletefromCart": "//span[@class='bp3-button-text' and text()='Delete']",
   "editbookquantity": "(//div[@class='bp3-input-group'])[4]",
-  "addButton":"//span[text()='Add']/parent::button",
-  "editButton":"//span[text()='Edit']/parent::button"
+  "addButton": "//span[text()='Add']/parent::button",
+  "editButton": "//span[text()='Edit']/parent::button",
+  "loadButton": ".bp3-button.bp3-loading"
 }
