@@ -137,7 +137,7 @@ const widgetsToTest: Record<
     },
   },
   */
-  [_.draggableWidgets.PHONEINPUT]: {
+  [_.draggableWidgets.PHONE_INPUT]: {
     widgetName: "PhoneInput",
     widgetPrefixName: "PhoneInput1",
     textBindingValue: testdata.phoneBindingValue,

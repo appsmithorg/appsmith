@@ -13,10 +13,7 @@ beforeEach(() => {
       cy.xpath(template.closeButton).click({ force: true });
     }
   });
-  cy.CheckAndUnfoldEntityItem("Pages");
-  cy.get(`.t--entity-name:contains(Page1)`)
-    .trigger("mouseover")
-    .click({ force: true });
+  entityExplorer.SelectEntityByName("Page1", "Pages");
 });
 
 describe(
@@ -77,31 +74,33 @@ describe(
         "template added successfully",
         "contain.text",
       );
-      // cy.get(widgetLocators.toastAction).should(
-      //   "contain",
-      //   "template added successfully",
-      // );
     });
 
     it("3. Templates card should take user to 'select pages from template' page", () => {
-      agHelper.RefreshPage();
+      //agHelper.RefreshPage();
+
       entityExplorer.AddNewPage("Add page from template");
       agHelper.GetNClick(templates.locators._templateCard);
+      agHelper.Sleep(2000);
       agHelper.AssertElementVisible(template.templateViewForkButton);
+      agHelper.Sleep(2000);
+      agHelper.GetNClick(templates.locators._closeTemplateDialogBoxBtn);
+      agHelper.Sleep();
 
       //Similar templates add icon should take user to 'select pages from template'
-      agHelper.RefreshPage();
+      //agHelper.RefreshPage();
       entityExplorer.AddNewPage("Add page from template");
       // We are currentlyon on templates list page
       agHelper.GetNClick(templates.locators._templateCard);
       // Here we are on template detail page, with similar templates at the bottom
       agHelper.GetNClick(templates.locators._templateCard);
+      agHelper.Sleep(2000);
       agHelper.AssertElementVisible(template.templateViewForkButton);
+      agHelper.Sleep(2000);
       agHelper.GetNClick(templates.locators._closeTemplateDialogBoxBtn);
     });
 
     it("4. Add page from template to show only apps with 'allowPageImport:true'", () => {
-      agHelper.RefreshPage(); //is important for below intercept to go thru!
       cy.fixture("Templates/AllowPageImportTemplates.json").then((data) => {
         cy.intercept(
           {
@@ -113,6 +112,7 @@ describe(
             body: data,
           },
         ).as("fetchAllTemplates");
+        agHelper.RefreshPage(); //is important for intercept to go thru!
 
         entityExplorer.AddNewPage("Add page from template");
 
