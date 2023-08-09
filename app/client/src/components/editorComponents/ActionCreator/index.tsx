@@ -256,8 +256,8 @@ const ActionCreator = React.forwardRef(
     );
 
     const EmptyState = styled.div`
-      padding: 8px;
-      border-radius: 4px;
+      padding: var(--ads-v2-spaces-3);
+      border-radius: var(--ads-v2-border-radius);
       border: solid 0 var(--ads-v2-color-gray-300);
       background-color: var(--ads-v2-color-gray-100);
       color: var(--ads-v2-color-gray-400);
