@@ -29,7 +29,7 @@ export function* handleRouteChange(
   const { pathname, state } = action.payload.location;
   try {
     yield fork(clearErrors);
-    yield fork(watchForTrackableUrl);
+    yield fork(watchForTrackableUrl, action.payload);
     const isAnEditorPath = isEditorPath(pathname);
 
     // handled only on edit mode
@@ -67,13 +67,25 @@ function* clearErrors() {
   }
 }
 
-function* watchForTrackableUrl() {
-  const isTrackable: boolean = yield call(
+function* watchForTrackableUrl(payload: RouteChangeActionPayload) {
+  const oldPathname = payload.prevLocation.pathname;
+  const newPathname = payload.location.pathname;
+  const isOldPathTrackable: boolean = yield call(
     UsagePulse.isTrackableUrl,
-    window.location.pathname,
+    oldPathname,
   );
-  if (!isTrackable) {
-    yield call(UsagePulse.track);
+  const isNewPathTrackable: boolean = yield call(
+    UsagePulse.isTrackableUrl,
+    newPathname,
+  );
+
+  // Trackable to Trackable URL -> No pulse
+  // Non-Trackable to Non-Trackable URL -> No pulse
+  // Trackable to Non-Trackable -> No Pulse
+  // Non-Trackable to Trackable URL -> Send Pulse
+
+  if (!isOldPathTrackable && isNewPathTrackable) {
+    yield call(UsagePulse.sendPulseAndScheduleNext);
   }
 }
 

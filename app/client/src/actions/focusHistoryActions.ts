@@ -6,14 +6,16 @@ import type { AppsmithLocationState } from "utils/history";
 
 export type RouteChangeActionPayload = {
   location: Location<AppsmithLocationState>;
+  prevLocation: Location<AppsmithLocationState>;
 };
 
 export const routeChanged = (
   location: Location<AppsmithLocationState>,
+  prevLocation: Location<AppsmithLocationState>,
 ): ReduxAction<RouteChangeActionPayload> => {
   return {
     type: ReduxActionTypes.ROUTE_CHANGED,
-    payload: { location },
+    payload: { location, prevLocation },
   };
 };
 

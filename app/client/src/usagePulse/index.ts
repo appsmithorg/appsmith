@@ -74,13 +74,19 @@ class UsagePulse {
 
   static registerActivityListener() {
     USER_ACTIVITY_LISTENER_EVENTS.forEach((event) => {
-      window.document.body.addEventListener(event, UsagePulse.track);
+      window.document.body.addEventListener(
+        event,
+        UsagePulse.sendPulseAndScheduleNext,
+      );
     });
   }
 
   static deregisterActivityListener() {
     USER_ACTIVITY_LISTENER_EVENTS.forEach((event) => {
-      window.document.body.removeEventListener(event, UsagePulse.track);
+      window.document.body.removeEventListener(
+        event,
+        UsagePulse.sendPulseAndScheduleNext,
+      );
     });
   }
 
@@ -100,24 +106,24 @@ class UsagePulse {
   /*
    * Point of entry for the user tracking
    */
-  static startTrackingActivity(
+  static async startTrackingActivity(
     isTelemetryEnabled: boolean,
     isAnonymousUser: boolean,
   ) {
     UsagePulse.isTelemetryEnabled = isTelemetryEnabled;
     UsagePulse.isAnonymousUser = isAnonymousUser;
-    UsagePulse.track();
+    if (await UsagePulse.isTrackableUrl(window.location.pathname)) {
+      await UsagePulse.sendPulseAndScheduleNext();
+    }
   }
 
   /*
    * triggers a pulse and schedules the pulse , if user is on a trackable url, otherwise
    * registers listeners to wait for the user to go to a trackable url
    */
-  static async track() {
-    if (await UsagePulse.isTrackableUrl(window.location.pathname)) {
-      UsagePulse.sendPulse();
-      UsagePulse.scheduleNextActivityListeners();
-    }
+  static async sendPulseAndScheduleNext() {
+    UsagePulse.sendPulse();
+    UsagePulse.scheduleNextActivityListeners();
   }
 
   /*
