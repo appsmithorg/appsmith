@@ -596,8 +596,7 @@ function* redirectAuthorizationCodeSaga(
   const isImport: string = yield select(getWorkspaceIdForImport);
 
   if (pluginType === PluginType.API) {
-    //window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code`;
-    yield OAuthApi.redirectUrl(datasourceId, pageId);
+    window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code?environmentId=${getCurrentEditingEnvID()}`;
   } else {
     try {
       // Get an "appsmith token" from the server

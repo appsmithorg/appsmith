@@ -27,13 +27,6 @@ class OAuthApi extends Api {
       `${OAuthApi.url}/${datasourceId}/token?appsmithToken=${token}`,
     );
   }
-
-  static redirectUrl(
-    datasourceId: string,
-    pageId: string,
-  ): AxiosPromise<ApiResponse<Datasource>> {
-    return Api.get(`v1/datasources/${datasourceId}/pages/${pageId}/code`);
-  }
 }
 
 export default OAuthApi;
