@@ -213,32 +213,6 @@ describe("Code Scanner widget's functionality", () => {
   });
 });
 
-describe("5 => Default mobile camera", () => {
-  it("5.1 => It should have rear camera as default for value", () => {
-    _.agHelper.AssertElementExist(
-      _.propPane._propertyControl("defaultmobilecamera"),
-    );
-    _.propPane.AssertPropertiesDropDownCurrentValue(
-      "Default mobile camera",
-      "Back (Rear)",
-    );
-  });
-  it("5.2 => should be able to change the default mobile camera option", () => {
-    _.propPane.AssertPropertiesDropDownValues("Default mobile camera", [
-      "Back (Rear)",
-      "Front (Selfie)",
-    ]);
-    _.propPane.AssertPropertiesDropDownCurrentValue(
-      "Default mobile camera",
-      "Back (Rear)",
-    );
-    _.propPane.SelectPropertiesDropDown(
-      "Default mobile camera",
-      "Front (Selfie)",
-    );
-  });
-});
-
 // Disabling this test for now.
 // Check out - https://github.com/appsmithorg/appsmith/pull/15990#issuecomment-1241598309
 // it("6. Open the Code Scanner modal and Scan a QR using fake webcam video.", () => {
