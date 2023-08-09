@@ -153,7 +153,7 @@ public class DatasourceControllerCE {
             @PathVariable String datasourceId,
             @PathVariable String pageId,
             ServerWebExchange serverWebExchange,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+            @RequestParam String environmentId) {
         log.debug(
                 "Going to retrieve token request URL for datasource with id: {} and page id: {}", datasourceId, pageId);
         return authenticationService
