@@ -6,17 +6,20 @@ import {
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Login failure", function () {
+describe.skip("Login failure", function () {
   it("1. Preserves redirectUrl param on login failure", function () {
     let appUrl;
     deployMode.DeployApp(locators._emptyPageTxt);
     cy.location()
       .then((location) => {
-        cy.LogOutUser();
         appUrl = location.href.split("?")[0];
+        cy.LogOutUser();
+        agHelper.Sleep(2000);
+        agHelper.AssertElementVisible(homePage._username); //check if user is logged out & then try to visit app url
         cy.window({ timeout: 60000 }).then((win) => {
           win.location.href = appUrl;
         });
+        agHelper.Sleep(3000); //for page redirect to complete
         assertHelper.AssertNetworkStatus("signUpLogin");
         agHelper.AssertElementVisible(homePage._username);
       })

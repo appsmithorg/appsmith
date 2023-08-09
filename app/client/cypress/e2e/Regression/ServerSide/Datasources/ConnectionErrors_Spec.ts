@@ -299,7 +299,7 @@ describe("Validate Empty DS error messages", () => {
         "S3 service provider",
         "Amazon S3",
         "Access key",
-        "AKIAVWHAAGIQCDT3C345",
+        Cypress.env("S3_ACCESS_KEY"),
       ]);
     });
   });
