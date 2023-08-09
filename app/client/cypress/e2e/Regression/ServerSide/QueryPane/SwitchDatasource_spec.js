@@ -1,6 +1,6 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
-
+import { dataSources } from "../../../../support/Objects/ObjectsCore";
 describe("Switch datasource", function () {
   let postgresDatasourceName;
   let postgresDatasourceNameSecond;
@@ -62,9 +62,8 @@ describe("Switch datasource", function () {
   });
 
   it("4. By switching datasources execute a query with both the datasources", function () {
-    cy.NavigateToActiveDSQueryPane(postgresDatasourceName);
-    cy.wait(3000);
-    cy.runQuery();
+    dataSources.NavigateToActiveTab();
+    dataSources.CreateQueryFromActiveTab(postgresDatasourceName);
 
     // Update Action API is not being called after run, we dont need this validation here
     // cy.wait("@saveAction").should(
@@ -95,7 +94,8 @@ describe("Switch datasource", function () {
   });
 
   it("6. Delete the query and datasources", function () {
-    cy.deleteQueryUsingContext();
+    dataSources.DeleteQuery("Query1");
+
     cy.deleteDatasource(postgresDatasourceName);
     cy.deleteDatasource(postgresDatasourceNameSecond);
     cy.deleteDatasource(mongoDatasourceName);
