@@ -21,7 +21,7 @@ public class HealthCheckControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping
     public Mono<ResponseDTO<String>> getHealth() {
-        return rateLimitService.checkRateLimit().flatMap(isAllowed -> {
+        return rateLimitService.checkRateLimit("health-check").flatMap(isAllowed -> {
             if (!isAllowed) {
                 return Mono.just(new ResponseDTO<>(HttpStatus.TOO_MANY_REQUESTS.value(), null, null));
             }

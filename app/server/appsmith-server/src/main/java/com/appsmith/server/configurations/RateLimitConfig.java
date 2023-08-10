@@ -4,38 +4,54 @@ import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.Refill;
 import io.github.bucket4j.distributed.BucketProxy;
+import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
 import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
 import io.lettuce.core.RedisClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class RateLimitConfig {
+    // Create a map to store API configurations
+    private static final Map<String, BucketConfiguration> apiConfigurations = new HashMap<>();
 
-    @Bean
-    public LettuceBasedProxyManager<byte[]> proxyManager() {
-        return LettuceBasedProxyManager.builderFor(createRedisClient()).build();
+    static {
+        // Define API configurations
+        apiConfigurations.put("health-check", createBucketConfiguration(Duration.ofDays(1), 5));
+        // Add more API configurations as needed
     }
 
     @Bean
-    public BucketProxy rateLimitBucket(LettuceBasedProxyManager<byte[]> proxyManager) {
-        // TODO: Make this configurable
-        Refill refill = Refill.intervally(5, Duration.ofDays(1)); // Refill 5 tokens every day
-        Bandwidth limit = Bandwidth.classic(5, refill);
-
-        BucketConfiguration configuration = BucketConfiguration.builder()
-                .addLimit(limit)
+    public LettuceBasedProxyManager<byte[]> proxyManager() {
+        // we will need separate proxy manager for each API and requirements
+        return LettuceBasedProxyManager.builderFor(createRedisClient())
+                .withExpirationStrategy(ExpirationAfterWriteStrategy.fixedTimeToLive(Duration.ofDays(1)))
                 .build();
+    }
 
-        // TODO: Each API should have it's own bucket which can be the route + the identifier
-        // we can use an map of buckets to do this
-        return proxyManager.builder().build("key".getBytes(), configuration);
+    @Bean
+    public Map<String, BucketProxy> apiBuckets(LettuceBasedProxyManager<byte[]> proxyManager) {
+        Map<String, BucketProxy> apiBuckets = new HashMap<>();
+
+        // Populate the apiBuckets map based on your existing apiConfigurations
+        apiConfigurations.forEach((apiIdentifier, configuration) -> apiBuckets.put(apiIdentifier, proxyManager.builder().build(apiIdentifier.getBytes(), configuration)));
+
+        return apiBuckets;
     }
 
     // TODO: Pick up redis client from RedisConfiguration
     private RedisClient createRedisClient() {
         return RedisClient.create("redis://127.0.0.1:6379");
+    }
+
+    private static BucketConfiguration createBucketConfiguration(
+            Duration refillDuration, int limit) {
+        Refill refillConfig = Refill.intervally(limit, refillDuration);
+        Bandwidth limitConfig = Bandwidth.classic(limit, refillConfig);
+        return BucketConfiguration.builder().addLimit(limitConfig).build();
     }
 }
