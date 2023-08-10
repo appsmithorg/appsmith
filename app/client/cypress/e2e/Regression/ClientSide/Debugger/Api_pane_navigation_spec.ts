@@ -26,13 +26,14 @@ describe("excludeForAirgap", "Api pane navigation", () => {
     debuggerHelper.ClickDebuggerIcon();
     debuggerHelper.ClicklogEntityLink();
 
-    agHelper.AssertElementVisible(apiPage._nextCursorValue);
+    agHelper.AssertElementVisibility(apiPage._nextCursorValue);
     debuggerHelper.CloseBottomBar();
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api1",
       entityType: entityItems.Api,
     });
   });
+
   it("2. Navigation to rest api pagination field", () => {
     apiPage.CreateApi("Api2");
     apiPage.SelectPaneTab("Body");
@@ -49,13 +50,14 @@ describe("excludeForAirgap", "Api pane navigation", () => {
     debuggerHelper.ClickDebuggerIcon();
     debuggerHelper.ClicklogEntityLink();
 
-    agHelper.AssertElementVisible(apiPage._bodyValue(0));
+    agHelper.AssertElementVisibility(apiPage._bodyValue(0));
     debuggerHelper.CloseBottomBar();
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api2",
       entityType: entityItems.Api,
     });
   });
+
   it("3. Navigation to a grapql settings field", () => {
     apiPage.CreateGraphqlApi("Api3");
     apiPage.SelectPaneTab("Settings");
@@ -67,7 +69,7 @@ describe("excludeForAirgap", "Api pane navigation", () => {
     debuggerHelper.ClickLogsTab();
     debuggerHelper.ClicklogEntityLink(true);
 
-    agHelper.AssertElementVisible(dataSources._queryTimeout);
+    agHelper.AssertElementVisibility(dataSources._queryTimeout);
     debuggerHelper.CloseBottomBar();
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api3",

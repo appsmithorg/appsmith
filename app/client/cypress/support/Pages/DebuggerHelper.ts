@@ -111,7 +111,7 @@ export class DebuggerHelper {
         break;
       // case PageType.Query:
       // case PageType.DataSources:
-      //   this.agHelper.AssertElementVisible(
+      //   this.agHelper.AssertElementVisibility(
       //     this.locators._bottomPaneContainer[pageType],
       //   );
       //   // this.agHelper.AssertHeight(
