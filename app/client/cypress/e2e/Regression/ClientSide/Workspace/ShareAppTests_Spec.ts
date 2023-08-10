@@ -42,7 +42,7 @@ describe("Create new workspace and share with a user", function () {
     agHelper.Sleep(2000);
     agHelper.GetNAssertContains(homePage._appContainer, workspaceId);
     if (CURRENT_REPO === REPO.CE) {
-      agHelper.AssertElementVisible(locators._spanButton("Share"), 0);
+      agHelper.AssertElementVisibility(locators._spanButton("Share"));
     }
     agHelper.GetElement(homePage._applicationCard).first().trigger("mouseover");
     agHelper.AssertElementAbsence(homePage._appEditIcon);
@@ -119,6 +119,7 @@ describe("Create new workspace and share with a user", function () {
       Cypress.env("TESTUSERNAME2"),
       Cypress.env("TESTPASSWORD2"),
     );
+    agHelper.Sleep(); //for CI
     agHelper.VisitNAssert(currentUrl);
     assertHelper.AssertNetworkStatus("@getPagesForViewApp", 404);
     homePage.LogOutviaAPI();

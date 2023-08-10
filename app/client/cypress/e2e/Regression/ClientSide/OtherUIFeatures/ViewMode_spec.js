@@ -24,7 +24,7 @@ describe("Preview mode functionality", function () {
   beforeEach(() => {
     cy.getSharedUrl().then((url) => {
       agHelper.VisitNAssert(url, "getPagesForViewApp"),
-        agHelper.AssertElementVisible(
+        agHelper.AssertElementVisibility(
           locators._widgetInDeployed(draggableWidgets.BUTTON),
         );
     });
@@ -43,7 +43,7 @@ describe("Preview mode functionality", function () {
       url = new URL(url);
       url.searchParams.append("embed", "true");
       agHelper.VisitNAssert(url.toString(), "getPagesForViewApp");
-      agHelper.AssertElementVisible(
+      agHelper.AssertElementVisibility(
         locators._widgetInDeployed(draggableWidgets.BUTTON),
       );
     });
@@ -56,11 +56,11 @@ describe("Preview mode functionality", function () {
       url.searchParams.append("embed", "true");
       url.searchParams.append("navbar", "true");
       agHelper.VisitNAssert(url.toString(), "getPagesForViewApp");
-      agHelper.AssertElementVisible(
+      agHelper.AssertElementVisibility(
         locators._widgetInDeployed(draggableWidgets.BUTTON),
       );
     });
-    agHelper.AssertElementVisible(appNavigationLocators.header);
+    agHelper.AssertElementVisibility(appNavigationLocators.header);
     agHelper.AssertElementAbsence(
       appNavigationLocators.userProfileDropdownButton,
     );

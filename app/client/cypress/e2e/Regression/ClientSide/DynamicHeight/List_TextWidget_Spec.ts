@@ -81,7 +81,7 @@ describe("Dynamic Height Width validation list widget", function () {
         assertHelper.AssertNetworkStatus("@updateLayout");
         //Widgets when moved out of the list widget have dynamic height in property pane
         entityExplorer.SelectEntityByName("Text3CopyCopy", "Widgets");
-        agHelper.AssertElementVisible(propPane._propertyPaneHeightLabel);
+        agHelper.AssertElementVisibility(propPane._propertyPaneHeightLabel);
         agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.TEXT));
         agHelper
           .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TEXT))

@@ -17,7 +17,7 @@ describe("FilePicker Widget Functionality", function () {
       ".t--property-control-allowedfiletypes .t--codemirror-has-error",
     );
     propPane.EnterJSContext("Allowed file types", `.csv`);
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       ".t--property-control-allowedfiletypes .t--codemirror-has-error",
     );
     propPane.EnterJSContext("Allowed file types", `[".csv", ".doc"]`);
