@@ -231,7 +231,7 @@ export class UserApi extends Api {
   }
 
   static verifyUser(token: string, email: string): AxiosPromise<ApiResponse> {
-    return Api.post(UserApi.verifyUserEmailURL, { token, email });
+    return Api.get(UserApi.verifyUserEmailURL, { token, email });
   }
 }
 
