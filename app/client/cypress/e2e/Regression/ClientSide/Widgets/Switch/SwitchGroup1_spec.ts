@@ -8,6 +8,8 @@ import {
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
+import { switchlocators } from "../../../../../locators/WidgetLocators";
+
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsLoc = require("../../../../../locators/Widgets.json");
 const widgets = require("../../../../../locators/publishWidgetspage.json");
@@ -130,7 +132,8 @@ describe("Switchgroup Widget Functionality", function () {
       .should("be.checked");
   });
 
-  it("2. Setting selectedValues to undefined does not crash the app", () => {
+  //Note:  Old case, rewrittwen to using ts methods
+  it("3. Setting selectedValues to undefined does not crash the app", () => {
     // Reset options for switch group
     entityExplorer.SelectEntityByName("SwitchGroup1");
     propPane.UpdatePropertyFieldValue(
@@ -156,5 +159,24 @@ describe("Switchgroup Widget Functionality", function () {
     propPane.ToggleJSMode("Options", true);
     agHelper.AssertElementAbsence(locators._toastMsg);
     agHelper.GetNAssertElementText(widgets.textWidget, "RED");
+  });
+
+  it(" Set Label, Tooltip, Inline and check switch group", () => {
+    entityExplorer.SelectEntityByName("SwitchGroup1");
+    propPane.UpdatePropertyFieldValue("Text", "SG Widget");
+    propPane.UpdatePropertyFieldValue("Tooltip", "Select any color");
+
+    // assert label and tooltip
+    deployMode.DeployApp();
+    agHelper.AssertText(switchlocators.switchGroupLabel, "text", "SG Widget");
+    agHelper.GetNClick(switchlocators.switchTooltip, 1);
+    agHelper.AssertPopoverTooltip("Select any color");
+    deployMode.NavigateBacktoEditor();
+
+    // assert height of the container based on inline property value
+    entityExplorer.SelectEntityByName("SwitchGroup1");
+    agHelper.AssertElementExist(switchlocators.switchWidgetHeight("60"));
+    propPane.TogglePropertyState("Inline", "Off");
+    agHelper.AssertElementExist(switchlocators.switchWidgetHeight("110"));
   });
 });
