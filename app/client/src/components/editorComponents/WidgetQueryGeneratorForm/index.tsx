@@ -41,7 +41,7 @@ type WidgetQueryGeneratorFormContextType = {
   onSourceClose: () => void;
   errorMsg: string;
   expectedType: string;
-  sampleData?: string;
+  sampleData: string;
   aliases: Alias[];
 };
 
@@ -86,7 +86,7 @@ type Props = {
   expectedType: string;
   aliases: Alias[];
   searchableColumn: boolean;
-  sampleData?: string;
+  sampleData: string;
   allowFieldConfigurations?: boolean;
 };
 

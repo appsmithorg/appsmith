@@ -47,7 +47,7 @@ export class GitSync {
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
-    this.agHelper.AssertElementVisible(this._gitSyncModal);
+    this.agHelper.AssertElementVisibility(this._gitSyncModal);
   }
 
   CloseGitSyncModal() {
@@ -216,7 +216,7 @@ export class GitSync {
       );
       this.agHelper.AssertElementExist(this.locator._btnSpinner);
       this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 70000); //Since page taking more time to laod in some cases
-      this.agHelper.AssertElementVisible(this._branchName(branch + uid));
+      this.agHelper.AssertElementVisibility(this._branchName(branch + uid));
       this.assertHelper.AssertNetworkStatus("getBranch");
       cy.wrap(branch + uid).as("gitbranchName");
     });
@@ -305,8 +305,8 @@ export class GitSync {
 
   public DiscardChanges() {
     this.agHelper.GetNClick(this._bottomBarCommit);
-    this.agHelper.AssertElementVisible(this._gitSyncModal);
-    this.agHelper.AssertElementVisible(this._discardChanges);
+    this.agHelper.AssertElementVisibility(this._gitSyncModal);
+    this.agHelper.AssertElementVisibility(this._discardChanges);
     this.agHelper.ClickButton("Discard & pull");
     this.agHelper.AssertContains(
       Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING(),
@@ -324,7 +324,7 @@ export class GitSync {
   public VerifyChangeLog(uncommitedChanges = false) {
     // open gitsync modal and verify no uncommited changes exist
     this.agHelper.GetNClick(this._bottomBarCommit);
-    this.agHelper.AssertElementVisible(this._gitSyncModal);
+    this.agHelper.AssertElementVisibility(this._gitSyncModal);
     if (uncommitedChanges) {
       this.agHelper.AssertElementEnabledDisabled(
         this._commitCommentInput,

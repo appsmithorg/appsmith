@@ -116,10 +116,10 @@ describe("Dynamic Height Width validation", function () {
     agHelper.AddDsl("dynamicHeigthContainerFixedDsl");
 
     entityExplorer.SelectEntityByName("CheckboxGroup1", "Container1");
-    agHelper.AssertElementVisible(propPane._propertyPaneHeightLabel);
+    agHelper.AssertElementVisibility(propPane._propertyPaneHeightLabel);
     propPane.SelectPropertiesDropDown("height", "Auto Height");
     entityExplorer.SelectEntityByName("Input1");
-    agHelper.AssertElementVisible(propPane._propertyPaneHeightLabel);
+    agHelper.AssertElementVisibility(propPane._propertyPaneHeightLabel);
     propPane.SelectPropertiesDropDown("height", "Auto Height");
     agHelper
       .GetWidgetCSSHeight(

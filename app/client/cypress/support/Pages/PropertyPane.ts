@@ -121,7 +121,7 @@ export class PropertyPane {
   _autoHeightLimitMin_div =
     "[data-testid='t--auto-height-overlay-handles-min'] div";
   _autoHeightLimitMax = "[data-testid='t--auto-height-overlay-handles-max']";
-  _labelContains = (value: string) => `label:Contains('${value}')`;
+  public _labelContains = (value: string) => `label:Contains('${value}')`;
   _showColumnButton = ".t--show-column-btn";
   _propertyPaneHeightLabel =
     ".t--property-pane-section-general .t--property-control-label:contains('Height')";
@@ -165,7 +165,7 @@ export class PropertyPane {
     this.agHelper.GetNClick(this._goBackToProperty);
 
     if (assertElementVisible) {
-      this.agHelper.AssertElementVisible(this._copyWidget);
+      this.agHelper.AssertElementVisibility(this._copyWidget);
     }
     //this.agHelper.AssertElementVisible(this._deleteWidget); //extra valisation, hence commenting!
   }
@@ -524,7 +524,7 @@ export class PropertyPane {
   }
 
   public AssertIfPropertyIsVisible(property: string) {
-    this.agHelper.AssertElementVisible(this._propertyControl(property));
+    this.agHelper.AssertElementVisibility(this._propertyControl(property));
   }
 
   public AddAction(property: string) {

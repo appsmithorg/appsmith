@@ -70,7 +70,7 @@ describe("Omnibar functionality test cases", () => {
       false,
       2000,
     ); //for next screen to open
-    agHelper.AssertElementVisible(omnibar.blankAPI);
+    agHelper.AssertElementVisibility(omnibar.blankAPI);
     agHelper.GetNClickByContains(omnibar.createNew, "New blank API");
     assertHelper.AssertNetworkStatus("@createNewApi", 201);
     entityExplorer.SelectEntityByName("Api1");

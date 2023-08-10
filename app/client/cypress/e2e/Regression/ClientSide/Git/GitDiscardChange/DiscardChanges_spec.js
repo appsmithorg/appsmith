@@ -162,7 +162,7 @@ describe("Git discard changes:", function () {
     cy.Createpage(page3);
 
     agHelper.GetNClick(gitSyncLocators.bottomBarCommitButton);
-    agHelper.AssertElementVisible(gitSyncLocators.discardChanges);
+    agHelper.AssertElementVisibility(gitSyncLocators.discardChanges);
     cy.intercept("PUT", "/api/v1/git/discard/app/*", {
       body: {
         responseMeta: {
@@ -197,8 +197,8 @@ describe("Git discard changes:", function () {
     cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
     agHelper.Sleep(2000);
 
-    agHelper.AssertElementVisible(".ads-v2-callout__children");
-    agHelper.AssertElementVisible(gitSyncLocators.discardChanges);
+    agHelper.AssertElementVisibility(".ads-v2-callout__children");
+    agHelper.AssertElementVisibility(gitSyncLocators.discardChanges);
   });
 
   after(() => {

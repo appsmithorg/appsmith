@@ -26,6 +26,7 @@ export interface IEnterValue {
   propFieldName: string;
   directInput: boolean;
   inputFieldName: string;
+  apiOrQuery?: "api" | "query";
 }
 
 const DEFAULT_ENTERVALUE_OPTIONS = {
@@ -176,7 +177,7 @@ export class AggregateHelper extends ReusableHelper {
       .should("have.value", renameVal)
       .blur();
     this.PressEnter();
-    this.AssertElementVisible(this.locator._editIcon);
+    this.AssertElementVisibility(this.locator._editIcon);
     this.Sleep(300); //allow lil more time for new name to settle
   }
 
@@ -734,6 +735,10 @@ export class AggregateHelper extends ReusableHelper {
     this.GetNClick(this.locator._goBack);
   }
 
+  public SelectAllAndType(selector: string, text: string) {
+    this.GetElement(selector).type("{selectall}" + text);
+  }
+
   public SelectNRemoveLineText(selector: string) {
     this.GetElement(selector).type(this.selectLine);
     return this.GetElement(selector).type(this.removeLine);
@@ -1040,9 +1045,9 @@ export class AggregateHelper extends ReusableHelper {
     valueToEnter: string,
     options: IEnterValue = DEFAULT_ENTERVALUE_OPTIONS,
   ) {
-    const { directInput, inputFieldName, propFieldName } = options;
+    const { apiOrQuery, directInput, inputFieldName, propFieldName } = options;
     if (propFieldName && directInput && !inputFieldName) {
-      this.UpdateCodeInput(propFieldName, valueToEnter);
+      this.UpdateCodeInput(propFieldName, valueToEnter, apiOrQuery);
     } else if (inputFieldName && !propFieldName && !directInput) {
       this.UpdateCodeInput(
         this.locator._inputFieldByName(inputFieldName),
@@ -1082,7 +1087,11 @@ export class AggregateHelper extends ReusableHelper {
     });
   }
 
-  public UpdateCodeInput(selector: string, value: string) {
+  public UpdateCodeInput(
+    selector: string,
+    value: string,
+    apiOrQuery: "api" | "query" = "query",
+  ) {
     this.EnableAllCodeEditors();
 
     const isXPathSelector =
@@ -1105,12 +1114,25 @@ export class AggregateHelper extends ReusableHelper {
       .first()
       .then((ins) => {
         const input = (ins[0] as any).CodeMirror as CodeMirror.Editor;
-        input.focus();
-        this.Sleep(200);
-        input.setValue(value);
-        this.Sleep(200);
-        input.execCommand("goLineEnd");
-        this.Sleep(200);
+        if (apiOrQuery === "api") {
+          setTimeout(() => {
+            input.focus();
+            setTimeout(() => {
+              input.setValue(value);
+              setTimeout(() => {
+                // Move cursor to the end of the line
+                input.execCommand("goLineEnd");
+              }, 300);
+            }, 300);
+          }, 300);
+        } else {
+          input.focus();
+          this.Sleep(200);
+          input.setValue(value);
+          this.Sleep(200);
+          input.execCommand("goLineEnd");
+          this.Sleep(200);
+        }
       });
     this.Sleep(500); //for value set to settle
   }
@@ -1355,26 +1377,17 @@ export class AggregateHelper extends ReusableHelper {
     return this.GetElement(selector).should("not.be.focused");
   }
 
-  public AssertElementVisible(
+  public AssertElementVisibility(
     selector: ElementType,
+    visibility = true,
     index = 0,
     timeout = 20000,
   ) {
     return this.GetElement(selector, timeout)
       .eq(index)
       .scrollIntoView()
-      .should("be.visible");
-  }
-
-  public AssertElementNotVisible(
-    selector: ElementType,
-    index = 0,
-    timeout = 20000,
-  ) {
-    return this.GetElement(selector, timeout)
-      .eq(index)
-      .scrollIntoView()
-      .should("not.be.visible");
+      .should(visibility == true ? "be.visible" : "not.be.visible");
+    //return this.ScrollIntoView(selector, index, timeout).should("be.visible");//to find out why this is failing.
   }
 
   public CheckForErrorToast(error: string) {
@@ -1550,8 +1563,11 @@ export class AggregateHelper extends ReusableHelper {
     });
   }
 
-  public VisitNAssert(url: string, apiToValidate = "", waitTime = 4000) {
+  public VisitNAssert(url: string, apiToValidate = "", waitTime = 3000) {
     cy.visit(url, { timeout: 60000 });
+    // cy.window({ timeout: 60000 }).then((win) => {
+    //   win.location.href = url;
+    // });
     this.Sleep(waitTime); //for new url to settle
     if (apiToValidate.includes("getReleaseItems") && Cypress.env("AIRGAPPED")) {
       this.Sleep(2000);
