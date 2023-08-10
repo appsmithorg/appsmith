@@ -373,7 +373,7 @@ describe("Api action transformer", () => {
       ...BASE_ACTION,
       actionConfiguration: {
         ...BASE_ACTION.actionConfiguration,
-        httpMethod: "GET",
+        httpMethod: "POST",
         headers: [
           {
             key: `<img src=x onerror='alert("this runs")'>Hello</img>`,
@@ -390,7 +390,7 @@ describe("Api action transformer", () => {
       ...BASE_ACTION,
       actionConfiguration: {
         ...BASE_ACTION.actionConfiguration,
-        httpMethod: "GET",
+        httpMethod: "POST",
         headers: [
           {
             key: "Hello",
