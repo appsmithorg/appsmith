@@ -31,10 +31,10 @@ update_supervisord_mongodb_conf() {
   echo "Update supervisord MongoDB conf"
   if [ $isLocalMongo -eq 1 ]; then
     echo "Disable MongoDB supervisord"
-    rm -f mongodb.conf
+    rm -f "$TMP/supervisor-conf.d/mongodb.conf"
   else
     echo "Enable MongoDB supervisord"
-    cp "$SUPERVISORD_CONF_PATH/mongodb.conf" /etc/supervisor/conf.d/
+    cp "$SUPERVISORD_CONF_PATH/mongodb.conf" "$TMP/supervisor-conf.d/"
   fi
 }
 
@@ -42,10 +42,10 @@ update_supervisord_redis_conf() {
   echo "Update supervisord Redis conf"
   if [ $isLocalRedis -eq 1 ]; then
     echo "Disable Redis supervisord"
-    rm -f redis.conf
+    rm -f "$TMP/supervisor-conf.d/redis.conf"
   else
     echo "Enable Redis supervisord"
-    cp "$SUPERVISORD_CONF_PATH/redis.conf" /etc/supervisor/conf.d/
+    cp "$SUPERVISORD_CONF_PATH/redis.conf" "$TMP/supervisor-conf.d/"
   fi
 }
 

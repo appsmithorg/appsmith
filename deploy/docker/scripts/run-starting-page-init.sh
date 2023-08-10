@@ -1,4 +1,6 @@
 #!/bin/bash
 
-python3 /opt/appsmith/starting-page-init.py 
-rm -f /opt/appsmith/editor/loading.html
+set -o nounset
+
+python3 /opt/appsmith/starting-page-init.py
+rm -f "$NGINX_WWW_PATH/loading.html"

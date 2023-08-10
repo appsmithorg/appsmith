@@ -101,7 +101,6 @@ http {
     gzip_types *;
 
     root '$NGINX_WWW_PATH';
-    index index.html;
     error_page 404 /;
 
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
