@@ -45,6 +45,7 @@ export class DebuggerHelper {
     _helpButton: "[data-testid='t--help-button']",
     _intercomOption: "#intercom-trigger",
     _intercomConsentText: "[data-testid='t--intercom-consent-text']",
+    _logsTab: "[data-testid='t--tab-LOGS_TAB']",
   };
 
   ClickDebuggerIcon(
@@ -81,6 +82,10 @@ export class DebuggerHelper {
 
   ClickResponseTab() {
     this.agHelper.GetNClick(this.commonLocators._responseTab);
+  }
+
+  ClickLogsTab() {
+    this.agHelper.GetNClick(this.locators._logsTab);
   }
 
   CloseBottomBar() {

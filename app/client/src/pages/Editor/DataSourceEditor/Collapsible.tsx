@@ -43,7 +43,7 @@ function Collapsible(props: Props) {
 
   return (
     <section
-      data-replay-id={`section-${title}`}
+      data-location-id={`section-${title}`}
       data-testid={`section-${title}`}
     >
       {showSectionHeader && (
