@@ -145,7 +145,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   memoisedAddNewRow: addNewRowToTable;
   memoiseGetColumnsWithLocalStorage: (localStorage: any) => getColumns;
   memoiseTransformDataWithEditableCell: transformDataWithEditableCell;
-  featureFlag: boolean | undefined = BaseWidget.getFeatureFlag("TEST_FLAG");
+  static releaseSeverSideFilterFeatureFlag: boolean | undefined =
+    BaseWidget.getFeatureFlag("release_table_serverside_filtering_enabled");
 
   static getQueryGenerationConfig(widget: WidgetProps) {
     return {
@@ -304,6 +305,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return (widget: TableWidgetProps, extraDefsToDefine?: ExtraDef) => {
+      const featureFlagBasedAutoCompleteConfig: Record<string, any> = {};
+
+      if (this.releaseSeverSideFilterFeatureFlag) {
+        featureFlagBasedAutoCompleteConfig["filters"] = generateTypeDef(
+          widget.filters,
+        );
+      }
+
       const config = {
         "!doc":
           "The Table is the hero widget of Appsmith. You can display data from an API in a table, trigger an action when a user selects a row and even work with large paginated data sets",
@@ -333,9 +342,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         isAddRowInProgress: "bool",
         previousPageVisited: generateTypeDef(widget.previousPageVisited),
         nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
-        filters: generateTypeDef(widget.filters),
+        ...featureFlagBasedAutoCompleteConfig,
       };
-
       return config;
     };
   }

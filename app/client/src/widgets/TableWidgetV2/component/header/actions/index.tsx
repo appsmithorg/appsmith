@@ -124,7 +124,6 @@ export interface ActionsPropsType {
   allowAddNewRow: boolean;
   onAddNewRow: () => void;
   disableAddNewRow: boolean;
-  featureFlag: boolean | undefined;
 }
 
 function Actions(props: ActionsPropsType) {
@@ -154,7 +153,6 @@ function Actions(props: ActionsPropsType) {
                 applyFilter={props.applyFilter}
                 borderRadius={props.borderRadius}
                 columns={props.columns}
-                featureFlag={props.featureFlag}
                 filters={props.filters}
                 widgetId={props.widgetId}
               />

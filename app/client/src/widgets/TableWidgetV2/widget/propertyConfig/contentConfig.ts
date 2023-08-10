@@ -238,8 +238,8 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
         defaultValue: false,
-        hidden: () => Widget.getFeatureFlag("TEST_FLAG"),
-        // hidden: () => Widget.getFeatureFlag(),
+        hidden: () =>
+          !Widget.getFeatureFlag("release_table_serverside_filtering_enabled"),
       },
       {
         propertyName: "onTableFilterUpdate",

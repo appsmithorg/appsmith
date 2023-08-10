@@ -107,7 +107,6 @@ const ColumnTypeBindingMessage = styled.div`
 
 interface TableFilterProps {
   columns: ReactTableColumnProps[];
-  featureFlag: boolean | undefined;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
   hideFilterPane: (widgetId: string) => void;
@@ -161,7 +160,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
   };
 
   const clearFilters = useCallback(() => {
-    props.applyFilter(props.featureFlag ? [] : defaultFilters);
+    props.applyFilter([]);
   }, [props]);
 
   const columns: DropdownOption[] = props.columns
@@ -229,7 +228,6 @@ function TableFilterPaneContent(props: TableFilterProps) {
               column={filter.column}
               columns={columns}
               condition={filter.condition}
-              featureFlag={props.featureFlag}
               hasAnyFilters={hasAnyFilters}
               id={filter.id}
               index={index}
@@ -248,9 +246,6 @@ function TableFilterPaneContent(props: TableFilterProps) {
                     ...updatedFilters.slice(0, index),
                     ...updatedFilters.slice(index + 1),
                   ];
-                }
-                if (props.featureFlag && newFilters.length === 0) {
-                  newFilters.push({ ...DEFAULT_FILTER });
                 }
                 // removed filter directly update redux
                 // with redux update, useEffect will update local state too

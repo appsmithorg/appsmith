@@ -309,7 +309,6 @@ function RenderInput(props: {
 }
 
 type CascadeFieldProps = {
-  featureFlag: boolean | undefined;
   columns: DropdownOption[];
   column: string;
   condition: Condition;
@@ -486,8 +485,7 @@ function CascadeField(props: CascadeFieldProps) {
 }
 
 function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
-  const { applyFilter, featureFlag, hasAnyFilters, id, index, removeFilter } =
-    props;
+  const { applyFilter, hasAnyFilters, id, index, removeFilter } = props;
   const [state, dispatch] = React.useReducer(CaseCaseFieldReducer, props.state);
   const handleRemoveFilter = () => {
     dispatch({ type: CascadeFieldActionTypes.DELETE_FILTER });
@@ -508,7 +506,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
     const parsedValue = value && !isNaN(Number(value)) ? Number(value) : value;
     dispatch({
       type: CascadeFieldActionTypes.CHANGE_VALUE,
-      payload: featureFlag ? parsedValue : value,
+      payload: parsedValue,
     });
   };
   const onDateSelected = (date: string) => {

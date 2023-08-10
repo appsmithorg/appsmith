@@ -9,7 +9,6 @@ import type {
   ReactTableColumnProps,
   ReactTableFilter,
 } from "../../../Constants";
-import { DEFAULT_FILTER } from "../../../Constants";
 
 //TODO(abhinav): All of the following imports should not exist in a widget component
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -34,7 +33,6 @@ interface TableFilterProps {
   widgetId: string;
   accentColor: string;
   borderRadius: string;
-  featureFlag: boolean | undefined;
 }
 
 function TableFilters(props: TableFilterProps) {
@@ -48,9 +46,6 @@ function TableFilters(props: TableFilterProps) {
 
   useEffect(() => {
     const filters: ReactTableFilter[] = props.filters ? [...props.filters] : [];
-    if (props.featureFlag && filters.length === 0) {
-      filters.push({ ...DEFAULT_FILTER });
-    }
     updateFilters(filters);
   }, [props.filters]);
 
