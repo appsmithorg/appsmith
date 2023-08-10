@@ -120,10 +120,10 @@ describe("Modal Widget Functionality", function () {
     _.entityExplorer.ExpandCollapseEntity("Widgets", true);
 
     //verify that the two modal widget should have pasted on the main canvas
-    _.agHelper.AssertElementVisible(
+    _.agHelper.AssertElementVisibility(
       _.entityExplorer._entityNameInExplorer("Modal1"),
     );
-    _.agHelper.AssertElementVisible(
+    _.agHelper.AssertElementVisibility(
       _.entityExplorer._entityNameInExplorer("Modal1Copy"),
     );
   });

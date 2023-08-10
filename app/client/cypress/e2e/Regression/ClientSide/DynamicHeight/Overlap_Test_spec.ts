@@ -11,10 +11,10 @@ describe("Fixed Invisible widgets and auto height containers", () => {
     cy.get(locators._widgetInDeployed("textwidget"));
     agHelper.AssertContains("anything", "exist", "#ryq5qy60cg");
 
-    agHelper.AssertElementVisible(locators._previewModeToggle("edit"));
+    agHelper.AssertElementVisibility(locators._previewModeToggle("edit"));
     agHelper.GetNClick(locators._previewModeToggle("edit"));
 
-    agHelper.AssertElementVisible(locators._previewModeToggle("preview"));
+    agHelper.AssertElementVisibility(locators._previewModeToggle("preview"));
     agHelper.GetNClick(locators._previewModeToggle("preview"));
 
     cy.get("#ryq5qy60cg").should("have.css", "top", "136px");

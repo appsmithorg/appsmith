@@ -879,12 +879,7 @@ export class DataSources {
           });
       });
     this.agHelper.Sleep(3000); //for the CreateQuery/GeneratePage page to load
-    createQuery &&
-      this.agHelper.AssertElementVisible(
-        this.locator._spanButton("Run"),
-        0,
-        20000,
-      );
+    createQuery && this.AssertRunButtonVisibility();
     validateTableDropdown &&
       !createQuery &&
       this.assertHelper.AssertNetworkStatus("@getDatasourceStructure", 200); //Making sure table dropdown is populated
@@ -916,26 +911,27 @@ export class DataSources {
       });
     this.agHelper.Sleep(2000); //for the CreateQuery
     //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);//throwing 404 in CI sometimes
-    this.agHelper.AssertElementVisible(
-      this.locator._spanButton("Run"),
-      0,
-      20000,
-    );
+    this.AssertRunButtonVisibility();
   }
 
   CreateQueryAfterDSSaved(query = "", queryName = "") {
     this.agHelper.GetNClick(this._createQuery);
     //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
-    this.agHelper.AssertElementVisible(
-      this.locator._spanButton("Run"),
-      0,
-      20000,
-    );
+    this.AssertRunButtonVisibility();
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
       this.EnterQuery(query);
       this.AssertRunButtonDisability(false);
     }
+  }
+
+  private AssertRunButtonVisibility() {
+    this.agHelper.AssertElementVisibility(
+      this.locator._spanButton("Run"),
+      true,
+      0,
+      20000,
+    );
   }
 
   public CreateQueryForDS(
@@ -1018,7 +1014,7 @@ export class DataSources {
       .closest(this._datasourceCard)
       .scrollIntoView()
       .within(() => {
-        this.agHelper.AssertElementVisible(this._reconnect, 0, 20000);
+        this.agHelper.AssertElementVisibility(this._reconnect, true, 0, 20000);
       });
   }
   public ReconnectModalValidation(
@@ -1026,21 +1022,21 @@ export class DataSources {
     dsName: "PostgreSQL" | "MySQL" | "MongoDB",
   ) {
     this.WaitForReconnectModalToAppear();
-    this.agHelper.AssertElementVisible(
+    this.agHelper.AssertElementVisibility(
       this._activeDSListReconnectModal(dsName),
     );
-    this.agHelper.AssertElementVisible(
+    this.agHelper.AssertElementVisibility(
       this._activeDSListReconnectModal(dbName),
     );
 
     //Checking if tooltip for Ds name & icon is present (useful in cases of long name for ds)
     this.agHelper.AssertText(this._reconnectModalDSToolTip, "text", dbName);
-    this.agHelper.AssertElementVisible(this._reconnectModalDSToopTipIcon);
+    this.agHelper.AssertElementVisibility(this._reconnectModalDSToopTipIcon);
   }
 
   public WaitForReconnectModalToAppear() {
-    this.agHelper.AssertElementVisible(this._reconnectModal);
-    this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
+    this.agHelper.AssertElementVisibility(this._reconnectModal);
+    this.agHelper.AssertElementVisibility(this._testDs); //Making sure modal is fully loaded
   }
 
   public ReconnectDSbyType(
@@ -1108,7 +1104,7 @@ export class DataSources {
 
   public AssertQueryResponseHeaders(columnHeaders: string[]) {
     columnHeaders.forEach(($header) =>
-      this.agHelper.AssertElementVisible(this._queryResponseHeader($header)),
+      this.agHelper.AssertElementVisibility(this._queryResponseHeader($header)),
     );
   }
 
@@ -1147,7 +1143,11 @@ export class DataSources {
   }
 
   public EnterQuery(query: string, sleep = 500) {
-    this.agHelper.UpdateCodeInput(this.locator._codeEditorTarget, query);
+    this.agHelper.UpdateCodeInput(
+      this.locator._codeEditorTarget,
+      query,
+      "query",
+    );
     this.agHelper.AssertAutoSave();
     this.agHelper.Sleep(sleep); //waiting a bit before proceeding!
     cy.wait("@saveAction");
@@ -1159,14 +1159,14 @@ export class DataSources {
   ) {
     this.RunQuery();
     tableCheck &&
-      this.agHelper.AssertElementVisible(this._queryResponse("TABLE"));
-    this.agHelper.AssertElementVisible(this._queryResponse("JSON"));
-    this.agHelper.AssertElementVisible(this._queryResponse("RAW"));
+      this.agHelper.AssertElementVisibility(this._queryResponse("TABLE"));
+    this.agHelper.AssertElementVisibility(this._queryResponse("JSON"));
+    this.agHelper.AssertElementVisibility(this._queryResponse("RAW"));
     this.CheckResponseRecordsCount(expectedRecordsCount);
   }
 
   public CheckResponseRecordsCount(expectedRecordCount: number) {
-    this.agHelper.AssertElementVisible(
+    this.agHelper.AssertElementVisibility(
       this._queryRecordResult(expectedRecordCount),
     );
   }
@@ -1358,7 +1358,7 @@ export class DataSources {
   }
 
   public VerifyTableSchemaOnQueryEditor(schema: string) {
-    this.agHelper.AssertElementVisible(
+    this.agHelper.AssertElementVisibility(
       this._datasourceTableSchemaInQueryEditor(schema),
     );
   }
@@ -1380,7 +1380,9 @@ export class DataSources {
 
   public VerifySchemaCollapsibleOpenState(isOpen = false) {
     if (isOpen) {
-      this.agHelper.AssertElementVisible(this._datasourceStructureSearchInput);
+      this.agHelper.AssertElementVisibility(
+        this._datasourceStructureSearchInput,
+      );
     } else {
       this.agHelper.AssertElementAbsence(this._datasourceStructureSearchInput);
     }
@@ -1402,8 +1404,8 @@ export class DataSources {
 
   public AssertDSDialogVisibility(isVisible = true) {
     if (isVisible) {
-      this.agHelper.AssertElementVisible(this._datasourceModalDoNotSave);
-      this.agHelper.AssertElementVisible(this._datasourceModalSave);
+      this.agHelper.AssertElementVisibility(this._datasourceModalDoNotSave);
+      this.agHelper.AssertElementVisibility(this._datasourceModalSave);
     } else {
       this.agHelper.AssertElementAbsence(this._datasourceModalDoNotSave);
       this.agHelper.AssertElementAbsence(this._datasourceModalSave);
@@ -1619,25 +1621,25 @@ export class DataSources {
     switch (widget) {
       case Widgets.Dropdown:
         this.agHelper.GetNClick(this._suggestedWidget("SELECT_WIDGET"));
-        this.agHelper.AssertElementVisible(
+        this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.SELECT),
         );
         break;
       case Widgets.Table:
         this.agHelper.GetNClick(this._suggestedWidget("TABLE_WIDGET_V2"));
-        this.agHelper.AssertElementVisible(
+        this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.TABLE),
         );
         break;
       case Widgets.Chart:
         this.agHelper.GetNClick(this._suggestedWidget("CHART_WIDGET"));
-        this.agHelper.AssertElementVisible(
+        this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.CHART),
         );
         break;
       case Widgets.Text:
         this.agHelper.GetNClick(this._suggestedWidget("TEXT_WIDGET"));
-        this.agHelper.AssertElementVisible(
+        this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.TEXT),
         );
         break;
@@ -1782,7 +1784,9 @@ export class DataSources {
 
   public AssertDataSourceInfo(info: string[]) {
     info.forEach(($infs) => {
-      this.agHelper.AssertElementVisible(this.locator._visibleTextDiv($infs));
+      this.agHelper.AssertElementVisibility(
+        this.locator._visibleTextDiv($infs),
+      );
     });
   }
 }

@@ -25,7 +25,7 @@ describe(
       entityExplorer.AddNewPage("Add page from template");
       agHelper.Sleep(5000);
       agHelper.AssertElementExist(template.templateDialogBox);
-      agHelper.AssertElementVisible(templates.locators._templateCard);
+      agHelper.AssertElementVisibility(templates.locators._templateCard);
       agHelper.Sleep(4000);
       cy.xpath("//h1[text()='Meeting Scheduler']/parent::div")
         .scrollIntoView()
@@ -51,7 +51,7 @@ describe(
 
     it("2. Add selected page of template from page section", () => {
       entityExplorer.AddNewPage("Add page from template");
-      agHelper.AssertElementVisible(template.templateDialogBox);
+      agHelper.AssertElementVisibility(template.templateDialogBox);
       agHelper.Sleep(4000);
       cy.xpath("//h1[text()='Meeting Scheduler']").click();
       agHelper.WaitUntilEleDisappear("//*[text()='Loading template details']");
@@ -82,7 +82,7 @@ describe(
       entityExplorer.AddNewPage("Add page from template");
       agHelper.GetNClick(templates.locators._templateCard);
       agHelper.Sleep(2000);
-      agHelper.AssertElementVisible(template.templateViewForkButton);
+      agHelper.AssertElementVisibility(template.templateViewForkButton);
       agHelper.Sleep(2000);
       agHelper.GetNClick(templates.locators._closeTemplateDialogBoxBtn);
       agHelper.Sleep();
@@ -95,7 +95,7 @@ describe(
       // Here we are on template detail page, with similar templates at the bottom
       agHelper.GetNClick(templates.locators._templateCard);
       agHelper.Sleep(2000);
-      agHelper.AssertElementVisible(template.templateViewForkButton);
+      agHelper.AssertElementVisibility(template.templateViewForkButton);
       agHelper.Sleep(2000);
       agHelper.GetNClick(templates.locators._closeTemplateDialogBoxBtn);
     });
@@ -116,7 +116,7 @@ describe(
 
         entityExplorer.AddNewPage("Add page from template");
 
-        agHelper.AssertElementVisible(template.templateDialogBox);
+        agHelper.AssertElementVisibility(template.templateDialogBox);
         cy.wait("@fetchAllTemplates");
         cy.get("@fetchAllTemplates").then(({ request, response }) => {
           // in the fixture data we are sending some tempaltes with `allowPageImport: false`
