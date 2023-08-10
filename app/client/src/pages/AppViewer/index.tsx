@@ -49,6 +49,9 @@ import {
   useTheme,
 } from "@design-system/theming";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
+import { showProductRamps } from "utils/ProductRamps";
+import { isCEMode } from "@appsmith/utils";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -112,7 +115,9 @@ function AppViewer(props: Props) {
   const workspaceId = currentApplicationDetails?.workspaceId || "";
   const showBottomBar = useSelector((state: AppState) => {
     return (
-      areEnvironmentsFetched(state, workspaceId) && datasourceEnvEnabled(state)
+      areEnvironmentsFetched(state, workspaceId) &&
+      datasourceEnvEnabled(state) &&
+      (isCEMode() ? showProductRamps(RAMP_NAME.MULTIPLE_ENV) : true)
     );
   });
 

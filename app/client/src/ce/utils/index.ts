@@ -13,3 +13,7 @@ export const addItemsInContextMenu = (
 export const useHtmlPageTitle = () => {
   return "Appsmith";
 };
+
+export const isCEMode = () => {
+  return true;
+};

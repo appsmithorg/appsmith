@@ -28,7 +28,7 @@
                 "canDismiss": true,
                 "remindLaterDays": 5,
                 "context": "COMMON_CONFIG",
-                "applicabilityExpression": "isCloudHosting",
+                "applicabilityExpression": "isCloudHosting && (getCurrentTimeInstantEpochMilli < 1691300700000L)",
                 "precedenceIndex": 3
         }
 ]

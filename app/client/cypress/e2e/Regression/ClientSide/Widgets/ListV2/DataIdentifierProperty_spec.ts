@@ -129,44 +129,22 @@ describe("List v2 - Data Identifier property", () => {
     entityExplorer.ExpandCollapseEntity("List1");
     entityExplorer.SelectEntityByName("Text2", "Container1");
     propPane.UpdatePropertyFieldValue("Text", "{{currentIndex}}");
-    agHelper.AssertText(
-      `${locators._widgetByName("Text2")} ${propPane._propertyText}`,
-      "text",
-      "0",
-    );
+    agHelper.AssertText(propPane._widgetToVerifyText("Text2"), "text", "0");
     table.NavigateToPageUsingButton_List("next", 2);
-    agHelper.AssertText(
-      `${locators._widgetByName("Text2")} ${propPane._propertyText}`,
-      "text",
-      "0",
-    );
+    agHelper.AssertText(propPane._widgetToVerifyText("Text2"), "text", "0");
   });
 
   it("8. Widgets get displayed when PrimaryKey doesn't exist - Client-Side Pagination", () => {
     entityExplorer.ExpandCollapseEntity("List2");
     entityExplorer.SelectEntityByName("Text4", "Container2");
     propPane.UpdatePropertyFieldValue("Text", "{{currentIndex}}");
-
-    agHelper.AssertText(
-      `${locators._widgetByName("Text4")} ${propPane._propertyText}`,
-      "text",
-      "0",
-    );
+    agHelper.AssertText(propPane._widgetToVerifyText("Text4"), "text", "0");
 
     table.NavigateToNextPage_List("v2", 1);
-    agHelper.AssertText(
-      `${locators._widgetByName("Text4")} ${propPane._propertyText}`,
-      "text",
-      "1",
-    );
+    agHelper.AssertText(propPane._widgetToVerifyText("Text4"), "text", "1");
 
     table.NavigateToNextPage_List("v2", 1);
-
-    agHelper.AssertText(
-      `${locators._widgetByName("Text4")} ${propPane._propertyText}`,
-      "text",
-      "2",
-    );
+    agHelper.AssertText(propPane._widgetToVerifyText("Text4"), "text", "2");
   });
 
   it("9. Non unique data identifier should throw error- (data type issue)", () => {

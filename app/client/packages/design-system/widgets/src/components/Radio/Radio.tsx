@@ -10,7 +10,7 @@ import { StyledRadio } from "./index.styled";
 
 export type RadioProps = HeadlessRadioProps;
 
-export const Radio = forwardRef((props: RadioProps, ref: HeadlessRadioRef) => {
+const _Radio = (props: RadioProps, ref: HeadlessRadioRef) => {
   const { children, labelPosition = "right", ...rest } = props;
 
   return (
@@ -18,4 +18,6 @@ export const Radio = forwardRef((props: RadioProps, ref: HeadlessRadioRef) => {
       {children && <Text>{children}</Text>}
     </StyledRadio>
   );
-});
+};
+
+export const Radio = forwardRef(_Radio);

@@ -147,6 +147,7 @@
                                 "bottomRow": 23,
                                 "parentId": "anq2not518",
                                 "dynamicBindingPathList": [],
+                                "dynamicPropertyPathList": [{"key": "sourceData"}],
                                 "dynamicTriggerPathList": []
                             }
                         ],

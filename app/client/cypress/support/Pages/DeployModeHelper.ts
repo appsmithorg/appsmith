@@ -160,13 +160,13 @@ export class DeployMode {
     ); //Assert that is not error toast in Edit mode when navigating back from Deploy mode
     this.assertHelper.AssertDocumentReady();
     this.assertHelper.AssertNetworkStatus("@getWorkspace");
-    this.agHelper.AssertElementVisible(this.locator._editPage); //Assert if canvas is visible after Navigating back!
+    this.agHelper.AssertElementVisibility(this.locator._editPage); //Assert if canvas is visible after Navigating back!
   }
 
   public NavigateToHomeDirectly() {
     this.agHelper.GetNClick(this._backtoHome);
     this.agHelper.Sleep(2000);
-    this.agHelper.AssertElementVisible(this._homeAppsmithImage);
+    this.agHelper.AssertElementVisibility(this._homeAppsmithImage);
   }
 
   public EnterJSONInputValue(

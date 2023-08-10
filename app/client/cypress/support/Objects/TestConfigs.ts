@@ -185,6 +185,10 @@ export class TEDTestConfigs {
     },
   };
 
+  paginationUrl = (records = 20, page = 4, size = 3) => {
+    return `http://host.docker.internal:5001/v1/mock-api?records=${records}&page=${page}&size=${size}`;
+  };
+
   mongo_uri = (environment = this.defaultEnviorment) => {
     return `mongodb://${this.dsValues[environment].mongo_host}:${this.dsValues[environment].mongo_port}/${this.dsValues[environment].mongo_databaseName}`;
   };

@@ -212,7 +212,7 @@ describe("Button Widget Functionality", function () {
     _.agHelper.Sleep();
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("Container3");
-    _.propPane.CopyWidgetFromPropertyPane("Submitbutton");
+    _.propPane.CopyPasteWidgetFromPropertyPane("Submitbutton");
     //cy.copyWidget("buttonwidget", widgetsPage.buttonWidget);
     //_.deployMode.NavigateBacktoEditor();
     // Delete the button widget
