@@ -203,7 +203,7 @@ export function getValidatedTree(
           evalProps,
           isParsedValueTheSame,
           statePath: fullPropertyPath,
-          value,
+          value: evaluatedValue,
         });
 
         resetValidationErrorsForEntityProperty({

@@ -64,6 +64,8 @@ export function evalTreeWithChanges(
 
     dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
       evalProps: dataTreeEvaluator.evalProps,
+      identicalEvalPathsPatches:
+        dataTreeEvaluator.getEvalPathsIdenticalToState(),
     });
 
     /** Make sure evalMetaUpdates is sanitized to prevent postMessage failure */

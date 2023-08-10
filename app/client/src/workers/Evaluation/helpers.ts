@@ -264,16 +264,12 @@ export const generateOptimisedUpdatesAndSetPrevState = (
   const identicalEvalPathsPatches =
     dataTreeEvaluator?.getEvalPathsIdenticalToState();
 
-  const dataTreeDecompressed = decompressIdenticalEvalPaths(
+  const updates = generateOptimisedUpdates(
+    dataTreeEvaluator?.getPrevState(),
     dataTree,
     identicalEvalPathsPatches,
   );
-  const updates = generateOptimisedUpdates(
-    dataTreeEvaluator?.getPrevState(),
-    dataTreeDecompressed,
-    identicalEvalPathsPatches,
-  );
 
-  dataTreeEvaluator?.setPrevState(dataTreeDecompressed);
+  dataTreeEvaluator?.setPrevState(dataTree);
   return updates;
 };

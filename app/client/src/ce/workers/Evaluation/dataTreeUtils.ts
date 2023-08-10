@@ -1,5 +1,5 @@
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import { set } from "lodash";
+import { get, set } from "lodash";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { removeFunctionsAndSerialzeBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
 
@@ -12,9 +12,14 @@ export function makeEntityConfigsAsObjProperties(
   option = {} as {
     sanitizeDataTree?: boolean;
     evalProps?: EvalProps;
+    identicalEvalPathsPatches?: Record<string, string>;
   },
 ): DataTree {
-  const { evalProps, sanitizeDataTree = true } = option;
+  const {
+    evalProps,
+    identicalEvalPathsPatches,
+    sanitizeDataTree = true,
+  } = option;
   const newDataTree: DataTree = {};
   for (const entityName of Object.keys(dataTree)) {
     const entity = dataTree[entityName];
@@ -40,6 +45,15 @@ export function makeEntityConfigsAsObjProperties(
       entityEvalProps.__evaluation__,
     );
   }
+  // we are seperately adding identical identicalEvalPathsPatches back to the state and evalProps, this is because we don't want to
+  //unnecessarily perform the santise code on this segment since we know these are duplicates
+  Object.entries(identicalEvalPathsPatches || {}).forEach(
+    ([evalPath, statePath]) => {
+      const referencePathValue = get(dataTreeToReturn, statePath);
+      set(dataTreeToReturn, evalPath, referencePathValue);
+      set(evalProps, evalPath, referencePathValue);
+    },
+  );
 
   return dataTreeToReturn;
 }
