@@ -36,10 +36,45 @@ import {
   getLabelValueKeyOptions,
   valueKeyValidation,
 } from "./propertyUtils";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
 
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   constructor(props: SelectWidgetProps) {
     super(props);
+  }
+
+  static getQueryGenerationConfig(widget: WidgetProps) {
+    return {
+      select: {
+        where: `${widget.widgetName}.filterText`,
+      },
+    };
+  }
+
+  static getPropertyUpdatesForQueryBinding(
+    queryConfig: WidgetQueryConfig,
+    widget: WidgetProps,
+    formConfig: WidgetQueryGenerationFormConfig,
+  ) {
+    let modify;
+
+    if (queryConfig.select) {
+      modify = {
+        sourceData: queryConfig.select.data,
+        optionLabel: formConfig.aliases.find((d) => d.name === "label")?.alias,
+        optionValue: formConfig.aliases.find((d) => d.name === "value")?.alias,
+        defaultOptionValue: "",
+        serverSideFiltering: true,
+        onFilterUpdate: queryConfig.select.run,
+      };
+    }
+
+    return {
+      modify,
+    };
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -79,7 +114,30 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               "Takes in an array of objects to display options. Bind data from an API using {{}}",
             propertyName: "sourceData",
             label: "Source Data",
-            controlType: "INPUT_TEXT",
+            controlType: "ONE_CLICK_BINDING_CONTROL",
+            controlConfig: {
+              aliases: [
+                {
+                  name: "label",
+                  isSearcheable: true,
+                  isRequired: true,
+                },
+                {
+                  name: "value",
+                  isRequired: true,
+                },
+              ],
+              sampleData: JSON.stringify(
+                [
+                  { name: "Blue", code: "BLUE" },
+                  { name: "Green", code: "GREEN" },
+                  { name: "Red", code: "RED" },
+                ],
+                null,
+                2,
+              ),
+            },
+            isJSConvertible: true,
             placeholderText: '[{ "label": "label1", "value": "value1" }]',
             isBindProperty: true,
             isTriggerProperty: false,
@@ -98,9 +156,10 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
-            helpText: "Sets the label of the option",
+            helpText:
+              "Choose or set a field from source data as the display label",
             propertyName: "optionLabel",
-            label: "Label",
+            label: "Label key",
             controlType: "DROP_DOWN",
             customJSControl: "WRAPPED_CODE_EDITOR",
             controlConfig: {
@@ -131,9 +190,9 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
           },
           {
-            helpText: "Sets the value of the option",
+            helpText: "Choose or set a field from source data as the value",
             propertyName: "optionValue",
-            label: "Value",
+            label: "Value key",
             controlType: "DROP_DOWN",
             customJSControl: "WRAPPED_CODE_EDITOR",
             controlConfig: {

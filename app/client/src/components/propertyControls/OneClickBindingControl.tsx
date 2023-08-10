@@ -1,6 +1,7 @@
 import WidgetQueryGeneratorForm from "components/editorComponents/WidgetQueryGeneratorForm";
+import type { Alias } from "components/editorComponents/WidgetQueryGeneratorForm/types";
 import React from "react";
-import type { ControlData, ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
   constructor(props: OneClickBindingControlProps) {
@@ -15,9 +16,15 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
    * Commenting out as we're not able to switch between the js modes without value being overwritten
    * with default value by platform
    */
-  static canDisplayValueInUI(config: ControlData, value: any): boolean {
-    // {{query1.data}}
-    return /^{{[^.]*\.data}}$/gi.test(value);
+  static canDisplayValueInUI(
+    config: OneClickBindingControlProps,
+    value: any,
+  ): boolean {
+    // {{query1.data}} || sample data
+    return (
+      /^{{[^.]*\.data}}$/gi.test(value) ||
+      config.controlConfig?.sampleData === value
+    );
   }
 
   static shouldValidateValueOnDynamicPropertyOff() {
@@ -52,11 +59,14 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
   public render() {
     return (
       <WidgetQueryGeneratorForm
+        aliases={this.props.controlConfig.aliases}
         errorMsg={this.getErrorMessage()}
         expectedType={this.props.expected?.autocompleteDataType || ""}
         onUpdate={this.onUpdatePropertyValue}
         propertyPath={this.props.propertyName}
         propertyValue={this.props.propertyValue}
+        sampleData={this.props.controlConfig.sampleData}
+        searchableColumn={this.props.controlConfig.searchableColumn}
         widgetId={this.props.widgetProperties.widgetId}
       />
     );
@@ -65,4 +75,10 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
 
 export default OneClickBindingControl;
 
-export type OneClickBindingControlProps = ControlProps;
+export type OneClickBindingControlProps = ControlProps & {
+  controlConfig: {
+    aliases: Alias[];
+    searchableColumn: boolean;
+    sampleData: string;
+  };
+};

@@ -20,6 +20,7 @@ describe("Select Widget Functionality", function () {
 
   it("should check that virtualization works well", () => {
     cy.openPropertyPane("selectwidget");
+    _.propPane.ToggleJSMode("sourcedata");
     cy.updateCodeInput(
       ".t--property-control-sourcedata",
       `[
@@ -50,14 +51,14 @@ describe("Select Widget Functionality", function () {
       ]`,
     );
 
-    _.propPane.ToggleJSMode("label");
+    _.propPane.ToggleJSMode("labelkey");
     cy.updateCodeInput(
-      ".t--property-control-wrapper.t--property-control-label",
+      ".t--property-control-wrapper.t--property-control-labelkey",
       `label`,
     );
 
-    _.propPane.ToggleJSMode("value");
-    cy.updateCodeInput(".t--property-control-value", `value`);
+    _.propPane.ToggleJSMode("valuekey");
+    cy.updateCodeInput(".t--property-control-valuekey", `value`);
 
     cy.get(".t--property-control-value .t--codemirror-has-error").should(
       "not.exist",
