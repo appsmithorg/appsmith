@@ -49,6 +49,32 @@ describe("Check datasource doc links", function () {
     });
   });
 
+  it("4. Verify Arango documentation opens", function () {
+    dataSources.CreateDataSource("ArangoDB");
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
+      dataSources.CreateQueryAfterDSSaved();
+      deployMode.StubWindowNAssert(
+        dataSources._queryDoc,
+        "querying-arango-db#using-queries-in-applications",
+        "getWorkspace",
+      );
+    });
+  });
+
+  it("5. Verify S3 documentation opens", function () {
+    dataSources.CreateDataSource("S3");
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
+      dataSources.CreateQueryAfterDSSaved();
+      deployMode.StubWindowNAssert(
+        dataSources._queryDoc,
+        "querying-amazon-s3#list-files",
+        "getWorkspace",
+      );
+    });
+  });
+
   afterEach(() => {
     agHelper.PressEscape();
     agHelper.ActionContextMenuWithInPane({
