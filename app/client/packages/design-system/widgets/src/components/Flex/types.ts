@@ -173,7 +173,6 @@ export interface FlexProps extends ComponentPropsWithRef<"div"> {
    */
   /** Enables container queries mode. It is important, without this flag, responsiveness will not work. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/container-type). */
   isContainer?: boolean;
-  /** The children of the component. */
 }
 
 export type StyledFlexProps = OmitRename<FlexProps, "style" | "className">;
