@@ -26,6 +26,7 @@ describe("Switch widget testcases", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.SWITCH);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 500, 200);
+    entityExplorer.SelectEntityByName("Select1");
     propPane.UpdatePropertyFieldValue("Source Data", jsonData);
     propPane.UpdatePropertyFieldValue("Default selected value", "no");
   });
