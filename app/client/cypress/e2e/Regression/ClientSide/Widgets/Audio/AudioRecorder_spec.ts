@@ -52,6 +52,7 @@ describe("Audio Recorder functionality tests", () => {
     propPane.MoveToTab("Content");
     propPane.TogglePropertyState("Visible", "Off");
     deployMode.DeployApp();
+    // verify in view mode
     agHelper.AssertElementAbsence(
       locators._widgetInCanvas(draggableWidgets.AUDIORECORDER),
     );
@@ -88,8 +89,8 @@ describe("Audio Recorder functionality tests", () => {
     agHelper.EnterActionValue("Message", "Recording Started");
     propPane.SelectPlatformFunction("onRecordingComplete", "Show alert");
     agHelper.EnterActionValue("Message", "Recording Completed");
-    agHelper.GetNClick(".bp3-button");
-    agHelper.GetNClick(".bp3-button");
+    agHelper.GetNClick(locators._recorderPrompt);
+    agHelper.GetNClick(locators._recorderStart);
     agHelper.ValidateToastMessage("Recording Started");
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.Sleep(2000); //for recorder to record
@@ -98,10 +99,8 @@ describe("Audio Recorder functionality tests", () => {
     // verify in deploy mode
     deployMode.DeployApp();
     agHelper.Sleep(2000);
-    //cy.xpath("//button[@status='PERMISSION_PROMPT']").click();
     agHelper.GetNClick(locators._recorderPrompt);
     agHelper.GetNClick(locators._recorderStart);
-
     agHelper.ValidateToastMessage("Recording Started");
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.GetNClick(locators._recorderStop);
@@ -120,7 +119,7 @@ describe("Audio Recorder functionality tests", () => {
     agHelper.GetNClick(locators._exitPreviewMode);
   });
 
-  it("Verify Style tab's properties", () => {
+  it("Verify Style tab's properties: Button color, icon color, border radius and Box shadow", () => {
     entityExplorer.SelectEntityByName("AudioRecorder1", "Widgets");
     propPane.MoveToTab("Style");
     propPane.EnterJSContext("Button color", "#FFC13D");
