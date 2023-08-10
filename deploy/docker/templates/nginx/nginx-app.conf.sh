@@ -154,32 +154,12 @@ fi
     proxy_pass http://localhost:8080;
   }
 
-  location /actuator {
-    proxy_pass http://localhost:8080;
-  }
-
   location /rts {
     proxy_pass http://localhost:${APPSMITH_RTS_PORT:-8091};
     proxy_http_version 1.1;
     proxy_set_header Host \$host;
     proxy_set_header Connection 'upgrade';
     proxy_set_header Upgrade \$http_upgrade;
-  }
-
-  location /scim {
-    proxy_pass http://localhost:8886;
-    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-  }
-
-  location /auth {
-    proxy_pass http://localhost:8081;
-    proxy_set_header Host \$host;
-    proxy_set_header X-Real-IP \$remote_addr;
-    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto \$origin_scheme;
-    proxy_set_header X-Forwarded-Host \$host;
-    # Keycloak sticks big long JWTs in cookies, which makes headers too big. This throws 502 error, unless we have the below.
-    proxy_buffer_size 8k;
   }
 
   location /actuator {
