@@ -92,7 +92,6 @@ before(function () {
   cy.url().then((url) => {
     if (url.indexOf("setup/welcome") > -1) {
       cy.createSuperUser();
-      cy.LogOut();
       cy.SignupFromAPI(
         Cypress.env("TESTUSERNAME1"),
         Cypress.env("TESTPASSWORD1"),
@@ -177,14 +176,10 @@ after(function () {
   if (RapidMode.config.enabled) {
     return;
   }
-  if (Cypress.env("CYPRESS_CI") === "1") {
-    //-- Deleting the application by Api---//
-    cy.DeleteAppByApi();
-    //-- LogOut Application---//
-    cy.LogOut();
-  } else {
-    cy.log("Running locally, hence skipping app delete!");
-  }
+  //-- Deleting the application by Api---//
+  cy.DeleteAppByApi();
+  //-- LogOut Application---//
+  cy.LogOut();
   // Commenting until Upgrade Appsmith cases are fixed
   // const tedUrl = "http://localhost:5001/v1/parent/cmd";
   // cy.log("Start the appsmith container");

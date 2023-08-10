@@ -2,8 +2,8 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import OneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 
 describe("excludeForAirgap", "Widget property navigation", () => {
-  it("Collapsed field navigation", () => {
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.AUDIO, 100, 200);
+  it("1. Collapsed field navigation", () => {
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.AUDIO);
     _.propPane.EnterJSContext("animateloading", "{{test}}", true, false);
     _.debuggerHelper.AssertErrorCount(1);
     _.propPane.ToggleSection("general");
@@ -16,8 +16,8 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.debuggerHelper.CloseBottomBar();
   });
 
-  it("Navigation to a nested panel", () => {
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TAB, 100, 200);
+  it("2. Navigation to a nested panel", () => {
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TAB);
     _.propPane.OpenTableColumnSettings("tab2");
     _.propPane.EnterJSContext("visible", "{{test}}", true, false);
     _.debuggerHelper.AssertErrorCount(1);
@@ -31,12 +31,9 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.entityExplorer.SelectEntityByName("Tabs1");
     _.entityExplorer.DeleteWidgetFromEntityExplorer("Tabs1");
   });
-  it("Navigation to style tab in a nested panel", () => {
-    _.entityExplorer.DragDropWidgetNVerify(
-      _.draggableWidgets.BUTTON_GROUP,
-      100,
-      200,
-    );
+
+  it("3. Navigation to style tab in a nested panel", () => {
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON_GROUP);
     _.propPane.OpenTableColumnSettings("groupButton2");
     _.agHelper.GetNClick(_.propPane._segmentedControl("MENU"));
     _.agHelper.GetNClick(_.propPane._addMenuItem);
@@ -55,12 +52,9 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.entityExplorer.SelectEntityByName("ButtonGroup1");
     _.entityExplorer.DeleteWidgetFromEntityExplorer("ButtonGroup1");
   });
-  it("Collapsed field navigation for a nested panel", () => {
-    _.entityExplorer.DragDropWidgetNVerify(
-      _.draggableWidgets.MENUBUTTON,
-      100,
-      200,
-    );
+
+  it("4. Collapsed field navigation for a nested panel", () => {
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.MENUBUTTON);
     _.propPane.OpenTableColumnSettings("menuItem2");
     _.propPane.EnterJSContext("disabled", "{{test}}", true, false);
     _.propPane.ToggleSection("general");
@@ -70,6 +64,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink();
     _.agHelper.GetElement(_.propPane._paneTitle).contains("Second Menu Item");
+    _.agHelper.Sleep();
     _.propPane.AssertIfPropertyIsVisible("disabled");
 
     _.debuggerHelper.CloseBottomBar();
@@ -77,12 +72,8 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.entityExplorer.DeleteWidgetFromEntityExplorer("MenuButton1");
   });
 
-  it("JSONForm widget error navigation", () => {
-    _.entityExplorer.DragDropWidgetNVerify(
-      _.draggableWidgets.JSONFORM,
-      100,
-      200,
-    );
+  it("5. JSONForm widget error navigation", () => {
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.JSONFORM);
     _.propPane.OpenTableColumnSettings("date_of_birth");
 
     _.agHelper.SelectDropdownList("Field Type", "Object");
@@ -116,13 +107,9 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.entityExplorer.DeleteWidgetFromEntityExplorer("JSONForm1");
   });
 
-  it("Should switch panels correctly", () => {
+  it("6. Should switch panels correctly", () => {
     _.agHelper.RefreshPage();
-    _.entityExplorer.DragDropWidgetNVerify(
-      _.draggableWidgets.MENUBUTTON,
-      100,
-      200,
-    );
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.MENUBUTTON);
     _.propPane.OpenTableColumnSettings("menuItem1");
 
     _.propPane.EnterJSContext("disabled", "{{test}}", true, false);
@@ -141,9 +128,10 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.entityExplorer.SelectEntityByName("MenuButton1");
     _.entityExplorer.DeleteWidgetFromEntityExplorer("MenuButton1");
   });
-  it("Table widget validation regex", () => {
+
+  it("7. Table widget validation regex", () => {
     _.agHelper.RefreshPage();
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 100, 200);
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
     _.agHelper.GetNClick(OneClickBindingLocator.datasourceDropdownSelector);
     _.agHelper.GetNClick(
       OneClickBindingLocator.datasourceSelector("sample Movies"),
@@ -159,7 +147,10 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     );
     _.agHelper.GetNClick(OneClickBindingLocator.searchableColumn);
     _.agHelper.GetNClick(
-      OneClickBindingLocator.searchableColumnDropdownOption(),
+      OneClickBindingLocator.columnDropdownOption(
+        "searchableColumn",
+        "imdb_id",
+      ),
     );
     _.agHelper.GetNClick(OneClickBindingLocator.connectData);
 

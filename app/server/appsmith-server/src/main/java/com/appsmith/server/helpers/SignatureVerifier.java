@@ -87,8 +87,7 @@ public class SignatureVerifier {
             String date =
                     decodedData.substring(decodedData.indexOf(timestampFieldFormat) + timestampFieldFormat.length());
 
-            return dateHeader.equals(date)
-                    && Instant.parse(date).isAfter(Instant.now().minus(24, ChronoUnit.HOURS));
+            return Instant.parse(date).isAfter(Instant.now().minus(24, ChronoUnit.HOURS));
         }
         return false;
     }

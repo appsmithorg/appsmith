@@ -211,9 +211,6 @@ public class DatasourceStorageServiceTest {
         String datasourceId = "datasourceForUnsavedStorage";
         String environmentIdOne = FieldName.UNUSED_ENVIRONMENT_ID;
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
-
         Datasource datasource = new Datasource();
         datasource.setId(datasourceId);
 
