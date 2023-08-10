@@ -305,11 +305,21 @@ class ChartComponent extends React.Component<
         dataPlotClick: (evt: any) => {
           const data = evt.data;
           const seriesTitle = get(data, "datasetName", "");
-          this.props.onDataPointClick({
-            x: data.categoryLabel,
-            y: data.dataValue,
-            seriesTitle,
-          });
+          const { type } = this.getCustomFusionChartDataSource();
+
+          if (type === "sankey") {
+            this.props.onDataPointClick({
+              x: data.categoryLabel,
+              y: data.dataValue,
+              seriesTitle,
+            });
+          } else {
+            this.props.onDataPointClick({
+              x: data.categoryLabel,
+              y: data.dataValue,
+              seriesTitle,
+            });
+          }
         },
       },
       ...this.getCustomFusionChartDataSource(),
