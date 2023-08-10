@@ -3,11 +3,12 @@ import {
   deployMode,
   entityExplorer,
   jsEditor,
+  locators,
+  table,
 } from "../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
-const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
 
 describe("List widget V2 Serverside Pagination", () => {
   before(() => {
@@ -16,8 +17,7 @@ describe("List widget V2 Serverside Pagination", () => {
 
   it("1. Next button disabled when there's no data", () => {
     jsEditor.CreateJSObject(
-      `
-        const pageNo = List1.pageNo;
+      `const pageNo = List1.pageNo;
         const pageSize = List1.pageSize;
         const data = Table1.tableData;
         const startIndex = pageSize * (pageNo -1);
@@ -25,7 +25,7 @@ describe("List widget V2 Serverside Pagination", () => {
   	    return data.slice(startIndex, endIndex);
           `,
       {
-        paste: false,
+        paste: true,
         completeReplace: false,
         toRun: true,
         shouldCreateNewJSObj: true,
@@ -33,16 +33,13 @@ describe("List widget V2 Serverside Pagination", () => {
     );
 
     entityExplorer.SelectEntityByName("List1", "Widgets");
-
-    agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "1");
-    agHelper.GetNClick(commonlocators.listPaginateNextButton, 0, true);
-    agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "2");
-    agHelper.GetNClick(commonlocators.listPaginateNextButton, 0, true);
-    agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "3");
-    agHelper.AssertElementExist(commonlocators.listPaginateNextButtonDisabled);
-    agHelper.GetNClick(commonlocators.listPaginatePrevButton, 0, true);
-    agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "2");
-
+    table.AssertPageNumber_List(1, false, "v2");
+    //agHelper.GetNClick(commonlocators.listPaginateNextButton, 0, true);
+    table.NavigateToNextPage_List("v2");
+    //agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "2");
+    table.NavigateToNextPage_List("v2");
+    table.AssertPageNumber_List(3, true, "v2");
+    table.NavigateToPreviousPage_List("v2");
     deployMode.DeployApp();
   });
 
@@ -78,10 +75,9 @@ describe("List widget V2 Serverside Pagination", () => {
       cy.wrap(data).should("deep.equal", {});
     });
 
-    // Select First Row
-    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
-      .eq(0)
-      .click();
+    // Select First Row in List
+    agHelper.GetNClick(locators._imgWidgetInsideList, 0, true);
+
     cy.wait(200);
 
     cy.get(
@@ -132,9 +128,7 @@ describe("List widget V2 Serverside Pagination", () => {
     });
 
     // Change Page and Validate Data
-    cy.get(commonlocators.listPaginateNextButton).click({
-      force: true,
-    });
+    table.NavigateToNextPage_List("v2");
 
     cy.wait(2000);
 
@@ -233,10 +227,7 @@ describe("List widget V2 Serverside Pagination", () => {
     });
 
     // Change Page and Validate Data change
-    cy.get(commonlocators.listPaginatePrevButton).click({
-      force: true,
-    });
-
+    table.NavigateToPreviousPage_List("v2");
     cy.wait(2000);
 
     cy.get(

@@ -169,7 +169,6 @@ export const INVITE_USER_RAMP_TEXT = () =>
   "Users will have access to all applications in the workspace. For application-level access, try out our ";
 export const CUSTOM_ROLES_RAMP_TEXT = () =>
   "To build and assign custom roles, try out our ";
-export const BUSINESS_TEXT = () => "Business";
 export const CUSTOM_ROLE_TEXT = () => "Custom role";
 export const CUSTOM_ROLE_DISABLED_OPTION_TEXT = () =>
   "Can access specific applications or only certain pages and queries within an application";
@@ -573,9 +572,8 @@ export const JS_SETTINGS_CONFIRM_EXECUTION_SUBTEXT = () =>
   "Ask confirmation from the user every time before refreshing data";
 export const JS_SETTINGS_EXECUTE_TIMEOUT = () =>
   "Function Timeout (in milliseconds)";
-export const ASYNC_FUNCTION_SETTINGS_HEADING = () => "Async function settings";
-export const NO_ASYNC_FUNCTIONS = () =>
-  "There is no asynchronous function in this JSObject";
+export const FUNCTION_SETTINGS_HEADING = () => "Function settings";
+export const NO_JS_FUNCTIONS = () => "There is no function in this JSObject";
 export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>
   `${JSObjectName} has no function`;
 export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
@@ -1001,7 +999,7 @@ export const ONBOARDING_CHECKLIST_BODY = () =>
 export const ONBOARDING_CHECKLIST_COMPLETE_TEXT = () => "complete";
 
 export const SIGNPOSTING_POPUP_SUBTITLE = () =>
-  "These are all the things you need to do to build your first application.";
+  "Here’s what you need to do to build your first app:";
 export const SIGNPOSTING_SUCCESS_POPUP = {
   title: () => "🎉 Awesome! You’ve explored the basics of Appsmith",
   subtitle: () =>
@@ -1009,32 +1007,31 @@ export const SIGNPOSTING_SUCCESS_POPUP = {
 };
 
 export const ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE = {
-  bold: () => "Connect your datasource",
-  normal: () => "to start building your app",
+  bold: () => "Connect to a datasource",
+  normal: () => "So your UI can talk to your data.",
 };
 
 export const ONBOARDING_CHECKLIST_CREATE_A_QUERY = {
-  bold: () => "Write a query",
-  normalPrefix: () => "to import your",
-  normal: () => "data into appsmith",
+  bold: () => "Write your first query",
+  normal: () => "To get the data to present in widgets",
 };
 
 export const ONBOARDING_CHECKLIST_ADD_WIDGETS = {
-  bold: () => "Drag & drop a widget,",
-  normal: () => "so you can build a beautiful UI",
+  bold: () => "Drop a widget on the canvas",
+  normal: () => "To start building your UI",
 };
 
 export const ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET = {
-  bold: () => "Connect your data to the widgets",
-  normal: () => "using JavaScript bindings",
+  bold: () => "Connect queries and widgets",
+  normal: () => "using query names in bindings {{}}",
 };
 
 export const ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS = {
-  bold: () => "Deploy your application,",
-  normal: () => "and see your creation live.",
+  bold: () => "Deploy your application",
+  normal: () => "To see your live app and share it with end-users.",
 };
 
-export const SIGNPOSTING_LAST_STEP_TOOLTIP = () => "You are almost there!";
+export const SIGNPOSTING_LAST_STEP_TOOLTIP = () => "Almost there!";
 export const SIGNPOSTING_TOOLTIP = {
   DEFAULT: {
     content: () =>
@@ -1044,19 +1041,18 @@ export const SIGNPOSTING_TOOLTIP = {
     content: () => "Let's add a datasource",
   },
   CREATE_QUERY: {
-    content: () =>
-      "You successfully connected a datasource. Now try to create a query.",
+    content: () => "Datasource connected. Let's write your first query now.",
   },
   ADD_WIDGET: {
-    content: () =>
-      "You successfully created a query. Now its time to drag & drop a widget to bind data.",
+    content: () => "The query seems fine, right? Let's build our UI next.",
   },
   CONNECT_DATA_TO_WIDGET: {
     content: () =>
-      "You have a widget on the canvas now, its time to bind the data with it.",
+      "That was easy. Connect the query you wrote in Step 2 to present data in this widget.",
   },
   DEPLOY_APPLICATION: {
-    content: () => "Deploy you application to see what you’ve built.",
+    content: () =>
+      "Deploy your app to see it live and share it with your users.",
   },
   DOCUMENTATION: {
     content: () => "Open documentation",
@@ -1247,6 +1243,7 @@ export const OIDC_AUTH_DESC = () =>
   "Enable your workspace to sign in with your preferred OIDC compliant provider.";
 export const SAVE_BUTTON = () => "Save";
 export const SAVE_AND_RESTART_BUTTON = () => "Save & Restart";
+export const SAVE_AND_REFRESH_BUTTON = () => "Save & Refresh";
 export const RESET_BUTTON = () => "Reset";
 export const BUSINESS_TAG = () => "Business";
 export const ENTERPRISE_TAG = () => "Enterprise";
@@ -1340,6 +1337,9 @@ export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
 export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
   "Search for controls, labels etc";
 export const EXPLORER_BETA_ENTITY = () => "BETA";
+export const BINDING_WIDGET_WALKTHROUGH_TITLE = () => "Widget properties";
+export const BINDING_WIDGET_WALKTHROUGH_DESC = () =>
+  `We’ve set the table data property for you. You can change it at anytime. The properties pane is a central hub for configuring widgets, allowing you to easily modify settings.`;
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";
@@ -1754,6 +1754,12 @@ export const DATASOURCE_INTERCOM_TEXT = () =>
 export const GOOGLE_SHEETS_ASK_FOR_SUPPORT = () => "Ask for support";
 export const GOOGLE_SHEETS_FILE_PICKER_TITLE = () =>
   "Select Google Sheets to query";
+export const GSHEETS_GENERATE_PAGE_BUTTON = () => "Generate page";
+export const GSHEETS_ERR_FETCHING_PREVIEW_DATA = () =>
+  "Some problem occured while fetching data";
+export const GSHEETS_FETCHING_PREVIEW_DATA = () => "Loading data";
+export const GSHEETS_SCHEMA_NO_DATA = () =>
+  "No data records to show or the table header begins with an index other than 1";
 
 //Layout Conversion flow
 export const CONVERT = () => "Convert layout";
@@ -1871,15 +1877,30 @@ export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
 
 //Datasource environment
 export const START_SWITCH_ENVIRONMENT = (environment: string) =>
-  `...Switching your environment to ${environment}, and running all associated pageload actions`;
+  `Switching your environment to ${environment}, and running all associated pageload actions`;
 export const SWITCH_ENVIRONMENT_SUCCESS = (environment: string) =>
-  `...Environment switched to ${environment} successfully`;
+  `Environment switched to ${environment} successfully`;
+export const SWITCH_ENV_DISABLED_TOOLTIP_TEXT = () =>
+  "To access environments for datasources, try out our ";
 
 export const TEST_DATASOURCE_SUCCESS = (
   datasourceName: string,
   environmentName: string,
-) =>
-  `Test was successful, ${datasourceName} ${environmentName} environment is correctly configured.`;
+) => {
+  return environmentName
+    ? `Test was successful, ${datasourceName} ${environmentName} environment is correctly configured.`
+    : `Test was successful, ${datasourceName} is correctly configured.`;
+};
 
 export const TEST_DATASOURCE_ERROR = () =>
   "Test failed, couldn't establish a connection";
+
+// Camera widget
+export const DEFAULT_CAMERA_LABEL = () => "Default mobile camera";
+export const DEFAULT_CAMERA_LABEL_DESCRIPTION = () =>
+  "Default choice for mobile users. Not applicable for other devices";
+export const FRONT_CAMERA_LABEL = () => "Front (Selfie)";
+export const BACK_CAMERA_LABEL = () => "Back (Rear)";
+
+// Color picker
+export const FULL_COLOR_PICKER_LABEL = () => "Full color picker";

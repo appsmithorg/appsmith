@@ -66,7 +66,7 @@ import {
   extractClientDefinedErrorMetadata,
   validateResponse,
 } from "sagas/ErrorSagas";
-import type { EventName } from "utils/AnalyticsUtil";
+import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
@@ -392,7 +392,7 @@ function* evaluateActionParams(
   // Add keys values to formData for the multipart submission
   for (let i = 0; i < bindings.length; i++) {
     const key = bindings[i];
-    let value = values[i];
+    let value = isArray(values) && values[i];
 
     let useBlobMaps = false;
     // Maintain a blob map to resolve blob urls of large files
@@ -534,6 +534,7 @@ export default function* executePluginActionTriggerSaga(
     datasourceId: datasourceId,
     isMock: !!datasource?.isMock,
     actionId: action?.id,
+    inputParams: Object.keys(params).length,
   });
   const pagination =
     eventType === EventType.ON_NEXT_PAGE
@@ -608,6 +609,7 @@ export default function* executePluginActionTriggerSaga(
       isMock: !!datasource?.isMock,
       actionId: action?.id,
       ...payload.pluginErrorDetails,
+      inputParams: Object.keys(params).length,
     });
     if (onError) {
       throw new PluginTriggerFailureError(
@@ -635,6 +637,7 @@ export default function* executePluginActionTriggerSaga(
       datasourceId: datasourceId,
       isMock: !!datasource?.isMock,
       actionId: action?.id,
+      inputParams: Object.keys(params).length,
     });
     AppsmithConsole.info({
       logType: LOG_TYPE.ACTION_EXECUTION_SUCCESS,
@@ -1051,6 +1054,7 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
         collectionId: collectionId,
         isExecuteJSFunc: true,
       };
+
       yield call(handleExecuteJSFunctionSaga, data);
     }
   }
@@ -1089,6 +1093,7 @@ function* executePageLoadAction(pageAction: PageAction) {
       datasourceId: datasourceId,
       isMock: !!datasource?.isMock,
       actionId: pageAction?.id,
+      inputParams: 0,
     });
 
     let payload = EMPTY_RESPONSE;
@@ -1177,6 +1182,7 @@ function* executePageLoadAction(pageAction: PageAction) {
         datasourceId: datasourceId,
         isMock: !!datasource?.isMock,
         actionId: pageAction?.id,
+        inputParams: 0,
         ...payload.pluginErrorDetails,
       });
     } else {
@@ -1195,6 +1201,7 @@ function* executePageLoadAction(pageAction: PageAction) {
         datasourceId: datasourceId,
         isMock: !!datasource?.isMock,
         actionId: pageAction?.id,
+        inputParams: 0,
       });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,

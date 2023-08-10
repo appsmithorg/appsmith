@@ -31,7 +31,7 @@ export function evalTreeWithChanges(
   const dependencies: DependencyMap = {};
   let evalMetaUpdates: EvalMetaUpdates = [...metaUpdates];
   let staleMetaIds: string[] = [];
-  const pathsToClearErrorsFor: any[] = [];
+  const removedPaths: Array<{ entityId: string; fullpath: string }> = [];
   let unevalTree: UnEvalTree = {};
   let configTree: ConfigTree = {};
 
@@ -65,7 +65,10 @@ export function evalTreeWithChanges(
       evalProps: dataTreeEvaluator.evalProps,
     });
 
-    evalMetaUpdates = [...evalMetaUpdates, ...updateResponse.evalMetaUpdates];
+    /** Make sure evalMetaUpdates is sanitized to prevent postMessage failure */
+    evalMetaUpdates = JSON.parse(
+      JSON.stringify([...evalMetaUpdates, ...updateResponse.evalMetaUpdates]),
+    );
 
     staleMetaIds = updateResponse.staleMetaIds;
     unevalTree = dataTreeEvaluator.getOldUnevalTree();
@@ -85,7 +88,7 @@ export function evalTreeWithChanges(
     isCreateFirstTree,
     configTree,
     staleMetaIds,
-    pathsToClearErrorsFor,
+    removedPaths,
     isNewWidgetAdded: false,
     undefinedEvalValuesMap: dataTreeEvaluator?.undefinedEvalValuesMap || {},
     jsVarsCreatedEvent: [],

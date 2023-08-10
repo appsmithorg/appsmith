@@ -7,7 +7,7 @@ function LoaderIcon({
   ...props
 }: {
   className?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }) {
   return (
     <svg

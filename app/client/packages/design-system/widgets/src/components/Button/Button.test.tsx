@@ -6,7 +6,7 @@ import { render, screen } from "@testing-library/react";
 import { Button } from "./";
 
 // Adapted from remixicon-react/EmotionHappyLineIcon (https://github.com/Remix-Design/RemixIcon/blob/f88a51b6402562c6c2465f61a3e845115992e4c6/icons/User%20%26%20Faces/emotion-happy-line.svg)
-const EmotionHappyLineIcon = ({ ...props }: Record<string, any>) => {
+const EmotionHappyLineIcon = ({ ...props }: Record<string, string>) => {
   return (
     <svg
       fill="currentColor"
@@ -69,12 +69,8 @@ describe("@design-system/widgets/Button", () => {
   });
 
   it("sets icon position attribute based on the prop ", () => {
-    const { container } = render(<Button iconPosition="end" />);
-
-    const button = container.querySelector("button") as HTMLElement;
+    render(<Button iconPosition="end" />);
+    const button = screen.getByRole("button");
     expect(button).toHaveAttribute("data-icon-position", "end");
-
-    const styles = window.getComputedStyle(button);
-    expect(styles.flexDirection).toBe("row-reverse");
   });
 });

@@ -24,7 +24,7 @@ Running the Appsmith Docker image as a container will grant you a running Appsmi
 
 2. Change your directory to `deploy/docker`
     ```console
-    cd app/server
+    cd deploy/docker
     ```
 
 3. Start

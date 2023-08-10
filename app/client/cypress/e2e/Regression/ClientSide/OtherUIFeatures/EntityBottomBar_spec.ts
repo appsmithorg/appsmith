@@ -1,5 +1,4 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
-const OnboardingLocator = require("../../../../locators/FirstTimeUserOnboarding.json");
 import { PageType } from "../../../../support/Pages/DebuggerHelper";
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 
@@ -33,7 +32,7 @@ describe("Entity bottom bar", () => {
     _.debuggerHelper.AssertSelectedTab("Response");
     //verify if bottom bar is closed on switching to canvas page.
     _.entityExplorer.NavigateToSwitcher("Widgets");
-    _.debuggerHelper.AssertClosed();
+    _.debuggerHelper.AssertSelectedTab("Errors");
   });
 
   it("3. Api bottom pane should be collapsable", () => {
@@ -41,10 +40,7 @@ describe("Entity bottom bar", () => {
     _.apiPage.CreateAndFillApi(
       _.tedTestConfig.dsValues[_.tedTestConfig.defaultEnviorment].mockApiUrl,
     );
-    //Verify if bottom bar opens on clicking debugger icon in api page.
-    _.debuggerHelper.ClickDebuggerIcon();
-    _.debuggerHelper.AssertOpen(PageType.API);
-    //Verify if selected tab is errors in tab title.
+    //Verify that the errors tab is still open.
     _.debuggerHelper.AssertSelectedTab("Errors");
     //Verify if bottom bar is closed on clicking close icon in API page.
     _.debuggerHelper.CloseBottomBar();
@@ -52,6 +48,8 @@ describe("Entity bottom bar", () => {
     //Verify if bottom bar opens on clicking debugger icon in api page.
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.AssertOpen(PageType.API);
+    //Verify if selected tab is errors in tab title.
+    _.debuggerHelper.AssertSelectedTab("Errors");
     //Verify if bottom bar is open on executing api.
     _.apiPage.RunAPI();
     _.agHelper.Sleep(1000);

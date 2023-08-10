@@ -23,8 +23,7 @@ const DropdownSelect = styled.div<{
   width: string;
 }>`
   /* font-size: 14px; */
-  min-width: 380px;
-  max-width: 545px;
+  width: ${(props) => (props?.width ? props?.width : "270px")};
 `;
 
 class DropDownControl extends BaseControl<Props> {
@@ -202,13 +201,8 @@ function renderDropdown(
       });
 
       if (selectedValue !== tempSelectedValues) {
-        // when pre-selected value is not found in dropdown options,
-        // initializing dropdown to initial value instead of blank
-        const tempValues = !isNil(props?.initialValue)
-          ? (props.initialValue as string[])
-          : tempSelectedValues;
-        selectedValue = tempValues;
-        props.input?.onChange(tempValues);
+        selectedValue = tempSelectedValues;
+        props.input?.onChange(tempSelectedValues);
       }
 
       const isOptionDynamic = options.some((opt) => "disabled" in opt);

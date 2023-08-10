@@ -8,14 +8,17 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.lettuce.core.resource.ClientResources;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisClusterConfiguration;
+import org.springframework.data.redis.connection.RedisConfiguration;
 import org.springframework.data.redis.connection.RedisNode;
-import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
+import org.springframework.data.redis.connection.RedisPassword;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.observability.MicrometerTracingAdapter;
@@ -67,19 +70,32 @@ public class RedisConfig {
 
         switch (scheme) {
             case "redis" -> {
-                return new LettuceConnectionFactory(redisUri.getHost(), redisUri.getPort());
+                final RedisStandaloneConfiguration config =
+                        new RedisStandaloneConfiguration(redisUri.getHost(), redisUri.getPort());
+                fillAuthentication(redisUri, config);
+                return new LettuceConnectionFactory(config);
             }
 
             case "redis-cluster" -> {
                 // For ElastiCache Redis with cluster mode enabled, with the configuration endpoint.
-                final LettuceClientConfiguration config =
-                        LettucePoolingClientConfiguration.builder().build();
                 final RedisClusterConfiguration clusterConfig = new RedisClusterConfiguration();
+                fillAuthentication(redisUri, clusterConfig);
                 clusterConfig.addClusterNode(new RedisNode(redisUri.getHost(), redisUri.getPort()));
-                return new LettuceConnectionFactory(clusterConfig, config);
+                return new LettuceConnectionFactory(
+                        clusterConfig,
+                        LettucePoolingClientConfiguration.builder().build());
             }
 
             default -> throw new InvalidRedisURIException("Invalid redis scheme: " + scheme);
+        }
+    }
+
+    private void fillAuthentication(URI redisUri, RedisConfiguration.WithAuthentication config) {
+        final String userInfo = redisUri.getUserInfo();
+        if (StringUtils.isNotEmpty(userInfo)) {
+            final String[] parts = userInfo.split(":", 2);
+            config.setUsername(parts[0]);
+            config.setPassword(RedisPassword.of(parts.length > 1 ? parts[1] : null));
         }
     }
 

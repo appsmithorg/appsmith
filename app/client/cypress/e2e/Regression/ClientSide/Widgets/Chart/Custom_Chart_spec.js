@@ -77,10 +77,12 @@ describe("Chart Widget Functionality around custom chart feature", function () {
     cy.get(viewWidgetsPage.chartWidget).should("have.css", "opacity", "1");
     const labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];
     [0, 1, 2, 3, 4, 5, 6].forEach((k) => {
-      cy.get(viewWidgetsPage.rectangleChart)
+      cy.get(viewWidgetsPage.fusionRectangleChart)
         .eq(k)
         .trigger("mousemove", { force: true });
-      cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
+      cy.get(viewWidgetsPage.FusionChartlabel)
+        .eq(k)
+        .should("have.text", labels[k]);
     });
     _.deployMode.DeployApp();
   });
@@ -94,17 +96,19 @@ describe("Chart Widget Functionality around custom chart feature", function () {
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(viewWidgetsPage.Chartlabel + ":first-child", {
+    cy.get(viewWidgetsPage.FusionChartlabel + ":first-child", {
       timeout: 10000,
     }).should("have.css", "opacity", "1");
     //Verifying X-axis labels
     cy.get(viewWidgetsPage.chartWidget).should("have.css", "opacity", "1");
     const labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];
     [0, 1, 2, 3, 4, 5, 6].forEach((k) => {
-      cy.get(viewWidgetsPage.rectangleChart)
+      cy.get(viewWidgetsPage.fusionRectangleChart)
         .eq(k)
         .trigger("mousemove", { force: true });
-      cy.get(viewWidgetsPage.Chartlabel).eq(k).should("have.text", labels[k]);
+      cy.get(viewWidgetsPage.FusionChartlabel)
+        .eq(k)
+        .should("have.text", labels[k]);
     });
 
     //Close edit prop
@@ -116,7 +120,7 @@ describe("Chart Widget Functionality around custom chart feature", function () {
     cy.wait(1000);
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("Container3");
-    _.propPane.CopyWidgetFromPropertyPane("Test");
+    _.propPane.CopyPasteWidgetFromPropertyPane("Test");
     _.deployMode.DeployApp();
     //Chart-Delete Verification"
     _.deployMode.NavigateBacktoEditor();

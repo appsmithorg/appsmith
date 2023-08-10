@@ -11,7 +11,7 @@ export class Templates {
     _templatesSearchInput: "[data-testid='t--application-search-input']",
     _resultsHeader: "[data-testid='t--application-templates-results-header']",
     _templateViewGoBack: "[data-testid='t--template-view-goback']",
-    templateDialogBox: "[data-testid=t--templates-dialog-component]",
+    _templateDialogBox: "[data-testid=t--templates-dialog-component]",
     _closeTemplateDialogBoxBtn: ".ads-v2-modal__content-header-close-button",
     _requestForTemplateBtn: "span:contains('Request for a template')",
   };
@@ -47,7 +47,7 @@ export class Templates {
       this.agHelper.AssertElementVisible(
         this.locators._requestForTemplateBtn,
         0,
-        30000,
+        60000,
       ); //giving more time here for templates page to fully load, since there is no intercept validation for same
     });
   }

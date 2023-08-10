@@ -16,10 +16,7 @@ import {
   deleteWidgetProperty,
   setWidgetDynamicProperty,
 } from "actions/controlActions";
-import type {
-  PropertyHookUpdates,
-  PropertyPaneControlConfig,
-} from "constants/PropertyControlConstants";
+import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import type { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
@@ -48,13 +45,17 @@ import {
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
-import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
+import {
+  setFocusablePropertyPaneField,
+  setSelectedPropertyPanel,
+} from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import clsx from "clsx";
 import styled from "styled-components";
 import { importSvg } from "design-system-old";
 import classNames from "classnames";
+import type { PropertyUpdates } from "widgets/constants";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 
 const ResetIcon = importSvg(() => import("assets/icons/control/undo_2.svg"));
@@ -265,7 +266,7 @@ const PropertyControl = memo((props: Props) => {
       propertyName: string,
       propertyValue: any,
     ): UpdateWidgetPropertyPayload | undefined => {
-      let propertiesToUpdate: Array<PropertyHookUpdates> | undefined;
+      let propertiesToUpdate: Array<PropertyUpdates> | undefined;
       // To support updating multiple properties of same widget.
       if (updateHook) {
         propertiesToUpdate = updateHook(
@@ -570,6 +571,12 @@ const PropertyControl = memo((props: Props) => {
   const openPanel = useCallback(
     (panelProps: any) => {
       if (props.panelConfig) {
+        dispatch(
+          setSelectedPropertyPanel(
+            `${widgetProperties.widgetName}.${props.propertyName}`,
+            panelProps.index,
+          ),
+        );
         props.panel.openPanel({
           component: PanelPropertiesEditor,
           props: {
@@ -584,6 +591,7 @@ const PropertyControl = memo((props: Props) => {
       }
     },
     [
+      widgetProperties.widgetName,
       props.panelConfig,
       props.panel,
       props.propertyName,

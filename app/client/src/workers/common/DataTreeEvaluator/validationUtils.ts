@@ -161,6 +161,12 @@ export function getValidatedTree(
           }),
           evaluatedValue,
         );
+
+        resetValidationErrorsForEntityProperty({
+          evalProps,
+          fullPropertyPath,
+        });
+
         if (!isValid) {
           const evalErrors: EvaluationError[] =
             messages?.map((message) => ({
@@ -170,10 +176,6 @@ export function getValidatedTree(
               raw: value,
             })) ?? [];
 
-          resetValidationErrorsForEntityProperty({
-            evalProps,
-            fullPropertyPath,
-          });
           addErrorToEntityProperty({
             errors: evalErrors,
             evalProps,

@@ -2,12 +2,12 @@ import type { Position } from "codemirror";
 import type { LintError } from "utils/DynamicBindingUtils";
 import { JSHINT as jshint } from "jshint";
 import type { LintError as JSHintError } from "jshint";
-import { isEmpty, isNumber, keys } from "lodash";
-import type { MemberExpressionData } from "@shared/ast";
-import {
-  extractInvalidTopLevelMemberExpressionsFromCode,
-  isLiteralNode,
+import { get, isEmpty, isNumber, keys } from "lodash";
+import type {
+  MemberExpressionData,
+  AssignmentExpressionData,
 } from "@shared/ast";
+import { extractExpressionsFromCode, isLiteralNode } from "@shared/ast";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import type { EvaluationScriptType } from "workers/Evaluation/evaluate";
 import { EvaluationScripts, ScriptTemplate } from "workers/Evaluation/evaluate";
@@ -25,6 +25,8 @@ import { JSLibraries } from "workers/common/JSLibrary";
 import getLintSeverity from "./getLintSeverity";
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
 import { last } from "lodash";
+import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
+import setters from "workers/Evaluation/setters";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 
@@ -185,18 +187,99 @@ export default function getLintingErrors({
       options?.isJsObject,
     ),
   );
-  const invalidPropertyErrors = getInvalidPropertyErrorsFromScript(
+  const customLintErrors = getCustomErrorsFromScript(
     script,
     data,
     scriptPos,
     originalBinding,
     options?.isJsObject,
   );
-  return jshintErrors.concat(invalidPropertyErrors);
+  return jshintErrors.concat(customLintErrors);
 }
 
-// returns lint errors caused by accessing invalid properties. Eg. jsObject.unknownProperty
-function getInvalidPropertyErrorsFromScript(
+function getAssignmentExpressionErrors({
+  assignmentExpressions,
+  data,
+  originalBinding,
+  script,
+  scriptPos,
+}: {
+  data: Record<string, unknown>;
+  assignmentExpressions: AssignmentExpressionData[];
+  scriptPos: Position;
+  originalBinding: string;
+  script: string;
+}) {
+  const assignmentExpressionErrors: LintError[] = [];
+  const setterAccessorMap = setters.getSetterAccessorMap();
+
+  for (const { end, object, property, start } of assignmentExpressions) {
+    const objectName = object.name;
+    const propertyName = isLiteralNode(property)
+      ? (property.value as string)
+      : property.name;
+
+    const entity = data[objectName];
+    if (!entity || !isWidget(entity)) continue;
+
+    const isValidProperty = propertyName in entity;
+
+    const methodName = get(setterAccessorMap, `${objectName}.${propertyName}`);
+
+    const suggestionSentence = methodName
+      ? `Use ${methodName}(value) instead.`
+      : `Use ${objectName} setter method instead.`;
+
+    const lintErrorMessage = !isValidProperty
+      ? `${objectName} doesn't have a property named ${propertyName}`
+      : `Direct mutation of widget properties aren't supported. ${suggestionSentence}`;
+
+    // line position received after AST parsing is 1 more than the actual line of code, hence we subtract 1 to get the actual line number
+    const objectStartLine = object.loc.start.line - 1;
+
+    // AST parsing start column position from index 0 whereas codemirror start ch position from index 1, hence we add 1 to get the actual ch position
+    const objectStartCol = object.loc.start.column + 1;
+
+    let variable = isLiteralNode(property)
+      ? `${object.name}["${propertyName}"]`
+      : `${object.name}.${propertyName}`;
+
+    const messageLength = end - start;
+
+    variable = variable.concat(
+      variable,
+      " ".repeat(messageLength - variable.length),
+    );
+
+    assignmentExpressionErrors.push({
+      errorType: PropertyEvaluationErrorType.LINT,
+      raw: script,
+      severity: getLintSeverity(
+        CustomLintErrorCode.INVALID_ENTITY_PROPERTY,
+        lintErrorMessage,
+      ),
+      errorMessage: {
+        name: "LintingError",
+        message: lintErrorMessage,
+      },
+      errorSegment: variable,
+      originalBinding,
+      variables: [variable, null, null],
+      code: CustomLintErrorCode.INVALID_ENTITY_PROPERTY,
+      line: objectStartLine - scriptPos.line,
+      ch:
+        objectStartLine === scriptPos.line
+          ? objectStartCol - scriptPos.ch
+          : objectStartCol,
+    });
+  }
+  return assignmentExpressionErrors;
+}
+
+// returns lint errors caused by
+// 1. accessing invalid properties. Eg. jsObject.unknownProperty
+// 2. direct mutation of widget properties. Eg. widget1.left = 10
+function getCustomErrorsFromScript(
   script: string,
   data: Record<string, unknown>,
   scriptPos: Position,
@@ -204,20 +287,34 @@ function getInvalidPropertyErrorsFromScript(
   isJSObject = false,
 ): LintError[] {
   let invalidTopLevelMemberExpressions: MemberExpressionData[] = [];
+  let assignmentExpressions: AssignmentExpressionData[] = [];
   try {
+    const value = extractExpressionsFromCode(
+      script,
+      data,
+      self.evaluationVersion,
+    );
     invalidTopLevelMemberExpressions =
-      extractInvalidTopLevelMemberExpressionsFromCode(
-        script,
-        data,
-        self.evaluationVersion,
-      );
+      value.invalidTopLevelMemberExpressionsArray;
+    assignmentExpressions =
+      value.assignmentExpressionsData as AssignmentExpressionData[];
+    // eslint-disable-next-line no-console
   } catch (e) {}
+
+  const assignmentExpressionErrors = getAssignmentExpressionErrors({
+    assignmentExpressions,
+    script,
+    scriptPos,
+    originalBinding,
+    data,
+  });
 
   const invalidPropertyErrors = invalidTopLevelMemberExpressions.map(
     ({ object, property }): LintError => {
       const propertyName = isLiteralNode(property)
         ? (property.value as string)
         : property.name;
+      // line position received after AST parsing is 1 more than the actual line of code, hence we subtract 1 to get the actual line number
       const objectStartLine = object.loc.start.line - 1;
       // For computed member expressions (entity["property"]), add an extra 1 to the start column to account for "[".
       const propertyStartColumn = !isLiteralNode(property)
@@ -249,7 +346,8 @@ function getInvalidPropertyErrorsFromScript(
       };
     },
   );
-  return invalidPropertyErrors;
+
+  return [...invalidPropertyErrors, ...assignmentExpressionErrors];
 }
 
 function getRefinedW117Error(

@@ -142,7 +142,7 @@ export class DebuggerHelper {
   }
 
   DebuggerLogsFilter(text: string) {
-    this.agHelper.RemoveCharsNType(this.locators._debuggerFilter, -1, text);
+    this.agHelper.SelectAllAndType(this.locators._debuggerFilter, text);
   }
 
   LogStateContains(text: string, index?: number) {
@@ -184,7 +184,12 @@ export class DebuggerHelper {
     this.agHelper.GetNClick(this.locators._debuggerMessage, index);
   }
 
-  ClicklogEntityLink(index?: number) {
+  ClicklogEntityLink(last = false, index?: number) {
+    if (last) {
+      this.agHelper.GetElement(this.locators._logEntityLink).last().click();
+      return;
+    }
+
     this.agHelper.GetNClick(this.locators._logEntityLink, index);
   }
 

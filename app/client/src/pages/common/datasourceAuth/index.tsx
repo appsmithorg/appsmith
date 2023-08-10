@@ -35,7 +35,6 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
 import type { PluginType } from "entities/Action";
-import { reset } from "redux-form";
 import { getCurrentEnvName } from "@appsmith/utils/Environments";
 
 interface Props {
@@ -64,6 +63,7 @@ interface Props {
   isFormDirty?: boolean;
   scopeValue?: string;
   showFilterComponent: boolean;
+  onCancel: () => void;
 }
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
@@ -134,10 +134,9 @@ function DatasourceAuth({
     DatasourceButtonTypeEnum.SAVE,
   ],
   formData,
-  formName,
   getSanitizedFormData,
   isInvalid,
-  pageId: pageIdProp,
+  pageId: pageIdProp = "",
   pluginType,
   pluginName,
   pluginPackageName,
@@ -145,12 +144,12 @@ function DatasourceAuth({
   isTesting,
   viewMode,
   shouldDisplayAuthMessage = true,
-  setDatasourceViewMode,
   triggerSave,
   isFormDirty,
   scopeValue,
   isInsideReconnectModal,
   showFilterComponent,
+  onCancel,
 }: Props) {
   const shouldRender = !viewMode || isInsideReconnectModal;
   const authType =
@@ -175,7 +174,9 @@ function DatasourceAuth({
   const { pageId: pageIdQuery } = useParams<ExplorerURLParams>();
   const history = useHistory<AppsmithLocationState>();
 
-  const pageId = (pageIdQuery || pageIdProp) as string;
+  const pageId = isInsideReconnectModal
+    ? pageIdProp
+    : ((pageIdQuery || pageIdProp) as string);
 
   useEffect(() => {
     if (authType === AuthType.OAUTH2) {
@@ -314,10 +315,7 @@ function DatasourceAuth({
   };
 
   const createMode = datasourceId === TEMP_DATASOURCE_ID;
-  const datasourceButtonsComponentMap = (
-    buttonType: string,
-    datasourceId: string,
-  ): JSX.Element => {
+  const datasourceButtonsComponentMap = (buttonType: string): JSX.Element => {
     return {
       [DatasourceButtonType.TEST]: (
         <ActionButton
@@ -347,8 +345,7 @@ function DatasourceAuth({
               });
               history.push(URL);
             } else {
-              setDatasourceViewMode({ datasourceId, viewMode: true });
-              dispatch(reset(formName));
+              !!onCancel && onCancel();
             }
           }}
           size="md"
@@ -397,7 +394,7 @@ function DatasourceAuth({
       {shouldRender && (
         <SaveButtonContainer isInsideReconnectModal={isInsideReconnectModal}>
           {datasourceButtonConfiguration?.map((btnConfig) =>
-            datasourceButtonsComponentMap(btnConfig, datasource.id),
+            datasourceButtonsComponentMap(btnConfig),
           )}
         </SaveButtonContainer>
       )}

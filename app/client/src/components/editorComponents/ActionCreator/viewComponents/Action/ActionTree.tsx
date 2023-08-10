@@ -11,6 +11,7 @@ import ActionCard from "./ActionCard";
 import ActionSelector from "./ActionSelector";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getActionTypeLabel } from "../ActionBlockTree/utils";
+import classNames from "classnames";
 
 const CallbackBlockContainer = styled.div<{
   isSelected: boolean;
@@ -49,6 +50,9 @@ export default function ActionTree(props: {
   level: number;
   isLastBlock?: boolean;
   variant?: VariantType;
+  widgetName: string;
+  propertyName: string;
+  widgetType: string;
 }) {
   const { id } = props;
   const [actionBlock, setActionBlock] = React.useState(props.actionBlock);
@@ -60,22 +64,39 @@ export default function ActionTree(props: {
   const { selectBlock, selectedBlockId } =
     React.useContext(ActionCreatorContext);
 
-  useEffect(() => {
-    setActionBlock(props.actionBlock);
-  }, [props.actionBlock]);
+  const [canAddCallback, setCanAddCallback] = React.useState(
+    props.actionBlock.actionType !== AppsmithFunction.none,
+  );
 
   const [callbacksExpanded, setCallbacksExpanded] = React.useState(false);
+
+  useEffect(() => {
+    setActionBlock(props.actionBlock);
+
+    if (props.actionBlock.actionType === AppsmithFunction.none) {
+      setCallbacksExpanded(true);
+    }
+
+    setCanAddCallback(props.actionBlock.actionType !== AppsmithFunction.none);
+  }, [
+    props.actionBlock,
+    setCallbacksExpanded,
+    setCanAddCallback,
+    setActionBlock,
+  ]);
 
   const handleCardSelection = useCallback(() => {
     if (selectedBlockId === id) return;
     selectBlock(id);
-  }, [id, selectedBlockId]);
+    setCallbacksExpanded(true);
+  }, [id, selectedBlockId, setCallbacksExpanded, selectBlock]);
 
   useEffect(() => {
     open(selectedBlockId === id);
   }, [selectedBlockId, id]);
 
   const handleAddSuccessBlock = useCallback(() => {
+    if (!canAddCallback) return;
     const {
       success: { blocks },
     } = actionBlock;
@@ -91,9 +112,10 @@ export default function ActionTree(props: {
     });
     setActionBlock(newActionBlock);
     selectBlock(`${id}_success_${blocks.length}`);
-  }, [actionBlock]);
+  }, [actionBlock, canAddCallback]);
 
   const handleAddErrorBlock = useCallback(() => {
+    if (!canAddCallback) return;
     const {
       error: { blocks },
     } = actionBlock;
@@ -109,7 +131,7 @@ export default function ActionTree(props: {
     });
     setActionBlock(newActionBlock);
     selectBlock(`${id}_failure_${blocks.length}`);
-  }, [actionBlock]);
+  }, [actionBlock, canAddCallback]);
 
   const actionsCount =
     successBlocks.filter(
@@ -123,7 +145,8 @@ export default function ActionTree(props: {
     errorBlocks.filter(({ type }) => type === "failure").length;
 
   let areCallbacksApplicable =
-    chainableFns.includes(actionBlock.actionType) && props.level < 2;
+    actionBlock.actionType === AppsmithFunction.none ||
+    (chainableFns.includes(actionBlock.actionType) && props.level < 2);
 
   if (props.level === 1) {
     areCallbacksApplicable = callbacksCount > 0;
@@ -190,7 +213,12 @@ export default function ActionTree(props: {
       ) : null}
       {callbacksExpanded && areCallbacksApplicable ? (
         <TreeStructure>
-          <ul className="tree flex flex-col gap-0">
+          <ul
+            className={classNames(
+              "tree flex flex-col gap-0",
+              !canAddCallback && "opacity-60",
+            )}
+          >
             {callbackBlocks.map(
               ({
                 blockType,
@@ -217,6 +245,7 @@ export default function ActionTree(props: {
                       >
                         <span className="icon w-7 h-7 flex items-center justify-center">
                           <Button
+                            isDisabled={!canAddCallback}
                             isIconButton
                             kind="tertiary"
                             size="sm"
@@ -255,6 +284,9 @@ export default function ActionTree(props: {
                               ),
                               code: deletedBlock.code,
                               callback: blockType,
+                              widgetName: props.widgetName,
+                              propertyName: props.propertyName,
+                              widgetType: props.widgetType,
                             });
                           } else {
                             const prevActionType = blocks[index].actionType;
@@ -271,12 +303,18 @@ export default function ActionTree(props: {
                                 actionType: actionTypeLabel,
                                 code: newActionCode,
                                 callback: blockType,
+                                widgetName: props.widgetName,
+                                propertyName: props.propertyName,
+                                widgetType: props.widgetType,
                               });
                             } else {
                               AnalyticsUtil.logEvent("ACTION_MODIFIED", {
                                 actionType: actionTypeLabel,
                                 code: newActionCode,
                                 callback: blockType,
+                                widgetName: props.widgetName,
+                                propertyName: props.propertyName,
+                                widgetType: props.widgetType,
                               });
                             }
                           }
@@ -286,7 +324,10 @@ export default function ActionTree(props: {
                             props.onChange(newActionBlock);
                           }
                         }}
+                        propertyName={props.propertyName}
                         variant="callbackBlock"
+                        widgetName={props.widgetName}
+                        widgetType={props.widgetType}
                       />
                     ))}
                   </div>

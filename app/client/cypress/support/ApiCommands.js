@@ -9,6 +9,7 @@ const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 import { ObjectsRegistry } from "./Objects/Registry";
 
+let agHelper = ObjectsRegistry.AggregateHelper;
 let dataSources = ObjectsRegistry.DataSources;
 let apiPage = ObjectsRegistry.ApiPage;
 
@@ -109,9 +110,20 @@ Cypress.Commands.add(
   (apiName, baseurl, path, verb, error = false) => {
     cy.get(".ads-v2-tabs__list").contains("Logs").click();
     cy.get("[data-testid=t--debugger-search]").clear().type(apiName);
+    agHelper.PressEnter();
+    agHelper.Sleep();
 
+    cy.get("body").then(($ele) => {
+      if ($ele.find(ApiEditor.apiResponseObject).length <= 0) {
+        agHelper
+          .GetElement(ApiEditor.apiDebuggerLink)
+          .last()
+          .contains(apiName)
+          .click();
+      }
+    });
     if (!error) {
-      cy.get(".object-key").last().contains("request").click();
+      cy.get(ApiEditor.apiResponseObject).last().contains("request").click();
     }
     cy.get(".string-value").contains(baseurl.concat(path));
     cy.get(".string-value").contains(verb);

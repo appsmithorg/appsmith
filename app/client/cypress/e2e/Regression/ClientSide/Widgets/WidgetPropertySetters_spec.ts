@@ -102,6 +102,14 @@ const setterMethodsToTest = [
     valueBinding: "{{JSON.stringify(Table1.tableData)}}",
     expectedValue: '[{"name":"test"}]',
   },
+  {
+    name: "setValue",
+    property: "value",
+    widget: WIDGET.CURRENCY_INPUT,
+    actionBinding: "{{CurrencyInput1.setValue(100)}}",
+    valueBinding: "{{CurrencyInput1.value}}",
+    expectedValue: "100",
+  },
 ];
 
 Object.values(setterMethodsToTest).forEach(
@@ -125,7 +133,6 @@ Object.values(setterMethodsToTest).forEach(
           PROPERTY_SELECTOR.TextFieldName,
           valueBinding,
         );
-
         agHelper.GetNClick(getWidgetSelector(WIDGET.BUTTON));
 
         agHelper.GetText(getWidgetSelector(WIDGET.TEXT)).then(($label) => {
@@ -151,6 +158,8 @@ Object.values(setterMethodsToTest).forEach(
 describe("Linting warning for setter methods", function () {
   it("Lint error when setter is used in a data field", function () {
     entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
+    entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT, 400, 400);
+
     agHelper.GetNClick(getWidgetSelector(WIDGET.BUTTON));
     propPane.TypeTextIntoField("Label", "{{Button1.setLabel('Hello')}}");
 
@@ -163,6 +172,7 @@ describe("Linting warning for setter methods", function () {
       `export default {
         myFun1: () => {
           Button1.setLabel('Hello');
+          Button1.isVisible = false;
         },
       }`,
       {
@@ -172,6 +182,11 @@ describe("Linting warning for setter methods", function () {
         shouldCreateNewJSObj: true,
         prettify: false,
       },
+    );
+
+    agHelper.HoverElement(locators._lintErrorElement);
+    agHelper.AssertContains(
+      "Direct mutation of widget properties aren't supported. Use Button1.setVisibility(value) instead.",
     );
 
     //Add myFun1 to onClick
