@@ -29,7 +29,11 @@ export const CONFIG = {
     animateLoading: true,
     defaultSelectedRowIndex: 0,
     defaultSelectedRowIndices: [0],
-    enableServerSideFiltering: false,
+    enableServerSideFiltering: Widget.getFeatureFlag(
+      "release_table_serverside_filtering_enabled",
+    )
+      ? false
+      : undefined,
     label: "Data",
     widgetName: "Table",
     searchKey: "",
