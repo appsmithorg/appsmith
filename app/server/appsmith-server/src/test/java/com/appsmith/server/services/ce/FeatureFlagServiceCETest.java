@@ -1,7 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.configurations.AirgapInstanceConfig;
-import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ce.FeaturesResponseDTO;
 import com.appsmith.server.featureflags.CachedFeatures;
@@ -9,18 +7,14 @@ import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import com.appsmith.server.services.FeatureFlagService;
-import com.appsmith.server.services.TenantService;
-import com.appsmith.server.solutions.LicenseAPIManager;
 import lombok.extern.slf4j.Slf4j;
 import org.ff4j.FF4j;
 import org.ff4j.conf.XmlParser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
@@ -53,14 +47,6 @@ public class FeatureFlagServiceCETest {
 
     @Autowired
     ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
-
-    private final AirgapInstanceConfig instanceConfig = Mockito.mock(AirgapInstanceConfig.class);
-
-    @MockBean
-    LicenseAPIManager licenseAPIManager;
-
-    @SpyBean
-    TenantService tenantService;
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -157,32 +143,6 @@ public class FeatureFlagServiceCETest {
                 cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(tenantIdentifier);
         Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("tenantNewFeatures:" + tenantIdentifier);
         StepVerifier.create(cachedFeaturesMono.then(hasKeyMono))
-                .assertNext(isKeyPresent -> {
-                    assertTrue(isKeyPresent);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void getFeatures_withTenantIdentifier_AirGapLicense_redisKeyExists() {
-        Map<String, Boolean> flags = new HashMap<>();
-        flags.put(UUID.randomUUID().toString(), true);
-        flags.put(UUID.randomUUID().toString(), false);
-
-        License license = new License();
-        license.setTenantFeatures(flags);
-
-        String tenantIdentifier = UUID.randomUUID().toString();
-
-        doReturn(Mono.just(license)).when(licenseAPIManager).licenseCheck(any());
-
-        doReturn(Mono.just(tenantIdentifier)).when(tenantService).getDefaultTenantId();
-
-        Mockito.when(instanceConfig.isAirgapEnabled()).thenReturn(true);
-
-        Mono<Map<String, Boolean>> currentTenantFeaturesMono = featureFlagService.getCurrentTenantFeatures();
-        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("tenantNewFeatures:" + tenantIdentifier);
-        StepVerifier.create(currentTenantFeaturesMono.then(hasKeyMono))
                 .assertNext(isKeyPresent -> {
                     assertTrue(isKeyPresent);
                 })
