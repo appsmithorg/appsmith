@@ -3,6 +3,8 @@ import {
   entityExplorer,
   entityItems,
   dataSources,
+  draggableWidgets,
+  propPane,
 } from "../../../support/Objects/ObjectsCore";
 
 describe("Validate Arango & CURL Import Datasources", () => {
@@ -283,6 +285,11 @@ describe("Validate Arango & CURL Import Datasources", () => {
     dataSources.AssertQueryTableResponse(0, "France");
     dataSources.AssertQueryTableResponse(1, "USA");
     dataSources.AssertQueryTableResponse(2, "Brazil");
+  });
+
+  it("3. Arango Widget Binding", () => {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
+    propPane.AssertPropertiesDropDownCurrentValue("Table data", "Connect data");
   });
 
   //To add test for duplicate collection name

@@ -105,7 +105,9 @@ export class PropertyPane {
     ddName.replace(/ +/g, "").toLowerCase() +
     "')]//input[@class='rc-select-selection-search-input']/parent::span/following-sibling::span//span | //div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
-    "')]//input[@class='rc-select-selection-search-input']/parent::span/following-sibling::span";
+    "')]//input[@class='rc-select-selection-search-input']/parent::span/following-sibling::span | //div[contains(@class, 't--property-control-" +
+    ddName.replace(/ +/g, "").toLowerCase() +
+    "')]//div[@class='selected-item']/div";
   private _createModalButton = ".t--create-modal-btn";
   _pageName = (option: string) => "//a/div[text()='" + option + "']";
   private isMac = Cypress.platform === "darwin";
