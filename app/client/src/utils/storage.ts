@@ -226,48 +226,22 @@ export const setAIRecentQuery = async (
       [applicationId: string]: {
         [task: string]: string[];
       };
-    } | null = await store.getItem(STORAGE_KEYS.AI_RECENT_QUERIES);
+    } | null = (await store.getItem(STORAGE_KEYS.AI_RECENT_QUERIES)) || {};
+    const applicationRecentQueries = recentQueries[applicationId] || {};
+    let applicationTypeQueries = applicationRecentQueries[type] || [];
 
-    const applicationRecentQueries = recentQueries
-      ? recentQueries[applicationId]
-      : null;
-
-    if (!recentQueries || !applicationRecentQueries) {
-      await store.setItem(STORAGE_KEYS.AI_RECENT_QUERIES, {
-        ...(recentQueries || {}),
-        [applicationId]: {
-          [type]: [query],
-        },
-      });
-      return;
-    }
-
-    if (!applicationRecentQueries[type]) {
-      await store.setItem(STORAGE_KEYS.AI_RECENT_QUERIES, {
-        ...recentQueries,
-        [applicationId]: {
-          ...applicationRecentQueries,
-          [type]: [query],
-        },
-      });
-      return;
-    }
-
-    const applicationTypeQueries = applicationRecentQueries[type];
-
-    if (applicationTypeQueries.includes(query)) {
-      return;
-    }
-
-    if (applicationTypeQueries.length >= 5) {
-      applicationTypeQueries.pop();
+    if (!applicationTypeQueries.includes(query)) {
+      if (applicationTypeQueries.length >= 5) {
+        applicationTypeQueries.pop();
+      }
+      applicationTypeQueries = [query, ...applicationTypeQueries];
     }
 
     await store.setItem(STORAGE_KEYS.AI_RECENT_QUERIES, {
       ...recentQueries,
       [applicationId]: {
         ...applicationRecentQueries,
-        [type]: [query, ...applicationTypeQueries],
+        [type]: applicationTypeQueries,
       },
     });
   } catch (error) {
@@ -288,15 +262,7 @@ export const getApplicationAIRecentQueriesByType = async (
         [task: string]: string[];
       };
     } | null = await store.getItem(STORAGE_KEYS.AI_RECENT_QUERIES);
-
-    if (
-      !recentQueries ||
-      !recentQueries[applicationId] ||
-      !recentQueries[applicationId][type]
-    )
-      return defaultRecentQueries;
-
-    return recentQueries[applicationId][type];
+    return recentQueries?.[applicationId]?.[type] ?? defaultRecentQueries;
   } catch (error) {
     log.error("An error occurred while fetching AI_RECENT_QUERIES");
     log.error(error);
