@@ -40,12 +40,13 @@ export const LOGIN_SUBMIT_PATH = "login";
 export const SIGNUP_SUBMIT_PATH = "users";
 export const SUPER_USER_SUBMIT_PATH = `${SIGNUP_SUBMIT_PATH}/super`;
 
-export const getExportAppAPIRoute = (applicationId: string) => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const branch = urlParams.get("branch");
+export const getExportAppAPIRoute = (
+  applicationId: string,
+  branchName: string | null = null,
+) => {
   let exportUrl = `/api/v1/applications/export/${applicationId}`;
-  if (branch) {
-    exportUrl += `?branchName=${branch}`;
+  if (branchName) {
+    exportUrl += `?branchName=${branchName}`;
   }
   return exportUrl;
 };

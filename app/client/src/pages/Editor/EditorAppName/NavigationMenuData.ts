@@ -162,8 +162,13 @@ export const GetNavigationMenuData = ({
     },
     {
       text: "Export application",
-      onClick: () =>
-        applicationId && openExternalLink(getExportAppAPIRoute(applicationId)),
+      onClick: () => {
+        if (applicationId) {
+          const urlParams = new URLSearchParams(window.location.search);
+          const branchName = urlParams.get("branch");
+          openExternalLink(getExportAppAPIRoute(applicationId, branchName));
+        }
+      },
       type: MenuTypes.MENU,
       isVisible: isApplicationIdPresent && hasExportPermission,
     },
