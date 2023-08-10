@@ -77,6 +77,7 @@ export class ApiPage {
   private _createQuery = ".t--create-query";
   public _editorDS = ".t--datasource-editor";
   public _addMoreHeaderFieldButton = ".t--addApiHeader";
+  public jsonBody = `.t--apiFormPostBody`;
 
   CreateApi(
     apiName = "",
