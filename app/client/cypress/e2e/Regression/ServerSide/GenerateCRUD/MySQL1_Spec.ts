@@ -164,7 +164,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       entityNameinLeftSidebar: dsName,
       action: "Refresh",
     });
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       entityExplorer._entityNameInExplorer("productlines"),
     );
   });
@@ -234,7 +234,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     table.SelectTableRow(0, 0, false); //to make JSON form hidden
     agHelper.AssertElementAbsence(locators._jsonFormWidget);
     table.SelectTableRow(3);
-    agHelper.AssertElementVisible(locators._jsonFormWidget);
+    agHelper.AssertElementVisibility(locators._jsonFormWidget);
 
     dataSources.AssertJSONFormHeader(3, 0, "productLine");
 

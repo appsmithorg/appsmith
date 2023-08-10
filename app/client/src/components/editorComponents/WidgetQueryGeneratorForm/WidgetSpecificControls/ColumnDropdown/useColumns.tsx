@@ -3,7 +3,6 @@ import type { AppState } from "@appsmith/reducers";
 import { Icon } from "design-system";
 import { PluginPackageName } from "entities/Action";
 import { get, isArray } from "lodash";
-import { ALLOWED_SEARCH_DATATYPE } from "pages/Editor/GeneratePage/components/constants";
 import { useCallback, useContext, useMemo } from "react";
 import { useSelector } from "react-redux";
 import {
@@ -70,28 +69,21 @@ export function useColumns(alias: string) {
         };
       });
     } else if (isArray(columns)) {
-      return columns
-        .filter((column: any) => {
-          return (
-            column.type &&
-            ALLOWED_SEARCH_DATATYPE.includes(column.type.toLowerCase())
-          );
-        })
-        .map((column: any) => {
-          return {
-            id: column.name,
-            label: column.name,
-            value: column.name,
-            subText: column.type,
-            icon: (
-              <Icon
-                color="var(--ads-v2-color-fg)"
-                name="layout-column-line"
-                size="md"
-              />
-            ),
-          };
-        });
+      return columns.map((column: any) => {
+        return {
+          id: column.name,
+          label: column.name,
+          value: column.name,
+          subText: column.type,
+          icon: (
+            <Icon
+              color="var(--ads-v2-color-fg)"
+              name="layout-column-line"
+              size="md"
+            />
+          ),
+        };
+      });
     } else {
       return [];
     }

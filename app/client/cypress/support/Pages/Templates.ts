@@ -44,8 +44,9 @@ export class Templates {
         this.homePage.NavigateToHome();
       }
       this.agHelper.GetNClick(this.locators._templatesTab);
-      this.agHelper.AssertElementVisible(
+      this.agHelper.AssertElementVisibility(
         this.locators._requestForTemplateBtn,
+        true,
         0,
         60000,
       ); //giving more time here for templates page to fully load, since there is no intercept validation for same
@@ -72,6 +73,6 @@ export class Templates {
     }
     cy.intercept("GET", "/api/v1/app-templates/filters").as("fetchFilters");
     this.agHelper.RefreshPage("fetchFilters");
-    this.agHelper.AssertElementVisible(this.locators._templateCard);
+    this.agHelper.AssertElementVisibility(this.locators._templateCard);
   }
 }

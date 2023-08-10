@@ -110,7 +110,7 @@ describe("Rating widet testcases", () => {
     // make the widget read only
     propPane.TogglePropertyState("Read only", "On");
     deployMode.DeployApp();
-    agHelper.AssertElementVisible(RATING_WIDGET.ratingwidget);
+    agHelper.AssertElementVisibility(RATING_WIDGET.ratingwidget);
     // assert even after clicking on stars, the stars are not changed since its read only
     agHelper.GetNClick(RATING_WIDGET.star_icon, 12, true, 0);
     agHelper.AssertElementLength(RATING_WIDGET.star_icon_filled(100), 3);

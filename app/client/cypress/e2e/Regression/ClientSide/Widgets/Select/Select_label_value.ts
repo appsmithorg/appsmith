@@ -16,6 +16,8 @@ describe("Select Widget Functionality", function () {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT, 450, 200);
     _.agHelper.AssertElementExist(".t--widget-selectwidget");
 
+    _.propPane.ToggleJSMode("sourcedata");
+
     _.propPane.UpdatePropertyFieldValue(
       "Source Data",
       `[
@@ -35,12 +37,12 @@ describe("Select Widget Functionality", function () {
     ]`,
     );
 
-    _.agHelper.GetNClick(_.propPane._selectPropDropdown("label"));
+    _.agHelper.GetNClick(_.propPane._selectPropDropdown("labelkey"));
     ["1", "2", "3"].forEach((d) => {
       _.agHelper.AssertElementExist(_.propPane._dropDownValue(d));
     });
 
-    _.agHelper.GetNClick(_.propPane._selectPropDropdown("value"), 0, true);
+    _.agHelper.GetNClick(_.propPane._selectPropDropdown("valuekey"), 0, true);
     ["1", "2", "3"].forEach((d) => {
       _.agHelper.AssertElementExist(_.propPane._dropDownValue(d));
     });

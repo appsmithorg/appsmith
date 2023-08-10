@@ -21,7 +21,7 @@ export class Onboarding {
       0,
       true,
     );
-    this._aggregateHelper.AssertElementVisible(
+    this._aggregateHelper.AssertElementVisibility(
       OnboardingLocator.datasourcePage,
     );
     this.closeIntroModal();

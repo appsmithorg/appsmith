@@ -77,7 +77,7 @@ describe("Mongo WidgetQueryGenerator", () => {
                 data: "{{data_table.pageSize}}",
               },
               query: {
-                data: '{{{ title: {$regex: data_table.searchText||""} }}}',
+                data: `{{{ title: {$regex: data_table.searchText||"", '$options' : 'i'} }}}`,
               },
               skip: {
                 data: "{{(data_table.pageNo - 1) * data_table.pageSize}}",
@@ -152,7 +152,7 @@ describe("Mongo WidgetQueryGenerator", () => {
                 data: "{{data_table.pageSize}}",
               },
               query: {
-                data: '{{{ title: {$regex: data_table.searchText||""} }}}',
+                data: `{{{ title: {$regex: data_table.searchText||"", '$options' : 'i'} }}}`,
               },
               skip: {
                 data: "{{(data_table.pageNo - 1) * data_table.pageSize}}",

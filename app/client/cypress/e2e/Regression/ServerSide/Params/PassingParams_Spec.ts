@@ -18,19 +18,13 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 100, 100);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 500, 100);
-    propPane.UpdatePropertyFieldValue(
+    propPane.EnterJSContext(
       "Source Data",
       `[\n  {\n    \"label\": \"7\",\n    \"value\": \"7\"\n  },\n  {\n    \"label\": \"8\",\n    \"value\": \"8\"\n  },\n  {\n    \"label\": \"9\",\n    \"value\": \"9\"\n  }\n]`,
     );
 
-    propPane.ToggleJSMode("label");
-    (cy as any).updateCodeInput(
-      ".t--property-control-wrapper.t--property-control-label",
-      `label`,
-    );
-
-    propPane.ToggleJSMode("value");
-    (cy as any).updateCodeInput(".t--property-control-value", `value`);
+    propPane.EnterJSContext("Label key", "label");
+    propPane.EnterJSContext("Value key", "value");
 
     propPane.UpdatePropertyFieldValue(
       "Default selected value",

@@ -23,12 +23,9 @@ describe.skip("Table widget one click binding feature", () => {
 
       entityExplorer.SelectEntityByName("Table1", "Widgets");
 
-      oneClickBinding.ChooseAndAssertForm(
-        `${dsName}`,
-        dsName,
-        "configs",
-        "configName",
-      );
+      oneClickBinding.ChooseAndAssertForm(`${dsName}`, dsName, "configs", {
+        searchableColumn: "configName",
+      });
     });
 
     agHelper.GetNClick(oneClickBindingLocator.connectData);

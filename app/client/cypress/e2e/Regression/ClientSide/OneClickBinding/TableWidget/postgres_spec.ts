@@ -28,7 +28,9 @@ describe("Table widget one click binding feature", () => {
         `${dsName}`,
         dsName,
         "public.employees",
-        "first_name",
+        {
+          searchableColumn: "first_name",
+        },
       );
     });
 

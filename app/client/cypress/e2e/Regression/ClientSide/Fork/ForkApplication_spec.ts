@@ -132,7 +132,7 @@ describe("Fork application across workspaces", function () {
       cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
       cy.visit(forkableAppUrl);
 
-      _.agHelper.AssertElementVisible(applicationLocators.forkButton);
+      _.agHelper.AssertElementVisibility(applicationLocators.forkButton);
     });
   });
 });

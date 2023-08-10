@@ -35,7 +35,7 @@ describe("Array Datatype tests", function () {
       entityNameinLeftSidebar: dsName,
       action: "Refresh",
     });
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       entityExplorer._entityNameInExplorer("public.arraytypes"),
     );
 
@@ -80,7 +80,7 @@ describe("Array Datatype tests", function () {
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
 
     agHelper.EnterInputText("Name", "Lily Bush");
     agHelper.EnterInputText("Pay_by_quarter", "100,200,300,400");
@@ -88,7 +88,7 @@ describe("Array Datatype tests", function () {
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
-    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
@@ -99,14 +99,14 @@ describe("Array Datatype tests", function () {
 
   it("3. Inserting another record - arraytypes", () => {
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
 
     agHelper.EnterInputText("Name", "Josh William");
     agHelper.EnterInputText("Pay_by_quarter", "8700,5454,9898,23257");
     agHelper.EnterInputText("Schedule", "Stand up,Update,Report,Executive");
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
@@ -117,7 +117,7 @@ describe("Array Datatype tests", function () {
 
   it("4. Inserting another record - arraytypes", () => {
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
 
     agHelper.EnterInputText("Name", "Mary Clark");
     agHelper.EnterInputText("Pay_by_quarter", "9898,21726,87387,8372837");
@@ -127,7 +127,7 @@ describe("Array Datatype tests", function () {
     );
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
     table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
@@ -139,7 +139,7 @@ describe("Array Datatype tests", function () {
   it("5. Updating record - arraytypes", () => {
     table.SelectTableRow(1);
     agHelper.ClickButton("Run UpdateQuery");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
 
     agHelper.EnterInputText("Name", "Josh Clarion", true);
     agHelper.EnterInputText("Pay_by_quarter", "3232,3232,4567,12234", true);
@@ -151,7 +151,7 @@ describe("Array Datatype tests", function () {
 
     agHelper.ClickButton("Update");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Update did not fail
-    agHelper.AssertElementVisible(locators._spanButton("Run UpdateQuery"));
+    agHelper.AssertElementVisibility(locators._spanButton("Run UpdateQuery"));
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3");
     });
@@ -494,21 +494,21 @@ describe("Array Datatype tests", function () {
 
     //Deleting all records from table - arraytypes
     agHelper.GetNClick(locators._deleteIcon);
-    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
 
   it("8. Inserting another record (to check serial column) - arraytypes", () => {
     agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
 
     agHelper.EnterInputText("Name", "Bob Sim");
     agHelper.EnterInputText("Pay_by_quarter", "121,3234,4454,21213");
     agHelper.EnterInputText("Schedule", "Travel,Chillax,Hire,Give rewards");
 
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementVisible(locators._spanButton("Run InsertQuery"));
+    agHelper.AssertElementVisibility(locators._spanButton("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
     });
