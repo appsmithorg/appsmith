@@ -28,16 +28,7 @@
     }
   },
   "rules": {
-    "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/no-use-before-define": "off",
-    "@typescript-eslint/no-var-requires": "off",
-    "import/no-webpack-loader-syntax": "off",
-    "no-undef": "off",
-    "react/prop-types": "off",
-    "react/display-name": "off",
-    "@typescript-eslint/explicit-module-boundary-types": "off",
-    "cypress/no-unnecessary-waiting": "off",
-    "cypress/no-assigning-return-values": "off",
+    "@typescript-eslint/no-explicit-any": "error",
     "@typescript-eslint/no-unused-vars": "error",
     "jest/no-focused-tests": "error",
     "jest/no-disabled-tests": "error",

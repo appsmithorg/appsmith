@@ -129,6 +129,9 @@ export const getMessageCount = createSelector(getFilteredErrors, (errors) => {
 export const getDebuggerSelectedTab = (state: AppState) =>
   state.ui.debugger.context.selectedDebuggerTab;
 
+export const getDebuggerSelectedFilter = (state: AppState) =>
+  state.ui.debugger.context.selectedDebuggerFilter;
+
 export const getResponsePaneHeight = (state: AppState) =>
   state.ui.debugger.context.responseTabHeight;
 

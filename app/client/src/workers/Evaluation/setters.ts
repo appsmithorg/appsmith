@@ -109,10 +109,16 @@ class Setters {
     set(evalTree, path, parsedValue);
     set(self, path, parsedValue);
 
+    /**
+     * Making the update to dataTree async as there could be queue microtask updates that need to execute before this update.
+     * Issue:- https://github.com/appsmithorg/appsmith/issues/25364
+     */
     return new Promise((resolve) => {
+      resolve(parsedValue);
+    }).then((res) => {
       updatedProperties.push([entityName, propertyPath]);
       evalTreeWithChanges(updatedProperties, evalMetaUpdates);
-      resolve(parsedValue);
+      return res;
     });
   }
   /** Generates a new setter method */
