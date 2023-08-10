@@ -46,7 +46,7 @@ import {
 import type { ThemeProp } from "widgets/constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { importSvg } from "design-system-old";
-import { getVideoConstraints } from "./utils";
+import { getVideoConstraints } from "../../utils";
 
 const CameraOfflineIcon = importSvg(
   () => import("assets/icons/widget/camera/camera-offline.svg"),
