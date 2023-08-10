@@ -16,6 +16,6 @@ export class AdminSettings {
   public NavigateToAdminSettings() {
     this.homePage.NavigateToHome();
     this.agHelper.GetNClick(this._adminSettingsBtn);
-    this.agHelper.AssertElementVisible(this._settingsList);
+    this.agHelper.AssertElementVisibility(this._settingsList);
   }
 }

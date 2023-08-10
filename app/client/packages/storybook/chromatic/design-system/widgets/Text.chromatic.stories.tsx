@@ -3,7 +3,11 @@ import type { Meta, StoryObj } from "@storybook/react";
 
 import { Text } from "@design-system/widgets";
 import { StoryGrid } from "../../../helpers/StoryGrid";
-import { TypographyColor, TypographyVariant } from "@design-system/theming";
+import {
+  TypographyColor,
+  TypographyVariant,
+  TypographyFontWeight,
+} from "@design-system/theming";
 
 const meta: Meta<typeof Text> = {
   component: Text,
@@ -17,7 +21,7 @@ type Story = StoryObj<typeof Text>;
 export const LightMode: Story = {
   storyName: "Text",
   render: () => (
-    <StoryGrid cols="4">
+    <StoryGrid cols="1">
       <Text>
         Default - Lorem ipsum dolor sit, amet consectetur adipisicing elit.
         Reiciendis, obcaecati velit voluptatibus ratione officia consectetur
@@ -36,18 +40,28 @@ export const LightMode: Story = {
         possimus nisi expedita, inventore nobis obcaecati aspernatur
         necessitatibus, molestias deleniti corrupti aliquam repudiandae.
       </Text>
+
+      <Text textAlign="left">Text Align Left</Text>
       <Text textAlign="center">Text Align Center</Text>
       <Text textAlign="right">Text Align Right</Text>
-      <Text isItalic>Italic</Text>
-      <Text isBold>Bold</Text>
+      <Text isItalic>isItalic</Text>
+      <Text isBold>isBold</Text>
+
       {Object.values(TypographyVariant).map((variant) => (
         <Text key={variant} variant={variant}>
-          {variant}
+          variant — {variant}
         </Text>
       ))}
+
       {Object.values(TypographyColor).map((color) => (
         <Text color={color} key={color}>
-          {color}
+          color — {color}
+        </Text>
+      ))}
+
+      {Object.values(TypographyFontWeight).map((fontWeight) => (
+        <Text fontWeight={fontWeight} key={fontWeight}>
+          fontWeight — {fontWeight}
         </Text>
       ))}
     </StoryGrid>

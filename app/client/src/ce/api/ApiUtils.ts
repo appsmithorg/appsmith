@@ -26,7 +26,10 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import {
+  getCurrentEnvironment,
+  getCurrentEditingEnvID,
+} from "@appsmith/utils/Environments";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -96,7 +99,11 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   const activeEnv = getCurrentEnvironment();
 
   if (activeEnv && config.headers) {
-    config.headers.environmentId = activeEnv;
+    if (config.url?.indexOf("/code") !== -1) {
+      config.headers.environmentId = getCurrentEditingEnvID();
+    } else {
+      config.headers.environmentId = activeEnv;
+    }
   }
 
   const anonymousId = AnalyticsUtil.getAnonymousId();

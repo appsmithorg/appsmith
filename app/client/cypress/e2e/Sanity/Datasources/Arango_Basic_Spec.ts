@@ -49,7 +49,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
         entityNameinLeftSidebar: dsName,
         action: "Refresh",
       });
-      agHelper.AssertElementVisible(
+      agHelper.AssertElementVisibility(
         entityExplorer._entityNameInExplorer(collectionName),
       );
       //Add data into this newly created collection
@@ -312,7 +312,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
         entityNameinLeftSidebar: dsName,
         action: "Refresh",
       }); //needed for the deltion of ds to reflect
-      agHelper.AssertElementVisible(dataSources._noSchemaAvailable(dsName));
+      agHelper.AssertElementVisibility(dataSources._noSchemaAvailable(dsName));
       //Deleting datasource finally
       dataSources.DeleteDatasouceFromActiveTab(dsName);
     });
