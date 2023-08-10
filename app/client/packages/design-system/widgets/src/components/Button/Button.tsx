@@ -2,11 +2,11 @@ import type {
   ButtonRef as HeadlessButtonRef,
   ButtonProps as HeadlessButtonProps,
 } from "@design-system/headless";
-import React, { forwardRef } from "react";
 import {
   Icon as HeadlessIcon,
   Button as HeadlessButton,
 } from "@design-system/headless";
+import React, { forwardRef } from "react";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
 
 import type {

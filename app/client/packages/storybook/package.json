@@ -19,7 +19,6 @@
     "@storybook/addon-docs": "^7.1.1",
     "@storybook/addon-measure": "^7.1.1",
     "@storybook/addon-outline": "^7.1.1",
-    "@storybook/addon-styling": "^1.3.5",
     "@storybook/addon-toolbars": "^7.1.1",
     "@storybook/addon-viewport": "^7.1.1",
     "@storybook/blocks": "^7.1.1",
