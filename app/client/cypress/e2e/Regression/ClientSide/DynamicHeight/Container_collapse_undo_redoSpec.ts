@@ -3,10 +3,11 @@ import {
   locators,
   agHelper,
   draggableWidgets,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation", function () {
-  it.skip("1. Validate change with auto height width for widgets", function () {
+  it("1. Validate change with auto height width for widgets", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     agHelper.AddDsl("DynamicHeightDefaultHeightdsl");
 
@@ -20,6 +21,8 @@ describe("Dynamic Height Width validation", function () {
         entityExplorer.SelectEntityByName("Button1", "Container1");
         agHelper.PressDelete();
         agHelper.WaitUntilAllToastsDisappear();
+        assertHelper.AssertNetworkStatus("updateLayout");
+        agHelper.Sleep(2000);
         agHelper
           .GetWidgetCSSHeight(
             locators._widgetInDeployed(draggableWidgets.CONTAINER),

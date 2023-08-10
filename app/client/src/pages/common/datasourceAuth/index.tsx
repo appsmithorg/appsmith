@@ -136,7 +136,7 @@ function DatasourceAuth({
   formData,
   getSanitizedFormData,
   isInvalid,
-  pageId: pageIdProp,
+  pageId: pageIdProp = "",
   pluginType,
   pluginName,
   pluginPackageName,
@@ -174,7 +174,9 @@ function DatasourceAuth({
   const { pageId: pageIdQuery } = useParams<ExplorerURLParams>();
   const history = useHistory<AppsmithLocationState>();
 
-  const pageId = (pageIdQuery || pageIdProp) as string;
+  const pageId = isInsideReconnectModal
+    ? pageIdProp
+    : ((pageIdQuery || pageIdProp) as string);
 
   useEffect(() => {
     if (authType === AuthType.OAUTH2) {

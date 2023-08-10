@@ -1,9 +1,7 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const jsEditor = ObjectsRegistry.JSEditor,
-  agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  deployMode = ObjectsRegistry.DeployMode;
+  agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Invalid page routing", () => {
   it("1. Bug #16047 - Shows Invalid URL UI for invalid JS Object page url", () => {
