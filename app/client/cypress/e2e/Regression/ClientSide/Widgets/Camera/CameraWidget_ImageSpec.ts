@@ -166,7 +166,8 @@ describe("Camera widget - Image test", () => {
     table.ValidateDownloadNVerify("image.png");
   });
 
-  it("8. a)Should show default camera dropdown with default value as 'Back' \n" +
+  it(
+    "8. a)Should show default camera dropdown with default value as 'Back' \n" +
       "b)Should be able to change the default mobile camera option & Camera settings persist after switching cameras.",
     () => {
       deployMode.NavigateBacktoEditor();
