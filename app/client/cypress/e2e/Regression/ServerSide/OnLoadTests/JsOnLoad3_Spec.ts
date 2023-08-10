@@ -304,7 +304,6 @@ describe("JSObjects OnLoad Actions tests", function () {
       //jsEditor.EnableDisableAsyncFuncSettings("callCountry", false, true); Bug # 13826
 
       entityExplorer.SelectEntityByName("Select1", "Widgets");
-      propPane.ToggleJSMode("sourcedata");
       propPane.EnterJSContext(
         "Source Data",
         `{{ getCitiesList.data.map((row) => {
