@@ -1,4 +1,4 @@
-import type { ReactNode, CSSProperties } from "react";
+import type { ComponentPropsWithRef } from "react";
 import type { OmitRename } from "../../utils";
 import type { SizingDimension, SpacingDimension } from "./dimensions";
 
@@ -9,7 +9,7 @@ export type Responsive<T> =
       [custom: string]: T | undefined;
     };
 
-export interface FlexProps {
+export interface FlexProps extends ComponentPropsWithRef<"div"> {
   /*
    * Layout props
    */
@@ -174,13 +174,6 @@ export interface FlexProps {
   /** Enables container queries mode. It is important, without this flag, responsiveness will not work. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/container-type). */
   isContainer?: boolean;
   /** The children of the component. */
-  children?: ReactNode;
-  /** Sets the CSS [className](https://developer.mozilla.org/en-US/docs/Web/API/Element/className) for the element. Only use as a **last resort**. Use style props instead. */
-  className?: string;
-  /** Sets inline [style](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/style) for the element. Only use as a **last resort**. Use style props instead. */
-  style?: CSSProperties;
-  /** Sets the HTML [id](https://developer.mozilla.org/en-US/docs/Web/API/Element/id) for the element. */
-  id?: string;
 }
 
 export type StyledFlexProps = OmitRename<FlexProps, "style" | "className">;
