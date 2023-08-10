@@ -460,7 +460,7 @@ describe("Number Slider spec", () => {
       .type("{rightArrow}")
       .type("{upArrow}");
 
-    agHelper.Sleep(200);
+    agHelper.Sleep(1000);
 
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT))
@@ -475,7 +475,7 @@ describe("Number Slider spec", () => {
       .type("{leftArrow}")
       .type("{downArrow}");
 
-    agHelper.Sleep(200);
+    agHelper.Sleep(1000);
 
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT))
@@ -495,7 +495,7 @@ describe("Number Slider spec", () => {
       .type("{rightArrow}")
       .type("{upArrow}");
 
-    agHelper.Sleep(200);
+    agHelper.Sleep(1000);
 
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT))
@@ -510,7 +510,7 @@ describe("Number Slider spec", () => {
       .type("{leftArrow}")
       .type("{downArrow}");
 
-    agHelper.Sleep(200);
+    agHelper.Sleep(1000);
 
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT))

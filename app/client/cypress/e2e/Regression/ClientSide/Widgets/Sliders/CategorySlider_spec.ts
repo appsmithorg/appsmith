@@ -73,7 +73,7 @@ describe("Category Slider spec", () => {
     // Change the slider value
     agHelper.GetElement(locators._sliderThumb).focus().type("{rightArrow}");
 
-    agHelper.Sleep(500);
+    agHelper.Sleep(1000);
     // Assert the Text widget has value 20
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT))
@@ -88,7 +88,7 @@ describe("Category Slider spec", () => {
       .type("{leftArrow}")
       .type("{leftArrow}");
 
-    agHelper.Sleep(200);
+    agHelper.Sleep(1000);
 
     // Assert the Text widget has value 0
     agHelper
@@ -284,7 +284,7 @@ describe("Category Slider spec", () => {
       .type("{leftArrow}")
       .type("{downArrow}");
 
-    agHelper.Sleep(200);
+    agHelper.Sleep(1000);
     agHelper.ValidateToastMessage("Value Changed");
     agHelper.WaitUntilAllToastsDisappear();
     agHelper
@@ -300,7 +300,7 @@ describe("Category Slider spec", () => {
       .type("{rightArrow}")
       .type("{upArrow}");
 
-    agHelper.Sleep(200);
+    agHelper.Sleep(1000);
     agHelper.ValidateToastMessage("Value Changed");
     agHelper.WaitUntilAllToastsDisappear();
     agHelper
@@ -320,7 +320,7 @@ describe("Category Slider spec", () => {
       .type("{leftArrow}")
       .type("{downArrow}");
 
-    agHelper.Sleep(200);
+    agHelper.Sleep(1000);
     agHelper.ValidateToastMessage("Value Changed");
     agHelper.WaitUntilAllToastsDisappear();
     agHelper
@@ -336,7 +336,7 @@ describe("Category Slider spec", () => {
       .type("{rightArrow}")
       .type("{upArrow}");
 
-    agHelper.Sleep(200);
+    agHelper.Sleep(1000);
     agHelper.ValidateToastMessage("Value Changed");
     agHelper.WaitUntilAllToastsDisappear();
     agHelper
@@ -358,7 +358,7 @@ describe("Category Slider spec", () => {
       .type("{leftArrow}")
       .type("{downArrow}");
 
-    agHelper.Sleep(200);
+    agHelper.Sleep(1000);
     agHelper.ValidateToastMessage("Value Changed");
     agHelper.WaitUntilAllToastsDisappear();
 
@@ -375,7 +375,7 @@ describe("Category Slider spec", () => {
       .type("{rightArrow}")
       .type("{upArrow}");
 
-    agHelper.Sleep(200);
+    agHelper.Sleep(1000);
     agHelper.ValidateToastMessage("Value Changed");
     agHelper.WaitUntilAllToastsDisappear();
 
@@ -396,7 +396,7 @@ describe("Category Slider spec", () => {
       .type("{leftArrow}")
       .type("{downArrow}");
 
-    agHelper.Sleep(200);
+    agHelper.Sleep(1000);
     agHelper.ValidateToastMessage("Value Changed");
     agHelper.WaitUntilAllToastsDisappear();
 
@@ -413,7 +413,7 @@ describe("Category Slider spec", () => {
       .type("{rightArrow}")
       .type("{upArrow}");
 
-    agHelper.Sleep(200);
+    agHelper.Sleep(1000);
     agHelper.ValidateToastMessage("Value Changed");
     agHelper.WaitUntilAllToastsDisappear();
     agHelper
