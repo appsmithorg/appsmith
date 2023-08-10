@@ -5,3 +5,4 @@
 cypress/e2e/Regression/ClientSide/Widgets/Camera/CameraWidget_ImageSpec.ts
 cypress/e2e/Regression/ClientSide/Widgets/Camera/CameraWidget_VideoSpec.ts
 cypress/e2e/Regression/ClientSide/Widgets/CodeScanner/CodeScanner_2_spec.ts
+
