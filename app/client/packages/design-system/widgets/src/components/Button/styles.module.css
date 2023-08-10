@@ -1,74 +1,6 @@
-<<<<<<<< HEAD:app/client/packages/design-system/widgets/src/components/Button/src/index.styled.tsx
-import styled, { css } from "styled-components";
-import { Button as HeadlessButton } from "@design-system/headless";
-
-import type { ButtonProps } from "./Button";
-import type { PickRename } from "../../../utils";
-
-type StyledButtonProps = PickRename<
-  ButtonProps,
-  {
-    color: "$color";
-    variant: "$variant";
-  }
->;
-
-export const buttonStyles = css<StyledButtonProps>`
-  ${({ $color, $variant }) => {
-    if ($variant === "filled") {
-      return css`
-        background-color: var(--color-bg-${$color});
-        color: var(--color-fg-on-${$color});
-        border-color: transparent;
-
-        &[data-hovered]:not([aria-disabled]) {
-          background-color: var(--color-bg-${$color}-hover);
-        }
-
-        &[data-active]:not([aria-disabled]) {
-          background-color: var(--color-bg-${$color}-active);
-        }
-      `;
-    }
-
-    if ($variant === "outlined") {
-      return css`
-        background-color: transparent;
-        color: var(--color-fg-${$color});
-        border-color: var(--color-bd-${$color});
-
-        &[data-hovered]:not([aria-disabled]) {
-          background-color: var(--color-bg-${$color}-subtle-hover);
-        }
-
-        &[data-active]:not([aria-disabled]) {
-          background-color: var(--color-bg-${$color}-subtle-active);
-        }
-      `;
-    }
-
-    if ($variant === "ghost") {
-      return css`
-        background: transparent;
-        color: var(--color-fg-${$color});
-        border-color: transparent;
-
-        &[data-hovered]:not([aria-disabled]) {
-          background: var(--color-bg-${$color}-subtle-hover);
-        }
-
-        &[data-active]:not([aria-disabled]) {
-          background: var(--color-bg-${$color}-subtle-active);
-        }
-      `;
-    }
-  }}
-`;
-
-export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
-========
 .button {
->>>>>>>> 5ef74ebeba (try css modules in button component):app/client/packages/design-system/widgets/src/components/Button/styles.module.css
+  --colors: accent, neutral, negative, warning, positive;
+
   display: flex;
   justify-content: center;
   align-items: center;
@@ -76,15 +8,16 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
   cursor: pointer;
   user-select: none;
   position: relative;
+  font-weight: 600;
   font-family: inherit;
   border-style: solid;
   border-width: var(--border-width-1);
-  padding-inline: var(--spacing-5);
+  padding-inline: var(--spacing-4);
   block-size: var(--sizing-8);
   min-inline-size: var(--sizing-8);
   border-radius: var(--border-radius-1);
 
-  @each $color in accent, neutral, negative, warning, positive {
+  @each $color in var(--colors) {
     &[data-variant="filled"][data-color="$(color)"] {
       background-color: var(--color-bg-$(color));
       color: var(--color-fg-on-$(color));
@@ -166,6 +99,8 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
     display: flex;
     justify-content: center;
     align-items: center;
+    height: var(--sizing-4);
+    width: var(--sizing-4);
   }
 
   /**
