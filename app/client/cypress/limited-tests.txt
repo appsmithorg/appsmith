@@ -6,3 +6,4 @@ cypress/e2e/Regression/ClientSide/AdminSettings/Admin_settings_spec.js
 cypress/e2e/Regression/ClientSide/ExplorerTests/Admin_settings_1_spec.js
 cypress/e2e/Regression/ClientSide/Templates/Fork_Template_Existing_app_spec.js
 cypress/e2e/Regression/ClientSide/Templates/Fork_Template_To_App_spec.js
+cypress/e2e/Regression/ClientSide/Onboarding/GuidedTour_spec.js
