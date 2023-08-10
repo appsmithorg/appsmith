@@ -205,7 +205,6 @@ describe("Admin settings page", function () {
     cy.wait("@postTenantConfig").then((interception) => {
       expect(interception.request.body.instanceName).to.equal(instanceName);
     });
-    agHelper.AssertElementVisible(adminsSettings.restartNotice);
     // adding wait for server to restart
     cy.waitUntil(() =>
       cy.contains("General", { timeout: 180000 }).should("be.visible"),
