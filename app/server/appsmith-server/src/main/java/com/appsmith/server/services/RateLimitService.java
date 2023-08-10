@@ -1,19 +1,19 @@
 package com.appsmith.server.services;
 
-import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
+import io.github.bucket4j.distributed.BucketProxy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
 public class RateLimitService {
 
-    private final RedisRateLimiter rateLimiter;
+    private final BucketProxy rateLimitBucket;
 
-    public RateLimitService(RedisRateLimiter rateLimiter) {
-        this.rateLimiter = rateLimiter;
+    public RateLimitService(BucketProxy rateLimitBucket) {
+        this.rateLimitBucket = rateLimitBucket;
     }
 
-    public Mono<Boolean> checkRateLimit(String routeId, String id) {
-        return rateLimiter.isAllowed(routeId, id).map(response -> response.isAllowed());
+    public Mono<Boolean> checkRateLimit() {
+        return Mono.fromCallable(() -> rateLimitBucket.tryConsume(1));
     }
 }
