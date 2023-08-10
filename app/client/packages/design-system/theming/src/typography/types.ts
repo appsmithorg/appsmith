@@ -49,15 +49,15 @@ export const TypographyColor = {
 
 // we use "as const" here because we need to iterate by font weights
 export const TypographyFontWeight = {
-  100: "100",
-  200: "200",
-  300: "300",
-  400: "400",
-  500: "500",
-  600: "600",
-  700: "700",
-  800: "800",
-  900: "900",
+  100: 100,
+  200: 200,
+  300: 300,
+  400: 400,
+  500: 500,
+  600: 600,
+  700: 700,
+  800: 800,
+  900: 900,
 } as const;
 
 export type FontFamily = keyof typeof fontMetrics;

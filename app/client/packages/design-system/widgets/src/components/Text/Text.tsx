@@ -11,7 +11,7 @@ const _Text = (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
     children,
     className,
     color = "default",
-    fontWeight = 400,
+    fontWeight,
     isBold = false,
     isItalic = false,
     lineClamp,
