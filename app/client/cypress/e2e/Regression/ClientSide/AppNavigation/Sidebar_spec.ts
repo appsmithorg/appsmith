@@ -34,7 +34,7 @@ describe("Test Sidebar navigation style", function () {
       true,
     );
     deployMode.DeployApp();
-    agHelper.AssertElementVisible(appSettings.locators._sideNavbar);
+    agHelper.AssertElementVisibility(appSettings.locators._sideNavbar);
     agHelper.AssertElementAbsence(appSettings.locators._topStacked);
     agHelper.AssertElementAbsence(appSettings.locators._topInline);
     //Page change should work
@@ -45,7 +45,7 @@ describe("Test Sidebar navigation style", function () {
       0,
       true,
     );
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       appSettings.locators._getActivePage(pageName),
     );
   });
@@ -71,10 +71,10 @@ describe("Test Sidebar navigation style", function () {
       0,
     );
     //Application name, share button, edit button, and user dropdown should be available in the app sidebar
-    agHelper.AssertElementVisible(appSettings.locators._applicationName);
-    agHelper.AssertElementVisible(appSettings.locators._shareButton);
-    agHelper.AssertElementVisible(locators._backToEditor);
-    agHelper.AssertElementVisible(homePage._profileMenu);
+    agHelper.AssertElementVisibility(appSettings.locators._applicationName);
+    agHelper.AssertElementVisibility(appSettings.locators._shareButton);
+    agHelper.AssertElementVisibility(locators._backToEditor);
+    agHelper.AssertElementVisibility(homePage._profileMenu);
   });
 
   it("3. Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu", () => {
@@ -83,11 +83,11 @@ describe("Test Sidebar navigation style", function () {
       `${appSettings.locators._sideNavbar} ${appSettings.locators._shareButton}`,
     );
     agHelper.Sleep(1000);
-    agHelper.AssertElementVisible(appSettings.locators._modal);
+    agHelper.AssertElementVisibility(appSettings.locators._modal);
     agHelper.GetNClick(appSettings.locators._modalClose, 0, true);
     // User profile dropdown
     agHelper.GetNClick(homePage._profileMenu);
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       appSettings.locators._userProfileDropdownMenu,
     );
   });

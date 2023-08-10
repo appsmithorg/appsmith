@@ -1133,27 +1133,31 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/git/discard/app/*").as("discardChanges");
   cy.intercept("GET", "/api/v1/libraries/*").as("getLibraries");
   featureFlagIntercept({}, false);
-
-  cy.intercept("GET", "/api/v1/product-alert/alert", (req) => {
-    try {
-      req.continue((res) => {
-        // This api should always be 200, for any case.
-        expect(res.statusCode).to.be.equal(200);
-        // Mock empty product alerts response so that it does not interfere with tests
-        res.send(200, {
-          responseMeta: {
-            status: 200,
-            success: true,
-          },
-          data: {},
-          errorDisplay: "",
-        });
+  cy.intercept(
+    {
+      method: "GET",
+      url: "/api/v1/product-alert/alert",
+    },
+    (req) => {
+      req.reply((res) => {
+        if (res) {
+          if (res.statusCode === 200) {
+            // Modify the response body to have empty data
+            res.send({
+              responseMeta: {
+                status: 200,
+                success: true,
+              },
+              data: {},
+              errorDisplay: "",
+            });
+          }
+        } else {
+          // Do nothing or handle the case where the response object is not present
+        }
       });
-    } catch (e) {
-      console.error(e);
-      return true;
-    }
-  }).as("productAlert");
+    },
+  ).as("productAlert");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {

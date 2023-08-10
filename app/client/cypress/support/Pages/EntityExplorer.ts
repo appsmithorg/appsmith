@@ -171,8 +171,9 @@ export class EntityExplorer {
   }
 
   public ExpandCollapseEntity(entityName: string, expand = true, index = 0) {
-    this.agHelper.AssertElementVisible(
+    this.agHelper.AssertElementVisibility(
       this._expandCollapseArrow(entityName),
+      true,
       index,
       30000,
     );

@@ -10,7 +10,7 @@ describe("API Panel request body", function () {
     apiPage.SelectAPIVerb("POST");
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("FORM_URLENCODED");
-    agHelper.AssertElementVisible(apiPage._bodyKey(0));
+    agHelper.AssertElementVisibility(apiPage._bodyKey(0));
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Api,

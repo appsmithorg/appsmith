@@ -45,8 +45,3 @@ export enum DeviceTypes {
   CAMERA = "CAMERA",
 }
 export type DeviceType = keyof typeof DeviceTypes;
-
-export enum DefaultMobileCameraTypes {
-  FRONT = "user",
-  BACK = "environment",
-}

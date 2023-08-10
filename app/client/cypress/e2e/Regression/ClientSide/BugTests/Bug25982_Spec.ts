@@ -1,11 +1,10 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const dataSources = ObjectsRegistry.DataSources,
-  agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer;
+import {
+  dataSources,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe("Fix UQI query switching", function () {
-  it("The command of the query must be preserved and should not default to initial value after changed.", function () {
+  it("1. The command of the query must be preserved and should not default to initial value after changed.", function () {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreateDataSource("Mongo", false, false);
     dataSources.CreateQueryAfterDSSaved("", "MongoQuery");
@@ -22,10 +21,10 @@ describe("Fix UQI query switching", function () {
       "List files in bucket",
       "Create a new file",
     );
-    ee.SelectEntityByName("MongoQuery", "Queries/JS");
+    entityExplorer.SelectEntityByName("MongoQuery", "Queries/JS");
     dataSources.ValidateNSelectDropdown("Commands", "Insert document(s)");
 
-    ee.SelectEntityByName("S3Query", "Queries/JS");
+    entityExplorer.SelectEntityByName("S3Query", "Queries/JS");
     dataSources.ValidateNSelectDropdown("Commands", "Create a new file");
   });
 });
