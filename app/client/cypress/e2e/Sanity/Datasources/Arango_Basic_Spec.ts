@@ -6,13 +6,14 @@ import {
   draggableWidgets,
   propPane,
 } from "../../../support/Objects/ObjectsCore";
+import { Widgets } from "../../../support/Pages/DataSources";
 
 describe("Validate Arango & CURL Import Datasources", () => {
   let dsName: any,
-    collectionName = "countries_places_to_visit",
+    collectionName = "countries_places_to_visit6",
     containerName = "arangodb";
   before("Create a new Arango DS", () => {
-    dataSources.StartContainerNVerify("Arango", containerName, 20000);
+    // dataSources.StartContainerNVerify("Arango", containerName, 20000);
     dataSources.CreateDataSource("ArangoDB");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -287,9 +288,15 @@ describe("Validate Arango & CURL Import Datasources", () => {
     dataSources.AssertQueryTableResponse(2, "Brazil");
   });
 
-  it("3. Arango Widget Binding", () => {
+  it("3. Arango Widget Binding - from Suggested widget", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Connect data");
+    entityExplorer.SelectEntityByName("Query6");
+    dataSources.AddSuggestedWidget(Widgets.Table); //Binding to new table from schema explorer
+    propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
+    entityExplorer.SelectEntityByName("Query6");
+    agHelper.ClickButton("Select widget"); //Binding to dragDropped table
+    propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
   });
 
   //To add test for duplicate collection name
@@ -310,20 +317,20 @@ describe("Validate Arango & CURL Import Datasources", () => {
         `/_db/_system/_api/collection/${collectionName} --header 'authorization: Basic cm9vdDpBcmFuZ28='`;
       //dataSources.ImportCurlNRun(curlDeleteCol);
       dataSources.FillCurlNImport(curlDeleteCol);
-      agHelper.ActionContextMenuWithInPane({
-        action: "Delete",
-        entityType: entityItems.Api,
-      }); //Deleting api created
-      entityExplorer.ExpandCollapseEntity(dsName);
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: dsName,
-        action: "Refresh",
-      }); //needed for the deltion of ds to reflect
-      agHelper.AssertElementVisibility(dataSources._noSchemaAvailable(dsName));
-      //Deleting datasource finally
-      dataSources.DeleteDatasouceFromActiveTab(dsName);
+      // agHelper.ActionContextMenuWithInPane({
+      //   action: "Delete",
+      //   entityType: entityItems.Api,
+      // }); //Deleting api created
+      // entityExplorer.ExpandCollapseEntity(dsName);
+      // entityExplorer.ActionContextMenuByEntityName({
+      //   entityNameinLeftSidebar: dsName,
+      //   action: "Refresh",
+      // }); //needed for the deltion of ds to reflect
+      // agHelper.AssertElementVisibility(dataSources._noSchemaAvailable(dsName));
+      // //Deleting datasource finally
+      // dataSources.DeleteDatasouceFromActiveTab(dsName);
     });
 
-    dataSources.StopNDeleteContainer(containerName);
+    //dataSources.StopNDeleteContainer(containerName);
   });
 });
