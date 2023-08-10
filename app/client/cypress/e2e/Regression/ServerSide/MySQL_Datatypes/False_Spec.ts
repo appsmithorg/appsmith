@@ -24,7 +24,7 @@ describe("MySQL Datatype tests", function () {
         entityNameinLeftSidebar: dsName,
         action: "Refresh",
       });
-      agHelper.AssertElementVisible(
+      agHelper.AssertElementVisibility(
         entityExplorer._entityNameInExplorer(inputData.tableName),
       );
     });
