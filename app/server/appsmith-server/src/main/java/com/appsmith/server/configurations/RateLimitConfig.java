@@ -21,6 +21,7 @@ public class RateLimitConfig {
 
     @Bean
     public BucketProxy rateLimitBucket(LettuceBasedProxyManager<byte[]> proxyManager) {
+        // TODO: Make this configurable
         Refill refill = Refill.intervally(5, Duration.ofDays(1)); // Refill 5 tokens every day
         Bandwidth limit = Bandwidth.classic(5, refill);
 
@@ -28,9 +29,12 @@ public class RateLimitConfig {
                 .addLimit(limit)
                 .build();
 
+        // TODO: Each API should have it's own bucket which can be the route + the identifier
+        // we can use an map of buckets to do this
         return proxyManager.builder().build("key".getBytes(), configuration);
     }
 
+    // TODO: Pick up redis client from RedisConfiguration
     private RedisClient createRedisClient() {
         return RedisClient.create("redis://127.0.0.1:6379");
     }
