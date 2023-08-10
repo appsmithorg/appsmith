@@ -41,7 +41,7 @@ export const useFirstRouteLoad = () => {
         });
       }
       if (appLoadBlock) {
-        appLoadBlock.style.opacity = "1";
+        appLoadBlock.style.visibility = "visible";
       }
     }
   }, [tenantIsLoading, currentUserIsLoading]);
