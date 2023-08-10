@@ -531,11 +531,11 @@ export class Table {
     cy.get(this._downloadOption).contains(filetype).click({ force: true });
   }
 
-  public ValidateDownloadNVerify(fileName: string, textToBePresent: string) {
+  public ValidateDownloadNVerify(fileName: string, textToBePresent = "") {
     let downloadsFolder = Cypress.config("downloadsFolder");
     cy.log("downloadsFolder is:" + downloadsFolder);
     cy.readFile(path.join(downloadsFolder, fileName)).should("exist");
-    this.VerifyDownloadedFile(fileName, textToBePresent);
+    textToBePresent && this.VerifyDownloadedFile(fileName, textToBePresent);
   }
 
   public VerifyDownloadedFile(fileName: string, textToBePresent: string) {

@@ -50,6 +50,8 @@ export class PropertyPane {
   _propertyPaneSearchInputWrapper = ".t--property-pane-search-input-wrapper";
   _propertyPaneSearchInput = `${this._propertyPaneSearchInputWrapper} input`;
   _propertyPaneEmptySearchResult = ".t--property-pane-no-search-results";
+  _mode = (modeName: string) =>
+    "//span[contains(text(),'" + modeName + "')]//parent::span";
   _propertyToggle = (controlToToggle: string) =>
     ".t--property-control-" +
     controlToToggle.replace(/ +/g, "").toLowerCase() +
