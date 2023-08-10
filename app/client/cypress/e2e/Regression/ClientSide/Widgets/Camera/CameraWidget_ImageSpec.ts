@@ -10,6 +10,11 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Camera widget - Image test", () => {
+  before(() => {
+    //Reset video source to default incase it got changed in other specs
+    cy.task("resetVideoSource");
+  });
+
   it("1. Check camera intialization & modes", () => {
     entityExplorer.DragNDropWidget(draggableWidgets.CAMERA);
     agHelper.AssertAttribute(propPane._mode("Image"), "data-selected", "true");

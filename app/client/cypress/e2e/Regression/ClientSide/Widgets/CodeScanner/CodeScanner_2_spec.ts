@@ -10,6 +10,11 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Code scanner widget tests", () => {
+  before(() => {
+    //Reset video source to default
+    cy.task("resetVideoSource");
+  });
+
   it("1. Verify properties in Always scan mode", () => {
     entityExplorer.DragNDropWidget(draggableWidgets.CODESCANNER);
     agHelper.AssertAttribute(
@@ -160,8 +165,8 @@ describe("Code scanner widget tests", () => {
   });
 
   it(
-    "4 a) Validate onCodeDetected event of click to scan mode.\n" +
-      "b) Open the Code Scanner modal and Scan a QR using fake webcam video.\n" +
+    "4. a) Validate onCodeDetected event of click to scan mode.\n" +
+      "b) Open the Code Scanner modal and Scan a Valid QR containing encoded URL using fake webcam video.\n" +
       "c) Verify that the scanned data is correctly displayed on the app's screen",
     () => {
       deployMode.NavigateBacktoEditor();
@@ -192,7 +197,101 @@ describe("Code scanner widget tests", () => {
         "text",
         "https://docs.appsmith.com/",
       );
-      cy.task("resetVideoSource");
     },
   );
+
+  it("5. Validate scanning rotated QR code.", () => {
+    //Open the Code Scanner modal and Scan rotated QR code using fake webcam video
+    cy.task("changeVideoSource", "rotatedQRCode.y4m");
+    agHelper.RefreshPage("viewPage");
+    agHelper.AssertElementVisibility(widgetLocators.codeScannerNewScanButton);
+    agHelper.GetNClick(widgetLocators.codeScannerNewScanButton, 0, true);
+    agHelper.AssertElementVisibility(widgetLocators.codeScannerModal);
+    agHelper.ValidateToastMessage("Code scanned using click to scan mode!");
+
+    //Verify that the scanned data is correctly displayed on the app's screen
+    agHelper.AssertElementAbsence(widgetLocators.codeScannerModal);
+    agHelper.AssertText(
+      locators._widgetInDeployed(draggableWidgets.TEXT),
+      "text",
+      "http://weibo.com/ljiianhua",
+    );
+  });
+
+  it("6. Validate scanning invalid QR code.", () => {
+    //Open the Code Scanner modal and Scan invalid QR code using fake webcam video
+    cy.task("changeVideoSource", "invalidQRCode.y4m");
+    agHelper.RefreshPage("viewPage");
+    agHelper.AssertElementVisibility(widgetLocators.codeScannerNewScanButton);
+    agHelper.GetNClick(widgetLocators.codeScannerNewScanButton, 0, true);
+    agHelper.AssertElementVisibility(widgetLocators.codeScannerModal);
+    //give it some time to scan code
+    agHelper.Sleep(5000);
+    //Verify that the QR code is not scanned
+    agHelper.AssertContains(
+      "Code scanned using click to scan mode!",
+      "not.exist",
+    );
+    agHelper.AssertElementVisibility(widgetLocators.codeScannerModal);
+    agHelper.GetNClick(widgetLocators.codeScannerClose);
+  });
+
+  it("7. Validate scanning multiple QR codes.", () => {
+    //Open the Code Scanner modal and Scan multiple QR codes using fake webcam video
+    cy.task("changeVideoSource", "multipleQRCodes.y4m");
+    agHelper.RefreshPage("viewPage");
+    agHelper.AssertElementVisibility(widgetLocators.codeScannerNewScanButton);
+    agHelper.GetNClick(widgetLocators.codeScannerNewScanButton, 0, true);
+    agHelper.AssertElementVisibility(widgetLocators.codeScannerModal);
+    //give it some time to scan code
+    agHelper.Sleep(5000);
+    //Verify that the QR code is not scanned
+    agHelper.AssertContains(
+      "Code scanned using click to scan mode!",
+      "not.exist",
+    );
+    agHelper.AssertElementVisibility(widgetLocators.codeScannerModal);
+    agHelper.GetNClick(widgetLocators.codeScannerClose);
+  });
+
+  it("8. Validate scanning broken/damaged QR code.", () => {
+    //Open the Code Scanner modal and Scan broken/damaged QR code using fake webcam video
+    cy.task("changeVideoSource", "brokenQRCode.y4m");
+    agHelper.RefreshPage("viewPage");
+    agHelper.AssertElementVisibility(widgetLocators.codeScannerNewScanButton);
+    agHelper.GetNClick(widgetLocators.codeScannerNewScanButton, 0, true);
+    agHelper.AssertElementVisibility(widgetLocators.codeScannerModal);
+    agHelper.ValidateToastMessage("Code scanned using click to scan mode!");
+
+    //Verify that the scanned data is correctly displayed on the app's screen
+    agHelper.AssertElementAbsence(widgetLocators.codeScannerModal);
+    agHelper.AssertText(
+      locators._widgetInDeployed(draggableWidgets.TEXT),
+      "text",
+      "http://en.m.wikipedia.org",
+    );
+  });
+
+  it("9. Validate scanning high density QR code.", () => {
+    //Open the Code Scanner modal and Scan high density QR code using fake webcam video
+    cy.task("changeVideoSource", "highDensityQRCode.y4m");
+    agHelper.RefreshPage("viewPage");
+    agHelper.AssertElementVisibility(widgetLocators.codeScannerNewScanButton);
+    agHelper.GetNClick(widgetLocators.codeScannerNewScanButton, 0, true);
+    agHelper.AssertElementVisibility(widgetLocators.codeScannerModal);
+    agHelper.ValidateToastMessage("Code scanned using click to scan mode!");
+
+    //Verify that the scanned data is correctly displayed on the app's screen
+    agHelper.AssertElementAbsence(widgetLocators.codeScannerModal);
+    agHelper.GetNAssertElementText(
+      locators._widgetInDeployed(draggableWidgets.TEXT),
+      "NL2:B4V.W9D",
+      "contain.text",
+    );
+  });
+
+  after(() => {
+    //Reset video source to default
+    cy.task("resetVideoSource");
+  });
 });
