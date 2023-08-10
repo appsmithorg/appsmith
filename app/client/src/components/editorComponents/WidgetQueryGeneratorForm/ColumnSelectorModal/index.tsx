@@ -50,14 +50,17 @@ const ColumnText = styled(Text)`
   font-weight: 500;
 `;
 
-const FlexWrapper = styled.div`
+const FlexWrapper = styled.div<{ disabled?: boolean }>`
   display: flex;
   align-items: center;
   gap: 4px;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  background-color: ${(props) =>
+    props.disabled ? "var(--ads-v2-color-bg-muted)" : "transparent"};
 `;
 
 export function ColumnSelectorModal() {
-  const { columns: data } = useColumns("");
+  const { columns: data, primaryColumn } = useColumns("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updatedData, setUpdatedData] = useState<any>([]);
 
@@ -97,29 +100,38 @@ export function ColumnSelectorModal() {
     setIsOpen(false);
   };
 
-  const columns = [
-    {
-      Header: createMessage(COLUMN_NAME),
-      accessor: "name",
-      Cell: function (cellProps: any) {
-        const { row } = cellProps;
-        return (
-          <FlexWrapper>
-            <StyledCheckbox
-              data-column-id={`t--edit-field-${row.original.name}`}
-              isSelected={row.original.isSelected}
-              onChange={() => handleSelect(row.original)}
-            />
-            <ColumnText>{row.original.name}</ColumnText>
-          </FlexWrapper>
-        );
+  const columns = React.useMemo(
+    () => [
+      {
+        Header: createMessage(COLUMN_NAME),
+        accessor: "name",
+        Cell: function (cellProps: any) {
+          const { row } = cellProps;
+          const isDisabled = row.original.name === primaryColumn;
+          return (
+            <FlexWrapper>
+              <StyledCheckbox
+                data-column-id={`t--edit-field-${row.original.name}`}
+                isDisabled={isDisabled}
+                isSelected={row.original.isSelected}
+                onChange={() => handleSelect(row.original)}
+              />
+              <ColumnText>{row.original.name}</ColumnText>
+            </FlexWrapper>
+          );
+        },
       },
-    },
-    {
-      Header: createMessage(COLUMN_TYPE),
-      accessor: "type",
-    },
-  ];
+      {
+        Header: createMessage(COLUMN_TYPE),
+        accessor: "type",
+        Cell: function (cellProps: any) {
+          const { row } = cellProps;
+          return <Text>{row.original.type}</Text>;
+        },
+      },
+    ],
+    [],
+  );
 
   return (
     <div data-testid="t--column-selector-modal">
