@@ -5,7 +5,6 @@ import type CodeMirror from "codemirror";
 import { ReusableHelper } from "../Objects/ReusableHelper";
 import type { EntityItemsType } from "./AssertHelper";
 import { EntityItems } from "./AssertHelper";
-import path from "path";
 
 type ElementType = string | JQuery<HTMLElement>;
 
