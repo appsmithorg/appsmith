@@ -150,7 +150,9 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
   it.skip("3.One click binding - should check that queries are created and bound to table widget properly", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);
 
-    oneClickBinding.ChooseAndAssertForm(dsName, dsName, "Simpsons", "title");
+    oneClickBinding.ChooseAndAssertForm(dsName, dsName, "Simpsons", {
+      searchableColumn: "title",
+    });
 
     agHelper.GetNClick(oneClickBindingLocator.connectData);
 

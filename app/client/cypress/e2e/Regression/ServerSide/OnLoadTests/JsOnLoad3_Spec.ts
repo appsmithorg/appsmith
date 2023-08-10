@@ -215,13 +215,13 @@ describe("JSObjects OnLoad Actions tests", function () {
     jsEditor.EnableDisableAsyncFuncSettings("callTrump", false, false); //OnPageLoad made true once mapped with widget
 
     deployMode.DeployApp();
-    agHelper.AssertElementVisible(jsEditor._dialogBody("CatFacts"));
+    agHelper.AssertElementVisibility(jsEditor._dialogBody("CatFacts"));
     jsEditor.ConfirmationClick("No");
     agHelper.ValidateToastMessage("CatFacts was cancelled");
 
     agHelper.WaitUntilToastDisappear("CatFacts was cancelled");
     agHelper.GetNClick(locators._widgetInDeployed("imagewidget"));
-    agHelper.AssertElementVisible(jsEditor._dialogBody("CatFacts"));
+    agHelper.AssertElementVisibility(jsEditor._dialogBody("CatFacts"));
     jsEditor.ConfirmationClick("Yes");
     cy.get(locators._toastMsg).contains(/Your cat fact|Oh No/g);
     deployMode.NavigateBacktoEditor();
@@ -304,7 +304,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       //jsEditor.EnableDisableAsyncFuncSettings("callCountry", false, true); Bug # 13826
 
       entityExplorer.SelectEntityByName("Select1", "Widgets");
-      propPane.UpdatePropertyFieldValue(
+      propPane.EnterJSContext(
         "Source Data",
         `{{ getCitiesList.data.map((row) => {
         return { label: row.city, value: row.city }
@@ -349,7 +349,7 @@ describe("JSObjects OnLoad Actions tests", function () {
 
   it("4. Tc #1646 - Honouring the order of execution & Bug 13826 + Bug 13646 - Delpoy page", () => {
     deployMode.DeployApp();
-    agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
+    agHelper.AssertElementVisibility(jsEditor._dialogBody("getBooks"));
     jsEditor.ConfirmationClick("No");
     agHelper.ValidateToastMessage("getBooks was cancelled");
     agHelper
@@ -366,7 +366,7 @@ describe("JSObjects OnLoad Actions tests", function () {
 
     agHelper.WaitUntilToastDisappear("getBooks was cancelled");
     agHelper.GetNClick(locators._widgetInDeployed("imagewidget"));
-    agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
+    agHelper.AssertElementVisibility(jsEditor._dialogBody("getBooks"));
     jsEditor.ConfirmationClick("Yes");
     //callBooks, getId confirmations also expected aft bug 13646 is fixed & covering tc 1646
 
@@ -379,7 +379,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     //   //.then(($url) => expect($url).not.be.empty);//failing at time as its not waiting for timeout!
 
     deployMode.NavigateBacktoEditor();
-    agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
+    agHelper.AssertElementVisibility(jsEditor._dialogBody("getBooks"));
     jsEditor.ConfirmationClick("No");
     agHelper.ValidateToastMessage("getBooks was cancelled");
 
