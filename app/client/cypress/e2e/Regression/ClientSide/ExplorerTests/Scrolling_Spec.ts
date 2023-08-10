@@ -53,12 +53,10 @@ describe("Entity explorer context menu should hide on scrolling", function () {
       dataSources.CreateDataSource("Postgres");
       cy.get("@dsName").then(($createdMockUsers: any) => {
         mockDBNameUsers = $createdMockUsers;
-        dataSources.NavigateToActiveTab();
         dataSources.CreateQueryAfterDSSaved();
 
         dataSources.CreateDataSource("Mongo");
         cy.get("@dsName").then(($createdMockMovies: any) => {
-          dataSources.NavigateToActiveTab();
           mockDBNameMovies = $createdMockMovies;
           dataSources.CreateQueryAfterDSSaved();
 

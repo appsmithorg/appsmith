@@ -24,13 +24,8 @@ import {
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { useDragImageGenerator } from "pages/Editor/useDragImageGenerator";
 
-const DraggableWrapper = styled.div<{
-  $isFlexChild: boolean;
-  $isCurrentWidgetDragging: boolean;
-}>`
-  display: ${(props) =>
-    !props.$isFlexChild && props.$isCurrentWidgetDragging ? "none" : "block"};
-  padding: ${(props) => (props.$isFlexChild ? "3px" : "inherit")};
+const DraggableWrapper = styled.div`
+  display: block;
   flex-direction: column;
   width: 100%;
   height: 100%;
@@ -215,8 +210,6 @@ function DraggableComponent(props: DraggableComponentProps) {
 
   return (
     <DraggableWrapper
-      $isCurrentWidgetDragging={isCurrentWidgetDragging}
-      $isFlexChild={!!props.isFlexChild}
       className={className}
       data-testid={isSelected ? "t--selected" : ""}
       draggable

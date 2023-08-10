@@ -15,7 +15,7 @@ const tokensAccessor = new TokensAccessor({
   ...(restDefaultTokens as TokenSource),
 });
 
-export function useTheme(props: UseThemeProps) {
+export function useTheme(props: UseThemeProps = {}) {
   const {
     borderRadius,
     colorMode = "light",

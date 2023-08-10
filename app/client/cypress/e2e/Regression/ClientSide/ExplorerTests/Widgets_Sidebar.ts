@@ -59,6 +59,11 @@ describe("Entity explorer tests related to widgets and validation", function () 
     External: ["Audio Recorder", "Camera", "Code Scanner"],
   };
 
+  if (Cypress.env("AIRGAPPED")) {
+    // Remove map widget in case of airgap
+    WIDGETS_CATALOG.Content = ["Progress", "Rating", "Text"];
+  }
+
   before(() => {
     featureFlagIntercept(
       {

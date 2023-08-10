@@ -21,7 +21,7 @@ describe("Json & JsonB Datatype tests", function () {
     agHelper.AddDsl("Datatypes/JsonDTdsl");
 
     entityExplorer.NavigateToSwitcher("Widgets");
-    appSettings.OpenPaneAndChangeThemeColors(33, 39);
+    appSettings.OpenPaneAndChangeThemeColors(16, 20);
   });
 
   beforeEach(() => {

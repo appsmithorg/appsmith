@@ -32,7 +32,7 @@ describe("API Bugs", function () {
     );
     apiPage.RunAPI();
 
-    dataSources.AddSuggesstedWidget(Widgets.Table);
+    dataSources.AddSuggestedWidget(Widgets.Table);
 
     debuggerHelper.AssertErrorCount(0);
   });

@@ -36,6 +36,8 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
 
     private final long featureFlagCacheTimeMin = 120;
 
+    private final long tenantFeaturesCacheTimeMin = 120;
+
     private final UserIdentifierService userIdentifierService;
 
     private final CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
@@ -131,5 +133,42 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                         }
                     });
         });
+    }
+
+    /**
+     * To get all features of the tenant from Cloud Services and store them locally
+     * @return Mono of Void
+     */
+    public Mono<Void> getAllRemoteFeaturesForTenant() {
+        return tenantService
+                .getDefaultTenantId()
+                .flatMap(defaultTenantId -> {
+                    return cacheableFeatureFlagHelper
+                            .fetchCachedTenantNewFeatures(defaultTenantId)
+                            .flatMap(cachedFeatures -> {
+                                if (cachedFeatures.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
+                                        < this.tenantFeaturesCacheTimeMin) {
+                                    return Mono.just(cachedFeatures);
+                                } else {
+                                    return cacheableFeatureFlagHelper
+                                            .evictCachedTenantNewFeatures(defaultTenantId)
+                                            .then(cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(
+                                                    defaultTenantId));
+                                }
+                            });
+                })
+                .then();
+    }
+
+    /**
+     * To get all features of the current tenant.
+     * @return Mono of Map
+     */
+    public Mono<Map<String, Boolean>> getCurrentTenantFeatures() {
+        return tenantService
+                .getDefaultTenantId()
+                // TODO: Update to call fetchCachedTenantCurrentFeatures once default value storing is complete
+                .flatMap(defaultTenantId -> cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(defaultTenantId))
+                .map(cachedFeatures -> cachedFeatures.getFeatures());
     }
 }

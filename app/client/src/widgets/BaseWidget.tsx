@@ -733,8 +733,7 @@ abstract class BaseWidget<
         if (!this.props.detachFromLayout) {
           if (
             !this.props.resizeDisabled &&
-            this.props.type !== "SKELETON_WIDGET" &&
-            !this.props.isFlexChild
+            this.props.type !== "SKELETON_WIDGET"
           )
             content = this.makeResizable(content);
           content = this.showWidgetName(content);

@@ -46,6 +46,7 @@ import {
 import type { ThemeProp } from "widgets/constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { importSvg } from "design-system-old";
+import { getVideoConstraints } from "./utils";
 
 const CameraOfflineIcon = importSvg(
   () => import("assets/icons/widget/camera/camera-offline.svg"),
@@ -835,6 +836,7 @@ function CameraComponent(props: CameraComponentProps) {
   const {
     borderRadius,
     boxShadow,
+    defaultCamera,
     disabled,
     mirrored,
     mode,
@@ -849,7 +851,6 @@ function CameraComponent(props: CameraComponentProps) {
   const webcamRef = useRef<Webcam>(null);
   const mediaRecorderRef = useRef<MediaRecorder>();
   const videoElementRef = useRef<HTMLVideoElement>(null);
-
   const isMobile = useIsMobileDevice();
   const [audioInputs, setAudioInputs] = useState<MediaDeviceInfo[]>([]);
   const [videoInputs, setVideoInputs] = useState<MediaDeviceInfo[]>([]);
@@ -861,6 +862,7 @@ function CameraComponent(props: CameraComponentProps) {
         ? {
             height: 720,
             width: 1280,
+            facingMode: { ideal: defaultCamera },
           }
         : {},
     );
@@ -979,10 +981,13 @@ function CameraComponent(props: CameraComponentProps) {
         });
       }
       if (mediaDeviceInfo.kind === "videoinput") {
-        setVideoConstraints({
-          ...videoConstraints,
-          deviceId: mediaDeviceInfo.deviceId,
-        });
+        const constraints = getVideoConstraints(
+          videoConstraints,
+          isMobile,
+          "", // when switching camera device we don't want to set the default camera ( facing mode )
+          mediaDeviceInfo.deviceId,
+        );
+        setVideoConstraints(constraints);
       }
     },
     [],
@@ -1210,6 +1215,7 @@ export interface CameraComponentProps {
   width: number;
   borderRadius: string;
   boxShadow: string;
+  defaultCamera: string;
 }
 
 export default CameraComponent;

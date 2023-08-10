@@ -29,5 +29,8 @@ export default {
   upgrade: "//button//span[text()='Upgrade']",
   accessControl: ".t--settings-category-access-control",
   auditLogs: ".t--settings-category-audit-logs",
+  provisioning: ".t--settings-category-provisioning",
   upgrageLeftPane: "[data-testid='t--enterprise-settings-category-item-be']",
+  businessTag: "[data-testid='t--business-tag']",
+  enterpriseTag: "[data-testid='t--enterprise-tag']",
 };

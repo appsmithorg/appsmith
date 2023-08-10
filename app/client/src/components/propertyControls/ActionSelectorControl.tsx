@@ -61,7 +61,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
   };
 
   render() {
-    const { label, propertyValue } = this.props;
+    const { label, propertyName, propertyValue, widgetProperties } = this.props;
 
     return (
       <ActionCreator
@@ -71,8 +71,11 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
           this.props.additionalControlData as Record<string, any>
         }
         onValueChange={this.handleValueUpdate}
+        propertyName={propertyName}
         ref={this.componentRef}
         value={propertyValue}
+        widgetName={widgetProperties.widgetName}
+        widgetType={widgetProperties.type}
       />
     );
   }

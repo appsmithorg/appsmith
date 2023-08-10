@@ -49,6 +49,9 @@ export default function ActionTree(props: {
   level: number;
   isLastBlock?: boolean;
   variant?: VariantType;
+  widgetName: string;
+  propertyName: string;
+  widgetType: string;
 }) {
   const { id } = props;
   const [actionBlock, setActionBlock] = React.useState(props.actionBlock);
@@ -255,6 +258,9 @@ export default function ActionTree(props: {
                               ),
                               code: deletedBlock.code,
                               callback: blockType,
+                              widgetName: props.widgetName,
+                              propertyName: props.propertyName,
+                              widgetType: props.widgetType,
                             });
                           } else {
                             const prevActionType = blocks[index].actionType;
@@ -271,12 +277,18 @@ export default function ActionTree(props: {
                                 actionType: actionTypeLabel,
                                 code: newActionCode,
                                 callback: blockType,
+                                widgetName: props.widgetName,
+                                propertyName: props.propertyName,
+                                widgetType: props.widgetType,
                               });
                             } else {
                               AnalyticsUtil.logEvent("ACTION_MODIFIED", {
                                 actionType: actionTypeLabel,
                                 code: newActionCode,
                                 callback: blockType,
+                                widgetName: props.widgetName,
+                                propertyName: props.propertyName,
+                                widgetType: props.widgetType,
                               });
                             }
                           }
@@ -286,7 +298,10 @@ export default function ActionTree(props: {
                             props.onChange(newActionBlock);
                           }
                         }}
+                        propertyName={props.propertyName}
                         variant="callbackBlock"
+                        widgetName={props.widgetName}
+                        widgetType={props.widgetType}
                       />
                     ))}
                   </div>

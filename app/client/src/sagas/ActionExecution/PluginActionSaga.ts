@@ -392,7 +392,7 @@ function* evaluateActionParams(
   // Add keys values to formData for the multipart submission
   for (let i = 0; i < bindings.length; i++) {
     const key = bindings[i];
-    let value = values[i];
+    let value = isArray(values) && values[i];
 
     let useBlobMaps = false;
     // Maintain a blob map to resolve blob urls of large files

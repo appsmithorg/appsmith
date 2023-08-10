@@ -556,16 +556,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .map(dbAction -> {
                     final ActionDTO unpublishedAction = dbAction.getUnpublishedAction();
                     copyNewFieldValuesIntoOldObject(action, unpublishedAction);
-
-                    // In case this update is for an action that represents a JS function,
-                    // perform a check to reset values for sync functions
-                    final boolean isSyncJSFunction = PluginType.JS.equals(action.getPluginType())
-                            && FALSE.equals(action.getActionConfiguration().getIsAsync());
-                    if (isSyncJSFunction) {
-                        unpublishedAction.setUserSetOnLoad(false);
-                        unpublishedAction.setConfirmBeforeExecute(false);
-                        unpublishedAction.setExecuteOnLoad(false);
-                    }
                     return dbAction;
                 })
                 .flatMap(this::extractAndSetNativeQueryFromFormData)

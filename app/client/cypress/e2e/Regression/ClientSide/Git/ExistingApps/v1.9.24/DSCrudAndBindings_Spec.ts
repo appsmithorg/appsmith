@@ -37,7 +37,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
     homePage.AssertNCloseImport();
   });
 
-  it("1. Validate merge status", () => {
+  it("1. Validate merge status + Bug23822", () => {
     entityExplorer.AssertEntityPresenceInExplorer("ListingAndReviews");
     //Wait for the app to settle
     agHelper.Sleep(3000);
@@ -49,11 +49,31 @@ describe("Import and validate older app (app created in older versions of Appsmi
     agHelper.AssertElementVisible(gitSync._gitSyncModal);
 
     //This is expected due to Canvas Splitting PR changes in v1.9.24
+    agHelper.GetNAssertContains(
+      gitSync._gitStatusChanges,
+      /[0-9] page(|s) modified/,
+    );
     agHelper.GetNAssertElementText(
       gitSync._gitStatusChanges,
-      "4 pages modified",
-      "contain.text",
+      "Application settings modified",
+      "not.contain.text",
     );
+    agHelper.GetNAssertElementText(
+      gitSync._gitStatusChanges,
+      "Theme modified",
+      "not.contain.text",
+    );
+    agHelper.AssertContains(/[0-9] quer(y|ies) modified/, "not.exist");
+
+    // Commented out due to #25739 - to be fixed by dev later
+    // agHelper.GetNAssertElementText(
+    //   gitSync._gitStatusChanges,
+    //   "datasource modified",
+    //   "not.contain.text",
+    // );
+
+    agHelper.AssertContains(/[0-9] JS Object(|s) modified/, "not.exist");
+    agHelper.AssertContains(/[0-9] librar(y|ies) modified/, "not.exist");
     agHelper.GetNAssertElementText(
       gitSync._gitStatusChanges,
       "Some of the changes above are due to an improved file structure designed to reduce merge conflicts. You can safely commit them to your repository.",

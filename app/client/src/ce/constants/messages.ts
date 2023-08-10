@@ -169,7 +169,6 @@ export const INVITE_USER_RAMP_TEXT = () =>
   "Users will have access to all applications in the workspace. For application-level access, try out our ";
 export const CUSTOM_ROLES_RAMP_TEXT = () =>
   "To build and assign custom roles, try out our ";
-export const BUSINESS_TEXT = () => "Business";
 export const CUSTOM_ROLE_TEXT = () => "Custom role";
 export const CUSTOM_ROLE_DISABLED_OPTION_TEXT = () =>
   "Can access specific applications or only certain pages and queries within an application";
@@ -573,9 +572,8 @@ export const JS_SETTINGS_CONFIRM_EXECUTION_SUBTEXT = () =>
   "Ask confirmation from the user every time before refreshing data";
 export const JS_SETTINGS_EXECUTE_TIMEOUT = () =>
   "Function Timeout (in milliseconds)";
-export const ASYNC_FUNCTION_SETTINGS_HEADING = () => "Async function settings";
-export const NO_ASYNC_FUNCTIONS = () =>
-  "There is no asynchronous function in this JSObject";
+export const FUNCTION_SETTINGS_HEADING = () => "Function settings";
+export const NO_JS_FUNCTIONS = () => "There is no function in this JSObject";
 export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>
   `${JSObjectName} has no function`;
 export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
@@ -1756,6 +1754,12 @@ export const DATASOURCE_INTERCOM_TEXT = () =>
 export const GOOGLE_SHEETS_ASK_FOR_SUPPORT = () => "Ask for support";
 export const GOOGLE_SHEETS_FILE_PICKER_TITLE = () =>
   "Select Google Sheets to query";
+export const GSHEETS_GENERATE_PAGE_BUTTON = () => "Generate page";
+export const GSHEETS_ERR_FETCHING_PREVIEW_DATA = () =>
+  "Some problem occured while fetching data";
+export const GSHEETS_FETCHING_PREVIEW_DATA = () => "Loading data";
+export const GSHEETS_SCHEMA_NO_DATA = () =>
+  "No data records to show or the table header begins with an index other than 1";
 
 //Layout Conversion flow
 export const CONVERT = () => "Convert layout";
@@ -1873,9 +1877,11 @@ export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
 
 //Datasource environment
 export const START_SWITCH_ENVIRONMENT = (environment: string) =>
-  `...Switching your environment to ${environment}, and running all associated pageload actions`;
+  `Switching your environment to ${environment}, and running all associated pageload actions`;
 export const SWITCH_ENVIRONMENT_SUCCESS = (environment: string) =>
-  `...Environment switched to ${environment} successfully`;
+  `Environment switched to ${environment} successfully`;
+export const SWITCH_ENV_DISABLED_TOOLTIP_TEXT = () =>
+  "To access environments for datasources, try out our ";
 
 export const TEST_DATASOURCE_SUCCESS = (
   datasourceName: string,
@@ -1888,3 +1894,13 @@ export const TEST_DATASOURCE_SUCCESS = (
 
 export const TEST_DATASOURCE_ERROR = () =>
   "Test failed, couldn't establish a connection";
+
+// Camera widget
+export const DEFAULT_CAMERA_LABEL = () => "Default mobile camera";
+export const DEFAULT_CAMERA_LABEL_DESCRIPTION = () =>
+  "Default choice for mobile users. Not applicable for other devices";
+export const FRONT_CAMERA_LABEL = () => "Front (Selfie)";
+export const BACK_CAMERA_LABEL = () => "Back (Rear)";
+
+// Color picker
+export const FULL_COLOR_PICKER_LABEL = () => "Full color picker";

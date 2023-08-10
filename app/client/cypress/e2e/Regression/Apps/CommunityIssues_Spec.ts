@@ -146,7 +146,7 @@ describe("AForce - Community Issues page validations", function () {
 
     entityExplorer.SelectEntityByName("Table1", "Widgets");
     //propPane.EnterJSContext("Default search text", "Question", false);
-    propPane.TypeTextIntoField("Default search text", "Quest");
+    propPane.TypeTextIntoField("Default search text", "Quest", true, false);
 
     deployMode.DeployApp();
     table.AssertSearchText("Quest", 2);

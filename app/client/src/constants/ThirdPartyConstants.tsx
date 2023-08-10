@@ -23,6 +23,8 @@ export const SIGNUP_RESTRICTION_DOC =
   "https://docs.appsmith.com/getting-started/setup/instance-configuration/disable-user-signup#disable-sign-up";
 export const EMBED_PRIVATE_APPS_DOC =
   "https://docs.appsmith.com/advanced-concepts/embed-appsmith-into-existing-application#embedding-private-apps";
+export const PROVISIONING_SETUP_DOC =
+  "http://docs.appsmith.com/advanced-concepts/user-provisioning-group-sync";
 export const PRICING_PAGE_URL = (
   URL: string,
   source: string,
