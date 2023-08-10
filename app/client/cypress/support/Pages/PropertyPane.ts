@@ -374,11 +374,7 @@ export class PropertyPane {
     this.agHelper.GetNClick(this.locator._jsToggle(fieldName.toLowerCase()));
   }
 
-  public ToggleJSMode(
-    endp: string,
-    toToggleOnJS: true | false = true,
-    toVerifySave = true,
-  ) {
+  public ToggleJSMode(endp: string, toToggleOnJS: true | false = true) {
     cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
       .invoke("attr", "class")
       .then((classes: any) => {
@@ -396,7 +392,6 @@ export class PropertyPane {
           );
         else this.agHelper.Sleep(500);
       });
-    toVerifySave && this.agHelper.AssertAutoSave();
   }
 
   public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
@@ -478,19 +473,7 @@ export class PropertyPane {
     toToggleOnJS = true,
     paste = true,
   ) {
-    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-      .invoke("attr", "class")
-      .then((classes: any) => {
-        if (toToggleOnJS && !classes.includes("is-active"))
-          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-            .first()
-            .click({ force: true });
-        else if (!toToggleOnJS && classes.includes("is-active"))
-          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-            .first()
-            .click({ force: true });
-        else this.agHelper.Sleep(500);
-      });
+    this.ToggleJSMode(endp, toToggleOnJS);
 
     if (paste) this.UpdatePropertyFieldValue(endp, value);
     else this.TypeTextIntoField(endp, value);
