@@ -11,13 +11,15 @@ import SchemaParser, {
 } from "widgets/JSONFormWidget/schemaParser";
 import type { Schema } from "widgets/JSONFormWidget/constants";
 import { ARRAY_ITEM_KEY } from "widgets/JSONFormWidget/constants";
-import { Button } from "design-system";
+import { Button, Text } from "design-system";
 import type { BaseItemProps } from "./DraggableListComponent";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { InputText } from "./InputTextControl";
 import type { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
+import styled from "styled-components";
+import { NO_FIELDS_ADDED, createMessage } from "@appsmith/constants/messages";
 
 type DroppableItem = BaseItemProps & {
   index: number;
@@ -29,6 +31,16 @@ type State = {
 };
 
 const DEFAULT_FIELD_NAME = "customField";
+
+const FlexContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const StyledText = styled(Text)`
+  margin: 20px;
+  text-align: center;
+`;
 
 class FieldConfigurationControl extends BaseControl<ControlProps, State> {
   constructor(props: ControlProps) {
@@ -195,10 +207,16 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
     if (isEmpty(schema)) {
       return (
-        <>
-          <EmptyDataState />
+        <FlexContainer>
+          {this.props.widgetProperties.type === "JSON_FORM_WIDGET" ? (
+            <StyledText color="var(--ads-v2-color-fg-muted)" kind="body-s">
+              {createMessage(NO_FIELDS_ADDED)}
+            </StyledText>
+          ) : (
+            <EmptyDataState />
+          )}
           {addNewFieldButton}
-        </>
+        </FlexContainer>
       );
     }
 
