@@ -205,8 +205,11 @@ describe("Admin settings page", function () {
     cy.wait("@postTenantConfig").then((interception) => {
       expect(interception.request.body.instanceName).to.equal(instanceName);
     });
-    cy.get(adminsSettings.restartNotice).should("not.exist");
-    cy.wait(3000);
+    agHelper.AssertElementVisible(adminsSettings.restartNotice);
+    // adding wait for server to restart
+    cy.waitUntil(() =>
+      cy.contains("General", { timeout: 180000 }).should("be.visible"),
+    );
   });
 
   it("10.Should test saving settings value from different tabs", () => {
