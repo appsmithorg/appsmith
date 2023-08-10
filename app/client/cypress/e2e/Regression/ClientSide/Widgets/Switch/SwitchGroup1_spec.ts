@@ -10,9 +10,9 @@ import {
 
 import { switchlocators } from "../../../../../locators/WidgetLocators";
 
-const explorer = require("../../../../../locators/explorerlocators.json");
-const widgetsLoc = require("../../../../../locators/Widgets.json");
-const widgets = require("../../../../../locators/publishWidgetspage.json");
+import widgetsLoc from "../../../../../locators/Widgets.json";
+import widgets from "../../../../../locators/publishWidgetspage.json";
+import commonlocators from "../../../../../locators/commonlocators.json";
 
 describe("Switchgroup Widget Functionality", function () {
   /**
@@ -161,22 +161,40 @@ describe("Switchgroup Widget Functionality", function () {
     agHelper.GetNAssertElementText(widgets.textWidget, "RED");
   });
 
-  it(" Set Label, Tooltip, Inline and check switch group", () => {
+  it("4. Set Label, Tooltip, Inline and check switch group", () => {
     entityExplorer.SelectEntityByName("SwitchGroup1");
     propPane.UpdatePropertyFieldValue("Text", "SG Widget");
     propPane.UpdatePropertyFieldValue("Tooltip", "Select any color");
-
     // assert label and tooltip
     deployMode.DeployApp();
     agHelper.AssertText(switchlocators.switchGroupLabel, "text", "SG Widget");
     agHelper.GetNClick(switchlocators.switchTooltip, 1);
     agHelper.AssertPopoverTooltip("Select any color");
     deployMode.NavigateBacktoEditor();
-
     // assert height of the container based on inline property value
     entityExplorer.SelectEntityByName("SwitchGroup1");
     agHelper.AssertElementExist(switchlocators.switchWidgetHeight("60"));
     propPane.TogglePropertyState("Inline", "Off");
     agHelper.AssertElementExist(switchlocators.switchWidgetHeight("110"));
+  });
+
+  it("5. Check visible, disabled, Height", () => {
+    entityExplorer.SelectEntityByName("SwitchGroup1");
+    propPane.SelectPropertiesDropDown("Height", "Auto Height with limits");
+    agHelper.HoverElement(propPane._autoHeightLimitMin);
+    agHelper.AssertElementExist(propPane._autoHeightLimitMin);
+    agHelper.AssertElementExist(propPane._autoHeightLimitMax);
+
+    propPane.TogglePropertyState("Visible", "Off");
+    deployMode.DeployApp();
+    agHelper.AssertElementAbsence(switchlocators.switchGroupLabel);
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.SelectEntityByName("SwitchGroup1");
+    propPane.TogglePropertyState("Visible", "On");
+
+    propPane.TogglePropertyState("Disabled", "On");
+    deployMode.DeployApp();
+    agHelper.AssertElementExist(commonlocators.disabledField);
+    deployMode.NavigateBacktoEditor();
   });
 });
