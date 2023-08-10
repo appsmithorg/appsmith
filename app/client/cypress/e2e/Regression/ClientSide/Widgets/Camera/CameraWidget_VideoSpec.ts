@@ -17,7 +17,6 @@ describe("Camera widget - Video test", () => {
     agHelper.AssertElementAbsence(widgetLocators.cameraErrorText);
 
     agHelper.AssertExistingToggleState("Visible", "true");
-    propPane.ToggleJSMode("Visible", true);
     propPane.EnterJSContext("Visible", "{{(55>45)?false:true}}", true, true);
     deployMode.DeployApp();
     agHelper.AssertElementAbsence(
@@ -28,14 +27,13 @@ describe("Camera widget - Video test", () => {
     propPane.EnterJSContext("Visible", "", false);
     propPane.ToggleJSMode("Visible", false);
     propPane.TogglePropertyState("Visible", "On");
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locators._widgetInCanvas(draggableWidgets.CAMERA),
     );
   });
 
   it("2. Verify Disabled property of video mode in camera widget", () => {
     agHelper.AssertExistingToggleState("Disabled", "false");
-    propPane.ToggleJSMode("Disabled", true);
     propPane.EnterJSContext("Disabled", "{{(45>55)?false:true}}", true, true);
     deployMode.DeployApp();
     agHelper
@@ -53,7 +51,6 @@ describe("Camera widget - Video test", () => {
 
   it("3. Verify Mirrored property of video mode in camera widget", () => {
     agHelper.AssertExistingToggleState("Mirrored", "true");
-    propPane.ToggleJSMode("Mirrored", true);
     propPane.EnterJSContext("Mirrored", "{{(55>45)?false:true}}", true, true);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
     agHelper
@@ -67,10 +64,10 @@ describe("Camera widget - Video test", () => {
   });
 
   it("4. Verify OnVideoSave event of video mode in camera widget", () => {
-    propPane.ToggleJSMode("onVideoSave", true);
     propPane.EnterJSContext(
       "onVideoSave",
       "{{showAlert('Video Captured successfully!','success')}}",
+      true,
     );
     propPane.ToggleJSMode("onVideoSave", false);
 
@@ -89,10 +86,10 @@ describe("Camera widget - Video test", () => {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
 
     //Validate camera screen & icons
-    agHelper.AssertElementVisible(widgetLocators.cameraMicrophoneBtn);
-    agHelper.AssertElementVisible(widgetLocators.cameraMicrophoneDropdown);
-    agHelper.AssertElementVisible(widgetLocators.cameraVideoOnOffBtn);
-    agHelper.AssertElementVisible(widgetLocators.cameraVideoDropdown);
+    agHelper.AssertElementVisibility(widgetLocators.cameraMicrophoneBtn);
+    agHelper.AssertElementVisibility(widgetLocators.cameraMicrophoneDropdown);
+    agHelper.AssertElementVisibility(widgetLocators.cameraVideoOnOffBtn);
+    agHelper.AssertElementVisibility(widgetLocators.cameraVideoDropdown);
     agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
       .matchImageSnapshot("cameraVideoScreen");
@@ -103,9 +100,9 @@ describe("Camera widget - Video test", () => {
 
     //Stop recording
     agHelper.GetNClick(widgetLocators.cameraStopRecordingBtn);
-    agHelper.AssertElementVisible(widgetLocators.cameraSaveBtn);
-    agHelper.AssertElementVisible(widgetLocators.cameraVideodiscardBtn);
-    agHelper.AssertElementVisible(widgetLocators.cameraVideoPlayBtn);
+    agHelper.AssertElementVisibility(widgetLocators.cameraSaveBtn);
+    agHelper.AssertElementVisibility(widgetLocators.cameraVideodiscardBtn);
+    agHelper.AssertElementVisibility(widgetLocators.cameraVideoPlayBtn);
 
     //Validate video in preview screen
     agHelper
@@ -116,14 +113,14 @@ describe("Camera widget - Video test", () => {
     agHelper.GetNClick(widgetLocators.cameraSaveBtn);
 
     //Validate video in refresh screen
-    agHelper.AssertElementVisible(widgetLocators.cameraRefreshBtn);
+    agHelper.AssertElementVisibility(widgetLocators.cameraRefreshBtn);
     agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
       .matchImageSnapshot("cameraVideoSavedScreen");
 
     //Refresh video
     agHelper.GetNClick(widgetLocators.cameraRefreshBtn);
-    agHelper.AssertElementVisible(widgetLocators.cameraCaptureBtn);
+    agHelper.AssertElementVisibility(widgetLocators.cameraCaptureBtn);
     agHelper.ValidateToastMessage("Captured successfully!");
 
     //Validate video download OnVideoSave event

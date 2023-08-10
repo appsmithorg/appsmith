@@ -13,9 +13,9 @@ describe("Camera widget - Image test", () => {
   it("1. Check camera intialization & modes", () => {
     entityExplorer.DragNDropWidget(draggableWidgets.CAMERA);
     agHelper.AssertAttribute(propPane._mode("Image"), "data-selected", "true");
-    agHelper.AssertElementVisible(propPane._mode("Video"), 1);
+    agHelper.AssertElementVisibility(propPane._mode("Video"), true, 1);
     agHelper.AssertElementAbsence(widgetLocators.cameraErrorText);
-    agHelper.AssertElementVisible(widgetLocators.cameraVideo);
+    agHelper.AssertElementVisibility(widgetLocators.cameraVideo);
 
     // Check camera resource is properly released on navigating away
     entityExplorer.AddNewPage();
@@ -23,12 +23,11 @@ describe("Camera widget - Image test", () => {
     agHelper.AssertElementAbsence(widgetLocators.cameraVideo);
 
     entityExplorer.SelectEntityByName("Page1");
-    agHelper.AssertElementVisible(widgetLocators.cameraVideo);
+    agHelper.AssertElementVisibility(widgetLocators.cameraVideo);
   });
 
   it("2. Verify Visible property of image mode in camera widget", () => {
     agHelper.AssertExistingToggleState("Visible", "true");
-    propPane.ToggleJSMode("Visible", true);
     propPane.EnterJSContext("Visible", "{{(55>45)?false:true}}", true, true);
     deployMode.DeployApp();
     agHelper.AssertElementAbsence(
@@ -39,14 +38,16 @@ describe("Camera widget - Image test", () => {
     propPane.EnterJSContext("Visible", "", false);
     propPane.ToggleJSMode("Visible", false);
     propPane.TogglePropertyState("Visible", "On");
-    agHelper.AssertElementVisible(
-      locators._widgetInCanvas(draggableWidgets.CAMERA),
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
+    agHelper.AssertElementVisibility(
+      locators._widgetInDeployed(draggableWidgets.CAMERA),
     );
   });
 
   it("3. Verify Disabled property of image mode in camera widget", () => {
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.SelectEntityByName("Camera1");
     agHelper.AssertExistingToggleState("Disabled", "false");
-    propPane.ToggleJSMode("Disabled", true);
     propPane.EnterJSContext("Disabled", "{{(45>55)?false:true}}", true, true);
     deployMode.DeployApp();
     agHelper
@@ -57,16 +58,17 @@ describe("Camera widget - Image test", () => {
     propPane.EnterJSContext("Disabled", "", false);
     propPane.ToggleJSMode("Disabled", false);
     propPane.TogglePropertyState("Disabled", "Off");
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
     agHelper
       .GetElement(widgetLocators.cameraWidgetScreen)
       .should("not.have.attr", "disabled");
   });
 
   it("4. Verify Mirrored property of image mode in camera widget", () => {
+    deployMode.NavigateBacktoEditor();
+    entityExplorer.SelectEntityByName("Camera1");
     agHelper.AssertExistingToggleState("Mirrored", "true");
-    propPane.ToggleJSMode("Mirrored", true);
     propPane.EnterJSContext("Mirrored", "{{(55>45)?false:true}}", true, true);
-    propPane.ToggleJSMode("Mirrored", false);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
     agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
@@ -83,10 +85,10 @@ describe("Camera widget - Image test", () => {
   });
 
   it("5. Validate OnImageCapture event of image mode in camera widget", () => {
-    propPane.ToggleJSMode("onImageCapture", true);
     propPane.EnterJSContext(
       "onImageCapture",
       "{{showAlert('Image Captured successfully!','success')}}",
+      true,
     );
     propPane.ToggleJSMode("onImageCapture", false);
 
@@ -105,16 +107,16 @@ describe("Camera widget - Image test", () => {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
 
     //Validate camera screen & icons
-    agHelper.AssertElementVisible(widgetLocators.cameraImageVideoOnOffBtn);
-    agHelper.AssertElementVisible(widgetLocators.cameraImageVideoDropdown);
+    agHelper.AssertElementVisibility(widgetLocators.cameraImageVideoOnOffBtn);
+    agHelper.AssertElementVisibility(widgetLocators.cameraImageVideoDropdown);
     agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
       .matchImageSnapshot("cameraImageScreen");
 
     //Capture image
     agHelper.GetNClick(widgetLocators.cameraCaptureBtn);
-    agHelper.AssertElementVisible(widgetLocators.cameraSaveBtn);
-    agHelper.AssertElementVisible(widgetLocators.cameraImageDiscardBtn);
+    agHelper.AssertElementVisibility(widgetLocators.cameraSaveBtn);
+    agHelper.AssertElementVisibility(widgetLocators.cameraImageDiscardBtn);
 
     //Validate image in preview screen
     agHelper
@@ -123,7 +125,7 @@ describe("Camera widget - Image test", () => {
 
     //Save image
     agHelper.GetNClick(widgetLocators.cameraSaveBtn);
-    agHelper.AssertElementVisible(widgetLocators.cameraRefreshBtn);
+    agHelper.AssertElementVisibility(widgetLocators.cameraRefreshBtn);
 
     //Validate image in refresh screen
     agHelper
@@ -132,7 +134,7 @@ describe("Camera widget - Image test", () => {
 
     //Refresh image
     agHelper.GetNClick(widgetLocators.cameraRefreshBtn);
-    agHelper.AssertElementVisible(widgetLocators.cameraCaptureBtn);
+    agHelper.AssertElementVisibility(widgetLocators.cameraCaptureBtn);
     agHelper.ValidateToastMessage("Captured successfully!");
 
     //Validate image download OnImageCapture event
