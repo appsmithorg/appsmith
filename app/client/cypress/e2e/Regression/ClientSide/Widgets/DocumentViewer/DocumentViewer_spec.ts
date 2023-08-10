@@ -112,14 +112,13 @@ describe("DocumentViewer Widget Functionality", () => {
       "r1a",
     );
     cy.get(locators._widgetInDeployed("documentviewerwidget"))
-      .get('button:contains("Copy of ShentityExplorert1")')
+      .get('button:contains("Copy of Sheet1")')
       .click();
     cy.get(locators._widgetInDeployed("documentviewerwidget")).should(
       "contain",
-      "SHentityExplorerT 2r1a",
+      "SHEET 2r1a",
     );
     deployMode.NavigateBacktoEditor();
-
     entityExplorer.SelectEntityByName("DocumentViewer1", "Widgets");
     propPane.UpdatePropertyFieldValue("Document link", encodedXlsDoc);
     deployMode.DeployApp();
