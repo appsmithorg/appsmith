@@ -9,27 +9,24 @@ init_ssl_cert() {
   mkdir -p "$data_path/www"
 
   echo "Re-generating nginx config template with domain"
-  bash "/opt/appsmith/templates/nginx-app.conf.sh" "0" "$APPSMITH_CUSTOM_DOMAIN" \
-    | envsubst "$(printf '$%s,' $(env | grep -Eo '^APPSMITH_[A-Z0-9_]+'))" \
-    | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' \
-    > /etc/nginx/sites-available/default
+  bash /opt/appsmith/templates/nginx.conf.sh 0 "$APPSMITH_CUSTOM_DOMAIN" > "$NGINX_CONF_PATH"
 
   echo "Start Nginx to verify certificate"
-  nginx
+  nginx -c "$NGINX_CONF_PATH" -g 'daemon on;'
 
   local live_path="/etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN"
   local ssl_path="/appsmith-stacks/ssl"
   if [[ -e "$ssl_path/fullchain.pem" ]] && [[ -e "$ssl_path/privkey.pem" ]]; then
     echo "Existing custom certificate"
     echo "Stop Nginx"
-    nginx -s stop
+    nginx -c "$NGINX_CONF_PATH" -s stop
     return
   fi
 
   if [[ -e "$live_path" ]]; then
     echo "Existing certificate for domain $APPSMITH_CUSTOM_DOMAIN"
     echo "Stop Nginx"
-    nginx -s stop
+    nginx -c "$NGINX_CONF_PATH" -s stop
     return
   fi
 
@@ -55,12 +52,11 @@ init_ssl_cert() {
     --agree-tos \
     --force-renewal
 
+  echo "Stop Nginx"
+  nginx -c "$NGINX_CONF_PATH" -s stop
+
   if (($? != 0)); then
-    echo "Stop Nginx due to provisioning fail"
-    nginx -s stop
+    echo "Provisioning failed"
     return 1
   fi
-
-  echo "Stop Nginx"
-  nginx -s stop
 }

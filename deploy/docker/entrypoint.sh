@@ -424,7 +424,7 @@ init_loading_pages(){
       server_name _;
       root "$NGINX_WWW_PATH";
       location / {
-        try_files \$uri \$uri/ =404;
+        try_files \$uri \$uri/ /index.html =404;
       }
     }
   }
