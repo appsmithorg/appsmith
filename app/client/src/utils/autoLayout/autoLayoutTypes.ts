@@ -104,7 +104,7 @@ export interface LayoutComponentProps {
   insertChild?: boolean;
   canBeDeleted?: boolean;
 
-  childrenMap?: { [id: string]: JSX.Element | ReactNode };
+  childrenMap?: { [id: string]: WidgetProps };
   containerProps?: ContainerWidgetProps<WidgetProps> & {
     snapRows: number;
     snapSpaces: any;

@@ -11,9 +11,10 @@ import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getCanvasClassName } from "utils/generators";
+import { renderChildWidget } from "utils/autoLayout/layoutComponentUtils";
 
 const Fixed = (props: LayoutComponentProps) => {
-  const { childrenMap, containerProps, layoutType } = props;
+  const { childrenMap, containerProps, layoutId, layoutType } = props;
   if (!containerProps) return null;
   const renderAsContainerComponent = () => {
     return (
@@ -54,7 +55,11 @@ const Fixed = (props: LayoutComponentProps) => {
             widgetId={containerProps.widgetId}
             widgetType={containerProps.type}
           />
-          {childrenMap ? Object.values(childrenMap) : null}
+          {childrenMap
+            ? Object.keys(childrenMap).map((id: string) =>
+                renderChildWidget(childrenMap[id], layoutId, containerProps),
+              )
+            : null}
         </>
       </ContainerComponent>
     );

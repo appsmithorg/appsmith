@@ -7,6 +7,7 @@ import type {
 import FlexLayout from "./FlexLayout";
 import {
   getLayoutComponent,
+  renderChildWidget,
   renderLayouts,
 } from "utils/autoLayout/layoutComponentUtils";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
@@ -22,6 +23,7 @@ import {
 const Row = (props: LayoutComponentProps) => {
   const {
     childrenMap,
+    containerProps,
     isDropTarget,
     layoutId,
     layoutStyle,
@@ -32,8 +34,9 @@ const Row = (props: LayoutComponentProps) => {
   const renderChildren = () => {
     if (rendersWidgets) {
       if (!childrenMap) return null;
-      const layout: string[] = props.layout as string[];
-      return layout.map((id: string) => childrenMap[id]);
+      return Object.keys(childrenMap).map((id: string) =>
+        renderChildWidget(childrenMap[id], layoutId, containerProps),
+      );
     } else {
       const layout: LayoutComponentProps[] =
         props.layout as LayoutComponentProps[];
