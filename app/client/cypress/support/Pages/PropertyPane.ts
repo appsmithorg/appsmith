@@ -374,7 +374,11 @@ export class PropertyPane {
     this.agHelper.GetNClick(this.locator._jsToggle(fieldName.toLowerCase()));
   }
 
-  public ToggleJSMode(endp: string, toToggleOnJS: true | false = true) {
+  public ToggleJSMode(
+    endp: string,
+    toToggleOnJS: true | false = true,
+    toVerifySave = true,
+  ) {
     cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
       .invoke("attr", "class")
       .then((classes: any) => {
@@ -392,6 +396,7 @@ export class PropertyPane {
           );
         else this.agHelper.Sleep(500);
       });
+    toVerifySave && this.agHelper.AssertAutoSave();
   }
 
   public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
