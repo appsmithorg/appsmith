@@ -66,7 +66,7 @@ import {
   extractClientDefinedErrorMetadata,
   validateResponse,
 } from "sagas/ErrorSagas";
-import type { EventName } from "utils/AnalyticsUtil";
+import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
@@ -1054,6 +1054,7 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
         collectionId: collectionId,
         isExecuteJSFunc: true,
       };
+
       yield call(handleExecuteJSFunctionSaga, data);
     }
   }

@@ -18,7 +18,7 @@ import {
   NodeTypes,
   SourceType,
 } from "@shared/ast";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 
 export interface JSActionDropdownOption extends DropdownOption {
   data: JSAction | null;
