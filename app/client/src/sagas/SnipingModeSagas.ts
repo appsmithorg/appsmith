@@ -26,6 +26,7 @@ import {
   FEATURE_FLAG,
 } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import type { PropertyUpdates } from "widgets/constants";
 
 export function* bindDataToWidgetSaga(
@@ -78,7 +79,7 @@ export function* bindDataToWidgetSaga(
       propertyPath: updates?.map((update) => update.propertyPath).toString(),
       propertyValue: updates?.map((update) => update.propertyPath).toString(),
       [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
-        FEATURE_FLAG.ab_ds_binding_enabled,
+        FEATURE_WALKTHROUGH_KEYS.ab_ds_binding_enabled,
       [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isDSBindingEnabled,
     });
   } else {

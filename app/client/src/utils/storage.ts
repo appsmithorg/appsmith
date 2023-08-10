@@ -457,7 +457,7 @@ export const getAIPromptTriggered = async () => {
     return 0;
   }
 };
-export const setFeatureFlagShownStatus = async (key: string, value: any) => {
+export const setFeatureWalkthroughShown = async (key: string, value: any) => {
   try {
     let flagsJSON: Record<string, any> | null = await store.getItem(
       STORAGE_KEYS.FEATURE_WALKTHROUGH,
@@ -477,7 +477,7 @@ export const setFeatureFlagShownStatus = async (key: string, value: any) => {
   }
 };
 
-export const getFeatureFlagShownStatus = async (key: string) => {
+export const getFeatureWalkthroughShown = async (key: string) => {
   try {
     const flagsJSON: Record<string, any> | null = await store.getItem(
       STORAGE_KEYS.FEATURE_WALKTHROUGH,

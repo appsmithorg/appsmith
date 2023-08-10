@@ -1,9 +1,10 @@
 import { useSelector } from "react-redux";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { PRICING_PAGE_URL } from "constants/ThirdPartyConstants";
-import type { EventName } from "utils/AnalyticsUtil";
+import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { pricingPageUrlSource } from "@appsmith/utils/licenseHelpers";
 
 type Props = {
   logEventName?: EventName;
@@ -21,7 +22,11 @@ const useOnUpgrade = (props: Props) => {
       logEventData,
     );
     window.open(
-      PRICING_PAGE_URL(appsmithConfigs.pricingUrl, "CE", instanceId),
+      PRICING_PAGE_URL(
+        appsmithConfigs.pricingUrl,
+        pricingPageUrlSource,
+        instanceId,
+      ),
       "_blank",
     );
   };

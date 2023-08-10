@@ -17,6 +17,8 @@ import { getPropertySectionState } from "selectors/editorContextSelectors";
 import { getCurrentWidgetId } from "selectors/propertyPaneSelectors";
 import { setPropertySectionState } from "actions/propertyPaneActions";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
+import localStorage from "utils/localStorage";
+import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
 
 const TagContainer = styled.div``;
 
@@ -95,27 +97,16 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   const dispatch = useDispatch();
   const currentWidgetId = useSelector(getCurrentWidgetId);
   const { isDefaultOpen = true } = props;
-  const isDefaultContextOpen = useSelector(
-    (state: AppState) =>
-      getPropertySectionState(state, {
-        key: `${currentWidgetId}.${props.id}`,
-        panelPropertyPath: props.panelPropertyPath,
-      }),
-    () => true,
+  const isContextOpen = useSelector((state: AppState) =>
+    getPropertySectionState(state, {
+      key: `${currentWidgetId}.${props.id}`,
+      panelPropertyPath: props.panelPropertyPath,
+    }),
   );
   const isSearchResult = props.tag !== undefined;
-  let initialIsOpenState = true;
-  if (isSearchResult) {
-    initialIsOpenState = true;
-  } else if (isDefaultContextOpen !== undefined) {
-    initialIsOpenState = isDefaultContextOpen;
-  } else {
-    initialIsOpenState = !!isDefaultOpen;
-  }
+  const [isOpen, setIsOpen] = useState(!!isContextOpen);
 
   const className = props.name.split(" ").join("").toLowerCase();
-
-  const [isOpen, setIsOpen] = useState(initialIsOpenState);
   const connectDataClicked = useSelector(getIsOneClickBindingOptionsVisibility);
 
   useEffect(() => {
@@ -137,6 +128,38 @@ export const PropertySection = memo((props: PropertySectionProps) => {
         return !x;
       });
   }, [props.collapsible, props.id, currentWidgetId]);
+
+  useEffect(() => {
+    let initialIsOpenState = true;
+    if (isSearchResult) {
+      initialIsOpenState = true;
+    } else if (isContextOpen !== undefined) {
+      initialIsOpenState = isContextOpen;
+    } else {
+      initialIsOpenState = !!isDefaultOpen;
+    }
+
+    setIsOpen(initialIsOpenState);
+  }, [isContextOpen, isSearchResult, isDefaultOpen]);
+
+  // If the walkthrough is opened for widget Id, then only open the data section of property pane and collapse other sections.
+  const enableDataSectionOnly = async () => {
+    const widgetId: string | null = await localStorage.getItem(
+      WIDGET_ID_SHOW_WALKTHROUGH,
+    );
+
+    if (widgetId) {
+      if (className === "data") {
+        setIsOpen(true);
+      } else {
+        setIsOpen(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    enableDataSectionOnly();
+  }, []);
 
   if (!currentWidgetId) return null;
 

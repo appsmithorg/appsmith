@@ -55,17 +55,17 @@ import { DatasourceComponentTypes } from "api/PluginApi";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import {
-  getFeatureFlagShownStatus,
+  getFeatureWalkthroughShown,
   isUserSignedUpFlagSet,
-  setFeatureFlagShownStatus,
+  setFeatureWalkthroughShown,
 } from "utils/storage";
+import { SCHEMA_SECTION_ID } from "entities/Action";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Tooltip } from "design-system";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 
 const SCHEMA_GUIDE_GIF = `${ASSETS_CDN_URL}/schema.gif`;
-
-const SCHEMA_SECTION_ID = "t--api-right-pane-schema";
 
 const SideBar = styled.div`
   height: 100%;
@@ -378,8 +378,8 @@ function ActionSidebar({
   }, []);
 
   const checkAndShowWalkthrough = async () => {
-    const isFeatureWalkthroughShown = await getFeatureFlagShownStatus(
-      FEATURE_FLAG.ab_ds_schema_enabled,
+    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
     );
 
     const isNewUser = user && (await isUserSignedUpFlagSet(user.email));
@@ -390,13 +390,8 @@ function ActionSidebar({
       pushFeature({
         targetId: SCHEMA_SECTION_ID,
         onDismiss: async () => {
-          AnalyticsUtil.logEvent("WALKTHROUGH_DISMISSED", {
-            [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
-              FEATURE_FLAG.ab_ds_schema_enabled,
-            [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForDSSchema,
-          });
-          await setFeatureFlagShownStatus(
-            FEATURE_FLAG.ab_ds_schema_enabled,
+          await setFeatureWalkthroughShown(
+            FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
             true,
           );
         },
@@ -416,7 +411,7 @@ function ActionSidebar({
         },
         eventParams: {
           [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
-            FEATURE_FLAG.ab_ds_schema_enabled,
+            FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
           [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForDSSchema,
         },
         delay: 5000,

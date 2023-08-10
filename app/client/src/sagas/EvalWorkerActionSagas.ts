@@ -30,7 +30,6 @@ import isEmpty from "lodash/isEmpty";
 import type { UnEvalTree } from "entities/DataTree/dataTreeFactory";
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 import type { LintTreeSagaRequestData } from "plugins/Linting/types";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 export type UpdateDataTreeMessageData = {
   workerResponse: EvalTreeResponseData;
   unevalTree: UnEvalTree;
@@ -106,19 +105,6 @@ export function* processTriggerHandler(message: any) {
   if (messageType === MessageType.REQUEST)
     yield call(evalWorker.respond, message.messageId, result);
 }
-export function* handleJSExecutionLog(data: TMessage<{ data: string[] }>) {
-  const {
-    body: { data: executedFns },
-  } = data;
-
-  for (const executedFn of executedFns) {
-    AnalyticsUtil.logEvent("EXECUTE_ACTION", {
-      type: "JS",
-      name: executedFn,
-    });
-  }
-  yield call(logJSFunctionExecution, data);
-}
 
 export function* handleEvalWorkerMessage(message: TMessage<any>) {
   const { body } = message;
@@ -145,7 +131,7 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
       break;
     }
     case MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION: {
-      yield call(handleJSExecutionLog, message);
+      yield call(logJSFunctionExecution, message);
       break;
     }
     case MAIN_THREAD_ACTION.PROCESS_BATCHED_TRIGGERS: {

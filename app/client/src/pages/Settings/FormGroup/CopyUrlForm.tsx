@@ -56,10 +56,12 @@ function CopyUrlForm(props: {
   return (
     <BodyContainer>
       <Input
+        data-testid={`${fieldName}-input`}
         {...(helpText ? { description: `* ${helpText}` } : {})}
         endIcon="duplicate"
         endIconProps={{
           className: "copy-icon",
+          "data-testid": `${fieldName}-copy-icon`,
           onClick: handleCopy,
         }}
         isReadOnly
@@ -86,6 +88,7 @@ function CopyUrlForm(props: {
           </HeaderWrapper>
         }
         name={fieldName}
+        onClick={handleCopy}
         size="md"
         {...(startIcon ? { startIcon } : {})}
         value={fieldValue}

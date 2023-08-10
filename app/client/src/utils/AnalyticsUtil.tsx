@@ -6,6 +6,7 @@ import * as Sentry from "@sentry/react";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { sha256 } from "js-sha256";
+import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
 
 declare global {
   interface Window {
@@ -524,8 +525,8 @@ class AnalyticsUtil {
     const userData = AnalyticsUtil.user;
     const instanceId = AnalyticsUtil.instanceId;
     const appId = getApplicationId(windowDoc.location);
+    const { appVersion, segment } = getAppsmithConfigs();
     if (userData) {
-      const { segment } = getAppsmithConfigs();
       let user: any = {};
       if (segment.apiKey) {
         user = {
@@ -550,7 +551,7 @@ class AnalyticsUtil {
         userData: user.userId === ANONYMOUS_USERNAME ? undefined : user,
       };
     }
-    finalEventData = { ...finalEventData, instanceId };
+    finalEventData = { ...finalEventData, instanceId, version: appVersion.id };
 
     if (windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);

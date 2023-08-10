@@ -556,16 +556,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .map(dbAction -> {
                     final ActionDTO unpublishedAction = dbAction.getUnpublishedAction();
                     copyNewFieldValuesIntoOldObject(action, unpublishedAction);
-
-                    // In case this update is for an action that represents a JS function,
-                    // perform a check to reset values for sync functions
-                    final boolean isSyncJSFunction = PluginType.JS.equals(action.getPluginType())
-                            && FALSE.equals(action.getActionConfiguration().getIsAsync());
-                    if (isSyncJSFunction) {
-                        unpublishedAction.setUserSetOnLoad(false);
-                        unpublishedAction.setConfirmBeforeExecute(false);
-                        unpublishedAction.setExecuteOnLoad(false);
-                    }
                     return dbAction;
                 })
                 .flatMap(this::extractAndSetNativeQueryFromFormData)
@@ -1708,149 +1698,177 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         /* Mono.just(application) is created to avoid the eagerly fetching of existing actions
          * during the pipeline construction. It should be fetched only when the pipeline is subscribed/executed.
          */
-        return Mono.just(application).flatMap(importedApplication -> {
-            Mono<Map<String, NewAction>> actionsInCurrentAppMono = repository
-                    .findByApplicationId(importedApplication.getId())
-                    .filter(newAction -> newAction.getGitSyncId() != null)
-                    .collectMap(NewAction::getGitSyncId);
+        return Mono.just(application)
+                .flatMap(importedApplication -> {
+                    Mono<Map<String, NewAction>> actionsInCurrentAppMono = repository
+                            .findByApplicationId(importedApplication.getId())
+                            .filter(newAction -> newAction.getGitSyncId() != null)
+                            .collectMap(NewAction::getGitSyncId);
 
-            // find existing actions in all the branches of this application and put them in a map
-            Mono<Map<String, NewAction>> actionsInOtherBranchesMono;
-            if (importedApplication.getGitApplicationMetadata() != null) {
-                final String defaultApplicationId =
-                        importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
-                actionsInOtherBranchesMono = repository
-                        .findByDefaultApplicationId(defaultApplicationId, Optional.empty())
-                        .filter(newAction -> newAction.getGitSyncId() != null)
-                        .collectMap(NewAction::getGitSyncId);
-            } else {
-                actionsInOtherBranchesMono = Mono.just(Collections.emptyMap());
-            }
-
-            return Mono.zip(actionsInCurrentAppMono, actionsInOtherBranchesMono).flatMap(objects -> {
-                Map<String, NewAction> actionsInCurrentApp = objects.getT1();
-                Map<String, NewAction> actionsInOtherBranches = objects.getT2();
-
-                List<NewAction> newNewActionList = new ArrayList<>();
-                List<NewAction> existingNewActionList = new ArrayList<>();
-
-                final String workspaceId = importedApplication.getWorkspaceId();
-
-                ImportActionResultDTO importActionResultDTO = new ImportActionResultDTO();
-
-                // existing actions will be required when we'll delete the outdated actions later
-                importActionResultDTO.setExistingActions(actionsInCurrentApp.values());
-
-                for (NewAction newAction : importedNewActionList) {
-                    if (newAction.getUnpublishedAction() == null
-                            || !StringUtils.hasLength(
-                                    newAction.getUnpublishedAction().getPageId())) {
-                        continue;
-                    }
-
-                    NewPage parentPage = new NewPage();
-                    ActionDTO unpublishedAction = newAction.getUnpublishedAction();
-                    ActionDTO publishedAction = newAction.getPublishedAction();
-
-                    // If pageId is missing in the actionDTO create a fallback pageId
-                    final String fallbackParentPageId = unpublishedAction.getPageId();
-
-                    if (unpublishedAction.getValidName() != null) {
-                        unpublishedAction.setId(newAction.getId());
-                        parentPage = updatePageInAction(
-                                unpublishedAction, pageNameMap, importActionResultDTO.getActionIdMap());
-                        sanitizeDatasourceInActionDTO(unpublishedAction, datasourceMap, pluginMap, workspaceId, false);
-                    }
-
-                    if (publishedAction != null && publishedAction.getValidName() != null) {
-                        publishedAction.setId(newAction.getId());
-                        if (!StringUtils.hasLength(publishedAction.getPageId())) {
-                            publishedAction.setPageId(fallbackParentPageId);
-                        }
-                        NewPage publishedActionPage = updatePageInAction(
-                                publishedAction, pageNameMap, importActionResultDTO.getActionIdMap());
-                        parentPage = parentPage == null ? publishedActionPage : parentPage;
-                        sanitizeDatasourceInActionDTO(publishedAction, datasourceMap, pluginMap, workspaceId, false);
-                    }
-
-                    newAction.makePristine();
-                    newAction.setWorkspaceId(workspaceId);
-                    newAction.setApplicationId(importedApplication.getId());
-                    newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
-                    this.generateAndSetActionPolicies(parentPage, newAction);
-
-                    // Check if the action has gitSyncId and if it's already in DB
-                    if (newAction.getGitSyncId() != null && actionsInCurrentApp.containsKey(newAction.getGitSyncId())) {
-
-                        // Since the resource is already present in DB, just update resource
-                        NewAction existingAction = actionsInCurrentApp.get(newAction.getGitSyncId());
-                        updateExistingAction(existingAction, newAction, branchName, permissionProvider);
-
-                        // Add it to actions list that'll be updated in bulk
-                        existingNewActionList.add(existingAction);
-                        importActionResultDTO.getImportedActionIds().add(existingAction.getId());
-                        putActionIdInMap(existingAction, importActionResultDTO);
+                    // find existing actions in all the branches of this application and put them in a map
+                    Mono<Map<String, NewAction>> actionsInOtherBranchesMono;
+                    if (importedApplication.getGitApplicationMetadata() != null) {
+                        final String defaultApplicationId =
+                                importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
+                        actionsInOtherBranchesMono = repository
+                                .findByDefaultApplicationId(defaultApplicationId, Optional.empty())
+                                .filter(newAction -> newAction.getGitSyncId() != null)
+                                .collectMap(NewAction::getGitSyncId);
                     } else {
-                        // check whether user has permission to add new action
-                        if (!permissionProvider.canCreateAction(parentPage)) {
-                            log.error(
-                                    "User does not have permission to create action in page with id: {}",
-                                    parentPage.getId());
-                            throw new AppsmithException(
-                                    AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, parentPage.getId());
-                        }
-
-                        // this will generate the id and other auto generated fields e.g. createdAt
-                        newAction.updateForBulkWriteOperation();
-
-                        // set gitSyncId if doesn't exist
-                        if (newAction.getGitSyncId() == null) {
-                            newAction.setGitSyncId(newAction.getApplicationId() + "_"
-                                    + Instant.now().toString());
-                        }
-
-                        if (importedApplication.getGitApplicationMetadata() != null) {
-                            // application is git connected, check if the action is already present in any other branch
-                            if (actionsInOtherBranches.containsKey(newAction.getGitSyncId())) {
-                                // action found in other branch, copy the default resources from that action
-                                NewAction branchedAction = actionsInOtherBranches.get(newAction.getGitSyncId());
-                                populateDefaultResources(newAction, branchedAction, branchName);
-                            } else {
-                                // This is the first action we are saving with given gitSyncId in this instance
-                                DefaultResources defaultResources = new DefaultResources();
-                                defaultResources.setApplicationId(importedApplication
-                                        .getGitApplicationMetadata()
-                                        .getDefaultApplicationId());
-                                defaultResources.setActionId(newAction.getId());
-                                defaultResources.setBranchName(branchName);
-                                newAction.setDefaultResources(defaultResources);
-                            }
-                        } else {
-                            DefaultResources defaultResources = new DefaultResources();
-                            defaultResources.setApplicationId(importedApplication.getId());
-                            defaultResources.setActionId(newAction.getId());
-                            newAction.setDefaultResources(defaultResources);
-                        }
-
-                        // Add it to actions list that'll be inserted or updated in bulk
-                        newNewActionList.add(newAction);
-                        importActionResultDTO.getImportedActionIds().add(newAction.getId());
-                        putActionIdInMap(newAction, importActionResultDTO);
+                        actionsInOtherBranchesMono = Mono.just(Collections.emptyMap());
                     }
-                }
 
-                log.info(
-                        "Saving actions in bulk. New: {}, Updated: {}",
-                        newNewActionList.size(),
-                        existingNewActionList.size());
+                    return Mono.zip(actionsInCurrentAppMono, actionsInOtherBranchesMono)
+                            .flatMap(objects -> {
+                                Map<String, NewAction> actionsInCurrentApp = objects.getT1();
+                                Map<String, NewAction> actionsInOtherBranches = objects.getT2();
 
-                // Save all the new actions in bulk
-                return repository
-                        .bulkInsert(newNewActionList)
-                        .then(repository.bulkUpdate(existingNewActionList))
-                        .thenReturn(importActionResultDTO);
-            });
-        });
+                                List<NewAction> newNewActionList = new ArrayList<>();
+                                List<NewAction> existingNewActionList = new ArrayList<>();
+
+                                final String workspaceId = importedApplication.getWorkspaceId();
+
+                                ImportActionResultDTO importActionResultDTO = new ImportActionResultDTO();
+
+                                // existing actions will be required when we'll delete the outdated actions later
+                                importActionResultDTO.setExistingActions(actionsInCurrentApp.values());
+
+                                for (NewAction newAction : importedNewActionList) {
+                                    if (newAction.getUnpublishedAction() == null
+                                            || !StringUtils.hasLength(newAction
+                                                    .getUnpublishedAction()
+                                                    .getPageId())) {
+                                        continue;
+                                    }
+
+                                    NewPage parentPage = new NewPage();
+                                    ActionDTO unpublishedAction = newAction.getUnpublishedAction();
+                                    ActionDTO publishedAction = newAction.getPublishedAction();
+
+                                    // If pageId is missing in the actionDTO create a fallback pageId
+                                    final String fallbackParentPageId = unpublishedAction.getPageId();
+
+                                    if (unpublishedAction.getValidName() != null) {
+                                        unpublishedAction.setId(newAction.getId());
+                                        parentPage = updatePageInAction(
+                                                unpublishedAction, pageNameMap, importActionResultDTO.getActionIdMap());
+                                        sanitizeDatasourceInActionDTO(
+                                                unpublishedAction, datasourceMap, pluginMap, workspaceId, false);
+                                    }
+
+                                    if (publishedAction != null && publishedAction.getValidName() != null) {
+                                        publishedAction.setId(newAction.getId());
+                                        if (!StringUtils.hasLength(publishedAction.getPageId())) {
+                                            publishedAction.setPageId(fallbackParentPageId);
+                                        }
+                                        NewPage publishedActionPage = updatePageInAction(
+                                                publishedAction, pageNameMap, importActionResultDTO.getActionIdMap());
+                                        parentPage = parentPage == null ? publishedActionPage : parentPage;
+                                        sanitizeDatasourceInActionDTO(
+                                                publishedAction, datasourceMap, pluginMap, workspaceId, false);
+                                    }
+
+                                    newAction.makePristine();
+                                    newAction.setWorkspaceId(workspaceId);
+                                    newAction.setApplicationId(importedApplication.getId());
+                                    newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
+                                    this.generateAndSetActionPolicies(parentPage, newAction);
+
+                                    // Check if the action has gitSyncId and if it's already in DB
+                                    if (newAction.getGitSyncId() != null
+                                            && actionsInCurrentApp.containsKey(newAction.getGitSyncId())) {
+
+                                        // Since the resource is already present in DB, just update resource
+                                        NewAction existingAction = actionsInCurrentApp.get(newAction.getGitSyncId());
+                                        updateExistingAction(existingAction, newAction, branchName, permissionProvider);
+
+                                        // Add it to actions list that'll be updated in bulk
+                                        existingNewActionList.add(existingAction);
+                                        importActionResultDTO
+                                                .getImportedActionIds()
+                                                .add(existingAction.getId());
+                                        putActionIdInMap(existingAction, importActionResultDTO);
+                                    } else {
+                                        // check whether user has permission to add new action
+                                        if (!permissionProvider.canCreateAction(parentPage)) {
+                                            log.error(
+                                                    "User does not have permission to create action in page with id: {}",
+                                                    parentPage.getId());
+                                            throw new AppsmithException(
+                                                    AppsmithError.ACL_NO_RESOURCE_FOUND,
+                                                    FieldName.PAGE,
+                                                    parentPage.getId());
+                                        }
+
+                                        // this will generate the id and other auto generated fields e.g. createdAt
+                                        newAction.updateForBulkWriteOperation();
+
+                                        // set gitSyncId if doesn't exist
+                                        if (newAction.getGitSyncId() == null) {
+                                            newAction.setGitSyncId(newAction.getApplicationId() + "_"
+                                                    + Instant.now().toString());
+                                        }
+
+                                        if (importedApplication.getGitApplicationMetadata() != null) {
+                                            // application is git connected, check if the action is already present in
+                                            // any other branch
+                                            if (actionsInOtherBranches.containsKey(newAction.getGitSyncId())) {
+                                                // action found in other branch, copy the default resources from that
+                                                // action
+                                                NewAction branchedAction =
+                                                        actionsInOtherBranches.get(newAction.getGitSyncId());
+                                                populateDefaultResources(newAction, branchedAction, branchName);
+                                            } else {
+                                                // This is the first action we are saving with given gitSyncId in this
+                                                // instance
+                                                DefaultResources defaultResources = new DefaultResources();
+                                                defaultResources.setApplicationId(importedApplication
+                                                        .getGitApplicationMetadata()
+                                                        .getDefaultApplicationId());
+                                                defaultResources.setActionId(newAction.getId());
+                                                defaultResources.setBranchName(branchName);
+                                                newAction.setDefaultResources(defaultResources);
+                                            }
+                                        } else {
+                                            DefaultResources defaultResources = new DefaultResources();
+                                            defaultResources.setApplicationId(importedApplication.getId());
+                                            defaultResources.setActionId(newAction.getId());
+                                            newAction.setDefaultResources(defaultResources);
+                                        }
+
+                                        // Add it to actions list that'll be inserted or updated in bulk
+                                        newNewActionList.add(newAction);
+                                        importActionResultDTO
+                                                .getImportedActionIds()
+                                                .add(newAction.getId());
+                                        putActionIdInMap(newAction, importActionResultDTO);
+                                    }
+                                }
+
+                                log.info(
+                                        "Saving actions in bulk. New: {}, Updated: {}",
+                                        newNewActionList.size(),
+                                        existingNewActionList.size());
+
+                                // Save all the new actions in bulk
+                                return repository
+                                        .bulkInsert(newNewActionList)
+                                        .then(repository.bulkUpdate(existingNewActionList))
+                                        .thenReturn(importActionResultDTO);
+                            });
+                })
+                .onErrorResume(e -> {
+                    log.error("Error importing actions", e);
+                    return Mono.error(e);
+                })
+                .elapsed()
+                .map(tuple -> {
+                    log.debug(
+                            "time to import {} actions: {} ms",
+                            tuple.getT2().getImportedActionIds().size(),
+                            tuple.getT1());
+                    return tuple.getT2();
+                });
     }
 
     @Override
@@ -1902,7 +1920,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 .get(newAction.getId())
                                 .get(0));
                         if (unpublishedAction.getDefaultResources() != null
-                                && !StringUtils.hasLength(
+                                && org.apache.commons.lang3.StringUtils.isEmpty(
                                         unpublishedAction.getDefaultResources().getCollectionId())) {
 
                             unpublishedAction
@@ -1920,7 +1938,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 .get(0));
 
                         if (publishedAction.getDefaultResources() != null
-                                && !StringUtils.hasLength(
+                                && org.apache.commons.lang3.StringUtils.isEmpty(
                                         publishedAction.getDefaultResources().getCollectionId())) {
 
                             publishedAction

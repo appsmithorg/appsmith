@@ -3,11 +3,15 @@ import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
-
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { SnipingModeProperty, PropertyUpdates } from "widgets/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
 
 export const CONFIG = {
   features: {
@@ -62,6 +66,20 @@ export const CONFIG = {
     setterConfig: Widget.getSetterConfig(),
   },
   methods: {
+    getQueryGenerationConfig: (widgetProps: WidgetProps) => {
+      return Widget.getQueryGenerationConfig(widgetProps);
+    },
+    getPropertyUpdatesForQueryBinding: (
+      queryConfig: WidgetQueryConfig,
+      widget: WidgetProps,
+      formConfig: WidgetQueryGenerationFormConfig,
+    ) => {
+      return Widget.getPropertyUpdatesForQueryBinding(
+        queryConfig,
+        widget,
+        formConfig,
+      );
+    },
     getSnipingModeUpdates: (
       propValueMap: SnipingModeProperty,
     ): PropertyUpdates[] => {

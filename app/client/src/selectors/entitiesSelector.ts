@@ -515,6 +515,24 @@ export const getJSCollectionFromName = createSelector(
     return currentJSCollection;
   },
 );
+export const getJSActionFromName = createSelector(
+  [
+    (state: AppState, jsCollectionName: string) =>
+      getJSCollectionFromName(state, jsCollectionName),
+    (_state: AppState, jsCollectionName: string, functionName: string) => ({
+      jsCollectionName,
+      functionName,
+    }),
+  ],
+  (JSCollectionData, { functionName }) => {
+    if (!JSCollectionData) return null;
+    const jsFunction = find(
+      JSCollectionData.config.actions,
+      (action) => action.name === functionName,
+    );
+    return jsFunction || null;
+  },
+);
 
 export const getJSActionFromJSCollection = (
   JSCollection: JSCollectionData,

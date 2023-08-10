@@ -1,14 +1,20 @@
+import type { PickRename } from "@design-system/widgets";
 import kebabCase from "lodash/kebabCase";
 import styled, { css } from "styled-components";
-import type { ThemeProviderProps } from "./types";
+import type { Theme } from "./types";
 
-interface StyledProviderProps extends ThemeProviderProps {
-  $typography?: string;
-}
+type StyledProviderProps = PickRename<
+  Theme,
+  {
+    typography: "$typography";
+    fontFamily: "$fontFamily";
+  }
+>;
 
 export const StyledProvider = styled.div<StyledProviderProps>`
-  ${({ $typography, theme }) => {
+  ${({ $fontFamily, $typography, theme }) => {
     return css`
+      font-family: ${$fontFamily};
       ${$typography}
       ${Object.keys(theme).map((key) => {
         if (typeof theme[key] === "object") {

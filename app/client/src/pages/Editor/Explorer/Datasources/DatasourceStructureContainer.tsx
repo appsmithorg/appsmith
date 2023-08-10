@@ -9,6 +9,7 @@ import type {
   DatasourceTable,
 } from "entities/Datasource";
 import type { ReactElement } from "react";
+import { useContext } from "react";
 import React, { memo, useEffect, useMemo, useState } from "react";
 import EntityPlaceholder from "../Entity/Placeholder";
 import DatasourceStructure from "./DatasourceStructure";
@@ -21,6 +22,10 @@ import DatasourceStructureLoadingContainer from "./DatasourceStructureLoadingCon
 import DatasourceStructureNotFound from "./DatasourceStructureNotFound";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { PluginName } from "entities/Action";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { setFeatureWalkthroughShown } from "utils/storage";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { SCHEMA_SECTION_ID } from "entities/Action";
 
 type Props = {
   datasourceId: string;
@@ -71,6 +76,35 @@ const Container = (props: Props) => {
   >(props.datasourceStructure);
   const [hasSearchedOccured, setHasSearchedOccured] = useState(false);
 
+  const { isOpened: isWalkthroughOpened, popFeature } =
+    useContext(WalkthroughContext) || {};
+
+  const attachCloseWalkthrough =
+    props.context !== DatasourceStructureContext.EXPLORER &&
+    isWalkthroughOpened &&
+    !isLoading &&
+    !props.datasourceStructure?.tables?.length;
+
+  const closeWalkthrough = () => {
+    popFeature && popFeature("DATASOURCE_SCHEMA_CONTAINER");
+    setFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
+      true,
+    );
+  };
+
+  useEffect(() => {
+    const schemaContainer = document.querySelector(`#${SCHEMA_SECTION_ID}`);
+    if (schemaContainer && attachCloseWalkthrough) {
+      schemaContainer.addEventListener("click", closeWalkthrough);
+    }
+    return () => {
+      if (schemaContainer && attachCloseWalkthrough) {
+        schemaContainer.removeEventListener("click", closeWalkthrough);
+      }
+    };
+  }, [attachCloseWalkthrough]);
+
   useEffect(() => {
     if (datasourceStructure !== props.datasourceStructure) {
       setDatasourceStructure(props.datasourceStructure);
@@ -82,6 +116,10 @@ const Container = (props: Props) => {
     const list: string[] = [];
 
     props.datasourceStructure.tables.map((table) => {
+      // if the column is empty push the table name alone.
+      if (table.columns.length === 0) {
+        list.push(`${table.name}~`);
+      }
       table.columns.forEach((column) => {
         list.push(`${table.name}~${column.name}`);
       });
@@ -105,7 +143,7 @@ const Container = (props: Props) => {
     flatStructure.forEach((structure) => {
       const segments = structure.split("~");
       // if the value is present in the columns, add the column and its parent table.
-      if (segments[1].toLowerCase().includes(value)) {
+      if (!!segments[1] && segments[1].toLowerCase().includes(value)) {
         tables.add(segments[0]);
         columns.add(segments[1]);
         return;

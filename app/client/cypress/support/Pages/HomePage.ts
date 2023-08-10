@@ -189,7 +189,7 @@ export class HomePage {
         ? "The user has been invited successfully"
         : "The user/group have been invited successfully";
     this.StubPostHeaderReq();
-    this.agHelper.AssertElementVisible(this._workspaceList(workspaceName));
+    this.agHelper.AssertElementVisibility(this._workspaceList(workspaceName));
     this.agHelper.GetNClick(this._shareWorkspace(workspaceName), 0, true);
     this.agHelper.AssertElementExist(
       "//span[text()='Users will have access to all applications in this workspace']",
@@ -214,7 +214,7 @@ export class HomePage {
         ? "Invalid email address(es) found"
         : "Invalid email address(es) or group(s) found";
     this.StubPostHeaderReq();
-    this.agHelper.AssertElementVisible(this._workspaceList(workspaceName));
+    this.agHelper.AssertElementVisibility(this._workspaceList(workspaceName));
     this.agHelper.GetNClick(this._shareWorkspace(workspaceName), 0, true);
     cy.xpath(this._email).click({ force: true }).type(text);
     this.agHelper.GetNClick(this._inviteButton, 0, true);
@@ -241,7 +241,7 @@ export class HomePage {
       this.agHelper.Sleep(2000);
     }
     //cy.wait("@applications"); this randomly fails & introduces flakyness hence commenting!
-    this.agHelper.AssertElementVisible(this._homeAppsmithImage);
+    this.agHelper.AssertElementVisibility(this._homeAppsmithImage);
   }
 
   public CreateNewApplication(skipSignposting = true) {
@@ -250,7 +250,9 @@ export class HomePage {
     cy.get(this.locator._loading).should("not.exist");
 
     if (skipSignposting) {
-      this.agHelper.AssertElementVisible(this.entityExplorer._entityExplorer);
+      this.agHelper.AssertElementVisibility(
+        this.entityExplorer._entityExplorer,
+      );
       this.onboarding.closeIntroModal();
     }
     this.assertHelper.AssertNetworkStatus("getWorkspace");
@@ -298,6 +300,8 @@ export class HomePage {
       headers: {
         "X-Requested-By": "Appsmith",
       },
+    }).then((response) => {
+      expect(response.status).equal(200); //Verifying logout is success
     });
     this.agHelper.Sleep(2000); //for logout to complete - CI!
   }
@@ -333,14 +337,14 @@ export class HomePage {
     cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
     cy.wait("@postLogout");
     this.agHelper.VisitNAssert("/user/login", "signUpLogin");
-    this.agHelper.AssertElementVisible(this._username);
+    this.agHelper.AssertElementVisibility(this._username);
     this.agHelper.TypeText(this._username, uname);
     this.agHelper.TypeText(this._password, pswd);
     this.agHelper.GetNClick(this._submitBtn);
     this.assertHelper.AssertNetworkStatus("@getMe");
     this.agHelper.Sleep(3000);
     if (role != "App Viewer") {
-      this.agHelper.AssertElementVisible(this._homePageAppCreateBtn);
+      this.agHelper.AssertElementVisibility(this._homePageAppCreateBtn);
       this.agHelper.AssertElementEnabledDisabled(
         this._homePageAppCreateBtn,
         undefined,
@@ -354,7 +358,7 @@ export class HomePage {
     cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
     cy.wait("@postLogout");
     this.agHelper.VisitNAssert("/user/signup", "signUpLogin");
-    this.agHelper.AssertElementVisible(this.signupUsername);
+    this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.TypeText(this.signupUsername, uname);
     this.agHelper.TypeText(this._password, pswd);
     this.agHelper.GetNClick(this._submitBtn);
@@ -481,7 +485,7 @@ export class HomePage {
       .parent("div")
       .click();
     this.agHelper.Sleep();
-    this.agHelper.AssertElementVisible(this._userRoleDropDown(newRole));
+    this.agHelper.AssertElementVisibility(this._userRoleDropDown(newRole));
     this.NavigateToHome();
   }
 
@@ -491,7 +495,7 @@ export class HomePage {
       this.agHelper.GetNClick(this._optionsIconInWorkspace(intoWorkspaceName));
     else this.agHelper.GetNClick(this._optionsIcon);
     this.agHelper.GetNClick(this._workspaceImport, 0, true);
-    this.agHelper.AssertElementVisible(this._workspaceImportAppModal);
+    this.agHelper.AssertElementVisibility(this._workspaceImportAppModal);
     cy.xpath(this._uploadFile).selectFile("cypress/fixtures/" + fixtureJson, {
       force: true,
     });
@@ -504,7 +508,7 @@ export class HomePage {
       this.agHelper.GetNClick(this._optionsIconInWorkspace(intoWorkspaceName));
     else this.agHelper.GetNClick(this._optionsIcon);
     this.agHelper.GetNClick(this._workspaceImport, 0, true);
-    this.agHelper.AssertElementVisible(this._workspaceImportAppModal);
+    this.agHelper.AssertElementVisibility(this._workspaceImportAppModal);
     this.agHelper.GetNClick(this._importFromGitBtn);
     this.agHelper.Sleep(1000);
   }
@@ -575,8 +579,8 @@ export class HomePage {
   }
 
   public AssertNCloseImport() {
-    this.agHelper.AssertElementVisible(this._importSuccessModal);
-    this.agHelper.AssertElementVisible(
+    this.agHelper.AssertElementVisibility(this._importSuccessModal);
+    this.agHelper.AssertElementVisibility(
       this.locator._visibleTextSpan("Your application is ready to use."),
     );
     this.agHelper.GetNClick(this._importSuccessModalGotit, 0, true);
@@ -591,7 +595,7 @@ export class HomePage {
   public ForkApplication(appliName: string, forkWorkspaceName = "") {
     this.agHelper.GetNClick(this._applicationContextMenu(appliName));
     this.agHelper.GetNClick(this._forkApp);
-    this.agHelper.AssertElementVisible(this._forkModal);
+    this.agHelper.AssertElementVisibility(this._forkModal);
     if (forkWorkspaceName) {
       this.agHelper.GetNClick(this._forkWorkspaceDropdownOption);
       this.agHelper.GetNClick(

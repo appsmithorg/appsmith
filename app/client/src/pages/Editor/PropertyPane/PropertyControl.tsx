@@ -45,7 +45,10 @@ import {
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
-import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
+import {
+  setFocusablePropertyPaneField,
+  setSelectedPropertyPanel,
+} from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import clsx from "clsx";
@@ -568,6 +571,12 @@ const PropertyControl = memo((props: Props) => {
   const openPanel = useCallback(
     (panelProps: any) => {
       if (props.panelConfig) {
+        dispatch(
+          setSelectedPropertyPanel(
+            `${widgetProperties.widgetName}.${props.propertyName}`,
+            panelProps.index,
+          ),
+        );
         props.panel.openPanel({
           component: PanelPropertiesEditor,
           props: {
@@ -582,6 +591,7 @@ const PropertyControl = memo((props: Props) => {
       }
     },
     [
+      widgetProperties.widgetName,
       props.panelConfig,
       props.panel,
       props.propertyName,

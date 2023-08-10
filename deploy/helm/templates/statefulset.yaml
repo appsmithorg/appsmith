@@ -51,7 +51,7 @@ spec:
       {{- else }}
         image: "docker.io/library/redis:6.2-alpine"
       {{- end }}
-        command: ['sh', '-c', "until redis-cli -h {{ include "appsmith.fullname" . }}-redis-master.{{.Release.Namespace}}.svc.cluster.local ping ; do echo waiting for redis; sleep 2; done"]
+        command: ['sh', '-c', "until redis-cli -h {{.Release.Name}}-redis-master.{{.Release.Namespace}}.svc.cluster.local ping ; do echo waiting for redis; sleep 2; done"]
       {{- end }}
       {{- if .Values.mongodb.enabled }}
       - name: mongo-init-container

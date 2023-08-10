@@ -73,6 +73,7 @@ export const fieldStyles = css<FieldStylesProps>`
     flex-direction: column;
 
     &[data-orientation="horizontal"] {
+      gap: var(--spacing-4);
       flex-direction: row;
     }
 
