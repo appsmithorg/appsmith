@@ -6,3 +6,9 @@ export interface DropdownOptionType {
   onSelect?: (value: string, option: DropdownOptionType) => void;
   data?: any;
 }
+
+export interface Alias {
+  name: string;
+  isSearcheable?: boolean;
+  isRequired?: boolean;
+}
