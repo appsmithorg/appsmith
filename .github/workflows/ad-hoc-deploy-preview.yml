@@ -29,8 +29,8 @@ jobs:
           --oauth2-bearer '${{secrets.INTERNAL_OPS_API_TOKEN}}' \
           --data ' {
                   "status": "IN_PROGRESS",
-                  "githubWorkflowId": "${{github.workflow.id}}",
-                  "githubWorkflowHtmlUrl": "${{github.workflow.githubWorkflowHtmlUrl}}"
+                  "githubWorkflowId": "${{ github.run_id }}",
+                  "githubWorkflowHtmlUrl": "${{ github.workflow.githubWorkflowHtmlUrl }}"
           }'
             
   server-build:
