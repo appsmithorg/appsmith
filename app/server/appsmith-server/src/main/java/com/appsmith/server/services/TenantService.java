@@ -22,6 +22,10 @@ public interface TenantService extends TenantServiceCE {
      */
     Mono<String> addLicenseKeyAndGetRedirectUrl(String licenseKey, ServerWebExchange exchange);
 
+    Mono<Tenant> removeLicenseKey();
+
+    Mono<Tenant> syncLicensePlans();
+
     /**
      * To update the default tenant's license key
      * Response will be status of update with 2xx

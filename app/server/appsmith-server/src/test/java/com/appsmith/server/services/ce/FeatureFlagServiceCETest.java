@@ -10,7 +10,7 @@ import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.TenantService;
-import com.appsmith.server.solutions.LicenseValidator;
+import com.appsmith.server.solutions.LicenseAPIManager;
 import lombok.extern.slf4j.Slf4j;
 import org.ff4j.FF4j;
 import org.ff4j.conf.XmlParser;
@@ -57,7 +57,7 @@ public class FeatureFlagServiceCETest {
     private final AirgapInstanceConfig instanceConfig = Mockito.mock(AirgapInstanceConfig.class);
 
     @MockBean
-    LicenseValidator licenseValidator;
+    LicenseAPIManager licenseAPIManager;
 
     @SpyBean
     TenantService tenantService;
@@ -174,7 +174,7 @@ public class FeatureFlagServiceCETest {
 
         String tenantIdentifier = UUID.randomUUID().toString();
 
-        doReturn(Mono.just(license)).when(licenseValidator).licenseCheck(any());
+        doReturn(Mono.just(license)).when(licenseAPIManager).licenseCheck(any());
 
         doReturn(Mono.just(tenantIdentifier)).when(tenantService).getDefaultTenantId();
 

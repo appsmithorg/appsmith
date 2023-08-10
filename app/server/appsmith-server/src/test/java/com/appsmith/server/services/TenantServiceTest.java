@@ -23,7 +23,7 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.solutions.LicenseValidator;
+import com.appsmith.server.solutions.LicenseAPIManager;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,6 +44,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.server.constants.ApiConstants.CLOUD_SERVICES_SIGNATURE;
+import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -66,7 +67,7 @@ public class TenantServiceTest {
     UserUtils userUtils;
 
     @MockBean
-    LicenseValidator licenseValidator;
+    LicenseAPIManager licenseAPIManager;
 
     @Autowired
     SessionUserService sessionUserService;
@@ -131,7 +132,7 @@ public class TenantServiceTest {
         license.setPlan(LicensePlan.SELF_SERVE);
 
         // Mock CS response to get valid license
-        Mockito.when(licenseValidator.licenseCheck(any())).thenReturn(Mono.just(license));
+        Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
 
         StepVerifier.create(tenantService.updateTenantLicenseKey(licenseKey))
                 .assertNext(tenant -> {
@@ -178,7 +179,7 @@ public class TenantServiceTest {
         license.setPlan(LicensePlan.SELF_SERVE);
 
         // Mock CS response to get valid license
-        Mockito.when(licenseValidator.licenseCheck(any())).thenReturn(Mono.just(license));
+        Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
 
         StepVerifier.create(tenantService.updateTenantLicenseKey(licenseKey))
                 .assertNext(tenant -> {
@@ -221,7 +222,7 @@ public class TenantServiceTest {
         license.setKey(licenseKey);
 
         // Mock CS response to get invalid license
-        Mockito.when(licenseValidator.licenseCheck(any())).thenReturn(Mono.just(license));
+        Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
 
         Mono<Tenant> addLicenseKeyMono = tenantService.updateTenantLicenseKey(licenseKey);
         StepVerifier.create(addLicenseKeyMono)
@@ -239,15 +240,14 @@ public class TenantServiceTest {
         license.setKey(licenseKey);
 
         // Mock CS response to get invalid license
-        Mockito.when(licenseValidator.licenseCheck(any())).thenReturn(Mono.just(license));
+        Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
 
         Mono<Tenant> addLicenseKeyMono = tenantService.updateTenantLicenseKey(licenseKey);
         StepVerifier.create(addLicenseKeyMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable
                                 .getMessage()
-                                .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(
-                                        FieldName.TENANT, FieldName.DEFAULT)))
+                                .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.TENANT, DEFAULT)))
                 .verify();
     }
 
@@ -257,7 +257,7 @@ public class TenantServiceTest {
         License license = new License();
 
         // Mock CS response to get valid license
-        Mockito.when(licenseValidator.licenseCheck(any())).thenReturn(Mono.just(license));
+        Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
         // Performing same process as a scheduled license check
         tenantService.checkAndUpdateDefaultTenantLicense().block();
 
@@ -276,6 +276,36 @@ public class TenantServiceTest {
                     assertThat(freeLicense.getExpiry()).isNull();
                     assertThat(freeLicense.getStatus()).isNull();
                     assertThat(freeLicense.getOrigin()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void test_getTenantConfiguration_licensePlanRemainsSame() {
+        String licenseKey = UUID.randomUUID().toString();
+        License license = new License();
+        license.setActive(true);
+        license.setType(LicenseType.PAID);
+        license.setKey(licenseKey);
+        license.setStatus(LicenseStatus.valueOf("EXPIRED"));
+        license.setExpiry(Instant.now().minus(Duration.ofHours(1)));
+        license.setOrigin(LicenseOrigin.SELF_SERVE);
+        license.setPlan(LicensePlan.SELF_SERVE);
+
+        // Mock CS response to get valid license
+        Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
+        // Performing same process as a scheduled license check
+        tenantService.checkAndUpdateDefaultTenantLicense().block();
+
+        // Verify getTenantConfiguration() should have a license with plan only after updating with empty License object
+        StepVerifier.create(tenantService.getTenantConfiguration())
+                .assertNext(tenant -> {
+                    assertThat(tenant.getTenantConfiguration()).isNotNull();
+                    assertThat(tenant.getTenantConfiguration().getLicense()).isNotNull();
+                    License expiredLicense = tenant.getTenantConfiguration().getLicense();
+                    assertThat(expiredLicense.getPlan()).isEqualTo(license.getPlan());
+                    assertThat(expiredLicense.getStatus()).isEqualTo(license.getStatus());
                 })
                 .verifyComplete();
     }
@@ -365,7 +395,7 @@ public class TenantServiceTest {
     public void updateTenantLicenseKey_invalidLicenseSignature_throwException() {
 
         // Mock CS response to get invalid signature
-        Mockito.when(licenseValidator.licenseCheck(any()))
+        Mockito.when(licenseAPIManager.licenseCheck(any()))
                 .thenThrow(new AppsmithException(AppsmithError.INVALID_PARAMETER, CLOUD_SERVICES_SIGNATURE));
 
         StepVerifier.create(tenantService.updateTenantLicenseKey("invalid_signature_license_test"))
@@ -373,5 +403,92 @@ public class TenantServiceTest {
                         && error.getMessage()
                                 .equals(AppsmithError.INVALID_PARAMETER.getMessage(CLOUD_SERVICES_SIGNATURE)))
                 .verify();
+    }
+
+    @Test
+    public void removeTenantLicenseKey_withoutPermission_throwException() {
+        StepVerifier.create(tenantService.removeLicenseKey())
+                .expectErrorMatches(error -> error instanceof AppsmithException
+                        && error.getMessage()
+                                .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.TENANT, DEFAULT)))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void removeTenantLicenseKey_noLicensePresent_provideExistingTenant() {
+
+        // Mock CS response
+        Mockito.when(licenseAPIManager.downgradeTenantToFreePlan(any())).thenReturn(Mono.just(true));
+
+        StepVerifier.create(tenantService.removeLicenseKey())
+                .assertNext(tenant1 -> {
+                    assertThat(tenant1.getTenantConfiguration()).isEqualTo(tenant.getTenantConfiguration());
+                    assertThat(tenant1.getTenantConfiguration().getLicense()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void removeTenantLicenseKey_removeExistingLicense_success() {
+
+        License license = new License();
+        license.setKey(UUID.randomUUID().toString());
+        license.setActive(true);
+
+        tenant.getTenantConfiguration().setLicense(license);
+        Mockito.when(licenseAPIManager.downgradeTenantToFreePlan(any())).thenReturn(Mono.just(true));
+
+        // Add the dummy license
+        StepVerifier.create(tenantService.save(tenant))
+                .assertNext(tenant1 -> {
+                    assertThat(tenant1.getTenantConfiguration().getLicense()).isNotNull();
+                })
+                .verifyComplete();
+
+        // Check if the license field is null after the license is removed as a part of downgrade to community flow
+        StepVerifier.create(tenantService.removeLicenseKey())
+                .assertNext(tenant1 -> {
+                    assertThat(tenant1.getTenantConfiguration().getLicense()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void syncTenantLicensePlan_startWithDifferentPlans_success() {
+
+        License license = new License();
+        license.setKey(UUID.randomUUID().toString());
+        license.setActive(true);
+        license.setPlan(LicensePlan.ENTERPRISE);
+        license.setPreviousPlan(LicensePlan.SELF_SERVE);
+
+        tenant.getTenantConfiguration().setLicense(license);
+
+        Mono<Tenant> tenantMono =
+                tenantService.save(tenant).flatMap(updatedTenant -> tenantService.getTenantConfiguration());
+
+        // Add the dummy license
+        StepVerifier.create(tenantMono)
+                .assertNext(tenant1 -> {
+                    assertThat(tenant1.getTenantConfiguration()).isNotNull();
+                    License tenantLicense = tenant1.getTenantConfiguration().getLicense();
+                    assertThat(tenantLicense).isNotNull();
+                    assertThat(tenantLicense.getPlan()).isEqualTo(license.getPlan());
+                    assertThat(tenantLicense.getPreviousPlan()).isEqualTo(license.getPreviousPlan());
+                })
+                .verifyComplete();
+
+        // Check if the license field is null after the license is removed as a part of downgrade to community flow
+        StepVerifier.create(tenantService.syncLicensePlans())
+                .assertNext(tenant1 -> {
+                    assertThat(tenant1.getTenantConfiguration().getLicense()).isNotNull();
+                    License tenantLicense = tenant1.getTenantConfiguration().getLicense();
+                    assertThat(tenantLicense.getPlan()).isEqualTo(tenantLicense.getPreviousPlan());
+                    assertThat(tenantLicense.getPlan()).isEqualTo(LicensePlan.ENTERPRISE);
+                })
+                .verifyComplete();
     }
 }

@@ -48,7 +48,7 @@ public class OfflineLicenseValidatorTests {
     @Autowired
     Gson gson;
 
-    private LicenseValidator licenseValidator;
+    private LicenseAPIManager licenseAPIManager;
 
     private String activeLicenseKey;
     private String activeTenantFeaturesLicenseKey;
@@ -85,8 +85,8 @@ public class OfflineLicenseValidatorTests {
 
     @BeforeEach
     public void setup() throws Exception {
-        this.licenseValidator =
-                new OfflineLicenseValidatorImpl(releaseNotesService, configService, licenseConfig, gson);
+        this.licenseAPIManager =
+                new OfflineLicenseAPIManagerImpl(releaseNotesService, configService, licenseConfig, gson);
         // Generate Ed25519 key pair
         Ed25519KeyPairGenerator keyPairGenerator = new Ed25519KeyPairGenerator();
         keyPairGenerator.init(new Ed25519KeyGenerationParameters(new SecureRandom()));
@@ -131,7 +131,7 @@ public class OfflineLicenseValidatorTests {
         License license = new License();
         license.setKey(activeLicenseKey);
         Tenant tenant = this.createTransientTenantWithSampleLicense(license);
-        Mono<License> verifiedLicenseMono = licenseValidator.licenseCheck(tenant);
+        Mono<License> verifiedLicenseMono = licenseAPIManager.licenseCheck(tenant);
 
         StepVerifier.create(verifiedLicenseMono)
                 .assertNext(verifiedLicense -> {
@@ -153,7 +153,7 @@ public class OfflineLicenseValidatorTests {
         License license = new License();
         license.setKey("key/randomLicenseKey");
         Tenant tenant = this.createTransientTenantWithSampleLicense(license);
-        Mono<License> licenseMono = licenseValidator.licenseCheck(tenant);
+        Mono<License> licenseMono = licenseAPIManager.licenseCheck(tenant);
         StepVerifier.create(licenseMono)
                 .assertNext(verifiedLicense -> Assertions.assertEquals(verifiedLicense, new License()))
                 .verifyComplete();
@@ -166,7 +166,7 @@ public class OfflineLicenseValidatorTests {
         license.setKey(expiredLicenseKey);
 
         Tenant tenant = this.createTransientTenantWithSampleLicense(license);
-        Mono<License> verifiedLicenseMono = licenseValidator.licenseCheck(tenant);
+        Mono<License> verifiedLicenseMono = licenseAPIManager.licenseCheck(tenant);
 
         StepVerifier.create(verifiedLicenseMono)
                 .assertNext(verifiedLicense -> {
@@ -188,7 +188,7 @@ public class OfflineLicenseValidatorTests {
         License license = new License();
         license.setKey(activeTenantFeaturesLicenseKey);
         Tenant tenant = this.createTransientTenantWithSampleLicense(license);
-        Mono<License> verifiedLicenseMono = licenseValidator.licenseCheck(tenant);
+        Mono<License> verifiedLicenseMono = licenseAPIManager.licenseCheck(tenant);
 
         StepVerifier.create(verifiedLicenseMono)
                 .assertNext(verifiedLicense -> {

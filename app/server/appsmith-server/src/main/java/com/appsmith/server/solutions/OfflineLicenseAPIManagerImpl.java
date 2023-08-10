@@ -23,12 +23,12 @@ import java.util.Base64;
  * Class dedicated to Air-gap license validations
  */
 @Slf4j
-public class OfflineLicenseValidatorImpl extends BaseLicenseValidatorImpl implements LicenseValidator {
+public class OfflineLicenseAPIManagerImpl extends BaseLicenseAPIManagerImpl implements LicenseAPIManager {
 
     private final LicenseConfig licenseConfig;
     private final Gson gson;
 
-    public OfflineLicenseValidatorImpl(
+    public OfflineLicenseAPIManagerImpl(
             ReleaseNotesService releaseNotesService,
             ConfigService configService,
             LicenseConfig licenseConfig,

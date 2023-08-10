@@ -1,9 +1,9 @@
 package com.appsmith.server.configurations;
 
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.solutions.LicenseValidator;
-import com.appsmith.server.solutions.OfflineLicenseValidatorImpl;
-import com.appsmith.server.solutions.OnlineLicenseValidatorImpl;
+import com.appsmith.server.solutions.LicenseAPIManager;
+import com.appsmith.server.solutions.OfflineLicenseAPIManagerImpl;
+import com.appsmith.server.solutions.OnlineLicenseAPIManagerImpl;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.google.gson.Gson;
 import lombok.Getter;
@@ -37,9 +37,9 @@ public class LicenseConfig {
     private String publicVerificationKey;
 
     @Bean
-    public LicenseValidator licenseValidatorInstance() {
+    public LicenseAPIManager licenseValidatorInstance() {
         return airgapInstanceConfig.isAirgapEnabled()
-                ? new OfflineLicenseValidatorImpl(releaseNotesService, configService, this, gson)
-                : new OnlineLicenseValidatorImpl(releaseNotesService, configService, cloudServicesConfig);
+                ? new OfflineLicenseAPIManagerImpl(releaseNotesService, configService, this, gson)
+                : new OnlineLicenseAPIManagerImpl(releaseNotesService, configService, cloudServicesConfig);
     }
 }

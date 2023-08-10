@@ -6,7 +6,7 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.dtos.ce.FeaturesRequestDTO;
 import com.appsmith.server.dtos.ce.FeaturesResponseDTO;
 import com.appsmith.server.services.ce.CacheableFeatureFlagHelperCEImpl;
-import com.appsmith.server.solutions.LicenseValidator;
+import com.appsmith.server.solutions.LicenseAPIManager;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ public class CacheableFeatureFlagHelperImpl extends CacheableFeatureFlagHelperCE
         implements CacheableFeatureFlagHelper {
     TenantService tenantService;
     AirgapInstanceConfig airgapInstanceConfig;
-    LicenseValidator licenseValidator;
+    LicenseAPIManager licenseAPIManager;
 
     public CacheableFeatureFlagHelperImpl(
             TenantService tenantService,
@@ -30,7 +30,7 @@ public class CacheableFeatureFlagHelperImpl extends CacheableFeatureFlagHelperCE
             UserIdentifierService userIdentifierService,
             ReleaseNotesService releaseNotesService,
             AirgapInstanceConfig airgapInstanceConfig,
-            LicenseValidator licenseValidator) {
+            LicenseAPIManager licenseAPIManager) {
         super(
                 tenantService,
                 configService,
@@ -40,7 +40,7 @@ public class CacheableFeatureFlagHelperImpl extends CacheableFeatureFlagHelperCE
                 releaseNotesService);
         this.tenantService = tenantService;
         this.airgapInstanceConfig = airgapInstanceConfig;
-        this.licenseValidator = licenseValidator;
+        this.licenseAPIManager = licenseAPIManager;
     }
 
     /**
@@ -55,7 +55,7 @@ public class CacheableFeatureFlagHelperImpl extends CacheableFeatureFlagHelperCE
             featuresResponseDTO.setFeatures(new HashMap<>());
             return tenantService
                     .getDefaultTenant()
-                    .flatMap(tenant -> licenseValidator.licenseCheck(tenant))
+                    .flatMap(tenant -> licenseAPIManager.licenseCheck(tenant))
                     .map(license -> {
                         if (license.getTenantFeatures() != null) {
                             featuresResponseDTO.setFeatures(license.getTenantFeatures());
