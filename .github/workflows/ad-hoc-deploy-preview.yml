@@ -30,7 +30,6 @@ jobs:
           --data ' {
                   "status": "IN_PROGRESS",
                   "githubWorkflowId": "${{ github.run_id }}",
-                  "githubWorkflowHtmlUrl": "${{ github.workflow.githubWorkflowHtmlUrl }}"
           }'
             
   server-build:
