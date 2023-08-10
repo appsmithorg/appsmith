@@ -219,7 +219,11 @@ function* BindWidgetToDatasource(
           data: `{{${queryNameMap[QUERY_TYPE.SELECT]}.data}}`,
           run: `{{
             ${queryNameMap[QUERY_TYPE.SELECT]}.run();
-            ${queryNameMap[QUERY_TYPE.TOTAL_RECORD]}.run();
+            ${
+              createdQueryNames.includes(queryNameMap[QUERY_TYPE.TOTAL_RECORD])
+                ? queryNameMap[QUERY_TYPE.TOTAL_RECORD] + ".run()"
+                : ""
+            }
           }}`,
         };
       }

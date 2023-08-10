@@ -173,7 +173,7 @@ export class PropertyPane {
     this.agHelper.GetNClick(this._goBackToProperty);
 
     if (assertElementVisible) {
-      this.agHelper.AssertElementVisible(this._copyWidget);
+      this.agHelper.AssertElementVisibility(this._copyWidget);
     }
     //this.agHelper.AssertElementVisible(this._deleteWidget); //extra valisation, hence commenting!
   }
@@ -534,7 +534,7 @@ export class PropertyPane {
   }
 
   public AssertIfPropertyIsVisible(property: string) {
-    this.agHelper.AssertElementVisible(this._propertyControl(property));
+    this.agHelper.AssertElementVisibility(this._propertyControl(property));
   }
 
   public AddAction(property: string) {
