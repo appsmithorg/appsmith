@@ -1,8 +1,15 @@
 #!/usr/bin/env bash
 
 set -e
+set -o xtrace
 
 stacks_path=/appsmith-stacks
+
+export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
+export NGINX_CONF_PATH="$TMP/nginx.conf"  # export for use in supervisor process editor.conf
+export NGINX_WWW_PATH="$TMP/www"  # export for use in supervisor process editor.conf and supervisor plugin starting-page-init.py
+
+mkdir -pv "$NGINX_WWW_PATH"
 
 # ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
 # As we want derived props alongwith the ip address we are sharing the ip address in separate keys
@@ -206,7 +213,7 @@ init_replica_set() {
     )"
     echo "Enabling Replica Set"
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
-    mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile /mongodb-key --bind_ip localhost
+    mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile "$TMP/mongodb-key" --bind_ip localhost
     echo "Waiting 10s for MongoDB to start with Replica Set"
     sleep 10
     mongosh "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
@@ -229,11 +236,11 @@ init_replica_set() {
 }
 
 use-mongodb-key() {
-  # This is a little weird. We copy the MongoDB key file to `/mongodb-key`, so that we can reliably set its permissions to 600.
-  # What affects the reliability of this? When the host machine of this Docker container is Windows, file permissions cannot be set on files in volumes.
+  # We copy the MongoDB key file to `"$MONGODB_TMP_KEY_PATH"`, so that we can reliably set its permissions to 600.
+  # Why? When the host machine of this Docker container is Windows, file permissions cannot be set on files in volumes.
   # So the key file should be somewhere inside the container, and not in a volume.
-  cp -v "$1" /mongodb-key
-  chmod 600 /mongodb-key
+  cp -v "$1" "$MONGODB_TMP_KEY_PATH"
+  chmod 600 "$MONGODB_TMP_KEY_PATH"
 }
 
 # Keep Let's Encrypt directory persistent
@@ -298,11 +305,6 @@ configure_supervisord() {
       # Initialize Redis rdb directory
       local redis_db_path="$stacks_path/data/redis"
       mkdir -p "$redis_db_path"
-      # Enable saving Redis session data to disk more often, so recent sessions aren't cleared on restart.
-      sed -i \
-        -e 's/^save 60 10000$/save 15 1/g' \
-        -e "s|^dir /var/lib/redis$|dir ${redis_db_path}|g" \
-        /etc/redis/redis.conf
     fi
     if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
       cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/
@@ -393,17 +395,42 @@ init_postgres || runEmbeddedPostgres=0
 }
 
 init_loading_pages(){
-  # The default NGINX configuration includes an IPv6 listen directive. But not all
-  # servers support it, and we don't need it. So we remove it here before starting
-  # NGINX.
-  sed -i '/\[::\]:80 default_server;/d' /etc/nginx/sites-available/default
   local starting_page="/opt/appsmith/templates/appsmith_starting.html"
   local initializing_page="/opt/appsmith/templates/appsmith_initializing.html"
-  local editor_load_page="/opt/appsmith/editor/loading.html"
+  local editor_load_page="$NGINX_WWW_PATH/loading.html"
   # Update default nginx page for initializing page
-  cp "$initializing_page" /var/www/html/index.nginx-debian.html
+  cp "$initializing_page" "$NGINX_WWW_PATH/index.html"
+  cat <<EOF > "$NGINX_CONF_PATH"
+  user www-data;
+  worker_processes auto;
+  pid '$TMP/nginx.pid';
+
+  error_log stderr info;
+
+  events {
+    worker_connections 768;
+  }
+
+  http {
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    access_log /dev/stdout;
+
+    server {
+      listen ${PORT:-80} default_server;
+      server_name _;
+      root "$NGINX_WWW_PATH";
+      location / {
+        try_files \$uri \$uri/ =404;
+      }
+    }
+  }
+EOF
   # Start nginx page to display the Appsmith is Initializing page
-  nginx
+  nginx -c "$NGINX_CONF_PATH"
   # Update editor nginx page for starting page
   cp "$starting_page" "$editor_load_page"
 }
@@ -436,11 +463,8 @@ safe_init_postgres
 
 configure_supervisord
 
-CREDENTIAL_PATH="/etc/nginx/passwords"
-if ! [[ -e "$CREDENTIAL_PATH" ]]; then
-  echo "Generating Basic Authentication file"
-  printf "$APPSMITH_SUPERVISOR_USER:$(openssl passwd -apr1 $APPSMITH_SUPERVISOR_PASSWORD)" > "$CREDENTIAL_PATH"
-fi
+echo "$APPSMITH_SUPERVISOR_USER:$(openssl passwd -apr1 "$APPSMITH_SUPERVISOR_PASSWORD")" > "$TMP/nginx-passwords"
+
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
 mkdir -p /appsmith-stacks/data/{backup,restore}
 
@@ -448,7 +472,7 @@ mkdir -p /appsmith-stacks/data/{backup,restore}
 mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
 
 # Stop nginx gracefully
-nginx -s quit
+nginx -c "$NGINX_CONF_PATH" -s quit
 
 # Handle CMD command
 exec "$@"

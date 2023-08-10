@@ -5,12 +5,11 @@ import time
 import shutil
 import subprocess
 import logging
-import traceback
 import atexit
 
 
 LOADING_TEMPLATE_PAGE = r'/opt/appsmith/templates/appsmith_starting.html'
-LOADING_PAGE_EDITOR = r'/opt/appsmith/editor/loading.html'
+LOADING_PAGE_EDITOR = os.getenv("NGINX_WWW_PATH") + '/loading.html'
 BACKEND_HEALTH_ENDPOINT = "http://localhost:8080/api/v1/health"
 LOG_FILE = r'/appsmith-stacks/logs/backend/starting_page_init.log'
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s -  %(message)s'
@@ -21,8 +20,8 @@ try:
    import requests
 except ModuleNotFoundError as e:
    logging.error("Module Not Found: " , e)
-   
-   
+
+
 def get_backend_status():
     try:
         return subprocess.getoutput("supervisorctl status backend").split()[1]
@@ -30,7 +29,8 @@ def get_backend_status():
         logging.error("Subprocess Error ", e)
     except ValueError as e:
         logging.error("Value Error ", e)
-        
+
+
 def check_health_endpoint(url,sleep_sec = 3,timeout_sec = 180):
     for _ in range(timeout_sec//sleep_sec):
         try:
@@ -48,6 +48,7 @@ def check_health_endpoint(url,sleep_sec = 3,timeout_sec = 180):
                 break
     else:
         logging.error('Timeout Error: Backend health check timeout.')
+
 
 def remove_loading_page():
     retries = 3
@@ -67,15 +68,17 @@ def remove_loading_page():
 def add_loading_page():
     shutil.copyfile(LOADING_TEMPLATE_PAGE, LOADING_PAGE_EDITOR)
 
+
 @atexit.register
 def failsafe():
     remove_loading_page()
-    
+
+
 def main():
     add_loading_page()
     check_health_endpoint(BACKEND_HEALTH_ENDPOINT)
     remove_loading_page()
 
+
 if __name__ == '__main__':
     main()
-    
