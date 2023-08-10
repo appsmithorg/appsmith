@@ -17,7 +17,7 @@ describe("users tab Tests", function () {
 
   it("1.Verify functionality of Users tab", function () {
     agHelper.VisitNAssert("/settings/general");
-    agHelper.AssertElementVisible(RBAC.usersTab);
+    agHelper.AssertElementVisibility(RBAC.usersTab);
     agHelper.GetNClick(RBAC.usersTab);
     cy.get(RBAC.searchBar).clear().type(Cypress.env("USERNAME"));
     cy.wait(2000);

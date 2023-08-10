@@ -301,7 +301,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.xpath(RBAC.optionAppViewer).last().parent("div").click();
     _.agHelper.Sleep();
     _.agHelper.AssertElementExist(`.resource-name:contains(${appid})`);
-    _.agHelper.AssertElementVisible(RBAC.optionAppViewer);
+    _.agHelper.AssertElementVisibility(RBAC.optionAppViewer);
     _.homePage.LogOutviaAPI();
 
     _.homePage.LogintoApp(

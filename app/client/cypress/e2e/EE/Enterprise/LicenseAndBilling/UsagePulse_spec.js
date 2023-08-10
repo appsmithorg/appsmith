@@ -13,7 +13,7 @@ describe("excludeForAirgap", "Usage pulse", function () {
     agHelper.VisitNAssert("/applications", "getReleaseItems");
     agHelper.Sleep(2000);
     cy.get(homePageLocators.applicationCard).first().trigger("mouseover");
-    agHelper.AssertElementVisible(homePageLocators.appEditIcon);
+    agHelper.AssertElementVisibility(homePageLocators.appEditIcon);
     homePage.EditAppFromAppHover();
     agHelper.RefreshPage("getReleaseItems");
     cy.wait("@usagePulse").then((result) => {

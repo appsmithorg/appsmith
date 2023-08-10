@@ -262,7 +262,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
     cy.xpath(RBAC.optionAppViewer).last().parent("div").click();
     agHelper.Sleep();
     agHelper.AssertElementExist(`.resource-name:contains(${appid})`);
-    agHelper.AssertElementVisible(RBAC.optionAppViewer);
+    agHelper.AssertElementVisibility(RBAC.optionAppViewer);
     homePage.LogOutviaAPI();
 
     homePage.LogintoApp(
