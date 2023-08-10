@@ -11,6 +11,7 @@ import {
 import { toast } from "design-system";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { LightModeTheme } from "@design-system/theming";
 
 const FAVICON_MAX_WIDTH = 32;
 const FAVICON_MAX_HEIGHT = 32;
@@ -37,6 +38,8 @@ export function createBrandColorsFromPrimaryColor(
   const hsl = tinycolor(brand).toHsl();
   const hue = hsl.h;
   const saturation = hsl.s;
+  // initialize light theme
+  const lightTheme = new LightModeTheme(brand);
 
   let textColor = "#000";
   const isReadable = tinycolor.isReadable(brand, "#000", {
@@ -66,10 +69,18 @@ export function createBrandColorsFromPrimaryColor(
         )
       : darkenColor(brand);
 
+  // get active color from color algorithm
+  const activeColor =
+    brand === APPSMITH_BRAND_PRIMARY_COLOR
+      ? getComputedStyle(document.documentElement).getPropertyValue(
+          "--ads-v2-color-bg-brand-emphasis-plus",
+        )
+      : lightTheme.bgAccentActive;
   return {
     primary: brand,
     background: bgColor,
     hover: hoverColor,
+    active: activeColor,
     font: textColor,
     disabled: disabledColor,
   };

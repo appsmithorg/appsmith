@@ -15,8 +15,10 @@ const useBrandingTheme = () => {
       // TODO:(Albin) Remove this once branding and new DS is fully integrated
       "background-secondary": config.brandColors.background,
       "bg-brand-emphasis": config.brandColors.hover,
+      "bg-brand-emphasis-plus": config.brandColors.active,
       "fg-brand-emphasis": config.brandColors.hover,
       "border-brand-emphasis": config.brandColors.hover,
+      "border-brand-emphasis-plus": config.brandColors.active,
       "fg-on-brand": config.brandColors.font,
     };
 
