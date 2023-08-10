@@ -344,7 +344,7 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterGoLineStartSmart5");
   });
 
-  it.only("5. TC 1862 - JSEditor validation for goLineStartSmart with no errors, triggered by keyboard shortcut", () => {
+  it("5. Bug 25325 Check if the JS Object in body field is formatted properly on save", () => {
     apiPage.CreateApi("FirstAPI");
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("JSON");
@@ -358,8 +358,6 @@ myFun2: async () => {
       }}`,
     );
     cy.get("body").type(agHelper.isMac ? "{meta}S" : "{ctrl}S");
-    cy.get(apiPage.jsonBody).matchImageSnapshot(
-      "formattedJSONBodyAfterSave",
-    );
+    cy.get(apiPage.jsonBody).matchImageSnapshot("formattedJSONBodyAfterSave");
   });
 });
