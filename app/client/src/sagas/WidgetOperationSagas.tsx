@@ -13,6 +13,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
+  WIDGET_ID_SHOW_WALKTHROUGH,
 } from "constants/WidgetConstants";
 import log from "loglevel";
 import type { WidgetResize } from "actions/pageActions";
@@ -181,6 +182,7 @@ import {
   FlexLayerAlignment,
   LayoutDirection,
 } from "utils/autoLayout/constants";
+import localStorage from "utils/localStorage";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -2017,7 +2019,11 @@ function* cutWidgetSaga() {
 }
 
 function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
+  const isSetWidgetIdForWalkthrough = !!(
+    action.payload.props.setWidgetIdForWalkthrough === "true"
+  );
   const widgetConfig = action.payload;
+  delete widgetConfig.props?.setWidgetIdForWalkthrough;
 
   if (!widgetConfig.type) return;
 
@@ -2078,6 +2084,10 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
     }
 
     yield take(ReduxActionTypes.UPDATE_LAYOUT);
+
+    if (isSetWidgetIdForWalkthrough) {
+      localStorage.setItem(WIDGET_ID_SHOW_WALKTHROUGH, newWidget.newWidgetId);
+    }
 
     yield put(
       selectWidgetInitAction(SelectionRequestType.One, [newWidget.newWidgetId]),

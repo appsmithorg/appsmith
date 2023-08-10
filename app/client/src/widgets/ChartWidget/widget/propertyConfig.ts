@@ -1,8 +1,14 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { ChartWidgetProps } from "widgets/ChartWidget/widget";
-import { isLabelOrientationApplicableFor } from "../component";
-import { CUSTOM_CHART_TYPES, LabelOrientation } from "../constants";
+import {
+  CUSTOM_CHART_TYPES,
+  LabelOrientation,
+  LABEL_ORIENTATION_COMPATIBLE_CHARTS,
+} from "../constants";
+
+export const isLabelOrientationApplicableFor = (chartType: string) =>
+  LABEL_ORIENTATION_COMPATIBLE_CHARTS.includes(chartType);
 
 export const contentConfig = [
   {
@@ -81,6 +87,8 @@ export const contentConfig = [
                 type: ValidationTypes.OBJECT,
                 name: "dataSource",
                 params: {
+                  required: true,
+                  ignoreCase: false,
                   allowedKeys: [
                     {
                       name: "chart",
@@ -301,10 +309,6 @@ export const contentConfig = [
           {
             label: "Rotate",
             value: LabelOrientation.ROTATE,
-          },
-          {
-            label: "Stagger",
-            value: LabelOrientation.STAGGER,
           },
         ],
       },

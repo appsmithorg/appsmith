@@ -17,46 +17,46 @@ export interface RadioGroupProps
   labelWidth?: LabelProps["labelWidth"];
 }
 
-export const RadioGroup = forwardRef(
-  (props: RadioGroupProps, ref: RadioGroupRef) => {
-    const {
-      children,
-      className,
-      isDisabled = false,
-      orientation = "vertical",
-      validationState,
-    } = props;
-    const domRef = useDOMRef(ref);
-    const state = useRadioGroupState(props);
-    const { descriptionProps, errorMessageProps, labelProps, radioGroupProps } =
-      useRadioGroup(props, state);
+const _RadioGroup = (props: RadioGroupProps, ref: RadioGroupRef) => {
+  const {
+    children,
+    className,
+    isDisabled = false,
+    orientation = "vertical",
+    validationState,
+  } = props;
+  const domRef = useDOMRef(ref);
+  const state = useRadioGroupState(props);
+  const { descriptionProps, errorMessageProps, labelProps, radioGroupProps } =
+    useRadioGroup(props, state);
 
-    return (
-      <Field
-        {...props}
-        descriptionProps={descriptionProps}
-        errorMessageProps={errorMessageProps}
-        includeNecessityIndicatorInAccessibilityName
-        labelProps={labelProps}
-        ref={domRef}
-        wrapperClassName={className}
+  return (
+    <Field
+      {...props}
+      descriptionProps={descriptionProps}
+      errorMessageProps={errorMessageProps}
+      includeNecessityIndicatorInAccessibilityName
+      labelProps={labelProps}
+      ref={domRef}
+      wrapperClassName={className}
+    >
+      <div
+        {...radioGroupProps}
+        data-field-group=""
+        data-orientation={orientation}
       >
-        <div
-          {...radioGroupProps}
-          data-field-group=""
-          data-orientation={orientation}
+        <RadioContext.Provider
+          value={{
+            validationState,
+            state,
+            isDisabled,
+          }}
         >
-          <RadioContext.Provider
-            value={{
-              validationState,
-              state,
-              isDisabled,
-            }}
-          >
-            {children}
-          </RadioContext.Provider>
-        </div>
-      </Field>
-    );
-  },
-);
+          {children}
+        </RadioContext.Provider>
+      </div>
+    </Field>
+  );
+};
+
+export const RadioGroup = forwardRef(_RadioGroup);

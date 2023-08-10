@@ -65,19 +65,24 @@ function widgetErrorsFromStaticProps(props: Record<string, unknown>) {
     string,
     DataTreeError[]
   >;
-  const evaluationErrors: DataTreeError[] =
-    Object.values(evaluationErrorMap).flat();
   const widgetErrors: WidgetError[] = [];
-  for (const evalError of evaluationErrors) {
-    const widgetError: WidgetError = {
-      name: evalError.errorMessage.name,
-      message: evalError.errorMessage.message,
-      stack: evalError.raw,
-      type: "property",
-    };
 
-    widgetErrors.push(widgetError);
-  }
+  Object.keys(evaluationErrorMap).forEach((propertyPath) => {
+    const propertyErrors = evaluationErrorMap[propertyPath];
+
+    propertyErrors.forEach((evalError) => {
+      const widgetError: WidgetError = {
+        name: evalError.errorMessage.name,
+        message: evalError.errorMessage.message,
+        stack: evalError.raw,
+        type: "property",
+        path: propertyPath,
+      };
+
+      widgetErrors.push(widgetError);
+    });
+  });
+
   return widgetErrors;
 }
 

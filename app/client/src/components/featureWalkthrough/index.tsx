@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { retryPromise } from "utils/AppsmithUtils";
 import { useLocation } from "react-router-dom";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const WalkthroughRenderer = lazy(() => {
   return retryPromise(
@@ -36,8 +37,16 @@ export default function Walkthrough({ children }: any) {
     updateActiveWalkthrough();
   };
 
-  const popFeature = () => {
+  const popFeature = (triggeredFrom?: string) => {
     hideIndicator();
+    const eventParams = activeWalkthrough?.eventParams || {};
+    if (triggeredFrom) {
+      eventParams.from = triggeredFrom;
+    }
+    AnalyticsUtil.logEvent("WALKTHROUGH_DISMISSED", eventParams);
+    if (activeWalkthrough && activeWalkthrough.onDismiss) {
+      activeWalkthrough.onDismiss();
+    }
     setFeature((e) => {
       e.shift();
       return [...e];
@@ -46,7 +55,7 @@ export default function Walkthrough({ children }: any) {
 
   const updateActiveWalkthrough = () => {
     if (feature.length > 0) {
-      const highlightArea = document.querySelector(`#${feature[0].targetId}`);
+      const highlightArea = document.getElementById(feature[0].targetId);
       setActiveWalkthrough(null);
       if (highlightArea) {
         setTimeout(() => {

@@ -8,6 +8,8 @@ import {
   draggableWidgets,
   entityExplorer,
   table,
+  tedTestConfig,
+  locators,
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
 import oneClickBindingLocator from "../../../locators/OneClickBindingLocator";
@@ -134,7 +136,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     dataSources.CreateQueryFromOverlay(dsName, query, "selectSimpsons"); //Creating query from EE overlay
     dataSources.RunQueryNVerifyResponseViews(10); //Could be 99 in CI, to check aft init load script is working
 
-    dataSources.AddSuggesstedWidget(Widgets.Table);
+    dataSources.AddSuggestedWidget(Widgets.Table);
     agHelper.GetNClick(propPane._deleteWidget);
 
     entityExplorer.SelectEntityByName("selectSimpsons", "Queries/JS");
@@ -148,7 +150,9 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
   it.skip("3.One click binding - should check that queries are created and bound to table widget properly", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);
 
-    oneClickBinding.ChooseAndAssertForm(dsName, dsName, "Simpsons", "title");
+    oneClickBinding.ChooseAndAssertForm(dsName, dsName, "Simpsons", {
+      searchableColumn: "title",
+    });
 
     agHelper.GetNClick(oneClickBindingLocator.connectData);
 
@@ -172,7 +176,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
       agHelper.AssertElementExist(table._headerCell(column));
     });
 
-    agHelper.GetNClick(table._addNewRow, 0, true);
+    table.AddNewRow();
 
     table.EditTableCell(0, 1, "S01E01", false);
 
@@ -218,10 +222,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     assertHelper.AssertNetworkStatus("@postExecute");
 
     agHelper.Sleep(500);
-
-    agHelper.ClearTextField(table._searchInput);
-
-    agHelper.TypeText(table._searchInput, "Westworld");
+    agHelper.ClearNType(table._searchInput, "Westworld");
 
     assertHelper.AssertNetworkStatus("@postExecute");
 
@@ -229,9 +230,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
 
     agHelper.AssertElementExist(table._bodyCell("Westworld"));
 
-    agHelper.ClearTextField(table._searchInput);
-
-    agHelper.TypeText(table._searchInput, "Expanse");
+    agHelper.ClearNType(table._searchInput, "Expanse");
 
     assertHelper.AssertNetworkStatus("@postExecute");
 
@@ -240,13 +239,49 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     agHelper.AssertElementAbsence(table._bodyCell("Expanse"));
   });
 
-  after("Verify Deletion of the datasource", () => {
-    entityExplorer.SelectEntityByName(dsName, "Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Delete",
-      entityType: entityItems.Datasource,
+  it("4. MsSQL connection errors", () => {
+    let dataSourceName: string;
+    dataSources.NavigateToDSCreateNew();
+    agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      dataSources.CreatePlugIn("Microsoft SQL Server");
+      dataSourceName = "MsSQL" + " " + uid;
+      agHelper.RenameWithInPane(dataSourceName, false);
+
+      dataSources.TestDatasource(false);
+      agHelper.ValidateToastMessage("Missing endpoint.");
+      agHelper.ValidateToastMessage("Missing username for authentication.");
+      agHelper.ValidateToastMessage("Missing password for authentication.");
+      agHelper.ClearTextField(dataSources._databaseName);
+      dataSources.TestDatasource(false);
+      agHelper.WaitUntilAllToastsDisappear();
+      agHelper.UpdateInputValue(
+        dataSources._host,
+        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mssql_host,
+      );
+      agHelper.UpdateInputValue(
+        dataSources._username,
+        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mssql_username,
+      );
+      agHelper.UpdateInputValue(
+        dataSources._password,
+        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mssql_password,
+      );
+      agHelper.GetNClick(locators._visibleTextSpan("Read only"));
+      dataSources.ValidateNSelectDropdown(
+        "SSL mode",
+        "Enabled with no verify",
+        "Disable",
+      );
+      dataSources.TestSaveDatasource();
+      dataSources.AssertDataSourceInfo(["READ_ONLY", "host.docker.internal"]);
+      dataSources.DeleteDSDirectly(200, false);
     });
+  });
+
+  after("Verify Deletion of the datasource", () => {
+    cy.intercept("DELETE", "/api/v1/datasources/*").as("deleteDatasource"); //Since intercept from before is not working
+    dataSources.DeleteDatasouceFromWinthinDS(dsName);
     //dataSources.StopNDeleteContainer(containerName); //commenting to check if MsSQL specific container deletion is causing issues
   });
 

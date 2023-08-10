@@ -42,11 +42,13 @@ export type FeatureParams = {
   eventParams?: Record<string, any>;
   // Walkthrough delay in ms
   delay?: number;
+  // Multiple Highlights -> multiple ids for highlighter, if not present considers targetId as the only highlighting div.
+  multipleHighlights?: string[];
 };
 
 type WalkthroughContextType = {
   pushFeature: (feature: FeatureParams) => void;
-  popFeature: () => void;
+  popFeature: (triggeredFrom?: string) => void;
   feature: FeatureParams[];
   isOpened: boolean;
 };

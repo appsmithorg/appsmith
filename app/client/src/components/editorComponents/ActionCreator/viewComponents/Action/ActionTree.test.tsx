@@ -31,6 +31,9 @@ describe("tests for Action Tree in Action Selector", () => {
             onChange={() => {
               return;
             }}
+            propertyName=""
+            widgetName=""
+            widgetType=""
           />
         </ThemeProvider>
       </Provider>,
@@ -61,6 +64,9 @@ describe("tests for Action Tree in Action Selector", () => {
             onChange={() => {
               return;
             }}
+            propertyName=""
+            widgetName=""
+            widgetType=""
           />
         </ThemeProvider>
       </Provider>,

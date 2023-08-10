@@ -4,11 +4,6 @@ import type { ButtonGroupProps } from "./ButtonGroup";
 
 export const StyledContainer = styled.div<ButtonGroupProps>`
   display: flex;
-  height: 100%;
-  width: 100%;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
 
   &[data-orientation="vertical"] {
     flex-direction: column;
@@ -51,10 +46,6 @@ export const StyledContainer = styled.div<ButtonGroupProps>`
 
     & + [data-button] {
       margin-left: calc(var(--border-width-1) * -1);
-
-      @media (min-resolution: 192dpi) {
-        margin-left: 0px;
-      }
     }
   }
 
@@ -76,10 +67,61 @@ export const StyledContainer = styled.div<ButtonGroupProps>`
 
     & + [data-button] {
       margin-top: calc(var(--border-width-1) * -1);
-
-      @media (min-resolution: 192dpi) {
-        margin-top: 0px;
-      }
     }
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * Filled variant
+  *-----------------------------------------------------------------------------
+  */
+
+  & [data-variant="filled"] {
+    border-width: 0;
+  }
+
+  & [data-variant="filled"][data-color="accent"] {
+    border-color: var(--color-bd-on-accent);
+  }
+
+  & [data-variant="filled"][data-color="neutral"] {
+    border-color: var(--color-bd-on-neutral);
+  }
+
+  & [data-variant="filled"][data-color="positive"] {
+    border-color: var(--color-bd-on-positive);
+  }
+
+  & [data-variant="filled"][data-color="negative"] {
+    border-color: var(--color-bd-on-negative);
+  }
+
+  & [data-variant="filled"][data-color="warning"] {
+    border-color: var(--color-bd-on-warning);
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * Outlined variant
+  *-----------------------------------------------------------------------------
+  */
+  & [data-variant="outlined"][data-color="accent"] {
+    border-color: var(--color-bd-accent);
+  }
+
+  & [data-variant="outlined"][data-color="neutral"] {
+    border-color: var(--color-bd-neutral);
+  }
+
+  & [data-variant="outlined"][data-color="positive"] {
+    border-color: var(--color-bd-positive);
+  }
+
+  & [data-variant="outlined"][data-color="negative"] {
+    border-color: var(--color-bd-negative);
+  }
+
+  & [data-variant="outlined"][data-color="warning"] {
+    border-color: var(--color-bd-warning);
   }
 `;

@@ -1,9 +1,7 @@
+import type { TypographyFontWeight } from "@design-system/theming";
 import styled, { css } from "styled-components";
-import type { OmitRename } from "../../utils";
 
-import type { TextProps } from "./Text";
-
-type StyledTextProp = OmitRename<TextProps, "className" | "color" | "children">;
+import type { StyledTextProp } from "./types";
 
 const truncateStyles = css<StyledTextProp>`
   ${(props) => {
@@ -29,11 +27,21 @@ const truncateStyles = css<StyledTextProp>`
   }}}
 `;
 
+const getFontWeight = (
+  fontWeight?: keyof typeof TypographyFontWeight,
+  isBold?: boolean,
+) => {
+  if (fontWeight) return fontWeight;
+
+  return isBold ? "bold" : "inherit";
+};
+
 export const StyledText = styled.div<StyledTextProp>`
-  font-weight: ${({ $isBold }) => ($isBold ? "bold" : "normal")};
+  font-weight: ${({ $fontWeight, $isBold }) =>
+    getFontWeight($fontWeight, $isBold)};
   font-style: ${({ $isItalic }) => ($isItalic ? "italic" : "normal")};
   text-align: ${({ $textAlign }) => $textAlign};
-  max-width: 100%;
+  width: 100%;
 
   color: ${({ color }) => {
     switch (true) {

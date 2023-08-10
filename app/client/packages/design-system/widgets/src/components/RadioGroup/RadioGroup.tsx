@@ -12,19 +12,19 @@ export interface RadioGroupProps extends HeadlessRadioGroupProps {
   className?: string;
 }
 
-export const RadioGroup = forwardRef(
-  (props: RadioGroupProps, ref: HeadlessRadioGroupRef) => {
-    const { errorMessage, label, ...rest } = props;
-    const wrappedErrorMessage = errorMessage && <Text>{errorMessage}</Text>;
-    const wrappedLabel = label && <Text>{label}</Text>;
+const _RadioGroup = (props: RadioGroupProps, ref: HeadlessRadioGroupRef) => {
+  const { errorMessage, label, ...rest } = props;
+  const wrappedErrorMessage = errorMessage && <Text>{errorMessage}</Text>;
+  const wrappedLabel = label && <Text>{label}</Text>;
 
-    return (
-      <StyledRadioGroup
-        errorMessage={wrappedErrorMessage}
-        label={wrappedLabel}
-        ref={ref}
-        {...rest}
-      />
-    );
-  },
-);
+  return (
+    <StyledRadioGroup
+      errorMessage={wrappedErrorMessage}
+      label={wrappedLabel}
+      ref={ref}
+      {...rest}
+    />
+  );
+};
+
+export const RadioGroup = forwardRef(_RadioGroup);

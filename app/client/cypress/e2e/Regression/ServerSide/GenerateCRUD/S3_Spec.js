@@ -3,6 +3,8 @@ const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 import {
+  agHelper,
+  dataSources,
   entityExplorer,
   deployMode,
   homePage,
@@ -34,13 +36,8 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
       cy.wrap(datasourceName).as("dSName");
     });
 
-    //TestData source
-    cy.get(".t--test-datasource").click();
-    cy.wait("@testDatasource");
-
-    //Save source
-    cy.get(".t--save-datasource").click();
-
+    //TestData & save datasource
+    dataSources.TestSaveDatasource();
     // fetch bucket
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
@@ -48,13 +45,13 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
       200,
     );
 
-    cy.get(generatePage.selectTableDropdown).click();
-    cy.get(generatePage.dropdownOption)
-      .contains("assets-test.appsmith.com")
-      .scrollIntoView()
-      .should("be.visible")
-      .click();
-    cy.get(generatePage.generatePageFormSubmitBtn).click();
+    agHelper.AssertContains("Generate from data");
+    agHelper.GetNClick(generatePage.selectTableDropdown);
+    agHelper.GetNClickByContains(
+      generatePage.dropdownOption,
+      "assets-test.appsmith.com",
+    );
+    agHelper.GetNClick(generatePage.generatePageFormSubmitBtn);
 
     cy.wait("@put_replaceLayoutCRUD").should(
       "have.nested.property",

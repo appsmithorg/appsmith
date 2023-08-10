@@ -5,10 +5,13 @@ import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
+import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ApplicationSnapshotService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationFetcher;
@@ -62,6 +65,15 @@ public class ApplicationControllerTest {
 
     @Autowired
     private WebTestClient webTestClient;
+
+    @MockBean
+    AnalyticsService analyticsService;
+
+    @MockBean
+    GitFileUtils gitFileUtils;
+
+    @MockBean
+    SessionUserService sessionUserService;
 
     private String getFileName(int length) {
         StringBuilder fileName = new StringBuilder();

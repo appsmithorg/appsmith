@@ -1,5 +1,7 @@
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { errorModifier } from "../errorModifier";
+import DependencyMap from "entities/DependencyMap";
+import { APP_MODE } from "entities/App";
 
 describe("Test error modifier", () => {
   const dataTree = {
@@ -121,7 +123,9 @@ describe("Test error modifier", () => {
   } as unknown as DataTree;
 
   beforeAll(() => {
-    errorModifier.updateAsyncFunctions(dataTree, {});
+    const dependencyMap = new DependencyMap();
+    errorModifier.init(APP_MODE.EDIT);
+    errorModifier.updateAsyncFunctions(dataTree, {}, dependencyMap);
   });
 
   it("TypeError for defined Api in data field ", () => {
