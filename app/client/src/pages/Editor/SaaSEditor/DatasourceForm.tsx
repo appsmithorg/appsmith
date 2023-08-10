@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { get, isEqual, isNil, map, memoize, omit } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import type { Datasource } from "entities/Datasource";
+import { AuthenticationStatus } from "entities/Datasource";
 import { ActionType } from "entities/Datasource";
 import type { InjectedFormProps } from "redux-form";
 import {
@@ -125,6 +126,7 @@ interface StateProps extends JSONtoFormProps {
   requiredFields: Record<string, ControlProps>;
   configDetails: Record<string, string>;
   isEnabledForGSheetSchema: boolean;
+  isPluginAuthFailed: boolean;
 }
 interface DatasourceFormFunctions {
   discardTempDatasource: () => void;
@@ -483,6 +485,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       isDeleting,
       isEnabledForGSheetSchema,
       isInsideReconnectModal,
+      isPluginAuthFailed,
       isPluginAuthorized,
       isSaving,
       isTesting,
@@ -575,7 +578,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                       {/* This adds error banner for google sheets datasource if the datasource is unauthorised */}
                       {datasource &&
                       isGoogleSheetPlugin &&
-                      !isPluginAuthorized &&
+                      isPluginAuthFailed &&
                       datasourceId !== TEMP_DATASOURCE_ID ? (
                         <AuthMessage
                           datasource={datasource}
@@ -594,7 +597,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                       <ViewModeWrapper>
                         {datasource &&
                         isGoogleSheetPlugin &&
-                        !isPluginAuthorized ? (
+                        isPluginAuthFailed ? (
                           <AuthMessage
                             actionType={ActionType.AUTHORIZE}
                             datasource={datasource}
@@ -752,6 +755,22 @@ const mapStateToProps = (state: AppState, props: any) => {
         )
       : false;
 
+  // Auth could fail because of either:
+  // Failure to give permissions / Failure to select files / Failure on server
+  const isPluginAuthFailed =
+    !!plugin && !!formData
+      ? isDatasourceAuthorizedForQueryCreation(
+          formData,
+          plugin,
+          getCurrentEditingEnvID(),
+          [
+            AuthenticationStatus.FAILURE,
+            AuthenticationStatus.FAILURE_ACCESS_DENIED,
+            AuthenticationStatus.FAILURE_FILE_NOT_SELECTED,
+          ],
+        )
+      : false;
+
   return {
     datasource,
     datasourceButtonConfiguration,
@@ -788,6 +807,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     showDebugger,
     scopeValue,
     isEnabledForGSheetSchema,
+    isPluginAuthFailed,
   };
 };
 

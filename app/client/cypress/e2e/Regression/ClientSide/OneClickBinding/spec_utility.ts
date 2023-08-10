@@ -6,7 +6,7 @@ export class OneClickBinding {
     source?: string,
     selectedSource?: any,
     table?: string,
-    column?: string,
+    column: Record<string, string> = {},
   ) {
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
@@ -37,17 +37,19 @@ export class OneClickBinding {
       oneClickBindingLocator.tableOrSpreadsheetSelectedOption(table),
     );
 
-    agHelper.AssertElementExist(oneClickBindingLocator.searchableColumn);
+    Object.entries(column).forEach(([key, value]) => {
+      agHelper.AssertElementExist((oneClickBindingLocator as any)[key]);
 
-    agHelper.GetNClick(oneClickBindingLocator.searchableColumn);
+      agHelper.GetNClick((oneClickBindingLocator as any)[key]);
 
-    agHelper.GetNClick(
-      oneClickBindingLocator.searchableColumnDropdownOption(column),
-    );
+      agHelper.GetNClick(
+        oneClickBindingLocator.columnDropdownOption(key, value),
+      );
 
-    agHelper.AssertElementExist(
-      oneClickBindingLocator.searchableColumnSelectedOption(column),
-    );
+      agHelper.AssertElementExist(
+        oneClickBindingLocator.columnSelectedOption(key, value),
+      );
+    });
 
     agHelper.AssertElementExist(oneClickBindingLocator.connectData);
 

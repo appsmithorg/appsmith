@@ -15,13 +15,15 @@ import {
   LOGS_FILTER_OPTION_SYSTEM,
   NO_LOGS,
 } from "@appsmith/constants/messages";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import bootIntercom from "utils/bootIntercom";
 import type { Theme } from "constants/DefaultTheme";
 import { thinScrollbar } from "constants/DefaultTheme";
 import type { IconName } from "@blueprintjs/core";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getDebuggerSelectedFilter } from "selectors/debuggerSelectors";
+import { setDebuggerSelectedFilter } from "actions/debuggerActions";
 
 export const LIST_HEADER_HEIGHT = "38px";
 
@@ -67,8 +69,9 @@ const LOGS_FILTER_OPTIONS = (theme: DefaultTheme) => [
 ];
 
 function DebbuggerLogs(props: Props) {
-  const [filter, setFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState(props.searchQuery);
+  const filter = useSelector(getDebuggerSelectedFilter);
+  const dispatch = useDispatch();
   const filteredLogs = useFilteredLogs(searchQuery, filter);
   const { next, paginatedData } = usePagination(filteredLogs);
   const listRef = useRef<HTMLDivElement>(null);
@@ -111,7 +114,7 @@ function DebbuggerLogs(props: Props) {
 
   const handleFilterChange = (filter: string | undefined) => {
     if (!isUndefined(filter)) {
-      setFilter(filter);
+      dispatch(setDebuggerSelectedFilter(filter));
 
       AnalyticsUtil.logEvent("DEBUGGER_FILTER_CHANGED", {
         filter: filter.length > 0 ? filter : "ALL",

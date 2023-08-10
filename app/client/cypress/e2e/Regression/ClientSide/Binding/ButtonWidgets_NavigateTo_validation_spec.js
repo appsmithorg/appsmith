@@ -31,6 +31,8 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
     agHelper.AssertElementAbsence(
       locators._widgetInDeployed(draggableWidgets.BUTTON),
     );
-    agHelper.AssertElementVisible(locators._visibleTextSpan("Build the tools"));
+    agHelper.AssertElementVisibility(
+      locators._visibleTextSpan("Build the tools"),
+    );
   });
 });

@@ -626,7 +626,7 @@ export class Table {
       0,
       true,
     );
-    this.agHelper.AssertElementVisible(
+    this.agHelper.AssertElementVisibility(
       this._tableRow(rowIndex, colIndex, "v2") +
         " " +
         this._editCellEditorInput,
@@ -695,7 +695,7 @@ export class Table {
       this.agHelper
         .GetText(this._listActivePage(tableVersion), "text", index)
         .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
-      this.agHelper.GetNClick(this._listNextPage, index, true);
+      this.agHelper.GetNClick(this._listNextPage, index);
       this.agHelper.Sleep(1000);
       this.agHelper
         .GetText(this._listActivePage(tableVersion), "text", index)
@@ -703,16 +703,20 @@ export class Table {
     }
   }
 
-  public NavigateToPreviousPage_List() {
+  public NavigateToPreviousPage_List(
+    tableVersion: "v1" | "v2" = "v1",
+    index = 0,
+  ) {
     let curPageNo: number;
-    cy.xpath(this._liCurrentSelectedPage)
-      .invoke("text")
+    this.agHelper
+      .GetText(this._listActivePage(tableVersion), "text", index)
       .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
-    cy.get(this._liPreviousPage).click();
-    //cy.scrollTo('top', { easing: 'linear' })
-    cy.xpath(this._liCurrentSelectedPage)
-      .invoke("text")
+    this.agHelper.GetNClick(this._liPreviousPage, index);
+    this.agHelper.Sleep(1000);
+    this.agHelper
+      .GetText(this._listActivePage(tableVersion), "text", index)
       .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo - 1));
+    //}
   }
 
   public AssertPageNumber_List(

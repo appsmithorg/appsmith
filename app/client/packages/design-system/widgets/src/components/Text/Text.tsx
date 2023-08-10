@@ -35,34 +35,34 @@ export interface TextProps {
   children: React.ReactNode;
 }
 
-export const Text = forwardRef(
-  (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
-    const {
-      children,
-      className,
-      color = "default",
-      isBold = false,
-      isItalic = false,
-      lineClamp,
-      textAlign = "left",
-      variant = "body",
-      ...rest
-    } = props;
+const _Text = (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
+  const {
+    children,
+    className,
+    color = "default",
+    isBold = false,
+    isItalic = false,
+    lineClamp,
+    textAlign = "left",
+    variant = "body",
+    ...rest
+  } = props;
 
-    return (
-      <StyledText
-        $isBold={isBold}
-        $isItalic={isItalic}
-        $lineClamp={lineClamp}
-        $textAlign={textAlign}
-        $variant={variant}
-        className={classNames(className, getTypographyClassName(variant))}
-        color={color}
-        ref={ref}
-        {...rest}
-      >
-        <span>{children}</span>
-      </StyledText>
-    );
-  },
-);
+  return (
+    <StyledText
+      $isBold={isBold}
+      $isItalic={isItalic}
+      $lineClamp={lineClamp}
+      $textAlign={textAlign}
+      $variant={variant}
+      className={classNames(className, getTypographyClassName(variant))}
+      color={color}
+      ref={ref}
+      {...rest}
+    >
+      <span>{children}</span>
+    </StyledText>
+  );
+};
+
+export const Text = forwardRef(_Text);
