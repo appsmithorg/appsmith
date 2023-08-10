@@ -30,7 +30,7 @@ export const useFirstRouteLoad = () => {
     if (tenantIsLoading === false && currentUserIsLoading === false) {
       const loader = document.getElementById("loader") as HTMLDivElement;
       const appLoadBlock = document.getElementById(
-        "app-load-bock",
+        "app-load-block",
       ) as HTMLDivElement;
 
       if (loader) {
