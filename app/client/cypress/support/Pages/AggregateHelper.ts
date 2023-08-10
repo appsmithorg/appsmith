@@ -238,7 +238,7 @@ export class AggregateHelper extends ReusableHelper {
       });
   }
 
-  public GetElement(selector: ElementType, index = 0, timeout = 20000) {
+  public GetElement(selector: ElementType, timeout = 20000) {
     let locator;
     if (typeof selector == "string") {
       //cy.log(selector, "selector");
@@ -250,7 +250,7 @@ export class AggregateHelper extends ReusableHelper {
           : cy.get(selector, {
               timeout: timeout,
             });
-    } else locator = cy.wrap(selector).eq(index);
+    } else locator = cy.wrap(selector);
     return locator;
   }
 
@@ -1554,11 +1554,6 @@ export class AggregateHelper extends ReusableHelper {
       apiToValidate && this.assertHelper.AssertNetworkStatus(apiToValidate);
   }
 
-  public DownloadDataNVerifyFile(fileName: string) {
-    let downloadsFolder = Cypress.config("downloadsFolder");
-    cy.log("downloadsFolder is:" + path.join(downloadsFolder, fileName));
-    cy.readFile(path.join(downloadsFolder, fileName)).should("exist");
-  }
   public GetDropTargetId(widgetName: string) {
     return this.GetWidgetByName(widgetName).invoke("attr", "id");
   }

@@ -6,14 +6,13 @@ import {
   entityExplorer,
   locators,
   propPane,
+  table,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Camera widget - Image test", () => {
   it("1. Check camera intialization & modes", () => {
     entityExplorer.DragNDropWidget(draggableWidgets.CAMERA);
-    agHelper
-      .GetElement(propPane._mode("Image"))
-      .should("have.attr", "data-selected", "true");
+    agHelper.AssertAttribute(propPane._mode("Image"), "data-selected", "true");
     agHelper.AssertElementVisible(propPane._mode("Video"), 1);
     agHelper.AssertElementAbsence(widgetLocators.cameraErrorText);
     agHelper.AssertElementVisible(widgetLocators.cameraVideo);
@@ -137,7 +136,7 @@ describe("Camera widget - Image test", () => {
     agHelper.ValidateToastMessage("Captured successfully!");
 
     //Validate image download OnImageCapture event
-    agHelper.DownloadDataNVerifyFile("image.png");
+    table.ValidateDownloadNVerify("image.png");
   });
 
   it("7. Capture multiple images & check it does not overwrite previous captures", () => {
@@ -156,8 +155,8 @@ describe("Camera widget - Image test", () => {
     agHelper.GetNClick(widgetLocators.cameraCaptureBtn);
     agHelper.GetNClick(widgetLocators.cameraSaveBtn);
     agHelper.ValidateToastMessage("Captured successfully!");
-    agHelper.DownloadDataNVerifyFile("image1.png");
-    agHelper.DownloadDataNVerifyFile("image.png");
+    table.ValidateDownloadNVerify("image1.png");
+    table.ValidateDownloadNVerify("image.png");
   });
 
   it("8. Should show default camera dropdown with default value as 'Back'", () => {

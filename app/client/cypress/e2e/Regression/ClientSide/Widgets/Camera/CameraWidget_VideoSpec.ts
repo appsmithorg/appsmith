@@ -6,14 +6,13 @@ import {
   entityExplorer,
   locators,
   propPane,
+  table,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Camera widget - Video test", () => {
   it("1. Verify Visible property of video mode in camera widget", () => {
     entityExplorer.DragNDropWidget(draggableWidgets.CAMERA);
-    agHelper
-      .GetElement(propPane._mode("Image"))
-      .should("have.attr", "data-selected", "true");
+    agHelper.AssertAttribute(propPane._mode("Image"), "data-selected", "true");
     agHelper.GetNClick(propPane._mode("Video"), 1, true);
     agHelper.AssertElementAbsence(widgetLocators.cameraErrorText);
 
@@ -128,7 +127,7 @@ describe("Camera widget - Video test", () => {
     agHelper.ValidateToastMessage("Captured successfully!");
 
     //Validate video download OnVideoSave event
-    agHelper.DownloadDataNVerifyFile("video.mp4");
+    table.ValidateDownloadNVerify("video.mp4");
   });
 
   it("6. Capture multiple videos & check it does not overwrite previous captures", () => {
@@ -149,8 +148,8 @@ describe("Camera widget - Video test", () => {
     agHelper.GetNClick(widgetLocators.cameraStopRecordingBtn);
     agHelper.GetNClick(widgetLocators.cameraSaveBtn);
     agHelper.ValidateToastMessage("Captured successfully!");
-    agHelper.DownloadDataNVerifyFile("video1.mp4");
-    agHelper.DownloadDataNVerifyFile("video.mp4");
+    table.ValidateDownloadNVerify("video1.mp4");
+    table.ValidateDownloadNVerify("video.mp4");
   });
 
   //Skipping below tests due to issue - https://github.com/appsmithorg/appsmith/issues/26166
@@ -169,18 +168,24 @@ describe("Camera widget - Video test", () => {
     agHelper.GetNClick(widgetLocators.cameraSaveBtn);
     agHelper.GetNClick(draggableWidgets.VIDEO);
     agHelper.Sleep(5000);
-    agHelper.GetElement(widgetLocators.cameraVideo, 1).should(($el) => {
-      const attrValue = $el[0].webkitAudioDecodedByteCount;
+    agHelper
+      .GetElement(widgetLocators.cameraVideo)
+      .eq(1)
+      .should(($el) => {
+        const attrValue = $el[0].webkitAudioDecodedByteCount;
 
-      //Threshold greater than 30000 shows that the audio is playing
-      expect(attrValue).be.greaterThan(30000);
-    });
-    agHelper.GetElement(widgetLocators.cameraVideo, 1).should(($el) => {
-      const attrValue = $el[0].webkitVideoDecodedByteCount;
+        //Threshold greater than 30000 shows that the audio is playing
+        expect(attrValue).be.greaterThan(30000);
+      });
+    agHelper
+      .GetElement(widgetLocators.cameraVideo)
+      .eq(1)
+      .should(($el) => {
+        const attrValue = $el[0].webkitVideoDecodedByteCount;
 
-      //Threshold less than 10000 shows that the video is not playing
-      expect(attrValue).be.lessThan(10000);
-    });
+        //Threshold less than 10000 shows that the video is not playing
+        expect(attrValue).be.lessThan(10000);
+      });
   });
 
   it.skip("8. Video Recording test - Enabled Camera but Disabled Microphone", () => {
@@ -198,18 +203,24 @@ describe("Camera widget - Video test", () => {
     agHelper.GetNClick(widgetLocators.cameraSaveBtn);
     agHelper.GetNClick(draggableWidgets.VIDEO);
     agHelper.Sleep(5000);
-    agHelper.GetElement(widgetLocators.cameraVideo, 1).should(($el) => {
-      const attrValue = $el[0].webkitAudioDecodedByteCount;
+    agHelper
+      .GetElement(widgetLocators.cameraVideo)
+      .eq(1)
+      .should(($el) => {
+        const attrValue = $el[0].webkitAudioDecodedByteCount;
 
-      //Threshold less than 1000 shows that the audio is not playing
-      expect(attrValue).be.lessThan(1000);
-    });
-    agHelper.GetElement(widgetLocators.cameraVideo, 1).should(($el) => {
-      const attrValue = $el[0].webkitVideoDecodedByteCount;
+        //Threshold less than 1000 shows that the audio is not playing
+        expect(attrValue).be.lessThan(1000);
+      });
+    agHelper
+      .GetElement(widgetLocators.cameraVideo)
+      .eq(1)
+      .should(($el) => {
+        const attrValue = $el[0].webkitVideoDecodedByteCount;
 
-      //Threshold greater than 30000 shows that the video is playing
-      expect(attrValue).be.greaterThan(30000);
-    });
+        //Threshold greater than 30000 shows that the video is playing
+        expect(attrValue).be.greaterThan(30000);
+      });
   });
 
   it.skip("9. Video Recording test - Enabled Camera but Enabled Microphone", () => {
@@ -226,17 +237,23 @@ describe("Camera widget - Video test", () => {
     agHelper.GetNClick(widgetLocators.cameraSaveBtn);
     agHelper.GetNClick(draggableWidgets.VIDEO);
     agHelper.Sleep(5000);
-    agHelper.GetElement(widgetLocators.cameraVideo, 1).should(($el) => {
-      const attrValue = $el[0].webkitAudioDecodedByteCount;
+    agHelper
+      .GetElement(widgetLocators.cameraVideo)
+      .eq(1)
+      .should(($el) => {
+        const attrValue = $el[0].webkitAudioDecodedByteCount;
 
-      //Threshold less than 30000 shows that the audio is playing
-      expect(attrValue).be.greaterThan(30000);
-    });
-    agHelper.GetElement(widgetLocators.cameraVideo, 1).should(($el) => {
-      const attrValue = $el[0].webkitVideoDecodedByteCount;
+        //Threshold less than 30000 shows that the audio is playing
+        expect(attrValue).be.greaterThan(30000);
+      });
+    agHelper
+      .GetElement(widgetLocators.cameraVideo)
+      .eq(1)
+      .should(($el) => {
+        const attrValue = $el[0].webkitVideoDecodedByteCount;
 
-      //Threshold less than 30000 shows that the video is playing
-      expect(attrValue).be.greaterThan(30000);
-    });
+        //Threshold less than 30000 shows that the video is playing
+        expect(attrValue).be.greaterThan(30000);
+      });
   });
 });

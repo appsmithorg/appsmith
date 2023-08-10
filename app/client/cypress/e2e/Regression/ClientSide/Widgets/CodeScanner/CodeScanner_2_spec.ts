@@ -12,9 +12,11 @@ import {
 describe("Code scanner widget tests", () => {
   it("1. Verify properties in Always scan mode", () => {
     entityExplorer.DragNDropWidget(draggableWidgets.CODESCANNER);
-    agHelper
-      .GetElement(propPane._mode("Always on"))
-      .should("have.attr", "data-selected", "true");
+    agHelper.AssertAttribute(
+      propPane._mode("Always on"),
+      "data-selected",
+      "true",
+    );
 
     //Visible property - JS convertible
     agHelper.AssertExistingToggleState("Visible", "true");
