@@ -43,6 +43,12 @@ http {
   include /etc/nginx/mime.types;
   default_type application/octet-stream;
 
+  client_body_temp_path '$TMP/nginx-client-body-temp';
+  proxy_temp_path '$TMP/nginx-proxy-temp';
+  fastcgi_temp_path '$TMP/nginx-fastcgi-temp';
+  uwsgi_temp_path '$TMP/nginx-uwsgi-temp';
+  scgi_temp_path '$TMP/nginx-scgi-temp';
+
   ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3; # Dropping SSLv3, ref: POODLE
   ssl_prefer_server_ciphers on;
 

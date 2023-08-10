@@ -406,6 +406,7 @@ init_loading_pages(){
   worker_processes auto;
   pid '$TMP/nginx.pid';
 
+  daemon off;
   error_log stderr info;
 
   events {
@@ -420,6 +421,12 @@ init_loading_pages(){
     default_type application/octet-stream;
     access_log /dev/stdout;
 
+    client_body_temp_path '$TMP/nginx-client-body-temp';
+    proxy_temp_path '$TMP/nginx-proxy-temp';
+    fastcgi_temp_path '$TMP/nginx-fastcgi-temp';
+    uwsgi_temp_path '$TMP/nginx-uwsgi-temp';
+    scgi_temp_path '$TMP/nginx-scgi-temp';
+
     server {
       listen ${PORT:-80} default_server;
       server_name _;
@@ -431,7 +438,7 @@ init_loading_pages(){
   }
 EOF
   # Start nginx page to display the Appsmith is Initializing page
-  nginx -c "$NGINX_CONF_PATH"
+  nginx -c "$NGINX_CONF_PATH" -g 'daemon on;'
   # Update editor nginx page for starting page
   cp "$starting_page" "$editor_load_page"
 }

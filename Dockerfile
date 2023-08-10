@@ -60,7 +60,7 @@ ENV APPSMITH_CLOUD_SERVICES_BASE_URL=${APPSMITH_CLOUD_SERVICES_BASE_URL}
 ARG APPSMITH_SEGMENT_CE_KEY
 ENV APPSMITH_SEGMENT_CE_KEY=${APPSMITH_SEGMENT_CE_KEY}
 #Create the plugins directory
-RUN mkdir -p ./backend ./editor ./rts ./backend/plugins ./templates ./utils
+RUN mkdir -p $TMP ./backend ./editor ./rts ./backend/plugins ./templates ./utils
 
 #Add the jar to the container
 COPY ${JAR_FILE} backend/server.jar
