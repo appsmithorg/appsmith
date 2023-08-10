@@ -3,14 +3,9 @@ import {
   dataSources,
   table,
   agHelper,
-  apiPage,
-  assertHelper,
-  entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
-import { PROPERTY_SELECTOR } from "../../../../locators/WidgetLocators";
-import { EntityItems } from "../../../../support/Pages/AssertHelper";
 
 describe("Check Suggested Widgets Feature in auto-layout", function () {
   before(() => {
