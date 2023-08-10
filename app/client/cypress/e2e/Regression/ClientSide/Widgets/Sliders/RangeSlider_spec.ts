@@ -339,9 +339,8 @@ describe("Range Slider spec", () => {
 
     propPane.UpdatePropertyFieldValue("Default start value", "10");
     agHelper.AssertElementAbsence(locators._evaluatedErrorMessage);
-  });
 
-  it("7. Validate accepted and unaccepted 'Default end' value", () => {
+    //Validate accepted and unaccepted 'Default end' value
     propPane.UpdatePropertyFieldValue("Default end value", "-10");
 
     agHelper.VerifyEvaluatedErrorMessage(
@@ -362,7 +361,7 @@ describe("Range Slider spec", () => {
     agHelper.AssertElementAbsence(locators._evaluatedErrorMessage);
   });
 
-  it("8. Change Step size and check if binding value changes", () => {
+  it("7. Change Step size and check if binding value changes", () => {
     // Assert Text widget has value 10
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT), "text", 1)
@@ -411,7 +410,7 @@ describe("Range Slider spec", () => {
       });
   });
 
-  it("9. Verify Range slider visibility in explorer", () => {
+  it("8. Verify Range slider visibility in explorer", () => {
     entityExplorer.NavigateToSwitcher("Widgets");
     agHelper.ClearTextField(locators._entityExplorersearch);
     agHelper.TypeText(locators._entityExplorersearch, "Range");
