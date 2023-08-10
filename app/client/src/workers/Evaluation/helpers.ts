@@ -2,7 +2,8 @@ import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal";
-import { get, isNumber, isObject } from "lodash";
+import produce from "immer";
+import { get, isNumber, isObject, set } from "lodash";
 
 export interface DiffReferenceState {
   kind: "referenceState";
@@ -238,9 +239,41 @@ const generateDiffUpdates = (
 export const generateOptimisedUpdates = (
   oldDataTree: any,
   dataTree: any,
-  identicalEvalPathsPatches?: any,
+  identicalEvalPathsPatches?: Record<string, string>,
 ): DiffWithReferenceState[] => {
   const ignoreLargeKeys = normaliseEvalPath(identicalEvalPathsPatches);
   const updates = generateDiffUpdates(oldDataTree, dataTree, ignoreLargeKeys);
+  return updates;
+};
+
+export const decompressIdenticalEvalPaths = (
+  dataTree: any,
+  identicalEvalPathsPatches: Record<string, string>,
+) =>
+  produce(dataTree, (draft: any) =>
+    Object.entries(identicalEvalPathsPatches || {}).forEach(([key, value]) => {
+      const referencePathValue = get(dataTree, value);
+      set(draft, key, referencePathValue);
+    }),
+  );
+
+export const generateOptimisedUpdatesAndSetPrevState = (
+  dataTree: any,
+  dataTreeEvaluator: any,
+) => {
+  const identicalEvalPathsPatches =
+    dataTreeEvaluator?.getEvalPathsIdenticalToState();
+
+  const dataTreeDecompressed = decompressIdenticalEvalPaths(
+    dataTree,
+    identicalEvalPathsPatches,
+  );
+  const updates = generateOptimisedUpdates(
+    dataTreeEvaluator?.getPrevState(),
+    dataTreeDecompressed,
+    identicalEvalPathsPatches,
+  );
+
+  dataTreeEvaluator?.setPrevState(dataTreeDecompressed);
   return updates;
 };

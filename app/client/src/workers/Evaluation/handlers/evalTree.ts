@@ -23,7 +23,7 @@ import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
 import { setEvalContext } from "../evaluate";
 import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
 import { errorModifier } from "../errorModifier";
-import { generateOptimisedUpdates } from "../helpers";
+import { generateOptimisedUpdatesAndSetPrevState } from "../helpers";
 
 export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
@@ -61,7 +61,7 @@ export default function (request: EvalWorkerSyncRequest) {
 
   const unevalTree = __unevalTree__.unEvalTree;
   configTree = __unevalTree__.configTree as ConfigTree;
-
+  dataTreeEvaluator?.resetPathsIdenticalToState();
   try {
     if (!dataTreeEvaluator) {
       isCreateFirstTree = true;
@@ -211,16 +211,10 @@ export default function (request: EvalWorkerSyncRequest) {
 
   const jsVarsCreatedEvent = getJSVariableCreatedEvents(jsUpdates);
 
-  const identicalEvalPathsPatches =
-    dataTreeEvaluator?.getEvalPathsIdenticalToState(dataTree) || {};
-
-  const updates = generateOptimisedUpdates(
-    dataTreeEvaluator?.getPrevState(),
+  const updates = generateOptimisedUpdatesAndSetPrevState(
     dataTree,
-    identicalEvalPathsPatches,
+    dataTreeEvaluator,
   );
-
-  dataTreeEvaluator?.setPrevState(dataTree);
 
   const evalTreeResponse: EvalTreeResponseData = {
     updates,

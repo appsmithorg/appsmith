@@ -187,22 +187,11 @@ export default class DataTreeEvaluator {
     this.allActionValidationConfig = allActionValidationConfig;
     this.widgetConfigMap = widgetConfigMap;
   }
-
-  getEvalPathsIdenticalToState(dataTree: any): Record<string, string> {
-    const nextState = this.evalPathsIdenticalToState;
-    //clean up add paths which have deleted widget states
-    const addPaths = Object.keys(nextState)
-      .filter((evalPath) => {
-        const statePath = nextState[evalPath];
-        const [entityName] = statePath.split(".");
-        //remove undefined widget state
-        return !!get(dataTree, entityName);
-      })
-      .reduce((acc: any, path) => {
-        acc[path] = nextState[path];
-        return acc;
-      }, {});
-    return addPaths;
+  resetPathsIdenticalToState() {
+    this.evalPathsIdenticalToState = {};
+  }
+  getEvalPathsIdenticalToState(): Record<string, string> {
+    return this.evalPathsIdenticalToState || {};
   }
   getEvalTree() {
     return this.evalTree;
