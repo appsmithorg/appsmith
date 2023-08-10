@@ -32,7 +32,20 @@ export function sourceDataArrayValidation(
       let isValid = true;
       let message = { name: "", message: "" };
 
-      if (options.length > 10 && props.type !== "TABLE_WIDGET_V2") {
+      if (props.type === "TABLE_WIDGET_V2") {
+        // Check if source data is an array for each row of the table
+        for (let i = 0; i < options.length; i++) {
+          if (!Array.isArray(options[i])) {
+            isValid = false;
+            message = {
+              name: "TypeError",
+              message: "This value does not evaluate to type Array",
+            };
+
+            break;
+          }
+        }
+      } else if (options.length > 10) {
         isValid = false;
         message = {
           name: "RangeError",
