@@ -167,7 +167,7 @@ export class PropertyPane {
     if (assertElementVisible) {
       this.agHelper.AssertElementVisibility(this._copyWidget);
     }
-    //this.agHelper.AssertElementVisible(this._deleteWidget); //extra valisation, hence commenting!
+    //this.agHelper.AssertElementVisibility(this._deleteWidget); //extra valisation, hence commenting!
   }
 
   public CopyPasteWidgetFromPropertyPane(widgetName: string) {
@@ -528,7 +528,10 @@ export class PropertyPane {
   }
 
   public AssertIfPropertyIsNotVisible(property: string) {
-    this.agHelper.AssertElementNotVisible(this._propertyControl(property));
+    this.agHelper.AssertElementVisibility(
+      this._propertyControl(property),
+      false,
+    );
   }
 
   public AddAction(property: string) {
