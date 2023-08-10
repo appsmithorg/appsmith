@@ -21,8 +21,6 @@ export const INTERCOM_CONSENT_MESSAGE = () =>
   `Can we have your email for better support?`;
 export const YES = () => `Yes`;
 export const ARE_YOU_SURE = () => `Are you sure?`;
-export const ERROR_ADD_API_INVALID_URL = () =>
-  `Unable to create API. Try adding a URL to the datasource`;
 export const ERROR_MESSAGE_NAME_EMPTY = () => `Please select a name`;
 export const ERROR_MESSAGE_CREATE_APPLICATION = () =>
   `We could not create the Application`;
