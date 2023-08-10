@@ -1,4 +1,6 @@
 .button {
+  --colors: accent, neutral, negative, warning, positive;
+
   display: flex;
   justify-content: center;
   align-items: center;
@@ -14,7 +16,7 @@
   min-inline-size: var(--sizing-8);
   border-radius: var(--border-radius-1);
 
-  @each $color in accent, neutral, negative, warning, positive {
+  @each $color in var(--colors) {
     &[data-variant="filled"][data-color="$(color)"] {
       background-color: var(--color-bg-$(color));
       color: var(--color-fg-on-$(color));
