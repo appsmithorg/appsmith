@@ -147,8 +147,8 @@ describe("JSObjects OnLoad Actions tests", function () {
   it("6. Tc 55 - Verify OnPage Load - Enabling & Before Function calling Enabling for JSOBject & deleting testdata", function () {
     // deployMode.DeployApp(locators._widgetInDeployed("tablewidget"), false);
     // agHelper.WaitUntilAllToastsDisappear();    //incase toast appears, GetEmployee failure toast is appearing
-    // agHelper.AssertElementVisible(jsEditor._dialog("Confirmation dialog"));
-    // agHelper.AssertElementVisible(
+    // agHelper.AssertElementVisibility(jsEditor._dialog("Confirmation dialog"));
+    // agHelper.AssertElementVisibility(
     //   jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     // );
     // jsEditor.ConfirmationClick("Yes");
@@ -159,8 +159,8 @@ describe("JSObjects OnLoad Actions tests", function () {
     // });
     // //agHelper.AssertNetworkExecutionSuccess("@postExecute");
     // deployMode.NavigateBacktoEditor();
-    // agHelper.AssertElementVisible(jsEditor._dialog("Confirmation dialog"));
-    // agHelper.AssertElementVisible(
+    // agHelper.AssertElementVisibility(jsEditor._dialog("Confirmation dialog"));
+    // agHelper.AssertElementVisibility(
     //   jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     // );
     // jsEditor.ConfirmationClick("Yes");
