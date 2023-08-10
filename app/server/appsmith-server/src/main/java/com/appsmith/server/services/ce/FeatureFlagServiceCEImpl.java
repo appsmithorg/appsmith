@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import com.appsmith.server.services.ConfigService;
@@ -150,14 +151,24 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                                         < this.tenantFeaturesCacheTimeMin) {
                                     return Mono.just(cachedFeatures);
                                 } else {
-                                    return cacheableFeatureFlagHelper
-                                            .evictCachedTenantNewFeatures(defaultTenantId)
-                                            .then(cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(
-                                                    defaultTenantId));
+                                    return this.forceUpdateTenantFeatures(defaultTenantId);
                                 }
                             });
                 })
                 .then();
+    }
+
+    /**
+     * Method to force update the tenant level feature flags. This will be utilised in scenarios where we don't want
+     * to wait for the flags to get updated for cron scheduled time
+     * @param tenantId  tenant for which the features need to be updated
+     * @return          Cached features
+     */
+    @Override
+    public Mono<CachedFeatures> forceUpdateTenantFeatures(String tenantId) {
+        return cacheableFeatureFlagHelper
+                .evictCachedTenantNewFeatures(tenantId)
+                .then(cacheableFeatureFlagHelper.fetchCachedTenantNewFeatures(tenantId));
     }
 
     /**

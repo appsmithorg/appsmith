@@ -142,7 +142,7 @@ describe("Table widget date column inline editing functionality", () => {
       "YYYY-MM-DDTHH:mm:ss.SSSsZ",
     );
     //we should now see an error when an incorrect date format
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       `${propPane._propertyDateFormat} ${table._codeMirrorError}`,
     );
   });
