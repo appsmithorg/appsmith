@@ -175,4 +175,7 @@ export interface FlexProps extends ComponentPropsWithRef<"div"> {
   isContainer?: boolean;
 }
 
-export type StyledFlexProps = OmitRename<FlexProps, "style" | "className">;
+export type StyledFlexProps = OmitRename<
+  FlexProps,
+  keyof ComponentPropsWithRef<"div">
+>;
