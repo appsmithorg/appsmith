@@ -236,11 +236,7 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
             @RequestBody ResendEmailVerificationDTO resendEmailVerificationDTO,
             @RequestHeader("Origin") String originHeader) {
         resendEmailVerificationDTO.setBaseUrl(originHeader);
-        // We shouldn't leak information on whether this operation was successful or not to the client. This can enable
-        // username scraping, where the response of this API can prove whether an email has an account or not.
         return service.emailVerificationTokenGenerate(resendEmailVerificationDTO)
-                .defaultIfEmpty(true)
-                .onErrorReturn(true)
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
     }
 

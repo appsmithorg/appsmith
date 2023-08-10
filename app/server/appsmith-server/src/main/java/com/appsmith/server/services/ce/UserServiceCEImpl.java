@@ -917,11 +917,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                     return Mono.just(emailVerificationToken);
                                 }))
                                 .map(emailVerificationToken -> {
-                                    // if token expired, generate new
-                                    if (FALSE.equals(isEmailVerificationTokenValid(emailVerificationToken))) {
-                                        emailVerificationToken.setTokenGeneratedAt(Instant.now());
-                                        emailVerificationToken.setTokenHash(passwordEncoder.encode(token));
-                                    }
+                                    // update token
+                                    emailVerificationToken.setTokenHash(passwordEncoder.encode(token));
+                                    emailVerificationToken.setTokenGeneratedAt(Instant.now());
                                     return emailVerificationToken;
                                 });
                     });
