@@ -19,6 +19,7 @@ import {
   updateInlineEditingSaveOptionHook,
 } from "../propertyUtils";
 import panelConfig from "./PanelConfig";
+import Widget from "../index";
 
 export default [
   {
