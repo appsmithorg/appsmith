@@ -28,7 +28,9 @@ describe("Table widget one click binding feature", () => {
         `${dsName}`,
         dsName,
         "public.employees",
-        "first_name",
+        {
+          searchableColumn: "first_name",
+        },
       );
     });
 
@@ -102,10 +104,7 @@ describe("Table widget one click binding feature", () => {
     assertHelper.AssertNetworkStatus("@postExecute");
 
     agHelper.Sleep(500);
-
-    agHelper.ClearTextField(table._searchInput);
-
-    agHelper.TypeText(table._searchInput, "cypress");
+    agHelper.ClearNType(table._searchInput, "cypress");
 
     assertHelper.AssertNetworkStatus("@postExecute");
 
