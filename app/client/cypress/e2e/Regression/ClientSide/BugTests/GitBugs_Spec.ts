@@ -40,7 +40,7 @@ describe("Git Bugs", function () {
       _.dataSources.CreatePlugIn("PostgreSQL");
       _.dataSources.FillPostgresDSForm();
       _.dataSources.SaveDSFromDialog(false);
-      _.agHelper.AssertElementVisible(_.gitSync._branchButton);
+      _.agHelper.AssertElementVisibility(_.gitSync._branchButton);
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
       });
