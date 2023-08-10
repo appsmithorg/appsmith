@@ -24,10 +24,10 @@ describe("DocumentViewer Widget Functionality", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("filepickerwidgetv2", 400, 900);
     entityExplorer.DragDropWidgetNVerify("documentviewerwidget", 300, 300);
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       propPane._propertyPanePropertyControl("data", "documentlink"),
     );
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       propPane._propertyPanePropertyControl("general", "visible"),
     );
   });
