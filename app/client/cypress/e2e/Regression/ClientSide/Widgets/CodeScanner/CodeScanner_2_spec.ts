@@ -69,8 +69,8 @@ describe("Code scanner widget tests", () => {
 
   it(
     "2 a) Validate onCodeDetected event of Always scan mode\n" +
-    "b) Open the Code Scanner modal and Scan a QR using fake webcam video.\n" +
-    "c) Verify that the scanned data is correctly displayed on the app's screen",
+      "b) Open the Code Scanner modal and Scan a QR using fake webcam video.\n" +
+      "c) Verify that the scanned data is correctly displayed on the app's screen",
     () => {
       //Add an action in onCodeDetected event
       entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 300, 500);
@@ -166,8 +166,8 @@ describe("Code scanner widget tests", () => {
 
   it(
     "4. a) Validate onCodeDetected event of click to scan mode.\n" +
-    "b) Open the Code Scanner modal and Scan a Valid QR containing encoded URL using fake webcam video.\n" +
-    "c) Verify that the scanned data is correctly displayed on the app's screen",
+      "b) Open the Code Scanner modal and Scan a Valid QR containing encoded URL using fake webcam video.\n" +
+      "c) Verify that the scanned data is correctly displayed on the app's screen",
     () => {
       deployMode.NavigateBacktoEditor();
       entityExplorer.SelectEntityByName("CodeScanner1");

@@ -166,34 +166,30 @@ describe("Camera widget - Image test", () => {
     table.ValidateDownloadNVerify("image.png");
   });
 
-  it("8. Should show default camera dropdown with default value as 'Back'", () => {
-    deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Camera1");
-    propPane.TogglePropertyState("Mirrored", "Off");
-    propPane.TogglePropertyState("Visible", "Off");
-    agHelper.AssertElementExist(
-      propPane._propertyControl("defaultmobilecamera"),
-    );
-    propPane.AssertPropertiesDropDownCurrentValue(
-      "Default mobile camera",
-      "Back (Rear)",
-    );
-  });
-
-  it("9. Should be able to change the default mobile camera option & Camera settings persist after switching cameras.", () => {
-    propPane.AssertPropertiesDropDownValues("Default mobile camera", [
-      "Back (Rear)",
-      "Front (Selfie)",
-    ]);
-    propPane.AssertPropertiesDropDownCurrentValue(
-      "Default mobile camera",
-      "Back (Rear)",
-    );
-    propPane.SelectPropertiesDropDown(
-      "Default mobile camera",
-      "Front (Selfie)",
-    );
-    agHelper.AssertExistingToggleState("Mirrored", "false");
-    agHelper.AssertExistingToggleState("Visible", "false");
-  });
+  it("8. a)Should show default camera dropdown with default value as 'Back' \n" +
+      "b)Should be able to change the default mobile camera option & Camera settings persist after switching cameras.",
+    () => {
+      deployMode.NavigateBacktoEditor();
+      entityExplorer.SelectEntityByName("Camera1");
+      propPane.TogglePropertyState("Mirrored", "Off");
+      propPane.TogglePropertyState("Visible", "Off");
+      agHelper.AssertElementExist(
+        propPane._propertyControl("defaultmobilecamera"),
+      );
+      propPane.AssertPropertiesDropDownCurrentValue(
+        "Default mobile camera",
+        "Back (Rear)",
+      );
+      propPane.AssertPropertiesDropDownValues("Default mobile camera", [
+        "Back (Rear)",
+        "Front (Selfie)",
+      ]);
+      propPane.SelectPropertiesDropDown(
+        "Default mobile camera",
+        "Front (Selfie)",
+      );
+      agHelper.AssertExistingToggleState("Mirrored", "false");
+      agHelper.AssertExistingToggleState("Visible", "false");
+    },
+  );
 });
