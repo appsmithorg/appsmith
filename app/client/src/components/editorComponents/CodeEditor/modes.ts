@@ -77,18 +77,6 @@ export const MULTIPLEXING_MODE_CONFIGS: MultiplexingModeConfigs = {
   graphql: undefined,
 };
 
-// This is to force codemirror to treat the contents between { and } as a JSON
-// and force the indentation to be 2 spaces.
-CodeMirror.defineMode("JSONJavascript", function (config) {
-  // @ts-expect-error: Types are not available
-  return CodeMirror.multiplexingMode(CodeMirror.getMode(config, "javascript"), {
-    open: "{",
-    close: "}",
-    mode: CodeMirror.getMode(config, "application/json"),
-    parseDelimiters: true,
-  });
-});
-
 Object.keys(MULTIPLEXING_MODE_CONFIGS).forEach((key) => {
   const multiplexConfig = MULTIPLEXING_MODE_CONFIGS[key as TEditorModes];
   if (!multiplexConfig) return;
@@ -101,7 +89,8 @@ Object.keys(MULTIPLEXING_MODE_CONFIGS).forEach((key) => {
         close: innerMode.close,
         delimStyle: "binding-brackets",
         mode: CodeMirror.getMode(config, {
-          name: "JSONJavascript",
+          name: "javascript",
+          json: true,
         }),
       })),
     );
