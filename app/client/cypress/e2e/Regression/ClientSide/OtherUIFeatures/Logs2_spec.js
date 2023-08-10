@@ -287,7 +287,7 @@ describe("Debugger logs", function () {
     _.entityExplorer.SelectEntityByName("Page1", "Pages");
     _.agHelper.GetNClick(_.locators._errorTab);
 
-    _.debuggerHelper.ClicklogEntityLink(0);
+    _.debuggerHelper.ClicklogEntityLink();
 
     cy.get(".t--js-action-name-edit-field").should("exist");
   });

@@ -159,6 +159,7 @@ import {
 import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
 import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
+import { klona } from "klona/lite";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -1564,7 +1565,11 @@ function* filePickerActionCallbackSaga(
       },
     });
 
-    const datasource: Datasource = yield select(getDatasource, datasourceId);
+    const datasourceFromState: Datasource = yield select(
+      getDatasource,
+      datasourceId,
+    );
+    const datasource: Datasource = klona(datasourceFromState);
     const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
     const applicationId: string = yield select(getCurrentApplicationId);
     const pageId: string = yield select(getCurrentPageId);

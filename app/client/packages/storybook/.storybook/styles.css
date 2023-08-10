@@ -1,19 +1,13 @@
 html,
 body,
-#root {
+#storybook-root {
   height: 100%;
   width: 100%;
 }
 
-*,
-:after,
-:before {
-  border: 0 solid #e4e4e7;
-  box-sizing: border-box;
-}
-
-.innerZoomElementWrapper > * {
-  overflow: hidden;
+/** we are stopping  animation for all elements for chromatic so that our snapshopts are consistent */
+.is-chromatic * {
+  animation: none !important;
 }
 
 /* fonts */

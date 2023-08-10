@@ -89,6 +89,10 @@ export function SignUp(props: SignUpFormProps) {
         search,
       });
     }
+
+    AnalyticsUtil.logEvent("SIGNUP_REACHED", {
+      referrer: document.referrer,
+    });
   }, []);
   const { emailValue: email, error, pristine, submitting, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);

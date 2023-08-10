@@ -24,6 +24,7 @@ import com.appsmith.server.services.GitService;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
+import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -195,9 +196,21 @@ public class GitControllerCE {
     @GetMapping("/status/app/{defaultApplicationId}")
     public Mono<ResponseDTO<GitStatusDTO>> getStatus(
             @PathVariable String defaultApplicationId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+            @RequestParam(required = false, defaultValue = "true") Boolean compareRemote) {
         log.debug("Going to get status for default application {}, branch {}", defaultApplicationId, branchName);
-        return service.getStatus(defaultApplicationId, branchName)
+        return service.getStatus(defaultApplicationId, compareRemote, branchName)
+                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/fetch/remote/app/{defaultApplicationId}")
+    public Mono<ResponseDTO<BranchTrackingStatus>> fetchRemoteChanges(
+            @PathVariable String defaultApplicationId,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug(
+                "Going to compare with remote for default application {}, branch {}", defaultApplicationId, branchName);
+        return service.fetchRemoteChanges(defaultApplicationId, branchName, true)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 

@@ -1,0 +1,40 @@
+import { Meta } from "@storybook/addon-docs";
+import { useTheme } from "@design-system/theming";
+
+<Meta title="Design-system/Theme/Tokens/RootUnit" />
+
+# Root Unit
+
+## What is it?
+
+We use a fluid root unit to create baseline grid for our design to
+ensure visual consistency and rhythm. The baseline grid is one of the
+most essential layout structures in product design. It makes interfaces
+more consistent, balanced, and easier to scan by users, as it
+establishes a repetitive pattern in visual recognition for your users.
+
+## How to use it?
+
+To establish a grid system, ensure all sizes, spacing (margins, padding)
+and typography in your designs are multiples of root Unit. As simple as
+that.
+
+## Why fluid?
+
+We use fluid root unit since the smaller the size of the user viewport,
+the higher the interface density should be, so we change the value of
+the root unit depending on viewport.
+
+**Important**
+We do not use root unit value directly for creating components, but only
+derived values are based on it such as spacing, sizing and typography.
+
+## Value
+
+export const RootUnit = () => {
+  const { theme } = useTheme();
+  const { rootUnit } = theme;
+  return <p>{rootUnit}</p>;
+};
+
+<RootUnit />

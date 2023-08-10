@@ -7,6 +7,8 @@ import {
   entityExplorer,
 } from "../../../../../support/Objects/ObjectsCore";
 
+const widgetLocators = require("../../../../../locators/Widgets.json");
+
 let dataSet: any, dsl: any;
 
 describe("Input widget test with default value from chart datapoint", () => {
@@ -38,7 +40,7 @@ describe("Input widget test with default value from chart datapoint", () => {
     );
     deployMode.DeployApp();
     agHelper.Sleep(1500); //waiting for chart to load!
-    agHelper.GetNClick("//*[local-name()='rect']", 13);
+    agHelper.GetNClick(widgetLocators.chartDataPoint);
     cy.get(locators._widgetInputSelector("inputwidgetv2"))
       .first()
       .invoke("val")

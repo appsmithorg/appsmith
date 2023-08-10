@@ -6,6 +6,7 @@ import {
   gitSync,
   apiPage,
   dataSources,
+  tedTestConfig,
 } from "../../../support/Objects/ObjectsCore";
 
 describe("Content Management System App", function () {
@@ -20,55 +21,52 @@ describe("Content Management System App", function () {
 
   let repoName;
   it("1.Create Get echo Api call", function () {
-    cy.fixture("datasources").then((datasourceFormData) => {
-      apiPage.CreateAndFillApi(datasourceFormData["echoApiUrl"], "get_data");
-      // creating get request using echo
-      apiPage.EnterHeader(
-        "info",
-        '[{"due":"2021-11-23","assignee":"Dan.Wyman@hotmail.com","title":"Recusan","description":"Ut quisquam eum beatae facere eos aliquam laborum ea.","id":"1"},{"due":"2021-11-23","assignee":"Dashawn_Maggio30@gmail.com","title":"Dignissimos eaque","description":"Consequatur corrupti et possimus en.","id":"2"},{"due":"2021-11-24","assignee":"Curt50@gmail.com","title":"Voluptas explicabo","description":"Quia ratione optio et maiores.","id":"3"},{"due":"2021-11-23","assignee":"Shanna63@hotmail.com","title":"Aut omnis.","description":"Neque rerum numquam veniam voluptatum id. Aut daut.","id":"4"}]',
-      );
-      // entering the data in header
-      apiPage.RunAPI();
-      apiPage.ResponseStatusCheck("200");
-    });
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].echoApiUrl,
+      "get_data",
+    );
+    // creating get request using echo
+    apiPage.EnterHeader(
+      "info",
+      '[{"due":"2021-11-23","assignee":"Dan.Wyman@hotmail.com","title":"Recusan","description":"Ut quisquam eum beatae facere eos aliquam laborum ea.","id":"1"},{"due":"2021-11-23","assignee":"Dashawn_Maggio30@gmail.com","title":"Dignissimos eaque","description":"Consequatur corrupti et possimus en.","id":"2"},{"due":"2021-11-24","assignee":"Curt50@gmail.com","title":"Voluptas explicabo","description":"Quia ratione optio et maiores.","id":"3"},{"due":"2021-11-23","assignee":"Shanna63@hotmail.com","title":"Aut omnis.","description":"Neque rerum numquam veniam voluptatum id. Aut daut.","id":"4"}]',
+    );
+    // entering the data in header
+    apiPage.RunAPI();
+    apiPage.ResponseStatusCheck("200");
   });
 
   it("2. Create Post echo Api call", function () {
-    cy.fixture("datasources").then((datasourceFormData) => {
-      apiPage.CreateAndFillApi(
-        datasourceFormData["echoApiUrl"],
-        "send_mail",
-        10000,
-        "POST",
-      );
-      apiPage.SelectPaneTab("Body");
-      apiPage.SelectSubTab("JSON");
-      // creating post request using echo
-      dataSources.EnterQuery(
-        '{"to":"{{to_input.text}}","subject":"{{subject.text}}","content":"{{content.text}}"}',
-      );
-      apiPage.RunAPI();
-      apiPage.ResponseStatusCheck("200");
-    });
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].echoApiUrl,
+      "send_mail",
+      10000,
+      "POST",
+    );
+    apiPage.SelectPaneTab("Body");
+    apiPage.SelectSubTab("JSON");
+    // creating post request using echo
+    dataSources.EnterQuery(
+      '{"to":"{{to_input.text}}","subject":"{{subject.text}}","content":"{{content.text}}"}',
+    );
+    apiPage.RunAPI();
+    apiPage.ResponseStatusCheck("200");
   });
 
   it("3. Create Delete echo Api call", function () {
-    cy.fixture("datasources").then((datasourceFormData) => {
-      apiPage.CreateAndFillApi(
-        datasourceFormData["echoApiUrl"],
-        "delete_proposal",
-        10000,
-        "DELETE",
-      );
-      apiPage.SelectPaneTab("Body");
-      apiPage.SelectSubTab("JSON");
-      // creating post request using echo
-      dataSources.EnterQuery(
-        '{"title":"{{title.text}}","due":"{{due.text}}","assignee":"{{assignee.text}}"}',
-      );
-      apiPage.RunAPI();
-      apiPage.ResponseStatusCheck("200");
-    });
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].echoApiUrl,
+      "delete_proposal",
+      10000,
+      "DELETE",
+    );
+    apiPage.SelectPaneTab("Body");
+    apiPage.SelectSubTab("JSON");
+    // creating post request using echo
+    dataSources.EnterQuery(
+      '{"title":"{{title.text}}","due":"{{due.text}}","assignee":"{{assignee.text}}"}',
+    );
+    apiPage.RunAPI();
+    apiPage.ResponseStatusCheck("200");
   });
 
   it("4. Send mail and verify post request body", function () {

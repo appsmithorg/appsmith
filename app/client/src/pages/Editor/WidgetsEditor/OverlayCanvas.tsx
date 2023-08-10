@@ -10,17 +10,13 @@ import { Layer, Stage } from "react-konva";
 import Konva from "konva";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { useAutoLayoutResizable } from "./useAutoLayoutResizable";
 import type { AppState } from "@appsmith/reducers";
-import { ReflowDirection } from "reflow/reflowTypes";
 
 const OVERLAY_CANVAS_ID = "overlay-canvas";
 const FONT_SIZE = 14;
 const LINE_HEIGHT = Math.floor(FONT_SIZE * 1.2);
 const VERTICAL_PADDING = 4;
 const HORIZONTAL_PADDING = 6;
-const HANDLE_MAX_DIMENSION = 16;
-const HANDLE_MIN_DIMENSION = 8;
 
 const HEIGHT = Math.floor(LINE_HEIGHT + VERTICAL_PADDING * 1.5);
 
@@ -49,8 +45,6 @@ const OverlayCanvasContainer = (props: {
     | { left: number; top: number; height: number; text: string; width: number }
     | undefined
   >(undefined);
-
-  const hoveredHandle = useRef<ReflowDirection | undefined>(undefined);
 
   const canvasPositions = useRef<{
     top: number;
@@ -119,199 +113,6 @@ const OverlayCanvasContainer = (props: {
     return { left, top };
   };
 
-  const getWidgetBoundary = (
-    position: any,
-    positionForBoundary: { left: number; top: number },
-    hasWidgetName: boolean,
-  ) => {
-    const { left, top } = positionForBoundary;
-
-    const groupEl = new Konva.Group({
-      height: position.height,
-      width: position.width,
-      x: left,
-      y: top,
-    });
-
-    const rectEl = new Konva.Rect({
-      cornerRadius: [4, hasWidgetName ? 0 : 4, 4, 4],
-      stroke: FILL_COLOR,
-      strokeWidth: 1,
-      height: position.height,
-      width: position.width,
-      x: 0,
-      y: 0,
-    });
-
-    groupEl.add(rectEl);
-
-    return groupEl;
-  };
-
-  const getWidgetResizeHandles = (
-    position: any,
-    positionForBoundary: { left: number; top: number },
-  ) => {
-    const { left, top } = positionForBoundary;
-
-    const handleGroups: Konva.Group[] = [];
-
-    if (handlePositions[ReflowDirection.BOTTOM]) {
-      const groupEl = new Konva.Group({
-        height: HANDLE_MIN_DIMENSION,
-        width: HANDLE_MAX_DIMENSION,
-        x: left + position.width / 2 - HANDLE_MAX_DIMENSION / 2,
-        y: top + position.height - HANDLE_MIN_DIMENSION / 2,
-      });
-
-      const outerBorderRadius = HANDLE_MIN_DIMENSION / 2;
-      const rectEl = new Konva.Rect({
-        cornerRadius: [
-          outerBorderRadius,
-          outerBorderRadius,
-          outerBorderRadius,
-          outerBorderRadius,
-        ],
-        fill: "white",
-        height: HANDLE_MIN_DIMENSION + 2,
-        width: HANDLE_MAX_DIMENSION + 2,
-        x: 0,
-        y: 0,
-      });
-
-      groupEl.add(rectEl);
-
-      const innerBorderRadius = HANDLE_MIN_DIMENSION / 2;
-      const rectEl2 = new Konva.Rect({
-        cornerRadius: [
-          innerBorderRadius,
-          innerBorderRadius,
-          innerBorderRadius,
-          innerBorderRadius,
-        ],
-        stroke: FILL_COLOR,
-        strokeWidth: 1,
-        fill:
-          hoveredHandle.current &&
-          hoveredHandle.current === ReflowDirection.BOTTOM
-            ? FILL_COLOR
-            : "white",
-        height: HANDLE_MIN_DIMENSION,
-        width: HANDLE_MAX_DIMENSION,
-        x: 1,
-        y: 1,
-      });
-
-      groupEl.add(rectEl2);
-
-      handleGroups.push(groupEl);
-    }
-
-    if (handlePositions[ReflowDirection.LEFT]) {
-      const groupEl = new Konva.Group({
-        height: HANDLE_MAX_DIMENSION,
-        width: HANDLE_MIN_DIMENSION,
-        x: left - HANDLE_MIN_DIMENSION / 2 - 1,
-        y: top + position.height / 2 - HANDLE_MAX_DIMENSION / 2,
-      });
-
-      const outerBorderRadius = HANDLE_MIN_DIMENSION / 2;
-      const rectEl = new Konva.Rect({
-        cornerRadius: [
-          outerBorderRadius,
-          outerBorderRadius,
-          outerBorderRadius,
-          outerBorderRadius,
-        ],
-        fill: "white",
-        height: HANDLE_MAX_DIMENSION + 2,
-        width: HANDLE_MIN_DIMENSION + 2,
-        x: 0,
-        y: 0,
-      });
-
-      groupEl.add(rectEl);
-
-      const innerBorderRadius = HANDLE_MIN_DIMENSION / 2;
-      const rectEl2 = new Konva.Rect({
-        cornerRadius: [
-          innerBorderRadius,
-          innerBorderRadius,
-          innerBorderRadius,
-          innerBorderRadius,
-        ],
-        stroke: FILL_COLOR,
-        fill:
-          hoveredHandle.current &&
-          hoveredHandle.current === ReflowDirection.LEFT
-            ? FILL_COLOR
-            : "white",
-        strokeWidth: 1,
-        height: HANDLE_MAX_DIMENSION,
-        width: HANDLE_MIN_DIMENSION,
-        x: 1,
-        y: 1,
-      });
-
-      groupEl.add(rectEl2);
-
-      handleGroups.push(groupEl);
-    }
-
-    if (handlePositions[ReflowDirection.RIGHT]) {
-      const groupEl = new Konva.Group({
-        height: HANDLE_MAX_DIMENSION,
-        width: HANDLE_MIN_DIMENSION,
-        x: left + position.width - HANDLE_MIN_DIMENSION / 2,
-        y: top + position.height / 2 - HANDLE_MAX_DIMENSION / 2,
-      });
-
-      const outerBorderRadius = HANDLE_MIN_DIMENSION / 2;
-      const rectEl = new Konva.Rect({
-        cornerRadius: [
-          outerBorderRadius,
-          outerBorderRadius,
-          outerBorderRadius,
-          outerBorderRadius,
-        ],
-        fill: "white",
-        height: HANDLE_MAX_DIMENSION + 2,
-        width: HANDLE_MIN_DIMENSION + 2,
-        x: 0,
-        y: 0,
-      });
-
-      groupEl.add(rectEl);
-
-      const innerBorderRadius = HANDLE_MIN_DIMENSION / 2;
-      const rectEl2 = new Konva.Rect({
-        cornerRadius: [
-          innerBorderRadius,
-          innerBorderRadius,
-          innerBorderRadius,
-          innerBorderRadius,
-        ],
-        stroke: FILL_COLOR,
-        strokeWidth: 1,
-        fill:
-          hoveredHandle.current &&
-          hoveredHandle.current === ReflowDirection.RIGHT
-            ? FILL_COLOR
-            : "white",
-        height: HANDLE_MAX_DIMENSION,
-        width: HANDLE_MIN_DIMENSION,
-        x: 1,
-        y: 1,
-      });
-
-      groupEl.add(rectEl2);
-
-      handleGroups.push(groupEl);
-    }
-
-    return handleGroups;
-  };
-
   const getWidgetNameComponent = (position: any, widgetName: string) => {
     const textEl = new Konva.Text({
       fill: TEXT_COLOR,
@@ -327,7 +128,7 @@ const OverlayCanvasContainer = (props: {
 
     const { left: widgetLeft, top: widgetTop } =
       getPositionsForBoundary(position);
-    const left: number = widgetLeft + position.width - componentWidth + 0.5;
+    const left: number = widgetLeft + position.width - componentWidth + 1;
     const top: number = widgetTop - HEIGHT;
     widgetNamePositions.current = {
       left: left,
@@ -364,7 +165,6 @@ const OverlayCanvasContainer = (props: {
     widgetId: string,
     position: any,
     widgetName?: string,
-    shouldRenderHandles?: boolean,
   ) => {
     if (!position) return;
 
@@ -376,25 +176,6 @@ const OverlayCanvasContainer = (props: {
         selectWidget(SelectionRequestType.One, [widgetId]);
       });
       layer.add(widgetNameComponent);
-    }
-
-    const positionForBoundary = getPositionsForBoundary(position);
-    const widgetBoundary = getWidgetBoundary(
-      position,
-      positionForBoundary,
-      !!widgetName,
-    );
-    layer.add(widgetBoundary);
-
-    if (shouldRenderHandles) {
-      const widgetResizeHandles = getWidgetResizeHandles(
-        position,
-        positionForBoundary,
-      );
-
-      for (const resizeHandle of widgetResizeHandles) {
-        layer.add(resizeHandle);
-      }
     }
   };
 
@@ -417,18 +198,10 @@ const OverlayCanvasContainer = (props: {
         if (isSingleSelected) {
           const position = widgetPosition || selectedWidgetPosition;
 
-          addWidgetToCanvas(
-            layer,
-            selectedWidget.id,
-            position,
-            widgetName,
-            true,
-          );
+          addWidgetToCanvas(layer, id, position, widgetName);
 
           continue;
         }
-
-        addWidgetToCanvas(layer, id, selectedWidgetPosition);
       }
     }
 
@@ -441,31 +214,11 @@ const OverlayCanvasContainer = (props: {
     layer.draw();
   };
 
-  const getScrollTop = () => {
-    return props?.parentRef?.current?.scrollTop || 0;
-  };
-
-  const { handlePositions, onMouseDown, onMouseMove, onMouseUp } =
-    useAutoLayoutResizable(
-      selectedWidgetsData,
-      canvasPositions.current,
-      getScrollTop,
-      getPositionsForBoundary,
-      updateSelectedWidgetPositions,
-    );
-
-  const setHoveredHandle = (handleDirection: ReflowDirection | undefined) => {
-    if (hoveredHandle.current !== handleDirection) {
-      hoveredHandle.current = handleDirection;
-    }
-  };
-
   const handleMouseMove = throttle((e: any) => {
     const canvas = canvasRef?.current as HTMLDivElement;
     if (!canvas) return;
-    const { cursor, handle, isMouseOver } = getMouseOverDetails(e);
+    const { cursor, isMouseOver } = getMouseOverDetails(e);
 
-    setHoveredHandle(handle);
     if (isMouseOver || isResizing) {
       if (canvas.style.pointerEvents === "none") {
         canvas.style.pointerEvents = "auto";
@@ -520,13 +273,7 @@ const OverlayCanvasContainer = (props: {
       parent.removeEventListener("scroll", handleScroll);
       containerEventAdded.current = false;
     };
-  }, [
-    props.containerRef?.current,
-    props.parentRef?.current,
-    handlePositions,
-    isResizing,
-    hoveredHandle.current,
-  ]);
+  }, [props.containerRef?.current, props.parentRef?.current, isResizing]);
 
   const getMouseOverDetails = (e: any) => {
     const x =
@@ -539,34 +286,19 @@ const OverlayCanvasContainer = (props: {
       }
     }
 
-    for (const handle of Object.values(handlePositions)) {
-      const { height, left, top, width } = handle;
-      if (x > left && x < left + width && y > top && y < top + height) {
-        setHoveredHandle(handle.direction);
-        return {
-          isMouseOver: true,
-          cursor: handle.cursor,
-          handle: handle.direction,
-        };
-      }
-    }
-
     return { isMouseOver: false };
   };
 
   useEffect(() => {
-    if (!selectedWidgetsData?.length || isAutoCanvasResizing) {
+    if (!selectedWidgetsData?.length || isAutoCanvasResizing || isResizing) {
       resetCanvas();
       return;
     }
-    if (!isResizing) {
-      updateSelectedWidgetPositions();
-    }
+    updateSelectedWidgetPositions();
   }, [
     selectedWidgetsData,
     focusedWidgetData,
     isResizing,
-    handlePositions,
     isAutoCanvasResizing,
   ]);
 
@@ -599,9 +331,6 @@ const OverlayCanvasContainer = (props: {
     >
       <Stage
         height={canvasPositions?.current.height || 600}
-        onMouseDown={onMouseDown}
-        onMouseMove={onMouseMove}
-        onMouseUp={onMouseUp}
         ref={stageRef}
         width={props.canvasWidth + 20}
       >

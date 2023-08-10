@@ -11,6 +11,12 @@ export interface ColorModeTheme {
     bgAccentActive: string;
     bgAccentSubtleHover: string;
     bgAccentSubtleActive: string;
+    bgAssistive: string;
+    bgNeutral: string;
+    bgNeutralHover: string;
+    bgNeutralActive: string;
+    bgNeutralSubtleHover: string;
+    bgNeutralSubtleActive: string;
     bgPositive: string;
     bgPositiveHover: string;
     bgPositiveActive: string;
@@ -26,34 +32,36 @@ export interface ColorModeTheme {
     bgWarningActive: string;
     bgWarningSubtleHover: string;
     bgWarningSubtleActive: string;
-    bgNeutral: string;
-    bgNeutralHover: string;
-    bgNeutralActive: string;
-    bgNeutralSubtleHover: string;
-    bgNeutralSubtleActive: string;
     // fg
     fg: string;
     fgAccent: string;
-    fgNegative: string;
     fgNeutral: string;
     fgPositive: string;
+    fgNegative: string;
     fgWarning: string;
+    // fg on bg*
     fgOnAccent: string;
+    fgOnAssistive: string;
     fgOnNeutral: string;
     fgOnPositive: string;
-    fgOnWarning: string;
     fgOnNegative: string;
-    fgOnAssistive: string;
+    fgOnWarning: string;
     // bd
     bdAccent: string;
     bdFocus: string;
-    bdNegative: string;
-    bdNegativeHover: string;
     bdNeutral: string;
     bdNeutralHover: string;
     bdPositive: string;
     bdPositiveHover: string;
+    bdNegative: string;
+    bdNegativeHover: string;
     bdWarning: string;
     bdWarningHover: string;
+    // bd on bg*
+    bdOnAccent: string;
+    bdOnNeutral: string;
+    bdOnPositive: string;
+    bdOnNegative: string;
+    bdOnWarning: string;
   };
 }

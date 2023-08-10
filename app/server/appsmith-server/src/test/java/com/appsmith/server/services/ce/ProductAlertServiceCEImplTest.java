@@ -10,25 +10,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@TestPropertySource("classpath:/productAlerts/productAlertMessages.yml")
 @Slf4j
 @ExtendWith(SpringExtension.class)
 public class ProductAlertServiceCEImplTest {
-
-    @Value("${productalertmessages}")
-    String messageListJSONString;
 
     ObjectMapper mapper;
 
@@ -41,7 +36,15 @@ public class ProductAlertServiceCEImplTest {
     public void setup() {
         try {
             this.mapper = new ObjectMapper();
-            this.messages = mapper.readValue(messageListJSONString, ProductAlertResponseDTO[].class);
+            ClassLoader classLoader = getClass().getClassLoader();
+            this.messages = mapper.readValue(
+                    new String(
+                            classLoader
+                                    .getResource("productAlerts/productAlertMessages.json")
+                                    .openStream()
+                                    .readAllBytes(),
+                            StandardCharsets.UTF_8),
+                    ProductAlertResponseDTO[].class);
         } catch (Exception e) {
             log.error("failed to read product alert properties correctly.", e);
             throw new AppsmithException(AppsmithError.INVALID_PROPERTIES_CONFIGURATION, "productalertmessages");
@@ -50,8 +53,7 @@ public class ProductAlertServiceCEImplTest {
 
     @Test
     public void getSingleApplicableMessage_selfHostedInstance_success() {
-        ProductAlertServiceCE productAlertServiceCE =
-                new ProductAlertServiceCEImpl(messageListJSONString, mapper, commonConfig);
+        ProductAlertServiceCE productAlertServiceCE = new ProductAlertServiceCEImpl(mapper, commonConfig);
         Mockito.when(commonConfig.isCloudHosting()).thenReturn(false);
         Mono<java.util.List<ProductAlertResponseDTO>> productAlertResponseDTOMono =
                 productAlertServiceCE.getSingleApplicableMessage();
@@ -63,10 +65,24 @@ public class ProductAlertServiceCEImplTest {
     }
 
     @Test
-    public void getSingleApplicableMessage_cloudInstance_success() {
-        ProductAlertServiceCE productAlertServiceCE =
-                new ProductAlertServiceCEImpl(messageListJSONString, mapper, commonConfig);
+    public void getSingleApplicableMessage_cloudInstance_precutOffDate() {
+        ProductAlertServiceCE productAlertServiceCE = new ProductAlertServiceCEImpl(mapper, commonConfig);
         Mockito.when(commonConfig.isCloudHosting()).thenReturn(true);
+        Mockito.when(commonConfig.getCurrentTimeInstantEpochMilli()).thenReturn(1691127900000L);
+        Mono<List<ProductAlertResponseDTO>> productAlertResponseDTOMono =
+                productAlertServiceCE.getSingleApplicableMessage();
+        StepVerifier.create(productAlertResponseDTOMono)
+                .assertNext(productAlertResponseDTOs -> {
+                    assertThat(productAlertResponseDTOs.get(0).getMessageId()).isEqualTo(messages[2].getMessageId());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getSingleApplicableMessage_cloudInstance_postcutOffDate() {
+        ProductAlertServiceCE productAlertServiceCE = new ProductAlertServiceCEImpl(mapper, commonConfig);
+        Mockito.when(commonConfig.isCloudHosting()).thenReturn(true);
+        Mockito.when(commonConfig.getCurrentTimeInstantEpochMilli()).thenReturn(1691473500000L);
         Mono<List<ProductAlertResponseDTO>> productAlertResponseDTOMono =
                 productAlertServiceCE.getSingleApplicableMessage();
         StepVerifier.create(productAlertResponseDTOMono)
@@ -78,8 +94,7 @@ public class ProductAlertServiceCEImplTest {
 
     @Test
     public void getSingleApplicableMessage_malformedExpression() throws NoSuchFieldException, IllegalAccessException {
-        ProductAlertServiceCE productAlertServiceCE =
-                new ProductAlertServiceCEImpl(messageListJSONString, mapper, commonConfig);
+        ProductAlertServiceCE productAlertServiceCE = new ProductAlertServiceCEImpl(mapper, commonConfig);
         Field messageField = productAlertServiceCE.getClass().getDeclaredField("messages");
         messageField.setAccessible(true);
         messages[0].setApplicabilityExpression("invalidExpression");
@@ -87,6 +102,10 @@ public class ProductAlertServiceCEImplTest {
         Mockito.when(commonConfig.isCloudHosting()).thenReturn(true);
         Mono<List<ProductAlertResponseDTO>> productAlertResponseDTOMono =
                 productAlertServiceCE.getSingleApplicableMessage();
-        StepVerifier.create(productAlertResponseDTOMono).expectError(AppsmithException.class);
+        StepVerifier.create(productAlertResponseDTOMono)
+                .assertNext(productAlertResponseDTOs -> {
+                    assertThat(productAlertResponseDTOs.isEmpty());
+                })
+                .verifyComplete();
     }
 }

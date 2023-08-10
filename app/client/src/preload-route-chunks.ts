@@ -28,7 +28,7 @@ if (
   currentMode
 ) {
   window.__APPSMITH_CHUNKS_TO_PRELOAD[currentMode]
-    // __webpack_public_path__ might be set on runtime when the CDN is used in EE
+    // @ts-expect-error __webpack_public_path__ might be set on runtime when the CDN is used in EE
     .map((url) => __webpack_public_path__ + url)
     .forEach((url) => {
       const link = document.createElement("link");
