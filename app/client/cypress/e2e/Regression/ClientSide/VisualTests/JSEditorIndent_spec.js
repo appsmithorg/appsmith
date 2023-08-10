@@ -4,6 +4,8 @@ import {
   entityExplorer,
   homePage,
   jsEditor,
+  apiPage,
+  dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("JSEditor Indendation - Visual tests", () => {
@@ -340,5 +342,24 @@ myFun2: async () => {
 
     cy.get("div.CodeMirror").type("{cmd+leftArrow}");
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterGoLineStartSmart5");
+  });
+
+  it.only("5. TC 1862 - JSEditor validation for goLineStartSmart with no errors, triggered by keyboard shortcut", () => {
+    apiPage.CreateApi("FirstAPI");
+    apiPage.SelectPaneTab("Body");
+    apiPage.SelectSubTab("JSON");
+    dataSources.EnterQuery(
+      `{{
+        {
+          "title": this.params.title,
+              "due": this.params.due,
+                  assignee: this.params.assignee 
+                  }
+      }}`,
+    );
+    cy.get("body").type(agHelper.isMac ? "{meta}S" : "{ctrl}S");
+    cy.get(apiPage.jsonBody).matchImageSnapshot(
+      "formattedJSONBodyAfterSave",
+    );
   });
 });
