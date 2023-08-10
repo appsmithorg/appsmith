@@ -43,7 +43,11 @@ export const SUPER_USER_SUBMIT_PATH = `${SIGNUP_SUBMIT_PATH}/super`;
 export const getExportAppAPIRoute = (applicationId: string) => {
   const urlParams = new URLSearchParams(window.location.search);
   const branch = urlParams.get("branch");
-  return `/api/v1/applications/export/${applicationId}?branchName=${branch}`;
+  let exportUrl = `/api/v1/applications/export/${applicationId}`;
+  if (branch) {
+    exportUrl += `?branchName=${branch}`;
+  }
+  return exportUrl;
 };
 export const getSnapShotAPIRoute = (applicationId: string) =>
   `/v1/applications/snapshot/${applicationId}`;
