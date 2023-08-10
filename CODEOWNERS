@@ -163,35 +163,39 @@ app/client/src/sagas/QueryPaneSagas.ts @ayushpahwa @ChandanBalajiBP
 app/client/src/transformers/RestAPIDatasourceFormTransformer.ts @ayushpahwa @ChandanBalajiBP
 
 
-app/server/appsmith-interfaces/src/main/java/com/appsmith/external/models/ActionExecutionResult.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-interfaces/src/main/java/com/appsmith/external/models/Datasource* @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-interfaces/src/main/java/com/appsmith/external/models/OAuth2ResponseDTO.java @nidhi-nair @sondermanish @tkappsmith
+# Followed Globstar paths in combination with wildcard paths. Reference https://docs.gitlab.com/ee/user/project/codeowners/reference.html#globstar-paths
+# Data Platform server - Interfaces
+app/server/appsmith-interfaces/src/main/java/com/appsmith/external/**/Action* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-interfaces/src/main/java/com/appsmith/external/**/Datasource* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-interfaces/src/main/java/com/appsmith/external/**/OAuth2* @nidhi-nair @sondermanish @tkappsmith
 
-app/server/appsmith-server/src/main/java/com/appsmith/server/controllers/ce/ActionControllerCE.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/controllers/ce/Datasource* @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/controllers/ce/PageControllerCE.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/dtos/ActionCollectionDTO.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/dtos/ActionDTO.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/exceptions/AppsmithError.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/exceptions/AppsmithErrorCode.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/PermissionUtils.java @nidhi-nair @sondermanish @tkappsmith
+# Data Platform server - Controllers
+app/server/appsmith-server/src/main/java/com/appsmith/server/controllers/**/Action* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/controllers/**/Datasource* @nidhi-nair @sondermanish @tkappsmith
 
-app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/*Datasource* @nidhi-nair @sondermanish @tkappsmith
+# Data Platform server - Domains
+app/server/appsmith-server/src/main/java/com/appsmith/server/domains/**/Action* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/domains/**/Datasource* @nidhi-nair @sondermanish @tkappsmith
 
-app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/ce/*Datasource* @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/ce/CustomNewActionRepositoryCE.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/ce/CustomNewActionRepositoryCEImpl.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/AuthenticationValidatorCE.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/AuthenticationValidatorCEImpl.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/LayoutActionServiceCEImpl.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/LayoutCollectionServiceCEImpl.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/MockDataServiceCE.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/MockDataServiceCEImpl.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/NewActionServiceCE.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/NewActionServiceCEImpl.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/ActionExecutionSolutionImpl.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/AuthenticationServiceImpl.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/Environment* @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/ce/ActionExecutionSolutionCEImpl.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/ce/CreateDBTablePageSolutionCE.java @nidhi-nair @sondermanish @tkappsmith
-app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/ce/CreateDBTablePageSolutionCEImpl.java @nidhi-nair @sondermanish @tkappsmith
+# Data Platform server - DTOs
+app/server/appsmith-server/src/main/java/com/appsmith/server/dtos/**/Action* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/dtos/**/Datasource* @nidhi-nair @sondermanish @tkappsmith
+
+# Data Platform server - Repositories
+app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/**/*Action* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/**/*Datasource* @nidhi-nair @sondermanish @tkappsmith
+
+# Data Platform server - Services
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/**/*Action* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/**/*Datasource* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/**/*Authentication* @nidhi-nair @sondermanish @tkappsmith
+
+# Data Platform server - Solutions
+app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/**/*Action* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/**/*Datasource* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/**/*Authentication* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/**/*Environment* @nidhi-nair @sondermanish @tkappsmith
+
+# Data Platform server - Misc
+app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/**/Datasource* @nidhi-nair @sondermanish @tkappsmith
+app/server/appsmith-server/src/main/java/com/appsmith/server/exceptions/AppsmithError* @nidhi-nair @sondermanish @tkappsmith
