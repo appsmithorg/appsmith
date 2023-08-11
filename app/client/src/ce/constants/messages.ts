@@ -136,6 +136,9 @@ export const VERIFY_ERROR_ALREADY_VERIFIED_TITLE = () =>
 
 export const VERIFY_ERROR_EXPIRED_TITLE = () => "Oops, this link has expired";
 
+export const VERIFY_ERROR_MISMATCH_TITLE = () =>
+  "This link seems damaged. Please request a new link";
+
 export const PRIVACY_POLICY_LINK = () => `Privacy policy`;
 export const TERMS_AND_CONDITIONS_LINK = () => `Terms and conditions`;
 
