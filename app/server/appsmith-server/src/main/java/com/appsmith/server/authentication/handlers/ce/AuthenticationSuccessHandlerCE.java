@@ -43,6 +43,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
+
 @Slf4j
 @RequiredArgsConstructor
 public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSuccessHandler {
@@ -63,6 +67,56 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final CommonConfig commonConfig;
     private final UserIdentifierService userIdentifierService;
     private final TenantService tenantService;
+
+    // private final UserService userService;
+
+    private Mono<Boolean> isVerificationRequired(String userEmail, String method) {
+        Mono<Boolean> emailVerificationEnabledMono = tenantService
+                .getTenantConfiguration()
+                .map(tenant -> tenant.getTenantConfiguration().getEmailVerificationEnabled())
+                .cache();
+
+        Mono<User> userMono = userRepository.findByEmail(userEmail).cache();
+        Mono<Boolean> verificationRequiredMono = null;
+
+        if (method == "signup") {
+            verificationRequiredMono = emailVerificationEnabledMono.flatMap(emailVerificationEnabled -> {
+                if (!TRUE.equals(emailVerificationEnabled)) {
+                    return userMono.flatMap(user -> {
+                        user.setEmailVerificationRequired(FALSE);
+                        return userRepository.save(user).then(Mono.just(FALSE));
+                    });
+                } else {
+                    return userMono.flatMap(user -> {
+                        user.setEmailVerificationRequired(TRUE);
+                        return userRepository.save(user).then(Mono.just(TRUE));
+                    });
+                }
+            });
+        } else if (method == "login") {
+            verificationRequiredMono = userMono.flatMap(user -> {
+                Boolean emailVerified = user.getEmailVerified();
+                if (TRUE.equals(emailVerified)) {
+                    return Mono.just(FALSE);
+                } else {
+                    return emailVerificationEnabledMono.flatMap(emailVerificationEnabled -> {
+                        if (!TRUE.equals(emailVerificationEnabled)) {
+                            user.setEmailVerificationRequired(FALSE);
+                            return userRepository.save(user).then(Mono.just(FALSE));
+                        } else {
+                            if (!TRUE.equals(user.getEmailVerificationRequired())) {
+                                return Mono.just(FALSE);
+                            } else {
+                                user.setEmailVerificationRequired(TRUE);
+                                return userRepository.save(user).then(Mono.just(TRUE));
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        return verificationRequiredMono;
+    }
 
     /**
      * On authentication success, we send a redirect to the endpoint that serve's the user's profile.
@@ -87,6 +141,8 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
         Mono<Void> redirectionMono;
         User user = (User) authentication.getPrincipal();
+        Mono<Boolean> isVerificationRequiredMono = Mono.just(FALSE);
+        String authSuccessRedirectionUrl = null;
 
         if (authentication instanceof OAuth2AuthenticationToken) {
             // In case of OAuth2 based authentication, there is no way to identify if this was a user signup (new user
@@ -111,7 +167,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             if (isFromSignup) {
                 boolean finalIsFromSignup = isFromSignup;
                 redirectionMono = workspaceService
-                        .isCreateWorkspaceAllowed(Boolean.TRUE)
+                        .isCreateWorkspaceAllowed(TRUE)
                         .elapsed()
                         .map(pair -> {
                             log.debug(
@@ -155,51 +211,81 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             }
         }
 
+        if (FALSE.equals(authentication instanceof OAuth2AuthenticationToken)) {
+            if (isFromSignup) {
+                isVerificationRequiredMono = isVerificationRequired(user.getEmail(), "signup");
+                if (FALSE.equals(createDefaultApplication)) {
+                    //                    authSuccessRedirectionUrl =
+                    // redirectHelper.getAuthSuccessRedirectUrl(webFilterExchange, null, isFromSignup);
+                }
+
+            } else {
+                isVerificationRequiredMono = isVerificationRequired(user.getEmail(), "login");
+            }
+
+        } else {
+            user.setEmailVerificationRequired(FALSE);
+            isVerificationRequiredMono = userRepository.save(user).then(Mono.just(FALSE));
+        }
+
         final boolean isFromSignupFinal = isFromSignup;
-        return sessionUserService
-                .getCurrentUser()
-                .flatMap(currentUser -> {
-                    List<Mono<?>> monos = new ArrayList<>();
-                    monos.add(userDataService.ensureViewedCurrentVersionReleaseNotes(currentUser));
+        Mono<Boolean> finalIsVerificationRequiredMono = isVerificationRequiredMono.cache();
+        return webFilterExchange.getExchange().getSession().flatMap(webSession -> {
+            return finalIsVerificationRequiredMono.flatMap(isVerificationRequired -> {
+                if (TRUE.equals(isVerificationRequired)) {
+                    // removing session if not verified
+                    webSession.getAttributes().remove(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME);
+                    // send email with verification token
 
-                    String modeOfLogin = FieldName.FORM_LOGIN;
-                    if (authentication instanceof OAuth2AuthenticationToken) {
-                        modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
-                    }
+                    // redirect url
+                }
+                return sessionUserService
+                        .getCurrentUser()
+                        .flatMap(currentUser -> {
+                            List<Mono<?>> monos = new ArrayList<>();
+                            monos.add(userDataService.ensureViewedCurrentVersionReleaseNotes(currentUser));
 
-                    if (isFromSignupFinal) {
-                        final String inviteToken = currentUser.getInviteToken();
-                        final boolean isFromInvite = inviteToken != null;
+                            String modeOfLogin = FieldName.FORM_LOGIN;
+                            if (authentication instanceof OAuth2AuthenticationToken) {
+                                modeOfLogin = ((OAuth2AuthenticationToken) authentication)
+                                        .getAuthorizedClientRegistrationId();
+                            }
 
-                        // This should hold the role of the user, e.g., `App Viewer`, `Developer`, etc.
-                        final String invitedAs =
-                                inviteToken == null ? "" : inviteToken.split(":", 2)[0];
+                            if (isFromSignupFinal) {
+                                final String inviteToken = currentUser.getInviteToken();
+                                final boolean isFromInvite = inviteToken != null;
 
-                        modeOfLogin = "FormSignUp";
-                        if (authentication instanceof OAuth2AuthenticationToken) {
-                            modeOfLogin =
-                                    ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
-                        }
+                                // This should hold the role of the user, e.g., `App Viewer`, `Developer`, etc.
+                                final String invitedAs =
+                                        inviteToken == null ? "" : inviteToken.split(":", 2)[0];
 
-                        monos.add(analyticsService.sendObjectEvent(
-                                AnalyticsEvents.FIRST_LOGIN,
-                                currentUser,
-                                Map.of(
-                                        "isFromInvite",
-                                        isFromInvite,
-                                        "invitedAs",
-                                        invitedAs,
-                                        FieldName.MODE_OF_LOGIN,
-                                        modeOfLogin)));
-                        monos.add(examplesWorkspaceCloner.forkExamplesWorkspace());
-                    }
+                                modeOfLogin = "FormSignUp";
+                                if (authentication instanceof OAuth2AuthenticationToken) {
+                                    modeOfLogin = ((OAuth2AuthenticationToken) authentication)
+                                            .getAuthorizedClientRegistrationId();
+                                }
 
-                    monos.add(analyticsService.sendObjectEvent(
-                            AnalyticsEvents.LOGIN, currentUser, Map.of(FieldName.MODE_OF_LOGIN, modeOfLogin)));
+                                monos.add(analyticsService.sendObjectEvent(
+                                        AnalyticsEvents.FIRST_LOGIN,
+                                        currentUser,
+                                        Map.of(
+                                                "isFromInvite",
+                                                isFromInvite,
+                                                "invitedAs",
+                                                invitedAs,
+                                                FieldName.MODE_OF_LOGIN,
+                                                modeOfLogin)));
+                                monos.add(examplesWorkspaceCloner.forkExamplesWorkspace());
+                            }
 
-                    return Mono.whenDelayError(monos);
-                })
-                .then(redirectionMono);
+                            monos.add(analyticsService.sendObjectEvent(
+                                    AnalyticsEvents.LOGIN, currentUser, Map.of(FieldName.MODE_OF_LOGIN, modeOfLogin)));
+
+                            return Mono.whenDelayError(monos);
+                        })
+                        .then(redirectionMono);
+            });
+        });
     }
 
     protected Mono<Application> createDefaultApplication(String defaultWorkspaceId, Authentication authentication) {
