@@ -14,6 +14,9 @@
       background: #D7D7D7;
       transition: all ease-in 0.3s;
     }
+    #app-load-block {
+      visibility: hidden;
+    }
   </style>
   <script>
     // '' (empty strings), 'false' are falsy
@@ -91,8 +94,10 @@
     To keep zIndex for tooltips higher than app comments, todo remove when migrating to Tooltip2
     Currently the className does not apply to the portal root, so we're unable to work with z-indexes based on that
   -->
-  <div id="header-root"></div>
-  <div id="root"></div>
+  <div id="app-load-block">
+    <div id="header-root"></div>
+    <div id="root"></div>
+  </div>
   <div id="date-picker-control" style="position: relative; z-index: 1000;"></div>
   <script type="text/javascript">
     // Ref: https://github.com/Modernizr/Modernizr/blob/94592f279a410436530c7c06acc42a6e90c20150/feature-detects/storage/localstorage.js
