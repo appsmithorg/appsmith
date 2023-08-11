@@ -33,7 +33,7 @@ export const isValidLicense = () => {
   return true;
 };
 
-export const isTenantLoading = (state: AppState) => {
+export const getIsTenantLoading = (state: AppState) => {
   return state.tenant?.isLoading;
 };
 
