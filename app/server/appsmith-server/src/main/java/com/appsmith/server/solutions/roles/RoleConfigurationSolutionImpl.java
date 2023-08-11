@@ -20,6 +20,7 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -32,6 +33,7 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.solutions.roles.constants.PermissionViewableName;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
 import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
@@ -95,6 +97,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     private final AnalyticsService analyticsService;
     private final NewPageRepository newPageRepository;
     private final DatasourceRepository datasourceRepository;
+    private final FeatureFlagService featureFlagService;
     private final EnvironmentRepository environmentRepository;
 
     public RoleConfigurationSolutionImpl(
@@ -111,6 +114,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
             AnalyticsService analyticsService,
             NewPageRepository newPageRepository,
             DatasourceRepository datasourceRepository,
+            FeatureFlagService featureFlagService,
             EnvironmentRepository environmentRepository) {
 
         this.workspaceResources = workspaceResources;
@@ -126,6 +130,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         this.analyticsService = analyticsService;
         this.newPageRepository = newPageRepository;
         this.datasourceRepository = datasourceRepository;
+        this.featureFlagService = featureFlagService;
         this.environmentRepository = environmentRepository;
     }
 
@@ -559,7 +564,8 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                         sideEffectsRemovedMap.merge(envId, envRemoved, ListUtils::union);
                         return 1L;
                     })
-                    .reduce(0L, Long::sum);
+                    .reduce(0L, Long::sum)
+                    .switchIfEmpty(Mono.just(0L));
         }
         sideEffects.add(environmentsUpdated);
     }
@@ -571,12 +577,24 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
             ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
             ConcurrentHashMap<String, Class> sideEffectsClassMap) {
 
-        List<String> includedFields = List.of(fieldName(QEnvironment.environment.id));
         Flux<String> envIdFlux = datasourceRepository
                 .findById(datasourceId)
                 .map(Datasource::getWorkspaceId)
                 .flatMapMany(workspaceId ->
                         environmentRepository.findByWorkspaceId(workspaceId).map(Environment::getId));
+
+        // Since cloud hosted tenants won't have access to environments,
+        // we maintain this flow for them
+        Flux<String> featureFlaggedEnvironmentFlux = featureFlagService
+                .check(FeatureFlagEnum.release_datasource_environments_enabled)
+                .flatMapMany(isFeatureFlag -> {
+                    if (Boolean.TRUE.equals(isFeatureFlag)) {
+                        return Mono.empty();
+                    }
+
+                    // This method will be used only for executing environments
+                    return envIdFlux;
+                });
 
         boolean executeDatasourceAdded = added.stream()
                 .anyMatch(permission ->
@@ -590,13 +608,14 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         Mono<Long> environmentsUpdated = Mono.just(1L);
 
         if (executeDatasourceAdded) {
-            environmentsUpdated = envIdFlux
+            environmentsUpdated = featureFlaggedEnvironmentFlux
                     .map(envId -> {
                         sideEffectsClassMap.put(envId, Environment.class);
                         sideEffectsAddedMap.merge(envId, envAdded, ListUtils::union);
                         return 1L;
                     })
-                    .reduce(0L, Long::sum);
+                    .reduce(0L, Long::sum)
+                    .switchIfEmpty(Mono.just(0L));
         }
         sideEffects.add(environmentsUpdated);
     }
