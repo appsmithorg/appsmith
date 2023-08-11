@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import { Button, Divider, Text, Tooltip } from "design-system";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
@@ -54,6 +54,8 @@ import classNames from "classnames";
 import lazyLottie from "utils/lazyLottie";
 import tickMarkAnimationURL from "assets/lottie/guided-tour-tick-mark.json.txt";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 const { intercomAppID } = getAppsmithConfigs();
 
 const StyledDivider = styled(Divider)`
@@ -369,6 +371,7 @@ export default function OnboardingChecklist() {
   const isFirstTimeUserOnboardingComplete = useSelector(
     getFirstTimeUserOnboardingComplete,
   );
+  const { pushFeature } = useContext(WalkthroughContext) || {};
   const onconnectYourWidget = () => {
     const action = actions[0];
     dispatch(showSignpostingModal(false));
@@ -445,6 +448,35 @@ export default function OnboardingChecklist() {
     );
   }
 
+  const checkAndShowWalkthrough = () => {
+    // const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+    //   FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
+    // );
+
+    // const isNewUser = user && (await isUserSignedUpFlagSet(user.email));
+    // Adding walkthrough tutorial
+    pushFeature &&
+      pushFeature({
+        targetId: "add_datasources",
+        details: {
+          title: "Add New Datasource",
+          description: "Datasources can be directly and easily accessed here",
+          imageURL: `${ASSETS_CDN_URL}/schema.gif`,
+        },
+        offset: {
+          position: "right",
+          // left: -40,
+          top: -100,
+          highlightPad: 5,
+          indicatorLeft: -3,
+          style: {
+            transform: "none",
+          },
+        },
+        delay: 1000,
+      });
+  };
+
   return (
     <>
       <div className="flex-1">
@@ -500,12 +532,13 @@ export default function OnboardingChecklist() {
               },
             );
             dispatch(showSignpostingModal(false));
-            history.push(
-              integrationEditorURL({
-                pageId,
-                selectedTab: INTEGRATION_TABS.NEW,
-              }),
-            );
+            checkAndShowWalkthrough();
+            // history.push(
+            //   integrationEditorURL({
+            //     pageId,
+            //     selectedTab: INTEGRATION_TABS.NEW,
+            //   }),
+            // );
           }}
           step={SIGNPOSTING_STEP.CONNECT_A_DATASOURCE}
           testid={"checklist-datasource"}

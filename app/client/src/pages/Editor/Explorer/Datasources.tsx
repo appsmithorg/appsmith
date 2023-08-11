@@ -123,7 +123,7 @@ const Datasources = React.memo(() => {
     <Entity
       addButtonHelptext={createMessage(CREATE_DATASOURCE_TOOLTIP)}
       className={"group datasources"}
-      entityId={pageId + "_datasources"}
+      entityId={"datasources"}
       icon={null}
       isDefaultExpanded={
         isDatasourcesOpen === null || isDatasourcesOpen === undefined

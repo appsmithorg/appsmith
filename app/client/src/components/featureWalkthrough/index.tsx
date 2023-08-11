@@ -1,3 +1,4 @@
+/* eslint-disable no-debugger */
 import React, { lazy, useEffect, useState, Suspense } from "react";
 import type { FeatureParams } from "./walkthroughContext";
 import { DEFAULT_DELAY } from "./walkthroughContext";
@@ -7,6 +8,7 @@ import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { retryPromise } from "utils/AppsmithUtils";
 import { useLocation } from "react-router-dom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import log from "loglevel";
 
 const WalkthroughRenderer = lazy(() => {
   return retryPromise(
@@ -34,6 +36,7 @@ export default function Walkthrough({ children }: any) {
         setFeature((e) => [...e, value]);
       }
     }
+    debugger;
     updateActiveWalkthrough();
   };
 
@@ -56,6 +59,7 @@ export default function Walkthrough({ children }: any) {
   const updateActiveWalkthrough = () => {
     if (feature.length > 0) {
       const highlightArea = document.getElementById(feature[0].targetId);
+      log.debug(highlightArea, "highlightArea");
       setActiveWalkthrough(null);
       if (highlightArea) {
         setTimeout(() => {
@@ -68,6 +72,7 @@ export default function Walkthrough({ children }: any) {
   };
 
   useEffect(() => {
+    log.debug(feature, "feature");
     if (feature.length > -1) updateActiveWalkthrough();
   }, [feature.length, location]);
 

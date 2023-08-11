@@ -1,3 +1,4 @@
+/* eslint-disable no-debugger */
 import { Icon, Text } from "design-system";
 import { showIndicator } from "pages/Editor/GuidedTour/utils";
 import React, { useContext, useEffect, useState } from "react";
