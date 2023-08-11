@@ -8,6 +8,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.TriggerRequestDTO;
@@ -312,5 +313,14 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
 
     default Mono<DatasourceConfiguration> getDatasourceMetadata(DatasourceConfiguration datasourceConfiguration) {
         return Mono.just(datasourceConfiguration);
+    }
+
+    default Mono<ActionExecutionResult> fetchSchemaPreviewData(
+            C connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+        return Mono.just(new ActionExecutionResult());
+    }
+
+    default ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate) {
+        return null;
     }
 }

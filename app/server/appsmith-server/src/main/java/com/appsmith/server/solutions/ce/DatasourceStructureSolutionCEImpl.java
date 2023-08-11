@@ -4,9 +4,12 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -171,5 +174,102 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                 })
                 .switchIfEmpty(fetchAndStoreNewStructureMono)
                 .defaultIfEmpty(new DatasourceStructure());
+    }
+
+    @Override
+    public Mono<ActionExecutionResult> getSchemaPreviewData(
+            String datasourceId, String environmentId, Template queryTemplate) {
+        return datasourceService
+                .findById(datasourceId, datasourcePermission.getExecutePermission())
+                .zipWhen(datasource -> datasourceService.getTrueEnvironmentId(
+                        datasource.getWorkspaceId(),
+                        environmentId,
+                        datasource.getPluginId(),
+                        environmentPermission.getExecutePermission()))
+                .flatMap(tuple2 -> datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(
+                        tuple2.getT1(), tuple2.getT2()))
+                .flatMap(datasourceStorage -> getSchemaPreviewData(datasourceStorage, queryTemplate))
+                .onErrorMap(
+                        IllegalArgumentException.class,
+                        error -> new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, error.getMessage()))
+                .onErrorMap(e -> {
+                    if (!(e instanceof AppsmithPluginException)) {
+                        return new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_GET_PREVIEW_DATA_ERROR, e.getMessage());
+                    }
+
+                    return e;
+                })
+                .onErrorResume(error -> {
+                    ActionExecutionResult result = new ActionExecutionResult();
+                    result.setErrorInfo(error);
+                    return Mono.just(result);
+                });
+    }
+
+    private Mono<ActionExecutionResult> getSchemaPreviewData(
+            DatasourceStorage datasourceStorage, Template queryTemplate) {
+        Mono<String> environmentNameMonoCached = datasourceStorageService
+                .getEnvironmentNameFromEnvironmentIdForAnalytics(datasourceStorage.getEnvironmentId())
+                .cache();
+
+        if (Boolean.FALSE.equals(datasourceStorage.getIsValid())) {
+            return Mono.just(new ActionExecutionResult());
+        }
+
+        return pluginExecutorHelper
+                .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId())))
+                .flatMap(pluginExecutor -> {
+                    ActionConfiguration actionConfig =
+                            ((PluginExecutor<Object>) pluginExecutor).getSchemaPreviewActionConfig(queryTemplate);
+                    if (actionConfig != null) {
+                        return datasourceContextService.retryOnce(
+                                datasourceStorage, resourceContext -> ((PluginExecutor<Object>) pluginExecutor)
+                                        .fetchSchemaPreviewData(
+                                                resourceContext.getConnection(),
+                                                datasourceStorage.getDatasourceConfiguration(),
+                                                actionConfig));
+                    } else {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId()));
+                    }
+                })
+                .timeout(Duration.ofSeconds(GET_STRUCTURE_TIMEOUT_SECONDS))
+                .onErrorMap(
+                        TimeoutException.class,
+                        error -> new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR,
+                                "Appsmith server timed out when fetching structure. Please reach out to appsmith "
+                                        + "customer support to resolve this."))
+                .onErrorMap(
+                        StaleConnectionException.class,
+                        error -> new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Appsmith server found a secondary stale connection. Please reach out to appsmith "
+                                        + "customer support to resolve this."))
+                .onErrorMap(
+                        IllegalArgumentException.class,
+                        error -> new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, error.getMessage()))
+                .onErrorMap(e -> {
+                    log.error("In the datasourceStorage fetching preview data error mode.", e);
+
+                    if (!(e instanceof AppsmithPluginException)) {
+                        return new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_GET_PREVIEW_DATA_ERROR, e.getMessage());
+                    }
+
+                    return e;
+                })
+                .onErrorResume(error -> environmentNameMonoCached
+                        .zipWhen(environmentName -> analyticsService.sendObjectEvent(
+                                AnalyticsEvents.DS_PREVIEW_DATA_EVENT,
+                                datasourceStorage,
+                                getAnalyticsPropertiesForTestEventStatus(
+                                        datasourceStorage, false, error, environmentName)))
+                        .then(Mono.error(error)));
     }
 }

@@ -155,6 +155,15 @@ public enum AppsmithPluginError implements BasePluginError {
             ErrorType.INTERNAL_ERROR,
             "{1}",
             "{2}"),
+    PLUGIN_GET_PREVIEW_DATA_ERROR(
+            500,
+            AppsmithPluginErrorCode.PLUGIN_GET_PREVIEW_DATA_ERROR.getCode(),
+            "{0}",
+            AppsmithErrorAction.DEFAULT,
+            "Failure in getting datasource preview data",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"),
     ;
 
     private final Integer httpErrorCode;

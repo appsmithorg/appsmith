@@ -14,6 +14,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
@@ -60,6 +61,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -268,6 +270,22 @@ public class PostgresPlugin extends BasePlugin {
                     explicitCastDataTypes);
         }
 
+        @Override
+        public Mono<ActionExecutionResult> fetchSchemaPreviewData(
+                HikariDataSource connection,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration) {
+            return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null, null);
+        }
+
+        @Override
+        public ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate) {
+            Template newQueryTemplate = new Template(queryTemplate.getTitle(), queryTemplate.getBody());
+            ActionConfiguration actionConfig = new ActionConfiguration();
+            actionConfig.setBody(newQueryTemplate.getBody());
+            return actionConfig;
+        }
+
         private Mono<ActionExecutionResult> executeCommon(
                 HikariDataSource connection,
                 DatasourceConfiguration datasourceConfiguration,
@@ -285,6 +303,7 @@ public class PostgresPlugin extends BasePlugin {
             String transformedQuery = preparedStatement ? replaceQuestionMarkWithDollarIndex(query) : query;
             List<RequestParamDTO> requestParams =
                     List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, transformedQuery, null, null, psParams));
+            Instant requestedAt = Instant.now();
 
             return Mono.fromCallable(() -> {
                         Connection connectionFromPool;
@@ -544,6 +563,9 @@ public class PostgresPlugin extends BasePlugin {
                         request.setQuery(query);
                         request.setProperties(requestData);
                         request.setRequestParams(requestParams);
+                        if (request.getRequestedAt() == null) {
+                            request.setRequestedAt(requestedAt);
+                        }
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
