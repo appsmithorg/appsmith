@@ -54,7 +54,7 @@ export function makeEntityConfigsAsObjProperties(
     const val = get(evalProps, evalPath);
     //serialised already
     alreadySanitisedDataSet[evalPath] = val;
-    //we are seperating it from evalProps because we don't want to serialise this identical data unecessarily
+    //we are seperating it from evalProps because we don't want to serialise this identical data unecessarily again
     unset(evalProps, evalPath);
   });
 

@@ -2,7 +2,7 @@ import produce from "immer";
 import { range } from "lodash";
 import { generateOptimisedUpdates } from "../helpers";
 
-const smallDataSet = [
+export const smallDataSet = [
   {
     address: "Paseo de Soledad Tur 245 Puerta 4 \nValencia, 50285",
     company: "Gonzalez Inc",
