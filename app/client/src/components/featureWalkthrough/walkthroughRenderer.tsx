@@ -127,6 +127,7 @@ const WalkthroughRenderer = ({
   targetId,
   eventParams = {},
   multipleHighlights,
+  backgroundOverlay = true,
 }: FeatureParams) => {
   const [boundingRects, setBoundingRects] =
     useState<BoundingRectTargets | null>(null);
@@ -198,16 +199,17 @@ const WalkthroughRenderer = ({
 
   return (
     <WalkthroughWrapper className="t--walkthrough-overlay">
-      <SvgWrapper
-        height={targetBounds.bh}
-        width={targetBounds.bw}
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <defs>
-          <clipPath id={CLIPID}>
-            <polygon
-              // See the comments above the component declaration to understand the below points assignment.
-              points={`0 0, 
+      {backgroundOverlay && (
+        <SvgWrapper
+          height={targetBounds.bh}
+          width={targetBounds.bw}
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <clipPath id={CLIPID}>
+              <polygon
+                // See the comments above the component declaration to understand the below points assignment.
+                points={`0 0, 
                     0 ${targetBounds.bh}, 
                     ${multipleHighlightsIds.reduce((acc, id) => {
                       const boundingRect = boundingRects[id];
@@ -224,19 +226,21 @@ const WalkthroughRenderer = ({
                     ${targetBounds.bw} ${targetBounds.bh}, 
                     ${targetBounds.bw} 0
                   `}
-            />
-          </clipPath>
-        </defs>
-        <rect
-          style={{
-            clipPath: 'url("#' + CLIPID + '")',
-            fill: "currentcolor",
-            height: targetBounds.bh,
-            pointerEvents: "auto",
-            width: targetBounds.bw,
-          }}
-        />
-      </SvgWrapper>
+              />
+            </clipPath>
+          </defs>
+          <rect
+            style={{
+              clipPath: 'url("#' + CLIPID + '")',
+              fill: "currentcolor",
+              height: targetBounds.bh,
+              pointerEvents: "auto",
+              width: targetBounds.bw,
+            }}
+          />
+        </SvgWrapper>
+      )}
+
       <InstructionsComponent
         details={details}
         offset={offset}
