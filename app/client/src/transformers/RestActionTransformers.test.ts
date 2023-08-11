@@ -393,7 +393,7 @@ describe("Api action transformer", () => {
         httpMethod: "POST",
         headers: [
           {
-            key: "Hello",
+            key: `<img src="x">Hello`,
             value: "world",
           },
         ],

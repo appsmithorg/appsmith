@@ -158,6 +158,8 @@ import {
   getCurrentEnvironment,
 } from "@appsmith/utils/Environments";
 import { changeQuery } from "actions/queryPaneActions";
+import { isHtml } from "components/editorComponents/utils";
+import { filterActionExecutionResponse } from "@appsmith/api/ApiUtils";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -193,7 +195,7 @@ export const getActionTimeout = (
 const createActionExecutionResponse = (
   response: ActionExecutionResponse,
 ): ActionResponse => {
-  const payload = response.data;
+  let payload = response.data;
   if (payload.statusCode === "200 OK" && payload.hasOwnProperty("headers")) {
     const respHeaders = payload.headers;
     if (
@@ -208,6 +210,12 @@ const createActionExecutionResponse = (
       payload.body = atob(payload.body as string);
     }
   }
+
+  // check if the response contains any malicious code
+  if (isString(payload.body) && isHtml(payload.body as string)) {
+    payload = filterActionExecutionResponse(payload);
+  }
+
   return {
     ...payload,
     ...response.clientMeta,

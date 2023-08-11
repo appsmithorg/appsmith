@@ -10,8 +10,8 @@ import {
   getDynamicStringSegments,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
-import { filterXSS } from "xss";
 import { isArray } from "lodash";
+import DOMPurify from "dompurify";
 
 export const transformRestAction = (data: ApiAction): ApiAction => {
   let action = cloneDeep(data);
@@ -115,13 +115,13 @@ const filterXSSVulnerabilities = (
   value: string | BodyFormData[] | Property[] | undefined,
 ): string | BodyFormData[] | Property[] | undefined => {
   if (isString(value)) {
-    return filterXss(value);
+    return filterXss(value).output;
   }
 
   if (isArray(value)) {
     return value.map((val: Property | BodyFormData) => {
-      const key = filterXss(val.key);
-      const value = filterXss(val?.value || "");
+      const key = filterXss(val.key).output;
+      const value = filterXss(val?.value || "").output;
 
       // allow keys like "type" to pass through.
       return { ...val, key, value };
@@ -131,18 +131,20 @@ const filterXSSVulnerabilities = (
   return value;
 };
 
-// the default option filters out any HTML Tags but keeps any plain text within them e.g <p>Hello</p> ---> Hello
-export const DEFAULT_FILTER_XSS_OPTIONS = {
-  whiteList: {},
-  stripIgnoreTag: true,
-  stripIgnoreTagBody: ["script"],
-};
-
 export const filterXss = (
   source: string,
-  customOptions = DEFAULT_FILTER_XSS_OPTIONS,
-) => {
-  return filterXSS(source, customOptions);
+  customOptions?: any,
+): FilteredXSSOutput => {
+  const output = DOMPurify.sanitize(source, customOptions).toString();
+  // this is an array that contains all the malicious code that was removed.
+  const removedVulnerabilities = DOMPurify.removed;
+
+  return { output, removedVulnerabilities };
+};
+
+type FilteredXSSOutput = {
+  output: string;
+  removedVulnerabilities: any[];
 };
 
 // This function extracts the appropriate paths regardless of whatever expressions exist within the dynamic bindings.
