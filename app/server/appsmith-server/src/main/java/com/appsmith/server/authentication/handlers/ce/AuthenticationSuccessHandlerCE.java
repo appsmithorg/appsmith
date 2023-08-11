@@ -142,7 +142,58 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         Mono<Void> redirectionMono;
         User user = (User) authentication.getPrincipal();
         Mono<Boolean> isVerificationRequiredMono = Mono.just(FALSE);
-        String authSuccessRedirectionUrl = null;
+
+        // move this code below so that isFromSignup is always populated
+        if (FALSE.equals(authentication instanceof OAuth2AuthenticationToken)) {
+            if (isFromSignup) {
+                isVerificationRequiredMono = isVerificationRequired(user.getEmail(), "signup");
+                if (createDefaultApplication) {
+                    redirectionMono = isVerificationRequiredMono.flatMap(isVerificationRequired -> {
+                        if (TRUE.equals(isVerificationRequired)) {
+                            // also send email and update the email link, and check redirection
+                            return createDefaultApplication(defaultWorkspaceId, authentication)
+                                    .flatMap(defaultApplication -> redirectHelper.getAuthSuccessRedirectUrl(
+                                            webFilterExchange, defaultApplication, true))
+                                    .map(URI::create)
+                                    .flatMap(redirectUri -> redirectStrategy.sendRedirect(
+                                            webFilterExchange.getExchange(), redirectUri));
+                        } else {
+                            return createDefaultApplication(defaultWorkspaceId, authentication)
+                                    .flatMap(defaultApplication ->
+                                            redirectHelper.handleRedirect(webFilterExchange, defaultApplication, true));
+                        }
+                    });
+                } else {
+                    redirectionMono = isVerificationRequiredMono.flatMap(isVerificationRequired -> {
+                        if (TRUE.equals(isVerificationRequired)) {
+                            // also send email and update the email link, and check redirection
+                            return redirectHelper
+                                    .getAuthSuccessRedirectUrl(webFilterExchange, null, true)
+                                    .map(URI::create)
+                                    .flatMap(redirectUri -> redirectStrategy.sendRedirect(
+                                            webFilterExchange.getExchange(), redirectUri));
+                        } else {
+                            return redirectHelper.handleRedirect(webFilterExchange, null, true);
+                        }
+                    });
+                }
+            } else {
+                isVerificationRequiredMono = isVerificationRequired(user.getEmail(), "login");
+                redirectionMono = isVerificationRequiredMono.flatMap(isVerificationRequired -> {
+                    if (TRUE.equals(isVerificationRequired)) {
+                        // also send email and update the email link, and check redirection
+                        return redirectHelper
+                                .getAuthSuccessRedirectUrl(webFilterExchange, null, false)
+                                .map(URI::create)
+                                .flatMap(redirectUri ->
+                                        redirectStrategy.sendRedirect(webFilterExchange.getExchange(), redirectUri));
+                    } else {
+                        return redirectHelper.handleRedirect(webFilterExchange, null, false);
+                    }
+                });
+            }
+        }
+        Mono<Boolean> finalIsVerificationRequiredMono = isVerificationRequiredMono.cache();
 
         if (authentication instanceof OAuth2AuthenticationToken) {
             // In case of OAuth2 based authentication, there is no way to identify if this was a user signup (new user
@@ -154,6 +205,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             // form login method henceforth. This step is taken to avoid any security vulnerability in the login flow
             // as we are not verifying the user emails at first sign up. In future if we implement the email
             // verification this can be eliminated safely
+            user.setEmailVerificationRequired(FALSE);
             if (user.getPassword() != null) {
                 user.setPassword(null);
                 user.setSource(LoginSource.fromString(
@@ -211,25 +263,9 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             }
         }
 
-        if (FALSE.equals(authentication instanceof OAuth2AuthenticationToken)) {
-            if (isFromSignup) {
-                isVerificationRequiredMono = isVerificationRequired(user.getEmail(), "signup");
-                if (FALSE.equals(createDefaultApplication)) {
-                    //                    authSuccessRedirectionUrl =
-                    // redirectHelper.getAuthSuccessRedirectUrl(webFilterExchange, null, isFromSignup);
-                }
-
-            } else {
-                isVerificationRequiredMono = isVerificationRequired(user.getEmail(), "login");
-            }
-
-        } else {
-            user.setEmailVerificationRequired(FALSE);
-            isVerificationRequiredMono = userRepository.save(user).then(Mono.just(FALSE));
-        }
-
         final boolean isFromSignupFinal = isFromSignup;
-        Mono<Boolean> finalIsVerificationRequiredMono = isVerificationRequiredMono.cache();
+
+        Mono<Void> finalRedirectionMono = redirectionMono;
         return webFilterExchange.getExchange().getSession().flatMap(webSession -> {
             return finalIsVerificationRequiredMono.flatMap(isVerificationRequired -> {
                 if (TRUE.equals(isVerificationRequired)) {
@@ -283,7 +319,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
 
                             return Mono.whenDelayError(monos);
                         })
-                        .then(redirectionMono);
+                        .then(finalRedirectionMono);
             });
         });
     }
