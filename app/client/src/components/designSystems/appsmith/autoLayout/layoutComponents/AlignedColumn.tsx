@@ -147,4 +147,22 @@ AlignedColumn.getHeight = (
   }
 };
 
+AlignedColumn.getChildTemplate = (
+  layoutProps: LayoutComponentProps,
+): LayoutComponentProps | undefined => {
+  const { childTemplate } = layoutProps;
+  if (childTemplate) return childTemplate;
+  return {
+    canBeDeleted: true,
+    insertChild: true,
+    layoutId: "",
+    layoutType: "ALIGNED_ROW",
+    layoutStyle: {
+      alignSelf: "stretch",
+    },
+    layout: [[], [], []],
+    rendersWidgets: true,
+  };
+};
+
 export default AlignedColumn;

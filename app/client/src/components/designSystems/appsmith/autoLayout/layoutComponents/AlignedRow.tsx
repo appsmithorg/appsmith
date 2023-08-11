@@ -62,7 +62,9 @@ const AlignedRow = (props: LayoutComponentProps) => {
           ...(layout[1] as string[]),
           ...(layout[2] as string[]),
         ] as string[]
-      ).map((id: string) => childrenMap[id]);
+      ).map((id: string) =>
+        renderChildWidget(childrenMap[id], layoutId, containerProps),
+      );
     }
     return [
       <div className="alignment start-alignment" key={0}>
@@ -203,6 +205,14 @@ AlignedRow.getHeight = (
       return Math.max(acc, height);
     }, 0);
   }
+};
+
+AlignedRow.getChildTemplate = (
+  layoutProps: LayoutComponentProps,
+): LayoutComponentProps | undefined => {
+  const { childTemplate } = layoutProps;
+  if (childTemplate) return childTemplate;
+  return;
 };
 
 export default AlignedRow;

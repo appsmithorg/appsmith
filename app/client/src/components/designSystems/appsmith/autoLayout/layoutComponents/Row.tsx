@@ -150,4 +150,12 @@ Row.getHeight = (
   }
 };
 
+Row.getChildTemplate = (
+  layoutProps: LayoutComponentProps,
+): LayoutComponentProps | undefined => {
+  const { childTemplate } = layoutProps;
+  if (childTemplate) return childTemplate;
+  return;
+};
+
 export default Row;

@@ -14,6 +14,7 @@ import Fixed from "components/designSystems/appsmith/autoLayout/layoutComponents
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import WidgetFactory from "utils/WidgetFactory";
+import Modal from "components/designSystems/appsmith/autoLayout/layoutPresets/Modal";
 
 export function getLayoutComponent(type: string): any {
   const map: { [id: string]: any } = {
@@ -22,6 +23,8 @@ export function getLayoutComponent(type: string): any {
     COLUMN: Column,
     FIXED: Fixed,
     ROW: Row,
+
+    MODAL: Modal,
   };
   return map[type];
 }

@@ -150,10 +150,12 @@ function addToLayout(
   );
   if (!layout) return widgets;
   const Comp = getLayoutComponent(layout.layoutType);
+  const childTemplate: LayoutComponentProps | undefined =
+    Comp.getChildTemplate(layout);
   let newWidgets: string[] | LayoutComponentProps[] = movedWidgets;
-  if (highlight.isNewLayer && layout.childTemplate) {
+  if (highlight.isNewLayer && childTemplate) {
     const childLayout: LayoutComponentProps = addWidgetToTemplate(
-      layout.childTemplate,
+      childTemplate,
       movedWidgets,
       highlight.alignment,
     );
