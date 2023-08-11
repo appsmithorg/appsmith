@@ -12,7 +12,7 @@ init_ssl_cert() {
   bash /opt/appsmith/templates/nginx.conf.sh 0 "$APPSMITH_CUSTOM_DOMAIN" > "$NGINX_CONF_PATH"
 
   echo "Start Nginx to verify certificate"
-  nginx -c "$NGINX_CONF_PATH" -g 'daemon on;'
+  nginx -c "$NGINX_CONF_PATH"
 
   local live_path="/etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN"
   local ssl_path="/appsmith-stacks/ssl"

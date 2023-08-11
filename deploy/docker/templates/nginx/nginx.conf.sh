@@ -27,7 +27,6 @@ user www-data;
 worker_processes auto;
 pid '$TMP/nginx.pid';
 
-daemon off;
 error_log stderr info;
 
 events {

@@ -87,4 +87,4 @@ apply-env-vars() {
 
 apply-env-vars /opt/appsmith/editor/index.html "$NGINX_WWW_PATH/index.html"
 
-exec nginx -c "$NGINX_CONF_PATH"
+exec nginx -c "$NGINX_CONF_PATH" -g "daemon off;"

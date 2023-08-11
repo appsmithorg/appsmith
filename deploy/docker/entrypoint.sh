@@ -406,7 +406,6 @@ init_loading_pages(){
   worker_processes auto;
   pid '$TMP/nginx.pid';
 
-  daemon off;
   error_log stderr info;
 
   events {
@@ -438,7 +437,7 @@ init_loading_pages(){
   }
 EOF
   # Start nginx page to display the Appsmith is Initializing page
-  nginx -c "$NGINX_CONF_PATH" -g 'daemon on;'
+  nginx -c "$NGINX_CONF_PATH"
   # Update editor nginx page for starting page
   cp "$starting_page" "$editor_load_page"
 }
