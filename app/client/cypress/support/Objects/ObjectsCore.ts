@@ -1,4 +1,4 @@
-import { WIDGET } from "../../locators/WidgetLocators";
+import { WIDGET, WIDGETSKIT } from "../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../Objects/Registry";
 import { EntityItems } from "../Pages/AssertHelper";
 
@@ -33,3 +33,4 @@ export const tedTestConfig = ObjectsRegistry.TEDTestConfigs;
 export const entityItems = EntityItems;
 export const tabs = ObjectsRegistry.Tabs;
 export const gsheetHelper = ObjectsRegistry.GSheetHelper;
+export const widgetLocators = WIDGETSKIT;

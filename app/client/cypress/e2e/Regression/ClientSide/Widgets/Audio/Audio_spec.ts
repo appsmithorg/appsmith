@@ -1,4 +1,3 @@
-//const explorer = require("../../../../../locators/explorerlocators.json");
 import {
   agHelper,
   draggableWidgets,
@@ -14,7 +13,7 @@ describe("Audio Widget functionality tests", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.AUDIO, 200, 200);
   });
-  it("Audio widget property verification", () => {
+  it("1. Audio widget property verification", () => {
     entityExplorer.SelectEntityByName("Audio1", "Widgets");
     // assert propertis are present
     propPane.Search("general");
@@ -28,7 +27,7 @@ describe("Audio Widget functionality tests", () => {
     propPane.ValidatePropertyFieldValue("URL", URL);
   });
 
-  it("Verify all audio widget events", () => {
+  it("2. Verify all audio widget events", () => {
     // verify autoplay is disabled
     propPane.TogglePropertyState("Autoplay", "On");
     //Uncheck the disabled checkbox and validate
@@ -63,7 +62,6 @@ describe("Audio Widget functionality tests", () => {
     propPane.TogglePropertyState("Visible", "On");
     // Verify audio played in deploy mode
     deployMode.DeployApp();
-    // assertHelper.AssertNetworkStatus("@event", 200);
     agHelper.ValidateToastMessage("Audio Ended", 0, 1);
   });
 });

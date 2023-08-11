@@ -15,7 +15,7 @@ describe("Switch datasource", function () {
   it("2. Create another postgres datasource", function () {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
-      dsName_1 = $dsName;
+      dsName_2 = $dsName;
     });
   });
 

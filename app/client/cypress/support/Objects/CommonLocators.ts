@@ -273,8 +273,4 @@ export class CommonLocators {
   public ds_editor_env_filter = (envName: string) =>
     `[data-testid="t--ds-data-filter-${envName}"]`;
   _textWidgetContaioner = ".t--text-widget-container span";
-  _recorderPrompt = "//button[@status='PERMISSION_PROMPT']";
-  _recorderStart = "//button[@status='DEFAULT']";
-  _recorderComplete = "//button[@status='COMPLETE']";
-  _recorderStop = ".bp3-minimal";
 }
