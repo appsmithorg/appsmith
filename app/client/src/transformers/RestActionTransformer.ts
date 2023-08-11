@@ -75,6 +75,7 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
       },
     };
   }
+
   action.actionConfiguration.bodyFormData = removeEmptyPairs(
     action.actionConfiguration.bodyFormData,
   );

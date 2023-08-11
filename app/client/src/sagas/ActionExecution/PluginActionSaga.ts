@@ -209,7 +209,6 @@ const createActionExecutionResponse = (
     }
   }
 
-  // check if the response contains any malicious code
   return {
     ...payload,
     ...response.clientMeta,
