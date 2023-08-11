@@ -7,6 +7,7 @@ import {
   PAGE_CLIENT_ERROR_DESCRIPTION,
   VERIFY_ERROR_ALREADY_VERIFIED_TITLE,
   VERIFY_ERROR_EXPIRED_TITLE,
+  VERIFY_ERROR_MISMATCH_TITLE,
 } from "@appsmith/constants/messages";
 import type { RouteComponentProps } from "react-router-dom";
 import { Button, Callout, Link, Spinner, Text, toast } from "design-system";
@@ -25,8 +26,9 @@ const Body = styled.div`
 `;
 
 enum ErrorType {
-  ALREADY_VERIFIED = "AE-APP-4095",
-  EXPIRED = "AE-APP-4028",
+  ALREADY_VERIFIED = "AE-EMV-4095",
+  EXPIRED = "AE-EMV-4096",
+  MISMATCH = "AE-EMV-4098",
   UNKNOWN = "UNKNOWN",
 }
 
@@ -123,6 +125,25 @@ const VerifyUser = (
               {createMessage(VERIFY_ERROR_ALREADY_VERIFIED_TITLE)}
             </Text>
           </Callout>
+        </Body>
+      </Container>
+    );
+  }
+
+  if (error === ErrorType.MISMATCH) {
+    return (
+      <Container title="">
+        <Body>
+          <Callout kind="error">
+            <Text kind={"body-m"}>
+              {createMessage(VERIFY_ERROR_MISMATCH_TITLE)}
+            </Text>
+          </Callout>
+        </Body>
+        <Body>
+          <Button isDisabled={!enabled} onClick={resendVerificationLink}>
+            Send new link
+          </Button>
         </Body>
       </Container>
     );
