@@ -851,6 +851,7 @@ export interface WidgetBaseProps {
   additionalStaticProps?: string[];
   mainCanvasWidth?: number;
   isMobile?: boolean;
+  layoutId?: string;
 }
 
 export type WidgetRowCols = {

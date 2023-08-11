@@ -300,128 +300,61 @@ export const CONFIG = {
               },
             ];
 
-            /**
-             * HEADER 1 (ROW)
-             *   ROW (DT)
-             *   ROW (DT)
-             *
-             * HEADER 2 (COLUMN)
-             *   ROW (DT)
-             *   ROW (DT)
-             *
-             * HEADER 3 (ROW)
-             *  ROW (DT) (WRAP)
-             */
-
-            /**
-             * HEADER 1 (ROW, BOX1, BOX2)
-             *
-             * HEADER 2 (COLUMN, BOX3, BOX4)
-             *
-             * HEADER 3 (ROW, BOX5)
-             */
-
             const layout: LayoutComponentProps[] = [
               {
                 layoutId: generateReactKey(),
-                layoutStyle: {
-                  rowGap: 12,
-                  padding: 4,
-                },
-                layoutType: "COLUMN",
+                layoutType: "MODAL",
                 layout: [
                   {
                     layoutId: generateReactKey(),
                     layoutStyle: {
-                      alignSelf: "stretch",
-                      columnGap: 4,
+                      flexGrow: 1,
+                      border: "1px dashed #979797",
+                      minHeight: 40,
                     },
-                    layoutType: "ROW", // HEADER3 titleChildren: [], icons: [],
-                    layout: [
-                      {
-                        layoutId: generateReactKey(),
-                        layoutStyle: {
-                          columnGap: 4,
-                          flexGrow: 1,
-                          border: "1px dashed #979797",
-                          minHeight: 40,
-                        },
-                        layoutType: "ROW",
-                        isDropTarget: true,
-                        widgetsAllowed: ["TEXT_WIDGET"],
-                        layout: [textWidget.widgetId],
-                        rendersWidgets: true,
-                      },
-                      {
-                        layoutId: generateReactKey(),
-                        layoutStyle: {
-                          columnGap: 4,
-                          minWidth: "30px",
-                          border: "1px dashed #979797",
-                          minHeight: 40,
-                        },
-                        layoutType: "ROW",
-                        isDropTarget: true,
-                        widgetsAllowed: ["ICON_BUTTON_WIDGET"],
-                        layout: [iconWidget.widgetId],
-                        rendersWidgets: true,
-                      },
-                    ],
+                    layoutType: "ROW",
+                    isDropTarget: true,
+                    widgetsAllowed: ["TEXT_WIDGET"],
+                    layout: [textWidget.widgetId],
+                    rendersWidgets: true,
                   },
                   {
                     layoutId: generateReactKey(),
                     layoutStyle: {
-                      alignSelf: "stretch",
-                      columnGap: 4,
-                      flexWrap: "wrap",
-                      height: "auto",
-                      maxHeight: "300px",
-                      overflow: "auto",
+                      minWidth: "30px",
+                      border: "1px dashed #979797",
+                      minHeight: 40,
                     },
-                    layoutType: "ROW", // MAIN
+                    layoutType: "ROW",
+                    isDropTarget: true,
+                    widgetsAllowed: ["ICON_BUTTON_WIDGET"],
+                    layout: [iconWidget.widgetId],
+                    rendersWidgets: true,
+                  },
+                  {
+                    isDropTarget: true,
+                    layoutId: generateReactKey(),
+                    layoutStyle: {
+                      minWidth: "220px",
+                      minHeight: 40,
+                      flexGrow: 1,
+                      border: "1px dashed #979797",
+                    },
+                    layoutType: "ALIGNED_COLUMN",
                     layout: [
                       {
-                        childTemplate: {
-                          canBeDeleted: true,
-                          insertChild: true,
-                          layoutId: "",
-                          layoutType: "ALIGNED_ROW",
-                          layoutStyle: {
-                            alignSelf: "stretch",
-                            columnGap: 4,
-                            rowGap: 12,
-                          },
-                          layout: [[], [], []],
-                          rendersWidgets: true,
-                        },
-                        isDropTarget: true,
+                        canBeDeleted: true,
                         layoutId: generateReactKey(),
                         layoutStyle: {
-                          minWidth: "220px",
-                          minHeight: 40,
-                          rowGap: 12,
-                          flexGrow: 3,
-                          border: "1px dashed #979797",
+                          alignSelf: "stretch",
                         },
-                        layoutType: "ALIGNED_COLUMN",
+                        layoutType: "ALIGNED_ROW",
                         layout: [
-                          {
-                            canBeDeleted: true,
-                            layoutId: generateReactKey(),
-                            layoutStyle: {
-                              alignSelf: "stretch",
-                              columnGap: 4,
-                              rowGap: 12,
-                            },
-                            layoutType: "ALIGNED_ROW",
-                            layout: [
-                              [],
-                              [buttonWidget3.widgetId],
-                              [buttonWidget4.widgetId],
-                            ],
-                            rendersWidgets: true,
-                          },
+                          [],
+                          [buttonWidget3.widgetId],
+                          [buttonWidget4.widgetId],
                         ],
+                        rendersWidgets: true,
                       },
                     ],
                   },

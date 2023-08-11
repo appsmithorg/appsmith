@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { AppState } from "@appsmith/reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
@@ -194,6 +195,7 @@ function DraggableComponent(props: DraggableComponentProps) {
         draggingGroupCenter: { widgetId: props.widgetId },
         startPoints,
         draggedOn: props.parentId,
+        layoutId: props.layoutId || "",
       });
       if (isAutoLayout) {
         e.dataTransfer.setData(
