@@ -68,7 +68,7 @@ COPY ${PLUGIN_JARS} backend/plugins/
 COPY ./app/client/build editor/
 
 # Add RTS - Application Layer
-COPY ./app/client/packages/rts/package.json ./app/client/packages/rts/dist rts/
+COPY /app/client/packages/rts/package.json /app/client/packages/rts/dist rts/
 
 # Nginx, MongoDB and PostgreSQL data config template - Configuration layer
 COPY ./deploy/docker/templates/nginx/* \
