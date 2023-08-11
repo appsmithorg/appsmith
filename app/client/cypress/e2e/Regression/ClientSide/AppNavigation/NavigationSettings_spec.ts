@@ -9,14 +9,16 @@ import {
 describe("Test app's navigation settings", function () {
   it("1. Open app settings and navigation tab should be there and when the navigation tab is selected, navigation preview should be visible", () => {
     agHelper.GetNClick(appSettings.locators._appSettings);
-    agHelper.AssertElementVisible(appSettings.locators._navigationSettingsTab);
+    agHelper.AssertElementVisibility(
+      appSettings.locators._navigationSettingsTab,
+    );
 
     // Should not exist when the tab is not selected
     agHelper.AssertElementAbsence(appSettings.locators._navigationPreview);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
 
     // Should exist when the tab is selected
-    agHelper.AssertElementVisible(appSettings.locators._navigationPreview);
+    agHelper.AssertElementVisibility(appSettings.locators._navigationPreview);
   });
 
   it("2. Toggle 'Show navbar' to off, the app header and navigation should not appear when deployed", () => {
@@ -48,11 +50,11 @@ describe("Test app's navigation settings", function () {
       0,
       true,
     );
-    agHelper.AssertElementVisible(appSettings.locators._sideNavbar);
+    agHelper.AssertElementVisibility(appSettings.locators._sideNavbar);
     deployMode.DeployApp();
     agHelper.AssertElementAbsence(appSettings.locators._header);
     agHelper.AssertElementAbsence(appSettings.locators._topStacked);
-    agHelper.AssertElementVisible(appSettings.locators._sideNavbar);
+    agHelper.AssertElementVisibility(appSettings.locators._sideNavbar);
     deployMode.NavigateBacktoEditor();
   });
 
@@ -67,8 +69,8 @@ describe("Test app's navigation settings", function () {
     );
     agHelper.GetNClick(appSettings.locators._navStyleOptions._inline, 0, true);
     deployMode.DeployApp();
-    agHelper.AssertElementVisible(appSettings.locators._header);
+    agHelper.AssertElementVisibility(appSettings.locators._header);
     agHelper.AssertElementAbsence(appSettings.locators._topStacked);
-    agHelper.AssertElementVisible(appSettings.locators._topInline);
+    agHelper.AssertElementVisibility(appSettings.locators._topInline);
   });
 });

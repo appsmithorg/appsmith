@@ -71,14 +71,19 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
         return configService.getInstanceId().map(instanceId -> {
             Map<String, Object> userTraits = new HashMap<>();
             String emailTrait;
+            String emailDomain = userIdentifierService.getEmailDomain(user.getEmail());
             if (!commonConfig.isCloudHosting()) {
                 emailTrait = userIdentifierService.hash(user.getEmail());
+                if (emailDomain != null) {
+                    emailDomain = userIdentifierService.hash(emailDomain);
+                }
             } else {
                 emailTrait = user.getEmail();
             }
             userTraits.put("email", emailTrait);
             userTraits.put("instanceId", instanceId);
             userTraits.put("tenantId", user.getTenantId());
+            userTraits.put("emailDomain", emailDomain);
             userTraits.put("isTelemetryOn", !commonConfig.isTelemetryDisabled());
             // for anonymous user, user.getCreatedAt() is null
             if (user.getCreatedAt() != null) {

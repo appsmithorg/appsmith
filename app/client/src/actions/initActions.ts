@@ -2,12 +2,6 @@ import type { APP_MODE } from "entities/App";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
-export const initCurrentPage = () => {
-  return {
-    type: ReduxActionTypes.INITIALIZE_CURRENT_PAGE,
-  };
-};
-
 export type InitializeEditorPayload = {
   applicationId?: string;
   pageId?: string;
