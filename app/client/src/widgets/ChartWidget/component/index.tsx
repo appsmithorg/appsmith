@@ -20,6 +20,7 @@ import { EChartsConfigurationBuilder } from "./EChartsConfigurationBuilder";
 import { EChartsDatasetBuilder } from "./EChartsDatasetBuilder";
 // Leaving this require here. Ref: https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam/42505940#42505940
 // FusionCharts comes with its own typings so there is no need to separately import them. But an import from fusioncharts/core still requires a declaration file.
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const FusionCharts = require("fusioncharts");
 const plugins: Record<string, any> = {
   Charts: require("fusioncharts/fusioncharts.charts"),
@@ -177,19 +178,12 @@ class ChartComponent extends React.Component<
     }
   };
 
-  resizeEchartsIfNeeded = () => {
-    if (this.echartsInstance) {
-      if (
-        this.echartsInstance.getHeight() !=
-          this.props.dimensions.componentHeight ||
-        this.echartsInstance.getWidth() != this.props.dimensions.componentWidth
-      ) {
-        this.echartsInstance.resize({
-          width: this.props.dimensions.componentWidth,
-          height: this.props.dimensions.componentHeight,
-        });
-      }
-    }
+  shouldResizeECharts = () => {
+    return (
+      this.echartsInstance?.getHeight() !=
+        this.props.dimensions.componentHeight ||
+      this.echartsInstance?.getWidth() != this.props.dimensions.componentWidth
+    );
   };
 
   renderECharts = () => {
@@ -200,33 +194,31 @@ class ChartComponent extends React.Component<
     }
 
     const newConfiguration = this.getEChartsOptions();
-    let needsNewConfig = true;
+    const needsNewConfig = !equal(newConfiguration, this.echartConfiguration);
+    const resizedNeeded = this.shouldResizeECharts();
 
-    if (
-      this.state.eChartsError &&
-      equal(newConfiguration, this.echartConfiguration)
-    ) {
-      // this check is required if chartError is present and the code shouldn't calculate the same error again
-      needsNewConfig = false;
-    } else {
+    if (needsNewConfig) {
       this.echartConfiguration = newConfiguration;
-    }
-
-    try {
       this.echartsInstance.off("click");
       this.echartsInstance.on("click", this.dataClickCallback);
 
-      if (needsNewConfig) {
+      try {
         this.echartsInstance.setOption(this.echartConfiguration, true);
+
         if (this.state.eChartsError) {
           this.setState({ eChartsError: undefined });
         }
+      } catch (error) {
+        this.disposeECharts();
+        this.setState({ eChartsError: error as Error });
       }
+    }
 
-      this.resizeEchartsIfNeeded();
-    } catch (error) {
-      this.disposeECharts();
-      this.setState({ eChartsError: error as Error });
+    if (resizedNeeded) {
+      this.echartsInstance.resize({
+        width: this.props.dimensions.componentWidth,
+        height: this.props.dimensions.componentHeight,
+      });
     }
   };
 
@@ -260,6 +252,7 @@ class ChartComponent extends React.Component<
       this.props.chartType == "CUSTOM_FUSION_CHART" &&
       this.state.chartType != "CUSTOM_FUSION_CHART"
     ) {
+      this.echartConfiguration = {};
       this.setState({
         eChartsError: undefined,
         chartType: "CUSTOM_FUSION_CHART",

@@ -207,12 +207,15 @@ export default class PropertyPaneNavigation extends PaneNavigation {
 
     // If we are at the destination panel already ignore
     if (propertyPathsToPop.length && navigationConfig.panelStack.length) {
-      const destinationPath =
-        navigationConfig.panelStack[navigationConfig.panelStack.length - 1]
-          .path;
+      const destinationPathConfig =
+        navigationConfig.panelStack[navigationConfig.panelStack.length - 1];
       const currentPath = propertyPathsToPop[propertyPathsToPop.length - 1];
 
-      if (`${this.widget.widgetName}.${destinationPath}` === currentPath) {
+      if (
+        `${this.widget.widgetName}.${destinationPathConfig.path}` ===
+          currentPath &&
+        destinationPathConfig.index === currentSelectedPanel[currentPath]
+      ) {
         return;
       }
     }

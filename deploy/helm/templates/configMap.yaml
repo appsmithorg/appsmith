@@ -3,6 +3,7 @@
 {{- $mongoUser := .Values.mongodb.auth.rootUser -}}
 {{- $mongoPassword := .Values.mongodb.auth.rootPassword -}}
 {{- $mongoServicename := .Values.mongodb.service.nameOverride -}}
+{{- $releaseName := .Release.Name -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -19,7 +20,7 @@ data:
   {{- end }}
   {{- if and (eq "APPSMITH_REDIS_URL" $key) ( not $value) }}
   {{- if $.Values.redis.enabled }}
-  {{ $key }}: redis://{{ $name }}-redis-master.{{ $nameSpace }}.svc.cluster.local:6379
+  {{ $key }}: redis://{{ $releaseName }}-redis-master.{{ $nameSpace }}.svc.cluster.local:6379
   {{- end }}
   {{- end }}
   {{- if $value }}

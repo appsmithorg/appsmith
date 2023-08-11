@@ -1,12 +1,14 @@
 package com.appsmith.server.configurations;
 
 import com.appsmith.external.services.SharedConfig;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Slf4j
 @Configuration
+@RequiredArgsConstructor
 public class SharedConfigImpl implements SharedConfig {
 
     @Value("${appsmith.codec.max-in-memory-size:10}")
@@ -15,8 +17,7 @@ public class SharedConfigImpl implements SharedConfig {
     @Value("${appsmith.plugin.response.size.max:5}")
     private float maxPluginResponseSize = 5;
 
-    @Value("${appsmith.cloud_services.base_url}")
-    private String cloudServicesBaseUrl;
+    private final CloudServicesConfig cloudServicesConfig;
 
     @Override
     public int getCodecSize() {
@@ -30,6 +31,6 @@ public class SharedConfigImpl implements SharedConfig {
 
     @Override
     public String getRemoteExecutionUrl() {
-        return cloudServicesBaseUrl + "/api/v1/actions/execute";
+        return cloudServicesConfig.getBaseUrl() + "/api/v1/actions/execute";
     }
 }

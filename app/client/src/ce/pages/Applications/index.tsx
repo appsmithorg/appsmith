@@ -1014,6 +1014,7 @@ export class Applications<
 
   componentWillUnmount() {
     this.props.setHeaderMetaData(false, false);
+    this.props.searchApplications("");
   }
 
   public render() {

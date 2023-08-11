@@ -101,7 +101,7 @@ export class DebuggerHelper {
       case PageType.JsEditor:
       case PageType.Query:
       case PageType.DataSources:
-        this.agHelper.AssertElementVisible(
+        this.agHelper.AssertElementVisibility(
           this.locators._bottomPaneContainer[pageType],
         );
         // this.agHelper.AssertHeight(
@@ -111,7 +111,7 @@ export class DebuggerHelper {
         break;
       // case PageType.Query:
       // case PageType.DataSources:
-      //   this.agHelper.AssertElementVisible(
+      //   this.agHelper.AssertElementVisibility(
       //     this.locators._bottomPaneContainer[pageType],
       //   );
       //   // this.agHelper.AssertHeight(
@@ -147,7 +147,7 @@ export class DebuggerHelper {
   }
 
   DebuggerLogsFilter(text: string) {
-    this.agHelper.RemoveCharsNType(this.locators._debuggerFilter, -1, text);
+    this.agHelper.SelectAllAndType(this.locators._debuggerFilter, text);
   }
 
   LogStateContains(text: string, index?: number) {
@@ -178,7 +178,7 @@ export class DebuggerHelper {
 
   AssertVisibleErrorMessagesCount(count: number) {
     if (count > 0) {
-      this.agHelper.AssertElementVisible(this.locators._debuggerMessage);
+      this.agHelper.AssertElementVisibility(this.locators._debuggerMessage);
       this.agHelper.AssertElementLength(this.locators._debuggerMessage, count);
     } else {
       this.agHelper.AssertElementAbsence(this.locators._debuggerMessage);
@@ -199,7 +199,7 @@ export class DebuggerHelper {
   }
 
   AssertContextMenuItemVisible() {
-    this.agHelper.AssertElementVisible(this.locators._contextMenuItem);
+    this.agHelper.AssertElementVisibility(this.locators._contextMenuItem);
   }
 
   AssertDebugError(

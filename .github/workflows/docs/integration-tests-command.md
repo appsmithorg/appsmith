@@ -22,10 +22,6 @@ The `client-build` job builds the client-side codebase. It uses the configuratio
 
 The `rts-build` job builds the "rts" (real-time suggestions) package of the client-side codebase. It uses the configuration defined in the `.github/workflows/rts-build.yml` file.
 
-### `test-shared-modules`
-
-The `test-shared-modules` job runs tests for shared modules. It uses the configuration from the `.github/workflows/shared-modules.yml` file.
-
 ### `test-appsmithctl`
 
 The `test-appsmithctl` job runs tests for the `appsmithctl` utility. It uses the configuration from the `.github/workflows/appsmithctl.yml` file.

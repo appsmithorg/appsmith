@@ -19,6 +19,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -144,5 +145,9 @@ public class CommonConfig {
 
     public boolean isConnectedMongoVersionAvailable() {
         return mongoDBVersion != null;
+    }
+
+    public Long getCurrentTimeInstantEpochMilli() {
+        return Instant.now().toEpochMilli();
     }
 }
