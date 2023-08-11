@@ -68,8 +68,6 @@ describe("excludeForAirgap", "Query pane navigation", () => {
       ".t--actionConfiguration\\.formData\\.list\\.sortBy\\.data\\[0\\]\\.column",
     );
 
-    dataSources.DeleteDSFromEntityExplorer(ds1Name);
-    dataSources.DeleteDSFromEntityExplorer(ds2Name);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Query1",
       entityType: entityItems.Query,
@@ -78,5 +76,8 @@ describe("excludeForAirgap", "Query pane navigation", () => {
       entityNameinLeftSidebar: "Query2",
       entityType: entityItems.Query,
     });
+
+    dataSources.DeleteDSFromEntityExplorer(ds1Name);
+    dataSources.DeleteDSFromEntityExplorer(ds2Name);
   });
 });
