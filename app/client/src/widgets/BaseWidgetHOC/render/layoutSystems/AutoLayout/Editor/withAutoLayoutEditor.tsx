@@ -1,8 +1,9 @@
-import React from "react";
+import React, { memo } from "react";
 import { useAutoLayoutEditor } from "./useAutoLayoutEditor";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { AutoLayoutEditorWidgetOnion } from "./AutoLayoutEditorWidgetOnion";
 import { AutoLayoutEditorCanvasOnion } from "./AutoLayoutEditorCanvasOnion";
+import { AutoLayoutEditorModalOnion } from "./AutoLayoutEditorModalOnion";
 
 export const withAutoLayoutEditor = (
   Widget: (widgetData: any) => JSX.Element | null,
@@ -18,21 +19,20 @@ export const withAutoLayoutEditor = (
       autoDimensionConfig,
     };
     const canvasWidget = props.type === "CANVAS_WIDGET";
-    const detachFromLayoutWidget = props.detachFromLayout && !canvasWidget;
     //Canvas_Onion
     if (canvasWidget) {
       return <AutoLayoutEditorCanvasOnion {...widgetEditorProps} />;
-    } else if (detachFromLayoutWidget) {
-      //ToDo: (Ashok) bring modal editor layer here if possible
-      // No Onion(Widgets like modal)
-      return <Widget {...widgetEditorProps} />;
     }
     //Widget Onion
+    const WidgetOnion =
+      props.type === "MODAL_WIDGET"
+        ? AutoLayoutEditorModalOnion
+        : AutoLayoutEditorWidgetOnion;
     return (
-      <AutoLayoutEditorWidgetOnion {...widgetEditorProps}>
+      <WidgetOnion {...widgetEditorProps}>
         <Widget {...widgetEditorProps} />
-      </AutoLayoutEditorWidgetOnion>
+      </WidgetOnion>
     );
   }
-  return WrappedWidget;
+  return memo(WrappedWidget);
 };

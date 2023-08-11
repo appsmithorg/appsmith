@@ -3,6 +3,7 @@ import { useFixedLayoutViewer } from "./useFixedLayoutViewer";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { FixedLayoutViewerCanvasOnion } from "./FixedLayoutViewerCanvasOnion";
 import { FixedLayoutViewerWidgetOnion } from "./FixedLayoutViewerWidgetOnion";
+import { FixedLayoutViewerModalOnion } from "./FixedLayoutViewerModalOnion";
 
 export const withFixedLayoutViewer = (
   Widget: (widgetData: any) => JSX.Element | null,
@@ -16,19 +17,19 @@ export const withFixedLayoutViewer = (
       componentWidth,
     };
     const canvasWidget = props.type === "CANVAS_WIDGET";
-    const detachFromLayoutWidget = props.detachFromLayout && !canvasWidget;
     //Canvas_Onion
     if (canvasWidget) {
       return <FixedLayoutViewerCanvasOnion {...widgetViewerProps} />;
-    } else if (detachFromLayoutWidget) {
-      //ToDo: (Ashok) bring modal editor layer here if possible
-      // No Onion(Widgets like modal)
-      return <Widget {...widgetViewerProps} />;
     }
+    //Widget Onion
+    const WidgetOnion =
+      props.type === "MODAL_WIDGET"
+        ? FixedLayoutViewerModalOnion
+        : FixedLayoutViewerWidgetOnion;
     return (
-      <FixedLayoutViewerWidgetOnion {...widgetViewerProps}>
+      <WidgetOnion {...widgetViewerProps}>
         <Widget {...widgetViewerProps} />
-      </FixedLayoutViewerWidgetOnion>
+      </WidgetOnion>
     );
   }
   return WrappedWidget;

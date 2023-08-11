@@ -287,4 +287,7 @@ export const AutoLayoutResizableComponent = memo(function ResizableComponent(
     </AutoLayoutResizable>
   );
 });
+AutoLayoutResizableComponent.whyDidYouRender = {
+  logOnDifferentValues: true,
+};
 export default AutoLayoutResizableComponent;

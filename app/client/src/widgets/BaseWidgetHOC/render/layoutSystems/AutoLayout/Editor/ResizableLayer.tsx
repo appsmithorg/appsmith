@@ -1,37 +1,46 @@
-import ResizableComponent from "components/editorComponents/WidgetResizer/ResizableComponent";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
 import React, { useMemo } from "react";
+import AutoLayoutResizableComponent from "components/editorComponents/WidgetResizer/AutoLayoutResizableComponent";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { get, isFunction, omit } from "lodash";
+import WidgetFactory from "utils/WidgetFactory";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import Resizable from "components/editorComponents/WidgetResizer/resizable/modalresize";
-import { get, omit } from "lodash";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import type { UIElementSize } from "components/editorComponents/WidgetResizer/ResizableUtils";
 import {
   BottomHandleStyles,
   LeftHandleStyles,
   RightHandleStyles,
   TopHandleStyles,
 } from "components/editorComponents/WidgetResizer/ResizeStyledComponents";
-import type { UIElementSize } from "components/editorComponents/WidgetResizer/ResizableUtils";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
+import { Classes } from "@blueprintjs/core";
 
 export const ResizableLayer = (props: BaseWidgetProps) => {
   if (props.resizeDisabled || props.type === "SKELETON_WIDGET") {
     return props.children;
   }
+  let autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
+    props.type,
+  ).autoDimension;
+  if (isFunction(autoDimensionConfig)) {
+    autoDimensionConfig = autoDimensionConfig(props);
+  }
   return (
-    <ResizableComponent {...props} paddingOffset={WIDGET_PADDING}>
+    <AutoLayoutResizableComponent
+      {...props}
+      hasAutoHeight={autoDimensionConfig?.height}
+      hasAutoWidth={autoDimensionConfig?.width}
+      paddingOffset={WIDGET_PADDING}
+    >
       {props.children}
-    </ResizableComponent>
+    </AutoLayoutResizableComponent>
   );
 };
 
 export const ModalResizableLayer = (props: BaseWidgetProps) => {
-  const { enableResize = false } = props;
-  const isVerticalResizeEnabled = useMemo(() => {
-    return !props.isDynamicHeightEnabled && enableResize;
-  }, [props.isDynamicHeightEnabled, enableResize]);
   const disabledResizeHandles = get(props, "disabledResizeHandles", []);
   const handles = useMemo(() => {
     const allHandles = {
@@ -66,10 +75,11 @@ export const ModalResizableLayer = (props: BaseWidgetProps) => {
   return (
     <Resizable
       allowResize
+      className={Classes.OVERLAY_CONTENT}
       componentHeight={props.height || 0}
       componentWidth={props.width || 0}
-      enableHorizontalResize={enableResize}
-      enableVerticalResize={isVerticalResizeEnabled}
+      enableHorizontalResize
+      enableVerticalResize={false}
       handles={handles}
       isColliding={() => false}
       onStart={onResizeStart}

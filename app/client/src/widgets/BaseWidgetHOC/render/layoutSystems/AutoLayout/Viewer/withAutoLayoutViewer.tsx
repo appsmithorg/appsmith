@@ -1,6 +1,7 @@
 import React from "react";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { AutoLayoutViewerCanvasOnion } from "./AutoLayoutViewerCanvasOnion";
+import { AutoLayoutViewerModalOnion } from "./AutoLayoutViewerModalOnion";
 import { AutoLayoutViewerWidgetOnion } from "./AutoLayoutViewerWidgetOnion";
 import { useAutoLayoutViewer } from "./useAutoLayoutViewer";
 
@@ -18,20 +19,19 @@ export const withAutoLayoutViewer = (
       autoDimensionConfig,
     };
     const canvasWidget = props.type === "CANVAS_WIDGET";
-    const detachFromLayoutWidget = props.detachFromLayout && !canvasWidget;
     //Canvas_Onion
     if (canvasWidget) {
       return <AutoLayoutViewerCanvasOnion {...widgetViewerProps} />;
-    } else if (detachFromLayoutWidget) {
-      //ToDo: (Ashok) bring modal editor layer here if possible
-      // No Onion(Widgets like modal)
-      return <Widget {...widgetViewerProps} />;
     }
     //Widget Onion
+    const WidgetOnion =
+      props.type === "MODAL_WIDGET"
+        ? AutoLayoutViewerModalOnion
+        : AutoLayoutViewerWidgetOnion;
     return (
-      <AutoLayoutViewerWidgetOnion {...widgetViewerProps}>
+      <WidgetOnion {...widgetViewerProps}>
         <Widget {...widgetViewerProps} />
-      </AutoLayoutViewerWidgetOnion>
+      </WidgetOnion>
     );
   }
   return WrappedWidget;

@@ -5,8 +5,8 @@ import React from "react";
 import { WidgetComponent } from "widgets/BaseWidgetHOC/render/common/WidgetComponent";
 import { WidgetNameLayer } from "widgets/BaseWidgetHOC/render/common/WidgetNameLayer";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { FlexComponentLayer } from "../FlexComponentLayer";
-import { ResizableLayer } from "../ResizableLayer";
+import { FlexComponentLayer } from "../common/FlexComponentLayer";
+import { ResizableLayer } from "./ResizableLayer";
 
 export const AutoLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
   return (

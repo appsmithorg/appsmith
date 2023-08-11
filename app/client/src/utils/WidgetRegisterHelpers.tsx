@@ -9,7 +9,6 @@ import WidgetFactory, { NonSerialisableWidgetConfigs } from "./WidgetFactory";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { memoize } from "lodash";
 import type { WidgetConfiguration } from "widgets/constants";
-import withMeta from "widgets/MetaHOC";
 import { generateReactKey } from "./generators";
 import type { RegisteredWidgetFeatures } from "./WidgetFeatures";
 import {
@@ -24,18 +23,13 @@ const generateWidget = memoize(function getWidgetComponent(
   needsMeta: boolean,
   eagerRender: boolean,
 ) {
-  let widget = needsMeta ? withMeta(Widget) : Widget;
-
   //@ts-expect-error: type mismatch
-  widget = withBaseWidgetHOC(widget);
+  let widget = withBaseWidgetHOC(Widget, needsMeta);
 
   //@ts-expect-error: type mismatch
   widget = eagerRender ? widget : withLazyRender(widget);
 
-  return Sentry.withProfiler(
-    // @ts-expect-error: Types are not available
-    widget,
-  );
+  return Sentry.withProfiler(widget);
 });
 
 export const registerWidget = (

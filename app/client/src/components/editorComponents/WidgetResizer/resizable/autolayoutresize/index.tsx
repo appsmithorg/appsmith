@@ -585,8 +585,8 @@ function AutoLayoutResizable(props: AutoLayoutResizableProps) {
         key={index}
         onStart={() => {
           togglePointerEvents(false);
-          props.onStart();
           setResizing(true);
+          props.onStart();
         }}
         onStop={onResizeStop}
         scrollParent={resizableRef.current}
