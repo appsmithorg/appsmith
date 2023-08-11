@@ -45,7 +45,7 @@ RUN rm -rf \
   /tmp/*
 
 # Define volumes - Service Layer
-VOLUME [ "/appsmith-stacks" ]
+#VOLUME [ "/appsmith-stacks" ]
 
 # ------------------------------------------------------------------------
 # Add backend server - Application Layer
