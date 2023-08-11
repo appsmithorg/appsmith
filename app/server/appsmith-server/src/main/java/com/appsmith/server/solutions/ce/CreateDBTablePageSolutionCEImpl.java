@@ -387,24 +387,18 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                             .peek(newAction -> newAction.setDefaultResources(page.getDefaultResources()))
                             .collect(Collectors.toList());
 
-                    // Extract S3 bucket name from template application and map to users bucket. Bucket name is stored
-                    // at
-                    // index 1 in plugin specified templates
+                    List<ActionConfiguration> templateUnpublishedActionConfigList = templateActionList.stream()
+                            .map(NewAction::getUnpublishedAction)
+                            .map(ActionDTO::getActionConfiguration)
+                            .collect(Collectors.toList());
 
-                    if (Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName())
-                            && !CollectionUtils.isEmpty(templateActionList)) {
-                        final Map<String, Object> formData = templateActionList
-                                .get(0)
-                                .getUnpublishedAction()
-                                .getActionConfiguration()
-                                .getFormData();
-                        mappedColumnsAndTableName.put(
-                                (String) ((Map<?, ?>) formData.get("bucket")).get("data"), tableName);
-                    }
+                    Mono<Void> sanitizeTemplateInfoMono =
+                            pluginExecutorHelper.getPluginExecutorFromPackageName(plugin.getPackageName())
+                            .flatMap(pluginExecutor -> pluginExecutor.sanitizeGenerateCRUDPageTemplateInfo(templateUnpublishedActionConfigList, mappedColumnsAndTableName, tableName));
 
                     log.debug("Going to update layout for page {} and layout {}", savedPageId, layoutId);
-                    return layoutActionService
-                            .updateLayout(savedPageId, page.getApplicationId(), layoutId, layout)
+                    return sanitizeTemplateInfoMono
+                            .then(layoutActionService.updateLayout(savedPageId, page.getApplicationId(), layoutId, layout))
                             .then(Mono.zip(
                                     Mono.just(datasourceStorage),
                                     Mono.just(templateActionList),

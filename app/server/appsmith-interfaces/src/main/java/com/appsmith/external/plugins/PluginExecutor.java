@@ -21,6 +21,7 @@ import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -312,5 +313,10 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
 
     default Mono<DatasourceConfiguration> getDatasourceMetadata(DatasourceConfiguration datasourceConfiguration) {
         return Mono.just(datasourceConfiguration);
+    }
+
+    default Mono<Void> sanitizeGenerateCRUDPageTemplateInfo(List<ActionConfiguration> actionConfigurationList,
+                                                            Object... args) {
+        return Mono.empty();
     }
 }

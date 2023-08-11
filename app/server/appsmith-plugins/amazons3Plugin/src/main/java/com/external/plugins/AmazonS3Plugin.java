@@ -87,6 +87,8 @@ import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.CREATE_DATATYPE;
 import static com.external.plugins.constants.FieldName.CREATE_EXPIRY;
+import static com.external.plugins.constants.FieldName.KEY_BUCKET;
+import static com.external.plugins.constants.FieldName.KEY_DATA;
 import static com.external.plugins.constants.FieldName.LIST_EXPIRY;
 import static com.external.plugins.constants.FieldName.LIST_PAGINATE;
 import static com.external.plugins.constants.FieldName.LIST_PREFIX;
@@ -110,6 +112,7 @@ import static com.external.plugins.constants.S3PluginConstants.YES;
 import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
 import static com.external.utils.TemplateUtils.getTemplates;
 import static java.lang.Boolean.TRUE;
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
 
 @Slf4j
 public class AmazonS3Plugin extends BasePlugin {
@@ -1034,6 +1037,23 @@ public class AmazonS3Plugin extends BasePlugin {
             transferManager
                     .upload(bucketName, path, inputStream, objectMetadata)
                     .waitForUploadResult();
+        }
+
+        @Override
+        public Mono<Void> sanitizeGenerateCRUDPageTemplateInfo(List<ActionConfiguration> actionConfigurationList,
+                                                               Object... args) {
+            if (isEmpty(actionConfigurationList)) {
+                return Mono.empty();
+            }
+
+            /* Add mapping to replace template bucket name with user chosen bucket everywhere in the template */
+            Map<String, String> mappedColumnsAndTableName = (Map<String, String>) args[0];
+            final String userSelectedBucketName = (String) args[1];
+            Map<String, Object> formData = actionConfigurationList.get(0).getFormData();
+            mappedColumnsAndTableName.put(
+                    (String) ((Map<?, ?>) formData.get(KEY_BUCKET)).get(KEY_DATA), userSelectedBucketName);
+
+            return Mono.empty();
         }
     }
 }
