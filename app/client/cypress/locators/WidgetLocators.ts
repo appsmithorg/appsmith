@@ -77,6 +77,8 @@ export const switchlocators = {
   switchTooltip: "//*[@data-testid='switchgroup-container']//*[@class='bp3-popover-target']",
   switchWidget:"//*[@data-testid='switchgroup-container']",
   switchWidgetHeight: (height: string) => `//*[@data-testid='switchgroup-container']//div[@height="${height}"]`,
+  switchGroupToggleChecked : (value: string) =>
+  `//*[text()='${value}']//input[@type="checkbox"]`,
 }
 
 export const checkboxlocators = {

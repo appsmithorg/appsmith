@@ -116,7 +116,7 @@ describe("Switchgroup Widget Functionality", function () {
     ]`;
     propPane.UpdatePropertyFieldValue("Options", newOption);
     agHelper
-      .GetElement(locators._switchGroupToggleChecked("Yellow"))
+      .GetElement(switchlocators.switchGroupToggleChecked("Yellow"))
       .should("not.be.checked");
   });
 
@@ -151,10 +151,10 @@ describe("Switchgroup Widget Functionality", function () {
       '["RED", "GREEN"]',
     );
     agHelper
-      .GetElement(locators._switchGroupToggleChecked("Red"))
+      .GetElement(switchlocators.switchGroupToggleChecked("Red"))
       .should("be.checked");
     agHelper
-      .GetElement(locators._switchGroupToggleChecked("Green"))
+      .GetElement(switchlocators.switchGroupToggleChecked("Green"))
       .should("be.checked");
 
     propPane.UpdatePropertyFieldValue(
@@ -167,13 +167,13 @@ describe("Switchgroup Widget Functionality", function () {
     agHelper.GetNClick(checkboxlocators.checkBoxLabel("Red"));
     agHelper.GetNClick(checkboxlocators.checkBoxLabel("Green"));
     agHelper
-      .GetElement(locators._switchGroupToggleChecked("Blue"))
+      .GetElement(switchlocators.switchGroupToggleChecked("Blue"))
       .should("not.be.checked");
     agHelper
-      .GetElement(locators._switchGroupToggleChecked("Red"))
+      .GetElement(switchlocators.switchGroupToggleChecked("Red"))
       .should("be.checked");
     agHelper
-      .GetElement(locators._switchGroupToggleChecked("Green"))
+      .GetElement(switchlocators.switchGroupToggleChecked("Green"))
       .should("be.checked");
   });
 
@@ -254,8 +254,12 @@ describe("Switchgroup Widget Functionality", function () {
       "onSelectionChange",
       "{{resetWidget('Text1', true);}}",
     );
-    agHelper.GetNClick(locators._switchGroupToggleChecked("Blue"), 0, true);
-    agHelper.GetNClick(locators._switchGroupToggleChecked("Red"), 0, true);
+    agHelper.GetNClick(
+      switchlocators.switchGroupToggleChecked("Blue"),
+      0,
+      true,
+    );
+    agHelper.GetNClick(switchlocators.switchGroupToggleChecked("Red"), 0, true);
     agHelper.AssertElementVisibility(locators._visibleTextSpan("RED"));
   });
 });
