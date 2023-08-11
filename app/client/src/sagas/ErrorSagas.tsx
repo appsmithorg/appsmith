@@ -17,7 +17,7 @@ import {
 import { getSafeCrash } from "selectors/errorSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { put, takeLatest, call, select, take } from "redux-saga/effects";
+import { put, takeLatest, call, select } from "redux-saga/effects";
 import {
   ERROR_401,
   ERROR_403,
@@ -269,15 +269,11 @@ function logErrorSaga(action: ReduxAction<{ error: ErrorPayloadType }>) {
  * this saga do some logic before actually setting safeCrash to true
  */
 function* safeCrashSagaRequest(action: ReduxAction<{ code?: ERROR_CODES }>) {
-  let user: User | undefined = yield select(getCurrentUser);
-  if (!user) {
-    yield take(ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS);
-    user = yield select(getCurrentUser);
-  }
+  const user: User | undefined = yield select(getCurrentUser);
   const code = get(action, "payload.code");
 
   // if user is not logged and the error is "PAGE_NOT_FOUND",
-  // redirecting user to login page with redirectTo param
+  // redirecting user to login page with redirecTo param
   if (
     get(user, "email") === ANONYMOUS_USERNAME &&
     code === ERROR_CODES.PAGE_NOT_FOUND

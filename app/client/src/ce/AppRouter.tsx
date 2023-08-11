@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import history from "utils/history";
 import AppHeader from "pages/common/AppHeader";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
@@ -38,23 +38,35 @@ import ErrorPage from "pages/common/ErrorPage";
 import PageNotFound from "pages/common/ErrorPages/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
-import { useSelector } from "react-redux";
+import type { AppState } from "@appsmith/reducers";
+import { connect, useSelector } from "react-redux";
 
 import * as Sentry from "@sentry/react";
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import UserProfile from "pages/UserProfile";
+import { getCurrentUser } from "actions/authActions";
+import { getCurrentUserLoading } from "selectors/usersSelectors";
 import Setup from "pages/setup";
 import SettingsLoader from "pages/Settings/loader";
 import SignupSuccess from "pages/setup/SignupSuccess";
 import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
+import {
+  fetchFeatureFlagsInit,
+  fetchProductAlertInit,
+} from "actions/userActions";
+import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
-import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import {
+  getTenantPermissions,
+  isTenantLoading,
+} from "@appsmith/selectors/tenantSelectors";
+import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
+import { initCurrentPage } from "../actions/initActions";
 import Walkthrough from "components/featureWalkthrough";
 import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
-import { useFirstRouteLoad } from "../pages/loaderHooks";
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -63,6 +75,7 @@ export const loadingIndicator = <PageLoadingBar />;
 export function Routes() {
   const user = useSelector(getCurrentUserSelector);
   const tenantPermissions = useSelector(getTenantPermissions);
+
   return (
     <Switch>
       <SentryRoute component={LandingScreen} exact path={BASE_URL} />
@@ -118,18 +131,60 @@ export function Routes() {
   );
 }
 
-function AppRouter() {
-  useFirstRouteLoad();
-  const isSafeCrash = useSelector(getSafeCrash);
-  const safeCrashCode: ERROR_CODES | undefined = useSelector(getSafeCrashCode);
+function AppRouter(props: {
+  safeCrash: boolean;
+  getCurrentUser: () => void;
+  getFeatureFlags: () => void;
+  getCurrentTenant: () => void;
+  initCurrentPage: () => void;
+  fetchProductAlert: () => void;
+  safeCrashCode?: ERROR_CODES;
+}) {
+  const {
+    fetchProductAlert,
+    getCurrentTenant,
+    getCurrentUser,
+    getFeatureFlags,
+    initCurrentPage,
+  } = props;
+  const tenantIsLoading = useSelector(isTenantLoading);
+  const currentUserIsLoading = useSelector(getCurrentUserLoading);
+
+  useEffect(() => {
+    getCurrentUser();
+    getFeatureFlags();
+    getCurrentTenant();
+    initCurrentPage();
+    fetchProductAlert();
+  }, []);
+
+  useBrandingTheme();
+
+  // hide the top loader once the tenant is loaded
+  useEffect(() => {
+    if (tenantIsLoading === false && currentUserIsLoading === false) {
+      const loader = document.getElementById("loader") as HTMLDivElement;
+
+      if (loader) {
+        loader.style.width = "100vw";
+
+        setTimeout(() => {
+          loader.style.opacity = "0";
+        });
+      }
+    }
+  }, [tenantIsLoading, currentUserIsLoading]);
+
+  if (tenantIsLoading || currentUserIsLoading) return null;
+
   return (
     <Router history={history}>
       <Suspense fallback={loadingIndicator}>
         <RouteChangeListener />
-        {isSafeCrash && safeCrashCode ? (
+        {props.safeCrash && props.safeCrashCode ? (
           <>
             <ErrorPageHeader />
-            <ErrorPage code={safeCrashCode} />
+            <ErrorPage code={props.safeCrashCode} />
           </>
         ) : (
           <>
@@ -145,4 +200,17 @@ function AppRouter() {
   );
 }
 
-export default AppRouter;
+const mapStateToProps = (state: AppState) => ({
+  safeCrash: getSafeCrash(state),
+  safeCrashCode: getSafeCrashCode(state),
+});
+
+const mapDispatchToProps = (dispatch: any) => ({
+  getCurrentUser: () => dispatch(getCurrentUser()),
+  getFeatureFlags: () => dispatch(fetchFeatureFlagsInit()),
+  getCurrentTenant: () => dispatch(getCurrentTenant(false)),
+  initCurrentPage: () => dispatch(initCurrentPage()),
+  fetchProductAlert: () => dispatch(fetchProductAlertInit()),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(AppRouter);
