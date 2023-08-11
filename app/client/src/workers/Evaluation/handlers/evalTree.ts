@@ -61,7 +61,7 @@ export default function (request: EvalWorkerSyncRequest) {
 
   const unevalTree = __unevalTree__.unEvalTree;
   configTree = __unevalTree__.configTree as ConfigTree;
-  dataTreeEvaluator?.resetPathsIdenticalToState();
+
   try {
     if (!dataTreeEvaluator) {
       isCreateFirstTree = true;

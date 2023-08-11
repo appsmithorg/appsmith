@@ -1,5 +1,5 @@
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import { get, set } from "lodash";
+import { get, set, unset } from "lodash";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { removeFunctionsAndSerialzeBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
 
@@ -31,10 +31,41 @@ export function makeEntityConfigsAsObjProperties(
 
   if (!evalProps) return dataTreeToReturn;
 
+  //clean up deletes widget states
+  Object.entries(identicalEvalPathsPatches || {}).forEach(
+    ([evalPath, statePath]) => {
+      const [entity] = statePath.split(".");
+      if (!dataTreeToReturn[entity]) {
+        delete identicalEvalPathsPatches?.[evalPath];
+      }
+    },
+  );
+
+  // decompressIdenticalEvalPaths
+  Object.entries(identicalEvalPathsPatches || {}).forEach(
+    ([evalPath, statePath]) => {
+      const referencePathValue = get(dataTreeToReturn, statePath);
+      set(evalProps, evalPath, referencePathValue);
+    },
+  );
+
+  const alreadySanitisedDataSet = {} as EvalProps;
+  Object.keys(identicalEvalPathsPatches || {}).forEach((evalPath) => {
+    const val = get(evalProps, evalPath);
+    //serialised already
+    alreadySanitisedDataSet[evalPath] = val;
+    unset(evalProps, evalPath);
+  });
+
   const sanitizedEvalProps = removeFunctionsAndSerialzeBigInt(
     evalProps,
   ) as EvalProps;
-
+  Object.entries(alreadySanitisedDataSet).forEach(([path, val]) => {
+    // add it to sanitised Eval props
+    set(sanitizedEvalProps, path, val);
+    //restore it evalProps
+    set(evalProps, path, eval);
+  });
   for (const [entityName, entityEvalProps] of Object.entries(
     sanitizedEvalProps,
   )) {
@@ -45,15 +76,6 @@ export function makeEntityConfigsAsObjProperties(
       entityEvalProps.__evaluation__,
     );
   }
-  // we are seperately adding identical identicalEvalPathsPatches back to the state and evalProps, this is because we don't want to
-  //unnecessarily perform the santise code on this segment since we know these are duplicates
-  Object.entries(identicalEvalPathsPatches || {}).forEach(
-    ([evalPath, statePath]) => {
-      const referencePathValue = get(dataTreeToReturn, statePath);
-      set(dataTreeToReturn, evalPath, referencePathValue);
-      set(evalProps, evalPath, referencePathValue);
-    },
-  );
 
   return dataTreeToReturn;
 }

@@ -187,9 +187,7 @@ export default class DataTreeEvaluator {
     this.allActionValidationConfig = allActionValidationConfig;
     this.widgetConfigMap = widgetConfigMap;
   }
-  resetPathsIdenticalToState() {
-    this.evalPathsIdenticalToState = {};
-  }
+
   getEvalPathsIdenticalToState(): Record<string, string> {
     return this.evalPathsIdenticalToState || {};
   }

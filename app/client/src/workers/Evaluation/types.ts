@@ -18,6 +18,7 @@ import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator
 import type { WorkerRequest } from "@appsmith/workers/common/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { APP_MODE } from "entities/App";
+import type { DiffWithReferenceState } from "./helpers";
 
 export type EvalWorkerSyncRequest = WorkerRequest<any, EVAL_WORKER_SYNC_ACTION>;
 export type EvalWorkerASyncRequest = WorkerRequest<
@@ -56,7 +57,7 @@ export interface EvalTreeResponseData {
   isNewWidgetAdded: boolean;
   undefinedEvalValuesMap: Record<string, boolean>;
   jsVarsCreatedEvent?: { path: string; type: string }[];
-  updates: any;
+  updates: DiffWithReferenceState[];
 }
 
 export type JSVarMutatedEvents = Record<string, { path: string; type: string }>;
