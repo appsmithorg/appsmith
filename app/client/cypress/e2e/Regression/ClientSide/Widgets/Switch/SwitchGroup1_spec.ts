@@ -1,6 +1,5 @@
 import {
   agHelper,
-  fakerHelper,
   draggableWidgets,
   entityExplorer,
   deployMode,
@@ -8,7 +7,10 @@ import {
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-import { switchlocators } from "../../../../../locators/WidgetLocators";
+import {
+  switchlocators,
+  checkboxlocators,
+} from "../../../../../locators/WidgetLocators";
 
 import widgetsLoc from "../../../../../locators/Widgets.json";
 import widgets from "../../../../../locators/publishWidgetspage.json";
@@ -130,6 +132,25 @@ describe("Switchgroup Widget Functionality", function () {
     agHelper
       .GetElement(locators._switchGroupToggleChecked("Green"))
       .should("be.checked");
+
+    propPane.UpdatePropertyFieldValue(
+      "Default selected values",
+      "{{CheckboxGroup1.selectedValues}}",
+    );
+
+    entityExplorer.SelectEntityByName("CheckboxGroup1");
+    agHelper.GetNClick(checkboxlocators.checkBoxLabel("Blue"));
+    agHelper.GetNClick(checkboxlocators.checkBoxLabel("Red"));
+    agHelper.GetNClick(checkboxlocators.checkBoxLabel("Green"));
+    agHelper
+      .GetElement(locators._switchGroupToggleChecked("Blue"))
+      .should("not.be.checked");
+    agHelper
+      .GetElement(locators._switchGroupToggleChecked("Red"))
+      .should("be.checked");
+    agHelper
+      .GetElement(locators._switchGroupToggleChecked("Green"))
+      .should("be.checked");
   });
 
   //Note:  Old case, rewrittwen to using ts methods
@@ -196,5 +217,21 @@ describe("Switchgroup Widget Functionality", function () {
     deployMode.DeployApp();
     agHelper.AssertElementExist(commonlocators.disabledField);
     deployMode.NavigateBacktoEditor();
+  });
+
+  it("6. Check events - on selection change", () => {
+    entityExplorer.SelectEntityByName("SwitchGroup1");
+    propPane.SelectPropertiesDropDown("Height", "Auto Height");
+    propPane.TogglePropertyState("Inline", "On");
+    propPane.TogglePropertyState("Disabled", "Off");
+    propPane.ToggleJSMode("onSelectionChange", true);
+    // reset text widget on selecting default color in switch group
+    propPane.UpdatePropertyFieldValue(
+      "onSelectionChange",
+      "{{resetWidget('Text1', true);}}",
+    );
+    agHelper.GetNClick(locators._switchGroupToggleChecked("Blue"), 0, true);
+    agHelper.GetNClick(locators._switchGroupToggleChecked("Red"), 0, true);
+    agHelper.AssertElementVisible(locators._visibleTextSpan("RED"));
   });
 });
