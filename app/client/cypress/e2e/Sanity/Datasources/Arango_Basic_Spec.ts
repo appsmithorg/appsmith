@@ -6,15 +6,16 @@ import {
   draggableWidgets,
   propPane,
   tedTestConfig,
+  locators,
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
 
 describe("Validate Arango & CURL Import Datasources", () => {
   let dsName: any,
-    collectionName = "countries_places_to_visit1",
+    collectionName = "countries_places_to_visit4",
     containerName = "arangodb";
   before("Create a new Arango DS", () => {
-    // dataSources.StartContainerNVerify("Arango", containerName, 20000);
+    //dataSources.StartContainerNVerify("Arango", containerName, 20000);
     dataSources.CreateDataSource("ArangoDB");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -142,7 +143,10 @@ describe("Validate Arango & CURL Import Datasources", () => {
     }); //needed for the added data to reflect in template queries
   });
 
-  it("2. Run Select, Create, Update, Delete & few more queries on the created collection", () => {
+  it("2. Run Select, Create, Update, Delete & few more queries on the created collection + Widget Binding", () => {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
+    propPane.UpdatePropertyFieldValue("Default value", "Brazil");
+    entityExplorer.NavigateToSwitcher("Explorer");
     //Select's own query
     entityExplorer.ActionTemplateMenuByEntityName(
       `${collectionName}`,
@@ -175,7 +179,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
 
     query = `INSERT
     {
-      "country": "Brazil",
+      "country": "{{Input1.text}}",
       "places_to_visit": [
         {
           "name": "Christ the Redeemer",
@@ -218,7 +222,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
     dataSources.RunQueryNVerifyResponseViews(5); //Verify all records are filtered
     dataSources.AssertQueryTableResponse(0, "Japan");
     dataSources.AssertQueryTableResponse(1, "Mount Fuji");
-    dataSources.AssertQueryTableResponse(6, "Brazil");
+    dataSources.AssertQueryTableResponse(6, "Brazil"); //Widget binding is verified here
     dataSources.AssertQueryTableResponse(7, "Iguazu Falls"); //making sure new inserted record is also considered for filtering
 
     //Update Japan to Australia
@@ -285,16 +289,20 @@ describe("Validate Arango & CURL Import Datasources", () => {
     dataSources.AssertQueryTableResponse(0, "France");
     dataSources.AssertQueryTableResponse(1, "USA");
     dataSources.AssertQueryTableResponse(2, "Brazil");
+    entityExplorer.DeleteWidgetFromEntityExplorer("Input1");
   });
 
   it("3. Arango Widget Binding - from Suggested widget", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Connect data");
+    dataSources.FilterAndVerifyDatasourceSchemaBySearch("country", "column");
     entityExplorer.SelectEntityByName("Query6");
     dataSources.AddSuggestedWidget(Widgets.Table); //Binding to new table from schema explorer
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
     entityExplorer.SelectEntityByName("Query6");
     agHelper.ClickButton("Select widget"); //Binding to dragDropped table
+    agHelper.AssertElementVisibility(dataSources._snippingBanner);
+    agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.TABLE));
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
   });
 

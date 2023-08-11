@@ -252,6 +252,7 @@ export class DataSources {
     "//span[text()='" +
     dsName +
     "']/ancestor::div[contains(@class, 't--datasource')]//div[@data-testid='datasource-collapse-wrapper']";
+  _snippingBanner = ".t--sniping-mode-banner";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
