@@ -1,18 +1,20 @@
+/// <reference types="cypress-tags" />
+
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
 
-describe("Query pane navigation", () => {
-  let ds1Name;
-  let ds2Name;
+describe("excludeForAirgap", "Query pane navigation", () => {
+  let ds1Name: string;
+  let ds2Name: string;
 
   beforeEach("Add dsl and create datasource", () => {
     _.dataSources.CreateDataSource("S3", true, false);
     cy.get("@dsName").then(($dsName) => {
-      ds1Name = $dsName;
+      ds1Name = $dsName as unknown as string;
     });
     _.dataSources.CreateDataSource("Firestore", true, false);
     cy.get("@dsName").then(($dsName) => {
-      ds2Name = $dsName;
+      ds2Name = $dsName as unknown as string;
     });
   });
 
@@ -31,7 +33,7 @@ describe("Query pane navigation", () => {
     _.debuggerHelper.AssertErrorCount(1);
 
     cy.get("@dsName").then(($dsName) => {
-      ds2Name = $dsName;
+      ds2Name = $dsName as unknown as string;
     });
     _.entityExplorer.CreateNewDsQuery(ds2Name);
     _.agHelper.UpdateCodeInput(
@@ -46,12 +48,12 @@ describe("Query pane navigation", () => {
 
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink();
-    _.agHelper.AssertElementVisible(
+    _.agHelper.AssertElementVisibility(
       ".t--actionConfiguration\\.formData\\.limitDocuments\\.data",
     );
 
     _.debuggerHelper.ClicklogEntityLink(true);
-    _.agHelper.AssertElementVisible(
+    _.agHelper.AssertElementVisibility(
       ".t--actionConfiguration\\.formData\\.list\\.sortBy\\.data\\[0\\]\\.column",
     );
 
