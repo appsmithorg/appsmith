@@ -107,10 +107,7 @@ import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { getPageList, getPluginForm } from "selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
 import DatasourcesApi from "api/DatasourcesApi";
-import {
-  resetApplicationWidgets,
-  updateAndSaveLayout,
-} from "actions/pageActions";
+import { resetApplicationWidgets } from "actions/pageActions";
 import { setCanvasCardsState } from "actions/editorActions";
 import { toast } from "design-system";
 import type { User } from "constants/userConstants";
@@ -128,7 +125,7 @@ import { setAllEntityCollapsibleStates } from "actions/editorContextActions";
 import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import getTableWidgetActivationDSL from "templates/TableWidgetActivation";
+import { generateReactKey } from "utils/generators";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -617,7 +614,20 @@ export function* createApplicationSaga(
         );
         if (tableWidgetExperimentEnabled) {
           yield take(ReduxActionTypes.FETCH_WORKSPACE_SUCCESS);
-          yield put(updateAndSaveLayout(getTableWidgetActivationDSL()));
+          yield put({
+            type: ReduxActionTypes.WIDGET_ADD_CHILD,
+            payload: {
+              widgetId: "0",
+              type: "TABLE_WIDGET_V2",
+              leftColumn: 15,
+              topRow: 6,
+              columns: 34,
+              rows: 28,
+              parentRowSpace: 10,
+              parentColumnSpace: 13.390625,
+              newWidgetId: generateReactKey(),
+            },
+          });
         }
       }
     }
