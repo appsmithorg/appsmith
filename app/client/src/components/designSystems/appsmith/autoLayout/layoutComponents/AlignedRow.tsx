@@ -6,7 +6,7 @@ import type {
 } from "utils/autoLayout/autoLayoutTypes";
 import FlexLayout from "./FlexLayout";
 import "../styles.css";
-import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
+import { AutoCanvasDraggingArena } from "pages/common/CanvasArenas/AutoLayoutArenas/AutoCanvasDraggingArena";
 import {
   FlexLayerAlignment,
   LayoutDirection,
@@ -85,7 +85,7 @@ const AlignedRow = (props: LayoutComponentProps) => {
         {...(layoutStyle || {})}
       >
         {isDropTarget && props.containerProps ? (
-          <CanvasDraggingArena
+          <AutoCanvasDraggingArena
             {...props.containerProps.snapSpaces}
             alignItems={props.containerProps.alignItems}
             canExtend={props.containerProps.canExtend}

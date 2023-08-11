@@ -7,7 +7,6 @@ import styled from "styled-components";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { useSelector } from "react-redux";
 import {
-  getIsAutoLayout,
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
@@ -22,7 +21,6 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import { useDragImageGenerator } from "pages/Editor/useDragImageGenerator";
 
 const DraggableWrapper = styled.div<{
   $isFlexChild: boolean;
@@ -85,7 +83,6 @@ export const canDrag = (
 function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to set a widget as focused/selected
   const { focusWidget, selectWidget } = useWidgetSelection();
-  const isAutoLayout = useSelector(getIsAutoLayout);
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
@@ -129,7 +126,6 @@ function DraggableComponent(props: DraggableComponentProps) {
   const isCurrentWidgetResizing = isResizing && isSelected;
   const showBoundary =
     !props.isFlexChild && (isCurrentWidgetDragging || isDraggingSibling);
-  const { getWidgetDragImage } = useDragImageGenerator();
 
   // When mouse is over this draggable
   const handleMouseOver = (e: any) => {
@@ -169,6 +165,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const className = `${classNameForTesting}`;
   const draggableRef = useRef<HTMLDivElement>(null);
   const onDragStart = (e: any) => {
+    e.preventDefault();
     e.stopPropagation();
     // allowDrag check is added as react jest test simulation is not respecting default behaviour
     // of draggable=false and triggering onDragStart. allowDrag condition check is purely for the test cases.
@@ -178,7 +175,6 @@ function DraggableComponent(props: DraggableComponentProps) {
       if (!isSelected) {
         selectWidget(SelectionRequestType.One, [props.widgetId]);
       }
-
       const widgetHeight = props.bottomRow - props.topRow;
       const widgetWidth = props.rightColumn - props.leftColumn;
       const bounds = draggableRef.current.getBoundingClientRect();
@@ -200,16 +196,6 @@ function DraggableComponent(props: DraggableComponentProps) {
         startPoints,
         draggedOn: props.parentId,
       });
-      if (isAutoLayout) {
-        e.dataTransfer.setData(
-          "text",
-          JSON.stringify(props.widgetId || "widget"),
-        );
-        const canvas = getWidgetDragImage(props.widgetName);
-        e.dataTransfer.setDragImage(canvas, 0, 0);
-      } else {
-        e.preventDefault();
-      }
     }
   };
 

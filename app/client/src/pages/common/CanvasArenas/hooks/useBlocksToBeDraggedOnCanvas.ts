@@ -21,7 +21,7 @@ import {
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
 import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
-import type { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
+import type { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/AutoLayoutArenas/AutoCanvasDraggingArena";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";

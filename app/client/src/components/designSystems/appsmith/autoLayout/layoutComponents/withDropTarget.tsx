@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { AutoLayoutDropTarget } from "components/editorComponents/AutoLayoutDropTarget";
-import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
+import { AutoCanvasDraggingArena } from "pages/common/CanvasArenas/AutoLayoutArenas/AutoCanvasDraggingArena";
 import React from "react";
 import type { LayoutComponentProps } from "utils/autoLayout/autoLayoutTypes";
 import { LayoutDirection } from "utils/autoLayout/constants";
@@ -19,7 +19,7 @@ const withDropTarget = (
   if (layoutProps?.isDropTarget && containerProps) {
     return (
       <AutoLayoutDropTarget key={index} widgetId={containerProps.widgetId}>
-        <CanvasDraggingArena
+        <AutoCanvasDraggingArena
           {...containerProps.snapSpaces}
           alignItems={containerProps.alignItems}
           canExtend={containerProps.canExtend}

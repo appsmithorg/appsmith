@@ -8,7 +8,7 @@ import DropTargetComponent from "components/editorComponents/DropTargetComponent
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { RenderModes } from "constants/WidgetConstants";
-import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
+import { AutoCanvasDraggingArena } from "pages/common/CanvasArenas/AutoLayoutArenas/AutoCanvasDraggingArena";
 import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import type { CSSProperties } from "react";
@@ -29,6 +29,7 @@ import { getLayoutComponent } from "utils/autoLayout/layoutComponentUtils";
 import { isArray } from "lodash";
 import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { AutoLayoutDropTarget } from "components/editorComponents/AutoLayoutDropTarget";
+import { FixedCanvasDraggingArena } from "pages/common/CanvasArenas/FixedArenas/FixedCanvasDraggingArena";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -114,11 +115,15 @@ class CanvasWidget extends ContainerWidget {
       this.props.isMobile,
       this.props.appPositioningType === AppPositioningTypes.AUTO,
     );
+
+    const DraggingArena = this.props.useAutoLayout
+      ? AutoCanvasDraggingArena
+      : FixedCanvasDraggingArena;
     return (
       <ContainerComponent {...props}>
         {props.renderMode === RenderModes.CANVAS && (
           <>
-            <CanvasDraggingArena
+            <DraggingArena
               {...this.getSnapSpaces()}
               alignItems={props.alignItems}
               canExtend={props.canExtend}

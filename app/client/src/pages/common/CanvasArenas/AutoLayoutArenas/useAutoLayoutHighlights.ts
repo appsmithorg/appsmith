@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
 import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
 import WidgetFactory from "utils/WidgetFactory";
-import type { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
+import type { WidgetDraggingBlock } from "../hooks/useBlocksToBeDraggedOnCanvas";
 import { getHighlightPayload } from "utils/autoLayout/highlightSelectionUtils";
 import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 import { useRef } from "react";

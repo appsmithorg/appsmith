@@ -2,13 +2,12 @@
 import type { AppState } from "@appsmith/reducers";
 import { theme } from "constants/DefaultTheme";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import React, { useMemo } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
-import { getIsAutoLayout } from "selectors/editorSelectors";
 import type { LayoutDirection } from "utils/autoLayout/constants";
 import { getNearestParentCanvas } from "utils/generators";
-import { useCanvasDragging } from "./hooks/useCanvasDragging";
-import { StickyCanvasArena } from "./StickyCanvasArena";
+import { useCanvasDragging } from "./useCanvasDragging";
+import { StickyCanvasArena } from "../StickyCanvasArena";
 
 export interface SelectedArenaDimensions {
   top: number;
@@ -34,7 +33,7 @@ export interface CanvasDraggingArenaProps {
   layoutId?: string;
 }
 
-export function CanvasDraggingArena({
+export function FixedCanvasDraggingArena({
   alignItems,
   canExtend,
   direction,
@@ -49,10 +48,7 @@ export function CanvasDraggingArena({
   widgetId,
   widgetName,
 }: CanvasDraggingArenaProps) {
-  const isAutoLayout = useSelector(getIsAutoLayout);
-  const needsPadding = useMemo(() => {
-    return !isAutoLayout && widgetId === MAIN_CONTAINER_WIDGET_ID;
-  }, [widgetId, isAutoLayout]);
+  const needsPadding = widgetId === MAIN_CONTAINER_WIDGET_ID;
 
   const slidingArenaRef = React.useRef<HTMLDivElement>(null);
   const stickyCanvasRef = React.useRef<HTMLCanvasElement>(null);
@@ -96,7 +92,7 @@ export function CanvasDraggingArena({
     />
   ) : null;
 }
-CanvasDraggingArena.displayName = "CanvasDraggingArena";
+FixedCanvasDraggingArena.displayName = "FixedCanvasDraggingArena";
 
 // CanvasDraggingArena.whyDidYouRender = {
 //   logOnDifferentValues: true,

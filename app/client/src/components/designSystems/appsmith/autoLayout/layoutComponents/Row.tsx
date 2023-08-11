@@ -9,7 +9,7 @@ import {
   getLayoutComponent,
   renderLayouts,
 } from "utils/autoLayout/layoutComponentUtils";
-import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
+import { AutoCanvasDraggingArena } from "pages/common/CanvasArenas/AutoLayoutArenas/AutoCanvasDraggingArena";
 import { LayoutDirection } from "utils/autoLayout/constants";
 import type { FlexLayerAlignment } from "utils/autoLayout/constants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -50,7 +50,7 @@ const Row = (props: LayoutComponentProps) => {
       {...(layoutStyle || {})}
     >
       {isDropTarget && props.containerProps ? (
-        <CanvasDraggingArena
+        <AutoCanvasDraggingArena
           {...props.containerProps.snapSpaces}
           alignItems={props.containerProps.alignItems}
           canExtend={props.containerProps.canExtend}
