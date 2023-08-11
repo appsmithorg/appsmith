@@ -1,8 +1,4 @@
 import type {
-  DataTreeEntity,
-  DataTreeEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
-import type {
   JSActionEntityConfig,
   JSActionEntity as TJSActionEntity,
 } from "entities/DataTree/types";
@@ -14,42 +10,7 @@ import type { JSVarProperty } from "@shared/ast";
 import type { JSFunctionProperty } from "@shared/ast";
 import { uniq } from "lodash";
 import { validJSBodyRegex } from "workers/Evaluation/JSObject";
-
-export interface EntityParser {
-  parse<T extends DataTreeEntity, K extends DataTreeEntityConfig>(
-    entity: T,
-    entityConfig: K,
-  ): ParsedEntity<T>;
-  parse<T extends TJSActionEntity, K extends JSActionEntityConfig>(
-    entity: T,
-    entityConfig: K,
-  ): ParsedEntity<T>;
-}
-
-type TParsedJSEntity = Record<string, string> & {
-  body: string;
-};
-
-type TParsedJSEntityConfig = Record<string, TParsedJSProperty>;
-
-export type ParsedJSCache = {
-  parsedEntity: ParsedEntity<TJSActionEntity>;
-  parsedEntityConfig: TParsedJSEntityConfig;
-};
-
-export type ParsedEntity<T> = {
-  parsedEntity: Partial<T>;
-  parsedEntityConfig: Record<string, unknown>;
-};
-
-export class DefaultEntityParser implements EntityParser {
-  parse<T extends DataTreeEntity>(entity: T) {
-    return {
-      parsedEntity: entity,
-      parsedEntityConfig: {},
-    };
-  }
-}
+import type { EntityParser, ParsedEntity, TParsedJSEntity } from ".";
 
 export class JSLintEntityParser implements EntityParser {
   #parsedJSCache: ParsedEntity<TJSActionEntity> = {
@@ -132,39 +93,26 @@ export class JSLintEntityParser implements EntityParser {
   #parseJSObjectBody = (jsBody: string) => {
     const unsuccessfulParsingResponse = {
       success: false,
-      parsedObject: {},
-    } as const;
-    let response:
-      | { success: false; parsedObject: Record<string, never> }
-      | { success: true; parsedObject: Record<string, TParsedJSProperty> } =
-      unsuccessfulParsingResponse;
-
-    if (this.#isValidJSBody(jsBody)) {
-      const { parsedObject: parsedProperties, success } = parseJSObject(jsBody);
-      if (success) {
-        // When a parsed object has duplicate keys, the jsobject is invalid and its body (not individual properties) needs to be linted
-        // so we return an empty object
-        const allPropertyKeys = parsedProperties.map(
-          (property) => property.key,
-        );
-        const uniqueKeys = uniq(allPropertyKeys);
-        const hasUniqueKeys = allPropertyKeys.length === uniqueKeys.length;
-        if (hasUniqueKeys) {
-          response = {
-            success: true,
-            parsedObject: parsedProperties.reduce(
-              (acc: Record<string, TParsedJSProperty>, property) => {
-                const updatedProperties = { ...acc, [property.key]: property };
-                return updatedProperties;
-              },
-              {},
-            ),
-          } as const;
-        }
-      }
-    }
-    return response;
+      parsedObject: {} as Record<string, TParsedJSProperty>,
+    };
+    if (!this.#isValidJSBody(jsBody)) return unsuccessfulParsingResponse;
+    const { parsedObject: parsedProperties, success } = parseJSObject(jsBody);
+    if (!success) return unsuccessfulParsingResponse;
+    // When a parsed object has duplicate keys, the jsobject is invalid and its body (not individual properties) needs to be linted
+    // so we return an empty object
+    const allPropertyKeys = parsedProperties.map((property) => property.key);
+    const uniqueKeys = uniq(allPropertyKeys);
+    const hasUniqueKeys = allPropertyKeys.length === uniqueKeys.length;
+    if (!hasUniqueKeys) return unsuccessfulParsingResponse;
+    return {
+      success: true,
+      parsedObject: parsedProperties.reduce(
+        (acc: Record<string, TParsedJSProperty>, property) => {
+          const updatedProperties = { ...acc, [property.key]: property };
+          return updatedProperties;
+        },
+        {},
+      ),
+    };
   };
 }
-
-export const jsLintEntityParser = new JSLintEntityParser();

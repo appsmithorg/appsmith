@@ -12,13 +12,11 @@ import { mergeMaps } from "./mergeMaps";
 import { flatten, get, has, isString, toPath, union, uniq } from "lodash";
 import { extractIdentifierInfoFromCode } from "@shared/ast";
 import { PathUtils } from "./pathUtils";
-import type {
-  ActionEntity,
-  IEntity,
-  JSEntity,
-  WidgetEntity,
-} from "../lib/entity";
+import type { WidgetEntity } from "../../utils/entity/WidgetEntity";
+import type { ActionEntity } from "../../utils/entity/ActionEntity";
+import type { IEntity } from "../../utils/entity";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import type { JSEntity } from "plugins/utils/entity/JSEntity";
 
 export function getEntityDependencies(
   entity: IEntity,

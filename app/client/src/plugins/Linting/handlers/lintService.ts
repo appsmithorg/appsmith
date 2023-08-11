@@ -17,13 +17,11 @@ import type {
   TJSPropertiesState,
   TJSpropertyState,
 } from "workers/Evaluation/JSObject/jsPropertiesState";
-import { isJSEntity } from "plugins/Linting/lib/entity";
 import DependencyMap from "entities/DependencyMap";
-import {
-  LintEntityTree,
-  type EntityTree,
-} from "plugins/Linting/lib/entity/EntityTree";
+import { LintEntityTree } from "plugins/Linting/lib/LintEntityTree";
+import type { EntityTree } from "../../utils/entityTree";
 import { entityFns } from "workers/Evaluation/fns";
+import { isJSEntity } from "plugins/utils/entity";
 
 class LintService {
   cachedEntityTree: EntityTree | null;

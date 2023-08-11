@@ -1,30 +1,7 @@
 import type { TParsedJSProperty } from "@shared/ast";
-import type { JSEntity, IEntity } from "plugins/Linting/lib/entity";
-import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
-import type { jsLintEntityParser } from "./entityParser";
-
-export interface EntityDiffGenerator {
-  generate(
-    baseEntity?: IEntity,
-    compareEntity?: IEntity,
-  ): Diff<unknown>[] | undefined;
-}
-
-export class DefaultDiffGenerator implements EntityDiffGenerator {
-  generate(baseEntity?: IEntity, compareEntity?: IEntity) {
-    return diff(
-      this.generateDiffObj(baseEntity),
-      this.generateDiffObj(compareEntity),
-    );
-  }
-  generateDiffObj(entity?: IEntity) {
-    if (!entity) {
-      return {};
-    }
-    return { [entity.getName()]: entity.getRawEntity() };
-  }
-}
+import type { JSEntity } from "plugins/utils/entity/JSEntity";
+import type { EntityDiffGenerator } from ".";
 
 export class JSLintDiffGenerator implements EntityDiffGenerator {
   generate(baseEntity?: JSEntity, compareEntity?: JSEntity) {
@@ -42,7 +19,7 @@ export class JSLintDiffGenerator implements EntityDiffGenerator {
     for (const [propertyName, propertyValue] of Object.entries(
       entity.getRawEntity(),
     )) {
-      const jsParser = entity.entityParser as typeof jsLintEntityParser;
+      const jsParser = entity.entityParser;
       const { parsedEntityConfig } = jsParser.parse(
         entity.getRawEntity(),
         entity.getConfig(),
@@ -65,4 +42,3 @@ export class JSLintDiffGenerator implements EntityDiffGenerator {
 }
 
 export const jsLintDiffGenerator = new JSLintDiffGenerator();
-export const defaultDiffGenerator = new DefaultDiffGenerator();

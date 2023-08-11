@@ -3,21 +3,9 @@ import type {
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeFactory";
-import type { IEntity } from ".";
+import type { IEntity } from "plugins/utils/entity";
 import type { Diff } from "deep-diff";
-import EntityFactory from ".";
 import { PathUtils } from "plugins/Linting/utils/pathUtils";
-import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { EntityParser } from "plugins/Linting/utils/entityParser";
-import {
-  DefaultEntityParser,
-  JSLintEntityParser,
-} from "plugins/Linting/utils/entityParser";
-import type { EntityDiffGenerator } from "plugins/Linting/utils/diffGenerator";
-import {
-  DefaultDiffGenerator,
-  JSLintDiffGenerator,
-} from "plugins/Linting/utils/diffGenerator";
 import { union } from "lodash";
 
 export abstract class EntityTree {
@@ -73,42 +61,5 @@ export abstract class EntityTree {
   getEntities() {
     const entities = Array.from(this.tree.values());
     return entities;
-  }
-}
-
-export interface EntityClassLoader {
-  load(entity: DataTreeEntity): {
-    Parser: { new (): EntityParser };
-    DiffGenerator: { new (): EntityDiffGenerator };
-  };
-}
-
-class LintEntityClassLoader implements EntityClassLoader {
-  load(entity: DataTreeEntity) {
-    if (isJSAction(entity)) {
-      return {
-        Parser: JSLintEntityParser,
-        DiffGenerator: JSLintDiffGenerator,
-      };
-    }
-    return {
-      Parser: DefaultEntityParser,
-      DiffGenerator: DefaultDiffGenerator,
-    };
-  }
-}
-
-export class LintEntityTree extends EntityTree {
-  constructor(unEvalTree: DataTree, configTree: ConfigTree) {
-    super(unEvalTree, configTree);
-    this.buildTree(unEvalTree, configTree);
-  }
-  buildTree(unEvalTree: DataTree, configTree: ConfigTree): void {
-    const entities = Object.entries(unEvalTree);
-    const classLoader = new LintEntityClassLoader();
-    for (const [name, entity] of entities) {
-      const config = configTree[name];
-      this.tree.set(name, EntityFactory.getEntity(entity, config, classLoader));
-    }
   }
 }
