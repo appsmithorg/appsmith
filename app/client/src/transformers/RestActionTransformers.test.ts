@@ -367,40 +367,4 @@ describe("Api action transformer", () => {
     const result5 = extractApiUrlPath(path5);
     expect(result5).toEqual(output5);
   });
-
-  it("filters out any HTML tags from action", () => {
-    const input: ApiAction = {
-      ...BASE_ACTION,
-      actionConfiguration: {
-        ...BASE_ACTION.actionConfiguration,
-        httpMethod: "POST",
-        headers: [
-          {
-            key: `<img src=x onerror='alert("this runs")'>Hello</img>`,
-            value: "world",
-          },
-        ],
-        body: "",
-      },
-    };
-
-    // output object should not include the second bodyFormData object
-    // as its key, value and type are empty
-    const output: ApiAction = {
-      ...BASE_ACTION,
-      actionConfiguration: {
-        ...BASE_ACTION.actionConfiguration,
-        httpMethod: "POST",
-        headers: [
-          {
-            key: `<img src="x">Hello`,
-            value: "world",
-          },
-        ],
-        body: "",
-      },
-    };
-    const result = transformRestAction(input);
-    expect(result).toEqual(output);
-  });
 });

@@ -27,7 +27,6 @@ import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getCurrentEnvironment } from "@appsmith/utils/Environments";
-import { filterXss } from "transformers/RestActionTransformer";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -71,15 +70,6 @@ export const blockedApiRoutesForAirgapInterceptor = (
   }
   return config;
 };
-
-export const filterActionExecutionResponse = (response: any): any => ({
-  ...response,
-  body: filterXss(response.body).output,
-  request: {
-    ...response.request,
-    body: filterXss(response.body).output,
-  },
-});
 
 // Request interceptor will add a timer property to the request.
 // this will be used to calculate the time taken for an action

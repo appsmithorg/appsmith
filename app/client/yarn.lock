@@ -7135,15 +7135,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/dompurify@npm:^3.0.2":
-  version: 3.0.2
-  resolution: "@types/dompurify@npm:3.0.2"
-  dependencies:
-    "@types/trusted-types": "*"
-  checksum: dc017e16a46bcc77086af7d4dc5d2bf4102f16bf1a11b2937e90380da50e77716a2a608ff52990b1293250fefc2ad7593a1378fe07e3a7e21f200d702f0a7878
-  languageName: node
-  linkType: hard
-
 "@types/downloadjs@npm:^1.4.2":
   version: 1.4.2
   resolution: "@types/downloadjs@npm:1.4.2"
@@ -8089,7 +8080,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/trusted-types@npm:*, @types/trusted-types@npm:^2.0.2":
+"@types/trusted-types@npm:^2.0.2":
   version: 2.0.3
   resolution: "@types/trusted-types@npm:2.0.3"
   checksum: 4794804bc4a4a173d589841b6d26cf455ff5dc4f3e704e847de7d65d215f2e7043d8757e4741ce3a823af3f08260a8d04a1a6e9c5ec9b20b7b04586956a6b005
@@ -9395,7 +9386,6 @@ __metadata:
     "@types/codemirror": ^0.0.96
     "@types/deep-diff": ^1.0.0
     "@types/dom-mediacapture-record": ^1.0.11
-    "@types/dompurify": ^3.0.2
     "@types/downloadjs": ^1.4.2
     "@types/google.maps": ^3.51.0
     "@types/jest": ^27.4.1
@@ -9485,7 +9475,6 @@ __metadata:
     design-system: "npm:@appsmithorg/design-system@2.1.17"
     design-system-old: "npm:@appsmithorg/design-system-old@1.1.11"
     diff: ^5.0.0
-    dompurify: ^3.0.5
     dotenv: ^8.1.0
     downloadjs: ^1.4.7
     echarts: ^5.4.2
@@ -13714,13 +13703,6 @@ __metadata:
   dependencies:
     domelementtype: ^2.3.0
   checksum: 0f58f4a6af63e6f3a4320aa446d28b5790a009018707bce2859dcb1d21144c7876482b5188395a188dfa974238c019e0a1e610d2fc269a12b2c192ea2b0b131c
-  languageName: node
-  linkType: hard
-
-"dompurify@npm:^3.0.5":
-  version: 3.0.5
-  resolution: "dompurify@npm:3.0.5"
-  checksum: 2d9421570c833ce26ce7022955241749b646d41e8bf453f42ede9f22d0e98af482cedb7dfbf8129419eb48b351c1d677a08fc9f1cd91836ce7f6c1807a0676b2
   languageName: node
   linkType: hard
 

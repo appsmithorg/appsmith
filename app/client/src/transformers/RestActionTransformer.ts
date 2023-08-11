@@ -2,7 +2,7 @@ import {
   HTTP_METHOD,
   CONTENT_TYPE_HEADER_KEY,
 } from "constants/ApiEditorConstants/CommonApiConstants";
-import type { ApiAction, BodyFormData, Property } from "entities/Action";
+import type { ApiAction } from "entities/Action";
 import isEmpty from "lodash/isEmpty";
 import isString from "lodash/isString";
 import cloneDeep from "lodash/cloneDeep";
@@ -10,8 +10,6 @@ import {
   getDynamicStringSegments,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
-import { isArray } from "lodash";
-import DOMPurify from "dompurify";
 
 export const transformRestAction = (data: ApiAction): ApiAction => {
   let action = cloneDeep(data);
@@ -77,17 +75,6 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
       },
     };
   }
-
-  action.actionConfiguration.bodyFormData = filterXSSVulnerabilities(
-    action.actionConfiguration.bodyFormData,
-  ) as BodyFormData[];
-  action.actionConfiguration.headers = filterXSSVulnerabilities(
-    action.actionConfiguration.headers,
-  ) as Property[];
-  action.actionConfiguration.queryParameters = filterXSSVulnerabilities(
-    action.actionConfiguration.queryParameters,
-  ) as Property[];
-
   action.actionConfiguration.bodyFormData = removeEmptyPairs(
     action.actionConfiguration.bodyFormData,
   );
@@ -110,42 +97,6 @@ function removeEmptyPairs(keyValueArray: any) {
       (!isEmpty(data.key) || !isEmpty(data.value) || !isEmpty(data.type)),
   );
 }
-
-const filterXSSVulnerabilities = (
-  value: string | BodyFormData[] | Property[] | undefined,
-): string | BodyFormData[] | Property[] | undefined => {
-  if (isString(value)) {
-    return filterXss(value).output;
-  }
-
-  if (isArray(value)) {
-    return value.map((val: Property | BodyFormData) => {
-      const key = filterXss(val.key).output;
-      const value = filterXss(val?.value || "").output;
-
-      // allow keys like "type" to pass through.
-      return { ...val, key, value };
-    });
-  }
-
-  return value;
-};
-
-export const filterXss = (
-  source: string,
-  customOptions?: any,
-): FilteredXSSOutput => {
-  const output = DOMPurify.sanitize(source, customOptions).toString();
-  // this is an array that contains all the malicious code that was removed.
-  const removedVulnerabilities = DOMPurify.removed;
-
-  return { output, removedVulnerabilities };
-};
-
-type FilteredXSSOutput = {
-  output: string;
-  removedVulnerabilities: any[];
-};
 
 // This function extracts the appropriate paths regardless of whatever expressions exist within the dynamic bindings.
 
