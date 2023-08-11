@@ -1,6 +1,5 @@
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
-import { useState } from "react";
-import { Flex, Text, RadioGroup, Radio } from "@design-system/widgets";
+import { Flex, Text } from "@design-system/widgets";
 import styled from "styled-components";
 
 <Meta
@@ -43,6 +42,23 @@ export const StyledResponsiveBlock = styled.div`
   aspect-ratio: 1/1;
   width: 100%;
   height: 100%;
+  max-height: 100px;
+`;
+
+export const StyledResponsivePositiveBlock = styled(StyledResponsiveBlock)`
+  background: var(--color-bg-positive);
+`;
+
+export const StyledResponsiveNeutralBlock = styled(StyledResponsiveBlock)`
+  background: var(--color-bg-neutral);
+`;
+
+export const StyledResponsiveNegativeBlock = styled(StyledResponsiveBlock)`
+  background: var(--color-bg-negative);
+`;
+
+export const StyledResponsiveAccentBlock = styled(StyledResponsiveBlock)`
+  background: var(--color-bg-accent);
 `;
 
 # Flex
@@ -159,5 +175,120 @@ To make everything work, we just need to add `isContainer` prop to the parent FL
         </Flex>
       </Flex>
     ))}
+  </Flex>
+</Story>
+
+## Auto layout example
+
+<Story name="Auto layout">
+  <Flex isContainer width="100%" direction="column" gap="spacing-4">
+    <Flex wrap gap="spacing-4">
+      <Flex
+        flex="1"
+        width="25%"
+        minWidth={{
+          base: "100%",
+          "180px": "180px"
+        }}
+      >
+        <StyledResponsivePositiveBlock />
+      </Flex>
+      <Flex
+        flex="1"
+        width="25%"
+        minWidth={{
+          base: "100%",
+          "180px": "180px"
+        }}
+      >
+        <StyledResponsivePositiveBlock />
+      </Flex>
+      <Flex
+        flex="1"
+        width="25%"
+        minWidth={{
+          base: "100%",
+          "180px": "180px"
+        }}
+      >
+        <StyledResponsivePositiveBlock />
+      </Flex>
+      <Flex
+        flex="1"
+        width="25%"
+        minWidth={{
+          base: "100%",
+          "180px": "180px"
+        }}
+      >
+        <StyledResponsivePositiveBlock />
+      </Flex>
+    </Flex>
+
+    <Flex wrap gap="spacing-4">
+      <Flex
+        flex="1"
+        width="33.33%"
+        minWidth={{
+          base: "100%",
+          "240px": "240px"
+        }}
+      >
+        <StyledResponsiveNeutralBlock />
+      </Flex>
+      <Flex
+        flex="1"
+        width="33.33%"
+        minWidth={{
+          base: "100%",
+          "240px": "240px"
+        }}
+      >
+        <StyledResponsiveNeutralBlock />
+      </Flex>
+      <Flex
+        flex="1"
+        width="33.33%"
+        minWidth={{
+          base: "100%",
+          "240px": "240px"
+        }}
+      >
+        <StyledResponsiveNeutralBlock />
+      </Flex>
+    </Flex>
+
+    <Flex wrap gap="spacing-4">
+      <Flex
+        flex="1"
+        width="50%"
+        minWidth={{
+          base: "100%",
+          "360px": "360px"
+        }}
+      >
+        <StyledResponsiveNegativeBlock />
+      </Flex>
+      <Flex
+        flex="1"
+        width="50%"
+        minWidth={{
+          base: "100%",
+          "360px": "360px"
+        }}
+      >
+        <StyledResponsiveNegativeBlock  />
+      </Flex>
+    </Flex>
+
+    <Flex wrap>
+      <Flex
+        flex="1"
+        width="100%"
+      >
+        <StyledResponsiveAccentBlock />
+      </Flex>
+    </Flex>
+
   </Flex>
 </Story>
