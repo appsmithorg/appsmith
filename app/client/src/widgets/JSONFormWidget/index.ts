@@ -60,7 +60,7 @@ export const CONFIG = {
     widgetName: "JSONForm",
     autoGenerateForm: true,
     fieldLimitExceeded: false,
-    sourceData: "",
+    sourceData: {},
     submitButtonLabel: "Submit",
     resetButtonLabel: "Reset",
     blueprint: {

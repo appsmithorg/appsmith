@@ -8,6 +8,7 @@ import {
   Checkbox,
   ModalFooter,
   Button,
+  Tooltip,
 } from "design-system";
 import { EditFieldsButton } from "../styles";
 import { Table } from "design-system-old";
@@ -20,6 +21,7 @@ import {
   CANCEL_DIALOG,
   COLUMN_NAME,
   COLUMN_TYPE,
+  EDIT_FIELDS_DISABLED_TOOLTIP_TEXT,
   EDIT_FIELDS,
   FIELDS_CONFIGURATION,
   SAVE_CHANGES,
@@ -59,11 +61,10 @@ const FlexWrapper = styled.div<{ disabled?: boolean }>`
     props.disabled ? "var(--ads-v2-color-bg-muted)" : "transparent"};
 `;
 
-export function ColumnSelectorModal() {
+export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
   const { columns: data, primaryColumn } = useColumns("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updatedData, setUpdatedData] = useState<any>([]);
-
   const { updateConfig } = useContext(WidgetQueryGeneratorFormContext);
 
   useEffect(() => {
@@ -100,49 +101,51 @@ export function ColumnSelectorModal() {
     setIsOpen(false);
   };
 
-  const columns = React.useMemo(
-    () => [
-      {
-        Header: createMessage(COLUMN_NAME),
-        accessor: "name",
-        Cell: function (cellProps: any) {
-          const { row } = cellProps;
-          const isDisabled = row.original.name === primaryColumn;
-          return (
-            <FlexWrapper>
-              <StyledCheckbox
-                data-column-id={`t--edit-field-${row.original.name}`}
-                isDisabled={isDisabled}
-                isSelected={row.original.isSelected}
-                onChange={() => handleSelect(row.original)}
-              />
-              <ColumnText>{row.original.name}</ColumnText>
-            </FlexWrapper>
-          );
-        },
+  const columns = [
+    {
+      Header: createMessage(COLUMN_NAME),
+      accessor: "name",
+      Cell: function (cellProps: any) {
+        const { row } = cellProps;
+        const isDisabled = row.original.name === primaryColumn;
+        return (
+          <FlexWrapper>
+            <StyledCheckbox
+              data-column-id={`t--edit-field-${row.original.name}`}
+              isDisabled={isDisabled}
+              isSelected={row.original.isSelected}
+              onChange={() => handleSelect(row.original)}
+            />
+            <ColumnText>{row.original.name}</ColumnText>
+          </FlexWrapper>
+        );
       },
-      {
-        Header: createMessage(COLUMN_TYPE),
-        accessor: "type",
-        Cell: function (cellProps: any) {
-          const { row } = cellProps;
-          return <Text>{row.original.type}</Text>;
-        },
+    },
+    {
+      Header: createMessage(COLUMN_TYPE),
+      accessor: "type",
+      Cell: function (cellProps: any) {
+        const { row } = cellProps;
+        return <Text>{row.original.type}</Text>;
       },
-    ],
-    [],
-  );
+    },
+  ];
 
   return (
     <div data-testid="t--column-selector-modal">
-      <EditFieldsButton
-        data-testid="t--edit-fields-button"
-        kind="tertiary"
-        onClick={() => setIsOpen(true)}
-        startIcon="edit-2-line"
-      >
-        {createMessage(EDIT_FIELDS)}
-      </EditFieldsButton>
+      <Tooltip content={createMessage(EDIT_FIELDS_DISABLED_TOOLTIP_TEXT)}>
+        <span>
+          <EditFieldsButton
+            data-testid="t--edit-fields-button"
+            isDisabled={isDisabled}
+            kind="tertiary"
+            onClick={() => setIsOpen(true)}
+            startIcon="edit-2-line"
+          >
+            {createMessage(EDIT_FIELDS)}
+          </EditFieldsButton>
+        </span>
+      </Tooltip>
       <Modal
         onOpenChange={(isOpen) => isModalOpen && onOpenChange(isOpen)}
         open={isModalOpen}

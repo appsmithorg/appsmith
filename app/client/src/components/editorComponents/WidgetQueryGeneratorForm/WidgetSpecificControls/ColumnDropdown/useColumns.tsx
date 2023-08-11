@@ -128,7 +128,10 @@ export function useColumns(alias: string) {
         return {
           name: column.name,
           type: prepareColumns(column.type),
-          isSelected: column?.isSelected === undefined || column?.isSelected,
+          isSelected:
+            column.name === primaryColumn
+              ? false
+              : column?.isSelected === undefined || column?.isSelected,
         };
       });
       return {

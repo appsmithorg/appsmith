@@ -1911,6 +1911,8 @@ export const FIELDS_CONFIGURATION = () => "Fields Configuration";
 export const SAVE_CHANGES = () => "Save changes";
 export const COLUMN_TYPE = () => "Column type";
 export const COLUMN_NAME = () => "Column name";
+export const EDIT_FIELDS_DISABLED_TOOLTIP_TEXT = () =>
+  "Select a table to edit fields";
 
 // JSON Form
 export const NO_FIELDS_ADDED = () => "No fields added";

@@ -31,7 +31,7 @@ function TableOrSpreadsheetDropdown(props: Props) {
           <Tooltip content={labelText}>
             <Label>{label}</Label>
           </Tooltip>
-          {allowFieldConfig && <ColumnSelectorModal />}
+          {allowFieldConfig && <ColumnSelectorModal isDisabled={!selected} />}
         </LabelWrapper>
         <Select
           data-testid="t--one-click-binding-table-selector"
