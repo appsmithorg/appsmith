@@ -208,7 +208,6 @@ const createActionExecutionResponse = (
       payload.body = atob(payload.body as string);
     }
   }
-
   return {
     ...payload,
     ...response.clientMeta,
