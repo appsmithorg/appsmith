@@ -38,6 +38,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 
@@ -197,24 +199,21 @@ public class NewActionServiceUnitTest {
 
     @Test
     public void testPublishActionArchivesAndPublishesActions() {
-        //        String applicationId = "dummy-application-id";
-        //        Collection<Object> updateResult = Mockito.mock(Collection.class);
-        //        Mockito.when(updateResult.getModifiedCount()).thenReturn(10L);
-        //        Mockito.when(updateResult.getMatchedCount()).thenReturn(5L);
-        //
-        //        Mockito.when(newActionRepository.archiveDeletedUnpublishedActions(
-        //                        applicationId, actionPermission.getEditPermission()))
-        //                .thenReturn(Mono.empty());
-        //
-        //        Mockito.when(newActionRepository.publishActions(applicationId, actionPermission.getEditPermission()))
-        //                .thenReturn(Mono.just(updateResult));
-        //
-        //        StepVerifier.create(newActionService.publishActions(applicationId,
-        // actionPermission.getEditPermission()))
-        //                .assertNext(updateResult1 -> {
-        //                    assertEquals(10L, updateResult1.getModifiedCount());
-        //                    assertEquals(5L, updateResult1.getMatchedCount());
-        //                })
-        //                .verifyComplete();
+        String applicationId = "dummy-application-id";
+        List updateResult = Mockito.mock(List.class);
+        Mockito.when(updateResult.size()).thenReturn(10);
+
+        Mockito.when(newActionRepository.archiveDeletedUnpublishedActions(
+                        applicationId, actionPermission.getEditPermission()))
+                .thenReturn(Mono.empty());
+
+        Mockito.when(newActionRepository.publishActions(applicationId, actionPermission.getEditPermission()))
+                .thenReturn(Mono.just(updateResult));
+
+        StepVerifier.create(newActionService.publishActions(applicationId, actionPermission.getEditPermission()))
+                .assertNext(updateResult1 -> {
+                    assertEquals(10, updateResult1.size());
+                })
+                .verifyComplete();
     }
 }

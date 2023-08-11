@@ -3,7 +3,6 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.QLayout;
 import com.appsmith.server.domains.QNewPage;
@@ -297,18 +296,18 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
         // convert the list of new actions to a list of DBObjects
         List<WriteModel<Document>> dbObjects = newPages.stream()
-                .map(newAction -> {
-                    assert newAction.getId() != null;
+                .map(newPage -> {
+                    assert newPage.getId() != null;
                     Document document = new Document();
-                    mongoOperations.getConverter().write(newAction, document);
+                    mongoOperations.getConverter().write(newPage, document);
                     document.remove("_id");
                     return (WriteModel<Document>) new UpdateOneModel<Document>(
-                            new Document("_id", new ObjectId(newAction.getId())), new Document("$set", document));
+                            new Document("_id", new ObjectId(newPage.getId())), new Document("$set", document));
                 })
                 .collect(Collectors.toList());
 
         return mongoOperations
-                .getCollection(mongoOperations.getCollectionName(NewAction.class))
+                .getCollection(mongoOperations.getCollectionName(NewPage.class))
                 .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
                 .collectList();
     }
