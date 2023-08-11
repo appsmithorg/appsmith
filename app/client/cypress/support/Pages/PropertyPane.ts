@@ -50,6 +50,8 @@ export class PropertyPane {
   _propertyPaneSearchInputWrapper = ".t--property-pane-search-input-wrapper";
   _propertyPaneSearchInput = `${this._propertyPaneSearchInputWrapper} input`;
   _propertyPaneEmptySearchResult = ".t--property-pane-no-search-results";
+  _mode = (modeName: string) =>
+    "//span[contains(text(),'" + modeName + "')]//parent::span";
   _propertyToggle = (controlToToggle: string) =>
     ".t--property-control-" +
     controlToToggle.replace(/ +/g, "").toLowerCase() +
@@ -167,7 +169,7 @@ export class PropertyPane {
     if (assertElementVisible) {
       this.agHelper.AssertElementVisibility(this._copyWidget);
     }
-    //this.agHelper.AssertElementVisible(this._deleteWidget); //extra valisation, hence commenting!
+    //this.agHelper.AssertElementVisibility(this._deleteWidget); //extra valisation, hence commenting!
   }
 
   public CopyPasteWidgetFromPropertyPane(widgetName: string) {
@@ -525,6 +527,13 @@ export class PropertyPane {
 
   public AssertIfPropertyIsVisible(property: string) {
     this.agHelper.AssertElementVisibility(this._propertyControl(property));
+  }
+
+  public AssertIfPropertyIsNotVisible(property: string) {
+    this.agHelper.AssertElementVisibility(
+      this._propertyControl(property),
+      false,
+    );
   }
 
   public AddAction(property: string) {
