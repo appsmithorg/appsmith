@@ -256,6 +256,6 @@ describe("Switchgroup Widget Functionality", function () {
     );
     agHelper.GetNClick(locators._switchGroupToggleChecked("Blue"), 0, true);
     agHelper.GetNClick(locators._switchGroupToggleChecked("Red"), 0, true);
-    agHelper.AssertElementVisible(locators._visibleTextSpan("RED"));
+    agHelper.AssertElementVisibility(locators._visibleTextSpan("RED"));
   });
 });
