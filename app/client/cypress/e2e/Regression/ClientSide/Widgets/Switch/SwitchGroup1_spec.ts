@@ -94,6 +94,30 @@ describe("Switchgroup Widget Functionality", function () {
     agHelper.VerifyEvaluatedErrorMessage(
       'This value does not evaluate to type Array<{ "label": "string", "value": "string" }>',
     );
+
+    // asserts if new option added is not checked
+    const newOption = `[
+      {
+        "label": "Blue",
+        "value": "BLUE"
+      },
+      {
+        "label": "Green",
+        "value": "GREEN"
+      },
+      {
+        "label": "Red",
+        "value": "RED"
+      },
+      {
+        "label": "Yellow",
+        "value": "YELLOW"
+      }
+    ]`;
+    propPane.UpdatePropertyFieldValue("Options", newOption);
+    agHelper
+      .GetElement(locators._switchGroupToggleChecked("Yellow"))
+      .should("not.be.checked");
   });
 
   it("2. test default selected value func and error texts", () => {
