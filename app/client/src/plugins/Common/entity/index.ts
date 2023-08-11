@@ -15,7 +15,7 @@ import type {
   WidgetEntityConfig as TWidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import type { Diff } from "deep-diff";
-import type { EntityClassLoader } from "plugins/utils/entityClassLoader";
+import type { EntityClassLoader } from "plugins/Common/entityClassLoader";
 import { WidgetEntity } from "./WidgetEntity";
 import { ActionEntity } from "./ActionEntity";
 import { JSEntity } from "./JSEntity";

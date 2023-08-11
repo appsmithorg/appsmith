@@ -19,9 +19,9 @@ import type {
 } from "workers/Evaluation/JSObject/jsPropertiesState";
 import DependencyMap from "entities/DependencyMap";
 import { LintEntityTree } from "plugins/Linting/lib/LintEntityTree";
-import type { EntityTree } from "../../utils/entityTree";
+import type { EntityTree } from "../../Common/entityTree";
 import { entityFns } from "workers/Evaluation/fns";
-import { isJSEntity } from "plugins/utils/entity";
+import { isJSEntity } from "plugins/Common/entity";
 
 class LintService {
   cachedEntityTree: EntityTree | null;

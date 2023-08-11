@@ -1,6 +1,6 @@
 import type { AppsmithEntity as TAppsmithEntity } from "entities/DataTree/dataTreeFactory";
-import type { EntityDiffGenerator } from "plugins/utils/entityDiffGenerator";
-import type { EntityParser } from "plugins/utils/entityParser";
+import type { EntityDiffGenerator } from "plugins/Common/entityDiffGenerator";
+import type { EntityParser } from "plugins/Common/entityParser";
 import type { Diff } from "deep-diff";
 import type { IEntity } from ".";
 import { ENTITY_TYPE } from ".";

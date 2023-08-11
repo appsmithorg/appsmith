@@ -2,7 +2,7 @@ import type {
   ActionEntity as TActionEntity,
   ActionEntityConfig as TActionEntityConfig,
 } from "entities/DataTree/types";
-import type { EntityParser } from "plugins/utils/entityParser";
+import type { EntityParser } from "plugins/Common/entityParser";
 import type { Diff } from "deep-diff";
 import { ENTITY_TYPE, type IEntity } from ".";
 import {

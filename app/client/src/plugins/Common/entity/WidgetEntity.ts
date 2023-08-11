@@ -2,7 +2,7 @@ import type {
   WidgetEntity as TWidgetEntity,
   WidgetEntityConfig as TWidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
-import type { EntityParser } from "plugins/utils/entityParser";
+import type { EntityParser } from "plugins/Common/entityParser";
 import type { Diff } from "deep-diff";
 import type { IEntity } from ".";
 import { ENTITY_TYPE } from ".";

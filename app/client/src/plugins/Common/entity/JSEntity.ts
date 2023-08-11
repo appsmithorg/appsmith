@@ -2,7 +2,7 @@ import type {
   JSActionEntity as TJSActionEntity,
   JSActionEntityConfig as TJSActionEntityConfig,
 } from "entities/DataTree/types";
-import type { EntityParser } from "plugins/utils/entityParser";
+import type { EntityParser } from "plugins/Common/entityParser";
 import type { Diff } from "deep-diff";
 import type { TParsedJSProperty } from "@shared/ast";
 import { isJSFunctionProperty } from "@shared/ast";

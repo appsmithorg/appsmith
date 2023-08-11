@@ -1,8 +1,8 @@
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
-import EntityFactory from "../../utils/entity";
-import { LintEntityClassLoader } from "plugins/utils/entityClassLoader/LintEntityClassLoader";
-import { EvalEntityClassLoader } from "plugins/utils/entityClassLoader/EvalEntityClassLoader";
-import { EntityTree } from "../../utils/entityTree";
+import EntityFactory from "../../Common/entity";
+import { LintEntityClassLoader } from "plugins/Common/entityClassLoader/LintEntityClassLoader";
+import { EvalEntityClassLoader } from "plugins/Common/entityClassLoader/EvalEntityClassLoader";
+import { EntityTree } from "../../Common/entityTree";
 
 export class LintEntityTree extends EntityTree {
   constructor(unEvalTree: DataTree, configTree: ConfigTree) {

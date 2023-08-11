@@ -1,5 +1,5 @@
-import type { IEntity } from "../../utils/entity";
-import { isDynamicEntity, isWidgetEntity } from "plugins/utils/entity";
+import type { IEntity } from "../../Common/entity";
+import { isDynamicEntity, isWidgetEntity } from "plugins/Common/entity";
 import {
   convertPathToString,
   getEntityNameAndPropertyPath,

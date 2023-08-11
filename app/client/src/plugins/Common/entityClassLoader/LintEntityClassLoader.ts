@@ -1,16 +1,17 @@
 import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { DefaultEntityParser } from "plugins/utils/entityParser";
-import { JSEvalEntityParser } from "../entityParser/JSEvalEntityParser";
+import { DefaultEntityParser } from "plugins/Common/entityParser";
+import { JSLintDiffGenerator } from "plugins/Common/entityDiffGenerator/JSLintDiffGenerator";
 import type { EntityClassLoader } from ".";
+import { JSLintEntityParser } from "../entityParser/JSLintEntityParser";
 import { DefaultDiffGenerator } from "../entityDiffGenerator";
 
-export class EvalEntityClassLoader implements EntityClassLoader {
+export class LintEntityClassLoader implements EntityClassLoader {
   load(entity: DataTreeEntity) {
     if (isJSAction(entity)) {
       return {
-        Parser: JSEvalEntityParser,
-        DiffGenerator: DefaultDiffGenerator,
+        Parser: JSLintEntityParser,
+        DiffGenerator: JSLintDiffGenerator,
       };
     }
     return {

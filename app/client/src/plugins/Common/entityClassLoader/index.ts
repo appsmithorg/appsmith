@@ -1,6 +1,6 @@
 import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import type { EntityParser } from "plugins/utils/entityParser";
-import type { EntityDiffGenerator } from "plugins/utils/entityDiffGenerator";
+import type { EntityParser } from "plugins/Common/entityParser";
+import type { EntityDiffGenerator } from "plugins/Common/entityDiffGenerator";
 
 /**
  * This interface is used to load the parser and diff generator for an entity at the time

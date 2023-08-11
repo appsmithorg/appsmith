@@ -3,7 +3,7 @@ import type {
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeFactory";
-import type { IEntity } from "plugins/utils/entity";
+import type { IEntity } from "plugins/Common/entity";
 import type { Diff } from "deep-diff";
 import { PathUtils } from "plugins/Linting/utils/pathUtils";
 import { union } from "lodash";

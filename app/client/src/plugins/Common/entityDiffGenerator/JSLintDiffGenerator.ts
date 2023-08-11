@@ -1,6 +1,6 @@
 import type { TParsedJSProperty } from "@shared/ast";
 import { diff } from "deep-diff";
-import type { JSEntity } from "plugins/utils/entity/JSEntity";
+import type { JSEntity } from "plugins/Common/entity/JSEntity";
 import type { EntityDiffGenerator } from ".";
 
 export class JSLintDiffGenerator implements EntityDiffGenerator {
