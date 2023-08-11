@@ -210,10 +210,6 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
 
     private Mono<ActionExecutionResult> getSchemaPreviewData(
             DatasourceStorage datasourceStorage, Template queryTemplate) {
-        Mono<String> environmentNameMonoCached = datasourceStorageService
-                .getEnvironmentNameFromEnvironmentIdForAnalytics(datasourceStorage.getEnvironmentId())
-                .cache();
-
         if (Boolean.FALSE.equals(datasourceStorage.getIsValid())) {
             return Mono.just(new ActionExecutionResult());
         }
@@ -225,6 +221,8 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                 .flatMap(pluginExecutor -> {
                     ActionConfiguration actionConfig =
                             ((PluginExecutor<Object>) pluginExecutor).getSchemaPreviewActionConfig(queryTemplate);
+                    // actionConfig will be null for plugins which do not have this functionality yet
+                    // Currently its only implemented for PostgreSQL, to be added subsequently for MySQL as well
                     if (actionConfig != null) {
                         return datasourceContextService.retryOnce(
                                 datasourceStorage, resourceContext -> ((PluginExecutor<Object>) pluginExecutor)
@@ -263,13 +261,6 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                     }
 
                     return e;
-                })
-                .onErrorResume(error -> environmentNameMonoCached
-                        .zipWhen(environmentName -> analyticsService.sendObjectEvent(
-                                AnalyticsEvents.DS_PREVIEW_DATA_EVENT,
-                                datasourceStorage,
-                                getAnalyticsPropertiesForTestEventStatus(
-                                        datasourceStorage, false, error, environmentName)))
-                        .then(Mono.error(error)));
+                });
     }
 }

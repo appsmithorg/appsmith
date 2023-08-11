@@ -320,6 +320,10 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
         return Mono.just(new ActionExecutionResult());
     }
 
+    /*
+     * This method returns ActionConfiguration required in order to fetch preview data,
+     * that needs to be shown on datasource review page.
+     */
     default ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate) {
         return null;
     }
