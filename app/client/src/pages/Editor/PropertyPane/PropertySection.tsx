@@ -33,6 +33,7 @@ const SectionWrapper = styled.div`
   position: relative;
   border-top: 1px solid var(--ads-v2-color-border);
   padding: 12px 16px;
+  transition: opacity 0.6s ease-out;
 
   &:first-of-type {
     border-top: 0;
@@ -161,11 +162,18 @@ export const PropertySection = memo((props: PropertySectionProps) => {
     enableDataSectionOnly();
   }, []);
 
+  const isOCBInProgress = useSelector(
+    (state) => state.ui.oneClickBinding.inProgress,
+  );
+
   if (!currentWidgetId) return null;
 
   return (
     <SectionWrapper
       className={`t--property-pane-section-wrapper ${props.className}`}
+      style={{
+        opacity: props.name !== "Data" && isOCBInProgress ? 0 : 1,
+      }}
     >
       <div
         className={`section-title-wrapper t--property-pane-section-collapse-${className} flex items-center ${

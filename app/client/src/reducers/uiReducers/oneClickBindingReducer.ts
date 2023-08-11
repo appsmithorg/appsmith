@@ -7,12 +7,14 @@ const initialState: OneClickBindingState = {
   isConnecting: false,
   config: null,
   showOptions: false,
+  inProgress: false,
 };
 
 export interface OneClickBindingState {
   isConnecting: boolean;
   config: WidgetQueryGenerationFormConfig | null;
   showOptions: boolean;
+  inProgress: boolean;
 }
 
 const oneClickBindingReducer = createReducer(initialState, {
@@ -24,6 +26,7 @@ const oneClickBindingReducer = createReducer(initialState, {
       ...state,
       isConnecting: true,
       config: action.payload,
+      inProgress: false,
     };
   },
   [ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE_SUCCESS]: (
@@ -33,6 +36,7 @@ const oneClickBindingReducer = createReducer(initialState, {
       ...state,
       isConnecting: false,
       config: null,
+      inProgress: false,
     };
   },
   [ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE_ERROR]: (
@@ -42,6 +46,7 @@ const oneClickBindingReducer = createReducer(initialState, {
       ...state,
       isConnecting: false,
       config: null,
+      inProgress: false,
     };
   },
   [ReduxActionTypes.SET_ONE_CLICK_BINDING_OPTIONS_VISIBILITY]: (
@@ -51,6 +56,29 @@ const oneClickBindingReducer = createReducer(initialState, {
     return {
       ...state,
       showOptions: action.payload,
+    };
+  },
+  [ReduxActionTypes.SET_ONE_CLICK_BINDING_PROGRESS]: (
+    state: OneClickBindingState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      inProgress: action.payload,
+    };
+  },
+  [ReduxActionTypes.FOCUS_WIDGET]: (state: OneClickBindingState) => {
+    return {
+      ...state,
+      inProgress: false,
+    };
+  },
+  [ReduxActionTypes.SET_WIDGET_DYNAMIC_PROPERTY]: (
+    state: OneClickBindingState,
+  ) => {
+    return {
+      ...state,
+      inProgress: false,
     };
   },
 });

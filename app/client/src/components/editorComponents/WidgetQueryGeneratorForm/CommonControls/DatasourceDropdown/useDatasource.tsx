@@ -108,6 +108,7 @@ export function useDatasource(searchText: string) {
     propertyValue,
     sampleData,
     updateConfig,
+    updateProgress,
     widgetId,
   } = useContext(WidgetQueryGeneratorFormContext);
 
@@ -208,6 +209,8 @@ export function useDatasource(searchText: string) {
                 connectionMode: valueOption?.data.connectionMode,
                 isSampleDb: datasource.isMock,
               });
+
+              updateProgress(true);
             }
           },
         })),
@@ -303,6 +306,8 @@ export function useDatasource(searchText: string) {
                 pluginName: plugin?.name,
                 from: DatasourceCreateEntryPoints.ONE_CLICK_BINDING,
               });
+
+              updateProgress(true);
             },
           })),
       );
@@ -348,6 +353,8 @@ export function useDatasource(searchText: string) {
           AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
             entryPoint,
           });
+
+          updateProgress(false);
         },
       },
     ];
@@ -374,6 +381,8 @@ export function useDatasource(searchText: string) {
             propertyName: propertyName,
             selectedAction: "Sample data",
           });
+
+          updateProgress(false);
         },
       });
     }
@@ -414,6 +423,8 @@ export function useDatasource(searchText: string) {
           queryName: query.config.name,
           pluginType: query.config.pluginType,
         });
+
+        updateProgress(false);
       },
     }));
   }, [queries, pluginImages, addBinding]);

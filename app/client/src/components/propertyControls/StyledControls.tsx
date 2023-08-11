@@ -11,6 +11,7 @@ type ControlWrapperProps = {
 };
 
 export const ControlWrapper = styled.div<ControlWrapperProps>`
+  transition: opacity 0.6s ease-out;
   display: ${(props) =>
     props.orientation === "HORIZONTAL" ? "flex" : "block"};
   justify-content: space-between;

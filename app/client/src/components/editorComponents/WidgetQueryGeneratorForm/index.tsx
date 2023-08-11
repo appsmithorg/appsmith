@@ -13,7 +13,10 @@ import {
   getIsOneClickBindingOptionsVisibility,
   getOneClickBindingConfigForWidget,
 } from "selectors/oneClickBindingSelectors";
-import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
+import {
+  updateOneClickBindingOptionsVisibility,
+  updateOneClickBindingProgress,
+} from "actions/oneClickBindingActions";
 import type { Alias } from "./types";
 
 type WidgetQueryGeneratorFormContextType = {
@@ -42,6 +45,7 @@ type WidgetQueryGeneratorFormContextType = {
   expectedType: string;
   sampleData: string;
   aliases: Alias[];
+  updateProgress: (progress: boolean) => void;
 };
 
 const DEFAULT_CONFIG_VALUE = {
@@ -64,6 +68,7 @@ const DEFAULT_CONTEXT_VALUE = {
   propertyValue: "",
   isSourceOpen: false,
   onSourceClose: noop,
+  updateProgress: noop,
   errorMsg: "",
   propertyName: "",
   expectedType: "",
@@ -128,6 +133,10 @@ function WidgetQueryGeneratorForm(props: Props) {
   const onSourceClose = useCallback(() => {
     dispatch(updateOneClickBindingOptionsVisibility(false));
   }, [dispatch]);
+
+  const updateProgress = useCallback((progress: boolean) => {
+    dispatch(updateOneClickBindingProgress(progress));
+  }, []);
 
   const [config, setConfig] = useState({
     ...formState,
@@ -209,6 +218,7 @@ function WidgetQueryGeneratorForm(props: Props) {
       expectedType,
       sampleData,
       aliases,
+      updateProgress,
     };
   }, [
     config,
@@ -222,6 +232,7 @@ function WidgetQueryGeneratorForm(props: Props) {
     propertyPath,
     sampleData,
     aliases,
+    updateProgress,
   ]);
 
   useEffect(() => {

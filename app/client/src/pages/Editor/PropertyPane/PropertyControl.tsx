@@ -76,6 +76,10 @@ const SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR = ["COLOR_PICKER"];
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
 
+  const isOCBInProgress = useSelector(
+    (state) => state.ui.oneClickBinding.inProgress,
+  );
+
   const controlRef = useRef<HTMLDivElement | null>(null);
   const [showEmptyBlock, setShowEmptyBlock] = React.useState(false);
 
@@ -784,6 +788,13 @@ const PropertyControl = memo((props: Props) => {
               : "VERTICAL"
           }
           ref={controlRef}
+          style={{
+            opacity:
+              config.controlType !== "ONE_CLICK_BINDING_CONTROL" &&
+              isOCBInProgress
+                ? 0
+                : 1,
+          }}
         >
           <div className="gap-1 flex items-center">
             <PropertyHelpLabel

@@ -6,3 +6,8 @@ export const updateOneClickBindingOptionsVisibility = (
   type: ReduxActionTypes.SET_ONE_CLICK_BINDING_OPTIONS_VISIBILITY,
   payload: visibility,
 });
+
+export const updateOneClickBindingProgress = (visibility: boolean) => ({
+  type: ReduxActionTypes.SET_ONE_CLICK_BINDING_PROGRESS,
+  payload: visibility,
+});
