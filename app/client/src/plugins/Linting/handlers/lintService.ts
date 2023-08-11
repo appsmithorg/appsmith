@@ -17,7 +17,7 @@ import type {
   TJSPropertiesState,
   TJSpropertyState,
 } from "workers/Evaluation/JSObject/jsPropertiesState";
-import DependencyMap from "entities/DependencyMap";
+import DependencyMap from "plugins/Common/DependencyMap";
 import { LintEntityTree } from "plugins/Linting/lib/LintEntityTree";
 import type { EntityTree } from "../../Common/entityTree";
 import { entityFns } from "workers/Evaluation/fns";

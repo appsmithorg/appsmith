@@ -15,7 +15,7 @@ import type {
   WidgetEntity,
 } from "entities/DataTree/dataTreeFactory";
 import type { ActionEntity, JSActionEntity } from "entities/DataTree/types";
-import type DependencyMap from "entities/DependencyMap";
+import type DependencyMap from "plugins/Common/DependencyMap";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 
 export function getFixedTimeDifference(endTime: number, startTime: number) {

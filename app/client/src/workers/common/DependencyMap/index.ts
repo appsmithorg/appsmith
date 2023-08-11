@@ -27,7 +27,7 @@ import {
   getEntityPathDependencies,
 } from "./utils/getEntityDependencies";
 import { getValidationDependencies } from "./utils/getValidationDependencies";
-import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
+import { DependencyMapUtils } from "plugins/Common/DependencyMap/DependencyMapUtils";
 import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
 import {
   getAllSetterFunctions,

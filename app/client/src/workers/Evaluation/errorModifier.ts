@@ -2,7 +2,7 @@ import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { getAllAsyncFunctions } from "@appsmith/workers/Evaluation/Actions";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorCategory } from "utils/DynamicBindingUtils";
-import type DependencyMap from "entities/DependencyMap";
+import type DependencyMap from "plugins/Common/DependencyMap";
 import {
   getAllAsyncJSFunctions,
   isDataField,

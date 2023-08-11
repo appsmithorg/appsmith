@@ -120,8 +120,8 @@ import { errorModifier } from "workers/Evaluation/errorModifier";
 import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
 import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
-import DependencyMap from "entities/DependencyMap";
-import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
+import DependencyMap from "plugins/Common/DependencyMap";
+import { DependencyMapUtils } from "plugins/Common/DependencyMap/DependencyMapUtils";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {

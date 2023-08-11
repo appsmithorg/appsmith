@@ -1,4 +1,4 @@
-import type { TDependencies } from "entities/DependencyMap";
+import type { TDependencies } from "plugins/Common/DependencyMap";
 import toposort from "toposort";
 
 export function sortDependencies(dependencyMap: TDependencies): Array<string> {

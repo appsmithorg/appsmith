@@ -1,6 +1,6 @@
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { errorModifier } from "../errorModifier";
-import DependencyMap from "entities/DependencyMap";
+import DependencyMap from "plugins/Common/DependencyMap";
 import { APP_MODE } from "entities/App";
 
 describe("Test error modifier", () => {
