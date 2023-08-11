@@ -62,7 +62,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
       <>
         <span aria-hidden={isLoading ? true : undefined} data-content="">
           {icon}
-          <Text lineClamp={1} textAlign="center">
+          <Text fontWeight={600} lineClamp={1} textAlign="center">
             {children}
           </Text>
         </span>

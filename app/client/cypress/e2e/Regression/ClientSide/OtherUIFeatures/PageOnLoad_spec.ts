@@ -14,7 +14,7 @@ describe("Check debugger logs state when there are onPageLoad actions", function
     _.agHelper.GetNClick(explorer.addWidget);
     _.agHelper.RefreshPage();
     // Wait for the debugger icon to be visible
-    _.agHelper.AssertElementVisible(".t--debugger-count");
+    _.agHelper.AssertElementVisibility(".t--debugger-count");
     // debuggerHelper.isErrorCount(0);
     cy.wait("@postExecute");
     _.debuggerHelper.AssertErrorCount(1);

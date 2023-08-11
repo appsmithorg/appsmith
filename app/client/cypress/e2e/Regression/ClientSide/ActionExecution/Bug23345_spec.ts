@@ -11,7 +11,7 @@ describe("Delete No Action card without any error", () => {
 
     propPane.AddAction("onClick");
 
-    agHelper.AssertElementVisible(propPane._actionCardByTitle("No action"));
+    agHelper.AssertElementVisibility(propPane._actionCardByTitle("No action"));
 
     agHelper.GetNClick(propPane._actionSelectorDelete);
 
