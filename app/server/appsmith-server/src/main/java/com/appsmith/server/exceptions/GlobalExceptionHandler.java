@@ -339,7 +339,6 @@ public class GlobalExceptionHandler {
                 analyticsProps.put(FieldName.APPLICATION_ID, appId);
             }
             if (!fileTime.equals(0L)) {
-                analyticsProps.put(FieldName.FILE_LOCK_DURATION, fileTime);
                 return sessionUserService
                         .getCurrentUser()
                         .flatMap(user -> analyticsService.sendEvent(
