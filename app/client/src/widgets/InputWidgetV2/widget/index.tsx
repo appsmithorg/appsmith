@@ -77,14 +77,14 @@ export function defaultValueValidation(
 
       if (_.isString(value) && value.trim() === "") {
         /*
-         *  When value is emtpy string
+         *  When value is empty string
          */
         isValid = true;
         messages = [EMPTY_ERROR_MESSAGE];
-        parsed = null;
+        parsed = 0;
       } else if (!Number.isFinite(parsed)) {
         /*
-         *  When parsed value is not a finite numer
+         *  When parsed value is not a finite number
          */
         isValid = false;
         messages = [NUMBER_ERROR_MESSAGE];
