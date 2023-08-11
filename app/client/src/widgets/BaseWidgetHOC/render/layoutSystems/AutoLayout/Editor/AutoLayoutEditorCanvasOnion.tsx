@@ -4,7 +4,7 @@ import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import { isArray } from "lodash";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import React from "react";
+import React, { memo, useMemo } from "react";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import type { LayoutComponentProps } from "utils/autoLayout/autoLayoutTypes";
@@ -19,15 +19,19 @@ import ContainerComponent from "widgets/ContainerWidget/component";
 const LayoutCanvas = (props: BaseWidgetProps) => {
   const { layout } = props;
   const map: { [key: string]: any } = {};
-  const arr = renderChildren(
-    props.children,
-    false,
-    props.widgetId,
-    RenderModes.CANVAS,
-    {
-      componentHeight: props.componentHeight,
-      componentWidth: props.componentWidth,
-    },
+  const arr = useMemo(
+    () =>
+      renderChildren(
+        props.children,
+        false,
+        props.widgetId,
+        RenderModes.CANVAS,
+        {
+          componentHeight: props.componentHeight,
+          componentWidth: props.componentWidth,
+        },
+      ),
+    [props.children, props.widgetId],
   );
   if (isArray(arr)) {
     for (const child of arr) {
@@ -88,6 +92,20 @@ const SimpleCanvas = (props: BaseWidgetProps) => {
   );
   const { snapGrid } = getSnappedGrid(props, props.componentWidth);
   const stretchFlexBox = !props.children || !props.children?.length;
+  const children = useMemo(
+    () =>
+      renderChildren(
+        props.children,
+        false,
+        props.widgetId,
+        RenderModes.CANVAS,
+        {
+          componentHeight: props.componentHeight,
+          componentWidth: props.componentWidth,
+        },
+      ),
+    [props.children, props.widgetId],
+  );
   return (
     <AutoLayoutDropTarget widgetId={props.widgetId}>
       <ContainerComponent {...props}>
@@ -110,26 +128,17 @@ const SimpleCanvas = (props: BaseWidgetProps) => {
           useAutoLayout={props.useAutoLayout || false}
           widgetId={props.widgetId}
         >
-          {renderChildren(
-            props.children,
-            false,
-            props.widgetId,
-            RenderModes.CANVAS,
-            {
-              componentHeight: props.componentHeight,
-              componentWidth: props.componentWidth,
-            },
-          )}
+          {children}
         </FlexBoxComponent>
       </ContainerComponent>
     </AutoLayoutDropTarget>
   );
 };
 
-export const AutoLayoutEditorCanvasOnion = (props: BaseWidgetProps) => {
+export const AutoLayoutEditorCanvasOnion = memo((props: BaseWidgetProps) => {
   return (
     <WidgetComponent {...props}>
       {props.layout ? <LayoutCanvas {...props} /> : <SimpleCanvas {...props} />}
     </WidgetComponent>
   );
-};
+});
