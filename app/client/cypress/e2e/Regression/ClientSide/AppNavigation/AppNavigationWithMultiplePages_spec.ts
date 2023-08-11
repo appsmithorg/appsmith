@@ -37,7 +37,9 @@ describe("Page orientation and navigation related usecases ", function () {
     deployMode.DeployApp();
     agHelper.Sleep();
     agHelper.GetNClickByContains("button", "Submit");
-    agHelper.AssertElementVisible(appSettings.locators._getActivePage("Page1"));
+    agHelper.AssertElementVisibility(
+      appSettings.locators._getActivePage("Page1"),
+    );
     deployMode.NavigateBacktoEditor();
   });
 

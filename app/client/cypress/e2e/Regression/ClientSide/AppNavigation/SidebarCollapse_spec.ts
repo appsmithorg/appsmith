@@ -16,7 +16,9 @@ describe("Test Sidebar Collapse", function () {
       true,
     );
     deployMode.DeployApp();
-    agHelper.AssertElementVisible(appSettings.locators._sidebarCollapseButton);
+    agHelper.AssertElementVisibility(
+      appSettings.locators._sidebarCollapseButton,
+    );
     //Sidebar should collapse and open on click of collapse button again
     // Collapse
     agHelper.GetNClick(appSettings.locators._sidebarCollapseButton, 0, true);

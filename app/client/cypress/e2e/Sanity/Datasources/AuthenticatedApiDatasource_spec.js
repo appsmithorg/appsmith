@@ -54,7 +54,7 @@ describe("Authenticated API Datasource", function () {
             clientSecret,
           );
           agHelper.RefreshPage();
-          agHelper.AssertElementVisible(dataSources._editButton);
+          agHelper.AssertElementVisibility(dataSources._editButton);
           dataSources.DeleteDatasouceFromActiveTab("TED_OAuth" + uid);
         });
       });
