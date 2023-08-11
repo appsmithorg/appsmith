@@ -108,7 +108,7 @@ export class LightModeTheme implements ColorModeTheme {
    * Background colors
    */
 
-  public get bg() {
+  private get bg() {
     // Main application background color.
     // Applies to canvas. In light mode it is extremely light (and therefore desatured) tint of user-set seed color.
     // This ensures harmonious combination with main accents and neutrals.
