@@ -21,7 +21,7 @@
 
 Organizations build internal applications such as dashboards, database GUIs, admin panels, approval apps, customer support dashboards, and more to help their teams perform day-to-day operations. Appsmith is an open-source tool that enables the rapid development of these internal apps. Read more on our [website](https://www.appsmith.com?utm_source=github&utm_medium=organic&utm_campaign=readme).
   
-[![Appsmith in 100 secs](/static/images/appsmith-in-100-seconds.png)](https://www.youtube.com/watch?v=Dxe_NzdGzL4&utm_source=github&utm_medium=organic&utm_campaign=readme/?target=_blank) 
+[![Appsmith in 100 secs](/static/images/appsmith-in-100-seconds.png)](https://www.youtube.com/watch?v=NnaJdA1A11s?v=Dxe_NzdGzL4&utm_source=github&utm_medium=organic&utm_campaign=readme/?target=_blank)  
 
 
 ## Installation
