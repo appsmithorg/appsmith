@@ -5,6 +5,7 @@ import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.constants.LicenseType;
 import com.appsmith.server.domains.ce.LicenseCE;
+import com.appsmith.server.dtos.LicenseValidationResponseDTO;
 import lombok.Data;
 import org.springframework.data.annotation.Transient;
 
@@ -31,6 +32,8 @@ public class License extends LicenseCE {
     @Transient
     ChangeType changeType;
 
+    SubscriptionDetails subscriptionDetails;
+
     // Hierarchy of license plan
     private static final List<LicensePlan> licensePlansHierarchy =
             List.of(LicensePlan.FREE, LicensePlan.SELF_SERVE, LicensePlan.ENTERPRISE);
@@ -50,5 +53,24 @@ public class License extends LicenseCE {
         return currentPlanIndex == previousPlanIndex
                 ? ChangeType.NO_CHANGE
                 : (currentPlanIndex > previousPlanIndex) ? ChangeType.UPGRADE : ChangeType.DOWNGRADE;
+    }
+
+    public void updateLicenseFromValidationResponse(LicenseValidationResponseDTO validationResponse) {
+        this.setActive(validationResponse.isValid());
+        this.setExpiry(validationResponse.getExpiry());
+        if (Boolean.TRUE.equals(validationResponse.isValid())) {
+            this.setStatus(validationResponse.getLicenseStatus());
+            this.setType(validationResponse.getLicenseType());
+            this.setOrigin(validationResponse.getOrigin());
+            if (this.getPlan() != null && !this.getPlan().equals(validationResponse.getLicensePlan())) {
+                this.setPreviousPlan(this.getPlan());
+                this.setPlan(validationResponse.getLicensePlan());
+            } else {
+                this.setPlan(validationResponse.getLicensePlan());
+            }
+            this.setSubscriptionDetails(validationResponse.getSubscriptionDetails());
+        } else {
+            this.setStatus(LicenseStatus.EXPIRED);
+        }
     }
 }

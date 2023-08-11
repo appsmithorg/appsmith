@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.dtos.UpdateLicenseKeyDTO;
 import com.appsmith.server.services.ce.TenantServiceCE;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -32,7 +33,7 @@ public interface TenantService extends TenantServiceCE {
      * @param licenseKey License key received from client
      * @return Mono of Tenant
      */
-    Mono<Tenant> updateTenantLicenseKey(String licenseKey);
+    Mono<Tenant> updateTenantLicenseKey(UpdateLicenseKeyDTO licenseKey);
 
     /**
      * To refresh the current license status in the DB by making a license validation request to Cloud Services and

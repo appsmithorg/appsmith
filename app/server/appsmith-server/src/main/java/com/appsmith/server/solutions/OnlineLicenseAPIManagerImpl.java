@@ -1,7 +1,6 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
-import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.dtos.ChatGenerationResponseDTO;
@@ -98,22 +97,7 @@ public class OnlineLicenseAPIManagerImpl extends BaseLicenseAPIManagerImpl imple
                 .map(ResponseDTO::getData)
                 .map(licenseValidationResponse -> {
                     log.debug("License validation completed for tenant {}", tenant.getId());
-                    license.setActive(licenseValidationResponse.isValid());
-                    license.setExpiry(licenseValidationResponse.getExpiry());
-                    if (Boolean.TRUE.equals(licenseValidationResponse.isValid())) {
-                        license.setStatus(licenseValidationResponse.getLicenseStatus());
-                        license.setType(licenseValidationResponse.getLicenseType());
-                        license.setOrigin(licenseValidationResponse.getOrigin());
-                        if (license.getPlan() != null
-                                && !license.getPlan().equals(licenseValidationResponse.getLicensePlan())) {
-                            license.setPreviousPlan(license.getPlan());
-                            license.setPlan(licenseValidationResponse.getLicensePlan());
-                        } else {
-                            license.setPlan(licenseValidationResponse.getLicensePlan());
-                        }
-                    } else {
-                        license.setStatus(LicenseStatus.EXPIRED);
-                    }
+                    license.updateLicenseFromValidationResponse(licenseValidationResponse);
                     return license;
                 });
     }

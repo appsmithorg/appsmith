@@ -12,6 +12,7 @@ import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.dtos.UpdateLicenseKeyDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.RedirectHelper;
@@ -196,13 +197,14 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     }
 
     /**
-     * To update the default tenant's license key
+     * Method to fetch license details and update the default tenant's license key based on client request
      * Response will be status of update with 2xx
-     * @param licenseKey License key received from client
+     * @param updateLicenseKeyDTO update license key DTO which includes license key and a boolean to selectively update DB states
      * @return Mono of Tenant
      */
-    public Mono<Tenant> updateTenantLicenseKey(String licenseKey) {
-        return saveTenantLicenseKey(licenseKey).map(tuple -> getClientPertinentTenant(tuple.getT1(), null));
+    public Mono<Tenant> updateTenantLicenseKey(UpdateLicenseKeyDTO updateLicenseKeyDTO) {
+        return saveTenantLicenseKey(updateLicenseKeyDTO.getKey(), updateLicenseKeyDTO.getIsDryRun())
+                .map(tuple -> getClientPertinentTenant(tuple.getT1(), null));
     }
 
     /**
@@ -212,6 +214,19 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      * @return Mono of Tuple<Tenant, Boolean>
      */
     private Mono<Tuple2<Tenant, Boolean>> saveTenantLicenseKey(String licenseKey) {
+        return this.saveTenantLicenseKey(licenseKey, Boolean.FALSE);
+    }
+
+    /**
+     * Method to validate and save the license key in the DB and send corresponding analytics event
+     * License will be saved to DB if
+     *  - It's a valid license keys
+     *  - isDryRun : false
+     * @param licenseKey    License key
+     * @param isDryRun      Variable to selectively save the license to DB
+     * @return Mono of Tuple<Tenant, Boolean>
+     */
+    private Mono<Tuple2<Tenant, Boolean>> saveTenantLicenseKey(String licenseKey, Boolean isDryRun) {
         License license = new License();
         // TODO: Update to getCurrentTenant when multi tenancy is introduced
         return repository
@@ -256,9 +271,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     }
 
                     // TODO Update the flags in separate thread to keep the license plan and feature flags in sync
-                    return this.save(tenant)
-                            .flatMap(analyticsEventMono::thenReturn)
-                            .zipWith(Mono.just(isActivateInstance));
+                    Mono<Tenant> tenantMono = Boolean.TRUE.equals(isDryRun) ? Mono.just(tenant) : this.save(tenant);
+                    return tenantMono.flatMap(analyticsEventMono::thenReturn).zipWith(Mono.just(isActivateInstance));
                 });
     }
 
