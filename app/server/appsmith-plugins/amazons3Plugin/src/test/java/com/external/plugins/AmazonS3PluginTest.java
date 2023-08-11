@@ -1497,4 +1497,25 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> assertEquals(0, result.getInvalids().size()))
                 .verifyComplete();
     }
+
+    @Test
+    public void verify_sanitizeGenerateCRUDPageTemplateInfo_returnsEmptyMono_onEmptyActionConfig() {
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        StepVerifier.create(pluginExecutor.sanitizeGenerateCRUDPageTemplateInfo(List.of()))
+                .verifyComplete(); // this will fail if the Mono emits any data
+    }
+
+    @Test
+    public void verify_sanitizeGenerateCRUDPageTemplateInfo_addsInfoToReplaceTemplateBucket_withUserSelectedBucket() {
+        Map<String, String> mappedColumnsAndTableName = new HashMap<>();
+        String userSelectedBucketName = "userBucket";
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        Map<String, Object> formData = new HashMap<>();
+        setDataValueSafelyInFormData(formData, "bucket", "templateBucket");
+        actionConfiguration.setFormData(formData);
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        pluginExecutor.sanitizeGenerateCRUDPageTemplateInfo(List.of(actionConfiguration), mappedColumnsAndTableName,
+                userSelectedBucketName).block();
+        assertEquals(userSelectedBucketName, mappedColumnsAndTableName.get("templateBucket"));
+    }
 }
