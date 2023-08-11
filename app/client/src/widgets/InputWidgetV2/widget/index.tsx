@@ -60,7 +60,7 @@ export function defaultValueValidation(
 
   const { inputType } = props;
 
-  if (_.isBoolean(value) || _.isNil(value) || _.isUndefined(value)) {
+  if (_.isBoolean(value) || _.isUndefined(value)) {
     return {
       isValid: false,
       parsed: value,
@@ -81,7 +81,7 @@ export function defaultValueValidation(
          */
         isValid = true;
         messages = [EMPTY_ERROR_MESSAGE];
-        parsed = 0;
+        parsed = null;
       } else if (!Number.isFinite(parsed)) {
         /*
          *  When parsed value is not a finite number
