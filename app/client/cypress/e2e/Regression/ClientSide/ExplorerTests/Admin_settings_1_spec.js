@@ -182,8 +182,9 @@ describe("Admin settings page", function () {
         `${fromAddress}@appsmith.com`,
       );
     });
-    cy.get(adminsSettings.restartNotice).should("be.visible");
-    cy.wait(3000);
+    cy.waitUntil(() =>
+      cy.contains("General", { timeout: 180000 }).should("be.visible"),
+    );
     cy.get(adminsSettings.restartNotice).should("not.exist");
     cy.wait(3000);
   });

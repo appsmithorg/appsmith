@@ -21,7 +21,7 @@ describe("List widget V2 PropertyPane", () => {
     //Check the disableed checkbox and Validate
     propPane.TogglePropertyState("Visible", "On");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.LIST_V2));
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locators._widgetInDeployed(draggableWidgets.LIST_V2),
     );
     deployMode.NavigateBacktoEditor();
@@ -29,7 +29,7 @@ describe("List widget V2 PropertyPane", () => {
 
   it("2. Toggle JS - Validate isVisible", function () {
     // Open Property pane
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locators._widgetInDeployed(draggableWidgets.LIST_V2),
     );
     entityExplorer.SelectEntityByName("List1");
@@ -47,7 +47,7 @@ describe("List widget V2 PropertyPane", () => {
     //Check the disabled checkbox using JS and Validate
     propPane.UpdatePropertyFieldValue("Visible", "true");
     deployMode.DeployApp();
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locators._widgetInDeployed(draggableWidgets.LIST_V2),
     );
     deployMode.NavigateBacktoEditor();
@@ -62,7 +62,7 @@ describe("List widget V2 PropertyPane", () => {
     entityExplorer.RenameEntityFromExplorer("List2", "List1", true);
     entityExplorer.SelectEntityByName("List1");
     // Verify the list name is changed
-    agHelper.AssertElementVisible(locators._widgetName("List1"));
+    agHelper.AssertElementVisibility(locators._widgetName("List1"));
   });
 
   it("4. Item Spacing Validation ", function () {
