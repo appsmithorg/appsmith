@@ -60,7 +60,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       "GETExecute a queryApi1.run+2",
     );
     agHelper.GetNClick(propPane._actionCard);
-    agHelper.GetNClick(propPane._actionTreeCollapse);
+
     agHelper.GetNAssertElementText(
       propPane._actionCallbackTitle,
       "On success",
@@ -101,7 +101,7 @@ describe("JS to non-JS mode in Action Selector", () => {
       "GETExecute a queryApi1.run+3",
     );
     agHelper.GetNClick(propPane._actionCard);
-    agHelper.GetNClick(propPane._actionTreeCollapse);
+
     agHelper.GetNAssertElementText(
       propPane._actionCallbackTitle,
       "On success",
@@ -171,7 +171,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
 
     agHelper.GetNClick(propPane._actionCard);
-    agHelper.GetNClick(propPane._actionTreeCollapse);
+
     agHelper.GetNAssertElementText(
       propPane._actionCallbackTitle,
       "On success",
@@ -210,7 +210,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
 
     agHelper.GetNClick(propPane._actionCard);
-    agHelper.GetNClick(propPane._actionTreeCollapse);
+
     agHelper.GetNAssertElementText(
       propPane._actionCallbackTitle,
       "On failure",
@@ -246,7 +246,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
 
     agHelper.GetNClick(propPane._actionCard);
-    agHelper.GetNClick(propPane._actionTreeCollapse);
+
     agHelper.GetNAssertElementText(
       propPane._actionCallbackTitle,
       "On success",

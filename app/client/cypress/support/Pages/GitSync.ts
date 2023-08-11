@@ -31,7 +31,7 @@ export class GitSync {
     branch +
     "']";
   _checkMergeability = "//span[contains(text(), 'Checking mergeability')]";
-  private _branchListItem = "[data-testid=t--branch-list-item]";
+  public _branchListItem = "[data-testid=t--branch-list-item]";
   public _bottomBarMergeButton = ".t--bottom-bar-merge";
   public _mergeBranchDropdownDestination =
     ".t--merge-branch-dropdown-destination";
@@ -43,10 +43,11 @@ export class GitSync {
   public _discardChanges = ".t--discard-button";
   public _discardCallout = "[data-testid='t--discard-callout']";
   public _gitStatusChanges = "[data-testid='t--git-change-statuses']";
+  private _gitSyncBranches = ".t--sync-branches";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
-    this.agHelper.AssertElementVisible(this._gitSyncModal);
+    this.agHelper.AssertElementVisibility(this._gitSyncModal);
   }
 
   CloseGitSyncModal() {
@@ -188,6 +189,19 @@ export class GitSync {
     });
   }
 
+  public CreateRemoteBranch(repo: string, branchName: string) {
+    cy.request({
+      method: "POST",
+      url: `${this.tedTestConfig.GITEA_API_BASE_TED}:${this.tedTestConfig.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/branches`,
+      headers: {
+        Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
+      },
+      body: {
+        new_branch_name: branchName,
+      },
+    });
+  }
+
   CreateGitBranch(branch = "br", toUseNewGuid = false) {
     if (toUseNewGuid) this.agHelper.GenerateUUID();
     this.agHelper.AssertElementExist(this._bottomBarCommit);
@@ -198,29 +212,52 @@ export class GitSync {
       this.agHelper.TypeText(
         this._branchSearchInput,
         `{selectall}` + `${branch + uid}` + `{enter}`,
-        0,
-        true,
+        { parseSpecialCharSeq: true },
       );
       this.agHelper.AssertElementExist(this.locator._btnSpinner);
       this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 70000); //Since page taking more time to laod in some cases
-      this.agHelper.AssertElementVisible(this._branchName(branch + uid));
+      this.agHelper.AssertElementVisibility(this._branchName(branch + uid));
       this.assertHelper.AssertNetworkStatus("getBranch");
       cy.wrap(branch + uid).as("gitbranchName");
     });
   }
 
-  SwitchGitBranch(branch: string, expectError?: false) {
+  SwitchGitBranch(branch: string, expectError = false, refreshList = false) {
     this.agHelper.AssertElementExist(this._bottomBarPull);
     this.agHelper.GetNClick(this._branchButton);
+    if (refreshList) {
+      this.agHelper.GetNClick(this._gitSyncBranches);
+    }
     this.agHelper.TypeText(
       this._branchSearchInput,
       `{selectall}` + `${branch}`,
-      0,
-      true,
+      { parseSpecialCharSeq: true },
     );
     cy.wait(1000);
+
+    // this slows down the checkout api by 1 sec
+    cy.intercept(
+      {
+        method: "GET",
+        url: "/api/v1/git/checkout-branch/app/**",
+      },
+      (req) => {
+        return new Promise((resolve) => {
+          setTimeout(() => resolve(req.continue()), 1000);
+        });
+      },
+    ).as("gitCheckoutAPI");
+
     //cy.get(gitSyncLocators.branchListItem).contains(branch).click();
     this.agHelper.GetNClickByContains(this._branchListItem, branch);
+
+    // checks if the spinner exists
+    cy.get(`div${this._branchListItem} ${this.locator._btnSpinner}`, {
+      timeout: 500,
+    }).should("exist");
+
+    cy.wait("@gitCheckoutAPI");
+
     if (!expectError) {
       // increasing timeout to reduce flakyness
       cy.get(this.locator._btnSpinner, { timeout: 45000 }).should("exist");
@@ -249,7 +286,7 @@ export class GitSync {
     this.agHelper.GetNClick(this.locator._publishButton);
     this.agHelper.AssertElementExist(this._bottomBarPull);
     //cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-    this.agHelper.TypeText(this._commitCommentInput, "Initial commit", 0, true);
+    this.agHelper.TypeText(this._commitCommentInput, "Initial commit");
     this.agHelper.GetNClick(this._commitButton);
     if (!assertFailure) {
       // check for commit success
@@ -268,8 +305,8 @@ export class GitSync {
 
   public DiscardChanges() {
     this.agHelper.GetNClick(this._bottomBarCommit);
-    this.agHelper.AssertElementVisible(this._gitSyncModal);
-    this.agHelper.AssertElementVisible(this._discardChanges);
+    this.agHelper.AssertElementVisibility(this._gitSyncModal);
+    this.agHelper.AssertElementVisibility(this._discardChanges);
     this.agHelper.ClickButton("Discard & pull");
     this.agHelper.AssertContains(
       Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING(),
@@ -287,7 +324,7 @@ export class GitSync {
   public VerifyChangeLog(uncommitedChanges = false) {
     // open gitsync modal and verify no uncommited changes exist
     this.agHelper.GetNClick(this._bottomBarCommit);
-    this.agHelper.AssertElementVisible(this._gitSyncModal);
+    this.agHelper.AssertElementVisibility(this._gitSyncModal);
     if (uncommitedChanges) {
       this.agHelper.AssertElementEnabledDisabled(
         this._commitCommentInput,
