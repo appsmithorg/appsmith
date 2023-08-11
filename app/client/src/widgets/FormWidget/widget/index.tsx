@@ -13,6 +13,7 @@ import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import type { SetterConfig } from "entities/AppTheming";
+import type { LayoutComponentProps } from "utils/autoLayout/autoLayoutTypes";
 
 class FormWidget extends ContainerWidget {
   checkInvalidChildren = (children: WidgetProps[]): boolean => {
@@ -164,6 +165,7 @@ export interface FormWidgetProps extends ContainerComponentProps {
   name: string;
   data: Record<string, unknown>;
   hasChanges: boolean;
+  layout?: LayoutComponentProps[];
 }
 
 export default FormWidget;

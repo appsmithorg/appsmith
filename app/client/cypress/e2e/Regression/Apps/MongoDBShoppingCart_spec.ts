@@ -27,7 +27,6 @@ describe("Shopping cart App", function () {
   it("1. Create MongoDB datasource and add Insert, Find, Update and Delete queries", function () {
     dataSources.CreateQueryAfterDSSaved("", "GetProduct");
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "Productnames",
     });
@@ -41,7 +40,6 @@ describe("Shopping cart App", function () {
       "Update document(s)",
     );
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "Productnames",
     });
@@ -72,7 +70,6 @@ describe("Shopping cart App", function () {
       "Insert document(s)",
     );
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "Productnames",
     });
@@ -100,7 +97,6 @@ describe("Shopping cart App", function () {
       "Delete document(s)",
     );
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "Productnames",
     });

@@ -35,4 +35,16 @@ public interface FeatureFlagServiceCE {
      * @return Mono<Map < String, Boolean>>
      */
     Mono<Map<String, Boolean>> getAllFeatureFlagsForUser();
+
+    /**
+     * To get all features of the tenant from Cloud Services and store them locally
+     * @return Mono of Void
+     */
+    Mono<Void> getAllRemoteFeaturesForTenant();
+
+    /**
+     * To get all features of the current tenant.
+     * @return Mono of Map
+     */
+    Mono<Map<String, Boolean>> getCurrentTenantFeatures();
 }

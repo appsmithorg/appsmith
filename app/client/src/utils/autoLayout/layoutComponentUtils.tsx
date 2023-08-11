@@ -7,36 +7,92 @@ import type { HighlightInfo, LayoutComponentProps } from "./autoLayoutTypes";
 import { DEFAULT_HIGHLIGHT_SIZE } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsReducer";
-import { FlexLayerAlignment } from "./constants";
+import { FlexLayerAlignment, LayoutDirection } from "./constants";
 import { generateReactKey } from "utils/generators";
 import AlignedColumn from "components/designSystems/appsmith/autoLayout/layoutComponents/AlignedColumn";
+import Fixed from "components/designSystems/appsmith/autoLayout/layoutComponents/Fixed";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import WidgetFactory from "utils/WidgetFactory";
+import Modal from "components/designSystems/appsmith/autoLayout/layoutPresets/Modal";
 
 export function getLayoutComponent(type: string): any {
   const map: { [id: string]: any } = {
     ALIGNED_COLUMN: AlignedColumn,
     ALIGNED_ROW: AlignedRow,
     COLUMN: Column,
+    FIXED: Fixed,
     ROW: Row,
+
+    MODAL: Modal,
   };
   return map[type];
 }
 
 export function renderLayouts(
   layouts: LayoutComponentProps[],
-  childrenMap: { [key: string]: any } | undefined,
+  childrenMap: { [key: string]: WidgetProps } | undefined,
   containerProps: any,
 ) {
   return layouts.map((item: LayoutComponentProps, index: number) => {
     const Comp = getLayoutComponent(item.layoutType);
     return (
       <Comp
-        childrenMap={childrenMap}
+        childrenMap={getChildrenMap(item, childrenMap, {})}
         containerProps={containerProps}
         key={index}
         {...item}
       />
     );
   });
+}
+
+export function getChildrenMap(
+  layoutProps: LayoutComponentProps,
+  map?: { [id: string]: WidgetProps },
+  res: { [id: string]: WidgetProps } = {},
+): { [id: string]: WidgetProps } {
+  if (!layoutProps || !map) return res;
+  const { layout } = layoutProps;
+  for (const each of layout) {
+    if (typeof each === "string") {
+      res[each] = map[each];
+    } else if (Array.isArray(each)) {
+      for (const id of each) {
+        res[id] = map[id];
+      }
+    } else {
+      getChildrenMap(each, map, res);
+    }
+  }
+  return res;
+}
+
+export function renderChildWidget(
+  childWidgetData: WidgetProps,
+  layoutId: string,
+  containerProps?: ContainerWidgetProps<WidgetProps> & {
+    snapRows: number;
+    snapSpaces: any;
+  },
+): React.ReactNode {
+  if (!childWidgetData || !containerProps) return null;
+
+  const childWidget = { ...childWidgetData };
+
+  const snapSpaces = containerProps.snapSpaces;
+  childWidget.parentColumnSpace = snapSpaces.snapColumnSpace;
+  childWidget.parentRowSpace = snapSpaces.snapRowSpace;
+  if (containerProps.noPad) childWidget.noContainerOffset = true;
+  childWidget.parentId = containerProps.widgetId;
+  // Pass layout controls to children
+  childWidget.positioning =
+    childWidget?.positioning || containerProps.positioning;
+  childWidget.isFlexChild = containerProps.useAutoLayout;
+  childWidget.direction = LayoutDirection.Vertical;
+  childWidget.layoutId = layoutId;
+
+  return WidgetFactory.createWidget(childWidget, containerProps.renderMode);
 }
 
 export function getLayoutFromId(
@@ -388,6 +444,39 @@ export function deleteWidgetFromLayout(
     },
   };
 }
+
+// function isAlignedRowEmpty(layout: string[][]): boolean {
+//   for (const each of layout) {
+//     if (each.length) return false;
+//   }
+//   return true;
+// }
+
+// function removeDeletableLayouts(
+//   layout: LayoutComponentProps[],
+// ): LayoutComponentProps[] {
+//   return layout.filter((each) => {
+//     if (
+//       each.canBeDeleted &&
+//       (!each.layout.length || !isAlignedRowEmpty(each.layout as string[][]))
+//     )
+//       return false;
+//     if (each.layout?.length && containsLayout(each.layout)) {
+//       each.layout = removeDeletableLayouts(
+//         each.layout as LayoutComponentProps[],
+//       );
+//       return (each.layout as LayoutComponentProps[]).length;
+//     }
+//     return true;
+//   });
+// }
+
+// function containsLayout(layout: any[]): boolean {
+//   for (const each of layout) {
+//     if (typeof each[0] === "string" || Array.isArray(each[0])) return false;
+//   }
+//   return true;
+// }
 
 export function getAlignmentIndex(alignment: FlexLayerAlignment): number {
   const map: { [key: string]: number } = {

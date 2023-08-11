@@ -115,12 +115,14 @@ export const useWidgetDragResize = () => {
         draggingGroupCenter = {},
         startPoints,
         draggedOn,
+        layoutId = "",
       }: {
         isDragging: boolean;
         dragGroupActualParent?: string;
         draggingGroupCenter?: Record<string, any>;
         startPoints?: any;
         draggedOn?: string;
+        layoutId?: string;
       }) => {
         if (isDragging) {
           document.body.classList.add("dragging");
@@ -135,6 +137,7 @@ export const useWidgetDragResize = () => {
             draggingGroupCenter,
             startPoints,
             draggedOn,
+            layoutId,
           },
         });
       },

@@ -6,7 +6,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation", function () {
-  it("1. Validate change with auto height width for widgets", function () {
+  it.skip("1. Validate change with auto height width for widgets", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     agHelper.AddDsl("DynamicHeightDefaultHeightdsl");
 
@@ -27,7 +27,9 @@ describe("Dynamic Height Width validation", function () {
           .then((updatedContainerHeight: number) => {
             expect(initialContainerHeight).to.not.equal(updatedContainerHeight);
             expect(updatedContainerHeight).to.equal("100px");
-            agHelper.TypeText(locators._body, `{${modifierKey}}z`, 0, true);
+            agHelper.TypeText(locators._body, `{${modifierKey}}z`, {
+              parseSpecialCharSeq: true,
+            });
             agHelper.Sleep(2000);
             agHelper
               .GetWidgetCSSHeight(

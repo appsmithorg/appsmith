@@ -8,6 +8,7 @@ import FlexLayout from "./FlexLayout";
 import {
   generateHighlightsForColumn,
   getLayoutComponent,
+  renderChildWidget,
   renderLayouts,
 } from "utils/autoLayout/layoutComponentUtils";
 import { AutoCanvasDraggingArena } from "pages/common/CanvasArenas/AutoLayoutArenas/AutoCanvasDraggingArena";
@@ -18,6 +19,7 @@ import type { WidgetPositions } from "reducers/entityReducers/widgetPositionsRed
 const Column = (props: LayoutComponentProps) => {
   const {
     childrenMap,
+    containerProps,
     isDropTarget,
     layoutId,
     layoutStyle,
@@ -27,8 +29,9 @@ const Column = (props: LayoutComponentProps) => {
   const renderChildren = () => {
     if (rendersWidgets) {
       if (!childrenMap) return null;
-      const layout: string[] = props.layout as string[];
-      return layout.map((id: string) => childrenMap[id]);
+      return Object.keys(childrenMap).map((id: string) =>
+        renderChildWidget(childrenMap[id], layoutId, containerProps),
+      );
     } else {
       const layout: LayoutComponentProps[] =
         props.layout as LayoutComponentProps[];

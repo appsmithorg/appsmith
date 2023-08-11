@@ -41,9 +41,9 @@ public class ExecutionTimeLogging {
 
     public <T> Mono<T> measureTask(String name, Mono<T> mono) {
         // stopWatch.start(name);
-        return mono.map(time -> {
+        return mono.map(result -> {
                     stopTimer(name);
-                    return time;
+                    return result;
                 })
                 .doOnSubscribe((s) -> startTimer(name));
     }

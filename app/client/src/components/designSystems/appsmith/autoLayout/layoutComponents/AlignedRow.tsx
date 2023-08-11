@@ -17,12 +17,16 @@ import {
   getVerticalHighlightsForAlignedRow,
   getWidgetRowHeight,
 } from "utils/autoLayout/layoutComponentHighlightUtils";
-import { getLayoutComponent } from "utils/autoLayout/layoutComponentUtils";
+import {
+  getLayoutComponent,
+  renderChildWidget,
+} from "utils/autoLayout/layoutComponentUtils";
 import { getIsFillWidgetFromType } from "utils/autoLayout/flexLayerUtils";
 
 const AlignedRow = (props: LayoutComponentProps) => {
   const {
     childrenMap,
+    containerProps,
     isDropTarget,
     layout,
     layoutId,
@@ -41,9 +45,7 @@ const AlignedRow = (props: LayoutComponentProps) => {
           return (
             acc ||
             curr.some((id) => {
-              return getIsFillWidgetFromType(
-                (childrenMap[id] as JSX.Element)?.props?.type,
-              );
+              return getIsFillWidgetFromType(childrenMap[id]?.type);
             })
           );
         }, false),
@@ -60,17 +62,25 @@ const AlignedRow = (props: LayoutComponentProps) => {
           ...(layout[1] as string[]),
           ...(layout[2] as string[]),
         ] as string[]
-      ).map((id: string) => childrenMap[id]);
+      ).map((id: string) =>
+        renderChildWidget(childrenMap[id], layoutId, containerProps),
+      );
     }
     return [
       <div className="alignment start-alignment" key={0}>
-        {(layout[0] as string[]).map((id: string) => childrenMap[id])}
+        {(layout[0] as string[]).map((id: string) =>
+          renderChildWidget(childrenMap[id], layoutId, containerProps),
+        )}
       </div>,
       <div className="alignment center-alignment" key={1}>
-        {(layout[1] as string[]).map((id: string) => childrenMap[id])}
+        {(layout[1] as string[]).map((id: string) =>
+          renderChildWidget(childrenMap[id], layoutId, containerProps),
+        )}
       </div>,
       <div className="alignment end-alignment" key={2}>
-        {(layout[2] as string[]).map((id: string) => childrenMap[id])}
+        {(layout[2] as string[]).map((id: string) =>
+          renderChildWidget(childrenMap[id], layoutId, containerProps),
+        )}
       </div>,
     ];
   };
@@ -195,6 +205,14 @@ AlignedRow.getHeight = (
       return Math.max(acc, height);
     }, 0);
   }
+};
+
+AlignedRow.getChildTemplate = (
+  layoutProps: LayoutComponentProps,
+): LayoutComponentProps | undefined => {
+  const { childTemplate } = layoutProps;
+  if (childTemplate) return childTemplate;
+  return;
 };
 
 export default AlignedRow;

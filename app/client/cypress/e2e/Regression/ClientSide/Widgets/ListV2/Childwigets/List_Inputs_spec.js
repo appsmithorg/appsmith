@@ -77,7 +77,7 @@ describe("Input Widgets", function () {
   it("2. Input Widgets isValid", function () {
     // Test for isValid === True
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 600, 300);
-    cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "Input_Widget");
+    _.propPane.RenameWidget("Text1", "Input_Widget");
     cy.wait(1000);
     _.propPane.UpdatePropertyFieldValue(
       "Text",
@@ -87,8 +87,9 @@ describe("Input Widgets", function () {
       .first()
       .should("have.text", "true");
 
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 600, 100);
-    cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "Currency_Widget");
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 700, 100);
+    _.propPane.RenameWidget("Text1", "Currency_Widget");
+
     cy.wait(1000);
     _.propPane.UpdatePropertyFieldValue(
       "Text",
@@ -100,9 +101,8 @@ describe("Input Widgets", function () {
       .first()
       .should("have.text", "true");
 
-    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 600, 200);
-
-    cy.RenameWidgetFromPropertyPane("textwidget", "Text1", "PhoneInput_Widget");
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 500, 400);
+    _.propPane.RenameWidget("Text1", "PhoneInput_Widget");
     cy.wait(1000);
     _.propPane.UpdatePropertyFieldValue(
       "Text",

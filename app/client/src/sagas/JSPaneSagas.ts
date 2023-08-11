@@ -87,6 +87,9 @@ import { toast } from "design-system";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 
+const CONSOLE_DOT_LOG_INVOCATION_REGEX =
+  /console.log[.call | .apply]*\s*\(.*?\)/gm;
+
 function* handleCreateNewJsActionSaga(
   action: ReduxAction<{ pageId: string; from: EventLocation }>,
 ) {
@@ -470,10 +473,14 @@ export function* handleStartExecuteJSFunctionSaga(
       throw new UserCancelledActionExecutionError();
     }
   }
+
   AnalyticsUtil.logEvent("JS_OBJECT_FUNCTION_RUN", {
     name: action.name,
     num_params: action.actionConfiguration?.jsArguments?.length,
-    from: from,
+    from,
+    consoleStatements:
+      action.actionConfiguration?.body?.match(CONSOLE_DOT_LOG_INVOCATION_REGEX)
+        ?.length || 0,
   });
   yield call(handleExecuteJSFunctionSaga, {
     collectionName: collectionName,

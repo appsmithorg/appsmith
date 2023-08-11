@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { AppState } from "@appsmith/reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
@@ -22,13 +23,8 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
-const DraggableWrapper = styled.div<{
-  $isFlexChild: boolean;
-  $isCurrentWidgetDragging: boolean;
-}>`
-  display: ${(props) =>
-    !props.$isFlexChild && props.$isCurrentWidgetDragging ? "none" : "block"};
-  padding: ${(props) => (props.$isFlexChild ? "3px" : "inherit")};
+const DraggableWrapper = styled.div`
+  display: block;
   flex-direction: column;
   width: 100%;
   height: 100%;
@@ -195,14 +191,13 @@ function DraggableComponent(props: DraggableComponentProps) {
         draggingGroupCenter: { widgetId: props.widgetId },
         startPoints,
         draggedOn: props.parentId,
+        layoutId: props.layoutId || "",
       });
     }
   };
 
   return (
     <DraggableWrapper
-      $isCurrentWidgetDragging={isCurrentWidgetDragging}
-      $isFlexChild={!!props.isFlexChild}
       className={className}
       data-testid={isSelected ? "t--selected" : ""}
       draggable

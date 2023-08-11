@@ -223,29 +223,15 @@ export const CONFIG = {
               {
                 layoutId: generateReactKey(),
                 layoutStyle: {
-                  columnGap: 4,
                   flexWrap: "wrap-reverse",
                 },
                 layoutType: "ROW",
                 layout: [
                   {
                     isDropTarget: true,
-                    childTemplate: {
-                      layoutId: "",
-                      layoutStyle: {
-                        columnGap: 4,
-                        alignSelf: "stretch",
-                      },
-                      layoutType: "ROW",
-                      layout: [],
-                      insertChild: true,
-                      rendersWidgets: true,
-                      canBeDeleted: true,
-                    },
                     layoutId: generateReactKey(),
                     layoutStyle: {
-                      rowGap: 12,
-                      flexGrow: 2,
+                      flexGrow: 1,
                       border: "1px dashed #979797",
                       padding: 4,
                     },
@@ -254,7 +240,6 @@ export const CONFIG = {
                       {
                         layoutId: generateReactKey(),
                         layoutStyle: {
-                          columnGap: 4,
                           alignSelf: "stretch",
                         },
                         layoutType: "ROW",
@@ -265,7 +250,6 @@ export const CONFIG = {
                       {
                         layoutId: generateReactKey(),
                         layoutStyle: {
-                          columnGap: 4,
                           alignSelf: "stretch",
                         },
                         layoutType: "ROW",
@@ -276,7 +260,6 @@ export const CONFIG = {
                       {
                         layoutId: generateReactKey(),
                         layoutStyle: {
-                          columnGap: 4,
                           alignSelf: "stretch",
                         },
                         layoutType: "ROW",
@@ -290,7 +273,6 @@ export const CONFIG = {
                     isDropTarget: true,
                     layoutId: generateReactKey(),
                     layoutStyle: {
-                      rowGap: 12,
                       border: "1px dashed #979797",
                       padding: 4,
                     },

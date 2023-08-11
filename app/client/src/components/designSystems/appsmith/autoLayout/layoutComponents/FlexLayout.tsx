@@ -49,7 +49,7 @@ const FlexLayout = (props: FlexLayoutProps) => {
   const layoutStyle: CSSProperties = useMemo(() => {
     return {
       alignSelf: props.alignSelf || "start",
-      columnGap: props.columnGap || 0,
+      columnGap: props.columnGap || 4,
       display: "flex",
       flexDirection: props.flexDirection,
       flex: `${props.flexGrow || 0} ${props.flexShrink || 0} ${
@@ -67,7 +67,7 @@ const FlexLayout = (props: FlexLayoutProps) => {
       minWidth: props.minWidth,
       minHeight: props.minHeight,
       position: props.position || "relative",
-      rowGap: props.rowGap || 0,
+      rowGap: props.rowGap || 12,
       width: props.width,
       border: props.border || "none",
       padding: props.padding,

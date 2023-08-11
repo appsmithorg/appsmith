@@ -4,7 +4,10 @@ import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
 import get from "lodash/get";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
+import type {
+  FlexLayer,
+  LayoutComponentProps,
+} from "utils/autoLayout/autoLayoutTypes";
 import {
   FlexLayerAlignment,
   FlexVerticalAlignment,
@@ -18,6 +21,7 @@ import { BlueprintOperationTypes } from "widgets/constants";
 import type { FlattenedWidgetProps } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { generateReactKey } from "utils/generators";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -144,8 +148,6 @@ export const CONFIG = {
             parent: FlattenedWidgetProps,
             isAutoLayout: boolean,
           ) => {
-            if (!isAutoLayout) return [];
-
             //get Canvas Widget
             const canvasWidget: FlattenedWidgetProps = get(
               widget,
@@ -168,6 +170,30 @@ export const CONFIG = {
             const [buttonWidget1, buttonWidget2] = children.filter(
               (child) => child.type === "BUTTON_WIDGET",
             );
+
+            if (!isAutoLayout) {
+              const layout: LayoutComponentProps[] = [
+                {
+                  layoutId: generateReactKey(),
+                  layoutType: "FIXED",
+                  layout: [
+                    textWidget.widgetId,
+                    buttonWidget1.widgetId,
+                    buttonWidget2.widgetId,
+                  ],
+                },
+              ];
+
+              return getWidgetBluePrintUpdates({
+                [canvasWidget.widgetId]: {
+                  layout,
+                  useAutoLayout: false,
+                  positioning: Positioning.Vertical,
+                  bottomRow: 100,
+                  mobileBottomRow: 100,
+                },
+              });
+            }
 
             //Create flex layer object based on the children
             const flexLayers: FlexLayer[] = [

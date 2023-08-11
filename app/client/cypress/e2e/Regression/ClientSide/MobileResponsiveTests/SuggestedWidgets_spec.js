@@ -26,7 +26,7 @@ describe("Check Suggested Widgets Feature in auto-layout", function () {
       fixture: "addWidgetTable-mock",
     });
     dataSources.RunQuery({ toValidateResponse: false });
-    dataSources.AddSuggesstedWidget(Widgets.Table);
+    dataSources.AddSuggestedWidget(Widgets.Table);
     table.ReadTableRowColumnData(1, 0, "v2").then((cellData) => {
       expect(cellData).to.eq("5");
     });

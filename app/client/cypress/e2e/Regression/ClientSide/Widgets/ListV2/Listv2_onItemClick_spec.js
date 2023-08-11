@@ -4,6 +4,8 @@ import {
   agHelper,
   draggableWidgets,
   entityExplorer,
+  locators,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
@@ -69,10 +71,11 @@ describe("List widget v2 onItemClick", () => {
   });
 
   it("2. List widget V2 with onItemClick should be triggered when child widget without event is clicked", () => {
-    cy.get(widgetSelector("Image1")).first().click({ force: true });
+    //Select first row Image within list
+    agHelper.GetNClick(locators._imgWidgetInsideList, 0, true);
     agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
 
-    cy.get(widgetSelector("Text1")).first().click({ force: true });
+    agHelper.GetNClickByContains(locators._textWidget, "Blue", 0, true);
     agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
 
     deleteAllWidgetsInContainer();
@@ -84,10 +87,8 @@ describe("List widget v2 onItemClick", () => {
       draggableWidgets.CONTAINER,
     );
 
-    cy.get(`${widgetSelector("Input1")} input`)
-      .first()
-      .click({ force: true });
-    validateToastDoestExist();
+    agHelper.GetNClick(`${locators._widgetByName("Input1")} input`, 0, true);
+    agHelper.AssertElementAbsence(locators._toastMsg);
 
     deleteAllWidgetsInContainer();
 
@@ -98,10 +99,9 @@ describe("List widget v2 onItemClick", () => {
       draggableWidgets.CONTAINER,
     );
 
-    cy.get(`${widgetSelector("Select1")} button`)
-      .first()
-      .click({ force: true });
-    validateToastDoestExist();
+    //This is clicking Select Widget
+    agHelper.ClickButton("Green", 0);
+    agHelper.AssertElementAbsence(locators._toastMsg);
 
     deleteAllWidgetsInContainer();
 
@@ -112,20 +112,13 @@ describe("List widget v2 onItemClick", () => {
       draggableWidgets.CONTAINER,
     );
 
-    cy.get(`${widgetSelector("Button1")} button`)
-      .first()
-      .click({ force: true });
+    agHelper.ClickButton("Submit", 0);
     agHelper.WaitUntilToastDisappear("ListWidget_Blue_0");
 
-    cy.get(widgetsPage.toggleOnClick).click({ force: true });
-    cy.get(".t--property-control-onclick").then(($el) => {
-      cy.updateCodeInput($el, "{{clearStore()}}");
-    });
-    cy.wait(1000);
+    propPane.EnterJSContext("onClick", "{{clearStore()}}");
+    agHelper.Sleep(1000);
 
-    cy.get(`${widgetSelector("Button1")} button`)
-      .first()
-      .click({ force: true });
-    validateToastDoestExist();
+    agHelper.ClickButton("Submit", 0);
+    agHelper.AssertElementAbsence(locators._toastMsg);
   });
 });

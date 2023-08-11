@@ -25,7 +25,7 @@ import ContainerComponent from "./ContainerWidget/component";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import type { LayoutComponentProps } from "utils/autoLayout/autoLayoutTypes";
-import { getLayoutComponent } from "utils/autoLayout/layoutComponentUtils";
+import { renderLayouts } from "utils/autoLayout/layoutComponentUtils";
 import { isArray } from "lodash";
 import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { AutoLayoutDropTarget } from "components/editorComponents/AutoLayoutDropTarget";
@@ -62,6 +62,7 @@ class CanvasWidget extends ContainerWidget {
   }
 
   renderAsDropTarget() {
+    if (this.props.layout) return this.renderLayoutPreset();
     const canvasProps = this.getCanvasProps();
     const { snapColumnSpace } = this.getSnapSpaces();
     return (
@@ -149,7 +150,7 @@ class CanvasWidget extends ContainerWidget {
           </>
         )}
         {this.props.useAutoLayout
-          ? this.renderFlexCanvas()
+          ? this.renderLayoutPreset()
           : this.renderFixedCanvas(props)}
       </ContainerComponent>
     );
@@ -169,42 +170,28 @@ class CanvasWidget extends ContainerWidget {
     );
   }
 
-  renderFlexCanvas() {
+  renderLayoutPreset() {
     const layout: LayoutComponentProps[] = this.props
       .layout as LayoutComponentProps[];
     if (!layout) return this.renderFlexBoxCanvas();
     const map: { [key: string]: any } = {};
-    const arr = this.renderChildren();
-    if (isArray(arr)) {
-      for (const child of arr) {
-        map[(child as JSX.Element).props?.widgetId] = child;
+    if (isArray(this.props.children)) {
+      for (const child of this.props.children) {
+        map[child.widgetId] = child;
       }
     }
-    return (
-      <>
-        {layout.map((item: LayoutComponentProps, index: number) => {
-          const Comp = getLayoutComponent(item.layoutType);
-          const snapRows = getCanvasSnapRows(
-            this.props.bottomRow,
-            this.props.mobileBottomRow,
-            this.props.isMobile,
-            this.props.appPositioningType === AppPositioningTypes.AUTO,
-          );
-          return (
-            <Comp
-              childrenMap={map}
-              containerProps={{
-                ...this.getCanvasProps(),
-                snapRows,
-                snapSpaces: this.getSnapSpaces(),
-              }}
-              key={index}
-              {...item}
-            />
-          );
-        })}
-      </>
+    const snapRows = getCanvasSnapRows(
+      this.props.bottomRow,
+      this.props.mobileBottomRow,
+      this.props.isMobile,
+      this.props.appPositioningType === AppPositioningTypes.AUTO,
     );
+    const containerProps = {
+      ...this.getCanvasProps(),
+      snapRows,
+      snapSpaces: this.getSnapSpaces(),
+    };
+    return <>{renderLayouts(layout, map, containerProps)}</>;
   }
 
   renderFixedCanvas(props: ContainerWidgetProps<WidgetProps>) {
@@ -254,7 +241,7 @@ class CanvasWidget extends ContainerWidget {
 
   getCanvasView() {
     if (this.props.appPositioningType === AppPositioningTypes.AUTO) {
-      if (this.props.layout) return this.renderFlexCanvas();
+      if (this.props.layout) return this.renderLayoutPreset();
       return (
         <AutoLayoutDropTarget widgetId={this.props.widgetId}>
           {this.renderAsContainerComponent(this.getCanvasProps())}

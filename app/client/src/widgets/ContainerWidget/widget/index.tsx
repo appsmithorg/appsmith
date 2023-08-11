@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { MouseEventHandler } from "react";
 import React from "react";
 

@@ -1218,14 +1218,17 @@ export const getPositionOfFocusedWidget = createSelector(
   getSelectedWidgets,
   (state: AppState) => state.entities.canvasWidgets,
   (state: AppState) => state.ui.widgetDragResize.isResizing,
+  (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   (
     positions,
     focusedWidget,
     selectedWidgets,
     widgets,
     isResizing,
+    isAutoCanvasResizing,
   ): { id: string; widgetName: string; position: any } | undefined => {
-    if (!focusedWidget || !widgets || isResizing) return;
+    if (!focusedWidget || !widgets || isResizing || isAutoCanvasResizing)
+      return;
 
     const widget = widgets[focusedWidget];
     if (!widget || selectedWidgets.indexOf(focusedWidget) > -1) return;

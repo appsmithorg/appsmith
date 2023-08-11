@@ -28,7 +28,8 @@ describe("Navigate To feature", () => {
     agHelper.ClickButton("Submit");
     cy.url().should("include", "a=b").and("include", "test=123");
     entityExplorer.SelectEntityByName("Page1");
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
+    agHelper.Sleep();
     agHelper.ClickButton("Submit");
     agHelper.GetNAssertContains(
       locators._emptyPageTxt,
