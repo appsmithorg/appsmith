@@ -50,6 +50,8 @@ export class PropertyPane {
   _propertyPaneSearchInputWrapper = ".t--property-pane-search-input-wrapper";
   _propertyPaneSearchInput = `${this._propertyPaneSearchInputWrapper} input`;
   _propertyPaneEmptySearchResult = ".t--property-pane-no-search-results";
+  _mode = (modeName: string) =>
+    "//span[contains(text(),'" + modeName + "')]//parent::span";
   _propertyToggle = (controlToToggle: string) =>
     ".t--property-control-" +
     controlToToggle.replace(/ +/g, "").toLowerCase() +
@@ -143,6 +145,14 @@ export class PropertyPane {
   _addColumnItem = ".t--add-column-btn";
   _widgetToVerifyText = (widgetName: string) =>
     `${this.locator._widgetByName(widgetName)} ${this._propertyText}`;
+  _placeholderName = "[placeholder='Name']";
+  _placeholderValue = "[placeholder='Value']";
+  _sliderMark = ".slider-mark";
+  _optionsDeleteButton = "[orientation='HORIZONTAL'] .ads-v2-button";
+  _styleSize = (size: string) => `.ads-v2-segmented-control-value-${size}`;
+  _themeColor =
+    "//h3[text()='Theme Colors']//..//div[contains(@class, 't--colorpicker-v2-color')]";
+  _fillColor = ".t--colorpicker-v2-popover .rounded-full";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
@@ -400,9 +410,11 @@ export class PropertyPane {
     let val: any;
     if (fieldName) {
       cy.xpath(this.locator._existingFieldValueByName(fieldName)).eq(0).click();
-      val = cy.get(fieldName).then(($field) => {
-        cy.wrap($field).find(".CodeMirror-code span").first().invoke("text");
-      });
+      val = this.agHelper
+        .GetElement(this.locator._existingFieldValueByName(fieldName))
+        .then(($field) => {
+          cy.wrap($field).find(".CodeMirror-code span").first().invoke("text");
+        });
     } else {
       this.agHelper.GetNClick(this.locator._codeMirrorCode);
       val = cy
