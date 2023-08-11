@@ -14,12 +14,12 @@ import com.appsmith.server.dtos.ce.ImportActionResultDTO;
 import com.appsmith.server.dtos.ce.ImportedActionAndCollectionMapsDTO;
 import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.services.CrudService;
+import com.mongodb.bulk.BulkWriteResult;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -134,7 +134,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
             ImportActionCollectionResultDTO importActionCollectionResultDTO,
             ImportActionResultDTO importActionResultDTO);
 
-    Mono<Collection<Object>> publishActions(String applicationId, AclPermission permission);
+    Mono<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission);
 
     Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
 }

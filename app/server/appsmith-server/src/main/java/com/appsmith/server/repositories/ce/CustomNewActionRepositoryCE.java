@@ -11,7 +11,6 @@ import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -78,7 +77,7 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Mono<List<BulkWriteResult>> bulkUpdate(List<NewAction> newActions);
 
-    Mono<Collection<Object>> publishActions(String applicationId, AclPermission permission);
+    Mono<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission);
 
     Mono<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission);
 

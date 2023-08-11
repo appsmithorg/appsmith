@@ -3,14 +3,19 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QLayout;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.model.UpdateOneModel;
+import com.mongodb.client.model.WriteModel;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -20,13 +25,16 @@ import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -259,10 +267,10 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<Collection<Object>> publishPages(Collection<String> pageIds, AclPermission permission) {
+    public Mono<List<BulkWriteResult>> publishPages(Collection<String> pageIds, AclPermission permission) {
         Criteria applicationIdCriteria = where(fieldName(QNewPage.newPage.id)).in(pageIds);
         AggregationOperation matchAggregation = Aggregation.match(applicationIdCriteria);
-        AggregationOperation wholeProjection = Aggregation.project(PermissionGroup.class);
+        AggregationOperation wholeProjection = Aggregation.project(NewPage.class);
         AggregationOperation addFieldsOperation = Aggregation.addFields()
                 .addField(fieldName(QNewPage.newPage.publishedPage))
                 .withValueOf(Fields.field(fieldName(QNewPage.newPage.unpublishedPage)))
@@ -276,8 +284,32 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         //        return updateByCriteria(List.of(applicationIdCriteria), aggregationUpdate, permission);
         Aggregation combinedAggregation =
                 Aggregation.newAggregation(matchAggregation, wholeProjection, addFieldsOperation);
-        AggregationResults<PermissionGroup> updatedResults =
-                mongoTemplate.aggregate(combinedAggregation, PermissionGroup.class, PermissionGroup.class);
-        return Mono.just((Collection) mongoTemplate.insertAll(updatedResults.getMappedResults()));
+        AggregationResults<NewPage> updatedResults =
+                mongoTemplate.aggregate(combinedAggregation, NewPage.class, NewPage.class);
+        return bulkUpdate(updatedResults.getMappedResults());
+    }
+
+    @Override
+    public Mono<List<BulkWriteResult>> bulkUpdate(List<NewPage> newPages) {
+        if (CollectionUtils.isEmpty(newPages)) {
+            return Mono.just(Collections.emptyList());
+        }
+
+        // convert the list of new actions to a list of DBObjects
+        List<WriteModel<Document>> dbObjects = newPages.stream()
+                .map(newAction -> {
+                    assert newAction.getId() != null;
+                    Document document = new Document();
+                    mongoOperations.getConverter().write(newAction, document);
+                    document.remove("_id");
+                    return (WriteModel<Document>) new UpdateOneModel<Document>(
+                            new Document("_id", new ObjectId(newAction.getId())), new Document("$set", document));
+                })
+                .collect(Collectors.toList());
+
+        return mongoOperations
+                .getCollection(mongoOperations.getCollectionName(NewAction.class))
+                .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
+                .collectList();
     }
 }

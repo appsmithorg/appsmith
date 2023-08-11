@@ -6,7 +6,6 @@ import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -39,7 +38,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -579,11 +577,11 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Mono<Collection<Object>> publishActions(String applicationId, AclPermission permission) {
+    public Mono<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission) {
         Criteria applicationIdCriteria =
                 where(fieldName(QNewAction.newAction.applicationId)).is(applicationId);
         AggregationOperation matchAggregation = Aggregation.match(applicationIdCriteria);
-        AggregationOperation wholeProjection = Aggregation.project(PermissionGroup.class);
+        AggregationOperation wholeProjection = Aggregation.project(NewAction.class);
         AggregationOperation addFieldsOperation = Aggregation.addFields()
                 .addField(fieldName(QNewAction.newAction.publishedAction))
                 .withValueOf(Fields.field(fieldName(QNewAction.newAction.unpublishedAction)))
@@ -597,9 +595,9 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         //        return updateByCriteria(List.of(applicationIdCriteria), aggregationUpdate, permission);
         Aggregation combinedAggregation =
                 Aggregation.newAggregation(matchAggregation, wholeProjection, addFieldsOperation);
-        AggregationResults<PermissionGroup> updatedResults =
-                mongoTemplate.aggregate(combinedAggregation, PermissionGroup.class, PermissionGroup.class);
-        return Mono.just((Collection) mongoTemplate.insertAll(updatedResults.getMappedResults()));
+        AggregationResults<NewAction> updatedResults =
+                mongoTemplate.aggregate(combinedAggregation, NewAction.class, NewAction.class);
+        return bulkUpdate(updatedResults.getMappedResults());
     }
 
     @Override

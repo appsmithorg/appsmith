@@ -53,6 +53,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PolicySolution;
+import com.mongodb.bulk.BulkWriteResult;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +76,6 @@ import reactor.util.function.Tuple2;
 import javax.lang.model.SourceVersion;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1947,7 +1947,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @return
      */
     @Override
-    public Mono<Collection<Object>> publishActions(String applicationId, AclPermission permission) {
+    public Mono<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission) {
         // delete the actions that were deleted in edit mode
         return repository
                 .archiveDeletedUnpublishedActions(applicationId, permission)
