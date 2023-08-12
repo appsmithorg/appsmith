@@ -19,6 +19,7 @@ import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
@@ -29,6 +30,7 @@ import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -53,11 +55,13 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.DELETE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -112,6 +116,9 @@ public class DatasourceServiceTest {
 
     @Autowired
     EnvironmentPermission environmentPermission;
+
+    @Autowired
+    NewActionRepository newActionRepository;
 
     String workspaceId = "";
     private String defaultEnvironmentId;
@@ -2006,6 +2013,52 @@ public class DatasourceServiceTest {
                 .assertNext(testResult -> {
                     assertThat(testResult).isNotNull();
                     assertThat(testResult.getInvalids()).isEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateDatasource_WhenNameUpdated_ActionUpdatedDateModified() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        String uniqueString = UUID.randomUUID().toString();
+        String applicationId = "app_" + uniqueString;
+
+        Workspace toCreate = new Workspace();
+        toCreate.setName("workspace_" + uniqueString);
+
+        Workspace workspace = workspaceService.create(toCreate).block();
+        String workspaceId = workspace.getId();
+
+        Datasource datasource = createDatasource("D", workspaceId);
+
+        // create a new action for this datasource
+        ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setDatasource(datasource);
+        NewAction newAction = new NewAction();
+        newAction.setApplicationId(applicationId);
+        newAction.setUnpublishedAction(actionDTO);
+
+        Mono<NewAction> createActionMono = newActionRepository.save(newAction);
+        Datasource updateDto = new Datasource();
+        updateDto.setName(datasource.getName() + "#1");
+        Mono<Datasource> updateDatasourceMono =
+                datasourceService.updateDatasource(datasource.getId(), updateDto, defaultEnvironmentId, true);
+
+        Mono<Tuple2<NewAction, Datasource>> tuple2Mono = createActionMono
+                .delayElement(Duration.ofSeconds(1))
+                .then(updateDatasourceMono)
+                .then(newActionRepository.findByApplicationId(applicationId).last())
+                .zipWhen(action -> datasourceService.findById(
+                        action.getUnpublishedAction().getDatasource().getId()));
+
+        StepVerifier.create(tuple2Mono)
+                .assertNext(tuples -> {
+                    NewAction action = tuples.getT1();
+                    Datasource updatedDatasource = tuples.getT2();
+                    assertThat(action.getUpdatedAt()).isEqualTo(updatedDatasource.getUpdatedAt());
                 })
                 .verifyComplete();
     }

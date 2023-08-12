@@ -612,4 +612,25 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         return mongoOperations.aggregate(
                 aggregation, mongoOperations.getCollectionName(NewAction.class), PluginTypeAndCountDTO.class);
     }
+
+    /**
+     * Sets the updatedAt field of newAction to the provided value
+     * where unpublishedAction.datasource.id matches with the provided id.
+     * @param datasourceId string, id of the datasource
+     * @param instant new updated date that'll be set
+     * @return result of the multi update query
+     */
+    @Override
+    public Mono<UpdateResult> setUpdatedAt(String datasourceId, Instant instant) {
+        String unpublishedActionDatasourceIdFieldPath = String.format(
+                "%s.%s.%s",
+                fieldName(QNewAction.newAction.unpublishedAction),
+                fieldName(QNewAction.newAction.unpublishedAction.datasource),
+                fieldName(QNewAction.newAction.unpublishedAction.datasource.id));
+
+        Criteria criteria = where(unpublishedActionDatasourceIdFieldPath).is(datasourceId);
+        Update update = new Update();
+        update.set(FieldName.UPDATED_AT, instant);
+        return updateByCriteria(List.of(criteria), update, null);
+    }
 }

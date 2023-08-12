@@ -974,11 +974,14 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         return Mono.empty();
                     }
                     Map<String, Datasource> savedDatasourcesGitIdToDatasourceMap = new HashMap<>();
+                    Map<String, Datasource> savedDatasourcesNameDatasourceMap = new HashMap<>();
 
                     existingDatasources.stream()
                             .filter(datasource -> datasource.getGitSyncId() != null)
-                            .forEach(datasource ->
-                                    savedDatasourcesGitIdToDatasourceMap.put(datasource.getGitSyncId(), datasource));
+                            .forEach(datasource -> {
+                                savedDatasourcesGitIdToDatasourceMap.put(datasource.getGitSyncId(), datasource);
+                                savedDatasourcesNameDatasourceMap.put(datasource.getName(), datasource);
+                            });
 
                     // Check if the destination org have all the required plugins installed
                     for (DatasourceStorage datasource : importedDatasourceList) {
@@ -996,14 +999,32 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             // Check for duplicate datasources to avoid duplicates in target workspace
                             .flatMap(datasourceStorage -> {
                                 final String importedDatasourceName = datasourceStorage.getName();
-                                // Check if the datasource has gitSyncId and if it's already in DB
+                                // try to find whether there is an existing datasource with same gitSyncId
+                                Datasource existingDatasource = null;
                                 if (datasourceStorage.getGitSyncId() != null
                                         && savedDatasourcesGitIdToDatasourceMap.containsKey(
                                                 datasourceStorage.getGitSyncId())) {
+                                    Datasource dsWithSameGitsyncId = savedDatasourcesGitIdToDatasourceMap.get(
+                                            datasourceStorage.getGitSyncId()); // found a match
+                                    // we'll be renaming the matchingDatasource with targetDatasourceName
+                                    String targetDatasourceName = datasourceStorage.getName();
 
+                                    // check whether there are any other datasource with the same targetDatasourceName
+                                    if (savedDatasourcesNameDatasourceMap.containsKey(targetDatasourceName)) {
+                                        // found with same name, check if it's matchingDatasource or not
+                                        Datasource dsWithSameName =
+                                                savedDatasourcesNameDatasourceMap.get(targetDatasourceName);
+                                        if (dsWithSameName.getId().equals(dsWithSameGitsyncId.getId())) {
+                                            // same DS, we can rename safely
+                                            existingDatasource = dsWithSameGitsyncId;
+                                        } // otherwise existingDatasource will be null
+                                    } else { // no DS found with the targetDatasourceName, we can rename safely
+                                        existingDatasource = dsWithSameGitsyncId;
+                                    }
+                                }
+                                // Check if the datasource has gitSyncId and if it's already in DB
+                                if (existingDatasource != null) {
                                     // Since the resource is already present in DB, just update resource
-                                    Datasource existingDatasource =
-                                            savedDatasourcesGitIdToDatasourceMap.get(datasourceStorage.getGitSyncId());
                                     if (!permissionProvider.hasEditPermission(existingDatasource)) {
                                         log.error(
                                                 "Trying to update datasource {} without edit permission",
@@ -1028,29 +1049,29 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     // Don't update the datasource configuration for already available datasources
                                     existingDatasource.setDatasourceConfiguration(null);
                                     return datasourceService.save(existingDatasource);
+                                } else {
+                                    // This is explicitly copied over from the map we created before
+                                    datasourceStorage.setPluginId(pluginMap.get(datasourceStorage.getPluginId()));
+                                    datasourceStorage.setWorkspaceId(workspace.getId());
+                                    datasourceStorage.setEnvironmentId(environmentId);
+
+                                    // Check if any decrypted fields are present for datasource
+                                    if (importedDoc.getDecryptedFields() != null
+                                            && importedDoc.getDecryptedFields().get(datasourceStorage.getName())
+                                                    != null) {
+
+                                        DecryptedSensitiveFields decryptedFields =
+                                                importedDoc.getDecryptedFields().get(datasourceStorage.getName());
+
+                                        updateAuthenticationDTO(datasourceStorage, decryptedFields);
+                                    }
+                                    return createUniqueDatasourceIfNotPresent(
+                                            existingDatasourcesFlux,
+                                            datasourceStorage,
+                                            workspace,
+                                            environmentId,
+                                            permissionProvider);
                                 }
-
-                                // This is explicitly copied over from the map we created before
-                                datasourceStorage.setPluginId(pluginMap.get(datasourceStorage.getPluginId()));
-                                datasourceStorage.setWorkspaceId(workspace.getId());
-                                datasourceStorage.setEnvironmentId(environmentId);
-
-                                // Check if any decrypted fields are present for datasource
-                                if (importedDoc.getDecryptedFields() != null
-                                        && importedDoc.getDecryptedFields().get(datasourceStorage.getName()) != null) {
-
-                                    DecryptedSensitiveFields decryptedFields =
-                                            importedDoc.getDecryptedFields().get(datasourceStorage.getName());
-
-                                    updateAuthenticationDTO(datasourceStorage, decryptedFields);
-                                }
-
-                                return createUniqueDatasourceIfNotPresent(
-                                        existingDatasourcesFlux,
-                                        datasourceStorage,
-                                        workspace,
-                                        environmentId,
-                                        permissionProvider);
                             });
                 })
                 .collectMap(Datasource::getName, Datasource::getId)

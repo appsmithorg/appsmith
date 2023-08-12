@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -80,6 +81,8 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     Mono<UpdateResult> publishActions(String applicationId, AclPermission permission);
 
     Mono<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission);
+
+    Mono<UpdateResult> setUpdatedAt(String datasourceId, Instant instant);
 
     Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
 }

@@ -406,9 +406,16 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     ActionDTO unpublishedAction = updatedAction.getUnpublishedAction();
                     if (unpublishedAction.getDatasource().getId() != null) {
                         Datasource datasource = new Datasource();
+                        // we don't need any other fields except datasource id here
+                        // TODO: do we need the pluginId in the embedded datasource?
                         datasource.setId(unpublishedAction.getDatasource().getId());
                         datasource.setPluginId(updatedAction.getPluginId());
-                        datasource.setName(unpublishedAction.getDatasource().getName());
+
+                        // setting the following fields as null so that default values are ignored
+                        datasource.setPolicies(null);
+                        datasource.setUpdatedAt(null);
+                        datasource.setDeleted(null);
+
                         unpublishedAction.setDatasource(datasource);
                         updatedAction.setUnpublishedAction(unpublishedAction);
                     }

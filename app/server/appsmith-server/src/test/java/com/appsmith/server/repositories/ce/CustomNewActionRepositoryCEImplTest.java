@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
@@ -18,8 +19,11 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -130,6 +134,14 @@ public class CustomNewActionRepositoryCEImplTest {
         action.setUnpublishedAction(actionDTO);
         action.setPublishedAction(new ActionDTO());
 
+        return action;
+    }
+
+    private NewAction createActionWithDatasource(String applicationId, String datasourceId) {
+        NewAction action = createUnpublishedAction(applicationId, PluginType.API);
+        Datasource datasource = new Datasource();
+        datasource.setId(datasourceId);
+        action.getUnpublishedAction().setDatasource(datasource);
         return action;
     }
 
@@ -276,6 +288,45 @@ public class CustomNewActionRepositoryCEImplTest {
                         assertThat(publishedActionDto).isNotNull();
                         assertThat(publishedActionDto.getName()).isNull();
                         assertThat(publishedActionDto.getPageId()).isNull();
+                    });
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void setUpdatedAt_WhenDatasourceIdMatched_MatchedObjectsUpdated() {
+        String uniqueString = UUID.randomUUID().toString();
+        String datasourceOne = "ds-1-" + uniqueString, datasourceTwo = "ds-2-" + uniqueString;
+        String applicationId = "app-" + uniqueString;
+
+        List<NewAction> newActions = List.of(
+                createActionWithDatasource(applicationId, datasourceOne),
+                createActionWithDatasource(applicationId, datasourceOne),
+                createActionWithDatasource(applicationId, datasourceTwo));
+
+        Instant newUpdatedAtDate = Instant.now().minusSeconds(60 * 60); // 1 hour ago
+
+        Mono<Map<String, Collection<NewAction>>> newActionsByDatasourceIdMapMono = newActionRepository
+                .saveAll(newActions)
+                .then(newActionRepository.setUpdatedAt(datasourceOne, newUpdatedAtDate))
+                .thenMany(newActionRepository.findByApplicationId(applicationId))
+                .collectMultimap((newAction ->
+                        newAction.getUnpublishedAction().getDatasource().getId()));
+
+        StepVerifier.create(newActionsByDatasourceIdMapMono)
+                .assertNext(multiMap -> {
+                    assertThat(multiMap.size()).isEqualTo(2);
+                    assertThat(multiMap.get(datasourceOne).size()).isEqualTo(2);
+                    assertThat(multiMap.get(datasourceTwo).size()).isEqualTo(1);
+
+                    multiMap.get(datasourceOne).forEach(newAction -> {
+                        long diffInMinutes = newUpdatedAtDate.until(newAction.getUpdatedAt(), ChronoUnit.MINUTES);
+                        assertThat(diffInMinutes).isEqualTo(0);
+                    });
+
+                    multiMap.get(datasourceTwo).forEach(newAction -> {
+                        long diffInMinutes = newUpdatedAtDate.until(newAction.getUpdatedAt(), ChronoUnit.MINUTES);
+                        assertThat(diffInMinutes).isGreaterThan(50); // should be at least 50 minutes ago
                     });
                 })
                 .verifyComplete();
