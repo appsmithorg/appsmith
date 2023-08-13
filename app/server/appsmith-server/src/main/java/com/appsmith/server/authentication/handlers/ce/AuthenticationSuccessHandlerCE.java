@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -20,6 +21,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserIdentifierService;
+import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ForkExamplesWorkspace;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -68,7 +70,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final UserIdentifierService userIdentifierService;
     private final TenantService tenantService;
 
-    //     private final UserService userService;
+    private final UserService userService;
 
     private Mono<Boolean> isVerificationRequired(String userEmail, String method) {
         Mono<Boolean> emailVerificationEnabledMono = tenantService
@@ -156,7 +158,20 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                     .flatMap(defaultApplication -> redirectHelper.getAuthSuccessRedirectUrl(
                                             webFilterExchange, defaultApplication, true))
                                     .map(url -> String.format("/user/verificationPending?email=%s", user.getEmail()))
-                                    // send email with above link
+                                    .flatMap(url -> {
+                                        String baseUrl = webFilterExchange
+                                                .getExchange()
+                                                .getRequest()
+                                                .getHeaders()
+                                                .getOrigin();
+                                        ResendEmailVerificationDTO resendEmailVerificationDTO =
+                                                new ResendEmailVerificationDTO();
+                                        resendEmailVerificationDTO.setEmail(user.getEmail());
+                                        resendEmailVerificationDTO.setBaseUrl(baseUrl);
+                                        return userService
+                                                .emailVerificationTokenGenerate(resendEmailVerificationDTO)
+                                                .then(Mono.just(url));
+                                    })
                                     .map(URI::create)
                                     .flatMap(redirectUri -> redirectStrategy.sendRedirect(
                                             webFilterExchange.getExchange(), redirectUri));
@@ -177,6 +192,20 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                             // also send email and update the email link, and check redirection
                             return redirectHelper
                                     .getAuthSuccessRedirectUrl(webFilterExchange, null, true)
+                                    .flatMap(url -> {
+                                        String baseUrl = webFilterExchange
+                                                .getExchange()
+                                                .getRequest()
+                                                .getHeaders()
+                                                .getOrigin();
+                                        ResendEmailVerificationDTO resendEmailVerificationDTO =
+                                                new ResendEmailVerificationDTO();
+                                        resendEmailVerificationDTO.setEmail(user.getEmail());
+                                        resendEmailVerificationDTO.setBaseUrl(baseUrl);
+                                        return userService
+                                                .emailVerificationTokenGenerate(resendEmailVerificationDTO)
+                                                .then(Mono.just(url));
+                                    })
                                     .map(url -> String.format("/user/verificationPending?email=%s", user.getEmail()))
                                     .map(URI::create)
                                     .flatMap(redirectUri -> redirectStrategy.sendRedirect(
@@ -198,6 +227,20 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         // also send email and update the email link, and check redirection
                         return redirectHelper
                                 .getAuthSuccessRedirectUrl(webFilterExchange, null, false)
+                                .flatMap(url -> {
+                                    String baseUrl = webFilterExchange
+                                            .getExchange()
+                                            .getRequest()
+                                            .getHeaders()
+                                            .getOrigin();
+                                    ResendEmailVerificationDTO resendEmailVerificationDTO =
+                                            new ResendEmailVerificationDTO();
+                                    resendEmailVerificationDTO.setEmail(user.getEmail());
+                                    resendEmailVerificationDTO.setBaseUrl(baseUrl);
+                                    return userService
+                                            .emailVerificationTokenGenerate(resendEmailVerificationDTO)
+                                            .then(Mono.just(url));
+                                })
                                 .map(url -> String.format("/user/verificationPending?email=%s", user.getEmail()))
                                 .map(URI::create)
                                 .flatMap(redirectUri ->
