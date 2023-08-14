@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useContext } from "react";
 import {
   useAppWideAndOtherDatasource,
   useDatasourceSuggestions,
@@ -40,6 +40,7 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 
 const ShowAllButton = styled(Button)`
   margin: 0.25rem 1.5rem;
@@ -52,6 +53,8 @@ const Datasources = React.memo(() => {
   const applicationId = useSelector(getCurrentApplicationId);
   const isDatasourcesOpen = getExplorerStatus(applicationId, "datasource");
   const pluginGroups = React.useMemo(() => keyBy(plugins, "id"), [plugins]);
+  const { isOpened: isWalkthroughOpened, popFeature } =
+    useContext(WalkthroughContext) || {};
 
   const userWorkspacePermissions = useSelector(
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
@@ -63,6 +66,9 @@ const Datasources = React.memo(() => {
 
   const addDatasource = useCallback(
     (entryPoint: string) => {
+      if (isWalkthroughOpened && popFeature) {
+        popFeature("EXPLORER_DATASOURCE_ADD");
+      }
       history.push(
         integrationEditorURL({
           pageId,
@@ -74,7 +80,7 @@ const Datasources = React.memo(() => {
         entryPoint,
       });
     },
-    [pageId],
+    [pageId, isWalkthroughOpened],
   );
   const activeDatasourceId = useDatasourceIdFromURL();
   const datasourceSuggestions = useDatasourceSuggestions();

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-debugger */
 import { Icon, Text } from "design-system";
 import { showIndicator } from "pages/Editor/GuidedTour/utils";
@@ -21,7 +22,7 @@ const WalkthroughWrapper = styled.div`
   position: fixed;
   width: 100%;
   height: 100%;
-  color: rgb(0, 0, 0, 0.7);
+  color: transparent;
   z-index: ${Z_INDEX};
   // This allows the user to click on the target element rather than the overlay div
   pointer-events: none;
@@ -199,17 +200,17 @@ const WalkthroughRenderer = ({
 
   return (
     <WalkthroughWrapper className="t--walkthrough-overlay">
-      {backgroundOverlay && (
-        <SvgWrapper
-          height={targetBounds.bh}
-          width={targetBounds.bw}
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <clipPath id={CLIPID}>
-              <polygon
-                // See the comments above the component declaration to understand the below points assignment.
-                points={`0 0, 
+      <SvgWrapper
+        height={targetBounds.bh}
+        onClick={onDismissWalkthrough}
+        width={targetBounds.bw}
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <clipPath id={CLIPID}>
+            <polygon
+              // See the comments above the component declaration to understand the below points assignment.
+              points={`0 0, 
                     0 ${targetBounds.bh}, 
                     ${multipleHighlightsIds.reduce((acc, id) => {
                       const boundingRect = boundingRects[id];
@@ -226,20 +227,19 @@ const WalkthroughRenderer = ({
                     ${targetBounds.bw} ${targetBounds.bh}, 
                     ${targetBounds.bw} 0
                   `}
-              />
-            </clipPath>
-          </defs>
-          <rect
-            style={{
-              clipPath: 'url("#' + CLIPID + '")',
-              fill: "currentcolor",
-              height: targetBounds.bh,
-              pointerEvents: "auto",
-              width: targetBounds.bw,
-            }}
-          />
-        </SvgWrapper>
-      )}
+            />
+          </clipPath>
+        </defs>
+        <rect
+          style={{
+            clipPath: 'url("#' + CLIPID + '")',
+            fill: "currentcolor",
+            height: targetBounds.bh,
+            pointerEvents: "auto",
+            width: targetBounds.bw,
+          }}
+        />
+      </SvgWrapper>
 
       <InstructionsComponent
         details={details}
@@ -275,7 +275,7 @@ const InstructionsComponent = ({
         <Text kind="heading-s" renderAs="p">
           {details.title}
         </Text>
-        <Icon name="close" onClick={onClose} size="md" />
+        <Icon color="black" name="close" onClick={onClose} size="md" />
       </InstructionsHeaderWrapper>
       <Text>{details.description}</Text>
       {details.imageURL && (

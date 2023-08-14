@@ -472,6 +472,8 @@ export default function OnboardingChecklist() {
           indicatorLeft: -3,
           style: {
             transform: "none",
+            boxShadow: "var(--ads-v2-shadow-popovers)",
+            border: "1px solid var(--ads-v2-color-border-muted)",
           },
         },
         delay: 1000,

@@ -36,7 +36,7 @@ export default function Walkthrough({ children }: any) {
         setFeature((e) => [...e, value]);
       }
     }
-    debugger;
+    // debugger;
     updateActiveWalkthrough();
   };
 

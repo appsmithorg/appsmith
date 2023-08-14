@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useContext, useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
@@ -384,7 +385,7 @@ function ActionSidebar({
 
     const isNewUser = user && (await isUserSignedUpFlagSet(user.email));
     // Adding walkthrough tutorial
-    isNewUser &&
+    true &&
       !isFeatureWalkthroughShown &&
       pushFeature &&
       pushFeature({
