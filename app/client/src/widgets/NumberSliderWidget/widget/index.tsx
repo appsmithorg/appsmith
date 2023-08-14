@@ -73,6 +73,7 @@ class NumberSliderWidget extends BaseWidget<
         setValue: {
           path: "defaultValue",
           type: "number",
+          accessor: "value",
         },
       },
     };

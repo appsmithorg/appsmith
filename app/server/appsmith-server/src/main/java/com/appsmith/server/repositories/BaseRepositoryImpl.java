@@ -21,6 +21,7 @@ import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -228,17 +229,21 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
                     Query query = new Query(getIdCriteria(id));
                     query.addCriteria(notDeleted());
 
-                    Update update = new Update();
-                    update.set(FieldName.DELETED, true);
-                    update.set(FieldName.DELETED_AT, Instant.now());
                     return mongoOperations
-                            .updateFirst(query, update, entityInformation.getJavaType())
+                            .updateFirst(query, getForArchive(), entityInformation.getJavaType())
                             .map(result -> result.getModifiedCount() > 0 ? true : false);
                 });
     }
 
+    public Update getForArchive() {
+        Update update = new Update();
+        update.set(FieldName.DELETED, true);
+        update.set(FieldName.DELETED_AT, Instant.now());
+        return update;
+    }
+
     @Override
-    public Mono<Boolean> archiveAllById(List<ID> ids) {
+    public Mono<Boolean> archiveAllById(Collection<ID> ids) {
         Assert.notNull(ids, "The given ids must not be null!");
         Assert.notEmpty(ids, "The given list of ids must not be empty!");
 
@@ -250,11 +255,8 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
                     query.addCriteria(new Criteria().where(FieldName.ID).in(ids));
                     query.addCriteria(notDeleted());
 
-                    Update update = new Update();
-                    update.set(FieldName.DELETED, true);
-                    update.set(FieldName.DELETED_AT, Instant.now());
                     return mongoOperations
-                            .updateMulti(query, update, entityInformation.getJavaType())
+                            .updateMulti(query, getForArchive(), entityInformation.getJavaType())
                             .map(result -> result.getModifiedCount() > 0 ? true : false);
                 });
     }

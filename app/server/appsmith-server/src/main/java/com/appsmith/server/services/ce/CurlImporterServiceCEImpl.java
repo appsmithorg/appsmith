@@ -20,19 +20,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
 
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -500,25 +497,38 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         log.debug("cURL import URL: '{}', path: '{}' baseUrl: '{}'", url, path, base);
 
         // Extract query params.
-        URI uri = url.toURI();
-        List<NameValuePair> params = URLEncodedUtils.parse(uri, StandardCharsets.UTF_8);
         final ActionConfiguration actionConfiguration = action.getActionConfiguration();
-        List<Property> queryParameters = actionConfiguration.getQueryParameters();
-
-        if (queryParameters == null) {
-            queryParameters = new ArrayList<>();
-            actionConfiguration.setQueryParameters(queryParameters);
-        }
-
-        for (NameValuePair param : params) {
-            queryParameters.add(new Property(param.getName(), param.getValue()));
-        }
+        List<Property> queryParameters = actionConfiguration.getQueryParameters() == null
+                ? new ArrayList<>()
+                : actionConfiguration.getQueryParameters();
+        queryParameters.addAll(getQueryParams(url));
+        actionConfiguration.setQueryParameters(queryParameters);
 
         // Set the URL without the query params & the path.
         action.getDatasource().getDatasourceConfiguration().setUrl(base);
 
         // Set the path in actionConfiguration.
         actionConfiguration.setPath(path);
+    }
+
+    private List<Property> getQueryParams(URL url) {
+        List<Property> queryParamsList = new ArrayList<>();
+        String queryParamsString = url.getQuery();
+
+        /**
+         * Attempt to extract query params only if the query params string is non-empty, and it has at least one key
+         * value pair.
+         */
+        if (!isBlank(queryParamsString) && queryParamsString.contains("=")) {
+            Arrays.stream(queryParamsString.split("&")).forEach(queryParam -> {
+                String[] paramMap = queryParam.split("=", 2);
+                if (paramMap.length > 1) {
+                    queryParamsList.add(new Property(paramMap[0], paramMap[1]));
+                }
+            });
+        }
+
+        return queryParamsList;
     }
 
     private String getPort(URL url) {

@@ -1,13 +1,11 @@
 import React, { useCallback, useEffect, useState, lazy, Suspense } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import classNames from "classnames";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
 import { Link } from "react-router-dom";
-import type { AppState } from "@appsmith/reducers";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -18,14 +16,17 @@ import {
   getAllUsers,
   getCurrentWorkspaceId,
 } from "@appsmith/selectors/workspaceSelectors";
-import type { ConnectedProps } from "react-redux";
-import { connect, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
-import { updateApplication } from "@appsmith/actions/applicationActions";
+import {
+  publishApplication,
+  updateApplication,
+} from "@appsmith/actions/applicationActions";
 import {
   getApplicationList,
   getIsSavingAppName,
   getIsErroredSavingAppName,
+  getCurrentApplication,
 } from "@appsmith/selectors/applicationSelectors";
 import EditorAppName from "./EditorAppName";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -207,18 +208,7 @@ const GlobalSearch = lazy(() => {
 
 const theme = getTheme(ThemeMode.LIGHT);
 
-// Seperating redux props types from props being passed to the component from a parent
-type PropsFromRedux = ConnectedProps<typeof connector>;
-
-export function EditorHeader(props: PropsFromRedux) {
-  const {
-    applicationId,
-    currentApplication,
-    isPublishing,
-    pageId,
-    publishApplication,
-    workspaceId,
-  } = props;
+export function EditorHeader() {
   const [activeTab, setActiveTab] = useState("invite");
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
@@ -229,6 +219,14 @@ export function EditorHeader(props: PropsFromRedux) {
   const applicationList = useSelector(getApplicationList);
   const isPreviewMode = useSelector(previewModeSelector);
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
+  const workspaceId = useSelector(getCurrentWorkspaceId);
+  const applicationId = useSelector(getCurrentApplicationId);
+  const currentApplication = useSelector(getCurrentApplication);
+  const isPublishing = useSelector(getIsPublishingApplication);
+  const pageId = useSelector(getCurrentPageId) as string;
+  const sharedUserList = useSelector(getAllUsers);
+  const currentUser = useSelector(getCurrentUser);
+
   const deployLink = useHref(viewerURL, { pageId });
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
@@ -242,7 +240,7 @@ export function EditorHeader(props: PropsFromRedux) {
 
   const handlePublish = () => {
     if (applicationId) {
-      publishApplication(applicationId);
+      dispatch(publishApplication(applicationId));
 
       const appName = currentApplication ? currentApplication.name : "";
       const pageCount = currentApplication?.pages?.length;
@@ -323,8 +321,8 @@ export function EditorHeader(props: PropsFromRedux) {
       dispatch(fetchUsersForWorkspace(workspaceId));
     }
   }, [workspaceId]);
-  const filteredSharedUserList = props.sharedUserList.filter(
-    (user) => user.username !== props.currentUser?.username,
+  const filteredSharedUserList = sharedUserList.filter(
+    (user) => user.username !== currentUser?.username,
   );
 
   return (
@@ -551,31 +549,4 @@ export function EditorHeader(props: PropsFromRedux) {
   );
 }
 
-const mapStateToProps = (state: AppState) => ({
-  pageName: state.ui.editor.currentPageName,
-  workspaceId: getCurrentWorkspaceId(state),
-  applicationId: getCurrentApplicationId(state),
-  currentApplication: state.ui.applications.currentApplication,
-  isPublishing: getIsPublishingApplication(state),
-  pageId: getCurrentPageId(state) as string,
-  sharedUserList: getAllUsers(state),
-  currentUser: getCurrentUser(state),
-});
-
-const mapDispatchToProps = (dispatch: any) => ({
-  publishApplication: (applicationId: string) => {
-    dispatch({
-      type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
-      payload: {
-        applicationId,
-      },
-    });
-  },
-});
-
-EditorHeader.whyDidYouRender = {
-  logOnDifferentValues: false,
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-export default connector(EditorHeader);
+export default EditorHeader;

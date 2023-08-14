@@ -3,12 +3,10 @@ import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Layers } from "constants/Layers";
 import type { WidgetType } from "constants/WidgetConstants";
-import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal/es6";
-import type { LoDashStatic } from "lodash";
 import { isArray, isFinite, isString, xorWith } from "lodash";
 import type { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import React from "react";
@@ -24,185 +22,59 @@ import {
 import MultiSelectComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
 import type { AutocompletionDefinitions } from "widgets/constants";
-
-export function defaultOptionValueValidation(
-  value: unknown,
-  props: MultiSelectWidgetProps,
-  _: LoDashStatic,
-): ValidationResponse {
-  let isValid = false;
-  let parsed: any[] = [];
-  let message = { name: "", message: "" };
-  const isServerSideFiltered = props.serverSideFiltering;
-  // TODO: options shouldn't get un-eval values;
-  let options = props.options;
-
-  const DEFAULT_ERROR_MESSAGE = {
-    name: "TypeError",
-    message:
-      "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
-  };
-  const MISSING_FROM_OPTIONS = {
-    name: "ValidationError",
-    message:
-      "Some or all default values are missing from options. Please update the values.",
-  };
-  const MISSING_FROM_OPTIONS_AND_WRONG_FORMAT = {
-    name: "ValidationError",
-    message:
-      "Default value is missing in options. Please use [{label : <string | num>, value : < string | num>}] format to show default for server side data",
-  };
-  /*
-   * Function to check if the object has `label` and `value`
-   */
-  const hasLabelValue = (obj: any) => {
-    return (
-      _.isPlainObject(obj) &&
-      obj.hasOwnProperty("label") &&
-      obj.hasOwnProperty("value") &&
-      _.isString(obj.label) &&
-      (_.isString(obj.value) || _.isFinite(obj.value))
-    );
-  };
-
-  /*
-   * Function to check for duplicate values in array
-   */
-  const hasUniqueValues = (arr: Array<string>) => {
-    const uniqueValues = new Set(arr);
-
-    return uniqueValues.size === arr.length;
-  };
-
-  /*
-   * When value is "['green', 'red']", "[{label: 'green', value: 'green'}]" and "green, red"
-   */
-  if (_.isString(value) && value.trim() !== "") {
-    try {
-      /*
-       * when value is "['green', 'red']", "[{label: 'green', value: 'green'}]"
-       */
-      const parsedValue = JSON.parse(value);
-      // Only parse value if resulting value is an array or string
-      if (Array.isArray(parsedValue) || _.isString(parsedValue)) {
-        value = parsedValue;
-      }
-    } catch (e) {
-      /*
-       * when value is "green, red", JSON.parse throws error
-       */
-      const splitByComma = (value as string).split(",") || [];
-
-      value = splitByComma.map((s) => s.trim());
-    }
-  }
-
-  /*
-   * When value is "['green', 'red']", "[{label: 'green', value: 'green'}]" and "green, red"
-   */
-  if (Array.isArray(value)) {
-    if (value.every((val) => _.isString(val) || _.isFinite(val))) {
-      /*
-       * When value is ["green", "red"]
-       */
-      if (hasUniqueValues(value)) {
-        isValid = true;
-        parsed = value;
-      } else {
-        parsed = [];
-        message = {
-          name: "ValidationError",
-          message: "values must be unique. Duplicate values found",
-        };
-      }
-    } else if (value.every(hasLabelValue)) {
-      /*
-       * When value is [{label: "green", value: "red"}]
-       */
-      if (hasUniqueValues(value.map((val) => val.value))) {
-        isValid = true;
-        parsed = value;
-      } else {
-        parsed = [];
-        message = {
-          name: "ValidationError",
-          message: "path:value must be unique. Duplicate values found",
-        };
-      }
-    } else {
-      /*
-       * When value is [true, false], [undefined, undefined] etc.
-       */
-      parsed = [];
-      message = DEFAULT_ERROR_MESSAGE;
-    }
-  } else if (_.isString(value) && value.trim() === "") {
-    /*
-     * When value is an empty string
-     */
-    isValid = true;
-    parsed = [];
-  } else if (_.isNumber(value) || _.isString(value)) {
-    /*
-     * When value is a number or just a single string e.g "Blue"
-     */
-    isValid = true;
-    parsed = [value];
-  } else {
-    /*
-     * When value is undefined, null, {} etc.
-     */
-    parsed = [];
-    message = DEFAULT_ERROR_MESSAGE;
-  }
-
-  if (isValid && !_.isNil(parsed) && !_.isEmpty(parsed)) {
-    if (!Array.isArray(options) && typeof options === "string") {
-      try {
-        const parsedOptions = JSON.parse(options);
-        if (Array.isArray(parsedOptions)) {
-          options = parsedOptions;
-        } else {
-          options = [];
-        }
-      } catch (e) {
-        options = [];
-      }
-    }
-
-    const parsedValue = parsed;
-    const areValuesPresent = parsedValue.every((value) => {
-      const index = _.findIndex(
-        options,
-        (option) => option.value === value || option.value === value.value,
-      );
-      return index !== -1;
-    });
-
-    if (!areValuesPresent) {
-      isValid = false;
-      if (!isServerSideFiltered) {
-        message = MISSING_FROM_OPTIONS;
-      } else {
-        if (!parsed.every(hasLabelValue)) {
-          message = MISSING_FROM_OPTIONS_AND_WRONG_FORMAT;
-        } else {
-          message = MISSING_FROM_OPTIONS;
-        }
-      }
-    }
-  }
-  return {
-    isValid,
-    parsed,
-    messages: [message],
-  };
-}
+import {
+  defaultValueExpressionPrefix,
+  getDefaultValueExpressionSuffix,
+  getOptionLabelValueExpressionPrefix,
+  optionLabelValueExpressionSuffix,
+} from "../constants";
+import {
+  defaultOptionValueValidation,
+  labelKeyValidation,
+  getLabelValueAdditionalAutocompleteData,
+  getLabelValueKeyOptions,
+  valueKeyValidation,
+} from "./propertyUtils";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
 
 class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
   WidgetState
 > {
+  static getQueryGenerationConfig(widget: WidgetProps) {
+    return {
+      select: {
+        where: `${widget.widgetName}.filterText`,
+      },
+    };
+  }
+
+  static getPropertyUpdatesForQueryBinding(
+    queryConfig: WidgetQueryConfig,
+    widget: WidgetProps,
+    formConfig: WidgetQueryGenerationFormConfig,
+  ) {
+    let modify;
+
+    if (queryConfig.select) {
+      modify = {
+        sourceData: queryConfig.select.data,
+        optionLabel: formConfig.aliases.find((d) => d.name === "label")?.alias,
+        optionValue: formConfig.aliases.find((d) => d.name === "value")?.alias,
+        defaultOptionValue: "",
+        serverSideFiltering: true,
+        onFilterUpdate: queryConfig.select.run,
+      };
+    }
+
+    return {
+      modify,
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
@@ -238,40 +110,43 @@ class MultiSelectWidget extends BaseWidget<
         children: [
           {
             helpText:
-              "Allows users to select multiple options. Values must be unique",
-            propertyName: "options",
-            label: "Options",
-            controlType: "INPUT_TEXT",
+              "Takes in an array of objects to display options. Bind data from an API using {{}}",
+            propertyName: "sourceData",
+            label: "Source Data",
+            controlType: "ONE_CLICK_BINDING_CONTROL",
+            controlConfig: {
+              aliases: [
+                {
+                  name: "label",
+                  isSearcheable: true,
+                  isRequired: true,
+                },
+                {
+                  name: "value",
+                  isRequired: true,
+                },
+              ],
+              sampleData: JSON.stringify(
+                [
+                  { name: "Blue", code: "BLUE" },
+                  { name: "Green", code: "GREEN" },
+                  { name: "Red", code: "RED" },
+                ],
+                null,
+                2,
+              ),
+            },
+            isJSConvertible: true,
             placeholderText: '[{ "label": "Option1", "value": "Option2" }]',
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: false,
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
-                unique: ["value"],
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
                     required: true,
-                    allowedKeys: [
-                      {
-                        name: "label",
-                        type: ValidationTypes.TEXT,
-                        params: {
-                          default: "",
-                          requiredKey: true,
-                        },
-                      },
-                      {
-                        name: "value",
-                        type: ValidationTypes.TEXT,
-                        params: {
-                          default: "",
-                          requiredKey: true,
-                        },
-                      },
-                    ],
                   },
                 },
               },
@@ -280,10 +155,82 @@ class MultiSelectWidget extends BaseWidget<
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
+            helpText:
+              "Choose or set a field from source data as the display label",
+            propertyName: "optionLabel",
+            label: "Label key",
+            controlType: "DROP_DOWN",
+            customJSControl: "WRAPPED_CODE_EDITOR",
+            controlConfig: {
+              wrapperCode: {
+                prefix: getOptionLabelValueExpressionPrefix,
+                suffix: optionLabelValueExpressionSuffix,
+              },
+            },
+            placeholderText: "",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            isJSConvertible: true,
+            evaluatedDependencies: ["sourceData"],
+            options: getLabelValueKeyOptions,
+            alwaysShowSelected: true,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: labelKeyValidation,
+                expected: {
+                  type: "String or Array<string>",
+                  example: `color | ["blue", "green"]`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+            },
+            additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
+          },
+          {
+            helpText: "Choose or set a field from source data as the value",
+            propertyName: "optionValue",
+            label: "Value key",
+            controlType: "DROP_DOWN",
+            customJSControl: "WRAPPED_CODE_EDITOR",
+            controlConfig: {
+              wrapperCode: {
+                prefix: getOptionLabelValueExpressionPrefix,
+                suffix: optionLabelValueExpressionSuffix,
+              },
+            },
+            placeholderText: "",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            isJSConvertible: true,
+            evaluatedDependencies: ["sourceData"],
+            options: getLabelValueKeyOptions,
+            alwaysShowSelected: true,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: valueKeyValidation,
+                expected: {
+                  type: "String or Array<string | number | boolean>",
+                  example: `color | [1, "orange"]`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+              dependentPaths: ["sourceData"],
+            },
+            additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
+          },
+          {
             helpText: "Selects the option(s) with value by default",
             propertyName: "defaultOptionValue",
             label: "Default selected values",
-            controlType: "SELECT_DEFAULT_VALUE_CONTROL",
+            controlType: "WRAPPED_CODE_EDITOR",
+            controlConfig: {
+              wrapperCode: {
+                prefix: defaultValueExpressionPrefix,
+                suffix: getDefaultValueExpressionSuffix,
+              },
+            },
             placeholderText: "[GREEN]",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -297,6 +244,7 @@ class MultiSelectWidget extends BaseWidget<
                   autocompleteDataType: AutocompleteDataType.ARRAY,
                 },
               },
+              dependentPaths: ["serverSideFiltering", "options"],
             },
             dependencies: ["serverSideFiltering", "options"],
           },
@@ -664,6 +612,7 @@ class MultiSelectWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
+      options: `{{(()=>{${derivedProperties.getOptions}})()}}`,
       value: `{{this.selectedOptionValues}}`,
       isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
       selectedOptionValues: `{{(()=>{${derivedProperties.getSelectedOptionValues}})()}}`,
@@ -732,6 +681,7 @@ class MultiSelectWidget extends BaseWidget<
         setSelectedOptions: {
           path: "defaultOptionValue",
           type: "array",
+          accessor: "selectedOptionValues",
         },
       },
     };

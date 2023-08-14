@@ -1,19 +1,4 @@
 {
-  "rootUnit": 4,
-  "typography": {
-    "heading": {
-      "capHeight": 24,
-      "lineGap": 24
-    },
-    "body": {
-      "capHeight": 10,
-      "lineGap": 8
-    },
-    "footnote": {
-      "capHeight": 6,
-      "lineGap": 4
-    }
-  },
   "color": {
     "bg": {
       "value": "rgb(97.488% 97.871% 100%)",
@@ -32,15 +17,99 @@
       "type": "color"
     },
     "bg-accent-subtle-hover": {
-      "value": "rgb(92.573% 93.093% 100%)",
+      "value": "rgb(92.817% 93.413% 100%)",
       "type": "color"
     },
     "bg-accent-subtle-active": {
-      "value": "rgb(88.332% 89.201% 100%)",
+      "value": "rgb(88.264% 89.286% 100%)",
       "type": "color"
     },
     "bg-assistive": {
       "value": "rgb(1.6475% 1.7126% 6.8084%)",
+      "type": "color"
+    },
+    "bg-positive": {
+      "value": "rgb(6.7435% 63.436% 18.481%)",
+      "type": "color"
+    },
+    "bg-positive-hover": {
+      "value": "rgb(18.172% 69.721% 25.266%)",
+      "type": "color"
+    },
+    "bg-positive-active": {
+      "value": "rgb(0% 60.947% 15.563%)",
+      "type": "color"
+    },
+    "bg-positive-subtle-hover": {
+      "value": "rgb(80.219% 100% 80.36%)",
+      "type": "color"
+    },
+    "bg-positive-subtle-active": {
+      "value": "rgb(76.387% 97.455% 76.549%)",
+      "type": "color"
+    },
+    "bg-negative": {
+      "value": "rgb(83.108% 4.6651% 10.252%)",
+      "type": "color"
+    },
+    "bg-negative-hover": {
+      "value": "rgb(90.296% 17.3% 17.376%)",
+      "type": "color"
+    },
+    "bg-negative-active": {
+      "value": "rgb(80.244% 0% 6.8069%)",
+      "type": "color"
+    },
+    "bg-negative-subtle-hover": {
+      "value": "rgb(100% 91.768% 90.316%)",
+      "type": "color"
+    },
+    "bg-negative-subtle-active": {
+      "value": "rgb(100% 86.402% 84.198%)",
+      "type": "color"
+    },
+    "bg-warning": {
+      "value": "rgb(85.145% 64.66% 8.0286%)",
+      "type": "color"
+    },
+    "bg-warning-hover": {
+      "value": "rgb(89.037% 68.413% 15.627%)",
+      "type": "color"
+    },
+    "bg-warning-active": {
+      "value": "rgb(83.854% 63.416% 4.0505%)",
+      "type": "color"
+    },
+    "bg-warning-subtle-hover": {
+      "value": "rgb(100% 93.944% 77.209%)",
+      "type": "color"
+    },
+    "bg-warning-subtle-active": {
+      "value": "rgb(98.214% 90.032% 73.269%)",
+      "type": "color"
+    },
+    "bg-neutral": {
+      "value": "rgb(27.359% 28.199% 35.2%)",
+      "type": "color"
+    },
+    "bg-neutral-hover": {
+      "value": "rgb(32.654% 33.544% 40.754%)",
+      "type": "color"
+    },
+    "bg-neutral-active": {
+      "value": "rgb(26.32% 27.149% 34.105%)",
+      "type": "color"
+    },
+    "bg-neutral-subtle": {
+      "value": "rgb(91.558% 91.977% 94.881%)",
+      "type": "color"
+    },
+    "bg-neutral-subtle-hover": {
+      "value": "rgb(94.158% 94.58% 97.5%)",
+      "type": "color"
+    },
+    "bg-neutral-subtle-active": {
+      "value": "rgb(90.262% 90.681% 93.577%)",
       "type": "color"
     },
     "fg": {
@@ -55,28 +124,56 @@
       "value": "rgb(91.588% 90.378% 100%)",
       "type": "color"
     },
+    "fg-positive": {
+      "value": "rgb(6.7435% 63.436% 18.481%)",
+      "type": "color"
+    },
+    "fg-on-positive": {
+      "value": "#fff",
+      "type": "color"
+    },
+    "fg-negative": {
+      "value": "rgb(100% 0% 28.453%)",
+      "type": "color"
+    },
+    "fg-on-negative": {
+      "value": "#fff",
+      "type": "color"
+    },
+    "fg-neutral": {
+      "value": "rgb(37.193% 38.537% 50.855%)",
+      "type": "color"
+    },
+    "fg-on-neutral": {
+      "value": "#1c1e21",
+      "type": "color"
+    },
+    "fg-warning": {
+      "value": "rgb(71.79% 51.231% 0%)",
+      "type": "color"
+    },
+    "fg-on-warning": {
+      "value": "#fff",
+      "type": "color"
+    },
     "fg-on-assistive": {
       "value": "rgb(97.488% 97.871% 100%)",
       "type": "color"
     },
-    "fg-neutral": {
-      "value": "rgb(37.869% 38.922% 47.553%)",
-      "type": "color"
-    },
-    "fg-positive": {
-      "value": "#4ade80",
-      "type": "color"
-    },
-    "fg-warn": {
-      "value": "#facc15",
-      "type": "color"
-    },
-    "fg-negative": {
-      "value": "#d91921",
-      "type": "color"
-    },
     "bd-accent": {
       "value": "rgb(33.333% 23.922% 91.373%)",
+      "type": "color"
+    },
+    "bd-focus": {
+      "value": "rgb(48.174% 38.558% 0%)",
+      "type": "color"
+    },
+    "bd-negative": {
+      "value": "rgb(83.108% 4.6651% 10.252%)",
+      "type": "color"
+    },
+    "bd-negative-hover": {
+      "value": "rgb(97.525% 25.712% 23.78%)",
       "type": "color"
     },
     "bd-neutral": {
@@ -87,43 +184,21 @@
       "value": "rgb(49.162% 50.308% 59.345%)",
       "type": "color"
     },
-    "bd-focus": {
-      "value": "rgb(48.174% 38.558% 0%)",
+    "bd-positive": {
+      "value": "rgb(6.7435% 63.436% 18.481%)",
       "type": "color"
     },
-    "bd-negative": {
-      "value": "#d91921",
+    "bd-positive-hover": {
+      "value": "rgb(26.362% 76.094% 31.718%)",
       "type": "color"
     },
-    "bd-negative-hover": {
-      "value": "#b90707",
+    "bd-warning": {
+      "value": "rgb(85.145% 64.66% 8.0286%)",
       "type": "color"
-    }
-  },
-  "spacing": {
-    "0": {
-      "value": "0px",
-      "type": "spacing"
     },
-    "1": {
-      "value": "4px",
-      "type": "spacing"
-    },
-    "2": {
-      "value": "8px",
-      "type": "spacing"
-    },
-    "3": {
-      "value": "12px",
-      "type": "spacing"
-    },
-    "4": {
-      "value": "16px",
-      "type": "spacing"
-    },
-    "5": {
-      "value": "20px",
-      "type": "spacing"
+    "bd-warning-hover": {
+      "value": "rgb(98.232% 77.293% 27.893%)",
+      "type": "color"
     }
   },
   "borderRadius": {
@@ -134,7 +209,7 @@
   },
   "boxShadow": {
     "1": {
-      "value": "0 0 0 0 rgba(0, 0, 0, 0.2)",
+      "value": "0 2px 2px 0 rgba(0, 0, 0, 0.2)",
       "type": "boxShadow"
     }
   },

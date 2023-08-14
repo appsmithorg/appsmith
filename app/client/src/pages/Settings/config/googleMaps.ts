@@ -14,6 +14,7 @@ export const config: AdminConfigType = {
   controlType: SettingTypes.GROUP,
   title: "Google Maps",
   canSave: true,
+  needsRefresh: true,
   settings: [
     {
       id: "APPSMITH_GOOGLE_MAPS_READ_MORE",
@@ -23,7 +24,7 @@ export const config: AdminConfigType = {
       url: GOOGLE_MAPS_SETUP_DOC,
     },
     {
-      id: "APPSMITH_GOOGLE_MAPS_API_KEY",
+      id: "googleMapsKey",
       category: SettingCategories.GOOGLE_MAPS,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,

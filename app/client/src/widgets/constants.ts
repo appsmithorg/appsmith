@@ -80,9 +80,17 @@ export interface WidgetConfiguration {
   methods?: Record<string, WidgetMethods>;
 }
 
+export type PropertyUpdates = {
+  propertyPath: string;
+  propertyValue?: unknown;
+  isDynamicPropertyPath?: boolean; // Toggles the property mode to JS
+  shouldDeleteProperty?: boolean; // Deletes the property, propertyValue is ignored
+};
+
 export type WidgetMethods =
   | GetQueryGenerationConfig
-  | GetPropertyUpdatesForQueryBinding;
+  | GetPropertyUpdatesForQueryBinding
+  | getSnipingModeUpdates;
 
 type GetQueryGenerationConfig = (
   widgetProps: WidgetProps,
@@ -93,6 +101,10 @@ type GetPropertyUpdatesForQueryBinding = (
   widget: WidgetProps,
   formConfig: WidgetQueryGenerationFormConfig,
 ) => Record<string, unknown>;
+
+type getSnipingModeUpdates = (
+  propValueMap: Record<"data" | "run", string>,
+) => Array<PropertyUpdates>;
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;
 
@@ -363,3 +375,10 @@ export const dateFormatOptions = [
 export type ThemeProp = {
   theme: Theme;
 };
+
+export type SnipingModeProperty = Record<"data" | "run", string>;
+
+export enum DefaultMobileCameraTypes {
+  FRONT = "user",
+  BACK = "environment",
+}

@@ -159,6 +159,7 @@ import {
 import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
 import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
+import { klona } from "klona/lite";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -595,7 +596,7 @@ function* redirectAuthorizationCodeSaga(
   const isImport: string = yield select(getWorkspaceIdForImport);
 
   if (pluginType === PluginType.API) {
-    window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code`;
+    window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code?environmentId=${getCurrentEditingEnvID()}`;
   } else {
     try {
       // Get an "appsmith token" from the server
@@ -777,10 +778,15 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     let messages: Array<string> = [];
     if (isValidResponse) {
       const responseData = response.data;
-      if (
-        (responseData.invalids && responseData.invalids.length) ||
-        (responseData.messages && responseData.messages.length)
-      ) {
+      if (responseData.messages && responseData.messages.length) {
+        messages = responseData.messages;
+        if (responseData.success) {
+          toast.show(createMessage(DATASOURCE_VALID, payload.name), {
+            kind: "success",
+          });
+        }
+      }
+      if (responseData.invalids && responseData.invalids.length) {
         AnalyticsUtil.logEvent("TEST_DATA_SOURCE_FAILED", {
           datasoureId: datasource?.id,
           environmentId: currentEnvironment,
@@ -789,21 +795,11 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           errorMessages: responseData.invalids,
           messages: responseData.messages,
         });
-        if (responseData.invalids && responseData.invalids.length) {
-          responseData.invalids.forEach((message: string) => {
-            toast.show(message, {
-              kind: "error",
-            });
+        responseData.invalids.forEach((message: string) => {
+          toast.show(message, {
+            kind: "error",
           });
-        }
-        if (responseData.messages && responseData.messages.length) {
-          messages = responseData.messages;
-          if (responseData.success) {
-            toast.show(createMessage(DATASOURCE_VALID, payload.name), {
-              kind: "success",
-            });
-          }
-        }
+        });
         yield put({
           type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,
           payload: {
@@ -844,7 +840,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
             show: false,
             id: datasource.id,
             environmentId: currentEnvironment,
-            messages: [],
+            messages: messages,
           },
         });
         AppsmithConsole.info({
@@ -1569,7 +1565,11 @@ function* filePickerActionCallbackSaga(
       },
     });
 
-    const datasource: Datasource = yield select(getDatasource, datasourceId);
+    const datasourceFromState: Datasource = yield select(
+      getDatasource,
+      datasourceId,
+    );
+    const datasource: Datasource = klona(datasourceFromState);
     const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
     const applicationId: string = yield select(getCurrentApplicationId);
     const pageId: string = yield select(getCurrentPageId);

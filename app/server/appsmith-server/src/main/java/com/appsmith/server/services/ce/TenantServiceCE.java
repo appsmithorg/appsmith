@@ -14,10 +14,6 @@ public interface TenantServiceCE extends CrudService<Tenant, String> {
 
     Mono<Tenant> findById(String tenantId, AclPermission permission);
 
-    /*
-     *  For now, returning an empty tenantConfiguration object in this class. Will enhance this function once we
-     *  start saving other pertinent environment variables in the tenant collection
-     */
     Mono<Tenant> getTenantConfiguration();
 
     Mono<Tenant> getDefaultTenant();

@@ -112,6 +112,7 @@ describe("<ColorPicker /> - Keyboard Navigation", () => {
     userEvent.keyboard("{Enter}");
 
     userEvent.tab();
+    userEvent.tab();
     expect(
       document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[0],
     ).toHaveFocus();
@@ -135,6 +136,7 @@ describe("<ColorPicker /> - Keyboard Navigation", () => {
 
     userEvent.tab();
     userEvent.tab();
+    userEvent.tab();
 
     expect(
       document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
@@ -153,6 +155,7 @@ describe("<ColorPicker /> - Keyboard Navigation", () => {
     userEvent.tab();
     userEvent.keyboard("{Enter}");
 
+    userEvent.tab();
     userEvent.tab();
     userEvent.tab();
 
@@ -182,6 +185,7 @@ describe("<ColorPicker /> - Keyboard Navigation", () => {
 
     userEvent.tab();
     userEvent.tab();
+    userEvent.tab();
 
     expect(
       document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
@@ -199,6 +203,7 @@ describe("<ColorPicker /> - Keyboard Navigation", () => {
     userEvent.tab();
     userEvent.keyboard("{Enter}");
 
+    userEvent.tab();
     userEvent.tab();
     userEvent.tab();
 

@@ -3,9 +3,11 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.repositories.AppsmithRepository;
+import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,4 +42,6 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
     Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
+
+    Mono<UpdateResult> publishPages(Collection<String> pageIds, AclPermission permission);
 }

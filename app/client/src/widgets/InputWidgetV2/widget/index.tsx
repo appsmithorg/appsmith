@@ -616,6 +616,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         setValue: {
           path: "defaultText",
           type: "string",
+          accessor: "text",
         },
       },
     };

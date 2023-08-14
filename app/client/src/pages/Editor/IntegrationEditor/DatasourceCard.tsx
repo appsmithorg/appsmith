@@ -48,6 +48,8 @@ import { DatasourceEditEntryPoints } from "constants/Datasource";
 import {
   isEnvironmentConfigured,
   getCurrentEnvironment,
+  doesAnyDsConfigExist,
+  DB_NOT_SUPPORTED,
 } from "@appsmith/utils/Environments";
 
 const Wrapper = styled.div`
@@ -142,6 +144,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     getGenerateCRUDEnabledPluginMap,
   );
   const { datasource, plugin } = props;
+  const envSupportedDs = !DB_NOT_SUPPORTED.includes(plugin.type);
   const supportTemplateGeneration =
     !!generateCRUDSupportedPlugin[datasource.pluginId];
 
@@ -249,6 +252,19 @@ function DatasourceCard(props: DatasourceCardProps) {
     AnalyticsUtil.logEvent("DATASOURCE_CARD_DELETE_ACTION");
     dispatch(deleteDatasource({ id: datasource.id }));
   };
+  const isDSAuthorizedForQueryCreation = isDatasourceAuthorizedForQueryCreation(
+    datasource,
+    plugin,
+  );
+
+  const showReconnectButton = !(
+    isDSAuthorizedForQueryCreation &&
+    (envSupportedDs ? isEnvironmentConfigured(datasource, currentEnv) : true)
+  );
+
+  const showCreateNewActionButton = envSupportedDs
+    ? doesAnyDsConfigExist(datasource, currentEnv)
+    : true;
 
   return (
     <Wrapper
@@ -281,37 +297,38 @@ function DatasourceCard(props: DatasourceCardProps) {
             </Queries>
           </div>
           <ButtonsWrapper className="action-wrapper">
-            {(!isEnvironmentConfigured(datasource, currentEnv) ||
-              supportTemplateGeneration) &&
-              isDatasourceAuthorizedForQueryCreation(datasource, plugin) && (
-                <Button
-                  className={
-                    isEnvironmentConfigured(datasource, currentEnv)
-                      ? "t--generate-template"
-                      : "t--reconnect-btn"
-                  }
-                  kind="secondary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    isEnvironmentConfigured(datasource, currentEnv)
-                      ? routeToGeneratePage()
-                      : editDatasource();
-                  }}
-                  size="md"
-                >
-                  {isEnvironmentConfigured(datasource, currentEnv)
-                    ? createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)
-                    : createMessage(RECONNECT_BUTTON_TEXT)}
-                </Button>
-              )}
-            {isEnvironmentConfigured(datasource, currentEnv) && (
+            {supportTemplateGeneration && !showReconnectButton && (
+              <Button
+                className={"t--generate-template"}
+                kind="secondary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  routeToGeneratePage();
+                }}
+                size="md"
+              >
+                {createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)}
+              </Button>
+            )}
+            {showReconnectButton && (
+              <Button
+                className={"t--reconnect-btn"}
+                kind="secondary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  editDatasource();
+                }}
+                size="md"
+              >
+                {createMessage(RECONNECT_BUTTON_TEXT)}
+              </Button>
+            )}
+            {showCreateNewActionButton && (
               <NewActionButton
                 datasource={datasource}
-                disabled={
-                  !canCreateDatasourceActions ||
-                  !isDatasourceAuthorizedForQueryCreation(datasource, plugin)
-                }
+                disabled={!canCreateDatasourceActions || showReconnectButton}
                 eventFrom="active-datasources"
                 pluginType={plugin.type}
               />

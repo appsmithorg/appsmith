@@ -276,6 +276,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         setValue: {
           path: "defaultSwitchState",
           type: "boolean",
+          accessor: "isSwitchedOn",
         },
         setColor: {
           path: "accentColor",

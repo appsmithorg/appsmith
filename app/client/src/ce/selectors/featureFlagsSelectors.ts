@@ -1,6 +1,6 @@
+import { createSelector } from "reselect";
 import type { AppState } from "@appsmith/reducers";
 import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
-import { createSelector } from "reselect";
 
 export const selectFeatureFlags = (state: AppState) =>
   state.ui.users.featureFlag.data;

@@ -34,9 +34,7 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
     // );
     cy.wait(4000);
     cy.get(template.templateDialogBox).should("be.visible");
-    cy.xpath(
-      "//h1[text()='Applicant Tracker-test']/parent::div//button[contains(@class, 't--fork-template')]",
-    )
+    cy.xpath("//h1[text()='Applicant Tracker-test']")
       .scrollIntoView()
       .wait(500)
       .click();

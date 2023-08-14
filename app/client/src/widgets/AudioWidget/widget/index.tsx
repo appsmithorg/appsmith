@@ -47,6 +47,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
         setPlaying: {
           path: "autoPlay",
           type: "boolean",
+          accessor: "playState",
         },
       },
     };

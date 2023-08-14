@@ -6,6 +6,11 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
 
 export const CONFIG = {
   features: {
@@ -30,11 +35,13 @@ export const CONFIG = {
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
     labelTextSize: "0.875rem",
-    options: [
-      { label: "Blue", value: "BLUE" },
-      { label: "Green", value: "GREEN" },
-      { label: "Red", value: "RED" },
+    sourceData: [
+      { name: "Blue", code: "BLUE" },
+      { name: "Green", code: "GREEN" },
+      { name: "Red", code: "RED" },
     ],
+    optionLabel: "name",
+    optionValue: "code",
     widgetName: "MultiSelect",
     isFilterable: true,
     serverSideFiltering: false,
@@ -57,6 +64,22 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
     setterConfig: Widget.getSetterConfig(),
+  },
+  methods: {
+    getQueryGenerationConfig: (widgetProps: WidgetProps) => {
+      return Widget.getQueryGenerationConfig(widgetProps);
+    },
+    getPropertyUpdatesForQueryBinding: (
+      queryConfig: WidgetQueryConfig,
+      widget: WidgetProps,
+      formConfig: WidgetQueryGenerationFormConfig,
+    ) => {
+      return Widget.getPropertyUpdatesForQueryBinding(
+        queryConfig,
+        widget,
+        formConfig,
+      );
+    },
   },
   autoLayout: {
     disabledPropsDefaults: {

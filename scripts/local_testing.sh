@@ -10,7 +10,7 @@ display_help()
   echo "If --local or -l is passed, it will build with local changes"
   echo "---------------------------------------------------------------------------------------"
   echo
-  echo "Syntax: $0 [-h] [-l] [-r [remote_url]] [branch_name]"
+  echo "Syntax: $0 [-h] [-l] [-r [remote_url]] [branch_name] [cs_url]"
   echo "options:"
   echo "-h     			Print this help"
   echo "-l or --local    	Use the local codebase and not git"
@@ -29,13 +29,13 @@ pretty_print()
 
 # Check whether user had supplied -h or --help. If yes display usage
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
-then 
+then
   display_help
   exit 0
 fi
 
 LOCAL=false
-if [[ ($@ == "--local" || $@ == "-l")]]
+if [[ ($1 == "--local" || $1 == "-l")]]
 then
   LOCAL=true
 fi
@@ -50,18 +50,20 @@ if [[ ($LOCAL == true) ]]
 then
   pretty_print "Setting up instance with local changes"
   BRANCH=release
+  cs_url=$2
 elif [[ ($REMOTE == true) ]]
 then
-  pretty_print "Setting up instance with remote repository branch ..."	
+  pretty_print "Setting up instance with remote repository branch ..."
   REMOTE_REPOSITORY_URL=$2
   REMOTE_BRANCH=$3
-  pretty_print "Please ignore if the following error occurs: remote remote_origin_for_local_test already exists."	
+  pretty_print "Please ignore if the following error occurs: remote remote_origin_for_local_test already exists."
   git remote add remote_origin_for_local_test $REMOTE_REPOSITORY_URL || git remote set-url remote_origin_for_local_test $REMOTE_REPOSITORY_URL
-  git fetch remote_origin_for_local_test 
+  git fetch remote_origin_for_local_test
   git checkout $REMOTE_BRANCH
   git pull remote_origin_for_local_test $REMOTE_BRANCH
 else
   BRANCH=$1
+  cs_url=$2
   pretty_print "Setting up instance to run on branch: $BRANCH"
   cd "$(dirname "$0")"/..
   git fetch origin $BRANCH
@@ -81,7 +83,8 @@ popd
 pushd app/client/packages/rts/ > /dev/null && ./build.sh > /dev/null && pretty_print "RTS build successful. Starting Docker build ..."
 
 popd
-docker build -t appsmith/appsmith-ce:local-testing . > /dev/null && pretty_print "Docker image build successful. Triggering run now ..."
+docker build -t appsmith/appsmith-ce:local-testing --build-arg APPSMITH_CLOUD_SERVICES_BASE_URL="${cs_url:-https://release-cs.appsmith.com}" . > /dev/null
+pretty_print "Docker image build successful. Triggering run now ..."
 
 (docker stop appsmith || true) && (docker rm appsmith || true)
 docker run -d --name appsmith -p 80:80 -v "$PWD/stacks:/appsmith-stacks" appsmith/appsmith-ce:local-testing && sleep 15 && pretty_print "Local instance is up! Open Appsmith at http://localhost! "

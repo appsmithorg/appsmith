@@ -2,7 +2,11 @@ import { get } from "lodash";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import type { FlattenedWidgetProps } from "widgets/constants";
+import type {
+  FlattenedWidgetProps,
+  SnipingModeProperty,
+  PropertyUpdates,
+} from "widgets/constants";
 import { BlueprintOperationTypes } from "widgets/constants";
 import { DynamicHeight, RegisteredWidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -479,6 +483,19 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
     setterConfig: Widget.getSetterConfig(),
+  },
+  methods: {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
+      return [
+        {
+          propertyPath: "listData",
+          propertyValue: propValueMap.data,
+          isDynamicPropertyPath: true,
+        },
+      ];
+    },
   },
   autoLayout: {
     widgetSize: [

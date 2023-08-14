@@ -65,6 +65,8 @@ public class GoogleSheetsMethodStrategy {
                 return new FileInfoMethod(objectMapper);
             case MethodIdentifiers.TRIGGER_COLUMNS_SELECTOR:
                 return new GetStructureMethod(objectMapper);
+            case MethodIdentifiers.TRIGGER_SHEET_DATA:
+                return new RowsGetMethod(objectMapper);
             default:
                 throw Exceptions.propagate(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,

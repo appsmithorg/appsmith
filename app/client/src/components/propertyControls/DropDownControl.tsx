@@ -8,6 +8,7 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import { DSEventTypes, DS_EVENT } from "utils/AppsmithUtils";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
+import { getValidationErrorForProperty } from "./utils";
 
 const FlagWrapper = styled.span`
   font-family: "Twemoji Country Flags";
@@ -18,6 +19,14 @@ const FlagWrapper = styled.span`
   position: relative;
   top: 1px;
   overflow: initial !important;
+`;
+
+const ErrorMessage = styled.div`
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 14px;
+  color: var(--ads-v2-color-fg-error);
+  margin-top: 5px;
 `;
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
@@ -94,13 +103,25 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       selected = options.find(
         (option) => option.value === computedValue,
       )?.value;
+
+      if (this.props.alwaysShowSelected && !selected) {
+        selected = computedValue;
+      }
     }
+
+    const errors = getValidationErrorForProperty(
+      this.props.widgetProperties,
+      this.props.propertyName,
+    );
+
+    const errorMessage = errors?.[errors.length - 1]?.errorMessage?.message;
 
     return (
       <div className="w-full h-full" ref={this.containerRef}>
         <Select
           defaultValue={defaultSelected}
           isMultiSelect={this.props.isMultiSelect}
+          isValid={!errors.length}
           onDeselect={this.onDeselect}
           onSelect={this.onSelect}
           optionFilterProp="label"
@@ -150,6 +171,11 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
             </Option>
           ))}
         </Select>
+        {errorMessage && (
+          <ErrorMessage data-testid="t---dropdown-control-error">
+            {errorMessage}
+          </ErrorMessage>
+        )}
       </div>
     );
   }
@@ -249,6 +275,7 @@ export interface DropDownControlProps extends ControlProps {
   optionWidth?: string;
   hideSubText?: boolean;
   dropdownUsePropertyValue?: boolean;
+  alwaysShowSelected?: boolean;
 }
 
 export default DropDownControl;

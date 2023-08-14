@@ -1,6 +1,11 @@
 import { LabelPosition } from "components/constants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
-import { AlignWidgetTypes } from "widgets/constants";
+import {
+  AlignWidgetTypes,
+  type SnipingModeProperty,
+  type PropertyUpdates,
+} from "widgets/constants";
+
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
@@ -41,6 +46,19 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
     setterConfig: Widget.getSetterConfig(),
+  },
+  methods: {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
+      return [
+        {
+          propertyPath: "defaultSwitchState",
+          propertyValue: propValueMap.data,
+          isDynamicPropertyPath: true,
+        },
+      ];
+    },
   },
   autoLayout: {
     disabledPropsDefaults: {

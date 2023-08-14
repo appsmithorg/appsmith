@@ -83,7 +83,6 @@ describe("Validate Mongo query commands", function () {
     );
 
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "listingAndReviews",
     });
@@ -153,7 +152,6 @@ describe("Validate Mongo query commands", function () {
       "Count",
     );
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "listingAndReviews",
     });
@@ -182,7 +180,6 @@ describe("Validate Mongo query commands", function () {
       "Distinct",
     );
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "listingAndReviews",
     });
@@ -215,7 +212,6 @@ describe("Validate Mongo query commands", function () {
       "Aggregate",
     );
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "listingAndReviews",
     });
@@ -242,11 +238,12 @@ describe("Validate Mongo query commands", function () {
   it("6. Verify generation of NewPage from collection [Select] + Bug 12162", function () {
     //Verifying Select from UI
     cy.NavigateToDSGeneratePage(datasourceName);
+    agHelper.Sleep(3000); //giving some time for options to load
     cy.get(generatePage.selectTableDropdown).click();
     cy.get(generatePage.dropdownOption)
       //.first()
       .contains("listingAndReviews")
-      // .scrollIntoView()
+      .scrollIntoView()
       .should("be.visible")
       .click();
 
@@ -411,7 +408,6 @@ describe("Validate Mongo query commands", function () {
     {"_id":3, "Från" :"Olivia" , "Frõ" :"Active",   "Leverantör":"De Bolster", "Frö":"Sallad - Oakleaf 'Red Salad Bowl'"}]`;
 
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "NonAsciiTest",
     });

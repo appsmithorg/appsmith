@@ -17,13 +17,4 @@ describe("@design-system/widgets/Text", () => {
     const text = container.querySelector("div") as HTMLElement;
     expect(text).toHaveAttribute("data-testid", "text");
   });
-
-  it("should be able to truncate text with lineClamp", () => {
-    const { container } = render(<Text lineClamp={1}>My Text</Text>);
-
-    const text = container.querySelector("div span") as HTMLElement;
-    expect(text).toHaveStyle(
-      "display: -webkit-box; overflow: hidden; overflow-wrap: break-word;",
-    );
-  });
 });

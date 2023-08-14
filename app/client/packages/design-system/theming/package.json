@@ -14,6 +14,8 @@
   },
   "dependencies": {
     "@capsizecss/core": "^3.1.1",
-    "@capsizecss/metrics": "^1.2.0"
+    "@capsizecss/metrics": "^1.2.0",
+    "lodash": "*",
+    "styled-components": "6.0.2"
   }
 }

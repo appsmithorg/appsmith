@@ -56,7 +56,6 @@ export interface ActionEntityConfig extends EntityConfig {
 
 export interface MetaArgs {
   arguments: Variable[];
-  isAsync: boolean;
   confirmBeforeExecute: boolean;
 }
 

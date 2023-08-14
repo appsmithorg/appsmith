@@ -9,6 +9,9 @@ type TRootActionProps = {
   id: string;
   onChange: (code: string) => void;
   index: number;
+  propertyName: string;
+  widgetName: string;
+  widgetType: string;
 };
 
 export default function Action(props: TRootActionProps) {
@@ -41,6 +44,9 @@ export default function Action(props: TRootActionProps) {
       id={id}
       level={0}
       onChange={handleChange}
+      propertyName={props.propertyName}
+      widgetName={props.widgetName}
+      widgetType={props.widgetType}
     />
   );
 }

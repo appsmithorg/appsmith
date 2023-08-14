@@ -32,12 +32,7 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
     );
     cy.wait(1000);
     cy.get(template.templateDialogBox).should("be.visible");
-    cy.xpath(
-      "//h1[text()='Slack Bot']/parent::div//button[contains(@class, 't--fork-template')]",
-    )
-      .scrollIntoView()
-      .wait(500)
-      .click();
+    cy.xpath("//h1[text()='Slack Bot']").scrollIntoView().wait(500).click();
     cy.get(template.templateViewForkButton).first().click();
     cy.waitUntil(() => cy.xpath("//span[text()='Setting up the template']"), {
       errorMsg: "Setting Templates did not finish even after 75 seconds",

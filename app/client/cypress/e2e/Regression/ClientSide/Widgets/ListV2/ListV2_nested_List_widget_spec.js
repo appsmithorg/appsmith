@@ -1,5 +1,10 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import { agHelper, propPane } from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  assertHelper,
+  entityExplorer,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
@@ -73,9 +78,8 @@ describe(" Nested List Widgets ", function () {
         y: 50,
       },
     );
-    cy.openPropertyPane("textwidget");
-
-    cy.updateCodeInput(".t--property-control-text", `{{currentItem.name}}`);
+    entityExplorer.SelectEntityByName("Text1");
+    propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}");
 
     cy.dragAndDropToWidgetBySelector(
       "textwidget",
@@ -85,25 +89,12 @@ describe(" Nested List Widgets ", function () {
         y: 100,
       },
     );
-    propPane.RemoveText("Text");
+    propPane.TypeTextIntoField("Text", "{{level_1.currentView.");
 
-    cy.get(".t--property-control-text .CodeMirror textarea").type(
-      "{{level_1.currentView.",
-      {
-        force: true,
-      },
-    );
     checkAutosuggestion("Text1", "Object");
     checkAutosuggestion("List1Copy", "Object");
 
-    propPane.RemoveText("Text", false);
-
-    cy.get(".t--property-control-text .CodeMirror textarea").type(
-      "{{level_1.currentView.List1Copy.",
-      {
-        force: true,
-      },
-    );
+    propPane.TypeTextIntoField("Text", "{{level_1.currentView.List1Copy.");
     checkAutosuggestion("backgroundColor", "String");
     checkAutosuggestion("itemSpacing", "Number");
     checkAutosuggestion("isVisible", "Boolean");
@@ -123,11 +114,8 @@ describe(" Nested List Widgets ", function () {
       cy.wrap($el).should("not.have.text", "triggeredItemView");
     });
 
-    cy.get(".CodeMirror-hints")
-      .contains("pageNo")
-      .first()
-      .click({ force: true });
-
+    agHelper.GetNClickByContains(".CodeMirror-hints", "pageNo", 0, true);
+    assertHelper.AssertNetworkStatus("updateLayout");
     cy.get(`${widgetSelector("Text2")} .bp3-ui-text span`).should(
       "have.text",
       "1",

@@ -15,7 +15,7 @@ export const inlineLabelStyles = css<InlineLabelProps>`
   `};
 
   &[data-label] {
-    min-height: calc(5 * var(--root-unit));
+    min-height: var(--sizing-4);
     display: flex;
     align-items: center;
   }
