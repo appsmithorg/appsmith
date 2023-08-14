@@ -2095,6 +2095,25 @@ public class ApplicationShareTest {
                 .filter(member -> StringUtils.isNotEmpty(member.getUsername()))
                 .collect(Collectors.toMap(MemberInfoDTO::getUsername, MemberInfoDTO::getUserId));
         assertThat(mapUsernameToUserId).containsExactlyInAnyOrderEntriesOf(mapInvitedUsernameToUserId);
+
+        List<Environment> environmentList = environmentService
+                .findByWorkspaceId(workspace.getId())
+                .collectList()
+                .block();
+
+        assertThat(environmentList).hasSize(2);
+
+        environmentList.forEach(environment -> {
+            Optional<Policy> policyOptional = environment.getPolicies().stream()
+                    .filter(policy -> EXECUTE_ENVIRONMENTS.getValue().equals(policy.getPermission()))
+                    .findFirst();
+
+            assertThat(policyOptional).isNotEmpty();
+            Policy policy = policyOptional.get();
+
+            assertThat(policy.getPermissionGroups())
+                    .contains(appDeveloperRole.get().getId());
+        });
     }
 
     @Test
@@ -2162,6 +2181,30 @@ public class ApplicationShareTest {
                 .filter(member -> StringUtils.isNotEmpty(member.getUsername()))
                 .collect(Collectors.toMap(MemberInfoDTO::getUsername, MemberInfoDTO::getUserId));
         assertThat(mapUsernameToUserId).containsExactlyInAnyOrderEntriesOf(mapInvitedUsernameToUserId);
+
+        List<Environment> environmentList = environmentService
+                .findByWorkspaceId(workspace.getId())
+                .collectList()
+                .block();
+
+        assertThat(environmentList).hasSize(2);
+
+        environmentList.forEach(environment -> {
+            Optional<Policy> policyOptional = environment.getPolicies().stream()
+                    .filter(policy -> EXECUTE_ENVIRONMENTS.getValue().equals(policy.getPermission()))
+                    .findFirst();
+
+            assertThat(policyOptional).isNotEmpty();
+            Policy policy = policyOptional.get();
+
+            if (Boolean.TRUE.equals(environment.getIsDefault())) {
+                assertThat(policy.getPermissionGroups())
+                        .contains(appViewerRole.get().getId());
+            } else {
+                assertThat(policy.getPermissionGroups())
+                        .doesNotContain(appViewerRole.get().getId());
+            }
+        });
     }
 
     @Test
@@ -3916,12 +3959,11 @@ public class ApplicationShareTest {
 
     @Test
     @WithUserDetails(value = "usertest@usertest.com")
-    public void testEnvironmentPolicies_createApplicationViewRole_grantsPermissionsToAllEnvs() {
-        String testName = "testEnvironmentPolicies_createApplicationViewRole_grantsPermissionsToAllEnvs";
+    public void testEnvironmentPolicies_createApplicationViewRole_grantsPermissionsToOnlyProductionEnv() {
+        String testName = "testEnvironmentPolicies_createApplicationViewRole_grantsPermissionsToOnlyProductionEnv";
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
-        String pluginId =
-                pluginService.findByPackageName("restapi-plugin").block().getId();
+        pluginService.findByPackageName("restapi-plugin").block().getId();
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =
@@ -3960,7 +4002,11 @@ public class ApplicationShareTest {
         environmentListAfterRoleCreated.forEach(environment -> {
             for (Policy policy : environment.getPolicies()) {
                 if (policy.getPermission().equals(EXECUTE_ENVIRONMENTS.getValue())) {
-                    assertThat(policy.getPermissionGroups()).contains(viewApplicationRole.getId());
+                    if (Boolean.TRUE.equals(environment.getIsDefault())) {
+                        assertThat(policy.getPermissionGroups()).contains(viewApplicationRole.getId());
+                    } else {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+                    }
                 }
             }
         });
@@ -3972,8 +4018,7 @@ public class ApplicationShareTest {
         String testName = "testEnvironmentPolicies_createApplicationDevRole_grantsPermissionsToAllEnvs";
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
-        String pluginId =
-                pluginService.findByPackageName("restapi-plugin").block().getId();
+        pluginService.findByPackageName("restapi-plugin").block().getId();
         Workspace workspace = new Workspace();
         workspace.setName(testName);
         Workspace createdWorkspace =

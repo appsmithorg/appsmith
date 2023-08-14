@@ -73,6 +73,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.constants.FieldName.APPLICATION_VIEWER;
 import static com.appsmith.server.constants.FieldName.ENTITY_UPDATED_PERMISSIONS;
 import static com.appsmith.server.constants.FieldName.EVENT_DATA;
 import static com.appsmith.server.constants.FieldName.GAC_TAB;
@@ -1226,9 +1227,11 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     public Mono<Long> updateEnvironmentsInWorkspaceWithPermissionsForRole(
             String workspaceId,
             String roleId,
+            String applicationRoleType,
             Map<String, List<AclPermission>> toBeAddedPermissions,
             Map<String, List<AclPermission>> toBeRemovedPermissions) {
-        List<String> includedEnvironmentFields = List.of(fieldName(QEnvironment.environment.id));
+        List<String> includedEnvironmentFields =
+                List.of(fieldName(QEnvironment.environment.id), fieldName(QEnvironment.environment.isDefault));
         Mono<List<Environment>> allEnvironmentsInWorkspaceMono = environmentRepository
                 .findAllByWorkspaceIdsWithoutPermission(Set.of(workspaceId), includedEnvironmentFields)
                 .collectList();
@@ -1242,6 +1245,11 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
             toBeRemovedPermissionsForEntities.put(
                     workspaceId, toBeRemovedPermissions.getOrDefault(Workspace.class.getSimpleName(), List.of()));
             environments.forEach(environment -> {
+                if (APPLICATION_VIEWER.equals(applicationRoleType)
+                        && !Boolean.TRUE.equals(environment.getIsDefault())) {
+                    // If this is an app viewer role, don't make changes to anything other than default environment
+                    return;
+                }
                 entityIdEntityClassMap.put(environment.getId(), Environment.class);
                 toBeAddedPermissionsForEntities.put(
                         environment.getId(),

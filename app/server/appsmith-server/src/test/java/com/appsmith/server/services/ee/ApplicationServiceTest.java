@@ -427,7 +427,11 @@ public class ApplicationServiceTest {
 
                         Policy policy = policyOptional.get();
 
-                        assertThat(policy.getPermissionGroups()).contains(permissionGroup.getId());
+                        if (Boolean.TRUE.equals(environment.getIsDefault())) {
+                            assertThat(policy.getPermissionGroups()).contains(permissionGroup.getId());
+                        } else {
+                            assertThat(policy.getPermissionGroups()).doesNotContain(permissionGroup.getId());
+                        }
                     });
 
                     // Finally assert that permission group has been assigned to anonymous user.

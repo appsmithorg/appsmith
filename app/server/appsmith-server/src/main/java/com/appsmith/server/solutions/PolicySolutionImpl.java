@@ -49,11 +49,12 @@ public class PolicySolutionImpl extends PolicySolutionCEImpl implements PolicySo
     }
 
     @Override
-    public Flux<Environment> updateEnvironmentPoliciesByWorkspaceId(
+    public Flux<Environment> updateDefaultEnvironmentPoliciesByWorkspaceId(
             String workspaceId, Map<String, Policy> environmentPolicyMap, Boolean addViewAccess) {
 
         return environmentRepository
                 .findByWorkspaceId(workspaceId)
+                .filter(environment -> Boolean.TRUE.equals(environment.getIsDefault()))
                 .flatMap(environment -> {
                     Environment updatedEnvironment;
                     if (addViewAccess) {
