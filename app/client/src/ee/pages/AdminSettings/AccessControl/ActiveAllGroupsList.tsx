@@ -92,6 +92,10 @@ const EachGroup = styled.div`
       opacity: 0.5;
     }
   }
+
+  .resource-name {
+    word-break: break-all;
+  }
 `;
 
 const EmptyActiveGroups = styled(Text)`
@@ -200,7 +204,11 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
                   isDisabled={removedGroup}
                   placement="right"
                 >
-                  <HighlightText highlight={searchValue} text={group.name} />
+                  <HighlightText
+                    className="resource-name"
+                    highlight={searchValue}
+                    text={group.name}
+                  />
                 </Tooltip>
                 {group.autoCreated && (
                   <MoreInfoPill
@@ -263,7 +271,11 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
                     isDisabled={addedGroup}
                     placement="right"
                   >
-                    <HighlightText highlight={searchValue} text={group.name} />
+                    <HighlightText
+                      className="resource-name"
+                      highlight={searchValue}
+                      text={group.name}
+                    />
                   </Tooltip>
                   {group.autoCreated && (
                     <MoreInfoPill

@@ -36,7 +36,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 
-const SsoAuth: AdminConfigType = {
+const SamlAuth: AdminConfigType = {
   type: SettingCategories.SAML_AUTH,
   categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.PAGE,
@@ -211,7 +211,7 @@ function AuthMain() {
     socialLoginList.includes("github");
   OidcAuth.isConnected = OidcAuthCallout.isConnected =
     socialLoginList.includes("oidc");
-  SsoAuth.isConnected = SamlAuthCallout.isConnected =
+  SamlAuth.isConnected = SamlAuthCallout.isConnected =
     socialLoginList.includes("saml");
   return <AuthPage authMethods={AuthMethods} />;
 }
@@ -219,7 +219,7 @@ function AuthMain() {
 export const config: AdminConfigType = {
   ...CE_config,
   children: Array.isArray(CE_config.children)
-    ? [...CE_config.children, SsoAuth, OidcAuth].filter((method) =>
+    ? [...CE_config.children, SamlAuth, OidcAuth].filter((method) =>
         isAirgappedInstance
           ? method.type !== SettingCategories.GOOGLE_AUTH &&
             method.type !== SettingCategories.GITHUB_AUTH
