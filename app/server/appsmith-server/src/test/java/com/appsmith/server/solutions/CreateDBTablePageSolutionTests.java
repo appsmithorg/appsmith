@@ -907,6 +907,9 @@ public class CreateDBTablePageSolutionTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithNullPageIdForS3() {
+        /**
+         * Define handling for sanitizeGenerateCRUDPageTemplateInfo method for S3 plugin on spyMockPluginExecutor.
+         */
         doAnswer(invocation -> {
                     List<ActionConfiguration> actionConfigurationList = invocation.getArgument(0);
                     Map<String, String> mappedColumnsAndTableName = invocation.getArgument(1);
