@@ -1039,9 +1039,15 @@ public class AmazonS3Plugin extends BasePlugin {
                     .waitForUploadResult();
         }
 
+        /**
+         * This method is supposed to provide help with any update required to template queries that are used to create
+         * the actual select, updated, insert etc. queries as part of the generate CRUD page feature. Any plugin that
+         * needs special handling should override this method. e.g. in case of the S3 plugin some special handling is
+         * required because (a) it uses UQI config form (b) it has concept of bucket instead of table.
+         */
         @Override
-        public Mono<Void> sanitizeGenerateCRUDPageTemplateInfo(List<ActionConfiguration> actionConfigurationList,
-                                                               Object... args) {
+        public Mono<Void> sanitizeGenerateCRUDPageTemplateInfo(
+                List<ActionConfiguration> actionConfigurationList, Object... args) {
             if (isEmpty(actionConfigurationList)) {
                 return Mono.empty();
             }

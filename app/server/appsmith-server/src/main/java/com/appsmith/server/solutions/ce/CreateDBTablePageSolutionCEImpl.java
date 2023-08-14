@@ -392,13 +392,21 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                             .map(ActionDTO::getActionConfiguration)
                             .collect(Collectors.toList());
 
-                    Mono<Void> sanitizeTemplateInfoMono =
-                            pluginExecutorHelper.getPluginExecutorFromPackageName(plugin.getPackageName())
-                            .flatMap(pluginExecutor -> pluginExecutor.sanitizeGenerateCRUDPageTemplateInfo(templateUnpublishedActionConfigList, mappedColumnsAndTableName, tableName));
+                    /**
+                     * Any plugin specific update to the template queries should be defined by overriding the
+                     * `sanitizeGenerateCRUDPageTemplateInfo` method in the respective plugin. In the default case no
+                     * changes are made to the template. e.g. please check the sanitizeGenerateCRUDPageTemplateInfo
+                     * method defined in AmazonS3Plugin.java .
+                     */
+                    Mono<Void> sanitizeTemplateInfoMono = pluginExecutorHelper
+                            .getPluginExecutorFromPackageName(plugin.getPackageName())
+                            .flatMap(pluginExecutor -> pluginExecutor.sanitizeGenerateCRUDPageTemplateInfo(
+                                    templateUnpublishedActionConfigList, mappedColumnsAndTableName, tableName));
 
                     log.debug("Going to update layout for page {} and layout {}", savedPageId, layoutId);
                     return sanitizeTemplateInfoMono
-                            .then(layoutActionService.updateLayout(savedPageId, page.getApplicationId(), layoutId, layout))
+                            .then(layoutActionService.updateLayout(
+                                    savedPageId, page.getApplicationId(), layoutId, layout))
                             .then(Mono.zip(
                                     Mono.just(datasourceStorage),
                                     Mono.just(templateActionList),

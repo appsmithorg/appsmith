@@ -1514,8 +1514,10 @@ public class AmazonS3PluginTest {
         setDataValueSafelyInFormData(formData, "bucket", "templateBucket");
         actionConfiguration.setFormData(formData);
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
-        pluginExecutor.sanitizeGenerateCRUDPageTemplateInfo(List.of(actionConfiguration), mappedColumnsAndTableName,
-                userSelectedBucketName).block();
+        pluginExecutor
+                .sanitizeGenerateCRUDPageTemplateInfo(
+                        List.of(actionConfiguration), mappedColumnsAndTableName, userSelectedBucketName)
+                .block();
         assertEquals(userSelectedBucketName, mappedColumnsAndTableName.get("templateBucket"));
     }
 }
