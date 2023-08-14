@@ -89,7 +89,10 @@ import {
   migratePropertiesForDynamicHeight,
 } from "./migrations/autoHeightMigrations";
 
-import { migrateChartWidgetLabelOrientationStaggerOption } from "./migrations/ChartWidget";
+import {
+  migrateChartWidgetLabelOrientationStaggerOption,
+  migrateAddShowHideDataPointLabels,
+} from "./migrations/ChartWidget";
 import { flattenDSL } from "@shared/dsl";
 
 /**
@@ -1207,6 +1210,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version == 82) {
     currentDSL = migrateChartWidgetLabelOrientationStaggerOption(currentDSL);
+    currentDSL.version = 83;
+  }
+
+  if (currentDSL.version == 83) {
+    currentDSL = migrateAddShowHideDataPointLabels(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
