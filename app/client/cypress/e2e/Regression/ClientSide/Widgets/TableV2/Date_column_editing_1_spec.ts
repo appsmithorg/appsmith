@@ -25,7 +25,7 @@ describe("Table widget date column inline editing functionality", () => {
       table.EditColumn("release_date", "v2");
       propPane.TogglePropertyState("Editable", "On");
       agHelper.Sleep(1000);
-      agHelper.AssertElementVisible(
+      agHelper.AssertElementVisibility(
         `${table._tableV2Head} ${table._columnHeaderDiv("release_date")} ${
           locators._svg
         }`,
@@ -46,8 +46,8 @@ describe("Table widget date column inline editing functionality", () => {
     agHelper.GetElement(`${table._tableRow1Child3}`).dblclick({
       force: true,
     });
-    agHelper.AssertElementVisible(table._dateInputPopover);
-    agHelper.AssertElementVisible(table._editCellEditor);
+    agHelper.AssertElementVisibility(table._dateInputPopover);
+    agHelper.AssertElementVisibility(table._editCellEditor);
     agHelper.GetNClick(`${locators._widgetInCanvas(draggableWidgets.TEXT)}`, 0);
     agHelper.AssertElementAbsence(table._dateInputPopover);
     agHelper.AssertElementAbsence(table._editCellEditor);
@@ -128,7 +128,7 @@ describe("Table widget date column inline editing functionality", () => {
     agHelper.GetElement(`${table._tableRow1Child3}`).dblclick({
       force: true,
     });
-    agHelper.AssertElementVisible(`${table._dateRangePickerShortcuts}`);
+    agHelper.AssertElementVisibility(`${table._dateRangePickerShortcuts}`);
   });
 
   it("6. should check property pane Required toggle functionality", () => {
@@ -173,7 +173,7 @@ describe("Table widget date column inline editing functionality", () => {
       .GetText(`${table._tableRow1Child3} ${locators._inputField}`)
       .then(($textData) => expect($textData).to.eq(""));
     agHelper.GetNClick(`${table._tableRow1Child3} ${locators._inputField}`);
-    agHelper.AssertElementVisible(table._datePicker);
+    agHelper.AssertElementVisibility(table._datePicker);
     agHelper
       .GetElement(table._editCellEditor)
       .should("have.css", "border")

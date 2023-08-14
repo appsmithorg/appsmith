@@ -88,7 +88,7 @@ describe("Admin settings page", function () {
       cy.wait(2000);
       cy.go(-1);
       cy.get(adminsSettings.provisioning).within(() => {
-        cy.get(adminsSettings.businessTag)
+        cy.get(adminsSettings.enterpriseTag)
           .should("exist")
           .should("contain", "Enterprise");
       });

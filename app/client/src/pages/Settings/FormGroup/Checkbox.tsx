@@ -4,11 +4,11 @@ import { Field, getFormValues } from "redux-form";
 import styled from "styled-components";
 import type { SettingComponentProps } from "./Common";
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
-import { Checkbox, Tag, Text } from "design-system";
+import { Checkbox, Text } from "design-system";
 import { useSelector } from "react-redux";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import { isTenantConfig } from "@appsmith/utils/adminSettingsHelpers";
-import { BUSINESS_TAG, createMessage } from "@appsmith/constants/messages";
+import BusinessTag from "components/BusinessTag";
 
 const CheckboxWrapper = styled.div`
   display: grid;
@@ -85,9 +85,7 @@ export function CheckboxComponent({ setting }: SettingComponentProps) {
         >
           {setting.label}
         </Text>
-        {setting.needsUpgrade && (
-          <Tag isClosable={false}>{createMessage(BUSINESS_TAG)}</Tag>
-        )}
+        {setting.needsUpgrade && <BusinessTag />}
       </div>
       <Field
         component={FieldCheckboxWithCheckboxText({

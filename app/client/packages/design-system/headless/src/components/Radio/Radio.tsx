@@ -10,7 +10,7 @@ import type { FocusableRef, StyleProps } from "@react-types/shared";
 
 import { RadioContext } from "./context";
 import type { RadioGroupContext } from "./context";
-import type { InlineLabelProps } from "../Checkbox/Checkbox";
+import type { InlineLabelProps } from "../Checkbox";
 
 export interface RadioProps
   extends Omit<SpectrumRadioProps, keyof StyleProps>,
@@ -20,7 +20,7 @@ export interface RadioProps
 
 export type RadioRef = FocusableRef<HTMLLabelElement>;
 
-export const Radio = forwardRef((props: RadioProps, ref: RadioRef) => {
+const _Radio = (props: RadioProps, ref: RadioRef) => {
   const {
     autoFocus,
     children,
@@ -65,4 +65,6 @@ export const Radio = forwardRef((props: RadioProps, ref: RadioRef) => {
       {children}
     </label>
   );
-});
+};
+
+export const Radio = forwardRef(_Radio);

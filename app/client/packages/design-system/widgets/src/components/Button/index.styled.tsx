@@ -72,7 +72,6 @@ export const StyledButton = styled(HeadlessButton)<StyledButtonProps>`
   cursor: pointer;
   user-select: none;
   position: relative;
-  font-weight: 600;
   font-family: inherit;
   border-style: solid;
   border-width: var(--border-width-1);
