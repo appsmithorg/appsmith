@@ -1,4 +1,4 @@
-package com.appsmith.server.configurations;
+package com.appsmith.ratelimiting;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.BucketConfiguration;
