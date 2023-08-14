@@ -25,6 +25,7 @@ describe("Chart Widget", () => {
   };
   const defaultProps: ChartComponentProps = {
     allowScroll: true,
+    showDataPointLabel: true,
     chartData: {
       seriesID1: seriesData1,
       seriesID2: seriesData2,
