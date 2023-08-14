@@ -5,6 +5,7 @@ import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -188,4 +189,8 @@ public interface GitExecutor {
     Mono<Boolean> resetHard(Path repoSuffix, String branchName);
 
     Mono<Boolean> rebaseBranch(Path repoSuffix, String branchName);
+
+    Path createRepoPath(Path suffix);
+
+    Mono<BranchTrackingStatus> getBranchTrackingStatus(Path repoPath, String branchName);
 }

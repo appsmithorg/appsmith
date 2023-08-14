@@ -192,7 +192,7 @@ function KeyValueRow(
           <FormRowWithLabel key={index}>
             <div
               className="form-input-field"
-              data-replay-id={btoa(keyTextFieldName)}
+              data-location-id={btoa(keyTextFieldName)}
             >
               <Field
                 component={renderInput}
@@ -212,7 +212,7 @@ function KeyValueRow(
             {!props.actionConfig && (
               <div className="form-input-field">
                 <div
-                  data-replay-id={btoa(valueTextFieldName)}
+                  data-location-id={btoa(valueTextFieldName)}
                   style={{ display: "flex", flexDirection: "row" }}
                 >
                   <Field

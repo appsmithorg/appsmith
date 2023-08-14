@@ -33,71 +33,74 @@ export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
   iconPosition?: (typeof BUTTON_ICON_POSITIONS)[keyof typeof BUTTON_ICON_POSITIONS];
   /** Makes the button visually and functionaly disabled but focusable */
   visuallyDisabled?: boolean;
+  /** Indicates the loading text that will be used by screen readers
+   * when the button is in loading state
+   * @default Loading...
+   */
+  loadingText?: string;
 }
 
-export const Button = forwardRef(
-  (props: ButtonProps, ref: HeadlessButtonRef) => {
-    props = useVisuallyDisabled(props);
-    const {
-      children,
-      color = "accent",
-      icon,
-      iconPosition = "start",
-      isLoading,
-      // eslint-disable-next-line -- TODO add onKeyUp when the bug is fixed https://github.com/adobe/react-spectrum/issues/4350
-      onKeyUp,
-      variant = "filled",
-      visuallyDisabled,
-      ...rest
-    } = props;
-    const { visuallyHiddenProps } = useVisuallyHidden();
+const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
+  props = useVisuallyDisabled(props);
+  const {
+    children,
+    color = "accent",
+    icon,
+    iconPosition = "start",
+    isLoading,
+    loadingText = "Loading...",
+    // eslint-disable-next-line -- TODO add onKeyUp when the bug is fixed https://github.com/adobe/react-spectrum/issues/4350
+    onKeyUp,
+    variant = "filled",
+    visuallyDisabled,
+    ...rest
+  } = props;
+  const { visuallyHiddenProps } = useVisuallyHidden();
 
-    const renderChildren = () => {
-      if (isLoading) {
-        return (
-          <>
-            <HeadlessIcon>
-              <Spinner />
-            </HeadlessIcon>
-            {/* TODO(pawan): How to make sure "Loading..." text is internationalized? */}
-            <span {...visuallyHiddenProps}>Loading...</span>
-          </>
-        );
-      }
-
-      return (
-        <>
+  const renderChildren = () => {
+    return (
+      <>
+        <span aria-hidden={isLoading ? true : undefined} data-content="">
           {icon}
-          <Text lineClamp={1} textAlign="center">
+          <Text fontWeight={600} lineClamp={1} textAlign="center">
             {children}
           </Text>
-        </>
-      );
-    };
+        </span>
 
-    return (
-      <StyledButton
-        $color={color}
-        $variant={variant}
-        aria-busy={isLoading ? true : undefined}
-        aria-disabled={
-          visuallyDisabled || isLoading || props.isDisabled ? true : undefined
-        }
-        data-button=""
-        data-color={color}
-        data-icon-position={iconPosition === "start" ? "start" : "end"}
-        data-loading={isLoading ? "" : undefined}
-        data-variant={variant}
-        draggable
-        ref={ref}
-        {...rest}
-      >
-        {renderChildren()}
-        <DragContainer data-hidden="" />
-      </StyledButton>
+        <span aria-hidden={!isLoading ? true : undefined} data-loader="">
+          <HeadlessIcon>
+            <Spinner />
+          </HeadlessIcon>
+          <span {...visuallyHiddenProps}>{loadingText}</span>
+        </span>
+      </>
     );
-  },
-);
+  };
+
+  return (
+    <StyledButton
+      $color={color}
+      $variant={variant}
+      aria-busy={isLoading ? true : undefined}
+      aria-disabled={
+        visuallyDisabled || isLoading || props.isDisabled ? true : undefined
+      }
+      data-button=""
+      data-color={color}
+      data-icon-position={iconPosition === "start" ? "start" : "end"}
+      data-loading={isLoading ? "" : undefined}
+      data-variant={variant}
+      draggable
+      ref={ref}
+      {...rest}
+    >
+      {renderChildren()}
+      <DragContainer aria-hidden="true" />
+    </StyledButton>
+  );
+};
+
+export const Button = forwardRef(_Button);
 
 /**
  * This hook is used to disable all click/press events on a button

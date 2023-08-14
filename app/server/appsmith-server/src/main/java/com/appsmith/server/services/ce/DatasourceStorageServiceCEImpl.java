@@ -92,8 +92,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
                     return Mono.just(datasourceStorage);
                 })
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasource.getName())));
+                .switchIfEmpty(Mono.defer(() -> errorMonoWhenDatasourceStorageNotFound(datasource, environmentId)));
     }
 
     @Override
@@ -340,5 +339,11 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     @Override
     public Mono<String> getEnvironmentNameFromEnvironmentIdForAnalytics(String environmentId) {
         return Mono.just(FieldName.UNUSED_ENVIRONMENT_ID);
+    }
+
+    protected Mono<DatasourceStorage> errorMonoWhenDatasourceStorageNotFound(
+            Datasource datasource, String environmentId) {
+        return Mono.error(
+                new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasource.getName()));
     }
 }

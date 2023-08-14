@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useTable } from "react-table";
-import _ from "lodash";
+import { parseExcelData } from "./ExcelDataParser";
+import type { RowData, HeaderCell, RawSheetData } from "./ExcelDataParser";
+
 import * as XLSX from "xlsx";
 
 const StyledViewer = styled.div`
@@ -37,44 +39,6 @@ const StyledViewer = styled.div`
   }
 `;
 
-const chars = [
-  "A",
-  "B",
-  "C",
-  "D",
-  "E",
-  "F",
-  "G",
-  "H",
-  "I",
-  "J",
-  "K",
-  "L",
-  "M",
-  "N",
-  "O",
-  "P",
-  "Q",
-  "R",
-  "S",
-  "T",
-  "U",
-  "V",
-  "W",
-  "X",
-  "Y",
-  "Z",
-];
-
-// get excel column name from index, e.g. A,B,...,AA,AB
-const numberToExcelHeader = (index: number): string => {
-  const quotient = Math.floor(index / 26);
-  if (quotient > 0) {
-    return numberToExcelHeader(quotient - 1) + chars[index % 26];
-  }
-  return chars[index % 26];
-};
-
 interface DocumentViewerState {
   sheetNames: string[];
   currentTableData: RowData[];
@@ -82,15 +46,6 @@ interface DocumentViewerState {
   tableData: Record<number, RowData[]>;
   headerData: Record<number, HeaderCell[]>;
 }
-
-interface HeaderCell {
-  Header: string;
-  accessor: string;
-}
-
-type RawSheetData = unknown[][];
-
-type RowData = Record<string, unknown>; // key is column name, value is cell value
 
 export default function XlsxViewer(props: { blob?: Blob }) {
   const [sheetIndex, setSheetIndex] = useState<number>(-1);
@@ -108,8 +63,9 @@ export default function XlsxViewer(props: { blob?: Blob }) {
             const newSheetIndex = jsonData.sheetsData.length > 0 ? 0 : -1;
 
             jsonData.sheetsData.forEach((data: RawSheetData, index: number) => {
-              newState.tableData[index] = parseTableBody(data);
-              newState.headerData[index] = parseTableHeaders(data);
+              const parsedData = parseExcelData(data);
+              newState.tableData[index] = parsedData.body;
+              newState.headerData[index] = parsedData.headers;
             });
 
             newState.currentTableData = newState.tableData[newSheetIndex];
@@ -169,43 +125,6 @@ export default function XlsxViewer(props: { blob?: Blob }) {
     const newState = newStateInstance();
     setState(newState);
     setSheetIndex(-1);
-  };
-
-  function parseTableBody(excelData: RawSheetData): RowData[] {
-    const data: RowData[] = [];
-    for (const row of excelData) {
-      const currRow: RowData = {};
-
-      for (const [index, value] of row.entries()) {
-        const columnLabel: string = numberToExcelHeader(index);
-        let cellValue = value;
-        if (_.isDate(value)) {
-          cellValue = value.toDateString();
-        }
-
-        currRow[columnLabel] = cellValue;
-      }
-
-      data.push(currRow);
-    }
-    return data;
-  }
-
-  const parseTableHeaders = (tableData: RawSheetData): HeaderCell[] => {
-    const newHeader: HeaderCell[] = [];
-    if (tableData.length) {
-      // create header letters based on columnCount
-      const headers = tableData[0];
-
-      for (let i = 0; i < headers.length; i++) {
-        const currHeader: string = numberToExcelHeader(i);
-        newHeader.push({
-          Header: currHeader,
-          accessor: currHeader,
-        });
-      }
-    }
-    return newHeader;
   };
 
   const { getTableBodyProps, getTableProps, headerGroups, prepareRow, rows } =

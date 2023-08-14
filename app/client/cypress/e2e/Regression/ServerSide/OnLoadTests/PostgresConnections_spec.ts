@@ -49,7 +49,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
     dataSources.CreatePlugIn("PostgreSQL");
     agHelper.RenameWithInPane("Postgres_2_" + guid, false);
     const userName = "test_conn_user_" + guid;
-    dataSources.FillPostgresDSForm("production", false, userName, "password");
+    dataSources.FillPostgresDSForm("Production", false, userName, "password");
     dataSources.TestSaveDatasource();
 
     cy.wrap("Postgres_2_" + guid).as("dsName_2");

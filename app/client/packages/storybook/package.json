@@ -7,7 +7,7 @@
   "scripts": {
     "storybook": "storybook dev -p 6006",
     "build": "storybook build",
-    "chromatic": "chromatic --project-token CHROMATIC_PROJECT_TOKEN"
+    "chromatic": "CHROMATIC=1 storybook dev -p 6006"
   },
   "devDependencies": {
     "@babel/core": "^7.21.0",

@@ -11,7 +11,7 @@ describe("Execute Action Functionality", function () {
   });
 
   it("1. Checks whether execute action is getting called on page load only once", function () {
-    agHelper.AssertElementVisible(locators._widgetInCanvas("textwidget"));
+    agHelper.AssertElementVisibility(locators._widgetInCanvas("textwidget"));
     deployMode.DeployApp();
 
     agHelper.GetNAssertContains(

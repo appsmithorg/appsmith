@@ -17,6 +17,16 @@
     "remindLaterDays": 5,
     "context": "STATIC",
     "applicabilityExpression": "true",
-    "precedenceIndex": 1
+    "precedenceIndex": 3
+  },
+  {
+    "messageId": "3",
+    "title": "alert3",
+    "learnMoreLink": "learnmorelink2",
+    "canDismiss": true,
+    "remindLaterDays": 5,
+    "context": "COMMON_CONFIG",
+    "applicabilityExpression": "isCloudHosting && (getCurrentTimeInstantEpochMilli < 1691300700000L)",
+    "precedenceIndex": 2
   }
 ]

@@ -32,7 +32,7 @@ interface RunQueryParams {
 export class DataSources {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private table = ObjectsRegistry.Table;
-  private ee = ObjectsRegistry.EntityExplorer;
+  private entityExplorer = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
   private apiPage = ObjectsRegistry.ApiPage;
   private tedTestConfig = ObjectsRegistry.TEDTestConfigs;
@@ -62,7 +62,7 @@ export class DataSources {
   private _sectionState = (name: string) =>
     this._section(name) +
     "/following-sibling::div/div[@class ='bp3-collapse-body']";
-  private _password =
+  public _password =
     "input[name $= '.datasourceConfiguration.authentication.password']";
   private defaultDatabaseName =
     "input[name*='datasourceConfiguration.connection.defaultDatabaseName']";
@@ -180,8 +180,8 @@ export class DataSources {
   _gsScopeDropdown =
     "[data-testid^='datasourceStorages.'][data-testid$='.datasourceConfiguration.authentication.scopeString']";
   _gsScopeOptions = ".ads-v2-select__dropdown .rc-select-item-option";
-  private _queryTimeout =
-    "//input[@name='actionConfiguration.timeoutInMillisecond']";
+  _queryTimeout = "//input[@name='actionConfiguration.timeoutInMillisecond']";
+  _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
   private _suggestedWidget = (widgetType: string) =>
@@ -238,8 +238,8 @@ export class DataSources {
     "//p[contains(text(),'" +
     ddName +
     "')]/ancestor::div[@class='form-config-top']/following-sibling::div//div[contains(@class, 'rc-select-multiple')]";
-  private _datasourceTableSchemaInQueryEditor =
-    ".datasourceStructure-query-editor";
+  private _datasourceTableSchemaInQueryEditor = (schemaName: string) =>
+    `//div[contains(@class, 'datasourceStructure-query-editor')]//div[contains(@class, 't--entity-name')][text()='${schemaName}']`;
   private _datasourceSchemaRefreshBtn = ".datasourceStructure-refresh";
   private _datasourceStructureHeader = ".datasourceStructure-header";
   private _datasourceColumnSchemaInQueryEditor = ".t--datasource-column";
@@ -248,6 +248,10 @@ export class DataSources {
   public _queryEditorCollapsibleIcon = ".collapsible-icon";
   _globalSearchTrigger = ".t--global-search-modal-trigger";
   _globalSearchOptions = ".t--searchHit";
+  private _dataSourceInfo = (dsName: string) =>
+    "//span[text()='" +
+    dsName +
+    "']/ancestor::div[contains(@class, 't--datasource')]//div[@data-testid='datasource-collapse-wrapper']";
 
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -255,7 +259,7 @@ export class DataSources {
   }
 
   public GeneratePageWithDB(datasourceName: any, tableName: string) {
-    this.ee.AddNewPage("Generate page with data");
+    this.entityExplorer.AddNewPage("Generate page with data");
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClickByContains(
       this.locator._dropdownText,
@@ -271,7 +275,7 @@ export class DataSources {
   }
 
   public GeneratePageWithMockDB() {
-    this.ee.AddNewPage("Generate page with data");
+    this.entityExplorer.AddNewPage("Generate page with data");
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClickByContains(
       this._dropdownOption,
@@ -394,7 +398,7 @@ export class DataSources {
   }
 
   public NavigateToDSCreateNew() {
-    this.ee.HoverOnEntityItem("Datasources");
+    this.entityExplorer.HoverOnEntityItem("Datasources");
     Cypress._.times(2, () => {
       this.agHelper.GetNClick(this._addNewDataSource, 0, true);
       this.agHelper.Sleep();
@@ -432,7 +436,7 @@ export class DataSources {
       this.tedTestConfig.dsValues[environment].postgres_port.toString(),
     );
     this.agHelper.UpdateInputValue(this._host, hostAddress);
-    cy.get(this._databaseName).clear().type(databaseName);
+    this.agHelper.ClearNType(this._databaseName, databaseName);
     cy.get(this._username).type(
       username == ""
         ? this.tedTestConfig.dsValues[environment].postgres_username
@@ -502,9 +506,10 @@ export class DataSources {
       this._port,
       this.tedTestConfig.dsValues[environment].mongo_port.toString(),
     );
-    cy.get(this._databaseName)
-      .clear()
-      .type(this.tedTestConfig.dsValues[environment].mongo_databaseName);
+    this.agHelper.ClearNType(
+      this._databaseName,
+      this.tedTestConfig.dsValues[environment].mongo_databaseName,
+    );
   }
 
   public FillMySqlDSForm(
@@ -523,7 +528,7 @@ export class DataSources {
       this._port,
       this.tedTestConfig.dsValues[environment].mysql_port.toString(),
     );
-    cy.get(this._databaseName).clear().type(databaseName);
+    this.agHelper.ClearNType(this._databaseName, databaseName);
     this.agHelper.UpdateInputValue(
       this._username,
       this.tedTestConfig.dsValues[environment].mysql_username,
@@ -804,9 +809,11 @@ export class DataSources {
 
   public DeleteDSDirectly(
     expectedRes: number | number[] = 200 || 409 || [200 | 409],
+    toNavigateToDSInfoPage = true,
   ) {
-    this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, true, 200);
-    cy.get(this._contextMenuDSReviewPage).click({ force: true });
+    toNavigateToDSInfoPage &&
+      this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, true, 200);
+    this.agHelper.GetNClick(this._contextMenuDSReviewPage);
     this.agHelper.GetNClick(this._contextMenuDelete);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
     this.ValidateDSDeletion(expectedRes);
@@ -816,8 +823,8 @@ export class DataSources {
     dsName: string,
     expectedRes: number | number[] = 200,
   ) {
-    this.ee.SelectEntityByName(dsName, "Datasources");
-    this.ee.ActionContextMenuByEntityName({
+    this.entityExplorer.SelectEntityByName(dsName, "Datasources");
+    this.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: dsName,
       action: "Delete",
       entityType: EntityItems.Datasource,
@@ -872,22 +879,17 @@ export class DataSources {
           });
       });
     this.agHelper.Sleep(3000); //for the CreateQuery/GeneratePage page to load
-    createQuery &&
-      this.agHelper.AssertElementVisible(
-        this.locator._spanButton("Run"),
-        0,
-        20000,
-      );
+    createQuery && this.AssertRunButtonVisibility();
     validateTableDropdown &&
       !createQuery &&
       this.assertHelper.AssertNetworkStatus("@getDatasourceStructure", 200); //Making sure table dropdown is populated
   }
 
   public AssertDSActive(dsName: string | RegExp) {
-    this.ee.NavigateToSwitcher("Explorer", 0, true);
-    this.ee.ExpandCollapseEntity("Datasources", false);
-    //this.ee.SelectEntityByName(datasourceName, "Datasources");
-    //this.ee.ExpandCollapseEntity(datasourceName, false);
+    this.entityExplorer.NavigateToSwitcher("Explorer", 0, true);
+    this.entityExplorer.ExpandCollapseEntity("Datasources", false);
+    //this.entityExplorer.SelectEntityByName(datasourceName, "Datasources");
+    //this.entityExplorer.ExpandCollapseEntity(datasourceName, false);
     this.NavigateToActiveTab();
     return this.agHelper.GetNAssertContains(this._datasourceCard, dsName);
   }
@@ -909,26 +911,27 @@ export class DataSources {
       });
     this.agHelper.Sleep(2000); //for the CreateQuery
     //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);//throwing 404 in CI sometimes
-    this.agHelper.AssertElementVisible(
-      this.locator._spanButton("Run"),
-      0,
-      20000,
-    );
+    this.AssertRunButtonVisibility();
   }
 
   CreateQueryAfterDSSaved(query = "", queryName = "") {
     this.agHelper.GetNClick(this._createQuery);
     //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
-    this.agHelper.AssertElementVisible(
-      this.locator._spanButton("Run"),
-      0,
-      20000,
-    );
+    this.AssertRunButtonVisibility();
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
       this.EnterQuery(query);
       this.AssertRunButtonDisability(false);
     }
+  }
+
+  private AssertRunButtonVisibility() {
+    this.agHelper.AssertElementVisibility(
+      this.locator._spanButton("Run"),
+      true,
+      0,
+      20000,
+    );
   }
 
   public CreateQueryForDS(
@@ -951,8 +954,8 @@ export class DataSources {
   }
 
   DeleteQuery(queryName: string) {
-    this.ee.ExpandCollapseEntity("Queries/JS");
-    this.ee.ActionContextMenuByEntityName({
+    this.entityExplorer.ExpandCollapseEntity("Queries/JS");
+    this.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: queryName,
       action: "Delete",
       entityType: EntityItems.Query,
@@ -1011,7 +1014,7 @@ export class DataSources {
       .closest(this._datasourceCard)
       .scrollIntoView()
       .within(() => {
-        this.agHelper.AssertElementVisible(this._reconnect, 0, 20000);
+        this.agHelper.AssertElementVisibility(this._reconnect, true, 0, 20000);
       });
   }
   public ReconnectModalValidation(
@@ -1019,21 +1022,21 @@ export class DataSources {
     dsName: "PostgreSQL" | "MySQL" | "MongoDB",
   ) {
     this.WaitForReconnectModalToAppear();
-    this.agHelper.AssertElementVisible(
+    this.agHelper.AssertElementVisibility(
       this._activeDSListReconnectModal(dsName),
     );
-    this.agHelper.AssertElementVisible(
+    this.agHelper.AssertElementVisibility(
       this._activeDSListReconnectModal(dbName),
     );
 
     //Checking if tooltip for Ds name & icon is present (useful in cases of long name for ds)
     this.agHelper.AssertText(this._reconnectModalDSToolTip, "text", dbName);
-    this.agHelper.AssertElementVisible(this._reconnectModalDSToopTipIcon);
+    this.agHelper.AssertElementVisibility(this._reconnectModalDSToopTipIcon);
   }
 
   public WaitForReconnectModalToAppear() {
-    this.agHelper.AssertElementVisible(this._reconnectModal);
-    this.agHelper.AssertElementVisible(this._testDs); //Making sure modal is fully loaded
+    this.agHelper.AssertElementVisibility(this._reconnectModal);
+    this.agHelper.AssertElementVisibility(this._testDs); //Making sure modal is fully loaded
   }
 
   public ReconnectDSbyType(
@@ -1101,7 +1104,7 @@ export class DataSources {
 
   public AssertQueryResponseHeaders(columnHeaders: string[]) {
     columnHeaders.forEach(($header) =>
-      this.agHelper.AssertElementVisible(this._queryResponseHeader($header)),
+      this.agHelper.AssertElementVisibility(this._queryResponseHeader($header)),
     );
   }
 
@@ -1140,7 +1143,11 @@ export class DataSources {
   }
 
   public EnterQuery(query: string, sleep = 500) {
-    this.agHelper.UpdateCodeInput(this.locator._codeEditorTarget, query);
+    this.agHelper.UpdateCodeInput(
+      this.locator._codeEditorTarget,
+      query,
+      "query",
+    );
     this.agHelper.AssertAutoSave();
     this.agHelper.Sleep(sleep); //waiting a bit before proceeding!
     cy.wait("@saveAction");
@@ -1152,14 +1159,14 @@ export class DataSources {
   ) {
     this.RunQuery();
     tableCheck &&
-      this.agHelper.AssertElementVisible(this._queryResponse("TABLE"));
-    this.agHelper.AssertElementVisible(this._queryResponse("JSON"));
-    this.agHelper.AssertElementVisible(this._queryResponse("RAW"));
+      this.agHelper.AssertElementVisibility(this._queryResponse("TABLE"));
+    this.agHelper.AssertElementVisibility(this._queryResponse("JSON"));
+    this.agHelper.AssertElementVisibility(this._queryResponse("RAW"));
     this.CheckResponseRecordsCount(expectedRecordsCount);
   }
 
   public CheckResponseRecordsCount(expectedRecordCount: number) {
-    this.agHelper.AssertElementVisible(
+    this.agHelper.AssertElementVisibility(
       this._queryRecordResult(expectedRecordCount),
     );
   }
@@ -1245,7 +1252,7 @@ export class DataSources {
     sleep = 500,
   ) {
     this.agHelper.RemoveEvaluatedPopUp(); //to close the evaluated pop-up
-    this.ee.CreateNewDsQuery(dsName);
+    this.entityExplorer.CreateNewDsQuery(dsName);
     if (query) {
       this.EnterQuery(query, sleep);
     }
@@ -1316,13 +1323,19 @@ export class DataSources {
     this.agHelper.Sleep();
   }
 
-  public SetQueryTimeout(queryTimeout = 20000) {
+  public SetQueryTimeout(
+    queryTimeout = 20000,
+    action: "QUERY" | "API" = "QUERY",
+  ) {
     this.agHelper.GetNClick(this._queryEditorTabs("Settings"));
     cy.xpath(this._queryTimeout)
       .clear()
       .type(queryTimeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
     this.agHelper.AssertAutoSave();
-    this.agHelper.GetNClick(this._queryEditorTabs("Query"));
+
+    if (action === "QUERY") {
+      this.agHelper.GetNClick(this._queryEditorTabs("Query"));
+    }
   }
 
   //Update with new password in the datasource conf page
@@ -1341,7 +1354,7 @@ export class DataSources {
     } else {
       this.SaveDatasource();
     }
-    this.ee.ActionContextMenuByEntityName({
+    this.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: dataSourceName,
       action: "Refresh",
     });
@@ -1351,9 +1364,9 @@ export class DataSources {
   }
 
   public VerifyTableSchemaOnQueryEditor(schema: string) {
-    this.agHelper
-      .GetElement(this._datasourceTableSchemaInQueryEditor)
-      .contains(schema);
+    this.agHelper.AssertElementVisibility(
+      this._datasourceTableSchemaInQueryEditor(schema),
+    );
   }
 
   public VerifySchemaAbsenceInQueryEditor() {
@@ -1373,7 +1386,9 @@ export class DataSources {
 
   public VerifySchemaCollapsibleOpenState(isOpen = false) {
     if (isOpen) {
-      this.agHelper.AssertElementVisible(this._datasourceStructureSearchInput);
+      this.agHelper.AssertElementVisibility(
+        this._datasourceStructureSearchInput,
+      );
     } else {
       this.agHelper.AssertElementAbsence(this._datasourceStructureSearchInput);
     }
@@ -1381,24 +1396,22 @@ export class DataSources {
 
   public FilterAndVerifyDatasourceSchemaBySearch(
     search: string,
-    verifySearch = false,
-    filterBy: "table" | "column" = "column",
+    filterBy?: "table" | "column",
   ) {
+    this.agHelper.Sleep(2500); //for query editor to load
     this.agHelper.TypeText(this._datasourceStructureSearchInput, search);
-
-    if (verifySearch) {
-      if (filterBy === "column") {
-        this.VerifyColumnSchemaOnQueryEditor(search);
-      } else {
-        this.VerifyTableSchemaOnQueryEditor(search);
-      }
+    this.agHelper.Sleep(); //for search result to load
+    if (filterBy === "column") {
+      this.VerifyColumnSchemaOnQueryEditor(search);
+    } else if (filterBy === "table") {
+      this.VerifyTableSchemaOnQueryEditor(search);
     }
   }
 
   public AssertDSDialogVisibility(isVisible = true) {
     if (isVisible) {
-      this.agHelper.AssertElementVisible(this._datasourceModalDoNotSave);
-      this.agHelper.AssertElementVisible(this._datasourceModalSave);
+      this.agHelper.AssertElementVisibility(this._datasourceModalDoNotSave);
+      this.agHelper.AssertElementVisibility(this._datasourceModalSave);
     } else {
       this.agHelper.AssertElementAbsence(this._datasourceModalDoNotSave);
       this.agHelper.AssertElementAbsence(this._datasourceModalSave);
@@ -1478,7 +1491,6 @@ export class DataSources {
   public FillMongoDatasourceFormWithURI(
     environment = this.tedTestConfig.defaultEnviorment,
   ) {
-    const uri = this.tedTestConfig.mongo_uri(environment);
     this.ValidateNSelectDropdown(
       "Use mongo connection string URI",
       "No",
@@ -1486,7 +1498,7 @@ export class DataSources {
     );
     this.agHelper.UpdateInputValue(
       this.locator._inputFieldByName("Connection string URI") + "//input",
-      uri,
+      this.tedTestConfig.mongo_uri(environment),
     );
   }
 
@@ -1615,25 +1627,25 @@ export class DataSources {
     switch (widget) {
       case Widgets.Dropdown:
         this.agHelper.GetNClick(this._suggestedWidget("SELECT_WIDGET"));
-        this.agHelper.AssertElementVisible(
+        this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.SELECT),
         );
         break;
       case Widgets.Table:
         this.agHelper.GetNClick(this._suggestedWidget("TABLE_WIDGET_V2"));
-        this.agHelper.AssertElementVisible(
+        this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.TABLE),
         );
         break;
       case Widgets.Chart:
         this.agHelper.GetNClick(this._suggestedWidget("CHART_WIDGET"));
-        this.agHelper.AssertElementVisible(
+        this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.CHART),
         );
         break;
       case Widgets.Text:
         this.agHelper.GetNClick(this._suggestedWidget("TEXT_WIDGET"));
-        this.agHelper.AssertElementVisible(
+        this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.TEXT),
         );
         break;
@@ -1774,5 +1786,13 @@ export class DataSources {
     );
     this.agHelper.WaitUntilEleAppear(this._createQuery);
     this.agHelper.GetNClick(this._createQuery);
+  }
+
+  public AssertDataSourceInfo(info: string[]) {
+    info.forEach(($infs) => {
+      this.agHelper.AssertElementVisibility(
+        this.locator._visibleTextDiv($infs),
+      );
+    });
   }
 }

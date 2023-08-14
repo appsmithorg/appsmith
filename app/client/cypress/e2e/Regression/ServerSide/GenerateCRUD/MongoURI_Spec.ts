@@ -106,8 +106,10 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
   it("3. Verify Add/Insert from Deploy page - on MongoMart - new record - few validations", () => {
     agHelper.GetNClick(dataSources._addIcon);
     agHelper.Sleep();
-    //agHelper.AssertElementVisible(locators._jsonFormWidget, 1); //Insert Modal
-    agHelper.AssertElementVisible(locators._visibleTextDiv("Insert Document"));
+    //agHelper.AssertElementVisibility(locators._jsonFormWidget, 1); //Insert Modal
+    agHelper.AssertElementVisibility(
+      locators._visibleTextDiv("Insert Document"),
+    );
 
     agHelper.AssertElementEnabledDisabled(
       locators._spanButton("Submit") + "/parent::div",
@@ -124,8 +126,8 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
 
   it("4. Verify Delete from Deploy page - on MongoMart - newly added record", () => {
     agHelper.ClickButton("Delete", 0);
-    agHelper.AssertElementVisible(locators._modal);
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(locators._modal);
+    agHelper.AssertElementVisibility(
       dataSources._visibleTextSpan(
         "Are you sure you want to delete this document?",
       ),

@@ -6,7 +6,6 @@ import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.helpers.ce.ExecutionTimeLogging;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
@@ -25,6 +24,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.PagePermission;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +36,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(SpringExtension.class)
@@ -116,8 +117,7 @@ public class GitServiceCEImplTest {
     @MockBean
     RedisUtils redisUtils;
 
-    @MockBean
-    ExecutionTimeLogging executionTimeLogging;
+    ObservationRegistry observationRegistry;
 
     @BeforeEach
     public void setup() {
@@ -142,11 +142,9 @@ public class GitServiceCEImplTest {
                 pluginService,
                 datasourcePermission,
                 applicationPermission,
-                pagePermission,
-                actionPermission,
                 workspaceService,
                 redisUtils,
-                executionTimeLogging);
+                observationRegistry);
     }
 
     @Test
@@ -154,10 +152,10 @@ public class GitServiceCEImplTest {
 
         doReturn(Mono.just(3))
                 .when(gitCloudServicesUtils)
-                .getPrivateRepoLimitForOrg(Mockito.any(String.class), Mockito.any(Boolean.class));
+                .getPrivateRepoLimitForOrg(any(String.class), any(Boolean.class));
 
         GitServiceCE gitService1 = Mockito.spy(gitService);
-        doReturn(Mono.just(1L)).when(gitService1).getApplicationCountWithPrivateRepo(Mockito.any(String.class));
+        doReturn(Mono.just(1L)).when(gitService1).getApplicationCountWithPrivateRepo(any(String.class));
 
         StepVerifier.create(gitService1.isRepoLimitReached("workspaceId", false))
                 .assertNext(aBoolean -> assertEquals(false, aBoolean))
@@ -168,10 +166,10 @@ public class GitServiceCEImplTest {
     public void isRepoLimitReached_connectedAppCountIsSameAsLimit_Success() {
         doReturn(Mono.just(3))
                 .when(gitCloudServicesUtils)
-                .getPrivateRepoLimitForOrg(Mockito.any(String.class), Mockito.any(Boolean.class));
+                .getPrivateRepoLimitForOrg(any(String.class), any(Boolean.class));
 
         GitServiceCE gitService1 = Mockito.spy(gitService);
-        doReturn(Mono.just(3L)).when(gitService1).getApplicationCountWithPrivateRepo(Mockito.any(String.class));
+        doReturn(Mono.just(3L)).when(gitService1).getApplicationCountWithPrivateRepo(any(String.class));
 
         StepVerifier.create(gitService1.isRepoLimitReached("workspaceId", true))
                 .assertNext(aBoolean -> assertEquals(true, aBoolean))
@@ -184,10 +182,10 @@ public class GitServiceCEImplTest {
     public void isRepoLimitReached_connectedAppCountIsMoreThanLimit_Success() {
         doReturn(Mono.just(3))
                 .when(gitCloudServicesUtils)
-                .getPrivateRepoLimitForOrg(Mockito.any(String.class), Mockito.any(Boolean.class));
+                .getPrivateRepoLimitForOrg(any(String.class), any(Boolean.class));
 
         GitServiceCE gitService1 = Mockito.spy(gitService);
-        doReturn(Mono.just(4L)).when(gitService1).getApplicationCountWithPrivateRepo(Mockito.any(String.class));
+        doReturn(Mono.just(4L)).when(gitService1).getApplicationCountWithPrivateRepo(any(String.class));
 
         StepVerifier.create(gitService1.isRepoLimitReached("workspaceId", false))
                 .assertNext(aBoolean -> assertEquals(true, aBoolean))

@@ -1,12 +1,12 @@
 export class TEDTestConfigs {
-  environments = ["production", "staging"];
+  environments = ["Production", "Staging"];
   defaultEnviorment = this.environments[0];
   GITEA_API_BASE_TED = "localhost";
   GITEA_API_PORT_TED = "3001";
   GITEA_API_URL_TED = "git@host.docker.internal:Cypress";
 
   dsValues: Record<string, any> = {
-    production: {
+    Production: {
       mongo_authenticationAuthtype: "SCRAM-SHA-1",
       mongo_host: "host.docker.internal",
       mongo_port: 28017,
@@ -72,6 +72,8 @@ export class TEDTestConfigs {
       AirtableTable: "tblsFCQSskVFf7xNd",
 
       mockApiUrl: "http://host.docker.internal:5001/v1/mock-api?records=10",
+      mockApiObjectUrl:
+        "http://host.docker.internal:5001/v1/mock-api-object?records=10",
       echoApiUrl: "http://host.docker.internal:5001/v1/mock-api/echo",
       randomCatfactUrl: "http://host.docker.internal:5001/v1/catfact/random",
       mockHttpCodeUrl: "http://host.docker.internal:5001/v1/mock-http-codes/",
@@ -95,7 +97,7 @@ export class TEDTestConfigs {
       GraphqlApiUrl_TED: "http://host.docker.internal:5000/graphql",
     },
 
-    staging: {
+    Staging: {
       mongo_authenticationAuthtype: "SCRAM-SHA-1",
       mongo_host: "host.docker.internal",
       mongo_port: 28017,
@@ -183,6 +185,10 @@ export class TEDTestConfigs {
 
       GraphqlApiUrl_TED: "http://host.docker.internal:5000/graphql",
     },
+  };
+
+  paginationUrl = (records = 20, page = 4, size = 3) => {
+    return `http://host.docker.internal:5001/v1/mock-api?records=${records}&page=${page}&size=${size}`;
   };
 
   mongo_uri = (environment = this.defaultEnviorment) => {

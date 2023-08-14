@@ -249,6 +249,10 @@ function getWidgetProps(
         props: {
           [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
           dynamicBindingPathList: [{ key: "tableData" }],
+          dynamicPropertyPathList:
+            suggestedWidget.bindingQuery === "data"
+              ? []
+              : [{ key: "tableData" }],
         },
         parentRowSpace: 10,
       };
@@ -284,6 +288,7 @@ function getWidgetProps(
             { key: "sourceData" },
             { key: "defaultOptionValue" },
           ],
+          dynamicPropertyPathList: [{ key: "sourceData" }],
         },
       };
     case "TEXT_WIDGET":
