@@ -84,6 +84,7 @@ describe("Validate Chart Widget's property config", () => {
   it("Validates that sections are hidden when chartType is CUSTOM_FUSION_CHART", () => {
     const hiddenFns = [
       get(config, "[0].children.[2].hidden"), // propertyName: "chartData"
+      get(config, "[1].children.[4].hidden"), // propertyName: "showDataPointLabel"
       get(config, "[2].children.[1].hidden"), // propertyName: "xAxisName"
       get(config, "[2].children.[2].hidden"), // propertyName: "yAxisName"
       get(config, "[2].children.[3].hidden"), // propertyName: "labelOrientation",
