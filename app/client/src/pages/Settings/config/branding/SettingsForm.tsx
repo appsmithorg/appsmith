@@ -68,7 +68,7 @@ function SettingsForm(props: SettingsFormProps) {
       <div className="flex flex-col gap-2">
         <StyledText
           color="var(--ads-v2-color-fg)"
-          htmlFor="brandLogoUrl"
+          htmlFor="brandLogo"
           kind="body-m"
           renderAs="label"
         >
@@ -76,11 +76,11 @@ function SettingsForm(props: SettingsFormProps) {
         </StyledText>
         <Controller
           control={control}
-          name="brandLogoUrl"
+          name="brandLogo"
           render={({ field: { onChange, value } }) => (
             <ImageInput
               className="t--settings-brand-logo-input"
-              defaultValue={defaultValues.brandLogoUrl}
+              defaultValue={defaultValues.brandLogo}
               onChange={(e) => {
                 onChange && onChange(e);
 
@@ -102,7 +102,7 @@ function SettingsForm(props: SettingsFormProps) {
       <div className="flex flex-col gap-2">
         <StyledText
           color="var(--ads-v2-color-fg)"
-          htmlFor="brandFaviconUrl"
+          htmlFor="brandFavicon"
           kind="body-m"
           renderAs="label"
         >
@@ -110,11 +110,11 @@ function SettingsForm(props: SettingsFormProps) {
         </StyledText>
         <Controller
           control={control}
-          name="brandFaviconUrl"
+          name="brandFavicon"
           render={({ field: { onChange, value } }) => (
             <ImageInput
               className="t--settings-brand-favicon-input"
-              defaultValue={defaultValues.brandFaviconUrl}
+              defaultValue={defaultValues.brandFavicon}
               onChange={(e) => {
                 onChange && onChange(e);
 

@@ -19,8 +19,8 @@ export type brandColorsKeys =
 
 export type Inputs = {
   brandColors: Record<brandColorsKeys, string>;
-  brandLogoUrl: string;
-  brandFaviconUrl: string;
+  brandLogo: string;
+  brandFavicon: string;
 };
 
 type BrandingPageProps = {
@@ -33,8 +33,8 @@ function BrandingPage(props: BrandingPageProps) {
   const tenantConfig = useSelector(getTenantConfig);
   const defaultValues = {
     brandColors: tenantConfig.brandColors,
-    brandLogoUrl: tenantConfig.brandLogoUrl,
-    brandFaviconUrl: tenantConfig.brandFaviconUrl,
+    brandLogo: tenantConfig.brandLogoUrl,
+    brandFavicon: tenantConfig.brandFaviconUrl,
   };
   const {
     control,
@@ -57,8 +57,8 @@ function BrandingPage(props: BrandingPageProps) {
   useEffect(() => {
     reset({
       brandColors: tenantConfig.brandColors,
-      brandLogoUrl: tenantConfig.brandLogoUrl,
-      brandFaviconUrl: tenantConfig.brandFaviconUrl,
+      brandLogo: tenantConfig.brandLogoUrl,
+      brandFavicon: tenantConfig.brandFaviconUrl,
     });
   }, [tenantConfig, reset]);
 
@@ -81,8 +81,8 @@ function BrandingPage(props: BrandingPageProps) {
         />
         <div className="flex-grow">
           <Previews
-            favicon={getAssetUrl(values.brandFaviconUrl)}
-            logo={getAssetUrl(values.brandLogoUrl)}
+            favicon={getAssetUrl(values.brandFavicon)}
+            logo={getAssetUrl(values.brandLogo)}
             shades={values.brandColors}
           />
         </div>
