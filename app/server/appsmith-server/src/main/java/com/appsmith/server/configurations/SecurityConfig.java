@@ -11,7 +11,6 @@ import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -193,7 +192,7 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CUSTOM_JS_LIB_URL + "/*/view"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PRODUCT_ALERT + "/alert"))
                 .permitAll()
-                .pathMatchers("/public/**", "/oauth2/**", "/actuator/**")
+                .pathMatchers("/public/**", "/oauth2/**")
                 .permitAll()
                 .anyExchange()
                 .authenticated()
@@ -222,11 +221,6 @@ public class SecurityConfig {
                 .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper, analyticsService))
                 .and()
                 .build();
-    }
-
-    private boolean isAuthorizedToAccessInternal(String password) {
-        // Either configured password is empty, or it's equal to what we received.
-        return StringUtils.isEmpty(INTERNAL_PASSWORD) || INTERNAL_PASSWORD.equals(password);
     }
 
     /**
