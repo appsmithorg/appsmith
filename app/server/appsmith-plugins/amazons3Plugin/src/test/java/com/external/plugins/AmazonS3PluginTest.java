@@ -98,6 +98,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Slf4j
 public class AmazonS3PluginTest {
@@ -1499,10 +1500,14 @@ public class AmazonS3PluginTest {
     }
 
     @Test
-    public void verify_sanitizeGenerateCRUDPageTemplateInfo_returnsEmptyMono_onEmptyActionConfig() {
+    public void verify_sanitizeGenerateCRUDPageTemplateInfo_doesNothing_onEmptyActionConfig() {
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
-        StepVerifier.create(pluginExecutor.sanitizeGenerateCRUDPageTemplateInfo(List.of()))
-                .verifyComplete(); // this will fail if the Mono emits any data
+        List<ActionConfiguration> actionConfigurationList = new ArrayList<>();
+        Map<String, String> mappedColumnsAndTableName = new HashMap<>();
+        pluginExecutor.sanitizeGenerateCRUDPageTemplateInfo(actionConfigurationList, mappedColumnsAndTableName,
+                "test").block();
+        assertEquals(0, actionConfigurationList.size());
+        assertEquals(true, isEmpty(mappedColumnsAndTableName));
     }
 
     @Test
