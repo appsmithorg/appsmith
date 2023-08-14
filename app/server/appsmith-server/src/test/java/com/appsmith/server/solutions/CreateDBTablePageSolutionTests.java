@@ -171,10 +171,10 @@ public class CreateDBTablePageSolutionTests {
     @WithUserDetails(value = "api_user")
     public void setup() {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(any()))
-                .thenReturn(Mono.just(spyMockPluginExecutor));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(spyMockPluginExecutor));
         Mockito.when(pluginExecutorHelper.getPluginExecutorFromPackageName(Mockito.anyString()))
-                .thenReturn(Mono.just(spyMockPluginExecutor)).thenReturn(Mono.just(spyMockPluginExecutor));
+                .thenReturn(Mono.just(spyMockPluginExecutor))
+                .thenReturn(Mono.just(spyMockPluginExecutor));
 
         if (testWorkspace == null) {
             Workspace workspace = new Workspace();
@@ -908,14 +908,17 @@ public class CreateDBTablePageSolutionTests {
     @WithUserDetails(value = "api_user")
     public void createPageWithNullPageIdForS3() {
         doAnswer(invocation -> {
-            List<ActionConfiguration> actionConfigurationList = invocation.getArgument(0);
-            Map<String, String> mappedColumnsAndTableName = invocation.getArgument(1);
-            String bucketName = invocation.getArgument(2);
-            Map<String, Object> formData = actionConfigurationList.get(0).getFormData();
-            mappedColumnsAndTableName.put(
-                    (String) ((Map<?, ?>) formData.get("bucket")).get("data"), bucketName);
-            return Mono.empty();
-        }).when(spyMockPluginExecutor).sanitizeGenerateCRUDPageTemplateInfo(any(), any(), any());
+                    List<ActionConfiguration> actionConfigurationList = invocation.getArgument(0);
+                    Map<String, String> mappedColumnsAndTableName = invocation.getArgument(1);
+                    String bucketName = invocation.getArgument(2);
+                    Map<String, Object> formData =
+                            actionConfigurationList.get(0).getFormData();
+                    mappedColumnsAndTableName.put(
+                            (String) ((Map<?, ?>) formData.get("bucket")).get("data"), bucketName);
+                    return Mono.empty();
+                })
+                .when(spyMockPluginExecutor)
+                .sanitizeGenerateCRUDPageTemplateInfo(any(), any(), any());
 
         resource.setApplicationId(testApp.getId());
         StringBuilder pluginName = new StringBuilder();
