@@ -13,43 +13,48 @@ import org.springframework.context.annotation.Configuration;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Configuration
 public class RateLimitConfig {
-    // Create a map to store API configurations
     private static final Map<String, BucketConfiguration> apiConfigurations = new HashMap<>();
 
     static {
-        // Define API configurations
         apiConfigurations.put("health-check", createBucketConfiguration(Duration.ofDays(1), 5));
         // Add more API configurations as needed
     }
 
     @Bean
     public LettuceBasedProxyManager<byte[]> proxyManager() {
-        // we will need separate proxy manager for each API and requirements
         return LettuceBasedProxyManager.builderFor(createRedisClient())
                 .withExpirationStrategy(ExpirationAfterWriteStrategy.fixedTimeToLive(Duration.ofDays(1)))
                 .build();
     }
 
     @Bean
-    public Map<String, BucketProxy> apiBuckets(LettuceBasedProxyManager<byte[]> proxyManager) {
+    public Map<String, BucketProxy> apiBuckets() {
         Map<String, BucketProxy> apiBuckets = new HashMap<>();
 
-        // Populate the apiBuckets map based on your existing apiConfigurations
-        apiConfigurations.forEach((apiIdentifier, configuration) -> apiBuckets.put(apiIdentifier, proxyManager.builder().build(apiIdentifier.getBytes(), configuration)));
+        apiConfigurations.forEach((apiIdentifier, configuration) -> apiBuckets.put(apiIdentifier, proxyManager().builder().build(apiIdentifier.getBytes(), configuration)));
 
         return apiBuckets;
     }
 
-    // TODO: Pick up redis client from RedisConfiguration
+    public BucketProxy getOrCreateAPIUserSpecificBucket(String apiIdentifier, String userId) {
+        String bucketIdentifier = apiIdentifier + userId;
+        Optional<BucketConfiguration> bucketProxy = proxyManager().getProxyConfiguration(bucketIdentifier.getBytes());
+        if (bucketProxy.isPresent()) {
+            return proxyManager().builder().build(bucketIdentifier.getBytes(), bucketProxy.get());
+        }
+
+        return proxyManager().builder().build(bucketIdentifier.getBytes(), apiConfigurations.get(apiIdentifier));
+    }
+
     private RedisClient createRedisClient() {
         return RedisClient.create("redis://127.0.0.1:6379");
     }
 
-    private static BucketConfiguration createBucketConfiguration(
-            Duration refillDuration, int limit) {
+    private static BucketConfiguration createBucketConfiguration(Duration refillDuration, int limit) {
         Refill refillConfig = Refill.intervally(limit, refillDuration);
         Bandwidth limitConfig = Bandwidth.classic(limit, refillConfig);
         return BucketConfiguration.builder().addLimit(limitConfig).build();
