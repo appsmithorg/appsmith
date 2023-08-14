@@ -483,7 +483,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
       !isFeatureWalkthroughShown &&
       pushFeature &&
       pushFeature({
-        targetId: BINDING_SECTION_ID,
+        targetId: `#${BINDING_SECTION_ID}`,
         onDismiss: async () => {
           await setFeatureWalkthroughShown(
             FEATURE_WALKTHROUGH_KEYS.ab_ds_binding_enabled,

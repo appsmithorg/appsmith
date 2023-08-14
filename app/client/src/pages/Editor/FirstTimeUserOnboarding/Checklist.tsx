@@ -457,7 +457,7 @@ export default function OnboardingChecklist() {
     // Adding walkthrough tutorial
     pushFeature &&
       pushFeature({
-        targetId: "add_datasources",
+        targetId: "#add_datasources",
         details: {
           title: "Add New Datasource",
           description: "Datasources can be directly and easily accessed here",

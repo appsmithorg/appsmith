@@ -95,7 +95,7 @@ function PropertyPaneView(
 
     if (widgetId && pushFeature && isTableWidget) {
       pushFeature({
-        targetId: PROPERTY_PANE_ID,
+        targetId: `#${PROPERTY_PANE_ID}`,
         onDismiss: async () => {
           await localStorage.removeItem(WIDGET_ID_SHOW_WALKTHROUGH);
           await setFeatureWalkthroughShown(

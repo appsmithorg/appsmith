@@ -140,11 +140,11 @@ const WalkthroughRenderer = ({
   if (multipleHighlightsIds.indexOf(targetId) === -1)
     multipleHighlightsIds.push(targetId);
   const updateBoundingRect = () => {
-    const mainTarget = document.getElementById(targetId);
+    const mainTarget = document.querySelector(targetId);
     if (mainTarget) {
       const data: BoundingRectTargets = {};
       multipleHighlightsIds.forEach((id) => {
-        const highlightArea = document.getElementById(id);
+        const highlightArea = document.querySelector(id);
         if (highlightArea) {
           const boundingRect = highlightArea.getBoundingClientRect();
           const bodyRect = document.body.getBoundingClientRect();
@@ -165,7 +165,7 @@ const WalkthroughRenderer = ({
 
       if (Object.keys(data).length > 0) {
         setBoundingRects(data);
-        showIndicator(`#${targetId}`, offset?.position, {
+        showIndicator(`${targetId}`, offset?.position, {
           top: offset?.indicatorTop || 0,
           left: offset?.indicatorLeft || 0,
           zIndex: Z_INDEX + 1,
@@ -176,7 +176,7 @@ const WalkthroughRenderer = ({
 
   useEffect(() => {
     updateBoundingRect();
-    const highlightArea = document.getElementById(targetId);
+    const highlightArea = document.querySelector(targetId);
     window.addEventListener("resize", updateBoundingRect);
     const resizeObserver = new ResizeObserver(updateBoundingRect);
     if (highlightArea) {

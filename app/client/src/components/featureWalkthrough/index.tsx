@@ -58,7 +58,7 @@ export default function Walkthrough({ children }: any) {
 
   const updateActiveWalkthrough = () => {
     if (feature.length > 0) {
-      const highlightArea = document.getElementById(feature[0].targetId);
+      const highlightArea = document.querySelector(feature[0].targetId);
       log.debug(highlightArea, "highlightArea");
       setActiveWalkthrough(null);
       if (highlightArea) {

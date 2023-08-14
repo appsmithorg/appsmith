@@ -48,7 +48,7 @@ function NewActionButton(props: NewActionButtonProps) {
   const checkAndShowWalkthrough = async () => {
     pushFeature &&
       pushFeature({
-        targetId: "create-query",
+        targetId: "#create-query",
         details: {
           title: "Add New query",
           description:

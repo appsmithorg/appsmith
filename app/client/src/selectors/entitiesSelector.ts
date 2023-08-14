@@ -489,6 +489,13 @@ export const getActionsForCurrentPage = createSelector(
   },
 );
 
+export const actionsExistInCurrentPage = createSelector(
+  getActionsForCurrentPage,
+  (actions) => {
+    return !!actions.length;
+  },
+);
+
 // Note: getJSCollectionsForCurrentPage (returns a new object everytime)
 export const getJSCollectionsForCurrentPage = createSelector(
   getCurrentPageId,

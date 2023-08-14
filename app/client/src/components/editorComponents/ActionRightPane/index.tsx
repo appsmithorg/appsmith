@@ -65,6 +65,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { Tooltip } from "design-system";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 
 const SCHEMA_GUIDE_GIF = `${ASSETS_CDN_URL}/schema.gif`;
 
@@ -389,7 +390,7 @@ function ActionSidebar({
       !isFeatureWalkthroughShown &&
       pushFeature &&
       pushFeature({
-        targetId: SCHEMA_SECTION_ID,
+        targetId: `#${SCHEMA_SECTION_ID}`,
         onDismiss: async () => {
           await setFeatureWalkthroughShown(
             FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
@@ -418,6 +419,42 @@ function ActionSidebar({
         delay: 5000,
       });
   };
+
+  const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
+  const checkAndShowBackToCanvasWalkthrough = async () => {
+    pushFeature &&
+      pushFeature({
+        targetId: "#back-to-canvas",
+        details: {
+          title: "Go back to canvas",
+          description:
+            "Go back to the canvas from here to start building the UI for your app using available widgets",
+          imageURL: `${ASSETS_CDN_URL}/schema.gif`,
+        },
+        offset: {
+          position: "bottom",
+          left: -200,
+          highlightPad: 5,
+          indicatorLeft: -3,
+          style: {
+            transform: "none",
+            boxShadow: "var(--ads-v2-shadow-popovers)",
+            border: "1px solid var(--ads-v2-color-border-muted)",
+          },
+        },
+        eventParams: {
+          [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
+            FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
+          [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForDSSchema,
+        },
+        delay: 1000,
+      });
+  };
+  useEffect(() => {
+    if (Object.keys(widgets).length <= 1 && signpostingEnabled) {
+      checkAndShowBackToCanvasWalkthrough();
+    }
+  }, [signpostingEnabled, widgets]);
 
   const showSchema =
     isEnabledForDSSchema &&
@@ -453,6 +490,7 @@ function ActionSidebar({
   return (
     <SideBar>
       <BackToCanvasLink
+        id="back-to-canvas"
         kind="secondary"
         startIcon="arrow-left-line"
         target="_self"

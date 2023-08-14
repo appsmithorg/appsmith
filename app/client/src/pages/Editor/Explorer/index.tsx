@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { SegmentedControl } from "design-system";
@@ -18,6 +18,8 @@ import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
 import { setExplorerSwitchIndex } from "actions/editorContextActions";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import WidgetSidebarWithTags from "../WidgetSidebarWithTags";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
   state.ui.onBoarding.forceOpenWidgetPanel;
@@ -78,6 +80,35 @@ function ExplorerContent() {
   };
   const { value: activeOption } = options[activeSwitchIndex];
 
+  const { pushFeature } = useContext(WalkthroughContext) || {};
+
+  useEffect(() => {
+    checkAndShowWalkthrough();
+  }, [isFirstTimeUserOnboardingEnabled]);
+
+  const checkAndShowWalkthrough = async () => {
+    pushFeature &&
+      pushFeature({
+        targetId: `#explorer-tab-options > [data-value*="widgets"]`,
+        details: {
+          title: "Switch to Widgets section",
+          description:
+            "Segmented View in Entity Explorer enables swift switching between Explorer and Widgets. Select Widgets tab, then click on a widget to bind data",
+          imageURL: `${ASSETS_CDN_URL}/schema.gif`,
+        },
+        offset: {
+          position: "right",
+          left: -40,
+          highlightPad: 5,
+          indicatorLeft: -3,
+          style: {
+            transform: "none",
+          },
+        },
+        delay: 1000,
+      });
+  };
+
   return (
     <div
       className={`flex-1 flex flex-col overflow-hidden ${tailwindLayers.entityExplorer}`}
@@ -85,6 +116,7 @@ function ExplorerContent() {
       <div
         className="flex-shrink-0 p-3 pb-2 mt-1 border-t"
         data-testid="explorer-tab-options"
+        id="explorer-tab-options"
       >
         <SegmentedControl
           onChange={onChange}
