@@ -18,7 +18,6 @@ import io.micrometer.observation.ObservationRegistry;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -158,14 +157,12 @@ public class SecurityConfig {
 
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @Bean
-    @ConditionalOnExpression(value = "'${appsmith.internal.password}'.length() > 0")
     public SecurityWebFilterChain internalWebFilterChain(ServerHttpSecurity http) {
         return http.securityMatcher(new PathPatternParserServerWebExchangeMatcher("/actuator/**"))
                 .authorizeExchange(authorizeExchangeSpec ->
                         authorizeExchangeSpec.anyExchange().authenticated())
                 .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationManager(authentication -> {
-                    if (isAuthorizedToAccessInternal(
-                            authentication.getCredentials().toString())) {
+                    if (INTERNAL_PASSWORD.equals(authentication.getCredentials().toString())) {
                         return Mono.just(UsernamePasswordAuthenticationToken.authenticated(
                                 authentication.getPrincipal(),
                                 authentication.getCredentials(),
@@ -251,7 +248,7 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ENVIRONMENT_URL + "/workspaces/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PRODUCT_ALERT + "/alert"))
                 .permitAll()
-                .pathMatchers("/public/**", "/oauth2/**", "/actuator/**")
+                .pathMatchers("/public/**", "/oauth2/**")
                 .permitAll()
                 .anyExchange()
                 .authenticated()
@@ -280,11 +277,6 @@ public class SecurityConfig {
                 .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper, analyticsService))
                 .and()
                 .build();
-    }
-
-    private boolean isAuthorizedToAccessInternal(String password) {
-        // Either configured password is empty, or it's equal to what we received.
-        return StringUtils.isEmpty(INTERNAL_PASSWORD) || INTERNAL_PASSWORD.equals(password);
     }
 
     /**
