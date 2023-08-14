@@ -4,11 +4,6 @@ import type { ButtonGroupProps } from "./ButtonGroup";
 
 export const StyledContainer = styled.div<ButtonGroupProps>`
   display: flex;
-  height: 100%;
-  width: 100%;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
 
   &[data-orientation="vertical"] {
     flex-direction: column;
@@ -80,6 +75,11 @@ export const StyledContainer = styled.div<ButtonGroupProps>`
   * Filled variant
   *-----------------------------------------------------------------------------
   */
+
+  & [data-variant="filled"] {
+    border-width: 0;
+  }
+
   & [data-variant="filled"][data-color="accent"] {
     border-color: var(--color-bd-on-accent);
   }

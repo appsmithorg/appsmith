@@ -20,7 +20,7 @@ import {
   configTree,
 } from "workers/common/DataTreeEvaluator/mockData/mockConfigTree";
 
-import { listEntityPathDependencies } from "./utils";
+import { getEntityPathDependencies } from "./utils/getEntityDependencies";
 
 const widgetConfigMap = {};
 
@@ -54,7 +54,9 @@ describe("test validationDependencyMap", () => {
   });
 
   it("initial validation dependencyMap computation", () => {
-    expect(dataTreeEvaluator.validationDependencyMap).toStrictEqual({
+    expect(
+      dataTreeEvaluator.validationDependencyMap.dependencies,
+    ).toStrictEqual({
       "Select2.defaultOptionValue": [
         "Select2.serverSideFiltering",
         "Select2.options",
@@ -76,12 +78,14 @@ describe("test validationDependencyMap", () => {
       unEvalUpdates,
     );
 
-    expect(dataTreeEvaluator.validationDependencyMap).toStrictEqual({});
+    expect(
+      dataTreeEvaluator.validationDependencyMap.dependencies,
+    ).toStrictEqual({});
   });
 });
 
 describe("DependencyMap utils", function () {
-  test("listEntityPathDependencies", () => {
+  test("getEntityPathDependencies", () => {
     const entity = {
       ENTITY_TYPE: "WIDGET",
       isVisible: true,
@@ -180,10 +184,11 @@ describe("DependencyMap utils", function () {
       },
     } as unknown as DataTreeEntityConfig;
 
-    const actualResult = listEntityPathDependencies(
+    const actualResult = getEntityPathDependencies(
       entity,
-      "Button1.onClick",
       entityConfig,
+      "Button1.onClick",
+      {},
     );
 
     expect([]).toStrictEqual(actualResult);
@@ -339,10 +344,11 @@ describe("DependencyMap utils", function () {
       propertyOverrideDependency: {},
       overridingPropertyPaths: {},
     } as unknown as DataTreeEntityConfig;
-    const result = listEntityPathDependencies(
+    const result = getEntityPathDependencies(
       entity2,
-      "Button1.googleRecaptchaKey",
       entityConfig2,
+      "Button1.googleRecaptchaKey",
+      {},
     );
     const expected = ["JSObject.myVar1"];
 

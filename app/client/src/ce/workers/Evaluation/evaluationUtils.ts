@@ -189,7 +189,10 @@ export const translateDiffEventToDataTreeDiffEvent = (
       if (rhsChange || lhsChange) {
         result = [
           {
-            event: DataTreeDiffEvent.EDIT,
+            event:
+              difference.lhs === undefined
+                ? DataTreeDiffEvent.NEW
+                : DataTreeDiffEvent.EDIT,
             payload: {
               propertyPath,
               value: difference.rhs,

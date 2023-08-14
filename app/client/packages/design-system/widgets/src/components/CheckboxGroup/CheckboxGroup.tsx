@@ -12,19 +12,22 @@ export interface CheckboxGroupProps extends HeadlessCheckboxGroupProps {
   className?: string;
 }
 
-export const CheckboxGroup = forwardRef(
-  (props: CheckboxGroupProps, ref: HeadlessCheckboxGroupRef) => {
-    const { errorMessage, label, ...rest } = props;
-    const wrappedErrorMessage = errorMessage && <Text>{errorMessage}</Text>;
-    const wrappedLabel = label && <Text>{label}</Text>;
+const _CheckboxGroup = (
+  props: CheckboxGroupProps,
+  ref: HeadlessCheckboxGroupRef,
+) => {
+  const { errorMessage, label, ...rest } = props;
+  const wrappedErrorMessage = errorMessage && <Text>{errorMessage}</Text>;
+  const wrappedLabel = label && <Text>{label}</Text>;
 
-    return (
-      <StyledCheckboxGroup
-        errorMessage={wrappedErrorMessage}
-        label={wrappedLabel}
-        ref={ref}
-        {...rest}
-      />
-    );
-  },
-);
+  return (
+    <StyledCheckboxGroup
+      errorMessage={wrappedErrorMessage}
+      label={wrappedLabel}
+      ref={ref}
+      {...rest}
+    />
+  );
+};
+
+export const CheckboxGroup = forwardRef(_CheckboxGroup);
