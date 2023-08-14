@@ -7,6 +7,7 @@ export type ChartType =
   | "SCATTER_CHART"
   | "CUSTOM_FUSION_CHART";
 
+export const XAxisCategory = "Category";
 export interface ChartDataPoint {
   x: any;
   y: any;
@@ -32,6 +33,13 @@ export interface ChartSelectedDataPoint {
   y: any;
   seriesTitle: string;
 }
+
+export const messages = {
+  ErrorTitle: "Error in Chart Data/Configuration",
+  MoreDetails: "More Details",
+  EmptyData: "No chart data to display",
+  Undefined: "Undefined",
+};
 
 export const CUSTOM_CHART_TYPES = [
   "area2d",
@@ -143,14 +151,6 @@ export const CUSTOM_CHART_TYPES = [
   "stackedcolumn2dlinedy",
   "stackedarea2dlinedy",
 ];
-
-export const CUSTOM_CHART_DEFAULT_PARSED = {
-  type: "",
-  dataSource: {
-    chart: {},
-    data: [],
-  },
-};
 
 export enum LabelOrientation {
   AUTO = "auto",

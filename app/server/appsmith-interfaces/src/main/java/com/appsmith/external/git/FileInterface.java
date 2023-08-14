@@ -73,4 +73,6 @@ public interface FileInterface {
      * @return success if the clone repo doesnt contain any files
      */
     Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException;
+
+    Mono<Long> deleteIndexLockFile(Path path, int validTimeInSeconds);
 }

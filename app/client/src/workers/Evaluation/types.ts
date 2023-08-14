@@ -38,7 +38,7 @@ export interface EvalTreeRequestData {
   };
   forceEvaluation: boolean;
   metaWidgets: MetaWidgetsReduxState;
-  appMode: APP_MODE | undefined;
+  appMode?: APP_MODE;
 }
 
 export interface EvalTreeResponseData {
@@ -54,7 +54,7 @@ export interface EvalTreeResponseData {
   isCreateFirstTree: boolean;
   configTree: ConfigTree;
   staleMetaIds: string[];
-  pathsToClearErrorsFor: any[];
+  removedPaths: Array<{ entityId: string; fullpath: string }>;
   isNewWidgetAdded: boolean;
   undefinedEvalValuesMap: Record<string, boolean>;
   jsVarsCreatedEvent?: { path: string; type: string }[];

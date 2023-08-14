@@ -179,7 +179,8 @@ public class GitExecutorImpl implements GitExecutor {
                 .subscribeOn(scheduler);
     }
 
-    private Path createRepoPath(Path suffix) {
+    @Override
+    public Path createRepoPath(Path suffix) {
         return Paths.get(gitServiceConfig.getGitRootPath()).resolve(suffix);
     }
 
@@ -892,6 +893,17 @@ public class GitExecutorImpl implements GitExecutor {
                     } catch (GitAPIException | IOException e) {
                         log.error("Error while rebasing the branch, {}", e.getMessage());
                         return Mono.error(e);
+                    }
+                })
+                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .subscribeOn(scheduler);
+    }
+
+    @Override
+    public Mono<BranchTrackingStatus> getBranchTrackingStatus(Path repoPath, String branchName) {
+        return Mono.fromCallable(() -> {
+                    try (Git git = Git.open(createRepoPath(repoPath).toFile())) {
+                        return BranchTrackingStatus.of(git.getRepository(), branchName);
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))

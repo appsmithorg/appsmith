@@ -103,4 +103,16 @@ public class ImportExportUtils {
 
         copyNestedNonNullProperties(importedApplication, existingApplication);
     }
+
+    /**
+     * This method sets the published mode properties in the imported application.
+     * When a user imports an application from the git repository, since the git only stores the unpublished version,
+     * the current deployed version in the newly imported app is not updated. This function sets the initial deployed
+     * version to the same as the edit mode one.
+     * @param importedApplication
+     */
+    public static void setPublishedApplicationProperties(Application importedApplication) {
+        importedApplication.setPublishedApplicationDetail(importedApplication.getUnpublishedApplicationDetail());
+        importedApplication.setPublishedAppLayout(importedApplication.getUnpublishedAppLayout());
+    }
 }

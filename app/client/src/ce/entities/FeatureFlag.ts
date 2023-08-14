@@ -12,10 +12,12 @@ export const FEATURE_FLAG = {
     "release_embed_hide_share_settings_enabled",
   ab_ds_schema_enabled: "ab_ds_schema_enabled",
   ab_ds_binding_enabled: "ab_ds_binding_enabled",
-  release_scim_provisioning_enabled: "release_scim_provisioning_enabled",
+  ab_gsheet_schema_enabled: "ab_gsheet_schema_enabled",
+  ab_wds_enabled: "ab_wds_enabled",
   release_widgetdiscovery_enabled: "release_widgetdiscovery_enabled",
   release_table_serverside_filtering_enabled:
     "release_table_serverside_filtering_enabled",
+  ab_table_widget_activation_enabled: "ab_table_widget_activation_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -32,9 +34,11 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_embed_hide_share_settings_enabled: false,
   ab_ds_schema_enabled: false,
   ab_ds_binding_enabled: false,
-  release_scim_provisioning_enabled: false,
+  ab_gsheet_schema_enabled: false,
+  ab_wds_enabled: false,
   release_widgetdiscovery_enabled: false,
   release_table_serverside_filtering_enabled: false,
+  ab_table_widget_activation_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

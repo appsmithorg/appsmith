@@ -28,6 +28,7 @@ import {
   getAction,
   getPlugin,
   getJSCollection,
+  getAppMode,
 } from "selectors/entitiesSelector";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
@@ -455,6 +456,7 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
   const currentDebuggerErrors: Record<string, Log> = yield select(
     getDebuggerErrors,
   );
+  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   yield put(debuggerLogInit(errorLogs));
   const validErrorLogs = errorLogs.filter((log) => log.source && log.id);
   if (isEmpty(validErrorLogs)) return;
@@ -479,6 +481,7 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
           ...analyticsPayload,
           eventName: "DEBUGGER_NEW_ERROR",
           errorMessages,
+          appMode,
         },
       });
 
@@ -498,6 +501,7 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
                 errorMessage: errorMessage.message,
                 errorType: errorMessage.type,
                 errorSubType: errorMessage.subType,
+                appMode,
               },
             }),
           ),
@@ -529,6 +533,7 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
                 errorMessage: updatedErrorMessage.message,
                 errorType: updatedErrorMessage.type,
                 errorSubType: updatedErrorMessage.subType,
+                appMode,
               },
             });
           }
@@ -560,6 +565,7 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
                 errorMessage: existingErrorMessage.message,
                 errorType: existingErrorMessage.type,
                 errorSubType: existingErrorMessage.subType,
+                appMode,
               },
             });
           }
@@ -576,6 +582,7 @@ function* deleteDebuggerErrorLogsSaga(
   const currentDebuggerErrors: Record<string, Log> = yield select(
     getDebuggerErrors,
   );
+  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   const existingErrorPayloads = payload.filter((item) =>
     currentDebuggerErrors.hasOwnProperty(item.id),
   );
@@ -606,6 +613,7 @@ function* deleteDebuggerErrorLogsSaga(
         ...analyticsPayload,
         eventName: "DEBUGGER_RESOLVED_ERROR",
         errorMessages,
+        appMode,
       },
     });
 
@@ -624,6 +632,7 @@ function* deleteDebuggerErrorLogsSaga(
               errorMessage: errorMessage.message,
               errorType: errorMessage.type,
               errorSubType: errorMessage.subType,
+              appMode,
             },
           });
         }),

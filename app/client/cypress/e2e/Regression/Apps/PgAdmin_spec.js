@@ -2,6 +2,8 @@ import {
   agHelper,
   deployMode,
   dataSources,
+  locators,
+  draggableWidgets,
 } from "../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../locators/Widgets.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
@@ -61,10 +63,12 @@ describe("PgAdmin Clone App", function () {
   });
 
   it("2. Add new table from app page, View and Delete table", function () {
-    deployMode.DeployApp();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
     // adding new table
     cy.xpath(appPage.addNewtable).click({ force: true });
-    cy.wait(500);
+    cy.wait(2000);
+    agHelper.AssertElementAbsence(appPage.loadButton, 40000); //for CI
+    agHelper.WaitUntilEleAppear(appPage.addTablename);
     cy.generateUUID().then((UUID) => {
       cy.xpath(appPage.addTablename).clear().type(`table${UUID}`);
       tableName = `table${UUID}`;

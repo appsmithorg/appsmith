@@ -34,7 +34,7 @@ describe("Entity explorer context menu should hide on scrolling", function () {
           entityExplorer.ExpandCollapseEntity("public.users");
           entityExplorer.ExpandCollapseEntity("movies");
           agHelper.GetNClick(locators._createNew);
-          agHelper.AssertElementVisible(entityExplorer._adsPopup);
+          agHelper.AssertElementVisibility(entityExplorer._adsPopup);
           agHelper.ScrollTo(entityExplorer._entityExplorerWrapper, "bottom");
           agHelper.AssertElementAbsence(entityExplorer._adsPopup);
         });
@@ -53,12 +53,10 @@ describe("Entity explorer context menu should hide on scrolling", function () {
       dataSources.CreateDataSource("Postgres");
       cy.get("@dsName").then(($createdMockUsers: any) => {
         mockDBNameUsers = $createdMockUsers;
-        dataSources.NavigateToActiveTab();
         dataSources.CreateQueryAfterDSSaved();
 
         dataSources.CreateDataSource("Mongo");
         cy.get("@dsName").then(($createdMockMovies: any) => {
-          dataSources.NavigateToActiveTab();
           mockDBNameMovies = $createdMockMovies;
           dataSources.CreateQueryAfterDSSaved();
 
@@ -70,7 +68,7 @@ describe("Entity explorer context menu should hide on scrolling", function () {
           entityExplorer.ExpandCollapseEntity("public.users");
           entityExplorer.ExpandCollapseEntity("listingAndReviews");
           agHelper.GetNClick(locators._createNew);
-          agHelper.AssertElementVisible(entityExplorer._adsPopup);
+          agHelper.AssertElementVisibility(entityExplorer._adsPopup);
           agHelper.ScrollTo(entityExplorer._entityExplorerWrapper, "bottom");
           agHelper.AssertElementAbsence(entityExplorer._adsPopup);
         });

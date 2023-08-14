@@ -139,6 +139,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
         setPlaying: {
           path: "autoPlay",
           type: "boolean",
+          accessor: "playState",
         },
       },
     };

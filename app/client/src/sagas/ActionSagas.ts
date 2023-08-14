@@ -45,11 +45,12 @@ import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type {
   Action,
   ActionViewMode,
+  ApiAction,
   ApiActionConfig,
   SlashCommandPayload,
 } from "entities/Action";
@@ -89,7 +90,7 @@ import {
   ERROR_ACTION_MOVE_FAIL,
   ERROR_ACTION_RENAME_FAIL,
 } from "@appsmith/constants/messages";
-import { get, merge } from "lodash";
+import { get, isEmpty, merge } from "lodash";
 import {
   fixActionPayloadForMongoQuery,
   getConfigInitialValues,
@@ -128,6 +129,8 @@ import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEdito
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { setAIPromptTriggered } from "utils/storage";
+import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
+import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
 
 export function* createDefaultActionPayload(
   pageId: string,
@@ -161,6 +164,17 @@ export function* createDefaultActionPayload(
       ? createNewQueryName(actions, pageId || "")
       : createNewApiName(actions, pageId || "");
 
+  const dsStructure: DatasourceStructure | undefined = yield select(
+    getDatasourceStructureById,
+    datasource?.id,
+  );
+
+  const defaultActionConfig: any = getDefaultTemplateActionConfig(
+    plugin,
+    dsStructure,
+    datasource?.isMock,
+  );
+
   return {
     name: newActionName,
     pageId,
@@ -177,7 +191,11 @@ export function* createDefaultActionPayload(
       isMock: !!datasource?.isMock,
     },
     actionConfiguration:
-      plugin?.type === PluginType.API ? defaultApiActionConfig : {},
+      plugin?.type === PluginType.API
+        ? defaultApiActionConfig
+        : !!defaultActionConfig
+        ? defaultActionConfig
+        : {},
   };
 }
 
@@ -387,19 +405,39 @@ export function* fetchActionsForPageSaga(
   }
 }
 
-export function* updateActionSaga(
-  actionPayload: ReduxAction<{ id: string; action?: Action }>,
-) {
+export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   try {
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.UPDATE_ACTION_API,
       { actionid: actionPayload.payload.id },
     );
-    let action = actionPayload.payload.action;
-    if (!action) action = yield select(getAction, actionPayload.payload.id);
+
+    let action: Action = yield select(getAction, actionPayload.payload.id);
     if (!action) throw new Error("Could not find action to update");
 
     if (isAPIAction(action)) {
+      // get api action object from redux form
+      const reduxFormApiAction: ApiAction = yield select(
+        getFormValues(API_EDITOR_FORM_NAME),
+      );
+
+      // run transformation on redux form action's headers, bodyformData and queryParameters.
+      // the reason we do this is because the transformation should only be done on the raw action data from the redux form.
+      // However sometimes when we attempt to save an API as a datasource, we update the Apiaction with the datasource information and the redux form data will not be available i.e. reduxFormApiAction = undefined
+      // In this scenario we can just default to the action object - (skip the if block below).
+      if (!isEmpty(reduxFormApiAction)) {
+        action = {
+          ...action,
+          actionConfiguration: {
+            ...action.actionConfiguration,
+            headers: reduxFormApiAction.actionConfiguration.headers,
+            bodyFormData: reduxFormApiAction.actionConfiguration.bodyFormData,
+            queryParameters:
+              reduxFormApiAction.actionConfiguration.queryParameters,
+          },
+        };
+      }
+
       action = transformRestAction(action);
     }
 
@@ -409,10 +447,7 @@ export function* updateActionSaga(
       // @ts-expect-error: Types are not available
       action = fixActionPayloadForMongoQuery(action);
     }
-    const response: ApiResponse<Action> = yield ActionAPI.updateAction(
-      // @ts-expect-error: Types are not available
-      action,
-    );
+    const response: ApiResponse<Action> = yield ActionAPI.updateAction(action);
 
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
@@ -420,6 +455,11 @@ export function* updateActionSaga(
         getCurrentPageNameByActionId,
         response.data.id,
       );
+
+      yield sendAnalyticsEventSaga(actionPayload.type, {
+        action,
+        pageName,
+      });
 
       if (action?.pluginType === PluginType.DB) {
         AnalyticsUtil.logEvent("SAVE_QUERY", {
@@ -617,6 +657,7 @@ function* copyActionSaga(
       name: action.payload.name,
       pageId: action.payload.destinationPageId,
     }) as Partial<Action>;
+
     delete copyAction.id;
     const response: ApiResponse<ActionCreateUpdateResponse> =
       yield ActionAPI.createAction(copyAction);

@@ -20,8 +20,9 @@ describe("Select Widget Functionality", function () {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("selectwidget", { x: 300, y: 300 });
     cy.get(".t--widget-selectwidget").should("exist");
+    _.propPane.ToggleJSMode("sourcedata");
     cy.updateCodeInput(
-      ".t--property-control-options",
+      ".t--property-control-sourcedata",
       `[
         {
           "label": "Blue",
@@ -37,6 +38,16 @@ describe("Select Widget Functionality", function () {
         }
       ]`,
     );
+
+    _.propPane.ToggleJSMode("labelkey");
+    cy.updateCodeInput(
+      ".t--property-control-wrapper.t--property-control-labelkey",
+      `label`,
+    );
+
+    _.propPane.ToggleJSMode("valuekey");
+    cy.updateCodeInput(".t--property-control-valuekey", `value`);
+
     cy.updateCodeInput(
       ".t--property-control-defaultselectedvalue",
       defaultValue,

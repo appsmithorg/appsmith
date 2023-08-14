@@ -35,8 +35,12 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { addBranchParam } from "constants/routes";
 import type { APP_MODE } from "entities/App";
-import { call, put, select } from "redux-saga/effects";
-import { failFastApiCalls, waitForWidgetConfigBuild } from "sagas/InitSagas";
+import { call, put, select, spawn } from "redux-saga/effects";
+import {
+  failFastApiCalls,
+  reportSWStatus,
+  waitForWidgetConfigBuild,
+} from "sagas/InitSagas";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -59,6 +63,7 @@ import {
 import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getAIPromptTriggered } from "utils/storage";
+import { trackOpenEditorTabs } from "../../utils/editor/browserTabsTracking";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -202,10 +207,18 @@ export default class AppEditorEngine extends AppEngine {
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
     );
+
+    const [isAnotherEditorTabOpen, currentTabs] = yield call(
+      trackOpenEditorTabs,
+      currentApplication.id,
+    );
+
     if (currentApplication) {
       AnalyticsUtil.logEvent("EDITOR_OPEN", {
         appId: currentApplication.id,
         appName: currentApplication.name,
+        isAnotherEditorTabOpen,
+        currentTabs,
       });
     }
     yield put(loadGuidedTourInit());
@@ -226,6 +239,8 @@ export default class AppEditorEngine extends AppEngine {
     });
 
     yield call(waitForWidgetConfigBuild);
+    yield spawn(reportSWStatus);
+
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });

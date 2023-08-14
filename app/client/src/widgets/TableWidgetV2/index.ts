@@ -13,6 +13,7 @@ import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
+import type { PropertyUpdates, SnipingModeProperty } from "widgets/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
@@ -88,6 +89,17 @@ export const CONFIG = {
         widget as TableWidgetProps,
         formConfig,
       );
+    },
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
+      return [
+        {
+          propertyPath: "tableData",
+          propertyValue: propValueMap.data,
+          isDynamicPropertyPath: false,
+        },
+      ];
     },
   },
   autoLayout: {

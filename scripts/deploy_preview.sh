@@ -22,6 +22,7 @@ export cluster_name=uat-cluster
 echo "Region: $region"
 echo "Cluster name: $cluster_name"
 echo "Pull Request Number: $PULL_REQUEST_NUMBER"
+echo "DP_EFS_ID: $DP_EFS_ID"
 
 sts_output=$(aws sts assume-role --role-arn env.AWS_ROLE_ARN --role-session-name ekscisession)
 export AWS_ACCESS_KEY_ID=$(echo $sts_output | jq -r '.Credentials''.AccessKeyId');\

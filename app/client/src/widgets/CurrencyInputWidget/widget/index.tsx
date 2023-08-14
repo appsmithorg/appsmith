@@ -190,6 +190,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         setValue: {
           path: "defaultText",
           type: "string",
+          accessor: "text",
         },
       },
     };

@@ -133,10 +133,6 @@ unset_unused_variables() {
     unset APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET
   fi
 
-  if [[ -z "${APPSMITH_GOOGLE_MAPS_API_KEY}" ]]; then
-    unset APPSMITH_GOOGLE_MAPS_API_KEY
-  fi
-
   if [[ -z "${APPSMITH_RECAPTCHA_SITE_KEY}" ]] || [[ -z "${APPSMITH_RECAPTCHA_SECRET_KEY}" ]] || [[ -z "${APPSMITH_RECAPTCHA_ENABLED}" ]]; then
     unset APPSMITH_RECAPTCHA_SITE_KEY # If this field is empty is might cause application crash
     unset APPSMITH_RECAPTCHA_SECRET_KEY
@@ -399,11 +395,11 @@ init_postgres || runEmbeddedPostgres=0
 init_loading_pages(){
   # The default NGINX configuration includes an IPv6 listen directive. But not all
   # servers support it, and we don't need it. So we remove it here before starting
-  # NGINX. 
-  sed -i '/\[::\]:80 default_server;/d' /etc/nginx/sites-available/default  
+  # NGINX.
+  sed -i '/\[::\]:80 default_server;/d' /etc/nginx/sites-available/default
   local starting_page="/opt/appsmith/templates/appsmith_starting.html"
   local initializing_page="/opt/appsmith/templates/appsmith_initializing.html"
-  local editor_load_page="/opt/appsmith/editor/loading.html" 
+  local editor_load_page="/opt/appsmith/editor/loading.html"
   # Update default nginx page for initializing page
   cp "$initializing_page" /var/www/html/index.nginx-debian.html
   # Start nginx page to display the Appsmith is Initializing page

@@ -27,6 +27,7 @@ import { TEDTestConfigs } from "./TestConfigs";
 import { AssertHelper } from "../Pages/AssertHelper";
 import { ReusableHelper } from "./ReusableHelper";
 import { Tabs } from "../Pages/Tabs";
+import { GsheetHelper } from "../Pages/GSheetHelper";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -259,6 +260,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.tedTestConfigs__ = new TEDTestConfigs();
     }
     return ObjectsRegistry.tedTestConfigs__;
+  }
+
+  private static gsheetHelper__: GsheetHelper;
+  static get GSheetHelper(): GsheetHelper {
+    if (ObjectsRegistry.gsheetHelper__ === undefined) {
+      ObjectsRegistry.gsheetHelper__ = new GsheetHelper();
+    }
+    return ObjectsRegistry.gsheetHelper__;
   }
 }
 

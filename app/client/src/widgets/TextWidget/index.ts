@@ -5,7 +5,11 @@ import { OverflowTypes } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import { BlueprintOperationTypes } from "widgets/constants";
+import {
+  BlueprintOperationTypes,
+  type SnipingModeProperty,
+  type PropertyUpdates,
+} from "widgets/constants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { get } from "lodash";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
@@ -79,6 +83,19 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
     setterConfig: Widget.getSetterConfig(),
+  },
+  methods: {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
+      return [
+        {
+          propertyPath: "text",
+          propertyValue: propValueMap.data,
+          isDynamicPropertyPath: true,
+        },
+      ];
+    },
   },
   autoLayout: {
     autoDimension: {

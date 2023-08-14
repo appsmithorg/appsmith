@@ -28,7 +28,8 @@ interface EntityActionParams {
     | "Copy to page"
     | "Move to page"
     | "Hide"
-    | "Refresh";
+    | "Refresh"
+    | "Set as home page";
   subAction?: string;
   entityType?: EntityItems;
   toAssertAction?: boolean;
@@ -41,7 +42,7 @@ export class EntityExplorer {
   private modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   private assertHelper = ObjectsRegistry.AssertHelper;
 
-  private _contextMenu = (entityNameinLeftSidebar: string) =>
+  public _contextMenu = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
     entityNameinLeftSidebar +
     "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]";
@@ -170,8 +171,9 @@ export class EntityExplorer {
   }
 
   public ExpandCollapseEntity(entityName: string, expand = true, index = 0) {
-    this.agHelper.AssertElementVisible(
+    this.agHelper.AssertElementVisibility(
       this._expandCollapseArrow(entityName),
+      true,
       index,
       30000,
     );
@@ -270,9 +272,7 @@ export class EntityExplorer {
   }
 
   public ValidateDuplicateMessageToolTip(tooltipText: string) {
-    cy.get(".rc-tooltip-inner").should(($x) => {
-      expect($x).contain(tooltipText.concat(" is already being used."));
-    });
+    this.agHelper.AssertTooltip(tooltipText.concat(" is already being used."));
   }
 
   public DeleteAllQueriesForDB(dsName: string) {
@@ -308,7 +308,7 @@ export class EntityExplorer {
     this.agHelper.Sleep(500);
   }
 
-  private DragNDropWidget(
+  public DragNDropWidget(
     widgetType: string,
     x = 300,
     y = 100,
@@ -322,6 +322,7 @@ export class EntityExplorer {
       this.locator._entityExplorersearch,
       widgetType.split("widget")[0].trim(),
     );
+    this.agHelper.Sleep(500);
     cy.get(this.locator._widgetPageIcon(widgetType))
       .first()
       .trigger("dragstart", { force: true })
@@ -407,16 +408,20 @@ export class EntityExplorer {
   }
 
   public PinUnpinEntityExplorer(pin = true) {
-    this.agHelper
-      .GetElement(this._entityExplorer)
-      .invoke("attr", "class")
-      .then(($classes) => {
-        if (pin && !$classes?.includes("fixed"))
-          this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
-        else if (!pin && $classes?.includes("fixed"))
-          this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
-        else this.agHelper.Sleep(200); //do nothing
-      });
+    cy.get("body").then(($ele) => {
+      if ($ele.find(this._pinEntityExplorer).length) {
+        this.agHelper
+          .GetElement(this._entityExplorer)
+          .invoke("attr", "class")
+          .then(($classes) => {
+            if (pin && !$classes?.includes("fixed"))
+              this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
+            else if (!pin && $classes?.includes("fixed"))
+              this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
+            else this.agHelper.Sleep(200); //do nothing
+          });
+      }
+    });
   }
 
   public RenameEntityFromExplorer(

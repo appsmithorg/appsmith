@@ -16,7 +16,7 @@ while read -r line
           healthy=false
         fi
       elif [[ "$process" == "server" ]]; then
-        if [[ $(curl -s -w "%{http_code}\n" http://localhost:8080/api/v1/users/me/ -o /dev/null) -ne 200 ]]; then
+        if [[ $(curl -s -w "%{http_code}\n" http://localhost:8080/api/v1/health -o /dev/null) -ne 200 ]]; then
            echo 'ERROR: Server is down';
            healthy=false
         fi

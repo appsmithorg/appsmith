@@ -20,8 +20,9 @@ describe("Select Widget Functionality", function () {
 
   it("should check that virtualization works well", () => {
     cy.openPropertyPane("selectwidget");
+    _.propPane.ToggleJSMode("sourcedata");
     cy.updateCodeInput(
-      ".t--property-control-options",
+      ".t--property-control-sourcedata",
       `[
         {
           "label": "RANDOM",
@@ -49,7 +50,17 @@ describe("Select Widget Functionality", function () {
         }
       ]`,
     );
-    cy.get(".t--property-control-options .t--codemirror-has-error").should(
+
+    _.propPane.ToggleJSMode("labelkey");
+    cy.updateCodeInput(
+      ".t--property-control-wrapper.t--property-control-labelkey",
+      `label`,
+    );
+
+    _.propPane.ToggleJSMode("valuekey");
+    cy.updateCodeInput(".t--property-control-valuekey", `value`);
+
+    cy.get(".t--property-control-value .t--codemirror-has-error").should(
       "not.exist",
     );
     // Changing the option to the last item
@@ -77,7 +88,7 @@ describe("Select Widget Functionality", function () {
       });
     // Add a longer list of item
     cy.updateCodeInput(
-      ".t--property-control-options",
+      ".t--property-control-sourcedata",
       `[
         {
           "label": "RANDOM",
@@ -154,7 +165,7 @@ describe("Select Widget Functionality", function () {
   it("should check that filtering works well", () => {
     cy.openPropertyPane("selectwidget");
     cy.updateCodeInput(
-      ".t--property-control-options",
+      ".t--property-control-sourcedata",
       `[
         {
           "label": "RANDOM",
@@ -182,7 +193,7 @@ describe("Select Widget Functionality", function () {
         }
       ]`,
     );
-    cy.get(".t--property-control-options .t--codemirror-has-error").should(
+    cy.get(".t--property-control-value .t--codemirror-has-error").should(
       "not.exist",
     );
     // Filtering the option
@@ -237,7 +248,7 @@ describe("Select Widget Functionality", function () {
   it("should check that filtering works well using numeric labels", () => {
     cy.openPropertyPane("selectwidget");
     cy.updateCodeInput(
-      ".t--property-control-options",
+      ".t--property-control-sourcedata",
       `[
         {
           "label": 1,

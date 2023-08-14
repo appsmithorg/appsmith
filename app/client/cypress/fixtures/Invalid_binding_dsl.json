@@ -27,6 +27,8 @@
         "widgetName": "Dropdown1",
         "defaultOptionValue": "[\n  {\n    \"label\": \"VEG\",\n    \"value\": \"VEG\"\n  }\n]",
         "type": "SELECT_WIDGET",
+        "optionLabel": "label",
+        "optionValue": "value",
         "isLoading": false,
         "parentColumnSpace": 74,
         "parentRowSpace": 40,

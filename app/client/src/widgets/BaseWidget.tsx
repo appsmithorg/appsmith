@@ -884,6 +884,7 @@ export const WIDGET_DISPLAY_PROPS = {
 };
 export interface WidgetError extends Error {
   type: "property" | "configuration" | "other";
+  path?: string;
 }
 export interface WidgetErrorProps {
   errors?: WidgetError[];

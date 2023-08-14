@@ -4,7 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { PanelConfig } from "constants/PropertyControlConstants";
 import PropertyControlsGenerator from "./PropertyControlsGenerator";
-import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import {
+  getSelectedPropertyPanel,
+  getWidgetPropsForPropertyPane,
+} from "selectors/propertyPaneSelectors";
 import { get, isNumber, isPlainObject, isString } from "lodash";
 import type { IPanelProps } from "@blueprintjs/core";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -50,7 +53,13 @@ export function PanelPropertiesEditor(
     PanelPropertiesEditorPanelProps &
     IPanelProps,
 ) {
-  const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
+  const widgetProperties = useSelector(getWidgetPropsForPropertyPane);
+  const currentSelectedPanel = useSelector(getSelectedPropertyPanel);
+  const keepPaneOpen = useMemo(() => {
+    return Object.keys(currentSelectedPanel).some((path) => {
+      return path.split(".")[0] === widgetProperties?.widgetName;
+    });
+  }, [currentSelectedPanel, widgetProperties?.widgetName]);
 
   const {
     closePanel,
@@ -130,10 +139,10 @@ export function PanelPropertiesEditor(
   );
 
   useEffect(() => {
-    if (panelProps.propPaneId !== widgetProperties?.widgetId) {
+    if (panelProps.propPaneId !== widgetProperties?.widgetId || !keepPaneOpen) {
       props.closePanel();
     }
-  }, [widgetProperties?.widgetId]);
+  }, [widgetProperties?.widgetId, keepPaneOpen]);
 
   const { searchText, setSearchText } = useSearchText("");
 
@@ -145,9 +154,9 @@ export function PanelPropertiesEditor(
       panelProps[panelConfig.panelIdPropertyName]
     }`;
     sendPropertyPaneSearchAnalytics({
-      widgetType: widgetProperties?.type,
+      widgetType: widgetProperties?.type ?? "",
       searchText,
-      widgetName: widgetProperties?.widgetName,
+      widgetName: widgetProperties?.widgetName ?? "",
       searchPath,
     });
   }, [searchText]);

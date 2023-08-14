@@ -44,6 +44,8 @@ import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -436,6 +438,7 @@ public class FileUtilsImpl implements FileInterface {
             Files.createDirectories(path.getParent());
             return writeToFile(sourceEntity, path, gson);
         } catch (IOException e) {
+            log.error("Error while writing resource to file {} with {}", path, e.getMessage());
             log.debug(e.getMessage());
         }
         return false;
@@ -502,7 +505,7 @@ public class FileUtilsImpl implements FileInterface {
             Path metadataPath = path.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION);
             return writeToFile(sourceEntity, metadataPath, gson);
         } catch (IOException e) {
-            log.debug(e.getMessage());
+            log.error("Error while reading file {} with message {} with cause", path, e.getMessage(), e.getCause());
         }
         return false;
     }
@@ -537,7 +540,7 @@ public class FileUtilsImpl implements FileInterface {
                                         pathLocal.getFileName().toString()))
                         .forEach(this::deleteFile);
             } catch (IOException e) {
-                log.debug("Error while scanning directory: {}, with error {}", resourceDirectory, e);
+                log.error("Error while scanning directory: {}, with error {}", resourceDirectory, e.getMessage());
             }
         }
     }
@@ -558,7 +561,7 @@ public class FileUtilsImpl implements FileInterface {
                                 && !validResources.contains(path.getFileName().toString()))
                         .forEach(this::deleteDirectory);
             } catch (IOException e) {
-                log.debug("Error while scanning directory: {}, with error {}", resourceDirectory, e);
+                log.error("Error while scanning directory {} with error {}", resourceDirectory, e.getMessage());
             }
         }
     }
@@ -585,9 +588,9 @@ public class FileUtilsImpl implements FileInterface {
         try {
             Files.deleteIfExists(filePath);
         } catch (DirectoryNotEmptyException e) {
-            log.error("Unable to delete non-empty directory at {}", filePath);
+            log.error("Unable to delete non-empty directory at {} with cause", filePath, e.getMessage());
         } catch (IOException e) {
-            log.error("Unable to delete file, {}", e.getMessage());
+            log.error("Unable to delete file {} with {}", filePath, e.getMessage());
         }
     }
 
@@ -706,7 +709,7 @@ public class FileUtilsImpl implements FileInterface {
         try (JsonReader reader = new JsonReader(new FileReader(filePath.toFile()))) {
             file = gson.fromJson(reader, Object.class);
         } catch (Exception e) {
-            log.debug(e.getMessage());
+            log.error("Error while reading file {} with message {} with cause", filePath, e.getMessage(), e.getCause());
             return null;
         }
         return file;
@@ -726,7 +729,11 @@ public class FileUtilsImpl implements FileInterface {
                 try (JsonReader reader = new JsonReader(new FileReader(file))) {
                     resource.put(file.getName() + keySuffix, gson.fromJson(reader, Object.class));
                 } catch (Exception e) {
-                    log.debug(e.getMessage());
+                    log.error(
+                            "Error while reading file {} with message {} with cause",
+                            file.toPath(),
+                            e.getMessage(),
+                            e.getCause());
                 }
             });
         }
@@ -743,7 +750,7 @@ public class FileUtilsImpl implements FileInterface {
         try {
             data = FileUtils.readFileToString(filePath.toFile(), "UTF-8");
         } catch (IOException e) {
-            log.error(" Error while reading the file from git repo {0} ", e.getMessage());
+            log.error("Error while reading the file from git repo {} ", e.getMessage());
         }
         return data;
     }
@@ -1066,5 +1073,28 @@ public class FileUtilsImpl implements FileInterface {
         JSONObject pageJSON = new JSONObject(gson.toJson(pageJson));
         JSONArray layouts = pageJSON.getJSONObject("unpublishedPage").getJSONArray("layouts");
         return layouts.getJSONObject(0).getJSONObject("dsl");
+    }
+
+    @Override
+    public Mono<Long> deleteIndexLockFile(Path path, int validTimeInSeconds) {
+        // Check the time created of the index.lock file
+        // If the File is stale for more than validTime, then delete the file
+        try {
+            BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
+            FileTime fileTime = attr.creationTime();
+            Instant now = Instant.now();
+            Instant validCreateTime = now.minusSeconds(validTimeInSeconds);
+            if (fileTime.toInstant().isBefore(validCreateTime)) {
+                // Add base repo path
+                path = Paths.get(path + ".lock");
+                deleteFile(path);
+                return Mono.just(now.minusMillis(fileTime.toMillis()).getEpochSecond());
+            } else {
+                return Mono.just(0L);
+            }
+        } catch (IOException ex) {
+            log.error("Error reading index.lock file: {}", ex.getMessage());
+            return Mono.just(0L);
+        }
     }
 }

@@ -14,7 +14,7 @@ import {
   createEditActionColumn,
   generateNewColumnOrderFromStickyValue,
 } from "./utilities";
-import type { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import type { PropertyUpdates } from "widgets/constants";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 
 export function totalRecordsCountValidation(
@@ -241,7 +241,7 @@ export const updateInlineEditingOptionDropdownVisibilityHook = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
-): Array<PropertyHookUpdates> | undefined => {
+): Array<PropertyUpdates> | undefined => {
   let propertiesToUpdate = [];
 
   if (
@@ -495,7 +495,7 @@ export const updateInlineEditingSaveOptionHook = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
-): Array<PropertyHookUpdates> | undefined => {
+): Array<PropertyUpdates> | undefined => {
   if (propertyValue !== InlineEditingSaveOptions.ROW_LEVEL) {
     const columnsArray = Object.values(props.primaryColumns);
     const edtiActionColumn = columnsArray.find(
@@ -568,14 +568,14 @@ export function updateThemeStylesheetsInColumns(
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
-): Array<PropertyHookUpdates> | undefined {
+): Array<PropertyUpdates> | undefined {
   const regex = /^primaryColumns\.(\w+)\.(.*)$/;
   const matches = propertyPath.match(regex);
   const columnId = matches?.[1];
   const columnProperty = matches?.[2];
 
   if (columnProperty === "columnType") {
-    const propertiesToUpdate: Array<PropertyHookUpdates> = [];
+    const propertiesToUpdate: Array<PropertyUpdates> = [];
     const oldColumnType = get(props, `primaryColumns.${columnId}.columnType`);
     const newColumnType = propertyValue;
 
@@ -669,7 +669,7 @@ export const updateCustomColumnAliasOnLabelChange = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: unknown,
-): Array<PropertyHookUpdates> | undefined => {
+): Array<PropertyUpdates> | undefined => {
   // alias will be updated along with label change only for custom columns
   const regex = /^primaryColumns\.(customColumn\d+)\.label$/;
   if (propertyPath?.length && regex.test(propertyPath)) {

@@ -5,7 +5,7 @@ export class AdminSettings {
   public locator = ObjectsRegistry.CommonLocators;
   public homePage = ObjectsRegistry.HomePage;
 
-  private _adminSettingsBtn = '[data-testid="t--admin-settings-menu-option"]';
+  public _adminSettingsBtn = '[data-testid="t--admin-settings-menu-option"]';
   private _settingsList = ".t--settings-category-list";
   public _usersTab = ".t--settings-category-users";
   public _roles = (user: string) =>
@@ -16,6 +16,6 @@ export class AdminSettings {
   public NavigateToAdminSettings() {
     this.homePage.NavigateToHome();
     this.agHelper.GetNClick(this._adminSettingsBtn);
-    this.agHelper.AssertElementVisible(this._settingsList);
+    this.agHelper.AssertElementVisibility(this._settingsList);
   }
 }

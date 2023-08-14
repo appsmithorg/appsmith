@@ -20,8 +20,9 @@ describe("Binding the multiple widgets and validating default data", function ()
     );
     //Dropdown widget test with default value from table widget
     entityExplorer.SelectEntityByName("Dropdown1");
-    propPane.UpdatePropertyFieldValue(
-      "Options",
+    propPane.ToggleJSMode("sourcedata");
+    cy.testJsontext(
+      "sourcedata",
       JSON.stringify(testdata.deafultDropDownWidget),
     );
   });

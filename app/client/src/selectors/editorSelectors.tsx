@@ -9,7 +9,6 @@ import type {
   AppLayoutConfig,
   PageListReduxState,
 } from "reducers/entityReducers/pageListReducer";
-import type { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
@@ -61,6 +60,9 @@ import WidgetFactory from "utils/WidgetFactory";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { nestDSL } from "@shared/dsl";
 import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
+import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -336,12 +338,29 @@ export const getCurrentPageName = createSelector(
 export const getWidgetCards = createSelector(
   getWidgetConfigs,
   getIsAutoLayout,
-  (widgetConfigs: WidgetConfigReducerState, isAutoLayout: boolean) => {
+  (_state) => selectFeatureFlagCheck(_state, FEATURE_FLAG.ab_wds_enabled),
+  (widgetConfigs, isAutoLayout, isWDSEnabled) => {
     const cards = Object.values(widgetConfigs.config).filter((config) => {
-      return isAirgapped()
-        ? config.widgetName !== "Map" && !config.hideCard
-        : !config.hideCard;
+      // if wds_vs is not enabled, hide all wds_v2 widgets
+      if (
+        Object.values(WDS_V2_WIDGET_MAP).includes(config.type) &&
+        isWDSEnabled === false
+      ) {
+        return false;
+      }
+
+      if (isAirgapped()) {
+        return config.widgetName !== "Map" && !config.hideCard;
+      }
+
+      // if wds is enabled, only show the wds_v2 widgets
+      if (isWDSEnabled === true) {
+        return Object.values(WDS_V2_WIDGET_MAP).includes(config.type);
+      }
+
+      return !config.hideCard;
     });
+
     const _cards: WidgetCardProps[] = cards.map((config) => {
       const {
         detachFromLayout = false,
@@ -374,6 +393,7 @@ export const getWidgetCards = createSelector(
       };
     });
     const sortedCards = sortBy(_cards, ["displayName"]);
+
     return sortedCards;
   },
 );

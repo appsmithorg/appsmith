@@ -155,7 +155,7 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
           </TemplateDescriptionWrapper>
           <StyledSimilarTemplatesWrapper
             breakpointCols={breakpointColumns}
-            isForkingEnabled
+            isForkingEnabled={false}
             onBackPress={props.onBackPress}
             onClick={onSimilarTemplateClick}
             onFork={onSimilarTemplateClick}

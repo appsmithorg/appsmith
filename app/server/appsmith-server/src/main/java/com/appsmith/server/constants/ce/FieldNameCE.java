@@ -177,6 +177,8 @@ public class FieldNameCE {
     public static final String ENVIRONMENT = "environment";
     public static final String UNUSED_ENVIRONMENT_ID = "unused_env";
 
+    public static final String TENANT = "tenant";
+
     public static final String SUFFIX_USER_MANAGEMENT_ROLE = " User Management";
 
     public static final String REPO_URL = "repoUrl";
