@@ -1504,8 +1504,9 @@ public class AmazonS3PluginTest {
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
         List<ActionConfiguration> actionConfigurationList = new ArrayList<>();
         Map<String, String> mappedColumnsAndTableName = new HashMap<>();
-        pluginExecutor.sanitizeGenerateCRUDPageTemplateInfo(actionConfigurationList, mappedColumnsAndTableName,
-                "test").block();
+        pluginExecutor
+                .sanitizeGenerateCRUDPageTemplateInfo(actionConfigurationList, mappedColumnsAndTableName, "test")
+                .block();
         assertEquals(0, actionConfigurationList.size());
         assertEquals(true, isEmpty(mappedColumnsAndTableName));
     }
