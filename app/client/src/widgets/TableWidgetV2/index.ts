@@ -2,7 +2,10 @@ import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { InlineEditingSaveOptions } from "./constants";
+import {
+  ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
+  InlineEditingSaveOptions,
+} from "./constants";
 import type { TableWidgetProps } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -30,7 +33,7 @@ export const CONFIG = {
     defaultSelectedRowIndex: 0,
     defaultSelectedRowIndices: [0],
     enableServerSideFiltering: Widget.getFeatureFlag(
-      "release_table_serverside_filtering_enabled",
+      ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
     )
       ? false
       : undefined,

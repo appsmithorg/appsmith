@@ -13,6 +13,7 @@ import type { ColumnAction } from "components/propertyControls/ColumnActionSelec
 import type { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
 import type { ButtonVariant } from "components/constants";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export type EditableCell = {
   column: string;
@@ -225,3 +226,6 @@ export const defaultEditableCell = {
 };
 
 export const DEFAULT_COLUMN_NAME = "Table Column";
+
+export const ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING =
+  FEATURE_FLAG["release_table_serverside_filtering_enabled"];
