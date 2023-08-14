@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { PluginType } from "entities/Action";
 import { Button, toast } from "design-system";
 import {
@@ -15,6 +15,9 @@ import type { Datasource } from "entities/Datasource";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import { noop } from "utils/AppsmithUtils";
 import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 
 type NewActionButtonProps = {
   datasource?: Datasource;
@@ -34,6 +37,38 @@ function NewActionButton(props: NewActionButtonProps) {
   const actions = useSelector((state: AppState) => state.entities.actions);
   const currentPageId = useSelector(getCurrentPageId);
   const currentEnvironment = getCurrentEnvironment();
+
+  const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
+  const { pushFeature } = useContext(WalkthroughContext) || {};
+  useEffect(() => {
+    if (signpostingEnabled && !actions.length) {
+      checkAndShowWalkthrough();
+    }
+  }, [actions.length, signpostingEnabled]);
+  const checkAndShowWalkthrough = async () => {
+    pushFeature &&
+      pushFeature({
+        targetId: "create-query",
+        details: {
+          title: "Add New query",
+          description:
+            "A new query can be created using this button for this datasource",
+          imageURL: `${ASSETS_CDN_URL}/schema.gif`,
+        },
+        offset: {
+          position: "bottom",
+          highlightPad: 5,
+          indicatorLeft: -3,
+          left: -200,
+          style: {
+            transform: "none",
+            boxShadow: "var(--ads-v2-shadow-popovers)",
+            border: "1px solid var(--ads-v2-color-border-muted)",
+          },
+        },
+        delay: 1000,
+      });
+  };
 
   const createQueryAction = useCallback(
     (e) => {
@@ -71,6 +106,7 @@ function NewActionButton(props: NewActionButtonProps) {
   return (
     <Button
       className="t--create-query"
+      id={"create-query"}
       isDisabled={!!disabled}
       isLoading={isSelected || props.isLoading}
       kind={isNewQuerySecondaryButton ? "secondary" : "primary"}
