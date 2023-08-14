@@ -122,6 +122,15 @@ import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import DependencyMap from "plugins/Common/DependencyMap";
 import { DependencyMapUtils } from "plugins/Common/DependencyMap/DependencyMapUtils";
+import { EvaluationEntityTree } from "plugins/Linting/lib/LintEntityTree";
+import {
+  convertArrayToObject,
+  extractInfoFromBindings,
+} from "../DependencyMap/utils";
+import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
+import { getAllSetterFunctions } from "ce/workers/Evaluation/Actions";
+import { PathUtils } from "plugins/Linting/utils/pathUtils";
+import { EntityUtils } from "plugins/Common/utils/entityUtils";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -205,6 +214,65 @@ export default class DataTreeEvaluator {
     return this.oldUnEvalTree;
   }
 
+  dependencyMapNew: DependencyMap | null = null;
+  entityTreeCache: EvaluationEntityTree | null = null;
+
+  firstTreeSetup(unEvalTree: any, configTree: ConfigTree) {
+    const entityTree = new EvaluationEntityTree(unEvalTree, configTree);
+    this.allKeys = PathUtils.getAllPaths(unEvalTree);
+    this.dependencyMapNew = new DependencyMap();
+    this.validationDependencyMap = new DependencyMap();
+    const allAppsmithInternalFunctions = convertArrayToObject(
+      AppsmithFunctionsWithFields,
+    );
+    const setterFunctions = getAllSetterFunctions(unEvalTree, configTree);
+    this.dependencyMapNew.addNodes(
+      { ...this.allKeys, ...allAppsmithInternalFunctions, ...setterFunctions },
+      false,
+    );
+    this.validationDependencyMap.addNodes(this.allKeys, false);
+    const entities = entityTree.getEntities();
+    for (const entity of entities) {
+      const entityDependencies = EntityUtils.getEntityDependencies(
+        entity,
+        this.allKeys,
+      );
+      for (const path of Object.keys(entityDependencies)) {
+        const pathDependencies = entityDependencies[path];
+        const { errors, references } = extractInfoFromBindings(
+          pathDependencies,
+          this.allKeys,
+        );
+        this.dependencyMapNew.addDependency(path, references);
+        // Log errors
+      }
+      const validationDependencies =
+        EntityUtils.getValidationDependencies(entity);
+
+      for (const path of Object.keys(validationDependencies)) {
+        this.validationDependencyMap.addDependency(
+          path,
+          validationDependencies[path],
+        );
+      }
+    }
+    DependencyMapUtils.makeParentsDependOnChildren(this.dependencyMapNew);
+    this.sortedDependencies = this.sortDependencies(this.dependencyMapNew);
+    
+    this.entityTreeCache = entityTree;
+    debugger;
+  }
+
+  setupOtherTrees(unEvalTree: any, configTree: ConfigTree) {
+    const entityTree = new EvaluationEntityTree(unEvalTree, configTree);
+    const differences = entityTree.computeDifferences(this.entityTreeCache!);
+    const translatedDiffs = differences.map((diff) =>
+      translateDiffEventToDataTreeDiffEvent(diff, unEvalTree),
+    );
+    this.entityTreeCache = entityTree;
+    debugger;
+  }
+
   /**
    * Method to create all data required for linting and
    * evaluation of the first tree
@@ -217,7 +285,7 @@ export default class DataTreeEvaluator {
     evalOrder: string[];
   } {
     this.setConfigTree(configTree);
-
+    this.firstTreeSetup(unEvalTree, configTree);
     const totalFirstTreeSetupStartTime = performance.now();
     // cloneDeep will make sure not to omit key which has value as undefined.
     const firstCloneStartTime = performance.now();
@@ -406,6 +474,7 @@ export default class DataTreeEvaluator {
     isNewWidgetAdded: boolean;
   } {
     this.setConfigTree(configTree);
+    this.setupOtherTrees(unEvalTree, configTree);
     const totalUpdateTreeSetupStartTime = performance.now();
 
     let localUnEvalTree = Object.assign({}, unEvalTree);
@@ -413,7 +482,7 @@ export default class DataTreeEvaluator {
     let jsUpdates: Record<string, JSUpdate> = {};
     const diffCheckTimeStartTime = performance.now();
     //update uneval tree from previously saved current state of collection
-    this.updateLocalUnEvalTree(localUnEvalTree, configTree);
+    // this.updateLocalUnEvalTree(localUnEvalTree, configTree);
     //get difference in js collection body to be parsed
     const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
     const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);

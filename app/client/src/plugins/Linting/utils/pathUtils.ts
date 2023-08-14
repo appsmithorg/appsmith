@@ -6,48 +6,84 @@ import {
   isTrueObject,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { toPath, union } from "lodash";
+import { EntityUtils } from "plugins/Common/utils/entityUtils";
 
 export class PathUtils {
-  static getReactivePaths(entity: IEntity) {
+  static getReactivePaths(entity: IEntity, fullPath = true) {
     if (!isDynamicEntity(entity)) return [];
     const config = entity.getConfig();
     const name = entity.getName();
     const reactivePaths = config.reactivePaths;
     if (!reactivePaths) return [];
-
+    if (!fullPath) return Object.keys(reactivePaths);
     return PathUtils.getFullNamesFromPropertyPaths(
       Object.keys(reactivePaths),
       name,
     );
   }
-  static getBindingPaths(entity: IEntity) {
+  static getBindingPaths(entity: IEntity, fullPath = true) {
     if (!isDynamicEntity(entity)) return [];
     const config = entity.getConfig();
     const name = entity.getName();
     const bindingPaths = config.bindingPaths;
     if (!bindingPaths) return [];
+    if (!fullPath) return Object.keys(bindingPaths);
     return PathUtils.getFullNamesFromPropertyPaths(
       Object.keys(bindingPaths),
       name,
     );
   }
 
-  static getTriggerPaths(entity: IEntity) {
+  static getInternalDependencyMap(entity: IEntity) {
+    if (EntityUtils.isAction(entity) || EntityUtils.isJSAction(entity))
+      return entity.getConfig().dependencyMap;
+    return {};
+  }
+
+  static getTriggerPaths(entity: IEntity, fullPath = true) {
     if (!isWidgetEntity(entity)) return [];
     const config = entity.getConfig();
     const name = entity.getName();
     const triggerPaths = config.triggerPaths;
+    if (!triggerPaths) return [];
+    if (!fullPath) return Object.keys(triggerPaths);
     return PathUtils.getFullNamesFromPropertyPaths(
       Object.keys(triggerPaths),
       name,
     );
   }
 
-  static getDynamicPaths(entity: IEntity) {
+  static getDynamicBindingPaths(entity: IEntity) {
+    if (!EntityUtils.isWidget(entity)) return [];
+    const config = entity.getConfig();
+    if (
+      config &&
+      config.dynamicBindingPathList &&
+      Array.isArray(config.dynamicBindingPathList)
+    ) {
+      return config.dynamicBindingPathList;
+    }
+    return [];
+  }
+
+  static getDynamicTriggerPaths(entity: IEntity) {
+    if (!EntityUtils.isWidget(entity)) return [];
+    const config = entity.getConfig();
+    if (
+      config &&
+      config.dynamicTriggerPathList &&
+      Array.isArray(config.dynamicTriggerPathList)
+    ) {
+      return config.dynamicTriggerPathList;
+    }
+    return [];
+  }
+
+  static getDynamicPaths(entity: IEntity, fullPath = true) {
     if (!isDynamicEntity(entity)) return [];
-    const reactivePaths = PathUtils.getReactivePaths(entity);
-    const triggerPaths = PathUtils.getTriggerPaths(entity);
-    const bindingPaths = PathUtils.getBindingPaths(entity);
+    const reactivePaths = PathUtils.getReactivePaths(entity, fullPath);
+    const triggerPaths = PathUtils.getTriggerPaths(entity, fullPath);
+    const bindingPaths = PathUtils.getBindingPaths(entity, fullPath);
     return union(reactivePaths, triggerPaths, bindingPaths);
   }
   static getFullNamesFromPropertyPaths(paths: string[], parentName: string) {
@@ -101,4 +137,18 @@ export class PathUtils {
     }
     return result;
   };
+
+  static getEntityNameAndPropertyPath(fullPath: string) {
+    const indexOfFirstDot = fullPath.indexOf(".");
+    if (indexOfFirstDot === -1) {
+      // No dot was found so path is the entity name itself
+      return {
+        entityName: fullPath,
+        propertyPath: "",
+      };
+    }
+    const entityName = fullPath.substring(0, indexOfFirstDot);
+    const propertyPath = fullPath.substring(indexOfFirstDot + 1);
+    return { entityName, propertyPath };
+  }
 }
