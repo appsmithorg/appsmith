@@ -12,6 +12,7 @@
   "dependencies": {
     "@design-system/headless": "workspace:^",
     "@design-system/theming": "workspace:^",
+    "@emotion/css": "*",
     "@react-aria/utils": "^3.16.0",
     "@react-aria/visually-hidden": "^3.8.0",
     "classnames": "*",

@@ -1,147 +1,74 @@
-import styled from "styled-components";
+import { css } from "@emotion/css";
 
-import type { Responsive, StyledFlexProps } from "./types";
+import type { FlexProps, Responsive } from "./types";
 
-export const StyledFlex = styled.div<StyledFlexProps>`
-  ${({ $wrap }) => {
-    return containerDimensionStyles("flex-wrap", $wrap, flexWrapValue);
-  }}
-
-  ${({ $justifyContent }) => {
-    return containerDimensionStyles("justify-content", $justifyContent);
-  }}
-
-  ${({ $alignContent }) => {
-    return containerDimensionStyles(
-      "align-content",
-      $alignContent,
-      flexAlignValue,
-    );
-  }}
-
-  ${({ $alignItems }) => {
-    return containerDimensionStyles("align-items", $alignItems, flexAlignValue);
-  }}
-
-  ${({ $gap }) => {
-    return containerDimensionStyles("gap", $gap, cssVarValue);
-  }}
-
-  ${({ $columnGap }) => {
-    return containerDimensionStyles("column-gap", $columnGap);
-  }}
-
-  ${({ $rowGap }) => {
-    return containerDimensionStyles("row-gap", $rowGap);
-  }}
-
-  ${({ $direction }) => {
-    return containerDimensionStyles("flex-direction", $direction);
-  }}
-
-  ${({ $flex }) => {
-    return containerDimensionStyles("flex", $flex);
-  }}
-
-  ${({ $flexGrow }) => {
-    return containerDimensionStyles("flex-grow", $flexGrow);
-  }}
-
-  ${({ $flexShrink }) => {
-    return containerDimensionStyles("flex-shrink", $flexShrink);
-  }}
-
-  ${({ $flexBasis }) => {
-    return containerDimensionStyles("flex-basis", $flexBasis, cssVarValue);
-  }}
-
-  ${({ $justifySelf }) => {
-    return containerDimensionStyles("justify-self", $justifySelf);
-  }}
-
-  ${({ $alignSelf }) => {
-    return containerDimensionStyles("align-self", $alignSelf);
-  }}
-
-  ${({ $order }) => {
-    return containerDimensionStyles("order", $order);
-  }}
-
-  ${({ $isHidden }) => {
-    return containerDimensionStyles("display", $isHidden, hiddenValue);
-  }}
-
-  ${({ $margin }) => {
-    return containerDimensionStyles("margin", $margin, cssVarValue);
-  }}
-
-  ${({ $marginLeft }) => {
-    return containerDimensionStyles("margin-left", $marginLeft, cssVarValue);
-  }}
-
-  ${({ $marginRight }) => {
-    return containerDimensionStyles("margin-right", $marginRight, cssVarValue);
-  }}
-
-  ${({ $marginTop }) => {
-    return containerDimensionStyles("margin-top", $marginTop, cssVarValue);
-  }}
-
-  ${({ $padding }) => {
-    return containerDimensionStyles("padding", $padding, cssVarValue);
-  }}
-
-  ${({ $paddingLeft }) => {
-    return containerDimensionStyles("padding-left", $paddingLeft, cssVarValue);
-  }}
-
-  ${({ $paddingRight }) => {
-    return containerDimensionStyles(
-      "padding-right",
-      $paddingRight,
-      cssVarValue,
-    );
-  }}
-
-  ${({ $paddingTop }) => {
-    return containerDimensionStyles("padding-top", $paddingTop, cssVarValue);
-  }}
-
-  ${({ $marginBottom }) => {
-    return containerDimensionStyles(
-      "margin-bottom",
-      $marginBottom,
-      cssVarValue,
-    );
-  }}
-
-  ${({ $width }) => {
-    return containerDimensionStyles("width", $width, cssVarValue);
-  }}
-
-  ${({ $height }) => {
-    return containerDimensionStyles("height", $height, cssVarValue);
-  }}
-
-  ${({ $minWidth }) => {
-    return containerDimensionStyles("min-width", $minWidth, cssVarValue);
-  }}
-
-  ${({ $minHeight }) => {
-    return containerDimensionStyles("min-height", $minHeight, cssVarValue);
-  }}
-
-  ${({ $maxWidth }) => {
-    return containerDimensionStyles("max-width", $maxWidth, cssVarValue);
-  }}
-
-  ${({ $maxHeight }) => {
-    return containerDimensionStyles("max-height", $maxHeight, cssVarValue);
-  }}
-`;
+export const flexCss = ({
+  alignItems,
+  alignSelf,
+  columnGap,
+  direction,
+  flex,
+  flexBasis,
+  flexGrow,
+  flexShrink,
+  gap,
+  height,
+  isHidden,
+  justifyContent,
+  justifySelf,
+  margin,
+  marginBottom,
+  marginLeft,
+  marginRight,
+  marginTop,
+  maxHeight,
+  maxWidth,
+  minHeight,
+  minWidth,
+  order,
+  padding,
+  paddingLeft,
+  paddingRight,
+  paddingTop,
+  rowGap,
+  width,
+  wrap,
+}: FlexProps) =>
+  css([
+    dimensionStyles("flex-wrap", wrap, flexWrapValue),
+    dimensionStyles("justify-content", justifyContent),
+    dimensionStyles("align-items", alignItems, flexAlignValue),
+    dimensionStyles("gap", gap, cssVarValue),
+    dimensionStyles("column-gap", columnGap),
+    dimensionStyles("row-gap", rowGap),
+    dimensionStyles("flex-direction", direction),
+    dimensionStyles("flex", flex),
+    dimensionStyles("flex-grow", flexGrow),
+    dimensionStyles("flex-shrink", flexShrink),
+    dimensionStyles("flex-basis", flexBasis, cssVarValue),
+    dimensionStyles("justify-self", justifySelf),
+    dimensionStyles("align-self", alignSelf),
+    dimensionStyles("order", order),
+    dimensionStyles("display", isHidden, hiddenValue),
+    dimensionStyles("margin", margin, cssVarValue),
+    dimensionStyles("margin-left", marginLeft, cssVarValue),
+    dimensionStyles("margin-right", marginRight, cssVarValue),
+    dimensionStyles("margin-top", marginTop, cssVarValue),
+    dimensionStyles("padding", padding, cssVarValue),
+    dimensionStyles("padding-left", paddingLeft, cssVarValue),
+    dimensionStyles("padding-right", paddingRight, cssVarValue),
+    dimensionStyles("padding-top", paddingTop, cssVarValue),
+    dimensionStyles("margin-bottom", marginBottom, cssVarValue),
+    dimensionStyles("width", width, cssVarValue),
+    dimensionStyles("height", height, cssVarValue),
+    dimensionStyles("min-width", minWidth, cssVarValue),
+    dimensionStyles("min-height", minHeight, cssVarValue),
+    dimensionStyles("max-width", maxWidth, cssVarValue),
+    dimensionStyles("max-height", maxHeight, cssVarValue),
+  ]);
 
 // the value and returned callback value can be of any type in accordance with component props
-const containerDimensionStyles = (
+const dimensionStyles = (
   cssProp: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
@@ -222,7 +149,7 @@ const hiddenValue = (value: boolean) => {
   return value ? "none" : "flex";
 };
 
-export const StyledContainerFlex = styled.div`
+export const flexContainerCss = css`
   container-type: inline-size;
   display: flex;
   justify-content: center;

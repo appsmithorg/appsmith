@@ -1,36 +1,27 @@
-import React from "react";
-import { createGlobalStyle } from "styled-components";
-
+import React, { useRef } from "react";
+import { createGlobalFontStack } from "../typography";
+import { themeProviderCss } from "./index.styled";
 import { ThemeContext } from "./ThemeContext";
-import { StyledProvider } from "./index.styled";
-import { createGlobalFontStack } from "../../typography";
+import { injectGlobal, cx } from "@emotion/css";
 
 import type { ThemeProviderProps } from "./types";
 
 const { fontFaces } = createGlobalFontStack();
-const GlobalStyles = createGlobalStyle`${fontFaces}`;
+injectGlobal(fontFaces);
 
 export const ThemeProvider = (props: ThemeProviderProps) => {
-  const { children, className, style, theme } = props;
-  const { fontFamily, typography, ...rest } = theme;
+  const { children, className, theme } = props;
+  const provider = useRef<HTMLDivElement>(null);
 
   return (
-    <ThemeContext.Provider
-      value={{
-        ...rest,
-      }}
-    >
-      <GlobalStyles />
-      <StyledProvider
-        $fontFamily={fontFamily}
-        $typography={typography}
-        className={className}
+    <ThemeContext.Provider value={theme}>
+      <div
+        className={cx(className, themeProviderCss(theme))}
         data-theme-provider=""
-        style={style}
-        theme={rest}
+        ref={provider}
       >
         {children}
-      </StyledProvider>
+      </div>
     </ThemeContext.Provider>
   );
 };

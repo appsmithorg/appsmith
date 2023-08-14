@@ -39,23 +39,27 @@ module.exports = {
             resolve: { fullySpecified: false },
           },
           {
-            test: /\.css$/,
+            test: /\.module\.css$/,
             use: [
               {
                 loader: "postcss-loader",
                 options: {
                   postcssOptions: {
                     plugins: [
-                      require("postcss-nesting"),
-                      require("postcss-import"),
-                      require("postcss-at-rules-variables"),
-                      require("postcss-conditionals"),
-                      require("postcss-for"),
-                      require("postcss-each"),
-                      require("postcss-url"),
-                      require("cssnano")({
-                        preset: "default",
-                      }),
+                      "postcss-nesting",
+                      "postcss-import",
+                      "postcss-at-rules-variables",
+                      "postcss-conditionals",
+                      "postcss-for",
+                      "postcss-each",
+                      "postcss-url",
+                      "postcss-modules-values",
+                      [
+                        "cssnano",
+                        {
+                          preset: ["default"],
+                        },
+                      ],
                     ],
                   },
                 },

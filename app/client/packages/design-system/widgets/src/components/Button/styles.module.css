@@ -1,6 +1,6 @@
-.button {
-  --colors: accent, neutral, negative, warning, positive;
+@import "../../styles/colors.module.css";
 
+.button {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -16,7 +16,7 @@
   min-inline-size: var(--sizing-8);
   border-radius: var(--border-radius-1);
 
-  @each $color in var(--colors) {
+  @each $color in colors {
     &[data-variant="filled"][data-color="$(color)"] {
       background-color: var(--color-bg-$(color));
       color: var(--color-fg-on-$(color));
@@ -142,10 +142,9 @@
   }
 
   &[data-loading] [data-loader] {
-    display: block;
+    display: flex;
     position: absolute;
     inset: 0;
-    display: flex;
     justify-content: center;
     align-items: center;
     border-radius: inherit;
