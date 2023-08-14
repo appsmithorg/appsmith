@@ -30,39 +30,66 @@ export default abstract class MongoDB extends BaseQueryGenerator {
     const { select } = widgetConfig;
 
     if (select) {
-      return {
+      const queryPayload: any = {
         type: QUERY_TYPE.SELECT,
         name: `Find_${removeSpecialChars(formConfig.tableName)}`,
         formData: {
           find: {
-            skip: { data: `{{${select["offset"]}}}` },
+            skip: { data: "" },
             query: {
-              data: formConfig.searchableColumn
-                ? `{{{ ${formConfig.searchableColumn}: {$regex: ${select["where"]}} }}}`
-                : "",
+              data: "",
             },
             sort: {
-              data: `{{ ${select["orderBy"]} ? { [${select["orderBy"]}]: ${select["sortOrder"]} ? 1 : -1 } : {}}}`,
+              data: "",
             },
-            limit: { data: `{{${select["limit"]}}}` },
+            limit: {
+              data: "",
+            },
           },
           ...this.buildBasicConfig(COMMAND_TYPES.FIND, formConfig.tableName),
         },
-        dynamicBindingPathList: [
-          {
-            key: "formData.find.skip.data",
-          },
-          {
-            key: "formData.find.query.data",
-          },
-          {
-            key: "formData.find.sort.data",
-          },
-          {
-            key: "formData.find.limit.data",
-          },
-        ],
+        dynamicBindingPathList: [],
       };
+
+      if (select["offset"]) {
+        queryPayload.formData.find.skip = { data: `{{${select["offset"]}}}` };
+
+        queryPayload.dynamicBindingPathList.push({
+          key: "formData.find.skip.data",
+        });
+      }
+
+      if (formConfig.searchableColumn) {
+        queryPayload.formData.find.query = {
+          data: formConfig.searchableColumn
+            ? `{{{ ${formConfig.searchableColumn}: {$regex: ${select["where"]}, '$options' : 'i'} }}}`
+            : "",
+        };
+
+        queryPayload.dynamicBindingPathList.push({
+          key: "formData.find.query.data",
+        });
+      }
+
+      if (select["orderBy"] && select["sortOrder"]) {
+        queryPayload.formData.find.sort = {
+          data: `{{ ${select["orderBy"]} ? { [${select["orderBy"]}]: ${select["sortOrder"]} ? 1 : -1 } : {}}}`,
+        };
+
+        queryPayload.dynamicBindingPathList.push({
+          key: "formData.find.sort.data",
+        });
+      }
+
+      if (select["limit"]) {
+        queryPayload.formData.find.limit = { data: `{{${select["limit"]}}}` };
+
+        queryPayload.dynamicBindingPathList.push({
+          key: "formData.find.limit.data",
+        });
+      }
+
+      return queryPayload;
     }
   }
 

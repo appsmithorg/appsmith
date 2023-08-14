@@ -53,8 +53,8 @@ describe("JSObjects OnLoad Actions tests", function () {
           ".getEmployee] will be executed automatically on page load",
       );
       deployMode.DeployApp();
-      agHelper.AssertElementVisible(jsEditor._dialog("Confirmation dialog"));
-      agHelper.AssertElementVisible(
+      agHelper.AssertElementVisibility(jsEditor._dialog("Confirmation dialog"));
+      agHelper.AssertElementVisibility(
         jsEditor._dialogBody((jsName as string) + ".getEmployee"),
       );
       jsEditor.ConfirmationClick("Yes");
@@ -68,8 +68,8 @@ describe("JSObjects OnLoad Actions tests", function () {
   });
 
   it("2. Tc 54, 55 - Verify OnPage Load - auto enabled from above case for JSOBject", function () {
-    agHelper.AssertElementVisible(jsEditor._dialog("Confirmation dialog"));
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(jsEditor._dialog("Confirmation dialog"));
+    agHelper.AssertElementVisibility(
       jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
     jsEditor.ConfirmationClick("Yes");
@@ -82,8 +82,8 @@ describe("JSObjects OnLoad Actions tests", function () {
   it("3. Tc 56 - Verify OnPage Load - Enabled & Before Function calling Enabled for JSOBject & User clicks No & then Yes in Confirmation dialog", function () {
     deployMode.DeployApp(); //Adding this check since GetEmployee failure toast is always coming & making product flaky
     //agHelper.WaitUntilAllToastsDisappear();
-    agHelper.AssertElementVisible(jsEditor._dialog("Confirmation dialog"));
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(jsEditor._dialog("Confirmation dialog"));
+    agHelper.AssertElementVisibility(
       jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
     jsEditor.ConfirmationClick("No");
@@ -92,8 +92,8 @@ describe("JSObjects OnLoad Actions tests", function () {
     agHelper.WaitUntilAllToastsDisappear();
 
     agHelper.RefreshPage("viewPage");
-    agHelper.AssertElementVisible(jsEditor._dialog("Confirmation dialog"));
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(jsEditor._dialog("Confirmation dialog"));
+    agHelper.AssertElementVisibility(
       jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
     jsEditor.ConfirmationClick("Yes");
@@ -102,8 +102,8 @@ describe("JSObjects OnLoad Actions tests", function () {
       expect(cellData).to.be.equal("2");
     });
     deployMode.NavigateBacktoEditor();
-    agHelper.AssertElementVisible(jsEditor._dialog("Confirmation dialog"));
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(jsEditor._dialog("Confirmation dialog"));
+    agHelper.AssertElementVisibility(
       jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
     jsEditor.ConfirmationClick("Yes");
@@ -147,8 +147,8 @@ describe("JSObjects OnLoad Actions tests", function () {
   it("6. Tc 55 - Verify OnPage Load - Enabling & Before Function calling Enabling for JSOBject & deleting testdata", function () {
     // deployMode.DeployApp(locators._widgetInDeployed("tablewidget"), false);
     // agHelper.WaitUntilAllToastsDisappear();    //incase toast appears, GetEmployee failure toast is appearing
-    // agHelper.AssertElementVisible(jsEditor._dialog("Confirmation dialog"));
-    // agHelper.AssertElementVisible(
+    // agHelper.AssertElementVisibility(jsEditor._dialog("Confirmation dialog"));
+    // agHelper.AssertElementVisibility(
     //   jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     // );
     // jsEditor.ConfirmationClick("Yes");
@@ -159,8 +159,8 @@ describe("JSObjects OnLoad Actions tests", function () {
     // });
     // //agHelper.AssertNetworkExecutionSuccess("@postExecute");
     // deployMode.NavigateBacktoEditor();
-    // agHelper.AssertElementVisible(jsEditor._dialog("Confirmation dialog"));
-    // agHelper.AssertElementVisible(
+    // agHelper.AssertElementVisibility(jsEditor._dialog("Confirmation dialog"));
+    // agHelper.AssertElementVisibility(
     //   jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     // );
     // jsEditor.ConfirmationClick("Yes");
