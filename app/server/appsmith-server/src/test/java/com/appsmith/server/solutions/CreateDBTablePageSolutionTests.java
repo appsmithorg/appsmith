@@ -163,7 +163,7 @@ public class CreateDBTablePageSolutionTests {
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
 
-    private PluginExecutor mockPluginExecutor = spy(new MockPluginExecutor());
+    private PluginExecutor spyMockPluginExecutor = spy(new MockPluginExecutor());
 
     private final CRUDPageResourceDTO resource = new CRUDPageResourceDTO();
 
@@ -172,9 +172,9 @@ public class CreateDBTablePageSolutionTests {
     public void setup() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any()))
-                .thenReturn(Mono.just(mockPluginExecutor));
+                .thenReturn(Mono.just(spyMockPluginExecutor));
         Mockito.when(pluginExecutorHelper.getPluginExecutorFromPackageName(Mockito.anyString()))
-                .thenReturn(Mono.just(mockPluginExecutor)).thenReturn(Mono.just(mockPluginExecutor));
+                .thenReturn(Mono.just(spyMockPluginExecutor)).thenReturn(Mono.just(spyMockPluginExecutor));
 
         if (testWorkspace == null) {
             Workspace workspace = new Workspace();
@@ -915,7 +915,7 @@ public class CreateDBTablePageSolutionTests {
             mappedColumnsAndTableName.put(
                     (String) ((Map<?, ?>) formData.get("bucket")).get("data"), bucketName);
             return Mono.empty();
-        }).when(mockPluginExecutor).sanitizeGenerateCRUDPageTemplateInfo(any(), any(), any());
+        }).when(spyMockPluginExecutor).sanitizeGenerateCRUDPageTemplateInfo(any(), any(), any());
 
         resource.setApplicationId(testApp.getId());
         StringBuilder pluginName = new StringBuilder();
