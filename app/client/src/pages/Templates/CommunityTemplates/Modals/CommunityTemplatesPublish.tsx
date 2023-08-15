@@ -3,12 +3,12 @@ import {
   LEARN_MORE,
   createMessage,
 } from "@appsmith/constants/messages";
-import { Text, Button } from "design-system";
+import { Text, Button, Icon } from "design-system";
 import React from "react";
 import styled from "styled-components";
 
 const CommunityTemplatesPublish = () => {
-  const isPublished = false;
+  const isPublished = true;
   return isPublished ? (
     <PublishedAppInstructions />
   ) : (
@@ -19,7 +19,24 @@ const CommunityTemplatesPublish = () => {
 export default CommunityTemplatesPublish;
 
 const PublishedAppInstructions = () => {
-  return <div />;
+  return (
+    <section>
+      <InfoContainer>
+        <Text kind="heading-s" renderAs="h2">
+          <Icon name="checkbox-circle-line" size="md" />{" "}
+          {createMessage(COMMUNITY_TEMPLATES.publishedInfo.title)}
+        </Text>
+        <Text kind="body-m" renderAs="p">
+          {createMessage(COMMUNITY_TEMPLATES.publishedInfo.description)}
+        </Text>
+      </InfoContainer>
+      <InfoFooter>
+        <Button endIcon="external-link-line" size="md">
+          {createMessage(COMMUNITY_TEMPLATES.publishedInfo.viewTemplate)}
+        </Button>
+      </InfoFooter>
+    </section>
+  );
 };
 const UnPublishedAppInstructions = () => {
   return (
