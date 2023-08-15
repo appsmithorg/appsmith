@@ -112,7 +112,6 @@ import {
 } from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
-  getValidatedTree,
   validateActionProperty,
   validateAndParseWidgetProperty,
 } from "./validationUtils";
@@ -336,18 +335,12 @@ export default class DataTreeEvaluator {
       this.oldConfigTree,
     );
     const evaluationEndTime = performance.now();
-    const validationStartTime = performance.now();
-    // Validate Widgets
 
-    this.setEvalTree(
-      getValidatedTree(
-        evaluatedTree,
-        {
-          evalProps: this.evalProps,
-        },
-        this.oldConfigTree,
-      ),
-    );
+    this.setEvalTree(evaluatedTree);
+
+    const validationStartTime = performance.now();
+
+    this.reValidateTree(evaluationOrder, evaluatedTree, this.oldConfigTree);
 
     const validationEndTime = performance.now();
 
