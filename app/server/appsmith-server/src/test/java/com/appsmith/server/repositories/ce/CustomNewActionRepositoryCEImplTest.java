@@ -141,6 +141,7 @@ public class CustomNewActionRepositoryCEImplTest {
         NewAction action = createUnpublishedAction(applicationId, PluginType.API);
         Datasource datasource = new Datasource();
         datasource.setId(datasourceId);
+        datasource.setName(datasourceId);
         action.getUnpublishedAction().setDatasource(datasource);
         return action;
     }
@@ -294,7 +295,7 @@ public class CustomNewActionRepositoryCEImplTest {
     }
 
     @Test
-    public void setUpdatedAt_WhenDatasourceIdMatched_MatchedObjectsUpdated() {
+    public void updateDatasourceNameInActions_WhenDatasourceIdMatched_MatchedObjectsUpdated() {
         String uniqueString = UUID.randomUUID().toString();
         String datasourceOne = "ds-1-" + uniqueString, datasourceTwo = "ds-2-" + uniqueString;
         String applicationId = "app-" + uniqueString;
@@ -304,11 +305,13 @@ public class CustomNewActionRepositoryCEImplTest {
                 createActionWithDatasource(applicationId, datasourceOne),
                 createActionWithDatasource(applicationId, datasourceTwo));
 
-        Instant newUpdatedAtDate = Instant.now().minusSeconds(60 * 60); // 1 hour ago
+        Datasource datasource = new Datasource();
+        datasource.setId(datasourceOne);
+        datasource.setUpdatedAt(Instant.now().minusSeconds(60 * 60)); // 1 hour ago
 
         Mono<Map<String, Collection<NewAction>>> newActionsByDatasourceIdMapMono = newActionRepository
                 .saveAll(newActions)
-                .then(newActionRepository.setUpdatedAt(datasourceOne, newUpdatedAtDate))
+                .then(newActionRepository.updateDatasourceNameInActions(datasource))
                 .thenMany(newActionRepository.findByApplicationId(applicationId))
                 .collectMultimap((newAction ->
                         newAction.getUnpublishedAction().getDatasource().getId()));
@@ -320,12 +323,14 @@ public class CustomNewActionRepositoryCEImplTest {
                     assertThat(multiMap.get(datasourceTwo).size()).isEqualTo(1);
 
                     multiMap.get(datasourceOne).forEach(newAction -> {
-                        long diffInMinutes = newUpdatedAtDate.until(newAction.getUpdatedAt(), ChronoUnit.MINUTES);
+                        long diffInMinutes =
+                                datasource.getUpdatedAt().until(newAction.getUpdatedAt(), ChronoUnit.MINUTES);
                         assertThat(diffInMinutes).isEqualTo(0);
                     });
 
                     multiMap.get(datasourceTwo).forEach(newAction -> {
-                        long diffInMinutes = newUpdatedAtDate.until(newAction.getUpdatedAt(), ChronoUnit.MINUTES);
+                        long diffInMinutes =
+                                datasource.getUpdatedAt().until(newAction.getUpdatedAt(), ChronoUnit.MINUTES);
                         assertThat(diffInMinutes).isGreaterThan(50); // should be at least 50 minutes ago
                     });
                 })

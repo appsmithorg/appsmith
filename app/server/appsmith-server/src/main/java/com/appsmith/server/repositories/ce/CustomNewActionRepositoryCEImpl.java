@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.QActionConfiguration;
 import com.appsmith.external.models.QBranchAwareDomain;
@@ -614,23 +615,29 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     /**
-     * Sets the updatedAt field of newAction to the provided value
-     * where unpublishedAction.datasource.id matches with the provided id.
-     * @param datasourceId string, id of the datasource
-     * @param instant new updated date that'll be set
+     * Sets the datasource.name and updatedAt fields of newAction as per the provided datasource. The actions which
+     * have unpublishedAction.datasource.id same as the provided datasource.id will be updated.
+     * @param datasource The datasource object
      * @return result of the multi update query
      */
     @Override
-    public Mono<UpdateResult> setUpdatedAt(String datasourceId, Instant instant) {
+    public Mono<UpdateResult> updateDatasourceNameInActions(Datasource datasource) {
         String unpublishedActionDatasourceIdFieldPath = String.format(
                 "%s.%s.%s",
                 fieldName(QNewAction.newAction.unpublishedAction),
                 fieldName(QNewAction.newAction.unpublishedAction.datasource),
                 fieldName(QNewAction.newAction.unpublishedAction.datasource.id));
 
-        Criteria criteria = where(unpublishedActionDatasourceIdFieldPath).is(datasourceId);
+        String unpublishedActionDatasourceNameFieldPath = String.format(
+                "%s.%s.%s",
+                fieldName(QNewAction.newAction.unpublishedAction),
+                fieldName(QNewAction.newAction.unpublishedAction.datasource),
+                fieldName(QNewAction.newAction.unpublishedAction.datasource.name));
+
+        Criteria criteria = where(unpublishedActionDatasourceIdFieldPath).is(datasource.getId());
         Update update = new Update();
-        update.set(FieldName.UPDATED_AT, instant);
+        update.set(FieldName.UPDATED_AT, datasource.getUpdatedAt());
+        update.set(unpublishedActionDatasourceNameFieldPath, datasource.getName());
         return updateByCriteria(List.of(criteria), update, null);
     }
 }

@@ -292,7 +292,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                              If updatedAt changed, git will remap the updated actions with new datasource name.
                             */
                             return newActionRepository
-                                    .setUpdatedAt(savedDatasource.getId(), savedDatasource.getUpdatedAt())
+                                    .updateDatasourceNameInActions(savedDatasource)
                                     .thenReturn(savedDatasource);
                         }
                         return Mono.just(savedDatasource);

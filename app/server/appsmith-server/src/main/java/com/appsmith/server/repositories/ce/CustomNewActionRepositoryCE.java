@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
@@ -11,7 +12,6 @@ import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -82,7 +82,7 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Mono<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission);
 
-    Mono<UpdateResult> setUpdatedAt(String datasourceId, Instant instant);
+    Mono<UpdateResult> updateDatasourceNameInActions(Datasource datasource);
 
     Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
 }

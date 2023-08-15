@@ -53,10 +53,6 @@ public class ImportExportUtils {
             Datasource ds = actionDTO.getDatasource();
             if (isExporting) {
                 ds.setUpdatedAt(null);
-                ds.setName(null);
-                ds.setPolicies(null);
-                ds.setDeleted(null);
-                ds.setUpdatedAt(null);
             }
             if (ds.getId() != null) {
                 // Mapping ds name in id field
