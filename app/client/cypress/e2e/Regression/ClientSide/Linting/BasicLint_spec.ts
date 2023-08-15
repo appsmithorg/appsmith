@@ -37,7 +37,7 @@ const clickButtonAndAssertLintError = (
 
   //Reload and Check for presence/ absence of lint error
   agHelper.RefreshPage();
-  // agHelper.AssertElementVisible(locators._visibleTextDiv("Explorer"));
+  // agHelper.AssertElementVisibility(locators._visibleTextDiv("Explorer"));
   // agHelper.Sleep(2500);
   entityExplorer.SelectEntityByName("Button1", "Widgets");
   shouldExist

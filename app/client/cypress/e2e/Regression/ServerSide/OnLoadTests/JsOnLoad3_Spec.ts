@@ -112,7 +112,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       //Commenting & changnig flow since either of confirmation modals can appear first!
 
       // //Confirmation - first JSObj then API
-      // agHelper.AssertElementVisible(
+      // agHelper.AssertElementVisibility(
       //   jsEditor._dialogBody((jsName as string) + ".callTrump"),
       // );
       // jsEditor.ConfirmationClick("No");
@@ -123,7 +123,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       jsEditor.ConfirmationClick("No");
       agHelper.AssertContains("cancelled"); //Quotes
       //One Quotes confirmation - for API true
-      // agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
+      // agHelper.AssertElementVisibility(jsEditor._dialogBody("Quotes"));
       // jsEditor.ConfirmationClick("No");
       agHelper.WaitUntilAllToastsDisappear();
 
@@ -131,14 +131,14 @@ describe("JSObjects OnLoad Actions tests", function () {
       agHelper.AssertContains("cancelled"); //callTrump
 
       // //Another for API called via JS callQuotes()
-      // agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
+      // agHelper.AssertElementVisibility(jsEditor._dialogBody("Quotes"));
       // jsEditor.ConfirmationClick("No");
       //agHelper.WaitUntilToastDisappear('The action "Quotes" has failed');No toast appears!
 
       agHelper.AssertElementAbsence(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is NO, dependent API confirmation should not appear
 
       agHelper.RefreshPage("viewPage");
-      // agHelper.AssertElementVisible(
+      // agHelper.AssertElementVisibility(
       //   jsEditor._dialogBody((jsName as string) + ".callTrump"),
       // );
       agHelper.AssertElementExist(jsEditor._dialogInDeployView);
@@ -147,17 +147,17 @@ describe("JSObjects OnLoad Actions tests", function () {
       //agHelper.GetNClick(".ads-v2-button__content-children", 1, true);
       agHelper.Sleep(2000);
 
-      //agHelper.AssertElementVisible(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is Yes, dependent confirmation should appear aswell!
+      //agHelper.AssertElementVisibility(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is Yes, dependent confirmation should appear aswell!
       agHelper.AssertElementExist(jsEditor._dialogInDeployView);
       jsEditor.ConfirmationClick("Yes"); //trumpy - api
       agHelper.Sleep(3000);
 
-      //agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
+      //agHelper.AssertElementVisibility(jsEditor._dialogBody("Quotes"));
       agHelper.AssertElementExist(jsEditor._dialogInDeployView);
       jsEditor.ConfirmationClick("Yes"); //quotes - api
 
       //agHelper.Sleep(2000);
-      //agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
+      //agHelper.AssertElementVisibility(jsEditor._dialogBody("Quotes"));
       //agHelper.AssertElementExist(jsEditor._dialogInDeployView);
       //agHelper.GetNClick(".ads-v2-button__content-children", 1, true);
       agHelper.Sleep(4000); //to let the api's call be finished & populate the text fields before validation!
