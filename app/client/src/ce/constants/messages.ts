@@ -1907,6 +1907,7 @@ export const FULL_COLOR_PICKER_LABEL = () => "Full color picker";
 
 export const COMMUNITY_TEMPLATES = {
   publish: () => "Publish",
+  cancel: () => "Cancel",
   unpublishedInfo: {
     title: () => "Publish to app community",
     description: () =>
@@ -1917,5 +1918,10 @@ export const COMMUNITY_TEMPLATES = {
     description: () =>
       "This application is live on community as a template for users to fork and remix.",
     viewTemplate: () => "View Template",
+  },
+  confirmModal: {
+    title: (name: string) => `Publish ${name} to community?`,
+    description: () =>
+      `You are publishing this app to community.appsmth.com. Users outside your workspace will be able to fork this app to their workspace. Are you sure?`,
   },
 };

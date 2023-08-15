@@ -3,7 +3,7 @@ import {
   LEARN_MORE,
   createMessage,
 } from "@appsmith/constants/messages";
-import { Text, Button, Icon } from "design-system";
+import { Button, Icon, Text } from "design-system";
 import React from "react";
 import styled from "styled-components";
 
