@@ -129,7 +129,6 @@ import static com.external.plugins.utils.DatasourceUtils.isAuthenticated;
 import static com.external.plugins.utils.DatasourceUtils.isHostStringConnectionURI;
 import static com.external.plugins.utils.DatasourceUtils.isUsingURI;
 import static com.external.plugins.utils.MongoPluginUtils.convertMongoFormInputToRawCommand;
-import static com.external.plugins.utils.MongoPluginUtils.generateTemplatesAndStructureForACollection;
 import static com.external.plugins.utils.MongoPluginUtils.getDatabaseName;
 import static com.external.plugins.utils.MongoPluginUtils.getRawQuery;
 import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
@@ -864,7 +863,10 @@ public class MongoPlugin extends BasePlugin {
 
             final MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
 
-            return Flux.from(database.listCollectionNames())
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
+                    MongoPluginErrorMessages.DS_GET_STRUCTURE_ERROR_MSG));
+
+            /*return Flux.from(database.listCollectionNames())
                     .flatMap(collectionName -> {
                         final ArrayList<DatasourceStructure.Column> columns = new ArrayList<>();
                         final ArrayList<DatasourceStructure.Template> templates = new ArrayList<>();
@@ -897,11 +899,11 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .collectList()
                     .thenReturn(structure)
-                    /**
+                    *//**
                      * This is to catch the cases when Mongo connection pool closes for some reason and hence throws
                      * IllegalStateException when query is run.
                      * Ref: https://github.com/appsmithorg/appsmith/issues/15548
-                     */
+                     *//*
                     .onErrorMap(IllegalStateException.class, error -> new StaleConnectionException(error.getMessage()))
                     // This is an experimental fix to handle the scenario where after a period of inactivity, the mongo
                     // database drops the connection which makes the client throw the following exception.
@@ -916,7 +918,7 @@ public class MongoPlugin extends BasePlugin {
 
                         return error;
                     })
-                    .subscribeOn(scheduler);
+                    .subscribeOn(scheduler);*/
         }
 
         @Override
