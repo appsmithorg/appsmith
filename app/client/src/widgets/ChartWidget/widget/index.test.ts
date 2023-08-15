@@ -18,6 +18,7 @@ describe("emptyChartData", () => {
   };
   const defaultProps: ChartWidgetProps = {
     allowScroll: true,
+    showDataPointLabel: true,
     chartData: {
       seriesID1: seriesData1,
       seriesID2: seriesData2,

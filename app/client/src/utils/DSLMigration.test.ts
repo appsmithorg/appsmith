@@ -801,6 +801,15 @@ const migrations: Migration[] = [
     ],
     version: 82,
   },
+  {
+    functionLookup: [
+      {
+        moduleObj: chartMigrations,
+        functionName: "migrateAddShowHideDataPointLabels",
+      },
+    ],
+    version: 83,
+  },
 ];
 
 const mockFnObj: Record<number, any> = {};
