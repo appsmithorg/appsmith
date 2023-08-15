@@ -75,6 +75,7 @@ import {
   RENAME_APPLICATION_TOOLTIP,
   SHARE_BUTTON_TOOLTIP,
   SHARE_BUTTON_TOOLTIP_WITH_USER,
+  COMMUNITY_TEMPLATES,
 } from "@appsmith/constants/messages";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import {
@@ -94,6 +95,7 @@ import type { NavigationSetting } from "constants/AppConstants";
 import { getUserPreferenceFromStorage } from "@appsmith/utils/Environments";
 import { showEnvironmentDeployInfoModal } from "@appsmith/actions/environmentAction";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import CommunityTemplatesPublish from "pages/Templates/CommunityTemplates/Modals/CommunityTemplatesPublish";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -494,6 +496,9 @@ export function EditorHeader() {
                       <Tab data-tesid="t--tab-EMBED" value="embed">
                         {createMessage(IN_APP_EMBED_SETTING.embed)}
                       </Tab>
+                      <Tab data-tesid="t--tab-Publish" value="publish">
+                        {createMessage(COMMUNITY_TEMPLATES.publish)}
+                      </Tab>
                     </TabsList>
                     <TabPanel value="invite">
                       <AppInviteUsersForm
@@ -509,6 +514,9 @@ export function EditorHeader() {
                       <EmbedSnippetForm
                         changeTab={() => setActiveTab("invite")}
                       />
+                    </TabPanel>
+                    <TabPanel value="publish">
+                      <CommunityTemplatesPublish />
                     </TabPanel>
                   </Tabs>
                 </ModalBody>
