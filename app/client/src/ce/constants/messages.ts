@@ -1904,3 +1904,12 @@ export const BACK_CAMERA_LABEL = () => "Back (Rear)";
 
 // Color picker
 export const FULL_COLOR_PICKER_LABEL = () => "Full color picker";
+
+export const COMMUNITY_TEMPLATES = {
+  publish: () => "Publish",
+  unpublishedInfo: {
+    title: () => "Publish to app community",
+    description: () =>
+      "Publish this app to Appsmith community for the public to view, fork, and remix.",
+  },
+};
