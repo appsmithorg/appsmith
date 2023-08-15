@@ -74,11 +74,11 @@ jobs:
       - if: steps.appsmithctl_run_result.outputs.appsmithctl_run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
-      - name: Use Node.js 16.14.0
+      - name: Use Node.js 18.17.1
         if: steps.appsmithctl_run_result.outputs.appsmithctl_run_result != 'success'
         uses: actions/setup-node@v3
         with:
-          node-version: "16.14.0"
+          node-version: "18.17.1"
 
       # Install all the dependencies
       - name: Install dependencies

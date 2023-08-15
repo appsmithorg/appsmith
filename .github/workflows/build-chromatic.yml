@@ -31,10 +31,10 @@ jobs:
           fetch-depth: 0
           ref: release
 
-      - name: Use Node.js 16.14.0
+      - name: Use Node.js 18.17.1
         uses: actions/setup-node@v3
         with:
-          node-version: "16.14.0"
+          node-version: "18.17.1"
 
       - name: Install Dependencies
         working-directory: ./app/client/packages/storybook
