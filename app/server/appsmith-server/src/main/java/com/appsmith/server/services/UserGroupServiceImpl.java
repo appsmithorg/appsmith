@@ -50,6 +50,7 @@ import reactor.util.function.Tuples;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +69,7 @@ import static com.appsmith.server.acl.AclPermission.REMOVE_USERS_FROM_USER_GROUP
 import static com.appsmith.server.constants.Constraint.NO_RECORD_LIMIT;
 import static com.appsmith.server.constants.FieldName.EVENT_DATA;
 import static com.appsmith.server.constants.FieldName.GROUP_ID;
+import static com.appsmith.server.constants.FieldName.IS_PROVISIONED;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_REMOVED_USERS;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_USERS_INVITED;
 import static com.appsmith.server.constants.QueryParams.COUNT;
@@ -294,9 +296,14 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                                 Map<String, Object> extraPropsForCloudHostedInstance =
                                         Map.of(FieldName.INVITED_USERS_TO_USER_GROUPS, usernames);
                                 Map<String, Object> analyticsProperties = Map.of(
-                                        NUMBER_OF_USERS_INVITED, usernames.size(),
-                                        EVENT_DATA, eventData,
-                                        CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
+                                        NUMBER_OF_USERS_INVITED,
+                                        usernames.size(),
+                                        EVENT_DATA,
+                                        eventData,
+                                        CLOUD_HOSTED_EXTRA_PROPS,
+                                        extraPropsForCloudHostedInstance,
+                                        IS_PROVISIONED,
+                                        userGroup.getIsProvisioned());
                                 return analyticsService.sendObjectEvent(
                                         AnalyticsEvents.INVITE_USERS_TO_USER_GROUPS, userGroup, analyticsProperties);
                             })
@@ -382,9 +389,14 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                                 Map<String, Object> extraPropsForCloudHostedInstance =
                                         Map.of(FieldName.REMOVED_USERS_FROM_USER_GROUPS, usernames);
                                 Map<String, Object> analyticsProperties = Map.of(
-                                        NUMBER_OF_REMOVED_USERS, usernames.size(),
-                                        EVENT_DATA, eventData,
-                                        CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
+                                        NUMBER_OF_REMOVED_USERS,
+                                        usernames.size(),
+                                        EVENT_DATA,
+                                        eventData,
+                                        CLOUD_HOSTED_EXTRA_PROPS,
+                                        extraPropsForCloudHostedInstance,
+                                        IS_PROVISIONED,
+                                        userGroup.getIsProvisioned());
                                 return analyticsService.sendObjectEvent(
                                         AnalyticsEvents.REMOVE_USERS_FROM_USER_GROUPS, userGroup, analyticsProperties);
                             })
@@ -456,7 +468,8 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
             return permissionGroupService
                     .cleanPermissionGroupCacheForUsers(allUsersAffected)
                     .then(repository.archiveById(id))
-                    .then(userGroupMono.flatMap(analyticsService::sendDeleteEvent));
+                    .then(userGroupMono.flatMap(userGroup1 ->
+                            analyticsService.sendDeleteEvent(userGroup1, getAnalyticsProperties(userGroup1))));
         });
 
         // First update all the permission groups that have this user group assigned to it
@@ -546,9 +559,14 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                         Map<String, Object> extraPropsForCloudHostedInstance =
                                 Map.of(FieldName.REMOVED_USERS_FROM_USER_GROUPS, Set.of(user.getUsername()));
                         Map<String, Object> analyticsProperties = Map.of(
-                                NUMBER_OF_REMOVED_USERS, 1,
-                                EVENT_DATA, eventData,
-                                CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
+                                NUMBER_OF_REMOVED_USERS,
+                                1,
+                                EVENT_DATA,
+                                eventData,
+                                CLOUD_HOSTED_EXTRA_PROPS,
+                                extraPropsForCloudHostedInstance,
+                                IS_PROVISIONED,
+                                userGroup.getIsProvisioned());
                         return analyticsService.sendObjectEvent(
                                 AnalyticsEvents.REMOVE_USERS_FROM_USER_GROUPS, userGroup, analyticsProperties);
                     }));
@@ -653,8 +671,13 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
 
     @Override
     public Mono<ProvisionResourceDto> createProvisionGroup(UserGroup userGroup) {
+        // Note:
+        // Have moved the setting of Provision Flag from the method updateProvisionUserGroupPolicies to this function
+        // so that correct data about the ProvisionFlag can be sent to Analytics Event, when sending the usergroup
+        // create event.
+        userGroup.setIsProvisioned(Boolean.TRUE);
         return createUserGroup(userGroup)
-                .flatMap(this::updateProvisionUserGroupPoliciesAndProvisionFlag)
+                .flatMap(this::updateProvisionUserGroupPolicies)
                 .flatMap(this::updateProvisioningStatus)
                 .map(this::getProvisionResourceDto);
     }
@@ -732,13 +755,11 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
      * It removes the existing Manage, Delete, Invite users and Remove users permissions for the user group,
      * so that Instance Admin is not able to edit, delete, invite users to or remove users from the User group.
      * It then gives the above-mentioned permissions for the user group to Provision Role, so that the user group can be managed by it.
-     * The methods also sets the isProvisioned flag in User resource to True.
      * @param userGroup
      * @return
      */
-    private Mono<UserGroup> updateProvisionUserGroupPoliciesAndProvisionFlag(UserGroup userGroup) {
+    private Mono<UserGroup> updateProvisionUserGroupPolicies(UserGroup userGroup) {
         return userUtils.getProvisioningRole().flatMap(provisioningRole -> {
-            userGroup.setIsProvisioned(Boolean.TRUE);
             Set<Policy> currentUserPolicies = userGroup.getPolicies();
             Set<Policy> userGroupPoliciesWithReadUserGroup = currentUserPolicies.stream()
                     .filter(policy -> policy.getPermission().equals(READ_USER_GROUPS.getValue()))
@@ -876,5 +897,12 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
             }
         }
         return Tuples.of(willRemoveUsersFromUserGroup, removeUsersFromUserGroupMono);
+    }
+
+    @Override
+    public Map<String, Object> getAnalyticsProperties(UserGroup savedResource) {
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        analyticsProperties.put(FieldName.IS_PROVISIONED, savedResource.getIsProvisioned());
+        return analyticsProperties;
     }
 }

@@ -64,6 +64,7 @@ import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.CLOUD_HOSTED_EXTRA_PROPS;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.EVENT_DATA;
+import static com.appsmith.server.constants.FieldName.IS_PROVISIONED;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_ASSIGNED_USERS;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_ASSIGNED_USER_GROUPS;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USERS;
@@ -252,7 +253,8 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                     Mono<Void> deleteUserDataMono = userDataRepository
                             .findByUserId(userId)
                             .flatMap(userData -> userDataRepository.deleteById(userData.getId()));
-                    Mono<User> userDeletedEvent = analyticsService.sendDeleteEvent(user);
+                    Map<String, Object> analyticsProperties = Map.of(IS_PROVISIONED, user.getIsProvisioned());
+                    Mono<User> userDeletedEvent = analyticsService.sendDeleteEvent(user, analyticsProperties);
 
                     Mono<Tuple2<Void, Void>> deleteUserAndDataMono = Mono.zip(deleteUserMono, deleteUserDataMono);
 
