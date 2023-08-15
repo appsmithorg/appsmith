@@ -810,6 +810,15 @@ const migrations: Migration[] = [
     ],
     version: 83,
   },
+  {
+    functionLookup: [
+      {
+        moduleObj: selectWidgetMigration,
+        functionName: "migrateSelectWidgetAddSourceDataPropertyPathList",
+      },
+    ],
+    version: 84,
+  },
 ];
 
 const mockFnObj: Record<number, any> = {};

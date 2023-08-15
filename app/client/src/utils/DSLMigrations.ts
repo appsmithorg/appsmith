@@ -75,6 +75,7 @@ import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigratio
 import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskinningMigrations";
 import {
   MigrateSelectTypeWidgetDefaultValue,
+  migrateSelectWidgetAddSourceDataPropertyPathList,
   migrateSelectWidgetOptionToSourceData,
   migrateSelectWidgetSourceDataBindingPathList,
 } from "./migrations/SelectWidget";
@@ -1215,6 +1216,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version == 83) {
     currentDSL = migrateAddShowHideDataPointLabels(currentDSL);
+    currentDSL.version = 84;
+  }
+
+  if (currentDSL.version === 84) {
+    currentDSL = migrateSelectWidgetAddSourceDataPropertyPathList(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
