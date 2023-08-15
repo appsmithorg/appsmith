@@ -182,6 +182,7 @@ jobs:
           context: .
           pull: true
           push: true
+          platforms: linux/arm64,linux/amd64
           cache-from: ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:release
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-dp:${{ vars.EDITION }}-${{ github.event.client_payload.pull_request.number }}
