@@ -23,7 +23,6 @@ import ContainerWidget from "widgets/ContainerWidget/widget";
 import type {
   CanvasWidgetStructure,
   DSLWidget,
-  WidgetBaseConfiguration,
   WidgetDefaultProps,
 } from "../WidgetProvider/constants";
 import ContainerComponent from "./ContainerWidget/component";
