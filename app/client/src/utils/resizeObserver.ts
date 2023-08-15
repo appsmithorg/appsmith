@@ -1,8 +1,6 @@
 // A utility that returns a single instance of ResizeObserver to be used across the application.
 // This is to avoid creating multiple instances of ResizeObserver which can cause performance issues.
 
-let instance: unknown = null;
-
 type ResizeObserCallback = (
   entry: ResizeObserverEntry,
   observer: ResizeObserver,
@@ -10,13 +8,13 @@ type ResizeObserCallback = (
 
 class SingletonResizeObserver {
   private callbacksMap = new Map<Element, ResizeObserCallback[]>();
+  private static instance: SingletonResizeObserver;
 
   constructor() {
-    if (instance) {
+    if (SingletonResizeObserver.instance) {
       throw new Error("SingletonResizeObserver is a singleton class");
     }
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    instance = this;
+    SingletonResizeObserver.instance = this;
   }
 
   private resizeObserver = new ResizeObserver((entries, observer) => {
@@ -29,28 +27,31 @@ class SingletonResizeObserver {
   /**
    *
    * @param target The element to observe
-   * @param callback The callback to be called when the element is resized
+   * @param callbacks The array of callbacks to be called when the element resizes
    */
-  observe(target: Element, callback: ResizeObserCallback) {
+  observe(target: Element, callbacks: ResizeObserCallback[]) {
     this.resizeObserver.observe(target);
-    const callbacks = this.callbacksMap.get(target) ?? [];
-    callbacks.push(callback);
-    this.callbacksMap.set(target, [callback]);
+    const _callbacks = this.callbacksMap.get(target) ?? [];
+    _callbacks.push(...callbacks);
+    this.callbacksMap.set(target, _callbacks);
   }
 
   /**
    *
    * @param target The element to unobserve
-   * @param callback The callback to be removed
+   * @param callbacks The array of callbacks to be removed
    */
-  unobserve(target: Element, callback: ResizeObserCallback) {
-    const callbacks = this.callbacksMap.get(target) ?? [];
-    const index = callbacks.indexOf(callback);
-    if (index >= 0) {
-      callbacks.splice(index, 1);
+  unobserve(target: Element, callbacks: ResizeObserCallback[]) {
+    const _callbacks = this.callbacksMap.get(target) ?? [];
+    for (const item of callbacks) {
+      const index = _callbacks.indexOf(item);
+      if (index >= 0) {
+        _callbacks.splice(index, 1);
+      }
     }
-    if (callbacks.length === 0) {
+    if (_callbacks.length === 0) {
       this.resizeObserver.unobserve(target);
+      this.callbacksMap.delete(target);
     }
   }
 }

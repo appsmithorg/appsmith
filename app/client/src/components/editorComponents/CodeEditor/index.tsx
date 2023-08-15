@@ -489,10 +489,9 @@ class CodeEditor extends Component<Props, State> {
 
     if (this.codeEditorTarget.current) {
       // refresh editor on resize which prevents issue #23796
-      resizeObserver.observe(
-        this.codeEditorTarget.current,
+      resizeObserver.observe(this.codeEditorTarget.current, [
         this.debounceEditorRefresh,
-      );
+      ]);
     }
   }
 
@@ -831,10 +830,9 @@ class CodeEditor extends Component<Props, State> {
 
   componentWillUnmount() {
     if (this.codeEditorTarget.current) {
-      resizeObserver.unobserve(
-        this.codeEditorTarget.current,
+      resizeObserver.unobserve(this.codeEditorTarget.current, [
         this.debounceEditorRefresh,
-      );
+      ]);
     }
 
     // if the highlighted element exists, remove the event listeners to prevent memory leaks
