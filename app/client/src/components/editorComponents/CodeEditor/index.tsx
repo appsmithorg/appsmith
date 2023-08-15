@@ -160,6 +160,7 @@ import { MULTIPLEXING_MODE_CONFIGS } from "components/editorComponents/CodeEdito
 import { getDeleteLineShortcut } from "./utils/deleteLine";
 import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/CodeEditorSignPosting";
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
+import resizeObserver from "utils/resizeObserver";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -289,7 +290,6 @@ class CodeEditor extends Component<Props, State> {
   currentLineNumber: number | null = null;
   AIEnabled = false;
   private multiplexConfig?: MultiplexingModeConfig;
-  private resizeObserver;
 
   constructor(props: Props) {
     super(props);
@@ -323,11 +323,6 @@ class CodeEditor extends Component<Props, State> {
     this.AIEnabled =
       isAIEnabled(this.props.featureFlags, this.props.mode) &&
       Boolean(this.props.AIAssisted);
-
-    // refresh editor on resize which prevents issue #23796
-    this.resizeObserver = new ResizeObserver(() => {
-      this.debounceEditorRefresh();
-    });
   }
 
   componentDidMount(): void {
@@ -493,7 +488,11 @@ class CodeEditor extends Component<Props, State> {
     window.addEventListener("keyup", this.handleKeyUp);
 
     if (this.codeEditorTarget.current) {
-      this.resizeObserver.observe(this.codeEditorTarget.current);
+      // refresh editor on resize which prevents issue #23796
+      resizeObserver.observe(
+        this.codeEditorTarget.current,
+        this.debounceEditorRefresh,
+      );
     }
   }
 
@@ -831,7 +830,12 @@ class CodeEditor extends Component<Props, State> {
   };
 
   componentWillUnmount() {
-    this.resizeObserver.disconnect();
+    if (this.codeEditorTarget.current) {
+      resizeObserver.unobserve(
+        this.codeEditorTarget.current,
+        this.debounceEditorRefresh,
+      );
+    }
 
     // if the highlighted element exists, remove the event listeners to prevent memory leaks
     if (this.highlightedUrlElement) {
