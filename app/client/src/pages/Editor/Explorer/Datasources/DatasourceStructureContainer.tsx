@@ -87,10 +87,7 @@ const Container = (props: Props) => {
 
   const closeWalkthrough = () => {
     popFeature && popFeature("DATASOURCE_SCHEMA_CONTAINER");
-    setFeatureWalkthroughShown(
-      FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
-      true,
-    );
+    setFeatureWalkthroughShown(FEATURE_WALKTHROUGH_KEYS.ds_schema, true);
   };
 
   useEffect(() => {

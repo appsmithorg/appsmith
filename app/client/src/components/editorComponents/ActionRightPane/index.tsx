@@ -41,11 +41,6 @@ import {
   SCHEMALESS_PLUGINS,
 } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import {
-  AB_TESTING_EVENT_KEYS,
-  FEATURE_FLAG,
-} from "@appsmith/entities/FeatureFlag";
 import {
   getDatasourceStructureById,
   getPluginDatasourceComponentFromId,
@@ -348,14 +343,10 @@ function ActionSidebar({
   );
 
   // A/B feature flag for datasource structure.
-  const isEnabledForDSSchema = useSelector((state) =>
-    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_schema_enabled),
-  );
+  const isEnabledForDSSchema = true;
 
   // A/B feature flag for query binding.
-  const isEnabledForQueryBinding = useSelector((state) =>
-    selectFeatureFlagCheck(state, FEATURE_FLAG.ab_ds_binding_enabled),
-  );
+  const isEnabledForQueryBinding = true;
 
   const datasourceStructure = useSelector((state) =>
     getDatasourceStructureById(state, datasourceId),
@@ -379,7 +370,7 @@ function ActionSidebar({
 
   const checkAndShowWalkthrough = async () => {
     const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
-      FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
+      FEATURE_WALKTHROUGH_KEYS.ds_schema,
     );
 
     const isNewUser = user && (await isUserSignedUpFlagSet(user.email));
@@ -391,7 +382,7 @@ function ActionSidebar({
         targetId: SCHEMA_SECTION_ID,
         onDismiss: async () => {
           await setFeatureWalkthroughShown(
-            FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
+            FEATURE_WALKTHROUGH_KEYS.ds_schema,
             true,
           );
         },
@@ -410,9 +401,7 @@ function ActionSidebar({
           },
         },
         eventParams: {
-          [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
-            FEATURE_WALKTHROUGH_KEYS.ab_ds_schema_enabled,
-          [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: isEnabledForDSSchema,
+          [FEATURE_WALKTHROUGH_KEYS.ds_schema]: true,
         },
         delay: 5000,
       });
