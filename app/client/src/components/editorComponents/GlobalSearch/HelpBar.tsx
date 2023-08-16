@@ -3,10 +3,10 @@ import styled from "styled-components";
 import { connect } from "react-redux";
 import { getTypographyByKey, Text, TextType } from "design-system-old";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
-import { HELPBAR_PLACEHOLDER } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { modText } from "utils/helpers";
 import { filterCategories, SEARCH_CATEGORY_ID } from "./utils";
+import { Icon } from "design-system";
 
 const StyledHelpBar = styled.div`
   padding: 0 var(--ads-v2-spaces-3);
@@ -42,9 +42,10 @@ function HelpBar({ toggleShowModal }: Props) {
       data-testid="global-search-modal-trigger"
       onClick={toggleShowModal}
     >
-      <Text type={TextType.P2}>{HELPBAR_PLACEHOLDER()}</Text>
-      <Text italic type={TextType.P3}>
-        {modText()} K
+      <Icon name="search" size="md" />
+      &nbsp;
+      <Text color="var(--ads-v2-color-border)" type={TextType.P3}>
+        {modText()}+K
       </Text>
     </StyledHelpBar>
   );

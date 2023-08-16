@@ -26,6 +26,7 @@ import {
   VIEWER_PATH,
   VIEWER_PATH_DEPRECATED,
   WORKSPACE_URL,
+  IDE_PATH,
 } from "constants/routes";
 import WorkspaceLoader from "pages/workspace/loader";
 import ApplicationListLoader from "pages/Applications/loader";
@@ -67,6 +68,7 @@ import RouteChangeListener from "RouteChangeListener";
 import { initCurrentPage } from "../actions/initActions";
 import Walkthrough from "components/featureWalkthrough";
 import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
+import IDELoader from "../pages/IDE/loader";
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -121,6 +123,7 @@ export function Routes() {
       <SentryRoute component={EditorLoader} path={BUILDER_CUSTOM_PATH} />
       <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
       <SentryRoute component={AppViewerLoader} path={VIEWER_CUSTOM_PATH} />
+      <SentryRoute component={IDELoader} path={IDE_PATH} />
       {/*
        * End Note: When making changes to the order of the paths above
        */}

@@ -14,11 +14,13 @@ import {
   ADMIN_SETTINGS_CATEGORY_PATH,
   VIEWER_CUSTOM_PATH,
   BUILDER_CUSTOM_PATH,
+  IDE_PATH,
 } from "constants/routes";
 import Navigation from "pages/AppViewer/Navigation";
 import type { RouteComponentProps } from "react-router";
 import { withRouter } from "react-router";
 import AppEditorHeader from "pages/Editor/EditorHeader";
+import IDEHeader from "../IDE/Header";
 
 type Props = RouteComponentProps;
 
@@ -44,6 +46,7 @@ class AppHeader extends React.Component<Props, any> {
         <Route component={Navigation} path={VIEWER_PATH_DEPRECATED} />
         <Route component={AppEditorHeader} path={BUILDER_PATH} />
         <Route component={AppEditorHeader} path={BUILDER_CUSTOM_PATH} />
+        <Route component={IDEHeader} path={IDE_PATH} />
         <Route component={Navigation} path={VIEWER_PATH} />
         <Route component={Navigation} path={VIEWER_CUSTOM_PATH} />
         <Route component={PageHeader} path={BASE_URL} />

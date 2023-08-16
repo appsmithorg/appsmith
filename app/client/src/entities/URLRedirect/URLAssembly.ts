@@ -1,8 +1,6 @@
 import { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import {
-  BUILDER_CUSTOM_PATH,
-  BUILDER_PATH,
-  BUILDER_PATH_DEPRECATED,
+  IDE_PATH,
   PLACEHOLDER_APP_SLUG,
   PLACEHOLDER_PAGE_SLUG,
   VIEWER_CUSTOM_PATH,
@@ -23,15 +21,15 @@ enum URL_TYPE {
 
 const baseURLRegistry = {
   [URL_TYPE.DEFAULT]: {
-    [APP_MODE.EDIT]: BUILDER_PATH_DEPRECATED,
+    [APP_MODE.EDIT]: IDE_PATH,
     [APP_MODE.PUBLISHED]: VIEWER_PATH_DEPRECATED,
   },
   [URL_TYPE.SLUG]: {
-    [APP_MODE.EDIT]: BUILDER_PATH,
+    [APP_MODE.EDIT]: IDE_PATH,
     [APP_MODE.PUBLISHED]: VIEWER_PATH,
   },
   [URL_TYPE.CUSTOM_SLUG]: {
-    [APP_MODE.EDIT]: BUILDER_CUSTOM_PATH,
+    [APP_MODE.EDIT]: IDE_PATH,
     [APP_MODE.PUBLISHED]: VIEWER_CUSTOM_PATH,
   },
 };
@@ -102,6 +100,7 @@ export class URLBuilder {
     const currentAppParams = {
       applicationSlug: this.appParams.applicationSlug || PLACEHOLDER_APP_SLUG,
       applicationId: this.appParams.applicationId,
+      ideState: "page",
     };
     let currentPageParams = this.pageParams[pageId] || {};
     currentPageParams = {
