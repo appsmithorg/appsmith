@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import styled from "styled-components";
 import { Icon, Link, Option, Select, Text, Tooltip } from "design-system";
 import { capitalizeFirstLetter } from "utils/helpers";
@@ -69,8 +68,6 @@ const TooltipLink = styled(Link)`
 
 export default function SwitchEnvironment({}: Props) {
   const [diableSwitchEnvironment, setDiableSwitchEnvironment] = useState(false);
-  // Fetching feature flags from the store and checking if the feature is enabled
-  const allowedToRender = useSelector(datasourceEnvEnabled);
   const showRamps = showProductRamps(RAMP_NAME.MULTIPLE_ENV);
   const location = useLocation();
   //listen to url change and disable switch environment if datasource page is open
@@ -84,7 +81,7 @@ export default function SwitchEnvironment({}: Props) {
   //this parameter helps us to differentiate between the two.
   const isDatasourceViewMode = useSelector(isDatasourceInViewMode);
 
-  if (!allowedToRender || !showRamps) return null;
+  if (!showRamps) return null;
 
   const renderEnvOption = (env: EnvironmentType) => {
     return (

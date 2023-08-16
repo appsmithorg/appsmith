@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { datasourceEnvEnabled } from "@appsmith/selectors/featureFlagsSelectors";
-import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { Link, Tag, Text, Tooltip } from "design-system";
 import {
@@ -47,7 +45,6 @@ const TooltipLink = styled(Link)`
 `;
 
 type DSDataFilterProps = {
-  datasourceId: string;
   updateFilter: (
     id: string,
     name: string,
@@ -89,14 +86,12 @@ function DSDataFilter({
   viewMode,
 }: DSDataFilterProps) {
   const [showFilterPane, setShowFilterPane] = useState(false);
-  const datasourceEnv: boolean = useSelector(datasourceEnvEnabled);
   const showRamps = showProductRamps(RAMP_NAME.MULTIPLE_ENV);
 
   // update the selected environment if the list of environments changes
   useEffect(() => {
     const isRenderAllowed =
       environments.length > 0 &&
-      datasourceEnv &&
       showRamps &&
       !viewMode &&
       !isInsideReconnectModal;
