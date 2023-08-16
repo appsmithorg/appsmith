@@ -230,8 +230,12 @@ export class UserApi extends Api {
     return Api.post(UserApi.resendEmailVerificationURL, { email });
   }
 
-  static verifyUser(token: string, email: string): AxiosPromise<ApiResponse> {
-    return Api.get(UserApi.verifyUserEmailURL, { token, email });
+  static verifyUser(
+    token: string,
+    email: string,
+    redirectUrl: string,
+  ): AxiosPromise<ApiResponse> {
+    return Api.get(UserApi.verifyUserEmailURL, { token, email, redirectUrl });
   }
 }
 
