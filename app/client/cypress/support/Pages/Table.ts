@@ -45,8 +45,7 @@ export class Table {
     "//div[contains(@class,'thead')]//div[contains(@class,'tr')][1]//div[@role='columnheader']//div[contains(text(),'" +
     columnName +
     "')]/parent::div/parent::div";
-  private _columnHeaderDiv = (columnName: string) =>
-    `[data-header=${columnName}]`;
+  _columnHeaderDiv = (columnName: string) => `[data-header=${columnName}]`;
   private _tableWidgetVersion = (version: "v1" | "v2") =>
     `.t--widget-tablewidget${version == "v1" ? "" : version}`;
   private _nextPage = (version: "v1" | "v2") =>
@@ -158,6 +157,45 @@ export class Table {
     `${this._columnHeaderDiv(columnName)} .header-menu .bp3-popover2-target`;
   _columnHeaderMenu = ".bp3-menu";
   _selectMenuItem = ".menu-item-text";
+  _columnCheckbox = (columnName: string) =>
+    "[data-rbd-draggable-id='" + columnName + "']" + " .t--card-checkbox input";
+  _dateInputPopover = ".bp3-dateinput-popover";
+  _tableV2Widget = ".t--draggable-tablewidgetv2";
+  _tableV2Row = ".t--draggable-tablewidgetv2 .tbody";
+  _weekdayRowDayPicker =
+    ".bp3-datepicker .DayPicker .DayPicker-Months .DayPicker-WeekdaysRow";
+  _popoverErrorMsg = (msg: string) =>
+    "//div[@class='bp3-popover-content' and contains(text(),'" + msg + "')]";
+  _datePicker = ".bp3-datepicker";
+  _dayPickerWeek = ".bp3-datepicker .DayPicker .DayPicker-Body .DayPicker-Week";
+  _timePickerHour = ".bp3-timepicker-input-row .bp3-timepicker-hour";
+  _timePickerMinute = ".bp3-timepicker-input-row .bp3-timepicker-minute";
+  _timePickerSecond = ".bp3-timepicker-input-row .bp3-timepicker-second";
+  _timePickerRow = ".bp3-timepicker-input-row";
+  _tableV2Head = ".t--draggable-tablewidgetv2 .thead";
+  _timeprecisionPopover =
+    ".t--property-control-timeprecision .bp3-popover-target";
+  _tableRow1Child3 =
+    ".t--draggable-tablewidgetv2 .tbody .tr:nth-child(1) div:nth-child(3)";
+  _draggableHeader = " .draggable-header";
+  _lastChildDatePicker = "div:last-child .react-datepicker-wrapper";
+  _codeMirrorError = ".t--codemirror-has-error";
+  _canvasWidgetType = "[type='CANVAS_WIDGET']";
+  _showArrow = ".rc-select-show-arrow";
+  _codeEditorWrapper = ".t--code-editor-wrapper";
+  _dateRangePickerShortcuts =
+    ".bp3-dateinput-popover .bp3-daterangepicker-shortcuts";
+  _dayPickerFirstChild = ".DayPicker-Day:first-child";
+  _divFirstChild = "div:first-child abbr";
+  _listPreviousPage = ".rc-pagination-prev";
+  _listNavigation = (move: string) =>
+    "//button[@area-label='" + move + " page']";
+  _listNextPage = ".rc-pagination-next";
+  _listActivePage = (version: "v1" | "v2") =>
+    `.t--widget-listwidget${
+      version == "v1" ? "" : version
+    } .rc-pagination-item-active`;
+  _paginationItem = (value: number) => `.rc-pagination-item-${value}`;
 
   public GetNumberOfRows() {
     return this.agHelper.GetElement(this._tr).its("length");
@@ -407,8 +445,8 @@ export class Table {
     this.agHelper.Sleep(); //for select to reflect
   }
 
-  public AssertSearchText(searchTxt: string) {
-    cy.get(this._searchText).should("have.value", searchTxt);
+  public AssertSearchText(searchTxt: string, index = 0) {
+    cy.get(this._searchText).eq(index).should("have.value", searchTxt);
   }
 
   public SearchTable(searchTxt: string, index = 0) {
@@ -493,11 +531,11 @@ export class Table {
     cy.get(this._downloadOption).contains(filetype).click({ force: true });
   }
 
-  public ValidateDownloadNVerify(fileName: string, textToBePresent: string) {
+  public ValidateDownloadNVerify(fileName: string, textToBePresent = "") {
     let downloadsFolder = Cypress.config("downloadsFolder");
     cy.log("downloadsFolder is:" + downloadsFolder);
     cy.readFile(path.join(downloadsFolder, fileName)).should("exist");
-    this.VerifyDownloadedFile(fileName, textToBePresent);
+    textToBePresent && this.VerifyDownloadedFile(fileName, textToBePresent);
   }
 
   public VerifyDownloadedFile(fileName: string, textToBePresent: string) {
@@ -588,7 +626,7 @@ export class Table {
       0,
       true,
     );
-    this.agHelper.AssertElementVisible(
+    this.agHelper.AssertElementVisibility(
       this._tableRow(rowIndex, colIndex, "v2") +
         " " +
         this._editCellEditorInput,
@@ -626,7 +664,9 @@ export class Table {
       force,
     );
     toSaveNewValue &&
-      this.agHelper.TypeText(this._editCellEditorInput, "{enter}", 0, true);
+      this.agHelper.TypeText(this._editCellEditorInput, "{enter}", {
+        parseSpecialCharSeq: true,
+      });
   }
 
   public DeleteColumn(colId: string) {
@@ -640,41 +680,92 @@ export class Table {
   }
 
   //List methods - keeping it for now!
-  public NavigateToNextPage_List() {
+  public NavigateToNextPage_List(tableVersion: "v1" | "v2" = "v1", index = 0) {
     let curPageNo: number;
-    cy.xpath(this._liCurrentSelectedPage)
-      .invoke("text")
-      .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
-    cy.get(this._liNextPage).click();
-    //cy.scrollTo('top', { easing: 'linear' })
-    cy.xpath(this._liCurrentSelectedPage)
-      .invoke("text")
-      .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
+    if (tableVersion == "v1") {
+      cy.xpath(this._liCurrentSelectedPage)
+        .invoke("text")
+        .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
+      cy.get(this._listNextPage).click();
+      //cy.scrollTo('top', { easing: 'linear' })
+      cy.xpath(this._liCurrentSelectedPage)
+        .invoke("text")
+        .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
+    } else if (tableVersion == "v2") {
+      this.agHelper
+        .GetText(this._listActivePage(tableVersion), "text", index)
+        .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
+      this.agHelper.GetNClick(this._listNextPage, index);
+      this.agHelper.Sleep(1000);
+      this.agHelper
+        .GetText(this._listActivePage(tableVersion), "text", index)
+        .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo + 1));
+    }
   }
 
-  public NavigateToPreviousPage_List() {
+  public NavigateToPreviousPage_List(
+    tableVersion: "v1" | "v2" = "v1",
+    index = 0,
+  ) {
     let curPageNo: number;
-    cy.xpath(this._liCurrentSelectedPage)
-      .invoke("text")
+    this.agHelper
+      .GetText(this._listActivePage(tableVersion), "text", index)
       .then(($currentPageNo) => (curPageNo = Number($currentPageNo)));
-    cy.get(this._liPreviousPage).click();
-    //cy.scrollTo('top', { easing: 'linear' })
-    cy.xpath(this._liCurrentSelectedPage)
-      .invoke("text")
+    this.agHelper.GetNClick(this._liPreviousPage, index);
+    this.agHelper.Sleep(1000);
+    this.agHelper
+      .GetText(this._listActivePage(tableVersion), "text", index)
       .then(($newPageNo) => expect(Number($newPageNo)).to.eq(curPageNo - 1));
+    //}
   }
 
-  public AssertPageNumber_List(pageNo: number, checkNoNextPage = false) {
-    cy.xpath(this._liCurrentSelectedPage)
-      .invoke("text")
-      .then(($currentPageNo) => expect(Number($currentPageNo)).to.eq(pageNo));
+  public AssertPageNumber_List(
+    pageNo: number,
+    checkNoNextPage = false,
+    tableVersion: "v1" | "v2" = "v1",
+  ) {
+    if (tableVersion == "v1") {
+      cy.xpath(this._liCurrentSelectedPage)
+        .invoke("text")
+        .then(($currentPageNo) => expect(Number($currentPageNo)).to.eq(pageNo));
 
-    if (pageNo == 1)
-      cy.get(this._liPreviousPage).should("have.attr", "aria-disabled", "true");
+      if (pageNo == 1)
+        this.agHelper.AssertAttribute(
+          this._liPreviousPage,
+          "aria-disabled",
+          "true",
+        );
+      if (checkNoNextPage)
+        this.agHelper.AssertAttribute(
+          this._listNextPage,
+          "aria-disabled",
+          "true",
+        );
+      else
+        this.agHelper.AssertAttribute(
+          this._listNextPage,
+          "aria-disabled",
+          "false",
+        );
+    } else if (tableVersion == "v2") {
+      this.agHelper
+        .GetText(this._listActivePage(tableVersion), "text")
+        .then(($currentPageNo) => expect(Number($currentPageNo)).to.eq(pageNo));
 
-    if (checkNoNextPage)
-      cy.get(this._liNextPage).should("have.attr", "aria-disabled", "true");
-    else cy.get(this._liNextPage).should("have.attr", "aria-disabled", "false");
+      if (pageNo == 1)
+        this.agHelper
+          .GetElement(this._listPreviousPage)
+          .should("have.class", "rc-pagination-disabled");
+
+      if (checkNoNextPage)
+        this.agHelper
+          .GetElement(this._listNextPage)
+          .should("have.class", "rc-pagination-disabled");
+      else
+        this.agHelper
+          .GetElement(this._listNextPage)
+          .should("not.have.class", "rc-pagination-disabled");
+    }
   }
 
   public AddSampleTableData() {
@@ -693,5 +784,38 @@ export class Table {
       `Sort column ${direction}`,
     );
     this.agHelper.Sleep(500);
+  }
+
+  public AssertVisibleColumns(columnNames: string[]) {
+    columnNames.forEach(($header) => {
+      cy.xpath(this._columnHeader($header))
+        .invoke("attr", "class")
+        .then((classes) => {
+          expect(classes).includes("draggable-header");
+        });
+    });
+  }
+
+  //This method is used to navigate forward using ">" button and backward "<"
+  public NavigateToPageUsingButton_List(
+    movement: string,
+    pageNumber: number,
+    version: "v1" | "v2" = "v2",
+  ) {
+    this.agHelper.GetNClick(this._listNavigation(movement), 0, true);
+    this.agHelper.Sleep(2000);
+    this.agHelper
+      .GetText(this._listActivePage(version), "text")
+      .then(($newPageNo) => expect(Number($newPageNo)).to.eq(pageNumber));
+  }
+
+  public NavigateToSpecificPage_List(
+    pageNumber: number,
+    version: "v1" | "v2" = "v2",
+  ) {
+    this.agHelper.GetNClick(`${this._paginationItem(pageNumber)}`);
+    this.agHelper
+      .GetText(this._listActivePage(version), "text")
+      .then(($newPageNo) => expect(Number($newPageNo)).to.eq(pageNumber));
   }
 }

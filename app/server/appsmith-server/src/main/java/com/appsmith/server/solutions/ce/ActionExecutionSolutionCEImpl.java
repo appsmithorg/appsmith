@@ -41,6 +41,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -91,6 +92,8 @@ import static com.appsmith.server.constants.AnalyticsConstants.DATASOURCE_IS_MOC
 import static com.appsmith.server.constants.AnalyticsConstants.DATASOURCE_IS_TEMPLATE_SHORTNAME;
 import static com.appsmith.server.constants.AnalyticsConstants.DATASOURCE_NAME_SHORTNAME;
 import static com.appsmith.server.constants.AnalyticsConstants.ENVIRONMENT_ID_SHORTNAME;
+import static com.appsmith.server.constants.ce.AnalyticsConstantsCE.ENVIRONMENT_NAME_DEFAULT;
+import static com.appsmith.server.constants.ce.AnalyticsConstantsCE.ENVIRONMENT_NAME_SHORTNAME;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -114,6 +117,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private final DatasourcePermission datasourcePermission;
     private final AnalyticsService analyticsService;
     private final DatasourceStorageService datasourceStorageService;
+    private final EnvironmentPermission environmentPermission;
 
     static final String PARAM_KEY_REGEX = "^k\\d+$";
     static final String BLOB_KEY_REGEX =
@@ -138,7 +142,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             AuthenticationValidator authenticationValidator,
             DatasourcePermission datasourcePermission,
             AnalyticsService analyticsService,
-            DatasourceStorageService datasourceStorageService) {
+            DatasourceStorageService datasourceStorageService,
+            EnvironmentPermission environmentPermission) {
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.observationRegistry = observationRegistry;
@@ -155,6 +160,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.datasourcePermission = datasourcePermission;
         this.analyticsService = analyticsService;
         this.datasourceStorageService = datasourceStorageService;
+        this.environmentPermission = environmentPermission;
 
         this.patternList.add(Pattern.compile(PARAM_KEY_REGEX));
         this.patternList.add(Pattern.compile(BLOB_KEY_REGEX));
@@ -178,11 +184,29 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                 branchName, executeActionDTO.getActionId(), actionPermission.getExecutePermission())
                         .flatMap(branchedAction -> {
                             executeActionDTO.setActionId(branchedAction.getId());
+
+                            boolean isEmbedded;
+                            if (executeActionDTO.getViewMode()) {
+                                isEmbedded = branchedAction
+                                                .getPublishedAction()
+                                                .getDatasource()
+                                                .getId()
+                                        == null;
+                            } else {
+                                isEmbedded = branchedAction
+                                                .getUnpublishedAction()
+                                                .getDatasource()
+                                                .getId()
+                                        == null;
+                            }
+
                             return Mono.just(executeActionDTO)
                                     .zipWith(datasourceService.getTrueEnvironmentId(
                                             branchedAction.getWorkspaceId(),
                                             environmentId,
-                                            branchedAction.getPluginId()));
+                                            branchedAction.getPluginId(),
+                                            environmentPermission.getExecutePermission(),
+                                            isEmbedded));
                         }))
                 .flatMap(tuple2 -> this.executeAction(tuple2.getT1(), tuple2.getT2())) // getTrue is temporary call
                 .name(ACTION_EXECUTION_SERVER_EXECUTION)
@@ -505,7 +529,9 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         datasourceStorageMono = Mono.empty();
                     } else {
                         // For embedded datasource, we are simply relying on datasource configuration property
-                        datasourceStorageMono = Mono.just(new DatasourceStorage(datasource, environmentId));
+                        datasourceStorageMono =
+                                Mono.just(datasourceStorageService.createDatasourceStorageFromDatasource(
+                                        datasource, environmentId));
                     }
 
                     return datasourceStorageMono
@@ -514,7 +540,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             .flatMap(datasourceStorage -> {
                                 // For embedded datasourceStorage, validate the datasourceStorage for each execution
                                 if (datasourceStorage.getDatasourceId() == null) {
-                                    return datasourceStorageService.validateDatasourceStorage(datasourceStorage, true);
+                                    return datasourceStorageService.validateDatasourceConfiguration(datasourceStorage);
                                 }
 
                                 // The external datasourceStorage have already been validated. No need to validate
@@ -889,12 +915,15 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         Mono.just(application),
                         sessionUserService.getCurrentUser(),
                         newPageService.getNameByPageId(actionDTO.getPageId(), executeActionDto.getViewMode()),
-                        pluginService.getById(actionDTO.getPluginId())))
+                        pluginService.getById(actionDTO.getPluginId()),
+                        datasourceStorageService.getEnvironmentNameFromEnvironmentIdForAnalytics(
+                                datasourceStorage.getEnvironmentId())))
                 .flatMap(tuple -> {
                     final Application application = tuple.getT1();
                     final User user = tuple.getT2();
                     final String pageName = tuple.getT3();
                     final Plugin plugin = tuple.getT4();
+                    final String environmentName = tuple.getT5();
 
                     final PluginType pluginType = actionDTO.getPluginType();
                     final String appMode = TRUE.equals(executeActionDto.getViewMode())
@@ -981,7 +1010,9 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             DATASOURCE_IS_MOCK_SHORTNAME,
                             ObjectUtils.defaultIfNull(datasourceStorage.getIsMock(), ""),
                             DATASOURCE_CREATED_AT_SHORTNAME,
-                            dsCreatedAt));
+                            dsCreatedAt,
+                            ENVIRONMENT_NAME_SHORTNAME,
+                            ObjectUtils.defaultIfNull(environmentName, ENVIRONMENT_NAME_DEFAULT)));
 
                     // Add the error message in case of erroneous execution
                     if (FALSE.equals(actionExecutionResult.getIsExecutionSuccess())) {

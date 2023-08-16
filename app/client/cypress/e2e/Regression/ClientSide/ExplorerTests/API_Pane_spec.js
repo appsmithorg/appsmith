@@ -11,26 +11,27 @@ let ee = ObjectsRegistry.EntityExplorer,
 
 describe("Entity explorer API pane related testcases", function () {
   it("1. Empty Message validation for Widgets/API/Queries", function () {
-    homePage.NavigateToHome();
-    homePage.CreateNewWorkspace("EmptyMsgCheck");
+    homePage.CreateNewWorkspace("EmptyMsgCheck", true);
     homePage.CreateAppInWorkspace("EmptyMsgCheck");
     ee.ExpandCollapseEntity("Widgets");
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locator._visibleTextSpan("No widget to display"),
     );
-    agHelper.AssertElementVisible(locator._visibleTextSpan("New widget"));
+    agHelper.AssertElementVisibility(locator._visibleTextSpan("New widget"));
 
     ee.ExpandCollapseEntity("Queries/JS");
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locator._visibleTextSpan("No query/JS to display"),
     );
-    agHelper.AssertElementVisible(locator._visibleTextSpan("New query/JS"));
+    agHelper.AssertElementVisibility(locator._visibleTextSpan("New query/JS"));
 
     ee.ExpandCollapseEntity("Datasources");
-    agHelper.AssertElementVisible(
+    agHelper.AssertElementVisibility(
       locator._visibleTextSpan("No datasource to display"),
     );
-    agHelper.AssertElementVisible(locator._visibleTextSpan("New datasource"));
+    agHelper.AssertElementVisibility(
+      locator._visibleTextSpan("New datasource"),
+    );
   });
 
   it("2. Move to page / edit API name /properties validation", function () {

@@ -143,7 +143,7 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                     workspace.setSlug(null);
                     return workspaceService.createDefault(workspace, user);
                 })
-                .zipWhen(newWorkspace -> workspaceService.getDefaultEnvironmentId(templateWorkspaceId))
+                .zipWhen(newWorkspace -> workspaceService.getDefaultEnvironmentId(templateWorkspaceId, null))
                 .flatMap(tuple2 -> {
                     Workspace newWorkspace = tuple2.getT1();
                     String sourceEnvironmentId = tuple2.getT2();
@@ -576,7 +576,7 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
     public Mono<Datasource> forkDatasource(
             String datasourceId, String toWorkspaceId, Boolean forkWithConfiguration, String sourceEnvironmentId) {
 
-        final Mono<String> destinationEnvironmentIdMono = workspaceService.getDefaultEnvironmentId(toWorkspaceId);
+        final Mono<String> destinationEnvironmentIdMono = workspaceService.getDefaultEnvironmentId(toWorkspaceId, null);
 
         final Mono<List<Datasource>> existingDatasourcesInNewWorkspaceMono = datasourceService
                 .getAllByWorkspaceIdWithoutStorages(toWorkspaceId, Optional.empty())
@@ -625,7 +625,9 @@ public class ForkExamplesWorkspaceServiceCEImpl implements ForkExamplesWorkspace
                                                         auth.setIsAuthorized(null);
                                                     }
                                                     return storageDTOToFork.softEquals(
-                                                            new DatasourceStorageDTO(existingStorage));
+                                                            datasourceStorageService
+                                                                    .createDatasourceStorageDTOFromDatasourceStorage(
+                                                                            existingStorage));
                                                 })
                                                 .switchIfEmpty(Mono.just(false));
                                     })

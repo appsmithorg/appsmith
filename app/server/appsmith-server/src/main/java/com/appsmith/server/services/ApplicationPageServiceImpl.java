@@ -37,7 +37,8 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
             ActionPermission actionPermission,
-            TransactionalOperator transactionalOperator) {
+            TransactionalOperator transactionalOperator,
+            PermissionGroupService permissionGroupService) {
 
         super(
                 workspaceService,
@@ -58,6 +59,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 applicationPermission,
                 pagePermission,
                 actionPermission,
-                transactionalOperator);
+                transactionalOperator,
+                permissionGroupService);
     }
 }

@@ -63,7 +63,11 @@ import {
   Button,
   Text,
 } from "design-system";
-import { isEnvironmentConfigured } from "@appsmith/utils/Environments";
+import {
+  isEnvironmentConfigured,
+  getCurrentEnvironment,
+  getCurrentEnvName,
+} from "@appsmith/utils/Environments";
 import { keyBy } from "lodash";
 import type { Plugin } from "api/PluginApi";
 import {
@@ -292,12 +296,12 @@ function ReconnectDatasourceModal() {
   const orgId = queryDS?.workspaceId;
 
   const checkIfDatasourceIsConfigured = (ds: Datasource | null) => {
-    if (!ds) return false;
+    if (!ds || pluginsArray.length === 0) return false;
     const plugin = plugins[ds.pluginId];
     const output = isGoogleSheetPluginDS(plugin?.packageName)
       ? isDatasourceAuthorizedForQueryCreation(ds, plugin as Plugin)
       : ds.datasourceStorages
-      ? isEnvironmentConfigured(ds)
+      ? isEnvironmentConfigured(ds, getCurrentEnvironment())
       : false;
     return output;
   };
@@ -316,6 +320,8 @@ function ReconnectDatasourceModal() {
       AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
         applicationId: queryAppId,
         datasourceId: queryDatasourceId,
+        environmentId: getCurrentEnvironment(),
+        environmentName: getCurrentEnvName(),
         pageId: queryPageId,
         oAuthPassOrFailVerdict: status,
         workspaceId: orgId,

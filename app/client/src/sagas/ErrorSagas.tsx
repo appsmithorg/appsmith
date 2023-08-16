@@ -118,7 +118,7 @@ export function* validateResponse(
   yield put({
     type: ReduxActionErrorTypes.API_ERROR,
     payload: {
-      error: response.responseMeta.error,
+      error: new Error(response.responseMeta.error.message),
       logToSentry,
       show,
     },

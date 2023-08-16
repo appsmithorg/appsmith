@@ -123,6 +123,7 @@ export function useTableOrSpreadsheet() {
         dataTableName: TableObj.value,
         pluginType: config.datasourcePluginType,
         pluginName: config.datasourcePluginName,
+        connectionMode: config.datasourceConnectionMode,
       });
     },
     [

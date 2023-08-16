@@ -31,8 +31,6 @@ export class AppSettings {
     _topStacked: ".t--app-viewer-navigation-top-stacked",
     _applicationName: ".t--app-viewer-application-name",
     _shareButton: ".t--app-viewer-share-button",
-    _editButton: ".t--back-to-editor",
-    _userProfileDropdownButton: ".t--profile-menu-icon",
     _modal: "div[role=dialog]",
     _modalClose: "div[role=dialog] button[aria-label='Close']",
     _canvas: ".t--canvas-artboard",
@@ -60,6 +58,8 @@ export class AppSettings {
     _topInlineMoreDropdownItem:
       ".t--app-viewer-navigation-top-inline-more-dropdown-item",
     _scrollArrows: ".scroll-arrows",
+    _getActivePage: (pageName: string) =>
+      `//span[contains(text(),"${pageName}")]//ancestor::a[contains(@class,'is-active')]`,
   };
 
   public errorMessageSelector = (fieldId: string) => {

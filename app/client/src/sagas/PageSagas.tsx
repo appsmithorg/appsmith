@@ -146,6 +146,7 @@ import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { nestDSL, flattenDSL } from "@shared/dsl";
+import { fetchSnapshotDetailsAction } from "actions/autoLayoutActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -312,6 +313,8 @@ export function* handleFetchedPage({
     );
     // Update the canvas
     yield put(initCanvasLayout(canvasWidgetsPayload));
+    // fetch snapshot API
+    yield put(fetchSnapshotDetailsAction());
     // set current page
     yield put(updateCurrentPage(pageId, pageSlug, pagePermissions));
     // dispatch fetch page success

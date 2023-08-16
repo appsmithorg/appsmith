@@ -84,6 +84,9 @@ public class DatasourceStructureSolutionTest {
     @SpyBean
     DatasourceStructureSolution datasourceStructureSolution;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     String workspaceId;
 
     String defaultEnvironmentId;
@@ -101,8 +104,9 @@ public class DatasourceStructureSolutionTest {
             Workspace workspace =
                     workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
-            defaultEnvironmentId =
-                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId = workspaceService
+                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                    .block();
         }
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
@@ -424,6 +428,7 @@ public class DatasourceStructureSolutionTest {
         DatasourceStorage datasourceStorage = new DatasourceStorage();
         datasourceStorage.setDatasourceId(datasourceId);
         datasourceStorage.setEnvironmentId(defaultEnvironmentId);
+        datasourceStorage.setDatasourceConfiguration(new DatasourceConfiguration());
         datasourceStorage.setInvalids(new HashSet<>());
         datasourceStorage.getInvalids().add("random invalid");
 

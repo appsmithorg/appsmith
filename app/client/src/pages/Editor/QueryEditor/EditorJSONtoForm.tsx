@@ -881,13 +881,14 @@ export function EditorJSONtoForm(props: Props) {
     dispatch(setDebuggerSelectedTab(tabKey));
   }, []);
 
+  const isPostgresPlugin = currentActionPluginName === PluginName.POSTGRES;
   const featureFlags = useSelector(selectFeatureFlags);
-  const editorMode =
-    currentActionPluginName === PluginName.POSTGRES
-      ? editorSQLModes.POSTGRESQL_WITH_BINDING
-      : editorSQLModes.MYSQL_WITH_BINDING;
+  const editorMode = isPostgresPlugin
+    ? editorSQLModes.POSTGRESQL_WITH_BINDING
+    : editorSQLModes.MYSQL_WITH_BINDING;
 
-  const isAIEnabledForPosting = isAIEnabled(featureFlags, editorMode);
+  const isAIEnabledForPosting =
+    isPostgresPlugin && isAIEnabled(featureFlags, editorMode);
 
   // close the debugger
   //TODO: move this to a common place

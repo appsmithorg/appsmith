@@ -68,7 +68,6 @@ import {
   TriggerKind,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { validate } from "workers/Evaluation/validations";
-import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 
@@ -100,9 +99,9 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import { executeJSUpdates } from "actions/pluginActionActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 import { waitForWidgetConfigBuild } from "./InitSagas";
+import { logDynamicTriggerExecution } from "@appsmith/sagas/analyticsSaga";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
-
 export const evalWorker = new GracefulWorkerService(
   new Worker(
     new URL("../workers/Evaluation/evaluation.worker.ts", import.meta.url),
@@ -131,20 +130,21 @@ export function* updateDataTreeHandler(
 
   const {
     configTree,
-    dataTree,
     dependencies,
     errors,
     evalMetaUpdates = [],
     evaluationOrder,
+    reValidatedPaths,
     isCreateFirstTree = false,
     isNewWidgetAdded,
     jsUpdates,
     logs,
-    pathsToClearErrorsFor,
+    removedPaths,
     staleMetaIds,
     undefinedEvalValuesMap,
     unEvalUpdates,
     jsVarsCreatedEvent,
+    updates,
   } = evalTreeResponse;
 
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
@@ -155,14 +155,13 @@ export function* updateDataTreeHandler(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-  const oldDataTree: ReturnType<typeof getDataTree> = yield select(getDataTree);
-
-  const updates = diff(oldDataTree, dataTree) || [];
 
   if (!isEmpty(staleMetaIds)) {
     yield put(resetWidgetsMetaState(staleMetaIds));
   }
+
   yield put(setEvaluatedTree(updates));
+
   ConfigTreeActions.setConfigTree(configTree);
 
   PerformanceTracker.stopAsyncTracking(
@@ -180,14 +179,15 @@ export function* updateDataTreeHandler(
   log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
   logs?.forEach((evalLog: any) => log.debug(evalLog));
-  // Added type as any due to https://github.com/redux-saga/redux-saga/issues/1482
+
   yield call(
-    evalErrorHandler as any,
+    evalErrorHandler,
     errors,
     updatedDataTree,
     evaluationOrder,
+    reValidatedPaths,
     configTree,
-    pathsToClearErrorsFor,
+    removedPaths,
   );
 
   if (appMode !== APP_MODE.PUBLISHED) {
@@ -216,6 +216,7 @@ export function* updateDataTreeHandler(
       jsData,
     );
   }
+
   yield put(setDependencyMap(dependencies));
   if (postEvalActionsToDispatch && postEvalActionsToDispatch.length) {
     yield call(postEvalActionDispatcher, postEvalActionsToDispatch);
@@ -252,12 +253,12 @@ export function* evaluateTreeSaga(
   const theme: ReturnType<typeof getSelectedAppTheme> = yield select(
     getSelectedAppTheme,
   );
-  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   const toPrintConfigTree = unEvalAndConfigTree.configTree;
   log.debug({ unevalTree, configTree: toPrintConfigTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
+  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
 
   const evalTreeRequestData: EvalTreeRequestData = {
     unevalTree: unEvalAndConfigTree,
@@ -313,7 +314,6 @@ export function* evaluateAndExecuteDynamicTrigger(
   const unEvalTree: ReturnType<typeof getUnevaluatedDataTree> = yield select(
     getUnevaluatedDataTree,
   );
-  // const unEvalTree = unEvalAndConfigTree.unEvalTree;
   log.debug({ execute: dynamicTrigger });
   const response: { errors: EvaluationError[]; result: unknown } = yield call(
     evalWorker.request,
@@ -329,6 +329,11 @@ export function* evaluateAndExecuteDynamicTrigger(
   );
   const { errors = [] } = response as any;
   yield call(dynamicTriggerErrorHandler, errors);
+  yield fork(logDynamicTriggerExecution, {
+    dynamicTrigger,
+    errors,
+    triggerMeta,
+  });
   return response;
 }
 

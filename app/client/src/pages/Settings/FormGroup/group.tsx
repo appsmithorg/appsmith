@@ -9,11 +9,7 @@ import Button from "./Button";
 import { getFormValues } from "redux-form";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import { useSelector } from "react-redux";
-import {
-  createMessage,
-  LEARN_MORE,
-  REDIRECT_URL_TOOLTIP,
-} from "@appsmith/constants/messages";
+import { createMessage, LEARN_MORE } from "@appsmith/constants/messages";
 import { Callout, Text } from "design-system";
 import CopyUrlForm from "./CopyUrlForm";
 import Accordion from "./Accordion";
@@ -200,7 +196,7 @@ export default function Group({
                         },
                       ]}
                     >
-                      {createMessage(() => setting.label || "")}
+                      {setting.label || ""}
                     </Callout>
                   </div>
                 );
@@ -250,9 +246,7 @@ export default function Group({
                       fieldName={setting.fieldName || ""}
                       helpText={setting.helpText}
                       title={setting.label || ""}
-                      tooltip={
-                        setting.tooltip || createMessage(REDIRECT_URL_TOOLTIP)
-                      }
+                      tooltip={setting.tooltip}
                       value={setting.value || ""}
                     />
                   </div>

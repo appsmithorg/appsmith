@@ -53,7 +53,7 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
       ); //Creating query from EE overlay
       //Initialize new API entity with custom header
       apiPage.CreateAndFillApi(
-        tedTestConfig.mockApiUrl,
+        tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
         refactorInput.api.oldName,
       );
       apiPage.EnterHeader("key1", `{{\tJSObject1.myVar1}}`);

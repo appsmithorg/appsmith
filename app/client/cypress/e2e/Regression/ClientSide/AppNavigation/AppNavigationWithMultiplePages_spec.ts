@@ -33,21 +33,13 @@ describe("Page orientation and navigation related usecases ", function () {
       entityExplorer.AddNewPage();
     }
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
-    //propPane.navigateToPage("Page1", "onClick");
     propPane.NavigateToPage("Page1", "onClick");
-    //cy.navigateOnClick("Page1", "onClick");
     deployMode.DeployApp();
     agHelper.Sleep();
     agHelper.GetNClickByContains("button", "Submit");
-    agHelper
-      .GetElement(appSettings.locators._navigationMenuItem)
-      .contains("Page1")
-      .parent()
-      .parent()
-      .parent()
-      .parent()
-      .parent()
-      .should("have.class", "is-active");
+    agHelper.AssertElementVisibility(
+      appSettings.locators._getActivePage("Page1"),
+    );
     deployMode.NavigateBacktoEditor();
   });
 

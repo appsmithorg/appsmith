@@ -42,7 +42,7 @@ const initialState: AppThemingState = {
     properties: {
       colors: {
         backgroundColor: "#F8FAFC",
-        primaryColor: "",
+        primaryColor: "#000",
         secondaryColor: "",
       },
       borderRadius: {},

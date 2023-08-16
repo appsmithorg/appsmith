@@ -15,6 +15,13 @@ export class DeployMode {
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='radiogroup-container']//input`;
   _jsonFormDatepickerFieldByName = (fieldName: string) =>
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='datepicker-container']//input`;
+  _jsonFormNumberFieldByName = (
+    fieldName: string,
+    direction: "up" | "down" = "up",
+  ) =>
+    `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='input-container']// ${
+      direction == "up" ? this.locator._chevronUp : this.locator._chevronDown
+    }`;
   _jsonSelectDropdown = "button.select-button";
   private _jsonFormMultiSelectByName = (fieldName: string) =>
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='multiselect-container']//div[contains(@class, 'rc-select-show-arrow')]`;
@@ -24,13 +31,18 @@ export class DeployMode {
   private _backtoHome =
     ".t--app-viewer-navigation-header .t--app-viewer-back-to-apps-button";
   private _homeAppsmithImage = "a.t--appsmith-logo";
+  public envInfoModal = `[data-testid="t--env-info-modal"]`;
+  public envInfoModalDismissCheckbox = `[data-testid="t--env-info-dismiss-checkbox"]`;
+  public envInfoModalDeployButton = `[data-testid="t--env-info-modal-deploy-button"]`;
 
   //refering PublishtheApp from command.js
   public DeployApp(
-    eleToCheckInDeployPage: string = this.locator._backToEditor,
+    eleToCheckInDeployPage?: string,
     toCheckFailureToast = true,
     toValidateSavedState = true,
     addDebugFlag = true,
+    assertEnvInfoModal?: "present" | "absent",
+    dismissModal = false,
   ) {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
 
@@ -41,6 +53,16 @@ export class DeployMode {
     this.assertHelper.AssertDocumentReady();
     this.StubbingDeployPage(addDebugFlag);
     this.agHelper.ClickButton("Deploy");
+    if (!!assertEnvInfoModal && assertEnvInfoModal === "present") {
+      this.agHelper.WaitUntilEleAppear(this.envInfoModal);
+      this.agHelper.AssertElementExist(this.envInfoModal);
+      if (dismissModal) {
+        this.agHelper.CheckUncheck(this.envInfoModalDismissCheckbox);
+      }
+    } else {
+      this.agHelper.AssertElementAbsence(this.envInfoModal);
+    }
+    this.agHelper.GetNClickIfPresent(this.envInfoModalDeployButton);
     this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //to make sure we have started navigation from Edit page
     //cy.get("@windowDeployStub").should("be.calledOnce");
     this.assertHelper.AssertDocumentReady();
@@ -52,13 +74,16 @@ export class DeployMode {
     //   .should("not.contain", "edit");
     //cy.wait('@publishApp').wait('@publishApp') //waitng for 2 calls to complete
 
-    this.agHelper.WaitUntilEleAppear(eleToCheckInDeployPage);
+    this.agHelper.WaitUntilEleAppear(
+      eleToCheckInDeployPage ?? this.locator._backToEditor,
+    );
     localStorage.setItem("inDeployedMode", "true");
     toCheckFailureToast &&
       this.agHelper.AssertElementAbsence(
         this.locator._specificToast("has failed"),
       ); //Validating bug - 14141 + 14252
     this.agHelper.Sleep(2000); //for Depoy page to settle!
+    // });
   }
 
   // Stubbing window.open to open in the same tab
@@ -135,13 +160,13 @@ export class DeployMode {
     ); //Assert that is not error toast in Edit mode when navigating back from Deploy mode
     this.assertHelper.AssertDocumentReady();
     this.assertHelper.AssertNetworkStatus("@getWorkspace");
-    this.agHelper.AssertElementVisible(this.locator._editPage); //Assert if canvas is visible after Navigating back!
+    this.agHelper.AssertElementVisibility(this.locator._editPage); //Assert if canvas is visible after Navigating back!
   }
 
   public NavigateToHomeDirectly() {
     this.agHelper.GetNClick(this._backtoHome);
     this.agHelper.Sleep(2000);
-    this.agHelper.AssertElementVisible(this._homeAppsmithImage);
+    this.agHelper.AssertElementVisibility(this._homeAppsmithImage);
   }
 
   public EnterJSONInputValue(

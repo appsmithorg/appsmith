@@ -1,9 +1,11 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -168,6 +170,56 @@ public class DatasourceStorageServiceTest {
             assertThat(dbDatasourceStorage).isNotNull();
             assertThat(datasourceId).isEqualTo(dbDatasourceStorage.getDatasourceId());
             assertThat(environmentId).isEqualTo(dbDatasourceStorage.getEnvironmentId());
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyFindByDatasourceAndStorageIdGivesErrorWhenNoConfigurationIsPresent() {
+
+        Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
+        String pluginId = plugin.getId();
+        String datasourceId = "datasourceForExecution";
+        String environmentIdOne = FieldName.UNUSED_ENVIRONMENT_ID;
+
+        DatasourceStorage datasourceStorage = new DatasourceStorage();
+        datasourceStorage.setDatasourceId(datasourceId);
+        datasourceStorage.setEnvironmentId(environmentIdOne);
+        datasourceStorage.setPluginId(pluginId);
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        datasourceStorageService.create(datasourceStorage).block();
+
+        Datasource datasource = new Datasource();
+        datasource.setId(datasourceId);
+        datasource.setPluginId(pluginId);
+
+        Mono<DatasourceStorage> datasourceStorageMono =
+                datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(datasource, environmentIdOne);
+        StepVerifier.create(datasourceStorageMono).verifyErrorSatisfies(error -> {
+            assertThat(error).isInstanceOf(AppsmithException.class);
+            assertThat(((AppsmithException) error).getAppErrorCode())
+                    .isEqualTo(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getAppErrorCode());
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyFindByDatasourceAndStorageIdGivesErrorWhenStorageIsAbsent() {
+        String datasourceId = "datasourceForUnsavedStorage";
+        String environmentIdOne = FieldName.UNUSED_ENVIRONMENT_ID;
+
+        Datasource datasource = new Datasource();
+        datasource.setId(datasourceId);
+
+        Mono<DatasourceStorage> datasourceStorageMono =
+                datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(datasource, environmentIdOne);
+        StepVerifier.create(datasourceStorageMono).verifyErrorSatisfies(error -> {
+            assertThat(error).isInstanceOf(AppsmithException.class);
+            assertThat(((AppsmithException) error).getAppErrorCode())
+                    .isEqualTo(AppsmithError.NO_RESOURCE_FOUND.getAppErrorCode());
         });
     }
 }

@@ -1,8 +1,14 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { ChartWidgetProps } from "widgets/ChartWidget/widget";
-import { isLabelOrientationApplicableFor } from "../component";
-import { CUSTOM_CHART_TYPES, LabelOrientation } from "../constants";
+import {
+  CUSTOM_CHART_TYPES,
+  LabelOrientation,
+  LABEL_ORIENTATION_COMPATIBLE_CHARTS,
+} from "../constants";
+
+export const isLabelOrientationApplicableFor = (chartType: string) =>
+  LABEL_ORIENTATION_COMPATIBLE_CHARTS.includes(chartType);
 
 export const contentConfig = [
   {
@@ -81,6 +87,8 @@ export const contentConfig = [
                 type: ValidationTypes.OBJECT,
                 name: "dataSource",
                 params: {
+                  required: true,
+                  ignoreCase: false,
                   allowedKeys: [
                     {
                       name: "chart",
@@ -154,6 +162,7 @@ export const contentConfig = [
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
+                default: [],
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
@@ -241,6 +250,16 @@ export const contentConfig = [
           x.chartType === "CUSTOM_FUSION_CHART" || x.chartType === "PIE_CHART",
         dependencies: ["chartType"],
       },
+      {
+        helpText: "Hides/Display data point labels on series data",
+        propertyName: "showDataPointLabel",
+        label: "Show Labels",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+        hidden: (x: ChartWidgetProps) => x.chartType === "CUSTOM_FUSION_CHART",
+        dependencies: ["chartType"],
+      },
     ],
   },
   {
@@ -301,10 +320,6 @@ export const contentConfig = [
           {
             label: "Rotate",
             value: LabelOrientation.ROTATE,
-          },
-          {
-            label: "Stagger",
-            value: LabelOrientation.STAGGER,
           },
         ],
       },

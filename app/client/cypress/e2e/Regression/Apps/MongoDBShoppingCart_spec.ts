@@ -12,10 +12,9 @@ describe("Shopping cart App", function () {
   let datasourceName: string, repoName: any;
 
   before(() => {
-    homePage.NavigateToHome();
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      homePage.CreateNewWorkspace("MongoDBShop" + uid);
+      homePage.CreateNewWorkspace("MongoDBShop" + uid, true);
       homePage.CreateAppInWorkspace("MongoDBShop" + uid, "MongoDBShopApp");
       agHelper.AddDsl("mongoAppdsl");
     });
@@ -28,7 +27,6 @@ describe("Shopping cart App", function () {
   it("1. Create MongoDB datasource and add Insert, Find, Update and Delete queries", function () {
     dataSources.CreateQueryAfterDSSaved("", "GetProduct");
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "Productnames",
     });
@@ -42,7 +40,6 @@ describe("Shopping cart App", function () {
       "Update document(s)",
     );
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "Productnames",
     });
@@ -73,7 +70,6 @@ describe("Shopping cart App", function () {
       "Insert document(s)",
     );
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "Productnames",
     });
@@ -101,7 +97,6 @@ describe("Shopping cart App", function () {
       "Delete document(s)",
     );
     dataSources.EnterJSContext({
-      fieldProperty: dataSources._mongoCollectionPath,
       fieldLabel: "Collection",
       fieldValue: "Productnames",
     });

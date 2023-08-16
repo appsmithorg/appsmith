@@ -38,4 +38,6 @@ export default {
   codeEditorWrapper: ".t--code-editor-wrapper",
   apiSearchHint: ".datasource-hint",
   slashCommandButton: ".commands-button",
+  apiResponseObject: ".object-key",
+  apiDebuggerLink: ".debugger-entity-link"
 };

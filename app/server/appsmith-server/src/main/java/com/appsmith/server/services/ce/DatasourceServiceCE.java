@@ -1,7 +1,6 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -12,7 +11,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -78,17 +76,6 @@ public interface DatasourceServiceCE {
 
     Mono<Datasource> archiveById(String id);
 
-    Map<String, Object> getAnalyticsProperties(Datasource datasource);
-
-    // TODO: Remove the following snippet after client side API changes
-    Mono<DatasourceDTO> convertToDatasourceDTO(Datasource datasource);
-
-    // TODO: Remove the following snippet after client side API changes
-    Mono<Datasource> convertToDatasource(DatasourceDTO datasourceDTO, String environmentId);
-
-    // TODO: Remove the following snippet after client side API changes
-    Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId);
-
     /**
      * If we are trying to get environment id with respect to a particular plugin,
      * we use this method to check out of scope plugins first
@@ -96,9 +83,14 @@ public interface DatasourceServiceCE {
      * @param workspaceId
      * @param environmentId
      * @param pluginId
+     * @param aclPermission
      * @return
      */
-    Mono<String> getTrueEnvironmentId(String workspaceId, String environmentId, String pluginId);
+    Mono<String> getTrueEnvironmentId(
+            String workspaceId, String environmentId, String pluginId, AclPermission aclPermission);
+
+    Mono<String> getTrueEnvironmentId(
+            String workspaceId, String environmentId, String pluginId, AclPermission aclPermission, boolean isEmbedded);
 
     Datasource createDatasourceFromDatasourceStorage(DatasourceStorage datasourceStorage);
 }

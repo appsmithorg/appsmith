@@ -3,7 +3,6 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.models.ClientDataDisplayType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.TriggerRequestDTO;
@@ -72,6 +71,9 @@ public class DatasourceTriggerSolutionTest {
     @MockBean
     FeatureFlagService featureFlagService;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     String workspaceId;
     String defaultEnvironmentId;
 
@@ -86,8 +88,9 @@ public class DatasourceTriggerSolutionTest {
         workspace.setName("Datasource Trigger Test Workspace");
         Workspace savedWorkspace = workspaceService.create(workspace).block();
         workspaceId = savedWorkspace.getId();
-        defaultEnvironmentId =
-                workspaceService.getDefaultEnvironmentId(workspaceId).block();
+        defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         Datasource datasource = new Datasource();
         datasource.setName("Datasource Trigger Database");
@@ -97,10 +100,9 @@ public class DatasourceTriggerSolutionTest {
         datasource.setPluginId(installed_plugin.getId());
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
         datasource = datasourceService.create(datasource).block();
 

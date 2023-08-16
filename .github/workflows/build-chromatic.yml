@@ -1,4 +1,4 @@
-name: 'Build Storybook Preview and Publish to Chromatic'
+name: 'Build Storybook - UI Tests with Chromatic'
 
 on:
   push:
@@ -6,9 +6,11 @@ on:
       - release
     paths:
       - 'app/client/packages/design-system/**'
+      - 'app/client/packages/storybook/**'
   pull_request:
     paths:
       - 'app/client/packages/design-system/**'
+      - 'app/client/packages/storybook/**'
 
 jobs:
   chromatic-deployment:
@@ -29,10 +31,10 @@ jobs:
           fetch-depth: 0
           ref: release
 
-      - name: Use Node.js 16.14.0
+      - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "16.14.0"
+          node-version-file: app/client/package.json
 
       - name: Install Dependencies
         working-directory: ./app/client/packages/storybook
@@ -41,8 +43,11 @@ jobs:
       - name: Publish to Chromatic
         id: chromatic-publish
         uses: chromaui/action@v1
+        env:
+          CHROMATIC: 1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           workingDir: ./app/client/packages/storybook
           exitOnceUploaded: true
+          buildScriptName: "build"

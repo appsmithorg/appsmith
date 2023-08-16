@@ -21,20 +21,16 @@ import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import history from "utils/history";
 import {
   getAction,
-  getDatasourceFirstTableName,
+  getDatasourceStructureById,
   getPluginNameFromId,
   getPluginTemplates,
 } from "selectors/entitiesSelector";
 import { get } from "lodash";
-import {
-  DB_QUERY_DEFAULT_TABLE_NAME,
-  DB_QUERY_DEFAULT_TEMPLATE_TYPE,
-} from "constants/Datasource";
+import { SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE } from "constants/Datasource";
 import TemplateMenu from "./QueryEditor/TemplateMenu";
 import { SQL_DATASOURCES } from "../../constants/QueryEditorConstants";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
-import type { Datasource } from "entities/Datasource";
-import { getSQLPluginsMockTableName } from "utils/editorContextUtils";
+import { getCurrentEditingEnvID } from "@appsmith/utils/Environments";
+import type { Datasource, DatasourceStructure } from "entities/Datasource";
 
 export interface FormControlProps {
   config: ControlProps;
@@ -59,7 +55,7 @@ function FormControl(props: FormControlProps) {
   let formValueForEvaluatingHiddenObj = formValues;
   if (!!formValues && formValues.hasOwnProperty("datasourceStorages")) {
     formValueForEvaluatingHiddenObj = (formValues as Datasource)
-      .datasourceStorages[getCurrentEnvironment()];
+      .datasourceStorages[getCurrentEditingEnvID()];
   }
   const hidden = isHidden(formValueForEvaluatingHiddenObj, props.config.hidden);
   const configErrors: EvaluationError[] = useSelector(
@@ -73,14 +69,11 @@ function FormControl(props: FormControlProps) {
   const dsId =
     ((formValues as Action)?.datasource as any)?.id ||
     (formValues as Datasource)?.id;
-  const datasourceTableName: string = useSelector((state: AppState) =>
-    getDatasourceFirstTableName(state, dsId),
-  );
-  const isMockDS =
-    ((formValues as Action)?.datasource as any)?.isMock ||
-    (formValues as Datasource)?.isMock;
   const pluginTemplates: Record<string, any> = useSelector((state: AppState) =>
     getPluginTemplates(state),
+  );
+  const dsStructure: DatasourceStructure | undefined = useSelector(
+    (state: AppState) => getDatasourceStructureById(state, dsId),
   );
 
   const pluginId: string = formValues?.pluginId || "";
@@ -142,25 +135,23 @@ function FormControl(props: FormControlProps) {
   }
 
   useEffect(() => {
+    // This adds default template like below to the SQL query editor, when no structure is present
+    // SELECT * FROM <<your_table_name>> LIMIT 10;
+    // -- Please enter a valid table name and hit RUN
     if (
       showTemplate &&
       !convertFormToRaw &&
-      SQL_DATASOURCES.includes(pluginName)
+      SQL_DATASOURCES.includes(pluginName) &&
+      !dsStructure
     ) {
-      const tableNameToBeReplaced = isMockDS
-        ? getSQLPluginsMockTableName(pluginId)
-        : datasourceTableName;
       const defaultTemplate = !!pluginTemplate
-        ? pluginTemplate[DB_QUERY_DEFAULT_TEMPLATE_TYPE]
+        ? pluginTemplate[SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE]
         : "";
-      const smartTemplate = defaultTemplate
-        .replace(DB_QUERY_DEFAULT_TABLE_NAME, tableNameToBeReplaced)
-        .split("--")[0];
       dispatch(
         change(
           props?.formName || QUERY_EDITOR_FORM_NAME,
           props.config.configProperty,
-          !!tableNameToBeReplaced ? smartTemplate : defaultTemplate,
+          defaultTemplate,
         ),
       );
       updateQueryParams();
@@ -208,7 +199,7 @@ function FormControl(props: FormControlProps) {
         >
           <div
             className={`t--form-control-${props.config.controlType}`}
-            data-replay-id={btoa(props.config.configProperty)}
+            data-location-id={btoa(props.config.configProperty)}
           >
             {showTemplate &&
             !convertFormToRaw &&

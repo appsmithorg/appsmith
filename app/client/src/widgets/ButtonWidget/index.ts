@@ -5,14 +5,16 @@ import {
 } from "components/constants";
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
-
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import type { PropertyUpdates, SnipingModeProperty } from "widgets/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Button",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.BUTTONS],
   needsMeta: true,
   searchTags: ["click", "submit"],
   defaults: {
@@ -43,6 +45,19 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
     setterConfig: Widget.getSetterConfig(),
+  },
+  methods: {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
+      return [
+        {
+          propertyPath: "onClick",
+          propertyValue: propValueMap.run,
+          isDynamicPropertyPath: true,
+        },
+      ];
+    },
   },
   autoLayout: {
     defaults: {

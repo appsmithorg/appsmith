@@ -61,7 +61,7 @@ export default function Link({ setting }: SettingComponentProps) {
           data-testid="admin-settings-link-label"
           renderAs="span"
         >
-          {createMessage(() => setting.label || "")}
+          {setting.label || ""}
         </Text>
         &nbsp;
         <Text renderAs="p">

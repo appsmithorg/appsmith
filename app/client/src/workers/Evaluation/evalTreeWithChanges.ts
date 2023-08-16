@@ -14,12 +14,14 @@ import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActio
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import { setEvalContext } from "./evaluate";
+import { generateOptimisedUpdatesAndSetPrevState } from "./helpers";
 
 export function evalTreeWithChanges(
   updatedValuePaths: string[][],
   metaUpdates: EvalMetaUpdates = [],
 ) {
   let evalOrder: string[] = [];
+  let reValidatedPaths: string[] = [];
   let jsUpdates: Record<string, JSUpdate> = {};
   let unEvalUpdates: DataTreeDiff[] = [];
   let nonDynamicFieldValidationOrder: string[] = [];
@@ -30,7 +32,7 @@ export function evalTreeWithChanges(
   const dependencies: DependencyMap = {};
   let evalMetaUpdates: EvalMetaUpdates = [...metaUpdates];
   let staleMetaIds: string[] = [];
-  const pathsToClearErrorsFor: any[] = [];
+  const removedPaths: Array<{ entityId: string; fullpath: string }> = [];
   let unevalTree: UnEvalTree = {};
   let configTree: ConfigTree = {};
 
@@ -51,6 +53,8 @@ export function evalTreeWithChanges(
       unEvalUpdates,
     );
 
+    reValidatedPaths = updateResponse.reValidatedPaths;
+
     setEvalContext({
       dataTree: dataTreeEvaluator.getEvalTree(),
       configTree: dataTreeEvaluator.getConfigTree(),
@@ -60,28 +64,38 @@ export function evalTreeWithChanges(
 
     dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
       evalProps: dataTreeEvaluator.evalProps,
+      identicalEvalPathsPatches:
+        dataTreeEvaluator.getEvalPathsIdenticalToState(),
     });
 
-    evalMetaUpdates = [...evalMetaUpdates, ...updateResponse.evalMetaUpdates];
+    /** Make sure evalMetaUpdates is sanitized to prevent postMessage failure */
+    evalMetaUpdates = JSON.parse(
+      JSON.stringify([...evalMetaUpdates, ...updateResponse.evalMetaUpdates]),
+    );
 
     staleMetaIds = updateResponse.staleMetaIds;
     unevalTree = dataTreeEvaluator.getOldUnevalTree();
     configTree = dataTreeEvaluator.oldConfigTree;
   }
 
-  const evalTreeResponse: EvalTreeResponseData = {
+  const updates = generateOptimisedUpdatesAndSetPrevState(
     dataTree,
+    dataTreeEvaluator,
+  );
+  const evalTreeResponse: EvalTreeResponseData = {
+    updates,
     dependencies,
     errors,
     evalMetaUpdates,
     evaluationOrder: evalOrder,
+    reValidatedPaths,
     jsUpdates,
     logs,
     unEvalUpdates,
     isCreateFirstTree,
     configTree,
     staleMetaIds,
-    pathsToClearErrorsFor,
+    removedPaths,
     isNewWidgetAdded: false,
     undefinedEvalValuesMap: dataTreeEvaluator?.undefinedEvalValuesMap || {},
     jsVarsCreatedEvent: [],

@@ -25,6 +25,12 @@ const initialState: UsersReduxState = {
     data: DEFAULT_FEATURE_FLAG_VALUE,
     isFetched: false,
   },
+  productAlert: {
+    config: {
+      dismissed: false,
+      snoozeTill: new Date(),
+    },
+  },
 };
 
 const usersReducer = createReducer(initialState, {
@@ -186,6 +192,23 @@ const usersReducer = createReducer(initialState, {
       isFetched: true,
     },
   }),
+  [ReduxActionTypes.FETCH_PRODUCT_ALERT_SUCCESS]: (
+    state: UsersReduxState,
+    action: ReduxAction<ProductAlert>,
+  ) => ({
+    ...state,
+    productAlert: action.payload,
+  }),
+  [ReduxActionTypes.UPDATE_PRODUCT_ALERT_CONFIG]: (
+    state: UsersReduxState,
+    action: ReduxAction<ProductAlertConfig>,
+  ): UsersReduxState => ({
+    ...state,
+    productAlert: {
+      ...state.productAlert,
+      config: action.payload,
+    },
+  }),
 });
 
 export interface PropertyPanePositionConfig {
@@ -195,6 +218,26 @@ export interface PropertyPanePositionConfig {
     top: number;
   };
 }
+
+export interface ProductAlert {
+  messageId: string;
+  title: string;
+  message: string;
+  canDismiss: boolean;
+  remindLaterDays: number;
+  learnMoreLink?: string;
+}
+
+export interface ProductAlertConfig {
+  dismissed: boolean;
+  snoozeTill: Date;
+}
+
+export interface ProductAlertState {
+  message?: ProductAlert;
+  config: ProductAlertConfig;
+}
+
 export interface UsersReduxState {
   current?: User;
   list: User[];
@@ -210,6 +253,7 @@ export interface UsersReduxState {
     isFetched: boolean;
     data: FeatureFlags;
   };
+  productAlert: ProductAlertState;
 }
 
 export default usersReducer;

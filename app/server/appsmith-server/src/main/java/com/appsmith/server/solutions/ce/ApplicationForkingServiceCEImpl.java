@@ -146,7 +146,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
         return applicationMono
                 // We will be forking to the default environment in the new workspace
-                .zipWhen(application -> workspaceService.getDefaultEnvironmentId(application.getWorkspaceId()))
+                .zipWhen(application -> workspaceService.getDefaultEnvironmentId(application.getWorkspaceId(), null))
                 .flatMap(tuple -> {
                     String fromApplicationId = tuple.getT1().getId();
                     String sourceEnvironmentId = tuple.getT2();

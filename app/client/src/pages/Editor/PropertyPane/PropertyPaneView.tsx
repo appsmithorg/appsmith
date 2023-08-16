@@ -1,4 +1,5 @@
 import type { ReactElement } from "react";
+import { useContext } from "react";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,9 +13,9 @@ import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
 import type { WidgetType } from "constants/WidgetConstants";
+import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
 import type { InteractionAnalyticsEventDetail } from "utils/AppsmithUtils";
 import { INTERACTION_ANALYTICS_EVENT } from "utils/AppsmithUtils";
-import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { Button, Callout } from "design-system";
@@ -23,6 +24,18 @@ import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
 import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { AB_TESTING_EVENT_KEYS } from "@appsmith/entities/FeatureFlag";
+import localStorage from "utils/localStorage";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { PROPERTY_PANE_ID } from "components/editorComponents/PropertyPaneSidebar";
+import { setFeatureWalkthroughShown } from "utils/storage";
+import {
+  BINDING_WIDGET_WALKTHROUGH_DESC,
+  BINDING_WIDGET_WALKTHROUGH_TITLE,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { getWidgets } from "sagas/selectors";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -40,6 +53,7 @@ export const excludeList: WidgetType[] = [
   "FILE_PICKER_WIDGET",
   "FILE_PICKER_WIDGET_V2",
   "TABLE_WIDGET_V2",
+  "BUTTON_WIDGET_V2",
 ];
 
 function PropertyPaneView(
@@ -48,7 +62,7 @@ function PropertyPaneView(
   } & IPanelProps,
 ) {
   const dispatch = useDispatch();
-  const { ...panel } = props;
+  const panel = props;
   const widgetProperties = useSelector(
     getWidgetPropsForPropertyPaneView,
     equal,
@@ -62,8 +76,54 @@ function PropertyPaneView(
     }
 
     return true;
-  }, [widgetProperties?.type, excludeList]);
+  }, [widgetProperties]);
   const { searchText, setSearchText } = useSearchText("");
+  const { pushFeature } = useContext(WalkthroughContext) || {};
+  const widgets = useSelector(getWidgets);
+
+  const showWalkthroughIfWidgetIdSet = async () => {
+    const widgetId: string | null = await localStorage.getItem(
+      WIDGET_ID_SHOW_WALKTHROUGH,
+    );
+
+    // Adding table condition as connecting to select, chart widgets is currently not working as expected
+    // When we fix those, we can remove this table condtion
+    const isTableWidget = !!widgetId
+      ? widgets[widgetId]?.type === "TABLE_WIDGET_V2"
+      : false;
+
+    if (widgetId && pushFeature && isTableWidget) {
+      pushFeature({
+        targetId: PROPERTY_PANE_ID,
+        onDismiss: async () => {
+          await localStorage.removeItem(WIDGET_ID_SHOW_WALKTHROUGH);
+          await setFeatureWalkthroughShown(
+            FEATURE_WALKTHROUGH_KEYS.binding_widget,
+            true,
+          );
+        },
+        details: {
+          title: createMessage(BINDING_WIDGET_WALKTHROUGH_TITLE),
+          description: createMessage(BINDING_WIDGET_WALKTHROUGH_DESC),
+        },
+        offset: {
+          position: "left",
+          left: -40,
+          top: 250,
+          highlightPad: 2,
+          indicatorLeft: -3,
+          indicatorTop: 230,
+        },
+        eventParams: {
+          [AB_TESTING_EVENT_KEYS.abTestingFlagLabel]:
+            FEATURE_WALKTHROUGH_KEYS.binding_widget,
+          [AB_TESTING_EVENT_KEYS.abTestingFlagValue]: true,
+        },
+        multipleHighlights: [widgetId, PROPERTY_PANE_ID],
+        delay: 5000,
+      });
+    }
+  };
 
   const handleKbdEvent = (e: Event) => {
     const event = e as CustomEvent<InteractionAnalyticsEventDetail>;
@@ -80,6 +140,7 @@ function PropertyPaneView(
       INTERACTION_ANALYTICS_EVENT,
       handleKbdEvent,
     );
+    showWalkthroughIfWidgetIdSet();
     return () => {
       containerRef.current?.removeEventListener(
         INTERACTION_ANALYTICS_EVENT,
@@ -111,19 +172,6 @@ function PropertyPaneView(
    * on  copy button click
    */
   const onCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
-
-  const handleTabKeyDownForButton = useCallback(
-    (propertyName: string) => (e: React.KeyboardEvent) => {
-      if (e.key === "Tab")
-        emitInteractionAnalyticsEvent(containerRef?.current, {
-          key: e.key,
-          propertyName,
-          propertyType: "BUTTON",
-          widgetType: widgetProperties?.type,
-        });
-    },
-    [],
-  );
 
   /**
    * actions shown on the right of title
@@ -158,7 +206,7 @@ function PropertyPaneView(
         ),
       },
     ];
-  }, [onCopy, onDelete, handleTabKeyDownForButton]);
+  }, [onCopy, onDelete]);
 
   useEffect(() => {
     setSearchText("");
@@ -184,7 +232,7 @@ function PropertyPaneView(
 
   return (
     <div
-      className="w-full overflow-y-scroll h-full"
+      className="w-full h-full overflow-y-scroll"
       key={`property-pane-${widgetProperties.widgetId}`}
       ref={containerRef}
     >

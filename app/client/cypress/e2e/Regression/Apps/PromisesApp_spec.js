@@ -13,7 +13,10 @@ describe("JSEditor tests", function () {
   });
 
   it("1. Testing promises with resetWidget, storeValue action and API call", () => {
-    apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl, "TC1api");
+    apiPage.CreateAndFillApi(
+      tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+      "TC1api",
+    );
     apiPage.RunAPI();
     jsEditor.CreateJSObject(
       `export default {

@@ -1,6 +1,6 @@
-import homePageLocators from "../../../../locators/HomePage";
 const explorer = require("../../../../locators/explorerlocators.json");
 import {
+  agHelper,
   assertHelper,
   entityExplorer,
   homePage,
@@ -67,7 +67,7 @@ describe("Slug URLs", () => {
       const application = response.body.data;
       expect(application.applicationVersion).to.equal(1);
       homePage.NavigateToHome();
-      //agHelper.RefreshPage(true, "getReleaseItems");
+      //agHelper.RefreshPage("getReleaseItems");
 
       cy.SearchApp(applicationName);
 
@@ -140,13 +140,16 @@ describe("Slug URLs", () => {
   it("5. Checks redirect url", () => {
     cy.url().then((url) => {
       cy.LogOut();
-      cy.visit(url + "?embed=true&a=b");
-      //cy.wait(6000);
-      cy.location().should((loc) => {
-        expect(loc.search).to.eq(
-          `?redirectUrl=${encodeURIComponent(url + "?embed=true&a=b")}`,
-        );
-      });
+      agHelper.VisitNAssert(url + "?embed=true&a=b", "signUpLogin");
+      agHelper.Sleep(2000);
+      // cy.location().should((loc) => {
+      //   expect(loc.search).to.eq(
+      //     `?redirectUrl=${encodeURIComponent(url + "?embed=true&a=b")}`,
+      //   );
+      // });
+      agHelper.AssertURL(
+        `?redirectUrl=${encodeURIComponent(url + "?embed=true&a=b")}`,
+      );
     });
   });
 });

@@ -43,7 +43,7 @@ describe("Fixed Invisible widgets and auto height containers", () => {
 
   it("2. Divider should move up by the height of the button widget in preview mode", () => {
     // This tests if the divider and checkbox widget move up by an appropriate amount in preview mode.
-    agHelper.AssertElementVisible(locators._previewModeToggle("edit"));
+    agHelper.AssertElementVisibility(locators._previewModeToggle("edit"));
     agHelper.GetNClick(locators._previewModeToggle("edit"));
 
     agHelper.AssertCSS(

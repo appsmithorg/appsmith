@@ -338,6 +338,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
         setValue: {
           path: "defaultRate",
           type: "number",
+          accessor: "value",
         },
       },
     };

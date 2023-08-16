@@ -1,13 +1,15 @@
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
-
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import type { SnipingModeProperty, PropertyUpdates } from "widgets/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Map",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.CONTENT],
   needsMeta: true,
   defaults: {
     rows: 40,
@@ -37,6 +39,19 @@ export const CONFIG = {
     stylesheetConfig: Widget.getStylesheetConfig(),
     setterConfig: Widget.getSetterConfig(),
     autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+  },
+  methods: {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
+      return [
+        {
+          propertyPath: "defaultMarkers",
+          propertyValue: propValueMap.data,
+          isDynamicPropertyPath: true,
+        },
+      ];
+    },
   },
   autoLayout: {
     widgetSize: [

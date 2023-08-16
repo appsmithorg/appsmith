@@ -86,6 +86,9 @@ import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Util
 import type { StepState } from "reducers/uiReducers/onBoardingReducer";
 import { isUndefined } from "lodash";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { SIGNPOSTING_ANALYTICS_STEP_NAME } from "pages/Editor/FirstTimeUserOnboarding/constants";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const GUIDED_TOUR_STORAGE_KEY = "GUIDED_TOUR_STORAGE_KEY";
 
@@ -457,6 +460,27 @@ function* firstTimeUserOnboardingInitSaga(
   }
 
   yield put(setSignpostingOverlay(showOverlay));
+  const tableWidgetExperimentEnabled: boolean = yield select(
+    selectFeatureFlagCheck,
+    FEATURE_FLAG.ab_table_widget_activation_enabled,
+  );
+  if (tableWidgetExperimentEnabled) {
+    yield take(ReduxActionTypes.FETCH_WORKSPACE_SUCCESS);
+    yield put({
+      type: ReduxActionTypes.WIDGET_ADD_CHILD,
+      payload: {
+        widgetId: "0",
+        type: "TABLE_WIDGET_V2",
+        leftColumn: 15,
+        topRow: 6,
+        columns: 34,
+        rows: 28,
+        parentRowSpace: 10,
+        parentColumnSpace: 13.390625,
+        newWidgetId: generateReactKey(),
+      },
+    });
+  }
   // Show the modal once the editor is loaded. The delay is to grab user attention back once the editor
   yield delay(1000);
   yield put({
@@ -505,6 +529,9 @@ function* setSignpostingStepStateSaga(
   if (!isUndefined(readProps.read) && !readProps.read) {
     // Show tooltip after a small delay to not be abrupt
     yield delay(1000);
+    AnalyticsUtil.logEvent("SIGNPOSTING_STEP_COMPLETE", {
+      step_name: SIGNPOSTING_ANALYTICS_STEP_NAME[step],
+    });
     yield put(showSignpostingTooltip(true));
   }
 }

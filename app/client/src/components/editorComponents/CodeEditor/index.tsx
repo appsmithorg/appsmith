@@ -62,7 +62,6 @@ import {
   IconContainer,
   PEEK_STYLE_PERSIST_CLASS,
 } from "components/editorComponents/CodeEditor/styledComponents";
-import { bindingMarker } from "components/editorComponents/CodeEditor/MarkHelpers/bindingMarker";
 import {
   entityMarker,
   NAVIGATE_TO_ATTRIBUTE,
@@ -160,6 +159,7 @@ import type { MultiplexingModeConfig } from "components/editorComponents/CodeEdi
 import { MULTIPLEXING_MODE_CONFIGS } from "components/editorComponents/CodeEditor/modes";
 import { getDeleteLineShortcut } from "./utils/deleteLine";
 import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/CodeEditorSignPosting";
+import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -273,7 +273,7 @@ const getEditorIdentifier = (props: EditorProps): string => {
 
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
-    marking: [bindingMarker, entityMarker],
+    marking: [entityMarker],
     hinting: [bindingHint, commandsHelper, sqlHint.hinter],
     lineCommentString: "//",
   };
@@ -541,10 +541,24 @@ class CodeEditor extends Component<Props, State> {
       //Refresh editor when the container height is increased.
       this.debounceEditorRefresh();
     }
+
+    const entityInformation = this.getEntityInformation();
+    const isWidgetType = entityInformation.entityType === ENTITY_TYPE.WIDGET;
+
+    const hasFocusedValueChanged =
+      getEditorIdentifier(this.props) !== this.props.focusedProperty;
+
+    if (hasFocusedValueChanged && isWidgetType) {
+      if (this.state.showAIWindow) {
+        this.setState({ showAIWindow: false });
+      }
+    }
+
     if (identifierHasChanged) {
       if (this.state.showAIWindow) {
         this.setState({ showAIWindow: false });
       }
+
       if (shouldFocusOnPropertyControl()) {
         setTimeout(() => {
           if (this.props.editorIsFocused) {
@@ -553,6 +567,7 @@ class CodeEditor extends Component<Props, State> {
         }, 200);
       }
     }
+
     this.editor.operation(() => {
       if (prevProps.lintErrors !== this.props.lintErrors) {
         this.lintCode(this.editor);
@@ -572,7 +587,7 @@ class CodeEditor extends Component<Props, State> {
          * and we check if they are different because the input value has changed
          * and not because the editor value has changed
          * */
-        if (inputValue !== editorValue && inputValue !== previousInputValue) {
+        if (inputValue !== editorValue) {
           // If it is focused update it only if the identifier has changed
           // if not focused, can be updated
           if (this.state.isFocused) {
@@ -1664,6 +1679,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   featureFlags: selectFeatureFlags(state),
   datasourceTableKeys: getAllDatasourceTableKeys(state, props.dataTreePath),
   installedLibraries: selectInstalledLibraries(state),
+  focusedProperty: getFocusablePropertyPaneField(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

@@ -10,7 +10,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
@@ -48,6 +47,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionExecutionSolution;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -149,6 +149,9 @@ public class ActionExecutionSolutionCETest {
     @SpyBean
     DatasourceStorageService datasourceStorageService;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     Application testApp = null;
 
     PageDTO testPage = null;
@@ -179,8 +182,9 @@ public class ActionExecutionSolutionCETest {
                     workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
 
-            defaultEnvironmentId =
-                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId = workspaceService
+                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                    .block();
         }
 
         if (testApp == null && testPage == null) {
@@ -251,9 +255,11 @@ public class ActionExecutionSolutionCETest {
                 pluginRepository.findByPackageName("restapi-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId,
+                new DatasourceStorageDTO(null, defaultEnvironmentId, datasource.getDatasourceConfiguration()));
         datasource.setDatasourceStorages(storages);
     }
 
@@ -691,10 +697,10 @@ public class ActionExecutionSolutionCETest {
         externalDatasource.setPluginId(restApiPlugin.getId());
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("some url here");
-        externalDatasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         externalDatasource.setDatasourceStorages(storages);
         Datasource savedDs = datasourceService.create(externalDatasource).block();
 

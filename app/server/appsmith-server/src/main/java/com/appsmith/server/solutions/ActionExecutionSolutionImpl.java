@@ -35,7 +35,8 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
             AuthenticationValidator authenticationValidator,
             DatasourcePermission datasourcePermission,
             AnalyticsService analyticsService,
-            DatasourceStorageService datasourceStorageService) {
+            DatasourceStorageService datasourceStorageService,
+            EnvironmentPermission environmentPermission) {
         super(
                 newActionService,
                 actionPermission,
@@ -52,6 +53,7 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
                 authenticationValidator,
                 datasourcePermission,
                 analyticsService,
-                datasourceStorageService);
+                datasourceStorageService,
+                environmentPermission);
     }
 }

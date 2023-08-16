@@ -23,7 +23,8 @@ public class DatasourceTriggerSolutionImpl extends DatasourceTriggerSolutionCEIm
             DatasourceStructureSolution datasourceStructureSolution,
             AuthenticationValidator authenticationValidator,
             DatasourceContextService datasourceContextService,
-            DatasourcePermission datasourcePermission) {
+            DatasourcePermission datasourcePermission,
+            EnvironmentPermission environmentPermission) {
         super(
                 datasourceService,
                 datasourceStorageService,
@@ -32,6 +33,7 @@ public class DatasourceTriggerSolutionImpl extends DatasourceTriggerSolutionCEIm
                 datasourceStructureSolution,
                 authenticationValidator,
                 datasourceContextService,
-                datasourcePermission);
+                datasourcePermission,
+                environmentPermission);
     }
 }

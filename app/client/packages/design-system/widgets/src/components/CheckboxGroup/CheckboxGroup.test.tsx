@@ -82,18 +82,6 @@ describe("@design-system/widgets/CheckboxGroup", () => {
     expect(onChangeSpy).toHaveBeenCalled();
   });
 
-  it("should be able to render checkboxes in horizontal orientation", () => {
-    render(
-      <CheckboxGroup label="Checkbox Group Label" orientation="horizontal">
-        <Checkbox value="value-1">Value 1</Checkbox>
-        <Checkbox value="value-2">Value 2</Checkbox>
-      </CheckboxGroup>,
-    );
-
-    const checkboxGroup = screen.getByRole("group");
-    expect(window.getComputedStyle(checkboxGroup).flexDirection).toBe("row");
-  });
-
   it("should be able to render disabled checkboxes", () => {
     render(
       <CheckboxGroup isDisabled label="Checkbox Group Label">
@@ -105,17 +93,5 @@ describe("@design-system/widgets/CheckboxGroup", () => {
     const checkboxes = screen.getAllByRole("checkbox");
     expect(checkboxes[0]).toBeDisabled();
     expect(checkboxes[1]).toBeDisabled();
-  });
-
-  it("should be able to render set label position to left", () => {
-    const { container } = render(
-      <CheckboxGroup label="Checkbox Group Label" labelPosition="side">
-        <Checkbox value="value-1">Value 1</Checkbox>
-        <Checkbox value="value-2">Value 2</Checkbox>
-      </CheckboxGroup>,
-    );
-
-    const field = container.querySelector("[data-field]") as HTMLElement;
-    expect(window.getComputedStyle(field).flexDirection).toBe("row");
   });
 });

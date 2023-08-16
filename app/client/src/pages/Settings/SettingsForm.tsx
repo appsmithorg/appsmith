@@ -93,6 +93,14 @@ export function SettingsForm(
     [props.settings],
   );
 
+  // Is there a non-tenant (env) config in this category of settings?
+  const isOnlyTenantConfig = !settingsDetails.find(
+    (s) =>
+      s.category === (subCategory || category) &&
+      s.controlType != SettingTypes.LINK &&
+      !isTenantConfig(s.id),
+  );
+
   const saveChangedSettings = () => {
     const settingsKeyLength = Object.keys(props.settings).length;
     const isOnlyEnvSettings =
@@ -115,6 +123,7 @@ export function SettingsForm(
         updateTenantConfig({
           tenantConfiguration: config,
           isOnlyTenantSettings: !isEnvAndTenantSettings,
+          needsRefresh: details?.needsRefresh,
         }),
       );
       // both env and tenant settings
@@ -272,7 +281,9 @@ export function SettingsForm(
         />
         {isSavable && (
           <SaveAdminSettings
+            isOnlyTenantConfig={isOnlyTenantConfig}
             isSaving={props.isSaving}
+            needsRefresh={details?.needsRefresh}
             onClear={onClear}
             onSave={onSave}
             settings={props.settings}

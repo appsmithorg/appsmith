@@ -3,20 +3,25 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 let repoName: any;
 let tempBranch: any;
 let statusBranch: any;
+let tempBranch1: any;
+let tempBranch2: any;
+let tempBranch3: any;
 
 describe("Git Bugs", function () {
   before(() => {
-    _.homePage.NavigateToHome();
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      _.homePage.CreateNewWorkspace("GitBugs" + uid);
+      _.homePage.CreateNewWorkspace("GitBugs" + uid, true);
       _.homePage.CreateAppInWorkspace("GitBugs" + uid);
     });
   });
 
   it("1. Bug 16248, When GitSync modal is open, block shortcut action execution", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-    _.apiPage.CreateAndFillApi(_.tedTestConfig.mockApiUrl, "GitSyncTest");
+    _.apiPage.CreateAndFillApi(
+      _.tedTestConfig.dsValues[_.tedTestConfig.defaultEnviorment].mockApiUrl,
+      "GitSyncTest",
+    );
     _.gitSync.OpenGitSyncModal();
     cy.get("body").type(`{${modifierKey}}{enter}`);
     cy.get("@postExecute").should("not.exist");
@@ -33,8 +38,9 @@ describe("Git Bugs", function () {
       tempBranch = branchName;
       _.dataSources.NavigateToDSCreateNew();
       _.dataSources.CreatePlugIn("PostgreSQL");
+      _.dataSources.FillPostgresDSForm();
       _.dataSources.SaveDSFromDialog(false);
-      _.agHelper.AssertElementVisible(_.gitSync._branchButton);
+      _.agHelper.AssertElementVisibility(_.gitSync._branchButton);
       cy.get("@gitRepoName").then((repName) => {
         repoName = repName;
       });
@@ -131,13 +137,48 @@ describe("Git Bugs", function () {
     });
   });
 
-  // skipping this test for now, will update test logic and create new PR for it
-  // TODO Parthvi
-  it.skip("6. Bug 24206 : Open repository button is not functional in git sync modal", function () {
+  it("6. Bug 24486 : Loading state for remote branches", function () {
+    _.gitSync.CreateRemoteBranch(repoName, "test-24486");
+    _.gitSync.SwitchGitBranch("origin/test-24486", false, true);
+  });
+
+  it("7. Bug 24920: Not able to discard app settings changes for the first time in git connected app ", function () {
+    // add navigation settings changes
+    _.agHelper.GetNClick(_.appSettings.locators._appSettings);
+    _.agHelper.GetNClick(_.appSettings.locators._navigationSettingsTab);
+    _.agHelper.GetNClick(
+      _.appSettings.locators._navigationSettings._orientationOptions._side,
+    );
+    _.agHelper.AssertElementExist(_.appSettings.locators._sideNavbar);
+    // discard changes and verify
+    _.gitSync.DiscardChanges();
+    _.gitSync.VerifyChangeLog(false);
+  });
+
+  it("8. Bug 23858 : Branch list in git sync modal is not scrollable", function () {
+    // create git branches
+    _.gitSync.CreateGitBranch(tempBranch1, true);
+    _.gitSync.CreateGitBranch(tempBranch2, true);
+    _.gitSync.CreateGitBranch(tempBranch3, true);
+    _.agHelper.AssertElementExist(_.gitSync._bottomBarPull);
+    _.agHelper.GetNClick(_.gitSync._bottomBarMergeButton);
+    _.agHelper.AssertElementEnabledDisabled(
+      _.gitSync._mergeBranchDropdownDestination,
+      0,
+      false,
+    );
+    _.agHelper.Sleep(6000); // adding wait for branch list to load
+    _.agHelper.GetNClick(_.gitSync._mergeBranchDropdownDestination);
+    // to verify scroll works and clicks on last branch in list
+    _.agHelper.GetNClick(_.gitSync._dropdownmenu, 5);
+    _.gitSync.CloseGitSyncModal();
+  });
+  it("9. Bug 24206 : Open repository button is not functional in git sync modal", function () {
     _.gitSync.SwitchGitBranch("master");
-    _.entityExplorer.DragDropWidgetNVerify("modalwidget", 50, 50);
+    _.appSettings.OpenPaneAndChangeTheme("Moon");
     _.gitSync.CommitAndPush();
     _.gitSync.SwitchGitBranch(tempBranch);
+    _.appSettings.OpenPaneAndChangeTheme("Pampas");
     _.gitSync.CommitAndPush();
     _.gitSync.CheckMergeConflicts("master");
     cy.window().then((win) => {
@@ -148,16 +189,6 @@ describe("Git Bugs", function () {
     _.gitSync.OpenRepositoryAndVerify();
     cy.get("@repoURL").should("be.called");
   });
-
-  // it.only("4. Import application json and validate headers", () => {
-  //   _.homePage.NavigateToHome();
-  //   _.homePage.ImportApp("DeleteGitRepos.json");
-  //   _.deployMode.DeployApp();
-  //   _.agHelper.Sleep(2000);
-  //   for (let i = 0; i < 100; i++) {
-  //     _.agHelper.ClickButton("Delete");
-  //   }
-  // });
 
   after(() => {
     _.gitSync.DeleteTestGithubRepo(repoName);

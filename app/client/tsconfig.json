@@ -35,5 +35,5 @@
     "importsNotUsedAsValues": "error"
   },
   "include": ["./src/**/*", "./packages"],
-  "exclude": ["./packages/rts", "**/*.stories.tsx"]
+  "exclude": ["./packages/rts"]
 }

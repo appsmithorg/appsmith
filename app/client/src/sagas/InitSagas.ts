@@ -2,6 +2,7 @@ import { get } from "lodash";
 import {
   all,
   call,
+  delay,
   put,
   race,
   select,
@@ -59,6 +60,8 @@ import {
   matchBuilderPath,
   matchViewerPath,
 } from "../constants/routes";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -94,6 +97,37 @@ export function* waitForWidgetConfigBuild() {
   const isBuilt: boolean = yield select(getIsWidgetConfigBuilt);
   if (!isBuilt) {
     yield take(ReduxActionTypes.WIDGET_INIT_SUCCESS);
+  }
+}
+
+export function* reportSWStatus() {
+  const mode: APP_MODE = yield select(getAppMode);
+  const startTime = Date.now();
+  if ("serviceWorker" in navigator) {
+    const result: { success: any; failed: any } = yield race({
+      success: navigator.serviceWorker.ready.then((reg) => ({
+        reg,
+        timeTaken: Date.now() - startTime,
+      })),
+      failed: delay(20000),
+    });
+    if (result.success) {
+      AnalyticsUtil.logEvent("SW_REGISTRATION_SUCCESS", {
+        message: "Service worker is active",
+        mode,
+        timeTaken: result.success.timeTaken,
+      });
+    } else {
+      AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
+        message: "Service worker is not active in 20s",
+        mode,
+      });
+    }
+  } else {
+    AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
+      message: "Service worker is not supported",
+      mode,
+    });
   }
 }
 

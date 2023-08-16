@@ -18,6 +18,7 @@ import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -46,6 +47,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
     private final AuthenticationValidator authenticationValidator;
     private final DatasourceContextService datasourceContextService;
     private final DatasourcePermission datasourcePermission;
+    private final EnvironmentPermission environmentPermission;
 
     public Mono<TriggerResultDTO> trigger(
             String datasourceId, String environmentId, TriggerRequestDTO triggerRequestDTO) {
@@ -56,9 +58,14 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
 
         Mono<DatasourceStorage> datasourceStorageMonoCached = datasourceMonoCached
                 .flatMap(datasource1 -> datasourceService
-                        .getTrueEnvironmentId(datasource1.getWorkspaceId(), environmentId, datasource1.getPluginId())
-                        .zipWhen(trueEnvironmentId -> datasourceStorageService.findByDatasourceAndEnvironmentId(
-                                datasource1, trueEnvironmentId))
+                        .getTrueEnvironmentId(
+                                datasource1.getWorkspaceId(),
+                                environmentId,
+                                datasource1.getPluginId(),
+                                environmentPermission.getExecutePermission())
+                        .zipWhen(trueEnvironmentId ->
+                                datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(
+                                        datasource1, trueEnvironmentId))
                         .map(Tuple2::getT2))
                 .cache();
 
@@ -107,7 +114,11 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
         // If the plugin hasn't implemented the trigger function, go for the default implementation
         Mono<TriggerResultDTO> defaultResultMono = datasourceMonoCached
                 .flatMap(datasource1 -> datasourceService
-                        .getTrueEnvironmentId(datasource1.getWorkspaceId(), environmentId, datasource1.getPluginId())
+                        .getTrueEnvironmentId(
+                                datasource1.getWorkspaceId(),
+                                environmentId,
+                                datasource1.getPluginId(),
+                                environmentPermission.getExecutePermission())
                         .zipWhen(trueEnvironmentId ->
                                 entitySelectorTriggerSolution(datasourceId, triggerRequestDTO, trueEnvironmentId))
                         .map(Tuple2::getT2))

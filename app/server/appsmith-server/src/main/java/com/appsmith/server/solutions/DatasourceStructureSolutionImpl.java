@@ -23,7 +23,8 @@ public class DatasourceStructureSolutionImpl extends DatasourceStructureSolution
             DatasourceContextService datasourceContextService,
             DatasourcePermission datasourcePermission,
             DatasourceStructureService datasourceStructureService,
-            AnalyticsService analyticsService) {
+            AnalyticsService analyticsService,
+            EnvironmentPermission environmentPermission) {
         super(
                 datasourceService,
                 datasourceStorageService,
@@ -32,6 +33,7 @@ public class DatasourceStructureSolutionImpl extends DatasourceStructureSolution
                 datasourceContextService,
                 datasourcePermission,
                 datasourceStructureService,
-                analyticsService);
+                analyticsService,
+                environmentPermission);
     }
 }

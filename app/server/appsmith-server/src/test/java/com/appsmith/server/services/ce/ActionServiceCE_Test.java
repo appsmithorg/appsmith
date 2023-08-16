@@ -8,7 +8,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.AnalyticsInfo;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PaginationType;
@@ -51,6 +50,7 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -163,6 +163,9 @@ public class ActionServiceCE_Test {
     @Autowired
     DatasourceRepository datasourceRepository;
 
+    @Autowired
+    EnvironmentPermission environmentPermission;
+
     Application testApp = null;
 
     PageDTO testPage = null;
@@ -193,8 +196,9 @@ public class ActionServiceCE_Test {
                     workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
 
-            defaultEnvironmentId =
-                    workspaceService.getDefaultEnvironmentId(workspaceId).block();
+            defaultEnvironmentId = workspaceService
+                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                    .block();
         }
 
         if (testApp == null && testPage == null) {
@@ -803,10 +807,10 @@ public class ActionServiceCE_Test {
         externalDatasource.setPluginId(installed_plugin.getId());
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("some url here");
-        externalDatasource.setDatasourceConfiguration(datasourceConfiguration);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         externalDatasource.setDatasourceStorages(storages);
         Datasource savedDs = datasourceService.create(externalDatasource).block();
 
@@ -877,15 +881,15 @@ public class ActionServiceCE_Test {
                 .cache();
 
         Datasource datasource = new Datasource();
+        datasource.setWorkspaceId(workspaceId);
         datasource.setName("After Public Datasource");
         datasource.setPluginId(plugin.getId());
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasource.setWorkspaceId(workspaceId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
+
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
         Datasource savedDatasource = datasourceService.create(datasource).block();

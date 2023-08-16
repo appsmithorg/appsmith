@@ -61,7 +61,7 @@ import {
 } from "actions/evaluationActions";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import type { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   datasourcesEditorIdURL,
@@ -81,7 +81,10 @@ import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { toast } from "design-system";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { createDefaultActionPayload } from "./ActionSagas";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
+import {
+  DB_NOT_SUPPORTED,
+  getCurrentEnvironment,
+} from "@appsmith/utils/Environments";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -190,6 +193,7 @@ function* formValueChangeSaga(
 
     const plugins: Plugin[] = yield select(getPlugins);
     const uiComponent = getUIComponent(values.pluginId, plugins);
+    const plugin = plugins.find((p) => p.id === values.pluginId);
 
     if (field === "datasource.id") {
       const datasource: Datasource | undefined = yield select(
@@ -258,10 +262,21 @@ function* formValueChangeSaga(
       getDatasource,
       values.datasource.id,
     );
+    const datasourceStorages = datasource?.datasourceStorages || {};
 
     // Editing form fields triggers evaluations.
     // We pass the action to run form evaluations when the dataTree evaluation is complete
-    const currentEnvironment = getCurrentEnvironment();
+    let currentEnvironment = getCurrentEnvironment();
+    const pluginType = plugin?.type;
+    if (
+      (!!pluginType && DB_NOT_SUPPORTED.includes(pluginType)) ||
+      !datasourceStorages.hasOwnProperty(currentEnvironment) ||
+      !datasourceStorages[currentEnvironment].hasOwnProperty(
+        "datasourceConfiguration",
+      )
+    ) {
+      currentEnvironment = Object.keys(datasourceStorages)[0];
+    }
     const postEvalActions =
       uiComponent === UIComponentTypes.UQIDbEditorForm
         ? [
@@ -272,8 +287,7 @@ function* formValueChangeSaga(
               values.pluginId,
               field,
               hasRouteChanged,
-              datasource?.datasourceStorages[currentEnvironment]
-                .datasourceConfiguration,
+              datasourceStorages[currentEnvironment].datasourceConfiguration,
             ),
           ]
         : [];

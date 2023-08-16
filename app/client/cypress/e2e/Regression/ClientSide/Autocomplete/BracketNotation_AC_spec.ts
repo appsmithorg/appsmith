@@ -9,7 +9,8 @@ describe("Test cases around bracket notation", function () {
         "my variable 1": [],
         myVar2: {},
         myFun1(){
-            
+
+
         },
         myFun2: async () => {
             // use async-await or promises
@@ -27,21 +28,20 @@ describe("Test cases around bracket notation", function () {
 
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(locators._codeMirrorTextArea, "this.");
-    agHelper.GetNAssertElementText(locators._hints, "my variable 1");
-    agHelper.Sleep();
-    agHelper.GetNClickByContains(locators._hints, "my variable 1");
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "my variable 1");
+    agHelper.Sleep(2000);
+    agHelper.GetNClickByContains(locators._hints, "my variable 1", 0, false);
     agHelper.GetNAssertElementText(
       jsEditor._lineinJsEditor(5),
       'this["my variable 1"]',
       "contain.text",
     );
-    agHelper.Sleep();
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5), 0, true);
-    agHelper.SelectNRemoveLineText(locators._codeMirrorTextArea);
+    agHelper.Sleep(2000);
+    agHelper.GetNClick(jsEditor._lineinJsEditor(6));
     agHelper.TypeText(locators._codeMirrorTextArea, 'this["');
-    agHelper.GetNAssertElementText(locators._hints, "my variable 1");
-    agHelper.Sleep();
-    agHelper.GetNClickByContains(locators._hints, "my variable 1");
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "my variable 1");
+    agHelper.Sleep(2000);
+    agHelper.GetNClickByContains(locators._hints, "my variable 1", 0, false);
     agHelper.GetNAssertElementText(
       jsEditor._lineinJsEditor(5),
       'this["my variable 1"]',

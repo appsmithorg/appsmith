@@ -23,6 +23,7 @@ import { isEmpty } from "lodash";
 import type { CommonFormProps } from "./CommonEditorForm";
 import CommonEditorForm from "./CommonEditorForm";
 import Pagination from "./Pagination";
+import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 const NoBodyMessage = styled.div`
   margin-top: 20px;
@@ -100,12 +101,19 @@ export default connect((state: AppState, props: { pluginId: string }) => {
   // get messages from action itself
   const actionId = selector(state, "id");
   const action = getAction(state, actionId);
+  const currentEnvironment = getCurrentEnvironment();
   const hintMessages = action?.messages;
 
   const datasourceHeaders =
-    get(datasourceFromAction, "datasourceConfiguration.headers") || [];
+    get(
+      datasourceFromAction,
+      `datasourceStorages.${currentEnvironment}.datasourceConfiguration.headers`,
+    ) || [];
   const datasourceParams =
-    get(datasourceFromAction, "datasourceConfiguration.queryParameters") || [];
+    get(
+      datasourceFromAction,
+      `datasourceStorages.${currentEnvironment}.datasourceConfiguration.queryParameters`,
+    ) || [];
 
   const apiId = selector(state, "id");
   const currentActionDatasourceId = selector(state, "datasource.id");

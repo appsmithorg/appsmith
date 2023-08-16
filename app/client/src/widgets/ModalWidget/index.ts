@@ -4,11 +4,10 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
-import { GridDefaults } from "constants/WidgetConstants";
+import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { FlattenedWidgetProps } from "widgets/constants";
 import { BlueprintOperationTypes } from "widgets/constants";
-
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -27,6 +26,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Modal",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.LAYOUT],
   needsMeta: true,
   isCanvas: true,
   features: {

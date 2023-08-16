@@ -19,6 +19,7 @@ import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.DatasourceStructureService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -43,15 +44,19 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
     private final DatasourcePermission datasourcePermission;
     private final DatasourceStructureService datasourceStructureService;
     private final AnalyticsService analyticsService;
+    private final EnvironmentPermission environmentPermission;
 
     @Override
     public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache, String environmentId) {
         return datasourceService
                 .findById(datasourceId, datasourcePermission.getExecutePermission())
                 .zipWhen(datasource -> datasourceService.getTrueEnvironmentId(
-                        datasource.getWorkspaceId(), environmentId, datasource.getPluginId()))
-                .flatMap(tuple2 ->
-                        datasourceStorageService.findByDatasourceAndEnvironmentId(tuple2.getT1(), tuple2.getT2()))
+                        datasource.getWorkspaceId(),
+                        environmentId,
+                        datasource.getPluginId(),
+                        environmentPermission.getExecutePermission()))
+                .flatMap(tuple2 -> datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(
+                        tuple2.getT1(), tuple2.getT2()))
                 .flatMap(datasourceStorage -> getStructure(datasourceStorage, ignoreCache))
                 .onErrorMap(
                         IllegalArgumentException.class,
@@ -75,12 +80,16 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
     @Override
     public Mono<DatasourceStructure> getStructure(DatasourceStorage datasourceStorage, boolean ignoreCache) {
 
+        Mono<String> environmentNameMonoCached = datasourceStorageService
+                .getEnvironmentNameFromEnvironmentIdForAnalytics(datasourceStorage.getEnvironmentId())
+                .cache();
+
         if (Boolean.FALSE.equals(datasourceStorage.getIsValid())) {
-            return analyticsService
-                    .sendObjectEvent(
+            return environmentNameMonoCached
+                    .zipWhen(environmentName -> analyticsService.sendObjectEvent(
                             AnalyticsEvents.DS_SCHEMA_FETCH_EVENT,
                             datasourceStorage,
-                            getAnalyticsPropertiesForTestEventStatus(datasourceStorage, false))
+                            getAnalyticsPropertiesForTestEventStatus(datasourceStorage, false, environmentName)))
                     .then(Mono.just(new DatasourceStructure()));
         }
 
@@ -126,21 +135,23 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
 
                     return e;
                 })
-                .onErrorResume(error -> analyticsService
-                        .sendObjectEvent(
+                .onErrorResume(error -> environmentNameMonoCached
+                        .zipWhen(environmentName -> analyticsService.sendObjectEvent(
                                 AnalyticsEvents.DS_SCHEMA_FETCH_EVENT,
                                 datasourceStorage,
-                                getAnalyticsPropertiesForTestEventStatus(datasourceStorage, false, error))
+                                getAnalyticsPropertiesForTestEventStatus(
+                                        datasourceStorage, false, error, environmentName)))
                         .then(Mono.error(error)))
                 .flatMap(structure -> {
                     String datasourceId = datasourceStorage.getDatasourceId();
                     String environmentId = datasourceStorage.getEnvironmentId();
 
-                    return analyticsService
-                            .sendObjectEvent(
+                    return environmentNameMonoCached
+                            .zipWhen(environmentName -> analyticsService.sendObjectEvent(
                                     AnalyticsEvents.DS_SCHEMA_FETCH_EVENT,
                                     datasourceStorage,
-                                    getAnalyticsPropertiesForTestEventStatus(datasourceStorage, true, null))
+                                    getAnalyticsPropertiesForTestEventStatus(
+                                            datasourceStorage, true, null, environmentName)))
                             .then(
                                     !hasText(datasourceId)
                                             ? Mono.empty()

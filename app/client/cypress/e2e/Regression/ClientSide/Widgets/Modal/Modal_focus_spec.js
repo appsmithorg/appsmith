@@ -23,9 +23,11 @@ describe("Modal focus", function () {
 
     cy.wait(500);
     //drag input field into modal
-    cy.get(".t--widget-card-draggable-inputwidgetv2").trigger("dragstart", {
-      force: true,
-    });
+    cy.get(".t--widget-card-draggable-inputwidgetv2")
+      .first()
+      .trigger("dragstart", {
+        force: true,
+      });
 
     cy.get(widgets.modalWidget)
       .scrollIntoView()

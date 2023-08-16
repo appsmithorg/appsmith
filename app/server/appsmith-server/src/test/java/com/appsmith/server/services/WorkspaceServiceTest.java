@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -30,6 +29,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
@@ -147,6 +147,9 @@ public class WorkspaceServiceTest {
 
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
+
+    @Autowired
+    EnvironmentPermission environmentPermission;
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
@@ -1119,7 +1122,7 @@ public class WorkspaceServiceTest {
 
         // Create datasource for this workspace
         Mono<Datasource> datasourceMono = workspaceService
-                .getDefaultEnvironmentId(workspace1.getId())
+                .getDefaultEnvironmentId(workspace1.getId(), environmentPermission.getExecutePermission())
                 .zipWith(pluginService.findByPackageName("postgres-plugin"))
                 .flatMap(tuple2 -> {
                     String defaultEnvironmentId = tuple2.getT1();
@@ -1128,9 +1131,8 @@ public class WorkspaceServiceTest {
                     datasource.setName("test datasource");
                     datasource.setWorkspaceId(workspace1.getId());
                     datasource.setPluginId(plugin.getId());
-                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, defaultEnvironmentId);
                     HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                    storages.put(defaultEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+                    storages.put(defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, null));
                     datasource.setDatasourceStorages(storages);
                     return datasourceService.create(datasource);
                 });

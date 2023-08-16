@@ -731,7 +731,7 @@ public enum AppsmithError {
             ErrorType.GIT_CONFIGURATION_ERROR,
             null),
     GIT_GENERIC_ERROR(
-            504,
+            400,
             AppsmithErrorCode.GIT_GENERIC_ERROR.getCode(),
             "Git command execution error: {0}",
             AppsmithErrorAction.DEFAULT,
@@ -869,7 +869,7 @@ public enum AppsmithError {
     GIT_FILE_IN_USE(
             500,
             AppsmithErrorCode.GIT_FILE_IN_USE.getCode(),
-            "Your Git repo is in use by another member of your team. Usually, this takes a few seconds. Please try again a little later.",
+            "We were unable to place a lock on the file system to perform #commandName command. This error can occur when another operation is in progress. Please try again later.",
             AppsmithErrorAction.DEFAULT,
             "Git repo is locked",
             ErrorType.GIT_ACTION_EXECUTION_ERROR,
@@ -897,6 +897,14 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT,
             "Duplicate Configuration",
             ErrorType.BAD_REQUEST,
+            null),
+    INVALID_PROPERTIES_CONFIGURATION(
+            500,
+            AppsmithErrorCode.INVALID_PROPERTIES_CONFIGURATION.getCode(),
+            "Property configuration is wrong or malformed.",
+            AppsmithErrorAction.DEFAULT,
+            "Invalid application property configuration",
+            ErrorType.INTERNAL_ERROR,
             null),
     ;
 

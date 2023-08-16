@@ -75,6 +75,7 @@ class CategorySliderWidget extends BaseWidget<
         setValue: {
           path: "defaultOptionValue",
           type: "number",
+          accessor: "value",
         },
       },
     };

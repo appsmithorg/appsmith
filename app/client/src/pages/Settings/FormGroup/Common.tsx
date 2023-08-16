@@ -57,7 +57,7 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
             kind="body-m"
             renderAs="label"
           >
-            {createMessage(() => setting.label || "")}
+            {setting.label || ""}
           </Text>
         )}
         {setting.isRequired && (

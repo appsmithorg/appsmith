@@ -80,7 +80,10 @@ const widgetsToTest = {
 };
 
 function configureApi() {
-  apiPage.CreateAndFillApi(tedTestConfig.mockApiUrl, "FirstAPI");
+  apiPage.CreateAndFillApi(
+    tedTestConfig.dsValues[tedTestConfig.defaultEnviorment].mockApiUrl,
+    "FirstAPI",
+  );
   apiPage.EnterHeader("value", "{{this.params.value}}");
 }
 

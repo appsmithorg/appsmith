@@ -25,6 +25,7 @@ const renderComponent = (
         componentProps.meta.error &&
         componentProps.meta.error
       }
+      label={componentProps.label as string}
     />
   ) : (
     <Input
@@ -46,7 +47,7 @@ export type FormTextFieldProps = {
   placeholder: string;
   description?: string;
   type?: InputType;
-  label?: string;
+  label?: React.ReactNode;
   intent?: Intent;
   disabled?: boolean;
   autoFocus?: boolean;

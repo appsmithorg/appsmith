@@ -1,8 +1,6 @@
 name: Client Build
 
 on:
-  # This line enables manual triggering of this workflow.
-  workflow_dispatch:
   workflow_call:
     inputs:
       pr:
@@ -19,12 +17,11 @@ on:
         required: false
         type: string
         default: "false"
+      branch:
+        description: "This is the branch to be used for the build."
+        required: false
+        type: string
 
-  pull_request:
-    branches: [release, master]
-    paths:
-      - "app/client/**"
-      - "!app/client/cypress/manual_TestSuite/**"
 
 # Change the working directory for all the jobs in this workflow
 defaults:
@@ -32,7 +29,7 @@ defaults:
     working-directory: app/client
 
 jobs:
-  build:
+  client-build:
     runs-on: ubuntu-latest-8-cores
     # Only run this workflow for internally triggered events
     if: |
@@ -58,10 +55,16 @@ jobs:
           fetch-depth: 0
           ref: refs/pull/${{ inputs.pr }}/merge
 
+      # Check out the specified branch in case this workflow is called by another workflow
+      - name: Checkout the specified branch
+        if: inputs.pr == 0 && inputs.branch != ''
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch }}
+
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
-        if: inputs.pr == 0
-
+        if: inputs.pr == 0 && inputs.branch == ''
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -131,11 +134,11 @@ jobs:
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
-      - name: Use Node.js 16.14.0
+      - name: Use Node.js
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v3
         with:
-          node-version: "16.14.0"
+          node-version-file: app/client/package.json
 
       # actions/setup-node@v3 doesn’t work properly with Yarn 3
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488

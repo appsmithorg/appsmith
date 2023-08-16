@@ -1,4 +1,4 @@
-export { Tooltip } from "./Tooltip";
+export { TooltipRoot } from "./TooltipRoot";
 export { TooltipTrigger } from "./TooltipTrigger";
 export { TooltipContent } from "./TooltipContent";
 

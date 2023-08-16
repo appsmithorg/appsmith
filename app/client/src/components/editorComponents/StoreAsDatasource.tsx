@@ -19,11 +19,17 @@ type storeDataSourceProps = {
   datasourceId?: string;
   enable: boolean;
   shouldSave: boolean;
-  setDatasourceViewMode: (viewMode: boolean) => void;
+  setDatasourceViewMode: (payload: {
+    datasourceId: string;
+    viewMode: boolean;
+  }) => void;
 };
 
 interface ReduxDispatchProps {
-  setDatasourceViewMode: (viewMode: boolean) => void;
+  setDatasourceViewMode: (payload: {
+    datasourceId: string;
+    viewMode: boolean;
+  }) => void;
 }
 
 function StoreAsDatasource(props: storeDataSourceProps) {
@@ -35,7 +41,10 @@ function StoreAsDatasource(props: storeDataSourceProps) {
       dispatch(storeAsDatasource());
     } else {
       if (props.datasourceId) {
-        props.setDatasourceViewMode(false);
+        props.setDatasourceViewMode({
+          datasourceId: props.datasourceId,
+          viewMode: false,
+        });
         history.push(
           datasourcesEditorIdURL({
             pageId,
@@ -64,8 +73,16 @@ function StoreAsDatasource(props: storeDataSourceProps) {
 }
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
-  setDatasourceViewMode: (viewMode: boolean) =>
-    dispatch(setDatasourceViewMode(viewMode)),
+  setDatasourceViewMode: (payload: {
+    datasourceId: string;
+    viewMode: boolean;
+  }) =>
+    dispatch(
+      setDatasourceViewMode({
+        datasourceId: payload.datasourceId,
+        viewMode: payload.viewMode,
+      }),
+    ),
 });
 
 export default connect(null, mapDispatchToProps)(StoreAsDatasource);

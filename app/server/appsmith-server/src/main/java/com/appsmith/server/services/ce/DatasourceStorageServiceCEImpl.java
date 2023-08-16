@@ -78,26 +78,29 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 .map(datasourceStorage -> {
                     datasourceStorage.prepareTransientFields(datasource);
                     return datasourceStorage;
-                })
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE)));
+                });
     }
 
     @Override
     public Mono<DatasourceStorage> findByDatasourceAndEnvironmentIdForExecution(
             Datasource datasource, String environmentId) {
-        return this.findByDatasourceAndEnvironmentId(datasource, environmentId);
+        return this.findByDatasourceAndEnvironmentId(datasource, environmentId)
+                .flatMap(datasourceStorage -> {
+                    if (datasourceStorage.getDatasourceConfiguration() == null) {
+                        return Mono.error(new AppsmithException(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE));
+                    }
+
+                    return Mono.just(datasourceStorage);
+                })
+                .switchIfEmpty(Mono.defer(() -> errorMonoWhenDatasourceStorageNotFound(datasource, environmentId)));
     }
 
     @Override
     public Flux<DatasourceStorage> findByDatasource(Datasource datasource) {
-        return this.findByDatasourceId(datasource.getId())
-                .map(datasourceStorage -> {
-                    datasourceStorage.prepareTransientFields(datasource);
-                    return datasourceStorage;
-                })
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE)));
+        return this.findByDatasourceId(datasource.getId()).map(datasourceStorage -> {
+            datasourceStorage.prepareTransientFields(datasource);
+            return datasourceStorage;
+        });
     }
 
     protected Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
@@ -150,21 +153,23 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     }
 
     @Override
-    public Mono<DatasourceStorage> validateDatasourceStorage(
-            DatasourceStorage datasourceStorage, Boolean onlyConfiguration) {
+    public Mono<DatasourceStorage> validateDatasourceStorage(DatasourceStorage datasourceStorage) {
+
+        if (!StringUtils.hasText(datasourceStorage.getDatasourceId())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE));
+        }
+
+        if (!StringUtils.hasText(datasourceStorage.getEnvironmentId())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ENVIRONMENT));
+        }
+
+        return validateDatasourceConfiguration(datasourceStorage);
+    }
+
+    @Override
+    public Mono<DatasourceStorage> validateDatasourceConfiguration(DatasourceStorage datasourceStorage) {
         Set<String> invalids = new HashSet<>();
         datasourceStorage.setInvalids(invalids);
-
-        // TODO: Get rid of this condition once client starts to have this information
-        if (!Boolean.TRUE.equals(onlyConfiguration)) {
-            if (!StringUtils.hasText(datasourceStorage.getDatasourceId())) {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE));
-            }
-
-            if (!StringUtils.hasText(datasourceStorage.getEnvironmentId())) {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ENVIRONMENT));
-            }
-        }
 
         if (datasourceStorage.getDatasourceConfiguration() == null) {
             invalids.add(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getMessage());
@@ -194,16 +199,11 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 });
     }
 
-    @Override
-    public Mono<DatasourceStorage> validateDatasourceConfiguration(DatasourceStorage datasourceStorage) {
-        return this.validateDatasourceStorage(datasourceStorage, true);
-    }
-
     private Mono<DatasourceStorage> validateAndSaveDatasourceStorageToRepository(DatasourceStorage datasourceStorage) {
 
         return Mono.just(datasourceStorage)
                 .map(this::sanitizeDatasourceStorage)
-                .flatMap(datasourceStorage1 -> validateDatasourceStorage(datasourceStorage1, false))
+                .flatMap(datasourceStorage1 -> validateDatasourceStorage(datasourceStorage1))
                 .flatMap(unsavedDatasourceStorage -> {
                     return repository.save(unsavedDatasourceStorage).map(datasourceStorage1 -> {
                         // datasourceStorage.pluginName is a transient field. It was set by validateDatasource method
@@ -306,9 +306,64 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         }
         DatasourceStorageDTO datasourceStorageDTO =
                 this.getDatasourceStorageDTOFromDatasource(datasource, environmentId);
-        DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
+
+        if (datasourceStorageDTO == null) {
+            // If this environment does not have a storage configured, return null
+            return null;
+        }
+
+        DatasourceStorage datasourceStorage = createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
         datasourceStorage.prepareTransientFields(datasource);
 
+        return datasourceStorage;
+    }
+
+    @Override
+    public DatasourceStorage createDatasourceStorageFromDatasourceStorageDTO(
+            DatasourceStorageDTO datasourceStorageDTO) {
+        DatasourceStorage datasourceStorage = new DatasourceStorage();
+        datasourceStorage.setId(datasourceStorageDTO.getId());
+        datasourceStorage.setDatasourceId(datasourceStorageDTO.getDatasourceId());
+        datasourceStorage.setEnvironmentId(datasourceStorageDTO.getEnvironmentId());
+        datasourceStorage.setDatasourceConfiguration(datasourceStorageDTO.getDatasourceConfiguration());
+        datasourceStorage.setIsConfigured(datasourceStorageDTO.getIsConfigured());
+        datasourceStorage.setPluginId(datasourceStorageDTO.getPluginId());
+        datasourceStorage.setWorkspaceId(datasourceStorageDTO.getWorkspaceId());
+        if (datasourceStorageDTO.getInvalids() != null) {
+            datasourceStorage.getInvalids().addAll(datasourceStorageDTO.getInvalids());
+        }
+        if (datasourceStorageDTO.getMessages() != null) {
+            datasourceStorage.getMessages().addAll(datasourceStorageDTO.getMessages());
+        }
+
+        return datasourceStorage;
+    }
+
+    @Override
+    public DatasourceStorageDTO createDatasourceStorageDTOFromDatasourceStorage(DatasourceStorage datasourceStorage) {
+        DatasourceStorageDTO datasourceStorageDTO = new DatasourceStorageDTO();
+        datasourceStorageDTO.setId(datasourceStorage.getId());
+        datasourceStorageDTO.setDatasourceId(datasourceStorage.getDatasourceId());
+        datasourceStorageDTO.setEnvironmentId(datasourceStorage.getEnvironmentId());
+        datasourceStorageDTO.setDatasourceConfiguration(datasourceStorage.getDatasourceConfiguration());
+        datasourceStorageDTO.setIsConfigured(datasourceStorage.getIsConfigured());
+        datasourceStorageDTO.setInvalids(datasourceStorage.getInvalids());
+        datasourceStorageDTO.setMessages(datasourceStorage.getMessages());
+
+        return datasourceStorageDTO;
+    }
+
+    @Override
+    public DatasourceStorage createDatasourceStorageFromDatasource(Datasource datasource, String environmentId) {
+        DatasourceStorage datasourceStorage = new DatasourceStorage(
+                datasource.getId(),
+                environmentId,
+                datasource.getDatasourceConfiguration(),
+                datasource.getIsConfigured(),
+                datasource.getInvalids(),
+                datasource.getMessages());
+
+        datasourceStorage.prepareTransientFields(datasource);
         return datasourceStorage;
     }
 
@@ -325,5 +380,16 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         return this.findStrictlyByDatasourceIdAndEnvironmentId(datasourceId, environmentId)
                 .flatMap(dbDatasourceStorage -> Mono.error(new AppsmithException(
                         AppsmithError.DUPLICATE_DATASOURCE_CONFIGURATION, datasourceId, environmentId)));
+    }
+
+    @Override
+    public Mono<String> getEnvironmentNameFromEnvironmentIdForAnalytics(String environmentId) {
+        return Mono.just(FieldName.UNUSED_ENVIRONMENT_ID);
+    }
+
+    protected Mono<DatasourceStorage> errorMonoWhenDatasourceStorageNotFound(
+            Datasource datasource, String environmentId) {
+        return Mono.error(
+                new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasource.getName()));
     }
 }

@@ -17,8 +17,9 @@ describe("MultiSelect Widget Functionality", function () {
   });
   it("1. Add new multiselect widget", () => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.MULTISELECT);
+    _.propPane.ToggleJSMode("sourcedata");
     _.propPane.UpdatePropertyFieldValue(
-      "Options",
+      "Source Data",
       `[
         {
           "label": "Blue",
@@ -34,6 +35,16 @@ describe("MultiSelect Widget Functionality", function () {
         }
       ]`,
     );
+
+    _.propPane.ToggleJSMode("labelkey");
+    cy.updateCodeInput(
+      ".t--property-control-wrapper.t--property-control-labelkey",
+      `label`,
+    );
+
+    _.propPane.ToggleJSMode("valuekey");
+    cy.updateCodeInput(".t--property-control-valuekey", `value`);
+
     _.propPane.UpdatePropertyFieldValue(
       "Default selected values",
       defaultValue,

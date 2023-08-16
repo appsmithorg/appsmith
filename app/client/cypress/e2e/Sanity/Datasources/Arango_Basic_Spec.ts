@@ -11,7 +11,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
     containerName = "arangodb";
   before("Create a new Arango DS", () => {
     dataSources.StartContainerNVerify("Arango", containerName, 20000);
-    dataSources.CreateDataSource("Arango");
+    dataSources.CreateDataSource("ArangoDB");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
@@ -49,7 +49,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
         entityNameinLeftSidebar: dsName,
         action: "Refresh",
       });
-      agHelper.AssertElementVisible(
+      agHelper.AssertElementVisibility(
         entityExplorer._entityNameInExplorer(collectionName),
       );
       //Add data into this newly created collection
@@ -312,9 +312,9 @@ describe("Validate Arango & CURL Import Datasources", () => {
         entityNameinLeftSidebar: dsName,
         action: "Refresh",
       }); //needed for the deltion of ds to reflect
-      agHelper.AssertElementVisible(dataSources._noSchemaAvailable(dsName));
+      agHelper.AssertElementVisibility(dataSources._noSchemaAvailable(dsName));
       //Deleting datasource finally
-      dataSources.DeleteDatasouceFromWinthinDS(dsName);
+      dataSources.DeleteDatasouceFromActiveTab(dsName);
     });
 
     dataSources.StopNDeleteContainer(containerName);

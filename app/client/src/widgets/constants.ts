@@ -1,6 +1,7 @@
 import { IconNames } from "@blueprintjs/icons";
 import type { Theme } from "constants/DefaultTheme";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import type { WidgetTags } from "constants/WidgetConstants";
 import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
 import type { Stylesheet } from "entities/AppTheming";
 import { omit } from "lodash";
@@ -62,6 +63,7 @@ export interface WidgetConfiguration {
   features?: WidgetFeatures;
   canvasHeightOffset?: (props: WidgetProps) => number;
   searchTags?: string[];
+  tags?: WidgetTags[];
   needsHeightForContent?: boolean;
   properties: {
     config?: PropertyPaneConfig[];
@@ -78,9 +80,17 @@ export interface WidgetConfiguration {
   methods?: Record<string, WidgetMethods>;
 }
 
+export type PropertyUpdates = {
+  propertyPath: string;
+  propertyValue?: unknown;
+  isDynamicPropertyPath?: boolean; // Toggles the property mode to JS
+  shouldDeleteProperty?: boolean; // Deletes the property, propertyValue is ignored
+};
+
 export type WidgetMethods =
   | GetQueryGenerationConfig
-  | GetPropertyUpdatesForQueryBinding;
+  | GetPropertyUpdatesForQueryBinding
+  | getSnipingModeUpdates;
 
 type GetQueryGenerationConfig = (
   widgetProps: WidgetProps,
@@ -91,6 +101,10 @@ type GetPropertyUpdatesForQueryBinding = (
   widget: WidgetProps,
   formConfig: WidgetQueryGenerationFormConfig,
 ) => Record<string, unknown>;
+
+type getSnipingModeUpdates = (
+  propValueMap: Record<"data" | "run", string>,
+) => Array<PropertyUpdates>;
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;
 
@@ -361,3 +375,10 @@ export const dateFormatOptions = [
 export type ThemeProp = {
   theme: Theme;
 };
+
+export type SnipingModeProperty = Record<"data" | "run", string>;
+
+export enum DefaultMobileCameraTypes {
+  FRONT = "user",
+  BACK = "environment",
+}

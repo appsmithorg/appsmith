@@ -15,11 +15,19 @@ describe(
     it("1. Create Query from Mock Mongo DB & verify active queries count", () => {
       dataSources.CreateMockDB("Movies").then((mockDBName) => {
         dsName = mockDBName;
+        cy.log("Mock DB Name: " + mockDBName);
+
+        // delay is introduced so that structure fetch is complete before moving to query creation
+        // feat: #25320, new query created for mock db movies, will be populated with default values
+        agHelper.Sleep(500);
+
+        assertHelper.AssertNetworkStatus("@getDatasourceStructure", 200);
         dataSources.CreateQueryAfterDSSaved();
+
         assertHelper.AssertNetworkStatus("@trigger");
         dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
-        dataSources.ValidateNSelectDropdown("Collection", "", "movies");
-        dataSources.RunQueryNVerifyResponseViews(10, false);
+        dataSources.ValidateNSelectDropdown("Collection", "movies");
+        dataSources.RunQueryNVerifyResponseViews(1, false);
         dataSources.NavigateToActiveTab();
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))
@@ -29,8 +37,8 @@ describe(
 
         entityExplorer.CreateNewDsQuery(mockDBName);
         dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
-        dataSources.ValidateNSelectDropdown("Collection", "", "movies");
-        dataSources.RunQueryNVerifyResponseViews(10, false);
+        dataSources.ValidateNSelectDropdown("Collection", "movies");
+        dataSources.RunQueryNVerifyResponseViews(1, false);
         dataSources.NavigateToActiveTab();
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))
@@ -43,15 +51,18 @@ describe(
     it("2. Create Query from Mock Postgres DB & verify active queries count", () => {
       dataSources.CreateMockDB("Users").then((mockDBName) => {
         dsName = mockDBName;
+        cy.log("Mock DB Name: " + mockDBName);
+
+        assertHelper.AssertNetworkStatus("@getDatasourceStructure", 200);
         dataSources.CreateQueryAfterDSSaved();
 
         // This will validate that query populated in editor uses existing table name
         agHelper.VerifyCodeInputValue(
           formControls.postgreSqlBody,
-          "SELECT * FROM public.users LIMIT 10;\n\n",
+          'SELECT * FROM public."users" LIMIT 10;',
         );
 
-        dataSources.RunQueryNVerifyResponseViews(10);
+        dataSources.RunQueryNVerifyResponseViews(5); //minimum 5 rows are expected
         dataSources.NavigateToActiveTab();
         agHelper
           .GetText(dataSources._queriesOnPageText(mockDBName))

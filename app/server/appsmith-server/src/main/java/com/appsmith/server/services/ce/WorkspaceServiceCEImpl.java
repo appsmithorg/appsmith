@@ -239,7 +239,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     }
 
     @Override
-    public Mono<String> getDefaultEnvironmentId(String workspaceId) {
+    public Mono<String> getDefaultEnvironmentId(String workspaceId, AclPermission aclPermission) {
         return Mono.just(FieldName.UNUSED_ENVIRONMENT_ID);
     }
 

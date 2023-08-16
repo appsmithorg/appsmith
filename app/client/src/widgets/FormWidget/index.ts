@@ -1,7 +1,7 @@
 import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { GridDefaults } from "constants/WidgetConstants";
+import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
 import get from "lodash/get";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
@@ -22,6 +22,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Form",
   iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.LAYOUT],
   needsMeta: true,
   isCanvas: true,
   features: {

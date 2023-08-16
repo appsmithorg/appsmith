@@ -465,6 +465,7 @@ class MultiSelectWidget extends BaseWidget<
         setSelectedOptions: {
           path: "defaultOptionValue",
           type: "array",
+          accessor: "selectedOptionValues",
         },
       },
     };

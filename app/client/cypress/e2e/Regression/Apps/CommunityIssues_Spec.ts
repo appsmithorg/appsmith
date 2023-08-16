@@ -134,22 +134,22 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitUntilTableLoad(0, 0, "v2");
   });
 
-  it.skip("5. Verify Default search text in table as per 'Default search text' property set + Bug 12228", () => {
+  it("5. Verify Default search text in table as per 'Default search text' property set + Bug 12228", () => {
     entityExplorer.SelectEntityByName("Table1", "Widgets");
     //propPane.EnterJSContext("Default search text", "Bug", false);
     propPane.TypeTextIntoField("Default search text", "Bug");
     deployMode.DeployApp();
-    table.AssertSearchText("Bug");
+    table.AssertSearchText("Bug", 2);
     table.WaitUntilTableLoad(0, 0, "v2");
     table.WaitUntilTableLoad(0, 0, "v2");
     deployMode.NavigateBacktoEditor();
 
     entityExplorer.SelectEntityByName("Table1", "Widgets");
     //propPane.EnterJSContext("Default search text", "Question", false);
-    propPane.TypeTextIntoField("Default search text", "Question");
+    propPane.TypeTextIntoField("Default search text", "Quest", true, false);
 
     deployMode.DeployApp();
-    table.AssertSearchText("Question");
+    table.AssertSearchText("Quest", 2);
     table.WaitUntilTableLoad(0, 0, "v2");
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(0, 0, "v2");
@@ -161,25 +161,25 @@ describe("AForce - Community Issues page validations", function () {
     table.AssertSearchText("Epic");
     table.WaitForTableEmpty("v2");
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad(0, 0, "v2");
 
     entityExplorer.SelectEntityByName("Table1", "Widgets");
     propPane.RemoveText("defaultsearchtext");
+    agHelper.GetNClick(dataSources._refreshIcon, 0, true);
     table.WaitUntilTableLoad(0, 0, "v2");
   });
 
   it.skip("6. Validate Search table with Client Side Search enabled & disabled", () => {
     entityExplorer.SelectEntityByName("Table1", "Widgets");
-    agHelper.AssertExistingToggleState("enableclientsidesearch", "true");
+    agHelper.AssertExistingToggleState("clientsidesearch", "true");
 
     deployMode.DeployApp();
     table.WaitUntilTableLoad(0, 0, "v2");
 
-    table.SearchTable("Bug");
+    table.SearchTable("Bug", 2);
     table.WaitUntilTableLoad(0, 0, "v2");
     cy.xpath(table._searchBoxCross).click();
 
-    table.SearchTable("Question");
+    table.SearchTable("Quest");
     table.WaitUntilTableLoad(0, 0, "v2");
     cy.xpath(table._searchBoxCross).click();
 
@@ -192,11 +192,11 @@ describe("AForce - Community Issues page validations", function () {
     deployMode.DeployApp();
     table.WaitUntilTableLoad(0, 0, "v2");
 
-    table.SearchTable("Bug");
+    table.SearchTable("Bug", 2);
     table.WaitForTableEmpty("v2");
     cy.xpath(table._searchBoxCross).click();
 
-    table.SearchTable("Question");
+    table.SearchTable("Quest");
     table.WaitForTableEmpty("v2");
     cy.xpath(table._searchBoxCross).click();
 
@@ -233,7 +233,7 @@ describe("AForce - Community Issues page validations", function () {
       expect($cellData).to.be.oneOf(["Troubleshooting", "Question"]);
     });
 
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 7; i++) {
       table.ReadTableRowColumnData(i, 1, "v2", 100).then(($cellData) => {
         if ($cellData.toLowerCase().includes("query"))
           filterTitle.push($cellData);
@@ -259,12 +259,12 @@ describe("AForce - Community Issues page validations", function () {
     table.RemoveFilterNVerify("Question", true, false, 0, "v2");
   });
 
-  it.skip("8. Validate Adding a New issue from Add Modal", () => {
+  it("8. Validate Adding a New issue from Add Modal", () => {
     // agHelper.DeployApp()
     // table.WaitUntilTableLoad(0,0,"v2")
 
     cy.get(table._addIcon).closest("div").click();
-    agHelper.AssertElementVisible(locators._modal);
+    agHelper.AssertElementVisibility(locators._modal);
     agHelper.SelectFromDropDown("Suggestion", "t--modal-widget");
 
     cy.get(locators._inputWidgetv1InDeployed)
@@ -305,12 +305,12 @@ describe("AForce - Community Issues page validations", function () {
     });
   });
 
-  it.skip("9. Validate Updating issue from Details tab & Verify multiselect widget selected values", () => {
+  it("9. Validate Updating issue from Details tab & Verify multiselect widget selected values", () => {
     agHelper.Sleep(2000);
     agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
     agHelper.Sleep(2000);
     table.SelectTableRow(0, 1, true, "v2");
-    agHelper.AssertElementVisible(locators._widgetInDeployed("tabswidget"));
+    agHelper.AssertElementVisibility(locators._widgetInDeployed("tabswidget"));
     agHelper
       .GetNClick(locators._inputWidgetv1InDeployed, 0, true, 0)
       .type("-updating title");
@@ -371,11 +371,11 @@ describe("AForce - Community Issues page validations", function () {
     agHelper.Sleep(2000); //allowing time to save!
   });
 
-  it.skip("10. Validate Deleting the newly created issue", () => {
+  it("10. Validate Deleting the newly created issue", () => {
     agHelper.Sleep(2000);
     agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
     table.SelectTableRow(0, 0, true, "v2");
-    agHelper.AssertElementVisible(locators._widgetInDeployed("tabswidget"));
+    agHelper.AssertElementVisibility(locators._widgetInDeployed("tabswidget"));
     agHelper.Sleep();
     cy.get(table._trashIcon).closest("div").click({ force: true });
     agHelper.WaitUntilEleDisappear(locators._widgetInDeployed("tabswidget"));

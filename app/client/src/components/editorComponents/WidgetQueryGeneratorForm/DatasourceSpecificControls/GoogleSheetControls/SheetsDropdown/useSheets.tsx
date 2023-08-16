@@ -67,6 +67,7 @@ export function useSheets() {
         sheetName: sheetObj.value,
         pluginType: config.datasourcePluginType,
         pluginName: config.datasourcePluginName,
+        connectionMode: config.datasourceConnectionMode,
       });
     },
     [config, updateConfig, dispatch, widget, selectedDatasource, propertyName],

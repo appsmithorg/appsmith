@@ -1,6 +1,7 @@
 import log from "loglevel";
 import moment from "moment";
 import localforage from "localforage";
+import type { VersionUpdateState } from "../sagas/WebsocketSagas/versionUpdatePrompt";
 
 export const STORAGE_KEYS: {
   [id: string]: string;
@@ -26,6 +27,7 @@ export const STORAGE_KEYS: {
   AI_TRIGGERED: "AI_TRIGGERED",
   FEATURE_WALKTHROUGH: "FEATURE_WALKTHROUGH",
   USER_SIGN_UP: "USER_SIGN_UP",
+  VERSION_UPDATE_STATE: "VERSION_UPDATE_STATE",
 };
 
 const store = localforage.createInstance({
@@ -455,7 +457,7 @@ export const getAIPromptTriggered = async () => {
     return 0;
   }
 };
-export const setFeatureFlagShownStatus = async (key: string, value: any) => {
+export const setFeatureWalkthroughShown = async (key: string, value: any) => {
   try {
     let flagsJSON: Record<string, any> | null = await store.getItem(
       STORAGE_KEYS.FEATURE_WALKTHROUGH,
@@ -475,7 +477,7 @@ export const setFeatureFlagShownStatus = async (key: string, value: any) => {
   }
 };
 
-export const getFeatureFlagShownStatus = async (key: string) => {
+export const getFeatureWalkthroughShown = async (key: string) => {
   try {
     const flagsJSON: Record<string, any> | null = await store.getItem(
       STORAGE_KEYS.FEATURE_WALKTHROUGH,
@@ -527,4 +529,23 @@ export const isUserSignedUpFlagSet = async (email: string) => {
     log.error("An error occurred while reading USER_SIGN_UP");
     log.error(error);
   }
+};
+
+export const setVersionUpdateState = async (state: VersionUpdateState) => {
+  try {
+    await store.setItem(STORAGE_KEYS.VERSION_UPDATE_STATE, state);
+  } catch (e) {
+    log.error("An error occurred while storing version update state", e);
+  }
+};
+
+export const getVersionUpdateState =
+  async (): Promise<VersionUpdateState | null> => {
+    return await store.getItem<VersionUpdateState | null>(
+      STORAGE_KEYS.VERSION_UPDATE_STATE,
+    );
+  };
+
+export const removeVersionUpdateState = async () => {
+  return store.removeItem(STORAGE_KEYS.VERSION_UPDATE_STATE);
 };

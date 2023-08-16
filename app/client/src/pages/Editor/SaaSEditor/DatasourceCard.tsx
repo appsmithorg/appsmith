@@ -19,7 +19,6 @@ import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { Button } from "design-system";
-import { getCurrentEnvironment } from "@appsmith/utils/Environments";
 
 const Wrapper = styled.div`
   border: 2px solid #d6d6d6;
@@ -157,8 +156,8 @@ function DatasourceCard(props: DatasourceCardProps) {
       {!isEmpty(currentFormConfig) ? (
         <RenderDatasourceInformation
           config={currentFormConfig[0]}
-          currentEnvironment={getCurrentEnvironment()}
           datasource={datasource}
+          showOnlyCurrentEnv
         />
       ) : undefined}
     </Wrapper>

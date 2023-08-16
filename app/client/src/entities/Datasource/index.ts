@@ -1,6 +1,7 @@
 import type { APIResponseError } from "api/ApiResponses";
 import type { ActionConfig, Property } from "entities/Action";
 import _ from "lodash";
+import type { SSL } from "./RestAPIForm";
 
 export enum AuthType {
   OAUTH2 = "oAuth2",
@@ -28,6 +29,18 @@ export enum ActionType {
   DOCUMENTATION = "documentation",
 }
 
+/* 
+  Types of messages that can be shown in the toast of the datasource configuration page
+  EMPTY_TOAST_MESSAGE: No message to be shown
+  TEST_DATASOURCE_SUCCESS: Test datasource success message
+  TEST_DATASOURCE_ERROR: Test datasource error message
+*/
+export enum ToastMessageType {
+  EMPTY_TOAST_MESSAGE = "EMPTY_TOAST_MESSAGE",
+  TEST_DATASOURCE_SUCCESS = "TEST_DATASOURCE_SUCCESS",
+  TEST_DATASOURCE_ERROR = "TEST_DATASOURCE_ERROR",
+}
+
 export interface DatasourceAuthentication {
   authType?: string;
   username?: string;
@@ -40,6 +53,7 @@ export interface DatasourceAuthentication {
   authenticationStatus?: string;
   authenticationType?: string;
   secretExists?: Record<string, boolean>;
+  isAuthorized?: boolean;
 }
 
 export interface DatasourceColumns {
@@ -105,6 +119,11 @@ export interface EmbeddedRestDatasource extends BaseDatasource {
   isValid: boolean;
 }
 
+export enum DatasourceConnectionMode {
+  READ_ONLY = "READ_ONLY",
+  READ_WRITE = "READ_WRITE",
+}
+
 export interface DatasourceConfiguration {
   url: string;
   authentication?: DatasourceAuthentication;
@@ -112,6 +131,10 @@ export interface DatasourceConfiguration {
   headers?: Property[];
   queryParameters?: Property[];
   databaseName?: string;
+  connection?: {
+    mode: DatasourceConnectionMode;
+    ssl: SSL;
+  };
 }
 
 export interface Datasource extends BaseDatasource {
@@ -131,6 +154,7 @@ export interface DatasourceStorage {
   isValid: boolean;
   structure?: DatasourceStructure;
   isConfigured?: boolean;
+  toastMessage?: string;
 }
 
 export interface TokenResponse {

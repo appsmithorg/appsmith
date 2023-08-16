@@ -24,13 +24,24 @@ const HeaderWrapper = styled.div`
 
 function CopyUrlForm(props: {
   value: string;
-  title: string;
+  title: React.ReactNode;
   helpText?: string;
   tooltip?: string;
   fieldName?: string;
+  startIcon?: string;
+  append?: boolean;
 }) {
+  const {
+    append = true,
+    fieldName,
+    helpText,
+    startIcon,
+    title,
+    tooltip,
+  } = props;
+
   const fieldValue = useMemo(
-    () => `${window.location.origin}${props.value}`,
+    () => `${append ? window.location.origin : ""}${props.value}`,
     [props.value],
   );
 
@@ -45,10 +56,12 @@ function CopyUrlForm(props: {
   return (
     <BodyContainer>
       <Input
-        description={`* ${props.helpText}`}
+        data-testid={`${fieldName}-input`}
+        {...(helpText ? { description: `* ${helpText}` } : {})}
         endIcon="duplicate"
         endIconProps={{
           className: "copy-icon",
+          "data-testid": `${fieldName}-copy-icon`,
           onClick: handleCopy,
         }}
         isReadOnly
@@ -60,14 +73,10 @@ function CopyUrlForm(props: {
               kind="body-m"
               renderAs="label"
             >
-              {props.title}
+              {title}
             </Text>
-            {props.tooltip && (
-              <Tooltip
-                content={props.tooltip}
-                placement="right"
-                trigger="hover"
-              >
+            {tooltip && (
+              <Tooltip content={tooltip} placement="right" trigger="hover">
                 <Icon
                   className={"help-icon"}
                   color="var(--ads-v2-color-fg)"
@@ -78,8 +87,10 @@ function CopyUrlForm(props: {
             )}
           </HeaderWrapper>
         }
-        name={props.fieldName}
+        name={fieldName}
+        onClick={handleCopy}
         size="md"
+        {...(startIcon ? { startIcon } : {})}
         value={fieldValue}
       />
     </BodyContainer>

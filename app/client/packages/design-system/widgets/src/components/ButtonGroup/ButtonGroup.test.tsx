@@ -25,24 +25,10 @@ describe("@design-system/widgets/Button Group", () => {
     expect(screen.getByText("Button 3")).toBeInTheDocument();
   });
 
-  it("should support vertical orientation", () => {
-    const { container } = renderComponent({ orientation: "vertical" });
-
-    const buttonGroup = container.querySelector("div") as HTMLElement;
-    expect(buttonGroup).toHaveStyle("flex-direction: column");
-  });
-
-  it("should support horizontal orientation", () => {
-    const { container } = renderComponent({ orientation: "horizontal" });
-
-    const buttonGroup = container.querySelector("div") as HTMLElement;
-    expect(buttonGroup).toHaveStyle("flex-direction: row");
-  });
-
   it("should support custom props", () => {
     const { container } = renderComponent({
       "data-testid": "button-group",
-    } as any);
+    } as ButtonGroupProps);
 
     const buttonGroup = container.querySelector("div") as HTMLElement;
     expect(buttonGroup).toHaveAttribute("data-testid", "button-group");
