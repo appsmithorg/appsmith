@@ -17,6 +17,7 @@ export default function WidgetSpecificControls(props: Props) {
       <ColumnDropdown
         alias="searchableColumn"
         id="searchableColumn"
+        isSearcheable
         label="Select a searchable column"
         onSelect={noop}
       />
@@ -31,7 +32,7 @@ export default function WidgetSpecificControls(props: Props) {
         <ColumnDropdown
           alias={`alias.${name}`}
           id={name}
-          isSearcheable={isSearcheable}
+          isSearcheable={!!isSearcheable}
           key={name}
           label={label}
           onSelect={noop}
