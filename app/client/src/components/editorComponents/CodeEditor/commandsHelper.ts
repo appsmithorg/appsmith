@@ -5,7 +5,8 @@ import type {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { generateQuickCommands } from "./generateQuickCommands";
+import { generateSlashCommands } from "./generateQuickCommands";
+import { generateBindingSuggestionCommands } from "./generateQuickCommands";
 import type { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
@@ -65,10 +66,11 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
       const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
       const value = editor.getValue();
       const slashIndex = value.lastIndexOf("/");
-      const shouldShowBinding = !cursorBetweenBinding && slashIndex > -1;
-      if (shouldShowBinding) {
+      const shouldShowSlashCommands = !cursorBetweenBinding && slashIndex > -1;
+      if (shouldShowSlashCommands) {
         const searchText = value.substring(slashIndex + 1);
-        const list = generateQuickCommands(
+        const list = generateSlashCommands(
+          //  const list = generateBindingSuggestionCommands(
           entitiesForSuggestions,
           currentEntityType,
           searchText,
@@ -132,6 +134,99 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
                 });
               } catch (e) {
                 log.debug(e, "Error logging slash command");
+              }
+              CodeMirror.off(hints, "pick", handlePick);
+              CodeMirror.off(hints, "select", handleSelection);
+            }
+            CodeMirror.on(hints, "pick", handlePick);
+            CodeMirror.on(hints, "select", handleSelection);
+            return hints;
+          },
+          extraKeys: {
+            Up: (cm: CodeMirror.Editor, handle: any) => {
+              handle.moveFocus(-1);
+              if (currentSelection.isHeader === true) {
+                handle.moveFocus(-1);
+              }
+            },
+            Down: (cm: CodeMirror.Editor, handle: any) => {
+              handle.moveFocus(1);
+              if (currentSelection.isHeader === true) {
+                handle.moveFocus(1);
+              }
+            },
+          },
+          completeSingle: false,
+        });
+        return true;
+      } else if (value.length >= 3) {
+        // show binding suggestions hinter
+        const searchText = value.substring(slashIndex + 1);
+        // const list = generateQuickCommands(
+        const list = generateBindingSuggestionCommands(
+          entitiesForSuggestions,
+          currentEntityType,
+          searchText,
+          {
+            datasources,
+            executeCommand,
+            pluginIdToImageLocation,
+            recentEntities,
+            featureFlags,
+            enableAIAssistance,
+          },
+        );
+        let currentSelection: CommandsCompletion = {
+          origin: "",
+          type: AutocompleteDataType.UNKNOWN,
+          data: {
+            doc: "",
+          },
+          text: "",
+          shortcut: "",
+        };
+        const cursor = editor.getCursor();
+        editor.showHint({
+          hint: () => {
+            const hints = {
+              list,
+              from: {
+                ch: cursor.ch - searchText.length - 1,
+                line: cursor.line,
+              },
+              to: editor.getCursor(),
+              selectedHint: list[0]?.isHeader ? 1 : 0,
+            };
+            function handleSelection(selected: CommandsCompletion) {
+              currentSelection = selected;
+            }
+            function handlePick(selected: CommandsCompletion) {
+              update(value.slice(0, slashIndex) + selected.text);
+              setTimeout(() => {
+                editor.focus();
+                editor.setCursor({
+                  line: editor.lineCount() - 1,
+                  ch: editor.getLine(editor.lineCount() - 1).length - 2,
+                });
+                if (selected.action && typeof selected.action === "function") {
+                  selected.action();
+                } else {
+                  selected.triggerCompletionsPostPick &&
+                    CodeMirror.signal(editor, "postPick", selected.displayText);
+                }
+              });
+              try {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { data, render, ...rest } = selected;
+                const { ENTITY_TYPE, name, pluginType } = data as any;
+                AnalyticsUtil.logEvent("BINDING_SUGGESTIONS", {
+                  ...rest,
+                  ENTITY_TYPE,
+                  name,
+                  pluginType,
+                });
+              } catch (e) {
+                log.debug(e, "Error logging binding suggestions command");
               }
               CodeMirror.off(hints, "pick", handlePick);
               CodeMirror.off(hints, "select", handleSelection);
