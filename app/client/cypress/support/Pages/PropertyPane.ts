@@ -131,7 +131,7 @@ export class PropertyPane {
   _addOptionProperty = ".t--property-control-options-add";
   _optionContent = ".rc-select-item-option-content";
   _dropdownOptionSpan = ".t--dropdown-option span";
-  private _propertyControlColorPicker = (property: string) =>
+  _propertyControlColorPicker = (property: string) =>
     `.t--property-control-${property} .bp3-input-group input`;
   _propertyText = ".bp3-ui-text span";
   _paneTitle = ".t--property-pane-title";
@@ -141,6 +141,13 @@ export class PropertyPane {
   _addColumnItem = ".t--add-column-btn";
   _widgetToVerifyText = (widgetName: string) =>
     `${this.locator._widgetByName(widgetName)} ${this._propertyText}`;
+  _placeholderName = "[placeholder='Name']";
+  _placeholderValue = "[placeholder='Value']";
+  _optionsDeleteButton = "[orientation='HORIZONTAL'] .ads-v2-button";
+  _colorPickerInput = "[data-testid='t--color-picker-input']";
+  _emphasisSelector = (value: string) => `.t--button-group-${value}`;
+  _checkbox = ".bp3-checkbox";
+  _roundCursorPointer = ".rounded-full.cursor-pointer";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
