@@ -134,7 +134,9 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
     <ButtonWrapper>
       <Button
         className={`t--settings-sub-category-${
-          !method?.isEnabled ? `upgrade-${method.category}` : method.category
+          !method?.isFeatureEnabled
+            ? `upgrade-${method.category}`
+            : method.category
         }`}
         data-testid="btn-auth-account"
         kind={"secondary"}
@@ -142,7 +144,11 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
         size="md"
       >
         {createMessage(
-          method.isConnected ? EDIT : !method?.isEnabled ? UPGRADE : ENABLE,
+          method.isConnected
+            ? EDIT
+            : !method?.isFeatureEnabled
+            ? UPGRADE
+            : ENABLE,
         )}
       </Button>
     </ButtonWrapper>
