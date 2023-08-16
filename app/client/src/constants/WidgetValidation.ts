@@ -24,6 +24,7 @@ export type ValidationResponse = {
   parsed: any;
   messages?: Array<Error>;
   transformed?: any;
+  isParsedValueTheSame?: boolean;
 };
 
 export type Validator = (

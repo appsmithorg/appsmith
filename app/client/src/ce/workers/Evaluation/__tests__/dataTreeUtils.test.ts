@@ -1,5 +1,8 @@
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
+import { smallDataSet } from "workers/Evaluation/__tests__/generateOpimisedUpdates.test";
+import produce from "immer";
+import { cloneDeep } from "lodash";
 
 const unevalTreeFromMainThread = {
   Api2: {
@@ -143,11 +146,215 @@ const unevalTreeFromMainThread = {
 };
 
 describe("7. Test util methods", () => {
-  it("3. makeDataTreeEntityConfigAsProperty method", () => {
-    const dataTree = makeEntityConfigsAsObjProperties(
-      unevalTreeFromMainThread as unknown as DataTree,
-    );
+  describe("makeDataTreeEntityConfigAsProperty", () => {
+    it("should not introduce __evaluation__ property", () => {
+      const dataTree = makeEntityConfigsAsObjProperties(
+        unevalTreeFromMainThread as unknown as DataTree,
+      );
 
-    expect(dataTree.Api2).not.toHaveProperty("__evaluation__");
+      expect(dataTree.Api2).not.toHaveProperty("__evaluation__");
+    });
+    describe("identicalEvalPathsPatches decompress updates", () => {
+      it("should decompress identicalEvalPathsPatches updates into evalProps and state", () => {
+        const state = {
+          Table1: {
+            filteredTableData: smallDataSet,
+            selectedRows: [],
+            pageSize: 0,
+            __evaluation__: {
+              evaluatedValues: {},
+            },
+          },
+        } as any;
+
+        const identicalEvalPathsPatches = {
+          "Table1.__evaluation__.evaluatedValues.['filteredTableData']":
+            "Table1.filteredTableData",
+        };
+        const evalProps = {
+          Table1: {
+            __evaluation__: {
+              evaluatedValues: {
+                someProp: "abc",
+              },
+            },
+          },
+        } as any;
+        const dataTree = makeEntityConfigsAsObjProperties(state as any, {
+          sanitizeDataTree: true,
+          evalProps,
+          identicalEvalPathsPatches,
+        });
+        const expectedState = produce(state, (draft: any) => {
+          draft.Table1.__evaluation__.evaluatedValues.someProp = "abc";
+          draft.Table1.__evaluation__.evaluatedValues.filteredTableData =
+            smallDataSet;
+        });
+
+        expect(dataTree).toEqual(expectedState);
+        //evalProps should have decompressed updates in it coming from identicalEvalPathsPatches
+        const expectedEvalProps = produce(evalProps, (draft: any) => {
+          draft.Table1.__evaluation__.evaluatedValues.filteredTableData =
+            smallDataSet;
+        });
+        expect(evalProps).toEqual(expectedEvalProps);
+      });
+
+      it("should not make any updates to evalProps when the identicalEvalPathsPatches is empty", () => {
+        const state = {
+          Table1: {
+            filteredTableData: smallDataSet,
+            selectedRows: [],
+            pageSize: 0,
+            __evaluation__: {
+              evaluatedValues: {},
+            },
+          },
+        } as any;
+
+        const identicalEvalPathsPatches = {};
+        const initialEvalProps = {} as any;
+        const evalProps = cloneDeep(initialEvalProps);
+        const dataTree = makeEntityConfigsAsObjProperties(state, {
+          sanitizeDataTree: true,
+          evalProps,
+          identicalEvalPathsPatches,
+        });
+
+        expect(dataTree).toEqual(dataTree);
+        //evalProps not be mutated with any updates
+        expect(evalProps).toEqual(initialEvalProps);
+      });
+
+      it("should ignore non relevant identicalEvalPathsPatches updates into evalProps and state", () => {
+        const state = {
+          Table1: {
+            filteredTableData: smallDataSet,
+            selectedRows: [],
+            pageSize: 0,
+            __evaluation__: {
+              evaluatedValues: {},
+            },
+          },
+        } as any;
+        //ignore non existent widget state
+        const identicalEvalPathsPatches = {
+          "SomeWidget.__evaluation__.evaluatedValues.['filteredTableData']":
+            "SomeWidget.filteredTableData",
+        };
+
+        const initialEvalProps = {
+          Table1: {
+            __evaluation__: {
+              evaluatedValues: {
+                someProp: "abc",
+              },
+            },
+          },
+        } as any;
+        const evalProps = cloneDeep(initialEvalProps);
+        const dataTree = makeEntityConfigsAsObjProperties(state, {
+          sanitizeDataTree: true,
+          evalProps,
+          identicalEvalPathsPatches,
+        });
+        const expectedState = produce(state, (draft: any) => {
+          draft.Table1.__evaluation__.evaluatedValues.someProp = "abc";
+        });
+
+        expect(dataTree).toEqual(expectedState);
+        //evalProps not be mutated with any updates
+        expect(evalProps).toEqual(initialEvalProps);
+      });
+    });
+
+    describe("serialise", () => {
+      it("should clean out all functions in the generated state", () => {
+        const state = {
+          Table1: {
+            filteredTableData: smallDataSet,
+            selectedRows: [],
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            someFn: () => {},
+            pageSize: 0,
+            __evaluation__: {
+              evaluatedValues: {},
+            },
+          },
+        } as any;
+
+        const identicalEvalPathsPatches = {
+          "Table1.__evaluation__.evaluatedValues.['filteredTableData']":
+            "Table1.filteredTableData",
+        };
+        const evalProps = {
+          Table1: {
+            __evaluation__: {
+              evaluatedValues: {
+                someProp: "abc",
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
+                someEvalFn: () => {},
+              },
+            },
+          },
+        } as any;
+        const dataTree = makeEntityConfigsAsObjProperties(state, {
+          sanitizeDataTree: true,
+          evalProps,
+          identicalEvalPathsPatches,
+        }) as any;
+        const expectedState = produce(state, (draft: any) => {
+          draft.Table1.__evaluation__.evaluatedValues.someProp = "abc";
+          delete draft.Table1.someFn;
+          draft.Table1.__evaluation__.evaluatedValues.filteredTableData =
+            smallDataSet;
+        });
+
+        expect(dataTree).toEqual(expectedState);
+        //function introduced by evalProps is cleaned out
+        expect(
+          dataTree.Table1.__evaluation__.evaluatedValues.someEvalFn,
+        ).toBeUndefined();
+      });
+
+      it("should serialise bigInteger values", () => {
+        const someBigInt = BigInt(121221);
+        const state = {
+          Table1: {
+            pageSize: someBigInt,
+            __evaluation__: {
+              evaluatedValues: {},
+            },
+          },
+        } as any;
+
+        const identicalEvalPathsPatches = {
+          "Table1.__evaluation__.evaluatedValues.['pageSize']":
+            "Table1.pageSize",
+        };
+        const evalProps = {
+          Table1: {
+            __evaluation__: {
+              evaluatedValues: {
+                someProp: someBigInt,
+              },
+            },
+          },
+        } as any;
+
+        const dataTree = makeEntityConfigsAsObjProperties(state, {
+          sanitizeDataTree: true,
+          evalProps,
+          identicalEvalPathsPatches,
+        });
+        const expectedState = produce(state, (draft: any) => {
+          draft.Table1.pageSize = "121221";
+          draft.Table1.__evaluation__.evaluatedValues.pageSize = "121221";
+          draft.Table1.__evaluation__.evaluatedValues.someProp = "121221";
+        });
+
+        expect(dataTree).toEqual(expectedState);
+      });
+    });
   });
 });
