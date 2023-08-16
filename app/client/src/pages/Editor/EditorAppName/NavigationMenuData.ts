@@ -164,8 +164,8 @@ export const GetNavigationMenuData = ({
       text: "Export application",
       onClick: () => {
         if (applicationId) {
-          const urlParams = new URLSearchParams(window.location.search);
-          const branchName = urlParams.get("branch");
+          const branchName =
+            currentApplication?.gitApplicationMetadata?.branchName;
           openExternalLink(getExportAppAPIRoute(applicationId, branchName));
         }
       },
