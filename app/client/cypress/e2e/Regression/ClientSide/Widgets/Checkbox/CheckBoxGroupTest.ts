@@ -176,18 +176,18 @@ describe("Checkbox Tests", function () {
     propPane.UpdatePropertyFieldValue("Default value", "1000");
     entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
     propPane.UpdatePropertyFieldValue("Tooltip", "{{CurrencyInput1.text}}");
-    agHelper.HoverElement(".bp3-popover-target svg");
+    agHelper.HoverElement(locators._checkboxHelpIcon);
     agHelper.AssertPopoverTooltip("1,000");
 
     // Preview mode
     agHelper.GetNClick(locators._enterPreviewMode);
-    agHelper.HoverElement(".bp3-popover-target svg");
+    agHelper.HoverElement(locators._checkboxHelpIcon);
     agHelper.AssertPopoverTooltip("1,000");
     agHelper.GetNClick(locators._exitPreviewMode);
 
     // Deploy mode
     deployMode.DeployApp();
-    agHelper.HoverElement(".bp3-popover-target svg");
+    agHelper.HoverElement(locators._checkboxHelpIcon);
     agHelper.AssertPopoverTooltip("1,000");
     deployMode.NavigateBacktoEditor();
   });
@@ -198,6 +198,7 @@ describe("Checkbox Tests", function () {
     entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
     propPane.SelectPlatformFunction("onSelectionChange", "Navigate to");
     dataSources.ValidateNSelectDropdown("Choose page", "Select page", "Page2");
+    agHelper.Sleep(2000);
     agHelper.GetNClick(propPane._checkbox, 1, true);
     entityExplorer.VerifyIsCurrentPage("Page2");
     entityExplorer.SelectEntityByName("Page1");

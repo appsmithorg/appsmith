@@ -274,4 +274,5 @@ export class CommonLocators {
     `[data-testid="t--ds-data-filter-${envName}"]`;
   _textWidgetContaioner = ".t--text-widget-container span";
   _label = ".bp3-label";
+  _checkboxHelpIcon = ".bp3-popover-target svg";
 }
