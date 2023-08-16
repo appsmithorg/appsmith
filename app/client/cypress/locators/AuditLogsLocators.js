@@ -39,4 +39,6 @@ export default {
   SelectSearchBox: ".rc-select-selection-search-input",
   ...Table,
   datePickerToday: "//*[contains(@class,'datepicker')]//*[text()='Today']",
+  upgradeContainer:"[data-testid='t--upgrade-page-container']",
+  upgradeButton:"[data-testid='t--button-upgrade']",
 };

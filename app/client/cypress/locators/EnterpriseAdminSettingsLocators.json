@@ -1,6 +1,6 @@
 {
-  "upgradeSamlButton": ".t--settings-sub-category-upgrade-saml",
-  "upgradeOidcButton": ".t--settings-sub-category-upgrade-oidc",
+  "upgradeSamlButton": ".t--settings-sub-category-upgrade-saml-auth",
+  "upgradeOidcButton": ".t--settings-sub-category-upgrade-oidc-auth",
   "oidcButton": ".t--settings-sub-category-oidc-auth",
   "samlButton": ".t--settings-sub-category-saml-auth",
   "loginWithOIDC": "[data-testid='login-with-OIDC']",

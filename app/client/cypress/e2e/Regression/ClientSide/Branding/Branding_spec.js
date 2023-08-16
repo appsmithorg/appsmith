@@ -2,6 +2,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 const locators = {
   AdminSettingsEntryLink: ".admin-settings-menu-option",
@@ -25,6 +26,9 @@ const locators = {
   appsmithLogo: ".t--appsmith-logo",
   appsmithLogoImg: ".t--appsmith-logo img",
   AdminSettingsColorInputShades: ".t--color-input-shades",
+  businessTag: ".business-tag",
+  upgradeBanner: ".upgrade-banner",
+  upgradeButton: "[data-testid='t--branding-upgrade-button']",
 };
 
 describe("Branding", () => {
@@ -127,6 +131,25 @@ describe("Branding", () => {
     }
 
     if (CURRENT_REPO === REPO.EE) {
+      featureFlagIntercept({ license_branding_enabled: true });
+
+      cy.wait(2000);
+
+      // branding color
+      cy.get(locators.AdminSettingsColorInput).focus().clear().type("red");
+
+      // branding logo
+      cy.get(locators.AdmingSettingsLogoInput).selectFile(
+        "cypress/fixtures/appsmithlogo.png",
+        { force: true },
+      );
+
+      // branding favicon
+      cy.get(locators.AdmingSettingsFaviconInput).selectFile(
+        "cypress/fixtures/appsmithlogo.png",
+        { force: true },
+      );
+
       // click on submit button
       cy.get(locators.submitButton).click();
       cy.wait(2000);
@@ -290,5 +313,34 @@ describe("Branding", () => {
         shades.background,
       );
     }
+  });
+
+  it("Super user sees upgrade option in branding page in free plan", () => {
+    cy.LogOut();
+    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.get(locators.AdminSettingsEntryLink).should("be.visible");
+    cy.get(locators.AdminSettingsEntryLink).click();
+    cy.url().should("contain", "/settings/general");
+
+    cy.get(locators.LeftPaneBrandingLink).should("be.visible");
+    cy.get(locators.LeftPaneBrandingLink).click();
+    cy.wait(2000);
+
+    featureFlagIntercept({ license_branding_enabled: false });
+    cy.get(locators.submitButton).should("be.disabled");
+    cy.get(locators.businessTag).should("be.visible");
+    cy.get(locators.upgradeBanner).should("be.visible");
+    cy.get(locators.upgradeBanner)
+      .find("h1")
+      .should("have.text", "Custom Branding for your workspaces");
+    cy.get(locators.upgradeBanner)
+      .find("h2")
+      .should(
+        "have.text",
+        "Make your workspaces and apps look more yours in a few clicks as in the example below. Upload your logo and favicon, set your primary color, and preview the new look. To save a look you like, upgrade to our Business Edition.",
+      );
+    cy.get(locators.upgradeButton)
+      .should("be.visible")
+      .should("have.text", "Upgrade");
   });
 });

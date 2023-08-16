@@ -1,11 +1,20 @@
 export * from "ce/pages/AdminSettings/config/auditLogsConfig";
 import { config as CE_config } from "ce/pages/AdminSettings/config/auditLogsConfig";
 import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
-import AuditLogsFeatureContainer from "@appsmith/pages/AuditLogs";
+import store from "store";
+
+import { isAuditLogsEnabled } from "@appsmith/utils/planHelpers";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { getAuditLogsComponent } from "@appsmith/utils/BusinessFeatures/auditLogsPageHelpers";
+
+const featureFlags = selectFeatureFlags(store.getState());
+
+const isFeatureEnabled = isAuditLogsEnabled(featureFlags);
 
 export const config: AdminConfigType = {
   ...CE_config,
-  component: AuditLogsFeatureContainer,
+  component: getAuditLogsComponent(isFeatureEnabled),
   title: "Audit logs",
-  needsUpgrade: false,
+  isFeatureEnabled: isFeatureEnabled,
+  needsUpgrade: !isFeatureEnabled,
 } as AdminConfigType;

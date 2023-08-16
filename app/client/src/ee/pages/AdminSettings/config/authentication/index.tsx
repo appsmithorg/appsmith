@@ -35,6 +35,11 @@ import {
   SAML_AUTH_DESC,
   createMessage,
 } from "@appsmith/constants/messages";
+import { isSSOEnabled } from "@appsmith/utils/planHelpers";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import store from "store";
+
+const featureFlags = selectFeatureFlags(store.getState());
 
 const SamlAuth: AdminConfigType = {
   type: SettingCategories.SAML_AUTH,
@@ -44,6 +49,7 @@ const SamlAuth: AdminConfigType = {
   component: Saml,
   subText: createMessage(SAML_AUTH_DESC),
   canSave: true,
+  isFeatureEnabled: isSSOEnabled(featureFlags),
 };
 
 const OidcAuth: AdminConfigType = {
@@ -170,6 +176,7 @@ const OidcAuth: AdminConfigType = {
       ],
     },
   ],
+  isFeatureEnabled: isSSOEnabled(featureFlags),
 };
 
 export const SamlAuthCallout: AuthMethodType = {
@@ -178,6 +185,7 @@ export const SamlAuthCallout: AuthMethodType = {
   label: "SAML 2.0",
   subText: createMessage(SAML_AUTH_DESC),
   image: SamlSso,
+  isFeatureEnabled: isSSOEnabled(featureFlags),
 };
 
 export const OidcAuthCallout: AuthMethodType = {
@@ -186,6 +194,7 @@ export const OidcAuthCallout: AuthMethodType = {
   label: "OIDC",
   subText: createMessage(OIDC_AUTH_DESC),
   image: OIDC,
+  isFeatureEnabled: isSSOEnabled(featureFlags),
 };
 
 const isAirgappedInstance = isAirgapped();

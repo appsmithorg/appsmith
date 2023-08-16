@@ -3,6 +3,7 @@ import locators from "../../../../../locators/AuditLogsLocators";
 const RBAC = require("../../../../../locators/RBAClocators.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import { homePage, agHelper } from "../../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 describe("Others tab permission Tests", function () {
   let workspaceName;
@@ -80,9 +81,12 @@ describe("Others tab permission Tests", function () {
     cy.wait(2000);
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
     cy.get(locators.AdminSettingsEntryLink).click();
+
+    featureFlagIntercept({ license_audit_logs_enabled: true });
     // cy.url().should("contain", "/settings/general");
     cy.get(locators.LeftPaneAuditLogsLink).should("be.visible");
     cy.get(locators.LeftPaneAuditLogsLink).click();
+
     cy.wait("@fetchAuditLogs").should(
       "have.nested.property",
       "response.body.responseMeta.status",

@@ -2,14 +2,35 @@ import adminSettings from "../../../../locators/AdminsSettings";
 const enterpriseSettings = require("../../../../locators/EnterpriseAdminSettingsLocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import homePage from "../../../../locators/HomePage";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("SSO with OIDC test functionality", function () {
-  it("1. Go to admin settings and enable OIDC with not all mandatory fields filled", function () {
+  it("1. Authentication Settings should show upgrade when the user is on a free plan", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
+    featureFlagIntercept({ license_sso_enabled: false });
+    // click authentication tab
+    cy.get(adminSettings.authenticationTab).click();
+    cy.url().should("contain", "/settings/authentication");
+    cy.stubPricingPage();
+    cy.get(enterpriseSettings.upgradeOidcButton)
+      .should("be.visible")
+      .should("contain", "Upgrade");
+    cy.get(enterpriseSettings.upgradeOidcButton).click();
+    cy.get("@pricingPage").should("be.called");
+    cy.wait(2000);
+    cy.go(-1);
+  });
+  it("2. Go to admin settings and enable OIDC with not all mandatory fields filled", function () {
+    cy.LogOut();
+    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.get(".admin-settings-menu-option").should("be.visible");
+    cy.get(".admin-settings-menu-option").click();
+    cy.url().should("contain", "/settings/general");
+    featureFlagIntercept({ license_sso_enabled: true });
     // click authentication tab
     cy.get(adminSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
@@ -27,12 +48,13 @@ describe("SSO with OIDC test functionality", function () {
     );
   });
 
-  it("2. Go to admin settings and enable OIDC", function () {
+  it("3. Go to admin settings and enable OIDC", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
+    featureFlagIntercept({ license_sso_enabled: true });
     // click authentication tab
     cy.get(adminSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
@@ -66,12 +88,13 @@ describe("SSO with OIDC test functionality", function () {
     );
   });
 
-  it("3. Go to admin settings and disable OIDC", function () {
+  it("4. Go to admin settings and disable OIDC", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
+    featureFlagIntercept({ license_sso_enabled: true });
     // click authentication tab
     cy.get(adminSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");

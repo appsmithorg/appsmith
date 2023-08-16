@@ -9,7 +9,7 @@ import { Wrapper } from "@appsmith/pages/AdminSettings/config/authentication/Aut
 
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
-import { getUpgradeBanner } from "utils/BusinessFeatures/brandingPageHelpers";
+import { getUpgradeBanner } from "@appsmith/utils/BusinessFeatures/brandingPageHelpers";
 
 export type brandColorsKeys =
   | "primary"
