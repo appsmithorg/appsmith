@@ -116,7 +116,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
       setQuery(query);
       (document.querySelector("#global-search") as HTMLInputElement)?.focus();
     },
-    [listenToChange],
+    [listenToChange, setQuery],
   );
 
   return (
@@ -162,4 +162,4 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
   );
 }
 
-export default SearchBox;
+export default React.memo(SearchBox);

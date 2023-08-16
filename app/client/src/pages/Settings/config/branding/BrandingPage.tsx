@@ -5,10 +5,11 @@ import { useForm } from "react-hook-form";
 import Previews from "./previews";
 import SettingsForm from "./SettingsForm";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
-import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import { Wrapper } from "@appsmith/pages/AdminSettings/config/authentication/AuthPage";
-import UpgradeBanner from "@appsmith/pages/AdminSettings/config/branding/UpgradeBanner";
+
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
+import { getUpgradeBanner } from "utils/BusinessFeatures/brandingPageHelpers";
 
 export type brandColorsKeys =
   | "primary"
@@ -29,7 +30,7 @@ type BrandingPageProps = {
 
 function BrandingPage(props: BrandingPageProps) {
   const { category } = props;
-  const { needsUpgrade = true } = category;
+  const isBrandingEnabled = category?.isFeatureEnabled ?? false;
   const tenantConfig = useSelector(getTenantConfig);
   const defaultValues = {
     brandColors: tenantConfig.brandColors,
@@ -66,12 +67,12 @@ function BrandingPage(props: BrandingPageProps) {
 
   return (
     <Wrapper>
-      <UpgradeBanner />
+      {getUpgradeBanner(isBrandingEnabled)}
       <div className="grid md:grid-cols-[1fr] lg:grid-cols-[max(300px,30%)_1fr] gap-8 mt-4 pr-7">
         <SettingsForm
           control={control}
           defaultValues={defaultValues}
-          disabled={needsUpgrade}
+          disabled={!isBrandingEnabled}
           formState={formState}
           handleSubmit={handleSubmit}
           reset={reset}
